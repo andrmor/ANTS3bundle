@@ -58,7 +58,8 @@ SOURCES += \
     gui/mainwindow.cpp \
     gui/guitools.cpp \
     config/a3global.cpp \
-    config/a3workdistrconfig.cpp
+    config/a3workdistrconfig.cpp \
+    a3farmsi.cpp
 
 HEADERS += \
     js/a3scriptworker.h \
@@ -74,7 +75,8 @@ HEADERS += \
     gui/mainwindow.h \
     gui/guitools.h \
     config/a3global.h \
-    config/a3workdistrconfig.h
+    config/a3workdistrconfig.h \
+    a3farmsi.h
 
 FORMS += \
         gui/mainwindow.ui

@@ -20,7 +20,11 @@
       <item>
        <widget class="QPlainTextEdit" name="pteScript">
         <property name="plainText">
-         <string>simp.simulate(4)</string>
+         <string>farm.clearNodes()
+farm.addNode(&quot;One&quot;, &quot;127.0.0.1&quot;, 12345, 2, 1)
+farm.addNode(&quot;Two&quot;, &quot;127.0.0.1&quot;, 22345, 2, 1)
+
+simp.simulate(4)</string>
         </property>
        </widget>
       </item>

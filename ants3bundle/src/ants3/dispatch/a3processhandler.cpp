@@ -51,7 +51,7 @@ void A3ProcessHandler::abort()
     delete Process; Process = nullptr;
 }
 
-#include <QDebug> // make sure to use "DEBIG:" !!!
+#include <QDebug> // make sure to use "DEBIG:" on start of th emessage!!!
 void A3ProcessHandler::onReadReady()
 {
     QString in = Process->readAllStandardOutput();
@@ -60,6 +60,11 @@ void A3ProcessHandler::onReadReady()
     if (in.startsWith("DEBUG:"))
     {
         qDebug() << in;
+        return;
+    }
+    else if (in == "Type conversion already registered from type QSharedPointer<QNetworkSession> to type QObject*\n")
+    {
+        //bug fix for Qt
         return;
     }
 

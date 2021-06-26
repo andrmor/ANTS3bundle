@@ -48,7 +48,7 @@ void A3RemoteHandler::sendMessage(QString txt)
 
 void A3RemoteHandler::onRemoteWorkFinished(QString message)
 {
-    //qDebug() << "DEBUG:WS->OneRemote:WorkFinished";
+    qDebug() << "DEBUG:WS->OneRemote:WorkFinished";
     bRunning = false;
 }
 

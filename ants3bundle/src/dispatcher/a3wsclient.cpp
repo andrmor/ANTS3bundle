@@ -1,6 +1,5 @@
 #include "a3wsclient.h"
 #include "awebsocketsession.h"
-#include "a3workdistrconfig.h"
 #include "ajsontools.h"
 
 A3WSClient::A3WSClient(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const QVector<QString> & CommonFiles) :

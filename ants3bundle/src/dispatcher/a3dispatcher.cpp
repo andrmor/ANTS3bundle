@@ -137,6 +137,7 @@ void A3Dispatcher::processLocalCommand(const QString & message)
     }
 
     waitForWorkFinished();
+    //qDebug() << "DEBUG:FINISHED";
 
     clearHandlers();
 
@@ -209,7 +210,7 @@ void A3Dispatcher::waitForWorkFinished()
         for (A3WorkerHandler * h : Handlers)
         {
             if (h->isRunning()) bAllStopped = false;
-            break;
+            //break;
         }
     }
     while (!bAllStopped);

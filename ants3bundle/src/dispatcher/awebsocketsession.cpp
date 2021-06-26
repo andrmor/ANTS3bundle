@@ -232,6 +232,7 @@ bool AWebSocketSession::SendFile(const QString &fileName, const QString & remote
     return SendText(jstools::jsonToString(js));
 }
 
+#include "afiletools.h"
 bool AWebSocketSession::RequestFile(const QString &RemoteFileName, const QString &SaveAs)
 {
     if ( !ConfirmSendPossible() ) return false;
@@ -254,9 +255,15 @@ bool AWebSocketSession::RequestFile(const QString &RemoteFileName, const QString
     {
         Error = "Cannot open file: ";
         Error += SaveAs;
-        //return false;
+        return false;
     }
     file.write(BinaryReply);
+    file.close();
+
+    //QString txt;
+    //ftools::loadTextFromFile(txt, SaveAs);
+    //qDebug() << "DEBUG:" << txt;
+
     return true;
 }
 

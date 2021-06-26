@@ -39,7 +39,6 @@ signals:
 protected:
     A3ProcessHandler * Handler = nullptr;
 
-    QVector<A3FarmNodeRecord> FarmNodes; // later reference to it
     int LocalCores = 4;
 
     int NumEvents;

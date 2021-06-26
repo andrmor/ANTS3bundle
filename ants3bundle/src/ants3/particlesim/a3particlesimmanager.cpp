@@ -24,7 +24,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Particle sim triggered";
     ErrorString.clear();
-    if (numLocalProc < 1) numLocalProc = 4;
+    if (numLocalProc < 0) numLocalProc = 4;
 
     A3Config & Config = A3Config::getInstance();
     QStringList Events = Config.lines.split('\n', QString::SkipEmptyParts);

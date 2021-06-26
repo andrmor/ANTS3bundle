@@ -1,5 +1,6 @@
 #include "a3dispinterface.h"
 #include "a3processhandler.h"
+#include "a3global.h"
 
 #include <QDebug>
 #include <QThread>
@@ -13,16 +14,6 @@ A3DispInterface::A3DispInterface(QObject *parent) :
     QObject(parent)
 {
     connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
-
-    A3FarmNodeRecord r("127.0.0.1", 12345, 2);
-    r.SpeedFactor = 0.5;
-    r.Enabled = true;
-    FarmNodes << r;
-
-    A3FarmNodeRecord r1("127.0.0.1", 22345, 2);
-    r1.SpeedFactor = 0.5;
-    r1.Enabled = true;
-    FarmNodes << r1;
 }
 
 A3DispInterface::~A3DispInterface()
@@ -48,6 +39,8 @@ QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int
         totSpeed += 1.0 * numLocals;
     }
 
+    A3Global & GlobSet = A3Global::getInstance();
+    QVector<A3FarmNodeRecord> & FarmNodes = GlobSet.FarmNodes;
     for (const A3FarmNodeRecord & r : FarmNodes)
         if (r.Enabled)
         {

@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QJsonObject>
 
+#include "a3farmnoderecord.h"
+
 class A3Global final
 {
 public:
@@ -26,6 +28,8 @@ public:
     QString ExchangeDir;
 
     QString DispatcherExecutable = "dispatcher";
+
+    QVector<A3FarmNodeRecord> FarmNodes;
 
     void configureDirectories();
 

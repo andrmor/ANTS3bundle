@@ -40,12 +40,17 @@ int A3ScriptWorker::getErrorLineNumber()
 }
 
 #include "a3particlesimmanager.h"
-//#include "a3dispinterface.h"
+#include "a3farmsi.h"
 void A3ScriptWorker::initialize()
 {
     Engine = new QJSEngine();
+
     QJSValue sv = Engine->newQObject(ScrRes.ParticleSim);
     Engine->globalObject().setProperty("simp", sv);
+
+    A3FarmSI * farm = new A3FarmSI(this);
+    QJSValue svf = Engine->newQObject(farm);
+    Engine->globalObject().setProperty("farm", svf);
 }
 
 void A3ScriptWorker::evaluate(const QString & script)

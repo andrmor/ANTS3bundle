@@ -1,6 +1,8 @@
 #ifndef A3WSCLIENT_H
 #define A3WSCLIENT_H
 
+#include "a3workdistrconfig.h"
+
 #include <QObject>
 #include <QString>
 #include <QVector>
@@ -30,12 +32,12 @@ signals:
     void remoteWorkFinished(QString message);
 
 protected:
-    const A3WorkNodeConfig & Node;
-    const QString          & Command;
-    const QString          & ExchangeDir;
-    const QVector<QString> & CommonFiles;
+    A3WorkNodeConfig Node;
+    QString          Command;
+    QString          ExchangeDir;
+    QVector<QString> CommonFiles;
 
-    AWebSocketSession      * Session = nullptr;
+    AWebSocketSession * Session = nullptr;
 
 };
 

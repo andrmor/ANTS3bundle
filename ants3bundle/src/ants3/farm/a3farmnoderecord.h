@@ -9,6 +9,7 @@ struct A3FarmNodeRecord
     A3FarmNodeRecord(QString Address, int Port, int Cores) : Address(Address), Port(Port), Cores(Cores) {}
     A3FarmNodeRecord(){}
 
+    QString Name        = "Undefined";
     QString Address     = "127.0.0.1";
     int     Port        = 12345;
     int     Cores       = 1;
@@ -16,6 +17,7 @@ struct A3FarmNodeRecord
     bool    Enabled     = true;
 
     //runtime
+    bool    Checked     = false;
     QVector<int> Split;
 };
 
