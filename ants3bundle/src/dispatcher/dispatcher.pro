@@ -29,7 +29,8 @@ SOURCES += main.cpp \
     ../ants3/config/a3workdistrconfig.cpp \
     ../ants3/tools/ajsontools.cpp \
     ../ants3/tools/afiletools.cpp \
-    a3remotehandler.cpp
+    a3remotehandler.cpp \
+    a3wsclient.cpp
 
 HEADERS += \
     a3dispatcher.h \
@@ -39,4 +40,5 @@ HEADERS += \
     ../ants3/config/a3workdistrconfig.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
-    a3remotehandler.h
+    a3remotehandler.h \
+    a3wsclient.h

@@ -10,7 +10,7 @@
 #include <QThread>
 #include "ajsontools.h"
 
-AWebSocketSession::AWebSocketSession() : QObject()
+AWebSocketSession::AWebSocketSession(QObject *parent) : QObject(parent)
 {
     socket = new QWebSocket();
     QObject::connect(socket, &QWebSocket::connected, this, &AWebSocketSession::onConnect);
@@ -23,7 +23,9 @@ AWebSocketSession::AWebSocketSession() : QObject()
 
 AWebSocketSession::~AWebSocketSession()
 {
-    socket->deleteLater();
+    //qDebug() << "DEBUG:Dest for WebSocketSession";
+    delete socket;
+    //socket->deleteLater(); //something is wrong here :)
 }
 
 bool AWebSocketSession::Connect(const QString &Url, bool WaitForAnswer)
@@ -154,7 +156,7 @@ bool AWebSocketSession::waitForReply()
         qApp->processEvents();
         if (fExternalAbort)
         {
-            qDebug() << "DEBUG:WS->||| External abort!";
+            //qDebug() << "DEBUG:WS->||| External abort!";
             socket->abort();
             State = Aborted;
             Error = "Aborted!";
@@ -162,7 +164,7 @@ bool AWebSocketSession::waitForReply()
         }
         if (timer.elapsed() > timeout)
         {
-            qDebug() << "DEBUG:WS->||| Timeout on waiting for reply";
+            //qDebug() << "DEBUG:WS->||| Timeout on waiting for reply";
             socket->abort();
             State = Idle;
             Error = "Timeout!";
@@ -221,7 +223,7 @@ bool AWebSocketSession::SendFile(const QString &fileName, const QString & remote
     QByteArray ba = file.readAll();
 
     socket->sendBinaryMessage(ba);
-    qDebug() << "DEBUG:WS->File buffer has been sent, listening for the reply";
+    //qDebug() << "DEBUG:WS->File buffer has been sent, listening for the reply";
     bool ok = waitForReply();
     if (!ok) return false;
 
@@ -239,7 +241,7 @@ bool AWebSocketSession::RequestFile(const QString &RemoteFileName, const QString
     QJsonObject js;
     js["GetFile"] = RemoteFileName;
     QString message = jstools::jsonToString(js);
-    qDebug() << "DEBUG:WS->Sending file request:" << message;
+    //qDebug() << "DEBUG:WS->Sending file request:" << message;
 
     bool ok = SendText(message, true);
     if (!ok)
@@ -279,8 +281,11 @@ void AWebSocketSession::ExternalAbort()
 
 void AWebSocketSession::onConnect()
 {
-    qDebug() << "DEBUG:WS->Connected to server";
-    if (bWaitForAnswer) qDebug() << "DEBUG:WS->Waiting for confirmation";
+    //qDebug() << "DEBUG:WS->Connected to server";
+    if (bWaitForAnswer)
+    {
+        //qDebug() << "DEBUG:WS->Waiting for confirmation";
+    }
     else State = Connected;
 }
 
@@ -288,12 +293,12 @@ void AWebSocketSession::onDisconnect()
 {
     if (State == Aborted)
     {
-        qDebug() << "DEBUG:WS->Disconnect on abort";
+        //qDebug() << "DEBUG:WS->Disconnect on abort";
         State = Idle;
     }
     else if (bWaitForAnswer)
     {
-        qDebug() << "DEBUG:WS->Disconnected while attempting to establish connection";
+        //qDebug() << "DEBUG:WS->Disconnected while attempting to establish connection";
         if (State == Connecting)
             Error = "Server disconnected before confirming connection";
         else
@@ -309,7 +314,7 @@ void AWebSocketSession::onDisconnect()
 
 void AWebSocketSession::onTextMessageReceived(const QString &message)
 {
-    qDebug() << "DEBUG:WS->Text message received:" << message;
+    //qDebug() << "DEBUG:WS->Text message received:" << message;
     TextReply = message;
     bWaitForAnswer = false;
 
@@ -343,7 +348,7 @@ void AWebSocketSession::onTextMessageReceived(const QString &message)
 
 void AWebSocketSession::onBinaryMessageReceived(const QByteArray &message)
 {
-    qDebug() << "DEBUG:WS->Binary message received. Size = " << message.length();
+    //qDebug() << "DEBUG:WS->Binary message received. Size = " << message.length();
     TextReply = "#binary";
     BinaryReply = message;
     bWaitForAnswer = false;

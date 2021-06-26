@@ -14,7 +14,7 @@ class AWebSocketSession : public QObject
     Q_OBJECT
 
 public:
-    AWebSocketSession();
+    AWebSocketSession(QObject * parent = nullptr);
     ~AWebSocketSession();
 
     bool  Connect(const QString& Url, bool WaitForAnswer = true);

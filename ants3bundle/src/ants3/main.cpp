@@ -23,6 +23,8 @@
 #include "TApplication.h"
 #include "TH1.h"
 
+#include <QNetworkAccessManager>
+
 int main(int argc, char *argv[])
 {
     A3Global & GlobSet = A3Global::getInstance();
@@ -34,6 +36,13 @@ int main(int argc, char *argv[])
     TApplication RootApp("My ROOT", &rootargc, rootargv);
 
     std::unique_ptr<QCoreApplication> app;
+
+    {
+        //this is to avoid a bug for Qt 5.4 and 5.5, leading to warning messages, interfering with in/out exchance
+        QNetworkAccessManager m;
+        if (m.isStrictTransportSecurityEnabled()) qDebug() << "lalala";
+    }
+
 #ifdef GUI
     if (argc == 1)
     {

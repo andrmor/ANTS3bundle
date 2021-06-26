@@ -208,8 +208,8 @@ void A3Dispatcher::waitForWorkFinished()
         bAllStopped = true;
         for (A3WorkerHandler * h : Handlers)
         {
-            if (h->isRequestingTransfer()) h->transferOutputFiles();
             if (h->isRunning()) bAllStopped = false;
+            break;
         }
     }
     while (!bAllStopped);

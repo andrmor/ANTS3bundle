@@ -16,9 +16,6 @@ public:
     virtual bool isRunning() = 0;
     virtual void sendMessage(QString txt) = 0;
 
-    virtual bool isRequestingTransfer() = 0;
-    virtual void transferOutputFiles() = 0;
-
 signals:
     void receivedMessage(QString text);
 
@@ -39,9 +36,6 @@ public:
     void abort() override;
     bool isRunning() override;
     void sendMessage(QString txt) override;
-
-    bool isRequestingTransfer() override {return false;}
-    void transferOutputFiles() override {}
 
 private slots:
     void onReadReady();

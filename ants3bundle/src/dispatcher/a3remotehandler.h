@@ -7,7 +7,8 @@
 #include <QVector>
 #include <QString>
 
-class AWebSocketSession;
+class A3WSClient;
+class QThread;
 
 class A3RemoteHandler : public A3WorkerHandler
 {
@@ -20,9 +21,6 @@ public:
     void abort() override;
     bool isRunning() override;
     void sendMessage(QString txt) override;
-
-    bool isRequestingTransfer() override {return bRequestTransfer;}
-    void transferOutputFiles() override;
 
 private slots:
     void onRemoteWorkFinished(QString message);
@@ -37,9 +35,9 @@ protected:
     QString          ExchangeDir;
     QVector<QString> CommonFiles;
 
-    AWebSocketSession * Session = nullptr;
+    QThread        * Thread = nullptr;
+    A3WSClient     * Client = nullptr;
 
-    bool             bRequestTransfer = false;
     bool             bRunning = true;
 };
 

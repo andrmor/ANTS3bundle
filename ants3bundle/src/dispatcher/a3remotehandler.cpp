@@ -1,46 +1,33 @@
 #include "a3remotehandler.h"
-#include "awebsocketsession.h"
+#include "a3wsclient.h"
 #include "ajsontools.h"
 
 #include <QDebug>
+#include <QThread>
 
 A3RemoteHandler::A3RemoteHandler(const A3WorkNodeConfig &Node, const QString &Command, const QString &ExchangeDir, const QVector<QString> &CommonFiles) :
-    A3WorkerHandler(), Node(Node), Command(Command), ExchangeDir(ExchangeDir), CommonFiles(CommonFiles) {}
+    A3WorkerHandler(), Node(Node), Command(Command), ExchangeDir(ExchangeDir), CommonFiles(CommonFiles)
+{
+    Thread = new QThread();
+    Client = new A3WSClient(Node, Command, ExchangeDir, CommonFiles);
+    Client->moveToThread(Thread);
+
+    connect(Thread, &QThread::started,         Client, &A3WSClient::start);
+    //connect(this,   &A3RemoteHandler::doExit, Client, &A3WSClient::exit);
+    //connect(Client, &A3WSClient::evalFinished, this,   &A3RemoteHandler::evalFinished);
+
+    connect(Client, &A3WSClient::finished,     Thread, &QThread::quit);
+    connect(Client, &A3WSClient::finished,     Client, &A3WSClient::deleteLater);
+    connect(Thread, &QThread::finished,        Thread, &QThread::deleteLater);
+
+    connect(Client, &A3WSClient::remoteWorkFinished, this, &A3RemoteHandler::onRemoteWorkFinished);
+    connect(Client, &A3WSClient::progressReceived,   this, &A3RemoteHandler::onProgressReceived);
+}
 
 bool A3RemoteHandler::start()
 {
-    Session = new AWebSocketSession();
-    connect(Session, &AWebSocketSession::remoteWorkFinished, this, &A3RemoteHandler::onRemoteWorkFinished, Qt::QueuedConnection);
-    connect(Session, &AWebSocketSession::progressReceived, this, &A3RemoteHandler::onProgressReceived, Qt::QueuedConnection);
-
-    bool ok = Session->Connect( QString("ws://%0:%1").arg(Node.Address).arg(Node.Port), true );
-    if (!ok) return false;
-
-    for (const A3NodeWorkerConfig & worker : Node.Workers)
-    {
-        bool ok = Session->SendFile(ExchangeDir + '/' + worker.ConfigFile, worker.ConfigFile);
-        if (!ok) return false;
-        for (const QString & fn : worker.InputFiles)
-        {
-            ok = Session->SendFile(ExchangeDir + '/' + fn, fn);
-            if (!ok) return false;
-        }
-        for (const QString & fn : CommonFiles)
-        {
-            ok = Session->SendFile(ExchangeDir + '/' + fn, fn);
-            if (!ok) return false;
-        }
-    }
-
-    A3WorkDistrConfig cf;
-    cf.Command = Command;
-    cf.Nodes << Node;
-
-    QJsonObject js;
-    cf.writeToJson(js);
     bRunning = true;
-    //bResultsReady = false;
-    ok = Session->SendText(jstools::jsonToString(js), false); //this is signal to start
+    Thread->start();
     return true;
 }
 
@@ -56,30 +43,13 @@ bool A3RemoteHandler::isRunning()
 
 void A3RemoteHandler::sendMessage(QString txt)
 {
-    Session->SendText(txt, false);
-}
-
-void A3RemoteHandler::transferOutputFiles()
-{
-    for (const A3NodeWorkerConfig & worker : Node.Workers)
-    {
-        for (const QString & fn : worker.OutputFiles)
-        {
-            qDebug() << "DEBUG:WS->Requesting file"<< fn << ExchangeDir + '/' + fn;
-            bool ok = Session->RequestFile(fn, ExchangeDir + '/' + fn);
-            qDebug() << "DEBUG:WS->Result:"<<ok;
-        }
-    }
-    bRequestTransfer = false;
-    bRunning = false;
-    Session->Disconnect();
+    //Client->SendText(txt, false);
 }
 
 void A3RemoteHandler::onRemoteWorkFinished(QString message)
 {
     //qDebug() << "DEBUG:WS->OneRemote:WorkFinished";
-    bRequestTransfer = true;
-    //bRunning = false;
+    bRunning = false;
 }
 
 void A3RemoteHandler::onProgressReceived(int eventsDone)
