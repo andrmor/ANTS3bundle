@@ -51,11 +51,14 @@ void A3ProcessHandler::abort()
     delete Process; Process = nullptr;
 }
 
-#include <QDebug> // make sure to use "DEBIG:" on start of th emessage!!!
+#include <QDebug> // make sure to use "DEBUG:" on start of th emessage!!!
 void A3ProcessHandler::onReadReady()
 {
     QString in = Process->readAllStandardOutput();
     //if (bVerbose) qDebug() << "...handler received message:\n" << in;
+
+    // TODO: split using '\n', do processing of all messages one by one
+
 
     if (in.startsWith("DEBUG:"))
     {

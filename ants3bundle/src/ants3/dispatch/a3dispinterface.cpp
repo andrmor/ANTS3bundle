@@ -105,6 +105,8 @@ QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
 
 QString A3DispInterface::waitForReply()
 {
+    // TODO: filter reply! need "status: finished"
+
     while (Reply.isEmpty())
     {
         QThread::usleep(100);

@@ -53,13 +53,13 @@ SOURCES += \
     dispatch/a3dispinterface.cpp \
     dispatch/a3processhandler.cpp \
     config/a3config.cpp \
+    config/a3global.cpp \
+    config/a3workdistrconfig.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
     gui/guitools.cpp \
-    config/a3global.cpp \
-    config/a3workdistrconfig.cpp \
-    a3farmsi.cpp
+    js/a3farmsi.cpp
 
 HEADERS += \
     js/a3scriptworker.h \
@@ -69,14 +69,14 @@ HEADERS += \
     dispatch/a3dispinterface.h \
     dispatch/a3processhandler.h \
     config/a3config.h \
+    config/a3global.h \
+    config/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \
     gui/guitools.h \
-    config/a3global.h \
-    config/a3workdistrconfig.h \
-    a3farmsi.h
+    js/a3farmsi.h
 
 FORMS += \
         gui/mainwindow.ui
