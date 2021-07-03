@@ -17,6 +17,7 @@ public:
 
     bool evaluate(const QString & script);
     bool isRunning() const;
+    void abort();
 
     QJSValue getResult();
 

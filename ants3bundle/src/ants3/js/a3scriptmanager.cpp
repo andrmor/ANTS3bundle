@@ -57,6 +57,11 @@ bool A3ScriptManager::isRunning() const
     return Worker->isBusy();
 }
 
+void A3ScriptManager::abort()
+{
+    Worker->abort();
+}
+
 QJSValue A3ScriptManager::getResult()
 {
     return Worker->getResult();

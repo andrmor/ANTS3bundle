@@ -10,7 +10,7 @@ class QJsonObject;
 class A3NodeWorkerConfig
 {
 public:
-    QString          ConfigFile;
+    QString              ConfigFile;
     std::vector<QString> InputFiles;
     std::vector<QString> OutputFiles;
 

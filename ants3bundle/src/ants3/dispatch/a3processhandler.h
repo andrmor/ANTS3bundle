@@ -44,9 +44,9 @@ signals:
     void updateProgress(double value);
 
 private:
-    QString Program;
-    QStringList Args;
-    QProcess * Process = nullptr;
+    QString       Program;
+    QStringList   Args;
+    QProcess    * Process = nullptr;
     //QString output;
 
     // message constructors/parsers

@@ -37,6 +37,8 @@ private slots:
     void on_leFrom_editingFinished();
     void on_leTo_editingFinished();
 
+    void on_pbAbort_clicked();
+
 private:
     void disableInterface(bool flag);
 };

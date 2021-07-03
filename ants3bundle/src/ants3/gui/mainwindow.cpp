@@ -110,3 +110,9 @@ void MainWindow::disableInterface(bool flag)
 {
     setDisabled(flag);
 }
+
+void MainWindow::on_pbAbort_clicked()
+{
+    ScriptManager.abort();
+}
+
