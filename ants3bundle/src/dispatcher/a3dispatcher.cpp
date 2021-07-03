@@ -1,13 +1,13 @@
 #include "a3dispatcher.h"
 #include "a3processhandler.h"  // in ANTS3 dir!
 #include "a3workdistrconfig.h" // in ANTS3 dir!
-#include "ajsontools.h" // in ANTS3 dir!
+#include "ajsontools.h"        // in ANTS3 dir!
 #include "awebsocketsessionserver.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDir>
-
 #include <QSocketNotifier>
 #include <QTextStream>
 #include <QByteArray>
@@ -29,9 +29,9 @@ A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
     StandaloneDir = dir + '/' + "DispatcherTmp" + QString::number(PortPersistentWS);
     if (!QDir(StandaloneDir).exists()) QDir().mkdir(StandaloneDir);
 
-    ofile = new QFile(StandaloneDir + "/dispLog.txt");
-    ofile->open(QIODevice::WriteOnly | QFile::Text);
-    logStream = new QTextStream(ofile);
+    OutFile = new QFile(StandaloneDir + "/dispLog.txt");
+    OutFile->open(QIODevice::WriteOnly | QFile::Text);
+    LogStream = new QTextStream(OutFile);
 
     if (PortPersistentWS == 0)
     {
@@ -56,9 +56,9 @@ A3Dispatcher::~A3Dispatcher()
     clearHandlers();
 
     log("====>Finished");
-    ofile->close();
-    delete logStream;
-    delete ofile;
+    OutFile->close();
+    delete LogStream;
+    delete OutFile;
 }
 
 void A3Dispatcher::start()
@@ -173,11 +173,11 @@ void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
 
 bool A3Dispatcher::startLocalWork(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode)
 {
-    for (int iWorker = 0; iWorker < localNode.Workers.size(); iWorker++)
+    for (size_t iWorker = 0; iWorker < localNode.Workers.size(); iWorker++)
     {
         log("...starting worker #" + QString::number(iWorker));
         A3ProcessHandler * h = new A3ProcessHandler("./" + executable, {exchangeDir + '/' + localNode.Workers[iWorker].ConfigFile, exchangeDir});
-        Handlers << h;
+        Handlers.push_back(h);
         bool ok = h->start();
         if (!ok) return false;
     }
@@ -191,7 +191,7 @@ QString A3Dispatcher::startRemoteWork(const A3WorkDistrConfig & wdc)
     {
         log("...connecting to farm node " + Node.Address);
         A3RemoteHandler * h = new A3RemoteHandler(Node, wdc.Command, wdc.ExchangeDir, wdc.CommonFiles);
-        Handlers << h;
+        Handlers.push_back(h);
         bool ok = h->start();
         if (!ok) return "Could not connect to remote host " + Node.Address;
     }
@@ -238,8 +238,8 @@ void A3Dispatcher::localReplyError(const QString & ErrorMessage)
 
 void A3Dispatcher::log(const QString &text)
 {
-    *logStream << text << '\n';
-    logStream->flush();
+    *LogStream << text << '\n';
+    LogStream->flush();
 }
 
 void A3Dispatcher::clearHandlers()
