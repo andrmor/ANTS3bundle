@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QThread>
 
-A3RemoteHandler::A3RemoteHandler(const A3WorkNodeConfig &Node, const QString &Command, const QString &ExchangeDir, const QVector<QString> &CommonFiles) :
+A3RemoteHandler::A3RemoteHandler(const A3WorkNodeConfig &Node, const QString &Command, const QString &ExchangeDir, const std::vector<QString> &CommonFiles) :
     A3WorkerHandler(), Node(Node), Command(Command), ExchangeDir(ExchangeDir), CommonFiles(CommonFiles)
 {
     Thread = new QThread();

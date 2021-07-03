@@ -231,14 +231,14 @@ QString jstools::jsonArrayToString(const QJsonArray & ar)
     return doc.toJson().simplified();
 }
 
-QJsonArray jstools::vectorQStringsToJsonArray(const QVector<QString> & vec)
+QJsonArray jstools::vectorQStringsToJsonArray(const std::vector<QString> & vec)
 {
     QJsonArray ar;
     for (const QString & s : vec) ar.append(s);
     return ar;
 }
 
-bool jstools::parseJson(const QJsonObject &json, const QString &key, QVector<QString> &vec)
+bool jstools::parseJson(const QJsonObject &json, const QString &key, std::vector<QString> &vec)
 {
     if (json.contains(key))
     {

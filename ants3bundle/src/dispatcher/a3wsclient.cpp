@@ -2,7 +2,7 @@
 #include "awebsocketsession.h"
 #include "ajsontools.h"
 
-A3WSClient::A3WSClient(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const QVector<QString> & CommonFiles) :
+A3WSClient::A3WSClient(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const std::vector<QString> &CommonFiles) :
     Node(Node), Command(Command), ExchangeDir(ExchangeDir), CommonFiles(CommonFiles) {}
 
 A3WSClient::~A3WSClient()
@@ -42,7 +42,7 @@ bool A3WSClient::start()
 
     A3WorkDistrConfig cf;
     cf.Command = Command;
-    cf.Nodes << Node;
+    cf.Nodes.push_back(Node);
 
     QJsonObject js;
     cf.writeToJson(js);

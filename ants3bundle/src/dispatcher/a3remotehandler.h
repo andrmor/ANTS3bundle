@@ -4,8 +4,9 @@
 #include "a3processhandler.h"
 #include "a3workdistrconfig.h"
 
-#include <QVector>
 #include <QString>
+
+#include <vector>
 
 class A3WSClient;
 class QThread;
@@ -15,7 +16,7 @@ class A3RemoteHandler : public A3WorkerHandler
     Q_OBJECT
 
 public:
-    A3RemoteHandler(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const QVector<QString> & CommonFiles);
+    A3RemoteHandler(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const std::vector<QString> & CommonFiles);
 
     bool start() override;
     void abort() override;
@@ -30,15 +31,15 @@ signals:
     void sendTextRequest(QString txt);
 
 protected:
-    A3WorkNodeConfig Node;
-    QString          Command;
-    QString          ExchangeDir;
-    QVector<QString> CommonFiles;
+    A3WorkNodeConfig     Node;
+    QString              Command;
+    QString              ExchangeDir;
+    std::vector<QString> CommonFiles;
 
-    QThread        * Thread = nullptr;
-    A3WSClient     * Client = nullptr;
+    QThread            * Thread = nullptr;
+    A3WSClient         * Client = nullptr;
 
-    bool             bRunning = true;
+    bool                 bRunning = true;
 };
 
 #endif // A3REMOTEHANDLER_H

@@ -5,7 +5,8 @@
 
 #include <QObject>
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 class A3WorkNodeConfig;
 class AWebSocketSession;
@@ -15,7 +16,7 @@ class A3WSClient : public QObject
     Q_OBJECT
 
 public:
-    A3WSClient(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const QVector<QString> & CommonFiles);
+    A3WSClient(const A3WorkNodeConfig & Node, const QString & Command, const QString & ExchangeDir, const std::vector<QString> & CommonFiles);
     ~A3WSClient();
 
     QString ErrorString;
@@ -32,13 +33,12 @@ signals:
     void remoteWorkFinished(QString message);
 
 protected:
-    A3WorkNodeConfig Node;
-    QString          Command;
-    QString          ExchangeDir;
-    QVector<QString> CommonFiles;
+    A3WorkNodeConfig     Node;
+    QString              Command;
+    QString              ExchangeDir;
+    std::vector<QString> CommonFiles;
 
-    AWebSocketSession * Session = nullptr;
-
+    AWebSocketSession  * Session = nullptr;
 };
 
 #endif // A3WSCLIENT_H

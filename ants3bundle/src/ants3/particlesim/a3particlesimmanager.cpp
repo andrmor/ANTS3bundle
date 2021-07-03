@@ -91,7 +91,7 @@ bool A3ParticleSimManager::configureParticleSimulation(QVector<A3FarmNodeRecord>
 
             QString inputFN =  QString("data-%0.txt").arg(iProcess);
             ftools::saveTextToFile(text, ExchangeDir + '/' + inputFN);
-            worker.InputFiles << inputFN;
+            worker.InputFiles.push_back(inputFN);
 
             QJsonObject json;
             json["ID"]     = iProcess;
@@ -100,17 +100,17 @@ bool A3ParticleSimManager::configureParticleSimulation(QVector<A3FarmNodeRecord>
             json["Output"] = outputFN;
             json["From"]   = Config.from;
             json["To"]     = Config.to;
-            worker.OutputFiles << outputFN;
+            worker.OutputFiles.push_back(outputFN);
             OutputFiles << ExchangeDir + '/' + outputFN;
 
             QString configFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + configFN);
             worker.ConfigFile = configFN;
 
-            nc.Workers << worker;
+            nc.Workers.push_back(worker);
             iProcess++;
         }
-        Request.Nodes << nc;
+        Request.Nodes.push_back(nc);
     }
 
     return true;

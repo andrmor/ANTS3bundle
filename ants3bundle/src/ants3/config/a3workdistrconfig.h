@@ -3,7 +3,8 @@
 
 #include <QString>
 #include <QStringList>
-#include <QVector>
+
+#include <vector>
 
 class QJsonObject;
 
@@ -11,8 +12,8 @@ class A3NodeWorkerConfig
 {
 public:
     QString          ConfigFile;
-    QVector<QString> InputFiles;
-    QVector<QString> OutputFiles;
+    std::vector<QString> InputFiles;
+    std::vector<QString> OutputFiles;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
@@ -24,7 +25,7 @@ public:
     QString Address;
     int     Port;
 
-    QVector<A3NodeWorkerConfig> Workers;
+    std::vector<A3NodeWorkerConfig> Workers;
 
     bool isLocalNode() const;
 
@@ -35,11 +36,11 @@ public:
 class A3WorkDistrConfig
 {
 public:
-    QString          Command;
-    QString          ExchangeDir;
-    QVector<QString> CommonFiles;
+    QString              Command;
+    QString              ExchangeDir;
+    std::vector<QString> CommonFiles;
 
-    QVector<A3WorkNodeConfig> Nodes;
+    std::vector<A3WorkNodeConfig> Nodes;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

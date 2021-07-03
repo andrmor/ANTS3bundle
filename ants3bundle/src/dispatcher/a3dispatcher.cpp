@@ -104,16 +104,16 @@ void A3Dispatcher::processLocalCommand(const QString & message)
     log("Current dir:\n" + QDir::currentPath());
     log("Exchange dir:\n" + wdc.ExchangeDir);
 
-    if (wdc.Nodes.isEmpty())
+    if (wdc.Nodes.empty())
     {
         localReplyError("Work is not scheduled!");
         return;
     }
 
     // if there is work to perform locally, it will be the first node
-    if (wdc.Nodes.first().isLocalNode())
+    if (wdc.Nodes.front().isLocalNode())
     {
-        bool ok = startLocalWork(wdc.Command, wdc.ExchangeDir, wdc.Nodes.first());
+        bool ok = startLocalWork(wdc.Command, wdc.ExchangeDir, wdc.Nodes.front());
         if (!ok)
         {
             localReplyError("Could not start local worker process(es)");
@@ -121,10 +121,11 @@ void A3Dispatcher::processLocalCommand(const QString & message)
             clearHandlers();
             return;
         }
-        wdc.Nodes.removeFirst();
+        //wdc.Nodes.removeFirst();
+        wdc.Nodes.erase(wdc.Nodes.begin());
     }
 
-    if (!wdc.Nodes.isEmpty())
+    if (!wdc.Nodes.empty())
     {
         QString err = startRemoteWork(wdc);
         if (!err.isEmpty())
@@ -151,7 +152,7 @@ void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
 
-    A3WorkNodeConfig & Node = wdc.Nodes.first();
+    A3WorkNodeConfig & Node = wdc.Nodes.front();
 
     bool ok = startLocalWork(wdc.Command, StandaloneDir, Node);
     if (!ok)
