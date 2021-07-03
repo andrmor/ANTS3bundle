@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QString>
-#include <QStringList>
+#include <QStringList>  //QProcess starter needes it
 
 class QProcess;
 

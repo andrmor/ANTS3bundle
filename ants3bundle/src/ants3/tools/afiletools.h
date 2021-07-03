@@ -2,14 +2,15 @@
 #define AFILETOOLS_H
 
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 namespace ftools
 {
     bool loadTextFromFile(QString & Text, const QString & FileName);
     bool saveTextToFile(const QString & Text, const QString & FileName);
 
-    QString mergeTextFiles(const QStringList & FilesToMerge, QString FileName); //returns error string, otherwise ""
+    QString mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName); //returns error string, otherwise ""
 
 /*
 // can provide header (pointer to string with beginning symbol(s) of the header lines) -> then the function will return in the header the full header of the file

@@ -33,7 +33,7 @@ bool ftools::saveTextToFile(const QString & Text, const QString & FileName)
 }
 
 
-QString ftools::mergeTextFiles(const QStringList & FilesToMerge, QString FileName)
+QString ftools::mergeTextFiles(const std::vector<QString> &FilesToMerge, QString FileName)
 {
     QFile ofile(FileName);
     if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + FileName;

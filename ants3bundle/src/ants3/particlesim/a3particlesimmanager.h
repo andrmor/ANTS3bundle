@@ -4,7 +4,7 @@
 #include "a3farmnoderecord.h"
 
 #include <QObject>
-#include <QStringList>
+#include <QString>
 
 #include <vector>
 
@@ -30,11 +30,11 @@ signals:
     void simFinished();
 
 protected:
-    A3DispInterface & Dispatch;
+    A3DispInterface    & Dispatch;
 
-    QStringList OutputFiles;
+    std::vector<QString> OutputFiles;
 
-    bool configureParticleSimulation(std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
+    bool configureParticleSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 };
 
 #endif // A3PARTICLESIMMANAGER_H

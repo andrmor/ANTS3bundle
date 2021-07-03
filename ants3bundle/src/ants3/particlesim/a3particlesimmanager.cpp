@@ -101,7 +101,7 @@ bool A3ParticleSimManager::configureParticleSimulation(std::vector<A3FarmNodeRec
             json["From"]   = Config.from;
             json["To"]     = Config.to;
             worker.OutputFiles.push_back(outputFN);
-            OutputFiles << ExchangeDir + '/' + outputFN;
+            OutputFiles.push_back(ExchangeDir + '/' + outputFN);
 
             QString configFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + configFN);
