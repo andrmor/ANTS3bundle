@@ -23,7 +23,7 @@ A3DispInterface::~A3DispInterface()
     delete Handler;
 }
 
-QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores)
+QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, int numEvents, int overrideLocalCores)
 {
     runPlan.clear();
     int numLocals = (overrideLocalCores == -1 ? LocalCores : overrideLocalCores);
@@ -71,13 +71,13 @@ QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int
             remainingEvents -= num;
             if (remainingEvents == 0) break;
         }
-        runPlan << r;
+        runPlan.push_back(r);
     }
 
     if (remainingEvents != 0)
     {
         qDebug() << "! Undistributed events:"<< remainingEvents << "-- assuming it can be only one";
-        runPlan[0].Split[0] += remainingEvents;
+        runPlan.front().Split.front() += remainingEvents;
     }
 
     return "";

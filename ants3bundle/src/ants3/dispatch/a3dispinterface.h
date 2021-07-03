@@ -4,8 +4,9 @@
 #include "a3farmnoderecord.h"
 
 #include <QObject>
-#include <QVector>
 #include <QString>
+
+#include <vector>
 
 class A3ProcessHandler;
 class A3WorkDistrConfig;
@@ -18,9 +19,8 @@ public:
     A3DispInterface(QObject * parent = nullptr);
     ~A3DispInterface();
 
-    QString prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
+    QString prepareRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
 
-    //void performTask(QString Command, QString Dir, QStringList configs, QStringList perWorkerFileNames, QStringList commonFileNames);
     QString performTask(const A3WorkDistrConfig & Request);
     QString waitForReply();
 

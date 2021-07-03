@@ -2,7 +2,6 @@
 #define A3WORKDISTRCONFIG_H
 
 #include <QString>
-#include <QStringList>
 
 #include <vector>
 

@@ -4,8 +4,9 @@
 #include "a3farmnoderecord.h"
 
 #include <QObject>
-#include <QVector>
 #include <QStringList>
+
+#include <vector>
 
 class A3DispInterface;
 class A3WorkDistrConfig;
@@ -33,7 +34,7 @@ protected:
 
     QStringList OutputFiles;
 
-    bool configureParticleSimulation(QVector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
+    bool configureParticleSimulation(std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
 };
 
 #endif // A3PARTICLESIMMANAGER_H

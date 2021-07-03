@@ -35,7 +35,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
         return false;
     }
 
-    QVector<A3FarmNodeRecord> RunPlan;
+    std::vector<A3FarmNodeRecord> RunPlan;
     QString err = Dispatch.prepareRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
     {
@@ -61,7 +61,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     return true;
 }
 
-bool A3ParticleSimManager::configureParticleSimulation(QVector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool A3ParticleSimManager::configureParticleSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "psim"; // name of the corresponding executable
 
