@@ -23,8 +23,6 @@
 #include "TApplication.h"
 #include "TH1.h"
 
-#include <QNetworkAccessManager>
-
 int main(int argc, char *argv[])
 {
     A3Global & GlobSet = A3Global::getInstance();
@@ -83,7 +81,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
 #endif // GUI
     {
-        QTimer::singleShot(0, [SM, argv](){SM->evaluate(argv[1]);});
+        QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
         QObject::connect(SM, &A3ScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();
     }
