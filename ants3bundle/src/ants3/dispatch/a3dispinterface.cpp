@@ -40,7 +40,7 @@ QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int
     }
 
     A3Global & GlobSet = A3Global::getInstance();
-    QVector<A3FarmNodeRecord> & FarmNodes = GlobSet.FarmNodes;
+    std::vector<A3FarmNodeRecord> & FarmNodes = GlobSet.FarmNodes;
     for (const A3FarmNodeRecord & r : FarmNodes)
         if (r.Enabled)
         {
@@ -59,7 +59,7 @@ QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int
     {
         if (remainingEvents == 0) break;
 
-        r.Split = QVector<int>(r.Cores, 0);
+        r.Split = std::vector<int>(r.Cores, 0);
         double perCore = r.SpeedFactor * eventsPerUnitSpeed;
         for (int & num : r.Split)
         {
@@ -77,7 +77,7 @@ QString A3DispInterface::prepareRunPlan(QVector<A3FarmNodeRecord> & runPlan, int
     if (remainingEvents != 0)
     {
         qDebug() << "! Undistributed events:"<< remainingEvents << "-- assuming it can be only one";
-        runPlan.first().Split.first() += remainingEvents;
+        runPlan[0].Split[0] += remainingEvents;
     }
 
     return "";

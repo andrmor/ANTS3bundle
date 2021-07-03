@@ -2,7 +2,8 @@
 #define A3FARMNODERECORD_H
 
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 struct A3FarmNodeRecord
 {
@@ -18,7 +19,7 @@ struct A3FarmNodeRecord
 
     //runtime
     bool    Checked     = false;
-    QVector<int> Split;
+    std::vector<int> Split;
 };
 
 #endif // A3FARMNODERECORD_H

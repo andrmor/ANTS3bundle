@@ -13,8 +13,8 @@ ants2_GUI {
 } else {
     QT -= gui
 }
-# couldn't get of widgets yet due to funny compile erors - VS
-QT += qml
+
+QT += qml   #this is for jsengine
 QT += websockets
 
 CONFIG += c++11
@@ -42,7 +42,7 @@ INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
 
-DESTDIR = ../../bin
+DESTDIR = ../../bin #ignored in the meta project
 
 SOURCES += \
     main.cpp \

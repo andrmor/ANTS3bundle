@@ -19,5 +19,5 @@ void A3FarmSI::addNode(QString Name, QString Address, int Port, int Cores, doubl
     nn.Cores = Cores;
     nn.SpeedFactor = SpeedFactor;
 
-    FarmNodes << nn;
+    FarmNodes.push_back(nn);
 }

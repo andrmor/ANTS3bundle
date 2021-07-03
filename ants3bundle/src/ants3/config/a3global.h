@@ -1,13 +1,13 @@
 #ifndef A3GLOBAL_H
 #define A3GLOBAL_H
 
-//later split in classes
+#include "a3farmnoderecord.h"
 
 #include <QString>
 #include <QStringList>
 #include <QJsonObject>
 
-#include "a3farmnoderecord.h"
+#include <vector>
 
 class A3Global final
 {
@@ -29,7 +29,7 @@ public:
 
     QString DispatcherExecutable = "dispatcher";
 
-    QVector<A3FarmNodeRecord> FarmNodes;
+    std::vector<A3FarmNodeRecord> FarmNodes;
 
     void configureDirectories();
 
