@@ -1,4 +1,5 @@
 #include "awebsocketsession.h"
+#include "ajsontools.h"
 
 #include <QWebSocket>
 #include <QElapsedTimer>
@@ -8,7 +9,6 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QThread>
-#include "ajsontools.h"
 
 AWebSocketSession::AWebSocketSession(QObject *parent) : QObject(parent)
 {

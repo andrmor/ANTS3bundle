@@ -13,7 +13,6 @@
 #include <QByteArray>
 #include <QFile>
 #include <QThread>
-#include <QVector>
 #include <QCoreApplication>
 #include <QHostAddress>
 #include <QDir>
