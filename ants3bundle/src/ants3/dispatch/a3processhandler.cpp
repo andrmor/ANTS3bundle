@@ -9,7 +9,7 @@ A3ProcessHandler::A3ProcessHandler(const QString & program, const QStringList & 
 
 A3ProcessHandler::~A3ProcessHandler()
 {
-    abort();
+    qDebug() << "Destr for process handler";
 }
 
 bool A3ProcessHandler::isRunning()
@@ -41,14 +41,7 @@ bool A3ProcessHandler::start()
 
 void A3ProcessHandler::abort()
 {
-    if (Process && Process->state() != QProcess::NotRunning)
-    {
-        Process->closeWriteChannel();
-        Process->closeReadChannel(QProcess::StandardOutput);
-        Process->closeReadChannel(QProcess::StandardError);
-        Process->kill();
-    }
-    delete Process; Process = nullptr;
+
 }
 
 #include <QDebug> // make sure to use "DEBUG:" on start of th emessage!!!
@@ -85,8 +78,40 @@ void A3ProcessHandler::onReadReady()
 
 void A3ProcessHandler::sendMessage(QString txt)
 {
-    //qDebug() << "...handler sending message:\n"<<txt;
+    qDebug() << "DEBUG:PH->sending message:"<<txt;
     Process->write(txt.toLatin1());
+}
+
+#include <QThread>
+#include <QCoreApplication>
+#include <QTimer>
+void A3ProcessHandler::doExit()
+{
+    qDebug() << "DEBUG:PH->soft exit processing...";
+
+    if (Process)
+    {
+       // qDebug() << "DEBUG:sending exit message to the process";
+       // Process->write("$$EXIT\n");
+
+        for (int i=0; i < 10; i++)
+        {
+            qApp->processEvents();
+            if (Process->state() == QProcess::NotRunning) break;
+            QThread::msleep(50);
+        }
+
+        if (Process->state() != QProcess::NotRunning)
+        {
+            Process->closeWriteChannel();
+            Process->closeReadChannel(QProcess::StandardOutput);
+            Process->closeReadChannel(QProcess::StandardError);
+            Process->kill();
+        }
+        delete Process; Process = nullptr;
+    }
+
+    deleteLater();
 }
 
 // ----

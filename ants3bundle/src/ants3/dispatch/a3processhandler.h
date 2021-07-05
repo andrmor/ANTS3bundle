@@ -33,9 +33,12 @@ public:
     ~A3ProcessHandler();
 
     bool start() override;
-    void abort() override; // call non-virtual doAbort(), used it in destr
+    void abort() override;
     bool isRunning() override;
     void sendMessage(QString txt) override;
+
+public slots:
+    void doExit();
 
 private slots:
     void onReadReady();

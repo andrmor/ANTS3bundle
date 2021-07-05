@@ -27,6 +27,7 @@ public:
 public slots:
     void start();
     void onSendMessage(QString text);
+    void stop();
 
 private slots:
     void receivedMessage(QString text);
@@ -35,6 +36,7 @@ private slots:
 signals:
     void sendMessage(QString text);
     void updateProgress(double progress);
+    void exitProcess();
 
 protected:
     A3ProcessHandler * Handler = nullptr;

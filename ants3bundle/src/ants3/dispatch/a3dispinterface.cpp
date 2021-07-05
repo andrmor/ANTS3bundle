@@ -16,11 +16,16 @@ A3DispInterface::A3DispInterface(QObject *parent) :
     connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
 }
 
+void A3DispInterface::stop()
+{
+    qDebug() << "AboutToExit for DispInterface";
+    onSendMessage("$$EXIT\n");
+    emit exitProcess();
+}
+
 A3DispInterface::~A3DispInterface()
 {
     qDebug() << "Destr for DispInterface";
-    if (Handler) Handler->abort();
-    delete Handler;
 }
 
 QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, int numEvents, int overrideLocalCores)
@@ -120,8 +125,9 @@ void A3DispInterface::start()
 {
     A3Global & GlobSet = A3Global::getInstance();
     Handler = new A3ProcessHandler(GlobSet.ExecutableDir + '/' + GlobSet.DispatcherExecutable, {"0"}); // 0 -> WebSocket server not started
-    connect(Handler, &A3ProcessHandler::receivedMessage, this, &A3DispInterface::receivedMessage);
-    connect(Handler, &A3ProcessHandler::updateProgress, this, &A3DispInterface::onProgressReceived);
+    connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage);
+    connect(Handler, &A3ProcessHandler::updateProgress,  this,    &A3DispInterface::onProgressReceived);
+    connect(this,    &A3DispInterface::exitProcess,      Handler, &A3ProcessHandler::doExit);
     Handler->start();
 }
 

@@ -57,7 +57,7 @@ void A3ScriptWorker::evaluate(const QString & script)
 {
     if (bBusy) return;
 
-    //Engine->setInterrupted(false);
+    Engine->setInterrupted(false);
 
     bBusy = true;
     Result = Engine->evaluate(script);
@@ -71,7 +71,7 @@ void A3ScriptWorker::evaluate(const QString & script)
 
 void A3ScriptWorker::exit()
 {
-    //Engine->setInterrupted(true);
-    //do {} while (!Engine->isInterrupted());
+    Engine->setInterrupted(true);
+    do {} while (!Engine->isInterrupted());
     emit stopped();
 }

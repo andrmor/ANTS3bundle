@@ -16,6 +16,7 @@
 #include <QDebug>
 #include <QLocale>
 #include <QTimer>
+#include <QObject>
 
 #include <memory>
 
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
 
     A3DispInterface * Dispatch = new A3DispInterface(&(*app));
+    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, Dispatch, &A3DispInterface::stop);
     Dispatch->start();
 
     A3ParticleSimManager * PSM = new A3ParticleSimManager(*Dispatch, &(*app));
