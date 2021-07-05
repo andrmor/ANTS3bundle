@@ -12,7 +12,7 @@ A3ScriptWorker::~A3ScriptWorker()
 
 void A3ScriptWorker::abort()
 {
-    //Engine->setInterrupted(true);
+    Engine->setInterrupted(true);
 }
 
 bool A3ScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)

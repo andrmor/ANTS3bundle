@@ -72,6 +72,7 @@ private:
     QString      Error;
 
     bool         bWaitForAnswer = false;
+    bool         bWaitForBinary = false;
     int          TimeMs         = 0;
     bool         fExternalAbort = false;
 
@@ -82,6 +83,7 @@ private:
 
 private:    
     bool waitForReply();
+    bool waitForBinaryReply();
 };
 
 #endif // AWEBSOCKETSESSION_H

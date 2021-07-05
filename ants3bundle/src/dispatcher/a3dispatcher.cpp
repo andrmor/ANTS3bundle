@@ -25,7 +25,7 @@ A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
     QObject(parent), PortPersistentWS(port)
 {
     QString dir = QDir::currentPath();
-    StandaloneDir = dir + '/' + "DispatcherTmp" + QString::number(PortPersistentWS);
+    StandaloneDir = dir + '/' + "Dispatcher-" + QString::number(PortPersistentWS);
     if (!QDir(StandaloneDir).exists()) QDir().mkdir(StandaloneDir);
 
     OutFile = new QFile(StandaloneDir + "/dispLog.txt");
@@ -35,13 +35,13 @@ A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
     if (PortPersistentWS == 0)
     {
         Notifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, this);
-        connect(Notifier, SIGNAL(activated(int)), this, SLOT(onLocalCommandReceived()));
+        connect(Notifier, SIGNAL(activated(int)), this, SLOT(onLocalCommandReceived()), Qt::QueuedConnection);
         log("---->Dispatcher is listening on std::cin");
     }
     else
     {
         WebSocketServer = new AWebSocketSessionServer(StandaloneDir, this);
-        connect(WebSocketServer, &AWebSocketSessionServer::remoteCommandReceived, this, &A3Dispatcher::onRemoteCommandReceived);
+        connect(WebSocketServer, &AWebSocketSessionServer::remoteCommandReceived, this, &A3Dispatcher::onRemoteCommandReceived, Qt::QueuedConnection);
         log("---->Standalone dispatcher started on WS port " + QString::number(port));
     }
 

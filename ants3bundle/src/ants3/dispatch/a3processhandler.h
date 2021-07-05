@@ -33,7 +33,7 @@ public:
     ~A3ProcessHandler();
 
     bool start() override;
-    void abort() override;
+    void abort() override; // call non-virtual doAbort(), used it in destr
     bool isRunning() override;
     void sendMessage(QString txt) override;
 

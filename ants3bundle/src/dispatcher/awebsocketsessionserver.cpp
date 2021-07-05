@@ -152,7 +152,7 @@ void AWebSocketSessionServer::ReplyWithBinaryObject(const QVariant &object)
         QVariantMap vm = object.toMap();
         QJsonObject js = QJsonObject::fromVariantMap(vm);
         QJsonDocument doc(js);
-        client->sendBinaryMessage(doc.toBinaryData());
+        client->sendBinaryMessage(doc.toJson(QJsonDocument::Compact));
         client->sendTextMessage("{ \"binary\" : \"object\" }");
     }
     else
@@ -273,6 +273,8 @@ void AWebSocketSessionServer::onTextMessageReceived(const QString &message)
     else if (json.contains("GetFile"))
     {
         QString fileName = TmpDataDir + '/' + json["GetFile"].toString();
+        qDebug() << "Request recieved to send file:" << fileName;
+        //sendOK();
         QFile file(fileName);
         if ( !file.open(QIODevice::ReadOnly) )
         {
@@ -284,8 +286,11 @@ void AWebSocketSessionServer::onTextMessageReceived(const QString &message)
         else
         {
             QByteArray ba = file.readAll();
+            qDebug() << "Sending file as a binary message...";
             client->sendBinaryMessage(ba);
+            qDebug() << "Done, sending confirmation...";
             client->sendTextMessage("{ \"binary\" : \"file\" }");
+            qDebug() << "Done!";
         }
     }
     else if (message.isEmpty())
@@ -337,13 +342,17 @@ void AWebSocketSessionServer::onSocketDisconnected()
 {
     if (bDebug) qDebug() << "Client disconnected";
 
-    //if (client) client->deleteLater();
+    if (client) client->deleteLater();
+    client = nullptr;
+
+    /*
     if (client)
     {
         client->close();
         delete client;
     }
     client = 0;
+    */
 
     emit clientDisconnected();
 }

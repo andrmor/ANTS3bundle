@@ -14,8 +14,8 @@ bool A3WSClient::start()
 {
     Session = new AWebSocketSession(this);
 
-    connect(Session, &AWebSocketSession::remoteWorkFinished, this, &A3WSClient::onWorkFinished);
-    connect(Session, &AWebSocketSession::progressReceived,   this, &A3WSClient::progressReceived);
+    connect(Session, &AWebSocketSession::remoteWorkFinished, this, &A3WSClient::onWorkFinished, Qt::QueuedConnection);
+    connect(Session, &AWebSocketSession::progressReceived,   this, &A3WSClient::progressReceived, Qt::QueuedConnection);
 
     bool ok = Session->Connect( QString("ws://%0:%1").arg(Node.Address).arg(Node.Port), true );
     if (!ok)
@@ -57,9 +57,9 @@ void A3WSClient::onWorkFinished(QString message)
     {
         for (const QString & fn : worker.OutputFiles)
         {
-            //qDebug() << "DEBUG:WS->Requesting file"<< fn << ExchangeDir + '/' + fn;
+            qDebug() << "DEBUG:WCL->Requesting file"<< fn << ExchangeDir + '/' + fn;
             bool ok = Session->RequestFile(fn, ExchangeDir + '/' + fn);
-            //qDebug() << "DEBUG:WS->Result:"<<ok;
+            qDebug() << "DEBUG:WCL->Result:"<<ok;
         }
     }
 

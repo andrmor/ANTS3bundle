@@ -27,7 +27,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     if (numLocalProc < 0) numLocalProc = 4;
 
     A3Config & Config = A3Config::getInstance();
-    QStringList Events = Config.lines.split('\n', QString::SkipEmptyParts);
+    QStringList Events = Config.lines.split('\n', Qt::SkipEmptyParts);
     int numEvents = Events.size();
     if (numEvents == 0)
     {
@@ -68,7 +68,7 @@ bool A3ParticleSimManager::configureParticleSimulation(std::vector<A3FarmNodeRec
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
     A3Config & Config = A3Config::getInstance();
-    QStringList Events = Config.lines.split('\n', QString::SkipEmptyParts);
+    QStringList Events = Config.lines.split('\n', Qt::SkipEmptyParts);
 
     int iEvent = 0;
     int iProcess = 0;

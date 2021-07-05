@@ -1,5 +1,6 @@
 #include "awebsocketsession.h"
 #include "ajsontools.h"
+#include "afiletools.h"
 
 #include <QWebSocket>
 #include <QElapsedTimer>
@@ -156,7 +157,7 @@ bool AWebSocketSession::waitForReply()
         qApp->processEvents();
         if (fExternalAbort)
         {
-            //qDebug() << "DEBUG:WS->||| External abort!";
+            qDebug() << "DEBUG:WS->||| External abort!";
             socket->abort();
             State = Aborted;
             Error = "Aborted!";
@@ -164,7 +165,7 @@ bool AWebSocketSession::waitForReply()
         }
         if (timer.elapsed() > timeout)
         {
-            //qDebug() << "DEBUG:WS->||| Timeout on waiting for reply";
+            qDebug() << "DEBUG:WS->||| Timeout on waiting for reply";
             socket->abort();
             State = Idle;
             Error = "Timeout!";
@@ -172,6 +173,39 @@ bool AWebSocketSession::waitForReply()
         }
     }
     while (bWaitForAnswer);
+    TimeMs = timer.elapsed();
+
+    return true;
+}
+
+bool AWebSocketSession::waitForBinaryReply()
+{
+    //bWaitForBinary = true;
+    QElapsedTimer timer;
+    timer.start();
+
+    do
+    {
+        QThread::msleep(sleepDuration);
+        qApp->processEvents();
+        if (fExternalAbort)
+        {
+            qDebug() << "DEBUG:WS->||| External abort!";
+            socket->abort();
+            State = Aborted;
+            Error = "Aborted!";
+            return false;
+        }
+        if (timer.elapsed() > timeout)
+        {
+            qDebug() << "DEBUG:WS->||| Timeout on waiting for binary reply" << timer.elapsed();
+            socket->abort();
+            State = Idle;
+            Error = "Timeout!";
+            return false;
+        }
+    }
+    while (bWaitForBinary);
     TimeMs = timer.elapsed();
 
     return true;
@@ -192,7 +226,7 @@ bool AWebSocketSession::SendJson(const QJsonObject &json, bool bWaitReply)
     if ( !ConfirmSendPossible() ) return false;
 
     QJsonDocument doc(json);
-    QByteArray ba = doc.toBinaryData();
+    QByteArray ba = doc.toJson(QJsonDocument::Compact);
 
     socket->sendBinaryMessage(ba);
 
@@ -232,7 +266,6 @@ bool AWebSocketSession::SendFile(const QString &fileName, const QString & remote
     return SendText(jstools::jsonToString(js));
 }
 
-#include "afiletools.h"
 bool AWebSocketSession::RequestFile(const QString &RemoteFileName, const QString &SaveAs)
 {
     if ( !ConfirmSendPossible() ) return false;
@@ -244,11 +277,15 @@ bool AWebSocketSession::RequestFile(const QString &RemoteFileName, const QString
     QString message = jstools::jsonToString(js);
     //qDebug() << "DEBUG:WS->Sending file request:" << message;
 
+    //bWaitForBinary = true;
     bool ok = SendText(message, true);
     if (!ok)
     {
-
+        qDebug() << "DEBUG:WS->fail to send/receive answer on file request";
     }
+
+//    ok = waitForBinaryReply(); //cannot set bWaitForNinary ->answer could come before wait is started
+    qDebug() << "DEBUG:WS->Binary recieve status:" << ok;
 
     QFile file(SaveAs);
     if ( !file.open(QIODevice::WriteOnly) )
@@ -355,8 +392,9 @@ void AWebSocketSession::onTextMessageReceived(const QString &message)
 
 void AWebSocketSession::onBinaryMessageReceived(const QByteArray &message)
 {
-    //qDebug() << "DEBUG:WS->Binary message received. Size = " << message.length();
+    qDebug() << "DEBUG:WS->Binary message received. Size = " << message.length();
     TextReply = "#binary";
+    bWaitForBinary = false;
     BinaryReply = message;
     bWaitForAnswer = false;
 }

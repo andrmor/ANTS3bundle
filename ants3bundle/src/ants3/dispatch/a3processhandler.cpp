@@ -41,7 +41,7 @@ bool A3ProcessHandler::start()
 
 void A3ProcessHandler::abort()
 {
-    if (Process && !Process->state() == QProcess::NotRunning)
+    if (Process && Process->state() != QProcess::NotRunning)
     {
         Process->closeWriteChannel();
         Process->closeReadChannel(QProcess::StandardOutput);
