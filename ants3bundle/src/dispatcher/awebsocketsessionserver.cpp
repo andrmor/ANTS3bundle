@@ -12,47 +12,63 @@
 
 AWebSocketSessionServer::AWebSocketSessionServer(const QString & tmpDataDir, QObject *parent) :
     QObject(parent), TmpDataDir(tmpDataDir),
-    server(new QWebSocketServer("Dispatcher", QWebSocketServer::NonSecureMode, this))
+    Server(new QWebSocketServer("Dispatcher", QWebSocketServer::NonSecureMode, this))
 {
-    connect(server, &QWebSocketServer::newConnection, this, &AWebSocketSessionServer::onNewConnection);
-    connect(server, &QWebSocketServer::closed, this, &AWebSocketSessionServer::closed);
+    connect(Server, &QWebSocketServer::newConnection, this, &AWebSocketSessionServer::onNewConnection);
+    connect(Server, &QWebSocketServer::closed,        this, &AWebSocketSessionServer::closed);
 }
 
 AWebSocketSessionServer::~AWebSocketSessionServer()
 {
-    server->close();
+    Server->close();
 }
 
-bool AWebSocketSessionServer::StartListen(QHostAddress ip, quint16 port)
+bool AWebSocketSessionServer::startListen(QHostAddress ip, quint16 port)
 {
-    if ( !server->listen(ip, port) ) //QHostAddress::LocalHost QHostAddress::Any QHostAddress::AnyIPv4
+    if ( !Server->listen(ip, port) ) //QHostAddress::LocalHost QHostAddress::Any QHostAddress::AnyIPv4
     {
         QString s = QString("WebSocket was unable to start listening on IP ") + ip.toString() + " and port " + QString::number(port);
         qCritical() << s;
         return false;
     }
 
-    if (bDebug)
-    {
-        //qDebug() << "--Port:" << server->serverPort();
-        qDebug() << "Dispatcher is listening:" << GetUrl();
-    }
+    qDebug() << "Dispatcher is listening:" << getUrl();
     return true;
 }
 
-void AWebSocketSessionServer::StopListen()
+QString AWebSocketSessionServer::getUrl() const
 {
-    server->close();
+    return Server->serverUrl().toString();
 }
 
-bool AWebSocketSessionServer::IsRunning()
+int AWebSocketSessionServer::getPort() const
 {
-    return server->isListening();
+    return Server->serverPort();
+}
+
+void AWebSocketSessionServer::stopListen()
+{
+    Server->close();
+}
+
+bool AWebSocketSessionServer::isRunning()
+{
+    return Server->isListening();
+}
+
+bool AWebSocketSessionServer::isBinaryEmpty() const
+{
+    return ReceivedBinary.isEmpty();
+}
+
+void AWebSocketSessionServer::clearBinary()
+{
+    ReceivedBinary.clear();
 }
 
 bool AWebSocketSessionServer::assureCanReply()
 {
-    if (client && client->state() == QAbstractSocket::ConnectedState) return true;
+    if (Client && Client->state() == QAbstractSocket::ConnectedState) return true;
 
     QString err = "AWebSocketSessionServer: cannot reply - connection not established";
     qDebug() << err;
@@ -60,175 +76,45 @@ bool AWebSocketSessionServer::assureCanReply()
     return false;
 }
 
-void AWebSocketSessionServer::ReplyWithText(const QString &message)
+void AWebSocketSessionServer::sendText(const QString & text)
 {
     if ( !assureCanReply() ) return;
 
-    qDebug() << "Reply text message:"<<message;
-
-    client->sendTextMessage(message);
-    bReplied = true;
+    qDebug() << "Sending text:" << text;
+    Client->sendTextMessage(text);
 }
 
-void AWebSocketSessionServer::ReplyWithTextFromObject(const QVariant &object)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Reply with object as text";
-
-    if (object.type() == QVariant::Map)
-    {
-        QVariantMap vm = object.toMap();
-        QJsonObject js = QJsonObject::fromVariantMap(vm);
-        QJsonDocument doc(js);
-        QString s(doc.toJson(QJsonDocument::Compact));
-        client->sendTextMessage(s);
-    }
-    else
-    {
-        QString err = "ReplyWithTextFromObject argument is not object";
-        qDebug() << err;
-        sendError(err);
-    }
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::SendBackFile(const QString &fileName, const QString &remoteFileName)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply from file:" << fileName;
-
-    QFile file(fileName);
-    if ( !file.open(QIODevice::ReadOnly) )
-    {
-        QString err = "Cannot open file: ";
-        err += fileName;
-        qDebug() << err;
-        sendError(err);
-    }
-    else
-    {
-        QByteArray ba = file.readAll();
-        client->sendBinaryMessage(ba);
-        QJsonObject js;
-        js["File"] = remoteFileName;
-        client->sendTextMessage(jstools::jsonToString(js));
-    }
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::ReplyWithBinaryFile(const QString &fileName)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply from file:" << fileName;
-
-    QFile file(fileName);
-    if ( !file.open(QIODevice::ReadOnly) )
-    {
-        QString err = "Cannot open file: ";
-        err += fileName;
-        qDebug() << err;
-        sendError(err);
-    }
-    else
-    {
-        QByteArray ba = file.readAll();
-        client->sendBinaryMessage(ba);
-        client->sendTextMessage("{ \"binary\" : \"file\" }");
-    }
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::ReplyWithBinaryObject(const QVariant &object)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply from object";
-
-    if (object.type() == QVariant::Map)
-    {
-        QVariantMap vm = object.toMap();
-        QJsonObject js = QJsonObject::fromVariantMap(vm);
-        QJsonDocument doc(js);
-        client->sendBinaryMessage(doc.toJson(QJsonDocument::Compact));
-        client->sendTextMessage("{ \"binary\" : \"object\" }");
-    }
-    else
-    {
-        QString err = "Error: Reply with object failed";
-        qDebug() << err;
-        sendError("ReplyWithBinaryObject argument is not object");
-    }
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::ReplyWithBinaryObject_asJSON(const QVariant &object)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply from object as JSON";
-
-    if (object.type() == QVariant::Map)
-    {
-        QVariantMap vm = object.toMap();
-        QJsonObject js = QJsonObject::fromVariantMap(vm);
-        QJsonDocument doc(js);
-        client->sendBinaryMessage(doc.toJson());
-        client->sendTextMessage("{ \"binary\" : \"json\" }");
-    }
-    else
-    {
-        qDebug() << "Reply from object failed";
-        sendError("ReplyWithBinaryObject_asJSON argument is not object");
-    }
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::ReplyWithQByteArray(const QByteArray &ba)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply: QByteArray";
-
-    client->sendBinaryMessage(ba);
-    client->sendTextMessage("{ \"binary\" : \"qbytearray\" }");
-    bReplied = true;
-}
-
-void AWebSocketSessionServer::ReplyProgress(int percents)
+void AWebSocketSessionServer::sendFileMoveProgress(int percents)
 {
     if ( !assureCanReply() ) return;
 
     QString s = QString::number(percents);
-    qDebug() << "Sending progress: " << s;
-
-    client->sendTextMessage("{ \"progress\" : " + s + " }");
+    qDebug() << "Sending file move progress: " << s;
+    Client->sendTextMessage("{ \"progress\" : " + s + " }");
 }
 
 void AWebSocketSessionServer::onNewConnection()
 {
-    if (bDebug) qDebug() << "New connection attempt";
-    QWebSocket *pSocket = server->nextPendingConnection();
+    qDebug() << "New connection attempt";
+    QWebSocket * pSocket = Server->nextPendingConnection();
 
-    if (bDebug) qDebug() << QString("--- Connection request from ") + pSocket->peerAddress().toString();
+    qDebug() << QString("--- Connection request from ") + pSocket->peerAddress().toString();
 
-    if (client)
+    if (Client)
     {
         //deny - exclusive connections!
-        if (bDebug) qDebug() << "Connection denied: another client is already connected";
+        qDebug() << "Connection denied: another client is already connected";
         pSocket->sendTextMessage("{ \"result\":false, \"error\" : \"Another client is already connected\" }");
         pSocket->close();
     }
     else
     {
-        if (bDebug) qDebug() << "Connection established with" << pSocket->peerAddress().toString();
-        client = pSocket;
+        qDebug() << "Connection established with" << pSocket->peerAddress().toString();
+        Client = pSocket;
 
         pSocket->setReadBufferSize(1000000);
 
-        if (bDebug) qDebug() << "--> Connection established";
+        qDebug() << "--> Connection established";
 
         connect(pSocket, &QWebSocket::textMessageReceived,   this, &AWebSocketSessionServer::onTextMessageReceived);
         connect(pSocket, &QWebSocket::binaryMessageReceived, this, &AWebSocketSessionServer::onBinaryMessageReceived);
@@ -242,13 +128,10 @@ void AWebSocketSessionServer::onNewConnection()
     }
 }
 
-#include "ajsontools.h"
-void AWebSocketSessionServer::onTextMessageReceived(const QString &message)
+void AWebSocketSessionServer::onTextMessageReceived(const QString & message)
 {    
-    bReplied = false;
-
-    NumFrames = 0; Progress = 0;
-    if (bDebug) qDebug() << "Text message received:\n--->\n"<<message << "\n<---";
+    NumFrames = 0; FileProgress = 0;
+    qDebug() << "Text message received:\n--->\n"<<message << "\n<---";
 
     QJsonObject json = jstools::strToJson(message);
     if (json.contains("File"))
@@ -287,43 +170,44 @@ void AWebSocketSessionServer::onTextMessageReceived(const QString &message)
         {
             QByteArray ba = file.readAll();
             qDebug() << "Sending file as a binary message...";
-            client->sendBinaryMessage(ba);
+            Client->sendBinaryMessage(ba);
             qDebug() << "Done, sending confirmation...";
-            client->sendTextMessage("{ \"binary\" : \"file\" }");
+            Client->sendTextMessage("{ \"binary\" : \"file\" }");
             qDebug() << "Done!";
         }
     }
     else if (message.isEmpty())
     {
-        if (client) client->sendTextMessage("PONG"); //used for watchdogs
+        if (Client) Client->sendTextMessage("PONG"); //used for watchdogs
     }
-    else
-       emit textMessageReceived(message);
+
+    //
+    //else emit textMessageReceived(message);
 }
 
 void AWebSocketSessionServer::onBinaryMessageReceived(const QByteArray &message)
 {
     ReceivedBinary = message;
-    NumFrames = 0; Progress = 0;
+    NumFrames = 0; FileProgress = 0;
 
     //emit reportToGUI("    Binary message received");
     emit restartIdleTimer();
 
-    if (bDebug) qDebug() << "Binary message received. Length =" << message.length();
+    qDebug() << "Binary message received. Length =" << message.length();
 
     sendOK();
 }
 
-void AWebSocketSessionServer::onBinaryFrameReceived(const QByteArray &frame, bool isLastFrame)
+void AWebSocketSessionServer::onBinaryFrameReceived(const QByteArray &, bool)
 {
     //qDebug() << "Binary frame received. last?" << frame.size()<< isLastFrame;
     emit restartIdleTimer();
     NumFrames++;
     if (NumFrames % 10 == 0)
     {
-        ReplyProgress(Progress);
-        Progress += 25;
-        if (Progress > 100) Progress = 0;
+        sendFileMoveProgress(FileProgress);
+        FileProgress += 25; // not actual progress!
+        if (FileProgress > 100) FileProgress = 0;
     }
 }
 
@@ -340,58 +224,34 @@ void AWebSocketSessionServer::onStateChanged(QAbstractSocket::SocketState state)
 
 void AWebSocketSessionServer::onSocketDisconnected()
 {
-    if (bDebug) qDebug() << "Client disconnected";
+    qDebug() << "Client disconnected";
 
-    if (client) client->deleteLater();
-    client = nullptr;
-
-    /*
-    if (client)
-    {
-        client->close();
-        delete client;
-    }
-    client = 0;
-    */
+    if (Client) Client->deleteLater();
+    Client = nullptr;
 
     emit clientDisconnected();
 }
 
 void AWebSocketSessionServer::sendOK()
 {
-    if (client && client->state() == QAbstractSocket::ConnectedState)
-        client->sendTextMessage("{ \"result\" : true }");
+    if (Client && Client->state() == QAbstractSocket::ConnectedState)
+        Client->sendTextMessage("{ \"result\" : true }");
 }
 
 void AWebSocketSessionServer::sendProgress(int eventsDone)
 {
-    if (client && client->state() == QAbstractSocket::ConnectedState)
-        client->sendTextMessage( QString("$$>%0<$$\n").arg(eventsDone) );
+    if (Client && Client->state() == QAbstractSocket::ConnectedState)
+        Client->sendTextMessage( QString("$$>%0<$$\n").arg(eventsDone) );
 }
 
 void AWebSocketSessionServer::sendWorkFinished(const QString &error)
 {
-    if (client && client->state() == QAbstractSocket::ConnectedState)
-        client->sendTextMessage("{ \"status\" : \"finished\", \"error\" : \"" + error + "\" }");
+    if (Client && Client->state() == QAbstractSocket::ConnectedState)
+        Client->sendTextMessage("{ \"status\" : \"finished\", \"error\" : \"" + error + "\" }");
 }
 
 void AWebSocketSessionServer::sendError(const QString &error)
 {
-    if (client && client->state() == QAbstractSocket::ConnectedState)
-        client->sendTextMessage("{ \"result\" : false, \"error\" : \"" + error + "\" }");
-}
-
-void AWebSocketSessionServer::DisconnectClient()
-{
-    onSocketDisconnected();
-}
-
-const QString AWebSocketSessionServer::GetUrl() const
-{
-    return server->serverUrl().toString();
-}
-
-int AWebSocketSessionServer::GetPort() const
-{
-    return server->serverPort();
+    if (Client && Client->state() == QAbstractSocket::ConnectedState)
+        Client->sendTextMessage("{ \"result\" : false, \"error\" : \"" + error + "\" }");
 }

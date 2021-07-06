@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QJsonObject>
-
-#include <QAbstractSocket>
+//#include <QAbstractSocket>
 
 class QWebSocketServer;
 class QWebSocket;
@@ -18,76 +17,57 @@ public:
     explicit AWebSocketSessionServer(const QString & tmpDataDir, QObject *parent = 0);
     ~AWebSocketSessionServer();
 
-    bool StartListen(QHostAddress ip, quint16 port);
-    void StopListen();
-    bool IsRunning();
+    QString getUrl() const;
+    int     getPort() const;
 
-    void SendBackFile(const QString & fileName, const QString & remoteFileName);
+    bool    startListen(QHostAddress ip, quint16 port);
+    void    stopListen();
+    bool    isRunning();
 
-    void ReplyWithText(const QString& message);
-    void ReplyWithTextFromObject(const QVariant& object);
-    void ReplyWithBinaryFile(const QString& fileName);
-    void ReplyWithBinaryObject(const QVariant& object);
-    void ReplyWithBinaryObject_asJSON(const QVariant& object);
-    void ReplyWithQByteArray(const QByteArray & ba);
+    void    sendProgress(int eventsDone);
+    void    sendError(const QString& error);
+    void    sendWorkFinished(const QString& error);
 
-    void ReplyProgress(int percents);  // used during sending large files
-    //void SetCanRetranslateProgress(bool flag) {bRetranslateProgress = flag;}
-
-    bool isReplied() const {return bReplied;}
-    bool isBinaryEmpty() const {return ReceivedBinary.isEmpty();}
-    void clearBinary() {ReceivedBinary.clear();}
-    const QByteArray& getBinary() const {return ReceivedBinary;}
-
-    const QString GetUrl() const;
-    int GetPort() const;
-
-    void sendOK();
-    void sendProgress(int eventsDone);
-    void sendWorkFinished(const QString& error);
-    void sendError(const QString& error);
-
-    void DisconnectClient();
+    bool    isBinaryEmpty() const;
+    void    clearBinary();
 
 private slots:
-    void onNewConnection();
-    void onTextMessageReceived(const QString &message);
-    void onBinaryMessageReceived(const QByteArray &message);
-    void onBinaryFrameReceived(const QByteArray &frame, bool isLastFrame);
-    //void onError(QAbstractSocket::SocketError error);
-    //void onStateChanged(QAbstractSocket::SocketState state);
-    void onSocketDisconnected();
+    void    onNewConnection();
+    void    onTextMessageReceived(const QString &message);
+    void    onBinaryMessageReceived(const QByteArray &message);
+    void    onBinaryFrameReceived(const QByteArray &frame, bool isLastFrame);
+    //void  onError(QAbstractSocket::SocketError error);
+    //void  onStateChanged(QAbstractSocket::SocketState state);
+    void    onSocketDisconnected();
 
 signals:
-    void textMessageReceived(const QString &message);
-    void restartIdleTimer();
-    void clientDisconnected();
-    void closed();
-    void requestAbort(const QString reason);
+    void    textMessageReceived(const QString & message);
+    void    restartIdleTimer();
+    void    clientDisconnected();
+    void    closed();
+    void    requestAbort(QString reason);
 
-    void remoteCommandReceived(QJsonObject config);
+    void    remoteCommandReceived(QJsonObject config);
 
 private:
     QString            TmpDataDir;
 
-    QWebSocketServer * server = nullptr;
-    QWebSocket       * client = nullptr;
+    QWebSocketServer * Server = nullptr;
+    QWebSocket       * Client = nullptr;
 
-
-    bool               bDebug = true;
-    //bool bCompressBinary = false;
-    //int CompressionLevel = -1;
+    //bool             bCompressBinary = false;
+    //int              CompressionLevel = -1;
 
     QByteArray         ReceivedBinary;
 
-    bool               bReplied = false;
-    //bool               bRetranslateProgress = false;
-
-    int                Progress  = 0;
+    int                FileProgress  = 0;
     int                NumFrames = 0;
 
 private:
     bool assureCanReply();
+    void sendOK();
+    void sendText(const QString & text);
+    void sendFileMoveProgress(int percents);
 };
 
 #endif // AWEBSOCKETSESSIONSERVER_H

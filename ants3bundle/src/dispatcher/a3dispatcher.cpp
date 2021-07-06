@@ -63,7 +63,7 @@ A3Dispatcher::~A3Dispatcher()
 void A3Dispatcher::start()
 {
     if (PortPersistentWS != 0)
-        WebSocketServer->StartListen(QHostAddress("127.0.0.1"), PortPersistentWS); // TODO -> IP from startup arguments
+        WebSocketServer->startListen(QHostAddress("127.0.0.1"), PortPersistentWS); // TODO -> IP from startup arguments
 }
 
 void A3Dispatcher::onLocalCommandReceived()
