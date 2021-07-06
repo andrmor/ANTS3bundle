@@ -101,7 +101,7 @@ QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
     Request.writeToJson(rjs);
     QString message = jstools::jsonToString(rjs);
     qDebug() << "Sending request to dispatcher:\n" << message;
-    Handler->sendMessage(message); //cannot send message directly (different threads!)
+    emit sendMessage(message); //cannot send message directly (different threads if called from script!)
 
     qDebug() << "Waiting for reply from dispatcher...";
     waitForReply();
