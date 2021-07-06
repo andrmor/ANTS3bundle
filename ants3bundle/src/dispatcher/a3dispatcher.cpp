@@ -74,7 +74,7 @@ void A3Dispatcher::onLocalCommandReceived()
     QString message(ba);
     log("--->Message from ants3:\n" + message + "\n<---");
 
-    qDebug() << "DEBUG:DISP->local message:"<<message;
+    //qDebug() << "DEBUG:DISP->local message:"<<message;
 
     if (message.contains("$$EXIT\n"))
     {

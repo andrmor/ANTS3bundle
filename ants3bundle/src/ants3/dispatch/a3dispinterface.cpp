@@ -85,7 +85,7 @@ QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, 
 
     if (remainingEvents != 0)
     {
-        qDebug() << "! Undistributed events:"<< remainingEvents << "-- assuming it can be only one";
+        qDebug() << "Undistributed events:"<< remainingEvents << "-- assuming it can be only one!";
         runPlan.front().Split.front() += remainingEvents;
     }
 
@@ -116,7 +116,7 @@ QString A3DispInterface::waitForReply()
 
     while (Reply.isEmpty())
     {
-        QThread::usleep(100);
+        QThread::msleep(50);
         qApp->processEvents();
     }
     return Reply;
@@ -126,6 +126,7 @@ void A3DispInterface::start()
 {
     A3Global & GlobSet = A3Global::getInstance();
     Handler = new A3ProcessHandler(GlobSet.ExecutableDir + '/' + GlobSet.DispatcherExecutable, {"0"}); // 0 -> WebSocket server not started
+    //connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage, Qt::QueuedConnection);
     connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage);
     connect(Handler, &A3ProcessHandler::updateProgress,  this,    &A3DispInterface::onProgressReceived);
     Handler->start();
@@ -140,7 +141,7 @@ void A3DispInterface::onSendMessage(QString text)
 
 void A3DispInterface::receivedMessage(QString text)
 {
-    qDebug() << "Received message from dispatcher:\n" << text;
+    qDebug() << "WORK FINISHED, Received message from dispatcher:\n" << text;
     Reply = text;
 }
 

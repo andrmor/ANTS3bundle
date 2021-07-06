@@ -2,18 +2,19 @@
 #include "ajsontools.h"
 
 #include <QProcess>
-//careful with the QDEBUG! Use "QDEBUG:" on start or it will be interpreted as sim finished
+#include <QDebug>
+//Use "DEBUG:" on start of QDebug!
 
 A3ProcessHandler::A3ProcessHandler(const QString & program, const QStringList & args) :
     A3WorkerHandler(), Program(program), Args(args) {}
 
 A3ProcessHandler::~A3ProcessHandler()
 {
-    qDebug() << "Destr for ProcessHandler";
+    //qDebug() << "DEBUG:PH->Destr for ProcessHandler";
     // normally, doExit has to be called before destructing this object!
     if (Process)
     {
-        qDebug() << "DEBUG:PH->Process was not soft-stopped, killing";
+        //qDebug() << "DEBUG:PH->Process was not soft-stopped, killing";
         killProcess();
     }
 }
@@ -39,7 +40,8 @@ bool A3ProcessHandler::start()
     //QObject::connect(G4antsProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----FINISHED!-----";});//this, &MainWindow::on_cameraControlExit);
     //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
     //QObject::connect(G4antsProcess,&QProcess::readyReadStandardOutput, this, &AParticleSourceSimulator::onG4ProcessSendMessage);
-    QObject::connect(Process, SIGNAL(readyReadStandardOutput()), this, SLOT(onReadReady()));
+
+    QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &A3ProcessHandler::onReadReady);
 
     Process->start(Program, Args);
     return Process->waitForStarted(1000);
@@ -54,31 +56,34 @@ void A3ProcessHandler::abort()
 void A3ProcessHandler::onReadReady()
 {
     QString in = Process->readAllStandardOutput();
-    //if (bVerbose) qDebug() << "...handler received message:\n" << in;
+    //qDebug() << "DEBUG:PH->received message:\n" << in;
 
-    // TODO: split using '\n', do processing of all messages one by one
-
-
-    if (in.startsWith("DEBUG:"))
+    const QStringList input = in.split('\n', Qt::SkipEmptyParts);
+    for (const QString & message : input)
     {
-        qDebug() << in;
-        return;
-    }
-    else if (in == "Type conversion already registered from type QSharedPointer<QNetworkSession> to type QObject*\n")
-    {
-        //bug fix for Qt
-        return;
+        //qDebug() << "DEBUG:PH->Processing message:" << in;
+        if (message.startsWith("DEBUG:"))
+        {
+            qDebug() << message;
+            continue;
+        }
+        else if ( message.startsWith("$$>") && message.endsWith("<$$") )
+        {
+            QString str = message;
+            str.remove("$$>");
+            str.remove("<$$");
+            EventsDone = str.toDouble();
+            emit updateProgress(EventsDone);
+            continue;
+        }
+        else if (message == "Type conversion already registered from type QSharedPointer<QNetworkSession> to type QObject*")
+        {
+            //bug fix for Qt
+            continue;
+        }
+        emit receivedMessage(message);
     }
 
-    if (in.startsWith("$$>") && in.endsWith("<$$\n"))
-    {
-        in.remove("$$>");
-        in.remove("<$$\n");
-        EventsDone = in.toDouble();
-        emit updateProgress(EventsDone);
-        return;
-    }
-    emit receivedMessage(in);
     //output += QString(in);
 }
 
@@ -95,13 +100,13 @@ void A3ProcessHandler::doExit()
 {
     if (Process)
     {
-        qDebug() << "DEBUG:PH->wait for procress to finish...";
+        //qDebug() << "DEBUG:PH->wait for procress to finish...";
         for (int i=0; i < 20; i++)
         {
             qApp->processEvents();
             if (Process->state() == QProcess::NotRunning)
             {
-                qDebug() << "DEBUG:PH->done, signalling the process to deleteLater";
+                //qDebug() << "DEBUG:PH->done, signalling the process to deleteLater";
                 Process->deleteLater();
                 Process = nullptr;
                 break;
@@ -111,7 +116,7 @@ void A3ProcessHandler::doExit()
 
         if (Process)
         {
-            qDebug() << "DEBUG:PH->soft exit failed, deleting process!";
+            //qDebug() << "DEBUG:PH->soft exit failed, deleting process!";
             killProcess();
         }
     }
