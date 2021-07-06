@@ -25,10 +25,10 @@ void A3Global::configureDirectories()
     qDebug() << "Exchange dir set to:"<< ExchangeDir;
 }
 
-bool A3Global::saveConfig()
+void A3Global::saveConfig()
 {
 }
 
-bool A3Global::loadConfig()
+void A3Global::loadConfig()
 {
 }

@@ -29,12 +29,13 @@ public:
 
     QString DispatcherExecutable = "dispatcher";
 
+    int LocalCores = 4;
     std::vector<A3FarmNodeRecord> FarmNodes;
 
     void configureDirectories();
 
-    bool saveConfig();
-    bool loadConfig();
+    void saveConfig();
+    void loadConfig();
 };
 
 #endif // A3GLOBAL_H

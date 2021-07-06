@@ -52,6 +52,9 @@ private:
     QProcess    * Process = nullptr;
     //QString output;
 
+protected:
+    void killProcess();
+
     // message constructors/parsers
 public:
     static QString makeErrorMessage(const QString & ErrorDescription);

@@ -1,6 +1,8 @@
 #include "a3dispinterface.h"
 #include "a3processhandler.h"
 #include "a3global.h"
+#include "a3workdistrconfig.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 #include <QThread>
@@ -19,8 +21,9 @@ A3DispInterface::A3DispInterface(QObject *parent) :
 void A3DispInterface::stop()
 {
     qDebug() << "AboutToExit for DispInterface";
-    onSendMessage("$$EXIT\n");
-    emit exitProcess();
+    emit sendMessage("$$EXIT\n");
+    if (Handler) Handler->doExit(); //calls deleteLater on Handler!
+    Handler = nullptr;
 }
 
 A3DispInterface::~A3DispInterface()
@@ -31,7 +34,9 @@ A3DispInterface::~A3DispInterface()
 QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, int numEvents, int overrideLocalCores)
 {
     runPlan.clear();
-    int numLocals = (overrideLocalCores == -1 ? LocalCores : overrideLocalCores);
+
+    A3Global & GlobSet = A3Global::getInstance();
+    int numLocals = (overrideLocalCores == -1 ? GlobSet.LocalCores : overrideLocalCores);
 
     QVector<A3FarmNodeRecord> tmpPlan;
     int    num      = 0;
@@ -44,7 +49,6 @@ QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, 
         totSpeed += 1.0 * numLocals;
     }
 
-    A3Global & GlobSet = A3Global::getInstance();
     std::vector<A3FarmNodeRecord> & FarmNodes = GlobSet.FarmNodes;
     for (const A3FarmNodeRecord & r : FarmNodes)
         if (r.Enabled)
@@ -88,8 +92,6 @@ QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, 
     return "";
 }
 
-#include "a3workdistrconfig.h"
-#include "ajsontools.h"
 QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
 {
     Reply.clear();
@@ -99,7 +101,7 @@ QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
     Request.writeToJson(rjs);
     QString message = jstools::jsonToString(rjs);
     qDebug() << "Sending request to dispatcher:\n" << message;
-    emit sendMessage(message);
+    Handler->sendMessage(message); //cannot send message directly (different threads!)
 
     qDebug() << "Waiting for reply from dispatcher...";
     waitForReply();
@@ -110,7 +112,7 @@ QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
 
 QString A3DispInterface::waitForReply()
 {
-    // TODO: filter reply! need "status: finished"
+    // TODO: filter reply! need "status: finished" or error
 
     while (Reply.isEmpty())
     {
@@ -120,14 +122,12 @@ QString A3DispInterface::waitForReply()
     return Reply;
 }
 
-#include "a3global.h"
 void A3DispInterface::start()
 {
     A3Global & GlobSet = A3Global::getInstance();
     Handler = new A3ProcessHandler(GlobSet.ExecutableDir + '/' + GlobSet.DispatcherExecutable, {"0"}); // 0 -> WebSocket server not started
     connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage);
     connect(Handler, &A3ProcessHandler::updateProgress,  this,    &A3DispInterface::onProgressReceived);
-    connect(this,    &A3DispInterface::exitProcess,      Handler, &A3ProcessHandler::doExit);
     Handler->start();
 }
 

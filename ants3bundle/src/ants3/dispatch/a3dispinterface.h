@@ -36,12 +36,9 @@ private slots:
 signals:
     void sendMessage(QString text);
     void updateProgress(double progress);
-    void exitProcess();
 
 protected:
     A3ProcessHandler * Handler = nullptr;
-
-    int LocalCores = 4;
 
     int NumEvents;
 

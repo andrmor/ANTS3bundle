@@ -4,7 +4,6 @@
 #include "a3dispinterface.h"
 #include "a3global.h"
 
-// GUI
 #ifdef GUI
     #include <QApplication>
     #include "mainwindow.h"
@@ -20,22 +19,19 @@
 
 #include <memory>
 
-//Root
 #include "TApplication.h"
 #include "TH1.h"
 
 int main(int argc, char *argv[])
 {
-    A3Global & GlobSet = A3Global::getInstance();
-    GlobSet.configureDirectories();
 
-    //starting cern ROOT application
+
     int rootargc = 1;
     char *rootargv[] = {(char*)"qqq"};
     TApplication RootApp("My ROOT", &rootargc, rootargv);
+    TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
 
     std::unique_ptr<QCoreApplication> app;
-
 #ifdef GUI
     if (argc == 1)
     {
@@ -53,9 +49,8 @@ int main(int argc, char *argv[])
     //QString FilterRules = "\nqt.network.ssl.warning=false"; //to suppress warnings about ssl
     //QLoggingCategory::setFilterRules(FilterRules);
 
-    //AGlobalSettings & GlobSet = AGlobalSettings::getInstance();
-    //qDebug() << "Global settings object created";
-    TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
+    A3Global & GlobSet = A3Global::getInstance();
+    GlobSet.configureDirectories();
 
     A3DispInterface * Dispatch = new A3DispInterface(&(*app));
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, Dispatch, &A3DispInterface::stop);
@@ -69,7 +64,7 @@ int main(int argc, char *argv[])
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
 #ifdef GUI
-    if(argc == 1)
+    if (argc == 1)
     {
         MainWindow * w = new MainWindow(*SM, ScrRes);
         QObject::connect(Dispatch, &A3DispInterface::updateProgress, w, &MainWindow::onProgressReceived);
@@ -80,7 +75,7 @@ int main(int argc, char *argv[])
     }
     else
 #else // GUI
-    if (argc > 1)
+    if (argc > 1)  // later will be replaced with a proper line parser like in ants2
 #endif // GUI
     {
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
