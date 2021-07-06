@@ -17,7 +17,7 @@ bool A3WSClient::start()
     connect(Session, &AWebSocketSession::remoteWorkFinished, this, &A3WSClient::onWorkFinished, Qt::QueuedConnection);
     connect(Session, &AWebSocketSession::progressReceived,   this, &A3WSClient::progressReceived, Qt::QueuedConnection);
 
-    bool ok = Session->Connect( QString("ws://%0:%1").arg(Node.Address).arg(Node.Port), true );
+    bool ok = Session->connect( QString("ws://%0:%1").arg(Node.Address).arg(Node.Port), true );
     if (!ok)
     {
         ErrorString = "Cannot conect";
@@ -26,16 +26,16 @@ bool A3WSClient::start()
 
     for (const A3NodeWorkerConfig & worker : Node.Workers)
     {
-        bool ok = Session->SendFile(ExchangeDir + '/' + worker.ConfigFile, worker.ConfigFile);
+        bool ok = Session->sendFile(ExchangeDir + '/' + worker.ConfigFile, worker.ConfigFile);
         if (!ok) return false;
         for (const QString & fn : worker.InputFiles)
         {
-            ok = Session->SendFile(ExchangeDir + '/' + fn, fn);
+            ok = Session->sendFile(ExchangeDir + '/' + fn, fn);
             if (!ok) return false;
         }
         for (const QString & fn : CommonFiles)
         {
-            ok = Session->SendFile(ExchangeDir + '/' + fn, fn);
+            ok = Session->sendFile(ExchangeDir + '/' + fn, fn);
             if (!ok) return false;
         }
     }
@@ -47,7 +47,7 @@ bool A3WSClient::start()
     QJsonObject js;
     cf.writeToJson(js);
 
-    ok = Session->SendText(jstools::jsonToString(js), false);
+    ok = Session->sendText(jstools::jsonToString(js), false);
     return ok;
 }
 
@@ -58,7 +58,7 @@ void A3WSClient::onWorkFinished(QString message)
         for (const QString & fn : worker.OutputFiles)
         {
             qDebug() << "DEBUG:WCL->Requesting file"<< fn << ExchangeDir + '/' + fn;
-            bool ok = Session->RequestFile(fn, ExchangeDir + '/' + fn);
+            bool ok = Session->requestFile(fn, ExchangeDir + '/' + fn);
             qDebug() << "DEBUG:WCL->Result:"<<ok;
         }
     }

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QByteArray>
-#include <QAbstractSocket>
+//#include <QAbstractSocket>
 
 class QWebSocket;
 class QJsonObject;
@@ -14,41 +14,32 @@ class AWebSocketSession : public QObject
     Q_OBJECT
 
 public:
+    enum  ServerState {Idle = 0, Connecting, ConnectionFailed, Connected, Aborted};
+
     AWebSocketSession(QObject * parent = nullptr);
     ~AWebSocketSession();
 
-    bool  Connect(const QString& Url, bool WaitForAnswer = true);
-    void  Disconnect();
-    int   Ping();
-    bool  SendText(const QString& message, bool bWaitReply = true);
-    bool  SendJson(const QJsonObject& json, bool bWaitReply = true);
-    bool  SendQByteArray(const QByteArray& ba);
-    bool  SendFile(const QString& fileName, const QString &remoteFileName);
+    bool  connect(const QString& Url, bool WaitForAnswer = true);
+    void  disconnect();
+    void  externalAbort();
+    int   ping();
 
-    bool  RequestFile(const QString& RemoteFileName, const QString & SaveAs);
+    bool  sendText(const QString & message, bool bWaitReply = true);
+    bool  sendFile(const QString & fileName, const QString & remoteFileName);
 
-    bool  ResumeWaitForAnswer();
+    bool  requestFile(const QString & RemoteFileName, const QString & SaveAs);
 
-    void  ClearReply();
+    bool  resumeWaitForAnswer();
 
-    const QString&    GetError() const {return Error;}
-    const QString&    GetTextReply() const {return TextReply;}
-    const QByteArray& GetBinaryReply() const {return BinaryReply;}
-    bool              IsBinaryReplyEmpty() const {return BinaryReply.isEmpty();}
+    void  clearReply();
 
-    void  ExternalAbort();
-
-    void  SetTimeout(int milliseconds) {timeout = milliseconds;}
-    void  SetIntervalBetweenEventProcessing(int milliseconds) {sleepDuration = milliseconds;}
-    quint16 GetPeerPort() {return peerPort;} //used as part of the unique names for remote files
-
-    bool ConfirmSendPossible();
+    const QString&    getError() const {return Error;}
+    const QString&    getTextReply() const {return TextReply;}
+    const QByteArray& getBinaryReply() const {return BinaryReply;}
+    bool              isBinaryReplyEmpty() const {return BinaryReply.isEmpty();}
 
 public slots:
-    void onSendMessageRequest(QString txt);
-
-public:
-    enum  ServerState {Idle = 0, Connecting, ConnectionFailed, Connected, Aborted};
+    void  onSendMessageRequest(QString txt);
 
 private slots:
     void  onConnect();
@@ -63,27 +54,25 @@ signals:
     void progressReceived(int eventsDone);
 
 private:
-    QWebSocket * socket        = nullptr;
-    int          timeout       = 3000;
-    int          timeoutDisc   = 3000;
-    ulong        sleepDuration = 50; // in ms
+    QWebSocket * Socket        = nullptr;
+    int          Timeout       = 3000;  // in ms
+    int          TimeoutDisc   = 3000;  // in ms
+    ulong        SleepDuration = 50;    // in ms
 
     ServerState  State         = Idle;
     QString      Error;
+    quint16      PeerPort = 0;
 
     bool         bWaitForAnswer = false;
-    bool         bWaitForBinary = false;
     int          TimeMs         = 0;
-    bool         fExternalAbort = false;
+    bool         bExternalAbort = false;
 
     QString      TextReply;
     QByteArray   BinaryReply;
 
-    quint16      peerPort = 0;
-
 private:    
+    bool confirmSendPossible();
     bool waitForReply();
-    bool waitForBinaryReply();
 };
 
 #endif // AWEBSOCKETSESSION_H
