@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
     A3DispInterface * Dispatch = new A3DispInterface(&(*app));
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, Dispatch, &A3DispInterface::stop);
-    Dispatch->start();
+    //Dispatch->start();
 
     A3ParticleSimManager * PSM = new A3ParticleSimManager(*Dispatch, &(*app));
 

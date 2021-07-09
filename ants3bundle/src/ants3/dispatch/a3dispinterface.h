@@ -4,11 +4,13 @@
 #include "a3farmnoderecord.h"
 
 #include <QObject>
+#include <QJsonObject>
 #include <QString>
 
 #include <vector>
+#include <mutex>
 
-class A3ProcessHandler;
+class A3Dispatcher;
 class A3WorkDistrConfig;
 
 class A3DispInterface : public QObject
@@ -22,27 +24,27 @@ public:
     QString prepareRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
 
     QString performTask(const A3WorkDistrConfig & Request);
-    QString waitForReply();
+    void waitForReply();
 
 public slots:
-    void start();
-    void onSendMessage(QString text);
     void stop();
 
 private slots:
-    void receivedMessage(QString text);
     void onProgressReceived(double progress);
+    void onWorkFinsihed(QJsonObject result);
 
 signals:
-    void sendMessage(QString text);
+    void sendCommand(QJsonObject text);
     void updateProgress(double progress);
 
 protected:
-    A3ProcessHandler * Handler = nullptr;
+    A3Dispatcher * Dispatcher = nullptr;
 
     int NumEvents;
 
-    QString Reply;
+    QJsonObject Reply;
+
+    std::mutex ReplyMutex;
 };
 
 #endif // A3DISPINTERFACE_H

@@ -41,17 +41,23 @@ INCLUDEPATH += particlesim
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
+INCLUDEPATH += ../dispatcher
 
 DESTDIR = ../../bin #ignored in the meta project
 
 SOURCES += \
+    ../dispatcher/a3dispatcher.cpp \
+    ../dispatcher/awebsocketsessionserver.cpp \
+    ../dispatcher/awebsocketsession.cpp \
+    ../dispatcher/a3processhandler.cpp \
+    ../dispatcher/a3remotehandler.cpp \
+    ../dispatcher/a3wsclient.cpp \
     main.cpp \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
     js/a3scriptres.cpp \
     particlesim/a3particlesimmanager.cpp \
     dispatch/a3dispinterface.cpp \
-    dispatch/a3processhandler.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
     config/a3workdistrconfig.cpp \
@@ -62,12 +68,17 @@ SOURCES += \
     js/a3farmsi.cpp
 
 HEADERS += \
+    ../dispatcher/a3dispatcher.h \
+    ../dispatcher/awebsocketsessionserver.h \
+    ../dispatcher/awebsocketsession.h \
+    ../dispatcher/a3processhandler.h \
+    ../dispatcher/a3remotehandler.h \
+    ../dispatcher/a3wsclient.h \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
     particlesim/a3particlesimmanager.h \
     dispatch/a3dispinterface.h \
-    dispatch/a3processhandler.h \
     config/a3config.h \
     config/a3global.h \
     config/a3workdistrconfig.h \

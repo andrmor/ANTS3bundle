@@ -1,5 +1,5 @@
 #include "a3dispinterface.h"
-#include "a3processhandler.h"
+#include "a3dispatcher.h"
 #include "a3global.h"
 #include "a3workdistrconfig.h"
 #include "ajsontools.h"
@@ -15,15 +15,19 @@
 A3DispInterface::A3DispInterface(QObject *parent) :
     QObject(parent)
 {
-    connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
+    //connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
+    Dispatcher = new A3Dispatcher(0);
+    connect(this,       &A3DispInterface::sendCommand, Dispatcher, &A3Dispatcher::executeCommand,        Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::workFinished,   this,       &A3DispInterface::onWorkFinsihed,     Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::updateProgress, this,       &A3DispInterface::onProgressReceived, Qt::QueuedConnection);
 }
 
 void A3DispInterface::stop()
 {
     qDebug() << "AboutToExit for DispInterface";
-    emit sendMessage("$$EXIT\n");
-    if (Handler) Handler->doExit(); //calls deleteLater on Handler!
-    Handler = nullptr;
+    //emit sendMessage("$$EXIT\n");
+    Dispatcher->deleteLater();
+    Dispatcher = nullptr;
 }
 
 A3DispInterface::~A3DispInterface()
@@ -92,25 +96,23 @@ QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, 
     return "";
 }
 
-QString A3DispInterface::performTask(const A3WorkDistrConfig &Request)
+QString A3DispInterface::performTask(const A3WorkDistrConfig & Request)
 {
-    Reply.clear();
+    Reply = QJsonObject();
     NumEvents = Request.NumEvents;
 
     QJsonObject rjs;
     Request.writeToJson(rjs);
-    QString message = jstools::jsonToString(rjs);
-    qDebug() << "Sending request to dispatcher:\n" << message;
-    emit sendMessage(message); //cannot send message directly (different threads if called from script!)
+    emit sendCommand(rjs); //cannot send message directly (different threads if called from script!)
 
     qDebug() << "Waiting for reply from dispatcher...";
     waitForReply();
 
     qDebug() << "...work completed, dispatcher reply:\n" << Reply;
-    return Reply;
+    return jstools::jsonToString(Reply);
 }
 
-QString A3DispInterface::waitForReply()
+void A3DispInterface::waitForReply()
 {
     // TODO: filter reply! need "status: finished" or error
 
@@ -119,34 +121,18 @@ QString A3DispInterface::waitForReply()
         QThread::msleep(50);
         qApp->processEvents();
     }
-    return Reply;
-}
-
-void A3DispInterface::start()
-{
-    A3Global & GlobSet = A3Global::getInstance();
-    Handler = new A3ProcessHandler(GlobSet.ExecutableDir + '/' + GlobSet.DispatcherExecutable, {"0"}); // 0 -> WebSocket server not started
-    //connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage, Qt::QueuedConnection);
-    connect(Handler, &A3ProcessHandler::receivedMessage, this,    &A3DispInterface::receivedMessage);
-    connect(Handler, &A3ProcessHandler::updateProgress,  this,    &A3DispInterface::onProgressReceived);
-    Handler->start();
-}
-
-void A3DispInterface::onSendMessage(QString text)
-{
-    //qDebug() << Handler << "Sending message to dispatcher:\n" << text;
-    Reply.clear();
-    if (Handler) Handler->sendMessage(text);
-}
-
-void A3DispInterface::receivedMessage(QString text)
-{
-    qDebug() << "WORK FINISHED, Received message from dispatcher:\n" << text;
-    Reply = text;
+    return;
 }
 
 void A3DispInterface::onProgressReceived(double progress)
 {
     double val = (NumEvents == 0 ? 0 : progress / NumEvents);
     emit updateProgress(val); // to GUI if present
+}
+
+#include <memory>
+void A3DispInterface::onWorkFinsihed(QJsonObject result)
+{
+    const std::lock_guard<std::mutex> lock(ReplyMutex);
+    Reply = result;
 }

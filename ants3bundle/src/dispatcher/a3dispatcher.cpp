@@ -34,9 +34,9 @@ A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
 
     if (PortPersistentWS == 0)
     {
-        Notifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, this);
-        connect(Notifier, SIGNAL(activated(int)), this, SLOT(onLocalCommandReceived()), Qt::QueuedConnection);
-        log("---->Dispatcher is listening on std::cin");
+        //Notifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, this);
+        //connect(Notifier, SIGNAL(activated(int)), this, SLOT(executeCommand()), Qt::QueuedConnection);
+        //log("---->Dispatcher is listening on std::cin");
     }
     else
     {
@@ -66,25 +66,6 @@ void A3Dispatcher::start()
         WebSocketServer->startListen(QHostAddress("127.0.0.1"), PortPersistentWS); // TODO -> IP from startup arguments
 }
 
-void A3Dispatcher::onLocalCommandReceived()
-{
-    QFile in;
-    in.open(stdin, QIODevice::ReadOnly);
-    QByteArray ba = in.read(10000);
-    QString message(ba);
-    log("--->Message from ants3:\n" + message + "\n<---");
-
-    //qDebug() << "DEBUG:DISP->local message:"<<message;
-
-    if (message.contains("$$EXIT\n"))
-    {
-        qDebug() << "DEBUG:DISP->EXIT";
-        exit(0);
-    }
-
-    processLocalCommand(message);
-}
-
 void A3Dispatcher::onReportProgressTimer()
 {
     double total = 0;
@@ -97,14 +78,14 @@ void A3Dispatcher::onReportProgressTimer()
     }
     else
     {
-        std::cout << "$$>" << total << "<$$\n";
-        std::cout.flush();
+        //std::cout << "$$>" << total << "<$$\n";
+        //std::cout.flush();
+        emit updateProgress(total);
     }
 }
 
-void A3Dispatcher::processLocalCommand(const QString & message)
+void A3Dispatcher::executeCommand(QJsonObject json)
 {
-    QJsonObject json = jstools::strToJson(message.toUtf8()); // Local1?
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
 
@@ -231,8 +212,12 @@ void A3Dispatcher::waitForWorkFinished()
 
 void A3Dispatcher::localReplyFinished()
 {
-    std::cout << A3ProcessHandler::makeFinishMessage().toLatin1().data() << std::endl;
-    std::cout.flush();
+    //std::cout << A3ProcessHandler::makeFinishMessage().toLatin1().data() << std::endl;
+    //std::cout.flush();
+    //emit workFinsihed(A3ProcessHandler::makeFinishMessage());
+    QJsonObject js;
+    js["Status"] = "Finish";
+    emit workFinished(js);
     log("Command processing completed\n");
 }
 

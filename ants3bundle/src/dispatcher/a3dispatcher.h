@@ -26,12 +26,15 @@ public:
 
 public slots:
     void start();
+    void executeCommand(QJsonObject json);
 
 private slots:
-    void onLocalCommandReceived();
     void onRemoteCommandReceived(QJsonObject json);
-
     void onReportProgressTimer();
+
+signals:
+    void workFinished(QJsonObject result);
+    void updateProgress(double eventsDone);
 
 protected:
     quint16 PortPersistentWS = 0;
@@ -50,7 +53,6 @@ protected:
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);
     void    log(const QString & text);
-    void    processLocalCommand(const QString & message);
     bool    startLocalWork(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
     QString startRemoteWork(const A3WorkDistrConfig & wdc); //returns error, otherwise ""
     void    waitForWorkFinished();
