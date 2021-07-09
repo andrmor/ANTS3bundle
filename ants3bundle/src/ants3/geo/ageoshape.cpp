@@ -402,6 +402,7 @@ QString AGeoComposite::getHelp() const
            "operations are union (+), intersection (*) and subtraction(-).";
 }
 
+#include <QSet>
 bool AGeoComposite::readFromString(QString GenerationString)
 {
     //qDebug() << "Number of defined members:"<<members.size();
@@ -413,12 +414,12 @@ bool AGeoComposite::readFromString(QString GenerationString)
     QStringList requested = s.split(QRegExp("[+*-]"));
     for (int i=0; i<requested.size(); i++) requested[i] = requested[i].simplified();
     //qDebug() << "Requested members in composite generation:"<<requested;
-    QSet<QString> setRequested = QSet<QString>::fromList(requested);
-    QSet<QString> setMembers = QSet<QString>::fromList(members);
-    //qDebug() << "Members:"<<setMembers;
-    //qDebug() << "Requested:"<<setRequested;
-    //qDebug() << "Memebers contain requested?"<<setMembers.contains(setRequested);
-    if (!setMembers.contains(setRequested)) return false;
+    QSet<QString> SetOfRequested(requested.begin(), requested.end());
+    QSet<QString> SetOfMembers(members.begin(), members.end());
+    //qDebug() << "Members:"<<SetOfMembers;
+    //qDebug() << "Requested:"<<SetOfRequested;
+    //qDebug() << "Memebers contain requested?"<<SetOfMembers.contains(SetOfRequested);
+    if (!SetOfMembers.contains(SetOfRequested)) return false;
 
     this->GenerationString = GenerationString.simplified();
     return true;

@@ -43,7 +43,7 @@ public:
   std::vector<AGeoObject*> HostedObjects;
 
   //visualization properties
-  int color = 1; // !*! initialized as -1, updated when first time shown by SlabListWidget
+  int color = 1;
   int style = 1;
   int width = 1;
 
@@ -76,10 +76,12 @@ public:
   void removeCompositeStructure();
   void updateNameOfLogicalMember(const QString & oldName, const QString & newName);
 
+/*
   //for grid
-  AGeoObject* getGridElement();
+  AGeoObject* getGridElement();    // used in cpp - temporary commented in addObjectFirst
   void  updateGridElementShape();
   AGridElementRecord* createGridRecord();
+*/
 
   //for monitor
   void updateMonitorShape();
@@ -105,7 +107,7 @@ public:
   void addObjectLast(AGeoObject* Object);  //before slabs!
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
-  bool suicide(bool SlabsToo = false); // not possible for locked and static objects
+  bool suicide(); // not possible for locked and static objects
   void recursiveSuicide(); // does not remove locked and static objects, but removes all unlocked objects down the chain
   void lockUpTheChain();
   void lockBuddies();
@@ -152,13 +154,10 @@ public:
   static QString GenerateRandomName();
   static QString GenerateRandomObjectName();
   static QString GenerateRandomPrototypeName();
-  static QString GenerateRandomLightguideName();
   static QString GenerateRandomCompositeName();
   static QString GenerateRandomArrayName();
   static QString GenerateRandomGridName();
   static QString GenerateRandomMaskName();
-  static QString GenerateRandomGuideName();
-  static QString GenerateRandomGroupName();
   static QString GenerateRandomStackName();
   static QString GenerateRandomMonitorName();
 

@@ -21,7 +21,6 @@ public:
 
     bool isWorld() const            {return Type == "World";}
     bool isPrototypes() const       {return Type == "PrototypeCollection";}
-    bool isSlab() const             {return Type == "Slab" || Type == "Lightguide";}  //lightguide is also Slab!
     bool isStack() const            {return Type == "Stack";}
     bool isLogical() const          {return Type == "Logical";}
     bool isSingle() const           {return Type == "Single";}

@@ -130,6 +130,7 @@ void AGeoConsts::readFromJson(const QJsonObject & json)
     }
 }
 
+#include "TFormula.h"
 bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) const
 {
     if (to == -1) to = Records.size();

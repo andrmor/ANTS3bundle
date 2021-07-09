@@ -11,7 +11,7 @@
 
 void AGeoObject::constructorInit()
 {
-    Name = AGeoObject::GenerateRandomObjectName();
+    Name = GenerateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -435,8 +435,8 @@ void AGeoObject::refreshShapeCompositeMembers(AGeoShape* ExternalShape)
             shape->members.clear();
             AGeoObject* logicals = getContainerWithLogical();
             if (logicals)
-                for (int i=0; i<logicals->HostedObjects.size(); i++)
-                    shape->members << logicals->HostedObjects.at(i)->Name;
+                for (AGeoObject * obj : logicals->HostedObjects)
+                    shape->members << obj->Name;
         }
     }
 }
@@ -456,11 +456,11 @@ bool AGeoObject::isInUseByComposite()
 
 void AGeoObject::clearCompositeMembers()
 {
-    AGeoObject* logicals = getContainerWithLogical();
+    AGeoObject * logicals = getContainerWithLogical();
     if (!logicals) return;
 
-    for (int i=0; i<logicals->HostedObjects.size(); i++)
-        logicals->HostedObjects[i]->clearAll(); //overkill here
+    for (AGeoObject * obj : logicals->HostedObjects)
+        obj->clearAll(); //overkill here
     logicals->HostedObjects.clear();
 }
 
@@ -471,12 +471,12 @@ void AGeoObject::removeCompositeStructure()
     delete Type;
     Type = new ATypeSingleObject();
 
-    for (AGeoObject * obj : HostedObjects)
+    for (auto it = HostedObjects.begin(); it != HostedObjects.end(); ++it)
     {
-        if (obj->Type->isCompositeContainer())
+        if ( (*it)->Type->isCompositeContainer())
         {
-            delete obj;
-            HostedObjects.removeAt(i);
+            delete (*it);
+            HostedObjects.erase(it);
             return;
         }
     }
@@ -499,6 +499,7 @@ void AGeoObject::updateNameOfLogicalMember(const QString & oldName, const QStrin
     }
 }
 
+/*
 AGeoObject * AGeoObject::getGridElement()
 {
     if (!Type->isGrid()) return nullptr;
@@ -531,6 +532,7 @@ AGridElementRecord *AGeoObject::createGridRecord()
     ATypeGridElementObject* GE = static_cast<ATypeGridElementObject*>(geObj->Type);
     return new AGridElementRecord(GE->shape, GE->size1, GE->size2);
 }
+*/
 
 void AGeoObject::updateMonitorShape()
 {
@@ -676,12 +678,12 @@ void AGeoObject::enableUp()
     if (Container) Container->enableUp();
 }
 
-void AGeoObject::addObjectFirst(AGeoObject *Object)
+void AGeoObject::addObjectFirst(AGeoObject * Object)
 {
-    int index = 0;
-    if (getContainerWithLogical()) index++;
-    if (getGridElement()) index++;
-    HostedObjects.insert(index, Object);
+    auto it = HostedObjects.begin();
+    if (getContainerWithLogical()) ++it;
+//    if (getGridElement()) ++it;
+    HostedObjects.insert(it, Object);
     Object->Container = this;
 }
 
@@ -689,11 +691,10 @@ void AGeoObject::addObjectLast(AGeoObject * Object)
 {
     Object->Container = this;
 
-    if (this->Type->isWorld())
-    {
-        HostedObjects.insert(0, Object);
-    }
-    else HostedObjects.push_back(Object);
+//    if (this->Type->isWorld())
+//        HostedObjects.insert(0, Object); //why ???  TODO: check this!
+//    else
+        HostedObjects.push_back(Object);
 }
 
 bool AGeoObject::migrateTo(AGeoObject * objTo, bool fAfter, AGeoObject *reorderObj)
@@ -714,11 +715,16 @@ bool AGeoObject::migrateTo(AGeoObject * objTo, bool fAfter, AGeoObject *reorderO
                     if (obj == this) return false;
                     obj = obj->Container;
                 }
-                //while ( !obj->Type->isSlab() && !obj->Type->isWorld());
                 while (obj);
             }
         }
-        Container->HostedObjects.removeOne(this);
+        //Container->HostedObjects.removeOne(this);
+        for (auto it = Container->HostedObjects.begin(); it != Container->HostedObjects.end(); ++it)
+            if (*it == this)
+            {
+                Container->HostedObjects.erase(it);
+                break;
+            }
     }
 
     if (fAfter) objTo->addObjectLast(this);
@@ -732,23 +738,30 @@ bool AGeoObject::repositionInHosted(AGeoObject *objTo, bool fAfter)
 {
     if (!objTo) return false;
     if (Container != objTo->Container) return false;
-    int iTo = Container->HostedObjects.indexOf(objTo);
-    int iThis = Container->HostedObjects.indexOf(this);
-    if (iTo==-1 || iThis ==-1) return false;
 
-    if (fAfter) iTo++;
+//    int iTo = Container->HostedObjects.indexOf(objTo);
+//    int iThis = Container->HostedObjects.indexOf(this);
+//    if (iTo==-1 || iThis ==-1) return false;
+//    if (fAfter) iTo++;
+//    Container->HostedObjects.removeOne(this);
+//    if (iThis<iTo) iTo--;
+//    Container->HostedObjects.insert(iTo, this);
 
-    Container->HostedObjects.removeOne(this);
-    if (iThis<iTo) iTo--;
-    Container->HostedObjects.insert(iTo, this);
-    return true;
+    for (auto it = Container->HostedObjects.begin(); it != Container->HostedObjects.end(); ++it)
+        if (*it == objTo)
+        {
+            if (fAfter) ++it;
+            Container->HostedObjects.insert(it, this);
+            return true;
+        }
+    return false;
 }
 
-bool AGeoObject::suicide(bool SlabsToo)
+bool AGeoObject::suicide()
 {
     //if (fLocked) return false;
     if (Type->isWorld()) return false; //cannot delete world
-    if (Type->isHandlingStatic() && !SlabsToo) return false;
+    if (Type->isHandlingStatic()) return false;
 
     //cannot remove logicals used by composite (and the logicals container itself); the composite kills itself!
     if (Type->isCompositeContainer()) return false;
@@ -757,23 +770,33 @@ bool AGeoObject::suicide(bool SlabsToo)
     if (Type->isGridElement()) return false;
 
     //qDebug() << "!!--Suicide triggered for object:"<<Name;
-    AGeoObject* ObjectContainer = Container;
-    int index = Container->HostedObjects.indexOf(this);
-    if (index == -1) return false;
+    AGeoObject * ObjectContainer = Container;
+    auto it = Container->HostedObjects.begin();
+    for ( ; it != Container->HostedObjects.end(); ++it)
+        if (*it == this) break;
+    if (it == Container->HostedObjects.end()) return false;
 
-    Container->HostedObjects.removeAt(index);
+    Container->HostedObjects.erase(it);
 
     //for composite, clear all unused logicals then kill the composite container
     if (Type->isComposite())
     {
-        AGeoObject* cl = this->getContainerWithLogical();
-        for (int i=0; i<cl->HostedObjects.size(); i++)
-            delete cl->HostedObjects[i];
-        delete cl;
-        HostedObjects.removeAll(cl);
+        AGeoObject * cl = this->getContainerWithLogical();
+        if (cl)
+        {
+            for (AGeoObject * obj : cl->HostedObjects) delete obj;
+            delete cl;
+            for (auto itlc = HostedObjects.begin(); itlc != HostedObjects.end(); ++itlc)
+                if (*itlc == cl)
+                {
+                    HostedObjects.erase(itlc);
+                    break;
+                }
+        }
     }
     else if (Type->isGrid())
     {
+/*
         AGeoObject* ge = getGridElement();
         if (ge)
         {
@@ -784,13 +807,14 @@ bool AGeoObject::suicide(bool SlabsToo)
             delete ge;
             HostedObjects.removeAll(ge);
         }
+*/
     }
 
-    for (int i=0; i<HostedObjects.size(); i++)
+    for (AGeoObject * obj : HostedObjects)
     {
-        HostedObjects[i]->Container = ObjectContainer;
-        Container->HostedObjects.insert(index, HostedObjects[i]);
-        index++;
+        obj->Container = ObjectContainer;
+        Container->HostedObjects.insert(it, obj);
+        ++it;
     }
 
     delete this;
@@ -801,10 +825,10 @@ void AGeoObject::recursiveSuicide()
 {
     if (Type->isPrototypes()) return;
 
-    for (int i=HostedObjects.size()-1; i>-1; i--)
+    for (int i=HostedObjects.size()-1; i >= 0; i--)
         HostedObjects[i]->recursiveSuicide();
 
-    suicide(true);
+    suicide();
 }
 
 void AGeoObject::lockUpTheChain()
@@ -822,14 +846,14 @@ void AGeoObject::lockBuddies()
 
     if (isCompositeMemeber())
     {
-        for (int i=0; i<Container->HostedObjects.size(); i++)
+        for (size_t i=0; i<Container->HostedObjects.size(); i++)
             Container->HostedObjects[i]->fLocked = true;
         if (Container->Container)
             Container->Container->fLocked = true;
     }
     else if (Container->Type->isHandlingSet())
     {
-        for (int i=0; i<Container->HostedObjects.size(); i++)
+        for (size_t i=0; i<Container->HostedObjects.size(); i++)
             Container->HostedObjects[i]->fLocked = true;
     }
 }
@@ -1266,6 +1290,7 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
     return bFoundInUse;
 }
 
+#include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)
 {
     //const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
@@ -1275,13 +1300,13 @@ QString randomString(int lettLength, int numLength)
     QString randomString;
     for(int i=0; i<lettLength; i++)
     {
-        int index = qrand() % possibleLett.length();
+        int index =  QRandomGenerator::global()->generate() % possibleLett.length();
         QChar nextChar = possibleLett.at(index);
         randomString.append(nextChar);
     }
     for(int i=0; i<numLength; i++)
     {
-        int index = qrand() % possibleNum.length();
+        int index =  QRandomGenerator::global()->generate() % possibleNum.length();
         QChar nextChar = possibleNum.at(index);
         randomString.append(nextChar);
     }
@@ -1304,13 +1329,6 @@ QString AGeoObject::GenerateRandomPrototypeName()
 {
     QString str = randomString(2, 1);
     str = "Prototype_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomLightguideName()
-{
-    QString str = randomString(0, 1);
-    str = "LG" + str;
     return str;
 }
 
@@ -1339,20 +1357,6 @@ QString AGeoObject::GenerateRandomMaskName()
 {
     QString str = randomString(1, 1);
     str = "Mask_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomGuideName()
-{
-    QString str = randomString(1, 1);
-    str = "Guide_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomGroupName()
-{
-    QString str = randomString(2, 1);
-    str = "Group_" + str;
     return str;
 }
 
