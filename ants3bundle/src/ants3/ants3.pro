@@ -36,6 +36,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 INCLUDEPATH += js
 INCLUDEPATH += gui
+INCLUDEPATH += geo
 INCLUDEPATH += tools
 INCLUDEPATH += particlesim
 INCLUDEPATH += dispatch
@@ -52,6 +53,15 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     ../dispatcher/a3remotehandler.cpp \
     ../dispatcher/a3wsclient.cpp \
+    config/amonitorconfig.cpp \
+    geo/ageoconsts.cpp \
+    geo/ageoobject.cpp \
+    geo/ageoobject.cpp \
+    geo/ageoshape.cpp \
+    geo/ageoshape.cpp \
+    geo/ageotype.cpp \
+    geo/ageotype.cpp \
+    geo/amonitor.cpp \
     main.cpp \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
@@ -74,6 +84,15 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../dispatcher/a3remotehandler.h \
     ../dispatcher/a3wsclient.h \
+    config/amonitorconfig.h \
+    geo/ageoconsts.h \
+    geo/ageoobject.h \
+    geo/ageoobject.h \
+    geo/ageoshape.h \
+    geo/ageoshape.h \
+    geo/ageotype.h \
+    geo/ageotype.h \
+    geo/amonitor.h \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
