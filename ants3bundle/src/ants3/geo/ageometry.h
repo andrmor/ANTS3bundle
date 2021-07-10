@@ -44,7 +44,7 @@ public:
     //hexa - 2, outer circle diameter, inner circle diameter, full height
 */
 
-    void         populateGeoManager(TGeoVolume * top, TGeoManager * geoManager, const AMaterialParticleCollection * materialCollection);
+    void         populateGeoManager();
 
     bool         isMaterialInUse(int imat) const;
     void         DeleteMaterial(int imat);
@@ -67,12 +67,14 @@ public:
 
     std::vector<const AGeoObject*> MonitorsRecords;
     std::vector<QString> MonitorIdNames;  //runtime
-    std::vector<TGeoNode *> MonitorNodes; //runtime
+    std::vector<TGeoNode*> MonitorNodes; //runtime
 
     QString LastError;
 
-    //properties used during the call of populateGeoManager()
     TGeoManager * GeoManager = nullptr;
+    TGeoVolume  * Top        = nullptr; // world in TGeoManager
+
+    //properties used during the call of populateGeoManager()
     const AMaterialParticleCollection * MaterialCollection = nullptr;
 
 private:

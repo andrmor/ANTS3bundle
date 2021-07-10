@@ -462,17 +462,49 @@ bool AGeometry::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
-void AGeometry::populateGeoManager(TGeoVolume * top, TGeoManager * geoManager, const AMaterialParticleCollection * materialCollection)
+void AGeometry::populateGeoManager()
 {
-    GeoManager = geoManager;
-    MaterialCollection = materialCollection;
-
     clearGridRecords();
     clearMonitorRecords();
 
     expandPrototypeInstances();
 
-    addTGeoVolumeRecursively(World, top);
+    delete GeoManager; GeoManager = new TGeoManager();
+    GeoManager->SetVerboseLevel(0);
+
+/*
+    //qDebug() << "--> Creating materials and media";
+    for (int i=0; i<MpCollection->countMaterials(); i++)
+      {
+        (*MpCollection)[i]->generateTGeoMat();
+        (*MpCollection)[i]->GeoMed = new TGeoMedium( (*MpCollection)[i]->name.toLocal8Bit().data(), i, (*MpCollection)[i]->GeoMat);
+      }
+*/
+
+    double WorldSizeXY = getWorldSizeXY();
+    double WorldSizeZ  = getWorldSizeZ();
+    if (!isWorldSizeFixed())
+    {
+        //qDebug() << "--> Calculating world size";
+        WorldSizeXY = 0;
+        WorldSizeZ  = 0;
+        World->updateWorldSize(WorldSizeXY, WorldSizeZ);
+        WorldSizeXY *= 1.05; WorldSizeZ *= 1.05;
+        setWorldSizeXY(WorldSizeXY);
+        setWorldSizeZ(WorldSizeZ);
+    }
+
+    //Top = GeoManager->MakeBox("WorldBox", (*MpCollection)[Sandwich->World->Material]->GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+    TGeoMaterial * Mat = new TGeoMaterial("wdum", 1, 1, 0);
+    TGeoMedium * GeoMed = new TGeoMedium( "wdummy", 0, Mat);
+    Top = GeoManager->MakeBox("WorldBox", GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+    GeoManager->SetTopVolume(Top);
+    GeoManager->SetTopVisible(true);
+
+    addTGeoVolumeRecursively(World, Top);
+    Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts"
+
+    GeoManager->CloseGeometry();
 }
 
 void AGeometry::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
