@@ -45,7 +45,7 @@ INCLUDEPATH += farm
 INCLUDEPATH += config
 INCLUDEPATH += ../dispatcher
 
-DESTDIR = ../../bin #ignored in the meta project
+#DESTDIR = ../../bin #ignored in the meta project
 
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
@@ -134,3 +134,10 @@ FORMS += \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
         gui/mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
+
+
+
+

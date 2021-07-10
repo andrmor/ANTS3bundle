@@ -73,7 +73,7 @@ AGeoTree::AGeoTree() :
 
 void AGeoTree::loadImages()
 {
-    QString dir = ":/images/";
+    QString dir = ":/images/gui/images/";
 
     Lock.load(dir+"lock.png");
     //GroupStart.load(dir+"TopGr.png");

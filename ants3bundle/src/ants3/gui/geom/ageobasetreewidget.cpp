@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QList>
 #include <QDebug>
+#include <QTreeView>
 
 AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     QTreeWidget(), World(World)
@@ -16,7 +17,7 @@ AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     setDragDropMode(QAbstractItemView::InternalMove);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setDropIndicatorShown(false);
-    //setIndentation(20);
+    //setIndentation(50);
     setContentsMargins(0, 0, 0, 0);
     setFrameStyle(QFrame::NoFrame);
     setIconSize(QSize(20, 20));
@@ -27,21 +28,26 @@ AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
 
 void AGeoBaseTreeWidget::configureStyle()
 {
-    QString style;
-    style = "QTreeView::branch:has-siblings:!adjoins-item {"
-            "border-image: url(:/images/tw-vline.png) 0; }"
-    "QTreeView::branch:has-siblings:adjoins-item {"
-        "border-image: url(:/images/tw-branch-more.png) 0; }"
-    "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
-        "border-image: url(:/images/tw-branch-end.png) 0; }"
-    "QTreeView::branch:has-children:!has-siblings:closed,"
-    "QTreeView::branch:closed:has-children:has-siblings {"
-            "border-image: none;"
-            "image: url(:/images/tw-branch-closed.png);}"
-    "QTreeView::branch:open:has-children:!has-siblings,"
-    "QTreeView::branch:open:has-children:has-siblings  {"
-            "border-image: none;"
-            "image: url(:/images/tw-branch-open.png);}";
+    QString style = "QTreeView {alternate-background-color: yellow;}"
+            "QTreeView::branch:has-siblings:!adjoins-item {"
+                "border-image: url(:/images/gui/images/tw-vline.png) 0;"
+            "}"
+            "QTreeView::branch:has-siblings:adjoins-item {"
+                "border-image: url(:/images/gui/images/tw-branch-more.png) 0;"
+            "}"
+            "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
+                "border-image: url(:/images/gui/images/tw-branch-end.png) 0;"
+            "}"
+            "QTreeView::branch:has-children:!has-siblings:closed,"
+            "QTreeView::branch:closed:has-children:has-siblings {"
+                "border-image: none;"
+                "image: url(:/images/gui/images/tw-branch-closed.png);"
+            "}"
+            "QTreeView::branch:open:has-children:!has-siblings,"
+            "QTreeView::branch:open:has-children:has-siblings {"
+                "border-image: none;"
+                "image: url(:/images/gui/images/tw-branch-open.png);"
+            "}";
     setStyleSheet(style);
 }
 

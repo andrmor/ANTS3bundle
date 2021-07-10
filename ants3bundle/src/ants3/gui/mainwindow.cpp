@@ -124,5 +124,6 @@ void MainWindow::on_pbAbort_clicked()
 void MainWindow::on_pbGeometry_clicked()
 {
     GeoConWin->showNormal();
+    GeoConWin->UpdateGUI();
 }
 
