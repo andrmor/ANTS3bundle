@@ -54,6 +54,7 @@ SOURCES += \
     ../dispatcher/a3remotehandler.cpp \
     ../dispatcher/a3wsclient.cpp \
     config/amonitorconfig.cpp \
+    geo/ageometry.cpp \
     geo/ageoobject.cpp \
     geo/ageoshape.cpp \
     geo/ageotype.cpp \
@@ -82,6 +83,7 @@ HEADERS += \
     ../dispatcher/a3remotehandler.h \
     ../dispatcher/a3wsclient.h \
     config/amonitorconfig.h \
+    geo/ageometry.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
     geo/ageotype.h \

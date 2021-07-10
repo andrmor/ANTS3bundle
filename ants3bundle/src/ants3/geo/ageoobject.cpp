@@ -145,15 +145,6 @@ void AGeoObject::DeleteMaterialIndex(int imat)
         obj->DeleteMaterialIndex(imat);
 }
 
-void AGeoObject::makeItWorld()
-{
-    Name = "World";
-    Container = nullptr;
-
-    if (isWorld()) return;
-    delete Type; Type = new ATypeWorldObject();
-}
-
 bool AGeoObject::isWorld() const
 {
     if (!Type) return false;
@@ -927,6 +918,16 @@ void AGeoObject::updateAllStacks()
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
 }
 
+void AGeoObject::removeHostedObject(AGeoObject *obj)
+{
+    for (auto it = HostedObjects.begin(); it < HostedObjects.end(); ++it)
+        if (*it == obj)
+        {
+            HostedObjects.erase(it);
+            break;
+        }
+}
+
 AGeoObject * AGeoObject::findContainerUp(const QString & name)
 {
     //qDebug() << "Looking for:"<<name<<"  Now in:"<<Name;
@@ -1197,9 +1198,9 @@ AGeoObject * AGeoObject::makeCloneForInstance(const QString & suffix)
     return clone;
 }
 
-void AGeoObject::findAllInstancesRecursive(QVector<AGeoObject *> & Instances)
+void AGeoObject::findAllInstancesRecursive(std::vector<AGeoObject *> & Instances)
 {
-    if (Type->isInstance()) Instances << this;
+    if (Type->isInstance()) Instances.push_back(this);
 
     for (AGeoObject * obj : HostedObjects)
         obj->findAllInstancesRecursive(Instances);

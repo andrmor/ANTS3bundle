@@ -49,8 +49,8 @@ public:
 
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
   void DeleteMaterialIndex(int imat);
-  void makeItWorld();
   bool isWorld() const;
+
   int  getMaterial() const;
 
   const AGeoObject * isGeoConstInUse(const QRegExp & nameRegExp) const;
@@ -96,6 +96,7 @@ public:
 
   // the following checks are always done DOWN the chain
   // for global effect, the check has to be performed on World (Top) object
+  void removeHostedObject(AGeoObject * obj); //does not delete the removed object!
   AGeoObject * findObjectByName(const QString & name);
   void findObjectsByWildcard(const QString & name, QVector<AGeoObject*> & foundObjs);
   void changeLineWidthRecursive(int delta);
@@ -128,7 +129,7 @@ public:
   AGeoObject * makeClone(AGeoObject * World); // returns nullptr if failed; garantees unique names if World is not nullptr; Slabs are not properly cloned while there is a special container with them!
   AGeoObject * makeCloneForInstance(const QString & suffix);
 
-  void findAllInstancesRecursive(QVector<AGeoObject*> & Instances);
+  void findAllInstancesRecursive(std::vector<AGeoObject*> &Instances);
   bool isContainInstanceRecursive() const;
   bool isInstanceMember() const;
 
