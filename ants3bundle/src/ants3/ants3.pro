@@ -36,6 +36,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 INCLUDEPATH += js
 INCLUDEPATH += gui
+INCLUDEPATH += gui/geom
 INCLUDEPATH += geo
 INCLUDEPATH += tools
 INCLUDEPATH += particlesim
@@ -60,6 +61,18 @@ SOURCES += \
     geo/ageotype.cpp \
     geo/ageoconsts.cpp \
     geo/amonitor.cpp \
+    gui/arootlineconfigurator.cpp \
+    gui/geom/a3geoconwin.cpp \
+    gui/geom/ageobasedelegate.cpp \
+    gui/geom/ageobasetreewidget.cpp \
+    gui/geom/ageodelegatewidget.cpp \
+    gui/geom/ageoobjectdelegate.cpp \
+    gui/geom/ageotree.cpp \
+    gui/geom/agridelementdelegate.cpp \
+    gui/geom/agridelementdialog.cpp \
+    gui/geom/amonitordelegate.cpp \
+    gui/geom/amonitordelegateform.cpp \
+    gui/geom/aonelinetextedit.cpp \
     main.cpp \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
@@ -89,6 +102,18 @@ HEADERS += \
     geo/ageotype.h \
     geo/ageoconsts.h \
     geo/amonitor.h \
+    gui/arootlineconfigurator.h \
+    gui/geom/a3geoconwin.h \
+    gui/geom/ageobasedelegate.h \
+    gui/geom/ageobasetreewidget.h \
+    gui/geom/ageodelegatewidget.h \
+    gui/geom/ageoobjectdelegate.h \
+    gui/geom/ageotree.h \
+    gui/geom/agridelementdelegate.h \
+    gui/geom/agridelementdialog.h \
+    gui/geom/amonitordelegate.h \
+    gui/geom/amonitordelegateform.h \
+    gui/geom/aonelinetextedit.h \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
@@ -105,4 +130,7 @@ HEADERS += \
     js/a3farmsi.h
 
 FORMS += \
+        gui/geom/a3geoconwin.ui \
+        gui/geom/agridelementdialog.ui \
+        gui/geom/amonitordelegateform.ui \
         gui/mainwindow.ui

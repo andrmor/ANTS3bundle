@@ -6,6 +6,7 @@
 #include "guitools.h"
 #include "afiletools.h"
 #include "a3particlesimmanager.h"
+#include "a3geoconwin.h"
 
 #include <QDebug>
 
@@ -22,10 +23,13 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * par
     ui->pteData->appendPlainText(Config.lines);
     ui->leFrom->setText(Config.from);
     ui->leTo->setText(Config.to);
+
+    GeoConWin = new A3GeoConWin(this);
 }
 
 MainWindow::~MainWindow()
 {
+    delete GeoConWin;
     delete ui;
 }
 
@@ -114,5 +118,11 @@ void MainWindow::disableInterface(bool flag)
 void MainWindow::on_pbAbort_clicked()
 {
     ScriptManager.abort();
+}
+
+
+void MainWindow::on_pbGeometry_clicked()
+{
+    GeoConWin->showNormal();
 }
 

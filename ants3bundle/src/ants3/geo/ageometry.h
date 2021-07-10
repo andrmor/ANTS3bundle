@@ -36,6 +36,7 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr; // world in TGeoManager
 
+    QStringList Materials = {"111", "222"};
     QString ErrorString;
 
     std::vector<const AGeoObject*> MonitorsRecords;
