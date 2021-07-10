@@ -12,6 +12,12 @@
 #include "TGeoManager.h"
 #include "TVector3.h"
 
+AGeometry & AGeometry::getInstance()
+{
+    static AGeometry instance;
+    return instance;
+}
+
 AGeometry::AGeometry()
 {
     World = new AGeoObject("World");
@@ -28,6 +34,7 @@ AGeometry::~AGeometry()
 {
     clearWorld();
     delete World;
+    delete GeoManager;
 }
 
 void AGeometry::clearWorld()
@@ -850,7 +857,7 @@ bool AGeometry::isMaterialInUse(int imat) const
     return World->isMaterialInUse(imat);
 }
 
-void AGeometry::DeleteMaterial(int imat)
+void AGeometry::deleteMaterial(int imat)
 {
     World->DeleteMaterialIndex(imat);
 }
@@ -884,7 +891,8 @@ void AGeometry::writeToJson(QJsonObject & json) const
 
 QString AGeometry::readFromJson(const QJsonObject &json)
 {
-    QString ErrorString;
+    ErrorString.clear();
+
     QJsonObject js;
     bool ok = jstools::parseJson(json, "Geometry", js);
     if (ok)
