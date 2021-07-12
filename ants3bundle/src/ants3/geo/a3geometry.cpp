@@ -56,7 +56,7 @@ void A3Geometry::clearWorld()
 
 void A3Geometry::clearGridRecords()
 {
-/*
+    /*
     for (auto * gr : GridRecords) delete gr;
     GridRecords.clear();
 */
@@ -479,7 +479,7 @@ void A3Geometry::populateGeoManager()
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
 
-/*
+    /*
     //qDebug() << "--> Creating materials and media";
     for (int i=0; i<MpCollection->countMaterials(); i++)
       {
@@ -589,8 +589,8 @@ void A3Geometry::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent,
         // Positioning this object if it is physical
         if (obj->Type->isGrid())
         {
-//            GridRecords.append(obj->createGridRecord());
-//            parent->AddNode(vol, GridRecords.size() - 1, lTrans);
+            //            GridRecords.append(obj->createGridRecord());
+            //            parent->AddNode(vol, GridRecords.size() - 1, lTrans);
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
@@ -976,5 +976,52 @@ void A3Geometry::setWorldSizeZ(double size)
     {
         box->dz = size;
         box->str2dz.clear();
+    }
+}
+
+void A3Geometry::colorVolumes(int scheme, int id)
+{
+    //scheme = 0 - default
+    //scheme = 1 - by material
+    //scheme = 2 - volumes made of material index=id will be red, the rest - black
+
+    TObjArray * list = GeoManager->GetListOfVolumes();
+    int size = list->GetEntries();
+    for (int iVol = 0; iVol < size; iVol++)
+    {
+        TGeoVolume* vol = (TGeoVolume*)list->At(iVol);
+        if (!vol) break;
+
+        QString name = vol->GetName();
+        switch (scheme)
+        {
+        case 0:  //default color volumes for PMs and dPMs otherwise color from AGeoObject
+            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);
+            else
+            {
+                const AGeoObject * obj = World->findObjectByName(name); // !*! can be very slow for large detectors!
+                if (!obj && !name.isEmpty())
+                {
+                    //special for monitors
+                    QString mName = name.split("_-_").at(0);
+                    obj = World->findObjectByName(mName);
+                }
+                if (obj)
+                {
+                    vol->SetLineColor(obj->color);
+                    vol->SetLineWidth(obj->width);
+                    vol->SetLineStyle(obj->style);
+                }
+                else vol->SetLineColor(kGray);
+                //qDebug() << name << obj << vol->GetTitle();
+            }
+            break;
+        case 1:  //color by material
+            vol->SetLineColor(vol->GetMaterial()->GetIndex() + 1);
+            break;
+        case 2:  //highlight a given material
+            vol->SetLineColor( vol->GetMaterial()->GetIndex() == id ? kRed : kBlack );
+            break;
+        }
     }
 }

@@ -121,13 +121,11 @@ void GeometryWindowClass::prepareGeoManager(bool ColorUpdateAllowed)
     if (!ui->cbLimitVisibility->isChecked()) level = -1;
     Geometry.GeoManager->SetVisLevel(level);
 
-    /*
     if (ColorUpdateAllowed)
     {
-        if (ColorByMaterial) Detector.colorVolumes(1);
-        else Detector.colorVolumes(0);
+        if (ColorByMaterial) Geometry.colorVolumes(1);
+        else Geometry.colorVolumes(0);
     }
-    */
 
     Geometry.GeoManager->SetTopVisible(ui->cbShowTop->isChecked());
     Geometry.Top->SetAttBit(TGeoAtt::kVisOnScreen, ui->cbShowTop->isChecked());
@@ -1112,7 +1110,7 @@ void GeometryWindowClass::Zoom(bool update)
     }
 }
 
-void GeometryWindowClass::FocusVolume(const QString & name)
+void GeometryWindowClass::FocusVolume(QString name)
 {
     CameraControl->setFocus(name);
 }

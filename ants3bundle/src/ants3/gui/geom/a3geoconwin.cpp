@@ -3,12 +3,6 @@
 #include "a3geometry.h"
 #include "mainwindow.h"
 //#include "checkupwindowclass.h"
-//#include "geometrywindowclass.h"
-//#include "ajavascriptmanager.h"
-//#include "ascriptwindow.h"
-//#include "detectorclass.h"
-//#include "aglobalsettings.h"
-//#include "ageo_si.h"
 
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
@@ -24,7 +18,6 @@
 //#include "aconfiguration.h"
 #include "ajsontools.h"
 #include "afiletools.h"
-//#include "ascriptwindow.h"
 #include "ageoconsts.h"
 
 #include <QDebug>
@@ -33,6 +26,8 @@
 #include <QVBoxLayout>
 #include <QDesktopServices>
 #include <QEvent>
+
+#include <vector>
 
 #include "TGeoManager.h"
 #include "TGeoTrack.h"
@@ -95,8 +90,6 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   ui->pteTP->setPalette(p);
   ui->pteTP->setReadOnly(true);
 
-  //UpdateGUI();  // on load will trigger, even if default startup detector not found,. will trigger rebuild detector -> update gui
-
   QDoubleValidator* dv = new QDoubleValidator(this);
   dv->setNotation(QDoubleValidator::ScientificNotation);
   QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
@@ -138,20 +131,20 @@ void A3GeoConWin::onRebuildDetectorRequest()
 */
 }
 
-void A3GeoConWin::UpdateGUI()
+void A3GeoConWin::updateGui()
 {
     qDebug() << ">DAwindow: updateGui";
     UpdateGeoTree();
 
 /*
     ui->pbBackToSandwich->setEnabled(!Detector->isGDMLempty());
+*/
 
     QString str = "Show prototypes";
-    int numProto = Detector->Sandwich->Prototypes->HostedObjects.size();
+    int numProto = Geometry.Prototypes->HostedObjects.size();
     if (numProto > 0) str += QString(" (%1)").arg(numProto);
     ui->cbShowPrototypes->setText(str);
     QFont font = ui->cbShowPrototypes->font(); font.setBold(numProto > 0); ui->cbShowPrototypes->setFont(font);
-*/
 }
 
 void A3GeoConWin::UpdateGeoTree(QString name)
@@ -162,16 +155,14 @@ void A3GeoConWin::UpdateGeoTree(QString name)
 
 void A3GeoConWin::ShowObject(QString name)
 {
-    /*
-    HighlightVolume(name);
-    Detector->GeoManager->ClearTracks();
-    MW->GeometryWindow->ShowGeometry(true, false, false);
-    */
+    highlightVolume(name);
+    Geometry.GeoManager->ClearTracks();
+    emit requestDraw(true, false, false);
 }
 
 void A3GeoConWin::FocusVolume(QString name)
 {
-    //MW->GeometryWindow->FocusVolume(name);
+    emit requestFocusVolume(name);
 }
 
 bool drawIfFound(TGeoNode* node, TString name)
@@ -347,23 +338,22 @@ void A3GeoConWin::onRequestEnableGeoConstWidget(bool flag)
     ui->tabwConstants->setEnabled(flag);
 }
 
-void A3GeoConWin::HighlightVolume(const QString & VolName)
+void A3GeoConWin::highlightVolume(const QString & VolName)
 {
-    /*
-    AGeoObject * obj = Detector->Sandwich->World->findObjectByName(VolName);
+    AGeoObject * obj = Geometry.World->findObjectByName(VolName);
     if (!obj) return;
 
     QSet<QString> set;
-    if (obj->ObjectType->isHandlingArray() || obj->ObjectType->isInstance() || obj->ObjectType->isHandlingSet())
+    if (obj->Type->isHandlingArray() || obj->Type->isInstance() || obj->Type->isHandlingSet())
     {
-        QVector<AGeoObject*> vec;
+        std::vector<AGeoObject*> vec;
         obj->collectContainingObjects(vec);
-        for (AGeoObject * obj : vec)
+        for (const AGeoObject * obj : vec)
             set << obj->Name;
     }
     else    set << VolName;
 
-    TObjArray* list = Detector->GeoManager->GetListOfVolumes();
+    TObjArray* list = Geometry.GeoManager->GetListOfVolumes();
     int size = list->GetEntries();
 
     for (int iVol = 0; iVol < size; iVol++)
@@ -382,7 +372,6 @@ void A3GeoConWin::HighlightVolume(const QString & VolName)
         }
         else vol->SetLineColor(kGray);
     }
-    */
 }
 
 void A3GeoConWin::on_pbSaveTGeo_clicked()
@@ -548,7 +537,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
 
 void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
                        AMaterialParticleCollection* mp, const QString PMtemplate,
-                       DetectorClass* Detector, TGeoNavigator* navi, TString path)
+                       TGeoNavigator* navi, TString path)
 {
     obj->Name = node->GetName();
     //qDebug() << "\nNode name:"<<obj->Name<<"Num nodes:"<<node->GetNdaughters();
@@ -674,7 +663,7 @@ void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
             //not a PM
             AGeoObject* inObj = new AGeoObject(name);
             obj->addObjectLast(inObj);
-            readGeoObjectTree(inObj, daugtherNode, mp, PMtemplate, Detector, navi, path+"/");
+            readGeoObjectTree(inObj, daugtherNode, mp, PMtemplate, navi, path+"/");
         }
     }    
 }
@@ -873,6 +862,7 @@ void A3GeoConWin::resizeEvent(QResizeEvent *event)
     ui->tabwConstants->setColumnWidth(2, FirstPlusThird - FirstW);
 
     //AGuiWindow::resizeEvent(event);
+    QMainWindow::resizeEvent(event);
 }
 
 void A3GeoConWin::on_pbLoadTGeo_clicked()

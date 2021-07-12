@@ -7,6 +7,8 @@
 #include "afiletools.h"
 #include "a3particlesimmanager.h"
 #include "a3geoconwin.h"
+#include "geometrywindowclass.h"
+#include "a3geometry.h"
 
 #include <QDebug>
 
@@ -24,8 +26,19 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * par
     ui->leFrom->setText(Config.from);
     ui->leTo->setText(Config.to);
 
+    A3Geometry::getInstance().populateGeoManager();
+
     GeoConWin = new A3GeoConWin(this);
-    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this, &MainWindow::onRebuildGeometryRequested);
+    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+
+    GeoWin = new GeometryWindowClass(this);
+    connect(GeoConWin, &A3GeoConWin::requestDraw,            GeoWin, &GeometryWindowClass::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &GeometryWindowClass::FocusVolume);
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(false);
+    GeoWin->hide();
 }
 
 MainWindow::~MainWindow()
@@ -39,7 +52,8 @@ void MainWindow::onRebuildGeometryRequested()
 {
     A3Geometry & geom = A3Geometry::getInstance();
     geom.populateGeoManager();
-    GeoConWin->UpdateGUI();
+    GeoConWin->updateGui();
+    GeoWin->ShowGeometry();
 }
 
 void MainWindow::onProgressReceived(double progress)
@@ -133,5 +147,12 @@ void MainWindow::on_pbAbort_clicked()
 void MainWindow::on_pbGeometry_clicked()
 {
     GeoConWin->showNormal();
-    GeoConWin->UpdateGUI();
+    GeoConWin->updateGui();
 }
+
+void MainWindow::on_pbGeoWin_clicked()
+{
+    GeoWin->showNormal();
+    GeoWin->ShowGeometry();
+}
+

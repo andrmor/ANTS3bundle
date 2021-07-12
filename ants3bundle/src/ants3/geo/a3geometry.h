@@ -75,6 +75,7 @@ public:
 
     bool         isVolumeExistAndActive(const QString & name) const;
 
+    void         colorVolumes(int scheme, int id = 0);
     void         changeLineWidthOfVolumes(int delta);
 
     //World size-related

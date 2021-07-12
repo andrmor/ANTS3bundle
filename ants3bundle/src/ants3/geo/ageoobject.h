@@ -119,7 +119,7 @@ public:
   void updateWorldSize(double& XYm, double& Zm);
   bool isMaterialInUse(int imat) const;  //including disabled objects
   bool isMaterialInActiveUse(int imat) const;  //excluding disabled objects
-  void collectContainingObjects(QVector<AGeoObject*> & vec) const;
+  void collectContainingObjects(std::vector<AGeoObject*> & vec) const;
   double getMaxSize() const;
 
   bool getPositionInWorld(double * worldPos) const;

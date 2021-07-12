@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1048</width>
-    <height>543</height>
+    <width>1102</width>
+    <height>763</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="tabwidAddOns">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabWorldTree">
        <attribute name="title">
@@ -112,7 +112,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>146</width>
-                    <height>332</height>
+                    <height>497</height>
                    </rect>
                   </property>
                  </widget>
@@ -136,7 +136,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>146</width>
-                    <height>108</height>
+                    <height>163</height>
                    </rect>
                   </property>
                  </widget>
@@ -857,7 +857,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1048</width>
+     <width>1102</width>
      <height>22</height>
     </rect>
    </property>

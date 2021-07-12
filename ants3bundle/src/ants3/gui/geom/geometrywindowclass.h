@@ -36,7 +36,6 @@ public:
     QVector<GeoMarkerClass*> GeoMarkers;
 
     void ShowAndFocus();
-    void FocusVolume(const QString & name);
     void SetAsActiveRootWindow();
     void ClearRootCanvas();
     void UpdateRootCanvas();
@@ -64,7 +63,6 @@ public:
 
     bool IsWorldVisible();
 
-    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
 //    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
     void ShowGeoMarkers();
@@ -79,8 +77,10 @@ protected:
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
+    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void DrawTracks();
     void ShowPoint(double * r, bool keepTracks = false);
+    void FocusVolume(QString name);
     void CenterView(double * r);
     void ShowPMnumbers();  // !!!***
     void ShowMonitorIndexes();

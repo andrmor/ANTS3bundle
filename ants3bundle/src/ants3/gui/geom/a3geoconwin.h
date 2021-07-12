@@ -5,10 +5,7 @@
 
 #include <QMainWindow>
 
-class MainWindow;
 class A3Geometry;
-class DetectorClass;
-class AGeo_SI;
 class AGeoTree;
 class AGeoObject;
 
@@ -24,10 +21,7 @@ public:
   explicit A3GeoConWin(QWidget * parent);
   ~A3GeoConWin();
 
-  void UpdateGUI(); //update gui controls
-
-  AGeo_SI  * AddObjScriptInterface = nullptr;  // if created -> owned by the script manager
-  AGeoTree * twGeo   = nullptr;                  // WorldTree widget
+  void updateGui();
 
 private slots:
   void onRebuildDetectorRequest();
@@ -55,14 +49,15 @@ private slots:
   void on_cbShowPrototypes_toggled(bool checked);
 
 private:
-  A3Geometry & Geometry;
-  Ui::A3GeoConWin * ui;
+  A3Geometry      & Geometry;
+
+  Ui::A3GeoConWin * ui    = nullptr;
+  AGeoTree        * twGeo = nullptr;                // WorldTree widget
 
   //QString ObjectScriptTarget;
-
   bool bGeoConstsWidgetUpdateInProgress = false;
 
-  void    HighlightVolume(const QString & VolName);
+  void    highlightVolume(const QString & VolName);  // !!!***  slow!
   bool    GDMLtoTGeo(const QString &fileName);
   QString loadGDML(const QString &fileName, QString &gdml);  //returns error string - empty if OK
   void    updateGeoConstsIndication();
@@ -82,6 +77,8 @@ public slots:
 
 signals:
   void requestRebuildGeometry(); // to the parent, direct connection
+  void requestDraw(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
+  void requestFocusVolume(QString name);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

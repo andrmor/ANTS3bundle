@@ -1009,11 +1009,11 @@ bool AGeoObject::isMaterialInActiveUse(int imat) const
     return false;
 }
 
-void AGeoObject::collectContainingObjects(QVector<AGeoObject *> & vec) const
+void AGeoObject::collectContainingObjects(std::vector<AGeoObject*> & vec) const
 {
     for (AGeoObject * obj : HostedObjects)
     {
-        vec << obj;
+        vec.push_back(obj);
         obj->collectContainingObjects(vec);
     }
 }

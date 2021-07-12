@@ -31,6 +31,8 @@
 #include <QShortcut>
 #include <QStringList>
 
+#include <vector>
+
 #include "TMath.h"
 #include "TGeoShape.h"
 
@@ -1129,7 +1131,7 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
     {
         if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet())
         {
-            QVector<AGeoObject*> vec;
+            std::vector<AGeoObject*> vec;
             obj->collectContainingObjects(vec);
             for (AGeoObject * co : vec)
             {
