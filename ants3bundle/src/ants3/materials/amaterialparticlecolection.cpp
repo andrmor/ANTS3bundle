@@ -24,6 +24,17 @@ AMaterialParticleCollection::AMaterialParticleCollection()
     tmpMaterial.MatParticle.resize(1);
 }
 
+AMaterialParticleCollection &AMaterialParticleCollection::getInstance()
+{
+    static AMaterialParticleCollection instance;
+    return instance;
+}
+
+const AMaterialParticleCollection & AMaterialParticleCollection::getConstInstance()
+{
+    return getInstance();
+}
+
 AMaterialParticleCollection::~AMaterialParticleCollection()
 {
     clearMaterialCollection();
@@ -89,16 +100,14 @@ void AMaterialParticleCollection::UpdateRuntimePropertiesAndWavelengthBinning(AG
 
 QString AMaterialParticleCollection::CheckOverrides()
 {
-/*
-    for (AMaterial* mat : MaterialCollectionData)
-        for (AOpticalOverride* ov : mat->OpticalOverrides)
+    for (AMaterial* mat : qAsConst(MaterialCollectionData))
+        for (AOpticalOverride* ov : qAsConst(mat->OpticalOverrides))
             if (ov)
             {
                 QString err = ov->checkOverrideData();
                 if ( !err.isEmpty())
-                    return QString("Error in optical override from %1 to %2:\n").arg(mat->name).arg(getMaterialName(ov->getMaterialTo())) + err;
+                    return QString("Error in optical override from %1 to %2:\n").arg(mat->name, getMaterialName(ov->getMaterialTo())) + err;
             }
-*/
     return QString();
 }
 

@@ -16,9 +16,17 @@ class AMaterialParticleCollection : public QObject
 {
     Q_OBJECT
 
-public:
     AMaterialParticleCollection();
     ~AMaterialParticleCollection();
+
+    AMaterialParticleCollection(const AMaterialParticleCollection&)            = delete;
+    AMaterialParticleCollection(AMaterialParticleCollection&&)                 = delete;
+    AMaterialParticleCollection& operator=(const AMaterialParticleCollection&) = delete;
+    AMaterialParticleCollection& operator=(AMaterialParticleCollection&&)      = delete;
+
+public:
+    static       AMaterialParticleCollection & getInstance();
+    static const AMaterialParticleCollection & getConstInstance();
 
     AMaterial tmpMaterial; //all pointers are 0 on start -see default constructor
 
@@ -36,7 +44,7 @@ public:
 
     //hopefully we will get rid of the RandGen after update in NCrystal
     void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
-    QString CheckOverrides();  // !!!***
+    QString CheckOverrides();
 
     //for script-based optical override initialization
     bool isScriptOpticalOverrideDefined() const;  // !!!***
@@ -59,7 +67,6 @@ public:
     void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
     //tmpMaterial - related
-    // ***!!! todo: remove ClearTmpMaterial and use clear method of the AMaterial
     void ClearTmpMaterial(); //deletes all objects pointed by the class pointers!!!
     void CopyTmpToMaterialCollection(); //creates a copy of all pointers // true is new material was added to material collection
     void CopyMaterialToTmp(int imat);
