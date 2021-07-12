@@ -30,7 +30,7 @@ public:
   AGeoTree * twGeo   = nullptr;                  // WorldTree widget
 
 private slots:
-  void onReconstructDetectorRequest();
+  void onRebuildDetectorRequest();
   void onGeoConstEditingFinished(int index, QString newValue);
   void onGeoConstExpressionEditingFinished(int index, QString newValue);
   void onGeoConstEscapePressed(int index);
@@ -59,10 +59,8 @@ private slots:
 private:
   A3Geometry & Geometry;
   Ui::A3GeoConWin * ui;
-  MainWindow * MW;
-  DetectorClass * Detector;
 
-  QString ObjectScriptTarget;
+  //QString ObjectScriptTarget;
 
   bool bGeoConstsWidgetUpdateInProgress = false;
 
@@ -85,7 +83,9 @@ public slots:
   void onRequestEnableGeoConstWidget(bool flag);
 
 signals:
-  void requestDelayedRebuildAndRestoreDelegate();
+  void requestRebuildGeometry(); // to the parent, direct connection
+
+  void requestDelayedRebuildAndRestoreDelegate();  //local
 
 };
 

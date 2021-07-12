@@ -25,12 +25,21 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * par
     ui->leTo->setText(Config.to);
 
     GeoConWin = new A3GeoConWin(this);
+    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this, &MainWindow::onRebuildGeometryRequested);
 }
 
 MainWindow::~MainWindow()
 {
     delete GeoConWin;
     delete ui;
+}
+
+#include "a3geometry.h"
+void MainWindow::onRebuildGeometryRequested()
+{
+    A3Geometry & geom = A3Geometry::getInstance();
+    geom.populateGeoManager();
+    GeoConWin->UpdateGUI();
 }
 
 void MainWindow::onProgressReceived(double progress)

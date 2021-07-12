@@ -71,7 +71,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   l->setContentsMargins(0,0,0,0);
   ui->frObjectEditor->setLayout(l);
   l->addWidget(twGeo->GetEditWidget());
-  connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &A3GeoConWin::onReconstructDetectorRequest);
+  connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &A3GeoConWin::onRebuildDetectorRequest);
   connect(twGeo, &AGeoTree::RequestFocusObject,     this, &A3GeoConWin::FocusVolume);
   connect(twGeo, &AGeoTree::RequestHighlightObject, this, &A3GeoConWin::ShowObject);
   connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &A3GeoConWin::ShowObjectRecursive);
@@ -100,7 +100,8 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   QDoubleValidator* dv = new QDoubleValidator(this);
   dv->setNotation(QDoubleValidator::ScientificNotation);
   QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
-  for (QLineEdit * w : list) if (w->objectName().startsWith("led")) w->setValidator(dv);
+  for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
+      w->setValidator(dv);
 
   //ui->cbAutoCheck->setChecked( MW->GlobSet.PerformAutomaticGeometryCheck );
   on_cbAutoCheck_stateChanged(111);
@@ -116,9 +117,10 @@ A3GeoConWin::~A3GeoConWin()
     delete ui; ui = nullptr;
 }
 
-void A3GeoConWin::onReconstructDetectorRequest()
+void A3GeoConWin::onRebuildDetectorRequest()
 {
-  //qDebug() << "onReconstructDetectorRequest triggered";
+    qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+    emit requestRebuildGeometry();
 /*
   if (MW->DoNotUpdateGeometry) return; //if bulk update in progress
 

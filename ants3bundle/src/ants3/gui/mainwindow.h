@@ -34,6 +34,7 @@ private:
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
     void onParticleSimulationFinsihed();
+    void onRebuildGeometryRequested();
 
     void on_pbEvaluateScript_clicked();
     void on_pbSimulate_clicked();
