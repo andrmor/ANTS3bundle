@@ -27,12 +27,15 @@ public:
     QString ExecutableDir;
     QString ExchangeDir;
 
-    QString DispatcherExecutable = "dispatcher";
+    //QString DispatcherExecutable = "dispatcher";
 
     int LocalCores = 4;
     std::vector<A3FarmNodeRecord> FarmNodes;
 
     int NumSegmentsTGeo = 20;
+
+    QString LastSaveDir;
+    QString LastLoadDir;
 
     void configureDirectories();
 

@@ -38,6 +38,7 @@ INCLUDEPATH += js
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
+INCLUDEPATH += gui/materials
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
@@ -78,6 +79,8 @@ SOURCES += \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
     gui/geom/geometrywindowclass.cpp \
+    gui/materials/aelementandisotopedelegates.cpp \
+    gui/materials/materialinspectorwindow.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
@@ -144,6 +147,8 @@ HEADERS += \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
     gui/geom/geometrywindowclass.h \
+    gui/materials/aelementandisotopedelegates.h \
+    gui/materials/materialinspectorwindow.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
@@ -188,6 +193,7 @@ FORMS += \
         gui/geom/amonitordelegateform.ui \
         gui/geom/geometrywindowclass.ui \
         gui/mainwindow.ui \
+        gui/materials/materialinspectorwindow.ui \
         gui/raster/acameracontroldialog.ui
 
 RESOURCES += \
