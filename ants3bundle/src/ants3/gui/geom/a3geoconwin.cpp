@@ -1212,12 +1212,6 @@ void A3GeoConWin::updateMenuIndication()
 //    ui->actionRedo->setEnabled(MW->Config->isRedoAvailable());
 }
 
-void A3GeoConWin::onSandwichRebuild()
-{
-//    qDebug() << "--onSandwichRebuild";
-//    twGeo->UpdateGui("");
-}
-
 void A3GeoConWin::on_tabwConstants_cellChanged(int row, int column)
 {
     if (column != 0) return; // only name change or new

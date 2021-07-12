@@ -135,4 +135,3 @@ void MainWindow::on_pbGeometry_clicked()
     GeoConWin->showNormal();
     GeoConWin->UpdateGUI();
 }
-

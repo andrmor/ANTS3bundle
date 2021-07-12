@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GeometryWindowClass</class>
+ <widget class="QMainWindow" name="GeometryWindowClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>854</width>
+    <height>754</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Geometry</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="spacing">
+     <number>1</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="fUIbox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="cobViewer">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>TGeo viewer</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>JSROOT viewer</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbShowGeometry">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Redraw</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cobViewType">
+         <item>
+          <property name="text">
+           <string>Perspective</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Parallel</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbWireFrame">
+         <property name="text">
+          <string>Wire-frame</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbShowTop">
+         <property name="text">
+          <string>Show world</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbColor">
+         <property name="text">
+          <string>Color: material</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbShowAxes">
+         <property name="text">
+          <string>Show axes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>3</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Transp:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="sbTransparency">
+           <property name="toolTip">
+            <string>Transparency of volumes (0 = not transparent)</string>
+           </property>
+           <property name="singleStep">
+            <number>0</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>3</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="cbLimitVisibility">
+           <property name="toolTip">
+            <string>Set how many levels down the geometry hierarchy is shown. See Cern Root documentation for TGeoManager::SetVisLevel</string>
+           </property>
+           <property name="text">
+            <string>Max:</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="sbLimitVisibility">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbShowPMnumbers">
+         <property name="text">
+          <string>Show PM #s</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbShowMonitorIndexes">
+         <property name="text">
+          <string>Show mon #</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbShowTracks">
+         <property name="text">
+          <string>Show tracks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_4">
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="midLineWidth">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbClearTracks">
+         <property name="text">
+          <string>Clear tracks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbClearDots">
+         <property name="text">
+          <string>Clear markers</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbSaveAs">
+         <property name="text">
+          <string>Save image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Switch to view:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbTop">
+         <property name="text">
+          <string>Top</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbFront">
+         <property name="text">
+          <string>Front</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbSide">
+         <property name="text">
+          <string>Side</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbCameraDialog">
+         <property name="text">
+          <string>Camera control</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="swViewers">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="geo"/>
+      <widget class="QWidget" name="jsroot"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>854</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMarkers">
+    <property name="title">
+     <string>Markers</string>
+    </property>
+    <addaction name="actionSmall_dot"/>
+    <addaction name="actionLarge_dot"/>
+    <addaction name="actionSmall_cross"/>
+    <addaction name="actionLarge_cross"/>
+    <addaction name="separator"/>
+    <addaction name="actionSize_1"/>
+    <addaction name="actionSize_2"/>
+   </widget>
+   <widget class="QMenu" name="menuZoom">
+    <property name="title">
+     <string>Zoom</string>
+    </property>
+    <addaction name="actionDefault_zoom_1"/>
+    <addaction name="actionDefault_zoom_2"/>
+    <addaction name="actionDefault_zoom_to_0"/>
+   </widget>
+   <widget class="QMenu" name="menuLines">
+    <property name="title">
+     <string>Lines</string>
+    </property>
+    <addaction name="actionSet_line_width_for_objects"/>
+    <addaction name="actionDecrease_line_width"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionOpen_GL_viewer"/>
+    <addaction name="actionJSROOT_in_browser"/>
+   </widget>
+   <addaction name="menuView"/>
+   <addaction name="menuMarkers"/>
+   <addaction name="menuLines"/>
+   <addaction name="menuZoom"/>
+  </widget>
+  <action name="actionSmall_dot">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pixel</string>
+   </property>
+  </action>
+  <action name="actionLarge_dot">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Large dot</string>
+   </property>
+  </action>
+  <action name="actionSmall_cross">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Small cross</string>
+   </property>
+  </action>
+  <action name="actionLarge_cross">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Large cross</string>
+   </property>
+  </action>
+  <action name="actionSize_1">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Size +1</string>
+   </property>
+  </action>
+  <action name="actionSize_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Size -1</string>
+   </property>
+  </action>
+  <action name="actionDefault_zoom_1">
+   <property name="text">
+    <string>Default zoom +1</string>
+   </property>
+  </action>
+  <action name="actionDefault_zoom_2">
+   <property name="text">
+    <string>Default zoom -1</string>
+   </property>
+  </action>
+  <action name="actionDefault_zoom_to_0">
+   <property name="text">
+    <string>Default zoom to 0</string>
+   </property>
+  </action>
+  <action name="actionSet_line_width_for_objects">
+   <property name="text">
+    <string>Increase line width</string>
+   </property>
+  </action>
+  <action name="actionDecrease_line_width">
+   <property name="text">
+    <string>Decrease line width</string>
+   </property>
+  </action>
+  <action name="actionOpen_GL_viewer">
+   <property name="text">
+    <string>Open GL viewer</string>
+   </property>
+  </action>
+  <action name="actionJSROOT_in_browser">
+   <property name="text">
+    <string>JSROOT in browser</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cbLimitVisibility</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbLimitVisibility</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>135</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbTransparency</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbShowGeometry</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

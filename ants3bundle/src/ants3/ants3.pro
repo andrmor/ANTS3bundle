@@ -37,6 +37,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 INCLUDEPATH += js
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
+INCLUDEPATH += gui/raster
 INCLUDEPATH += geo
 INCLUDEPATH += tools
 INCLUDEPATH += particlesim
@@ -73,6 +74,10 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
+    gui/geom/geometrywindowclass.cpp \
+    gui/raster/acameracontroldialog.cpp \
+    gui/raster/rasterwindowbaseclass.cpp \
+    gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
@@ -107,6 +112,7 @@ HEADERS += \
     gui/geom/ageobasedelegate.h \
     gui/geom/ageobasetreewidget.h \
     gui/geom/ageodelegatewidget.h \
+    gui/geom/ageomarkerclass.h \
     gui/geom/ageoobjectdelegate.h \
     gui/geom/ageotree.h \
     gui/geom/agridelementdelegate.h \
@@ -114,6 +120,10 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
+    gui/geom/geometrywindowclass.h \
+    gui/raster/acameracontroldialog.h \
+    gui/raster/rasterwindowbaseclass.h \
+    gui/raster/rasterwindowgraphclass.h \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
@@ -133,7 +143,9 @@ FORMS += \
         gui/geom/a3geoconwin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
-        gui/mainwindow.ui
+        gui/geom/geometrywindowclass.ui \
+        gui/mainwindow.ui \
+        gui/raster/acameracontroldialog.ui
 
 RESOURCES += \
     resources.qrc

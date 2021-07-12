@@ -13,6 +13,8 @@ namespace guitools
 
     void inputInteger(const QString & text, int & input, int min, int max, QWidget * parent = nullptr);
     void inputString(const QString & label, QString & input, QWidget * parent = nullptr);
+
+    bool AssureWidgetIsWithinVisibleArea(QWidget* w);
 }
 
 #endif // GUITOOLS_H

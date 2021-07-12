@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QApplication>
+#include <QScreen>
 
 void guitools::message(QString text, QWidget* parent)
 {
@@ -56,4 +58,23 @@ void guitools::inputString(const QString & label, QString & input, QWidget *pare
     bool ok;
     QString res = QInputDialog::getText(parent, "", label, QLineEdit::Normal, input, &ok);
     if (ok) input = res;
+}
+
+bool guitools::AssureWidgetIsWithinVisibleArea(QWidget * w)
+{
+    QList<QScreen *> listScr = qApp->screens();
+
+    bool bVis = false;
+    for (QScreen * scr : qAsConst(listScr))
+    {
+        QRect ts = scr->geometry();
+        if (ts.contains(w->x(), w->y()))
+        {
+            bVis = true;
+            break;
+        }
+    }
+    if (!bVis) w->move(50,50);
+
+    return bVis;
 }

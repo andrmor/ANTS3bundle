@@ -32,6 +32,8 @@ public:
     int LocalCores = 4;
     std::vector<A3FarmNodeRecord> FarmNodes;
 
+    int NumSegmentsTGeo = 20;
+
     void configureDirectories();
 
     void saveConfig();

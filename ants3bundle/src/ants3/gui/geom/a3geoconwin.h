@@ -36,7 +36,6 @@ private slots:
   void onGeoConstEscapePressed(int index);
   void onRequestShowPrototypeList();
   void updateMenuIndication();
-  void onSandwichRebuild();
 
   void on_tabwConstants_customContextMenuRequested(const QPoint &pos);
   void on_pbSaveTGeo_clicked();
@@ -54,7 +53,6 @@ private slots:
   void on_actionHow_to_use_drag_and_drop_triggered();
   void on_actionTo_JavaScript_triggered();
   void on_cbShowPrototypes_toggled(bool checked);
-
 
 private:
   A3Geometry & Geometry;
