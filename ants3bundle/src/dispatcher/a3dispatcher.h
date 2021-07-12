@@ -26,10 +26,10 @@ public:
 
 public slots:
     void start();
-    void executeCommand(QJsonObject json);
+    void executeCommand(QJsonObject json); // only local use
 
 private slots:
-    void onRemoteCommandReceived(QJsonObject json);
+    void onRemoteCommandReceived(QJsonObject json); // only server use
     void onReportProgressTimer();
 
 signals:
@@ -53,8 +53,8 @@ protected:
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);
     void    log(const QString & text);
-    bool    startLocalWork(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
-    QString startRemoteWork(const A3WorkDistrConfig & wdc); //returns error, otherwise ""
+    bool    startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
+    QString startWorkFarm(const A3WorkDistrConfig & wdc); //returns error, otherwise ""
     void    waitForWorkFinished();
     void    clearHandlers();
 };

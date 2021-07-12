@@ -6,7 +6,7 @@
 #include <QMainWindow>
 
 class MainWindow;
-class AGeometry;
+class A3Geometry;
 class DetectorClass;
 class AGeo_SI;
 class AGeoTree;
@@ -57,7 +57,7 @@ private slots:
 
 
 private:
-  AGeometry & Geometry;
+  A3Geometry & Geometry;
   Ui::A3GeoConWin * ui;
   MainWindow * MW;
   DetectorClass * Detector;

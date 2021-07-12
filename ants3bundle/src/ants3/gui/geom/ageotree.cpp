@@ -1,5 +1,5 @@
 #include "ageotree.h"
-#include "ageometry.h"
+#include "a3geometry.h"
 #include "ageobasetreewidget.h"
 #include "ageodelegatewidget.h"
 #include "ageobasedelegate.h"
@@ -35,7 +35,7 @@
 #include "TGeoShape.h"
 
 AGeoTree::AGeoTree() :
-    QObject(), Geometry(AGeometry::getInstance()), World(Geometry.World), Prototypes(Geometry.Prototypes)
+    QObject(), Geometry(A3Geometry::getInstance()), World(Geometry.World), Prototypes(Geometry.Prototypes)
 {
     loadImages();
 

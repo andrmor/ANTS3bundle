@@ -1,5 +1,5 @@
 #include "ageodelegatewidget.h"
-#include "ageometry.h"
+#include "a3geometry.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageoobject.h"
@@ -23,7 +23,7 @@
 #include <vector>
 
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
-  Geometry(AGeometry::getInstance()), tw(tw)
+  Geometry(A3Geometry::getInstance()), tw(tw)
 {
   lMain = new QVBoxLayout(this);
   lMain->setContentsMargins(2,2,2,5);

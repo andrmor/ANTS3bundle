@@ -45,7 +45,7 @@ INCLUDEPATH += farm
 INCLUDEPATH += config
 INCLUDEPATH += ../dispatcher
 
-#DESTDIR = ../../bin #ignored in the meta project
+DESTDIR = ../../bin
 
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
@@ -55,7 +55,7 @@ SOURCES += \
     ../dispatcher/a3remotehandler.cpp \
     ../dispatcher/a3wsclient.cpp \
     config/amonitorconfig.cpp \
-    geo/ageometry.cpp \
+    geo/a3geometry.cpp \
     geo/ageoobject.cpp \
     geo/ageoshape.cpp \
     geo/ageotype.cpp \
@@ -96,7 +96,7 @@ HEADERS += \
     ../dispatcher/a3remotehandler.h \
     ../dispatcher/a3wsclient.h \
     config/amonitorconfig.h \
-    geo/ageometry.h \
+    geo/a3geometry.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
     geo/ageotype.h \

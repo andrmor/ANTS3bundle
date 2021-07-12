@@ -1,4 +1,4 @@
-#include "ageometry.h"
+#include "a3geometry.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
@@ -12,13 +12,13 @@
 #include "TGeoManager.h"
 #include "TVector3.h"
 
-AGeometry & AGeometry::getInstance()
+A3Geometry & A3Geometry::getInstance()
 {
-    static AGeometry instance;
+    static A3Geometry instance;
     return instance;
 }
 
-AGeometry::AGeometry()
+A3Geometry::A3Geometry()
 {
     World = new AGeoObject("World");
     delete World->Type; World->Type = new ATypeWorldObject();
@@ -30,14 +30,14 @@ AGeometry::AGeometry()
     Prototypes->migrateTo(World);
 }
 
-AGeometry::~AGeometry()
+A3Geometry::~A3Geometry()
 {
     clearWorld();
     delete World;
     delete GeoManager;
 }
 
-void AGeometry::clearWorld()
+void A3Geometry::clearWorld()
 {
     //delete all but World and Prototypes.
     //the Prototypes object should have the same pointer
@@ -54,7 +54,7 @@ void AGeometry::clearWorld()
     clearMonitorRecords();
 }
 
-void AGeometry::clearGridRecords()
+void A3Geometry::clearGridRecords()
 {
 /*
     for (auto * gr : GridRecords) delete gr;
@@ -62,14 +62,14 @@ void AGeometry::clearGridRecords()
 */
 }
 
-void AGeometry::clearMonitorRecords()
+void A3Geometry::clearMonitorRecords()
 {
     MonitorsRecords.clear(); //do not delete - it contains pointers to world tree objects
     MonitorIdNames.clear();
     MonitorNodes.clear();
 }
 
-bool AGeometry::canBeDeleted(AGeoObject * obj) const
+bool A3Geometry::canBeDeleted(AGeoObject * obj) const
 {
     if (obj == World) return false;
     if (obj == Prototypes) return false;
@@ -80,7 +80,7 @@ bool AGeometry::canBeDeleted(AGeoObject * obj) const
     return true;
 }
 
-void AGeometry::convertObjToComposite(AGeoObject *obj)
+void A3Geometry::convertObjToComposite(AGeoObject *obj)
 {
     delete obj->Type;
     ATypeCompositeObject* CO = new ATypeCompositeObject();
@@ -113,7 +113,7 @@ void AGeometry::convertObjToComposite(AGeoObject *obj)
     obj->Shape = new AGeoComposite(sl, str);
 }
 
-QString AGeometry::convertToNewPrototype(std::vector<AGeoObject *> members)
+QString A3Geometry::convertToNewPrototype(std::vector<AGeoObject *> members)
 {
     QString errStr;
 
@@ -138,7 +138,7 @@ QString AGeometry::convertToNewPrototype(std::vector<AGeoObject *> members)
     return "";
 }
 
-bool AGeometry::isValidPrototypeName(const QString & ProtoName) const
+bool A3Geometry::isValidPrototypeName(const QString & ProtoName) const
 {
     if (!Prototypes) return false;
     for (AGeoObject * proto : Prototypes->HostedObjects)
@@ -396,7 +396,7 @@ void rotate(TVector3 & v, double dPhi, double dTheta, double dPsi)
     v.Rotate(TMath::Pi() / 180.0 * dPsi, Z);
 }
 
-void AGeometry::expandPrototypeInstances()
+void A3Geometry::expandPrototypeInstances()
 {
     if (Prototypes->HostedObjects.empty()) return;
 
@@ -432,7 +432,7 @@ void AGeometry::expandPrototypeInstances()
     }
 }
 
-bool AGeometry::processCompositeObject(AGeoObject * obj)
+bool A3Geometry::processCompositeObject(AGeoObject * obj)
 {
     AGeoObject * logicals = obj->getContainerWithLogical();
     if (!logicals)
@@ -469,7 +469,7 @@ bool AGeometry::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
-void AGeometry::populateGeoManager()
+void A3Geometry::populateGeoManager()
 {
     clearGridRecords();
     clearMonitorRecords();
@@ -514,7 +514,7 @@ void AGeometry::populateGeoManager()
     GeoManager->CloseGeometry();
 }
 
-void AGeometry::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
+void A3Geometry::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
 {
     const int MonitorCounter = MonitorsRecords.size();
 
@@ -535,7 +535,7 @@ void AGeometry::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * 
     MonitorNodes.push_back(node);
 }
 
-void AGeometry::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber)
+void A3Geometry::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber)
 {
     if (!obj->fActive) return;
 
@@ -618,7 +618,7 @@ void AGeometry::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, 
     else                             vol->SetTitle("----");
 }
 
-void AGeometry::positionArray(AGeoObject * obj, TGeoVolume * vol)
+void A3Geometry::positionArray(AGeoObject * obj, TGeoVolume * vol)
 {
     ATypeArrayObject * array = static_cast<ATypeArrayObject*>(obj->Type);
 
@@ -643,7 +643,7 @@ void AGeometry::positionArray(AGeoObject * obj, TGeoVolume * vol)
     }
 }
 
-void AGeometry::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
+void A3Geometry::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
 {
     const ATypeStackContainerObject * stack = static_cast<const ATypeStackContainerObject*>(obj->Type);
     const QString & RefObjName = stack->ReferenceVolume;
@@ -663,7 +663,7 @@ void AGeometry::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNode
     else qWarning() << "Error: Reference object not found for stack" << obj->Name;
 }
 
-void AGeometry::positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
+void A3Geometry::positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
 {
     for (AGeoObject * el : obj->HostedObjects)
     {
@@ -698,7 +698,7 @@ void AGeometry::positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedN
     }
 }
 
-void AGeometry::positionArrayElement(int ix, int iy, int iz, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex)
+void A3Geometry::positionArrayElement(int ix, int iy, int iz, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex)
 {
     ATypeArrayObject* array = static_cast<ATypeArrayObject*>(arrayObj->Type);
 
@@ -732,7 +732,7 @@ void AGeometry::positionArrayElement(int ix, int iy, int iz, AGeoObject * el, AG
     addTGeoVolumeRecursively(el, parent, arrayIndex);
 }
 
-void AGeometry::positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex)
+void A3Geometry::positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex)
 {
     ATypeCircularArrayObject * array = static_cast<ATypeCircularArrayObject*>(arrayObj->Type);
 
@@ -768,7 +768,7 @@ void AGeometry::positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject
     addTGeoVolumeRecursively(el, parent, arrayIndex);
 }
 
-void AGeometry::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
+void A3Geometry::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
 {
     AGeoObject * Stack = el->Container;
 
@@ -802,7 +802,7 @@ void AGeometry::positionStackElement(AGeoObject * el, const AGeoObject * RefObj,
     addTGeoVolumeRecursively(el, parent, forcedNodeNumber);
 }
 
-TGeoRotation * AGeometry::createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot)
+TGeoRotation * A3Geometry::createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot)
 {
     double local[3], master[3];
 
@@ -852,17 +852,17 @@ TGeoRotation * AGeometry::createCombinedRotation(TGeoRotation * firstRot, TGeoRo
     return Rot;
 }
 
-bool AGeometry::isMaterialInUse(int imat) const
+bool A3Geometry::isMaterialInUse(int imat) const
 {
     return World->isMaterialInUse(imat);
 }
 
-void AGeometry::deleteMaterial(int imat)
+void A3Geometry::deleteMaterial(int imat)
 {
     World->DeleteMaterialIndex(imat);
 }
 
-bool AGeometry::isVolumeExistAndActive(const QString & name) const
+bool A3Geometry::isVolumeExistAndActive(const QString & name) const
 {
     AGeoObject * obj = World->findObjectByName(name);
     if (!obj) return false;
@@ -870,13 +870,13 @@ bool AGeometry::isVolumeExistAndActive(const QString & name) const
     return obj->fActive;
 }
 
-void AGeometry::changeLineWidthOfVolumes(int delta)
+void A3Geometry::changeLineWidthOfVolumes(int delta)
 {
     World->changeLineWidthRecursive(delta);
 }
 
 
-void AGeometry::writeToJson(QJsonObject & json) const
+void A3Geometry::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
 
@@ -889,7 +889,7 @@ void AGeometry::writeToJson(QJsonObject & json) const
     json["Geometry"] = js;
 }
 
-QString AGeometry::readFromJson(const QJsonObject &json)
+QString A3Geometry::readFromJson(const QJsonObject &json)
 {
     ErrorString.clear();
 
@@ -933,25 +933,25 @@ QString AGeometry::readFromJson(const QJsonObject &json)
     return ErrorString;
 }
 
-bool AGeometry::isWorldSizeFixed() const
+bool A3Geometry::isWorldSizeFixed() const
 {
     ATypeWorldObject * wt = static_cast<ATypeWorldObject*>(World->Type);
     return wt->bFixedSize;
 }
 
-void AGeometry::setWorldSizeFixed(bool bFlag)
+void A3Geometry::setWorldSizeFixed(bool bFlag)
 {
     ATypeWorldObject * wt = static_cast<ATypeWorldObject*>(World->Type);
     wt->bFixedSize = bFlag;
 }
 
-double AGeometry::getWorldSizeXY() const
+double A3Geometry::getWorldSizeXY() const
 {
     AGeoBox * box = dynamic_cast<AGeoBox*>(World->Shape);
     return ( box ? box->dx : 0 );
 }
 
-void AGeometry::setWorldSizeXY(double size)
+void A3Geometry::setWorldSizeXY(double size)
 {
     AGeoBox * box = dynamic_cast<AGeoBox*>(World->Shape);
     if (box)
@@ -963,13 +963,13 @@ void AGeometry::setWorldSizeXY(double size)
     }
 }
 
-double AGeometry::getWorldSizeZ() const
+double A3Geometry::getWorldSizeZ() const
 {
     AGeoBox * box = dynamic_cast<AGeoBox*>(World->Shape);
     return ( box ? box->dz : 0 );
 }
 
-void AGeometry::setWorldSizeZ(double size)
+void A3Geometry::setWorldSizeZ(double size)
 {
     AGeoBox * box = dynamic_cast<AGeoBox*>(World->Shape);
     if (box)

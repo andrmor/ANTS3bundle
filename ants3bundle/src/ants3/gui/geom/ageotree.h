@@ -12,7 +12,7 @@ class AGeoBaseTreeWidget;
 class AGeoObject;
 class AGeoShape;
 class AGeoDelegateWidget;
-class AGeometry;
+class A3Geometry;
 class QPoint;
 class QTreeWidgetItem;
 class QStringList;
@@ -58,7 +58,7 @@ private slots:
   void onRemoveRecursiveTriggered();
 
 private:
-  AGeometry  & Geometry;
+  A3Geometry  & Geometry;
   AGeoObject * World      = nullptr;
   AGeoObject * Prototypes = nullptr;
 

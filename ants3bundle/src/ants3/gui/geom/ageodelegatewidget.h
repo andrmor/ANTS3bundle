@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QString>
 
-class AGeometry;
+class A3Geometry;
 class AGeoTree;
 class AGeoObject;
 class AGeoShape;
@@ -27,7 +27,7 @@ public:
   QString getCurrentObjectName() const;
 
 private:
-  AGeometry & Geometry;
+  A3Geometry & Geometry;
   AGeoTree  * tw = nullptr;
 
   AGeoObject       * CurrentObject = nullptr;

@@ -1,6 +1,6 @@
 #include "a3geoconwin.h"
 #include "ui_a3geoconwin.h"
-#include "ageometry.h"
+#include "a3geometry.h"
 #include "mainwindow.h"
 //#include "checkupwindowclass.h"
 //#include "geometrywindowclass.h"
@@ -45,7 +45,7 @@
 #include "TGeoCompositeShape.h"
 
 A3GeoConWin::A3GeoConWin(QWidget * parent) :
-  QMainWindow(parent), Geometry(AGeometry::getInstance()),
+  QMainWindow(parent), Geometry(A3Geometry::getInstance()),
   ui(new Ui::A3GeoConWin)
 {
   ui->setupUi(this);
