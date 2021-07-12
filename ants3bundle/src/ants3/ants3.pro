@@ -39,6 +39,7 @@ INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
 INCLUDEPATH += geo
+INCLUDEPATH += materials
 INCLUDEPATH += tools
 INCLUDEPATH += particlesim
 INCLUDEPATH += dispatch
@@ -82,6 +83,11 @@ SOURCES += \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
     js/a3scriptres.cpp \
+    materials/achemicalelement.cpp \
+    materials/aisotope.cpp \
+    materials/aisotopeabundancehandler.cpp \
+    materials/amaterial.cpp \
+    materials/amaterialcomposition.cpp \
     particlesim/a3particlesimmanager.cpp \
     dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
@@ -127,6 +133,11 @@ HEADERS += \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
+    materials/achemicalelement.h \
+    materials/aisotope.h \
+    materials/aisotopeabundancehandler.h \
+    materials/amaterial.h \
+    materials/amaterialcomposition.h \
     particlesim/a3particlesimmanager.h \
     dispatch/a3dispinterface.h \
     config/a3config.h \
