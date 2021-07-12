@@ -12,8 +12,7 @@
 
 #include <QDebug>
 
-MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * parent) :
-    QMainWindow(parent),
+MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     Config(A3Config::getInstance()), ScriptManager(SM), ScrRes(ScrRes),
     ui(new Ui::MainWindow)
 {

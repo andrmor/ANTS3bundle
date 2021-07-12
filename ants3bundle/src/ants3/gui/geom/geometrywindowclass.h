@@ -156,7 +156,7 @@ private:
 private:
     void doChangeLineWidth(int deltaWidth);
     void showWebView();
-    void prepareGeoManager(bool ColorUpdateAllowed = true);  // !!!*** color update!
+    void prepareGeoManager(bool ColorUpdateAllowed = true);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
     void generateSymbolMap();
 

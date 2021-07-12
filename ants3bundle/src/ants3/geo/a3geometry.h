@@ -61,6 +61,9 @@ public:
     QString      convertToNewPrototype(std::vector<AGeoObject*> members);
     bool         isValidPrototypeName(const QString & ProtoName) const;
 
+    void         onStart();
+    void         aboutToQuit();
+
     //grids
 /*
     void         convertObjToGrid(AGeoObject * obj);

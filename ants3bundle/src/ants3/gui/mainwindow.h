@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget *parent = 0);
+    explicit MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes);
     ~MainWindow();
 
 public slots:

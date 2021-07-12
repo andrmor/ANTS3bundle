@@ -3,6 +3,7 @@
 #include "a3scriptmanager.h"
 #include "a3dispinterface.h"
 #include "a3global.h"
+#include "a3geometry.h"
 
 #ifdef GUI
     #include <QApplication>
@@ -24,8 +25,6 @@
 
 int main(int argc, char *argv[])
 {
-
-
     int rootargc = 1;
     char *rootargv[] = {(char*)"qqq"};
     TApplication RootApp("My ROOT", &rootargc, rootargv);
@@ -63,6 +62,8 @@ int main(int argc, char *argv[])
 
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
+    A3Geometry::getInstance().onStart();
+
 #ifdef GUI
     if (argc == 1)
     {
@@ -71,7 +72,6 @@ int main(int argc, char *argv[])
         w->show();
         int res = app->exec();
         delete w;
-        return res;
     }
     else
 #else // GUI
@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
         QObject::connect(SM, &A3ScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();
     }
+
+    A3Geometry::getInstance().aboutToQuit();
 
     return 0;
 }

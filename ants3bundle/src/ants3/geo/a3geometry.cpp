@@ -32,9 +32,10 @@ A3Geometry::A3Geometry()
 
 A3Geometry::~A3Geometry()
 {
-    clearWorld();
-    delete World;
-    delete GeoManager;
+    qDebug() << "Dest for A3Geometry";
+    clearWorld(); delete World;
+
+    delete GeoManager; // should be deleted by aboutToQuit()!
 }
 
 void A3Geometry::clearWorld()
@@ -144,6 +145,16 @@ bool A3Geometry::isValidPrototypeName(const QString & ProtoName) const
     for (AGeoObject * proto : Prototypes->HostedObjects)
         if (ProtoName == proto->Name) return true;
     return false;
+}
+
+void A3Geometry::onStart()
+{
+    qDebug() << "Created A3Geometry";
+}
+
+void A3Geometry::aboutToQuit()
+{
+    delete GeoManager; GeoManager = nullptr;
 }
 
 /*
