@@ -42,6 +42,8 @@ INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
 INCLUDEPATH += particlesim
+INCLUDEPATH += photonSim
+INCLUDEPATH += photonSim/interfaceRules
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -88,11 +90,26 @@ SOURCES += \
     materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
+    materials/amaterialparticlecolection.cpp \
     particlesim/a3particlesimmanager.cpp \
     dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
     config/a3workdistrconfig.cpp \
+    photonSim/acommonfunctions.cpp \
+    photonSim/aphoton.cpp \
+    photonSim/aroothistappenders.cpp \
+    photonSim/asimulationstatistics.cpp \
+    photonSim/atracerstateful.cpp \
+    photonSim/interfaceRules/abasicopticaloverride.cpp \
+    photonSim/interfaceRules/aopticaloverride.cpp \
+    photonSim/interfaceRules/aopticaloverridescriptinterface.cpp \
+    photonSim/interfaceRules/ascriptopticaloverride.cpp \
+    photonSim/interfaceRules/awaveshifteroverride.cpp \
+    photonSim/interfaceRules/fsnpopticaloverride.cpp \
+    photonSim/interfaceRules/phscatclaudiomodel.cpp \
+    photonSim/interfaceRules/scatteronmetal.cpp \
+    photonSim/interfaceRules/spectralbasicopticaloverride.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
@@ -138,12 +155,27 @@ HEADERS += \
     materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
+    materials/amaterialparticlecolection.h \
     particlesim/a3particlesimmanager.h \
     dispatch/a3dispinterface.h \
     config/a3config.h \
     config/a3global.h \
     config/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
+    photonSim/acommonfunctions.h \
+    photonSim/aphoton.h \
+    photonSim/aroothistappenders.h \
+    photonSim/asimulationstatistics.h \
+    photonSim/atracerstateful.h \
+    photonSim/interfaceRules/abasicopticaloverride.h \
+    photonSim/interfaceRules/aopticaloverride.h \
+    photonSim/interfaceRules/aopticaloverridescriptinterface.h \
+    photonSim/interfaceRules/ascriptopticaloverride.h \
+    photonSim/interfaceRules/awaveshifteroverride.h \
+    photonSim/interfaceRules/fsnpopticaloverride.h \
+    photonSim/interfaceRules/phscatclaudiomodel.h \
+    photonSim/interfaceRules/scatteronmetal.h \
+    photonSim/interfaceRules/spectralbasicopticaloverride.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \

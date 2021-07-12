@@ -1,0 +1,715 @@
+#include "amaterialparticlecolection.h"
+//#include "ageneralsimsettings.h"
+#include "aopticaloverride.h"
+#include "ajsontools.h"
+#include "acommonfunctions.h"
+#include "atracerstateful.h"
+#include "ascriptopticaloverride.h"
+
+#include <QtDebug>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+
+#include "TROOT.h"
+#include "TGeoMedium.h"
+#include "TGeoMaterial.h"
+#include "TH1D.h"
+#include "TString.h"
+
+AMaterialParticleCollection::AMaterialParticleCollection()
+{
+    tmpMaterial.MatParticle.resize(1);
+}
+
+AMaterialParticleCollection::~AMaterialParticleCollection()
+{
+    clearMaterialCollection();
+}
+
+void AMaterialParticleCollection::SetWave(bool wavelengthResolved, double waveFrom, double waveTo, double waveStep, int waveNodes)
+{
+    WavelengthResolved = wavelengthResolved;
+    WaveFrom = waveFrom;
+    WaveTo = waveTo;
+    WaveStep = waveStep;
+    WaveNodes = waveNodes;
+}
+
+void AMaterialParticleCollection::GetWave(bool &wavelengthResolved, double &waveFrom, double &waveTo, double &waveStep, int &waveNodes) const
+{
+    wavelengthResolved = WavelengthResolved;
+    waveFrom = WaveFrom;
+    waveTo = WaveTo;
+    waveStep = WaveStep;
+    waveNodes = WaveNodes;
+}
+
+double AMaterialParticleCollection::getDriftSpeed(int iMat) const
+{
+    return 0.01 * MaterialCollectionData.at(iMat)->e_driftVelocity; //given in cm/us - returns in mm/ns
+}
+
+double AMaterialParticleCollection::getDiffusionSigmaTime(int iMat, int length_mm) const
+{
+    //sqrt(2Dl/v^3)
+    //https://doi.org/10.1016/j.nima.2016.01.094
+    const AMaterial * m = MaterialCollectionData.at(iMat);
+    if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
+
+    const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
+    const double d = m->e_diffusion_L; //now in mm^2/ns
+
+    return sqrt(2.0 * d * length_mm / v) / v; // in ns
+}
+
+double AMaterialParticleCollection::getDiffusionSigmaTransverse(int iMat, int length_mm) const
+{
+    //sqrt(2Dl/v)
+    const AMaterial * m = MaterialCollectionData.at(iMat);
+    if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
+
+    const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
+    const double d = m->e_diffusion_T; //now in mm^2/ns
+
+    return sqrt(2.0 * d * length_mm / v); // in mm
+}
+
+void AMaterialParticleCollection::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings * SimSet)
+{
+ //   SetWave(SimSet->fWaveResolved, SimSet->WaveFrom, SimSet->WaveTo, SimSet->WaveStep, SimSet->WaveNodes);
+    for (int imat = 0; imat < MaterialCollectionData.size(); imat++)
+    {
+        UpdateWaveResolvedProperties(imat);
+        MaterialCollectionData[imat]->updateRuntimeProperties();
+    }
+}
+
+QString AMaterialParticleCollection::CheckOverrides()
+{
+/*
+    for (AMaterial* mat : MaterialCollectionData)
+        for (AOpticalOverride* ov : mat->OpticalOverrides)
+            if (ov)
+            {
+                QString err = ov->checkOverrideData();
+                if ( !err.isEmpty())
+                    return QString("Error in optical override from %1 to %2:\n").arg(mat->name).arg(getMaterialName(ov->getMaterialTo())) + err;
+            }
+*/
+    return QString();
+}
+
+bool AMaterialParticleCollection::isScriptOpticalOverrideDefined() const
+{
+/*
+    for (AMaterial* mat : MaterialCollectionData)
+        for (AOpticalOverride* ov : mat->OpticalOverrides)
+            if (ov)
+            {
+                AScriptOpticalOverride* sov = dynamic_cast<AScriptOpticalOverride*>(ov);
+                if (sov) return true;
+            }
+*/
+    return false;
+}
+
+void AMaterialParticleCollection::getFirstOverridenMaterial(int &ifrom, int &ito)
+{
+    for (ifrom=0; ifrom<MaterialCollectionData.size(); ifrom++)
+        for (ito=0; ito<MaterialCollectionData.size(); ito++)
+            if (MaterialCollectionData[ifrom]->OpticalOverrides[ito]) return;
+    ifrom = 0;
+    ito = 0;
+}
+
+QString AMaterialParticleCollection::getMaterialName(int matIndex)
+{
+    if (matIndex<0 || matIndex>MaterialCollectionData.size()-1) return "";
+    return MaterialCollectionData.at(matIndex)->name;
+}
+
+const QStringList AMaterialParticleCollection::getListOfMaterialNames() const
+{
+    QStringList l;
+    for (AMaterial* m : MaterialCollectionData)
+        l << m->name;
+    return l;
+}
+
+void AMaterialParticleCollection::clearMaterialCollection()
+{
+    for (int i=0; i<MaterialCollectionData.size(); i++)
+    {
+        if (MaterialCollectionData[i]->PrimarySpectrumHist)
+        {
+            delete MaterialCollectionData[i]->PrimarySpectrumHist;
+            MaterialCollectionData[i]->PrimarySpectrumHist = 0;
+        }
+        if (MaterialCollectionData[i]->SecondarySpectrumHist)
+        {
+            delete MaterialCollectionData[i]->SecondarySpectrumHist;
+            MaterialCollectionData[i]->SecondarySpectrumHist = 0;
+        }
+
+        for (int im=0; im<MaterialCollectionData[i]->OpticalOverrides.size(); im++)
+            if (MaterialCollectionData[i]->OpticalOverrides[im])
+                delete MaterialCollectionData[i]->OpticalOverrides[im];
+        MaterialCollectionData[i]->OpticalOverrides.clear();
+
+        delete MaterialCollectionData[i];
+    }
+    MaterialCollectionData.clear();
+
+    AMaterialParticleCollection::ClearTmpMaterial();
+}
+
+void AMaterialParticleCollection::AddNewMaterial(bool fSuppressChangedSignal)
+{
+    AMaterial *m = new AMaterial;
+
+    int thisMat = MaterialCollectionData.size(); //index of this material (after it is added)
+    int numMats = thisMat+1; //collection size after it is added
+
+    //initialize empty optical overrides for all materials
+    m->OpticalOverrides.resize(numMats);
+    for (int i=0; i<numMats; i++) m->OpticalOverrides[i] = 0;
+
+    //all other materials have to be resized and set to 0 overrides on this material border:
+    for (int i=0; i<numMats-1; i++) //over old materials
+    {
+        MaterialCollectionData[i]->OpticalOverrides.resize(numMats);
+        MaterialCollectionData[i]->OpticalOverrides[thisMat] = nullptr;
+    }
+
+    //inicialize empty MatParticle vector for all defined particles
+//    int numParticles = ParticleCollection.size();
+//    m->MatParticle.resize(numParticles);
+
+    //appending to the material collection
+    MaterialCollectionData.append(m);
+
+    //tmpMaterial object has to be updated too!
+    //tmpMaterial "knew" one less material, have to set overrides to itself to nothing
+    tmpMaterial.OpticalOverrides.resize(numMats);
+    for (int i=0; i<numMats; i++) tmpMaterial.OpticalOverrides[thisMat] = 0;
+
+    if (!fSuppressChangedSignal) generateMaterialsChangedSignal();
+}
+
+void AMaterialParticleCollection::AddNewMaterial(QString name, bool fSuppressChangedSignal)
+{
+    AddNewMaterial(true);
+    MaterialCollectionData.last()->name = name;
+    ensureMatNameIsUnique(MaterialCollectionData.last());
+
+    if (!fSuppressChangedSignal) generateMaterialsChangedSignal();
+}
+
+void AMaterialParticleCollection::ClearTmpMaterial()
+{
+    tmpMaterial.name = "";
+    tmpMaterial.density = 0;
+    tmpMaterial.temperature = 298.0;
+    tmpMaterial.n = 1;
+    tmpMaterial.abs = 0;
+    tmpMaterial.reemissionProb = 0;
+    tmpMaterial.rayleighMFP = 0;
+    tmpMaterial.e_driftVelocity = 0;
+    tmpMaterial.e_diffusion_L = 0;
+    tmpMaterial.e_diffusion_T = 0;
+    tmpMaterial.W = 0;
+    tmpMaterial.SecYield = 0;
+    tmpMaterial.SecScintDecayTime = 0;
+    tmpMaterial.Comments = "";
+
+    tmpMaterial.PriScint_Decay.clear();
+    tmpMaterial.PriScint_Decay << APair_ValueAndWeight(0, 1.0);
+    tmpMaterial.PriScint_Raise.clear();
+    tmpMaterial.PriScint_Raise << APair_ValueAndWeight(0, 1.0);
+
+    tmpMaterial.PhotonYieldDefault = 0;
+    tmpMaterial.IntrEnResDefault = 0;
+
+/*
+    int particles = ParticleCollection.size();
+    tmpMaterial.MatParticle.resize(particles);
+    for (int i=0; i<particles; i++)
+    {
+        tmpMaterial.MatParticle[i].InteractionDataF.resize(0);
+        tmpMaterial.MatParticle[i].InteractionDataX.resize(0);
+        tmpMaterial.MatParticle[i].Terminators.resize(0);
+        tmpMaterial.MatParticle[i].PhYield = 0;
+        tmpMaterial.MatParticle[i].IntrEnergyRes = 0;
+        tmpMaterial.MatParticle[i].TrackingAllowed = false;
+    }
+*/
+
+    int materials = MaterialCollectionData.size();
+
+    tmpMaterial.OpticalOverrides.resize(materials);
+    for (int i=0; i<materials; i++)
+    {
+        if (tmpMaterial.OpticalOverrides[i])
+        {
+            delete tmpMaterial.OpticalOverrides[i];
+            tmpMaterial.OpticalOverrides[i] = 0;
+        }
+    }
+
+    tmpMaterial.nWave_lambda.clear();
+    tmpMaterial.nWave.clear();
+    tmpMaterial.nWaveBinned.clear();
+    tmpMaterial.absWave_lambda.clear();
+    tmpMaterial.absWave.clear();
+    tmpMaterial.absWaveBinned.clear();
+    tmpMaterial.reemisProbWave.clear();
+    tmpMaterial.reemisProbWave_lambda.clear();
+    tmpMaterial.reemissionProbBinned.clear();
+
+    tmpMaterial.PrimarySpectrum_lambda.clear();
+    tmpMaterial.PrimarySpectrum.clear();
+    tmpMaterial.SecondarySpectrum_lambda.clear();
+    tmpMaterial.SecondarySpectrum.clear();
+
+    //---POINTERS---
+    if (tmpMaterial.PrimarySpectrumHist)
+    {
+        delete tmpMaterial.PrimarySpectrumHist;
+        tmpMaterial.PrimarySpectrumHist = 0;
+    }
+    if (tmpMaterial.SecondarySpectrumHist)
+    {
+        delete tmpMaterial.SecondarySpectrumHist;
+        tmpMaterial.SecondarySpectrumHist = 0;
+    }
+    if (tmpMaterial.GeoMat)
+    {
+        delete tmpMaterial.GeoMat;
+        tmpMaterial.GeoMat = 0;
+    }
+    if (tmpMaterial.GeoMed)
+    {
+        delete tmpMaterial.GeoMed;
+        tmpMaterial.GeoMed = 0;
+    }
+}
+
+void AMaterialParticleCollection::CopyTmpToMaterialCollection()
+{
+    QString name = tmpMaterial.name;
+    int index = AMaterialParticleCollection::FindMaterial(name);
+
+    if (index == -1)
+    {
+        //      qDebug()<<"MaterialCollection--> New material: "<<name;
+        AMaterialParticleCollection::AddNewMaterial();
+        index = MaterialCollectionData.size()-1;
+    }
+    else
+    {
+        //      qDebug()<<"MaterialCollection--> Material "+name+" already defined; index = "<<index;
+    }
+    //*MaterialCollectionData[index] = tmpMaterial; //updating material properties
+    QJsonObject js;
+    tmpMaterial.writeToJson(js);
+    MaterialCollectionData[index]->readFromJson(js);
+
+    //now update pointers!
+    AMaterialParticleCollection::UpdateWaveResolvedProperties(index); //updating effective properties (hists, Binned), remaking hist objects (Pointers are safe - they objects are recreated on each copy)
+
+    generateMaterialsChangedSignal();
+    return;
+}
+
+int AMaterialParticleCollection::FindMaterial(const QString & name) const
+{
+    const int size = MaterialCollectionData.size();
+
+    for (int index = 0; index < size; index++)
+        if (name == MaterialCollectionData[index]->name) return index;
+
+    return -1;
+}
+
+void AMaterialParticleCollection::UpdateWaveResolvedProperties(int imat)
+{
+    //qDebug()<<"Wavelength-resolved?"<<WavelengthResolved;
+    //qDebug()<<"--updating wavelength-resolved properties for material index"<<imat;
+    if (WavelengthResolved)
+    {
+        //calculating histograms and "-Binned" for effective data
+        MaterialCollectionData[imat]->nWaveBinned.clear();
+        if (MaterialCollectionData[imat]->nWave_lambda.size() > 0)
+            ConvertToStandardWavelengthes(&MaterialCollectionData[imat]->nWave_lambda, &MaterialCollectionData[imat]->nWave, &MaterialCollectionData[imat]->nWaveBinned);
+
+        MaterialCollectionData[imat]->absWaveBinned.clear();
+        if (MaterialCollectionData[imat]->absWave_lambda.size() > 0)
+            ConvertToStandardWavelengthes(&MaterialCollectionData[imat]->absWave_lambda, &MaterialCollectionData[imat]->absWave, &MaterialCollectionData[imat]->absWaveBinned);
+
+        MaterialCollectionData[imat]->reemissionProbBinned.clear();
+        if (MaterialCollectionData[imat]->reemisProbWave_lambda.size() > 0)
+            ConvertToStandardWavelengthes(&MaterialCollectionData[imat]->reemisProbWave_lambda, &MaterialCollectionData[imat]->reemisProbWave, &MaterialCollectionData[imat]->reemissionProbBinned);
+
+        if (MaterialCollectionData[imat]->rayleighMFP != 0)
+        {
+            MaterialCollectionData[imat]->rayleighBinned.clear();
+            double baseWave4 = MaterialCollectionData[imat]->rayleighWave * MaterialCollectionData[imat]->rayleighWave * MaterialCollectionData[imat]->rayleighWave * MaterialCollectionData[imat]->rayleighWave;
+            double base = MaterialCollectionData[imat]->rayleighMFP / baseWave4;
+            for (int i=0; i<WaveNodes; i++)
+            {
+                double wave = WaveFrom + WaveStep*i;
+                double wave4 = wave*wave*wave*wave;
+                MaterialCollectionData[imat]->rayleighBinned.append(base * wave4);
+            }
+        }
+
+        if (MaterialCollectionData[imat]->PrimarySpectrumHist)
+        {
+            delete MaterialCollectionData[imat]->PrimarySpectrumHist;
+            MaterialCollectionData[imat]->PrimarySpectrumHist = 0;
+        }
+        if (MaterialCollectionData[imat]->PrimarySpectrum_lambda.size() > 0)
+        {
+            QVector<double> y;
+            ConvertToStandardWavelengthes(&MaterialCollectionData[imat]->PrimarySpectrum_lambda, &MaterialCollectionData[imat]->PrimarySpectrum, &y);
+            TString name = "PrimScSp";
+            name += imat;
+            MaterialCollectionData[imat]->PrimarySpectrumHist = new TH1D(name,"Primary scintillation", WaveNodes, WaveFrom, WaveTo);
+            for (int j = 1; j<WaveNodes+1; j++)  MaterialCollectionData[imat]->PrimarySpectrumHist->SetBinContent(j, y[j-1]);
+            MaterialCollectionData[imat]->PrimarySpectrumHist->GetIntegral(); //to make thread safe
+        }
+
+        if (MaterialCollectionData[imat]->SecondarySpectrumHist)
+        {
+            delete MaterialCollectionData[imat]->SecondarySpectrumHist;
+            MaterialCollectionData[imat]->SecondarySpectrumHist = 0;
+        }
+        if (MaterialCollectionData[imat]->SecondarySpectrum_lambda.size() > 0)
+        {
+            QVector<double> y;
+            ConvertToStandardWavelengthes(&MaterialCollectionData[imat]->SecondarySpectrum_lambda, &MaterialCollectionData[imat]->SecondarySpectrum, &y);
+            TString name = "SecScSp";
+            name += imat;
+            MaterialCollectionData[imat]->SecondarySpectrumHist = new TH1D(name,"Secondary scintillation", WaveNodes, WaveFrom, WaveTo);
+            for (int j = 1; j<WaveNodes+1; j++)  MaterialCollectionData[imat]->SecondarySpectrumHist->SetBinContent(j, y[j-1]);
+            MaterialCollectionData[imat]->SecondarySpectrumHist->GetIntegral(); //to make thread safe
+        }
+
+        for (int ior=0; ior<MaterialCollectionData[imat]->OpticalOverrides.size(); ior++)
+            if (MaterialCollectionData[imat]->OpticalOverrides[ior])
+                MaterialCollectionData[imat]->OpticalOverrides[ior]->initializeWaveResolved();
+    }
+    else
+    {
+        //making empty histograms and "-Binned" for effective data
+        MaterialCollectionData[imat]->nWaveBinned.clear();
+        MaterialCollectionData[imat]->absWaveBinned.clear();
+        MaterialCollectionData[imat]->reemissionProbBinned.clear();
+        MaterialCollectionData[imat]->rayleighBinned.clear();
+        if (MaterialCollectionData[imat]->PrimarySpectrumHist)
+        {
+            delete MaterialCollectionData[imat]->PrimarySpectrumHist;
+            MaterialCollectionData[imat]->PrimarySpectrumHist = 0;
+        }
+        if (MaterialCollectionData[imat]->SecondarySpectrumHist)
+        {
+            delete MaterialCollectionData[imat]->SecondarySpectrumHist;
+            MaterialCollectionData[imat]->SecondarySpectrumHist = 0;
+        }
+
+        for (int ior=0; ior<MaterialCollectionData[imat]->OpticalOverrides.size(); ior++)
+            if (MaterialCollectionData[imat]->OpticalOverrides[ior])
+                MaterialCollectionData[imat]->OpticalOverrides[ior]->initializeWaveResolved();
+    }
+}
+
+void AMaterialParticleCollection::CopyMaterialToTmp(int imat)
+{
+    if (imat<0 || imat>MaterialCollectionData.size()-1)
+    {
+        qWarning()<<"Error: attempting to copy non-existent material #"<<imat<< " to tmpMaterial!";
+        return;
+    }
+    QJsonObject js;
+    MaterialCollectionData[imat]->writeToJson(js);
+    tmpMaterial.readFromJson(js);
+}
+
+void AMaterialParticleCollection::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<double>* sp_y, QVector<double>* y)
+{
+    y->resize(0);
+
+    //qDebug()<<"Data range:"<<sp_x->at(0)<<sp_x->at(sp_x->size()-1);
+    double xx, yy;
+    for (int i=0; i<WaveNodes; i++)
+    {
+        xx = WaveFrom + WaveStep*i;
+        if (xx <= sp_x->at(0)) yy = sp_y->at(0);
+        else
+        {
+            if (xx >= sp_x->at(sp_x->size()-1)) yy = sp_y->at(sp_x->size()-1);
+            else
+            {
+                //general case
+                yy = GetInterpolatedValue(xx, sp_x, sp_y); //reusing interpolation function from functions.h
+                if (yy<0) yy = 0; //!!! protection against negative
+            }
+        }
+        //      qDebug()<<xx<<yy;
+        y->append(yy);
+    }
+}
+
+QString AMaterialParticleCollection::CheckMaterial(const AMaterial* mat) const
+{
+    if (!mat) return "nullptr material";
+    return mat->CheckMaterial();
+}
+
+const QString AMaterialParticleCollection::CheckMaterial(int iMat) const
+{
+    if (iMat<0 || iMat>=MaterialCollectionData.size()) return "Wrong material index: " + QString::number(iMat);
+    return CheckMaterial(MaterialCollectionData[iMat]);
+}
+
+const QString AMaterialParticleCollection::CheckTmpMaterial() const
+{
+    return tmpMaterial.CheckMaterial();
+}
+
+bool AMaterialParticleCollection::DeleteMaterial(int imat)
+{
+    int size = MaterialCollectionData.size();
+    if (imat<0 || imat >= size)
+    {
+        qWarning()<<"Attempt to remove material with invalid index!";
+        return false;
+    }
+
+    //clear dynamic properties of this material
+    if (MaterialCollectionData[imat]->PrimarySpectrumHist)
+        delete MaterialCollectionData[imat]->PrimarySpectrumHist;
+    if (MaterialCollectionData[imat]->SecondarySpectrumHist)
+        delete MaterialCollectionData[imat]->SecondarySpectrumHist;
+    for (int iOther=0; iOther<size; iOther++)  //overrides from this materials to other materials
+    {
+        if ( MaterialCollectionData[imat]->OpticalOverrides[iOther] )
+        {
+            delete MaterialCollectionData[imat]->OpticalOverrides[iOther];
+            MaterialCollectionData[imat]->OpticalOverrides[iOther] = 0;
+        }
+    }
+
+    //clear overrides from other materials to this one
+    for (int iOther=0; iOther<size; iOther++)
+    {
+        if ( MaterialCollectionData[iOther]->OpticalOverrides[imat] ) delete MaterialCollectionData[iOther]->OpticalOverrides[imat];
+        MaterialCollectionData[iOther]->OpticalOverrides.remove(imat);
+    }
+
+    //delete this material
+    delete MaterialCollectionData[imat];
+    MaterialCollectionData.remove(imat);
+
+    //update indices of override materials
+    for (int i=0; i<size-1; i++)
+        for (int j=0; j<size-1; j++)
+            if (MaterialCollectionData[i]->OpticalOverrides[j])
+                MaterialCollectionData[i]->OpticalOverrides[j]->updateMatIndices(i, j);
+
+    //tmpmaterial - does not receive overrides!
+
+    generateMaterialsChangedSignal();
+
+    return true;
+}
+
+void AMaterialParticleCollection::writeToJson(QJsonObject &json)
+{
+    QJsonObject js;
+
+    QJsonArray ar;
+    for (int i=0; i<MaterialCollectionData.size(); i++)
+    {
+        QJsonObject jj;
+        MaterialCollectionData[i]->writeToJson(jj);
+        ar.append(jj);
+    }
+    js["Materials"] = ar;
+
+    QJsonArray oar;
+    for (int iFrom=0; iFrom<MaterialCollectionData.size(); iFrom++)
+        for (int iTo=0; iTo<MaterialCollectionData.size(); iTo++)
+        {
+            if ( !MaterialCollectionData.at(iFrom)->OpticalOverrides.at(iTo) ) continue;
+            QJsonObject js;
+            MaterialCollectionData.at(iFrom)->OpticalOverrides[iTo]->writeToJson(js);
+            oar.append(js);
+        }
+    if (!oar.isEmpty()) js["Overrides"] = oar;
+
+    json["MaterialCollection"] = js;
+}
+
+void AMaterialParticleCollection::writeMaterialToJson(int imat, QJsonObject &json)
+{
+    if (imat<0 || imat>MaterialCollectionData.size()-1)
+    {
+        qWarning() << "Attempt to save non-existent material!";
+        return;
+    }
+    MaterialCollectionData[imat]->writeToJson(json);
+}
+
+#include "abasicopticaloverride.h"
+bool AMaterialParticleCollection::readFromJson(QJsonObject &json)
+{
+    if (!json.contains("MaterialCollection"))
+    {
+        qCritical() << "Material collection not found in json";
+        exit(-2);
+    }
+    QJsonObject js = json["MaterialCollection"].toObject();
+
+    //reading materials
+    QJsonArray ar = js["Materials"].toArray();
+    if (ar.isEmpty())
+    {
+        qCritical() << "No materials in json";
+        exit(-2);
+    }
+    AMaterialParticleCollection::clearMaterialCollection();
+    for (int i=0; i<ar.size(); i++)
+    {
+        QJsonObject jj = ar[i].toObject();
+        AMaterialParticleCollection::AddNewMaterial(true); //also initialize overrides
+        MaterialCollectionData.last()->readFromJson(jj);
+    }
+    int numMats = countMaterials();
+    //qDebug() << "--> Loaded material collection with"<<numMats<<"materials";
+
+    //reading overrides if present
+    QJsonArray oar = js["Overrides"].toArray();
+    for (int i=0; i<oar.size(); i++)
+    {
+        QJsonObject jj = oar[i].toObject();
+        if (jj.contains("Model"))
+        {
+            //new format
+            QString model = jj["Model"].toString();
+            int MatFrom = jj["MatFrom"].toInt();
+            int MatTo = jj["MatTo"].toInt();
+            if (MatFrom>numMats-1 || MatTo>numMats-1)
+            {
+                qWarning()<<"Attempt to override for non-existent material skipped";
+                continue;
+            }
+            AOpticalOverride* ov = OpticalOverrideFactory(model, this, MatFrom, MatTo);
+            if (!ov || !ov->readFromJson(jj))
+                qWarning() << MaterialCollectionData[MatFrom]->name  << ": optical override load failed!";
+            else MaterialCollectionData[MatFrom]->OpticalOverrides[MatTo] = ov;
+        }
+        //compatibility with old format:
+        else if (jj.contains("MatFrom") && jj.contains("ScatModel"))
+        {
+            int MatFrom, MatTo;
+            jstools::parseJson(jj, "MatFrom", MatFrom);
+            jstools::parseJson(jj, "MatTo", MatTo);
+            if (MatFrom>numMats-1 || MatTo>numMats-1)
+            {
+                qWarning()<<"Attempt to override for non-existent material skipped";
+                continue;
+            }
+            double Abs, Scat, Spec;
+            Abs = Scat = Spec = 0;
+            int ScatMode = 1;
+            jstools::parseJson(jj, "Loss", Abs);
+            jstools::parseJson(jj, "Ref", Spec);
+            jstools::parseJson(jj, "Scat", Scat);
+            jstools::parseJson(jj, "ScatModel", ScatMode);
+            ABasicOpticalOverride* ov = new ABasicOpticalOverride(this, MatFrom, MatTo);
+            if (!ov)
+                qWarning() << MaterialCollectionData[MatFrom]->name << ": optical override load failed!";
+            else
+            {
+                MaterialCollectionData[MatFrom]->OpticalOverrides[MatTo] = ov;
+                ov->probLoss = Abs;
+                ov->probRef = Spec;
+                ov->probDiff = Scat;
+                ov->scatterModel = ScatMode;
+            }
+        }
+    }
+    //qDebug() << "--> Loaded material border overrides from array with"<<oar.size()<<"entries";
+
+    generateMaterialsChangedSignal();
+
+    return true;
+}
+
+void AMaterialParticleCollection::AddNewMaterial(QJsonObject &json) //have to be sure json is indeed material properties!
+{
+    AddNewMaterial();
+    AMaterial* mat = MaterialCollectionData.last();
+    mat->readFromJson(json);
+
+    ensureMatNameIsUnique(mat);
+
+    generateMaterialsChangedSignal();
+}
+
+void AMaterialParticleCollection::ensureMatNameIsUnique(AMaterial* mat)
+{
+    QString name = mat->name;
+    bool fFound;
+    do
+    {
+        fFound = false;
+        for (int i=0; i<MaterialCollectionData.size(); i++)  //-1 -1 - excluding itself
+        {
+            if (mat == MaterialCollectionData[i]) continue;
+            if (MaterialCollectionData[i]->name == name)
+            {
+                fFound = true;
+                name += "*";
+                break;
+            }
+        }
+    }
+    while (fFound);
+    mat->name = name;
+}
+
+void AMaterialParticleCollection::generateMaterialsChangedSignal()
+{
+    QStringList ml;
+    for (int i=0; i<MaterialCollectionData.size(); i++)
+        ml << MaterialCollectionData.at(i)->name;
+    emit MaterialsChanged(ml);
+}
+
+int AMaterialParticleCollection::WaveToIndex(double wavelength) const
+{
+    if (!WavelengthResolved) return -1;
+
+    int iwave = round( (wavelength - WaveFrom) / WaveStep );
+    if (iwave >= WaveNodes) iwave = WaveNodes-1;
+    if (iwave < 0) iwave = 0;
+    return iwave;
+}
+
+#include "ageoobject.h"
+void AMaterialParticleCollection::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const
+{
+    for (int iM = 0; iM<MaterialCollectionData.size(); iM++)
+    {
+        const AMaterial * mat = MaterialCollectionData.at(iM);
+        if (!World->isMaterialInActiveUse(iM)) continue;
+
+        if (!mat->ChemicalComposition.isDefined())
+            Errors += QString("\nComposition not defined for %1, while needed for tracking!\n").arg(mat->name);
+    }
+}
