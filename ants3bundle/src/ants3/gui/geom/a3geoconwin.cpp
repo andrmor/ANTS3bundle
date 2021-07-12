@@ -1199,7 +1199,9 @@ void A3GeoConWin::onRequestShowPrototypeList()
 void A3GeoConWin::updateMenuIndication()
 {
 //    ui->actionUndo->setEnabled(MW->Config->isUndoAvailable());
+      ui->actionUndo->setEnabled(false);
 //    ui->actionRedo->setEnabled(MW->Config->isRedoAvailable());
+      ui->actionRedo->setEnabled(false);
 }
 
 void A3GeoConWin::on_tabwConstants_cellChanged(int row, int column)
@@ -1283,13 +1285,13 @@ void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
             QString constUsingIt = GC.isGeoConstInUse(QRegExp("\\b"+name+"\\b"), index);
             if (!constUsingIt.isEmpty())
             {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name).arg(constUsingIt), this);
+                guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), this);
                 return;
             }
             const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegExp("\\b"+name+"\\b"));
             if (obj)
             {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name).arg(obj->Name), this);
+                guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), this);
                 return;
             }
         }
