@@ -9,6 +9,7 @@
 #include "a3geoconwin.h"
 #include "geometrywindowclass.h"
 #include "a3geometry.h"
+#include "materialinspectorwindow.h"
 
 #include <QDebug>
 
@@ -38,6 +39,9 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     GeoWin->ShowGeometry(false);
     GeoWin->hide();
+
+    MatWin = new MaterialInspectorWindow(this);
+    MatWin->initWindow();
 }
 
 MainWindow::~MainWindow()
@@ -153,5 +157,10 @@ void MainWindow::on_pbGeoWin_clicked()
 {
     GeoWin->showNormal();
     GeoWin->ShowGeometry();
+}
+
+void MainWindow::on_pbMaterials_clicked()
+{
+    MatWin->showNormal();
 }
 

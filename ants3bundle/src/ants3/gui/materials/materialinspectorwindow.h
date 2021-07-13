@@ -27,9 +27,9 @@ public:
     explicit MaterialInspectorWindow(QWidget* parent);
     ~MaterialInspectorWindow();
 
-    void InitWindow();
+    void initWindow();
+    void updateGui();   // yield / EnRes  !!!***
     void UpdateActiveMaterials();
-    void UpdateGui();   // yield / EnRes  !!!***
     void SetMaterial(int index);   //add watchdogs and update of mat/part list if necessary
 //    void AddMaterialFromLibrary(QWidget * parentWidget);   !!!***
 
@@ -66,11 +66,9 @@ private slots:
     void on_pbRename_clicked();
     void on_pbAddNewMaterial_clicked();
     void on_ledIntEnergyRes_editingFinished();
-    void on_cbTransparentMaterial_clicked();
     void on_cobYieldForParticle_activated(int index);
     void on_lePriT_raise_editingFinished();
     void on_pbCopyPrYieldToAll_clicked();
-    void on_cbTrackingAllowed_clicked();
     void on_pbModifyChemicalComposition_clicked();
     void on_cbShowIsotopes_clicked();
     void on_pbMaterialInfo_clicked();
@@ -93,7 +91,6 @@ private slots:
     //menu actions
     void on_actionSave_material_triggered();
     void on_actionLoad_material_triggered();
-    void on_tabwNeutron_customContextMenuRequested(const QPoint &pos);
 //    void on_actionLoad_from_material_library_triggered();   !!!***
     void on_actionAdd_default_material_triggered();
 
@@ -124,7 +121,6 @@ private:
 
     bool parseDecayOrRaiseTime(bool doParseDecay);
     void updateWarningIcons();
-    void updateEnableStatus();  // gui update for tracking allow / transparent
     void updateG4RelatedGui();
 };
 

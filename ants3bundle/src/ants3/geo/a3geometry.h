@@ -30,13 +30,12 @@ private:
     A3Geometry& operator=(A3Geometry&&)      = delete;
 
 public:
-    AGeoObject * World       = nullptr;  // world tree structure
-    AGeoObject * Prototypes  = nullptr;  // this object (container with prorotypes) is hosted by the World
+    AGeoObject  * World      = nullptr;  // world tree structure
+    AGeoObject  * Prototypes = nullptr;  // container with prorotypes. It is hosted by the World
 
     TGeoManager * GeoManager = nullptr;
-    TGeoVolume  * Top        = nullptr; // world in TGeoManager
+    TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    QStringList Materials = {"111", "222"}; // !!!***
     QString ErrorString;
 
     std::vector<const AGeoObject*> MonitorsRecords;

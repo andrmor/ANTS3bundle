@@ -4,6 +4,7 @@
 #include "a3dispinterface.h"
 #include "a3global.h"
 #include "a3geometry.h"
+#include "amaterialparticlecolection.h"
 
 #ifdef GUI
     #include <QApplication>
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
     A3Geometry::getInstance().onStart();
+    AMaterialParticleCollection::getInstance().AddNewMaterial("Dummy", true);
 
 #ifdef GUI
     if (argc == 1)

@@ -1443,6 +1443,7 @@ void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()
     UpdateGui(CurrentObjName);
 }
 
+#include "amaterialparticlecolection.h"
 QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMaterials, bool usePython) const
 {
     QVector<QString> posStrs; posStrs.reserve(3);
@@ -1457,11 +1458,12 @@ QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMate
         oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
+    const QStringList MatNames = AMaterialParticleCollection::getInstance().getListOfMaterialNames();
+
     QString str = QString("geo.TGeo( ") +
             "'" + obj->Name + "', " +
             "'" + GenerationString + "', " +
-            (bExpandMaterials && obj->Material < Geometry.Materials.size() ?
-                 Geometry.Materials.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
+            (bExpandMaterials && obj->Material < MatNames.size() ? MatNames.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
             "'" + obj->Container->Name + "',   "+
             posStrs[0] + ", " +
             posStrs[1] + ", " +

@@ -11,6 +11,7 @@ class A3ScriptManager;
 class A3ScriptRes;
 class A3GeoConWin;
 class GeometryWindowClass;
+class MaterialInspectorWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -30,8 +31,9 @@ private:
 
     Ui::MainWindow  * ui = nullptr;
 
-    A3GeoConWin * GeoConWin = nullptr;
-    GeometryWindowClass * GeoWin = nullptr;
+    A3GeoConWin             * GeoConWin = nullptr;
+    GeometryWindowClass     * GeoWin    = nullptr;
+    MaterialInspectorWindow * MatWin    = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -48,6 +50,8 @@ private slots:
     void on_pbGeometry_clicked();
 
     void on_pbGeoWin_clicked();
+
+    void on_pbMaterials_clicked();
 
 private:
     void disableInterface(bool flag);

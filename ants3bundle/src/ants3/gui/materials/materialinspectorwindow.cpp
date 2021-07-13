@@ -10,8 +10,6 @@
 #include "afiletools.h"
 #include "guitools.h"
 #include "acommonfunctions.h"
-//#include "ainternetbrowser.h"
-//#include "amatparticleconfigurator.h"
 #include "achemicalelement.h"
 #include "aelementandisotopedelegates.h"
 #include "geometrywindowclass.h"
@@ -58,25 +56,22 @@ MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
     //windowFlags |= Qt::Tool;
     this->setWindowFlags( windowFlags );
 
-    //SetWasModified(false);
     ui->pbWasModified->setVisible(false);
-    ui->pbUpdateInteractionIndication->setVisible(false);
     ui->labContextMenuHelp->setVisible(false);
     ui->pbUpdateTmpMaterial->setVisible(false);
-    ui->cobStoppingPowerUnits->setCurrentIndex(1);
-    ui->tabwNeutron->verticalHeader()->setVisible(false);
 
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
+    /*
     QPixmap pm(QSize(16,16));
     pm.fill(Qt::transparent);
     QPainter b(&pm);
     b.setBrush(QBrush(Qt::yellow));
     b.drawEllipse(0, 2, 10, 10);
-    ui->labAssumeZeroForEmpty->setPixmap(pm);
+    */
 }
 
 MaterialInspectorWindow::~MaterialInspectorWindow()
@@ -84,7 +79,7 @@ MaterialInspectorWindow::~MaterialInspectorWindow()
     delete ui;
 }
 
-void MaterialInspectorWindow::InitWindow()
+void MaterialInspectorWindow::initWindow()
 {
     UpdateActiveMaterials();
     showMaterial(0);
@@ -174,7 +169,7 @@ void MaterialInspectorWindow::showMaterial(int index)
     MpCollection.CopyMaterialToTmp(index);
     ui->cobActiveMaterials->setCurrentIndex(index);
     LastShownMaterial = index;
-    UpdateGui();
+    updateGui();
 
     ui->pbRename->setText("Rename " + ui->cobActiveMaterials->currentText());
     setWasModified(false);
@@ -227,7 +222,7 @@ void MaterialInspectorWindow::updateG4RelatedGui()
     for (QWidget * w : widgs) w->setDisabled(bDisable);
 }
 
-void MaterialInspectorWindow::UpdateGui()
+void MaterialInspectorWindow::updateGui()
 {
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
 
@@ -261,7 +256,7 @@ void MaterialInspectorWindow::UpdateGui()
     else
     {
         s.clear();
-        for (const APair_ValueAndWeight & pair : tmpMaterial.PriScint_Decay)
+        for (const APair_ValueAndWeight & pair : qAsConst(tmpMaterial.PriScint_Decay))
         {
             s += QString::number(pair.value);
             s += ":";
@@ -280,7 +275,7 @@ void MaterialInspectorWindow::UpdateGui()
     else
     {
         s.clear();
-        for (const APair_ValueAndWeight& pair : tmpMaterial.PriScint_Raise)
+        for (const APair_ValueAndWeight& pair : qAsConst(tmpMaterial.PriScint_Raise))
         {
             s += QString::number(pair.value);
             s += ":";
@@ -317,7 +312,7 @@ void MaterialInspectorWindow::UpdateGui()
     ui->pteComments->appendPlainText(tmpMaterial.Comments);
 
     QString sTags;
-    for (const QString & s : tmpMaterial.Tags)
+    for (const QString & s : qAsConst(tmpMaterial.Tags))
         sTags.append(s.simplified() + ", ");
     if (sTags.size() > 1) sTags.chop(2);
     ui->leTags->setText(sTags);
@@ -340,21 +335,6 @@ void MaterialInspectorWindow::updateWarningIcons()
         ui->twProperties->setTabIcon(0, QIcon(pm));
     }
     else ui->twProperties->setTabIcon(0, QIcon());
-}
-
-void MaterialInspectorWindow::updateEnableStatus()
-{
-    bool TrackingAllowed = ui->cbTrackingAllowed->isChecked();
-    bool MaterialIsTransparent = ui->cbTransparentMaterial->isChecked();
-
-    ui->cbTransparentMaterial->setEnabled(TrackingAllowed);
-    ui->fEnDepProps->setEnabled(TrackingAllowed && !MaterialIsTransparent);
-
-    ui->swMainMatParticle->setEnabled(!MaterialIsTransparent); // need?
-
-    QFont font = ui->cbTransparentMaterial->font();
-    font.setBold(MaterialIsTransparent);
-    ui->cbTransparentMaterial->setFont(font);
 }
 
 void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
@@ -385,7 +365,7 @@ void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
 
     QStringList slTags = ui->leTags->text().split(',', Qt::SkipEmptyParts);
     tmpMaterial.Tags.clear();
-    for (const QString & s : slTags)
+    for (const QString & s : qAsConst(slTags))
         tmpMaterial.Tags << s.simplified();
 
     tmpMaterial.bG4UseNistMaterial = ui->cbG4Material->isChecked();
@@ -850,7 +830,7 @@ void MaterialInspectorWindow::on_actionLoad_material_triggered()
   ui->cobActiveMaterials->setCurrentIndex(-1); //to avoid confusion (and update is disabled for -1)
   LastShownMaterial = -1;
 
-  UpdateGui(); //refresh indication of tmpMaterial
+  updateGui(); //refresh indication of tmpMaterial
   updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
@@ -871,7 +851,7 @@ void MaterialInspectorWindow::onAddIsotope(AChemicalElement *element)
     AMaterial& tmpMaterial = MpCollection.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    UpdateGui();
+    updateGui();
     setWasModified(true);
 }
 
@@ -887,7 +867,7 @@ void MaterialInspectorWindow::onRemoveIsotope(AChemicalElement *element, int iso
     AMaterial& tmpMaterial = MpCollection.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    UpdateGui();
+    updateGui();
     setWasModified(true);
 }
 
@@ -896,7 +876,7 @@ void MaterialInspectorWindow::IsotopePropertiesChanged(const AChemicalElement * 
     AMaterial& tmpMaterial = MpCollection.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    UpdateGui();
+    updateGui();
     setWasModified(true);
 }
 
@@ -941,7 +921,7 @@ void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
             continue;
         }
 
-        UpdateGui();
+        updateGui();
         break;
     }
 
@@ -985,7 +965,7 @@ void MaterialInspectorWindow::on_pbModifyByWeight_clicked()
             continue;
         }
 
-        UpdateGui();
+        updateGui();
         break;
     }
 
@@ -1048,11 +1028,6 @@ void flagButton(QPushButton* pb, bool flag)
     }
 
     pb->setStyleSheet(s);
-}
-
-void MaterialInspectorWindow::on_tabwNeutron_customContextMenuRequested(const QPoint &pos)
-{
-    qDebug() << "Menu not implemented" << ui->tabwNeutron->currentRow() << ui->tabwNeutron->currentColumn()<<pos;
 }
 
 void MaterialInspectorWindow::on_pbMaterialInfo_clicked()
@@ -1208,16 +1183,6 @@ void MaterialInspectorWindow::on_pbCopyIntrEnResToAll_clicked()
             tmpMaterial.MatParticle[iP].IntrEnergyRes = EnRes;
     tmpMaterial.IntrEnResDefault = EnRes;
     setWasModified(true);
-}
-
-void MaterialInspectorWindow::on_cbTrackingAllowed_clicked()
-{
-    updateEnableStatus();
-}
-
-void MaterialInspectorWindow::on_cbTransparentMaterial_clicked()
-{
-    updateEnableStatus();
 }
 
 void MaterialInspectorWindow::on_pbSecScintHelp_clicked()

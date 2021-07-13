@@ -1,5 +1,6 @@
 #include "ageodelegatewidget.h"
 #include "a3geometry.h"
+#include "amaterialparticlecolection.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageoobject.h"
@@ -23,7 +24,9 @@
 #include <vector>
 
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
-  Geometry(A3Geometry::getInstance()), tw(tw)
+  Geometry(A3Geometry::getInstance()),
+  Materials(AMaterialParticleCollection::getInstance()),
+  tw(tw)
 {
   lMain = new QVBoxLayout(this);
   lMain->setContentsMargins(2,2,2,5);
@@ -107,7 +110,7 @@ void AGeoDelegateWidget::UpdateGui()
     pbCancel->setEnabled(true);
 
     if (CurrentObject->Type->isWorld())
-        GeoDelegate = new AWorldDelegate(Geometry.Materials, this);
+        GeoDelegate = new AWorldDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isGridElement())
         GeoDelegate = createAndAddGridElementDelegate();
     else if (CurrentObject->Type->isMonitor())
@@ -139,57 +142,57 @@ AGeoBaseDelegate * AGeoDelegateWidget::createAndAddGeoObjectDelegate()
     const QString shape = (scaled ? scaled->getBaseShapeType() : CurrentObject->Shape->getShapeType());
 
     if (CurrentObject->Type->isCircularArray())
-        Del = new AGeoCircularArrayDelegate(Geometry.Materials, this);
+        Del = new AGeoCircularArrayDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isArray())
-        Del = new AGeoArrayDelegate(Geometry.Materials, this);
+        Del = new AGeoArrayDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isInstance())
     {
-        Del = new AGeoInstanceDelegate(Geometry.Materials, this);
+        Del = new AGeoInstanceDelegate(Materials.getListOfMaterialNames(), this);
         connect((AGeoInstanceDelegate*)Del, &AGeoInstanceDelegate::RequestShowPrototype,        tw, &AGeoTree::onRequestShowPrototype);
         connect((AGeoInstanceDelegate*)Del, &AGeoInstanceDelegate::RequestIsValidPrototypeName, tw, &AGeoTree::onRequestIsValidPrototypeName);
     }
     else if (CurrentObject->Type->isPrototype())
-        Del = new AGeoPrototypeDelegate(Geometry.Materials, this);
+        Del = new AGeoPrototypeDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isHandlingSet())
-        Del = new AGeoSetDelegate(Geometry.Materials, this);
+        Del = new AGeoSetDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoBBox")
-        Del = new AGeoBoxDelegate(Geometry.Materials, this);
+        Del = new AGeoBoxDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoTube")
-        Del = new AGeoTubeDelegate(Geometry.Materials, this);
+        Del = new AGeoTubeDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoTubeSeg")
-        Del = new AGeoTubeSegDelegate(Geometry.Materials, this);
+        Del = new AGeoTubeSegDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoCtub")
-        Del = new AGeoTubeSegCutDelegate(Geometry.Materials, this);
+        Del = new AGeoTubeSegCutDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoEltu")
-        Del = new AGeoElTubeDelegate(Geometry.Materials, this);
+        Del = new AGeoElTubeDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoPara")
-        Del = new AGeoParaDelegate(Geometry.Materials, this);
+        Del = new AGeoParaDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoSphere")
-        Del = new AGeoSphereDelegate(Geometry.Materials, this);
+        Del = new AGeoSphereDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoTrd1")
-        Del = new AGeoTrapXDelegate(Geometry.Materials, this);
+        Del = new AGeoTrapXDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoTrd2")
-        Del = new AGeoTrapXYDelegate(Geometry.Materials, this);
+        Del = new AGeoTrapXYDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoCone")
-        Del = new AGeoConeDelegate(Geometry.Materials, this);
+        Del = new AGeoConeDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoConeSeg")
-        Del = new AGeoConeSegDelegate(Geometry.Materials, this);
+        Del = new AGeoConeSegDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoParaboloid")
-        Del = new AGeoParaboloidDelegate(Geometry.Materials, this);
+        Del = new AGeoParaboloidDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoTorus")
-        Del = new AGeoTorusDelegate(Geometry.Materials, this);
+        Del = new AGeoTorusDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoPolygon")
-        Del = new AGeoPolygonDelegate(Geometry.Materials, this);
+        Del = new AGeoPolygonDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoPcon")
-        Del = new AGeoPconDelegate(Geometry.Materials, this);
+        Del = new AGeoPconDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoPgon")
-        Del = new AGeoPgonDelegate(Geometry.Materials, this);
+        Del = new AGeoPgonDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoCompositeShape")
-        Del = new AGeoCompositeDelegate(Geometry.Materials, this);
+        Del = new AGeoCompositeDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoArb8")
-        Del = new AGeoArb8Delegate(Geometry.Materials, this);
+        Del = new AGeoArb8Delegate(Materials.getListOfMaterialNames(), this);
     else
-        Del = new AGeoObjectDelegate(Geometry.Materials, this);
+        Del = new AGeoObjectDelegate(Materials.getListOfMaterialNames(), this);
 
     connect(Del, &AGeoObjectDelegate::RequestChangeShape,   this, &AGeoDelegateWidget::onRequestChangeShape);
 
