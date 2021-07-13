@@ -1,5 +1,5 @@
-#ifndef MATERIALINSPECTORWINDOW_H
-#define MATERIALINSPECTORWINDOW_H
+#ifndef A3MATWIN_H
+#define A3MATWIN_H
 
 //#include "aguiwindow.h"
 #include <QMainWindow>
@@ -16,16 +16,16 @@ class ANeutronInteractionElement;
 class AMaterial;
 
 namespace Ui {
-class MaterialInspectorWindow;
+class A3MatWin;
 }
 
-class MaterialInspectorWindow : public QMainWindow // AGuiWindow
+class A3MatWin : public QMainWindow // AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit MaterialInspectorWindow(QWidget* parent);
-    ~MaterialInspectorWindow();
+    explicit A3MatWin(QWidget* parent);
+    ~A3MatWin();
 
     void initWindow();
     void updateGui();
@@ -101,7 +101,7 @@ private:
     A3MatHub   & MatHub;
     A3Global   & GlobSet;
 
-    Ui::MaterialInspectorWindow * ui = nullptr;
+    Ui::A3MatWin * ui = nullptr;
 
     bool bMaterialWasModified = false;
     bool flagDisreguardChange = false;
@@ -129,4 +129,4 @@ private:
     void updateG4RelatedGui();
 };
 
-#endif // MATERIALINSPECTORWINDOW_H
+#endif // A3MATWIN_H

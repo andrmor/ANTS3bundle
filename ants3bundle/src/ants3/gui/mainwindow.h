@@ -11,7 +11,7 @@ class A3ScriptManager;
 class A3ScriptRes;
 class A3GeoConWin;
 class GeometryWindowClass;
-class MaterialInspectorWindow;
+class A3MatWin;
 
 class MainWindow : public QMainWindow
 {
@@ -33,7 +33,7 @@ private:
 
     A3GeoConWin             * GeoConWin = nullptr;
     GeometryWindowClass     * GeoWin    = nullptr;
-    MaterialInspectorWindow * MatWin    = nullptr;
+    A3MatWin * MatWin    = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);

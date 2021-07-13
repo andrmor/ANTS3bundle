@@ -9,7 +9,7 @@
 #include "a3geoconwin.h"
 #include "geometrywindowclass.h"
 #include "a3geometry.h"
-#include "materialinspectorwindow.h"
+#include "a3matwin.h"
 
 #include <QDebug>
 
@@ -40,7 +40,7 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     GeoWin->ShowGeometry(false);
     GeoWin->hide();
 
-    MatWin = new MaterialInspectorWindow(this);
+    MatWin = new A3MatWin(this);
     MatWin->initWindow();
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaterialInspectorWindow</class>
- <widget class="QMainWindow" name="MaterialInspectorWindow">
+ <class>A3MatWin</class>
+ <widget class="QMainWindow" name="A3MatWin">
   <property name="geometry">
    <rect>
     <x>0</x>

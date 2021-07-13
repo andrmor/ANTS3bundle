@@ -1,5 +1,5 @@
-#include "materialinspectorwindow.h"
-#include "ui_materialinspectorwindow.h"
+#include "a3matwin.h"
+#include "ui_a3matwin.h"
 #include "mainwindow.h"
 #include "a3mathub.h"
 //#include "graphwindowclass.h"
@@ -40,12 +40,12 @@
 #include "TAttLine.h"
 #include "TAttMarker.h"
 
-MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
+A3MatWin::A3MatWin(QWidget * parent) :
     QMainWindow(parent), //AGuiWindow("mat", parent),
     Geometry(A3Geometry::getInstance()),
     MatHub(A3MatHub::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ui(new Ui::MaterialInspectorWindow)
+    ui(new Ui::A3MatWin)
 {
     ui->setupUi(this);
 
@@ -65,21 +65,21 @@ MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
-    connect(&MatHub, &A3MatHub::materialsChanged, this, &MaterialInspectorWindow::onMaterialsChanged);
+    connect(&MatHub, &A3MatHub::materialsChanged, this, &A3MatWin::onMaterialsChanged);
 }
 
-MaterialInspectorWindow::~MaterialInspectorWindow()
+A3MatWin::~A3MatWin()
 {
     delete ui;
 }
 
-void MaterialInspectorWindow::initWindow()
+void A3MatWin::initWindow()
 {
     updateGui();
     showMaterial(0);
 }
 
-void MaterialInspectorWindow::setWasModified(bool flag)
+void A3MatWin::setWasModified(bool flag)
 {
     if (flagDisreguardChange) return;
 
@@ -92,7 +92,7 @@ void MaterialInspectorWindow::setWasModified(bool flag)
     updateActionButtons();
 }
 
-void MaterialInspectorWindow::updateGui()
+void A3MatWin::updateGui()
 {   
     if (bLockTmpMaterial) return;
 
@@ -109,7 +109,7 @@ void MaterialInspectorWindow::updateGui()
     setWasModified(false);
 }
 
-void MaterialInspectorWindow::on_pbRename_clicked()
+void A3MatWin::on_pbRename_clicked()
 {
     if (bMaterialWasModified)
     {
@@ -138,17 +138,17 @@ void MaterialInspectorWindow::on_pbRename_clicked()
     //MW->ReconstructDetector(true); !!!*** update TGeo might be needed!
 }
 
-void MaterialInspectorWindow::on_pbUpdateMaterial_clicked()
+void A3MatWin::on_pbUpdateMaterial_clicked()
 {
     addNewOrUpdateMaterial();
 }
 
-void MaterialInspectorWindow::on_pbAddNewMaterial_clicked()
+void A3MatWin::on_pbAddNewMaterial_clicked()
 {
     addNewOrUpdateMaterial();
 }
 
-void MaterialInspectorWindow::addNewOrUpdateMaterial()
+void A3MatWin::addNewOrUpdateMaterial()
 {
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
@@ -183,7 +183,7 @@ void MaterialInspectorWindow::addNewOrUpdateMaterial()
     showMaterial(index);
 }
 
-void MaterialInspectorWindow::showMaterial(int index)
+void A3MatWin::showMaterial(int index)
 {
     if (index == -1)
     {
@@ -203,7 +203,7 @@ void MaterialInspectorWindow::showMaterial(int index)
     setWasModified(false);
 }
 
-void MaterialInspectorWindow::on_cobActiveMaterials_activated(int index)
+void A3MatWin::on_cobActiveMaterials_activated(int index)
 {
     if (bMaterialWasModified)
     {
@@ -217,7 +217,7 @@ void MaterialInspectorWindow::on_cobActiveMaterials_activated(int index)
     showMaterial(index);
 }
 
-void MaterialInspectorWindow::updateWaveButtons()
+void A3MatWin::updateWaveButtons()
 {   
     AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
@@ -241,7 +241,7 @@ void MaterialInspectorWindow::updateWaveButtons()
     ui->pbDeleteReemisProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
 }
 
-void MaterialInspectorWindow::updateG4RelatedGui()
+void A3MatWin::updateG4RelatedGui()
 {
     bool bDisable = ui->cbG4Material->isChecked();
     QVector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
@@ -250,7 +250,7 @@ void MaterialInspectorWindow::updateG4RelatedGui()
     for (QWidget * w : widgs) w->setDisabled(bDisable);
 }
 
-void MaterialInspectorWindow::updateTmpMaterialGui()
+void A3MatWin::updateTmpMaterialGui()
 {
     AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
@@ -349,7 +349,7 @@ void MaterialInspectorWindow::updateTmpMaterialGui()
     updateWarningIcons();
 }
 
-void MaterialInspectorWindow::updateWarningIcons()
+void A3MatWin::updateWarningIcons()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
@@ -365,7 +365,7 @@ void MaterialInspectorWindow::updateWarningIcons()
     else ui->twProperties->setTabIcon(0, QIcon());
 }
 
-void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
+void A3MatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
@@ -400,17 +400,17 @@ void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.G4NistMaterial = ui->leG4Material->text();
 }
 
-void MaterialInspectorWindow::setMaterial(int index)
+void A3MatWin::setMaterial(int index)
 {
     showMaterial(index);
 }
 
-void MaterialInspectorWindow::onMaterialsChanged()
+void A3MatWin::onMaterialsChanged()
 {
     updateGui();
 }
 
-void MaterialInspectorWindow::on_ledIntEnergyRes_editingFinished()
+void A3MatWin::on_ledIntEnergyRes_editingFinished()
 {
     AMaterial & tmpMaterial = MatHub.tmpMaterial;
     double newVal = ui->ledIntEnergyRes->text().toDouble();
@@ -430,7 +430,7 @@ void MaterialInspectorWindow::on_ledIntEnergyRes_editingFinished()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbLoadPrimSpectrum_clicked()
+void A3MatWin::on_pbLoadPrimSpectrum_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load primary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -450,7 +450,7 @@ void MaterialInspectorWindow::on_pbLoadPrimSpectrum_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowPrimSpectrum_clicked()
+void A3MatWin::on_pbShowPrimSpectrum_clicked()
 {
     /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
@@ -463,7 +463,7 @@ void MaterialInspectorWindow::on_pbShowPrimSpectrum_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbDeletePrimSpectrum_clicked()
+void A3MatWin::on_pbDeletePrimSpectrum_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.PrimarySpectrum_lambda.clear();
@@ -474,7 +474,7 @@ void MaterialInspectorWindow::on_pbDeletePrimSpectrum_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbLoadSecSpectrum_clicked()
+void A3MatWin::on_pbLoadSecSpectrum_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load secondary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -494,7 +494,7 @@ void MaterialInspectorWindow::on_pbLoadSecSpectrum_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowSecSpectrum_clicked()
+void A3MatWin::on_pbShowSecSpectrum_clicked()
 {
     /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
@@ -507,7 +507,7 @@ void MaterialInspectorWindow::on_pbShowSecSpectrum_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbDeleteSecSpectrum_clicked()
+void A3MatWin::on_pbDeleteSecSpectrum_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.SecondarySpectrum_lambda.clear();
@@ -518,7 +518,7 @@ void MaterialInspectorWindow::on_pbDeleteSecSpectrum_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbLoadNlambda_clicked()
+void A3MatWin::on_pbLoadNlambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load refractive index data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -538,7 +538,7 @@ void MaterialInspectorWindow::on_pbLoadNlambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowNlambda_clicked()
+void A3MatWin::on_pbShowNlambda_clicked()
 {
     /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
@@ -551,7 +551,7 @@ void MaterialInspectorWindow::on_pbShowNlambda_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbDeleteNlambda_clicked()
+void A3MatWin::on_pbDeleteNlambda_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.nWave_lambda.clear();
@@ -563,7 +563,7 @@ void MaterialInspectorWindow::on_pbDeleteNlambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbLoadABSlambda_clicked()
+void A3MatWin::on_pbLoadABSlambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load exponential bulk absorption data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -583,7 +583,7 @@ void MaterialInspectorWindow::on_pbLoadABSlambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowABSlambda_clicked()
+void A3MatWin::on_pbShowABSlambda_clicked()
 {
     /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
@@ -596,7 +596,7 @@ void MaterialInspectorWindow::on_pbShowABSlambda_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbDeleteABSlambda_clicked()
+void A3MatWin::on_pbDeleteABSlambda_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWave_lambda.clear();
@@ -607,7 +607,7 @@ void MaterialInspectorWindow::on_pbDeleteABSlambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowReemProbLambda_clicked()
+void A3MatWin::on_pbShowReemProbLambda_clicked()
 {
     /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
@@ -620,7 +620,7 @@ void MaterialInspectorWindow::on_pbShowReemProbLambda_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbLoadReemisProbLambda_clicked()
+void A3MatWin::on_pbLoadReemisProbLambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load reemission probability vs wavelength", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -640,7 +640,7 @@ void MaterialInspectorWindow::on_pbLoadReemisProbLambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbDeleteReemisProbLambda_clicked()
+void A3MatWin::on_pbDeleteReemisProbLambda_clicked()
 {
     AMaterial & tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.reemisProbWave_lambda.clear();
@@ -651,12 +651,12 @@ void MaterialInspectorWindow::on_pbDeleteReemisProbLambda_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbWasModified_clicked()
+void A3MatWin::on_pbWasModified_clicked()
 {
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_leName_editingFinished()
+void A3MatWin::on_leName_editingFinished()
 {
     QString name = ui->leName->text();
     name.replace("+","_");
@@ -675,7 +675,7 @@ void MaterialInspectorWindow::on_leName_editingFinished()
     on_pbUpdateTmpMaterial_clicked();
 }
 
-void MaterialInspectorWindow::on_leName_textChanged(const QString& /*name*/)
+void A3MatWin::on_leName_textChanged(const QString& /*name*/)
 {
     //on text change -> assuming it will be another material.
     //The following properties are recalculated anyway on accepting changes/new material
@@ -691,7 +691,7 @@ void MaterialInspectorWindow::on_leName_textChanged(const QString& /*name*/)
     updateActionButtons();
 }
 
-void MaterialInspectorWindow::updateActionButtons()
+void A3MatWin::updateActionButtons()
 {
     const QString name = ui->leName->text();
     int iMat = MatHub.FindMaterial(name);
@@ -711,7 +711,7 @@ void MaterialInspectorWindow::updateActionButtons()
     }
 }
 
-void MaterialInspectorWindow::on_ledRayleighWave_editingFinished()
+void A3MatWin::on_ledRayleighWave_editingFinished()
 {
     double wave = ui->ledRayleighWave->text().toDouble();
     if (wave <= 0)
@@ -724,13 +724,13 @@ void MaterialInspectorWindow::on_ledRayleighWave_editingFinished()
     MatHub.tmpMaterial.rayleighWave = wave;
 }
 
-void MaterialInspectorWindow::on_ledRayleigh_textChanged(const QString &arg1)
+void A3MatWin::on_ledRayleigh_textChanged(const QString &arg1)
 {
     if (arg1 == "") ui->ledRayleighWave->setEnabled(false);
     else ui->ledRayleighWave->setEnabled(true);
 }
 
-void MaterialInspectorWindow::on_ledRayleigh_editingFinished()
+void A3MatWin::on_ledRayleigh_editingFinished()
 {
     double ray;
     if (ui->ledRayleigh->text() == "") ray = 0;
@@ -738,14 +738,14 @@ void MaterialInspectorWindow::on_ledRayleigh_editingFinished()
     MatHub.tmpMaterial.rayleighMFP = ray;
 }
 
-void MaterialInspectorWindow::on_pbRemoveRayleigh_clicked()
+void A3MatWin::on_pbRemoveRayleigh_clicked()
 {
     ui->ledRayleigh->setText("");
     MatHub.tmpMaterial.rayleighMFP = 0;
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbShowUsage_clicked()
+void A3MatWin::on_pbShowUsage_clicked()
 {
     /*
   AMaterial& tmpMaterial = MpCollection.tmpMaterial;
@@ -781,7 +781,7 @@ void MaterialInspectorWindow::on_pbShowUsage_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_actionSave_material_triggered()
+void A3MatWin::on_actionSave_material_triggered()
 {
     //checkig this material
     const QString error = MatHub.CheckTmpMaterial();
@@ -807,7 +807,7 @@ void MaterialInspectorWindow::on_actionSave_material_triggered()
     if (!bOK) guitools::message("Failed to save json to file: "+fileName, this);
 }
 
-void MaterialInspectorWindow::on_actionLoad_material_triggered()
+void A3MatWin::on_actionLoad_material_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load material", GlobSet.LastLoadDir, "Material files (*mat *.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -839,7 +839,7 @@ void MaterialInspectorWindow::on_actionLoad_material_triggered()
     updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
-void MaterialInspectorWindow::on_cobYieldForParticle_activated(int index)
+void A3MatWin::on_cobYieldForParticle_activated(int index)
 {
     const AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
@@ -849,7 +849,7 @@ void MaterialInspectorWindow::on_cobYieldForParticle_activated(int index)
     flagDisreguardChange = false; // <--
 }
 
-void MaterialInspectorWindow::onAddIsotope(AChemicalElement *element)
+void A3MatWin::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
 
@@ -860,7 +860,7 @@ void MaterialInspectorWindow::onAddIsotope(AChemicalElement *element)
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
+void A3MatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
 {
     if (element->Isotopes.size()<2)
     {
@@ -876,7 +876,7 @@ void MaterialInspectorWindow::onRemoveIsotope(AChemicalElement *element, int iso
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
+void A3MatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
@@ -885,7 +885,7 @@ void MaterialInspectorWindow::IsotopePropertiesChanged(const AChemicalElement * 
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
+void A3MatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(x, y, "", titleX, titleY, 4, 20, 1, 4, 1, 2);
@@ -894,7 +894,7 @@ void MaterialInspectorWindow::onRequestDraw(const QVector<double> &x, const QVec
 */
 }
 
-void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
+void A3MatWin::on_pbModifyChemicalComposition_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
@@ -936,7 +936,7 @@ void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
     updateWarningIcons();
 }
 
-void MaterialInspectorWindow::on_pbModifyByWeight_clicked()
+void A3MatWin::on_pbModifyByWeight_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
@@ -980,7 +980,7 @@ void MaterialInspectorWindow::on_pbModifyByWeight_clicked()
     updateWarningIcons();
 }
 
-void MaterialInspectorWindow::ShowTreeWithChemicalComposition()
+void A3MatWin::ShowTreeWithChemicalComposition()
 {
     bClearInProgress = true;
     ui->trwChemicalComposition->clear();
@@ -998,7 +998,7 @@ void MaterialInspectorWindow::ShowTreeWithChemicalComposition()
         QTreeWidgetItem* ElItem = new QTreeWidgetItem(ui->trwChemicalComposition);
         ui->trwChemicalComposition->setItemWidget(ElItem, 0, elDel);
         ElItem->setExpanded(bShowIsotopes);
-        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &MaterialInspectorWindow::onAddIsotope, Qt::QueuedConnection);
+        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &A3MatWin::onAddIsotope, Qt::QueuedConnection);
 
         if (bShowIsotopes)
             for (int index = 0; index <el->Isotopes.size(); index++)
@@ -1007,13 +1007,13 @@ void MaterialInspectorWindow::ShowTreeWithChemicalComposition()
                 QTreeWidgetItem* twi = new QTreeWidgetItem();
                 ElItem->addChild(twi);
                 ui->trwChemicalComposition->setItemWidget(twi, 0, isotopDel);
-                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &MaterialInspectorWindow::onRemoveIsotope, Qt::QueuedConnection);
-                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &MaterialInspectorWindow::IsotopePropertiesChanged, Qt::QueuedConnection);
+                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &A3MatWin::onRemoveIsotope, Qt::QueuedConnection);
+                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &A3MatWin::IsotopePropertiesChanged, Qt::QueuedConnection);
             }
     }
 }
 
-void MaterialInspectorWindow::on_cbShowIsotopes_clicked()
+void A3MatWin::on_cbShowIsotopes_clicked()
 {
     ShowTreeWithChemicalComposition();
 }
@@ -1035,7 +1035,7 @@ void flagButton(QPushButton* pb, bool flag)
     pb->setStyleSheet(s);
 }
 
-void MaterialInspectorWindow::on_pbMaterialInfo_clicked()
+void A3MatWin::on_pbMaterialInfo_clicked()
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
@@ -1052,7 +1052,7 @@ void MaterialInspectorWindow::on_pbMaterialInfo_clicked()
     guitools::message(str, this);
 }
 
-void MaterialInspectorWindow::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
+void A3MatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
 {
     if (!ui->cbShowIsotopes->isChecked())
     {
@@ -1061,19 +1061,19 @@ void MaterialInspectorWindow::on_trwChemicalComposition_doubleClicked(const QMod
     }
 }
 
-void MaterialInspectorWindow::on_lePriT_editingFinished()
+void A3MatWin::on_lePriT_editingFinished()
 {
     if (bMessageLock) return;
     parseDecayOrRaiseTime(true);
 }
 
-void MaterialInspectorWindow::on_lePriT_raise_editingFinished()
+void A3MatWin::on_lePriT_raise_editingFinished()
 {
     if (bMessageLock) return;
     parseDecayOrRaiseTime(false);
 }
 
-bool MaterialInspectorWindow::parseDecayOrRaiseTime(bool doParseDecay)
+bool A3MatWin::parseDecayOrRaiseTime(bool doParseDecay)
 {
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
@@ -1131,7 +1131,7 @@ bool MaterialInspectorWindow::parseDecayOrRaiseTime(bool doParseDecay)
     return !bErrorDetected;
 }
 
-void MaterialInspectorWindow::on_pbPriThelp_clicked()
+void A3MatWin::on_pbPriThelp_clicked()
 {
     QString s = "The following is for both the decay and rise time generation:\n\n"
             "  If there is only one exponential component,"
@@ -1147,7 +1147,7 @@ void MaterialInspectorWindow::on_pbPriThelp_clicked()
     guitools::message(s, this);
 }
 
-void MaterialInspectorWindow::on_pbPriT_test_clicked()
+void A3MatWin::on_pbPriT_test_clicked()
 {
     /*
     AMaterial& tmpMaterial = MpCollection.tmpMaterial;
@@ -1166,7 +1166,7 @@ void MaterialInspectorWindow::on_pbPriT_test_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbCopyPrYieldToAll_clicked()
+void A3MatWin::on_pbCopyPrYieldToAll_clicked()
 {
     if (!guitools::confirm("Set the same primary yield value for all particles?", this)) return;
 
@@ -1178,7 +1178,7 @@ void MaterialInspectorWindow::on_pbCopyPrYieldToAll_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbCopyIntrEnResToAll_clicked()
+void A3MatWin::on_pbCopyIntrEnResToAll_clicked()
 {
     if (!guitools::confirm("Set the same intrinsic energy resolution value for all particles?", this)) return;
 
@@ -1190,7 +1190,7 @@ void MaterialInspectorWindow::on_pbCopyIntrEnResToAll_clicked()
     setWasModified(true);
 }
 
-void MaterialInspectorWindow::on_pbSecScintHelp_clicked()
+void A3MatWin::on_pbSecScintHelp_clicked()
 {
     QString s = "Diffusion is NOT active in \"Only photons\" simulation mode!\n"
             "\n"
@@ -1201,7 +1201,7 @@ void MaterialInspectorWindow::on_pbSecScintHelp_clicked()
     guitools::message(s, this);
 }
 
-void MaterialInspectorWindow::on_pteComments_textChanged()
+void A3MatWin::on_pteComments_textChanged()
 {
     if (!flagDisreguardChange) setWasModified(true);
 }
@@ -1237,7 +1237,7 @@ void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
 }
 */
 
-void MaterialInspectorWindow::on_actionAdd_default_material_triggered()
+void A3MatWin::on_actionAdd_default_material_triggered()
 {
     if (bMaterialWasModified)
     {
@@ -1254,7 +1254,7 @@ void MaterialInspectorWindow::on_actionAdd_default_material_triggered()
     if (index > -1) showMaterial(index);
 }
 
-void MaterialInspectorWindow::on_cbG4Material_toggled(bool)
+void A3MatWin::on_cbG4Material_toggled(bool)
 {
     updateG4RelatedGui();
 }
