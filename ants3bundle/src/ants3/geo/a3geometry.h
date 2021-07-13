@@ -8,7 +8,7 @@
 class AGeoObject;
 class TGeoManager;
 class TGeoVolume;
-class AMaterialParticleCollection;
+class A3MatHub;
 class AGridElementRecord;
 class TGeoNode;
 class TGeoCombiTrans;
@@ -45,7 +45,7 @@ public:
     std::vector<AGridElementRecord*> GridRecords;
 
     //properties used during the call of populateGeoManager()
-    const AMaterialParticleCollection * MaterialCollection = nullptr; // TODO: will be a singleton!
+    const A3MatHub * MaterialCollection = nullptr; // TODO: will be a singleton!
 
     void         populateGeoManager();
 

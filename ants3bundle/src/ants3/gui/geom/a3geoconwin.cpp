@@ -536,7 +536,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
 
 
 void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
-                       AMaterialParticleCollection* mp, const QString PMtemplate,
+                       A3MatHub* mp, const QString PMtemplate,
                        TGeoNavigator* navi, TString path)
 {
     obj->Name = node->GetName();

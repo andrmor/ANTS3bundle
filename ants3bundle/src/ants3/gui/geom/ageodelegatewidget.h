@@ -5,7 +5,7 @@
 #include <QString>
 
 class A3Geometry;
-class AMaterialParticleCollection;
+class A3MatHub;
 class AGeoTree;
 class AGeoObject;
 class AGeoShape;
@@ -29,7 +29,7 @@ public:
 
 private:
   A3Geometry & Geometry;
-  AMaterialParticleCollection & Materials;
+  A3MatHub & Materials;
   AGeoTree  * tw = nullptr;
 
   AGeoObject       * CurrentObject = nullptr;

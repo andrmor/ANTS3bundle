@@ -1458,7 +1458,7 @@ QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMate
         oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
-    const QStringList MatNames = AMaterialParticleCollection::getInstance().getListOfMaterialNames();
+    const QStringList MatNames = A3MatHub::getInstance().getListOfMaterialNames();
 
     QString str = QString("geo.TGeo( ") +
             "'" + obj->Name + "', " +

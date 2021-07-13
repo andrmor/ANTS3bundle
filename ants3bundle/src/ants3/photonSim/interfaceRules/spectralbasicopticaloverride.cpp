@@ -33,7 +33,7 @@
 #include <QPushButton>
 #endif
 
-SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(AMaterialParticleCollection *MatCollection, int MatFrom, int MatTo)
+SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
     : ABasicOpticalOverride(MatCollection, MatFrom, MatTo)
 {
     Wave << 500;

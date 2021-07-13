@@ -5,7 +5,7 @@
 
 #include <QString>
 
-class AMaterialParticleCollection;
+class A3MatHub;
 class ATracerStateful;
 class APhoton;
 class QJsonObject;
@@ -14,7 +14,7 @@ class GraphWindowClass;
 class ABasicOpticalOverride : public AOpticalOverride
 {
 public:
-  ABasicOpticalOverride(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo);
+  ABasicOpticalOverride(A3MatHub* MatCollection, int MatFrom, int MatTo);
   virtual ~ABasicOpticalOverride() {}
 
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

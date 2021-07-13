@@ -31,7 +31,7 @@
 #include "TGraph.h"
 #endif
 
-AWaveshifterOverride::AWaveshifterOverride(AMaterialParticleCollection *MatCollection, int MatFrom, int MatTo)
+AWaveshifterOverride::AWaveshifterOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AWaveshifterOverride::~AWaveshifterOverride()

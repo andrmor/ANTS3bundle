@@ -6,7 +6,7 @@
 #include <QString>
 #include <QVector>
 
-class AMaterialParticleCollection;
+class A3MatHub;
 class ATracerStateful;
 class APhoton;
 class QJsonObject;
@@ -17,7 +17,7 @@ class QPushButton;
 class AWaveshifterOverride : public AOpticalOverride
 {
 public:
-  AWaveshifterOverride(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo);
+  AWaveshifterOverride(A3MatHub* MatCollection, int MatFrom, int MatTo);
   virtual ~AWaveshifterOverride();
 
   void initializeWaveResolved() override;

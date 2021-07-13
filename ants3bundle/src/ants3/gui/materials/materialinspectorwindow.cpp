@@ -43,7 +43,7 @@
 MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
     QMainWindow(parent), //AGuiWindow("mat", parent),
     Geometry(A3Geometry::getInstance()),
-    MpCollection(AMaterialParticleCollection::getInstance()),
+    MpCollection(A3MatHub::getInstance()),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::MaterialInspectorWindow)
 {

@@ -5,14 +5,14 @@
 
 class APhoton;
 class TRandom2;
-class AMaterialParticleCollection;
+class A3MatHub;
 class QJsonObject;
 class ATracerStateful;
 
 class ScatterOnMetal : public AOpticalOverride
 {
 public:    
-  ScatterOnMetal(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo)
+  ScatterOnMetal(A3MatHub* MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
   virtual ~ScatterOnMetal() {}
 

@@ -20,7 +20,7 @@
 #include <QDoubleValidator>
 #endif
 
-ABasicOpticalOverride::ABasicOpticalOverride(AMaterialParticleCollection *MatCollection, int MatFrom, int MatTo)
+ABasicOpticalOverride::ABasicOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AOpticalOverride::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)

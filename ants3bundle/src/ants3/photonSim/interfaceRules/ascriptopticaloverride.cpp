@@ -22,7 +22,7 @@
 #include <QDebug>
 #include <QJsonObject>
 
-AScriptOpticalOverride::AScriptOpticalOverride(AMaterialParticleCollection *MatCollection, int MatFrom, int MatTo)
+AScriptOpticalOverride::AScriptOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AScriptOpticalOverride::~AScriptOpticalOverride() {}

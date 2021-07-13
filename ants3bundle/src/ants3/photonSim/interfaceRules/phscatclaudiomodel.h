@@ -15,7 +15,7 @@ class PhScatClaudioModel : public AOpticalOverride //abstract class!
 {
 public:  
   // constructor
-  PhScatClaudioModel(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo)
+  PhScatClaudioModel(A3MatHub* MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
   //virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) = 0;
@@ -55,7 +55,7 @@ protected:
 class PhScatClaudioModelV2 : public PhScatClaudioModel
 {
 public:
-  PhScatClaudioModelV2(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo)
+  PhScatClaudioModelV2(A3MatHub* MatCollection, int MatFrom, int MatTo)
     : PhScatClaudioModel(MatCollection, MatFrom, MatTo) {}
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override;
   virtual const QString getType() const override {return "Claudio_Model_V2";}
@@ -68,7 +68,7 @@ protected:
 class PhScatClaudioModelV2d1 : public PhScatClaudioModelV2
 {
 public:
-  PhScatClaudioModelV2d1(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo)
+  PhScatClaudioModelV2d1(A3MatHub* MatCollection, int MatFrom, int MatTo)
     : PhScatClaudioModelV2(MatCollection, MatFrom, MatTo) {}
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override;
   virtual const QString getType() const override {return "Claudio_Model_V2d1";}
@@ -77,7 +77,7 @@ public:
 class PhScatClaudioModelV2d2 : public PhScatClaudioModelV2
 {
 public:
-  PhScatClaudioModelV2d2(AMaterialParticleCollection* MatCollection, int MatFrom, int MatTo)
+  PhScatClaudioModelV2d2(A3MatHub* MatCollection, int MatFrom, int MatTo)
     : PhScatClaudioModelV2(MatCollection, MatFrom, MatTo) {}
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override;
   virtual const QString getType() const override {return "ClaudioModel";}

@@ -5,7 +5,7 @@
 #include <QMainWindow>
 
 class A3Geometry;
-class AMaterialParticleCollection;
+class A3MatHub;
 class A3Global;
 class TGraph;
 class QJsonObject;
@@ -96,7 +96,7 @@ private slots:
 
 private:
     A3Geometry                  & Geometry;
-    AMaterialParticleCollection & MpCollection;
+    A3MatHub & MpCollection;
     A3Global                    & GlobSet;
 
     Ui::MaterialInspectorWindow * ui = nullptr;

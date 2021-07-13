@@ -8,30 +8,32 @@
 #include <QObject>
 #include <QStringList>
 
+#include <vector>
+
 class AGeneralSimSettings;
 class ATracerStateful;
 class AGeoObject;
 
-class AMaterialParticleCollection : public QObject
+class A3MatHub : public QObject
 {
     Q_OBJECT
 
-    AMaterialParticleCollection();
-    ~AMaterialParticleCollection();
+    A3MatHub();
+    ~A3MatHub();
 
-    AMaterialParticleCollection(const AMaterialParticleCollection&)            = delete;
-    AMaterialParticleCollection(AMaterialParticleCollection&&)                 = delete;
-    AMaterialParticleCollection& operator=(const AMaterialParticleCollection&) = delete;
-    AMaterialParticleCollection& operator=(AMaterialParticleCollection&&)      = delete;
+    A3MatHub(const A3MatHub&)            = delete;
+    A3MatHub(A3MatHub&&)                 = delete;
+    A3MatHub& operator=(const A3MatHub&) = delete;
+    A3MatHub& operator=(A3MatHub&&)      = delete;
 
 public:
-    static       AMaterialParticleCollection & getInstance();
-    static const AMaterialParticleCollection & getConstInstance();
+    static       A3MatHub & getInstance();
+    static const A3MatHub & getConstInstance();
 
     AMaterial tmpMaterial; //all pointers are 0 on start -see default constructor
 
 private:
-    QVector<AMaterial*> MaterialCollectionData;
+    std::vector<AMaterial*> Materials;
     double WaveFrom  = 200.0;
     double WaveTo    = 800.0;
     double WaveStep  = 5.0;
@@ -51,9 +53,9 @@ public:
 
     //info requests
     //materials
-    AMaterial* operator[](int i) {return MaterialCollectionData[i]; } //get pointer to material with index i
-    const AMaterial* operator[](int i) const {return MaterialCollectionData[i]; } //get pointer to material with index i
-    int countMaterials() const {return MaterialCollectionData.size();}
+    AMaterial* operator[](int i) {return Materials[i]; } //get pointer to material with index i
+    const AMaterial* operator[](int i) const {return Materials[i]; } //get pointer to material with index i
+    int countMaterials() const {return Materials.size();}
     void getFirstOverridenMaterial(int &ifrom, int &ito);
     double convertWaveIndexToWavelength(int index) {return WaveFrom + WaveStep * index;}
     QString getMaterialName(int matIndex);

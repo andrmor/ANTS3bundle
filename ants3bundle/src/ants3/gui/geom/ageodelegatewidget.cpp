@@ -25,7 +25,7 @@
 
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
   Geometry(A3Geometry::getInstance()),
-  Materials(AMaterialParticleCollection::getInstance()),
+  Materials(A3MatHub::getInstance()),
   tw(tw)
 {
   lMain = new QVBoxLayout(this);

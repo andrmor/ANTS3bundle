@@ -37,7 +37,7 @@ QWidget *AOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
 #include "scatteronmetal.h"
 #include "ascriptopticaloverride.h"
 
-AOpticalOverride *OpticalOverrideFactory(QString model, AMaterialParticleCollection *MatCollection, int MatFrom, int MatTo)
+AOpticalOverride *OpticalOverrideFactory(QString model, A3MatHub *MatCollection, int MatFrom, int MatTo)
 {
     if (model == "Simplistic" || model == "Simplistic_model")
         return new ABasicOpticalOverride(MatCollection, MatFrom, MatTo);
