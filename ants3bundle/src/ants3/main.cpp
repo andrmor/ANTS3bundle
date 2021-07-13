@@ -4,7 +4,7 @@
 #include "a3dispinterface.h"
 #include "a3global.h"
 #include "a3geometry.h"
-#include "amaterialparticlecolection.h"
+#include "a3mathub.h"
 
 #ifdef GUI
     #include <QApplication>

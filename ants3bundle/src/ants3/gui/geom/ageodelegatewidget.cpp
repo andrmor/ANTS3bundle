@@ -1,6 +1,6 @@
 #include "ageodelegatewidget.h"
 #include "a3geometry.h"
-#include "amaterialparticlecolection.h"
+#include "a3mathub.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageoobject.h"

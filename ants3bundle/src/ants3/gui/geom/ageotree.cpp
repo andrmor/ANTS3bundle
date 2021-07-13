@@ -1443,7 +1443,7 @@ void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()
     UpdateGui(CurrentObjName);
 }
 
-#include "amaterialparticlecolection.h"
+#include "a3mathub.h"
 QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMaterials, bool usePython) const
 {
     QVector<QString> posStrs; posStrs.reserve(3);

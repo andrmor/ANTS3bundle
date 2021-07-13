@@ -1,7 +1,7 @@
 #include "materialinspectorwindow.h"
 #include "ui_materialinspectorwindow.h"
 #include "mainwindow.h"
-#include "amaterialparticlecolection.h"
+#include "a3mathub.h"
 //#include "graphwindowclass.h"
 //#include "windownavigatorclass.h"
 #include "a3geometry.h"

@@ -1,5 +1,5 @@
-#ifndef AMATERIALPARTICLECOLECTION_H
-#define AMATERIALPARTICLECOLECTION_H
+#ifndef A3MATHUB_H
+#define A3MATHUB_H
 
 #include "amaterial.h"
 
@@ -34,6 +34,7 @@ public:
 
 private:
     std::vector<AMaterial*> Materials;
+
     double WaveFrom  = 200.0;
     double WaveTo    = 800.0;
     double WaveStep  = 5.0;
@@ -97,16 +98,14 @@ public:
     int WaveToIndex(double wavelength) const;
 
 private:
-    int ConflictingMaterialIndex; //used by CheckMaterial function
-
     //internal kitchen
     void clearMaterialCollection();
     void generateMaterialsChangedSignal();
-    void ensureMatNameIsUnique(AMaterial *mat);
+    void ensureMatNameIsUnique(AMaterial * mat);
 
 signals:
     void MaterialsChanged(const QStringList);
 
 };
 
-#endif // AMATERIALPARTICLECOLECTION_H
+#endif // A3MATHUB_H

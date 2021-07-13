@@ -88,12 +88,12 @@ SOURCES += \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
     js/a3scriptres.cpp \
+    materials/a3mathub.cpp \
     materials/achemicalelement.cpp \
     materials/aisotope.cpp \
     materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
-    materials/amaterialparticlecolection.cpp \
     particlesim/a3particlesimmanager.cpp \
     dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
@@ -155,12 +155,12 @@ HEADERS += \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
+    materials/a3mathub.h \
     materials/achemicalelement.h \
     materials/aisotope.h \
     materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
-    materials/amaterialparticlecolection.h \
     particlesim/a3particlesimmanager.h \
     dispatch/a3dispinterface.h \
     config/a3config.h \

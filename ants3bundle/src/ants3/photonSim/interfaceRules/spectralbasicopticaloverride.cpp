@@ -2,7 +2,7 @@
 
 #include "aphoton.h"
 #include "amaterial.h"
-#include "amaterialparticlecolection.h"
+#include "a3mathub.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
 #include "acommonfunctions.h"
