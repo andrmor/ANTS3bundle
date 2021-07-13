@@ -43,8 +43,8 @@ private slots:
 
     //on user input    
     void on_leName_textChanged(const QString &arg1);
-    void on_cobActiveMaterials_activated(int index);
     void on_leName_editingFinished();
+    void on_cobActiveMaterials_activated(int index);
     void on_pbUpdateTmpMaterial_clicked();
     void on_pbLoadPrimSpectrum_clicked();
     void on_pbShowPrimSpectrum_clicked();  // !!!***

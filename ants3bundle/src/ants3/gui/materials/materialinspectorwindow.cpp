@@ -153,7 +153,7 @@ void MaterialInspectorWindow::addNewOrUpdateMaterial()
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
 
-    MatHub.tmpMaterial.updateRuntimeProperties();   // need? !!!***
+    //MatHub.tmpMaterial.updateRuntimeProperties();   // need? !!!***
 
     const QString error = MatHub.CheckTmpMaterial();
     if (!error.isEmpty())
@@ -391,9 +391,9 @@ void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
 
     tmpMaterial.Comments = ui->pteComments->document()->toPlainText();
 
-    QStringList slTags = ui->leTags->text().split(',', Qt::SkipEmptyParts);
+    const QStringList slTags = ui->leTags->text().split(',', Qt::SkipEmptyParts);
     tmpMaterial.Tags.clear();
-    for (const QString & s : qAsConst(slTags))
+    for (const QString & s : slTags)
         tmpMaterial.Tags << s.simplified();
 
     tmpMaterial.bG4UseNistMaterial = ui->cbG4Material->isChecked();
@@ -677,8 +677,8 @@ void MaterialInspectorWindow::on_leName_editingFinished()
 
 void MaterialInspectorWindow::on_leName_textChanged(const QString& /*name*/)
 {
-    //on text change - on chage this is a signal that it will be another material. These properties are recalculated anyway on
-    //accepting changes/new material
+    //on text change -> assuming it will be another material.
+    //The following properties are recalculated anyway on accepting changes/new material
     AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWaveBinned.clear();
     tmpMaterial.reemissionProbBinned.clear();

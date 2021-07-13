@@ -308,29 +308,27 @@ void A3MatHub::ClearTmpMaterial()
 
 void A3MatHub::CopyTmpToMaterialCollection()
 {
-    QString name = tmpMaterial.name;
-    int index = A3MatHub::FindMaterial(name);
-
+    const QString name = tmpMaterial.name;
+    int index = FindMaterial(name);
     if (index == -1)
     {
         //      qDebug()<<"MaterialCollection--> New material: "<<name;
-        A3MatHub::AddNewMaterial();
-        index = Materials.size()-1;
+        AddNewMaterial(true);
+        index = Materials.size() - 1;
     }
     else
     {
         //      qDebug()<<"MaterialCollection--> Material "+name+" already defined; index = "<<index;
     }
-    //*MaterialCollectionData[index] = tmpMaterial; //updating material properties
+
     QJsonObject js;
     tmpMaterial.writeToJson(js);
     Materials[index]->readFromJson(js);
 
-    //now update pointers!
-    A3MatHub::UpdateWaveResolvedProperties(index); //updating effective properties (hists, Binned), remaking hist objects (Pointers are safe - they objects are recreated on each copy)
+    //now update pointers!   !!!*** need it here?
+    UpdateWaveResolvedProperties(index); //updating effective properties (hists, Binned), remaking hist objects (Pointers are safe - they objects are recreated on each copy)
 
     emit materialsChanged();
-    return;
 }
 
 int A3MatHub::FindMaterial(const QString & name) const
