@@ -38,11 +38,11 @@ public:
     QVector<APair_ValueAndWeight> PriScint_Decay;
     QVector<APair_ValueAndWeight> PriScint_Raise;
 
-    double PhotonYieldDefault = 0;
-    double getPhotonYield(int iParticle) const;
+    double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
+    //double getPhotonYield(int iParticle) const;   !!!***
 
     double IntrEnResDefault = 0;
-    double getIntrinsicEnergyResolution(int iParticle) const;
+    //double getIntrinsicEnergyResolution(int iParticle) const; !!!***
 
     double SecScintDecayTime;
     QString Comments;
@@ -54,7 +54,10 @@ public:
     bool bG4UseNistMaterial = false;
     QString G4NistMaterial;
 
-    QVector<MatParticleStructure> MatParticle; //material properties related to individual particles
+    /* make it possible to define for diffrent particles!
+    double PhYield = 0;         // Photon yield of the primary scintillation
+    double IntrEnergyRes = 0; // intrinsic energy resolution
+    */
 
     QVector<AOpticalOverride*> OpticalOverrides; //NULL - override not defined
 

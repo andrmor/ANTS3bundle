@@ -321,20 +321,8 @@ void A3MatWin::updateTmpMaterialGui()
     ui->ledEDiffL->setText( QString::number(tmpMaterial.e_diffusion_L) );
     ui->ledEDiffT->setText( QString::number(tmpMaterial.e_diffusion_T) );
 
-    int lastSelected_cobYieldForParticle = ui->cobYieldForParticle->currentIndex();
-    ui->cobYieldForParticle->clear();
-
-    // !!!***
-    //    ui->cobYieldForParticle->addItems(QStringList() << PartList << "Undefined");
-    int numPart = 0; //MpCollection.countParticles();
-    if (lastSelected_cobYieldForParticle < 0) lastSelected_cobYieldForParticle = 0;
-    if (lastSelected_cobYieldForParticle > numPart) //can be "Undefined"
-        lastSelected_cobYieldForParticle = 0;
-    ui->cobYieldForParticle->setCurrentIndex(lastSelected_cobYieldForParticle);
-    double val = tmpMaterial.getPhotonYield(lastSelected_cobYieldForParticle);
-    ui->ledPrimaryYield->setText(QString::number(val));
-    val        = tmpMaterial.getIntrinsicEnergyResolution(lastSelected_cobYieldForParticle);
-    ui->ledIntEnergyRes->setText(QString::number(val));
+    ui->ledPrimaryYield->setText(QString::number(tmpMaterial.PhotonYieldDefault));
+    ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.IntrEnResDefault));
 
     ui->pteComments->clear();
     ui->pteComments->appendPlainText(tmpMaterial.Comments);
@@ -376,10 +364,8 @@ void A3MatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.abs = ui->ledAbs->text().toDouble();
     tmpMaterial.reemissionProb = ui->ledReemissionProbability->text().toDouble();
 
-    double prYield = ui->ledPrimaryYield->text().toDouble();
-    int iP = ui->cobYieldForParticle->currentIndex();
-    if (iP > -1 && iP < tmpMaterial.MatParticle.size()) tmpMaterial.MatParticle[iP].PhYield = prYield;
-    else tmpMaterial.PhotonYieldDefault = prYield;
+    tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
+    //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
     tmpMaterial.SecYield = ui->ledSecYield->text().toDouble();
@@ -421,12 +407,7 @@ void A3MatWin::on_ledIntEnergyRes_editingFinished()
         return;
     }
 
-    int iP = ui->cobYieldForParticle->currentIndex();
-    if (iP > -1 && iP < tmpMaterial.MatParticle.size())
-        tmpMaterial.MatParticle[iP].IntrEnergyRes = newVal;
-    else
-        tmpMaterial.IntrEnResDefault = newVal;
-
+    tmpMaterial.IntrEnResDefault = newVal;
     setWasModified(true);
 }
 
@@ -839,16 +820,6 @@ void A3MatWin::on_actionLoad_material_triggered()
     updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
-void A3MatWin::on_cobYieldForParticle_activated(int index)
-{
-    const AMaterial & tmpMaterial = MatHub.tmpMaterial;
-
-    flagDisreguardChange = true; // -->
-    ui->ledPrimaryYield->setText( QString::number(tmpMaterial.getPhotonYield(index)) );
-    ui->ledIntEnergyRes->setText( QString::number(tmpMaterial.getIntrinsicEnergyResolution(index)) );
-    flagDisreguardChange = false; // <--
-}
-
 void A3MatWin::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
@@ -1164,30 +1135,6 @@ void A3MatWin::on_pbPriT_test_clicked()
     h->SetTitle(title);
     MW->GraphWindow->Draw(h);
 */
-}
-
-void A3MatWin::on_pbCopyPrYieldToAll_clicked()
-{
-    if (!guitools::confirm("Set the same primary yield value for all particles?", this)) return;
-
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
-    double prYield = ui->ledPrimaryYield->text().toDouble();
-    for (int iP = 0; iP < tmpMaterial.MatParticle.size(); iP++)
-        tmpMaterial.MatParticle[iP].PhYield = prYield;
-    tmpMaterial.PhotonYieldDefault = prYield;
-    setWasModified(true);
-}
-
-void A3MatWin::on_pbCopyIntrEnResToAll_clicked()
-{
-    if (!guitools::confirm("Set the same intrinsic energy resolution value for all particles?", this)) return;
-
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
-    double EnRes = ui->ledIntEnergyRes->text().toDouble();
-    for (int iP = 0; iP < tmpMaterial.MatParticle.size(); iP++)
-        tmpMaterial.MatParticle[iP].IntrEnergyRes = EnRes;
-    tmpMaterial.IntrEnResDefault = EnRes;
-    setWasModified(true);
 }
 
 void A3MatWin::on_pbSecScintHelp_clicked()

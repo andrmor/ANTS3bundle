@@ -8,12 +8,7 @@ class A3Geometry;
 class A3MatHub;
 class A3Global;
 class TGraph;
-class QJsonObject;
-class AElasticScatterElement;
-class QTreeWidgetItem;
 class AChemicalElement;
-class ANeutronInteractionElement;
-class AMaterial;
 
 namespace Ui {
 class A3MatWin;
@@ -66,9 +61,7 @@ private slots:
     void on_pbRename_clicked();          // !!!*** need to update GeoManager
     void on_pbAddNewMaterial_clicked();
     void on_ledIntEnergyRes_editingFinished();
-    void on_cobYieldForParticle_activated(int index);
     void on_lePriT_raise_editingFinished();
-    void on_pbCopyPrYieldToAll_clicked();
     void on_pbModifyChemicalComposition_clicked();
     void on_cbShowIsotopes_clicked();
     void on_pbMaterialInfo_clicked();
@@ -80,7 +73,6 @@ private slots:
     void on_pbPriThelp_clicked();
     void on_pbPriT_test_clicked(); // !!!***
     void on_pbSecScintHelp_clicked();
-    void on_pbCopyIntrEnResToAll_clicked();
     void on_pbModifyByWeight_clicked();
 
     //user or code controlled change - safe or only GUI
@@ -105,8 +97,7 @@ private:
 
     bool bMaterialWasModified = false;
     bool flagDisreguardChange = false;
-    bool fLockTable           = false;
-    bool bLockTmpMaterial     = false;
+    bool bLockTmpMaterial     = false;   // need?
     bool bMessageLock         = false;
     bool bClearInProgress     = false;
 

@@ -19,10 +19,7 @@
 #include "TH1D.h"
 #include "TString.h"
 
-A3MatHub::A3MatHub()
-{
-    tmpMaterial.MatParticle.resize(1);
-}
+A3MatHub::A3MatHub() {}
 
 A3MatHub &A3MatHub::getInstance()
 {
@@ -37,7 +34,7 @@ const A3MatHub & A3MatHub::getConstInstance()
 
 A3MatHub::~A3MatHub()
 {
-    clearMaterialCollection();
+    clearMaterials();
 }
 
 void A3MatHub::SetWave(bool wavelengthResolved, double waveFrom, double waveTo, double waveStep, int waveNodes)
@@ -134,7 +131,7 @@ void A3MatHub::getFirstOverridenMaterial(int &ifrom, int &ito)
     ito = 0;
 }
 
-QString A3MatHub::getMaterialName(int matIndex)
+QString A3MatHub::getMaterialName(int matIndex) const
 {
     if (matIndex<0 || matIndex >= Materials.size()) return "";
     return Materials.at(matIndex)->name;
@@ -143,36 +140,28 @@ QString A3MatHub::getMaterialName(int matIndex)
 const QStringList A3MatHub::getListOfMaterialNames() const
 {
     QStringList l;
-    for (AMaterial* m : Materials)
+    for (AMaterial * m : Materials)
         l << m->name;
     return l;
 }
 
-void A3MatHub::clearMaterialCollection()
+void A3MatHub::clearMaterials()
 {
-    for (int i=0; i<Materials.size(); i++)
+    for (AMaterial * mat : Materials)
     {
-        if (Materials[i]->PrimarySpectrumHist)
+        delete mat->PrimarySpectrumHist;   mat->PrimarySpectrumHist   = nullptr;
+        delete mat->SecondarySpectrumHist; mat->SecondarySpectrumHist = nullptr;
+
+        for (int im=0; im<mat->OpticalOverrides.size(); im++)
         {
-            delete Materials[i]->PrimarySpectrumHist;
-            Materials[i]->PrimarySpectrumHist = 0;
-        }
-        if (Materials[i]->SecondarySpectrumHist)
-        {
-            delete Materials[i]->SecondarySpectrumHist;
-            Materials[i]->SecondarySpectrumHist = 0;
+            delete mat->OpticalOverrides[im]; mat->OpticalOverrides.clear();
         }
 
-        for (int im=0; im<Materials[i]->OpticalOverrides.size(); im++)
-            if (Materials[i]->OpticalOverrides[im])
-                delete Materials[i]->OpticalOverrides[im];
-        Materials[i]->OpticalOverrides.clear();
-
-        delete Materials[i];
+        delete mat;
     }
     Materials.clear();
 
-    A3MatHub::ClearTmpMaterial();
+    clearTmpMaterial();
 }
 
 void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
@@ -217,8 +206,11 @@ void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void A3MatHub::ClearTmpMaterial()
+void A3MatHub::clearTmpMaterial()
 {
+    tmpMaterial.clear();
+
+    /*
     tmpMaterial.name = "";
     tmpMaterial.density = 0;
     tmpMaterial.temperature = 298.0;
@@ -241,20 +233,7 @@ void A3MatHub::ClearTmpMaterial()
 
     tmpMaterial.PhotonYieldDefault = 0;
     tmpMaterial.IntrEnResDefault = 0;
-
-/*
-    int particles = ParticleCollection.size();
-    tmpMaterial.MatParticle.resize(particles);
-    for (int i=0; i<particles; i++)
-    {
-        tmpMaterial.MatParticle[i].InteractionDataF.resize(0);
-        tmpMaterial.MatParticle[i].InteractionDataX.resize(0);
-        tmpMaterial.MatParticle[i].Terminators.resize(0);
-        tmpMaterial.MatParticle[i].PhYield = 0;
-        tmpMaterial.MatParticle[i].IntrEnergyRes = 0;
-        tmpMaterial.MatParticle[i].TrackingAllowed = false;
-    }
-*/
+    */
 
     int materials = Materials.size();
 
@@ -476,13 +455,13 @@ QString A3MatHub::CheckMaterial(const AMaterial* mat) const
     return mat->CheckMaterial();
 }
 
-const QString A3MatHub::CheckMaterial(int iMat) const
+QString A3MatHub::CheckMaterial(int iMat) const
 {
     if (iMat<0 || iMat>=Materials.size()) return "Wrong material index: " + QString::number(iMat);
     return CheckMaterial(Materials[iMat]);
 }
 
-const QString A3MatHub::CheckTmpMaterial() const
+QString A3MatHub::CheckTmpMaterial() const
 {
     return tmpMaterial.CheckMaterial();
 }
@@ -587,7 +566,7 @@ bool A3MatHub::readFromJson(QJsonObject &json)
         qCritical() << "No materials in json";
         exit(-2);
     }
-    A3MatHub::clearMaterialCollection();
+    A3MatHub::clearMaterials();
     for (int i=0; i<ar.size(); i++)
     {
         QJsonObject jj = ar[i].toObject();

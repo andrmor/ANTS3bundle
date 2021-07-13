@@ -252,7 +252,7 @@
     <item>
      <widget class="QTabWidget" name="twProperties">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_6">
        <attribute name="title">
@@ -1880,39 +1880,6 @@ Wavelengths shoul be given in increasing order</string>
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_71">
-                <property name="text">
-                 <string>For</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="cobYieldForParticle">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>21</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_72">
-                <property name="text">
-                 <string>:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <spacer name="horizontalSpacer_7">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -1973,19 +1940,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="text">
                  <string>photons / keV</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbCopyPrYieldToAll">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>21</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Copy to all particles</string>
                 </property>
                </widget>
               </item>
@@ -2071,19 +2025,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="text">
                  <string>FWHM/mean</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbCopyIntrEnResToAll">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>21</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Copy to all particles</string>
                 </property>
                </widget>
               </item>

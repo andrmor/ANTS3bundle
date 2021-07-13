@@ -16,6 +16,7 @@ AMaterial::AMaterial()
     clear();
 }
 
+/*
 double AMaterial::getPhotonYield(int iParticle) const
 {
     if (iParticle < 0 || iParticle >= MatParticle.size()) return PhotonYieldDefault;
@@ -33,6 +34,7 @@ double AMaterial::getIntrinsicEnergyResolution(int iParticle) const
     if (er == -1) return IntrEnResDefault;
     return er;
 }
+*/
 
 double AMaterial::getRefractiveIndex(int iWave) const
 {
@@ -182,18 +184,11 @@ void AMaterial::clear()
     SecondarySpectrum_lambda.clear();
     SecondarySpectrum.clear();
 
-    if(PrimarySpectrumHist)
-    {
-        delete PrimarySpectrumHist;
-        PrimarySpectrumHist = 0;
-    }
-    if (SecondarySpectrumHist)
-    {
-        delete SecondarySpectrumHist;
-        SecondarySpectrumHist = 0;
-    }
+    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
+    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
 
-    MatParticle.clear();
+    PhotonYieldDefault = 0;
+    IntrEnResDefault = 0;
 
     GeoMat = nullptr; //if created, deleted by TGeoManager
     GeoMed = nullptr; //if created, deleted by TGeoManager

@@ -59,7 +59,7 @@ public:
     int countMaterials() const {return Materials.size();}
     void getFirstOverridenMaterial(int &ifrom, int &ito);
     double convertWaveIndexToWavelength(int index) {return WaveFrom + WaveStep * index;}
-    QString getMaterialName(int matIndex);
+    QString getMaterialName(int matIndex) const;
     const QStringList getListOfMaterialNames() const;
 
     //Material handling
@@ -70,7 +70,7 @@ public:
     void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
     //tmpMaterial - related
-    void ClearTmpMaterial(); //deletes all objects pointed by the class pointers!!!
+    void clearTmpMaterial(); //deletes all objects pointed by the class pointers!!!
     void CopyTmpToMaterialCollection(); //creates a copy of all pointers // true is new material was added to material collection
     void CopyMaterialToTmp(int imat);
 
@@ -92,14 +92,14 @@ public:
     void ConvertToStandardWavelengthes(QVector<double> *sp_x, QVector<double> *sp_y, QVector<double> *y);
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
-    const QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
-    const QString CheckTmpMaterial() const;                       //"" - check passed, otherwise error
+    QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
+    QString CheckTmpMaterial() const;                       //"" - check passed, otherwise error
 
     int WaveToIndex(double wavelength) const;
 
 private:
     //internal kitchen
-    void clearMaterialCollection();
+    void clearMaterials();
     void ensureMatNameIsUnique(AMaterial * mat);
 
 signals:
