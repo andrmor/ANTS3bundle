@@ -100,11 +100,10 @@ public:
 private:
     //internal kitchen
     void clearMaterialCollection();
-    void generateMaterialsChangedSignal();
     void ensureMatNameIsUnique(AMaterial * mat);
 
 signals:
-    void MaterialsChanged(const QStringList);
+    void materialsChanged();
 
 };
 

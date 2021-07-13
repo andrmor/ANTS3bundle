@@ -28,12 +28,13 @@ public:
     ~MaterialInspectorWindow();
 
     void initWindow();
-    void updateGui();   // yield / EnRes  !!!***
-    void UpdateActiveMaterials();
-    void SetMaterial(int index);   //add watchdogs and update of mat/part list if necessary
+    void updateGui();
+    void setMaterial(int index);
 //    void AddMaterialFromLibrary(QWidget * parentWidget);   !!!***
 
 private slots:
+    void onMaterialsChanged(); //sent by A3MatHub
+
     //on signals from delegates
     void onAddIsotope(AChemicalElement *element);
     void onRemoveIsotope(AChemicalElement* element, int isotopeIndexInElement);
@@ -44,7 +45,6 @@ private slots:
     void on_leName_textChanged(const QString &arg1);
     void on_cobActiveMaterials_activated(int index);
     void on_leName_editingFinished();
-    void on_pbAddToActive_clicked();
     void on_pbUpdateTmpMaterial_clicked();
     void on_pbLoadPrimSpectrum_clicked();
     void on_pbShowPrimSpectrum_clicked();  // !!!***
@@ -63,7 +63,7 @@ private slots:
     void on_ledRayleigh_editingFinished();
     void on_pbRemoveRayleigh_clicked();
     void on_pbShowUsage_clicked();       // !!!***
-    void on_pbRename_clicked();
+    void on_pbRename_clicked();          // !!!*** need to update GeoManager
     void on_pbAddNewMaterial_clicked();
     void on_ledIntEnergyRes_editingFinished();
     void on_cobYieldForParticle_activated(int index);
@@ -94,10 +94,12 @@ private slots:
 //    void on_actionLoad_from_material_library_triggered();   !!!***
     void on_actionAdd_default_material_triggered();
 
+    void on_pbUpdateMaterial_clicked();
+
 private:
-    A3Geometry                  & Geometry;
-    A3MatHub & MpCollection;
-    A3Global                    & GlobSet;
+    A3Geometry & Geometry;
+    A3MatHub   & MatHub;
+    A3Global   & GlobSet;
 
     Ui::MaterialInspectorWindow * ui = nullptr;
 
@@ -111,6 +113,9 @@ private:
     int  LastShownMaterial    = -1;
 
 private:
+    void updateTmpMaterialGui();   // yield / EnRes  !!!***
+    void addNewOrUpdateMaterial();
+
     void showMaterial(int index);
     void setWasModified(bool flag);
 

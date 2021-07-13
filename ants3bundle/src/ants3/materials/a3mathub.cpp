@@ -205,7 +205,7 @@ void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
     tmpMaterial.OpticalOverrides.resize(numMats);
     for (int i=0; i<numMats; i++) tmpMaterial.OpticalOverrides[thisMat] = 0;
 
-    if (!fSuppressChangedSignal) generateMaterialsChangedSignal();
+    if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
 void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
@@ -214,7 +214,7 @@ void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
     Materials.back()->name = name;
     ensureMatNameIsUnique(Materials.back());
 
-    if (!fSuppressChangedSignal) generateMaterialsChangedSignal();
+    if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
 void A3MatHub::ClearTmpMaterial()
@@ -329,7 +329,7 @@ void A3MatHub::CopyTmpToMaterialCollection()
     //now update pointers!
     A3MatHub::UpdateWaveResolvedProperties(index); //updating effective properties (hists, Binned), remaking hist objects (Pointers are safe - they objects are recreated on each copy)
 
-    generateMaterialsChangedSignal();
+    emit materialsChanged();
     return;
 }
 
@@ -530,7 +530,7 @@ bool A3MatHub::DeleteMaterial(int imat)
             if (Materials[i]->OpticalOverrides[j])
                 Materials[i]->OpticalOverrides[j]->updateMatIndices(i, j);
 
-    generateMaterialsChangedSignal();
+    emit materialsChanged();
 
     return true;
 }
@@ -653,7 +653,7 @@ bool A3MatHub::readFromJson(QJsonObject &json)
     }
     //qDebug() << "--> Loaded material border overrides from array with"<<oar.size()<<"entries";
 
-    generateMaterialsChangedSignal();
+    emit materialsChanged();
 
     return true;
 }
@@ -666,7 +666,7 @@ void A3MatHub::AddNewMaterial(QJsonObject &json) //have to be sure json is indee
 
     ensureMatNameIsUnique(mat);
 
-    generateMaterialsChangedSignal();
+    emit materialsChanged();
 }
 
 void A3MatHub::ensureMatNameIsUnique(AMaterial * mat)
@@ -689,14 +689,6 @@ void A3MatHub::ensureMatNameIsUnique(AMaterial * mat)
     }
     while (fFound);
     mat->name = name;
-}
-
-void A3MatHub::generateMaterialsChangedSignal()
-{
-    QStringList ml;
-    for (size_t i=0; i<Materials.size(); i++)
-        ml << Materials.at(i)->name;
-    emit MaterialsChanged(ml);
 }
 
 int A3MatHub::WaveToIndex(double wavelength) const

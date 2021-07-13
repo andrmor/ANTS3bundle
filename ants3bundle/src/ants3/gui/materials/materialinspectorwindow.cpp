@@ -43,7 +43,7 @@
 MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
     QMainWindow(parent), //AGuiWindow("mat", parent),
     Geometry(A3Geometry::getInstance()),
-    MpCollection(A3MatHub::getInstance()),
+    MatHub(A3MatHub::getInstance()),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::MaterialInspectorWindow)
 {
@@ -65,13 +65,7 @@ MaterialInspectorWindow::MaterialInspectorWindow(QWidget * parent) :
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
-    /*
-    QPixmap pm(QSize(16,16));
-    pm.fill(Qt::transparent);
-    QPainter b(&pm);
-    b.setBrush(QBrush(Qt::yellow));
-    b.drawEllipse(0, 2, 10, 10);
-    */
+    connect(&MatHub, &A3MatHub::materialsChanged, this, &MaterialInspectorWindow::onMaterialsChanged);
 }
 
 MaterialInspectorWindow::~MaterialInspectorWindow()
@@ -81,7 +75,7 @@ MaterialInspectorWindow::~MaterialInspectorWindow()
 
 void MaterialInspectorWindow::initWindow()
 {
-    UpdateActiveMaterials();
+    updateGui();
     showMaterial(0);
 }
 
@@ -98,14 +92,14 @@ void MaterialInspectorWindow::setWasModified(bool flag)
     updateActionButtons();
 }
 
-void MaterialInspectorWindow::UpdateActiveMaterials()
+void MaterialInspectorWindow::updateGui()
 {   
     if (bLockTmpMaterial) return;
 
     int current = ui->cobActiveMaterials->currentIndex();
 
     ui->cobActiveMaterials->clear();
-    ui->cobActiveMaterials->addItems(MpCollection.getListOfMaterialNames());
+    ui->cobActiveMaterials->addItems(MatHub.getListOfMaterialNames());
 
     int matCount = ui->cobActiveMaterials->count();
     if (current < -1 || current >= matCount)
@@ -115,42 +109,76 @@ void MaterialInspectorWindow::UpdateActiveMaterials()
     setWasModified(false);
 }
 
-void MaterialInspectorWindow::on_pbAddNewMaterial_clicked()
+void MaterialInspectorWindow::on_pbRename_clicked()
 {
-    on_pbAddToActive_clicked(); //processes both update and add
+    if (bMaterialWasModified)
+    {
+        guitools::message("Material properties were modified!\nUpdate, add as new or cancel changes before renaming", this);
+        return;
+    }
+
+    const QString newName = ui->leName->text();
+    int iMat = ui->cobActiveMaterials->currentIndex();
+    if (iMat < 0) return;
+
+    const QString & oldName = MatHub[iMat]->name;
+    if (newName == oldName) return;
+
+    for (int i = 0; i < MatHub.countMaterials(); i++)
+        if (i != iMat && newName == MatHub[i]->name)
+        {
+            guitools::message("There is already a material with name " + newName, this);
+            return;
+        }
+
+    MatHub[iMat]->name = newName;
+    ui->pbRename->setText("Rename " + newName);
+
+    updateGui(); // temporary here
+    //MW->ReconstructDetector(true); !!!*** update TGeo might be needed!
 }
 
-void MaterialInspectorWindow::on_pbAddToActive_clicked()
+void MaterialInspectorWindow::on_pbUpdateMaterial_clicked()
+{
+    addNewOrUpdateMaterial();
+}
+
+void MaterialInspectorWindow::on_pbAddNewMaterial_clicked()
+{
+    addNewOrUpdateMaterial();
+}
+
+void MaterialInspectorWindow::addNewOrUpdateMaterial()
 {
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
 
-    MpCollection.tmpMaterial.updateRuntimeProperties();
+    MatHub.tmpMaterial.updateRuntimeProperties();   // need? !!!***
 
-    const QString error = MpCollection.CheckTmpMaterial();
+    const QString error = MatHub.CheckTmpMaterial();
     if (!error.isEmpty())
     {
         guitools::message(error, this);
         return;
     }
 
-    QString name = MpCollection.tmpMaterial.name;
-    int index = MpCollection.FindMaterial(name);
+    QString name = MatHub.tmpMaterial.name;
+    int index = MatHub.FindMaterial(name);
     if (index == -1)
-        index = MpCollection.countMaterials(); //then it will be appended, index = current size
+        index = MatHub.countMaterials(); //then it will be appended, index = current size
     else
     {
         switch( QMessageBox::information( this, "", "Update properties for material "+name+"?", "Overwrite", "Cancel", 0, 1 ) )
         {
-           case 0:  break;  //overwrite
-           default: return; //cancel
+        case 0:  break;  //overwrite
+        default: return; //cancel
         }
     }
 
-    MpCollection.CopyTmpToMaterialCollection(); //if absent, new material is created!
+    MatHub.CopyTmpToMaterialCollection(); //if absent, new material is created!
 
-    //MW->ReconstructDetector(true);
-    //MW->UpdateMaterialListEdit(); //need?
+    //MW->ReconstructDetector(true);    !!!*** return to this later -> most likely not need it here
+    //MW->UpdateMaterialListEdit();     !!!*** sources? sim: node_exclusion?
 
     showMaterial(index);
 }
@@ -164,12 +192,12 @@ void MaterialInspectorWindow::showMaterial(int index)
         return;
     }
 
-    if (index < 0 || index > MpCollection.countMaterials()) return;
+    if (index < 0 || index > MatHub.countMaterials()) return;
 
-    MpCollection.CopyMaterialToTmp(index);
+    MatHub.CopyMaterialToTmp(index);
     ui->cobActiveMaterials->setCurrentIndex(index);
     LastShownMaterial = index;
-    updateGui();
+    updateTmpMaterialGui();
 
     ui->pbRename->setText("Rename " + ui->cobActiveMaterials->currentText());
     setWasModified(false);
@@ -191,7 +219,7 @@ void MaterialInspectorWindow::on_cobActiveMaterials_activated(int index)
 
 void MaterialInspectorWindow::updateWaveButtons()
 {   
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     bool bPrimSpec = (tmpMaterial.PrimarySpectrum_lambda.size() > 0);
     ui->pbShowPrimSpectrum->setEnabled(bPrimSpec);
@@ -217,16 +245,16 @@ void MaterialInspectorWindow::updateG4RelatedGui()
 {
     bool bDisable = ui->cbG4Material->isChecked();
     QVector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
-                            ui->pbModifyChemicalComposition, ui->leCompositionByWeight, ui->pbModifyByWeight,
-                            ui->trwChemicalComposition, ui->cbShowIsotopes};
+                               ui->pbModifyChemicalComposition, ui->leCompositionByWeight, ui->pbModifyByWeight,
+                               ui->trwChemicalComposition, ui->cbShowIsotopes};
     for (QWidget * w : widgs) w->setDisabled(bDisable);
 }
 
-void MaterialInspectorWindow::updateGui()
+void MaterialInspectorWindow::updateTmpMaterialGui()
 {
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
-    ui->leName->setText(tmpMaterial.name);  
+    ui->leName->setText(tmpMaterial.name);
 
     ui->ledDensity->setText( QString::number(tmpMaterial.density) );
     ui->ledT->setText( QString::number(tmpMaterial.temperature) );
@@ -244,7 +272,7 @@ void MaterialInspectorWindow::updateGui()
     ui->ledReemissionProbability->setText( QString::number(tmpMaterial.reemissionProb) );
 
     QString s = ( tmpMaterial.rayleighMFP > 0 ? QString::number(tmpMaterial.rayleighMFP)
-                                                : "" );
+                                              : "" );
     ui->ledRayleigh->setText(s);
     ui->ledRayleighWave->setText( QString::number(tmpMaterial.rayleighWave) );
 
@@ -297,7 +325,7 @@ void MaterialInspectorWindow::updateGui()
     ui->cobYieldForParticle->clear();
 
     // !!!***
-//    ui->cobYieldForParticle->addItems(QStringList() << PartList << "Undefined");
+    //    ui->cobYieldForParticle->addItems(QStringList() << PartList << "Undefined");
     int numPart = 0; //MpCollection.countParticles();
     if (lastSelected_cobYieldForParticle < 0) lastSelected_cobYieldForParticle = 0;
     if (lastSelected_cobYieldForParticle > numPart) //can be "Undefined"
@@ -323,7 +351,7 @@ void MaterialInspectorWindow::updateGui()
 
 void MaterialInspectorWindow::updateWarningIcons()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     if (tmpMaterial.ChemicalComposition.countElements() == 0)
     {
@@ -339,10 +367,10 @@ void MaterialInspectorWindow::updateWarningIcons()
 
 void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
 {  
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     tmpMaterial.name = ui->leName->text();
-    tmpMaterial.density = ui->ledDensity->text().toDouble();    
+    tmpMaterial.density = ui->ledDensity->text().toDouble();
     tmpMaterial.temperature = ui->ledT->text().toDouble();
     tmpMaterial.n = ui->ledN->text().toDouble();
     tmpMaterial.abs = ui->ledAbs->text().toDouble();
@@ -355,7 +383,7 @@ void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
     tmpMaterial.SecYield = ui->ledSecYield->text().toDouble();
-    tmpMaterial.SecScintDecayTime = ui->ledSecT->text().toDouble();   
+    tmpMaterial.SecScintDecayTime = ui->ledSecT->text().toDouble();
     tmpMaterial.e_driftVelocity = ui->ledEDriftVelocity->text().toDouble();
 
     tmpMaterial.e_diffusion_L = ui->ledEDiffL->text().toDouble();
@@ -372,14 +400,19 @@ void MaterialInspectorWindow::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.G4NistMaterial = ui->leG4Material->text();
 }
 
-void MaterialInspectorWindow::SetMaterial(int index)
+void MaterialInspectorWindow::setMaterial(int index)
 {
     showMaterial(index);
 }
 
+void MaterialInspectorWindow::onMaterialsChanged()
+{
+    updateGui();
+}
+
 void MaterialInspectorWindow::on_ledIntEnergyRes_editingFinished()
 {
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     double newVal = ui->ledIntEnergyRes->text().toDouble();
     if (newVal < 0)
     {
@@ -403,7 +436,7 @@ void MaterialInspectorWindow::on_pbLoadPrimSpectrum_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.PrimarySpectrum_lambda, &tmpMaterial.PrimarySpectrum);  //cleans previous data
     if (!err.isEmpty())
     {
@@ -419,7 +452,7 @@ void MaterialInspectorWindow::on_pbLoadPrimSpectrum_clicked()
 
 void MaterialInspectorWindow::on_pbShowPrimSpectrum_clicked()
 {
-/*
+    /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
     MW->GraphWindow->configureGraph(g, "Emission spectrum",
@@ -432,7 +465,7 @@ void MaterialInspectorWindow::on_pbShowPrimSpectrum_clicked()
 
 void MaterialInspectorWindow::on_pbDeletePrimSpectrum_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.PrimarySpectrum_lambda.clear();
     tmpMaterial.PrimarySpectrum.clear();
 
@@ -446,7 +479,7 @@ void MaterialInspectorWindow::on_pbLoadSecSpectrum_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load secondary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.SecondarySpectrum_lambda, &tmpMaterial.SecondarySpectrum);  //cleans previous data
     if (!err.isEmpty())
@@ -463,7 +496,7 @@ void MaterialInspectorWindow::on_pbLoadSecSpectrum_clicked()
 
 void MaterialInspectorWindow::on_pbShowSecSpectrum_clicked()
 {
-/*
+    /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
     MW->GraphWindow->configureGraph(g, "Emission spectrum",
@@ -476,7 +509,7 @@ void MaterialInspectorWindow::on_pbShowSecSpectrum_clicked()
 
 void MaterialInspectorWindow::on_pbDeleteSecSpectrum_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.SecondarySpectrum_lambda.clear();
     tmpMaterial.SecondarySpectrum.clear();
 
@@ -490,7 +523,7 @@ void MaterialInspectorWindow::on_pbLoadNlambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load refractive index data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.nWave_lambda, &tmpMaterial.nWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -507,7 +540,7 @@ void MaterialInspectorWindow::on_pbLoadNlambda_clicked()
 
 void MaterialInspectorWindow::on_pbShowNlambda_clicked()
 {
-/*
+    /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
     MW->GraphWindow->configureGraph(g, "Refractive index",
@@ -520,7 +553,7 @@ void MaterialInspectorWindow::on_pbShowNlambda_clicked()
 
 void MaterialInspectorWindow::on_pbDeleteNlambda_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.nWave_lambda.clear();
     tmpMaterial.nWave.clear();
 
@@ -535,7 +568,7 @@ void MaterialInspectorWindow::on_pbLoadABSlambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load exponential bulk absorption data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.absWave_lambda, &tmpMaterial.absWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -552,7 +585,7 @@ void MaterialInspectorWindow::on_pbLoadABSlambda_clicked()
 
 void MaterialInspectorWindow::on_pbShowABSlambda_clicked()
 {
-/*
+    /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
     MW->GraphWindow->configureGraph(g, "Attenuation coefficient",
@@ -565,7 +598,7 @@ void MaterialInspectorWindow::on_pbShowABSlambda_clicked()
 
 void MaterialInspectorWindow::on_pbDeleteABSlambda_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWave_lambda.clear();
     tmpMaterial.absWave.clear();
 
@@ -576,7 +609,7 @@ void MaterialInspectorWindow::on_pbDeleteABSlambda_clicked()
 
 void MaterialInspectorWindow::on_pbShowReemProbLambda_clicked()
 {
-/*
+    /*
     AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
     MW->GraphWindow->configureGraph(g, "Reemission probability",
@@ -592,7 +625,7 @@ void MaterialInspectorWindow::on_pbLoadReemisProbLambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load reemission probability vs wavelength", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.reemisProbWave_lambda, &tmpMaterial.reemisProbWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -609,7 +642,7 @@ void MaterialInspectorWindow::on_pbLoadReemisProbLambda_clicked()
 
 void MaterialInspectorWindow::on_pbDeleteReemisProbLambda_clicked()
 {
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.reemisProbWave_lambda.clear();
     tmpMaterial.reemisProbWave.clear();
 
@@ -625,28 +658,28 @@ void MaterialInspectorWindow::on_pbWasModified_clicked()
 
 void MaterialInspectorWindow::on_leName_editingFinished()
 {
-  QString name = ui->leName->text();
-  name.replace("+","_");
-  name.replace(".","_");
-  ui->leName->setText(name);
+    QString name = ui->leName->text();
+    name.replace("+","_");
+    name.replace(".","_");
+    ui->leName->setText(name);
 
-  if ( (name.at(0) >= QChar('a') && name.at(0) <= QChar('z')) || (name.at(0) >= QChar('A') && name.at(0) <= QChar('Z'))) ;//ok
-  else
+    if ( (name.at(0) >= QChar('a') && name.at(0) <= QChar('z')) || (name.at(0) >= QChar('A') && name.at(0) <= QChar('Z'))) ;//ok
+    else
     {
-      name.remove(0,1);
-      name.insert(0, "A");
-      ui->leName->setText(name);
-      guitools::message("Name should start with an alphabetic character!", this);
-      return;
+        name.remove(0,1);
+        name.insert(0, "A");
+        ui->leName->setText(name);
+        guitools::message("Name should start with an alphabetic character!", this);
+        return;
     }
-  on_pbUpdateTmpMaterial_clicked();
+    on_pbUpdateTmpMaterial_clicked();
 }
 
 void MaterialInspectorWindow::on_leName_textChanged(const QString& /*name*/)
 {
     //on text change - on chage this is a signal that it will be another material. These properties are recalculated anyway on
     //accepting changes/new material
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWaveBinned.clear();
     tmpMaterial.reemissionProbBinned.clear();
     tmpMaterial.nWaveBinned.clear();
@@ -661,18 +694,18 @@ void MaterialInspectorWindow::on_leName_textChanged(const QString& /*name*/)
 void MaterialInspectorWindow::updateActionButtons()
 {
     const QString name = ui->leName->text();
-    int iMat = MpCollection.FindMaterial(name);
+    int iMat = MatHub.FindMaterial(name);
     if (iMat == -1)
     {
         // Material with this name does not exist
-        ui->pbAddToActive->setEnabled(false);  //update button
+        ui->pbUpdateMaterial->setEnabled(false);  //update button
         ui->pbAddNewMaterial->setEnabled(true);
         ui->pbRename->setEnabled(!bMaterialWasModified);
     }
     else
     {
         // Material with this name exists
-        ui->pbAddToActive->setEnabled( ui->cobActiveMaterials->currentText() == name ); //update button
+        ui->pbUpdateMaterial->setEnabled( ui->cobActiveMaterials->currentText() == name ); //update button
         ui->pbAddNewMaterial->setEnabled(false);
         ui->pbRename->setEnabled(false);
     }
@@ -688,7 +721,7 @@ void MaterialInspectorWindow::on_ledRayleighWave_editingFinished()
         ui->ledRayleighWave->setText("500");
     }
 
-    MpCollection.tmpMaterial.rayleighWave = wave;
+    MatHub.tmpMaterial.rayleighWave = wave;
 }
 
 void MaterialInspectorWindow::on_ledRayleigh_textChanged(const QString &arg1)
@@ -702,19 +735,19 @@ void MaterialInspectorWindow::on_ledRayleigh_editingFinished()
     double ray;
     if (ui->ledRayleigh->text() == "") ray = 0;
     else ray = ui->ledRayleigh->text().toDouble();
-    MpCollection.tmpMaterial.rayleighMFP = ray;
+    MatHub.tmpMaterial.rayleighMFP = ray;
 }
 
 void MaterialInspectorWindow::on_pbRemoveRayleigh_clicked()
 {
     ui->ledRayleigh->setText("");
-    MpCollection.tmpMaterial.rayleighMFP = 0;
+    MatHub.tmpMaterial.rayleighMFP = 0;
     setWasModified(true);
 }
 
 void MaterialInspectorWindow::on_pbShowUsage_clicked()
 {
-/*
+    /*
   AMaterial& tmpMaterial = MpCollection.tmpMaterial;
   QString name = tmpMaterial.name;
   int index = ui->cobActiveMaterials->currentIndex();
@@ -748,95 +781,67 @@ void MaterialInspectorWindow::on_pbShowUsage_clicked()
 */
 }
 
-void MaterialInspectorWindow::on_pbRename_clicked()
+void MaterialInspectorWindow::on_actionSave_material_triggered()
 {
-    if (bMaterialWasModified)
+    //checkig this material
+    const QString error = MatHub.CheckTmpMaterial();
+    if ( !error.isEmpty() )
     {
-        guitools::message("Material properties were modified!\nUpdate, add as new or cancel changes before renaming", this);
+        guitools::message(error, this);
         return;
     }
 
-    const QString newName = ui->leName->text();
-    int iMat = ui->cobActiveMaterials->currentIndex();
-    if (iMat < 0) return;
+    QString starter = GlobSet.LastSaveDir;
+    starter += "/Material_" + ui->leName->text();
+    QString fileName = QFileDialog::getSaveFileName(this,"Save material", starter, "Material files (*.mat *.json);;All files (*.*)");
+    if (fileName.isEmpty()) return;
+    QFileInfo fileInfo(fileName);
+    GlobSet.LastSaveDir = fileInfo.absolutePath();
+    if (fileInfo.suffix().isEmpty()) fileName += ".mat";
 
-    const QString & oldName = MpCollection[iMat]->name;
-    if (newName == oldName) return;
-
-    for (int i = 0; i < MpCollection.countMaterials(); i++)
-        if (i != iMat && newName == MpCollection[i]->name)
-        {
-            guitools::message("There is already a material with name " + newName, this);
-            return;
-        }
-
-    MpCollection[iMat]->name = newName;
-    ui->pbRename->setText("Rename " + newName);
-
-    //MW->ReconstructDetector(true);
-}
-
-void MaterialInspectorWindow::on_actionSave_material_triggered()
-{
-  //checkig this material
-  const QString error = MpCollection.CheckTmpMaterial();
-  if ( !error.isEmpty() )
-    {
-      guitools::message(error, this);
-      return;
-    }
-
-  QString starter = GlobSet.LastSaveDir;
-  starter += "/Material_" + ui->leName->text();
-  QString fileName = QFileDialog::getSaveFileName(this,"Save material", starter, "Material files (*.mat *.json);;All files (*.*)");
-  if (fileName.isEmpty()) return;
-  QFileInfo fileInfo(fileName);
-  GlobSet.LastSaveDir = fileInfo.absolutePath();
-  if (fileInfo.suffix().isEmpty()) fileName += ".mat";
-
-  QJsonObject json, js;
+    QJsonObject json, js;
     //MpCollection.writeMaterialToJson(imat, json);
-    MpCollection.tmpMaterial.writeToJson(json);
-  js["Material"] = json;
-  bool bOK = jstools::saveJsonToFile(js, fileName);
-  if (!bOK) guitools::message("Failed to save json to file: "+fileName, this);
+    MatHub.tmpMaterial.writeToJson(json);
+    js["Material"] = json;
+    bool bOK = jstools::saveJsonToFile(js, fileName);
+    if (!bOK) guitools::message("Failed to save json to file: "+fileName, this);
 }
 
 void MaterialInspectorWindow::on_actionLoad_material_triggered()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, "Load material", GlobSet.LastLoadDir, "Material files (*mat *.json);;All files (*.*)");
-  if (fileName.isEmpty()) return;
-  GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
+    QString fileName = QFileDialog::getOpenFileName(this, "Load material", GlobSet.LastLoadDir, "Material files (*mat *.json);;All files (*.*)");
+    if (fileName.isEmpty()) return;
+    GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-  QJsonObject json, js;
-  bool bOK = jstools::loadJsonFromFile(json, fileName);
-  if (!bOK)
-  {
-      guitools::message("Cannot open file: "+fileName, this);
-      return;
-  }
-  if (!json.contains("Material"))
+    QJsonObject json, js;
+    bool bOK = jstools::loadJsonFromFile(json, fileName);
+    if (!bOK)
     {
-      guitools::message("File format error: Json with material settings not found", this);
-      return;
+        guitools::message("Cannot open file: "+fileName, this);
+        return;
     }
-  js = json["Material"].toObject();
-  MpCollection.tmpMaterial.readFromJson(js);
+    if (!json.contains("Material"))
+    {
+        guitools::message("File format error: Json with material settings not found", this);
+        return;
+    }
+    js = json["Material"].toObject();
+    MatHub.tmpMaterial.readFromJson(js);
 
-  setWasModified(true);
-  updateWaveButtons();
-//  MW->ListActiveParticles();
+    setWasModified(true);
+    updateWaveButtons();
+    //  MW->ListActiveParticles();
 
-  ui->cobActiveMaterials->setCurrentIndex(-1); //to avoid confusion (and update is disabled for -1)
-  LastShownMaterial = -1;
+    ui->cobActiveMaterials->setCurrentIndex(-1); //to avoid confusion (and update is disabled for -1)
+    LastShownMaterial = -1;
 
-  updateGui(); //refresh indication of tmpMaterial
-  updateWaveButtons(); //refresh button state for Wave-resolved properties
+    updateTmpMaterialGui(); //refresh indication of tmpMaterial
+    updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
 void MaterialInspectorWindow::on_cobYieldForParticle_activated(int index)
 {
-    const AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    const AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     flagDisreguardChange = true; // -->
     ui->ledPrimaryYield->setText( QString::number(tmpMaterial.getPhotonYield(index)) );
@@ -848,10 +853,10 @@ void MaterialInspectorWindow::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
 
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    updateGui();
+    updateTmpMaterialGui();
     setWasModified(true);
 }
 
@@ -864,25 +869,25 @@ void MaterialInspectorWindow::onRemoveIsotope(AChemicalElement *element, int iso
     }
     element->Isotopes.removeAt(isotopeIndexInElement);
 
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    updateGui();
+    updateTmpMaterialGui();
     setWasModified(true);
 }
 
 void MaterialInspectorWindow::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
-    updateGui();
+    updateTmpMaterialGui();
     setWasModified(true);
 }
 
 void MaterialInspectorWindow::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
 {
-/*
+    /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(x, y, "", titleX, titleY, 4, 20, 1, 4, 1, 2);
     MW->GraphWindow->Draw(g, "APL");
     MW->GraphWindow->UpdateRootCanvas();
@@ -891,19 +896,19 @@ void MaterialInspectorWindow::onRequestDraw(const QVector<double> &x, const QVec
 
 void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (molar fractions!)");
 
     QVBoxLayout* L = new QVBoxLayout();
-        QHBoxLayout* l = new QHBoxLayout();
-        QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionString(), this);
-        le->setMinimumSize(400,25);
-        QPushButton* pb = new QPushButton("Confirm", this);
-        l->addWidget(le);
-        l->addWidget(pb);
-        connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
+    QHBoxLayout* l = new QHBoxLayout();
+    QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionString(), this);
+    le->setMinimumSize(400,25);
+    QPushButton* pb = new QPushButton("Confirm", this);
+    l->addWidget(le);
+    l->addWidget(pb);
+    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
     L->addLayout(l);
     L->addWidget(new QLabel("Format examples:\n"));
     L->addWidget(new QLabel("C2H5OH   - use only integer values!"));
@@ -921,7 +926,7 @@ void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
             continue;
         }
 
-        updateGui();
+        updateTmpMaterialGui();
         break;
     }
 
@@ -933,19 +938,19 @@ void MaterialInspectorWindow::on_pbModifyChemicalComposition_clicked()
 
 void MaterialInspectorWindow::on_pbModifyByWeight_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (fractions by weight!)");
 
     QVBoxLayout* L = new QVBoxLayout();
-        QHBoxLayout* l = new QHBoxLayout();
-        QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionByWeightString(), this);
-        le->setMinimumSize(400,25);
-        QPushButton* pb = new QPushButton("Confirm", this);
-        l->addWidget(le);
-        l->addWidget(pb);
-        connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
+    QHBoxLayout* l = new QHBoxLayout();
+    QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionByWeightString(), this);
+    le->setMinimumSize(400,25);
+    QPushButton* pb = new QPushButton("Confirm", this);
+    l->addWidget(le);
+    l->addWidget(pb);
+    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
     L->addLayout(l);
     L->addWidget(new QLabel("Give weight factors for each element separately, e.g.:\n"));
     L->addWidget(new QLabel("H:0.1112 + O:0.8889"));
@@ -965,7 +970,7 @@ void MaterialInspectorWindow::on_pbModifyByWeight_clicked()
             continue;
         }
 
-        updateGui();
+        updateTmpMaterialGui();
         break;
     }
 
@@ -981,7 +986,7 @@ void MaterialInspectorWindow::ShowTreeWithChemicalComposition()
     ui->trwChemicalComposition->clear();
     bClearInProgress = false;
 
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     bool bShowIsotopes = ui->cbShowIsotopes->isChecked();
 
     for (int i=0; i<tmpMaterial.ChemicalComposition.countElements(); i++)
@@ -1032,7 +1037,7 @@ void flagButton(QPushButton* pb, bool flag)
 
 void MaterialInspectorWindow::on_pbMaterialInfo_clicked()
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     if (ui->leChemicalComposition->text().isEmpty())
     {
@@ -1070,7 +1075,7 @@ void MaterialInspectorWindow::on_lePriT_raise_editingFinished()
 
 bool MaterialInspectorWindow::parseDecayOrRaiseTime(bool doParseDecay)
 {
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QString s = ( doParseDecay ? ui->lePriT->text() : ui->lePriT_raise->text() );
     s = s.simplified();
@@ -1087,9 +1092,9 @@ bool MaterialInspectorWindow::parseDecayOrRaiseTime(bool doParseDecay)
         vec << APair_ValueAndWeight(tau, 1.0);
     else
     {
-        QStringList sl = s.split('&', Qt::SkipEmptyParts);
+        const QStringList sl = s.split('&', Qt::SkipEmptyParts);
 
-        for (const QString& sr : sl)
+        for (const QString & sr : sl)
         {
             QStringList oneTau = sr.split(':', Qt::SkipEmptyParts);
             if (oneTau.size() == 2)
@@ -1144,7 +1149,7 @@ void MaterialInspectorWindow::on_pbPriThelp_clicked()
 
 void MaterialInspectorWindow::on_pbPriT_test_clicked()
 {
-/*
+    /*
     AMaterial& tmpMaterial = MpCollection.tmpMaterial;
 
     tmpMaterial.updateRuntimeProperties(); //to update sum of stat weights
@@ -1165,10 +1170,10 @@ void MaterialInspectorWindow::on_pbCopyPrYieldToAll_clicked()
 {
     if (!guitools::confirm("Set the same primary yield value for all particles?", this)) return;
 
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     double prYield = ui->ledPrimaryYield->text().toDouble();
     for (int iP = 0; iP < tmpMaterial.MatParticle.size(); iP++)
-            tmpMaterial.MatParticle[iP].PhYield = prYield;
+        tmpMaterial.MatParticle[iP].PhYield = prYield;
     tmpMaterial.PhotonYieldDefault = prYield;
     setWasModified(true);
 }
@@ -1177,10 +1182,10 @@ void MaterialInspectorWindow::on_pbCopyIntrEnResToAll_clicked()
 {
     if (!guitools::confirm("Set the same intrinsic energy resolution value for all particles?", this)) return;
 
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
+    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     double EnRes = ui->ledIntEnergyRes->text().toDouble();
     for (int iP = 0; iP < tmpMaterial.MatParticle.size(); iP++)
-            tmpMaterial.MatParticle[iP].IntrEnergyRes = EnRes;
+        tmpMaterial.MatParticle[iP].IntrEnergyRes = EnRes;
     tmpMaterial.IntrEnResDefault = EnRes;
     setWasModified(true);
 }
@@ -1241,12 +1246,12 @@ void MaterialInspectorWindow::on_actionAdd_default_material_triggered()
             return;
     }
 
-    MpCollection.AddNewMaterial("Not_defined", true);
-    //MW->ReconstructDetector(true);
+    MatHub.AddNewMaterial("Not_defined", true);
+
+    updateGui();
 
     int index = ui->cobActiveMaterials->count() - 1;
-    if (index > -1)
-        showMaterial(index);
+    if (index > -1) showMaterial(index);
 }
 
 void MaterialInspectorWindow::on_cbG4Material_toggled(bool)
