@@ -554,12 +554,6 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     return true;
 }
 
-void MatParticleStructure::Clear()
-{
-    PhYield = 0;
-    IntrEnergyRes = 0;
-}
-
 QString AMaterial::CheckMaterial() const
 {
     const QString errInComposition = ChemicalComposition.checkForErrors();

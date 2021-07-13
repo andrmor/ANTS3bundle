@@ -252,7 +252,7 @@
     <item>
      <widget class="QTabWidget" name="twProperties">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_6">
        <attribute name="title">
@@ -2633,8 +2633,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>659</y>
+     <x>309</x>
+     <y>658</y>
     </hint>
     <hint type="destinationlabel">
      <x>633</x>
@@ -2649,8 +2649,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>685</y>
+     <x>309</x>
+     <y>684</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -2905,8 +2905,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>659</y>
+     <x>309</x>
+     <y>658</y>
     </hint>
     <hint type="destinationlabel">
      <x>146</x>
@@ -2985,8 +2985,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>659</y>
+     <x>309</x>
+     <y>658</y>
     </hint>
     <hint type="destinationlabel">
      <x>49</x>

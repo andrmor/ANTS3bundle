@@ -492,8 +492,9 @@ bool A3MatHub::DeleteMaterial(int imat)
     //clear overrides from other materials to this one
     for (int iOther=0; iOther<size; iOther++)
     {
-        if ( Materials[iOther]->OpticalOverrides[imat] ) delete Materials[iOther]->OpticalOverrides[imat];
-        Materials[iOther]->OpticalOverrides.remove(imat);
+        delete Materials[iOther]->OpticalOverrides[imat];
+        //Materials[iOther]->OpticalOverrides.remove(imat);
+        Materials[iOther]->OpticalOverrides.erase( std::next(Materials[iOther]->OpticalOverrides.begin(), imat) );
     }
 
     //delete this material

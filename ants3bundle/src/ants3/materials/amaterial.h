@@ -12,7 +12,6 @@ class AOpticalOverride;
 class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
-struct MatParticleStructure;
 class APair_ValueAndWeight;
 class TRandom2;
 
@@ -59,7 +58,7 @@ public:
     double IntrEnergyRes = 0; // intrinsic energy resolution
     */
 
-    QVector<AOpticalOverride*> OpticalOverrides; //NULL - override not defined
+    std::vector<AOpticalOverride*> OpticalOverrides; // nullptr -> override not defined
 
     QVector<double> nWave_lambda;
     QVector<double> nWave;
@@ -104,14 +103,6 @@ private:
 
 private:
     double FT(double td, double tr, double t) const;
-};
-
-struct MatParticleStructure  //each paticle have this entry in MaterialStructure
-{
-    double PhYield = 0;         // Photon yield of the primary scintillation
-    double IntrEnergyRes = 0; // intrinsic energy resolution
-
-    void Clear();
 };
 
 class APair_ValueAndWeight
