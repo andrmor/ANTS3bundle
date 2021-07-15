@@ -101,6 +101,7 @@ SOURCES += \
     photonSim/aroothistappenders.cpp \
     photonSim/asimulationstatistics.cpp \
     photonSim/atracerstateful.cpp \
+    photonSim/interfaceRules/a3optinthub.cpp \
     photonSim/interfaceRules/abasicopticaloverride.cpp \
     photonSim/interfaceRules/aopticaloverride.cpp \
     photonSim/interfaceRules/aopticaloverridescriptinterface.cpp \
@@ -165,6 +166,7 @@ HEADERS += \
     photonSim/aroothistappenders.h \
     photonSim/asimulationstatistics.h \
     photonSim/atracerstateful.h \
+    photonSim/interfaceRules/a3optinthub.h \
     photonSim/interfaceRules/abasicopticaloverride.h \
     photonSim/interfaceRules/aopticaloverride.h \
     photonSim/interfaceRules/aopticaloverridescriptinterface.h \

@@ -19,6 +19,8 @@
 #include "TH1D.h"
 #include "TString.h"
 
+#include <cmath>
+
 A3MatHub::A3MatHub() {}
 
 A3MatHub &A3MatHub::getInstance()
@@ -95,19 +97,6 @@ void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *
     }
 }
 
-QString A3MatHub::CheckOverrides()
-{
-    for (const AMaterial * mat : Materials)
-        for (AOpticalOverride * ov : qAsConst(mat->OpticalOverrides))
-            if (ov)
-            {
-                QString err = ov->checkOverrideData();
-                if ( !err.isEmpty())
-                    return QString("Error in optical override from %1 to %2:\n").arg(mat->name, getMaterialName(ov->getMaterialTo())) + err;
-            }
-    return QString();
-}
-
 bool A3MatHub::isScriptOpticalOverrideDefined() const
 {
 /*
@@ -120,15 +109,6 @@ bool A3MatHub::isScriptOpticalOverrideDefined() const
             }
 */
     return false;
-}
-
-void A3MatHub::getFirstOverridenMaterial(int &ifrom, int &ito)
-{
-    for (ifrom=0; ifrom<Materials.size(); ifrom++)
-        for (ito=0; ito<Materials.size(); ito++)
-            if (Materials[ifrom]->OpticalOverrides[ito]) return;
-    ifrom = 0;
-    ito = 0;
 }
 
 QString A3MatHub::getMaterialName(int matIndex) const
@@ -149,19 +129,14 @@ void A3MatHub::clearMaterials()
 {
     for (AMaterial * mat : Materials)
     {
-        delete mat->PrimarySpectrumHist;   mat->PrimarySpectrumHist   = nullptr;
-        delete mat->SecondarySpectrumHist; mat->SecondarySpectrumHist = nullptr;
-
-        for (int im=0; im<mat->OpticalOverrides.size(); im++)
-        {
-            delete mat->OpticalOverrides[im]; mat->OpticalOverrides.clear();
-        }
+        delete mat->PrimarySpectrumHist;
+        delete mat->SecondarySpectrumHist;
 
         delete mat;
     }
     Materials.clear();
 
-    clearTmpMaterial();
+    tmpMaterial.clear();
 }
 
 void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
@@ -171,28 +146,10 @@ void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
     int thisMat = Materials.size(); //index of this material (after it is added)
     int numMats = thisMat+1; //collection size after it is added
 
-    //initialize empty optical overrides for all materials
-    m->OpticalOverrides.resize(numMats);
-    for (int i=0; i<numMats; i++) m->OpticalOverrides[i] = 0;
-
-    //all other materials have to be resized and set to 0 overrides on this material border:
-    for (int i=0; i<numMats-1; i++) //over old materials
-    {
-        Materials[i]->OpticalOverrides.resize(numMats);
-        Materials[i]->OpticalOverrides[thisMat] = nullptr;
-    }
-
-    //inicialize empty MatParticle vector for all defined particles
-//    int numParticles = ParticleCollection.size();
-//    m->MatParticle.resize(numParticles);
+    // !!!*** override handling?
 
     //appending to the material collection
     Materials.push_back(m);
-
-    //tmpMaterial object has to be updated too!
-    //tmpMaterial "knew" one less material, have to set overrides to itself to nothing
-    tmpMaterial.OpticalOverrides.resize(numMats);
-    for (int i=0; i<numMats; i++) tmpMaterial.OpticalOverrides[thisMat] = 0;
 
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
@@ -204,85 +161,6 @@ void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
     ensureMatNameIsUnique(Materials.back());
 
     if (!fSuppressChangedSignal) emit materialsChanged();
-}
-
-void A3MatHub::clearTmpMaterial()
-{
-    tmpMaterial.clear();
-
-    /*
-    tmpMaterial.name = "";
-    tmpMaterial.density = 0;
-    tmpMaterial.temperature = 298.0;
-    tmpMaterial.n = 1;
-    tmpMaterial.abs = 0;
-    tmpMaterial.reemissionProb = 0;
-    tmpMaterial.rayleighMFP = 0;
-    tmpMaterial.e_driftVelocity = 0;
-    tmpMaterial.e_diffusion_L = 0;
-    tmpMaterial.e_diffusion_T = 0;
-    tmpMaterial.W = 0;
-    tmpMaterial.SecYield = 0;
-    tmpMaterial.SecScintDecayTime = 0;
-    tmpMaterial.Comments = "";
-
-    tmpMaterial.PriScint_Decay.clear();
-    tmpMaterial.PriScint_Decay << APair_ValueAndWeight(0, 1.0);
-    tmpMaterial.PriScint_Raise.clear();
-    tmpMaterial.PriScint_Raise << APair_ValueAndWeight(0, 1.0);
-
-    tmpMaterial.PhotonYieldDefault = 0;
-    tmpMaterial.IntrEnResDefault = 0;
-    */
-
-    int materials = Materials.size();
-
-    tmpMaterial.OpticalOverrides.resize(materials);
-    for (int i=0; i<materials; i++)
-    {
-        if (tmpMaterial.OpticalOverrides[i])
-        {
-            delete tmpMaterial.OpticalOverrides[i];
-            tmpMaterial.OpticalOverrides[i] = 0;
-        }
-    }
-
-    tmpMaterial.nWave_lambda.clear();
-    tmpMaterial.nWave.clear();
-    tmpMaterial.nWaveBinned.clear();
-    tmpMaterial.absWave_lambda.clear();
-    tmpMaterial.absWave.clear();
-    tmpMaterial.absWaveBinned.clear();
-    tmpMaterial.reemisProbWave.clear();
-    tmpMaterial.reemisProbWave_lambda.clear();
-    tmpMaterial.reemissionProbBinned.clear();
-
-    tmpMaterial.PrimarySpectrum_lambda.clear();
-    tmpMaterial.PrimarySpectrum.clear();
-    tmpMaterial.SecondarySpectrum_lambda.clear();
-    tmpMaterial.SecondarySpectrum.clear();
-
-    //---POINTERS---
-    if (tmpMaterial.PrimarySpectrumHist)
-    {
-        delete tmpMaterial.PrimarySpectrumHist;
-        tmpMaterial.PrimarySpectrumHist = 0;
-    }
-    if (tmpMaterial.SecondarySpectrumHist)
-    {
-        delete tmpMaterial.SecondarySpectrumHist;
-        tmpMaterial.SecondarySpectrumHist = 0;
-    }
-    if (tmpMaterial.GeoMat)
-    {
-        delete tmpMaterial.GeoMat;
-        tmpMaterial.GeoMat = 0;
-    }
-    if (tmpMaterial.GeoMed)
-    {
-        delete tmpMaterial.GeoMed;
-        tmpMaterial.GeoMed = 0;
-    }
 }
 
 void A3MatHub::CopyTmpToMaterialCollection()
@@ -383,10 +261,6 @@ void A3MatHub::UpdateWaveResolvedProperties(int imat)
             for (int j = 1; j<WaveNodes+1; j++)  Materials[imat]->SecondarySpectrumHist->SetBinContent(j, y[j-1]);
             Materials[imat]->SecondarySpectrumHist->GetIntegral(); //to make thread safe
         }
-
-        for (int ior=0; ior<Materials[imat]->OpticalOverrides.size(); ior++)
-            if (Materials[imat]->OpticalOverrides[ior])
-                Materials[imat]->OpticalOverrides[ior]->initializeWaveResolved();
     }
     else
     {
@@ -405,10 +279,6 @@ void A3MatHub::UpdateWaveResolvedProperties(int imat)
             delete Materials[imat]->SecondarySpectrumHist;
             Materials[imat]->SecondarySpectrumHist = 0;
         }
-
-        for (int ior=0; ior<Materials[imat]->OpticalOverrides.size(); ior++)
-            if (Materials[imat]->OpticalOverrides[ior])
-                Materials[imat]->OpticalOverrides[ior]->initializeWaveResolved();
     }
 }
 
@@ -452,7 +322,7 @@ void A3MatHub::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<doub
 QString A3MatHub::CheckMaterial(const AMaterial* mat) const
 {
     if (!mat) return "nullptr material";
-    return mat->CheckMaterial();
+    return mat->checkMaterial();
 }
 
 QString A3MatHub::CheckMaterial(int iMat) const
@@ -463,7 +333,7 @@ QString A3MatHub::CheckMaterial(int iMat) const
 
 QString A3MatHub::CheckTmpMaterial() const
 {
-    return tmpMaterial.CheckMaterial();
+    return tmpMaterial.checkMaterial();
 }
 
 bool A3MatHub::DeleteMaterial(int imat)
@@ -476,37 +346,8 @@ bool A3MatHub::DeleteMaterial(int imat)
     }
 
     //clear dynamic properties of this material
-    if (Materials[imat]->PrimarySpectrumHist)
-        delete Materials[imat]->PrimarySpectrumHist;
-    if (Materials[imat]->SecondarySpectrumHist)
-        delete Materials[imat]->SecondarySpectrumHist;
-    for (int iOther=0; iOther<size; iOther++)  //overrides from this materials to other materials
-    {
-        if ( Materials[imat]->OpticalOverrides[iOther] )
-        {
-            delete Materials[imat]->OpticalOverrides[iOther];
-            Materials[imat]->OpticalOverrides[iOther] = 0;
-        }
-    }
-
-    //clear overrides from other materials to this one
-    for (int iOther=0; iOther<size; iOther++)
-    {
-        delete Materials[iOther]->OpticalOverrides[imat];
-        //Materials[iOther]->OpticalOverrides.remove(imat);
-        Materials[iOther]->OpticalOverrides.erase( std::next(Materials[iOther]->OpticalOverrides.begin(), imat) );
-    }
-
-    //delete this material
-    delete Materials[imat];
-    //Materials.remove(imat);
-    Materials.erase( std::next(Materials.begin(), imat) );
-
-    //update indices of override materials
-    for (int i=0; i<size-1; i++)
-        for (int j=0; j<size-1; j++)
-            if (Materials[i]->OpticalOverrides[j])
-                Materials[i]->OpticalOverrides[j]->updateMatIndices(i, j);
+    delete Materials[imat]->PrimarySpectrumHist;
+    delete Materials[imat]->SecondarySpectrumHist;
 
     emit materialsChanged();
 
@@ -525,17 +366,6 @@ void A3MatHub::writeToJson(QJsonObject &json)
         ar.append(jj);
     }
     js["Materials"] = ar;
-
-    QJsonArray oar;
-    for (size_t iFrom=0; iFrom<Materials.size(); iFrom++)
-        for (size_t iTo=0; iTo<Materials.size(); iTo++)
-        {
-            if ( !Materials.at(iFrom)->OpticalOverrides.at(iTo) ) continue;
-            QJsonObject js;
-            Materials.at(iFrom)->OpticalOverrides[iTo]->writeToJson(js);
-            oar.append(js);
-        }
-    if (!oar.isEmpty()) js["Overrides"] = oar;
 
     json["MaterialCollection"] = js;
 }
@@ -556,7 +386,7 @@ bool A3MatHub::readFromJson(QJsonObject &json)
     if (!json.contains("MaterialCollection"))
     {
         qCritical() << "Material collection not found in json";
-        exit(-2);
+        exit(2);
     }
     QJsonObject js = json["MaterialCollection"].toObject();
 
@@ -567,69 +397,13 @@ bool A3MatHub::readFromJson(QJsonObject &json)
         qCritical() << "No materials in json";
         exit(-2);
     }
-    A3MatHub::clearMaterials();
+    clearMaterials();
     for (int i=0; i<ar.size(); i++)
     {
         QJsonObject jj = ar[i].toObject();
-        A3MatHub::AddNewMaterial(true); //also initialize overrides
+            AddNewMaterial(true); //also initialize overrides
         Materials.back()->readFromJson(jj);
     }
-    int numMats = countMaterials();
-    //qDebug() << "--> Loaded material collection with"<<numMats<<"materials";
-
-    //reading overrides if present
-    QJsonArray oar = js["Overrides"].toArray();
-    for (int i=0; i<oar.size(); i++)
-    {
-        QJsonObject jj = oar[i].toObject();
-        if (jj.contains("Model"))
-        {
-            //new format
-            QString model = jj["Model"].toString();
-            int MatFrom = jj["MatFrom"].toInt();
-            int MatTo = jj["MatTo"].toInt();
-            if (MatFrom>numMats-1 || MatTo>numMats-1)
-            {
-                qWarning()<<"Attempt to override for non-existent material skipped";
-                continue;
-            }
-            AOpticalOverride* ov = OpticalOverrideFactory(model, this, MatFrom, MatTo);
-            if (!ov || !ov->readFromJson(jj))
-                qWarning() << Materials[MatFrom]->name  << ": optical override load failed!";
-            else Materials[MatFrom]->OpticalOverrides[MatTo] = ov;
-        }
-        //compatibility with old format:
-        else if (jj.contains("MatFrom") && jj.contains("ScatModel"))
-        {
-            int MatFrom, MatTo;
-            jstools::parseJson(jj, "MatFrom", MatFrom);
-            jstools::parseJson(jj, "MatTo", MatTo);
-            if (MatFrom>numMats-1 || MatTo>numMats-1)
-            {
-                qWarning()<<"Attempt to override for non-existent material skipped";
-                continue;
-            }
-            double Abs, Scat, Spec;
-            Abs = Scat = Spec = 0;
-            int ScatMode = 1;
-            jstools::parseJson(jj, "Loss", Abs);
-            jstools::parseJson(jj, "Ref", Spec);
-            jstools::parseJson(jj, "Scat", Scat);
-            jstools::parseJson(jj, "ScatModel", ScatMode);
-            ABasicOpticalOverride* ov = new ABasicOpticalOverride(this, MatFrom, MatTo);
-            if (!ov)
-                qWarning() << Materials[MatFrom]->name << ": optical override load failed!";
-            else
-            {
-                Materials[MatFrom]->OpticalOverrides[MatTo] = ov;
-                ov->probLoss = Abs;
-                ov->probRef = Spec;
-                ov->probDiff = Scat;
-                ov->scatterModel = ScatMode;
-            }
-        }
-    }
-    //qDebug() << "--> Loaded material border overrides from array with"<<oar.size()<<"entries";
 
     emit materialsChanged();
 

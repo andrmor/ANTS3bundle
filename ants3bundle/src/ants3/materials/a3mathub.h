@@ -30,7 +30,7 @@ public:
     static       A3MatHub & getInstance();
     static const A3MatHub & getConstInstance();
 
-    AMaterial tmpMaterial; //all pointers are 0 on start -see default constructor
+    AMaterial tmpMaterial; // !!!*** no need anymore, can be in mat inspector !
 
 private:
     std::vector<AMaterial*> Materials;
@@ -47,7 +47,6 @@ public:
 
     //hopefully we will get rid of the RandGen after update in NCrystal
     void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
-    QString CheckOverrides();
 
     //for script-based optical override initialization
     bool isScriptOpticalOverrideDefined() const;  // !!!***
@@ -57,7 +56,6 @@ public:
     AMaterial* operator[](int i) {return Materials[i]; } //get pointer to material with index i
     const AMaterial* operator[](int i) const {return Materials[i]; } //get pointer to material with index i
     int countMaterials() const {return Materials.size();}
-    void getFirstOverridenMaterial(int &ifrom, int &ito);
     double convertWaveIndexToWavelength(int index) {return WaveFrom + WaveStep * index;}
     QString getMaterialName(int matIndex) const;
     const QStringList getListOfMaterialNames() const;
@@ -70,7 +68,6 @@ public:
     void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
     //tmpMaterial - related
-    void clearTmpMaterial(); //deletes all objects pointed by the class pointers!!!
     void CopyTmpToMaterialCollection(); //creates a copy of all pointers // true is new material was added to material collection
     void CopyMaterialToTmp(int imat);
 

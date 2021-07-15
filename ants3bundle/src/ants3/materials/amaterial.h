@@ -8,7 +8,6 @@
 #include "amaterialcomposition.h"
 
 class QJsonObject;
-class AOpticalOverride;
 class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
@@ -46,7 +45,7 @@ public:
     double SecScintDecayTime;
     QString Comments;
 
-    QVector<QString> Tags; // used in material library
+    QVector<QString> Tags; // used in material library     !!!*** to std::vector
 
     AMaterialComposition ChemicalComposition;
 
@@ -58,8 +57,7 @@ public:
     double IntrEnergyRes = 0; // intrinsic energy resolution
     */
 
-    std::vector<AOpticalOverride*> OpticalOverrides; // nullptr -> override not defined
-
+    // !!!*** to std::vector<DPair>
     QVector<double> nWave_lambda;
     QVector<double> nWave;
     QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
@@ -94,7 +92,7 @@ public:
     void writeToJson (QJsonObject & json) const;  //does not save overrides!
     bool readFromJson(const QJsonObject &json);
 
-    QString CheckMaterial() const;
+    QString checkMaterial() const;
 
 private:
     //run-time properties

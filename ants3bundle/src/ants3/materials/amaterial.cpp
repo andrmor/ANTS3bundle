@@ -11,6 +11,8 @@
 #include "TH1D.h"
 #include "TRandom2.h"
 
+#include <cmath>
+
 AMaterial::AMaterial()
 {
     clear();
@@ -68,11 +70,11 @@ double AMaterial::FT(double td, double tr, double t) const
 
 double single_exp(double t, double tau2)
 {
-    return std::exp(-1.0*t/tau2)/tau2;
+    return exp(-1.0*t/tau2)/tau2;
 }
 double bi_exp(double t, double tau1,double tau2)
 {
-    return std::exp(-1.0*t/tau2)*(1-std::exp(-1.0*t/tau1))/tau2/tau2*(tau1+tau2);
+    return exp(-1.0*t/tau2)*(1.0-exp(-1.0*t/tau1))/tau2/tau2*(tau1+tau2);
 }
 double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
 {
@@ -129,7 +131,7 @@ double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
     {
         double ran1 = RandGen->Rndm();
         double ran2 = RandGen->Rndm();
-        EmissionTime = -1.0 * DecayTime * std::log(1.0 - ran1);
+        EmissionTime = -1.0 * DecayTime * log(1.0 - ran1);
         double gg = d * single_exp(EmissionTime, DecayTime);
         if (ran2 <= bi_exp(EmissionTime, RiseTime, DecayTime) / gg)
             break;
@@ -554,7 +556,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     return true;
 }
 
-QString AMaterial::CheckMaterial() const
+QString AMaterial::checkMaterial() const
 {
     const QString errInComposition = ChemicalComposition.checkForErrors();
     if (!errInComposition.isEmpty())
