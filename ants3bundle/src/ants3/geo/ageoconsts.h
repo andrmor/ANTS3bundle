@@ -3,7 +3,7 @@
 
 #include <QVector>
 #include <QString>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <ageoobject.h>
 
 class QJsonObject;
@@ -18,7 +18,7 @@ struct AGeoConstRecord
     QString Comment;
 
     //runtime
-    QRegExp RegExp;
+    QRegularExpression RegExp;
     QString Index;
 };
 
@@ -44,8 +44,8 @@ public:
     QString checkifValidAndGetDoublefromExpression(int index);
     QString isGeoConstsBellowInUse(int index) const;
 
-    QString isGeoConstInUse(const QRegExp & nameRegExp, int index) const;
-    void    replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName, int index);
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index);
 
     QString getName(int index) const;
     double  getValue(int index) const;
@@ -54,7 +54,7 @@ public:
 
     int     countConstants() const {return Records.size();}
     bool    evaluateConstExpression(int index);
-    bool    isGeoConstInUseGlobal(const QRegExp & nameRegExp, const AGeoObject * obj) const;
+    bool    isGeoConstInUseGlobal(const QRegularExpression & nameRegExp, const AGeoObject * obj) const;
 
     QString exportToScript(const AGeoObject * obj, const QString &CommentStr, const QString &VarStr) const;
     void    formulaToScript(QString & str, bool usePython) const;
@@ -85,7 +85,7 @@ private:
     //misc
     QVector<QString> FunctionsToJS;
     QVector<QString> FormulaReservedWords;
-    QVector<QRegExp> ForbiddenVarsRExp;
+    QVector<QRegularExpression> ForbiddenVarsRExp;
 
     void updateRunTimeProperties();
 };

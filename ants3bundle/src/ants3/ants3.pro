@@ -14,8 +14,9 @@ ants2_GUI {
     QT -= gui
 }
 
-QT += qml   #this is for jsengine
-QT += websockets
+QT += qml   #this is for qjsengine
+
+#QT += core5compat
 
 CONFIG += c++11
 
@@ -54,11 +55,7 @@ DESTDIR = ../../bin
 
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
-    ../dispatcher/awebsocketsessionserver.cpp \
-    ../dispatcher/awebsocketsession.cpp \
     ../dispatcher/a3processhandler.cpp \
-    ../dispatcher/a3remotehandler.cpp \
-    ../dispatcher/a3wsclient.cpp \
     config/amonitorconfig.cpp \
     geo/a3geometry.cpp \
     geo/ageoobject.cpp \
@@ -121,11 +118,7 @@ SOURCES += \
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
-    ../dispatcher/awebsocketsessionserver.h \
-    ../dispatcher/awebsocketsession.h \
     ../dispatcher/a3processhandler.h \
-    ../dispatcher/a3remotehandler.h \
-    ../dispatcher/a3wsclient.h \
     config/amonitorconfig.h \
     geo/a3geometry.h \
     geo/ageoobject.h \
@@ -199,6 +192,21 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
+ants2_WS {
+    QT += websockets
+    DEFINES += WEBSOCKETS
 
+    SOURCES += \
+    ../dispatcher/awebsocketsessionserver.cpp \
+    ../dispatcher/awebsocketsession.cpp \
+    ../dispatcher/a3remotehandler.cpp \
+    ../dispatcher/a3wsclient.cpp
 
-
+    HEADERS += \
+    ../dispatcher/awebsocketsessionserver.h \
+    ../dispatcher/awebsocketsession.h \
+    ../dispatcher/a3remotehandler.h \
+    ../dispatcher/a3wsclient.h \
+} else {
+    QT -= websockets
+}

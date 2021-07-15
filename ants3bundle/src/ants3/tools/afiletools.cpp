@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include <QRegularExpression>
 
 #ifdef GUI
 #include <QMessageBox>
@@ -74,7 +75,7 @@ QString ftools::loadDoubleVectorsFromFile(QString FileName, QVector<double>* x, 
     if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + FileName;
 
     QTextStream in(&file);
-    QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
     x->resize(0);
     y->resize(0);
     while(!in.atEnd())

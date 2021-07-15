@@ -8,7 +8,7 @@
 
 class TGeoShape;
 class QJsonObject;
-class QStringList;
+class QRegularExpression;
 
 class AGeoShape
 {
@@ -34,8 +34,8 @@ public:
 
   virtual QString updateShape() {return "";}
 
-  virtual bool isGeoConstInUse(const QRegExp & /*nameRegExp*/) const = 0;
-  virtual void replaceGeoConstName(const QRegExp & /*nameRegExp*/, const QString & /*newName*/) {}
+  virtual bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const = 0;
+  virtual void replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 
   //json
   virtual void writeToJson(QJsonObject &/*json*/) const = 0;
@@ -71,8 +71,8 @@ public:
   bool readFromString(QString GenerationString) override;
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   TGeoShape* createGeoShape(const QString shapeName = "") override;
 
@@ -106,8 +106,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -139,8 +139,8 @@ public:
   QString getHelp() const override;
   QString updateScalingFactors();
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -180,8 +180,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse (const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName (const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -216,8 +216,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -250,8 +250,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -286,8 +286,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -318,8 +318,8 @@ struct APolyCGsection
   APolyCGsection(double z, double rmin, double rmax) : z(z), rmin(rmin), rmax(rmax) {}
 
   bool updateShape(QString & errorStr);
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName);
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 
   bool fromString(QString string);
   QString toString(bool useStrings) const;
@@ -339,8 +339,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -371,8 +371,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -402,8 +402,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -436,8 +436,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -469,8 +469,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -509,8 +509,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -542,8 +542,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -577,8 +577,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse (const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName (const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
 
   virtual bool readFromString(QString GenerationString);
   virtual TGeoShape* createGeoShape(const QString shapeName = "");
@@ -610,8 +610,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -643,8 +643,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;
@@ -681,7 +681,7 @@ public:
   virtual bool readFromString(QString GenerationString);
   virtual TGeoShape* createGeoShape(const QString shapeName = "");
 
-  bool isGeoConstInUse(const QRegExp & /*nameRegExp*/) const override {return false;}
+  bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const override {return false;}
 
   QString getGenerationString(bool /*useStrings*/) const override {return GenerationString;}
   double maxSize() const {return 0;} // have to ask AGeoObject
@@ -708,8 +708,8 @@ public:
 
   QString updateShape() override;
 
-  bool isGeoConstInUse (const QRegExp & nameRegExp) const override;
-  void replaceGeoConstName (const QRegExp & nameRegExp, const QString & newName) override;
+  bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
+  void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
 
   bool readFromString(QString GenerationString) override;
   TGeoShape* createGeoShape(const QString shapeName = "") override;

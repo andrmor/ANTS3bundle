@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 AGeoBaseDelegate::AGeoBaseDelegate(QWidget *ParentWidget) :
     ParentWidget(ParentWidget) {}
@@ -59,7 +60,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
         const QString & name = GC.getName(i);
         if (name.isEmpty()) continue;
 
-        rule.pattern = QRegExp("\\b" + name + "\\b");
+        rule.pattern = QRegularExpression("\\b" + name + "\\b");
         rule.format = GeoConstantFormat;
         highlighter->HighlightingRules.append(rule);
         sl << name;
@@ -72,7 +73,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     const QVector<QString> & words = AGeoConsts::getConstInstance().getTFormulaReservedWords();
     for (const QString & word : words)
     {
-        rule.pattern = QRegExp("\\b" + word + "\\b");
+        rule.pattern = QRegularExpression("\\b" + word + "\\b");
         rule.format = FormulaFormat;
         highlighter->HighlightingRules.append(rule);
     }

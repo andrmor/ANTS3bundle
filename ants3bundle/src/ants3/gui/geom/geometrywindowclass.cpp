@@ -17,6 +17,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QVBoxLayout>
+#include <QActionGroup>
 
 #ifdef __USE_ANTS_JSROOT__
 #include <QWebEngineView>

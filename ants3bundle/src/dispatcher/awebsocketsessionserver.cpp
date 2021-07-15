@@ -1,6 +1,5 @@
 #include "awebsocketsessionserver.h"
 #include "ajsontools.h"
-
 #include <QWebSocketServer>
 #include <QWebSocket>
 #include <QJsonDocument>

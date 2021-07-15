@@ -41,11 +41,11 @@ public:
 
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
-#include <QRegExp>
+#include <QRegularExpression>
 class QTextDocument;
 struct AHighlightingRule
 {
-    QRegExp pattern;
+    QRegularExpression pattern;
     QTextCharFormat format;
 };
 

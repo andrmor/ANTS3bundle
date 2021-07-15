@@ -7,6 +7,7 @@
 
 #include <cmath>
 
+#include <QRegularExpression>
 #include <QDebug>
 
 void AGeoObject::constructorInit()
@@ -158,7 +159,7 @@ int AGeoObject::getMaterial() const
     return Material;
 }
 
-const AGeoObject * AGeoObject::isGeoConstInUse(const QRegExp & nameRegExp) const
+const AGeoObject * AGeoObject::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     for (int i = 0; i < 3; i++)
     {
@@ -170,7 +171,7 @@ const AGeoObject * AGeoObject::isGeoConstInUse(const QRegExp & nameRegExp) const
     return nullptr;
 }
 
-void AGeoObject::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void AGeoObject::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -181,7 +182,7 @@ void AGeoObject::replaceGeoConstName(const QRegExp & nameRegExp, const QString &
     if (Type)  Type->replaceGeoConstName(nameRegExp, newName);
 }
 
-const AGeoObject * AGeoObject::isGeoConstInUseRecursive(const QRegExp & nameRegExp) const
+const AGeoObject * AGeoObject::isGeoConstInUseRecursive(const QRegularExpression & nameRegExp) const
 {
     //qDebug() <<"name of current "<<this->Name;
     if (isGeoConstInUse(nameRegExp)) return this;
@@ -194,7 +195,7 @@ const AGeoObject * AGeoObject::isGeoConstInUseRecursive(const QRegExp & nameRegE
     return nullptr;
 }
 
-void AGeoObject::replaceGeoConstNameRecursive(const QRegExp & nameRegExp, const QString & newName)
+void AGeoObject::replaceGeoConstNameRecursive(const QRegularExpression & nameRegExp, const QString & newName)
 {
     replaceGeoConstName(nameRegExp, newName);
 

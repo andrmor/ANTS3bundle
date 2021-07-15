@@ -4,6 +4,7 @@
 #include "amonitorconfig.h"
 
 #include <QString>
+#include <QRegularExpression>
 
 class QJsonObject;
 
@@ -34,8 +35,8 @@ public:
     bool isGridElement() const      {return Type == "GridElement";}
     bool isMonitor() const          {return Type == "Monitor";}
 
-    virtual bool isGeoConstInUse(const QRegExp & /*nameRegExp*/) const {return false;}
-    virtual void replaceGeoConstName(const QRegExp & /*nameRegExp*/, const QString & /*newName*/) {}
+    virtual bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {return false;}
+    virtual void replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 
     virtual void writeToJson(QJsonObject & json) const;         // CALL THIS, then save additional properties of the concrete type
     virtual void readFromJson(const QJsonObject & /*json*/) {}  // if present, read properties of the concrete type
@@ -116,8 +117,8 @@ public:
 
     void Reconfigure(int NumX, int NumY, int NumZ, double StepX, double StepY, double StepZ);
 
-    bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-    void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+    bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
@@ -144,8 +145,8 @@ public:
 
     void Reconfigure(int Num, double AngularStep, double Radius);
 
-    bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-    void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+    bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
@@ -186,8 +187,8 @@ public:
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    bool isGeoConstInUse(const QRegExp & nameRegExp) const override;
-    void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName) override;
+    bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
     AMonitorConfig config;
 

@@ -2,6 +2,7 @@
 #include "ajsontools.h"
 
 #include <QDebug>
+#include <QRegularExpression>
 
 #include "TGeoBBox.h"
 #include "TGeoShape.h"
@@ -115,7 +116,7 @@ QString AGeoBox::updateShape()
     return "";
 }
 
-bool AGeoBox::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool AGeoBox::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (str2dx.contains(nameRegExp)) return true;
     if (str2dy.contains(nameRegExp)) return true;
@@ -123,7 +124,7 @@ bool AGeoBox::isGeoConstInUse(const QRegExp & nameRegExp) const
     return false;
 }
 
-void AGeoBox::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void AGeoBox::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     str2dx.replace(nameRegExp, newName);
     str2dy.replace(nameRegExp, newName);
@@ -243,7 +244,7 @@ QString AGeoPara::updateShape()
     return "";
 }
 
-bool AGeoPara::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoPara::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2dx.contains(nameRegExp))   return true;
     if (str2dy.contains(nameRegExp))   return true;
@@ -254,7 +255,7 @@ bool AGeoPara::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoPara::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoPara::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2dx  .replace(nameRegExp, newName);
     str2dy  .replace(nameRegExp, newName);
@@ -411,7 +412,7 @@ bool AGeoComposite::readFromString(QString GenerationString)
     s.remove("TGeoCompositeShape");
     s.remove("(");
     s.remove(")");
-    QStringList requested = s.split(QRegExp("[+*-]"));
+    QStringList requested = s.split(QRegularExpression("[+*-]"));
     for (int i=0; i<requested.size(); i++) requested[i] = requested[i].simplified();
     //qDebug() << "Requested members in composite generation:"<<requested;
     QSet<QString> SetOfRequested(requested.begin(), requested.end());
@@ -438,7 +439,7 @@ TGeoShape *AGeoComposite::createGeoShape(const QString shapeName)
     for (int i=0; i<members.size(); i++)
     {
         QString mem = members[i];
-        QRegExp toReplace("\\b"+mem+"\\b(?!:)");
+        QRegularExpression toReplace("\\b"+mem+"\\b(?!:)");
         QString memMod = mem+":_m"+mem;
         s.replace(toReplace, memMod);
     }
@@ -494,7 +495,7 @@ QString AGeoSphere::updateShape()
     return "";
 }
 
-bool AGeoSphere::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoSphere::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2rmin .contains(nameRegExp)) return true;
     if (str2rmax .contains(nameRegExp)) return true;
@@ -506,7 +507,7 @@ bool AGeoSphere::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoSphere::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoSphere::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2rmin .replace(nameRegExp, newName);
     str2rmax .replace(nameRegExp, newName);
@@ -656,7 +657,7 @@ QString AGeoTubeSeg::updateShape()
     return "";
 }
 
-bool AGeoTubeSeg::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoTubeSeg::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2rmin.contains(nameRegExp)) return true;
     if (str2rmax.contains(nameRegExp)) return true;
@@ -667,7 +668,7 @@ bool AGeoTubeSeg::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoTubeSeg::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoTubeSeg::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2rmin.replace(nameRegExp, newName);
     str2rmax.replace(nameRegExp, newName);
@@ -817,7 +818,7 @@ QString AGeoCtub::updateShape()
     return AGeoTubeSeg::updateShape();
 }
 
-bool AGeoCtub::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoCtub::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strnxlow.contains(nameRegExp)) return true;
     if (strnylow.contains(nameRegExp)) return true;
@@ -828,7 +829,7 @@ bool AGeoCtub::isGeoConstInUse(const QRegExp &nameRegExp) const
     return AGeoTubeSeg::isGeoConstInUse(nameRegExp);
 }
 
-void AGeoCtub::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoCtub::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     AGeoTubeSeg::replaceGeoConstName(nameRegExp, newName);
 
@@ -1004,7 +1005,7 @@ QString AGeoTube::updateShape()
     return "";
 }
 
-bool AGeoTube::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool AGeoTube::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (str2rmax.contains(nameRegExp)) return true;
     if (str2rmin.contains(nameRegExp)) return true;
@@ -1012,7 +1013,7 @@ bool AGeoTube::isGeoConstInUse(const QRegExp & nameRegExp) const
     return false;
 }
 
-void AGeoTube::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void AGeoTube::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     str2rmax.replace(nameRegExp, newName);
     str2rmin.replace(nameRegExp, newName);
@@ -1142,7 +1143,7 @@ QString AGeoTrd1::updateShape()
     return "";
 }
 
-bool AGeoTrd1::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoTrd1::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2dx1.contains(nameRegExp)) return true;
     if (str2dx2.contains(nameRegExp)) return true;
@@ -1151,7 +1152,7 @@ bool AGeoTrd1::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoTrd1::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoTrd1::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2dx1.replace(nameRegExp, newName);
     str2dx2.replace(nameRegExp, newName);
@@ -1291,7 +1292,7 @@ QString AGeoTrd2::updateShape()
     return "";
 }
 
-bool AGeoTrd2::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoTrd2::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2dx1.contains(nameRegExp)) return true;
     if (str2dx2.contains(nameRegExp)) return true;
@@ -1301,7 +1302,7 @@ bool AGeoTrd2::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoTrd2::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoTrd2::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2dx1.replace(nameRegExp, newName);
     str2dx2.replace(nameRegExp, newName);
@@ -1448,13 +1449,13 @@ QString AGeoPgon::updateShape()
 
 }
 
-bool AGeoPgon::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoPgon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strNedges.contains(nameRegExp)) return true;
     return AGeoPcon::isGeoConstInUse(nameRegExp);
 }
 
-void AGeoPgon::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoPgon::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strNedges.replace(nameRegExp, newName);
     AGeoPcon::replaceGeoConstName(nameRegExp, newName);
@@ -1638,7 +1639,7 @@ QString AGeoConeSeg::updateShape()
     return AGeoCone::updateShape();
 }
 
-bool AGeoConeSeg::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoConeSeg::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strPhi1.contains(nameRegExp)) return true;
     if (strPhi2.contains(nameRegExp)) return true;
@@ -1646,7 +1647,7 @@ bool AGeoConeSeg::isGeoConstInUse(const QRegExp &nameRegExp) const
     return AGeoCone::isGeoConstInUse(nameRegExp);
 }
 
-void AGeoConeSeg::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoConeSeg::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     AGeoCone::replaceGeoConstName(nameRegExp, newName);
 
@@ -1795,7 +1796,7 @@ QString AGeoParaboloid::updateShape()
     return "";
 }
 
-bool AGeoParaboloid::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoParaboloid::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2rlo.contains(nameRegExp)) return true;
     if (str2rhi.contains(nameRegExp)) return true;
@@ -1804,7 +1805,7 @@ bool AGeoParaboloid::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoParaboloid::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoParaboloid::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2rlo.replace(nameRegExp, newName);
     str2rhi.replace(nameRegExp, newName);
@@ -1938,7 +1939,7 @@ QString AGeoCone::updateShape()
     return "";
 }
 
-bool AGeoCone::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoCone::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2dz   .contains(nameRegExp)) return true;
     if (str2rminL.contains(nameRegExp)) return true;
@@ -1949,7 +1950,7 @@ bool AGeoCone::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoCone::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoCone::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2dz   .replace(nameRegExp, newName);
     str2rminL.replace(nameRegExp, newName);
@@ -2093,7 +2094,7 @@ QString AGeoEltu::updateShape()
     return "";
 }
 
-bool AGeoEltu::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoEltu::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2a .contains(nameRegExp)) return true;
     if (str2b .contains(nameRegExp)) return true;
@@ -2102,7 +2103,7 @@ bool AGeoEltu::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoEltu::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoEltu::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2a .replace(nameRegExp, newName);
     str2b .replace(nameRegExp, newName);
@@ -2269,7 +2270,7 @@ QString AGeoArb8::updateShape()
     return "";
 }
 
-bool AGeoArb8::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoArb8::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (str2dz.contains(nameRegExp)) return true;
 
@@ -2281,7 +2282,7 @@ bool AGeoArb8::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoArb8::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoArb8::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     str2dz.replace(nameRegExp, newName);
 
@@ -2507,7 +2508,7 @@ QString AGeoPcon::updateShape()
     return "";
 }
 
-bool AGeoPcon::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoPcon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strPhi .contains(nameRegExp)) return true;
     if (strdPhi.contains(nameRegExp)) return true;
@@ -2520,7 +2521,7 @@ bool AGeoPcon::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void AGeoPcon::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoPcon::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strPhi .replace(nameRegExp, newName);
     strdPhi.replace(nameRegExp, newName);
@@ -2723,7 +2724,7 @@ bool APolyCGsection::updateShape(QString &errorStr)
     return true;
 }
 
-bool APolyCGsection::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool APolyCGsection::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strZ    .contains(nameRegExp)) return true;
     if (str2rmin.contains(nameRegExp)) return true;
@@ -2732,7 +2733,7 @@ bool APolyCGsection::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void APolyCGsection::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void APolyCGsection::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strZ    .replace(nameRegExp, newName);
     str2rmin.replace(nameRegExp, newName);
@@ -2852,7 +2853,7 @@ QString AGeoPolygon::updateShape()
     return "";
 }
 
-bool AGeoPolygon::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool AGeoPolygon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strNedges.contains(nameRegExp)) return true;
     if (strdPhi  .contains(nameRegExp)) return true;
@@ -2865,7 +2866,7 @@ bool AGeoPolygon::isGeoConstInUse(const QRegExp &nameRegExp) const
 
 }
 
-void AGeoPolygon::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void AGeoPolygon::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strNedges.replace(nameRegExp, newName);
     strdPhi  .replace(nameRegExp, newName);
@@ -3023,7 +3024,7 @@ QString AGeoScaledShape::updateScalingFactors()
     return "";
 }
 
-bool AGeoScaledShape::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool AGeoScaledShape::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (strScaleX.contains(nameRegExp)) return true;
     if (strScaleY.contains(nameRegExp)) return true;
@@ -3033,7 +3034,7 @@ bool AGeoScaledShape::isGeoConstInUse(const QRegExp & nameRegExp) const
     return false;
 }
 
-void AGeoScaledShape::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void AGeoScaledShape::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     strScaleX.replace(nameRegExp, newName);
     strScaleY.replace(nameRegExp, newName);
@@ -3385,7 +3386,7 @@ QString AGeoTorus::updateShape()
     return "";
 }
 
-bool AGeoTorus::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool AGeoTorus::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (str2R   .contains(nameRegExp)) return true;
     if (str2Rmin.contains(nameRegExp)) return true;
@@ -3396,7 +3397,7 @@ bool AGeoTorus::isGeoConstInUse(const QRegExp & nameRegExp) const
     return false;
 }
 
-void AGeoTorus::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void AGeoTorus::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     str2R   .replace(nameRegExp, newName);
     str2Rmin.replace(nameRegExp, newName);

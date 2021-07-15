@@ -11,8 +11,8 @@ AGeoConsts::AGeoConsts()
     FormulaReservedWords << "sqrt2" << "pi" << "ln10" << "infinity"
                          << "pow" << "sin" << "cos" << "sqrt" << "exp" << "ceil" << "floor";
 
-    ForbiddenVarsRExp << QRegExp("\\bg\\b") << QRegExp("\\bh\\b") << QRegExp("\\bt\\b") << QRegExp("\\bk\\b") << QRegExp("\\bx\\b")
-                      << QRegExp("\\by\\b") << QRegExp("\\bz\\b") << QRegExp("\\bc\\b") << QRegExp("\\br\\b") << QRegExp("\\be\\b");
+    ForbiddenVarsRExp << QRegularExpression("\\bg\\b") << QRegularExpression("\\bh\\b") << QRegularExpression("\\bt\\b") << QRegularExpression("\\bk\\b") << QRegularExpression("\\bx\\b")
+                      << QRegularExpression("\\by\\b") << QRegularExpression("\\bz\\b") << QRegularExpression("\\bc\\b") << QRegularExpression("\\br\\b") << QRegularExpression("\\be\\b");
 }
 
 AGeoConsts &AGeoConsts::getInstance()
@@ -26,7 +26,7 @@ const AGeoConsts &AGeoConsts::getConstInstance()
     return getInstance();
 }
 
-bool AGeoConsts::isGeoConstInUseGlobal(const QRegExp & nameRegExp, const AGeoObject * obj) const
+bool AGeoConsts::isGeoConstInUseGlobal(const QRegularExpression & nameRegExp, const AGeoObject * obj) const
 {
     for (const AGeoConstRecord & r : Records)
         if (r.Expression.contains(nameRegExp)) return true;
@@ -45,7 +45,7 @@ QString AGeoConsts::exportToScript(const AGeoObject * obj, const QString &Commen
         for (int i = 0; i < Records.size(); i++)
         {
             const AGeoConstRecord & r = Records.at(i);
-            QRegExp nameRegExp("\\b" + r.Name + "\\b");
+            QRegularExpression nameRegExp("\\b" + r.Name + "\\b");
             if (isGeoConstInUseGlobal(nameRegExp, obj))
             {
                 GCScript += QString("%1%2 = %3")
@@ -290,8 +290,8 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
 {
     if (newName.isEmpty())                return "Name cannot be empty";
     if (newName.at(0).isDigit())          return "Name cannot start with a digit";
-    if (newName.contains(QRegExp("\\s"))) return "Name cannot contain whitespace charachters eg:\" \" or \"\\n\" ";
-    if (newName.contains(QRegExp("\\W"))) return "Name can only contain word characters: [0-9], [A-Z], [a-z], _";
+    if (newName.contains(QRegularExpression("\\s"))) return "Name cannot contain whitespace charachters eg:\" \" or \"\\n\" ";
+    if (newName.contains(QRegularExpression("\\W"))) return "Name can only contain word characters: [0-9], [A-Z], [a-z], _";
 
     for (int i = 0; i < Records.size(); i++)
     {
@@ -299,11 +299,11 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
         if (newName == Records.at(i).Name) return "This name is already in use";
     }
 
-    QRegExp reservedQRegExp;
+    QRegularExpression reservedQRegularExpression;
     for (const QString & word : FormulaReservedWords)
     {
-        reservedQRegExp = QRegExp("\\b" + word + "\\b");
-        if (newName.contains(reservedQRegExp)) return QString("Name contains a TFormula reserved word: %1").arg(word);
+        reservedQRegularExpression = QRegularExpression("\\b" + word + "\\b");
+        if (newName.contains(reservedQRegularExpression)) return QString("Name contains a TFormula reserved word: %1").arg(word);
     }
     return "";
 }
@@ -370,14 +370,14 @@ QString AGeoConsts::isGeoConstsBellowInUse(int index) const
     return "";
 }
 
-QString AGeoConsts::isGeoConstInUse(const QRegExp & nameRegExp, int index) const
+QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const
 {
     for (int i = index; i < Records.size(); i++)
         if (Records.at(i).Expression.contains(nameRegExp)) return Records.at(i).Name;
     return "";
 }
 
-void AGeoConsts::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName, int index)
+void AGeoConsts::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index)
 {
     for (int i = index; i < Records.size(); i++)
         Records[i].Expression.replace(nameRegExp, newName);
@@ -424,7 +424,7 @@ void AGeoConsts::updateRunTimeProperties()
 
     for (int i = 0; i < size; i++)
     {
-        Records[i].RegExp = QRegExp("\\b" + Records.at(i).Name + "\\b");
+        Records[i].RegExp = QRegularExpression("\\b" + Records.at(i).Name + "\\b");
         Records[i].Index  = QString("[%1]").arg(i);
     }
 }

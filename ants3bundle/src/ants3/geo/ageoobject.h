@@ -15,6 +15,7 @@ class TGeoShape;
 class AGeoShape;
 class AGridElementRecord;
 class TGeoRotation;
+class QRegularExpression;
 
 class AGeoObject
 {
@@ -53,10 +54,10 @@ public:
 
   int  getMaterial() const;
 
-  const AGeoObject * isGeoConstInUse(const QRegExp & nameRegExp) const;
-  void replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName);
-  const AGeoObject * isGeoConstInUseRecursive(const QRegExp & nameRegExp) const;
-  void replaceGeoConstNameRecursive(const QRegExp & nameRegExp, const QString & newName);
+  const AGeoObject * isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+  void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
+  const AGeoObject * isGeoConstInUseRecursive(const QRegularExpression & nameRegExp) const;
+  void replaceGeoConstNameRecursive(const QRegularExpression & nameRegExp, const QString & newName);
 
   //json for a single object
   void writeToJson(QJsonObject & json);

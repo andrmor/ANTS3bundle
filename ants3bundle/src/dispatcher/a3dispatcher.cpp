@@ -2,19 +2,23 @@
 #include "a3processhandler.h"  // in ANTS3 dir!
 #include "a3workdistrconfig.h" // in ANTS3 dir!
 #include "ajsontools.h"        // in ANTS3 dir!
-#include "awebsocketsessionserver.h"
+
+#ifdef WEBSOCKETS
+    #include "awebsocketsessionserver.h"
+    #include "a3remotehandler.h"
+    #include <QHostAddress>
+#endif
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDir>
-#include <QSocketNotifier>
+//#include <QSocketNotifier>
 #include <QTextStream>
 #include <QByteArray>
 #include <QFile>
 #include <QThread>
 #include <QCoreApplication>
-#include <QHostAddress>
 #include <QDir>
 #include <QTimer>
 
@@ -40,9 +44,13 @@ A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
     }
     else
     {
+#ifdef WEBSOCKETS
         WebSocketServer = new AWebSocketSessionServer(StandaloneDir, this);
         connect(WebSocketServer, &AWebSocketSessionServer::remoteCommandReceived, this, &A3Dispatcher::onRemoteCommandReceived, Qt::QueuedConnection);
         log("---->Standalone dispatcher started on WS port " + QString::number(port));
+#else
+        log("->Cannot start served: compilation without WEBSOCKET flag");
+#endif
     }
 
     ProgressReportTimer = new QTimer();
@@ -62,8 +70,10 @@ A3Dispatcher::~A3Dispatcher()
 
 void A3Dispatcher::start()
 {
+#ifdef WEBSOCKETS
     if (PortPersistentWS != 0)
         WebSocketServer->startListen(QHostAddress("127.0.0.1"), PortPersistentWS); // TODO -> IP from startup arguments
+#endif
 }
 
 void A3Dispatcher::onReportProgressTimer()
@@ -74,7 +84,9 @@ void A3Dispatcher::onReportProgressTimer()
 
     if (WebSocketServer)
     {
+#ifdef WEBSOCKETS
         WebSocketServer->sendProgress(total);
+#endif
     }
     else
     {
@@ -113,6 +125,7 @@ void A3Dispatcher::executeCommand(QJsonObject json)
         wdc.Nodes.erase(wdc.Nodes.begin());
     }
 
+#ifdef WEBSOCKETS
     if (!wdc.Nodes.empty())
     {
         QString err = startWorkFarm(wdc);
@@ -124,6 +137,7 @@ void A3Dispatcher::executeCommand(QJsonObject json)
             return;
         }
     }
+#endif
 
     waitForWorkFinished();
     //qDebug() << "DEBUG:FINISHED";
@@ -135,6 +149,21 @@ void A3Dispatcher::executeCommand(QJsonObject json)
     localReplyFinished();
 }
 
+bool A3Dispatcher::startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode)
+{
+    for (size_t iWorker = 0; iWorker < localNode.Workers.size(); iWorker++)
+    {
+        //log("...starting worker #" + QString::number(iWorker));
+        //qDebug() << "...starting worker #" << iWorker;
+        A3ProcessHandler * h = new A3ProcessHandler("./" + executable, {exchangeDir + '/' + localNode.Workers[iWorker].ConfigFile, exchangeDir});
+        Handlers.push_back(h);
+        bool ok = h->start();
+        if (!ok) return false;
+    }
+    return true;
+}
+
+#ifdef WEBSOCKETS
 void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
 {
     A3WorkDistrConfig wdc;
@@ -159,21 +188,6 @@ void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
     WebSocketServer->sendWorkFinished("");
 }
 
-bool A3Dispatcher::startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode)
-{
-    for (size_t iWorker = 0; iWorker < localNode.Workers.size(); iWorker++)
-    {
-        //log("...starting worker #" + QString::number(iWorker));
-        //qDebug() << "...starting worker #" << iWorker;
-        A3ProcessHandler * h = new A3ProcessHandler("./" + executable, {exchangeDir + '/' + localNode.Workers[iWorker].ConfigFile, exchangeDir});
-        Handlers.push_back(h);
-        bool ok = h->start();
-        if (!ok) return false;
-    }
-    return true;
-}
-
-#include "a3remotehandler.h"
 QString A3Dispatcher::startWorkFarm(const A3WorkDistrConfig & wdc)
 {
     for (const A3WorkNodeConfig & Node : wdc.Nodes)
@@ -186,6 +200,7 @@ QString A3Dispatcher::startWorkFarm(const A3WorkDistrConfig & wdc)
     }
     return "";
 }
+#endif
 
 void A3Dispatcher::waitForWorkFinished()
 {

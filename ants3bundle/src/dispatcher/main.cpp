@@ -1,7 +1,7 @@
 #include "a3dispatcher.h"
 
 #include <QCoreApplication>
-#include <QString>
+//#include <QString>
 #include <QDebug>
 //#include <QTimer>
 

@@ -57,7 +57,7 @@ QString ATypeArrayObject::evaluateStringValues(ATypeArrayObject & A)
     return "";
 }
 
-bool ATypeArrayObject::isGeoConstInUse(const QRegExp &nameRegExp) const
+bool ATypeArrayObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strNumX .contains(nameRegExp)) return true;
     if (strNumY .contains(nameRegExp)) return true;
@@ -69,7 +69,7 @@ bool ATypeArrayObject::isGeoConstInUse(const QRegExp &nameRegExp) const
     return false;
 }
 
-void ATypeArrayObject::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void ATypeArrayObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strNumX .replace(nameRegExp, newName);
     strNumY .replace(nameRegExp, newName);
@@ -152,14 +152,14 @@ void ATypeMonitorObject::readFromJson(const QJsonObject &json)
     config.readFromJson(json);
 }
 
-bool ATypeMonitorObject::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool ATypeMonitorObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (config.str2size1.contains(nameRegExp)) return true;
     if (config.str2size2.contains(nameRegExp)) return true;
     return false;
 }
 
-void ATypeMonitorObject::replaceGeoConstName(const QRegExp & nameRegExp, const QString & newName)
+void ATypeMonitorObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString & newName)
 {
     config.str2size1.replace(nameRegExp, newName);
     config.str2size2.replace(nameRegExp, newName);
@@ -214,7 +214,7 @@ void ATypeCircularArrayObject::Reconfigure(int Num, double AngularStep, double R
     radius = Radius;
 }
 
-bool ATypeCircularArrayObject::isGeoConstInUse(const QRegExp & nameRegExp) const
+bool ATypeCircularArrayObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 {
     if (strNum.contains(nameRegExp))         return true;
     if (strAngularStep.contains(nameRegExp)) return true;
@@ -223,7 +223,7 @@ bool ATypeCircularArrayObject::isGeoConstInUse(const QRegExp & nameRegExp) const
     return false;
 }
 
-void ATypeCircularArrayObject::replaceGeoConstName(const QRegExp &nameRegExp, const QString &newName)
+void ATypeCircularArrayObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
 {
     strNum.replace(nameRegExp, newName);
     strAngularStep.replace(nameRegExp, newName);

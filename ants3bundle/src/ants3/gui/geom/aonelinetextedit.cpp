@@ -210,9 +210,10 @@ QSize AOneLineTextEdit::sizeHint() const
 
 void ABasicHighlighter::highlightBlock(const QString & text)
 {
+    /*
     for (const AHighlightingRule & rule : qAsConst(HighlightingRules))
     {
-        const QRegExp & expression = rule.pattern;
+        const QRegularExpression & expression = rule.pattern;
         int index = rule.pattern.indexIn(text);
         while (index >= 0)
         {
@@ -220,5 +221,15 @@ void ABasicHighlighter::highlightBlock(const QString & text)
             setFormat(index, length, rule.format);
             index = expression.indexIn(text, index + length);
         }
+    }
+    */
+    for (const AHighlightingRule & rule : qAsConst(HighlightingRules))
+    {
+            QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+            while (matchIterator.hasNext())
+            {
+                QRegularExpressionMatch match = matchIterator.next();
+                setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            }
     }
 }
