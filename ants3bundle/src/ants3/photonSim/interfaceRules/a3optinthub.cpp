@@ -69,7 +69,7 @@ void A3OptIntHub::readFromJson(const QJsonObject &json)
     */
 }
 
-QString A3OptIntHub::checkOverrides()
+QString A3OptIntHub::checkAll()
 {
     /*
     for (const AMaterial * mat : Materials)

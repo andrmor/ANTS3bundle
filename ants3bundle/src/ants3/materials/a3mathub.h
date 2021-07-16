@@ -13,6 +13,7 @@
 class AGeneralSimSettings;
 class ATracerStateful;
 class AGeoObject;
+class QJsonArray;
 
 class A3MatHub : public QObject
 {
@@ -35,6 +36,7 @@ public:
 private:
     std::vector<AMaterial*> Materials;
 
+    // !!!*** dont think we need them here
     double WaveFrom  = 200.0;
     double WaveTo    = 800.0;
     double WaveStep  = 5.0;
@@ -42,28 +44,34 @@ private:
     bool   WavelengthResolved = false;
 
 public:
+    void writeToJsonAr(QJsonArray & ar) const;
+    bool readFromJsonAr(const QJsonArray & ar);
+
+    QStringList getListOfMaterialNames() const;
+
+
+
+
     //configuration
     void SetWave(bool wavelengthResolved, double waveFrom, double waveTo, double waveStep, int waveNodes);
 
     //hopefully we will get rid of the RandGen after update in NCrystal
     void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
 
-    //for script-based optical override initialization
-    bool isScriptOpticalOverrideDefined() const;  // !!!***
 
     //info requests
-    //materials
     AMaterial* operator[](int i) {return Materials[i]; } //get pointer to material with index i
     const AMaterial* operator[](int i) const {return Materials[i]; } //get pointer to material with index i
     int countMaterials() const {return Materials.size();}
     double convertWaveIndexToWavelength(int index) {return WaveFrom + WaveStep * index;}
     QString getMaterialName(int matIndex) const;
-    const QStringList getListOfMaterialNames() const;
+
 
     //Material handling
-    void AddNewMaterial(bool fSuppressChangedSignal = false);
-    void AddNewMaterial(QString name, bool fSuppressChangedSignal = false);
-    int  FindMaterial(const QString &name) const; //if not found, returns -1; if found, returns material index
+    void addNewMaterial(bool fSuppressChangedSignal = false);               //
+    void addNewMaterial(QString name, bool fSuppressChangedSignal = false); // !!!*** make single method!
+
+    int  findMaterial(const QString & name) const; //if not found, returns -1; if found, returns material index
     bool DeleteMaterial(int imat); //takes care of overrides of materials with index larger than imat!
     void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
@@ -71,18 +79,14 @@ public:
     void CopyTmpToMaterialCollection(); //creates a copy of all pointers // true is new material was added to material collection
     void CopyMaterialToTmp(int imat);
 
-    //json write/read handling
-    void writeToJson(QJsonObject &json);
-    void writeMaterialToJson(int imat, QJsonObject &json);
-    bool readFromJson(QJsonObject &json);
-    void AddNewMaterial(QJsonObject &json);
+    void addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
 
     //general purpose requests
     void   GetWave(bool& wavelengthResolved, double& waveFrom, double& waveTo, double& waveStep, int& waveNodes) const;
     bool   IsWaveResolved() const {return WavelengthResolved;}
     double getDriftSpeed(int iMat) const; //returns in mm / ns
-    double getDiffusionSigmaTime(int iMat, int length_mm) const;
-    double getDiffusionSigmaTransverse(int iMat, int length_mm) const;
+    double getDiffusionSigmaTime(int iMat, double length_mm) const;
+    double getDiffusionSigmaTransverse(int iMat, double length_mm) const;
     void   CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const;
 
 public:
@@ -92,10 +96,9 @@ public:
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
     QString CheckTmpMaterial() const;                       //"" - check passed, otherwise error
 
-    int WaveToIndex(double wavelength) const;
+    int WaveToIndex(double wavelength) const; // not the right place?
 
 private:
-    //internal kitchen
     void clearMaterials();
     void ensureMatNameIsUnique(AMaterial * mat);
 

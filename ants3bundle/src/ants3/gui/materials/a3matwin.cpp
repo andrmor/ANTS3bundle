@@ -163,7 +163,7 @@ void A3MatWin::addNewOrUpdateMaterial()
     }
 
     QString name = MatHub.tmpMaterial.name;
-    int index = MatHub.FindMaterial(name);
+    int index = MatHub.findMaterial(name);
     if (index == -1)
         index = MatHub.countMaterials(); //then it will be appended, index = current size
     else
@@ -675,7 +675,7 @@ void A3MatWin::on_leName_textChanged(const QString& /*name*/)
 void A3MatWin::updateActionButtons()
 {
     const QString name = ui->leName->text();
-    int iMat = MatHub.FindMaterial(name);
+    int iMat = MatHub.findMaterial(name);
     if (iMat == -1)
     {
         // Material with this name does not exist
@@ -1193,7 +1193,7 @@ void A3MatWin::on_actionAdd_default_material_triggered()
             return;
     }
 
-    MatHub.AddNewMaterial("Not_defined", true);
+    MatHub.addNewMaterial("Not_defined", true);
 
     updateGui();
 

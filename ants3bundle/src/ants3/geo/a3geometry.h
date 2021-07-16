@@ -50,7 +50,7 @@ public:
     void         populateGeoManager();
 
     void         writeToJson(QJsonObject & json) const;
-    QString      readFromJson(const QJsonObject & json);  // returns "" if no errors, else error description
+    bool         readFromJson(const QJsonObject & json);  // returns "" if no errors, else error description
 
     void         clearWorld();
     bool         canBeDeleted(AGeoObject * obj) const;

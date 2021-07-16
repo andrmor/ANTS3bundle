@@ -32,7 +32,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    QString checkOverrides();
+    QString checkAll();
 
 public slots:
     void onMaterialDeleted(size_t iMat);

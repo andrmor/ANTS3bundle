@@ -886,62 +886,60 @@ void A3Geometry::changeLineWidthOfVolumes(int delta)
     World->changeLineWidthRecursive(delta);
 }
 
-
 void A3Geometry::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
+    {
+        QJsonArray arrTree;
+            World->writeAllToJarr(arrTree);
+        js["WorldTree"] = arrTree;
 
-    QJsonArray arrTree;
-    World->writeAllToJarr(arrTree);
-    js["WorldTree"] = arrTree;
-
-    AGeoConsts::getConstInstance().writeToJson(js);
-
+        QJsonArray arrGC;
+            AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
+        js["GeoConsts"] = arrGC;
+    }
     json["Geometry"] = js;
 }
 
-QString A3Geometry::readFromJson(const QJsonObject &json)
+bool A3Geometry::readFromJson(const QJsonObject & json)
 {
     ErrorString.clear();
 
     QJsonObject js;
     bool ok = jstools::parseJson(json, "Geometry", js);
-    if (ok)
+    if (!ok)
     {
-        if (js.contains("GeoConsts"))
-            AGeoConsts::getInstance().readFromJson(js);
-
-        if (js.contains("WorldTree"))
-        {
-            QJsonArray arrTree = js["WorldTree"].toArray();
-            ErrorString = World->readAllFromJarr(World, arrTree);
-
-            //if config contained Prototypes, there are two protoypes objects in the geometry now!
-            for (AGeoObject * obj : World->HostedObjects)
-            {
-                if (!obj->Type->isPrototypes()) continue;
-                if (obj == Prototypes) continue;
-                //found another Prototypes object  - it was loaded from json
-                for (AGeoObject * proto : obj->HostedObjects)
-                    Prototypes->addObjectLast(proto);
-                obj->HostedObjects.clear();
-                World->removeHostedObject(obj);
-                delete obj;
-                break;
-            }
-        }
-        else qWarning() << "...json does not contain WordTree!"; // !*! is it a critical error?
-    }
-    else
-    {
-        qCritical() << "Critical error: Geometry is missing in the config file!";
-        exit(666);
+        ErrorString = "geometry settings are missing in the json file!";
+        return false;
     }
 
-    // stacks can be updated only now, when values using geoConsts have been evaluated
+    QJsonArray arrGC;
+    jstools::parseJson(js, "GeoConsts", arrGC);
+    AGeoConsts::getInstance().readFromJsonArr(arrGC);
+
+    QJsonArray arrTree;
+    jstools::parseJson(js, "WorldTree", arrTree);
+    ErrorString = World->readAllFromJarr(World, arrTree);
+    if (!ErrorString.isEmpty()) return false;
+
+    //if config contained Prototypes, there are two protoypes objects in the geometry now!
+    for (AGeoObject * obj : World->HostedObjects)
+    {
+        if (!obj->Type->isPrototypes()) continue;
+        if (obj == Prototypes) continue;
+        //found another Prototypes object  - it was loaded from json
+        for (AGeoObject * proto : obj->HostedObjects)
+            Prototypes->addObjectLast(proto);
+        obj->HostedObjects.clear();
+        World->removeHostedObject(obj);
+        delete obj;
+        break;
+    }
+
+    // stacks can be updated only now, when values using GeoConsts have been evaluated
     World->updateAllStacks();
 
-    return ErrorString;
+    return true;
 }
 
 bool A3Geometry::isWorldSizeFixed() const

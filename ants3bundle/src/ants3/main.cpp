@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
     A3Geometry::getInstance().onStart();
-    A3MatHub::getInstance().AddNewMaterial("Dummy", true);
+    A3MatHub::getInstance().addNewMaterial("Dummy", true);
 
 #ifdef GUI
     if (argc == 1)

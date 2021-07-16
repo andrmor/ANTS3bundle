@@ -62,7 +62,7 @@ double A3MatHub::getDriftSpeed(int iMat) const
     return 0.01 * Materials.at(iMat)->e_driftVelocity; //given in cm/us - returns in mm/ns
 }
 
-double A3MatHub::getDiffusionSigmaTime(int iMat, int length_mm) const
+double A3MatHub::getDiffusionSigmaTime(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v^3)
     //https://doi.org/10.1016/j.nima.2016.01.094
@@ -72,10 +72,10 @@ double A3MatHub::getDiffusionSigmaTime(int iMat, int length_mm) const
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
     const double d = m->e_diffusion_L; //now in mm^2/ns
 
-    return sqrt(2.0 * d * length_mm / v) / v; // in ns
+    return std::sqrt(2.0 * d * length_mm / v) / v; // in ns
 }
 
-double A3MatHub::getDiffusionSigmaTransverse(int iMat, int length_mm) const
+double A3MatHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v)
     const AMaterial * m = Materials.at(iMat);
@@ -84,7 +84,7 @@ double A3MatHub::getDiffusionSigmaTransverse(int iMat, int length_mm) const
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
     const double d = m->e_diffusion_T; //now in mm^2/ns
 
-    return sqrt(2.0 * d * length_mm / v); // in mm
+    return std::sqrt(2.0 * d * length_mm / v); // in mm
 }
 
 void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings * SimSet)
@@ -97,31 +97,16 @@ void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *
     }
 }
 
-bool A3MatHub::isScriptOpticalOverrideDefined() const
-{
-/*
-    for (AMaterial* mat : MaterialCollectionData)
-        for (AOpticalOverride* ov : mat->OpticalOverrides)
-            if (ov)
-            {
-                AScriptOpticalOverride* sov = dynamic_cast<AScriptOpticalOverride*>(ov);
-                if (sov) return true;
-            }
-*/
-    return false;
-}
-
 QString A3MatHub::getMaterialName(int matIndex) const
 {
     if (matIndex<0 || matIndex >= Materials.size()) return "";
     return Materials.at(matIndex)->name;
 }
 
-const QStringList A3MatHub::getListOfMaterialNames() const
+QStringList A3MatHub::getListOfMaterialNames() const
 {
     QStringList l;
-    for (AMaterial * m : Materials)
-        l << m->name;
+    for (AMaterial * m : Materials) l << m->name;
     return l;
 }
 
@@ -139,9 +124,9 @@ void A3MatHub::clearMaterials()
     tmpMaterial.clear();
 }
 
-void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
+void A3MatHub::addNewMaterial(bool fSuppressChangedSignal)
 {
-    AMaterial *m = new AMaterial;
+    AMaterial * m = new AMaterial;
 
     int thisMat = Materials.size(); //index of this material (after it is added)
     int numMats = thisMat+1; //collection size after it is added
@@ -154,9 +139,9 @@ void A3MatHub::AddNewMaterial(bool fSuppressChangedSignal)
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
+void A3MatHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
 {
-    AddNewMaterial(true);
+    addNewMaterial(true);
     Materials.back()->name = name;
     ensureMatNameIsUnique(Materials.back());
 
@@ -166,11 +151,11 @@ void A3MatHub::AddNewMaterial(QString name, bool fSuppressChangedSignal)
 void A3MatHub::CopyTmpToMaterialCollection()
 {
     const QString name = tmpMaterial.name;
-    int index = FindMaterial(name);
+    int index = findMaterial(name);
     if (index == -1)
     {
         //      qDebug()<<"MaterialCollection--> New material: "<<name;
-        AddNewMaterial(true);
+        addNewMaterial(true);
         index = Materials.size() - 1;
     }
     else
@@ -188,7 +173,7 @@ void A3MatHub::CopyTmpToMaterialCollection()
     emit materialsChanged();
 }
 
-int A3MatHub::FindMaterial(const QString & name) const
+int A3MatHub::findMaterial(const QString & name) const
 {
     const int size = Materials.size();
 
@@ -354,65 +339,36 @@ bool A3MatHub::DeleteMaterial(int imat)
     return true;
 }
 
-void A3MatHub::writeToJson(QJsonObject &json)
+void A3MatHub::writeToJsonAr(QJsonArray & ar) const
 {
-    QJsonObject js;
+    ar = QJsonArray();
 
-    QJsonArray ar;
     for (const AMaterial * m : Materials)
     {
-        QJsonObject jj;
-        m->writeToJson(jj);
-        ar.append(jj);
+        QJsonObject js;
+        m->writeToJson(js);
+        ar.append(js);
     }
-    js["Materials"] = ar;
-
-    json["MaterialCollection"] = js;
 }
 
-void A3MatHub::writeMaterialToJson(int imat, QJsonObject &json)
+bool A3MatHub::readFromJsonAr(const QJsonArray & ar)
 {
-    if (imat < 0 || imat >= (int)Materials.size())
-    {
-        qWarning() << "Attempt to save non-existent material!";
-        return;
-    }
-    Materials[imat]->writeToJson(json);
-}
-
-#include "abasicopticaloverride.h"
-bool A3MatHub::readFromJson(QJsonObject &json)
-{
-    if (!json.contains("MaterialCollection"))
-    {
-        qCritical() << "Material collection not found in json";
-        exit(2);
-    }
-    QJsonObject js = json["MaterialCollection"].toObject();
-
-    //reading materials
-    QJsonArray ar = js["Materials"].toArray();
-    if (ar.isEmpty())
-    {
-        qCritical() << "No materials in json";
-        exit(-2);
-    }
     clearMaterials();
+
     for (int i=0; i<ar.size(); i++)
     {
-        QJsonObject jj = ar[i].toObject();
-            AddNewMaterial(true); //also initialize overrides
-        Materials.back()->readFromJson(jj);
+        QJsonObject js = ar[i].toObject();
+        addNewMaterial(true);
+        Materials.back()->readFromJson(js);
     }
 
     emit materialsChanged();
-
     return true;
 }
 
-void A3MatHub::AddNewMaterial(QJsonObject &json) //have to be sure json is indeed material properties!
+void A3MatHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!
 {
-    AddNewMaterial();
+    addNewMaterial();
     AMaterial * mat = Materials.back();
     mat->readFromJson(json);
 
@@ -447,7 +403,7 @@ int A3MatHub::WaveToIndex(double wavelength) const
 {
     if (!WavelengthResolved) return -1;
 
-    int iwave = round( (wavelength - WaveFrom) / WaveStep );
+    int iwave = std::round( (wavelength - WaveFrom) / WaveStep );
     if (iwave >= WaveNodes) iwave = WaveNodes-1;
     if (iwave < 0) iwave = 0;
     return iwave;

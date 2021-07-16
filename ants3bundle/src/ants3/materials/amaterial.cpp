@@ -280,30 +280,10 @@ void AMaterial::writeToJson(QJsonObject & json) const
         for (const QString & s : Tags) ar.append(s);
         json["*Tags"] = ar;
     }
+    */
 
     json["bG4UseNistMaterial"] = bG4UseNistMaterial;
     json["G4NistMaterial"] = G4NistMaterial;
-
-    //MatParticle properties
-    //if a particle has default configuration (TrackingAllowed and MatIsTransparent), skip its record
-    QJsonArray jParticleEntries;
-    const QVector<AParticle *> *ParticleCollection = MpCollection->getParticleCollection();
-    for (int ip=0; ip<ParticleCollection->size(); ip++)
-    {
-        QJsonObject jMatParticle;
-
-        QJsonObject jparticle;
-        ParticleCollection->at(ip)->writeToJson(jparticle);
-        jMatParticle["*Particle"] = jparticle;
-        jMatParticle["PrimScintPhYield"] = MatParticle[ip].PhYield;
-        jMatParticle["IntrEnergyRes"] = MatParticle[ip].IntrEnergyRes;
-
-        //appending this particle entry to the json array
-        jParticleEntries.append(jMatParticle);
-    }
-    //if not empty, appending array with Matparticle properties to main json object
-    if (!jParticleEntries.isEmpty()) json["MatParticles"] = jParticleEntries;
-    */
 }
 
 bool AMaterial::readFromJson(const QJsonObject & json)
@@ -466,87 +446,6 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     {
         QJsonArray ar = json["*Tags"].toArray();
         for (int i=0; i<ar.size(); i++) Tags << ar[i].toString();
-    }
-
-    //MatParticle properties
-    //filling default properties for all particles
-    int numParticles = MpCollection->countParticles();
-    MatParticle.resize(numParticles);
-    for (int ip=0; ip<numParticles; ip++)
-    {
-        MatParticle[ip].TrackingAllowed = true;
-        MatParticle[ip].MaterialIsTransparent = true;
-    }
-    // reading defined properties
-    QJsonArray jParticleEntries = json["MatParticles"].toArray();
-    for (int index = 0; index < jParticleEntries.size(); index++)
-    {
-        QJsonObject jMatParticle = jParticleEntries[index].toObject();
-
-        QJsonObject jparticle = jMatParticle["*Particle"].toObject();
-        AParticle pa;
-        pa.readFromJson(jparticle);
-        bool bNewParticle = (MpCollection->findParticle(pa) == -1);
-        if (bNewParticle && SuppressParticles.contains(pa.ParticleName))
-            continue;
-
-        int ip = MpCollection->findOrAddParticle(jparticle);
-        MatParticle.resize(MpCollection->countParticles());
-        MatParticleStructure & MP = MatParticle[ip];
-
-        jstools::parseJson(jMatParticle, "TrackingAllowed",  MP.TrackingAllowed);
-        jstools::parseJson(jMatParticle, "MatIsTransparent", MP.MaterialIsTransparent);
-        jstools::parseJson(jMatParticle, "PrimScintPhYield", MP.PhYield);
-
-        MP.IntrEnergyRes = 0;
-        jstools::parseJson(jMatParticle, "IntrEnergyRes", MP.IntrEnergyRes);
-
-        MP.DataSource.clear();
-        jstools::parseJson(jMatParticle, "DataSource", MP.DataSource);
-        MP.DataString.clear();
-        jstools::parseJson(jMatParticle, "DataString", MP.DataString);
-
-        MP.bCaptureEnabled = true; //compatibility
-        jstools::parseJson(jMatParticle, "CaptureEnabled", MP.bCaptureEnabled);
-        MP.bElasticEnabled = false; //compatibility
-        jstools::parseJson(jMatParticle, "EllasticEnabled", MP.bElasticEnabled); //old configs were with this typo
-        jstools::parseJson(jMatParticle, "ElasticEnabled",  MP.bElasticEnabled);
-        MP.bUseNCrystal = false; //compatibility
-        jstools::parseJson(jMatParticle, "UseNCrystal", MP.bUseNCrystal);
-
-        MP.bAllowAbsentCsData = false;
-        jstools::parseJson(jMatParticle, "AllowAbsentCsData", MP.bAllowAbsentCsData);
-
-        if (jMatParticle.contains("TotalInteraction"))
-        {
-            QJsonArray iar = jMatParticle["TotalInteraction"].toArray();
-            readTwoQVectorsFromJArray(iar, MP.InteractionDataX, MP.InteractionDataF);
-        }
-
-        QJsonArray arTerm;
-        jstools::parseJson(jMatParticle, "Terminators", arTerm);
-        jstools::parseJson(jMatParticle, "GammaTerminators", arTerm); //compatibility
-        // old neutron terminators are NOT compatible with new system
-        if (!arTerm.isEmpty())
-        {
-            MP.Terminators.clear();
-            for (int iTerm=0; iTerm<arTerm.size(); iTerm++)
-            {
-                QJsonObject jterm = arTerm[iTerm].toObject();
-                NeutralTerminatorStructure newTerm;
-                newTerm.readFromJson(jterm, MpCollection);
-                MP.Terminators << newTerm;
-            }
-        }
-        else
-        {
-            if (jMatParticle.contains("NeutronTerminators"))
-            {
-                qWarning() << "This config file contains old (incompatible) standard for neutron interaction data - material is set to transparent for neutrons!";
-                //making material transparent
-                MP.MaterialIsTransparent = true;
-            }
-        }
     }
 */
 

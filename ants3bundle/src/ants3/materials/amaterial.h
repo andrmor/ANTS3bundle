@@ -89,8 +89,9 @@ public:
     void updateRuntimeProperties();
 
     void clear();
-    void writeToJson (QJsonObject & json) const;  //does not save overrides!
-    bool readFromJson(const QJsonObject &json);
+
+    void writeToJson (QJsonObject & json) const;
+    bool readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
 
     QString checkMaterial() const;
 

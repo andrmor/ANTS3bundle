@@ -6,7 +6,7 @@
 #include <QRegularExpression>
 #include <ageoobject.h>
 
-class QJsonObject;
+class QJsonArray;
 
 struct AGeoConstRecord
 {
@@ -59,8 +59,8 @@ public:
     QString exportToScript(const AGeoObject * obj, const QString &CommentStr, const QString &VarStr) const;
     void    formulaToScript(QString & str, bool usePython) const;
 
-    void    writeToJson(QJsonObject & json) const;
-    void    readFromJson(const QJsonObject & json);
+    void    writeToJsonArr(QJsonArray & ar) const;
+    void    readFromJsonArr(const QJsonArray & json);
 
     bool    evaluateFormula(QString str, double & returnValue, int to = -1) const;
     bool    updateParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero = true, bool bForbidNegative = true, bool bMakeHalf = true) const;

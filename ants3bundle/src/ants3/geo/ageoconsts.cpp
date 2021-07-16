@@ -84,9 +84,10 @@ void AGeoConsts::clearConstants()
     GeoConstValues.clear();
 }
 
-void AGeoConsts::writeToJson(QJsonObject & json) const
+void AGeoConsts::writeToJsonArr(QJsonArray & ar) const
 {
-    QJsonArray ar;
+    ar = QJsonArray();
+
     for (int i = 0; i < Records.size(); i++)
     {
         const AGeoConstRecord & r = Records.at(i);
@@ -94,15 +95,11 @@ void AGeoConsts::writeToJson(QJsonObject & json) const
             el << r.Name << GeoConstValues.at(i) << r.Expression << r.Comment;
         ar.push_back(el);
     }
-    json["GeoConsts"] = ar;
 }
 
-void AGeoConsts::readFromJson(const QJsonObject & json)
+void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
 {
     clearConstants();
-
-    QJsonArray ar;
-    jstools::parseJson(json, "GeoConsts", ar);
 
     const int size = ar.size();
     Records.resize(size);
