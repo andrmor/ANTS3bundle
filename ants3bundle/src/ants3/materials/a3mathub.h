@@ -31,8 +31,6 @@ public:
     static       A3MatHub & getInstance();
     static const A3MatHub & getConstInstance();
 
-    AMaterial tmpMaterial; // !!!*** no need anymore, can be in mat inspector !
-
 private:
     std::vector<AMaterial*> Materials;
 
@@ -75,9 +73,8 @@ public:
     bool DeleteMaterial(int imat); //takes care of overrides of materials with index larger than imat!
     void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
-    //tmpMaterial - related
-    void CopyTmpToMaterialCollection(); //creates a copy of all pointers // true is new material was added to material collection
-    void CopyMaterialToTmp(int imat);
+    void copyTmpToMaterialCollection(const AMaterial & tmpMaterial);
+    void copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
 
     void addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
 
@@ -94,7 +91,6 @@ public:
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
-    QString CheckTmpMaterial() const;                       //"" - check passed, otherwise error
 
     int WaveToIndex(double wavelength) const; // not the right place?
 

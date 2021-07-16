@@ -120,16 +120,11 @@ void A3MatHub::clearMaterials()
         delete mat;
     }
     Materials.clear();
-
-    tmpMaterial.clear();
 }
 
 void A3MatHub::addNewMaterial(bool fSuppressChangedSignal)
 {
     AMaterial * m = new AMaterial;
-
-    int thisMat = Materials.size(); //index of this material (after it is added)
-    int numMats = thisMat+1; //collection size after it is added
 
     // !!!*** override handling?
 
@@ -148,7 +143,21 @@ void A3MatHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void A3MatHub::CopyTmpToMaterialCollection()
+void A3MatHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
+{
+    if (imat < 0 || imat >= Materials.size())
+    {
+        qWarning()<<"Error: attempting to copy non-existent material #"<<imat<< " to tmpMaterial!";
+        return;
+    }
+
+    //do not want to copy dynamic objects!
+    QJsonObject js;
+        Materials[imat]->writeToJson(js);
+    tmpMaterial.readFromJson(js);
+}
+
+void A3MatHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
 {
     const QString name = tmpMaterial.name;
     int index = findMaterial(name);
@@ -163,6 +172,7 @@ void A3MatHub::CopyTmpToMaterialCollection()
         //      qDebug()<<"MaterialCollection--> Material "+name+" already defined; index = "<<index;
     }
 
+    //do not want to copy dynamic objects!
     QJsonObject js;
     tmpMaterial.writeToJson(js);
     Materials[index]->readFromJson(js);
@@ -267,18 +277,6 @@ void A3MatHub::UpdateWaveResolvedProperties(int imat)
     }
 }
 
-void A3MatHub::CopyMaterialToTmp(int imat)
-{
-    if (imat<0 || imat>Materials.size()-1)
-    {
-        qWarning()<<"Error: attempting to copy non-existent material #"<<imat<< " to tmpMaterial!";
-        return;
-    }
-    QJsonObject js;
-    Materials[imat]->writeToJson(js);
-    tmpMaterial.readFromJson(js);
-}
-
 void A3MatHub::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<double>* sp_y, QVector<double>* y)
 {
     y->resize(0);
@@ -314,11 +312,6 @@ QString A3MatHub::CheckMaterial(int iMat) const
 {
     if (iMat<0 || iMat>=Materials.size()) return "Wrong material index: " + QString::number(iMat);
     return CheckMaterial(Materials[iMat]);
-}
-
-QString A3MatHub::CheckTmpMaterial() const
-{
-    return tmpMaterial.checkMaterial();
 }
 
 bool A3MatHub::DeleteMaterial(int imat)

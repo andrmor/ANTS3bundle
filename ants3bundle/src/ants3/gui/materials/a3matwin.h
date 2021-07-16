@@ -1,6 +1,8 @@
 #ifndef A3MATWIN_H
 #define A3MATWIN_H
 
+#include "amaterial.h"
+
 //#include "aguiwindow.h"
 #include <QMainWindow>
 
@@ -95,6 +97,8 @@ private:
 
     Ui::A3MatWin * ui = nullptr;
 
+    AMaterial tmpMaterial;
+
     bool bMaterialWasModified = false;
     bool flagDisreguardChange = false;
     bool bLockTmpMaterial     = false;   // need?
@@ -107,7 +111,7 @@ private:
     void updateTmpMaterialGui();   // yield / EnRes  !!!***
     void addNewOrUpdateMaterial();
 
-    void showMaterial(int index);
+    void switchToMaterial(int index);
     void setWasModified(bool flag);
 
     void updateActionButtons();

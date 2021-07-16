@@ -76,7 +76,7 @@ A3MatWin::~A3MatWin()
 void A3MatWin::initWindow()
 {
     updateGui();
-    showMaterial(0);
+    switchToMaterial(0);
 }
 
 void A3MatWin::setWasModified(bool flag)
@@ -105,7 +105,7 @@ void A3MatWin::updateGui()
     if (current < -1 || current >= matCount)
         current = matCount - 1;
 
-    showMaterial(current);
+    switchToMaterial(current);
     setWasModified(false);
 }
 
@@ -153,16 +153,17 @@ void A3MatWin::addNewOrUpdateMaterial()
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
 
-    //MatHub.tmpMaterial.updateRuntimeProperties();   // need? !!!***
+    //
+tmpMaterial.updateRuntimeProperties();   // need? !!!***
 
-    const QString error = MatHub.CheckTmpMaterial();
+    QString error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())
     {
         guitools::message(error, this);
         return;
     }
 
-    QString name = MatHub.tmpMaterial.name;
+    QString name = tmpMaterial.name;
     int index = MatHub.findMaterial(name);
     if (index == -1)
         index = MatHub.countMaterials(); //then it will be appended, index = current size
@@ -175,15 +176,15 @@ void A3MatWin::addNewOrUpdateMaterial()
         }
     }
 
-    MatHub.CopyTmpToMaterialCollection(); //if absent, new material is created!
+    MatHub.copyTmpToMaterialCollection(tmpMaterial); //if absent, new material is created!
 
     //MW->ReconstructDetector(true);    !!!*** return to this later -> most likely not need it here
     //MW->UpdateMaterialListEdit();     !!!*** sources? sim: node_exclusion?
 
-    showMaterial(index);
+    switchToMaterial(index);
 }
 
-void A3MatWin::showMaterial(int index)
+void A3MatWin::switchToMaterial(int index)
 {
     if (index == -1)
     {
@@ -192,9 +193,9 @@ void A3MatWin::showMaterial(int index)
         return;
     }
 
-    if (index < 0 || index > MatHub.countMaterials()) return;
+    if (index < 0 || index >= MatHub.countMaterials()) return;
 
-    MatHub.CopyMaterialToTmp(index);
+    MatHub.copyMaterialToTmp(index, tmpMaterial);
     ui->cobActiveMaterials->setCurrentIndex(index);
     LastShownMaterial = index;
     updateTmpMaterialGui();
@@ -214,13 +215,11 @@ void A3MatWin::on_cobActiveMaterials_activated(int index)
             return;
         }
     }
-    showMaterial(index);
+    switchToMaterial(index);
 }
 
 void A3MatWin::updateWaveButtons()
 {   
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
-
     bool bPrimSpec = (tmpMaterial.PrimarySpectrum_lambda.size() > 0);
     ui->pbShowPrimSpectrum->setEnabled(bPrimSpec);
     ui->pbDeletePrimSpectrum->setEnabled(bPrimSpec);
@@ -252,8 +251,6 @@ void A3MatWin::updateG4RelatedGui()
 
 void A3MatWin::updateTmpMaterialGui()
 {
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
-
     ui->leName->setText(tmpMaterial.name);
 
     ui->ledDensity->setText( QString::number(tmpMaterial.density) );
@@ -339,8 +336,6 @@ void A3MatWin::updateTmpMaterialGui()
 
 void A3MatWin::updateWarningIcons()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
-
     if (tmpMaterial.ChemicalComposition.countElements() == 0)
     {
         QPixmap pm(QSize(16,16));
@@ -355,8 +350,6 @@ void A3MatWin::updateWarningIcons()
 
 void A3MatWin::on_pbUpdateTmpMaterial_clicked()
 {  
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
-
     tmpMaterial.name = ui->leName->text();
     tmpMaterial.density = ui->ledDensity->text().toDouble();
     tmpMaterial.temperature = ui->ledT->text().toDouble();
@@ -388,7 +381,7 @@ void A3MatWin::on_pbUpdateTmpMaterial_clicked()
 
 void A3MatWin::setMaterial(int index)
 {
-    showMaterial(index);
+    switchToMaterial(index);
 }
 
 void A3MatWin::onMaterialsChanged()
@@ -398,7 +391,6 @@ void A3MatWin::onMaterialsChanged()
 
 void A3MatWin::on_ledIntEnergyRes_editingFinished()
 {
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     double newVal = ui->ledIntEnergyRes->text().toDouble();
     if (newVal < 0)
     {
@@ -417,7 +409,6 @@ void A3MatWin::on_pbLoadPrimSpectrum_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.PrimarySpectrum_lambda, &tmpMaterial.PrimarySpectrum);  //cleans previous data
     if (!err.isEmpty())
     {
@@ -434,7 +425,6 @@ void A3MatWin::on_pbLoadPrimSpectrum_clicked()
 void A3MatWin::on_pbShowPrimSpectrum_clicked()
 {
     /*
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
     MW->GraphWindow->configureGraph(g, "Emission spectrum",
                                     "Wavelength, nm", "Emission probability, a.u.",
@@ -446,7 +436,6 @@ void A3MatWin::on_pbShowPrimSpectrum_clicked()
 
 void A3MatWin::on_pbDeletePrimSpectrum_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.PrimarySpectrum_lambda.clear();
     tmpMaterial.PrimarySpectrum.clear();
 
@@ -460,7 +449,6 @@ void A3MatWin::on_pbLoadSecSpectrum_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load secondary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.SecondarySpectrum_lambda, &tmpMaterial.SecondarySpectrum);  //cleans previous data
     if (!err.isEmpty())
@@ -478,7 +466,6 @@ void A3MatWin::on_pbLoadSecSpectrum_clicked()
 void A3MatWin::on_pbShowSecSpectrum_clicked()
 {
     /*
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
     MW->GraphWindow->configureGraph(g, "Emission spectrum",
                                     "Wavelength, nm", "Emission probability, a.u.",
@@ -490,7 +477,6 @@ void A3MatWin::on_pbShowSecSpectrum_clicked()
 
 void A3MatWin::on_pbDeleteSecSpectrum_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.SecondarySpectrum_lambda.clear();
     tmpMaterial.SecondarySpectrum.clear();
 
@@ -504,7 +490,6 @@ void A3MatWin::on_pbLoadNlambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load refractive index data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.nWave_lambda, &tmpMaterial.nWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -522,7 +507,6 @@ void A3MatWin::on_pbLoadNlambda_clicked()
 void A3MatWin::on_pbShowNlambda_clicked()
 {
     /*
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
     MW->GraphWindow->configureGraph(g, "Refractive index",
                                     "Wavelength, nm", "Refractive index",
@@ -534,7 +518,6 @@ void A3MatWin::on_pbShowNlambda_clicked()
 
 void A3MatWin::on_pbDeleteNlambda_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.nWave_lambda.clear();
     tmpMaterial.nWave.clear();
 
@@ -549,7 +532,6 @@ void A3MatWin::on_pbLoadABSlambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load exponential bulk absorption data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.absWave_lambda, &tmpMaterial.absWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -567,7 +549,6 @@ void A3MatWin::on_pbLoadABSlambda_clicked()
 void A3MatWin::on_pbShowABSlambda_clicked()
 {
     /*
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
     MW->GraphWindow->configureGraph(g, "Attenuation coefficient",
                                     "Wavelength, nm", "Attenuation coefficient, mm^{-1}",
@@ -579,7 +560,6 @@ void A3MatWin::on_pbShowABSlambda_clicked()
 
 void A3MatWin::on_pbDeleteABSlambda_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWave_lambda.clear();
     tmpMaterial.absWave.clear();
 
@@ -591,7 +571,6 @@ void A3MatWin::on_pbDeleteABSlambda_clicked()
 void A3MatWin::on_pbShowReemProbLambda_clicked()
 {
     /*
-    AMaterial & tmpMaterial = MpCollection.tmpMaterial;
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
     MW->GraphWindow->configureGraph(g, "Reemission probability",
                                     "Wavelength, nm", "Reemission probability",
@@ -606,7 +585,6 @@ void A3MatWin::on_pbLoadReemisProbLambda_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Load reemission probability vs wavelength", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
 
     QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.reemisProbWave_lambda, &tmpMaterial.reemisProbWave);  //cleans previous data too
     if (!err.isEmpty())
@@ -623,7 +601,6 @@ void A3MatWin::on_pbLoadReemisProbLambda_clicked()
 
 void A3MatWin::on_pbDeleteReemisProbLambda_clicked()
 {
-    AMaterial & tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.reemisProbWave_lambda.clear();
     tmpMaterial.reemisProbWave.clear();
 
@@ -660,7 +637,6 @@ void A3MatWin::on_leName_textChanged(const QString& /*name*/)
 {
     //on text change -> assuming it will be another material.
     //The following properties are recalculated anyway on accepting changes/new material
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.absWaveBinned.clear();
     tmpMaterial.reemissionProbBinned.clear();
     tmpMaterial.nWaveBinned.clear();
@@ -702,7 +678,7 @@ void A3MatWin::on_ledRayleighWave_editingFinished()
         ui->ledRayleighWave->setText("500");
     }
 
-    MatHub.tmpMaterial.rayleighWave = wave;
+    tmpMaterial.rayleighWave = wave;
 }
 
 void A3MatWin::on_ledRayleigh_textChanged(const QString &arg1)
@@ -716,20 +692,19 @@ void A3MatWin::on_ledRayleigh_editingFinished()
     double ray;
     if (ui->ledRayleigh->text() == "") ray = 0;
     else ray = ui->ledRayleigh->text().toDouble();
-    MatHub.tmpMaterial.rayleighMFP = ray;
+    tmpMaterial.rayleighMFP = ray;
 }
 
 void A3MatWin::on_pbRemoveRayleigh_clicked()
 {
     ui->ledRayleigh->setText("");
-    MatHub.tmpMaterial.rayleighMFP = 0;
+    tmpMaterial.rayleighMFP = 0;
     setWasModified(true);
 }
 
 void A3MatWin::on_pbShowUsage_clicked()
 {
     /*
-  AMaterial& tmpMaterial = MpCollection.tmpMaterial;
   QString name = tmpMaterial.name;
   int index = ui->cobActiveMaterials->currentIndex();
 
@@ -765,7 +740,7 @@ void A3MatWin::on_pbShowUsage_clicked()
 void A3MatWin::on_actionSave_material_triggered()
 {
     //checkig this material
-    const QString error = MatHub.CheckTmpMaterial();
+    QString error = tmpMaterial.checkMaterial();
     if ( !error.isEmpty() )
     {
         guitools::message(error, this);
@@ -782,7 +757,8 @@ void A3MatWin::on_actionSave_material_triggered()
 
     QJsonObject json, js;
     //MpCollection.writeMaterialToJson(imat, json);
-    MatHub.tmpMaterial.writeToJson(json);
+
+    tmpMaterial.writeToJson(json);
     js["Material"] = json;
     bool bOK = jstools::saveJsonToFile(js, fileName);
     if (!bOK) guitools::message("Failed to save json to file: "+fileName, this);
@@ -807,7 +783,8 @@ void A3MatWin::on_actionLoad_material_triggered()
         return;
     }
     js = json["Material"].toObject();
-    MatHub.tmpMaterial.readFromJson(js);
+
+tmpMaterial.readFromJson(js);
 
     setWasModified(true);
     updateWaveButtons();
@@ -823,8 +800,6 @@ void A3MatWin::on_actionLoad_material_triggered()
 void A3MatWin::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
-
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
@@ -840,7 +815,6 @@ void A3MatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElem
     }
     element->Isotopes.removeAt(isotopeIndexInElement);
 
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
@@ -849,7 +823,6 @@ void A3MatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElem
 
 void A3MatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
@@ -867,8 +840,6 @@ void A3MatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y,
 
 void A3MatWin::on_pbModifyChemicalComposition_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
-
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (molar fractions!)");
 
@@ -909,8 +880,6 @@ void A3MatWin::on_pbModifyChemicalComposition_clicked()
 
 void A3MatWin::on_pbModifyByWeight_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
-
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (fractions by weight!)");
 
@@ -957,7 +926,6 @@ void A3MatWin::ShowTreeWithChemicalComposition()
     ui->trwChemicalComposition->clear();
     bClearInProgress = false;
 
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
     bool bShowIsotopes = ui->cbShowIsotopes->isChecked();
 
     for (int i=0; i<tmpMaterial.ChemicalComposition.countElements(); i++)
@@ -1008,8 +976,6 @@ void flagButton(QPushButton* pb, bool flag)
 
 void A3MatWin::on_pbMaterialInfo_clicked()
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
-
     if (ui->leChemicalComposition->text().isEmpty())
     {
         guitools::message("Chemical composition is not defined!", this);
@@ -1046,8 +1012,6 @@ void A3MatWin::on_lePriT_raise_editingFinished()
 
 bool A3MatWin::parseDecayOrRaiseTime(bool doParseDecay)
 {
-    AMaterial& tmpMaterial = MatHub.tmpMaterial;
-
     QString s = ( doParseDecay ? ui->lePriT->text() : ui->lePriT_raise->text() );
     s = s.simplified();
 
@@ -1121,8 +1085,6 @@ void A3MatWin::on_pbPriThelp_clicked()
 void A3MatWin::on_pbPriT_test_clicked()
 {
     /*
-    AMaterial& tmpMaterial = MpCollection.tmpMaterial;
-
     tmpMaterial.updateRuntimeProperties(); //to update sum of stat weights
 
     TH1D* h = new TH1D("h1", "", 1000, 0, 0);
@@ -1198,7 +1160,7 @@ void A3MatWin::on_actionAdd_default_material_triggered()
     updateGui();
 
     int index = ui->cobActiveMaterials->count() - 1;
-    if (index > -1) showMaterial(index);
+    if (index > -1) switchToMaterial(index);
 }
 
 void A3MatWin::on_cbG4Material_toggled(bool)
