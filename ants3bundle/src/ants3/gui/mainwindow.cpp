@@ -164,3 +164,30 @@ void MainWindow::on_pbMaterials_clicked()
     MatWin->showNormal();
 }
 
+#include "ajsontools.h"
+#include <QFileDialog>
+void MainWindow::on_actionSave_configuration_triggered()
+{
+    QJsonObject json;
+    A3Config::getInstance().writeAllConfig(json);
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");
+    if (fileName.isEmpty()) return;
+
+    jstools::saveJsonToFile(json, fileName);
+}
+
+void MainWindow::on_actionLoad_configuration_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load configuration file");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    jstools::loadJsonFromFile(json, fileName);
+
+    A3Config::getInstance().readAllConfig(json);
+
+    GeoConWin->updateGui();
+    MatWin->initWindow();
+}
+

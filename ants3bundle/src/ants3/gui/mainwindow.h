@@ -53,6 +53,10 @@ private slots:
 
     void on_pbMaterials_clicked();
 
+    void on_actionSave_configuration_triggered();
+
+    void on_actionLoad_configuration_triggered();
+
 private:
     void disableInterface(bool flag);
 };

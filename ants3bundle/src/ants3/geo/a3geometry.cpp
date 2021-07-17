@@ -888,37 +888,25 @@ void A3Geometry::changeLineWidthOfVolumes(int delta)
 
 void A3Geometry::writeToJson(QJsonObject & json) const
 {
-    QJsonObject js;
-    {
-        QJsonArray arrTree;
-            World->writeAllToJarr(arrTree);
-        js["WorldTree"] = arrTree;
+    QJsonArray arrTree;
+    World->writeAllToJarr(arrTree);
+    json["WorldTree"] = arrTree;
 
-        QJsonArray arrGC;
-            AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
-        js["GeoConsts"] = arrGC;
-    }
-    json["Geometry"] = js;
+    QJsonArray arrGC;
+    AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
+    json["GeoConsts"] = arrGC;
 }
 
 bool A3Geometry::readFromJson(const QJsonObject & json)
 {
     ErrorString.clear();
 
-    QJsonObject js;
-    bool ok = jstools::parseJson(json, "Geometry", js);
-    if (!ok)
-    {
-        ErrorString = "geometry settings are missing in the json file!";
-        return false;
-    }
-
     QJsonArray arrGC;
-    jstools::parseJson(js, "GeoConsts", arrGC);
+    jstools::parseJson(json, "GeoConsts", arrGC);
     AGeoConsts::getInstance().readFromJsonArr(arrGC);
 
     QJsonArray arrTree;
-    jstools::parseJson(js, "WorldTree", arrTree);
+    jstools::parseJson(json, "WorldTree", arrTree);
     ErrorString = World->readAllFromJarr(World, arrTree);
     if (!ErrorString.isEmpty()) return false;
 
@@ -939,6 +927,7 @@ bool A3Geometry::readFromJson(const QJsonObject & json)
     // stacks can be updated only now, when values using GeoConsts have been evaluated
     World->updateAllStacks();
 
+    populateGeoManager();
     return true;
 }
 

@@ -1,11 +1,9 @@
 #ifndef A3CONFIG_H
 #define A3CONFIG_H
 
-//later split in classes
+class QJsonObject;
 
 #include <QString>
-#include <QStringList>
-#include <QJsonObject>
 
 class A3Config final
 {
@@ -22,15 +20,28 @@ private:
     A3Config& operator=(A3Config&&)      = delete;
 
 public:
+    // Detector
+    // ->Geometry config is handled by A3Geometry singleton
+    // ->Material config is handled by A3MatHub   singleton
+
+    // Simulation
+    // ->Particle sim
+    // ->Photon   sim
+
+    // Reconstruction
+    // ...
+
+    // Temporary:
     QString     from = "b";
     QString     to   = "B";
     QString     lines;
 
-    QJsonObject JSON;
-    QString     ConfigFileName = "config.json";
+    void writeDetectorConfig(QJsonObject & json) const;
+    void readDetectorConfig(const QJsonObject & json);
 
-    bool saveConfig();
-    bool loadConfig();
+    void writeAllConfig(QJsonObject & json) const;
+    void readAllConfig(const QJsonObject & json);
+
 };
 
 #endif // A3CONFIG_H

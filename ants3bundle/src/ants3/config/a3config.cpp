@@ -1,5 +1,9 @@
 #include "a3config.h"
 #include "ajsontools.h"
+#include "a3geometry.h"
+#include "a3mathub.h"
+
+#include <QDebug>
 
 A3Config & A3Config::getInstance()
 {
@@ -13,12 +17,49 @@ A3Config::A3Config()
         lines += QString("%0-abcdef\n").arg(i);
 }
 
-bool A3Config::saveConfig()
+void A3Config::writeDetectorConfig(QJsonObject & json) const
 {
-    return jstools::saveJsonToFile(JSON, ConfigFileName);
+    QJsonObject jsonDet;
+    {
+        QJsonObject jsGeo;
+            A3Geometry::getInstance().writeToJson(jsGeo);
+        jsonDet["Geometry"] = jsGeo;
+
+        QJsonArray jsMatAr;
+            A3MatHub::getInstance().writeToJsonAr(jsMatAr);
+        jsonDet["Materials"] = jsMatAr;
+    }
+    json["Detector"] = jsonDet;
 }
 
-bool A3Config::loadConfig()
+void A3Config::readDetectorConfig(const QJsonObject & json)
 {
-    return jstools::loadJsonFromFile(JSON, ConfigFileName);
+    QJsonObject jsonDet;
+    bool ok = jstools::parseJson(json, "Detector", jsonDet);
+    if (!ok)
+    {
+        qWarning() << "json does not contain detector settings!";
+        return;
+    }
+
+    QJsonObject jsGeo;
+    ok = jstools::parseJson(jsonDet, "Geometry", jsGeo);
+    if (ok) A3Geometry::getInstance().readFromJson(jsGeo);
+
+    QJsonArray jsMatAr;
+    ok = jstools::parseJson(jsonDet, "Materials", jsMatAr);
+    if (ok) A3MatHub::getInstance().readFromJsonAr(jsMatAr);
 }
+
+void A3Config::writeAllConfig(QJsonObject & json) const
+{
+    writeDetectorConfig(json);
+    // ...
+}
+
+void A3Config::readAllConfig(const QJsonObject & json)
+{
+    readDetectorConfig(json);
+    // ...
+}
+
