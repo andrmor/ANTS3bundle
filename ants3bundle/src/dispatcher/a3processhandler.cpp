@@ -43,8 +43,9 @@ bool A3ProcessHandler::start()
 
     QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &A3ProcessHandler::onReadReady);
 
+    qDebug() << Program << Args;
     Process->start(Program, Args);
-    return Process->waitForStarted(1000);
+    return Process->waitForStarted(10000);
 }
 
 void A3ProcessHandler::abort()
@@ -137,34 +138,4 @@ void A3ProcessHandler::killProcess()
         Process->deleteLater();
         Process = nullptr;
     }
-}
-
-// ----
-
-QString A3ProcessHandler::makeErrorMessage(const QString &ErrorDescription)
-{
-    QJsonObject js;
-    js["Error"] = ErrorDescription;
-    return jstools::jsonToString(js);
-}
-
-bool A3ProcessHandler::isErrorMessage(const QString &message, QString &ErrorDescription)
-{
-    QJsonObject js = jstools::strToJson(message);
-    return jstools::parseJson(js, "Error", ErrorDescription);
-}
-
-QString A3ProcessHandler::makeFinishMessage()
-{
-    QJsonObject js;
-    js["Status"] = "Finish";
-    return jstools::jsonToString(js);
-}
-
-bool A3ProcessHandler::isFinishMessage(const QString &message)
-{
-    QJsonObject js = jstools::strToJson(message);
-    QString str;
-    jstools::parseJson(js, "Status", str);
-    return (str == "Finish");
 }

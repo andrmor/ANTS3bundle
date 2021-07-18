@@ -6,11 +6,14 @@
 #include "guitools.h"
 #include "afiletools.h"
 #include "a3particlesimmanager.h"
+#include "a3geoconwin.h"
+#include "geometrywindowclass.h"
+#include "a3geometry.h"
+#include "a3matwin.h"
 
 #include <QDebug>
 
-MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * parent) :
-    QMainWindow(parent),
+MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     Config(A3Config::getInstance()), ScriptManager(SM), ScrRes(ScrRes),
     ui(new Ui::MainWindow)
 {
@@ -22,11 +25,38 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget * par
     ui->pteData->appendPlainText(Config.lines);
     ui->leFrom->setText(Config.from);
     ui->leTo->setText(Config.to);
+
+    A3Geometry::getInstance().populateGeoManager();
+
+    GeoConWin = new A3GeoConWin(this);
+    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+
+    GeoWin = new GeometryWindowClass(this);
+    connect(GeoConWin, &A3GeoConWin::requestDraw,            GeoWin, &GeometryWindowClass::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &GeometryWindowClass::FocusVolume);
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(false);
+    GeoWin->hide();
+
+    MatWin = new A3MatWin(this);
+    MatWin->initWindow();
 }
 
 MainWindow::~MainWindow()
 {
+    delete GeoConWin;
     delete ui;
+}
+
+#include "a3geometry.h"
+void MainWindow::onRebuildGeometryRequested()
+{
+    A3Geometry & geom = A3Geometry::getInstance();
+    geom.populateGeoManager();
+    GeoConWin->updateGui();
+    GeoWin->ShowGeometry();
 }
 
 void MainWindow::onProgressReceived(double progress)
@@ -114,5 +144,50 @@ void MainWindow::disableInterface(bool flag)
 void MainWindow::on_pbAbort_clicked()
 {
     ScriptManager.abort();
+}
+
+
+void MainWindow::on_pbGeometry_clicked()
+{
+    GeoConWin->showNormal();
+    GeoConWin->updateGui();
+}
+
+void MainWindow::on_pbGeoWin_clicked()
+{
+    GeoWin->showNormal();
+    GeoWin->ShowGeometry();
+}
+
+void MainWindow::on_pbMaterials_clicked()
+{
+    MatWin->showNormal();
+}
+
+#include "ajsontools.h"
+#include <QFileDialog>
+void MainWindow::on_actionSave_configuration_triggered()
+{
+    QJsonObject json;
+    A3Config::getInstance().writeAllConfig(json);
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");
+    if (fileName.isEmpty()) return;
+
+    jstools::saveJsonToFile(json, fileName);
+}
+
+void MainWindow::on_actionLoad_configuration_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load configuration file");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    jstools::loadJsonFromFile(json, fileName);
+
+    A3Config::getInstance().readAllConfig(json);
+
+    GeoConWin->updateGui();
+    MatWin->initWindow();
 }
 

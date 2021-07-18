@@ -51,7 +51,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     if (!ok) return false;
 
     QString Reply = Dispatch.performTask(Request);
-    //qDebug() << "Reply message:" << Reply;
+    qDebug() << "Reply message:" << Reply;
 
     qDebug() << "Merging files...";
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;

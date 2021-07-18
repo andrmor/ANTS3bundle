@@ -1,5 +1,4 @@
 QT -= gui
-QT += websockets
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -23,22 +22,36 @@ INCLUDEPATH += ../ants3/tools
 
 SOURCES += main.cpp \
     a3dispatcher.cpp \
-    awebsocketsessionserver.cpp \
-    awebsocketsession.cpp \
     a3processhandler.cpp \
     ../ants3/config/a3workdistrconfig.cpp \
     ../ants3/tools/ajsontools.cpp \
-    ../ants3/tools/afiletools.cpp \
-    a3remotehandler.cpp \
-    a3wsclient.cpp
+    ../ants3/tools/afiletools.cpp
 
 HEADERS += \
     a3dispatcher.h \
-    awebsocketsessionserver.h \
-    awebsocketsession.h \
     a3processhandler.h \
     ../ants3/config/a3workdistrconfig.h \
     ../ants3/tools/ajsontools.h \
-    ../ants3/tools/afiletools.h \
-    a3remotehandler.h \
-    a3wsclient.h
+    ../ants3/tools/afiletools.h
+
+ants2_WS{
+    QT += websockets
+    DEFINES += WEBSOCKETS
+
+    SOURCES += \
+        awebsocketsessionserver.cpp \
+        awebsocketsession.cpp \
+        a3remotehandler.cpp \
+        a3wsclient.cpp
+
+    HEADERS += \
+        awebsocketsessionserver.h \
+        awebsocketsession.h \
+        a3remotehandler.h \
+        a3wsclient.h
+
+} else {
+    QT -= websockets
+}
+
+

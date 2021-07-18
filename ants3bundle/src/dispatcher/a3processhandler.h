@@ -55,14 +55,6 @@ private:
 protected:
     void killProcess();
 
-    // message constructors/parsers
-public:
-    static QString makeErrorMessage(const QString & ErrorDescription);
-    static bool    isErrorMessage(const QString & message, QString & ErrorDescription);
-
-    static QString makeFinishMessage();
-    static bool    isFinishMessage(const QString & message);
-
 };
 
 #endif // A3PROCESSHANDLER_H

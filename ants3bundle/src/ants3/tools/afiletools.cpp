@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include <QRegularExpression>
 
 #ifdef GUI
 #include <QMessageBox>
@@ -58,6 +59,60 @@ QString ftools::mergeTextFiles(const std::vector<QString> &FilesToMerge, QString
     return "";
 }
 
+QString ftools::loadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QString * header, int numLines)
+{
+    bool bGetHeader = (header && !header->isEmpty());
+    QString HeaderId;
+    if (bGetHeader)
+    {
+        HeaderId = *header;
+        header->clear();
+    }
+
+    if (FileName.isEmpty()) return "Error: empty name was given to file loader!";
+
+    QFile file(FileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + FileName;
+
+    QTextStream in(&file);
+    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    x->resize(0);
+    y->resize(0);
+    while(!in.atEnd())
+    {
+        QString line = in.readLine();
+
+        if (bGetHeader && line.startsWith(HeaderId) && numLines > 0)
+        {
+            if ( !header->isEmpty() ) *header += "\n";
+            *header += line.remove(0, HeaderId.length());
+            numLines--;
+            continue;
+        }
+
+        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+
+        bool ok1=false, ok2;
+        double xx, yy;
+        if (fields.size() > 1 )
+        {
+            xx = fields[0].toDouble(&ok1);  // potential problem with decimal separator!
+            yy = fields[1].toDouble(&ok2);
+        }
+        if (ok1 && ok2)
+        {
+            x->append(xx);
+            y->append(yy);
+        }
+    }
+    file.close();
+
+    if (x->isEmpty()) return "Error: Wrong format - read failed for file: " + FileName;
+
+    return "";
+}
+
+
 /*
 int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x)
 {
@@ -89,71 +144,6 @@ int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x)
           if (ok1)
             {
               x->append(xx);
-            }
-        }
-   file.close();
-
-   if (x->isEmpty())
-   {
-       message("Error: Wrong format - nothing was red: "+FileName);
-       return 3;
-   }
-
-   return 0;
-}
-
-int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QString * header, int numLines)
-{
-  bool bGetHeader = (header && !header->isEmpty());
-  QString HeaderId;
-  if (bGetHeader)
-  {
-      HeaderId = *header;
-      header->clear();
-  }
-
-  if (FileName.isEmpty())
-      {
-          message("Error: empty name was given to file loader!");
-          return 1;
-      }
-
-  QFile file(FileName);
-  if(!file.open(QIODevice::ReadOnly | QFile::Text))
-    {
-      message("Could not open: "+FileName);
-      return 2;
-    }
-
-  QTextStream in(&file);
-  QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-  x->resize(0);
-  y->resize(0);
-  while(!in.atEnd())
-       {
-          QString line = in.readLine();
-
-          if (bGetHeader && line.startsWith(HeaderId) && numLines > 0)
-          {
-              if ( !header->isEmpty() ) *header += "\n";
-              *header += line.remove(0, HeaderId.length());
-              numLines--;
-              continue;
-          }
-
-          QStringList fields = line.split(rx, QString::SkipEmptyParts);
-
-          bool ok1=false, ok2;
-          double xx, yy;
-          if (fields.size() > 1 )
-            {
-              xx = fields[0].toDouble(&ok1);  // potential problem with decimal separator!
-              yy = fields[1].toDouble(&ok2);
-            }
-          if (ok1 && ok2)
-            {
-              x->append(xx);
-              y->append(yy);
             }
         }
    file.close();

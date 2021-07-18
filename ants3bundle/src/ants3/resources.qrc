@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>gui/images/tw-vline.png</file>
+        <file>gui/images/tw-branch-open.png</file>
+        <file>gui/images/tw-branch-more.png</file>
+        <file>gui/images/tw-branch-end.png</file>
+        <file>gui/images/tw-branch-closed.png</file>
+        <file>gui/images/lock.png</file>
+        <file>gui/images/ant.png</file>
+        <file>gui/images/TopSt.png</file>
+        <file>gui/images/TopGr.png</file>
+        <file>gui/images/MidSt.png</file>
+        <file>gui/images/MidGr.png</file>
+        <file>gui/images/BotSt.png</file>
+        <file>gui/images/BotGr.png</file>
+    </qresource>
+</RCC>

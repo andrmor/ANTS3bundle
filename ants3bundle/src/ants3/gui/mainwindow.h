@@ -9,13 +9,16 @@ class MainWindow;
 class A3Config;
 class A3ScriptManager;
 class A3ScriptRes;
+class A3GeoConWin;
+class GeometryWindowClass;
+class A3MatWin;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes, QWidget *parent = 0);
+    explicit MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes);
     ~MainWindow();
 
 public slots:
@@ -28,9 +31,14 @@ private:
 
     Ui::MainWindow  * ui = nullptr;
 
+    A3GeoConWin             * GeoConWin = nullptr;
+    GeometryWindowClass     * GeoWin    = nullptr;
+    A3MatWin * MatWin    = nullptr;
+
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
     void onParticleSimulationFinsihed();
+    void onRebuildGeometryRequested();
 
     void on_pbEvaluateScript_clicked();
     void on_pbSimulate_clicked();
@@ -38,6 +46,16 @@ private slots:
     void on_leTo_editingFinished();
 
     void on_pbAbort_clicked();
+
+    void on_pbGeometry_clicked();
+
+    void on_pbGeoWin_clicked();
+
+    void on_pbMaterials_clicked();
+
+    void on_actionSave_configuration_triggered();
+
+    void on_actionLoad_configuration_triggered();
 
 private:
     void disableInterface(bool flag);

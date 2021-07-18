@@ -1,9 +1,11 @@
 #include "a3dispatcher.h"
 
 #include <QCoreApplication>
-#include <QString>
+//#include <QString>
 #include <QDebug>
 //#include <QTimer>
+
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
