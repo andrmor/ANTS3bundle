@@ -153,8 +153,7 @@ void A3MatWin::addNewOrUpdateMaterial()
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
 
-    //
-tmpMaterial.updateRuntimeProperties();   // need? !!!***
+    //tmpMaterial.updateRuntimeProperties();   // need? !!!***
 
     QString error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())

@@ -194,8 +194,6 @@ void AMaterial::clear()
 
     GeoMat = nullptr; //if created, deleted by TGeoManager
     GeoMed = nullptr; //if created, deleted by TGeoManager
-
-    //Do not touch overrides - handled by loaded (want to keep overrides intact when handling inspector window)
 }
 
 void AMaterial::writeToJson(QJsonObject & json) const

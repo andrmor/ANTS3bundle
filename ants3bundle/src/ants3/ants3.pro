@@ -78,6 +78,7 @@ SOURCES += \
     gui/geom/geometrywindowclass.cpp \
     gui/materials/a3matwin.cpp \
     gui/materials/aelementandisotopedelegates.cpp \
+    gui/photsim/a3photsimwin.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
@@ -143,6 +144,7 @@ HEADERS += \
     gui/geom/geometrywindowclass.h \
     gui/materials/a3matwin.h \
     gui/materials/aelementandisotopedelegates.h \
+    gui/photsim/a3photsimwin.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
@@ -189,6 +191,7 @@ FORMS += \
         gui/geom/geometrywindowclass.ui \
         gui/mainwindow.ui \
         gui/materials/a3matwin.ui \
+        gui/photsim/a3photsimwin.ui \
         gui/raster/acameracontroldialog.ui
 
 RESOURCES += \
