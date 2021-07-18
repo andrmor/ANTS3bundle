@@ -9,6 +9,7 @@
 
 #include <QRegularExpression>
 #include <QDebug>
+#include <QVariantList>
 
 void AGeoObject::constructorInit()
 {
@@ -203,7 +204,7 @@ void AGeoObject::replaceGeoConstNameRecursive(const QRegularExpression & nameReg
         hosted->replaceGeoConstNameRecursive(nameRegExp, newName);
 }
 
-void AGeoObject::writeToJson(QJsonObject &json)
+void AGeoObject::writeToJson(QJsonObject &json) const
 {
     json["Name"] = Name;
 
@@ -1033,7 +1034,7 @@ double AGeoObject::getMaxSize() const
         double X = a->stepX * (2.0 + a->numX);   // assuming non-overlapping, so one extra step on each side
         double Y = a->stepY * (2.0 + a->numY);
         double Z = a->stepZ * (2.0 + a->numZ);
-        return std::sqrt(X*X + Y*Y + Z*Z);
+        return sqrt(X*X + Y*Y + Z*Z);
     }
     else if (Type->isCircularArray())
     {
@@ -1352,13 +1353,6 @@ QString AGeoObject::GenerateRandomGridName()
 {
     QString str = randomString(1, 1);
     str = "Grid_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomMaskName()
-{
-    QString str = randomString(1, 1);
-    str = "Mask_" + str;
     return str;
 }
 

@@ -60,7 +60,7 @@ public:
   void replaceGeoConstNameRecursive(const QRegularExpression & nameRegExp, const QString & newName);
 
   //json for a single object
-  void writeToJson(QJsonObject & json);
+  void writeToJson(QJsonObject & json) const;
   void readFromJson(const QJsonObject & json);
 
   //recursive json, using single object json
@@ -106,7 +106,7 @@ public:
   bool isDisabled() const;
   void enableUp();
   void addObjectFirst(AGeoObject* Object);
-  void addObjectLast(AGeoObject* Object);  //before slabs!
+  void addObjectLast(AGeoObject* Object);
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
   bool suicide(); // not possible for locked and static objects
@@ -159,7 +159,6 @@ public:
   static QString GenerateRandomCompositeName();
   static QString GenerateRandomArrayName();
   static QString GenerateRandomGridName();
-  static QString GenerateRandomMaskName();
   static QString GenerateRandomStackName();
   static QString GenerateRandomMonitorName();
 

@@ -40,6 +40,7 @@ INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
 INCLUDEPATH += gui/materials
+INCLUDEPATH += gui/photsim
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
