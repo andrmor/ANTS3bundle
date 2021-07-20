@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>646</width>
-    <height>723</height>
+    <width>568</width>
+    <height>622</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,17 @@
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>170</y>
-      <width>611</width>
-      <height>391</height>
+      <x>10</x>
+      <y>40</y>
+      <width>551</width>
+      <height>341</height>
      </rect>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
     <property name="currentIndex">
      <number>0</number>
@@ -33,9 +36,9 @@
      <widget class="QStackedWidget" name="swAdVancedSim">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>120</y>
-        <width>532</width>
+        <x>10</x>
+        <y>90</y>
+        <width>540</width>
         <height>261</height>
        </rect>
       </property>
@@ -49,9 +52,9 @@
        <widget class="QFrame" name="frLimitNodesTo">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>230</y>
-          <width>521</width>
+          <x>14</x>
+          <y>214</y>
+          <width>510</width>
           <height>31</height>
          </rect>
         </property>
@@ -90,7 +93,7 @@
             <string>If a node is outside of this object, skip it. If this object is not found, the option has no effect.</string>
            </property>
            <property name="text">
-            <string>Skip nodes outside of</string>
+            <string>Skip if outside of</string>
            </property>
            <property name="checked">
             <bool>false</bool>
@@ -110,7 +113,7 @@
             <string>If a node is outside of this object, skip it. If this object is not found, the option has no effect.</string>
            </property>
            <property name="text">
-            <string>PrScint</string>
+            <string>GeoObjectName</string>
            </property>
           </widget>
          </item>
@@ -132,7 +135,7 @@
        <widget class="QStackedWidget" name="twSingleScan1">
         <property name="geometry">
          <rect>
-          <x>0</x>
+          <x>3</x>
           <y>50</y>
           <width>521</width>
           <height>161</height>
@@ -179,7 +182,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>20</height>
              </size>
             </property>
            </spacer>
@@ -327,26 +330,6 @@
            </layout>
           </item>
           <item>
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbSingleSourceShow">
-            <property name="text">
-             <string>Show source position</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -359,21 +342,71 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_22">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer_22">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbSingleSourceShow">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Show position</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_23">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
-         <zorder>label_14</zorder>
-         <zorder>label_15</zorder>
-         <zorder>label_16</zorder>
-         <zorder>label_67</zorder>
-         <zorder>label_65</zorder>
          <zorder>label_68</zorder>
-         <zorder>label_66</zorder>
-         <zorder>pbSingleSourceShow</zorder>
-         <zorder>ledSingleY</zorder>
-         <zorder>ledSingleX</zorder>
-         <zorder>ledSingleZ</zorder>
-         <zorder>verticalSpacer</zorder>
-         <zorder>verticalSpacer_4</zorder>
          <zorder>verticalSpacer_5</zorder>
+         <zorder>horizontalLayoutWidget</zorder>
+         <zorder>verticalSpacer_4</zorder>
+         <zorder>verticalSpacer</zorder>
         </widget>
         <widget class="QWidget" name="twSingleScan1Page2">
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1307,12 +1340,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
          </layout>
         </widget>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>13</x>
+          <x>4</x>
           <y>14</y>
-          <width>511</width>
+          <width>520</width>
           <height>27</height>
          </rect>
         </property>
@@ -1360,12 +1393,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
            </property>
            <item>
             <property name="text">
-             <string>Single node</string>
+             <string>Single</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Regular scan</string>
+             <string>Regular grid</string>
             </property>
            </item>
            <item>
@@ -1434,7 +1467,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
           </font>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="tabBarAutoHide">
           <bool>false</bool>
@@ -1769,48 +1802,43 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
           <attribute name="title">
            <string>TimeSpectrum</string>
           </attribute>
-         </widget>
-         <widget class="QWidget" name="tab_9">
-          <attribute name="title">
-           <string>Scintillation</string>
-          </attribute>
-          <widget class="QLabel" name="label_8">
+          <widget class="QCheckBox" name="checkBox_4">
            <property name="geometry">
             <rect>
-             <x>40</x>
-             <y>70</y>
-             <width>381</width>
-             <height>17</height>
+             <x>50</x>
+             <y>20</y>
+             <width>181</width>
+             <height>23</height>
             </rect>
            </property>
            <property name="text">
-            <string>Any volume can have SecScint flag</string>
+            <string>Override decay time</string>
            </property>
           </widget>
-          <widget class="QLabel" name="label_9">
+          <widget class="QLineEdit" name="lineEdit">
            <property name="geometry">
             <rect>
-             <x>30</x>
-             <y>100</y>
-             <width>571</width>
-             <height>17</height>
+             <x>110</x>
+             <y>60</y>
+             <width>113</width>
+             <height>25</height>
             </rect>
            </property>
            <property name="text">
-            <string>Such folume can have flag &quot;final&quot; to kill electrons, otherwise they continue to drift</string>
+            <string>5</string>
            </property>
           </widget>
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="label_3">
            <property name="geometry">
             <rect>
-             <x>20</x>
-             <y>130</y>
-             <width>511</width>
+             <x>230</x>
+             <y>60</y>
+             <width>67</width>
              <height>17</height>
             </rect>
            </property>
            <property name="text">
-            <string>Vector/TFormula for each volume to give electric field? By default 0</string>
+            <string>ns</string>
            </property>
           </widget>
          </widget>
@@ -2138,8 +2166,8 @@ Changes</string>
      <widget class="QStackedWidget" name="swScan3">
       <property name="geometry">
        <rect>
-        <x>290</x>
-        <y>20</y>
+        <x>280</x>
+        <y>7</y>
         <width>210</width>
         <height>50</height>
        </rect>
@@ -2501,8 +2529,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <widget class="QLabel" name="labAdvancedOn">
       <property name="geometry">
        <rect>
-        <x>134</x>
-        <y>89</y>
+        <x>124</x>
+        <y>66</y>
         <width>19</width>
         <height>21</height>
        </rect>
@@ -2514,8 +2542,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <widget class="QPushButton" name="pnShowHideAdvanced">
       <property name="geometry">
        <rect>
-        <x>155</x>
-        <y>86</y>
+        <x>145</x>
+        <y>63</y>
         <width>231</width>
         <height>27</height>
        </rect>
@@ -2537,9 +2565,9 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <widget class="QComboBox" name="cobScanNumPhotonsMode">
       <property name="geometry">
        <rect>
-        <x>126</x>
-        <y>42</y>
-        <width>153</width>
+        <x>98</x>
+        <y>29</y>
+        <width>171</width>
         <height>27</height>
        </rect>
       </property>
@@ -2579,10 +2607,10 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <widget class="QLabel" name="label_80">
       <property name="geometry">
        <rect>
-        <x>127</x>
-        <y>23</y>
-        <width>146</width>
-        <height>16</height>
+        <x>98</x>
+        <y>9</y>
+        <width>171</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="font">
@@ -2593,7 +2621,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        </font>
       </property>
       <property name="text">
-       <string>Photons per node</string>
+       <string># of photons per bomb</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -2714,7 +2742,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>29</x>
@@ -2765,7 +2793,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -2806,144 +2834,15 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>581</width>
+      <x>10</x>
+      <y>390</y>
+      <width>550</width>
       <height>102</height>
      </rect>
     </property>
     <property name="currentIndex">
      <number>2</number>
     </property>
-    <widget class="QWidget" name="tabAccelerators">
-     <attribute name="title">
-      <string>Tracing</string>
-     </attribute>
-     <layout class="QVBoxLayout" name="verticalLayout_8">
-      <property name="spacing">
-       <number>3</number>
-      </property>
-      <property name="leftMargin">
-       <number>3</number>
-      </property>
-      <property name="topMargin">
-       <number>3</number>
-      </property>
-      <property name="rightMargin">
-       <number>3</number>
-      </property>
-      <property name="bottomMargin">
-       <number>3</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <property name="leftMargin">
-         <number>10</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label_511">
-          <property name="text">
-           <string>Kill photon after</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="sbMaxNumbPhTransitions">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>100000000</number>
-          </property>
-          <property name="value">
-           <number>500</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_41">
-          <property name="text">
-           <string>transitions </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_18">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_20">
-        <property name="leftMargin">
-         <number>10</number>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="cbRndCheckBeforeTrack">
-          <property name="toolTip">
-           <string>Do not use if PMs register light after wavelength shifting!</string>
-          </property>
-          <property name="text">
-           <string>Before tracing a photon, test against max Q.E.</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pbQEacceleratorWarning">
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Do not use if PMs register light after wavelength shifting!</string>
-          </property>
-          <property name="text">
-           <string>?</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_19">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-     <zorder>label_41</zorder>
-     <zorder>sbMaxNumbPhTransitions</zorder>
-     <zorder>cbRndCheckBeforeTrack</zorder>
-     <zorder>label_511</zorder>
-     <zorder>pbQEacceleratorWarning</zorder>
-    </widget>
     <widget class="QWidget" name="tab">
      <attribute name="title">
       <string>Scintillation</string>
@@ -2992,14 +2891,33 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        </layout>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer_21">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
        </spacer>
@@ -3032,7 +2950,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Wavelength-resolved</string>
+         <string>Wavelength-resolved simulation</string>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -3072,6 +2990,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          </item>
          <item>
           <widget class="QLineEdit" name="ledWaveFrom">
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>200</string>
            </property>
@@ -3087,12 +3011,18 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          <item>
           <widget class="QLabel" name="label_121">
            <property name="text">
-            <string>To:</string>
+            <string>to:</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLineEdit" name="ledWaveTo">
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>800</string>
            </property>
@@ -3108,12 +3038,18 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          <item>
           <widget class="QLabel" name="label_120">
            <property name="text">
-            <string>Step:</string>
+            <string>step:</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLineEdit" name="ledWaveStep">
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>5</string>
            </property>
@@ -3143,18 +3079,155 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
            </property>
           </widget>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_20">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="tabAccelerators">
+     <attribute name="title">
+      <string>Optimization</string>
+     </attribute>
+     <layout class="QVBoxLayout" name="verticalLayout_8">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="leftMargin">
+         <number>10</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_511">
+          <property name="text">
+           <string>Kill photon after</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="sbMaxNumbPhTransitions">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10000000</number>
+          </property>
+          <property name="value">
+           <number>500</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_41">
+          <property name="text">
+           <string>transitions </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_20">
+        <property name="leftMargin">
+         <number>10</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbRndCheckBeforeTrack">
+          <property name="toolTip">
+           <string>Do not use if PMs register light after wavelength shifting!</string>
+          </property>
+          <property name="text">
+           <string>Before tracing a photon, test against max QE of sensors</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbQEacceleratorWarning">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Do not use if PMs register light after wavelength shifting!</string>
+          </property>
+          <property name="text">
+           <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_19">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>9</x>
       <y>9</y>
-      <width>631</width>
+      <width>550</width>
       <height>27</height>
      </rect>
     </property>
@@ -3195,7 +3268,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        </property>
        <item>
         <property name="text">
-         <string>Point sources</string>
+         <string>Photon bombs</string>
         </property>
        </item>
        <item>
@@ -3230,13 +3303,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>620</y>
-      <width>591</width>
-      <height>58</height>
+      <x>10</x>
+      <y>540</y>
+      <width>550</width>
+      <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -3257,8 +3330,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       <widget class="QPushButton" name="pushButton">
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>50</height>
+         <width>150</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -3287,6 +3360,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      </item>
      <item>
       <widget class="QProgressBar" name="progressBar">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="value">
         <number>24</number>
        </property>
@@ -3314,12 +3393,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>580</y>
-      <width>591</width>
+      <x>10</x>
+      <y>500</y>
+      <width>550</width>
       <height>27</height>
      </rect>
     </property>
@@ -3346,7 +3425,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>646</width>
+     <width>568</width>
      <height>22</height>
     </rect>
    </property>
