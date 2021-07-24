@@ -39,24 +39,6 @@ A3MatHub::~A3MatHub()
     clearMaterials();
 }
 
-void A3MatHub::SetWave(bool wavelengthResolved, double waveFrom, double waveTo, double waveStep, int waveNodes)
-{
-    WavelengthResolved = wavelengthResolved;
-    WaveFrom = waveFrom;
-    WaveTo = waveTo;
-    WaveStep = waveStep;
-    WaveNodes = waveNodes;
-}
-
-void A3MatHub::GetWave(bool &wavelengthResolved, double &waveFrom, double &waveTo, double &waveStep, int &waveNodes) const
-{
-    wavelengthResolved = WavelengthResolved;
-    waveFrom = WaveFrom;
-    waveTo = WaveTo;
-    waveStep = WaveStep;
-    waveNodes = WaveNodes;
-}
-
 double A3MatHub::getDriftSpeed(int iMat) const
 {
     return 0.01 * Materials.at(iMat)->e_driftVelocity; //given in cm/us - returns in mm/ns
@@ -72,7 +54,7 @@ double A3MatHub::getDiffusionSigmaTime(int iMat, double length_mm) const
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
     const double d = m->e_diffusion_L; //now in mm^2/ns
 
-    return std::sqrt(2.0 * d * length_mm / v) / v; // in ns
+    return sqrt(2.0 * d * length_mm / v) / v; // in ns
 }
 
 double A3MatHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
@@ -84,9 +66,10 @@ double A3MatHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
     const double d = m->e_diffusion_T; //now in mm^2/ns
 
-    return std::sqrt(2.0 * d * length_mm / v); // in mm
+    return sqrt(2.0 * d * length_mm / v); // in mm
 }
 
+/*
 void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings * SimSet)
 {
  //   SetWave(SimSet->fWaveResolved, SimSet->WaveFrom, SimSet->WaveTo, SimSet->WaveStep, SimSet->WaveNodes);
@@ -96,6 +79,7 @@ void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *
         Materials[imat]->updateRuntimeProperties();
     }
 }
+*/
 
 QString A3MatHub::getMaterialName(int matIndex) const
 {
@@ -177,9 +161,6 @@ void A3MatHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
     tmpMaterial.writeToJson(js);
     Materials[index]->readFromJson(js);
 
-    //now update pointers!   !!!*** need it here?
-    UpdateWaveResolvedProperties(index); //updating effective properties (hists, Binned), remaking hist objects (Pointers are safe - they objects are recreated on each copy)
-
     emit materialsChanged();
 }
 
@@ -193,6 +174,7 @@ int A3MatHub::findMaterial(const QString & name) const
     return -1;
 }
 
+/*
 void A3MatHub::UpdateWaveResolvedProperties(int imat)
 {
     //qDebug()<<"Wavelength-resolved?"<<WavelengthResolved;
@@ -301,6 +283,7 @@ void A3MatHub::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<doub
         y->append(yy);
     }
 }
+*/
 
 QString A3MatHub::CheckMaterial(const AMaterial* mat) const
 {
@@ -390,16 +373,6 @@ void A3MatHub::ensureMatNameIsUnique(AMaterial * mat)
     }
     while (fFound);
     mat->name = name;
-}
-
-int A3MatHub::WaveToIndex(double wavelength) const
-{
-    if (!WavelengthResolved) return -1;
-
-    int iwave = std::round( (wavelength - WaveFrom) / WaveStep );
-    if (iwave >= WaveNodes) iwave = WaveNodes-1;
-    if (iwave < 0) iwave = 0;
-    return iwave;
 }
 
 #include "ageoobject.h"

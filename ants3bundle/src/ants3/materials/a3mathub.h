@@ -27,51 +27,33 @@ class A3MatHub : public QObject
     A3MatHub& operator=(const A3MatHub&) = delete;
     A3MatHub& operator=(A3MatHub&&)      = delete;
 
+    std::vector<AMaterial*> Materials;
+
 public:
     static       A3MatHub & getInstance();
     static const A3MatHub & getConstInstance();
 
-private:
-    std::vector<AMaterial*> Materials;
-
-    // !!!*** dont think we need them here
-    double WaveFrom  = 200.0;
-    double WaveTo    = 800.0;
-    double WaveStep  = 5.0;
-    int    WaveNodes = 121;
-    bool   WavelengthResolved = false;
-
-public:
     void writeToJsonAr(QJsonArray & ar) const;
     bool readFromJsonAr(const QJsonArray & ar);
 
     QStringList getListOfMaterialNames() const;
 
+//    TODO !!!***
+//    void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
+//    void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
+//    void ConvertToStandardWavelengthes(QVector<double> *sp_x, QVector<double> *sp_y, QVector<double> *y);
 
-
-
-    //configuration
-    void SetWave(bool wavelengthResolved, double waveFrom, double waveTo, double waveStep, int waveNodes);
-
-    //hopefully we will get rid of the RandGen after update in NCrystal
-    void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
-
-
-    //info requests
     AMaterial* operator[](int i) {return Materials[i]; } //get pointer to material with index i
     const AMaterial* operator[](int i) const {return Materials[i]; } //get pointer to material with index i
+
     int countMaterials() const {return Materials.size();}
-    double convertWaveIndexToWavelength(int index) {return WaveFrom + WaveStep * index;}
     QString getMaterialName(int matIndex) const;
 
-
-    //Material handling
     void addNewMaterial(bool fSuppressChangedSignal = false);               //
     void addNewMaterial(QString name, bool fSuppressChangedSignal = false); // !!!*** make single method!
 
     int  findMaterial(const QString & name) const; //if not found, returns -1; if found, returns material index
     bool DeleteMaterial(int imat); //takes care of overrides of materials with index larger than imat!
-    void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 
     void copyTmpToMaterialCollection(const AMaterial & tmpMaterial);
     void copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
@@ -79,20 +61,13 @@ public:
     void addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
 
     //general purpose requests
-    void   GetWave(bool& wavelengthResolved, double& waveFrom, double& waveTo, double& waveStep, int& waveNodes) const;
-    bool   IsWaveResolved() const {return WavelengthResolved;}
     double getDriftSpeed(int iMat) const; //returns in mm / ns
     double getDiffusionSigmaTime(int iMat, double length_mm) const;
     double getDiffusionSigmaTransverse(int iMat, double length_mm) const;
     void   CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const;
 
-public:
-    void ConvertToStandardWavelengthes(QVector<double> *sp_x, QVector<double> *sp_y, QVector<double> *y);
-
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
-
-    int WaveToIndex(double wavelength) const; // not the right place?
 
 private:
     void clearMaterials();

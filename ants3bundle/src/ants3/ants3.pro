@@ -112,7 +112,6 @@ SOURCES += \
     photonSim/interfaceRules/ascriptopticaloverride.cpp \
     photonSim/interfaceRules/awaveshifteroverride.cpp \
     photonSim/interfaceRules/fsnpopticaloverride.cpp \
-    photonSim/interfaceRules/phscatclaudiomodel.cpp \
     photonSim/interfaceRules/scatteronmetal.cpp \
     photonSim/interfaceRules/spectralbasicopticaloverride.cpp \
     photonSim/settings/aphotsimsettings.cpp \
@@ -180,7 +179,6 @@ HEADERS += \
     photonSim/interfaceRules/ascriptopticaloverride.h \
     photonSim/interfaceRules/awaveshifteroverride.h \
     photonSim/interfaceRules/fsnpopticaloverride.h \
-    photonSim/interfaceRules/phscatclaudiomodel.h \
     photonSim/interfaceRules/scatteronmetal.h \
     photonSim/interfaceRules/spectralbasicopticaloverride.h \
     photonSim/settings/aphotsimsettings.h \

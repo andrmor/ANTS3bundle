@@ -12,7 +12,9 @@ public:
     double To   = 800.0;
     double Step = 5.0;
 
-    int    countNodes();
+    int    countNodes() const;
+    double getWavelength(int index) const;
+    int    getIndex(double wavelength) const;
 };
 
 class APhotSimSettings
@@ -23,6 +25,7 @@ public:
     APhotSinTypeEnum SimType = APhotSinTypeEnum::PhotonBombs;
 
     AWaveResSettings WaveSet;
+
 
 };
 

@@ -33,7 +33,6 @@ QWidget *AOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
 #include "spectralbasicopticaloverride.h"
 #include "fsnpopticaloverride.h"
 #include "awaveshifteroverride.h"
-#include "phscatclaudiomodel.h"
 #include "scatteronmetal.h"
 #include "ascriptopticaloverride.h"
 
@@ -43,8 +42,6 @@ AOpticalOverride *OpticalOverrideFactory(QString model, A3MatHub *MatCollection,
         return new ABasicOpticalOverride(MatCollection, MatFrom, MatTo);
     if (model == "SimplisticSpectral" || model == "SimplisticSpectral_model")
         return new SpectralBasicOpticalOverride(MatCollection, MatFrom, MatTo);
-    else if (model == "ClaudioModel" || model == "Claudio_Model_V2d2")
-        return new PhScatClaudioModelV2d2(MatCollection, MatFrom, MatTo);
     else if (model == "DielectricToMetal")
         return new ScatterOnMetal(MatCollection, MatFrom, MatTo);
     else if (model == "FSNP" || model == "FS_NP" || model=="Neves_model")
