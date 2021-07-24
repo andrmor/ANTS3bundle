@@ -18,10 +18,15 @@ public:
     ~A3PhotSimWin();
 
     void updateGui();
-
     void updatePhotBombGui();
+    void updateGeneralGui();
 
-    void updateGeneralOptions();
+    void storeGeneral();
+
+private slots:
+    void on_pbdWave_clicked();
+
+    //void on_cbWaveResolved_clicked();
 
 private:
     APhotSimSettings & SimSet;

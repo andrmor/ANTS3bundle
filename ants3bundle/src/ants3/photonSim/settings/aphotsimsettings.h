@@ -20,7 +20,7 @@ class APhotSimSettings
 public:
     APhotSimSettings();
 
-    APhotSinTypeEnum SimType;
+    APhotSinTypeEnum SimType = APhotSinTypeEnum::PhotonBombs;
 
     AWaveResSettings WaveSet;
 

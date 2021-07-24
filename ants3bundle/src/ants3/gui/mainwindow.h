@@ -46,19 +46,12 @@ private slots:
     void on_pbSimulate_clicked();
     void on_leFrom_editingFinished();
     void on_leTo_editingFinished();
-
     void on_pbAbort_clicked();
-
     void on_pbGeometry_clicked();
-
     void on_pbGeoWin_clicked();
-
     void on_pbMaterials_clicked();
-
     void on_actionSave_configuration_triggered();
-
     void on_actionLoad_configuration_triggered();
-
     void on_pbPhotSim_clicked();
 
 private:

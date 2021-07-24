@@ -1,6 +1,9 @@
 #include "a3photsimwin.h"
 #include "asimsettingshub.h"
 #include "ui_a3photsimwin.h"
+#include "guitools.h"
+
+#include <QDebug>
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
@@ -8,6 +11,11 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);
+
+    QList<QPushButton*> listDummyButtons = this->findChildren<QPushButton*>();
+    for (QPushButton * pb : qAsConst(listDummyButtons))
+        if (pb->objectName().startsWith("pbd"))
+            pb->setVisible(false);
 
     updateGui();
 }
@@ -24,7 +32,7 @@ void A3PhotSimWin::updateGui()
 
     updatePhotBombGui();
 
-    updateGeneralOptions();
+    updateGeneralGui();
 }
 
 void A3PhotSimWin::updatePhotBombGui()
@@ -32,7 +40,7 @@ void A3PhotSimWin::updatePhotBombGui()
 
 }
 
-void A3PhotSimWin::updateGeneralOptions()
+void A3PhotSimWin::updateGeneralGui()
 {
     ui->twGeneralOption->setEnabled(SimSet.SimType != APhotSinTypeEnum::FromLRFs);
 
@@ -43,4 +51,32 @@ void A3PhotSimWin::updateGeneralOptions()
     ui->ledWaveStep->setText(QString::number(SimSet.WaveSet.Step));
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
+}
+
+void A3PhotSimWin::on_pbdWave_clicked()
+{
+    if (ui->ledWaveStep->text().toDouble() <= 0)
+    {
+        updateGeneralGui();
+        guitools::message("Step should be positive!", this);
+        return;
+    }
+
+    if (ui->ledWaveFrom->text().toDouble() > ui->ledWaveTo  ->text().toDouble())
+    {
+        updateGeneralGui();
+        guitools::message("'From' should not be larger than 'To'!", this);
+        return;
+    }
+
+    storeGeneral();
+    updateGeneralGui();  // temprary! ***!!!
+}
+
+void A3PhotSimWin::storeGeneral()
+{
+    SimSet.WaveSet.Enabled = ui->cbWaveResolved->isChecked();
+    SimSet.WaveSet.From    = ui->ledWaveFrom->text().toDouble();
+    SimSet.WaveSet.To      = ui->ledWaveTo  ->text().toDouble();
+    SimSet.WaveSet.Step    = ui->ledWaveStep->text().toDouble();
 }
