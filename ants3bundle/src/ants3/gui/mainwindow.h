@@ -10,7 +10,7 @@ class A3Config;
 class A3ScriptManager;
 class A3ScriptRes;
 class A3GeoConWin;
-class GeometryWindowClass;
+class AGeometryWindow;
 class A3MatWin;
 
 class MainWindow : public QMainWindow
@@ -32,7 +32,7 @@ private:
     Ui::MainWindow  * ui = nullptr;
 
     A3GeoConWin             * GeoConWin = nullptr;
-    GeometryWindowClass     * GeoWin    = nullptr;
+    AGeometryWindow     * GeoWin    = nullptr;
     A3MatWin * MatWin    = nullptr;
 
 private slots:

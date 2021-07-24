@@ -12,7 +12,7 @@
 #include "acommonfunctions.h"
 #include "achemicalelement.h"
 #include "aelementandisotopedelegates.h"
-#include "geometrywindowclass.h"
+#include "ageometrywindow.h"
 
 #include <QDebug>
 #include <QLayout>

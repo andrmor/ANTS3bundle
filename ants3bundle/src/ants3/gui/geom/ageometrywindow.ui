@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GeometryWindowClass</class>
- <widget class="QMainWindow" name="GeometryWindowClass">
+ <class>AGeometryWindow</class>
+ <widget class="QMainWindow" name="AGeometryWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -355,7 +355,7 @@
      <x>0</x>
      <y>0</y>
      <width>854</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMarkers">

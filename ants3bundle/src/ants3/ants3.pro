@@ -71,6 +71,7 @@ SOURCES += \
     gui/geom/ageobasedelegate.cpp \
     gui/geom/ageobasetreewidget.cpp \
     gui/geom/ageodelegatewidget.cpp \
+    gui/geom/ageometrywindow.cpp \
     gui/geom/ageoobjectdelegate.cpp \
     gui/geom/ageotree.cpp \
     gui/geom/agridelementdelegate.cpp \
@@ -78,7 +79,6 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
-    gui/geom/geometrywindowclass.cpp \
     gui/materials/a3matwin.cpp \
     gui/materials/aelementandisotopedelegates.cpp \
     gui/photsim/a3photsimwin.cpp \
@@ -139,6 +139,7 @@ HEADERS += \
     gui/geom/ageobasetreewidget.h \
     gui/geom/ageodelegatewidget.h \
     gui/geom/ageomarkerclass.h \
+    gui/geom/ageometrywindow.h \
     gui/geom/ageoobjectdelegate.h \
     gui/geom/ageotree.h \
     gui/geom/agridelementdelegate.h \
@@ -146,7 +147,6 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
-    gui/geom/geometrywindowclass.h \
     gui/materials/a3matwin.h \
     gui/materials/aelementandisotopedelegates.h \
     gui/photsim/a3photsimwin.h \
@@ -194,7 +194,7 @@ FORMS += \
         gui/geom/a3geoconwin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
-        gui/geom/geometrywindowclass.ui \
+        gui/geom/ageometrywindow.ui \
         gui/mainwindow.ui \
         gui/materials/a3matwin.ui \
         gui/photsim/a3photsimwin.ui \

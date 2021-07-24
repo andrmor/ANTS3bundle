@@ -7,7 +7,7 @@
 #include "afiletools.h"
 #include "a3particlesimmanager.h"
 #include "a3geoconwin.h"
-#include "geometrywindowclass.h"
+#include "ageometrywindow.h"
 #include "a3geometry.h"
 #include "a3matwin.h"
 
@@ -31,9 +31,9 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     GeoConWin = new A3GeoConWin(this);
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
-    GeoWin = new GeometryWindowClass(this);
-    connect(GeoConWin, &A3GeoConWin::requestDraw,            GeoWin, &GeometryWindowClass::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &GeometryWindowClass::FocusVolume);
+    GeoWin = new AGeometryWindow(this);
+    connect(GeoConWin, &A3GeoConWin::requestDraw,            GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
     GeoWin->show();
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());

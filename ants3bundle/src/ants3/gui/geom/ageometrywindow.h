@@ -17,16 +17,16 @@ class ACameraControlDialog;
 class GeoMarkerClass;
 
 namespace Ui {
-class GeometryWindowClass;
+class AGeometryWindow;
 }
 
-class GeometryWindowClass : public QMainWindow //AGuiWindow
+class AGeometryWindow : public QMainWindow //AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit GeometryWindowClass(QWidget *parent);
-    ~GeometryWindowClass();
+    explicit AGeometryWindow(QWidget *parent);
+    ~AGeometryWindow();
 
     bool ModePerspective = true;
     int  ZoomLevel       = 0;
@@ -131,7 +131,7 @@ private slots:
 private:
     A3Geometry         & Geometry;
 
-    Ui::GeometryWindowClass * ui;
+    Ui::AGeometryWindow * ui = nullptr;
     RasterWindowBaseClass * RasterWindow = nullptr;
 
     ACameraControlDialog * CameraControl = nullptr;
