@@ -39,12 +39,11 @@ public:
     QString ErrorString;
 
     std::vector<const AGeoObject*> MonitorsRecords;
-    std::vector<QString> MonitorIdNames;  //runtime
-    std::vector<TGeoNode*> MonitorNodes; //runtime
-
     std::vector<AGridElementRecord*> GridRecords;
 
-    //properties used during the call of populateGeoManager()
+    std::vector<QString>   MonitorIdNames;  //runtime
+    std::vector<TGeoNode*> MonitorNodes; //runtime
+
     const A3MatHub * MaterialCollection = nullptr; // TODO: will be a singleton!
 
     void         populateGeoManager();

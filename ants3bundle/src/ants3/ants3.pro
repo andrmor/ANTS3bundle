@@ -47,6 +47,7 @@ INCLUDEPATH += tools
 INCLUDEPATH += particlesim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
+INCLUDEPATH += photonSim/settings
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -58,6 +59,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     config/amonitorconfig.cpp \
+    config/asimsettingshub.cpp \
     geo/a3geometry.cpp \
     geo/ageoobject.cpp \
     geo/ageoshape.cpp \
@@ -113,6 +115,7 @@ SOURCES += \
     photonSim/interfaceRules/phscatclaudiomodel.cpp \
     photonSim/interfaceRules/scatteronmetal.cpp \
     photonSim/interfaceRules/spectralbasicopticaloverride.cpp \
+    photonSim/settings/aphotsimsettings.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
@@ -123,6 +126,7 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     config/amonitorconfig.h \
+    config/asimsettingshub.h \
     geo/a3geometry.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
@@ -179,6 +183,7 @@ HEADERS += \
     photonSim/interfaceRules/phscatclaudiomodel.h \
     photonSim/interfaceRules/scatteronmetal.h \
     photonSim/interfaceRules/spectralbasicopticaloverride.h \
+    photonSim/settings/aphotsimsettings.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \
