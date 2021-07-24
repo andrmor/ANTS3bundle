@@ -10,6 +10,7 @@
 #include "ageometrywindow.h"
 #include "a3geometry.h"
 #include "a3matwin.h"
+#include "a3photsimwin.h"
 
 #include <QDebug>
 
@@ -42,6 +43,8 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
+
+    PhotSimWin = new A3PhotSimWin(this);
 }
 
 MainWindow::~MainWindow()
@@ -189,5 +192,11 @@ void MainWindow::on_actionLoad_configuration_triggered()
 
     GeoConWin->updateGui();
     MatWin->initWindow();
+}
+
+void MainWindow::on_pbPhotSim_clicked()
+{
+    PhotSimWin->showNormal();
+    PhotSimWin->activateWindow();
 }
 

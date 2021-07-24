@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QStackedWidget" name="stackedWidget">
+   <widget class="QStackedWidget" name="swSimType">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -32,7 +32,7 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="page_2">
+    <widget class="QWidget" name="pagePhotBombs">
      <widget class="QStackedWidget" name="swAdVancedSim">
       <property name="geometry">
        <rect>
@@ -404,7 +404,6 @@
          </layout>
          <zorder>label_68</zorder>
          <zorder>verticalSpacer_5</zorder>
-         <zorder>horizontalLayoutWidget</zorder>
          <zorder>verticalSpacer_4</zorder>
          <zorder>verticalSpacer</zorder>
         </widget>
@@ -2628,7 +2627,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_10">
+    <widget class="QWidget" name="pageFromEnDep">
      <widget class="QLabel" name="label_13">
       <property name="geometry">
        <rect>
@@ -2642,8 +2641,68 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
        <string>...from energy deposition data</string>
       </property>
      </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>110</y>
+        <width>205</width>
+        <height>65</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="leftMargin">
+        <number>25</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="checkBox_2">
+         <property name="text">
+          <string>Primary scintillation</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_3">
+         <property name="text">
+          <string>Secondary scintillation</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>130</y>
+        <width>25</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>25</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>?</string>
+      </property>
+     </widget>
     </widget>
-    <widget class="QWidget" name="page">
+    <widget class="QWidget" name="pageIndiPhot">
      <widget class="QLabel" name="label_2">
       <property name="geometry">
        <rect>
@@ -2696,7 +2755,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       </item>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_3">
+    <widget class="QWidget" name="pageFromLRFs">
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
@@ -2828,7 +2887,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      </widget>
     </widget>
    </widget>
-   <widget class="QTabWidget" name="twOption">
+   <widget class="QTabWidget" name="twGeneralOption">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -2841,89 +2900,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
-     <attribute name="title">
-      <string>Scintillation</string>
-     </attribute>
-     <layout class="QHBoxLayout" name="horizontalLayout_21">
-      <property name="spacing">
-       <number>3</number>
-      </property>
-      <property name="leftMargin">
-       <number>3</number>
-      </property>
-      <property name="topMargin">
-       <number>3</number>
-      </property>
-      <property name="rightMargin">
-       <number>3</number>
-      </property>
-      <property name="bottomMargin">
-       <number>3</number>
-      </property>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_10">
-        <property name="spacing">
-         <number>3</number>
-        </property>
-        <property name="leftMargin">
-         <number>25</number>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="checkBox_2">
-          <property name="text">
-           <string>Primary scintillation</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkBox_3">
-          <property name="text">
-           <string>Secondary scintillation</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>25</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>?</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_21">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="tabWave">
      <attribute name="title">
       <string>Wave</string>
@@ -3065,17 +3043,24 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          <item>
           <widget class="QLabel" name="label_124">
            <property name="text">
-            <string>Nodes:</string>
+            <string>    (</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="labWaveOptionNodes">
+          <widget class="QLabel" name="labWaveNodes">
            <property name="text">
             <string>121</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>nodes)</string>
            </property>
           </widget>
          </item>
@@ -3259,7 +3244,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="cobSimType">
        <property name="font">
         <font>
          <weight>75</weight>
@@ -3327,7 +3312,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pbSimulate">
        <property name="minimumSize">
         <size>
          <width>150</width>
@@ -3359,7 +3344,10 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
       </spacer>
      </item>
      <item>
-      <widget class="QProgressBar" name="progressBar">
+      <widget class="QProgressBar" name="progbSim">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>150</width>
@@ -3367,12 +3355,15 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         </size>
        </property>
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="pbAbort">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Abort</string>
        </property>
@@ -3404,14 +3395,14 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="pbConfigureOutput">
        <property name="text">
         <string>Configure output</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="cbAutoLoadResults">
        <property name="text">
         <string>Auto-load all results</string>
        </property>

@@ -12,6 +12,7 @@ class A3ScriptRes;
 class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
+class A3PhotSimWin;
 
 class MainWindow : public QMainWindow
 {
@@ -31,9 +32,10 @@ private:
 
     Ui::MainWindow  * ui = nullptr;
 
-    A3GeoConWin             * GeoConWin = nullptr;
-    AGeometryWindow     * GeoWin    = nullptr;
-    A3MatWin * MatWin    = nullptr;
+    A3GeoConWin     * GeoConWin  = nullptr;
+    AGeometryWindow * GeoWin     = nullptr;
+    A3MatWin        * MatWin     = nullptr;
+    A3PhotSimWin    * PhotSimWin = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -56,6 +58,8 @@ private slots:
     void on_actionSave_configuration_triggered();
 
     void on_actionLoad_configuration_triggered();
+
+    void on_pbPhotSim_clicked();
 
 private:
     void disableInterface(bool flag);
