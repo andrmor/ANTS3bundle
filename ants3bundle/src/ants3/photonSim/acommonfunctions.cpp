@@ -84,6 +84,7 @@ void NormalizeVectorSilent(double * arr)
     }
 }
 
+/*
 double GetInterpolatedValue(double val, const QVector<double>* X, const QVector<double>* F, bool LogLog)
 {
     //      qDebug()<<"data point in arrays X and F:"<<X->size()<<F->size()<<"Min X:"<<X->first()<<"Max X:"<<X->last();
@@ -139,6 +140,7 @@ double GetInterpolatedValue(double val, const QVector<double>* X, const QVector<
     //      qDebug()<<"energy / interValue"<<energy<<InteractValue;
     return InterpolationValue;
 }
+*/
 
 /*
 double PolyInterpolation(double x, QVector<double>* xi, QVector<double>* yi, int order)  //with degenerate nodes
@@ -270,6 +272,7 @@ double PolyInterpolation(double x, QVector<double>* xi, QVector<double>* yi, int
 }
 */
 
+/*
 void ConvertToStandardWavelengthes(const QVector<double>* sp_x, const QVector<double>* sp_y, double WaveFrom, double WaveStep, int WaveNodes, QVector<double>* y)
 {
   y->resize(0);
@@ -294,6 +297,7 @@ void ConvertToStandardWavelengthes(const QVector<double>* sp_x, const QVector<do
       y->append(yy);
     }
 }
+*/
 
 bool ExtractNumbersFromQString(QString input, QList<int> *ToAdd)
 {
@@ -365,6 +369,7 @@ void UpdateMax(double &max, double value)
     if (value>max) max=value;
 }
 
+/*
 QPolygonF MakeClosedPolygon(double side, double angle, double x0, double y0)
 {
     QPolygonF poly;
@@ -377,3 +382,4 @@ QPolygonF MakeClosedPolygon(double side, double angle, double x0, double y0)
     poly << QPointF(x0+side*sin(angle/180.0*3.1415926536), y0+side*cos(angle/180.0*3.1415926536)); //to close it
     return poly;
 }
+*/

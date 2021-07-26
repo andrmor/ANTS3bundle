@@ -51,7 +51,6 @@ public:
   QVector<double> ProbDiffBinned; //probability of scattering
   double effectiveWavelength = 500; //if waveIndex of photon is -1, index correspinding to this wavelength will be used
   double effectiveWaveIndex;
-  bool bWaveResolved;
 
 private:
 #ifdef GUI

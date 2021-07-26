@@ -1,5 +1,5 @@
 #include "a3photsimwin.h"
-#include "asimsettingshub.h"
+#include "aphotsimsettings.h"
 #include "ui_a3photsimwin.h"
 #include "guitools.h"
 
@@ -7,7 +7,7 @@
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
-    SimSet(ASimSettingsHub::getInstance().PhotSimSet),
+    SimSet(APhotSimSettings::getInstance()),
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);

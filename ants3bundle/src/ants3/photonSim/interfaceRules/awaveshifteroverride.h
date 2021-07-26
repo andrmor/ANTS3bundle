@@ -46,11 +46,7 @@ public:
 
   QVector<double> EmissionSpectrum_lambda;
   QVector<double> EmissionSpectrum;
-  TH1D* Spectrum = 0;
-
-  double WaveFrom;
-  double WaveStep;
-  int WaveNodes;
+  TH1D * Spectrum = nullptr;
 
 private:
 #ifdef GUI

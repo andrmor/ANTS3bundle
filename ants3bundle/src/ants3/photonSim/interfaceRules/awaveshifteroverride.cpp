@@ -4,7 +4,8 @@
 #include "a3mathub.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
-#include "acommonfunctions.h"
+//#include "acommonfunctions.h"
+#include "aphotsimsettings.h"
 #include "ajsontools.h"
 #include "guitools.h"
 
@@ -41,29 +42,27 @@ AWaveshifterOverride::~AWaveshifterOverride()
 
 void AWaveshifterOverride::initializeWaveResolved()
 {
-    bool bWavelengthResolved;
-    double waveTo;
-    MatCollection->GetWave(bWavelengthResolved, WaveFrom, waveTo, WaveStep, WaveNodes);
-
-    if (bWavelengthResolved)
+    if (WaveSet.Enabled)
     {
-        ConvertToStandardWavelengthes(&ReemissionProbability_lambda, &ReemissionProbability, WaveFrom, WaveStep, WaveNodes, &ReemissionProbabilityBinned);
+        const int WaveNodes = WaveSet.countNodes();
+
+        WaveSet.convertToStandardWavelengthes(&ReemissionProbability_lambda, &ReemissionProbability, &ReemissionProbabilityBinned);
 
         QVector<double> y;
-        ConvertToStandardWavelengthes(&EmissionSpectrum_lambda, &EmissionSpectrum, WaveFrom, WaveStep, WaveNodes, &y);
+        WaveSet.convertToStandardWavelengthes(&EmissionSpectrum_lambda, &EmissionSpectrum, &y);
+
         TString name = "WLSEmSpec";
         name += MatFrom;
         name += "to";
         name += MatTo;
-        if (Spectrum) delete Spectrum;
-        Spectrum = new TH1D(name,"", WaveNodes, WaveFrom, WaveFrom+WaveStep*WaveNodes);
+        delete Spectrum; Spectrum = new TH1D(name, "", WaveSet.countNodes(), WaveSet.From, WaveSet.From + WaveSet.Step * WaveNodes);
         for (int j = 1; j<WaveNodes+1; j++)  Spectrum->SetBinContent(j, y[j-1]);
         Spectrum->GetIntegral(); //to make thread safe
     }
     else
     {
         ReemissionProbabilityBinned.clear();
-        delete Spectrum; Spectrum = 0;
+        delete Spectrum; Spectrum = nullptr;
     }
 }
 
@@ -97,7 +96,7 @@ AOpticalOverride::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATra
                 return Absorbed;
               }
             wavelength = Spectrum->GetRandom();
-            waveIndex = (wavelength - WaveFrom)/WaveStep;
+            waveIndex = WaveSet.getIndexFast(wavelength);
         }
         while (waveIndex < Photon->waveIndex); //conserving energy
 
@@ -368,12 +367,13 @@ void AWaveshifterOverride::showBinnedReemissionProbability(GraphWindowClass *Gra
 
     //TODO run checker
 
-    if ( !MatCollection->IsWaveResolved() )
+    if (!WaveSet.Enabled)
     {
         guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
         return;
     }
 
+    const int WaveNodes = WaveSet.countNodes();
     QVector<double> waveIndex;
     for (int i=0; i<WaveNodes; i++) waveIndex << i;
 /*
@@ -392,7 +392,7 @@ void AWaveshifterOverride::showBinnedEmissionSpectrum(GraphWindowClass *GraphWin
 
     //TODO run checker
 
-    if ( !MatCollection->IsWaveResolved() )
+    if (!WaveSet.Enabled)
     {
         guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
         return;
@@ -422,7 +422,7 @@ void AWaveshifterOverride::updateButtons()
 {
     pbShowRP->setDisabled(ReemissionProbability_lambda.isEmpty());
     pbShowES->setDisabled(EmissionSpectrum_lambda.isEmpty());
-    bool bWR = MatCollection->IsWaveResolved();
+    bool bWR = WaveSet.Enabled;
     pbShowRPbinned->setDisabled(!bWR || ReemissionProbability_lambda.isEmpty());
     pbShowESbinned->setDisabled(!bWR || EmissionSpectrum_lambda.isEmpty());
 }
@@ -444,7 +444,7 @@ const QString AWaveshifterOverride::checkOverrideData()
 
     initializeWaveResolved();
 
-    if (MatCollection->IsWaveResolved() && Spectrum->ComputeIntegral() <= 0)
+    if (WaveSet.Enabled && Spectrum->ComputeIntegral() <= 0)
             return "Binned emission spectrum: integral should be > 0";
     return "";
 }

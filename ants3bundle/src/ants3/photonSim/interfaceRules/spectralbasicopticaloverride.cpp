@@ -3,6 +3,7 @@
 #include "aphoton.h"
 #include "amaterial.h"
 #include "a3mathub.h"
+#include "aphotsimsettings.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
 #include "acommonfunctions.h"
@@ -45,7 +46,7 @@ SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(A3MatHub *MatCollecti
 AOpticalOverride::OpticalOverrideResultEnum SpectralBasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     int waveIndex = Photon->waveIndex;
-    if (!bWaveResolved || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1
+    if (!WaveSet.Enabled || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1
 
     probLoss = ProbLossBinned.at(waveIndex);
     probDiff = ProbDiffBinned.at(waveIndex);
@@ -118,20 +119,13 @@ bool SpectralBasicOpticalOverride::readFromJson(const QJsonObject &json)
 
 void SpectralBasicOpticalOverride::initializeWaveResolved()
 {
-    double waveFrom, waveTo, waveStep;
-    int waveNodes;
-    MatCollection->GetWave(bWaveResolved, waveFrom, waveTo, waveStep, waveNodes);
-
-    if (bWaveResolved)
+    if (WaveSet.Enabled)
     {
-        ConvertToStandardWavelengthes(&Wave, &ProbLoss, waveFrom, waveStep, waveNodes, &ProbLossBinned);
-        ConvertToStandardWavelengthes(&Wave, &ProbRef, waveFrom, waveStep, waveNodes, &ProbRefBinned);
-        ConvertToStandardWavelengthes(&Wave, &ProbDiff, waveFrom, waveStep, waveNodes, &ProbDiffBinned);
+        WaveSet.convertToStandardWavelengthes(&Wave, &ProbLoss, &ProbLossBinned);
+        WaveSet.convertToStandardWavelengthes(&Wave, &ProbRef, &ProbRefBinned);
+        WaveSet.convertToStandardWavelengthes(&Wave, &ProbDiff, &ProbDiffBinned);
 
-        effectiveWaveIndex = (effectiveWavelength - waveFrom) / waveStep;
-        if (effectiveWaveIndex < 0) effectiveWaveIndex = 0;
-        else if (effectiveWaveIndex >= waveNodes ) effectiveWaveIndex = waveNodes - 1;
-        //qDebug() << "Eff wave"<<effectiveWavelength << "assigned index:"<<effectiveWaveIndex;
+        effectiveWaveIndex = WaveSet.getIndex(effectiveWavelength);
     }
     else
     {
@@ -269,8 +263,7 @@ void SpectralBasicOpticalOverride::showBinned(QWidget *widget, GraphWindowClass 
 void SpectralBasicOpticalOverride::updateButtons()
 {
     pbShow->setDisabled(Wave.isEmpty());
-    bool bWR = MatCollection->IsWaveResolved();
-    pbShowBinned->setDisabled(!bWR || Wave.isEmpty());
+    pbShowBinned->setDisabled(!WaveSet.Enabled || Wave.isEmpty());
 }
 #endif
 
