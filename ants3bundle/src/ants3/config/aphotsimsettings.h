@@ -3,16 +3,21 @@
 
 #include <QVector> // TODO: std::vector !!!***
 
+class QJsonObject;
+
 enum class APhotSinTypeEnum {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
 
 class AWaveResSettings
 {
 public:
-    bool Enabled = false;
+    bool   Enabled = false;
 
     double From = 200.0;  // in nm
     double To   = 800.0;
     double Step = 5.0;
+
+    void   writeToJson(QJsonObject & json) const;
+    void   readFromJson(const QJsonObject & json);
 
     int    countNodes() const;
     double getWavelength(int index) const;
@@ -42,6 +47,9 @@ public:
     APhotSinTypeEnum SimType = APhotSinTypeEnum::PhotonBombs;
 
     AWaveResSettings WaveSet;
+
+    void   writeToJson(QJsonObject & json) const;
+    void   readFromJson(const QJsonObject & json);
 
 };
 

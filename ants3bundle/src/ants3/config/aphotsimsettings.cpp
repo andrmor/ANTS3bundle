@@ -1,6 +1,25 @@
 #include "aphotsimsettings.h"
+#include "ajsontools.h"
 
 #include <cmath>
+
+void AWaveResSettings::writeToJson(QJsonObject & json) const
+{
+    json["Enabled"] = Enabled;
+
+    json["From"]    = From;
+    json["To"]      = To;
+    json["Step"]    = Step;
+}
+
+void AWaveResSettings::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "Enabled", Enabled);
+
+    jstools::parseJson(json, "From",    From);
+    jstools::parseJson(json, "To",      To);
+    jstools::parseJson(json, "Step",    Step);
+}
 
 int AWaveResSettings::countNodes() const
 {
@@ -101,4 +120,19 @@ APhotSimSettings & APhotSimSettings::getInstance()
 const APhotSimSettings &APhotSimSettings::getConstInstance()
 {
     return getInstance();
+}
+
+void APhotSimSettings::writeToJson(QJsonObject & json) const
+{
+    QJsonObject js;
+    WaveSet.writeToJson(js);
+    json["WaveResolved"] = js;
+
+}
+
+void APhotSimSettings::readFromJson(const QJsonObject & json)
+{
+    QJsonObject js;
+    jstools::parseJson(json, "WaveResolved", js);
+    WaveSet.readFromJson(js);
 }
