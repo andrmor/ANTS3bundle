@@ -46,10 +46,10 @@ void AWaveshifterOverride::initializeWaveResolved()
     {
         const int WaveNodes = WaveSet.countNodes();
 
-        WaveSet.convertToStandardWavelengthes(&ReemissionProbability_lambda, &ReemissionProbability, &ReemissionProbabilityBinned);
+        WaveSet.toStandardBins(&ReemissionProbability_lambda, &ReemissionProbability, &ReemissionProbabilityBinned);
 
         QVector<double> y;
-        WaveSet.convertToStandardWavelengthes(&EmissionSpectrum_lambda, &EmissionSpectrum, &y);
+        WaveSet.toStandardBins(&EmissionSpectrum_lambda, &EmissionSpectrum, &y);
 
         TString name = "WLSEmSpec";
         name += MatFrom;
@@ -96,7 +96,7 @@ AOpticalOverride::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATra
                 return Absorbed;
               }
             wavelength = Spectrum->GetRandom();
-            waveIndex = WaveSet.getIndexFast(wavelength);
+            waveIndex = WaveSet.toIndexFast(wavelength);
         }
         while (waveIndex < Photon->waveIndex); //conserving energy
 

@@ -51,13 +51,14 @@ INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
 INCLUDEPATH += ../dispatcher
+INCLUDEPATH += /usr/include
 
 DESTDIR = ../../bin
 
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
-    config/amonitorconfig.cpp \
+    photonSim/amonitorconfig.cpp \
     geo/a3geometry.cpp \
     geo/ageoobject.cpp \
     geo/ageoshape.cpp \
@@ -97,7 +98,7 @@ SOURCES += \
     dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
-    config/a3workdistrconfig.cpp \
+    dispatch/a3workdistrconfig.cpp \
     photonSim/acommonfunctions.cpp \
     photonSim/aphoton.cpp \
     photonSim/aroothistappenders.cpp \
@@ -122,7 +123,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
-    config/amonitorconfig.h \
+    photonSim/amonitorconfig.h \
     geo/a3geometry.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
@@ -162,7 +163,7 @@ HEADERS += \
     dispatch/a3dispinterface.h \
     config/a3config.h \
     config/a3global.h \
-    config/a3workdistrconfig.h \
+    dispatch/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
     photonSim/acommonfunctions.h \
     photonSim/aphoton.h \

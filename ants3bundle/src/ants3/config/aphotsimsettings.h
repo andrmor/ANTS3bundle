@@ -20,11 +20,13 @@ public:
     void   readFromJson(const QJsonObject & json);
 
     int    countNodes() const;
-    double getWavelength(int index) const;
-    int    getIndex(double wavelength) const;   // TODO: compare with fast method!
-    int    getIndexFast(double wavelength) const; //not safe
+    double toWavelength(int index) const;
+    int    toIndex(double wavelength) const;   // TODO: compare with fast method!
+    int    toIndexFast(double wavelength) const; //not safe
     // TODO: refactor 2 below:
-    void   convertToStandardWavelengthes(const QVector<double> *sp_x, const QVector<double> *sp_y, QVector<double>* y) const;
+    void   toStandardBins(const QVector<double> *sp_x, const QVector<double> *sp_y, QVector<double>* y) const;
+
+private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
 };
 

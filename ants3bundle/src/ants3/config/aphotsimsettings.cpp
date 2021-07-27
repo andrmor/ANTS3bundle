@@ -27,12 +27,12 @@ int AWaveResSettings::countNodes() const
     return (To - From) / Step + 1;
 }
 
-double AWaveResSettings::getWavelength(int index) const
+double AWaveResSettings::toWavelength(int index) const
 {
     return From + Step * index;
 }
 
-int AWaveResSettings::getIndex(double wavelength) const
+int AWaveResSettings::toIndex(double wavelength) const
 {
     if (!Enabled) return -1;
 
@@ -44,12 +44,12 @@ int AWaveResSettings::getIndex(double wavelength) const
     return iwave;
 }
 
-int AWaveResSettings::getIndexFast(double wavelength) const
+int AWaveResSettings::toIndexFast(double wavelength) const
 {
     return (wavelength - From) / Step;
 }
 
-void AWaveResSettings::convertToStandardWavelengthes(const QVector<double>* sp_x, const QVector<double>* sp_y, QVector<double>* y) const
+void AWaveResSettings::toStandardBins(const QVector<double>* sp_x, const QVector<double>* sp_y, QVector<double>* y) const
 {
     y->clear();
 
@@ -127,7 +127,6 @@ void APhotSimSettings::writeToJson(QJsonObject & json) const
     QJsonObject js;
     WaveSet.writeToJson(js);
     json["WaveResolved"] = js;
-
 }
 
 void APhotSimSettings::readFromJson(const QJsonObject & json)

@@ -23,14 +23,14 @@ INCLUDEPATH += ../ants3/tools
 SOURCES += main.cpp \
     a3dispatcher.cpp \
     a3processhandler.cpp \
-    ../ants3/config/a3workdistrconfig.cpp \
+    ../ants3/dispatch/a3workdistrconfig.cpp \
     ../ants3/tools/ajsontools.cpp \
     ../ants3/tools/afiletools.cpp
 
 HEADERS += \
     a3dispatcher.h \
     a3processhandler.h \
-    ../ants3/config/a3workdistrconfig.h \
+    ../ants3/dispatch/a3workdistrconfig.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h
 

@@ -121,11 +121,11 @@ void SpectralBasicOpticalOverride::initializeWaveResolved()
 {
     if (WaveSet.Enabled)
     {
-        WaveSet.convertToStandardWavelengthes(&Wave, &ProbLoss, &ProbLossBinned);
-        WaveSet.convertToStandardWavelengthes(&Wave, &ProbRef, &ProbRefBinned);
-        WaveSet.convertToStandardWavelengthes(&Wave, &ProbDiff, &ProbDiffBinned);
+        WaveSet.toStandardBins(&Wave, &ProbLoss, &ProbLossBinned);
+        WaveSet.toStandardBins(&Wave, &ProbRef, &ProbRefBinned);
+        WaveSet.toStandardBins(&Wave, &ProbDiff, &ProbDiffBinned);
 
-        effectiveWaveIndex = WaveSet.getIndex(effectiveWavelength);
+        effectiveWaveIndex = WaveSet.toIndex(effectiveWavelength);
     }
     else
     {
