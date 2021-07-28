@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>571</width>
+    <width>744</width>
     <height>636</height>
    </rect>
   </property>
@@ -237,7 +237,7 @@
                  <enum>QFrame::NoFrame</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>3</number>
                 </property>
                 <widget class="QWidget" name="pageScanConst">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -476,7 +476,10 @@
                  </layout>
                 </widget>
                 <widget class="QWidget" name="pageScanGauss">
-                 <layout class="QHBoxLayout" name="horizontalLayout_26">
+                 <layout class="QVBoxLayout" name="verticalLayout_18">
+                  <property name="spacing">
+                   <number>1</number>
+                  </property>
                   <property name="leftMargin">
                    <number>0</number>
                   </property>
@@ -490,38 +493,90 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="label_87">
-                    <property name="text">
-                     <string>Mean:</string>
+                   <layout class="QHBoxLayout" name="horizontalLayout_31">
+                    <property name="rightMargin">
+                     <number>0</number>
                     </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
+                    <item>
+                     <widget class="QLabel" name="label_89">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Sigma:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ledScanGaussSigma">
+                      <property name="text">
+                       <string>2.5</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_30">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledScanGaussMean">
-                    <property name="text">
-                     <string>10</string>
+                   <layout class="QHBoxLayout" name="horizontalLayout_30">
+                    <property name="rightMargin">
+                     <number>0</number>
                     </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_89">
-                    <property name="text">
-                     <string>Sigma:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="ledScanGaussSigma">
-                    <property name="text">
-                     <string>2.5</string>
-                    </property>
-                   </widget>
+                    <item>
+                     <widget class="QLabel" name="label_87">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Mean:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ledScanGaussMean">
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_8">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </widget>
@@ -621,32 +676,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  </layout>
                 </widget>
                </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_30">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </item>
@@ -3701,7 +3730,7 @@ Changes</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>571</width>
+     <width>744</width>
      <height>22</height>
     </rect>
    </property>
