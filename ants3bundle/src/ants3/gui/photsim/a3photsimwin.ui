@@ -2170,13 +2170,6 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbdGenerationModeStore">
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <spacer name="horizontalSpacer_29">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -3133,54 +3126,6 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
     <hint type="destinationlabel">
      <x>391</x>
      <y>339</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSingleX</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdGenerationModeStore</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>160</x>
-     <y>266</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>383</x>
-     <y>377</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSingleY</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdGenerationModeStore</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>299</x>
-     <y>257</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>402</x>
-     <y>384</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSingleZ</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdGenerationModeStore</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>444</x>
-     <y>268</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>416</x>
-     <y>385</y>
     </hint>
    </hints>
   </connection>

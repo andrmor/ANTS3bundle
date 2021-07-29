@@ -1,12 +1,15 @@
 #ifndef A3CONFIG_H
 #define A3CONFIG_H
 
-class QJsonObject;
-
+#include <QObject>
 #include <QString>
 
-class A3Config final
+class QJsonObject;
+
+class A3Config final : public QObject
 {
+    Q_OBJECT
+
 public:
     static A3Config & getInstance();
 
@@ -36,11 +39,13 @@ public:
     QString     to   = "B";
     QString     lines;
 
-    void writeDetectorConfig(QJsonObject & json) const;
-    void readDetectorConfig(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
-    void writeAllConfig(QJsonObject & json) const;
-    void readAllConfig(const QJsonObject & json);
+signals:
+    void requestUpdateMaterialGui();
+    void requestUpdateGeometryGui();
+    void requestUpdatePhotSimGui();
 
 };
 

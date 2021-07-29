@@ -172,7 +172,7 @@ void MainWindow::on_pbMaterials_clicked()
 void MainWindow::on_actionSave_configuration_triggered()
 {
     QJsonObject json;
-    A3Config::getInstance().writeAllConfig(json);
+    A3Config::getInstance().writeToJson(json);
 
     QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");
     if (fileName.isEmpty()) return;
@@ -188,7 +188,7 @@ void MainWindow::on_actionLoad_configuration_triggered()
     QJsonObject json;
     jstools::loadJsonFromFile(json, fileName);
 
-    A3Config::getInstance().readAllConfig(json);
+    A3Config::getInstance().readFromJson(json);
 
     GeoConWin->updateGui();
     MatWin->initWindow();

@@ -44,6 +44,10 @@ public:
 
 class APhotonBombsSettings
 {
+public:
+
+    // TODO reformat!
+
     // Number of photons
     EBombPhNumber       PhotonNumberMode = EBombPhNumber::Constant;
 
@@ -51,7 +55,7 @@ class APhotonBombsSettings
     EBombGen            GenerationMode   = EBombGen::Single;
 
     // Single
-    std::vector<double> Position;
+    double Position[3];
 
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);

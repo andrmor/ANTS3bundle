@@ -162,7 +162,7 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
             QJsonArray ar;
             for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
             js["Position"] = ar;
-        json["SingleMode"] = ar;
+        json["SingleMode"] = js;
     }
     // Grid
 
@@ -170,6 +170,57 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
 
 void APhotonBombsSettings::readFromJson(const QJsonObject & json)
 {
+    // PhotonNumberMode
+    {
+        QString str = "undefined";
+        jstools::parseJson(json, "PhotonNumberMode", str);
+
+        if      (str == "constant") PhotonNumberMode = EBombPhNumber::Constant;
+        else if (str == "poisson")  PhotonNumberMode = EBombPhNumber::Poisson;
+        else if (str == "uniform")  PhotonNumberMode = EBombPhNumber::Uniform;
+        else if (str == "normal")   PhotonNumberMode = EBombPhNumber::Normal;
+        else if (str == "custom")   PhotonNumberMode = EBombPhNumber::Custom;
+        else
+        {
+            qWarning() << "Unknown PhotonNumberMode:" << str << " replacing it with 'Constant'";
+            PhotonNumberMode = EBombPhNumber::Constant;
+        }
+    }
+
+    // GenerationMode
+    {
+        QString str;
+        jstools::parseJson(json, "GenerationMode",  str);
+
+        if      (str == "single") GenerationMode = EBombGen::Single;
+        else if (str == "grid")   GenerationMode = EBombGen::Grid;
+        else if (str == "flood")  GenerationMode = EBombGen::Flood;
+        else if (str == "file")   GenerationMode = EBombGen::File;
+        else if (str == "script") GenerationMode = EBombGen::Script;
+        else
+        {
+            qWarning() << "Unknown GenerationMode:" << str << " replacing it with 'Single'";
+            GenerationMode = EBombGen::Single;
+        }
+    }
+
+    // Particular generation modes
+    // Single
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "SingleMode", js);
+            QJsonArray ar;
+            bool ok = jstools::parseJson(js, "Position", ar);
+            if (ok && ar.size() == 3)
+                for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
+            else
+            {
+                qWarning() << "Error in loading Position for Single mode";
+                for (int i = 0; i < 3 ; i++) Position[i] = 0;
+            }
+    }
+    // Grid
+
 
 }
 
@@ -200,6 +251,26 @@ void APhotSimSettings::writeToJson(QJsonObject & json) const
         json["Optimization"] = js;
     }
 
+    // Type
+    {
+        QString str;
+        switch (SimType)
+        {
+        case EPhotSimType::PhotonBombs       : str = "bomb"; break;
+        case EPhotSimType::FromEnergyDepo    : str = "depo"; break;
+        case EPhotSimType::IndividualPhotons : str = "indi"; break;
+        case EPhotSimType::FromLRFs          : str = "lrf";  break;
+        }
+        json["SimulationType"] = str;
+    }
+
+    // Particular modes
+    {
+        QJsonObject js;
+        BombSet.writeToJson(js);
+        json["PhotonBombs"] = js;
+    }
+
 }
 
 void APhotSimSettings::readFromJson(const QJsonObject & json)
@@ -214,6 +285,28 @@ void APhotSimSettings::readFromJson(const QJsonObject & json)
         QJsonObject js;
         jstools::parseJson(json, "Optimization", js);
         OptSet.readFromJson(js);
+    }
+
+    // Type
+    {
+        QString str = "undefined";
+        jstools::parseJson(json, "SimulationType", str);
+        if      (str == "bomb") SimType = EPhotSimType::PhotonBombs;
+        else if (str == "depo") SimType = EPhotSimType::FromEnergyDepo;
+        else if (str == "indi") SimType = EPhotSimType::IndividualPhotons;
+        else if (str == "lrf")  SimType = EPhotSimType::FromLRFs;
+        else
+        {
+            qWarning() << "Unknown photon simulation mode:" << str << "setting to 'bombs'";
+            SimType = EPhotSimType::PhotonBombs;
+        }
+    }
+
+    // Particular modes
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "PhotonBombs", js);
+        BombSet.readFromJson(js);
     }
 
 }

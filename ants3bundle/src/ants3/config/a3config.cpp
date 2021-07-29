@@ -2,6 +2,7 @@
 #include "ajsontools.h"
 #include "a3geometry.h"
 #include "a3mathub.h"
+#include "aphotsimsettings.h"
 
 #include <QDebug>
 
@@ -17,49 +18,58 @@ A3Config::A3Config()
         lines += QString("%0-abcdef\n").arg(i);
 }
 
-void A3Config::writeDetectorConfig(QJsonObject & json) const
+void A3Config::writeToJson(QJsonObject & json) const
 {
-    QJsonObject jsonDet;
+    //Materials
     {
-        QJsonObject jsGeo;
-            A3Geometry::getInstance().writeToJson(jsGeo);
-        jsonDet["Geometry"] = jsGeo;
-
-        QJsonArray jsMatAr;
-            A3MatHub::getInstance().writeToJsonAr(jsMatAr);
-        jsonDet["Materials"] = jsMatAr;
-    }
-    json["Detector"] = jsonDet;
-}
-
-void A3Config::readDetectorConfig(const QJsonObject & json)
-{
-    QJsonObject jsonDet;
-    bool ok = jstools::parseJson(json, "Detector", jsonDet);
-    if (!ok)
-    {
-        qWarning() << "json does not contain detector settings!";
-        return;
+        QJsonArray ar;
+        A3MatHub::getInstance().writeToJsonAr(ar);
+        json["Materials"] = ar;
     }
 
-    QJsonObject jsGeo;
-    ok = jstools::parseJson(jsonDet, "Geometry", jsGeo);
-    if (ok) A3Geometry::getInstance().readFromJson(jsGeo);
+    //Geometry
+    {
+        QJsonObject js;
+        A3Geometry::getInstance().writeToJson(js);
+        json["Geometry"] = js;
+    }
 
-    QJsonArray jsMatAr;
-    ok = jstools::parseJson(jsonDet, "Materials", jsMatAr);
-    if (ok) A3MatHub::getInstance().readFromJsonAr(jsMatAr);
+    // Photon simulation
+    {
+        QJsonObject js;
+        APhotSimSettings::getConstInstance().writeToJson(js);
+        json["PhotonSim"] = js;
+    }
+
+    // Particle simulation
+
+    // Reconstruction
 }
 
-void A3Config::writeAllConfig(QJsonObject & json) const
+void A3Config::readFromJson(const QJsonObject & json)
 {
-    writeDetectorConfig(json);
-    // ...
-}
+    // Materials
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "Materials", ar);
+        A3MatHub::getInstance().readFromJsonAr(ar);
+        emit requestUpdateMaterialGui();
+    }
 
-void A3Config::readAllConfig(const QJsonObject & json)
-{
-    readDetectorConfig(json);
-    // ...
+    // Geometry
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Geometry", js);
+        A3Geometry::getInstance().readFromJson(js);
+        emit requestUpdateGeometryGui();
+    }
+
+    // Photon simulation
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "PhotonSim", js);
+        APhotSimSettings::getInstance().readFromJson(js);
+        emit requestUpdatePhotSimGui();
+    }
 }
 
