@@ -19,18 +19,27 @@ public:
 
     void updateGui();
     void updatePhotBombGui();
-    void updateGeneralGui();
+    void updateGeneralSettingsGui();
 
-    void storeGeneral();
 
 private slots:
     void on_pbdWave_clicked();
 
-    //void on_cbWaveResolved_clicked();
+    void on_sbMaxNumbPhTransitions_editingFinished();
+
+    void on_cbRndCheckBeforeTrack_clicked();
+
+    void on_pbQEacceleratorHelp_clicked();
+
+    void on_pbdGenerationModeStore_clicked();
 
 private:
     APhotSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
+
+
+    void storeGeneralSettings();
+    void storeGenerationModeSettings();
 };
 
 #endif // A3PHOTSIMWIN_H

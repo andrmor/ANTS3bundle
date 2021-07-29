@@ -58,6 +58,7 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    anodesettingsdialog.cpp \
     photonSim/amonitorconfig.cpp \
     geo/a3geometry.cpp \
     geo/ageoobject.cpp \
@@ -123,6 +124,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    anodesettingsdialog.h \
     photonSim/amonitorconfig.h \
     geo/a3geometry.h \
     geo/ageoobject.h \
@@ -187,6 +189,7 @@ HEADERS += \
     js/a3farmsi.h
 
 FORMS += \
+        anodesettingsdialog.ui \
         gui/geom/a3geoconwin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \

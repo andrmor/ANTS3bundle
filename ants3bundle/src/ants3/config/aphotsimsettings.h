@@ -5,7 +5,9 @@
 
 class QJsonObject;
 
-enum class APhotSinTypeEnum {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
+enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
+enum class EBombPhNumber {Constant, Poisson, Uniform, Normal, Custom};
+enum class EBombGen      {Single, Grid, Flood, File, Script};
 
 class AWaveResSettings
 {
@@ -30,6 +32,33 @@ private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
 };
 
+class APhotOptSettings
+{
+public:
+    int    MaxPhotonTransitions = 500;
+    bool   CheckQeBeforeTracking   = false;
+
+    void   writeToJson(QJsonObject & json) const;
+    void   readFromJson(const QJsonObject & json);
+};
+
+class APhotonBombsSettings
+{
+    // Number of photons
+    EBombPhNumber       PhotonNumberMode = EBombPhNumber::Constant;
+
+    // generation type
+    EBombGen            GenerationMode   = EBombGen::Single;
+
+    // Single
+    std::vector<double> Position;
+
+    void   writeToJson(QJsonObject & json) const;
+    void   readFromJson(const QJsonObject & json);
+};
+
+// ===
+
 class APhotSimSettings final
 {
 public:
@@ -46,12 +75,14 @@ private:
     APhotSimSettings& operator=(APhotSimSettings&&)      = delete;
 
 public:
-    APhotSinTypeEnum SimType = APhotSinTypeEnum::PhotonBombs;
+    EPhotSimType         SimType = EPhotSimType::PhotonBombs;
 
-    AWaveResSettings WaveSet;
+    AWaveResSettings     WaveSet;
+    APhotOptSettings     OptSet;
+    APhotonBombsSettings BombSet;
 
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
 };
 

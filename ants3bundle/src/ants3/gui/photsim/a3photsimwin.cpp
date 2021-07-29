@@ -32,7 +32,7 @@ void A3PhotSimWin::updateGui()
 
     updatePhotBombGui();
 
-    updateGeneralGui();
+    updateGeneralSettingsGui();
 }
 
 void A3PhotSimWin::updatePhotBombGui()
@@ -40,9 +40,9 @@ void A3PhotSimWin::updatePhotBombGui()
 
 }
 
-void A3PhotSimWin::updateGeneralGui()
+void A3PhotSimWin::updateGeneralSettingsGui()
 {
-    ui->twGeneralOption->setEnabled(SimSet.SimType != APhotSinTypeEnum::FromLRFs);
+    ui->twGeneralOption->setEnabled(SimSet.SimType != EPhotSimType::FromLRFs);
 
     ui->cbWaveResolved->setChecked(SimSet.WaveSet.Enabled);
     ui->fWaveOptions->setEnabled(SimSet.WaveSet.Enabled);
@@ -51,32 +51,63 @@ void A3PhotSimWin::updateGeneralGui()
     ui->ledWaveStep->setText(QString::number(SimSet.WaveSet.Step));
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
+    ui->sbMaxNumbPhTransitions->setValue(SimSet.OptSet.MaxPhotonTransitions);
+    ui->cbRndCheckBeforeTrack->setChecked(SimSet.OptSet.CheckQeBeforeTracking);
 }
 
 void A3PhotSimWin::on_pbdWave_clicked()
 {
     if (ui->ledWaveStep->text().toDouble() <= 0)
     {
-        updateGeneralGui();
+        updateGeneralSettingsGui();
         guitools::message("Step should be positive!", this);
         return;
     }
 
     if (ui->ledWaveFrom->text().toDouble() > ui->ledWaveTo  ->text().toDouble())
     {
-        updateGeneralGui();
+        updateGeneralSettingsGui();
         guitools::message("'From' should not be larger than 'To'!", this);
         return;
     }
 
-    storeGeneral();
-    updateGeneralGui();  // temprary! ***!!!
+    storeGeneralSettings();
+    updateGeneralSettingsGui();
 }
 
-void A3PhotSimWin::storeGeneral()
+void A3PhotSimWin::storeGeneralSettings()
 {
     SimSet.WaveSet.Enabled = ui->cbWaveResolved->isChecked();
     SimSet.WaveSet.From    = ui->ledWaveFrom->text().toDouble();
     SimSet.WaveSet.To      = ui->ledWaveTo  ->text().toDouble();
     SimSet.WaveSet.Step    = ui->ledWaveStep->text().toDouble();
+
+    SimSet.OptSet.CheckQeBeforeTracking = ui->cbRndCheckBeforeTrack->isChecked();
+    SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
+}
+
+void A3PhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
+{
+    storeGeneralSettings();
+}
+
+void A3PhotSimWin::on_cbRndCheckBeforeTrack_clicked()
+{
+    storeGeneralSettings();
+}
+
+void A3PhotSimWin::on_pbQEacceleratorHelp_clicked()
+{
+    guitools::message("TODO", this);
+}
+
+
+void A3PhotSimWin::on_pbdGenerationModeStore_clicked()
+{
+    storeGenerationModeSettings();
+}
+
+void A3PhotSimWin::storeGenerationModeSettings()
+{
+
 }

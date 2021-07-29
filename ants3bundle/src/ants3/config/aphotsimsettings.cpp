@@ -111,6 +111,70 @@ double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> 
 
 // ---
 
+void APhotOptSettings::writeToJson(QJsonObject &json) const
+{
+    json["MaxPhotonTransitions"]  = MaxPhotonTransitions;
+    json["CheckQeBeforeTracking"] = CheckQeBeforeTracking;
+}
+
+void APhotOptSettings::readFromJson(const QJsonObject &json)
+{
+    jstools::parseJson(json, "MaxPhotonTransitions",  MaxPhotonTransitions);
+    jstools::parseJson(json, "CheckQeBeforeTracking", CheckQeBeforeTracking);
+}
+
+// ---
+
+void APhotonBombsSettings::writeToJson(QJsonObject & json) const
+{
+    // PhotonNumberMode
+    {
+        QString str;
+        switch (PhotonNumberMode)
+        {
+        case EBombPhNumber::Constant : str = "constant"; break;
+        case EBombPhNumber::Poisson  : str = "poisson";  break;
+        case EBombPhNumber::Uniform  : str = "uniform";  break;
+        case EBombPhNumber::Normal   : str = "normal";   break;
+        case EBombPhNumber::Custom   : str = "custom";   break;
+        }
+        json["PhotonNumberMode"] = str;
+    }
+
+    // GenerationMode
+    {
+        QString str;
+        switch (GenerationMode)
+        {
+        case EBombGen::Single : str = "single"; break;
+        case EBombGen::Grid   : str = "grid";   break;
+        case EBombGen::Flood  : str = "flood";  break;
+        case EBombGen::File   : str = "file";   break;
+        case EBombGen::Script : str = "script"; break;
+        }
+        json["GenerationMode"] = str;
+    }
+
+    // Particular generation modes
+    // Single
+    {
+        QJsonObject js;
+            QJsonArray ar;
+            for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
+            js["Position"] = ar;
+        json["SingleMode"] = ar;
+    }
+    // Grid
+
+}
+
+void APhotonBombsSettings::readFromJson(const QJsonObject & json)
+{
+
+}
+
+// ---
+
 APhotSimSettings & APhotSimSettings::getInstance()
 {
     static APhotSimSettings instance;
@@ -124,14 +188,32 @@ const APhotSimSettings &APhotSimSettings::getConstInstance()
 
 void APhotSimSettings::writeToJson(QJsonObject & json) const
 {
-    QJsonObject js;
-    WaveSet.writeToJson(js);
-    json["WaveResolved"] = js;
+    {
+        QJsonObject js;
+        WaveSet.writeToJson(js);
+        json["WaveResolved"] = js;
+    }
+
+    {
+        QJsonObject js;
+        OptSet.writeToJson(js);
+        json["Optimization"] = js;
+    }
+
 }
 
 void APhotSimSettings::readFromJson(const QJsonObject & json)
 {
-    QJsonObject js;
-    jstools::parseJson(json, "WaveResolved", js);
-    WaveSet.readFromJson(js);
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "WaveResolved", js);
+        WaveSet.readFromJson(js);
+    }
+
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Optimization", js);
+        OptSet.readFromJson(js);
+    }
+
 }
