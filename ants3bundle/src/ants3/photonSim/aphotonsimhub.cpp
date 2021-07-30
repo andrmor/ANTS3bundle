@@ -1,4 +1,5 @@
 #include "aphotonsimhub.h"
+#include "a3config.h"
 #include "ajsontools.h"
 
 #include <cmath>
@@ -182,7 +183,7 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
         else if (str == "custom")   PhotonNumberMode = EBombPhNumber::Custom;
         else
         {
-            qWarning() << "Unknown PhotonNumberMode:" << str << " replacing it with 'Constant'";
+            A3Config::getInstance().ErrorList << QString("Unknown PhotonNumberMode: %1 -> replacing with 'Constant'").arg(str);
             PhotonNumberMode = EBombPhNumber::Constant;
         }
     }
@@ -199,7 +200,7 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
         else if (str == "script") GenerationMode = EBombGen::Script;
         else
         {
-            qWarning() << "Unknown GenerationMode:" << str << " replacing it with 'Single'";
+            A3Config::getInstance().ErrorList << QString("Unknown GenerationMode: %1 -> replacing with 'Single'").arg(str);
             GenerationMode = EBombGen::Single;
         }
     }
@@ -297,7 +298,7 @@ void APhotonSimHub::readFromJson(const QJsonObject & json)
         else if (str == "lrf")  SimType = EPhotSimType::FromLRFs;
         else
         {
-            qWarning() << "Unknown photon simulation mode:" << str << "setting to 'bombs'";
+            A3Config::getInstance().ErrorList << QString("Unknown photon simulation mode: %1 -> setting to 'bombs'").arg(str);
             SimType = EPhotSimType::PhotonBombs;
         }
     }

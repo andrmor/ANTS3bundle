@@ -48,6 +48,8 @@ void A3Config::writeToJson(QJsonObject & json) const
 
 void A3Config::readFromJson(const QJsonObject & json)
 {
+    ErrorList.clear();
+
     // Materials
     {
         QJsonArray ar;

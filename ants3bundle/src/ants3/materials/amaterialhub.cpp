@@ -1,5 +1,5 @@
 #include "amaterialhub.h"
-//#include "ageneralsimsettings.h"
+#include "a3config.h"
 #include "aopticaloverride.h"
 #include "ajsontools.h"
 #include "acommonfunctions.h"
@@ -336,6 +336,12 @@ bool AMaterialHub::readFromJsonAr(const QJsonArray & ar)
         QJsonObject js = ar[i].toObject();
         addNewMaterial(true);
         Materials.back()->readFromJson(js);
+    }
+
+    if (Materials.empty())
+    {
+        A3Config::getInstance().ErrorList << "Materials are empty! Adding a dummy material";
+        addNewMaterial("Dummy", true);
     }
 
     emit materialsChanged();

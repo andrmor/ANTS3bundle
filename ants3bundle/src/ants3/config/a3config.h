@@ -26,13 +26,14 @@ private:
 public:
     // Geometry  config is handled by AGeometryHub  singleton
     // Material  config is handled by AMaterialHub  singleton
+    // InterfaceRules -> TODO
+    // SensorHub      -> TODO
 
-    // Simulation
-    // ->Particle sim
+    // ParticleSim    -> TODO
     // PhotonSim config is handled by APhotonSimHub singleton
 
     // Reconstruction
-    // ...
+    // AReconHub      -> TODO
 
     QStringList ErrorList;
 

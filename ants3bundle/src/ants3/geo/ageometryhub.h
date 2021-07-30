@@ -36,8 +36,6 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    QString ErrorString;
-
     std::vector<const AGeoObject*> MonitorsRecords;
     std::vector<AGridElementRecord*> GridRecords;
 

@@ -2,7 +2,7 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-//#include "amaterialparticlecolection.h"
+#include "a3config.h"
 #include "ajsontools.h"
 //#include "agridelementrecord.h"
 #include "ageoconsts.h"
@@ -899,16 +899,18 @@ void AGeometryHub::writeToJson(QJsonObject & json) const
 
 bool AGeometryHub::readFromJson(const QJsonObject & json)
 {
-    ErrorString.clear();
-
     QJsonArray arrGC;
     jstools::parseJson(json, "GeoConsts", arrGC);
     AGeoConsts::getInstance().readFromJsonArr(arrGC);
 
     QJsonArray arrTree;
     jstools::parseJson(json, "WorldTree", arrTree);
-    ErrorString = World->readAllFromJarr(World, arrTree);
-    if (!ErrorString.isEmpty()) return false;
+    QString Error = World->readAllFromJarr(World, arrTree);
+    if (!Error.isEmpty())
+    {
+        A3Config::getInstance().ErrorList << Error;
+        return false;
+    }
 
     //if config contained Prototypes, there are two protoypes objects in the geometry now!
     for (AGeoObject * obj : World->HostedObjects)
