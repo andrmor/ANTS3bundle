@@ -39,7 +39,7 @@ private slots:
     void on_ledSingleZ_editingFinished();
 
 private:
-    APhotSimSettings & SimSet;
+    APhotonSimHub & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
 
     void updatePhotBombGui();

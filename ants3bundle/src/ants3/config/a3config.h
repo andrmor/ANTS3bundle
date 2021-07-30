@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 class QJsonObject;
 
@@ -23,16 +24,17 @@ private:
     A3Config& operator=(A3Config&&)      = delete;
 
 public:
-    // Detector
-    // ->Geometry config is handled by A3Geometry singleton
-    // ->Material config is handled by A3MatHub   singleton
+    // Geometry config is handled by A3Geometry singleton
+    // Material config is handled by A3MatHub   singleton
 
     // Simulation
     // ->Particle sim
-    // ->Photon   sim
+    // Particle sim config is handled by APhotonSimHub singleton
 
     // Reconstruction
     // ...
+
+    QStringList ErrorList;
 
     // Temporary:
     QString     from = "b";
@@ -43,7 +45,6 @@ public:
     void readFromJson(const QJsonObject & json);
 
 signals:
-    void requestUpdateMaterialGui();
     void requestUpdateGeometryGui();
     void requestUpdatePhotSimGui();
 

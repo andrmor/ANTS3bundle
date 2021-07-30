@@ -226,18 +226,18 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
 
 // ---
 
-APhotSimSettings & APhotSimSettings::getInstance()
+APhotonSimHub & APhotonSimHub::getInstance()
 {
-    static APhotSimSettings instance;
+    static APhotonSimHub instance;
     return instance;
 }
 
-const APhotSimSettings &APhotSimSettings::getConstInstance()
+const APhotonSimHub &APhotonSimHub::getConstInstance()
 {
     return getInstance();
 }
 
-void APhotSimSettings::writeToJson(QJsonObject & json) const
+void APhotonSimHub::writeToJson(QJsonObject & json) const
 {
     {
         QJsonObject js;
@@ -273,7 +273,7 @@ void APhotSimSettings::writeToJson(QJsonObject & json) const
 
 }
 
-void APhotSimSettings::readFromJson(const QJsonObject & json)
+void APhotonSimHub::readFromJson(const QJsonObject & json)
 {
     {
         QJsonObject js;

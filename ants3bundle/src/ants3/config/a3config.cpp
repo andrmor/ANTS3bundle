@@ -37,7 +37,7 @@ void A3Config::writeToJson(QJsonObject & json) const
     // Photon simulation
     {
         QJsonObject js;
-        APhotSimSettings::getConstInstance().writeToJson(js);
+        APhotonSimHub::getConstInstance().writeToJson(js);
         json["PhotonSim"] = js;
     }
 
@@ -53,7 +53,6 @@ void A3Config::readFromJson(const QJsonObject & json)
         QJsonArray ar;
         jstools::parseJson(json, "Materials", ar);
         A3MatHub::getInstance().readFromJsonAr(ar);
-        emit requestUpdateMaterialGui();
     }
 
     // Geometry
@@ -68,7 +67,7 @@ void A3Config::readFromJson(const QJsonObject & json)
     {
         QJsonObject js;
         jstools::parseJson(json, "PhotonSim", js);
-        APhotSimSettings::getInstance().readFromJson(js);
+        APhotonSimHub::getInstance().readFromJson(js);
         emit requestUpdatePhotSimGui();
     }
 }

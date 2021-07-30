@@ -63,20 +63,20 @@ public:
 
 // ===
 
-class APhotSimSettings final
+class APhotonSimHub final
 {
 public:
-    static       APhotSimSettings & getInstance();
-    static const APhotSimSettings & getConstInstance();
+    static       APhotonSimHub & getInstance();
+    static const APhotonSimHub & getConstInstance();
 
 private:
-    APhotSimSettings(){}
-    ~APhotSimSettings(){}
+    APhotonSimHub(){}
+    ~APhotonSimHub(){}
 
-    APhotSimSettings(const APhotSimSettings&)            = delete;
-    APhotSimSettings(APhotSimSettings&&)                 = delete;
-    APhotSimSettings& operator=(const APhotSimSettings&) = delete;
-    APhotSimSettings& operator=(APhotSimSettings&&)      = delete;
+    APhotonSimHub(const APhotonSimHub&)            = delete;
+    APhotonSimHub(APhotonSimHub&&)                 = delete;
+    APhotonSimHub& operator=(const APhotonSimHub&) = delete;
+    APhotonSimHub& operator=(APhotonSimHub&&)      = delete;
 
 public:
     EPhotSimType         SimType = EPhotSimType::PhotonBombs;

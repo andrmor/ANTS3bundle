@@ -8,7 +8,7 @@
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
-    SimSet(APhotSimSettings::getInstance()),
+    SimSet(APhotonSimHub::getInstance()),
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);

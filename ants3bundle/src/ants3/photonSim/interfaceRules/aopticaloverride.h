@@ -10,7 +10,7 @@ class QJsonObject;
 class GraphWindowClass;
 class ATracerStateful;
 class QWidget;
-class APhotSimSettings;
+class APhotonSimHub;
 class AWaveResSettings;
 
 //  ----   !!!  ----
@@ -66,7 +66,7 @@ public:
     int getMaterialTo() const {return MatTo;}
 
 protected:
-    const APhotSimSettings & SimSet; // TODO: need?
+    const APhotonSimHub & SimSet; // TODO: need?
     const AWaveResSettings & WaveSet;
 
     A3MatHub * MatCollection;
