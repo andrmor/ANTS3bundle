@@ -1,70 +1,14 @@
 #ifndef APHOTONSIMHUB_H
 #define APHOTONSIMHUB_H
 
-#include <QVector> // TODO: std::vector !!!***
+#include "aphotonsimsettings.h"
 
-class QJsonObject;
+#include <QObject>
 
-enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
-enum class EBombPhNumber {Constant, Poisson, Uniform, Normal, Custom};
-enum class EBombGen      {Single, Grid, Flood, File, Script};
-
-class AWaveResSettings
+class APhotonSimHub final : public QObject
 {
-public:
-    bool   Enabled = false;
+    Q_OBJECT
 
-    double From = 200.0;  // in nm
-    double To   = 800.0;
-    double Step = 5.0;
-
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
-
-    int    countNodes() const;
-    double toWavelength(int index) const;
-    int    toIndex(double wavelength) const;   // TODO: compare with fast method!
-    int    toIndexFast(double wavelength) const; //not safe
-    // TODO: refactor 2 below:
-    void   toStandardBins(const QVector<double> *sp_x, const QVector<double> *sp_y, QVector<double>* y) const;
-
-private:
-    double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
-};
-
-class APhotOptSettings
-{
-public:
-    int    MaxPhotonTransitions = 500;
-    bool   CheckQeBeforeTracking   = false;
-
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
-};
-
-class APhotonBombsSettings
-{
-public:
-
-    // TODO reformat!
-
-    // Number of photons
-    EBombPhNumber       PhotonNumberMode = EBombPhNumber::Constant;
-
-    // generation type
-    EBombGen            GenerationMode   = EBombGen::Single;
-
-    // Single
-    double Position[3];
-
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
-};
-
-// ===
-
-class APhotonSimHub final
-{
 public:
     static       APhotonSimHub & getInstance();
     static const APhotonSimHub & getConstInstance();
@@ -79,15 +23,13 @@ private:
     APhotonSimHub& operator=(APhotonSimHub&&)      = delete;
 
 public:
-    EPhotSimType         SimType = EPhotSimType::PhotonBombs;
-
-    AWaveResSettings     WaveSet;
-    APhotOptSettings     OptSet;
-    APhotonBombsSettings BombSet;
+    APhotonSimSettings Settings;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
+signals:
+    void settingsChanged();
 };
 
 #endif // APHOTONSIMHUB_H

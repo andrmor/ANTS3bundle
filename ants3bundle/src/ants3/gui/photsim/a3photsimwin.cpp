@@ -1,5 +1,6 @@
 #include "a3photsimwin.h"
 #include "aphotonsimhub.h"
+#include "aphotonsimsettings.h"
 #include "ui_a3photsimwin.h"
 #include "a3config.h"
 #include "guitools.h"
@@ -8,7 +9,7 @@
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
-    SimSet(APhotonSimHub::getInstance()),
+    SimSet(APhotonSimHub::getInstance().Settings),
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);

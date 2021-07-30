@@ -9,7 +9,7 @@
 #endif
 
 AOpticalOverride::AOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo) :
-    SimSet(APhotonSimHub::getConstInstance()), WaveSet(SimSet.WaveSet),
+    SimSet(APhotonSimHub::getConstInstance()), WaveSet(SimSet.Settings.WaveSet),
     MatCollection(MatCollection), MatFrom(MatFrom), MatTo(MatTo) {}
 
 void AOpticalOverride::writeToJson(QJsonObject &json) const

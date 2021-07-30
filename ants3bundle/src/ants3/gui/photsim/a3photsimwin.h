@@ -1,7 +1,7 @@
 #ifndef A3PHOTSIMWIN_H
 #define A3PHOTSIMWIN_H
 
-#include "aphotonsimhub.h"
+#include "aphotonsimsettings.h"
 
 #include <QMainWindow>
 
@@ -39,7 +39,7 @@ private slots:
     void on_ledSingleZ_editingFinished();
 
 private:
-    APhotonSimHub & SimSet;
+    APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
 
     void updatePhotBombGui();

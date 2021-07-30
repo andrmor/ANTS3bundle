@@ -103,6 +103,8 @@ SOURCES += \
     dispatch/a3workdistrconfig.cpp \
     photonSim/acommonfunctions.cpp \
     photonSim/aphoton.cpp \
+    photonSim/aphotonsimmanager.cpp \
+    photonSim/aphotonsimsettings.cpp \
     photonSim/aroothistappenders.cpp \
     photonSim/asimulationstatistics.cpp \
     photonSim/atracerstateful.cpp \
@@ -170,6 +172,8 @@ HEADERS += \
     farm/a3farmnoderecord.h \
     photonSim/acommonfunctions.h \
     photonSim/aphoton.h \
+    photonSim/aphotonsimmanager.h \
+    photonSim/aphotonsimsettings.h \
     photonSim/aroothistappenders.h \
     photonSim/asimulationstatistics.h \
     photonSim/atracerstateful.h \
