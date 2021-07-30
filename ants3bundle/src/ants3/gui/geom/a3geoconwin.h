@@ -5,7 +5,7 @@
 
 #include <QMainWindow>
 
-class A3Geometry;
+class AGeometryHub;
 class AGeoTree;
 class AGeoObject;
 
@@ -49,7 +49,7 @@ private slots:
   void on_cbShowPrototypes_toggled(bool checked);
 
 private:
-  A3Geometry      & Geometry;
+  AGeometryHub      & Geometry;
 
   Ui::A3GeoConWin * ui    = nullptr;
   AGeoTree        * twGeo = nullptr;                // WorldTree widget

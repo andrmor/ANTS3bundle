@@ -1,4 +1,4 @@
-#include "a3mathub.h"
+#include "amaterialhub.h"
 //#include "ageneralsimsettings.h"
 #include "aopticaloverride.h"
 #include "ajsontools.h"
@@ -21,30 +21,30 @@
 
 #include <cmath>
 
-A3MatHub::A3MatHub() {}
+AMaterialHub::AMaterialHub() {}
 
-A3MatHub &A3MatHub::getInstance()
+AMaterialHub &AMaterialHub::getInstance()
 {
-    static A3MatHub instance;
+    static AMaterialHub instance;
     return instance;
 }
 
-const A3MatHub & A3MatHub::getConstInstance()
+const AMaterialHub & AMaterialHub::getConstInstance()
 {
     return getInstance();
 }
 
-A3MatHub::~A3MatHub()
+AMaterialHub::~AMaterialHub()
 {
     clearMaterials();
 }
 
-double A3MatHub::getDriftSpeed(int iMat) const
+double AMaterialHub::getDriftSpeed(int iMat) const
 {
     return 0.01 * Materials.at(iMat)->e_driftVelocity; //given in cm/us - returns in mm/ns
 }
 
-double A3MatHub::getDiffusionSigmaTime(int iMat, double length_mm) const
+double AMaterialHub::getDiffusionSigmaTime(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v^3)
     //https://doi.org/10.1016/j.nima.2016.01.094
@@ -57,7 +57,7 @@ double A3MatHub::getDiffusionSigmaTime(int iMat, double length_mm) const
     return sqrt(2.0 * d * length_mm / v) / v; // in ns
 }
 
-double A3MatHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
+double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v)
     const AMaterial * m = Materials.at(iMat);
@@ -81,20 +81,20 @@ void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *
 }
 */
 
-QString A3MatHub::getMaterialName(int matIndex) const
+QString AMaterialHub::getMaterialName(int matIndex) const
 {
     if (matIndex<0 || matIndex >= Materials.size()) return "";
     return Materials.at(matIndex)->name;
 }
 
-QStringList A3MatHub::getListOfMaterialNames() const
+QStringList AMaterialHub::getListOfMaterialNames() const
 {
     QStringList l;
     for (AMaterial * m : Materials) l << m->name;
     return l;
 }
 
-void A3MatHub::clearMaterials()
+void AMaterialHub::clearMaterials()
 {
     for (AMaterial * mat : Materials)
     {
@@ -106,7 +106,7 @@ void A3MatHub::clearMaterials()
     Materials.clear();
 }
 
-void A3MatHub::addNewMaterial(bool fSuppressChangedSignal)
+void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
     AMaterial * m = new AMaterial;
 
@@ -118,7 +118,7 @@ void A3MatHub::addNewMaterial(bool fSuppressChangedSignal)
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void A3MatHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
+void AMaterialHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
 {
     addNewMaterial(true);
     Materials.back()->name = name;
@@ -127,7 +127,7 @@ void A3MatHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
     if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void A3MatHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
+void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
 {
     if (imat < 0 || imat >= Materials.size())
     {
@@ -141,7 +141,7 @@ void A3MatHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
     tmpMaterial.readFromJson(js);
 }
 
-void A3MatHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
+void AMaterialHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
 {
     const QString name = tmpMaterial.name;
     int index = findMaterial(name);
@@ -164,7 +164,7 @@ void A3MatHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
     emit materialsChanged();
 }
 
-int A3MatHub::findMaterial(const QString & name) const
+int AMaterialHub::findMaterial(const QString & name) const
 {
     const int size = Materials.size();
 
@@ -285,19 +285,19 @@ void A3MatHub::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<doub
 }
 */
 
-QString A3MatHub::CheckMaterial(const AMaterial* mat) const
+QString AMaterialHub::CheckMaterial(const AMaterial* mat) const
 {
     if (!mat) return "nullptr material";
     return mat->checkMaterial();
 }
 
-QString A3MatHub::CheckMaterial(int iMat) const
+QString AMaterialHub::CheckMaterial(int iMat) const
 {
     if (iMat<0 || iMat>=Materials.size()) return "Wrong material index: " + QString::number(iMat);
     return CheckMaterial(Materials[iMat]);
 }
 
-bool A3MatHub::DeleteMaterial(int imat)
+bool AMaterialHub::DeleteMaterial(int imat)
 {
     int size = Materials.size();
     if (imat<0 || imat >= size)
@@ -315,7 +315,7 @@ bool A3MatHub::DeleteMaterial(int imat)
     return true;
 }
 
-void A3MatHub::writeToJsonAr(QJsonArray & ar) const
+void AMaterialHub::writeToJsonAr(QJsonArray & ar) const
 {
     ar = QJsonArray();
 
@@ -327,7 +327,7 @@ void A3MatHub::writeToJsonAr(QJsonArray & ar) const
     }
 }
 
-bool A3MatHub::readFromJsonAr(const QJsonArray & ar)
+bool AMaterialHub::readFromJsonAr(const QJsonArray & ar)
 {
     clearMaterials();
 
@@ -342,7 +342,7 @@ bool A3MatHub::readFromJsonAr(const QJsonArray & ar)
     return true;
 }
 
-void A3MatHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!
+void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!
 {
     addNewMaterial();
     AMaterial * mat = Materials.back();
@@ -353,7 +353,7 @@ void A3MatHub::addNewMaterial(QJsonObject & json) //have to be sure json is inde
     emit materialsChanged();
 }
 
-void A3MatHub::ensureMatNameIsUnique(AMaterial * mat)
+void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
 {
     QString name = mat->name;
     bool fFound;
@@ -376,7 +376,7 @@ void A3MatHub::ensureMatNameIsUnique(AMaterial * mat)
 }
 
 #include "ageoobject.h"
-void A3MatHub::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const
+void AMaterialHub::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const
 {
     for (int iM = 0; iM<Materials.size(); iM++)
     {

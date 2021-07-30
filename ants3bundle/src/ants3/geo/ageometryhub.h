@@ -1,5 +1,5 @@
-#ifndef A3GEOMETRY_H
-#define A3GEOMETRY_H
+#ifndef AGEOMETRYHUB_H
+#define AGEOMETRYHUB_H
 
 #include <QStringList>
 
@@ -15,19 +15,19 @@ class TGeoCombiTrans;
 class TGeoRotation;
 class QJsonObject;
 
-class A3Geometry
+class AGeometryHub
 {
 public:
-    static A3Geometry & getInstance();
+    static AGeometryHub & getInstance();
 
 private:
-    A3Geometry();
-    ~A3Geometry();
+    AGeometryHub();
+    ~AGeometryHub();
 
-    A3Geometry(const A3Geometry&)            = delete;
-    A3Geometry(A3Geometry&&)                 = delete;
-    A3Geometry& operator=(const A3Geometry&) = delete;
-    A3Geometry& operator=(A3Geometry&&)      = delete;
+    AGeometryHub(const AGeometryHub&)            = delete;
+    AGeometryHub(AGeometryHub&&)                 = delete;
+    AGeometryHub& operator=(const AGeometryHub&) = delete;
+    AGeometryHub& operator=(AGeometryHub&&)      = delete;
 
 public:
     AGeoObject  * World      = nullptr;  // world tree structure
@@ -107,4 +107,4 @@ private:
     void clearMonitorRecords();
 };
 
-#endif // A3GEOMETRY_H
+#endif // AGEOMETRYHUB_H

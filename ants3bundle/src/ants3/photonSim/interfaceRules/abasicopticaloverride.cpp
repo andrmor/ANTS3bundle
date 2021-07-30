@@ -1,7 +1,7 @@
 #include "abasicopticaloverride.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "atracerstateful.h"
 //#include "asimulationstatistics.h"
 #include "ajsontools.h"
@@ -20,7 +20,7 @@
 #include <QDoubleValidator>
 #endif
 
-ABasicOpticalOverride::ABasicOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
+ABasicOpticalOverride::ABasicOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AOpticalOverride::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)

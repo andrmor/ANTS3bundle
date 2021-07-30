@@ -2,7 +2,7 @@
 #include "ui_acameracontroldialog.h"
 #include "rasterwindowbaseclass.h"
 #include "guitools.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 
@@ -13,7 +13,7 @@
 #include "TView3D.h"
 
 ACameraControlDialog::ACameraControlDialog(RasterWindowBaseClass * RasterWin, QWidget * parent) :
-    QDialog(parent), RW(RasterWin), Geometry(A3Geometry::getInstance()),
+    QDialog(parent), RW(RasterWin), Geometry(AGeometryHub::getInstance()),
     ui(new Ui::ACameraControlDialog)
 {
     ui->setupUi(this);

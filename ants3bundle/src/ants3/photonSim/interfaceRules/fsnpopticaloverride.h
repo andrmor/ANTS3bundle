@@ -5,7 +5,7 @@
 
 #include <QString>
 
-class A3MatHub;
+class AMaterialHub;
 class ATracerStateful;
 class APhoton;
 class QJsonObject;
@@ -14,7 +14,7 @@ class GraphWindowClass;
 class FSNPOpticalOverride : public AOpticalOverride
 {
 public:
-  FSNPOpticalOverride(A3MatHub* MatCollection, int MatFrom, int MatTo)
+  FSNPOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
   virtual ~FSNPOpticalOverride() {}
 

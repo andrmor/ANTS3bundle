@@ -8,7 +8,7 @@
 class AScriptOpticalOverride : public AOpticalOverride
 {
 public:
-  AScriptOpticalOverride(A3MatHub* MatCollection, int MatFrom, int MatTo); // !!!***
+  AScriptOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo); // !!!***
   virtual ~AScriptOpticalOverride();
 
   OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

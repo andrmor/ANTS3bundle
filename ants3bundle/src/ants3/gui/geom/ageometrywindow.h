@@ -7,7 +7,7 @@
 //#include "aguiwindow.h"
 #include "TMathBase.h"
 
-class A3Geometry;
+class AGeometryHub;
 class ASimulationManager;
 class RasterWindowBaseClass;
 class QWebEngineView;
@@ -129,7 +129,7 @@ private slots:
     void on_pbCameraDialog_clicked();
 
 private:
-    A3Geometry         & Geometry;
+    AGeometryHub         & Geometry;
 
     Ui::AGeometryWindow * ui = nullptr;
     RasterWindowBaseClass * RasterWindow = nullptr;

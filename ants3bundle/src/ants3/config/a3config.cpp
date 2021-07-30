@@ -1,8 +1,8 @@
 #include "a3config.h"
 #include "ajsontools.h"
-#include "a3geometry.h"
-#include "a3mathub.h"
-#include "aphotsimsettings.h"
+#include "ageometryhub.h"
+#include "amaterialhub.h"
+#include "aphotonsimhub.h"
 
 #include <QDebug>
 
@@ -23,14 +23,14 @@ void A3Config::writeToJson(QJsonObject & json) const
     //Materials
     {
         QJsonArray ar;
-        A3MatHub::getInstance().writeToJsonAr(ar);
+        AMaterialHub::getInstance().writeToJsonAr(ar);
         json["Materials"] = ar;
     }
 
     //Geometry
     {
         QJsonObject js;
-        A3Geometry::getInstance().writeToJson(js);
+        AGeometryHub::getInstance().writeToJson(js);
         json["Geometry"] = js;
     }
 
@@ -52,14 +52,14 @@ void A3Config::readFromJson(const QJsonObject & json)
     {
         QJsonArray ar;
         jstools::parseJson(json, "Materials", ar);
-        A3MatHub::getInstance().readFromJsonAr(ar);
+        AMaterialHub::getInstance().readFromJsonAr(ar);
     }
 
     // Geometry
     {
         QJsonObject js;
         jstools::parseJson(json, "Geometry", js);
-        A3Geometry::getInstance().readFromJson(js);
+        AGeometryHub::getInstance().readFromJson(js);
         emit requestUpdateGeometryGui();
     }
 

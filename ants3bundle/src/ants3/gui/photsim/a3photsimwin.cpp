@@ -1,5 +1,5 @@
 #include "a3photsimwin.h"
-#include "aphotsimsettings.h"
+#include "aphotonsimhub.h"
 #include "ui_a3photsimwin.h"
 #include "a3config.h"
 #include "guitools.h"

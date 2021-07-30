@@ -6,7 +6,7 @@
 class TRandom2;
 class QScriptEngine;
 class QObject;
-class A3MatHub;
+class AMaterialHub;
 class AOpticalOverrideScriptInterface;
 class AMath_SI;
 

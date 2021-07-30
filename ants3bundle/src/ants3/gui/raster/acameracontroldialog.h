@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class RasterWindowBaseClass;
-class A3Geometry;
+class AGeometryHub;
 class QLineEdit;
 class QJsonObject;
 
@@ -53,7 +53,7 @@ protected:
 
 private:
     RasterWindowBaseClass * RW = nullptr;
-    const A3Geometry & Geometry;
+    const AGeometryHub & Geometry;
 
     Ui::ACameraControlDialog * ui;
 

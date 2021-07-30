@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QString>
 
-class A3Geometry;
-class A3MatHub;
+class AGeometryHub;
+class AMaterialHub;
 class AGeoTree;
 class AGeoObject;
 class AGeoShape;
@@ -28,8 +28,8 @@ public:
   QString getCurrentObjectName() const;
 
 private:
-  A3Geometry & Geometry;
-  A3MatHub & Materials;
+  AGeometryHub & Geometry;
+  AMaterialHub & Materials;
   AGeoTree  * tw = nullptr;
 
   AGeoObject       * CurrentObject = nullptr;

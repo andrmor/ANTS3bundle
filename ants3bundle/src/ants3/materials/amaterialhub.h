@@ -1,5 +1,5 @@
-#ifndef A3MATHUB_H
-#define A3MATHUB_H
+#ifndef AMATERIALHUB_H
+#define AMATERIALHUB_H
 
 #include "amaterial.h"
 
@@ -15,23 +15,23 @@ class ATracerStateful;
 class AGeoObject;
 class QJsonArray;
 
-class A3MatHub : public QObject
+class AMaterialHub : public QObject
 {
     Q_OBJECT
 
-    A3MatHub();
-    ~A3MatHub();
+    AMaterialHub();
+    ~AMaterialHub();
 
-    A3MatHub(const A3MatHub&)            = delete;
-    A3MatHub(A3MatHub&&)                 = delete;
-    A3MatHub& operator=(const A3MatHub&) = delete;
-    A3MatHub& operator=(A3MatHub&&)      = delete;
+    AMaterialHub(const AMaterialHub&)            = delete;
+    AMaterialHub(AMaterialHub&&)                 = delete;
+    AMaterialHub& operator=(const AMaterialHub&) = delete;
+    AMaterialHub& operator=(AMaterialHub&&)      = delete;
 
     std::vector<AMaterial*> Materials;
 
 public:
-    static       A3MatHub & getInstance();
-    static const A3MatHub & getConstInstance();
+    static       AMaterialHub & getInstance();
+    static const AMaterialHub & getConstInstance();
 
     void writeToJsonAr(QJsonArray & ar) const;
     bool readFromJsonAr(const QJsonArray & ar);
@@ -78,4 +78,4 @@ signals:
 
 };
 
-#endif // A3MATHUB_H
+#endif // AMATERIALHUB_H

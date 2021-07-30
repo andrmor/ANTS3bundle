@@ -3,8 +3,8 @@
 #include "a3scriptmanager.h"
 #include "a3dispinterface.h"
 #include "a3global.h"
-#include "a3geometry.h"
-#include "a3mathub.h"
+#include "ageometryhub.h"
+#include "amaterialhub.h"
 
 #ifdef GUI
     #include <QApplication>
@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
 
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
-    A3Geometry::getInstance().onStart();
-    A3MatHub::getInstance().addNewMaterial("Dummy", true);
+    AGeometryHub::getInstance().onStart();
+    AMaterialHub::getInstance().addNewMaterial("Dummy", true);
 
 #ifdef GUI
     if (argc == 1)
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         app->exec();
     }
 
-    A3Geometry::getInstance().aboutToQuit();
+    AGeometryHub::getInstance().aboutToQuit();
 
     return 0;
 }

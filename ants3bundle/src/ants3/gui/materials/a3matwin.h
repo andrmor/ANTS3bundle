@@ -6,8 +6,8 @@
 //#include "aguiwindow.h"
 #include <QMainWindow>
 
-class A3Geometry;
-class A3MatHub;
+class AGeometryHub;
+class AMaterialHub;
 class A3Global;
 class TGraph;
 class AChemicalElement;
@@ -91,8 +91,8 @@ private slots:
     void on_pbUpdateMaterial_clicked();
 
 private:
-    A3Geometry & Geometry;
-    A3MatHub   & MatHub;
+    AGeometryHub & Geometry;
+    AMaterialHub   & MatHub;
     A3Global   & GlobSet;
 
     Ui::A3MatWin * ui = nullptr;

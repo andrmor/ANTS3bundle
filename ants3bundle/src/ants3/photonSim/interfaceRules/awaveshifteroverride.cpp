@@ -1,11 +1,11 @@
 #include "awaveshifteroverride.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
 //#include "acommonfunctions.h"
-#include "aphotsimsettings.h"
+#include "aphotonsimhub.h"
 #include "ajsontools.h"
 #include "guitools.h"
 
@@ -32,7 +32,7 @@
 #include "TGraph.h"
 #endif
 
-AWaveshifterOverride::AWaveshifterOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
+AWaveshifterOverride::AWaveshifterOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AWaveshifterOverride::~AWaveshifterOverride()

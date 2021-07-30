@@ -1,5 +1,5 @@
-#ifndef APHOTSIMSETTINGS_H
-#define APHOTSIMSETTINGS_H
+#ifndef APHOTONSIMHUB_H
+#define APHOTONSIMHUB_H
 
 #include <QVector> // TODO: std::vector !!!***
 
@@ -90,4 +90,4 @@ public:
 
 };
 
-#endif // APHOTSIMSETTINGS_H
+#endif // APHOTONSIMHUB_H

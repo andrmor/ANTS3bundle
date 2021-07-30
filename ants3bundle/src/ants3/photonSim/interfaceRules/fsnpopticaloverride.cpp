@@ -1,7 +1,7 @@
 #include "fsnpopticaloverride.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
 #include "ajsontools.h"

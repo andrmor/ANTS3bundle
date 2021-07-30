@@ -5,7 +5,7 @@
 
 class AOpticalOverride;
 class APhoton;
-class A3MatHub;
+class AMaterialHub;
 class QJsonObject;
 class GraphWindowClass;
 class ATracerStateful;
@@ -15,7 +15,7 @@ class AWaveResSettings;
 
 //  ----   !!!  ----
 // modify these two functions if you want to register a new override type
-AOpticalOverride * OpticalOverrideFactory(QString model, A3MatHub* MatCollection, int MatFrom, int MatTo);
+AOpticalOverride * OpticalOverrideFactory(QString model, AMaterialHub* MatCollection, int MatFrom, int MatTo);
 const QStringList ListOvAllOpticalOverrideTypes();
 
 
@@ -31,7 +31,7 @@ public:
         Empty, Fresnel, Error
     }; //detailed status for statistics only - used by override tester only
 
-    AOpticalOverride(A3MatHub* MatCollection, int MatFrom, int MatTo);
+    AOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
     virtual ~AOpticalOverride() {}
 
     virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
@@ -69,7 +69,7 @@ protected:
     const APhotonSimHub & SimSet; // TODO: need?
     const AWaveResSettings & WaveSet;
 
-    A3MatHub * MatCollection;
+    AMaterialHub * MatCollection;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 };
 

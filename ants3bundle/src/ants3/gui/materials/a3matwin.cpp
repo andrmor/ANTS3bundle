@@ -1,10 +1,10 @@
 #include "a3matwin.h"
 #include "ui_a3matwin.h"
 #include "mainwindow.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 //#include "graphwindowclass.h"
 //#include "windownavigatorclass.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "a3global.h"
 #include "ajsontools.h"
 #include "afiletools.h"
@@ -42,8 +42,8 @@
 
 A3MatWin::A3MatWin(QWidget * parent) :
     QMainWindow(parent), //AGuiWindow("mat", parent),
-    Geometry(A3Geometry::getInstance()),
-    MatHub(A3MatHub::getInstance()),
+    Geometry(AGeometryHub::getInstance()),
+    MatHub(AMaterialHub::getInstance()),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::A3MatWin)
 {
@@ -65,7 +65,7 @@ A3MatWin::A3MatWin(QWidget * parent) :
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
-    connect(&MatHub, &A3MatHub::materialsChanged, this, &A3MatWin::onMaterialsChanged);
+    connect(&MatHub, &AMaterialHub::materialsChanged, this, &A3MatWin::onMaterialsChanged);
 }
 
 A3MatWin::~A3MatWin()

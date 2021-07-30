@@ -1,7 +1,7 @@
 #include "TCanvas.h"
 #include "ageometrywindow.h"
 #include "ui_ageometrywindow.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "rasterwindowbaseclass.h"
 #include "a3global.h"
 #include "ajsontools.h"
@@ -33,7 +33,7 @@
 
 AGeometryWindow::AGeometryWindow(QWidget *parent) :
     //AGuiWindow("geometry", parent)
-    QMainWindow(parent), Geometry(A3Geometry::getInstance()),
+    QMainWindow(parent), Geometry(AGeometryHub::getInstance()),
     ui(new Ui::AGeometryWindow)
 {    
     ui->setupUi(this);

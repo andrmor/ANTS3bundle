@@ -1,6 +1,6 @@
 #include "ageodelegatewidget.h"
-#include "a3geometry.h"
-#include "a3mathub.h"
+#include "ageometryhub.h"
+#include "amaterialhub.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageoobject.h"
@@ -24,8 +24,8 @@
 #include <vector>
 
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
-  Geometry(A3Geometry::getInstance()),
-  Materials(A3MatHub::getInstance()),
+  Geometry(AGeometryHub::getInstance()),
+  Materials(AMaterialHub::getInstance()),
   tw(tw)
 {
   lMain = new QVBoxLayout(this);

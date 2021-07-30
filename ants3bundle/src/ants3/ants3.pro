@@ -59,8 +59,10 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     anodesettingsdialog.cpp \
+    config/aphotonsimhub.cpp \
+    geo/ageometryhub.cpp \
+    materials/amaterialhub.cpp \
     photonSim/amonitorconfig.cpp \
-    geo/a3geometry.cpp \
     geo/ageoobject.cpp \
     geo/ageoshape.cpp \
     geo/ageotype.cpp \
@@ -89,7 +91,6 @@ SOURCES += \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
     js/a3scriptres.cpp \
-    materials/a3mathub.cpp \
     materials/achemicalelement.cpp \
     materials/aisotope.cpp \
     materials/aisotopeabundancehandler.cpp \
@@ -114,7 +115,6 @@ SOURCES += \
     photonSim/interfaceRules/fsnpopticaloverride.cpp \
     photonSim/interfaceRules/scatteronmetal.cpp \
     photonSim/interfaceRules/spectralbasicopticaloverride.cpp \
-    config/aphotsimsettings.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
@@ -125,8 +125,10 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     anodesettingsdialog.h \
+    config/aphotonsimhub.h \
+    geo/ageometryhub.h \
+    materials/amaterialhub.h \
     photonSim/amonitorconfig.h \
-    geo/a3geometry.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
     geo/ageotype.h \
@@ -155,7 +157,6 @@ HEADERS += \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
     js/a3scriptres.h \
-    materials/a3mathub.h \
     materials/achemicalelement.h \
     materials/aisotope.h \
     materials/aisotopeabundancehandler.h \
@@ -181,7 +182,6 @@ HEADERS += \
     photonSim/interfaceRules/fsnpopticaloverride.h \
     photonSim/interfaceRules/scatteronmetal.h \
     photonSim/interfaceRules/spectralbasicopticaloverride.h \
-    config/aphotsimsettings.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \

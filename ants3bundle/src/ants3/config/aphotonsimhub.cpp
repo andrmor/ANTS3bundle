@@ -1,4 +1,4 @@
-#include "aphotsimsettings.h"
+#include "aphotonsimhub.h"
 #include "ajsontools.h"
 
 #include <cmath>

@@ -1,5 +1,5 @@
 #include "aopticaloverride.h"
-#include "aphotsimsettings.h"
+#include "aphotonsimhub.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -8,7 +8,7 @@
 #include <QFrame>
 #endif
 
-AOpticalOverride::AOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo) :
+AOpticalOverride::AOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo) :
     SimSet(APhotonSimHub::getConstInstance()), WaveSet(SimSet.WaveSet),
     MatCollection(MatCollection), MatFrom(MatFrom), MatTo(MatTo) {}
 
@@ -41,7 +41,7 @@ QWidget *AOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
 #include "scatteronmetal.h"
 #include "ascriptopticaloverride.h"
 
-AOpticalOverride *OpticalOverrideFactory(QString model, A3MatHub *MatCollection, int MatFrom, int MatTo)
+AOpticalOverride *OpticalOverrideFactory(QString model, AMaterialHub *MatCollection, int MatFrom, int MatTo)
 {
     if (model == "Simplistic" || model == "Simplistic_model")
         return new ABasicOpticalOverride(MatCollection, MatFrom, MatTo);

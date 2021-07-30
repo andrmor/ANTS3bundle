@@ -1,5 +1,5 @@
 #include "ascriptopticaloverride.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "atracerstateful.h"
 #include "aopticaloverridescriptinterface.h"
 //#include "amath_si.h"
@@ -22,7 +22,7 @@
 #include <QDebug>
 #include <QJsonObject>
 
-AScriptOpticalOverride::AScriptOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
+AScriptOpticalOverride::AScriptOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
     : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
 
 AScriptOpticalOverride::~AScriptOpticalOverride() {}

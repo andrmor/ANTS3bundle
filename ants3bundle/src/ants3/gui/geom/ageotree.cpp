@@ -1,5 +1,5 @@
 #include "ageotree.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "ageobasetreewidget.h"
 #include "ageodelegatewidget.h"
 #include "ageobasedelegate.h"
@@ -37,7 +37,7 @@
 #include "TGeoShape.h"
 
 AGeoTree::AGeoTree() :
-    QObject(), Geometry(A3Geometry::getInstance()), World(Geometry.World), Prototypes(Geometry.Prototypes)
+    QObject(), Geometry(AGeometryHub::getInstance()), World(Geometry.World), Prototypes(Geometry.Prototypes)
 {
     loadImages();
 
@@ -1443,7 +1443,7 @@ void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()
     UpdateGui(CurrentObjName);
 }
 
-#include "a3mathub.h"
+#include "amaterialhub.h"
 QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMaterials, bool usePython) const
 {
     QVector<QString> posStrs; posStrs.reserve(3);
@@ -1458,7 +1458,7 @@ QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMate
         oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
-    const QStringList MatNames = A3MatHub::getInstance().getListOfMaterialNames();
+    const QStringList MatNames = AMaterialHub::getInstance().getListOfMaterialNames();
 
     QString str = QString("geo.TGeo( ") +
             "'" + obj->Name + "', " +

@@ -7,7 +7,7 @@
 #include <QString>
 #include <QVector>
 
-class A3MatHub;
+class AMaterialHub;
 class ATracerStateful;
 class APhoton;
 class QJsonObject;
@@ -17,7 +17,7 @@ class QPushButton;
 class SpectralBasicOpticalOverride : public ABasicOpticalOverride
 {
 public:
-  SpectralBasicOpticalOverride(A3MatHub* MatCollection, int MatFrom, int MatTo);
+  SpectralBasicOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
   ~SpectralBasicOpticalOverride() {}
 
   OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

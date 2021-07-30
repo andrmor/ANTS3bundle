@@ -1,6 +1,6 @@
 #include "a3geoconwin.h"
 #include "ui_a3geoconwin.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "mainwindow.h"
 //#include "checkupwindowclass.h"
 
@@ -41,7 +41,7 @@
 #include "TGeoCompositeShape.h"
 
 A3GeoConWin::A3GeoConWin(QWidget * parent) :
-  QMainWindow(parent), Geometry(A3Geometry::getInstance()),
+  QMainWindow(parent), Geometry(AGeometryHub::getInstance()),
   ui(new Ui::A3GeoConWin)
 {
   ui->setupUi(this);
@@ -536,7 +536,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
 
 
 void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
-                       A3MatHub* mp, const QString PMtemplate,
+                       AMaterialHub* mp, const QString PMtemplate,
                        TGeoNavigator* navi, TString path)
 {
     obj->Name = node->GetName();

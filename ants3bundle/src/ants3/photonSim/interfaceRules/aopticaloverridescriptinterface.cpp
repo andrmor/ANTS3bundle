@@ -1,6 +1,6 @@
 #include "aopticaloverridescriptinterface.h"
 #include "aphoton.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "asimulationstatistics.h"
 
 #include <QDebug>

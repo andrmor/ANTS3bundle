@@ -1,7 +1,7 @@
 #ifndef A3PHOTSIMWIN_H
 #define A3PHOTSIMWIN_H
 
-#include "aphotsimsettings.h"
+#include "aphotonsimhub.h"
 
 #include <QMainWindow>
 

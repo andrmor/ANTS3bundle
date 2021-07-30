@@ -8,7 +8,7 @@
 #include "a3particlesimmanager.h"
 #include "a3geoconwin.h"
 #include "ageometrywindow.h"
-#include "a3geometry.h"
+#include "ageometryhub.h"
 #include "a3matwin.h"
 #include "a3photsimwin.h"
 
@@ -27,7 +27,7 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     ui->leFrom->setText(Config.from);
     ui->leTo->setText(Config.to);
 
-    A3Geometry::getInstance().populateGeoManager();
+    AGeometryHub::getInstance().populateGeoManager();
 
     GeoConWin = new A3GeoConWin(this);
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
@@ -53,10 +53,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-#include "a3geometry.h"
+#include "ageometryhub.h"
 void MainWindow::onRebuildGeometryRequested()
 {
-    A3Geometry & geom = A3Geometry::getInstance();
+    AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoConWin->updateGui();
     GeoWin->ShowGeometry();

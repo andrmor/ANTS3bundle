@@ -24,12 +24,12 @@ private:
     A3Config& operator=(A3Config&&)      = delete;
 
 public:
-    // Geometry config is handled by A3Geometry singleton
-    // Material config is handled by A3MatHub   singleton
+    // Geometry  config is handled by AGeometryHub  singleton
+    // Material  config is handled by AMaterialHub  singleton
 
     // Simulation
     // ->Particle sim
-    // Particle sim config is handled by APhotonSimHub singleton
+    // PhotonSim config is handled by APhotonSimHub singleton
 
     // Reconstruction
     // ...

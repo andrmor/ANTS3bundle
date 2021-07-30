@@ -1,5 +1,5 @@
 #include "scatteronmetal.h"
-#include "a3mathub.h"
+#include "amaterialhub.h"
 #include "aphoton.h"
 #include "asimulationstatistics.h"
 #include "atracerstateful.h"

@@ -2,8 +2,8 @@
 
 #include "aphoton.h"
 #include "amaterial.h"
-#include "a3mathub.h"
-#include "aphotsimsettings.h"
+#include "amaterialhub.h"
+#include "aphotonsimhub.h"
 #include "atracerstateful.h"
 #include "asimulationstatistics.h"
 #include "acommonfunctions.h"
@@ -34,7 +34,7 @@
 #include <QPushButton>
 #endif
 
-SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(A3MatHub *MatCollection, int MatFrom, int MatTo)
+SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
     : ABasicOpticalOverride(MatCollection, MatFrom, MatTo)
 {
     Wave << 500;
