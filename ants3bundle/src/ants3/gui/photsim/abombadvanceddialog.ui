@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ANodeSettingsDialog</class>
- <widget class="QDialog" name="ANodeSettingsDialog">
+ <class>ABombAdvancedDialog</class>
+ <widget class="QDialog" name="ABombAdvancedDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -802,12 +802,6 @@ Changes</string>
         </layout>
        </item>
       </layout>
-      <zorder>cbCND_Enable</zorder>
-      <zorder>swCND_Mode</zorder>
-      <zorder>fCND_RangeAndBins</zorder>
-      <zorder>cobCND_Mode</zorder>
-      <zorder>pbCND_applyChanges</zorder>
-      <zorder>pbCND_help</zorder>
      </widget>
     </widget>
    </item>
