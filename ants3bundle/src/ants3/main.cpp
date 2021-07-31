@@ -1,5 +1,4 @@
 #include "a3particlesimmanager.h"
-#include "aphotonsimmanager.h"
 #include "a3scriptres.h"
 #include "a3scriptmanager.h"
 #include "a3dispinterface.h"
@@ -57,11 +56,9 @@ int main(int argc, char *argv[])
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &A3DispInterface::aboutToQuit);
 
     A3ParticleSimManager * PSM      = new A3ParticleSimManager(&(*app));
-    APhotonSimManager    * PhSimMan = new APhotonSimManager(&(*app));
 
     A3ScriptRes ScrRes;
     ScrRes.ParticleSim = PSM;
-    ScrRes.PhotonSim   = PhSimMan;
 
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
