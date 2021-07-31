@@ -3,7 +3,6 @@
 
 #include <QString>
 
-class AMaterialParticleCollection;
 
 class APhotonHistoryLog
 {
@@ -19,7 +18,7 @@ public:
                   };
 
 public:
-    APhotonHistoryLog(double * Position, const QString & volumeName, double Time, int iWave, NodeType process, int MatIndex = -1, int MatIndexAfter = -1, int number = -1);
+    APhotonHistoryLog(const double * Position, const QString & volumeName, double Time, int iWave, NodeType process, int MatIndex = -1, int MatIndexAfter = -1, int number = -1);
     APhotonHistoryLog() : process(Undefined), iWave(-1) {}
 
     NodeType process;

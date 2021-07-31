@@ -91,15 +91,17 @@ private:
     double c_in_vac = 2.997925e2; //speed of light in mm/ns
 
     enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
-    inline AbsRayEnum AbsorptionAndRayleigh();
-    inline double CalculateReflectionCoefficient();
-    inline void PMwasHit(int PMnumber);
-    inline bool PerformRefraction(double nn);
-    inline void PerformReflection();
-    inline void RandomDir();
-    inline bool GridWasHit(int GridNumber);
-    inline void ReturnFromGridShift();
-    inline void AppendTrack();
-    inline void AppendHistoryRecord();
+    AbsRayEnum AbsorptionAndRayleigh();
+    double CalculateReflectionCoefficient();
+    void PMwasHit(int PMnumber);
+    bool PerformRefraction(double nn);
+    void PerformReflection();
+    void RandomDir();
+    bool GridWasHit(int GridNumber);
+    void ReturnFromGridShift();
+    void AppendTrack();
+    void AppendHistoryRecord();
+
+    void sendToPhotonLog(double * pos, const QString & volumeName, double time, int iWave, APhotonHistoryLog::NodeType process, int matFrom = -1, int matTo = -1, int iSensor = -1);
 };
 #endif // APHOTONTRACER_H

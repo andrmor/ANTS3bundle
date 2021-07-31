@@ -1,7 +1,7 @@
 #include "aphotonhistorylog.h"
 #include "amaterialhub.h"
 
-APhotonHistoryLog::APhotonHistoryLog(double *Position, const QString &volumeName,
+APhotonHistoryLog::APhotonHistoryLog(const double * Position, const QString & volumeName,
                                      double Time,
                                      int iWave,
                                      APhotonHistoryLog::NodeType node,

@@ -16,14 +16,14 @@ INCLUDEPATH += ../ants3/photonSim
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
-        ../ants3/materials/amaterial.cpp \
-        ../ants3/materials/amaterialcomposition.cpp \
-        ../ants3/materials/amaterialhub.cpp \
-        ../ants3/photonSim/aphotonsimsettings.cpp \
-        ../ants3/photonSim/asimulationstatistics.cpp \
-        aphotonhistorylog.cpp \
-        aphoton.cpp \
-        aphotontracer.cpp \
+#        ../ants3/materials/amaterial.cpp \
+#        ../ants3/materials/amaterialcomposition.cpp \
+#        ../ants3/materials/amaterialhub.cpp \
+#        ../ants3/photonSim/aphotonsimsettings.cpp \
+#        ../ants3/photonSim/asimulationstatistics.cpp \
+#        aphotonhistorylog.cpp \
+#        aphoton.cpp \
+#        aphotontracer.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -32,11 +32,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../ants3/materials/amaterial.h \
-    ../ants3/materials/amaterialcomposition.h \
-    ../ants3/materials/amaterialhub.h \
-    ../ants3/photonSim/aphotonsimsettings.h \
-    ../ants3/photonSim/asimulationstatistics.h \
-    aphotonhistorylog.h \
-    aphoton.h \
-    aphotontracer.h
+#    ../ants3/materials/amaterial.h \
+#    ../ants3/materials/amaterialcomposition.h \
+#    ../ants3/materials/amaterialhub.h \
+#    ../ants3/photonSim/aphotonsimsettings.h \
+#    ../ants3/photonSim/asimulationstatistics.h \
+#    aphotonhistorylog.h \
+#    aphoton.h \
+#    aphotontracer.h

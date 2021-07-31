@@ -69,9 +69,12 @@ public:
 
     QString FileNameSensorSignals;
 
-    bool    SaveTracks;
+    bool    SaveTracks = true;
     int     MaxTracks;
     QString FileNameTracks;
+
+    bool    SavePhotonLog = true;
+    QString FileNamePhotonLog;
 
     void    writeToJson(QJsonObject & json) const;
     void    readFromJson(const QJsonObject & json);

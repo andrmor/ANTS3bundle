@@ -146,8 +146,8 @@ bool APhotonSimHub::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan,
             }
 
             // standard output file names TODO: selective using ouput control!
-            WorkSet.RunSet.FileNameSensorSignal = QString("signals-%0").arg(iProcess);
-            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignal);
+            WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
+            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
             WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
             Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
 
