@@ -5,13 +5,10 @@
 
 class AInterfaceRule;
 class APhoton;
-class AMaterialHub;
 class QJsonObject;
 class GraphWindowClass;
 class ATracerStateful;
 class QWidget;
-class APhotonSimHub;
-class AWaveResSettings;
 
 //  ----  !!!  ----
 // modify these two functions if you want to register a new override type
@@ -45,8 +42,8 @@ public:
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data
 
     // save/load config
-    virtual void writeToJson(QJsonObject &json) const;
-    virtual bool readFromJson(const QJsonObject &json);
+    virtual void writeToJson(QJsonObject & json) const;
+    virtual bool readFromJson(const QJsonObject & json);
 
     //used by MatCollection when a material is removed
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
@@ -66,10 +63,6 @@ public:
     int getMaterialTo() const {return MatTo;}
 
 protected:
-    const APhotonSimHub & SimSet; // TODO: need?
-    const AWaveResSettings & WaveSet;
-
-    AMaterialHub * MatCollection;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 };
 

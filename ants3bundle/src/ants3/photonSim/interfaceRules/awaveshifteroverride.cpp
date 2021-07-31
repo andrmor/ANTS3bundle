@@ -33,7 +33,7 @@
 #endif
 
 AWaveshifterOverride::AWaveshifterOverride(int MatFrom, int MatTo)
-    : AInterfaceRule(MatFrom, MatTo) {}
+    : AInterfaceRule(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet) {}
 
 AWaveshifterOverride::~AWaveshifterOverride()
 {

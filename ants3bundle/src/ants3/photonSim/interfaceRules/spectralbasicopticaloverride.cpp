@@ -35,7 +35,7 @@
 #endif
 
 SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(int MatFrom, int MatTo)
-    : ABasicOpticalOverride(MatFrom, MatTo)
+    : ABasicOpticalOverride(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet)
 {
     Wave << 500;
     ProbLoss << 0;

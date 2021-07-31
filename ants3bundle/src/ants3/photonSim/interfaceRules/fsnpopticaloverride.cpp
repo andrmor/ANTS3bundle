@@ -31,8 +31,9 @@ AInterfaceRule::OpticalOverrideResultEnum FSNPOpticalOverride::calculate(ATracer
   // of s-(perpendicular) and p-(parallel) polarized waves are/may be reflected.
 
   //refractive indexes of materials before and after the interface
-  double n1 = (*MatCollection)[MatFrom]->getRefractiveIndex(Photon->waveIndex);
-  double n2 = (*MatCollection)[MatTo]->getRefractiveIndex(Photon->waveIndex);
+  const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+  double n1 = MatHub[MatFrom]->getRefractiveIndex(Photon->waveIndex);
+  double n2 = MatHub[MatTo]->getRefractiveIndex(Photon->waveIndex);
 
   //angle of incidence
   double cos1 = 0;

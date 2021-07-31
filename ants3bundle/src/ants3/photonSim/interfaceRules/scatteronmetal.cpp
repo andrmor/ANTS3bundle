@@ -137,7 +137,8 @@ double ScatterOnMetal::calculateReflectivity(double CosTheta, double RealN, doub
 
   double SinTheta = (CosTheta < 0.9999999) ? sqrt(1.0 - CosTheta*CosTheta) : 0;
 //  TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/(N*N));
-  double nFrom = (*MatCollection)[MatFrom]->getRefractiveIndex(waveIndex);
+  const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+  double nFrom = MatHub[MatFrom]->getRefractiveIndex(waveIndex);
   TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/ (N*N/nFrom/nFrom) );
 
 //  TComplex rs = (CosTheta - N*CosPhi) / (CosTheta + N*CosPhi);

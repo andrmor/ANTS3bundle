@@ -1,5 +1,6 @@
 #include "ainterfacerule.h"
 #include "aphotonsimhub.h"
+#include "amaterialhub.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -9,8 +10,7 @@
 #endif
 
 AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
-    SimSet(APhotonSimHub::getConstInstance()), WaveSet(SimSet.Settings.WaveSet),
-    MatCollection(MatCollection), MatFrom(MatFrom), MatTo(MatTo) {}
+    MatFrom(MatFrom), MatTo(MatTo) {}
 
 void AInterfaceRule::writeToJson(QJsonObject &json) const
 {
