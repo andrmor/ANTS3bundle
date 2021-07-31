@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "a3scriptmanager.h"
+#include "a3dispinterface.h"
 #include "a3scriptres.h"
 #include "a3config.h"
 #include "guitools.h"
@@ -19,6 +20,9 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    A3DispInterface & Dispatcher = A3DispInterface::getInstance();
+    connect(&Dispatcher, &A3DispInterface::updateProgress, this, &MainWindow::onProgressReceived);
 
     connect(&SM, &A3ScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
     connect(ScrRes.ParticleSim, &A3ParticleSimManager::simFinished, this, &MainWindow::onParticleSimulationFinsihed);

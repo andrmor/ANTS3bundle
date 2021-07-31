@@ -36,7 +36,7 @@ public:
     void waitForReply();
 
 public slots:
-    void stop();
+    void aboutToQuit();
 
 private slots:
     void onProgressReceived(double progress);

@@ -27,7 +27,7 @@ A3DispInterface::A3DispInterface() : QObject(nullptr)
     connect(Dispatcher, &A3Dispatcher::updateProgress, this,       &A3DispInterface::onProgressReceived, Qt::QueuedConnection);
 }
 
-void A3DispInterface::stop()
+void A3DispInterface::aboutToQuit()
 {
     qDebug() << "AboutToExit for DispInterface";
     //emit sendMessage("$$EXIT\n");

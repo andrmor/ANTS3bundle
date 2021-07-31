@@ -53,9 +53,8 @@ int main(int argc, char *argv[])
     A3Global & GlobSet = A3Global::getInstance();
     GlobSet.configureDirectories();
 
-    A3DispInterface & Dispatch = A3DispInterface::getInstance();
-    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatch, &A3DispInterface::stop);
-    //Dispatch->start();
+    A3DispInterface & Dispatcher = A3DispInterface::getInstance();
+    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &A3DispInterface::aboutToQuit);
 
     A3ParticleSimManager * PSM      = new A3ParticleSimManager(&(*app));
     APhotonSimManager    * PhSimMan = new APhotonSimManager(&(*app));
@@ -73,7 +72,6 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         MainWindow * w = new MainWindow(*SM, ScrRes);
-        QObject::connect(&Dispatch, &A3DispInterface::updateProgress, w, &MainWindow::onProgressReceived);
         w->show();
         int res = app->exec();
         delete w;
