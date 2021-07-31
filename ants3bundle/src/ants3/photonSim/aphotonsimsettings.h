@@ -67,7 +67,10 @@ public:
     int     EventFrom;
     int     EventTo;
 
-    QString FileNameSensorSignal;
+    QString FileNameSensorSignals;
+
+    bool    SaveTracks;
+    int     MaxTracks;
     QString FileNameTracks;
 
     void    writeToJson(QJsonObject & json) const;

@@ -188,7 +188,6 @@ void A3PhotSimWin::on_ledSingleY_editingFinished()
     SimSet.BombSet.Position[1] = ui->ledSingleY->text().toDouble();
 }
 
-
 void A3PhotSimWin::on_ledSingleZ_editingFinished()
 {
     SimSet.BombSet.Position[2] = ui->ledSingleZ->text().toDouble();
