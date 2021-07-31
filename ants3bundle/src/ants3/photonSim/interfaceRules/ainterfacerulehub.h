@@ -9,23 +9,23 @@
 class AOpticalOverride;
 class QJsonObject;
 
-class A3OptIntHub : public QObject
+class AInterfaceRuleHub : public QObject
 {
     Q_OBJECT
 
-    explicit A3OptIntHub();
-    ~A3OptIntHub(){}
+    explicit AInterfaceRuleHub();
+    ~AInterfaceRuleHub(){}
 
-    A3OptIntHub(const A3OptIntHub&)            = delete;
-    A3OptIntHub(A3OptIntHub&&)                 = delete;
-    A3OptIntHub& operator=(const A3OptIntHub&) = delete;
-    A3OptIntHub& operator=(A3OptIntHub&&)      = delete;
+    AInterfaceRuleHub(const AInterfaceRuleHub&)            = delete;
+    AInterfaceRuleHub(AInterfaceRuleHub&&)                 = delete;
+    AInterfaceRuleHub& operator=(const AInterfaceRuleHub&) = delete;
+    AInterfaceRuleHub& operator=(AInterfaceRuleHub&&)      = delete;
 
 public:
-    static       A3OptIntHub & getInstance();
-    static const A3OptIntHub & getConstInstance();
+    static       AInterfaceRuleHub & getInstance();
+    static const AInterfaceRuleHub & getConstInstance();
 
-    std::vector<std::vector<AOpticalOverride*>> OpticalOverrides; // [fromMatIndex][toMatIndex]      nullptr -> override not defined
+    std::vector<std::vector<AOpticalOverride*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 
     void updateWaveResolvedProperties();
 

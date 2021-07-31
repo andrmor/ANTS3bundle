@@ -1,22 +1,19 @@
-#include "a3optinthub.h"
+#include "ainterfacerulehub.h"
 
-A3OptIntHub::A3OptIntHub()
+AInterfaceRuleHub::AInterfaceRuleHub(){}
+
+AInterfaceRuleHub &AInterfaceRuleHub::getInstance()
 {
-
-}
-
-A3OptIntHub &A3OptIntHub::getInstance()
-{
-    static A3OptIntHub instance;
+    static AInterfaceRuleHub instance;
     return instance;
 }
 
-const A3OptIntHub &A3OptIntHub::getConstInstance()
+const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
 {
     return getInstance();
 }
 
-void A3OptIntHub::updateWaveResolvedProperties()
+void AInterfaceRuleHub::updateWaveResolvedProperties()
 {
     /*
     for (int ior=0; ior<Materials[imat]->OpticalOverrides.size(); ior++)
@@ -25,7 +22,7 @@ void A3OptIntHub::updateWaveResolvedProperties()
     */
 }
 
-void A3OptIntHub::writeToJson(QJsonObject &json) const
+void AInterfaceRuleHub::writeToJson(QJsonObject &json) const
 {
     /*
     QJsonArray oar;
@@ -41,7 +38,7 @@ void A3OptIntHub::writeToJson(QJsonObject &json) const
     */
 }
 
-void A3OptIntHub::readFromJson(const QJsonObject &json)
+void AInterfaceRuleHub::readFromJson(const QJsonObject &json)
 {
     /*
     //reading overrides if present
@@ -69,7 +66,7 @@ void A3OptIntHub::readFromJson(const QJsonObject &json)
     */
 }
 
-QString A3OptIntHub::checkAll()
+QString AInterfaceRuleHub::checkAll()
 {
     /*
     for (const AMaterial * mat : Materials)
@@ -84,12 +81,12 @@ QString A3OptIntHub::checkAll()
     return "";
 }
 
-void A3OptIntHub::onNewMaterialAdded()
+void AInterfaceRuleHub::onNewMaterialAdded()
 {
 
 }
 
-void A3OptIntHub::onMaterialDeleted(size_t iMat)
+void AInterfaceRuleHub::onMaterialDeleted(size_t iMat)
 {
     /*
     //clear overrides from other materials to this one
