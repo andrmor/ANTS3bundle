@@ -16,7 +16,7 @@ class A3ParticleSimManager : public QObject
     Q_OBJECT
 
 public:
-    A3ParticleSimManager(A3DispInterface & Dispatch, QObject * parent);
+    A3ParticleSimManager(QObject * parent);
     ~A3ParticleSimManager();
 
     QString ResultsFileName = "simresult.txt";

@@ -1,4 +1,5 @@
 #include "a3particlesimmanager.h"
+#include "aphotonsimmanager.h"
 #include "a3scriptres.h"
 #include "a3scriptmanager.h"
 #include "a3dispinterface.h"
@@ -52,14 +53,16 @@ int main(int argc, char *argv[])
     A3Global & GlobSet = A3Global::getInstance();
     GlobSet.configureDirectories();
 
-    A3DispInterface * Dispatch = new A3DispInterface(&(*app));
-    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, Dispatch, &A3DispInterface::stop);
+    A3DispInterface & Dispatch = A3DispInterface::getInstance();
+    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatch, &A3DispInterface::stop);
     //Dispatch->start();
 
-    A3ParticleSimManager * PSM = new A3ParticleSimManager(*Dispatch, &(*app));
+    A3ParticleSimManager * PSM      = new A3ParticleSimManager(&(*app));
+    APhotonSimManager    * PhSimMan = new APhotonSimManager(&(*app));
 
     A3ScriptRes ScrRes;
     ScrRes.ParticleSim = PSM;
+    ScrRes.PhotonSim   = PhSimMan;
 
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
@@ -70,7 +73,7 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         MainWindow * w = new MainWindow(*SM, ScrRes);
-        QObject::connect(Dispatch, &A3DispInterface::updateProgress, w, &MainWindow::onProgressReceived);
+        QObject::connect(&Dispatch, &A3DispInterface::updateProgress, w, &MainWindow::onProgressReceived);
         w->show();
         int res = app->exec();
         delete w;

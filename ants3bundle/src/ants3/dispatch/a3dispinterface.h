@@ -18,9 +18,18 @@ class A3DispInterface : public QObject
     Q_OBJECT
 
 public:
-    A3DispInterface(QObject * parent = nullptr);
+    static A3DispInterface & getInstance();
+
+private:
+    A3DispInterface();
     ~A3DispInterface();
 
+    A3DispInterface(const A3DispInterface&)            = delete;
+    A3DispInterface(A3DispInterface&&)                 = delete;
+    A3DispInterface& operator=(const A3DispInterface&) = delete;
+    A3DispInterface& operator=(A3DispInterface&&)      = delete;
+
+public:
     QString prepareRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
 
     QString performTask(const A3WorkDistrConfig & Request);

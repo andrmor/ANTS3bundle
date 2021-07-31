@@ -12,8 +12,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-A3ParticleSimManager::A3ParticleSimManager(A3DispInterface & Dispatch, QObject * parent) :
-    QObject(parent), Dispatch(Dispatch) {}
+A3ParticleSimManager::A3ParticleSimManager(QObject * parent) :
+    QObject(parent), Dispatch(A3DispInterface::getInstance()) {}
 
 A3ParticleSimManager::~A3ParticleSimManager()
 {

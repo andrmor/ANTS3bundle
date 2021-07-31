@@ -9,15 +9,15 @@
 
 #include <QDebug>
 
-APhotonSimManager::APhotonSimManager(A3DispInterface & Dispatch, QObject * parent) :
-    QObject(parent), Dispatch(Dispatch)
+APhotonSimManager::APhotonSimManager(QObject * parent) :
+    QObject(parent), Dispatch(A3DispInterface::getInstance())
 {
 
 }
 
 APhotonSimManager::~APhotonSimManager()
 {
-
+    qDebug() << "Destr for PhotonSimManager";
 }
 
 bool APhotonSimManager::simulate(int numLocalProc)

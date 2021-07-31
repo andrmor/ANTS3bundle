@@ -12,8 +12,13 @@
 
 #include <cmath>
 
-A3DispInterface::A3DispInterface(QObject *parent) :
-    QObject(parent)
+A3DispInterface & A3DispInterface::getInstance()
+{
+    static A3DispInterface instance;
+    return instance;
+}
+
+A3DispInterface::A3DispInterface() : QObject(nullptr)
 {
     //connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
     Dispatcher = new A3Dispatcher(0);

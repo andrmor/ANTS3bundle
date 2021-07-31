@@ -13,7 +13,7 @@ class APhotonSimManager : public QObject
     Q_OBJECT
 
 public:
-    APhotonSimManager(A3DispInterface & Dispatch, QObject * parent);
+    APhotonSimManager(QObject * parent);
     ~APhotonSimManager();
 
     QString ResultsFileName = "simresult.txt";
