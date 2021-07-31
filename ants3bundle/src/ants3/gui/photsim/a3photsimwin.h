@@ -38,6 +38,8 @@ private slots:
 
     void on_ledSingleZ_editingFinished();
 
+    void on_pbSimulate_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;

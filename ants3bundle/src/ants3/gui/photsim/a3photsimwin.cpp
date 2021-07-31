@@ -194,3 +194,12 @@ void A3PhotSimWin::on_ledSingleZ_editingFinished()
     SimSet.BombSet.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
+void A3PhotSimWin::on_pbSimulate_clicked()
+{
+    ui->progbSim->setValue(0);
+    //disableInterface(true);
+    qApp->processEvents();
+
+    APhotonSimHub::getInstance().simulate();
+}
+
