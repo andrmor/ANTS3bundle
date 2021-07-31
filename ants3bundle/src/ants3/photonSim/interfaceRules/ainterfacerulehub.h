@@ -1,5 +1,5 @@
-#ifndef A3OPTINTHUB_H
-#define A3OPTINTHUB_H
+#ifndef AINTERFACERULEHUB_H
+#define AINTERFACERULEHUB_H
 
 #include <QObject>
 #include <QString>
@@ -40,4 +40,4 @@ public slots:
 
 };
 
-#endif // A3OPTINTHUB_H
+#endif // AINTERFACERULEHUB_H
