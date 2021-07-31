@@ -3,6 +3,7 @@
 #include "a3dispinterface.h"
 #include "aphotonsimhub.h"
 #include "a3global.h"
+#include "a3config.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 
@@ -23,16 +24,30 @@ bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";
     ErrorString.clear();
-    //A3Global & GlobSet = A3Global::getInstance();
-    if (numLocalProc < 0) numLocalProc = 4;
 
     int numEvents = 0;
-    APhotonSimHub & SimSet = APhotonSimHub::getInstance();
-    switch (SimSet.Settings.SimType)
+    const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
+    switch (SimSet.SimType)
     {
     case EPhotSimType::PhotonBombs :
-        numEvents = 1;
+        switch (SimSet.BombSet.GenerationMode)
+        {
+        case EBombGen::Single :
+            // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
+            numEvents = 1;
+            break;
+        default:
+            ErrorString = "Not yet implemented!";
+            return false;
+        }
         break;
+    case EPhotSimType::FromLRFs :
+        {
+            // direct calculation here!
+            // ...
+            emit simFinished();
+            return true;
+        }
     default:
         ErrorString = "Not yet implemented!";
         return false;
@@ -44,6 +59,10 @@ bool APhotonSimManager::simulate(int numLocalProc)
         return false;
     }
 
+    // configure number of lical/remote processes to run
+    //A3Global & GlobSet = A3Global::getInstance();
+    if (numLocalProc < 0) numLocalProc = 4;
+
     std::vector<A3FarmNodeRecord> RunPlan;
     QString err = Dispatch.prepareRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
@@ -52,7 +71,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
         return false;
     }
     qDebug() << "Obtained run plan over local/farm nodes:";
-    for (A3FarmNodeRecord & r : RunPlan) qDebug() << r.Address << r.Split;
+    for (A3FarmNodeRecord & r : RunPlan) qDebug() << "--->" << r.Address << r.Split;
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
@@ -77,7 +96,7 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
 {
     Request.Command = "photonsim"; // name of the corresponding executable
 
-    APhotonSimHub & SimSet = APhotonSimHub::getInstance();
+    const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
 
@@ -94,42 +113,53 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
         {
             if (num == 0) break;
 
-            A3NodeWorkerConfig worker;
+            A3NodeWorkerConfig Worker;
+            APhotonSimSettings WorkSet;
 
-            switch (SimSet.Settings.SimType)
+            switch (SimSet.SimType)
             {
             case EPhotSimType::PhotonBombs :
-                //APhotonSimSettings LocalSet = SimSet.Settings;
+                switch (SimSet.BombSet.GenerationMode)
+                {
+                case EBombGen::Single :
+                    // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = 0;
+                    WorkSet.RunSet.EventTo   = 1;
+                    break;
+                default:
+                    ErrorString = "Not yet implemented!";
+                    return false;
+                }
                 break;
             default:
                 qDebug() << "Not yet implemented!";
                 return false;
             }
-/*
-            QString text;
-            for (int i=0; i<num; i++)
-                text += Events[iEvent++] + '\n';
 
+            // standard output file names TODO: selective using ouput control!
+            WorkSet.RunSet.FileNameSensorSignal = QString("signals-%0").arg(iProcess);
+            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignal);
+            WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
+            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
+
+            // config
+            QString ConfigFN = QString("config-%0.json").arg(iProcess);
+            QJsonObject jsSim;
+            WorkSet.writeToJson(jsSim);
+            QJsonObject json;
+            A3Config::getInstance().formConfigForPhotonSimulation(jsSim, json);
+            jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
+            Worker.ConfigFile = ConfigFN;
+
+/*
             QString inputFN =  QString("data-%0.txt").arg(iProcess);
             ftools::saveTextToFile(text, ExchangeDir + '/' + inputFN);
-            worker.InputFiles.push_back(inputFN);
-
-            QJsonObject json;
-            json["ID"]     = iProcess;
-            json["Input"]  = inputFN;
-            QString outputFN = QString("output-%0.txt").arg(iProcess);
-            json["Output"] = outputFN;
-            json["From"]   = Config.from;
-            json["To"]     = Config.to;
-            worker.OutputFiles.push_back(outputFN);
+            Worker.InputFiles.push_back(inputFN);
             OutputFiles.push_back(ExchangeDir + '/' + outputFN);
-
-            QString configFN = QString("config-%0.json").arg(iProcess);
-            jstools::saveJsonToFile(json, ExchangeDir + '/' + configFN);
-            worker.ConfigFile = configFN;
 */
 
-            nc.Workers.push_back(worker);
+            nc.Workers.push_back(Worker);
             iProcess++;
         }
         Request.Nodes.push_back(nc);

@@ -227,6 +227,26 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
 
 // ---
 
+void APhotSimRunSettings::writeToJson(QJsonObject & json) const
+{
+    json["EventFrom"] = EventFrom;
+    json["EventTo"]   = EventTo;
+
+    json["FileNameSensorSignal"] = FileNameSensorSignal;
+    json["FileNameTracks"]       = FileNameTracks;
+}
+
+void APhotSimRunSettings::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "EventFrom", EventFrom);
+    jstools::parseJson(json, "EventTo",   EventTo);
+
+    jstools::parseJson(json, "FileNameSensorSignal", FileNameSensorSignal);
+    jstools::parseJson(json, "FileNameTracks",       FileNameTracks);
+}
+
+// ---
+
 void APhotonSimSettings::writeToJson(QJsonObject & json) const
 {
     {

@@ -61,6 +61,19 @@ public:
     void   readFromJson(const QJsonObject & json);
 };
 
+class APhotSimRunSettings
+{
+public:
+    int     EventFrom;
+    int     EventTo;
+
+    QString FileNameSensorSignal;
+    QString FileNameTracks;
+
+    void    writeToJson(QJsonObject & json) const;
+    void    readFromJson(const QJsonObject & json);
+};
+
 // ===
 
 class APhotonSimSettings
@@ -72,6 +85,8 @@ public:
 
     AWaveResSettings     WaveSet;
     APhotOptSettings     OptSet;
+
+    APhotSimRunSettings  RunSet;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

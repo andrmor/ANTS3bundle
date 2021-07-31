@@ -20,19 +20,11 @@ A3Config::A3Config()
 
 void A3Config::writeToJson(QJsonObject & json) const
 {
-    //Materials
-    {
-        QJsonArray ar;
-        AMaterialHub::getInstance().writeToJsonAr(ar);
-        json["Materials"] = ar;
-    }
+    writeMaterials(json);
+    writeGeometry (json);
 
-    //Geometry
-    {
-        QJsonObject js;
-        AGeometryHub::getInstance().writeToJson(js);
-        json["Geometry"] = js;
-    }
+    // interfaces
+    // sensors
 
     // Photon simulation
     {
@@ -72,5 +64,30 @@ void A3Config::readFromJson(const QJsonObject & json)
         APhotonSimHub::getInstance().readFromJson(js);
         emit requestUpdatePhotSimGui();
     }
+}
+
+void A3Config::formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json)
+{
+    writeMaterials(json);
+    writeGeometry (json);
+
+    // interfaces
+    // sensors
+
+    json["PhotonSim"] = jsSim;
+}
+
+void A3Config::writeMaterials(QJsonObject & json) const
+{
+    QJsonArray ar;
+    AMaterialHub::getInstance().writeToJsonAr(ar);
+    json["Materials"] = ar;
+}
+
+void A3Config::writeGeometry(QJsonObject & json) const
+{
+    QJsonObject js;
+    AGeometryHub::getInstance().writeToJson(js);
+    json["Geometry"] = js;
 }
 
