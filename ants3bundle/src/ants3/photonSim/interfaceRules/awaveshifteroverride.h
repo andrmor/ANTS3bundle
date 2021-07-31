@@ -1,7 +1,7 @@
 #ifndef AWAVESHIFTEROVERRIDE_H
 #define AWAVESHIFTEROVERRIDE_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 
 #include <QString>
 #include <QVector>
@@ -14,10 +14,10 @@ class GraphWindowClass;
 class TH1D;
 class QPushButton;
 
-class AWaveshifterOverride : public AOpticalOverride
+class AWaveshifterOverride : public AInterfaceRule
 {
 public:
-  AWaveshifterOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
+  AWaveshifterOverride(int MatFrom, int MatTo);
   virtual ~AWaveshifterOverride();
 
   void initializeWaveResolved() override;

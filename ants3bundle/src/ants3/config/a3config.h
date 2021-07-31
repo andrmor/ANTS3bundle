@@ -24,9 +24,9 @@ private:
     A3Config& operator=(A3Config&&)      = delete;
 
 public:
-    // Geometry  config is handled by AGeometryHub  singleton
-    // Material  config is handled by AMaterialHub  singleton
-    // InterfaceRules -> TODO
+    // Geometry config is handled by AGeometryHub    singleton
+    // Material config is handled by AMaterialHub    singleton
+    // Optical interface rules    -> AOpticalRileHub singleton
     // SensorHub      -> TODO
 
     // ParticleSim    -> TODO
@@ -48,12 +48,14 @@ public:
     void formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json);
 
 private:
-    void writeMaterials(QJsonObject & json) const;
-    void writeGeometry (QJsonObject & json) const;
+    void writeMaterials (QJsonObject & json) const;
+    void writeGeometry  (QJsonObject & json) const;
+    void writeInterRules(QJsonObject & json) const;
 
 signals:
     void requestUpdateGeometryGui();
     void requestUpdatePhotSimGui();
+    void requestUpdateInterfaceRuleGui();
 
 };
 

@@ -20,10 +20,10 @@
 #include <QDoubleValidator>
 #endif
 
-ABasicOpticalOverride::ABasicOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
-    : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
+ABasicOpticalOverride::ABasicOpticalOverride(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo) {}
 
-AOpticalOverride::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     double rnd = Resources.RandGen->Rndm();
 
@@ -167,7 +167,7 @@ const QString ABasicOpticalOverride::getLongReportLine() const
 
 void ABasicOpticalOverride::writeToJson(QJsonObject &json) const
 {
-    AOpticalOverride::writeToJson(json);
+    AInterfaceRule::writeToJson(json);
 
     json["Abs"]  = probLoss;
     json["Spec"] = probRef;

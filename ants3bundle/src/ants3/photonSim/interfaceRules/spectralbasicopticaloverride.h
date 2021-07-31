@@ -1,7 +1,7 @@
 #ifndef SPECTRALBASICOPTICALOVERRIDE_H
 #define SPECTRALBASICOPTICALOVERRIDE_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 #include "abasicopticaloverride.h"
 
 #include <QString>
@@ -17,7 +17,7 @@ class QPushButton;
 class SpectralBasicOpticalOverride : public ABasicOpticalOverride
 {
 public:
-  SpectralBasicOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
+  SpectralBasicOpticalOverride(int MatFrom, int MatTo);
   ~SpectralBasicOpticalOverride() {}
 
   OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

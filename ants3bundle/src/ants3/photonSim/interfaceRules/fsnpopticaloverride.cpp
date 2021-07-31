@@ -19,7 +19,7 @@
 #include <QDoubleValidator>
 #endif
 
-AOpticalOverride::OpticalOverrideResultEnum FSNPOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum FSNPOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
   // Angular reflectance: fraction of light reflected at the interface bewteen
   // medium 1 and medium 2 assuming non-polarized incident light:
@@ -104,7 +104,7 @@ const QString FSNPOpticalOverride::getLongReportLine() const
 
 void FSNPOpticalOverride::writeToJson(QJsonObject &json) const
 {
-  AOpticalOverride::writeToJson(json);
+  AInterfaceRule::writeToJson(json);
 
   json["Albedo"] = Albedo;
 }

@@ -1,4 +1,4 @@
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 #include "aphotonsimhub.h"
 
 #include <QDebug>
@@ -8,24 +8,24 @@
 #include <QFrame>
 #endif
 
-AOpticalOverride::AOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo) :
+AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
     SimSet(APhotonSimHub::getConstInstance()), WaveSet(SimSet.Settings.WaveSet),
     MatCollection(MatCollection), MatFrom(MatFrom), MatTo(MatTo) {}
 
-void AOpticalOverride::writeToJson(QJsonObject &json) const
+void AInterfaceRule::writeToJson(QJsonObject &json) const
 {
     json["Model"] = getType();
     json["MatFrom"] = MatFrom;
     json["MatTo"] = MatTo;
 }
 
-bool AOpticalOverride::readFromJson(const QJsonObject &)
+bool AInterfaceRule::readFromJson(const QJsonObject &)
 {
     return true;
 }
 
 #ifdef GUI
-QWidget *AOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
+QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 {
     QFrame* f = new QFrame();
     f->setFrameStyle(QFrame::Box);
@@ -41,25 +41,25 @@ QWidget *AOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
 #include "scatteronmetal.h"
 #include "ascriptopticaloverride.h"
 
-AOpticalOverride *OpticalOverrideFactory(QString model, AMaterialHub *MatCollection, int MatFrom, int MatTo)
+AInterfaceRule * interfaceRuleFactory(const QString &model, int MatFrom, int MatTo)
 {
     if (model == "Simplistic" || model == "Simplistic_model")
-        return new ABasicOpticalOverride(MatCollection, MatFrom, MatTo);
+        return new ABasicOpticalOverride(MatFrom, MatTo);
     if (model == "SimplisticSpectral" || model == "SimplisticSpectral_model")
-        return new SpectralBasicOpticalOverride(MatCollection, MatFrom, MatTo);
+        return new SpectralBasicOpticalOverride(MatFrom, MatTo);
     else if (model == "DielectricToMetal")
-        return new ScatterOnMetal(MatCollection, MatFrom, MatTo);
+        return new ScatterOnMetal(MatFrom, MatTo);
     else if (model == "FSNP" || model == "FS_NP" || model=="Neves_model")
-        return new FSNPOpticalOverride(MatCollection, MatFrom, MatTo);
+        return new FSNPOpticalOverride(MatFrom, MatTo);
     else if (model == "SurfaceWLS")
-        return new AWaveshifterOverride(MatCollection, MatFrom, MatTo);
-    else if (model == "CustomScript")
-        return new AScriptOpticalOverride(MatCollection, MatFrom, MatTo);
+        return new AWaveshifterOverride(MatFrom, MatTo);
+//    else if (model == "CustomScript")
+//        return new AScriptOpticalOverride(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
 }
 
-const QStringList ListOvAllOpticalOverrideTypes()
+const QStringList getAllInterfaceRuleTypes()
 {
     QStringList l;
 
@@ -67,9 +67,8 @@ const QStringList ListOvAllOpticalOverrideTypes()
       << "SimplisticSpectral"
       << "FSNP"
       << "DielectricToMetal"
-      << "ClaudioModel"
-      << "SurfaceWLS"
-      << "CustomScript";
+      << "SurfaceWLS";
+//      << "CustomScript";
 
     return l;
 }

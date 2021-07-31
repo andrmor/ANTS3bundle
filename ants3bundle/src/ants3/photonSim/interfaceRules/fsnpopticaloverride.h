@@ -1,7 +1,7 @@
 #ifndef FSNPOPTICALOVERRIDE_H
 #define FSNPOPTICALOVERRIDE_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 
 #include <QString>
 
@@ -11,11 +11,11 @@ class APhoton;
 class QJsonObject;
 class GraphWindowClass;
 
-class FSNPOpticalOverride : public AOpticalOverride
+class FSNPOpticalOverride : public AInterfaceRule
 {
 public:
-  FSNPOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo)
-    : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
+  FSNPOpticalOverride(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo) {}
   virtual ~FSNPOpticalOverride() {}
 
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

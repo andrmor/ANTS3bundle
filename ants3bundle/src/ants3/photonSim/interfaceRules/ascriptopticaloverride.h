@@ -1,14 +1,14 @@
 #ifndef ASCRIPTOPTICALOVERRIDE_H
 #define ASCRIPTOPTICALOVERRIDE_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 
 #include <QString>
 
-class AScriptOpticalOverride : public AOpticalOverride
+class AScriptOpticalOverride : public AInterfaceRule
 {
 public:
-  AScriptOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo); // !!!***
+  AScriptOpticalOverride(int MatFrom, int MatTo);
   virtual ~AScriptOpticalOverride();
 
   OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

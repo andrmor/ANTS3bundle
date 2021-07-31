@@ -3,7 +3,7 @@
 #include "amaterial.h"
 #include "amaterialhub.h"
 #include "aphotonsimsettings.h"
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 #include "asimulationstatistics.h"
 #include "aoneevent.h"
 #include "agridelementrecord.h"
@@ -237,7 +237,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         //qDebug()<<"coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
 
         //-----Checking overrides-----
-        AOpticalOverride* ov = MaterialFrom->OpticalOverrides[MatIndexTo];
+        AInterfaceRule* ov = MaterialFrom->OpticalOverrides[MatIndexTo];
         if (ov)
         {
             //qDebug() << "Overrides defined! Model = "<<ov->getType();
@@ -245,19 +245,19 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
             fHaveNormal = true;
             const double* PhPos = Navigator->GetCurrentPoint();
             for (int i=0; i<3; i++) p->r[i] = PhPos[i];
-            AOpticalOverride::OpticalOverrideResultEnum result = ov->calculate(*ResourcesForOverrides, p, N);
+            AInterfaceRule::OpticalOverrideResultEnum result = ov->calculate(*ResourcesForOverrides, p, N);
             if (bAbort) return;
 
             switch (result)
             {
-            case AOpticalOverride::Absorbed:
+            case AInterfaceRule::Absorbed:
                 //qDebug() << "-Override: absorption triggered";
                 Navigator->PopDummy(); //clean up the stack
                 if (SimSet.RunSet.SavePhotonLog)
                     PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
                 OneEvent->SimStat->OverrideLoss++;
                 goto force_stop_tracing; //finished with this photon
-            case AOpticalOverride::Back:
+            case AInterfaceRule::Back:
                 //qDebug() << "-Override: photon bounced back";
                 Navigator->PopPoint();  //remaining in the original volume
                 Navigator->SetCurrentDirection(p->v); //updating direction
@@ -265,14 +265,14 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                     PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
                 OneEvent->SimStat->OverrideBack++;
                 continue; //send to the next iteration
-            case AOpticalOverride::Forward:
+            case AInterfaceRule::Forward:
                 Navigator->SetCurrentDirection(p->v); //updating direction
                 fDoFresnel = false; //stack cleaned afterwards
                 if (SimSet.RunSet.SavePhotonLog)
                     PhLog.append( APhotonHistoryLog(PhPos, nameTo, p->time, p->waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
                 OneEvent->SimStat->OverrideForward++;
                 break; //switch break
-            case AOpticalOverride::NotTriggered:
+            case AInterfaceRule::NotTriggered:
                 fDoFresnel = true;
                 break; //switch break
             default:

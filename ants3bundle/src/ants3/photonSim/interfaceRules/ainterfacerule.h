@@ -1,9 +1,9 @@
-#ifndef OPTICALOVERRIDECLASS_H
-#define OPTICALOVERRIDECLASS_H
+#ifndef AINTERFACERULE_H
+#define AINTERFACERULE_H
 
 #include <QString>
 
-class AOpticalOverride;
+class AInterfaceRule;
 class APhoton;
 class AMaterialHub;
 class QJsonObject;
@@ -13,13 +13,13 @@ class QWidget;
 class APhotonSimHub;
 class AWaveResSettings;
 
-//  ----   !!!  ----
+//  ----  !!!  ----
 // modify these two functions if you want to register a new override type
-AOpticalOverride * OpticalOverrideFactory(QString model, AMaterialHub* MatCollection, int MatFrom, int MatTo);
-const QStringList ListOvAllOpticalOverrideTypes();
+AInterfaceRule * interfaceRuleFactory(const QString & model, int MatFrom, int MatTo);
+const QStringList getAllInterfaceRuleTypes();
 
 
-class AOpticalOverride
+class AInterfaceRule
 {
 public:
     enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, _Error_}; //return status for photon tracing:
@@ -31,8 +31,8 @@ public:
         Empty, Fresnel, Error
     }; //detailed status for statistics only - used by override tester only
 
-    AOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
-    virtual ~AOpticalOverride() {}
+    AInterfaceRule(int MatFrom, int MatTo);
+    virtual ~AInterfaceRule() {}
 
     virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
@@ -73,4 +73,4 @@ protected:
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 };
 
-#endif // OPTICALOVERRIDECLASS_H
+#endif // AINTERFACERULE_H

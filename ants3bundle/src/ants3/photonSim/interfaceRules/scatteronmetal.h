@@ -1,7 +1,7 @@
 #ifndef SCATTERONMETAL_H
 #define SCATTERONMETAL_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 
 class APhoton;
 class TRandom2;
@@ -9,11 +9,11 @@ class AMaterialHub;
 class QJsonObject;
 class ATracerStateful;
 
-class ScatterOnMetal : public AOpticalOverride
+class ScatterOnMetal : public AInterfaceRule
 {
 public:    
-  ScatterOnMetal(AMaterialHub* MatCollection, int MatFrom, int MatTo)
-    : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
+  ScatterOnMetal(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo) {}
   virtual ~ScatterOnMetal() {}
 
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

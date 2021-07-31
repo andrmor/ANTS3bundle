@@ -22,12 +22,12 @@
 #include <QDebug>
 #include <QJsonObject>
 
-AScriptOpticalOverride::AScriptOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
-    : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
+AScriptOpticalOverride::AScriptOpticalOverride(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo) {}
 
 AScriptOpticalOverride::~AScriptOpticalOverride() {}
 
-AOpticalOverride::OpticalOverrideResultEnum AScriptOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AScriptOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
 /*
     Resources.overrideInterface->configure(Photon, NormalVector, MatFrom, MatTo);
@@ -52,7 +52,7 @@ const QString AScriptOpticalOverride::getLongReportLine() const
 
 void AScriptOpticalOverride::writeToJson(QJsonObject &json) const
 {
-    AOpticalOverride::writeToJson(json);
+    AInterfaceRule::writeToJson(json);
 
     json["Script"] = Script;
 }

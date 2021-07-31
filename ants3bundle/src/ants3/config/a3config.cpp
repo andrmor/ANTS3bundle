@@ -3,6 +3,7 @@
 #include "ageometryhub.h"
 #include "amaterialhub.h"
 #include "aphotonsimhub.h"
+#include "ainterfacerulehub.h"
 
 #include <QDebug>
 
@@ -20,10 +21,9 @@ A3Config::A3Config()
 
 void A3Config::writeToJson(QJsonObject & json) const
 {
-    writeMaterials(json);
-    writeGeometry (json);
-
-    // interfaces
+    writeMaterials (json);
+    writeGeometry  (json);
+    writeInterRules(json);
     // sensors
 
     // Photon simulation
@@ -57,6 +57,14 @@ void A3Config::readFromJson(const QJsonObject & json)
         emit requestUpdateGeometryGui();
     }
 
+    // Optical Interface Rules
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "InterfaceRules", js);
+        AInterfaceRuleHub::getInstance().readFromJson(js);
+        emit requestUpdateInterfaceRuleGui();
+    }
+
     // Photon simulation
     {
         QJsonObject js;
@@ -68,10 +76,9 @@ void A3Config::readFromJson(const QJsonObject & json)
 
 void A3Config::formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json)
 {
-    writeMaterials(json);
-    writeGeometry (json);
-
-    // interfaces
+    writeMaterials (json);
+    writeGeometry  (json);
+    writeInterRules(json);
     // sensors
 
     json["PhotonSim"] = jsSim;
@@ -89,5 +96,12 @@ void A3Config::writeGeometry(QJsonObject & json) const
     QJsonObject js;
     AGeometryHub::getInstance().writeToJson(js);
     json["Geometry"] = js;
+}
+
+void A3Config::writeInterRules(QJsonObject & json) const
+{
+    QJsonObject js;
+    AInterfaceRuleHub::getInstance().writeToJson(js);
+    json["InterfaceRules"] = js;
 }
 

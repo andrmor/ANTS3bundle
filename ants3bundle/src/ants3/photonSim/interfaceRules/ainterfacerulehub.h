@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class AOpticalOverride;
+class AInterfaceRule;
 class QJsonObject;
 
 class AInterfaceRuleHub : public QObject
@@ -25,7 +25,7 @@ public:
     static       AInterfaceRuleHub & getInstance();
     static const AInterfaceRuleHub & getConstInstance();
 
-    std::vector<std::vector<AOpticalOverride*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
+    std::vector<std::vector<AInterfaceRule*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 
     void updateWaveResolvedProperties();
 

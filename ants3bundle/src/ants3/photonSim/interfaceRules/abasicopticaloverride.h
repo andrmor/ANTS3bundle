@@ -1,7 +1,7 @@
 #ifndef ABASICOPTICALOVERRIDE_H
 #define ABASICOPTICALOVERRIDE_H
 
-#include "aopticaloverride.h"
+#include "ainterfacerule.h"
 
 #include <QString>
 
@@ -11,10 +11,10 @@ class APhoton;
 class QJsonObject;
 class GraphWindowClass;
 
-class ABasicOpticalOverride : public AOpticalOverride
+class ABasicOpticalOverride : public AInterfaceRule
 {
 public:
-  ABasicOpticalOverride(AMaterialHub* MatCollection, int MatFrom, int MatTo);
+  ABasicOpticalOverride(int MatFrom, int MatTo);
   virtual ~ABasicOpticalOverride() {}
 
   virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved

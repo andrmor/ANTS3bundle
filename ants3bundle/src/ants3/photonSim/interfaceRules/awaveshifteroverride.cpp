@@ -32,12 +32,12 @@
 #include "TGraph.h"
 #endif
 
-AWaveshifterOverride::AWaveshifterOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
-    : AOpticalOverride(MatCollection, MatFrom, MatTo) {}
+AWaveshifterOverride::AWaveshifterOverride(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo) {}
 
 AWaveshifterOverride::~AWaveshifterOverride()
 {
-    if (Spectrum) delete Spectrum;
+    delete Spectrum;
 }
 
 void AWaveshifterOverride::initializeWaveResolved()
@@ -66,7 +66,7 @@ void AWaveshifterOverride::initializeWaveResolved()
     }
 }
 
-AOpticalOverride::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
 
@@ -201,7 +201,7 @@ const QString AWaveshifterOverride::getLongReportLine() const
 
 void AWaveshifterOverride::writeToJson(QJsonObject &json) const
 {
-    AOpticalOverride::writeToJson(json);
+    AInterfaceRule::writeToJson(json);
 /*
     QJsonArray arRP;
     writeTwoQVectorsToJArray(ReemissionProbability_lambda, ReemissionProbability, arRP);

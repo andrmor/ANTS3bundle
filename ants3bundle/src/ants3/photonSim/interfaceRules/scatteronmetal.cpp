@@ -39,7 +39,7 @@ const QString ScatterOnMetal::getLongReportLine() const
 
 void ScatterOnMetal::writeToJson(QJsonObject &json) const
 {
-  AOpticalOverride::writeToJson(json);
+  AInterfaceRule::writeToJson(json);
 
   json["RealN"]  = RealN;
   json["ImaginaryN"]  = ImaginaryN;
@@ -89,7 +89,7 @@ const QString ScatterOnMetal::checkOverrideData()
     return "";
 }
 
-AOpticalOverride::OpticalOverrideResultEnum ScatterOnMetal::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ScatterOnMetal::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
   double CosTheta = Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2];
 

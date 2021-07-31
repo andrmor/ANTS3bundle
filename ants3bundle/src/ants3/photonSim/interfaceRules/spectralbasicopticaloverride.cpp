@@ -34,8 +34,8 @@
 #include <QPushButton>
 #endif
 
-SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(AMaterialHub *MatCollection, int MatFrom, int MatTo)
-    : ABasicOpticalOverride(MatCollection, MatFrom, MatTo)
+SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(int MatFrom, int MatTo)
+    : ABasicOpticalOverride(MatFrom, MatTo)
 {
     Wave << 500;
     ProbLoss << 0;
@@ -43,7 +43,7 @@ SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(AMaterialHub *MatColl
     ProbDiff << 0;
 }
 
-AOpticalOverride::OpticalOverrideResultEnum SpectralBasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum SpectralBasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     int waveIndex = Photon->waveIndex;
     if (!WaveSet.Enabled || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1
@@ -71,7 +71,7 @@ const QString SpectralBasicOpticalOverride::getLongReportLine() const
 
 void SpectralBasicOpticalOverride::writeToJson(QJsonObject &json) const
 {
-    AOpticalOverride::writeToJson(json);
+    AInterfaceRule::writeToJson(json);
 
     json["ScatMode"] = scatterModel;
     json["EffWavelength"] = effectiveWavelength;
