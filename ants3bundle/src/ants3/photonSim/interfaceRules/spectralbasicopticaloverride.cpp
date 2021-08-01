@@ -35,7 +35,7 @@
 #endif
 
 SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(int MatFrom, int MatTo)
-    : ABasicOpticalOverride(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet)
+    : ABasicInterfaceRule(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet)
 {
     Wave << 500;
     ProbLoss << 0;
@@ -52,7 +52,7 @@ AInterfaceRule::OpticalOverrideResultEnum SpectralBasicOpticalOverride::calculat
     probDiff = ProbDiffBinned.at(waveIndex);
     probRef  = ProbRefBinned.at(waveIndex);
 
-    return ABasicOpticalOverride::calculate(Resources, Photon, NormalVector);
+    return ABasicInterfaceRule::calculate(Resources, Photon, NormalVector);
 }
 
 const QString SpectralBasicOpticalOverride::getReportLine() const

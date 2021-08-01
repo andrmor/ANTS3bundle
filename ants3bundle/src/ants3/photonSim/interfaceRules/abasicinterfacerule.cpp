@@ -1,4 +1,4 @@
-#include "abasicopticaloverride.h"
+#include "abasicinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
@@ -20,10 +20,10 @@
 #include <QDoubleValidator>
 #endif
 
-ABasicOpticalOverride::ABasicOpticalOverride(int MatFrom, int MatTo)
+ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo) {}
 
-AInterfaceRule::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     double rnd = Resources.RandGen->Rndm();
 
@@ -117,7 +117,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicOpticalOverride::calculate(ATrac
     return NotTriggered;
 }
 
-const QString ABasicOpticalOverride::getReportLine() const
+const QString ABasicInterfaceRule::getReportLine() const
 {
     double probFresnel = 1.0 - (probRef + probDiff + probLoss);
     QString s;
@@ -145,7 +145,7 @@ const QString ABasicOpticalOverride::getReportLine() const
     return s;
 }
 
-const QString ABasicOpticalOverride::getLongReportLine() const
+const QString ABasicInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Simplistic <--\n";
     if (probLoss > 0) s += QString("Absorption: %1%\n").arg(100.0 * probLoss);
@@ -165,7 +165,7 @@ const QString ABasicOpticalOverride::getLongReportLine() const
     return s;
 }
 
-void ABasicOpticalOverride::writeToJson(QJsonObject &json) const
+void ABasicInterfaceRule::writeToJson(QJsonObject &json) const
 {
     AInterfaceRule::writeToJson(json);
 
@@ -175,7 +175,7 @@ void ABasicOpticalOverride::writeToJson(QJsonObject &json) const
     json["ScatMode"] = scatterModel;
 }
 
-bool ABasicOpticalOverride::readFromJson(const QJsonObject &json)
+bool ABasicInterfaceRule::readFromJson(const QJsonObject &json)
 {
     if ( !jstools::parseJson(json, "Abs", probLoss) ) return false;
     if ( !jstools::parseJson(json, "Spec", probRef) ) return false;
@@ -185,7 +185,7 @@ bool ABasicOpticalOverride::readFromJson(const QJsonObject &json)
 }
 
 #ifdef GUI
-QWidget *ABasicOpticalOverride::getEditWidget(QWidget*, GraphWindowClass *)
+QWidget *ABasicInterfaceRule::getEditWidget(QWidget*, GraphWindowClass *)
 {
     QFrame* f = new QFrame();
     f->setFrameStyle(QFrame::Box);
@@ -234,7 +234,7 @@ QWidget *ABasicOpticalOverride::getEditWidget(QWidget*, GraphWindowClass *)
 }
 #endif
 
-const QString ABasicOpticalOverride::checkOverrideData()
+const QString ABasicInterfaceRule::checkOverrideData()
 {
     if (scatterModel<0 || scatterModel>2) return "Invalid scatter model";
 

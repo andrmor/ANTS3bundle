@@ -34,7 +34,7 @@ QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 }
 #endif
 
-#include "abasicopticaloverride.h"
+#include "abasicinterfacerule.h"
 #include "spectralbasicopticaloverride.h"
 #include "fsnpopticaloverride.h"
 #include "awaveshifteroverride.h"
@@ -44,7 +44,7 @@ QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 AInterfaceRule * interfaceRuleFactory(const QString &model, int MatFrom, int MatTo)
 {
     if (model == "Simplistic" || model == "Simplistic_model")
-        return new ABasicOpticalOverride(MatFrom, MatTo);
+        return new ABasicInterfaceRule(MatFrom, MatTo);
     if (model == "SimplisticSpectral" || model == "SimplisticSpectral_model")
         return new SpectralBasicOpticalOverride(MatFrom, MatTo);
     else if (model == "DielectricToMetal")

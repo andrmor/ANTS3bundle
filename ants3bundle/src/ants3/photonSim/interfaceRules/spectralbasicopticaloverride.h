@@ -2,7 +2,7 @@
 #define SPECTRALBASICOPTICALOVERRIDE_H
 
 #include "ainterfacerule.h"
-#include "abasicopticaloverride.h"
+#include "abasicinterfacerule.h"
 
 #include <QString>
 #include <QVector>
@@ -14,7 +14,7 @@ class QJsonObject;
 class GraphWindowClass;
 class QPushButton;
 
-class SpectralBasicOpticalOverride : public ABasicOpticalOverride
+class SpectralBasicOpticalOverride : public ABasicInterfaceRule
 {
 public:
     SpectralBasicOpticalOverride(int MatFrom, int MatTo);
