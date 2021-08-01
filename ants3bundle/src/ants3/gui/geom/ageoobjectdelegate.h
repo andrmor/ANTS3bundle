@@ -69,6 +69,9 @@ protected:
 
     QStringList ListOfShapesForTransform;
 
+    QWidget * RoleWidget;
+    QComboBox * qbRole;
+
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
     void onHelpRequested();           // dialog with AGeoShape list can be accessed here
@@ -81,7 +84,8 @@ protected:
     const AGeoShape * getBaseShapeOfObject(const AGeoObject *obj);
     void updateTypeLabel();
     void updateControlUI();
-    void initSlabDelegate(int SlabModelState);
+    void initSlabDelegate(int SlabModelState); // TODO: kill
+    QWidget * crateSpecialRoleWidget();
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);

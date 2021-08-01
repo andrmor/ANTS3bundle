@@ -158,6 +158,10 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     PosOrient->setLayout(gr);
     lMF->addWidget(PosOrient);
 
+    //special role widget
+    RoleWidget = crateSpecialRoleWidget();
+    lMF->addWidget(RoleWidget);
+
     // bottom line buttons
     QHBoxLayout * abl = createBottomButtons();
     lMF->addLayout(abl);
@@ -182,6 +186,23 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
     //qDebug() << "deleted---------------";
     blockSignals(true);
     delete ShapeCopy; ShapeCopy = nullptr;
+}
+
+QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
+{
+    QWidget * rw = new QWidget();
+
+    QHBoxLayout * hbs = new QHBoxLayout(rw);
+    hbs->setContentsMargins(2,0,2,0);
+        hbs->addStretch();
+        qbRole = new QComboBox();
+        qbRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
+        //connect(qbRole, &QCheckBox::clicked, this, &AGeoObjectDelegate::onScaleToggled);
+        //connect(qbRole, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
+        hbs->addWidget(qbRole);
+    hbs->addStretch();
+    //QObject::connect(cbScale, &QCheckBox::toggled, scaleWidget, &QWidget::setVisible);
+    return rw;
 }
 
 QString AGeoObjectDelegate::getName() const
