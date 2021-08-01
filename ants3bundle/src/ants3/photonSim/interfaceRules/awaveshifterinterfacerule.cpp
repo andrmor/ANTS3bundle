@@ -1,4 +1,4 @@
-#include "awaveshifteroverride.h"
+#include "awaveshifterinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
@@ -32,15 +32,15 @@
 #include "TGraph.h"
 #endif
 
-AWaveshifterOverride::AWaveshifterOverride(int MatFrom, int MatTo)
+AWaveshifterInterfaceRule::AWaveshifterInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet) {}
 
-AWaveshifterOverride::~AWaveshifterOverride()
+AWaveshifterInterfaceRule::~AWaveshifterInterfaceRule()
 {
     delete Spectrum;
 }
 
-void AWaveshifterOverride::initializeWaveResolved()
+void AWaveshifterInterfaceRule::initializeWaveResolved()
 {
     if (WaveSet.Enabled)
     {
@@ -66,7 +66,7 @@ void AWaveshifterOverride::initializeWaveResolved()
     }
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
 
@@ -158,7 +158,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterOverride::calculate(ATrace
     return Absorbed;
 }
 
-const QString AWaveshifterOverride::getReportLine() const
+QString AWaveshifterInterfaceRule::getReportLine() const
 {
     QString s = QString("CProb %1 pts; Spectr %2 pts; Mod: ").arg(ReemissionProbability_lambda.size()).arg(EmissionSpectrum_lambda.size());
     switch( ReemissionModel )
@@ -176,7 +176,7 @@ const QString AWaveshifterOverride::getReportLine() const
     return s;
 }
 
-const QString AWaveshifterOverride::getLongReportLine() const
+QString AWaveshifterInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Wavelength shifter <--\n";
     s += QString("Reemission probaility from %1 to %2 nm\n").arg(ReemissionProbability_lambda.first()).arg(ReemissionProbability_lambda.last());
@@ -199,7 +199,7 @@ const QString AWaveshifterOverride::getLongReportLine() const
     return s;
 }
 
-void AWaveshifterOverride::writeToJson(QJsonObject &json) const
+void AWaveshifterInterfaceRule::writeToJson(QJsonObject &json) const
 {
     AInterfaceRule::writeToJson(json);
 /*
@@ -213,7 +213,7 @@ void AWaveshifterOverride::writeToJson(QJsonObject &json) const
 */
 }
 
-bool AWaveshifterOverride::readFromJson(const QJsonObject &json)
+bool AWaveshifterInterfaceRule::readFromJson(const QJsonObject &json)
 {
     if ( !jstools::parseJson(json, "ReemissionModel", ReemissionModel) )
     {
@@ -235,7 +235,7 @@ bool AWaveshifterOverride::readFromJson(const QJsonObject &json)
 }
 
 #ifdef GUI
-QWidget *AWaveshifterOverride::getEditWidget(QWidget *caller, GraphWindowClass *GraphWindow)
+QWidget *AWaveshifterInterfaceRule::getEditWidget(QWidget *caller, GraphWindowClass *GraphWindow)
 {
     QFrame* f = new QFrame();
     f->setFrameStyle(QFrame::Box);
@@ -294,7 +294,7 @@ QWidget *AWaveshifterOverride::getEditWidget(QWidget *caller, GraphWindowClass *
 #endif
 
 #ifdef GUI
-void AWaveshifterOverride::loadReemissionProbability(QWidget* caller)
+void AWaveshifterInterfaceRule::loadReemissionProbability(QWidget* caller)
 {
     /*
     AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
@@ -312,7 +312,7 @@ void AWaveshifterOverride::loadReemissionProbability(QWidget* caller)
     */
 }
 
-void AWaveshifterOverride::loadEmissionSpectrum(QWidget *caller)
+void AWaveshifterInterfaceRule::loadEmissionSpectrum(QWidget *caller)
 {
     /*
     AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
@@ -330,7 +330,7 @@ void AWaveshifterOverride::loadEmissionSpectrum(QWidget *caller)
     */
 }
 
-void AWaveshifterOverride::showReemissionProbability(GraphWindowClass *GraphWindow, QWidget* caller)
+void AWaveshifterInterfaceRule::showReemissionProbability(GraphWindowClass *GraphWindow, QWidget* caller)
 {
     if (ReemissionProbability_lambda.isEmpty())
     {
@@ -344,7 +344,7 @@ void AWaveshifterOverride::showReemissionProbability(GraphWindowClass *GraphWind
 */
 }
 
-void AWaveshifterOverride::showEmissionSpectrum(GraphWindowClass *GraphWindow, QWidget *caller)
+void AWaveshifterInterfaceRule::showEmissionSpectrum(GraphWindowClass *GraphWindow, QWidget *caller)
 {
     if (EmissionSpectrum_lambda.isEmpty())
     {
@@ -361,7 +361,7 @@ void AWaveshifterOverride::showEmissionSpectrum(GraphWindowClass *GraphWindow, Q
 */
 }
 
-void AWaveshifterOverride::showBinnedReemissionProbability(GraphWindowClass *GraphWindow, QWidget *caller)
+void AWaveshifterInterfaceRule::showBinnedReemissionProbability(GraphWindowClass *GraphWindow, QWidget *caller)
 {
     initializeWaveResolved();
 
@@ -386,7 +386,7 @@ void AWaveshifterOverride::showBinnedReemissionProbability(GraphWindowClass *Gra
 */
 }
 
-void AWaveshifterOverride::showBinnedEmissionSpectrum(GraphWindowClass *GraphWindow, QWidget *caller)
+void AWaveshifterInterfaceRule::showBinnedEmissionSpectrum(GraphWindowClass *GraphWindow, QWidget *caller)
 {
     initializeWaveResolved();
 
@@ -418,7 +418,7 @@ void AWaveshifterOverride::showBinnedEmissionSpectrum(GraphWindowClass *GraphWin
 //    GraphWindow->Draw(SpectrumCopy, "hist"); //gets ownership of the copy
 }
 
-void AWaveshifterOverride::updateButtons()
+void AWaveshifterInterfaceRule::updateButtons()
 {
     pbShowRP->setDisabled(ReemissionProbability_lambda.isEmpty());
     pbShowES->setDisabled(EmissionSpectrum_lambda.isEmpty());
@@ -428,7 +428,7 @@ void AWaveshifterOverride::updateButtons()
 }
 #endif
 
-const QString AWaveshifterOverride::checkOverrideData()
+QString AWaveshifterInterfaceRule::checkOverrideData()
 {
     if (ReemissionModel<0 || ReemissionModel>2) return "Invalid reemission model";
 

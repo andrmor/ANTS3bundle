@@ -1,4 +1,4 @@
-#include "fsnpopticaloverride.h"
+#include "fsnpinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
@@ -19,7 +19,7 @@
 #include <QDoubleValidator>
 #endif
 
-AInterfaceRule::OpticalOverrideResultEnum FSNPOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
   // Angular reflectance: fraction of light reflected at the interface bewteen
   // medium 1 and medium 2 assuming non-polarized incident light:
@@ -91,32 +91,32 @@ AInterfaceRule::OpticalOverrideResultEnum FSNPOpticalOverride::calculate(ATracer
   return Back;
 }
 
-const QString FSNPOpticalOverride::getReportLine() const
+QString FsnpInterfaceRule::getReportLine() const
 {
     return QString("Albedo %1").arg(Albedo);
 }
 
-const QString FSNPOpticalOverride::getLongReportLine() const
+QString FsnpInterfaceRule::getLongReportLine() const
 {
     QString s = "--> FSNP <--\n";
     s += QString("Albedo: %1").arg(Albedo);
     return s;
 }
 
-void FSNPOpticalOverride::writeToJson(QJsonObject &json) const
+void FsnpInterfaceRule::writeToJson(QJsonObject &json) const
 {
   AInterfaceRule::writeToJson(json);
 
   json["Albedo"] = Albedo;
 }
 
-bool FSNPOpticalOverride::readFromJson(const QJsonObject &json)
+bool FsnpInterfaceRule::readFromJson(const QJsonObject &json)
 {
     return jstools::parseJson(json, "Albedo", Albedo);
 }
 
 #ifdef GUI
-QWidget *FSNPOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
+QWidget *FsnpInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 {
     QFrame* f = new QFrame();
     f->setFrameStyle(QFrame::Box);
@@ -138,7 +138,7 @@ QWidget *FSNPOpticalOverride::getEditWidget(QWidget *, GraphWindowClass *)
 }
 #endif
 
-const QString FSNPOpticalOverride::checkOverrideData()
+QString FsnpInterfaceRule::checkOverrideData()
 {
     if (Albedo < 0 || Albedo > 1.0) return "Albedo should be within [0, 1.0]";
     return "";

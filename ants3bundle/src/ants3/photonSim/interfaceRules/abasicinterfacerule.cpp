@@ -28,7 +28,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
     double rnd = Resources.RandGen->Rndm();
 
     // surface loss?
-    rnd -= probLoss;
+    rnd -= Abs;
     if (rnd < 0)
     {
         // qDebug()<<"Override: surface loss!";
@@ -37,7 +37,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
     }
 
     // specular reflection?
-    rnd -= probRef;
+    rnd -= Spec;
     if (rnd<0)
     {
         // qDebug()<<"Override: specular reflection!";
@@ -50,12 +50,12 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
     }
 
     // scattering?
-    rnd -= probDiff;
+    rnd -= Scat;
     if (rnd<0)
     {
         // qDebug()<<"scattering triggered";
 
-        switch (scatterModel)
+        switch (ScatterModel)
         {
         case 0: //4Pi scattering
             // qDebug()<<"4Pi scatter";
@@ -117,15 +117,15 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
     return NotTriggered;
 }
 
-const QString ABasicInterfaceRule::getReportLine() const
+QString ABasicInterfaceRule::getReportLine() const
 {
-    double probFresnel = 1.0 - (probRef + probDiff + probLoss);
+    double probFresnel = 1.0 - (Spec + Scat + Abs);
     QString s;
-    if (probLoss > 0) s += QString("Abs %1 +").arg(probLoss);
-    if (probRef > 0)  s += QString("Spec %1 +").arg(probRef);
-    if (probDiff > 0)
+    if (Abs > 0) s += QString("Abs %1 +").arg(Abs);
+    if (Spec > 0)  s += QString("Spec %1 +").arg(Spec);
+    if (Scat > 0)
     {
-        switch( scatterModel )
+        switch( ScatterModel )
         {
         case 0:
             s += "Iso ";
@@ -137,7 +137,7 @@ const QString ABasicInterfaceRule::getReportLine() const
             s += "Lamb_F ";
             break;
         }
-        s += QString::number(probDiff);
+        s += QString::number(Scat);
         s += " +";
     }
     if (probFresnel > 1e-10) s += QString("Fres %1 +").arg(probFresnel);
@@ -145,22 +145,22 @@ const QString ABasicInterfaceRule::getReportLine() const
     return s;
 }
 
-const QString ABasicInterfaceRule::getLongReportLine() const
+QString ABasicInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Simplistic <--\n";
-    if (probLoss > 0) s += QString("Absorption: %1%\n").arg(100.0 * probLoss);
-    if (probRef > 0)  s += QString("Specular reflection: %1%\n").arg(100.0 * probRef);
-    if (probDiff)
+    if (Abs > 0) s += QString("Absorption: %1%\n").arg(100.0 * Abs);
+    if (Spec > 0)  s += QString("Specular reflection: %1%\n").arg(100.0 * Spec);
+    if (Scat)
     {
-        s += QString("Scattering: %1%").arg(100.0 * probDiff);
-        switch (scatterModel)
+        s += QString("Scattering: %1%").arg(100.0 * Scat);
+        switch (ScatterModel)
         {
         case 0: s += " (isotropic)\n"; break;
         case 1: s += " (Lambertian, back)\n"; break;
         case 2: s += " (Lambertian, forward)\n"; break;
         }
     }
-    double fres = 1.0 - probLoss - probRef - probDiff;
+    double fres = 1.0 - Abs - Spec - Scat;
     if (fres > 0) s += QString("Fresnel: %1%").arg(100.0 * fres);
     return s;
 }
@@ -169,18 +169,18 @@ void ABasicInterfaceRule::writeToJson(QJsonObject &json) const
 {
     AInterfaceRule::writeToJson(json);
 
-    json["Abs"]  = probLoss;
-    json["Spec"] = probRef;
-    json["Scat"] = probDiff;
-    json["ScatMode"] = scatterModel;
+    json["Abs"]      = Abs;
+    json["Spec"]     = Spec;
+    json["Scat"]     = Scat;
+    json["ScatMode"] = ScatterModel;
 }
 
-bool ABasicInterfaceRule::readFromJson(const QJsonObject &json)
+bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
 {
-    if ( !jstools::parseJson(json, "Abs", probLoss) ) return false;
-    if ( !jstools::parseJson(json, "Spec", probRef) ) return false;
-    if ( !jstools::parseJson(json, "Scat", probDiff) ) return false;
-    if ( !jstools::parseJson(json, "ScatMode", scatterModel) ) return false;
+    if ( !jstools::parseJson(json, "Abs",      Abs) )          return false;
+    if ( !jstools::parseJson(json, "Spec",     Spec) )         return false;
+    if ( !jstools::parseJson(json, "Scat",     Scat) )         return false;
+    if ( !jstools::parseJson(json, "ScatMode", ScatterModel) ) return false;
     return true;
 }
 
@@ -200,22 +200,22 @@ QWidget *ABasicInterfaceRule::getEditWidget(QWidget*, GraphWindowClass *)
     l->addWidget(lab);
     hl->addLayout(l);
     l = new QVBoxLayout();
-    QLineEdit* le = new QLineEdit(QString::number(probLoss));
+    QLineEdit* le = new QLineEdit(QString::number(Abs));
     QDoubleValidator* val = new QDoubleValidator(f);
     val->setNotation(QDoubleValidator::StandardNotation);
     val->setBottom(0);
     //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
     val->setDecimals(6);
     le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->probLoss = le->text().toDouble(); } );
+    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Abs = le->text().toDouble(); } );
     l->addWidget(le);
-    le = new QLineEdit(QString::number(probRef));
+    le = new QLineEdit(QString::number(Spec));
     le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->probRef = le->text().toDouble(); } );
+    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Spec = le->text().toDouble(); } );
     l->addWidget(le);
-    le = new QLineEdit(QString::number(probDiff));
+    le = new QLineEdit(QString::number(Scat));
     le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->probDiff = le->text().toDouble(); } );
+    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Scat = le->text().toDouble(); } );
     l->addWidget(le);
     hl->addLayout(l);
     l = new QVBoxLayout();
@@ -225,8 +225,8 @@ QWidget *ABasicInterfaceRule::getEditWidget(QWidget*, GraphWindowClass *)
     l->addWidget(lab);
     QComboBox* com = new QComboBox();
     com->addItem("Isotropic (4Pi)"); com->addItem("Lambertian, 2Pi back"); com->addItem("Lambertian, 2Pi forward");
-    com->setCurrentIndex(scatterModel);
-    QObject::connect(com, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), [this](int index) { this->scatterModel = index; } );
+    com->setCurrentIndex(ScatterModel);
+    QObject::connect(com, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), [this](int index) { this->ScatterModel = index; } );
     l->addWidget(com);
     hl->addLayout(l);
 
@@ -234,15 +234,15 @@ QWidget *ABasicInterfaceRule::getEditWidget(QWidget*, GraphWindowClass *)
 }
 #endif
 
-const QString ABasicInterfaceRule::checkOverrideData()
+QString ABasicInterfaceRule::checkOverrideData()
 {
-    if (scatterModel<0 || scatterModel>2) return "Invalid scatter model";
+    if (ScatterModel<0 || ScatterModel>2) return "Invalid scatter model";
 
-    if (probLoss<0 || probLoss>1.0) return "Absorption probability should be within [0, 1.0]";
-    if (probRef <0 || probRef >1.0) return "Reflection probability should be within [0, 1.0]";
-    if (probDiff<0 || probDiff>1.0) return "Scattering probability should be within [0, 1.0]";
+    if (Abs  < 0 || Abs  > 1.0) return "Absorption probability should be within [0, 1.0]";
+    if (Spec < 0 || Spec > 1.0) return "Reflection probability should be within [0, 1.0]";
+    if (Scat < 0 || Scat > 1.0) return "Scattering probability should be within [0, 1.0]";
 
-    if (probLoss + probRef + probDiff > 1.0) return "Sum of all process probabilities cannot exceed 1.0";
+    if (Abs + Spec + Scat > 1.0) return "Sum of all process probabilities cannot exceed 1.0";
 
     return "";
 }

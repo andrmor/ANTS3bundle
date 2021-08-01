@@ -6,14 +6,17 @@
 class AInterfaceRule;
 class APhoton;
 class QJsonObject;
-class GraphWindowClass;
 class ATracerStateful;
+
+#ifdef GUI
+class GraphWindowClass;
 class QWidget;
+#endif
 
 //  ----  !!!  ----
 // modify these two functions if you want to register a new override type
 AInterfaceRule * interfaceRuleFactory(const QString & model, int MatFrom, int MatTo);
-const QStringList getAllInterfaceRuleTypes();
+QStringList      getAllInterfaceRuleTypes();
 
 
 class AInterfaceRule
@@ -33,10 +36,10 @@ public:
 
     virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
-    virtual const QString getType() const = 0;
-    virtual const QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
-    virtual const QString getReportLine() const = 0; // for GUI: used to reports override status (try to make as short as possible)
-    virtual const QString getLongReportLine() const {return getReportLine();} //for GUI: used in overlap map
+    virtual QString getType() const = 0;
+    virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
+    virtual QString getReportLine() const = 0; // for GUI: used to reports override status (try to make as short as possible)
+    virtual QString getLongReportLine() const; //for GUI: used in overlap map
 
     //called automatically before sim start
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data
@@ -54,7 +57,7 @@ public:
 #endif
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
-    virtual const QString checkOverrideData() = 0; //cannot be const - w.resolved needs rebin
+    virtual QString checkOverrideData() = 0; //cannot be const - w.resolved needs rebin
 
     // read-out variables for standalone checker only (not multithreaded)
     ScatterStatusEnum Status;               // type of interaction which happened - use in 1 thread only!

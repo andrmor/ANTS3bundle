@@ -1,6 +1,6 @@
 #include "atracerstateful.h"
 #include "amaterialhub.h"
-#include "aopticaloverridescriptinterface.h"
+//#include "aopticaloverridescriptinterface.h"
 //#include "amath_si.h"
 
 #include <QObject>

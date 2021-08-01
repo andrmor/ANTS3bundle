@@ -6,40 +6,35 @@
 #include <QString>
 #include <QVector>
 
-class AMaterialHub;
 class AWaveResSettings;
-class ATracerStateful;
-class APhoton;
-class QJsonObject;
-class GraphWindowClass;
 class TH1D;
-class QPushButton;
 
-class AWaveshifterOverride : public AInterfaceRule
+#ifdef GUI
+class QPushButton;
+#endif
+
+class AWaveshifterInterfaceRule : public AInterfaceRule
 {
 public:
-    AWaveshifterOverride(int MatFrom, int MatTo);
-    virtual ~AWaveshifterOverride();
+    AWaveshifterInterfaceRule(int MatFrom, int MatTo);
+    ~AWaveshifterInterfaceRule();
 
     void initializeWaveResolved() override;
     OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
-    virtual const QString getType() const override {return "SurfaceWLS";}
-    virtual const QString getAbbreviation() const override {return "WLS";}
-    virtual const QString getReportLine() const override;
-    virtual const QString getLongReportLine() const override;
+    QString getType() const override {return "SurfaceWLS";}
+    QString getAbbreviation() const override {return "WLS";}
+    QString getReportLine() const override;
+    QString getLongReportLine() const override;
 
-    // save/load config is not used for this type!
     void writeToJson(QJsonObject &json) const override;  // !!!***
     bool readFromJson(const QJsonObject &json) override; // !!!***
 
 #ifdef GUI
     QWidget* getEditWidget(QWidget *caller, GraphWindowClass* GraphWindow) override;
 #endif
+    QString checkOverrideData() override;
 
-    const QString checkOverrideData() override;
-
-    //-- parameters --
     int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
     QVector<double> ReemissionProbability_lambda;
     QVector<double> ReemissionProbability;

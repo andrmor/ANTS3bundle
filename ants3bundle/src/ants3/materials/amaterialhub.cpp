@@ -3,8 +3,7 @@
 #include "ainterfacerule.h"
 #include "ajsontools.h"
 #include "acommonfunctions.h"
-#include "atracerstateful.h"
-#include "ascriptopticaloverride.h"
+//#include "atracerstateful.h"
 
 #include <QtDebug>
 #include <QJsonObject>

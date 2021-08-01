@@ -110,12 +110,10 @@ SOURCES += \
     photonSim/interfaceRules/abasicinterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerulehub.cpp \
-    photonSim/interfaceRules/aopticaloverridescriptinterface.cpp \
-    photonSim/interfaceRules/ascriptopticaloverride.cpp \
-    photonSim/interfaceRules/awaveshifteroverride.cpp \
-    photonSim/interfaceRules/fsnpopticaloverride.cpp \
-    photonSim/interfaceRules/scatteronmetal.cpp \
-    photonSim/interfaceRules/spectralbasicopticaloverride.cpp \
+    photonSim/interfaceRules/ametalinterfacerule.cpp \
+    photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
+    photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
+    photonSim/interfaceRules/fsnpinterfacerule.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
@@ -178,12 +176,10 @@ HEADERS += \
     photonSim/interfaceRules/abasicinterfacerule.h \
     photonSim/interfaceRules/ainterfacerule.h \
     photonSim/interfaceRules/ainterfacerulehub.h \
-    photonSim/interfaceRules/aopticaloverridescriptinterface.h \
-    photonSim/interfaceRules/ascriptopticaloverride.h \
-    photonSim/interfaceRules/awaveshifteroverride.h \
-    photonSim/interfaceRules/fsnpopticaloverride.h \
-    photonSim/interfaceRules/scatteronmetal.h \
-    photonSim/interfaceRules/spectralbasicopticaloverride.h \
+    photonSim/interfaceRules/ametalinterfacerule.h \
+    photonSim/interfaceRules/aspectralbasicinterfacerule.h \
+    photonSim/interfaceRules/awaveshifterinterfacerule.h \
+    photonSim/interfaceRules/fsnpinterfacerule.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \

@@ -1,4 +1,4 @@
-#include "spectralbasicopticaloverride.h"
+#include "aspectralbasicinterfacerule.h"
 
 #include "aphoton.h"
 #include "amaterial.h"
@@ -34,7 +34,7 @@
 #include <QPushButton>
 #endif
 
-SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(int MatFrom, int MatTo)
+ASpectralBasicInterfaceRule::ASpectralBasicInterfaceRule(int MatFrom, int MatTo)
     : ABasicInterfaceRule(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet)
 {
     Wave << 500;
@@ -43,24 +43,24 @@ SpectralBasicOpticalOverride::SpectralBasicOpticalOverride(int MatFrom, int MatT
     ProbDiff << 0;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum SpectralBasicOpticalOverride::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ASpectralBasicInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
     int waveIndex = Photon->waveIndex;
     if (!WaveSet.Enabled || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1
 
-    probLoss = ProbLossBinned.at(waveIndex);
-    probDiff = ProbDiffBinned.at(waveIndex);
-    probRef  = ProbRefBinned.at(waveIndex);
+    Abs = ProbLossBinned.at(waveIndex);
+    Scat = ProbDiffBinned.at(waveIndex);
+    Spec  = ProbRefBinned.at(waveIndex);
 
     return ABasicInterfaceRule::calculate(Resources, Photon, NormalVector);
 }
 
-const QString SpectralBasicOpticalOverride::getReportLine() const
+QString ASpectralBasicInterfaceRule::getReportLine() const
 {
     return QString("Spectral data with %1 points").arg(Wave.size());
 }
 
-const QString SpectralBasicOpticalOverride::getLongReportLine() const
+QString ASpectralBasicInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Simplistic spectral <--\n";
     s += QString("Spectral data from %1 to %2 nm\n").arg(Wave.first()).arg(Wave.last());
@@ -69,11 +69,11 @@ const QString SpectralBasicOpticalOverride::getLongReportLine() const
     return s;
 }
 
-void SpectralBasicOpticalOverride::writeToJson(QJsonObject &json) const
+void ASpectralBasicInterfaceRule::writeToJson(QJsonObject &json) const
 {
     AInterfaceRule::writeToJson(json);
 
-    json["ScatMode"] = scatterModel;
+    json["ScatMode"] = ScatterModel;
     json["EffWavelength"] = effectiveWavelength;
 
     if (Wave.size() != ProbLoss.size() || Wave.size() != ProbRef.size() || Wave.size() != ProbDiff.size())
@@ -91,9 +91,9 @@ void SpectralBasicOpticalOverride::writeToJson(QJsonObject &json) const
     json["Data"] = sp;
 }
 
-bool SpectralBasicOpticalOverride::readFromJson(const QJsonObject &json)
+bool ASpectralBasicInterfaceRule::readFromJson(const QJsonObject &json)
 {
-    if ( !jstools::parseJson(json, "ScatMode", scatterModel) ) return false;
+    if ( !jstools::parseJson(json, "ScatMode", ScatterModel) ) return false;
     if ( !jstools::parseJson(json, "EffWavelength", effectiveWavelength) ) return false;
 
     //after constructor vectors are not empty!
@@ -117,7 +117,7 @@ bool SpectralBasicOpticalOverride::readFromJson(const QJsonObject &json)
     return true;
 }
 
-void SpectralBasicOpticalOverride::initializeWaveResolved()
+void ASpectralBasicInterfaceRule::initializeWaveResolved()
 {
     if (WaveSet.Enabled)
     {
@@ -151,9 +151,9 @@ void SpectralBasicOpticalOverride::initializeWaveResolved()
 }
 
 #include "afiletools.h"
-const QString SpectralBasicOpticalOverride::loadData(const QString &fileName)
+QString ASpectralBasicInterfaceRule::loadData(const QString &fileName)
 {
-/*
+    /*
     QVector< QVector<double>* > vec;
     vec << &Wave << &ProbLoss << &ProbRef << &ProbDiff;
     QString err = LoadDoubleVectorsFromFile(fileName, vec);
@@ -172,9 +172,9 @@ const QString SpectralBasicOpticalOverride::loadData(const QString &fileName)
 }
 
 #ifdef GUI
-void SpectralBasicOpticalOverride::loadSpectralData(QWidget* caller)
+void ASpectralBasicInterfaceRule::loadSpectralData(QWidget* caller)
 {
-/*
+    /*
     AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
     QString fileName = QFileDialog::getOpenFileName(caller, "Load spectral data (Wavelength, Absorption, Reflection, Scattering)", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
     if (fileName.isEmpty()) return;
@@ -187,9 +187,9 @@ void SpectralBasicOpticalOverride::loadSpectralData(QWidget* caller)
 */
 }
 
-void SpectralBasicOpticalOverride::showLoaded(GraphWindowClass* GraphWindow)
+void ASpectralBasicInterfaceRule::showLoaded(GraphWindowClass* GraphWindow)
 {
-/*
+    /*
     QVector<double> Fr;
     for (int i=0; i<Wave.size(); i++)
         Fr << (1.0 - ProbLoss.at(i) - ProbRef.at(i) - ProbDiff.at(i));
@@ -212,7 +212,7 @@ void SpectralBasicOpticalOverride::showLoaded(GraphWindowClass* GraphWindow)
 */
 }
 
-void SpectralBasicOpticalOverride::showBinned(QWidget *widget, GraphWindowClass *GraphWindow)
+void ASpectralBasicInterfaceRule::showBinned(QWidget *widget, GraphWindowClass *GraphWindow)
 {
     /*
     bool bWR;
@@ -260,7 +260,7 @@ void SpectralBasicOpticalOverride::showBinned(QWidget *widget, GraphWindowClass 
     */
 }
 
-void SpectralBasicOpticalOverride::updateButtons()
+void ASpectralBasicInterfaceRule::updateButtons()
 {
     pbShow->setDisabled(Wave.isEmpty());
     pbShowBinned->setDisabled(!WaveSet.Enabled || Wave.isEmpty());
@@ -268,48 +268,48 @@ void SpectralBasicOpticalOverride::updateButtons()
 #endif
 
 #ifdef GUI
-QWidget *SpectralBasicOpticalOverride::getEditWidget(QWidget *caller, GraphWindowClass *GraphWindow)
+QWidget *ASpectralBasicInterfaceRule::getEditWidget(QWidget *caller, GraphWindowClass *GraphWindow)
 {
     QFrame* f = new QFrame();
     f->setFrameStyle(QFrame::Box);
 
     QVBoxLayout* vl = new QVBoxLayout(f);
-        QHBoxLayout* l = new QHBoxLayout();
-            QLabel* lab = new QLabel("Absorption, reflection and scattering:");
-        l->addWidget(lab);
-            QPushButton* pb = new QPushButton("Load");
-            pb->setToolTip("Every line of the file should contain 4 numbers:\nwavelength[nm] absorption_prob[0..1] reflection_prob[0..1] scattering_prob[0..1]");
-            QObject::connect(pb, &QPushButton::clicked, [caller, this] {loadSpectralData(caller);});
-        l->addWidget(pb);
-            pbShow = new QPushButton("Show");
-            QObject::connect(pbShow, &QPushButton::clicked, [GraphWindow, this] {showLoaded(GraphWindow);});
-        l->addWidget(pbShow);
-            pbShowBinned = new QPushButton("Binned");
-            QObject::connect(pbShowBinned, &QPushButton::clicked, [caller, GraphWindow, this] {showBinned(caller, GraphWindow);});
-        l->addWidget(pbShowBinned);
+    QHBoxLayout* l = new QHBoxLayout();
+    QLabel* lab = new QLabel("Absorption, reflection and scattering:");
+    l->addWidget(lab);
+    QPushButton* pb = new QPushButton("Load");
+    pb->setToolTip("Every line of the file should contain 4 numbers:\nwavelength[nm] absorption_prob[0..1] reflection_prob[0..1] scattering_prob[0..1]");
+    QObject::connect(pb, &QPushButton::clicked, [caller, this] {loadSpectralData(caller);});
+    l->addWidget(pb);
+    pbShow = new QPushButton("Show");
+    QObject::connect(pbShow, &QPushButton::clicked, [GraphWindow, this] {showLoaded(GraphWindow);});
+    l->addWidget(pbShow);
+    pbShowBinned = new QPushButton("Binned");
+    QObject::connect(pbShowBinned, &QPushButton::clicked, [caller, GraphWindow, this] {showBinned(caller, GraphWindow);});
+    l->addWidget(pbShowBinned);
     vl->addLayout(l);
-        l = new QHBoxLayout();
-            lab = new QLabel("Scattering model:");
-        l->addWidget(lab);
-            QComboBox* com = new QComboBox();
-            com->addItem("Isotropic (4Pi)"); com->addItem("Lambertian, 2Pi back"); com->addItem("Lambertian, 2Pi forward");
-            com->setCurrentIndex(scatterModel);
-            QObject::connect(com, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), [this](int index) { this->scatterModel = index; } );
-        l->addWidget(com);
+    l = new QHBoxLayout();
+    lab = new QLabel("Scattering model:");
+    l->addWidget(lab);
+    QComboBox* com = new QComboBox();
+    com->addItem("Isotropic (4Pi)"); com->addItem("Lambertian, 2Pi back"); com->addItem("Lambertian, 2Pi forward");
+    com->setCurrentIndex(ScatterModel);
+    QObject::connect(com, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), [this](int index) { this->ScatterModel = index; } );
+    l->addWidget(com);
     vl->addLayout(l);
-        l = new QHBoxLayout();
-            lab = new QLabel("For photons with WaveIndex=-1, assume wavelength of:");
-        l->addWidget(lab);
-            QLineEdit* le = new QLineEdit(QString::number(effectiveWavelength));
-            QDoubleValidator* val = new QDoubleValidator(f);
-            val->setNotation(QDoubleValidator::StandardNotation);
-            val->setBottom(0);
-            val->setDecimals(6);
-            le->setValidator(val);
-            QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->effectiveWavelength = le->text().toDouble(); } );
-        l->addWidget(le);
-            lab = new QLabel("nm");
-        l->addWidget(lab);
+    l = new QHBoxLayout();
+    lab = new QLabel("For photons with WaveIndex=-1, assume wavelength of:");
+    l->addWidget(lab);
+    QLineEdit* le = new QLineEdit(QString::number(effectiveWavelength));
+    QDoubleValidator* val = new QDoubleValidator(f);
+    val->setNotation(QDoubleValidator::StandardNotation);
+    val->setBottom(0);
+    val->setDecimals(6);
+    le->setValidator(val);
+    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->effectiveWavelength = le->text().toDouble(); } );
+    l->addWidget(le);
+    lab = new QLabel("nm");
+    l->addWidget(lab);
     vl->addLayout(l);
     updateButtons();
 
@@ -317,7 +317,7 @@ QWidget *SpectralBasicOpticalOverride::getEditWidget(QWidget *caller, GraphWindo
 }
 #endif
 
-const QString SpectralBasicOpticalOverride::checkOverrideData()
+QString ASpectralBasicInterfaceRule::checkOverrideData()
 {
     //checking spectrum
     if (Wave.size() == 0) return "Spectral data are not defined";
@@ -331,7 +331,7 @@ const QString SpectralBasicOpticalOverride::checkOverrideData()
         double sum = ProbLoss.at(i) + ProbRef.at(i) + ProbDiff.at(i);
         if (sum > 1.0) return QString("Sum of probabilities is larger than 1.0 for wavelength of %1 nm").arg(Wave.at(i));
     }
-    if (scatterModel < 0 || scatterModel > 2) return "unknown scattering model";
+    if (ScatterModel < 0 || ScatterModel > 2) return "unknown scattering model";
 
     return "";
 }

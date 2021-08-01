@@ -4,44 +4,40 @@
 #include "ainterfacerule.h"
 #include "abasicinterfacerule.h"
 
-#include <QString>
 #include <QVector>
 
 class AWaveResSettings;
-class ATracerStateful;
-class APhoton;
-class QJsonObject;
-class GraphWindowClass;
-class QPushButton;
 
-class SpectralBasicOpticalOverride : public ABasicInterfaceRule
+#ifdef GUI
+class QPushButton;
+#endif
+
+class ASpectralBasicInterfaceRule : public ABasicInterfaceRule
 {
 public:
-    SpectralBasicOpticalOverride(int MatFrom, int MatTo);
-    ~SpectralBasicOpticalOverride() {}
+    ASpectralBasicInterfaceRule(int MatFrom, int MatTo);
+    ~ASpectralBasicInterfaceRule() {}
 
     OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
-    const QString getType() const override {return "SimplisticSpectral";}
-    const QString getAbbreviation() const override {return "SiSp";}
-    const QString getReportLine() const override;
-    const QString getLongReportLine() const override;
+    QString getType() const override {return "SimplisticSpectral";}
+    QString getAbbreviation() const override {return "SiSp";}
+    QString getReportLine() const override;
+    QString getLongReportLine() const override;
 
-    // save/load config is not used for this type!
     void writeToJson(QJsonObject &json) const override;
     bool readFromJson(const QJsonObject &json) override;
 
     void initializeWaveResolved() override;
 
-    const QString loadData(const QString& fileName); // !!!***
+    QString loadData(const QString & fileName); // !!!***
 
 #ifdef GUI
-    virtual QWidget* getEditWidget(QWidget* caller, GraphWindowClass* GraphWindow) override;
+    QWidget* getEditWidget(QWidget* caller, GraphWindowClass* GraphWindow) override;
 #endif
 
-    virtual const QString checkOverrideData() override;
+    QString checkOverrideData() override;
 
-    //parameters
     QVector<double> Wave;
     QVector<double> ProbLoss; //probability of absorption
     QVector<double> ProbLossBinned; //probability of absorption

@@ -12,11 +12,16 @@
 AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
     MatFrom(MatFrom), MatTo(MatTo) {}
 
+QString AInterfaceRule::getLongReportLine() const
+{
+    return getReportLine();
+}
+
 void AInterfaceRule::writeToJson(QJsonObject &json) const
 {
-    json["Model"] = getType();
+    json["Model"]   = getType();
     json["MatFrom"] = MatFrom;
-    json["MatTo"] = MatTo;
+    json["MatTo"]   = MatTo;
 }
 
 bool AInterfaceRule::readFromJson(const QJsonObject &)
@@ -35,31 +40,28 @@ QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 #endif
 
 #include "abasicinterfacerule.h"
-#include "spectralbasicopticaloverride.h"
-#include "fsnpopticaloverride.h"
-#include "awaveshifteroverride.h"
-#include "scatteronmetal.h"
-#include "ascriptopticaloverride.h"
+#include "aspectralbasicinterfacerule.h"
+#include "fsnpinterfacerule.h"
+#include "awaveshifterinterfacerule.h"
+#include "ametalinterfacerule.h"
 
-AInterfaceRule * interfaceRuleFactory(const QString &model, int MatFrom, int MatTo)
+AInterfaceRule * interfaceRuleFactory(const QString & model, int MatFrom, int MatTo)
 {
-    if (model == "Simplistic" || model == "Simplistic_model")
+    if (model == "Simplistic")
         return new ABasicInterfaceRule(MatFrom, MatTo);
-    if (model == "SimplisticSpectral" || model == "SimplisticSpectral_model")
-        return new SpectralBasicOpticalOverride(MatFrom, MatTo);
-    else if (model == "DielectricToMetal")
-        return new ScatterOnMetal(MatFrom, MatTo);
-    else if (model == "FSNP" || model == "FS_NP" || model=="Neves_model")
-        return new FSNPOpticalOverride(MatFrom, MatTo);
-    else if (model == "SurfaceWLS")
-        return new AWaveshifterOverride(MatFrom, MatTo);
-//    else if (model == "CustomScript")
-//        return new AScriptOpticalOverride(MatFrom, MatTo);
+    if (model == "SimplisticSpectral")
+        return new ASpectralBasicInterfaceRule(MatFrom, MatTo);
+    if (model == "DielectricToMetal")
+        return new AMetalInterfaceRule(MatFrom, MatTo);
+    if (model == "FSNP")
+        return new FsnpInterfaceRule(MatFrom, MatTo);
+    if (model == "SurfaceWLS")
+        return new AWaveshifterInterfaceRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
 }
 
-const QStringList getAllInterfaceRuleTypes()
+QStringList getAllInterfaceRuleTypes()
 {
     QStringList l;
 
@@ -68,7 +70,6 @@ const QStringList getAllInterfaceRuleTypes()
       << "FSNP"
       << "DielectricToMetal"
       << "SurfaceWLS";
-//      << "CustomScript";
 
     return l;
 }
