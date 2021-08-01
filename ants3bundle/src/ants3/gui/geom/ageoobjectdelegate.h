@@ -70,7 +70,8 @@ protected:
     QStringList ListOfShapesForTransform;
 
     QWidget * RoleWidget;
-    QComboBox * qbRole;
+    QComboBox * cobRole;
+    QComboBox * cobSensorModel;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!

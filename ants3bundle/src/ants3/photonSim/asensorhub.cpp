@@ -14,7 +14,15 @@ const ASensorHub &ASensorHub::getConstInstance()
 
 const ASensorModel * ASensorHub::getModelFast(int iModel) const
 {
-    return &SensorModels.at(iModel);
+    return &Models.at(iModel);
+}
+
+const QStringList ASensorHub::getListOfModelNames() const
+{
+    QStringList list;
+    list.reserve(Models.size());
+    for (const auto & m : Models) list << m.Name;
+    return list;
 }
 
 void ASensorHub::writeToJson(QJsonObject & json) const
@@ -29,6 +37,6 @@ bool ASensorHub::readFromJson(const QJsonObject & json)
 
 ASensorHub::ASensorHub()
 {
-    SensorModels.resize(1);
-    SensorModels.front().name = "Ideal";
+    Models.resize(1);
+    Models.front().Name = "Ideal";
 }

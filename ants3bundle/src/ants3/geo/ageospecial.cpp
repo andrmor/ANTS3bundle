@@ -41,10 +41,10 @@ void AGeoSpecial::writeToJson(QJsonObject & json) const
 
 void AGeoSensor::readFromJson(const QJsonObject &json)
 {
-    jstools::parseJson(json, "SensorType", SensorType);
+    jstools::parseJson(json, "SensorModel", SensorModel);
 }
 
 void AGeoSensor::doWriteToJson(QJsonObject & json) const
 {
-    json["SensorType"] = SensorType;
+    json["SensorModel"] = SensorModel;
 }

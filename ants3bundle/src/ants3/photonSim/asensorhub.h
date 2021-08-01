@@ -2,6 +2,7 @@
 #define ASENSORHUB_H
 
 #include <QString>
+#include <QStringList>
 
 #include <vector>
 
@@ -11,7 +12,7 @@ class QJsonObject;
 class ASensorModel
 {
 public:
-    QString name = "Undefined";
+    QString Name = "Undefined";
     double  PDE  = 1.0;
 };
 
@@ -22,6 +23,8 @@ public:
     static const ASensorHub & getConstInstance();
 
     const ASensorModel * getModelFast(int iModel) const;
+
+    const QStringList getListOfModelNames() const;
 
     void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json);
@@ -36,10 +39,10 @@ private:
     ASensorHub& operator=(ASensorHub&&)      = delete;
 
 private:
-    std::vector<ASensorModel> SensorModels;
+    std::vector<ASensorModel> Models;
 
     // runtime - populated together with GeoManager
-    std::vector<AGeoObject*> DefinedSensors;
+    std::vector<AGeoObject*> Sensors;
 
 };
 

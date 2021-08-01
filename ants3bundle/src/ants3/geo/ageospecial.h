@@ -29,6 +29,7 @@ class AGeoSensor : public AGeoSpecial
 {
 public:
     AGeoSensor(){}
+    AGeoSensor(int Model) : SensorModel(Model) {}
 
     QString getType() const override {return QStringLiteral("Sensor");};
 
@@ -37,7 +38,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    int SensorType = 0; // one is always defined (ideal sensor)
+    int SensorModel = 0; // one is always defined (ideal sensor)
 
     // runtime, not saved
     int Index;

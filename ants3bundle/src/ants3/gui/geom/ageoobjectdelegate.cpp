@@ -2,6 +2,7 @@
 #include "ageoobject.h"
 #include "ageotype.h"
 #include "ageoshape.h"
+#include "ageospecial.h"
 #include "ageoconsts.h"
 #include "guitools.h"
 #include "aonelinetextedit.h"
@@ -188,20 +189,41 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
     delete ShapeCopy; ShapeCopy = nullptr;
 }
 
+#include "QStackedWidget"
+#include "asensorhub.h"
 QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
 {
     QWidget * rw = new QWidget();
 
     QHBoxLayout * hbs = new QHBoxLayout(rw);
     hbs->setContentsMargins(2,0,2,0);
-        hbs->addStretch();
-        qbRole = new QComboBox();
-        qbRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
-        //connect(qbRole, &QCheckBox::clicked, this, &AGeoObjectDelegate::onScaleToggled);
-        //connect(qbRole, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
-        hbs->addWidget(qbRole);
     hbs->addStretch();
-    //QObject::connect(cbScale, &QCheckBox::toggled, scaleWidget, &QWidget::setVisible);
+        cobRole = new QComboBox();
+        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary Scint"});
+    hbs->addWidget(cobRole);
+
+        QStackedWidget * sw = new QStackedWidget();
+            QFrame * fDummy = new QFrame();
+            sw->addWidget(fDummy);
+            QFrame * fSensor = new QFrame();
+                QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
+                hlSensor->addWidget(new QLabel("Sensor model:"));
+                cobSensorModel = new QComboBox();
+                cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
+            hlSensor->addWidget(cobSensorModel);
+            sw->addWidget(fSensor);
+            QFrame * fCal = new QFrame();
+            sw->addWidget(fCal);
+            QFrame * fSec = new QFrame();
+            sw->addWidget(fSec);
+
+            sw->setVisible(false);
+    hbs->addWidget(sw);
+    hbs->addStretch();
+
+    connect(cobRole, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setVisible);
+    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setCurrentIndex);
     return rw;
 }
 
@@ -282,6 +304,8 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (!ok) return false;
 
 
+        // TODO: can set special role for this object!  ***!!!
+
         // ---- all checks are ok, can assign new values to the object ----
 
         obj->Name = newName;
@@ -307,56 +331,6 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             obj->Orientation[i] = tempDoubles[i+3];
         }
 
-        /*
-        // checking was there a rotation of the main object
-        bool fWasRotated = false;
-        for (int i = 0; i < 3; i++)
-            if (obj->Orientation[i] != old[3+i])
-            {
-                fWasRotated = true;
-                break;
-            }
-        //qDebug() << "--Was rotated?"<< fWasRotated;
-        */
-
-        /*
-        //for grouped object, taking into accound the shift
-        if (obj->Container && obj->Container->Type->isGroup())
-        {
-            for (int iObj = 0; iObj < obj->Container->HostedObjects.size(); iObj++)
-            {
-                AGeoObject* hostedObj = obj->Container->HostedObjects[iObj];
-                if (hostedObj == obj) continue;
-
-                //center vector for rotation
-                //in TGeoRotation, first rotation iz around Z, then new X(manual is wrong!) and finally around new Z
-                TVector3 v(hostedObj->Position[0]-old[0], hostedObj->Position[1]-old[1], hostedObj->Position[2]-old[2]);
-
-                //first rotate back to origin in rotation
-                rotate(v, -old[3+0], 0, 0);
-                rotate(v, 0, -old[3+1], 0);
-                rotate(v, 0, 0, -old[3+2]);
-                rotate(v, obj->Orientation[0], obj->Orientation[1], obj->Orientation[2]);
-
-                for (int i=0; i<3; i++)
-                {
-                    double delta = obj->Position[i] - old[i]; //shift in position
-
-                    if (fWasRotated)
-                    {
-                        //shift due to rotation  +  global shift
-                        hostedObj->Position[i] = old[i]+v[i] + delta;
-                        //rotation of the object
-                        double deltaAng = obj->Orientation[i] - old[3+i];
-                        hostedObj->Orientation[i] += deltaAng;
-                    }
-                    else
-                        hostedObj->Position[i] += delta;
-                }
-            }
-        }
-        */
-
         //for stack members:
         if (obj->Container && obj->Container->Type->isStack())
         {
@@ -364,6 +338,19 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             if (oldName == StackTypeObj->ReferenceVolume)
                 StackTypeObj->ReferenceVolume = newName;
             obj->updateStack();
+        }
+
+        // special role
+        delete obj->Role; obj->Role = nullptr;
+        if (cobRole)
+        {
+            switch (cobRole->currentIndex())
+            {
+            case 1:
+                obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
+                break;
+            default:;
+            }
         }
     }
 
@@ -646,6 +633,16 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
         ledScaleX->setText(scaledShape->strScaleX.isEmpty() ? QString::number(scaledShape->scaleX) : scaledShape->strScaleX);
         ledScaleY->setText(scaledShape->strScaleY.isEmpty() ? QString::number(scaledShape->scaleY) : scaledShape->strScaleY);
         ledScaleZ->setText(scaledShape->strScaleZ.isEmpty() ? QString::number(scaledShape->scaleZ) : scaledShape->strScaleZ);
+    }
+
+    if (obj->Role)
+    {
+        AGeoSensor * sens = dynamic_cast<AGeoSensor*>(obj->Role);
+        if (sens)
+        {
+            cobRole->setCurrentIndex(1);
+            cobSensorModel->setCurrentIndex(sens->SensorModel);
+        }
     }
 }
 
