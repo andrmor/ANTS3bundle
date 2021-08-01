@@ -13,6 +13,7 @@ class QJsonArray;
 class AGeoType;
 class TGeoShape;
 class AGeoShape;
+class AGeoSpecial;
 class AGridElementRecord;
 class TGeoRotation;
 class QRegularExpression;
@@ -27,8 +28,9 @@ public:
   AGeoObject(AGeoType * objType, AGeoShape * shape = nullptr);  // pointers are assigned to the object properties! if no shape, default cube is formed
   ~AGeoObject();
 
-  AGeoType  * Type  = nullptr;  // always created in the constructor!
-  AGeoShape * Shape = nullptr;  // allowed to remain nullptr after construction!
+  AGeoType    * Type  = nullptr;  // always created in the constructor!
+  AGeoShape   * Shape = nullptr;  // allowed to remain nullptr after construction!
+  AGeoSpecial * Role  = nullptr;   // mainly remains nullptr after construction!
 
   QString Name;
   int Material = 0;

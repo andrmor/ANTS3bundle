@@ -58,6 +58,7 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    geo/ageospecial.cpp \
     gui/photsim/abombadvanceddialog.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
@@ -123,6 +124,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    geo/ageospecial.h \
     gui/photsim/abombadvanceddialog.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \

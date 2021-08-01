@@ -1,6 +1,7 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
+#include "ageospecial.h"
 #include "ajsontools.h"
 //        #include "agridelementrecord.h"
 #include "ageoconsts.h"
@@ -248,6 +249,13 @@ void AGeoObject::writeToJson(QJsonObject &json) const
         if (!OrientationStr[1].isEmpty()) json["strTheta"] = OrientationStr[1];
         if (!OrientationStr[2].isEmpty()) json["strPsi"]   = OrientationStr[2];
     }
+
+    if (Role)
+    {
+        QJsonObject js;
+        Role->writeToJson(js);
+        json["SpecialRole"] = js;
+    }
 }
 
 void AGeoObject::readFromJson(const QJsonObject & json)
@@ -322,6 +330,12 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         else qDebug() << "Type read failed for object:" << Name << ", keeping default type";
     }
     else qDebug() << "Type is empty for object:" << Name << ", keeping default type";
+
+    // Special role
+    delete Role; Role = nullptr;
+    QJsonObject jsRole;
+    if (jstools::parseJson(json, "SpecialRole", jsRole))
+        Role = GeoRoleFactory::make(jsRole);
 }
 
 void AGeoObject::writeAllToJarr(QJsonArray &jarr)
