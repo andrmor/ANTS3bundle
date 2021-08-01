@@ -35,7 +35,7 @@ public:
     // Reconstruction
     // AReconHub      -> TODO
 
-    QStringList ErrorList;
+    QStringList ErrorList; // TODO: decide on the implementation!
 
     // Temporary:
     QString     from = "b";

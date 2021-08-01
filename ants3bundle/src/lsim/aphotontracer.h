@@ -10,6 +10,7 @@
 
 class APhotonSimSettings;
 class AMaterialHub;
+class AInterfaceRuleHub;
 class APhoton;
 class TGeoManager;
 class AMaterial;
@@ -45,7 +46,8 @@ public:
 
 private:
     const APhotonSimSettings & SimSet;
-    const AMaterialHub & MatHub;
+    const AMaterialHub       & MatHub;
+    const AInterfaceRuleHub  & RuleHub;
 
     TGeoManager * GeoManager = nullptr;
     TRandom2 * RandGen;

@@ -13,6 +13,7 @@ CONFIG -= app_bundle
 
 INCLUDEPATH += ../ants3/materials
 INCLUDEPATH += ../ants3/photonSim
+INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
@@ -21,6 +22,13 @@ SOURCES += \
 #        ../ants3/materials/amaterialhub.cpp \
 #        ../ants3/photonSim/aphotonsimsettings.cpp \
 #        ../ants3/photonSim/asimulationstatistics.cpp \
+#        ../ants3/photonSim/interfaceRules/abasicinterfacerule.cpp \
+#        ../ants3/photonSim/interfaceRules/ainterfacerule.cpp \
+#        ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
+#        ../ants3/photonSim/interfaceRules/ametalinterfacerule.cpp \
+#        ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
+#        ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
+#        ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
 #        aphotonhistorylog.cpp \
 #        aphoton.cpp \
 #        aphotontracer.cpp \
@@ -37,6 +45,13 @@ HEADERS += \
 #    ../ants3/materials/amaterialhub.h \
 #    ../ants3/photonSim/aphotonsimsettings.h \
 #    ../ants3/photonSim/asimulationstatistics.h \
+#    ../ants3/photonSim/interfaceRules/abasicinterfacerule.h \
+#    ../ants3/photonSim/interfaceRules/ainterfacerule.h \
+#    ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
+#    ../ants3/photonSim/interfaceRules/ametalinterfacerule.h \
+#    ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.h \
+#    ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \
+#    ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
 #    aphotonhistorylog.h \
 #    aphoton.h \
 #    aphotontracer.h

@@ -18,6 +18,8 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
     return getInstance();
 }
 
+
+
 void AInterfaceRuleHub::updateWaveResolvedProperties()
 {
     for (auto & rv : Rules)

@@ -3,6 +3,7 @@
 #include "amaterial.h"
 #include "amaterialhub.h"
 #include "aphotonsimsettings.h"
+#include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "asimulationstatistics.h"
 #include "aoneevent.h"
@@ -23,7 +24,9 @@
 
 APhotonTracer::APhotonTracer(APhotonSimSettings & simSet, TGeoManager * geoManager, TRandom2 *RandomGenerator, APmHub* Pms, const QVector<AGridElementRecord *> *Grids) :
     SimSet(simSet),
-    MatHub(AMaterialHub::getConstInstance()), GeoManager(geoManager)
+    MatHub(AMaterialHub::getConstInstance()),
+    RuleHub(AInterfaceRuleHub::getConstInstance()),
+    GeoManager(geoManager)
 {
     RandGen = RandomGenerator;
     PMs = Pms;
@@ -237,15 +240,15 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         //qDebug()<<"coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
 
         //-----Checking overrides-----
-        AInterfaceRule* ov = MaterialFrom->OpticalOverrides[MatIndexTo];
-        if (ov)
+        const AInterfaceRule * rule = RuleHub.getRuleFast(MatIndexFrom, MatIndexTo);
+        if (rule)
         {
             //qDebug() << "Overrides defined! Model = "<<ov->getType();
             N = Navigator->FindNormal(kFALSE);
             fHaveNormal = true;
             const double* PhPos = Navigator->GetCurrentPoint();
             for (int i=0; i<3; i++) p->r[i] = PhPos[i];
-            AInterfaceRule::OpticalOverrideResultEnum result = ov->calculate(*ResourcesForOverrides, p, N);
+            AInterfaceRule::OpticalOverrideResultEnum result = rule->calculate(*ResourcesForOverrides, p, N);
             if (bAbort) return;
 
             switch (result)
@@ -605,13 +608,13 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
             }
 
             //check if this material is waveshifter
-            const double reemissionProb = (*MaterialCollection)[MatIndexFrom]->getReemissionProbability(p->waveIndex);
+            const double reemissionProb = MatHub[MatIndexFrom]->getReemissionProbability(p->waveIndex);
             if ( reemissionProb > 0 )
             {
                 if (RandGen->Rndm() < reemissionProb)
                 {
                     //qDebug() << "Waveshifting! Original index:"<<p->waveIndex;
-                    if (p->waveIndex!=-1 && (*MaterialCollection)[MatIndexFrom]->PrimarySpectrumHist)
+                    if (p->waveIndex!=-1 && MatHub[MatIndexFrom]->PrimarySpectrumHist)
                     {
                         double wavelength;
                         int waveIndex;
@@ -751,7 +754,7 @@ void APhotonTracer::PMwasHit(int PMnumber)
         //       qDebug()<<"cos() = "<<cosAngle;
     }
 
-    if (!SimSet->fQEaccelerator) rnd = RandGen->Rndm(); //else already calculated
+    if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandGen->Rndm(); //else already calculated
 
     bool bDetected;
     if (fSiPM)

@@ -26,6 +26,8 @@ public:
     static       AInterfaceRuleHub & getInstance();
     static const AInterfaceRuleHub & getConstInstance();
 
+    const AInterfaceRule * getRuleFast(int MatFrom, int MatTo) const {return Rules[MatFrom][MatTo];} // TODO: size_t !!!***
+
     std::vector<std::vector<AInterfaceRule*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 
     void updateWaveResolvedProperties();
