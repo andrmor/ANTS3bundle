@@ -1,6 +1,11 @@
 #include "ainterfacerulehub.h"
+#include "ainterfacerule.h"
+#include "amaterialhub.h"
 
-AInterfaceRuleHub::AInterfaceRuleHub(){}
+#include "ajsontools.h"
+
+AInterfaceRuleHub::AInterfaceRuleHub() :
+    MatHub(AMaterialHub::getConstInstance()) {}
 
 AInterfaceRuleHub &AInterfaceRuleHub::getInstance()
 {
@@ -15,70 +20,86 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
 
 void AInterfaceRuleHub::updateWaveResolvedProperties()
 {
-    /*
-    for (int ior=0; ior<Materials[imat]->OpticalOverrides.size(); ior++)
-        if (Materials[imat]->OpticalOverrides[ior])
-            Materials[imat]->OpticalOverrides[ior]->initializeWaveResolved();
-    */
+    for (auto & rv : Rules)
+        for (auto & r : rv)
+            r->initializeWaveResolved();
 }
 
-void AInterfaceRuleHub::writeToJson(QJsonObject &json) const
+void AInterfaceRuleHub::writeToJsonAr(QJsonArray & jsAr) const
 {
-    /*
-    QJsonArray oar;
-    for (size_t iFrom=0; iFrom<Materials.size(); iFrom++)
-        for (size_t iTo=0; iTo<Materials.size(); iTo++)
-        {
-            if ( !Materials.at(iFrom)->OpticalOverrides.at(iTo) ) continue;
-            QJsonObject js;
-            Materials.at(iFrom)->OpticalOverrides[iTo]->writeToJson(js);
-            oar.append(js);
-        }
-    if (!oar.isEmpty()) js["Overrides"] = oar;
-    */
-}
-
-void AInterfaceRuleHub::readFromJson(const QJsonObject &json)
-{
-    /*
-    //reading overrides if present
-    QJsonArray oar = js["Overrides"].toArray();
-    for (int i=0; i<oar.size(); i++)
-    {
-        QJsonObject jj = oar[i].toObject();
-        if (jj.contains("Model"))
-        {
-            //new format
-            QString model = jj["Model"].toString();
-            int MatFrom = jj["MatFrom"].toInt();
-            int MatTo = jj["MatTo"].toInt();
-            if (MatFrom>numMats-1 || MatTo>numMats-1)
+    for (auto & rv : Rules)
+        for (auto & r : rv)
+            if (r)
             {
-                qWarning()<<"Attempt to override for non-existent material skipped";
-                continue;
+                QJsonObject js;
+                r->writeToJson(js);
+                jsAr.append(js);
             }
-            AOpticalOverride* ov = OpticalOverrideFactory(model, this, MatFrom, MatTo);
-            if (!ov || !ov->readFromJson(jj))
-                qWarning() << Materials[MatFrom]->name  << ": optical override load failed!";
-            else Materials[MatFrom]->OpticalOverrides[MatTo] = ov;
+}
+
+QString AInterfaceRuleHub::readFromJsonAr(const QJsonArray & jsAr)
+{
+    QString ErrorString;
+
+    for (int iAr = 0; iAr < jsAr.size(); iAr++)
+    {
+        QJsonObject js = jsAr[iAr].toObject();
+
+        QString Model = "NotProvided";
+        int MatFrom = -1;
+        int MatTo   = -1;
+
+        jstools::parseJson(js, "Model",   Model);
+        jstools::parseJson(js, "MatFrom", MatFrom);
+        jstools::parseJson(js, "MatTo",   MatTo);
+
+        if (MatFrom < 0 || MatFrom >= MatHub.countMaterials())
+        {
+            ErrorString += QString("Bad material index %0\n").arg(MatFrom);
+            continue;
         }
+        if (MatTo < 0 || MatTo >= MatHub.countMaterials())
+        {
+            ErrorString += QString("Bad material index %0\n").arg(MatTo);
+            continue;
+        }
+        AInterfaceRule * rule = interfaceRuleFactory(Model, MatFrom, MatTo);
+        if (!rule)
+        {
+            ErrorString += "Unknown rule model: " + Model + '\n';
+            continue;
+        }
+        bool ok = rule->readFromJson(js);
+        if (!ok)
+        {
+            ErrorString += QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
+            delete rule;
+            continue;
+        }
+
+        Rules[MatFrom][MatTo] = rule;
     }
-    */
+
+    return ErrorString;
 }
 
 QString AInterfaceRuleHub::checkAll()
 {
-    /*
-    for (const AMaterial * mat : Materials)
-        for (AOpticalOverride * ov : qAsConst(mat->OpticalOverrides))
-            if (ov)
+    QString err;
+
+    for (auto & rv : Rules)
+        for (auto & r : rv)
+        {
+            QString es = r->checkOverrideData();
+            if (!es.isEmpty())
             {
-                QString err = ov->checkOverrideData();
-                if ( !err.isEmpty())
-                    return QString("Error in optical override from %1 to %2:\n").arg(mat->name, getMaterialName(ov->getMaterialTo())) + err;
+                const QString matFrom = MatHub[r->getMaterialFrom()]->name;
+                const QString matTo   = MatHub[r->getMaterialTo()]  ->name;
+                err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + err;
             }
-    */
-    return "";
+        }
+
+    return err;
 }
 
 void AInterfaceRuleHub::onNewMaterialAdded()

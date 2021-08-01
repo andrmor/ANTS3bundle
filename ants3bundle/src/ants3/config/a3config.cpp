@@ -59,9 +59,13 @@ void A3Config::readFromJson(const QJsonObject & json)
 
     // Optical Interface Rules
     {
-        QJsonObject js;
-        jstools::parseJson(json, "InterfaceRules", js);
-        AInterfaceRuleHub::getInstance().readFromJson(js);
+        QJsonArray ar;
+        jstools::parseJson(json, "InterfaceRules", ar);
+        QString err = AInterfaceRuleHub::getInstance().readFromJsonAr(ar);
+
+        if (!err.isEmpty())
+            ErrorList << "Interface rule errors:\n==>\n" + err + "<==\n";
+
         emit requestUpdateInterfaceRuleGui();
     }
 
@@ -100,8 +104,8 @@ void A3Config::writeGeometry(QJsonObject & json) const
 
 void A3Config::writeInterRules(QJsonObject & json) const
 {
-    QJsonObject js;
-    AInterfaceRuleHub::getInstance().writeToJson(js);
-    json["InterfaceRules"] = js;
+    QJsonArray ar;
+    AInterfaceRuleHub::getInstance().writeToJsonAr(ar);
+    json["InterfaceRules"] = ar;
 }
 

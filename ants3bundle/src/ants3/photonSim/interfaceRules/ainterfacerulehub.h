@@ -7,7 +7,8 @@
 #include <vector>
 
 class AInterfaceRule;
-class QJsonObject;
+class QJsonArray;
+class AMaterialHub;
 
 class AInterfaceRuleHub : public QObject
 {
@@ -29,14 +30,17 @@ public:
 
     void updateWaveResolvedProperties();
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void writeToJsonAr(QJsonArray & jsAr) const;
+    QString readFromJsonAr(const QJsonArray & jsAr);
 
     QString checkAll();
 
 public slots:
     void onMaterialDeleted(size_t iMat);
     void onNewMaterialAdded();
+
+private:
+    const AMaterialHub & MatHub;
 
 };
 

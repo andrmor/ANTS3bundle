@@ -15,7 +15,7 @@ class QWidget;
 
 //  ----  !!!  ----
 // modify these two functions if you want to register a new override type
-AInterfaceRule * interfaceRuleFactory(const QString & model, int MatFrom, int MatTo);
+AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
 QStringList      getAllInterfaceRuleTypes();
 
 
@@ -63,7 +63,8 @@ public:
     ScatterStatusEnum Status;               // type of interaction which happened - use in 1 thread only!
 
     //misc
-    int getMaterialTo() const {return MatTo;}
+    int getMaterialFrom() const {return MatFrom;}
+    int getMaterialTo()   const {return MatTo;}
 
 protected:
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface

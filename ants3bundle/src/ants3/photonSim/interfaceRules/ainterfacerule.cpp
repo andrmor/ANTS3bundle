@@ -45,17 +45,17 @@ QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
 #include "awaveshifterinterfacerule.h"
 #include "ametalinterfacerule.h"
 
-AInterfaceRule * interfaceRuleFactory(const QString & model, int MatFrom, int MatTo)
+AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo)
 {
-    if (model == "Simplistic")
+    if (Model == "Simplistic")
         return new ABasicInterfaceRule(MatFrom, MatTo);
-    if (model == "SimplisticSpectral")
+    if (Model == "SimplisticSpectral")
         return new ASpectralBasicInterfaceRule(MatFrom, MatTo);
-    if (model == "DielectricToMetal")
+    if (Model == "DielectricToMetal")
         return new AMetalInterfaceRule(MatFrom, MatTo);
-    if (model == "FSNP")
+    if (Model == "FSNP")
         return new FsnpInterfaceRule(MatFrom, MatTo);
-    if (model == "SurfaceWLS")
+    if (Model == "SurfaceWLS")
         return new AWaveshifterInterfaceRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
