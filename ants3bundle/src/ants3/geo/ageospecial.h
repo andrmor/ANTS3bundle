@@ -37,7 +37,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    int SensorType = -1; // not defined
+    int SensorType = 0; // one is always defined (ideal sensor)
 
     // runtime, not saved
     int Index;

@@ -47,7 +47,7 @@ public:
     void         populateGeoManager();
 
     void         writeToJson(QJsonObject & json) const;
-    bool         readFromJson(const QJsonObject & json);  // returns "" if no errors, else error description
+    bool         readFromJson(const QJsonObject & json);
 
     void         clearWorld();
     bool         canBeDeleted(AGeoObject * obj) const;
