@@ -22,6 +22,8 @@ public:
     static ASensorHub & getInstance();
     static const ASensorHub & getConstInstance();
 
+    int countSensors() const {return Sensors.size();}
+
     const ASensorModel * getModelFast(int iModel) const;
 
     const QStringList getListOfModelNames() const;
