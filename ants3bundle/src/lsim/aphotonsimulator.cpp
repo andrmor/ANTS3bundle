@@ -1,4 +1,5 @@
-#include "a3psim.h"
+#include "aphotonsimulator.h"
+#include "alogger.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -11,20 +12,17 @@
 
 #include <iostream>
 
-A3PSim::A3PSim(const QString & fileName, const QString &dir, bool debug) :
-    FileName(fileName), FileDir(dir), Debug(debug) {}
+APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir, int id) :
+    ConfigFN(fileName), WorkingDir(dir), ID(id) {}
 
-A3PSim::~A3PSim()
+void APhotonSimulator::start()
 {
-    delete Log;
+    ALogger::getInstance().open(QString("PhotonSimLog-%0.log").arg(ID));
+    ALogger::log("Working Dir: " + WorkingDir + "\n");
+    ALogger::log("Config file: " + ConfigFN + "\n");
 
-    if (Ofile) Ofile->close();
-    delete Ofile;
-}
-
-void A3PSim::start()
-{
-    QFile file(FileName);
+    /*
+    QFile file(ConfigFN);
     file.open(QIODevice::ReadOnly);
     QByteArray data = file.readAll();
     file.close();
@@ -68,18 +66,21 @@ void A3PSim::start()
     }
     fileIn.close();
     fileOut.close();
+    */
 
     exit(0);
 }
 
-void A3PSim::onProgressTimer()
+void APhotonSimulator::onProgressTimer()
 {
     std::cout << "$$>" << EventsProcessed << "<$$\n";
     std::cout.flush();
+
+/*
     if (Log)
     {
         *Log << EventsProcessed << '\n';
         Log->flush();
     }
-    //qApp->processEvents();
+*/
 }

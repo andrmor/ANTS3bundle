@@ -1,5 +1,6 @@
 #include "a3photsimwin.h"
 #include "aphotonsimhub.h"
+#include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
 #include "ui_a3photsimwin.h"
 #include "a3config.h"
@@ -199,6 +200,6 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     //disableInterface(true);
     qApp->processEvents();
 
-    APhotonSimHub::getInstance().simulate();
+    APhotonSimManager::getInstance().simulate();
 }
 

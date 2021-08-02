@@ -11,6 +11,8 @@ CONFIG -= app_bundle
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+DESTDIR = ../../bin
+
 INCLUDEPATH += ../ants3/config
 INCLUDEPATH += ../ants3/materials
 INCLUDEPATH += ../ants3/photonSim
@@ -35,6 +37,8 @@ SOURCES += \
 #        aoneevent.cpp \
 #        aphotonhistorylog.cpp \
 #        aphotontracer.cpp \
+        alogger.cpp \
+        aphotonsimulator.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -60,3 +64,5 @@ HEADERS += \
 #    aoneevent.h \
 #    aphotonhistorylog.h \
 #    aphotontracer.h
+    alogger.h \
+    aphotonsimulator.h
