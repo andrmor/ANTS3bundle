@@ -44,7 +44,7 @@ INCLUDEPATH += gui/photsim
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
-INCLUDEPATH += particlesim
+INCLUDEPATH += particleSim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
 INCLUDEPATH += dispatch
@@ -97,7 +97,7 @@ SOURCES += \
     materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
-    particlesim/a3particlesimmanager.cpp \
+    particleSim/a3particlesimmanager.cpp \
     dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
@@ -164,7 +164,7 @@ HEADERS += \
     materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
-    particlesim/a3particlesimmanager.h \
+    particleSim/a3particlesimmanager.h \
     dispatch/a3dispinterface.h \
     config/a3config.h \
     config/a3global.h \
