@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class AGeneralSimSettings;
 class ATracerStateful;
 class AGeoObject;
 class QJsonArray;
@@ -38,8 +37,9 @@ public:
 
     QStringList getListOfMaterialNames() const;
 
+    void generateGeoMedia();
 //    TODO !!!***
-//    void UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings *SimSet);  // !!!***
+//    void updateRuntimeProperties();  // !!!***
 //    void UpdateWaveResolvedProperties(int imat); //updates wavelength-resolved material properties
 //    void ConvertToStandardWavelengthes(QVector<double> *sp_x, QVector<double> *sp_y, QVector<double> *y);
 

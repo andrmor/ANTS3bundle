@@ -8,7 +8,6 @@
 class AGeoObject;
 class TGeoManager;
 class TGeoVolume;
-class A3MatHub;
 class AGridElementRecord;
 class TGeoNode;
 class TGeoCombiTrans;
@@ -41,8 +40,6 @@ public:
 
     std::vector<QString>   MonitorIdNames;  //runtime
     std::vector<TGeoNode*> MonitorNodes; //runtime
-
-    const A3MatHub * MaterialCollection = nullptr; // TODO: will be a singleton!
 
     void         populateGeoManager();
 
@@ -103,6 +100,7 @@ private:
 
     void clearGridRecords();
     void clearMonitorRecords();
+
 };
 
 #endif // AGEOMETRYHUB_H

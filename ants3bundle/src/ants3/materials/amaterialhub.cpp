@@ -69,9 +69,8 @@ double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) con
 }
 
 /*
-void A3MatHub::UpdateRuntimePropertiesAndWavelengthBinning(AGeneralSimSettings * SimSet)
+void AMaterialHub::updateRuntimeProperties()
 {
- //   SetWave(SimSet->fWaveResolved, SimSet->WaveFrom, SimSet->WaveTo, SimSet->WaveStep, SimSet->WaveNodes);
     for (int imat = 0; imat < Materials.size(); imat++)
     {
         UpdateWaveResolvedProperties(imat);
@@ -91,6 +90,16 @@ QStringList AMaterialHub::getListOfMaterialNames() const
     QStringList l;
     for (AMaterial * m : Materials) l << m->name;
     return l;
+}
+
+void AMaterialHub::generateGeoMedia()
+{
+    for (size_t iMat = 0; iMat < Materials.size(); iMat++)
+    {
+        AMaterial * mat = Materials[iMat];
+        mat->generateTGeoMat();
+        mat->GeoMed = new TGeoMedium(mat->name.toLocal8Bit().data(), iMat, mat->GeoMat);
+    }
 }
 
 void AMaterialHub::clearMaterials()

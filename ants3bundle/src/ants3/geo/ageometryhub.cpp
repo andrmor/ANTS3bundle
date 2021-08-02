@@ -6,6 +6,9 @@
 #include "ajsontools.h"
 //#include "agridelementrecord.h"
 #include "ageoconsts.h"
+#include "amaterialhub.h"
+#include "ageospecial.h"
+#include "asensorhub.h"
 
 #include <QDebug>
 
@@ -482,28 +485,19 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 
 void AGeometryHub::populateGeoManager()
 {
-    clearGridRecords();
+    ASensorHub::getInstance().Sensors.clear();
     clearMonitorRecords();
+    clearGridRecords();
 
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
 
-    /*
-    //qDebug() << "--> Creating materials and media";
-    for (int i=0; i<MpCollection->countMaterials(); i++)
-      {
-        (*MpCollection)[i]->generateTGeoMat();
-        (*MpCollection)[i]->GeoMed = new TGeoMedium( (*MpCollection)[i]->name.toLocal8Bit().data(), i, (*MpCollection)[i]->GeoMat);
-      }
-*/
-
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
     if (!isWorldSizeFixed())
     {
-        //qDebug() << "--> Calculating world size";
         WorldSizeXY = 0;
         WorldSizeZ  = 0;
         World->updateWorldSize(WorldSizeXY, WorldSizeZ);
@@ -512,15 +506,15 @@ void AGeometryHub::populateGeoManager()
         setWorldSizeZ(WorldSizeZ);
     }
 
-    //Top = GeoManager->MakeBox("WorldBox", (*MpCollection)[Sandwich->World->Material]->GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
-    TGeoMaterial * Mat = new TGeoMaterial("wdum", 1, 1, 0);
-    TGeoMedium * GeoMed = new TGeoMedium( "wdummy", 0, Mat);
-    Top = GeoManager->MakeBox("WorldBox", GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+    AMaterialHub & MatHub = AMaterialHub::getInstance();
+    MatHub.generateGeoMedia();
+
+    Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
     GeoManager->SetTopVolume(Top);
     GeoManager->SetTopVisible(true);
 
     addTGeoVolumeRecursively(World, Top);
-    Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts"
+    Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
 
     GeoManager->CloseGeometry();
 }
@@ -621,12 +615,16 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
 
     //  Particle/Photon trackers use volume title for identification of volumes with special rules
-    //  First character can be 'G' for optical grid, 'M' for monitor, 'P' for PMT, 'p' for dummy PM
-    //  PMs and DummyPMs receive title in detector class, see PositionPMs and PositionDummis methods
+    //  First character can be 'M' for monitor, 'S' for light sensor, 'G' for optical grid
     //  Second character is used by the ParticleTracker to indicate that particles leaving the volume have to be saved to file
-    if      (obj->Type->isGrid())    vol->SetTitle("G---");
-    else if (obj->Type->isMonitor()) vol->SetTitle("M---");
-    else                             vol->SetTitle("----");
+
+    if      (obj->Type->isMonitor())                        vol->SetTitle("M---");
+    else if (obj->Role && obj->Role->getType() == "Sensor")
+    {
+        ASensorHub::getInstance().Sensors.push_back(obj);   vol->SetTitle("P---");
+    }
+    else if (obj->Type->isGrid())                           vol->SetTitle("G---");
+    else                                                    vol->SetTitle("----");
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)

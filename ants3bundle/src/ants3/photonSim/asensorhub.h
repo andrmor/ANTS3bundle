@@ -41,6 +41,8 @@ private:
 private:
     std::vector<ASensorModel> Models;
 
+
+public:
     // runtime - populated together with GeoManager
     std::vector<AGeoObject*> Sensors;
 
