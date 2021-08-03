@@ -886,29 +886,33 @@ void AGeometryHub::changeLineWidthOfVolumes(int delta)
 
 void AGeometryHub::writeToJson(QJsonObject & json) const
 {
-    QJsonArray arrTree;
-    World->writeAllToJarr(arrTree);
-    json["WorldTree"] = arrTree;
+    QJsonObject js;
+    {
+        QJsonArray arrTree;
+        World->writeAllToJarr(arrTree);
+        js["WorldTree"] = arrTree;
 
-    QJsonArray arrGC;
-    AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
-    json["GeoConsts"] = arrGC;
+        QJsonArray arrGC;
+        AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
+        js["GeoConsts"] = arrGC;
+    }
+    json["Geometry"] = js;
 }
 
-bool AGeometryHub::readFromJson(const QJsonObject & json)
+QString AGeometryHub::readFromJson(const QJsonObject & json)
 {
+    QJsonObject js;
+    bool ok = jstools::parseJson(json, "Geometry", js);
+    if (!ok) return "Json does not contain geometry settings!";
+
     QJsonArray arrGC;
-    jstools::parseJson(json, "GeoConsts", arrGC);
+    jstools::parseJson(js, "GeoConsts", arrGC);
     AGeoConsts::getInstance().readFromJsonArr(arrGC);
 
     QJsonArray arrTree;
-    jstools::parseJson(json, "WorldTree", arrTree);
+    jstools::parseJson(js, "WorldTree", arrTree);
     QString Error = World->readAllFromJarr(World, arrTree);
-    if (!Error.isEmpty())
-    {
-        A3Config::getInstance().ErrorList << Error;
-        return false;
-    }
+    if (!Error.isEmpty()) return Error;
 
     //if config contained Prototypes, there are two protoypes objects in the geometry now!
     for (AGeoObject * obj : World->HostedObjects)
@@ -928,7 +932,7 @@ bool AGeometryHub::readFromJson(const QJsonObject & json)
     World->updateAllStacks();
 
     populateGeoManager();
-    return true;
+    return "";
 }
 
 bool AGeometryHub::isWorldSizeFixed() const

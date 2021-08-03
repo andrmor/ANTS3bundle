@@ -18,8 +18,6 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
     return getInstance();
 }
 
-
-
 void AInterfaceRuleHub::updateWaveResolvedProperties()
 {
     for (auto & rv : Rules)
@@ -27,25 +25,31 @@ void AInterfaceRuleHub::updateWaveResolvedProperties()
             r->initializeWaveResolved();
 }
 
-void AInterfaceRuleHub::writeToJsonAr(QJsonArray & jsAr) const
+void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
 {
+    QJsonArray ar;
+
     for (auto & rv : Rules)
         for (auto & r : rv)
             if (r)
             {
                 QJsonObject js;
                 r->writeToJson(js);
-                jsAr.append(js);
+                ar.append(js);
             }
+
+    json["InterfaceRules"] = ar;
 }
 
-QString AInterfaceRuleHub::readFromJsonAr(const QJsonArray & jsAr)
+QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
 {
-    QString ErrorString;
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, "InterfaceRules", ar);
+    if (!ok) return "Json does not contain settings for interface rules!";
 
-    for (int iAr = 0; iAr < jsAr.size(); iAr++)
+    for (int iAr = 0; iAr < ar.size(); iAr++)
     {
-        QJsonObject js = jsAr[iAr].toObject();
+        QJsonObject js = ar[iAr].toObject();
 
         QString Model = "NotProvided";
         int MatFrom = -1;
@@ -56,33 +60,23 @@ QString AInterfaceRuleHub::readFromJsonAr(const QJsonArray & jsAr)
         jstools::parseJson(js, "MatTo",   MatTo);
 
         if (MatFrom < 0 || MatFrom >= MatHub.countMaterials())
-        {
-            ErrorString += QString("Bad material index %0\n").arg(MatFrom);
-            continue;
-        }
+            return QString("Bad material index %0\n").arg(MatFrom);
         if (MatTo < 0 || MatTo >= MatHub.countMaterials())
-        {
-            ErrorString += QString("Bad material index %0\n").arg(MatTo);
-            continue;
-        }
+            return QString("Bad material index %0\n").arg(MatTo);
         AInterfaceRule * rule = interfaceRuleFactory(Model, MatFrom, MatTo);
         if (!rule)
-        {
-            ErrorString += "Unknown rule model: " + Model + '\n';
-            continue;
-        }
+            return "Unknown rule model: " + Model + '\n';
         bool ok = rule->readFromJson(js);
         if (!ok)
         {
-            ErrorString += QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
             delete rule;
-            continue;
+            return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
         }
 
         Rules[MatFrom][MatTo] = rule;
     }
 
-    return ErrorString;
+    return "";
 }
 
 QString AInterfaceRuleHub::checkAll()

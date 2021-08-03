@@ -1,5 +1,4 @@
 #include "aphotonsimsettings.h"
-#include "a3config.h"
 #include "ajsontools.h"
 
 #include <cmath>
@@ -169,7 +168,7 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
 
 }
 
-void APhotonBombsSettings::readFromJson(const QJsonObject & json)
+QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
 {
     // PhotonNumberMode
     {
@@ -183,8 +182,8 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
         else if (str == "custom")   PhotonNumberMode = EBombPhNumber::Custom;
         else
         {
-            A3Config::getInstance().ErrorList << QString("Unknown PhotonNumberMode: %1 -> replacing with 'Constant'").arg(str);
             PhotonNumberMode = EBombPhNumber::Constant;
+            return QString("Unknown PhotonNumberMode: %1 -> replacing with 'Constant'").arg(str);
         }
     }
 
@@ -200,8 +199,8 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
         else if (str == "script") GenerationMode = EBombGen::Script;
         else
         {
-            A3Config::getInstance().ErrorList << QString("Unknown GenerationMode: %1 -> replacing with 'Single'").arg(str);
             GenerationMode = EBombGen::Single;
+            return QString("Unknown GenerationMode: %1 -> replacing with 'Single'").arg(str);
         }
     }
 
@@ -223,6 +222,7 @@ void APhotonBombsSettings::readFromJson(const QJsonObject & json)
     // Grid
 
 
+    return "";
 }
 
 // ---
@@ -292,7 +292,7 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
 
 }
 
-void APhotonSimSettings::readFromJson(const QJsonObject & json)
+QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 {
     {
         QJsonObject js;
@@ -316,8 +316,8 @@ void APhotonSimSettings::readFromJson(const QJsonObject & json)
         else if (str == "lrf")  SimType = EPhotSimType::FromLRFs;
         else
         {
-            A3Config::getInstance().ErrorList << QString("Unknown photon simulation mode: %1 -> setting to 'bombs'").arg(str);
             SimType = EPhotSimType::PhotonBombs;
+            return QString("Unknown photon simulation mode: %1 -> setting to 'bombs'").arg(str);
         }
     }
 
@@ -328,4 +328,5 @@ void APhotonSimSettings::readFromJson(const QJsonObject & json)
         BombSet.readFromJson(js);
     }
 
+    return "";
 }

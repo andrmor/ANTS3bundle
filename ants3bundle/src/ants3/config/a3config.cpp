@@ -22,16 +22,11 @@ A3Config::A3Config()
 void A3Config::writeToJson(QJsonObject & json) const
 {
     AMaterialHub::getInstance().writeToJson(json);
-    writeGeometry  (json);
-    writeInterRules(json);
-    // sensors
+    AGeometryHub::getInstance().writeToJson(json);
+    AInterfaceRuleHub::getInstance().writeToJson(json);
+    // TODO: sensors
 
-    // Photon simulation
-    {
-        QJsonObject js;
-        APhotonSimHub::getConstInstance().writeToJson(js);
-        json["PhotonSim"] = js;
-    }
+    APhotonSimHub::getConstInstance().writeToJson(json);
 
     // Particle simulation
 
@@ -45,33 +40,17 @@ QString A3Config::readFromJson(const QJsonObject & json)
     ErrorString = AMaterialHub::getInstance().readFromJson(json);
     if (!ErrorString.isEmpty()) return ErrorString;
 
-    // Geometry
-    {
-        QJsonObject js;
-        jstools::parseJson(json, "Geometry", js);
-        AGeometryHub::getInstance().readFromJson(js);
-        emit requestUpdateGeometryGui();
-    }
+    ErrorString = AGeometryHub::getInstance().readFromJson(json);
+    if (!ErrorString.isEmpty()) return ErrorString;
+    emit requestUpdateGeometryGui();        // TODO: to the hub? !!!***
 
-    // Optical Interface Rules
-    {
-        QJsonArray ar;
-        jstools::parseJson(json, "InterfaceRules", ar);
-        QString err = AInterfaceRuleHub::getInstance().readFromJsonAr(ar);
+    ErrorString = AInterfaceRuleHub::getInstance().readFromJson(json);
+    if (!ErrorString.isEmpty()) return ErrorString;
+    emit requestUpdateInterfaceRuleGui();   // TODO: to the hub? !!!***
 
-        if (!err.isEmpty())
-            ErrorList << "Interface rule errors:\n==>\n" + err + "<==\n";
-
-        emit requestUpdateInterfaceRuleGui();
-    }
-
-    // Photon simulation
-    {
-        QJsonObject js;
-        jstools::parseJson(json, "PhotonSim", js);
-        APhotonSimHub::getInstance().readFromJson(js);
-        emit requestUpdatePhotSimGui();
-    }
+    ErrorString = APhotonSimHub::getInstance().readFromJson(json);
+    if (!ErrorString.isEmpty()) return ErrorString;
+    emit requestUpdatePhotSimGui();         // TODO: to the hub? !!!***
 
     return "";
 }
@@ -79,24 +58,9 @@ QString A3Config::readFromJson(const QJsonObject & json)
 void A3Config::formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json)
 {
     AMaterialHub::getInstance().writeToJson(json);
-    writeGeometry  (json);
-    writeInterRules(json);
+    AGeometryHub::getInstance().writeToJson(json);
+    AInterfaceRuleHub::getInstance().writeToJson(json);
     // sensors
 
     json["PhotonSim"] = jsSim;
 }
-
-void A3Config::writeGeometry(QJsonObject & json) const
-{
-    QJsonObject js;
-    AGeometryHub::getInstance().writeToJson(js);
-    json["Geometry"] = js;
-}
-
-void A3Config::writeInterRules(QJsonObject & json) const
-{
-    QJsonArray ar;
-    AInterfaceRuleHub::getInstance().writeToJsonAr(ar);
-    json["InterfaceRules"] = ar;
-}
-

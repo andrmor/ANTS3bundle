@@ -4,8 +4,7 @@
 #include "aphotonsimsettings.h"
 
 #include <QObject>
-
-class A3WorkDistrConfig;
+#include <QString>
 
 class APhotonSimHub final : public QObject
 {
@@ -27,8 +26,8 @@ private:
 public:
     APhotonSimSettings Settings;
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
 signals:
     void settingsChanged();

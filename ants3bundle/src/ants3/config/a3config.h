@@ -47,10 +47,6 @@ public:
 
     void formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json);
 
-private:
-    void writeGeometry  (QJsonObject & json) const;
-    void writeInterRules(QJsonObject & json) const;
-
 signals:
     void requestUpdateGeometryGui();
     void requestUpdatePhotSimGui();

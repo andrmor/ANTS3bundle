@@ -1,8 +1,4 @@
 #include "aphotonsimhub.h"
-#include "a3config.h"
-#include "a3global.h"
-#include "a3dispinterface.h"
-#include "a3workdistrconfig.h"
 #include "ajsontools.h"
 
 APhotonSimHub & APhotonSimHub::getInstance()
@@ -18,11 +14,19 @@ const APhotonSimHub &APhotonSimHub::getConstInstance()
 
 void APhotonSimHub::writeToJson(QJsonObject & json) const
 {
-    Settings.writeToJson(json);
+    QJsonObject js;
+        Settings.writeToJson(js);
+    json["PhotonSim"] = js;
 }
 
-void APhotonSimHub::readFromJson(const QJsonObject & json)
+QString APhotonSimHub::readFromJson(const QJsonObject & json)
 {
-    Settings.readFromJson(json);
+    QJsonObject js;
+    bool ok = jstools::parseJson(json, "PhotonSim", js);
+    if (!ok) return "json does not contain photon sim settings!";
+
+    QString err = Settings.readFromJson(js);
+    if (!err.isEmpty()) return err;
     emit settingsChanged();
+    return "";
 }

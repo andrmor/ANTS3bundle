@@ -1,6 +1,7 @@
 #ifndef AGEOMETRYHUB_H
 #define AGEOMETRYHUB_H
 
+#include <QString>
 #include <QStringList>
 
 #include <vector>
@@ -44,7 +45,7 @@ public:
     void         populateGeoManager();
 
     void         writeToJson(QJsonObject & json) const;
-    bool         readFromJson(const QJsonObject & json);
+    QString      readFromJson(const QJsonObject & json);
 
     void         clearWorld();
     bool         canBeDeleted(AGeoObject * obj) const;

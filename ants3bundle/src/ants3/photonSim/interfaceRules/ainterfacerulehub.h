@@ -7,7 +7,7 @@
 #include <vector>
 
 class AInterfaceRule;
-class QJsonArray;
+class QJsonObject;
 class AMaterialHub;
 
 class AInterfaceRuleHub : public QObject
@@ -32,8 +32,8 @@ public:
 
     void updateWaveResolvedProperties();
 
-    void writeToJsonAr(QJsonArray & jsAr) const;
-    QString readFromJsonAr(const QJsonArray & jsAr);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
     QString checkAll();
 

@@ -2,6 +2,7 @@
 #define APHOTONSIMSETTINGS_H
 
 #include <QVector> // TODO: std::vector !!!***
+#include <QString>
 
 class QJsonObject;
 
@@ -25,7 +26,7 @@ public:
     double toWavelength(int index) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
-    // TODO: refactor 2 below:
+    // TODO: refactor:
     void   toStandardBins(const QVector<double> *sp_x, const QVector<double> *sp_y, QVector<double>* y) const;
 
 private:
@@ -57,8 +58,8 @@ public:
     // Single
     double Position[3];
 
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 };
 
 class APhotSimRunSettings
@@ -94,8 +95,8 @@ public:
 
     APhotSimRunSettings  RunSet;
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 };
 
 #endif // APHOTONSIMSETTINGS_H
