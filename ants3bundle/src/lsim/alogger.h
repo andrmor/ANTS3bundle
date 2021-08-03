@@ -5,6 +5,10 @@ class QString;
 class QFile;
 class QTextStream;
 
+#include <QTextStream>
+
+#define LOG ALogger::log()
+
 class ALogger
 {
 public:
@@ -12,7 +16,7 @@ public:
 
     void open(const QString & fileName);
 
-    static void log(const QString & text);
+    static QTextStream & log();
 
 private:
     ALogger(){}

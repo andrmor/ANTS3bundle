@@ -28,8 +28,8 @@ void ALogger::open(const QString & fileName)
     Log->flush();
 }
 
-void ALogger::log(const QString & text)
+QTextStream & ALogger::log()
 {
     ALogger & logger = getInstance();
-    *logger.Log << text;
+    return *logger.Log;
 }

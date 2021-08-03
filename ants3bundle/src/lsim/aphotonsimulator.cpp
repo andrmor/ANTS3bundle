@@ -18,8 +18,8 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
 void APhotonSimulator::start()
 {
     ALogger::getInstance().open(QString("PhotonSimLog-%0.log").arg(ID));
-    ALogger::log("Working Dir: " + WorkingDir + "\n");
-    ALogger::log("Config file: " + ConfigFN + "\n");
+    LOG << "Working Dir: " << WorkingDir << "\n";
+    LOG << "Config file: " << ConfigFN   << "\n";
 
     /*
     QFile file(ConfigFN);
@@ -75,12 +75,5 @@ void APhotonSimulator::onProgressTimer()
 {
     std::cout << "$$>" << EventsProcessed << "<$$\n";
     std::cout.flush();
-
-/*
-    if (Log)
-    {
-        *Log << EventsProcessed << '\n';
-        Log->flush();
-    }
-*/
+    LOG << EventsProcessed << '\n';
 }
