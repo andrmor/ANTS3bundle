@@ -42,13 +42,12 @@ public:
     QString     to   = "B";
     QString     lines;
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
     void formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json);
 
 private:
-    void writeMaterials (QJsonObject & json) const;
     void writeGeometry  (QJsonObject & json) const;
     void writeInterRules(QJsonObject & json) const;
 

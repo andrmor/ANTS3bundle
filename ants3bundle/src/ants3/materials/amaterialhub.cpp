@@ -323,20 +323,25 @@ bool AMaterialHub::DeleteMaterial(int imat)
     return true;
 }
 
-void AMaterialHub::writeToJsonAr(QJsonArray & ar) const
+void AMaterialHub::writeToJson(QJsonObject & json) const
 {
-    ar = QJsonArray();
-
+    QJsonArray ar;
     for (const AMaterial * m : Materials)
     {
         QJsonObject js;
         m->writeToJson(js);
         ar.append(js);
     }
+
+    json["Materials"] = ar;
 }
 
-bool AMaterialHub::readFromJsonAr(const QJsonArray & ar)
+QString AMaterialHub::readFromJson(const QJsonObject & json)
 {
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, "Materials", ar);
+    if (!ok) return "Json does not contain material hub settings";
+
     clearMaterials();
 
     for (int i=0; i<ar.size(); i++)
@@ -348,12 +353,12 @@ bool AMaterialHub::readFromJsonAr(const QJsonArray & ar)
 
     if (Materials.empty())
     {
-        A3Config::getInstance().ErrorList << "Materials are empty! Adding a dummy material";
-        addNewMaterial("Dummy", true);
+        addNewMaterial("Dummy"); //emits the signal!
+        return "Materials are empty!";
     }
+    else emit materialsChanged();
 
-    emit materialsChanged();
-    return true;
+    return "";
 }
 
 void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!

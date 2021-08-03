@@ -1,5 +1,7 @@
 #include "ageoconsts.h"
+#include "ageoobject.h"
 #include "ajsontools.h"
+
 #include "TFormula.h"
 
 #include <QDebug>

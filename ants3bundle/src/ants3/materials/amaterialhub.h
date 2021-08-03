@@ -12,7 +12,6 @@
 
 class ATracerStateful;
 class AGeoObject;
-class QJsonArray;
 
 class AMaterialHub : public QObject
 {
@@ -32,8 +31,8 @@ public:
     static       AMaterialHub & getInstance();
     static const AMaterialHub & getConstInstance();
 
-    void writeToJsonAr(QJsonArray & ar) const;
-    bool readFromJsonAr(const QJsonArray & ar);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
     QStringList getListOfMaterialNames() const;
 

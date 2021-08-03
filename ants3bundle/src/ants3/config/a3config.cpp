@@ -21,7 +21,7 @@ A3Config::A3Config()
 
 void A3Config::writeToJson(QJsonObject & json) const
 {
-    writeMaterials (json);
+    AMaterialHub::getInstance().writeToJson(json);
     writeGeometry  (json);
     writeInterRules(json);
     // sensors
@@ -38,16 +38,12 @@ void A3Config::writeToJson(QJsonObject & json) const
     // Reconstruction
 }
 
-void A3Config::readFromJson(const QJsonObject & json)
+QString A3Config::readFromJson(const QJsonObject & json)
 {
-    ErrorList.clear();
+    QString ErrorString;
 
-    // Materials
-    {
-        QJsonArray ar;
-        jstools::parseJson(json, "Materials", ar);
-        AMaterialHub::getInstance().readFromJsonAr(ar);
-    }
+    ErrorString = AMaterialHub::getInstance().readFromJson(json);
+    if (!ErrorString.isEmpty()) return ErrorString;
 
     // Geometry
     {
@@ -76,23 +72,18 @@ void A3Config::readFromJson(const QJsonObject & json)
         APhotonSimHub::getInstance().readFromJson(js);
         emit requestUpdatePhotSimGui();
     }
+
+    return "";
 }
 
 void A3Config::formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json)
 {
-    writeMaterials (json);
+    AMaterialHub::getInstance().writeToJson(json);
     writeGeometry  (json);
     writeInterRules(json);
     // sensors
 
     json["PhotonSim"] = jsSim;
-}
-
-void A3Config::writeMaterials(QJsonObject & json) const
-{
-    QJsonArray ar;
-    AMaterialHub::getInstance().writeToJsonAr(ar);
-    json["Materials"] = ar;
 }
 
 void A3Config::writeGeometry(QJsonObject & json) const

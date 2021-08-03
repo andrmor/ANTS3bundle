@@ -1,5 +1,6 @@
 #include "aphotonsimulator.h"
 #include "alogger.h"
+#include "ajsontools.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -21,52 +22,32 @@ void APhotonSimulator::start()
     LOG << "Working Dir: " << WorkingDir << "\n";
     LOG << "Config file: " << ConfigFN   << "\n";
 
-    /*
-    QFile file(ConfigFN);
-    file.open(QIODevice::ReadOnly);
-    QByteArray data = file.readAll();
-    file.close();
-    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-    QJsonObject json = loadDoc.object();
+    QJsonObject json;
+    jstools::loadJsonFromFile(json, ConfigFN);
 
-    int     id    = json["ID"].toInt();
-    QString inFN  = json["Input"].toString();
-    QString outFN = json["Output"].toString();
-    QString from  = json["From"].toString();
-    QString to    = json["To"].toString();
 
-    if (Debug)
-    {
-        Ofile = new QFile(QString("psim_log_id%0.txt").arg(id));
-        Ofile->open(QIODevice::WriteOnly | QFile::Text);
-        Log = new QTextStream(Ofile);
-        *Log << FileName << '\n';
-        Log->flush();
-    }
 
-    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
-    QFile fileOut(FileDir + '/' + outFN); fileOut.open(QIODevice::WriteOnly);
+//    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
+//    QFile fileOut(FileDir + '/' + outFN); fileOut.open(QIODevice::WriteOnly);
+//    QTextStream in(&fileIn);
+//    QTextStream out(&fileOut);
 
-    QTextStream in(&fileIn);
-    QTextStream out(&fileOut);
+//    QTimer Timer;
+//    QObject::connect(&Timer, &QTimer::timeout, this, &A3PSim::onProgressTimer);
+//    Timer.start(300);
 
-    QTimer Timer;
-    QObject::connect(&Timer, &QTimer::timeout, this, &A3PSim::onProgressTimer);
-    Timer.start(300);
-
-    EventsProcessed = 0;
-    while (!in.atEnd())
-    {
-          QString line = in.readLine();
-          line.replace(from, to);
-          out << line << '\n';
-          EventsProcessed++;
-          QThread::msleep(1000); //just to simulate long execution!
-          qApp->processEvents();
-    }
-    fileIn.close();
-    fileOut.close();
-    */
+//    EventsProcessed = 0;
+//    while (!in.atEnd())
+//    {
+//          QString line = in.readLine();
+//          line.replace(from, to);
+//          out << line << '\n';
+//          EventsProcessed++;
+//          QThread::msleep(1000); //just to simulate long execution!
+//          qApp->processEvents();
+//    }
+//    fileIn.close();
+//    fileOut.close();
 
     exit(0);
 }

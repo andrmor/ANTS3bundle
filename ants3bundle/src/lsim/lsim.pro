@@ -15,15 +15,26 @@ DESTDIR = ../../bin
 
 INCLUDEPATH += ../ants3/config
 INCLUDEPATH += ../ants3/materials
+INCLUDEPATH += ../ants3/geo
 INCLUDEPATH += ../ants3/photonSim
 INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
-#        ../ants3/config/a3config.cpp \
+        alogger.cpp \
+        aphotonsimulator.cpp \
+        ../ants3/tools/ajsontools.cpp \
+#        ../ants3/geo/ageoconsts.cpp \
+#        ../ants3/geo/ageometryhub.cpp \
+#        ../ants3/geo/ageoobject.cpp \
+#        ../ants3/geo/ageoshape.cpp \
+#        ../ants3/geo/ageospecial.cpp \
+#        ../ants3/geo/ageotype.cpp \
+#        ../ants3/geo/amonitor.cpp \
 #        ../ants3/materials/amaterial.cpp \
 #        ../ants3/materials/amaterialcomposition.cpp \
 #        ../ants3/materials/amaterialhub.cpp \
+        main.cpp
 #        ../ants3/photonSim/aphoton.cpp \
 #        ../ants3/photonSim/aphotonsimsettings.cpp \
 #        ../ants3/photonSim/asimulationstatistics.cpp \
@@ -37,9 +48,6 @@ SOURCES += \
 #        aoneevent.cpp \
 #        aphotonhistorylog.cpp \
 #        aphotontracer.cpp \
-        alogger.cpp \
-        aphotonsimulator.cpp \
-        main.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -47,10 +55,20 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-#    ../ants3/config/a3config.h \
+    alogger.h \
+    aphotonsimulator.h \
+    ../ants3/tools/ajsontools.h \
+#    ../ants3/geo/ageoconsts.h
+#    ../ants3/geo/ageometryhub.h \
+#    ../ants3/geo/ageoobject.h \
+#    ../ants3/geo/ageoshape.h \
+#    ../ants3/geo/ageospecial.h \
+#    ../ants3/geo/ageotype.h \
+#    ../ants3/geo/amonitor.h \
 #    ../ants3/materials/amaterial.h \
 #    ../ants3/materials/amaterialcomposition.h \
-#    ../ants3/materials/amaterialhub.h \
+#    ../ants3/materials/amaterialhub.h
+
 #    ../ants3/photonSim/aphotonsimsettings.h \
 #    ../ants3/photonSim/aphoton.h \
 #    ../ants3/photonSim/asimulationstatistics.h \
@@ -64,5 +82,3 @@ HEADERS += \
 #    aoneevent.h \
 #    aphotonhistorylog.h \
 #    aphotontracer.h
-    alogger.h \
-    aphotonsimulator.h

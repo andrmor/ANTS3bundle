@@ -4,9 +4,9 @@
 #include <QVector>
 #include <QString>
 #include <QRegularExpression>
-#include <ageoobject.h>
 
 class QJsonArray;
+class AGeoObject;
 
 struct AGeoConstRecord
 {
