@@ -14,19 +14,14 @@ const APhotonSimHub &APhotonSimHub::getConstInstance()
 
 void APhotonSimHub::writeToJson(QJsonObject & json) const
 {
-    QJsonObject js;
-        Settings.writeToJson(js);
-    json["PhotonSim"] = js;
+    Settings.writeToJson(json);
 }
 
 QString APhotonSimHub::readFromJson(const QJsonObject & json)
 {
-    QJsonObject js;
-    bool ok = jstools::parseJson(json, "PhotonSim", js);
-    if (!ok) return "json does not contain photon sim settings!";
+    QString ErrorString = Settings.readFromJson(json);
 
-    QString err = Settings.readFromJson(js);
-    if (!err.isEmpty()) return err;
-    emit settingsChanged();
-    return "";
+    if (ErrorString.isEmpty()) emit settingsChanged();
+
+    return ErrorString;
 }

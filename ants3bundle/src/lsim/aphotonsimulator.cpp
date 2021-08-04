@@ -4,6 +4,7 @@
 #include "amaterialhub.h"
 #include "ageometryhub.h"
 #include "asensorhub.h"
+#include "aphotonsimsettings.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -41,6 +42,11 @@ void APhotonSimulator::start()
     Error         = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sensor models: " << ASensorHub::getInstance().countSensorModels();
+    LOG.flush();
+    APhotonSimSettings SimSet;
+    Error = SimSet.readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
     LOG.flush();
 
 

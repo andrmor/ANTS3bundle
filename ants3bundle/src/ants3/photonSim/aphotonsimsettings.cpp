@@ -258,18 +258,19 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
 void APhotonSimSettings::writeToJson(QJsonObject & json) const
 {
+    QJsonObject jsSim;
+    // Wave
     {
         QJsonObject js;
         WaveSet.writeToJson(js);
-        json["WaveResolved"] = js;
+        jsSim["WaveResolved"] = js;
     }
-
+    // Max trans and QE check before trace
     {
         QJsonObject js;
         OptSet.writeToJson(js);
-        json["Optimization"] = js;
+        jsSim["Optimization"] = js;
     }
-
     // Type
     {
         QString str;
@@ -280,36 +281,39 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
         case EPhotSimType::IndividualPhotons : str = "indi"; break;
         case EPhotSimType::FromLRFs          : str = "lrf";  break;
         }
-        json["SimulationType"] = str;
+        jsSim["SimulationType"] = str;
     }
-
     // Particular modes
     {
         QJsonObject js;
         BombSet.writeToJson(js);
-        json["PhotonBombs"] = js;
+        jsSim["PhotonBombs"] = js;
     }
-
+    json["PhotonSim"] = jsSim;
 }
 
 QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 {
+    QJsonObject jsSim;
+    bool ok = jstools::parseJson(json, "PhotonSim", jsSim);
+    if (!ok) return "Json does not contain photon sim settings!";
+
+    // Wave
     {
         QJsonObject js;
-        jstools::parseJson(json, "WaveResolved", js);
+        jstools::parseJson(jsSim, "WaveResolved", js);
         WaveSet.readFromJson(js);
     }
-
+    // Max trans and QE check before trace
     {
         QJsonObject js;
-        jstools::parseJson(json, "Optimization", js);
+        jstools::parseJson(jsSim, "Optimization", js);
         OptSet.readFromJson(js);
     }
-
     // Type
     {
         QString str = "undefined";
-        jstools::parseJson(json, "SimulationType", str);
+        jstools::parseJson(jsSim, "SimulationType", str);
         if      (str == "bomb") SimType = EPhotSimType::PhotonBombs;
         else if (str == "depo") SimType = EPhotSimType::FromEnergyDepo;
         else if (str == "indi") SimType = EPhotSimType::IndividualPhotons;
@@ -320,11 +324,10 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
             return QString("Unknown photon simulation mode: %1 -> setting to 'bombs'").arg(str);
         }
     }
-
     // Particular modes
     {
         QJsonObject js;
-        jstools::parseJson(json, "PhotonBombs", js);
+        jstools::parseJson(jsSim, "PhotonBombs", js);
         BombSet.readFromJson(js);
     }
 
