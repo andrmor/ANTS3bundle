@@ -86,7 +86,7 @@ public:
   AGridElementRecord* createGridRecord();
 */
 
-  //for monitor
+  //for monitor -> TODO: remove from here
   void updateMonitorShape();
   const AMonitorConfig * getMonitorConfig() const; //returns nullptr if obj is not a monitor
 

@@ -1,5 +1,6 @@
 #include "ageoshape.h"
 #include "ajsontools.h"
+#include "ageoconsts.h"
 
 #include <QDebug>
 #include <QRegularExpression>
@@ -20,7 +21,6 @@
 #include "TGeoScaledShape.h"
 #include "TGeoMatrix.h"
 #include "TGeoTorus.h"
-#include "ageoconsts.h"
 
 AGeoShape * AGeoShape::clone() const
 {

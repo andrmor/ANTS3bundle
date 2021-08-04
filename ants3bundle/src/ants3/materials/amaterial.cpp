@@ -1,12 +1,12 @@
 #include "amaterial.h"
-#include "ajsontools.h"
 #include "achemicalelement.h"
 //#include "acommonfunctions.h"
+#include "ajsontools.h"
 #include "afiletools.h"
 
+#include <QDebug>
 #include <QStandardPaths>
 #include <QFile>
-#include <QDebug>
 
 #include "TH1D.h"
 #include "TRandom2.h"

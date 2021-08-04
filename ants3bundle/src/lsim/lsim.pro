@@ -21,19 +21,25 @@ INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
-        alogger.cpp \
         aphotonsimulator.cpp \
         ../ants3/tools/ajsontools.cpp \
-#        ../ants3/geo/ageoconsts.cpp \
-#        ../ants3/geo/ageometryhub.cpp \
-#        ../ants3/geo/ageoobject.cpp \
-#        ../ants3/geo/ageoshape.cpp \
-#        ../ants3/geo/ageospecial.cpp \
-#        ../ants3/geo/ageotype.cpp \
-#        ../ants3/geo/amonitor.cpp \
-#        ../ants3/materials/amaterial.cpp \
-#        ../ants3/materials/amaterialcomposition.cpp \
-#        ../ants3/materials/amaterialhub.cpp \
+        ../ants3/tools/afiletools.cpp \
+        ../ants3/geo/ageoconsts.cpp \
+        ../ants3/geo/ageometryhub.cpp \
+        ../ants3/geo/ageoobject.cpp \
+        ../ants3/geo/ageoshape.cpp \
+        ../ants3/geo/ageospecial.cpp \
+        ../ants3/geo/ageotype.cpp \
+        ../ants3/geo/amonitor.cpp \
+        ../ants3/photonSim/amonitorconfig.cpp \
+        ../ants3/photonSim/asensorhub.cpp \
+        ../ants3/materials/amaterialhub.cpp \
+        ../ants3/materials/amaterial.cpp \
+        ../ants3/materials/amaterialcomposition.cpp \
+        ../ants3/materials/achemicalelement.cpp \
+        ../ants3/materials/aisotope.cpp \
+        ../ants3/materials/aisotopeabundancehandler.cpp \
+        alogger.cpp \
         main.cpp
 #        ../ants3/photonSim/aphoton.cpp \
 #        ../ants3/photonSim/aphotonsimsettings.cpp \
@@ -55,19 +61,26 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    alogger.h \
     aphotonsimulator.h \
     ../ants3/tools/ajsontools.h \
-#    ../ants3/geo/ageoconsts.h
-#    ../ants3/geo/ageometryhub.h \
-#    ../ants3/geo/ageoobject.h \
-#    ../ants3/geo/ageoshape.h \
-#    ../ants3/geo/ageospecial.h \
-#    ../ants3/geo/ageotype.h \
-#    ../ants3/geo/amonitor.h \
-#    ../ants3/materials/amaterial.h \
-#    ../ants3/materials/amaterialcomposition.h \
-#    ../ants3/materials/amaterialhub.h
+    ../ants3/tools/afiletools.h \
+    ../ants3/geo/ageometryhub.h \
+    ../ants3/geo/ageoconsts.h \
+    ../ants3/geo/ageoobject.h \
+    ../ants3/geo/ageoshape.h \
+    ../ants3/geo/ageospecial.h \
+    ../ants3/geo/ageotype.h \
+    ../ants3/geo/amonitor.h \
+    ../ants3/photonSim/amonitorconfig.h \
+    ../ants3/photonSim/asensorhub.h \
+    ../ants3/materials/amaterialhub.h \
+    ../ants3/materials/amaterial.h \
+    ../ants3/materials/amaterialcomposition.h \
+    ../ants3/materials/achemicalelement.h \
+    ../ants3/materials/aisotope.h \
+    ../ants3/materials/aisotopeabundancehandler.h \
+    alogger.h
+
 
 #    ../ants3/photonSim/aphotonsimsettings.h \
 #    ../ants3/photonSim/aphoton.h \

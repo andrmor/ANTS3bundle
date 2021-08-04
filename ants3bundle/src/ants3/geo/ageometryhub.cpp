@@ -2,12 +2,11 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-#include "a3config.h"
-#include "ajsontools.h"
 //#include "agridelementrecord.h"
 #include "ageoconsts.h"
 #include "amaterialhub.h"
 #include "ageospecial.h"
+#include "ajsontools.h"
 #include "asensorhub.h"
 
 #include <QDebug>

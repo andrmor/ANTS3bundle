@@ -1,11 +1,12 @@
 #include "amaterialhub.h"
-#include "a3config.h"
-#include "ainterfacerule.h"
-#include "ajsontools.h"
-#include "acommonfunctions.h"
+//#include "a3config.h"
+//#include "ainterfacerule.h"
+//#include "acommonfunctions.h"
 //#include "atracerstateful.h"
+#include "ageoobject.h"
+#include "ajsontools.h"
 
-#include <QtDebug>
+#include <QDebug>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QFile>
@@ -394,7 +395,6 @@ void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
     mat->name = name;
 }
 
-#include "ageoobject.h"
 void AMaterialHub::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const
 {
     for (int iM = 0; iM<Materials.size(); iM++)
