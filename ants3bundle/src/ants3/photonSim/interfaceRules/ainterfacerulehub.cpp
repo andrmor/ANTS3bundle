@@ -1,7 +1,6 @@
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "amaterialhub.h"
-
 #include "ajsontools.h"
 
 AInterfaceRuleHub::AInterfaceRuleHub() :

@@ -42,7 +42,9 @@ void APhoton::EnsureUnitaryLength()
         for (int i=0; i<3; i++) v[i] /= mod;
     else
     {
-        v[0] = 0; v[1] = 0; v[2] = 1.0;
+        v[0] = 0;
+        v[1] = 0;
+        v[2] = 1.0;
     }
 }
 

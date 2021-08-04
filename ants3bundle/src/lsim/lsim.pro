@@ -39,14 +39,15 @@ SOURCES += \
         ../ants3/materials/achemicalelement.cpp \
         ../ants3/materials/aisotope.cpp \
         ../ants3/materials/aisotopeabundancehandler.cpp \
+        ../ants3/photonSim/aphotonsimsettings.cpp \
         alogger.cpp \
         main.cpp
+#        ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
 #        ../ants3/photonSim/aphoton.cpp \
 #        ../ants3/photonSim/aphotonsimsettings.cpp \
 #        ../ants3/photonSim/asimulationstatistics.cpp \
 #        ../ants3/photonSim/interfaceRules/abasicinterfacerule.cpp \
 #        ../ants3/photonSim/interfaceRules/ainterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
 #        ../ants3/photonSim/interfaceRules/ametalinterfacerule.cpp \
 #        ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
 #        ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
@@ -79,15 +80,14 @@ HEADERS += \
     ../ants3/materials/achemicalelement.h \
     ../ants3/materials/aisotope.h \
     ../ants3/materials/aisotopeabundancehandler.h \
+    ../ants3/photonSim/aphotonsimsettings.h \
     alogger.h
-
-
+#     ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
+#     ../ants3/photonSim/aphoton.h \
 #    ../ants3/photonSim/aphotonsimsettings.h \
-#    ../ants3/photonSim/aphoton.h \
 #    ../ants3/photonSim/asimulationstatistics.h \
 #    ../ants3/photonSim/interfaceRules/abasicinterfacerule.h \
 #    ../ants3/photonSim/interfaceRules/ainterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
 #    ../ants3/photonSim/interfaceRules/ametalinterfacerule.h \
 #    ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.h \
 #    ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \

@@ -8,7 +8,7 @@ class APhoton
 {
 public:
     APhoton();
-    APhoton(double* xyz, double* Vxyz, int waveIndex=-1, double time=0);
+    APhoton(double * xyz, double * Vxyz, int waveIndex = -1, double time = 0);
 
     double r[3]; //position
     double v[3]; //direction (must be already normalized to unit vector!!!)
@@ -16,11 +16,11 @@ public:
     int waveIndex; //wavelength is always binned during simulations
     int scint_type; //1 - primary //2 - secondary // 0 - undefined
 
-    ASimulationStatistics* SimStat = 0;
+    ASimulationStatistics * SimStat = nullptr; // TODO: remove from here!
 
-    void CopyFrom(const APhoton* CopyFrom);
+    void CopyFrom(const APhoton * CopyFrom);
     void EnsureUnitaryLength();
-    void RandomDir(TRandom2* RandGen);
+    void RandomDir(TRandom2 * RandGen);
 };
 
 #endif // APHOTON
