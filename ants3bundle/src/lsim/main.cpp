@@ -1,4 +1,5 @@
 #include "aphotonsimulator.h"
+#include "ageometryhub.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -16,6 +17,8 @@ int main(int argc, char *argv[])
     APhotonSimulator Sim(argv[1], argv[2], atoi(argv[3]));
     QTimer::singleShot(0, &Sim, &APhotonSimulator::start);
     a.exec();
+
+    AGeometryHub::getInstance().aboutToQuit();
 
     return 0;
 }

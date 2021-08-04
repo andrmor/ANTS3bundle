@@ -34,7 +34,7 @@ AGeometryHub::AGeometryHub()
 
 AGeometryHub::~AGeometryHub()
 {
-    qDebug() << "Dest for A3Geometry";
+    //qDebug() << "Dest for A3Geometry";
     clearWorld(); delete World;
 
     delete GeoManager; // should be deleted by aboutToQuit()!
@@ -147,11 +147,6 @@ bool AGeometryHub::isValidPrototypeName(const QString & ProtoName) const
     for (AGeoObject * proto : Prototypes->HostedObjects)
         if (ProtoName == proto->Name) return true;
     return false;
-}
-
-void AGeometryHub::onStart()
-{
-    qDebug() << "Created A3Geometry";
 }
 
 void AGeometryHub::aboutToQuit()

@@ -30,9 +30,9 @@ void ASensorHub::writeToJson(QJsonObject & json) const
 
 }
 
-bool ASensorHub::readFromJson(const QJsonObject & json)
+QString ASensorHub::readFromJson(const QJsonObject & json)
 {
-    return true;
+    return "";
 }
 
 ASensorHub::ASensorHub()

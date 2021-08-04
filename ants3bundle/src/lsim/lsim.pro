@@ -24,8 +24,8 @@ SOURCES += \
         aphotonsimulator.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
-        ../ants3/geo/ageoconsts.cpp \
         ../ants3/geo/ageometryhub.cpp \
+        ../ants3/geo/ageoconsts.cpp \
         ../ants3/geo/ageoobject.cpp \
         ../ants3/geo/ageoshape.cpp \
         ../ants3/geo/ageospecial.cpp \

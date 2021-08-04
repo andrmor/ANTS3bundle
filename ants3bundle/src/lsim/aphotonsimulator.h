@@ -23,6 +23,9 @@ protected:
     int     ID;
 
     int     EventsProcessed = 0;
+
+private:
+    void terminate(const QString & reason);
 };
 
 #endif // APHOTONSIMULATOR_H

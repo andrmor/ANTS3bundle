@@ -1,6 +1,9 @@
 #include "aphotonsimulator.h"
 #include "alogger.h"
 #include "ajsontools.h"
+#include "amaterialhub.h"
+#include "ageometryhub.h"
+#include "asensorhub.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -25,6 +28,20 @@ void APhotonSimulator::start()
     QJsonObject json;
     jstools::loadJsonFromFile(json, ConfigFN);
 
+    QString Error = AMaterialHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
+    LOG.flush();
+    Error         = AGeometryHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Geometry loaded\n";
+    LOG << "World: " << AGeometryHub::getInstance().World << "\n";
+    LOG << "GeoManager: " << AGeometryHub::getInstance().GeoManager << "\n";
+    LOG.flush();
+    Error         = ASensorHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded sensors: " << ASensorHub::getInstance().countSensors();
+    LOG.flush();
 
 
 //    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
@@ -49,7 +66,8 @@ void APhotonSimulator::start()
 //    fileIn.close();
 //    fileOut.close();
 
-    exit(0);
+    QCoreApplication::exit();
+    //exit(0);
 }
 
 void APhotonSimulator::onProgressTimer()
@@ -57,4 +75,10 @@ void APhotonSimulator::onProgressTimer()
     std::cout << "$$>" << EventsProcessed << "<$$\n";
     std::cout.flush();
     LOG << EventsProcessed << '\n';
+}
+
+void APhotonSimulator::terminate(const QString & reason)
+{
+    LOG << reason;
+    exit(1);
 }

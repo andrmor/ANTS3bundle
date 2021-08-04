@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
 
     A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
 
-    AGeometryHub::getInstance().onStart();
     AMaterialHub::getInstance().addNewMaterial("Dummy", true);
 
 #ifdef GUI

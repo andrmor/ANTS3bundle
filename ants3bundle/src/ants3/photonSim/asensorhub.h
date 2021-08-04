@@ -28,8 +28,8 @@ public:
 
     const QStringList getListOfModelNames() const;
 
-    void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
 private:
     ASensorHub();
