@@ -23,6 +23,7 @@ public:
     static const ASensorHub & getConstInstance();
 
     int countSensors() const {return Sensors.size();}
+    int countSensorModels() const {return Models.size();}
 
     const ASensorModel * getModelFast(int iModel) const;
 
@@ -42,7 +43,6 @@ private:
 
 private:
     std::vector<ASensorModel> Models;
-
 
 public:
     // runtime - populated together with GeoManager

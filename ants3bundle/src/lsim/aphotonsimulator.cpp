@@ -40,7 +40,7 @@ void APhotonSimulator::start()
     LOG.flush();
     Error         = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
-    LOG << "Loaded sensors: " << ASensorHub::getInstance().countSensors();
+    LOG << "Loaded sensor models: " << ASensorHub::getInstance().countSensorsModels();
     LOG.flush();
 
 
@@ -67,7 +67,6 @@ void APhotonSimulator::start()
 //    fileOut.close();
 
     QCoreApplication::exit();
-    //exit(0);
 }
 
 void APhotonSimulator::onProgressTimer()
