@@ -5,10 +5,6 @@
 #include <QDebug>
 #include <QJsonObject>
 
-#ifdef GUI
-#include <QFrame>
-#endif
-
 AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
     MatFrom(MatFrom), MatTo(MatTo) {}
 
@@ -28,16 +24,6 @@ bool AInterfaceRule::readFromJson(const QJsonObject &)
 {
     return true;
 }
-
-#ifdef GUI
-QWidget *AInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
-{
-    QFrame* f = new QFrame();
-    f->setFrameStyle(QFrame::Box);
-    f->setMinimumHeight(100);
-    return f;
-}
-#endif
 
 #include "abasicinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"

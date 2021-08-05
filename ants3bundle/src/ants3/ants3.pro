@@ -60,6 +60,7 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     geo/ageospecial.cpp \
     gui/photsim/abombadvanceddialog.cpp \
+    gui/photsim/ainterfacewidgetfactory.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -128,6 +129,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     geo/ageospecial.h \
     gui/photsim/abombadvanceddialog.h \
+    gui/photsim/ainterfacewidgetfactory.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \

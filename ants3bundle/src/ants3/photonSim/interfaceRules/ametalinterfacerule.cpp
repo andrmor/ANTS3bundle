@@ -11,15 +11,6 @@
 #include "TComplex.h"
 #include "TRandom2.h"
 
-#ifdef GUI
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QDoubleValidator>
-#endif
-
 QString AMetalInterfaceRule::getReportLine() const
 {
     QString s;
@@ -51,38 +42,6 @@ bool AMetalInterfaceRule::readFromJson(const QJsonObject &json)
     if ( !jstools::parseJson(json, "ImaginaryN", ImaginaryN) ) return false;
     return true;
 }
-
-#ifdef GUI
-QWidget *AMetalInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
-{
-    QFrame* f = new QFrame();
-    f->setFrameStyle(QFrame::Box);
-
-    QHBoxLayout* hl = new QHBoxLayout(f);
-    QVBoxLayout* l = new QVBoxLayout();
-    QLabel* lab = new QLabel("Refractive index, real:");
-    l->addWidget(lab);
-    lab = new QLabel("Refractive index, imaginary:");
-    l->addWidget(lab);
-    hl->addLayout(l);
-    l = new QVBoxLayout();
-    QLineEdit* le = new QLineEdit(QString::number(RealN));
-    QDoubleValidator* val = new QDoubleValidator(f);
-    val->setNotation(QDoubleValidator::StandardNotation);
-    //val->setBottom(0);
-    val->setDecimals(6);
-    le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->RealN = le->text().toDouble(); } );
-    l->addWidget(le);
-    le = new QLineEdit(QString::number(ImaginaryN));
-    le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->ImaginaryN = le->text().toDouble(); } );
-    l->addWidget(le);
-    hl->addLayout(l);
-
-    return f;
-}
-#endif
 
 QString AMetalInterfaceRule::checkOverrideData()
 {

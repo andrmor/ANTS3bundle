@@ -11,15 +11,6 @@
 #include "TMath.h"
 #include "TRandom2.h"
 
-#ifdef GUI
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QDoubleValidator>
-#endif
-
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo) {}
 
@@ -183,56 +174,6 @@ bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
     if ( !jstools::parseJson(json, "ScatMode", ScatterModel) ) return false;
     return true;
 }
-
-#ifdef GUI
-QWidget *ABasicInterfaceRule::getEditWidget(QWidget*, GraphWindowClass *)
-{
-    QFrame* f = new QFrame();
-    f->setFrameStyle(QFrame::Box);
-
-    QHBoxLayout* hl = new QHBoxLayout(f);
-    QVBoxLayout* l = new QVBoxLayout();
-    QLabel* lab = new QLabel("Absorption:");
-    l->addWidget(lab);
-    lab = new QLabel("Specular reflection:");
-    l->addWidget(lab);
-    lab = new QLabel("Scattering:");
-    l->addWidget(lab);
-    hl->addLayout(l);
-    l = new QVBoxLayout();
-    QLineEdit* le = new QLineEdit(QString::number(Abs));
-    QDoubleValidator* val = new QDoubleValidator(f);
-    val->setNotation(QDoubleValidator::StandardNotation);
-    val->setBottom(0);
-    //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
-    val->setDecimals(6);
-    le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Abs = le->text().toDouble(); } );
-    l->addWidget(le);
-    le = new QLineEdit(QString::number(Spec));
-    le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Spec = le->text().toDouble(); } );
-    l->addWidget(le);
-    le = new QLineEdit(QString::number(Scat));
-    le->setValidator(val);
-    QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Scat = le->text().toDouble(); } );
-    l->addWidget(le);
-    hl->addLayout(l);
-    l = new QVBoxLayout();
-    lab = new QLabel("");
-    l->addWidget(lab);
-    lab = new QLabel("");
-    l->addWidget(lab);
-    QComboBox* com = new QComboBox();
-    com->addItem("Isotropic (4Pi)"); com->addItem("Lambertian, 2Pi back"); com->addItem("Lambertian, 2Pi forward");
-    com->setCurrentIndex(ScatterModel);
-    QObject::connect(com, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), [this](int index) { this->ScatterModel = index; } );
-    l->addWidget(com);
-    hl->addLayout(l);
-
-    return f;
-}
-#endif
 
 QString ABasicInterfaceRule::checkOverrideData()
 {

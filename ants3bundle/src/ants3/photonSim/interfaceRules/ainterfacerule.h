@@ -8,11 +8,6 @@ class APhoton;
 class QJsonObject;
 class ATracerStateful;
 
-#ifdef GUI
-class GraphWindowClass;
-class QWidget;
-#endif
-
 //  ----  !!!  ----
 // modify these two functions if you want to register a new override type
 AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
@@ -38,8 +33,8 @@ public:
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
-    virtual QString getReportLine() const = 0; // for GUI: used to reports override status (try to make as short as possible)
-    virtual QString getLongReportLine() const; //for GUI: used in overlap map
+    virtual QString getReportLine() const = 0;   // for GUI: used to reports override status (try to make as short as possible)
+    virtual QString getLongReportLine() const;   //for GUI: used in overlap map
 
     //called automatically before sim start
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data
@@ -50,11 +45,6 @@ public:
 
     //used by MatCollection when a material is removed
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
-
-#ifdef GUI
-    // returns a GUI widget to show / edit parameters
-    virtual QWidget* getEditWidget(QWidget* caller, GraphWindowClass* GraphWindow);
-#endif
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
     virtual QString checkOverrideData() = 0; //cannot be const - w.resolved needs rebin

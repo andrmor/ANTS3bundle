@@ -11,14 +11,6 @@
 #include "TMath.h"
 #include "TRandom2.h"
 
-#ifdef GUI
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QDoubleValidator>
-#endif
-
 AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
 {
   // Angular reflectance: fraction of light reflected at the interface bewteen
@@ -114,29 +106,6 @@ bool FsnpInterfaceRule::readFromJson(const QJsonObject &json)
 {
     return jstools::parseJson(json, "Albedo", Albedo);
 }
-
-#ifdef GUI
-QWidget *FsnpInterfaceRule::getEditWidget(QWidget *, GraphWindowClass *)
-{
-    QFrame* f = new QFrame();
-    f->setFrameStyle(QFrame::Box);
-
-    QHBoxLayout* l = new QHBoxLayout(f);
-        QLabel* lab = new QLabel("Albedo:");
-    l->addWidget(lab);
-        QLineEdit* le = new QLineEdit(QString::number(Albedo));
-        QDoubleValidator* val = new QDoubleValidator(f);
-        val->setNotation(QDoubleValidator::StandardNotation);
-        val->setBottom(0);
-        //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
-        val->setDecimals(6);
-        le->setValidator(val);
-        QObject::connect(le, &QLineEdit::editingFinished, [le, this]() { this->Albedo = le->text().toDouble(); } );
-    l->addWidget(le);
-
-    return f;
-}
-#endif
 
 QString FsnpInterfaceRule::checkOverrideData()
 {

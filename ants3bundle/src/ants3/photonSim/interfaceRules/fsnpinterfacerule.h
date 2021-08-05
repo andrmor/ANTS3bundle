@@ -19,9 +19,6 @@ public:
     void writeToJson(QJsonObject & json) const override;
     bool readFromJson(const QJsonObject & json) override;
 
-#ifdef GUI
-    QWidget* getEditWidget(QWidget* caller, GraphWindowClass* GraphWindow) override;
-#endif
     QString checkOverrideData() override;
 
     double Albedo = 0.95;

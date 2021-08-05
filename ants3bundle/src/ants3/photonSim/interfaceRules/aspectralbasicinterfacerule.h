@@ -4,13 +4,9 @@
 #include "ainterfacerule.h"
 #include "abasicinterfacerule.h"
 
-#include <QVector>
+#include <QVector> // !!!***
 
 class AWaveResSettings;
-
-#ifdef GUI
-class QPushButton;
-#endif
 
 class ASpectralBasicInterfaceRule : public ABasicInterfaceRule
 {
@@ -32,10 +28,6 @@ public:
 
     QString loadData(const QString & fileName); // !!!***
 
-#ifdef GUI
-    QWidget* getEditWidget(QWidget* caller, GraphWindowClass* GraphWindow) override;
-#endif
-
     QString checkOverrideData() override;
 
     QVector<double> Wave;
@@ -49,14 +41,6 @@ public:
     double effectiveWaveIndex;
 
 private:
-#ifdef GUI
-    QPushButton *pbShow, *pbShowBinned;
-    void loadSpectralData(QWidget *caller);  // !!!***
-    void showLoaded(GraphWindowClass *GraphWindow); // !!!***
-    void showBinned(QWidget *widget, GraphWindowClass *GraphWindow); // !!!***
-    void updateButtons();
-#endif
-
     const AWaveResSettings & WaveSet;
 };
 

@@ -4,14 +4,10 @@
 #include "ainterfacerule.h"
 
 #include <QString>
-#include <QVector>
+#include <QVector>   // !!!***
 
 class AWaveResSettings;
 class TH1D;
-
-#ifdef GUI
-class QPushButton;
-#endif
 
 class AWaveshifterInterfaceRule : public AInterfaceRule
 {
@@ -30,9 +26,6 @@ public:
     void writeToJson(QJsonObject &json) const override;  // !!!***
     bool readFromJson(const QJsonObject &json) override; // !!!***
 
-#ifdef GUI
-    QWidget* getEditWidget(QWidget *caller, GraphWindowClass* GraphWindow) override;
-#endif
     QString checkOverrideData() override;
 
     int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
@@ -45,17 +38,6 @@ public:
     TH1D * Spectrum = nullptr;
 
 private:
-#ifdef GUI
-    QPushButton *pbShowRP, *pbShowRPbinned, *pbShowES, *pbShowESbinned;
-    void loadReemissionProbability(QWidget *caller); // !!!***
-    void loadEmissionSpectrum(QWidget *caller); // !!!***
-    void showReemissionProbability(GraphWindowClass* GraphWindow, QWidget *caller); // !!!***
-    void showEmissionSpectrum(GraphWindowClass* GraphWindow, QWidget *caller);  // !!!***
-    void showBinnedReemissionProbability(GraphWindowClass* GraphWindow, QWidget *caller); // !!!***
-    void showBinnedEmissionSpectrum(GraphWindowClass* GraphWindow, QWidget *caller);  // !!!***
-    void updateButtons();
-#endif
-
     const AWaveResSettings & WaveSet;
 };
 
