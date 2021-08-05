@@ -2,13 +2,12 @@
 #define APHOTON
 
 class ASimulationStatistics;
-class TRandom2;
 
 class APhoton
 {
 public:
     APhoton();
-    APhoton(double * xyz, double * Vxyz, int waveIndex = -1, double time = 0);
+    APhoton(double * pos, double * dir, int waveIndex = -1, double time = 0);
 
     double r[3]; //position
     double v[3]; //direction (must be already normalized to unit vector!!!)
@@ -18,9 +17,9 @@ public:
 
     ASimulationStatistics * SimStat = nullptr; // TODO: remove from here!
 
-    void CopyFrom(const APhoton * CopyFrom);
-    void EnsureUnitaryLength();
-    void RandomDir(TRandom2 * RandGen);
+    void copyFrom(const APhoton * CopyFrom);
+    void ensureUnitaryLength();
+    void generateRandomDir();
 };
 
 #endif // APHOTON

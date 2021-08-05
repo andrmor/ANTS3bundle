@@ -25,6 +25,16 @@ const QStringList ASensorHub::getListOfModelNames() const
     return list;
 }
 
+double ASensorHub::getMaxQEvsWave(int iWave) const
+{
+    return 1.0;
+}
+
+double ASensorHub::getMaxQE() const
+{
+    return 1.0;
+}
+
 void ASensorHub::writeToJson(QJsonObject & json) const
 {
 

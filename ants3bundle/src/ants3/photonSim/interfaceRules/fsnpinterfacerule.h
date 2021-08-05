@@ -9,7 +9,7 @@ public:
     FsnpInterfaceRule(int MatFrom, int MatTo)
         : AInterfaceRule(MatFrom, MatTo) {}
 
-    OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "FSNP";}
     QString getAbbreviation() const override {return "FSNP";}

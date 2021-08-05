@@ -110,7 +110,6 @@ SOURCES += \
     photonSim/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
     photonSim/asimulationstatistics.cpp \
-    photonSim/atracerstateful.cpp \
     photonSim/interfaceRules/abasicinterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerulehub.cpp \
@@ -122,7 +121,8 @@ SOURCES += \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
     gui/guitools.cpp \
-    js/a3farmsi.cpp
+    js/a3farmsi.cpp \
+    tools/arandomhub.cpp
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
@@ -180,7 +180,6 @@ HEADERS += \
     photonSim/aroothistappenders.h \
     photonSim/asensorhub.h \
     photonSim/asimulationstatistics.h \
-    photonSim/atracerstateful.h \
     photonSim/interfaceRules/abasicinterfacerule.h \
     photonSim/interfaceRules/ainterfacerule.h \
     photonSim/interfaceRules/ainterfacerulehub.h \
@@ -192,7 +191,8 @@ HEADERS += \
     tools/afiletools.h \
     gui/mainwindow.h \
     gui/guitools.h \
-    js/a3farmsi.h
+    js/a3farmsi.h \
+    tools/arandomhub.h
 
 FORMS += \
         gui/photsim/abombadvanceddialog.ui \

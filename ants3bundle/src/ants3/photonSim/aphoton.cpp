@@ -1,35 +1,36 @@
 #include "aphoton.h"
+#include "arandomhub.h"
 
-#include "TRandom2.h"
-#include "TMath.h"
+#include "TMath.h"   // !!!*** remove?
 
 APhoton::APhoton() {}
 
-APhoton::APhoton(double *xyz, double *Vxyz, int waveIndex, double time) :
+APhoton::APhoton(double * pos, double * dir, int waveIndex, double time) :
     time(time), waveIndex(waveIndex), scint_type(0)
 {
-    r[0] =  xyz[0]; r[1] =  xyz[1]; r[2] =  xyz[2];
-    v[0] = Vxyz[0]; v[1] = Vxyz[1]; v[2] = Vxyz[2];
+    for (int i=0; i<3; i++)
+    {
+        r[i] = pos[i];
+        v[i] = dir[i];
+    }
 }
 
-void APhoton::CopyFrom(const APhoton *CopyFrom)
+void APhoton::copyFrom(const APhoton *CopyFrom)
 {
-    r[0] = CopyFrom->r[0];
-    r[1] = CopyFrom->r[1];
-    r[2] = CopyFrom->r[2];
+    for (int i=0; i<3; i++)
+    {
+        r[i] = CopyFrom->r[i];
+        v[i] = CopyFrom->v[i];
+    }
 
-    v[0] = CopyFrom->v[0];
-    v[1] = CopyFrom->v[1];
-    v[2] = CopyFrom->v[2];
-
-    time = CopyFrom->time;
-    waveIndex = CopyFrom->waveIndex;
+    time       = CopyFrom->time;
+    waveIndex  = CopyFrom->waveIndex;
     scint_type = CopyFrom->scint_type;
 
-    SimStat = CopyFrom->SimStat;
+    SimStat    = CopyFrom->SimStat;
 }
 
-void APhoton::EnsureUnitaryLength()
+void APhoton::ensureUnitaryLength()
 {
     double mod = 0;
     for (int i=0; i<3; i++)
@@ -48,14 +49,16 @@ void APhoton::EnsureUnitaryLength()
     }
 }
 
-void APhoton::RandomDir(TRandom2 *RandGen)
+void APhoton::generateRandomDir()
 {
+    ARandomHub & RandomHub = ARandomHub::getInstance();
+
     //Sphere function of Root:
     double a = 0, b = 0, r2 = 1.0;
     while (r2 > 0.25)
       {
-        a  = RandGen->Rndm() - 0.5;
-        b  = RandGen->Rndm() - 0.5;
+        a  = RandomHub.uniform() - 0.5;
+        b  = RandomHub.uniform() - 0.5;
         r2 =  a*a + b*b;
       }
     v[2] = ( -1.0 + 8.0 * r2 );

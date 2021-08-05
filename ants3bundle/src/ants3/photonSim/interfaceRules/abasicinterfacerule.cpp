@@ -2,7 +2,7 @@
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
-#include "atracerstateful.h"
+#include "arandomhub.h"
 //#include "asimulationstatistics.h"
 #include "ajsontools.h"
 
@@ -14,9 +14,9 @@
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo) {}
 
-AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
-    double rnd = Resources.RandGen->Rndm();
+    double rnd = RandomHub.uniform();
 
     // surface loss?
     rnd -= Abs;
@@ -50,7 +50,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
         {
         case 0: //4Pi scattering
             // qDebug()<<"4Pi scatter";
-            Photon->RandomDir(Resources.RandGen);
+            Photon->generateRandomDir();
             // qDebug()<<"New direction:"<<K[0]<<K[1]<<K[2];
 
             //enering new volume or backscattering?
@@ -71,7 +71,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
             double norm2;
             do
             {
-                Photon->RandomDir(Resources.RandGen);
+                Photon->generateRandomDir();
                 Photon->v[0] -= NormalVector[0]; Photon->v[1] -= NormalVector[1]; Photon->v[2] -= NormalVector[2];
                 norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
             }
@@ -88,7 +88,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(ATracer
             double norm2;
             do
             {
-                Photon->RandomDir(Resources.RandGen);
+                Photon->generateRandomDir();
                 Photon->v[0] += NormalVector[0]; Photon->v[1] += NormalVector[1]; Photon->v[2] += NormalVector[2];
                 norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
             }

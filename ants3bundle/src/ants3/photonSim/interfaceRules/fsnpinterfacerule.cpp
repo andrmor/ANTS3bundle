@@ -2,16 +2,16 @@
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
-#include "atracerstateful.h"
 #include "asimulationstatistics.h"
 #include "ajsontools.h"
+#include "arandomhub.h"
 
 #include <QJsonObject>
 
 #include "TMath.h"
 #include "TRandom2.h"
 
-AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
   // Angular reflectance: fraction of light reflected at the interface bewteen
   // medium 1 and medium 2 assuming non-polarized incident light:
@@ -51,7 +51,7 @@ AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerSt
     }
 
 //  if random[0,1]<fresnelUnpolarR do specular reflection
-  if (Resources.RandGen->Rndm() < fresnelUnpolarR)
+  if (RandomHub.uniform() < fresnelUnpolarR)
     {
       //qDebug()<<"Override: specular reflection";
         //rotating the vector: K = K - 2*(NK)*N
@@ -61,7 +61,7 @@ AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerSt
     }
 
 // if random[0,1]>albedo kill photon else do diffuse reflection
-  if (Resources.RandGen->Rndm() > Albedo)
+  if (RandomHub.uniform() > Albedo)
     {
       //qDebug()<<"Override: absorption";
       Status = Absorption;
@@ -71,11 +71,11 @@ AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(ATracerSt
   //qDebug() << "Override: Lambertian scattering";
   double norm2;
   do
-    {
-      Photon->RandomDir(Resources.RandGen);
+  {
+      Photon->generateRandomDir();
       Photon->v[0] -= NormalVector[0]; Photon->v[1] -= NormalVector[1]; Photon->v[2] -= NormalVector[2];
       norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
-    }
+  }
   while (norm2 < 0.000001);
   double normInverted = 1.0/TMath::Sqrt(norm2);
   Photon->v[0] *= normInverted; Photon->v[1] *= normInverted; Photon->v[2] *= normInverted;

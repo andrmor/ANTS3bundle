@@ -1,5 +1,7 @@
 #include "aoneevent.h"
 #include "asensorhub.h"
+#include "arandomhub.h"
+#include "aphotonsimhub.h"
 #include "asimulationstatistics.h"
 #include "aphotonsimsettings.h"
 //#include "acustomrandomsampling.h"
@@ -7,11 +9,12 @@
 #include <QDebug>
 
 #include "TMath.h"
-#include "TRandom2.h"
 #include "TH1D.h"
 
-AOneEvent::AOneEvent(TRandom2 *RandGen) :
-    SimStat(SimStat), SensorHub(ASensorHub::getConstInstance()), RandGen(RandGen){}
+AOneEvent::AOneEvent(ASimulationStatistics * simStat) :
+    SimStat(simStat),
+    SimSet(APhotonSimHub::getInstance().Settings),
+    SensorHub(ASensorHub::getConstInstance()), RandomHub(ARandomHub::getInstance()){}
 
 void AOneEvent::configure()
 {

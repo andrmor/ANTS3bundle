@@ -24,6 +24,7 @@ SOURCES += \
         aphotonsimulator.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
+        ../ants3/tools/arandomhub.cpp \
         ../ants3/geo/ageometryhub.cpp \
         ../ants3/geo/ageoconsts.cpp \
         ../ants3/geo/ageoobject.cpp \
@@ -51,11 +52,11 @@ SOURCES += \
         ../ants3/photonSim/aphoton.cpp \
         ../ants3/photonSim/asimulationstatistics.cpp \
         ../ants3/photonSim/aroothistappenders.cpp \
+        aphotontracer.cpp \
         alogger.cpp \
         main.cpp
 #        aoneevent.cpp \
 #        aphotonhistorylog.cpp \
-#        aphotontracer.cpp \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -63,9 +64,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    aphotonsimulator.h \
+aphotonsimulator.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
+    ../ants3/tools/arandomhub.h \
     ../ants3/geo/ageometryhub.h \
     ../ants3/geo/ageoconsts.h \
     ../ants3/geo/ageoobject.h \
@@ -93,7 +95,7 @@ HEADERS += \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/asimulationstatistics.h \
     ../ants3/photonSim/aroothistappenders.h \
+    aphotontracer.h
     alogger.h
 #    aoneevent.h \
 #    aphotonhistorylog.h \
-#    aphotontracer.h

@@ -26,7 +26,7 @@ public:
     static       AInterfaceRuleHub & getInstance();
     static const AInterfaceRuleHub & getConstInstance();
 
-    const AInterfaceRule * getRuleFast(int MatFrom, int MatTo) const {return Rules[MatFrom][MatTo];} // TODO: size_t !!!***
+    AInterfaceRule * getRuleFast(int MatFrom, int MatTo) const {return Rules[MatFrom][MatTo];} // TODO: size_t and const !!!***
 
     std::vector<std::vector<AInterfaceRule*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 

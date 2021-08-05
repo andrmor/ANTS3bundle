@@ -5,19 +5,20 @@
 #include <QBitArray>
 
 class ASensorHub;
-class TRandom2;
+class ARandomHub;
 class APhotonSimSettings;
+class ASimulationStatistics;
 
 class AOneEvent
 {
 public:
-  AOneEvent(TRandom2* RandGen);
+  AOneEvent(ASimulationStatistics * simStat);
 
   QVector<float>           PMhits;           // PM hits [pm]
   QVector<float>           PMsignals;        // -- converted to signal [pm]
   QVector< QBitArray >     SiPMpixels;       //on/off status of SiPM pixels [PM#] [time] [pixY] [pixX]
 
-  ASimulationStatistics*   SimStat;
+  ASimulationStatistics *   SimStat;
 
   //configure
   void configure();
@@ -35,8 +36,7 @@ public:
 private:
   const APhotonSimSettings & SimSet;
   const ASensorHub         & SensorHub;
-
-  TRandom2* RandGen;  
+        ARandomHub         & RandomHub;
 
   //settings
   int numPMs;

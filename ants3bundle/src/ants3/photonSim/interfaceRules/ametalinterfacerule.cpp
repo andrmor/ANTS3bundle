@@ -2,7 +2,7 @@
 #include "amaterialhub.h"
 #include "aphoton.h"
 #include "asimulationstatistics.h"
-#include "atracerstateful.h"
+#include "arandomhub.h"
 #include "ajsontools.h"
 
 #include <QDebug>
@@ -48,7 +48,7 @@ QString AMetalInterfaceRule::checkOverrideData()
     return "";
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
     double CosTheta = Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2];
 
@@ -70,7 +70,7 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(ATracer
     double Refl = calculateReflectivity(CosTheta, RealN, ImaginaryN, Photon->waveIndex);
     //qDebug() << "Dielectric-metal override: Cos theta="<<CosTheta<<" Reflectivity:"<<Refl;
 
-    if ( Resources.RandGen->Rndm() > Refl )
+    if (RandomHub.uniform() > Refl)
     {
         //Absorption
         //qDebug() << "Override: Loss on metal";

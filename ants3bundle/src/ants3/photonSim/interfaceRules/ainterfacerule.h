@@ -6,7 +6,7 @@
 class AInterfaceRule;
 class APhoton;
 class QJsonObject;
-class ATracerStateful;
+class ARandomHub;
 
 //  ----  !!!  ----
 // modify these two functions if you want to register a new override type
@@ -29,7 +29,7 @@ public:
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule() {}
 
-    virtual OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
+    virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
@@ -57,6 +57,7 @@ public:
     int getMaterialTo()   const {return MatTo;}
 
 protected:
+    ARandomHub & RandomHub;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 };
 

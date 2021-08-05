@@ -11,30 +11,40 @@
 class APhotonSimSettings;
 class AMaterialHub;
 class AInterfaceRuleHub;
+class ASensorHub;
 class APhoton;
 class TGeoManager;
 class AMaterial;
-class APmHub;
-class AMaterialParticleCollection;
 class AOneEvent;
 class TGeoNavigator;
-class TrackHolderClass;
 class TRandom2;
 class TGeoVolume;
 class AGridElementRecord;
-//class ATracerStateful;
+
+class AVector3
+{
+public:
+    AVector3(const double * pos) {for (int i=0; i<3; i++) r[i] = pos[i];}
+    AVector3() {}
+
+    double r[3];
+};
+
+class ATrackRecord
+{
+public:
+    bool HitSensor;
+    int  ScintType;
+    std::vector<AVector3> Positions;
+};
 
 class APhotonTracer
 {
 public:
-    explicit APhotonTracer(APhotonSimSettings & simSet,
-                           TGeoManager* geoManager,
-                           TRandom2* RandomGenerator,
-                           APmHub* Pms,
-                           const QVector<AGridElementRecord*>* Grids);
+    explicit APhotonTracer();
     ~APhotonTracer();
 
-    void configure(AOneEvent* oneEvent, std::vector<TrackHolderClass*> * tracks);
+    void configure(AOneEvent* oneEvent);
 
     void TracePhoton(const APhoton* Photon);
 
@@ -45,23 +55,21 @@ public:
     void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels
 
 private:
-    const APhotonSimSettings & SimSet;
     const AMaterialHub       & MatHub;
     const AInterfaceRuleHub  & RuleHub;
+    const ASensorHub         & SensorHub;
+    const APhotonSimSettings & SimSet;
 
-    TGeoManager * GeoManager = nullptr;
-    TRandom2 * RandGen;
-    APmHub* PMs;
+    TGeoManager   * GeoManager = nullptr;
+    TGeoNavigator * Navigator  = nullptr;
+    TRandom2      * RandGen    = nullptr;
 
-    TGeoNavigator * Navigator = nullptr;
+    AOneEvent     * OneEvent   = nullptr;
 
-    const QVector<AGridElementRecord*>* grids;
-    AOneEvent* OneEvent; //PM signals for this event are collected here
-    std::vector<TrackHolderClass *> * Tracks;
-    TrackHolderClass* track;
+//    const QVector<AGridElementRecord*>* grids;
+
+    ATrackRecord Track;
     QVector<APhotonHistoryLog> PhLog;
-
-    //ATracerStateful* ResourcesForOverrides;
 
     int MaxTracks = 10;
     int PhotonTracksAdded = 0;
@@ -79,8 +87,8 @@ private:
     const AMaterial * MaterialTo;   //material after the interface
     double RefrIndexFrom, RefrIndexTo; //refractive indexes n1 and n2
     bool fDoFresnel; //flag - to perform or not the fresnel calculation on the interface
-    bool bBuildTracks;
-    bool fGridShiftOn;
+    bool bBuildTracks = false;
+    bool fGridShiftOn = false;
     double FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
     double FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
     TGeoVolume* GridVolume; // the grid bulk
@@ -99,11 +107,12 @@ private:
     bool PerformRefraction(double nn);
     void PerformReflection();
     void RandomDir();
-    bool GridWasHit(int GridNumber);
-    void ReturnFromGridShift();
-    void AppendTrack();
-    void AppendHistoryRecord();
+    bool GridWasHit(int GridNumber); // !!!***
+    void ReturnFromGridShift();      // !!!***
+    void AppendTrack();              // !!!***
+    void AppendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
 
-    void sendToPhotonLog(double * pos, const QString & volumeName, double time, int iWave, APhotonHistoryLog::NodeType process, int matFrom = -1, int matTo = -1, int iSensor = -1);
+    void savePhotonLogRecord(){} // !!!***
+    void saveTrack() {}  //  !!!***
 };
 #endif // APHOTONTRACER_H

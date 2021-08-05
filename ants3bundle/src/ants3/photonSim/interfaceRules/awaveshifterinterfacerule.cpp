@@ -2,7 +2,7 @@
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
-#include "atracerstateful.h"
+#include "arandomhub.h"
 #include "asimulationstatistics.h"
 #include "aphotonsimhub.h"
 #include "ajsontools.h"
@@ -48,7 +48,7 @@ void AWaveshifterInterfaceRule::initializeWaveResolved()
     }
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(ATracerStateful &Resources, APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
 
@@ -61,7 +61,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
     }
 
     double prob = ReemissionProbabilityBinned.at(Photon->waveIndex); // probability of reemission
-    if (Resources.RandGen->Rndm() < prob)
+    if (RandomHub.uniform() < prob)
     {
         //triggered!
 
@@ -87,7 +87,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
 
         if (ReemissionModel == 0)
         {
-            Photon->RandomDir(Resources.RandGen);
+            Photon->generateRandomDir();
             //enering new volume or backscattering?
             //normal is in the positive direction in respect to the original direction!
             if (Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2] < 0)
@@ -107,7 +107,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
             // qDebug()<<"2Pi lambertian scattering backward";
             do
             {
-                Photon->RandomDir(Resources.RandGen);
+                Photon->generateRandomDir();
                 Photon->v[0] -= NormalVector[0]; Photon->v[1] -= NormalVector[1]; Photon->v[2] -= NormalVector[2];
                 norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
             }
@@ -123,7 +123,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
         // qDebug()<<"2Pi lambertian scattering forward";
         do
           {
-            Photon->RandomDir(Resources.RandGen);
+            Photon->generateRandomDir();
             Photon->v[0] += NormalVector[0]; Photon->v[1] += NormalVector[1]; Photon->v[2] += NormalVector[2];
             norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
           }

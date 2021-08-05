@@ -1,11 +1,13 @@
 #include "ainterfacerule.h"
 #include "aphotonsimhub.h"
 #include "amaterialhub.h"
+#include "arandomhub.h"
 
 #include <QDebug>
 #include <QJsonObject>
 
 AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
+    RandomHub(ARandomHub::getInstance()),
     MatFrom(MatFrom), MatTo(MatTo) {}
 
 QString AInterfaceRule::getLongReportLine() const

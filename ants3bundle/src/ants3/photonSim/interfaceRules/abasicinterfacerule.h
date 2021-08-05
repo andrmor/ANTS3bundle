@@ -8,7 +8,7 @@ class ABasicInterfaceRule : public AInterfaceRule
 public:
     ABasicInterfaceRule(int MatFrom, int MatTo);
 
-    OpticalOverrideResultEnum calculate(ATracerStateful& Resources, APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "Simplistic";}
     QString getAbbreviation() const override {return "Simp";}
