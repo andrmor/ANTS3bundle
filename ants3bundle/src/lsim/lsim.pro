@@ -39,19 +39,20 @@ SOURCES += \
         ../ants3/materials/achemicalelement.cpp \
         ../ants3/materials/aisotope.cpp \
         ../ants3/materials/aisotopeabundancehandler.cpp \
+        ../ants3/photonSim/aphotonsimhub.cpp \
         ../ants3/photonSim/aphotonsimsettings.cpp \
+        ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
+        ../ants3/photonSim/interfaceRules/ainterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/abasicinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/ametalinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
+        ../ants3/photonSim/aphoton.cpp \
+        ../ants3/photonSim/asimulationstatistics.cpp \
+        ../ants3/photonSim/aroothistappenders.cpp \
         alogger.cpp \
         main.cpp
-#        ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
-#        ../ants3/photonSim/aphoton.cpp \
-#        ../ants3/photonSim/aphotonsimsettings.cpp \
-#        ../ants3/photonSim/asimulationstatistics.cpp \
-#        ../ants3/photonSim/interfaceRules/abasicinterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/ainterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/ametalinterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
-#        ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
 #        aoneevent.cpp \
 #        aphotonhistorylog.cpp \
 #        aphotontracer.cpp \
@@ -80,18 +81,19 @@ HEADERS += \
     ../ants3/materials/achemicalelement.h \
     ../ants3/materials/aisotope.h \
     ../ants3/materials/aisotopeabundancehandler.h \
+    ../ants3/photonSim/aphotonsimhub.h \
     ../ants3/photonSim/aphotonsimsettings.h \
+     ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
+     ../ants3/photonSim/interfaceRules/ainterfacerule.h \
+    ../ants3/photonSim/interfaceRules/abasicinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/ametalinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
+    ../ants3/photonSim/aphoton.h \
+    ../ants3/photonSim/asimulationstatistics.h \
+    ../ants3/photonSim/aroothistappenders.h \
     alogger.h
-#     ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
-#     ../ants3/photonSim/aphoton.h \
-#    ../ants3/photonSim/aphotonsimsettings.h \
-#    ../ants3/photonSim/asimulationstatistics.h \
-#    ../ants3/photonSim/interfaceRules/abasicinterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/ainterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/ametalinterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \
-#    ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
 #    aoneevent.h \
 #    aphotonhistorylog.h \
 #    aphotontracer.h
