@@ -19,25 +19,20 @@ AOneEvent::AOneEvent(ASimulationStatistics * simStat) :
 void AOneEvent::configure()
 {
     numPMs = SensorHub.countSensors();
-    SiPMpixels.resize(numPMs); // !!!
+
+    SiPMpixels.resize(numPMs);
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
-        QBitArray sipmPixels;
-        const APmType *type = PMs->getTypeForPM(ipm);
-        if(type->SiPM)
-        {
-            sipmPixels = QBitArray((SimSet->fTimeResolved ? SimSet->TimeBins : 1) * type->PixelsX * type->PixelsY);
-            SiPMpixels[ipm] = sipmPixels;
-        }
+        const ASensorModel & model = SensorHub.getModelFast(ipm);
+        if (model.SiPM)
+            SiPMpixels[ipm] = QBitArray(model.PixelsX * model.PixelsY);
     }
+
     clearHits(); //clears and resizes the hits / signals containers
 }
 
 void AOneEvent::clearHits()
 {
-    PMhits.resize(numPMs);
-    PMsignals.resize(numPMs);
-
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
         PMhits[ipm] = 0;
@@ -49,39 +44,23 @@ void AOneEvent::clearHits()
 
 bool AOneEvent::CheckPMThit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd)
 {
-    //if time resolved, first check we are inside time window!
-    int iTime = 0;
-    if (SimSet->fTimeResolved)
-    {
-        iTime = AOneEvent::TimeToBin(time);
-        if (iTime == -1) return false;
-    }
-    //cheking vs photon detection efficiency
+/*
     double DetProbability = PMs->getActualPDE(ipm, WaveIndex);
-    //checking vs angular response
     DetProbability *= PMs->getActualAngularResponse(ipm, cosAngle);
-    //checking vs area response
     DetProbability *= PMs->getActualAreaResponse(ipm, x, y);
     if (rnd > DetProbability)  //random number is provided by the tracker - done for the accelerator function
         return false;
 
-    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
+//    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
 
     PMhits[ipm] += 1.0f;
-    if (SimSet->fTimeResolved) TimedPMhits[iTime][ipm] += 1.0f;
-
+*/
     return true;
 }
 
 bool AOneEvent::CheckSiPMhit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd)
 {
-    //if time resolved, first check we are inside time window!
-    int iTime = 0;
-    if (SimSet->fTimeResolved)
-    {
-        iTime = AOneEvent::TimeToBin(time);
-        if (iTime == -1) return false;
-    }
+/*
     //cheking vs photon detection efficiency
     double DetProbability = 1;
     DetProbability *= PMs->getActualPDE(ipm, WaveIndex);
@@ -93,23 +72,19 @@ bool AOneEvent::CheckSiPMhit(int ipm, double time, int WaveIndex, double x, doub
     if (rnd > DetProbability) //random number is provided by the tracker - done for the accelerator function
         return false;
 
-    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
+//    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
 
     //    qDebug()<<"Detected!";
     const int itype = PMs->at(ipm).type;
     const APmType* tp = PMs->getType(itype);
     double sizeX = tp->SizeX;
     int pixelsX =  tp->PixelsX;
-    //double pixLengthX = sizeX / pixelsX;
-    //int binX = (x + sizeX*0.5) / pixLengthX;
     int binX = pixelsX * (x/sizeX + 0.5);
     if (binX<0) binX = 0;
     if (binX>pixelsX-1) binX = pixelsX-1;
 
     double sizeY = tp->SizeY;//PMtypeProperties[itype].SizeY;
     int pixelsY =  tp->PixelsY;// PMtypeProperties[itype].PixelsY;
-    //double pixLengthY = sizeY / pixelsY;
-    //int binY = (y + sizeY*0.5) / pixLengthY;
     int binY = pixelsY * (y/sizeY + 0.5);
     if (binY<0) binY = 0;
     if (binY>pixelsY-1) binY = pixelsY-1;
@@ -122,6 +97,7 @@ bool AOneEvent::CheckSiPMhit(int ipm, double time, int WaveIndex, double x, doub
     else
         registerSiPMhit(ipm, iTime, binX, binY);
 
+*/
     return true;
 }
 
@@ -129,6 +105,7 @@ void AOneEvent::registerSiPMhit(int ipm, int iTime, int binX, int binY, float nu
 //numHits != 1 is used 1) for the simplistic model of microcell cross-talk -> then MCmodel = 0
 //                     2) to simulate dark counts in advanced model (MCmodel = 1)
 {
+/*
     const APmType* tp = PMs->getTypeForPM(ipm);
 
     const int iXY = tp->PixelsX*binY + binX;
@@ -147,6 +124,7 @@ void AOneEvent::registerSiPMhit(int ipm, int iTime, int binX, int binY, float nu
         if (binY > 0             && RandGen->Rndm() < trigProb) registerSiPMhit(ipm, iTime, binX, binY-1, numHits);//bottom
         if (binY+1 < tp->PixelsY && RandGen->Rndm() < trigProb) registerSiPMhit(ipm, iTime, binX, binY+1, numHits);//top
     }
+*/
 }
 
 bool AOneEvent::isHitsEmpty() const
@@ -160,13 +138,14 @@ void AOneEvent::HitsToSignal()
 {
     //PMsignals.resize(numPMs);
 
-    if (PMs->fDoDarkCounts) AddDarkCounts(); //add dark counts for all SiPMs
+//    if (PMs->fDoDarkCounts) AddDarkCounts(); //add dark counts for all SiPMs
 
     convertHitsToSignal(PMhits, PMsignals);
 }
 
 void AOneEvent::convertHitsToSignal(const QVector<float> & pmHits, QVector<float> & pmSignals)
 {
+/*
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
         const APm & pm = PMs->at(ipm);
@@ -231,10 +210,12 @@ void AOneEvent::convertHitsToSignal(const QVector<float> & pmHits, QVector<float
             }
         }
     }
+*/
 }
 
 void AOneEvent::AddDarkCounts() //currently applicable only for SiPMs!
 {
+/*
     for (int ipm = 0; ipm < numPMs; ipm++)
         if (PMs->isSiPM(ipm))
         {
@@ -287,21 +268,25 @@ void AOneEvent::AddDarkCounts() //currently applicable only for SiPMs!
                 }
             }
         }
+*/
 }
 
 float AOneEvent::generateDarkHitIncrement(int ipm) const
 {
+/*
     if (PMs->at(ipm).DarkCounts_Model == 0 || PMs->at(ipm).DarkCounts_Distribution.isEmpty()) return 1.0f;
 
     const int index = RandGen->Uniform(PMs->at(ipm).DarkCounts_Distribution.size());
     return PMs->at(ipm).DarkCounts_Distribution.at(index);
+*/
 }
 
 void AOneEvent::CollectStatistics(int WaveIndex, double time, double cosAngle, int Transitions)
 {
+    double angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
+
     SimStat->registerWave(WaveIndex);
     SimStat->registerTime(time);
-    double angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
     SimStat->registerAngle(angle);
     SimStat->registerNumTrans(Transitions);
 }

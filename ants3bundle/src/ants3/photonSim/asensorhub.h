@@ -1,6 +1,8 @@
 #ifndef ASENSORHUB_H
 #define ASENSORHUB_H
 
+#include "asensormodel.h"
+
 #include <QString>
 #include <QStringList>
 
@@ -8,13 +10,6 @@
 
 class AGeoObject;
 class QJsonObject;
-
-class ASensorModel
-{
-public:
-    QString Name = "Undefined";
-    double  PDE  = 1.0;
-};
 
 class ASensorHub
 {
@@ -25,7 +20,7 @@ public:
     int countSensors() const {return Sensors.size();}
     int countSensorModels() const {return Models.size();}
 
-    const ASensorModel * getModelFast(int iModel) const;
+    const ASensorModel & getModelFast(int iModel) const;
 
     const QStringList getListOfModelNames() const;
 

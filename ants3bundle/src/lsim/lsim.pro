@@ -54,9 +54,9 @@ SOURCES += \
         ../ants3/photonSim/aroothistappenders.cpp \
         aphotontracer.cpp \
         alogger.cpp \
+        aoneevent.cpp \
+        aphotonhistorylog.cpp \
         main.cpp
-#        aoneevent.cpp \
-#        aphotonhistorylog.cpp \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -95,7 +95,7 @@ aphotonsimulator.h \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/asimulationstatistics.h \
     ../ants3/photonSim/aroothistappenders.h \
-    aphotontracer.h
+    aphotontracer.h \
+    aoneevent.h \
+    aphotonhistorylog.h \
     alogger.h
-#    aoneevent.h \
-#    aphotonhistorylog.h \

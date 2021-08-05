@@ -109,6 +109,7 @@ SOURCES += \
     photonSim/aphotonsimsettings.cpp \
     photonSim/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
+    photonSim/asensormodel.cpp \
     photonSim/asimulationstatistics.cpp \
     photonSim/interfaceRules/abasicinterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerule.cpp \
@@ -179,6 +180,7 @@ HEADERS += \
     photonSim/aphotonsimsettings.h \
     photonSim/aroothistappenders.h \
     photonSim/asensorhub.h \
+    photonSim/asensormodel.h \
     photonSim/asimulationstatistics.h \
     photonSim/interfaceRules/abasicinterfacerule.h \
     photonSim/interfaceRules/ainterfacerule.h \

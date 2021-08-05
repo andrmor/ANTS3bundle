@@ -12,9 +12,9 @@ const ASensorHub &ASensorHub::getConstInstance()
     return getInstance();
 }
 
-const ASensorModel * ASensorHub::getModelFast(int iModel) const
+const ASensorModel & ASensorHub::getModelFast(int iModel) const
 {
-    return &Models.at(iModel);
+    return Models.at(iModel);
 }
 
 const QStringList ASensorHub::getListOfModelNames() const

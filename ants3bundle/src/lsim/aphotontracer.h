@@ -48,8 +48,6 @@ public:
 
     void TracePhoton(const APhoton* Photon);
 
-    AOneEvent* getEvent() {return OneEvent;}  //only used in LRF-based sim
-
     void setMaxTracks(int maxTracks) {MaxTracks = maxTracks;}
 
     void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels
