@@ -21,6 +21,7 @@ public:
     TRandom2 * RandGen = nullptr;
 
     double uniform();
+    double exp(double tau);
 };
 
 #endif // ARANDOMHUB_H

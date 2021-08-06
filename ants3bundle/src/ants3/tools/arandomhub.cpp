@@ -17,3 +17,8 @@ double ARandomHub::uniform()
 {
     return RandGen->Rndm();
 }
+
+double ARandomHub::exp(double tau)
+{
+    return RandGen->Exp(tau);
+}

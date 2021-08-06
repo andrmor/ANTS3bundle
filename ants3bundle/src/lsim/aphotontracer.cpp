@@ -4,6 +4,7 @@
 #include "amaterialhub.h"
 #include "ageometryhub.h"
 #include "aphotonsimhub.h"
+#include "arandomhub.h"
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "asimulationstatistics.h"
@@ -26,9 +27,9 @@ APhotonTracer::APhotonTracer() :
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
     SimSet(APhotonSimHub::getConstInstance().Settings),
+    RandomHub(ARandomHub::getInstance()),
     GeoManager(AGeometryHub::getInstance().GeoManager)
 {
-    RandGen = new TRandom2(); // !!*** temporary!
 //    grids = Grids;
     p = new APhoton();
 
@@ -55,7 +56,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
     //accelerators
     if (SimSet.OptSet.CheckQeBeforeTracking)
     {
-        rnd = RandGen->Rndm();
+        rnd = RandomHub.uniform();
         if (SimSet.WaveSet.Enabled && Photon->waveIndex != -1)
         {
             if (rnd > SensorHub.getMaxQEvsWave(Photon->waveIndex))  // !!!*** merge methods to one?
@@ -293,7 +294,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
             //qDebug()<<"Dir vector length is:"<<sqrt(p->v[0]*p->v[0] + p->v[1]*p->v[1] + p->v[2]*p->v[2]);
 
             const double prob = CalculateReflectionCoefficient(); //reflection probability
-            if (RandGen->Rndm() < prob)
+            if (RandomHub.uniform() < prob)
             { //-----Reflection-----
                 //qDebug()<<"Fresnel - reflection!";
                 OneEvent->SimStat->FresnelReflected++;
@@ -357,37 +358,37 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
             }
 */
         case 'M': //monitor
-        {
-            const int iMon = NodeAfterInterface->GetNumber();
-            //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
-            if (p->SimStat->Monitors.at(iMon)->isForPhotons())
             {
-                Double_t local[3];
-                const Double_t *global = Navigator->GetCurrentPoint();
-                Navigator->MasterToLocal(global, local);
-                //qDebug()<<local[0]<<local[1];
-                //qDebug() << "Monitors:"<<p->SimStat->Monitors.size();
-                if ( (local[2]>0 && p->SimStat->Monitors.at(iMon)->isUpperSensitive()) || (local[2]<0 && p->SimStat->Monitors.at(iMon)->isLowerSensitive()) )
+                const int iMon = NodeAfterInterface->GetNumber();
+                //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
+                if (p->SimStat->Monitors.at(iMon)->isForPhotons())
                 {
-                    //angle?
-                    if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
-                    double cosAngle = 0;
-                    for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
-                    p->SimStat->Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
-                    if (p->SimStat->Monitors.at(iMon)->isStopsTracking())
+                    Double_t local[3];
+                    const Double_t *global = Navigator->GetCurrentPoint();
+                    Navigator->MasterToLocal(global, local);
+                    //qDebug()<<local[0]<<local[1];
+                    //qDebug() << "Monitors:"<<p->SimStat->Monitors.size();
+                    if ( (local[2]>0 && p->SimStat->Monitors.at(iMon)->isUpperSensitive()) || (local[2]<0 && p->SimStat->Monitors.at(iMon)->isLowerSensitive()) )
                     {
-                        OneEvent->SimStat->KilledByMonitor++;
-                        if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );
-                        goto force_stop_tracing; //finished with this photon
+                        //angle?
+                        if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
+                        double cosAngle = 0;
+                        for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
+                        p->SimStat->Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
+                        if (p->SimStat->Monitors.at(iMon)->isStopsTracking())
+                        {
+                            OneEvent->SimStat->KilledByMonitor++;
+                            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );
+                            goto force_stop_tracing; //finished with this photon
+                        }
                     }
                 }
+                break;
             }
-            break;
-        }
         default:
-        {
+            {
             //other volumes have title '-'
-        }
+            }
         }
 
 
@@ -410,23 +411,15 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
 
     //here all tracing terminators end
 force_stop_tracing:
-    if (SimSet.RunSet.SavePhotonLog)
-    {
-        AppendHistoryRecord(); //Add tracks is also there, it has extra filtering
-    }
-    else
-    {
-        if (bBuildTracks) AppendTrack();
-    }
+    if (SimSet.RunSet.SavePhotonLog) AppendHistoryRecord(); //Add tracks is also there, it has extra filtering
+    else if (bBuildTracks)           AppendTrack();
 
     //qDebug()<<"Finished with the photon";
-    //qDebug() << "Track size:" <<Tracks->size();
 }
 
 void APhotonTracer::hardAbort()
 {
     bAbort = true;
-    //ResourcesForOverrides->abort(); //if script engine is there will abort evaluation
 }
 
 void APhotonTracer::AppendHistoryRecord()
@@ -501,11 +494,8 @@ void APhotonTracer::AppendHistoryRecord()
     }
 }
 
-//#include "atrackbuildoptions.h"
 void APhotonTracer::AppendTrack()
 {
-    //color track according to PM hit status and scintillation type
-
 //    if ( SimSet->TrackBuildOptions.bSkipPhotonsMissingPMs && fMissPM )
 //        delete track;  !!!*** TODO
 //    else
@@ -528,7 +518,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
     const double AbsCoeff = MatHub[MatIndexFrom]->getAbsorptionCoefficient(p->waveIndex);
     if (AbsCoeff > 0)
     {
-        AbsPath = -log(RandGen->Rndm())/AbsCoeff;
+        AbsPath = -log(RandomHub.uniform())/AbsCoeff;
         if (AbsPath < Step) DoAbsorption = true;
         else DoAbsorption = false;
     }
@@ -544,7 +534,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
         if (p->waveIndex == -1) RayleighMFP = MaterialFrom->rayleighMFP;
         else RayleighMFP = MaterialFrom->rayleighBinned[p->waveIndex];
 
-        RayleighPath = -RayleighMFP * log(RandGen->Rndm());
+        RayleighPath = -RayleighMFP * log(RandomHub.uniform());
         if (RayleighPath < Step) DoRayleigh = true;
         else DoRayleigh = false;
     }
@@ -587,7 +577,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
             const double reemissionProb = MatHub[MatIndexFrom]->getReemissionProbability(p->waveIndex);
             if ( reemissionProb > 0 )
             {
-                if (RandGen->Rndm() < reemissionProb)
+                if (RandomHub.uniform() < reemissionProb)
                 {
                     //qDebug() << "Waveshifting! Original index:"<<p->waveIndex;
                     if (p->waveIndex!=-1 && MatHub[MatIndexFrom]->PrimarySpectrumHist)
@@ -623,7 +613,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
 
                     //if (SimSet->fTimeResolved)
                     //    p->time += RandGen->Exp(  MaterialFrom->PriScintDecayTime );
-                    p->time += MatHub[MatIndexFrom]->GeneratePrimScintTime(RandGen);
+                    p->time += MatHub[MatIndexFrom]->GeneratePrimScintTime(RandomHub);
 
                     OneEvent->SimStat->Reemission++;
                     if (SimSet.RunSet.SavePhotonLog)
@@ -644,18 +634,18 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
             R[1] = Navigator->GetCurrentPoint()[1] + p->v[1]*RayleighPath;
             R[2] = Navigator->GetCurrentPoint()[2] + p->v[2]*RayleighPath;
             Navigator->SetCurrentPoint(R);
-            //navigator->FindNode();  /// not nreeded - removed
+            //navigator->FindNode();  /// not needed - removed
 
             //new direction
             double v_old[3];
             v_old[0] = p->v[0]; v_old[1] = p->v[1]; v_old[2] = p->v[2];
             double dotProduct;
-            do
+//            do // !!!***
             {
                 RandomDir();
                 dotProduct = p->v[0]*v_old[0] + p->v[1]*v_old[1] + p->v[2]*v_old[2];
             }
-            while ( (dotProduct*dotProduct + 1.0) < RandGen->Rndm(2.0));
+//            while ( (dotProduct*dotProduct + 1.0) < 2.0*RandomHub.uniform());
             Navigator->SetCurrentDirection(p->v);
 
             double refIndex = MaterialFrom->getRefractiveIndex(p->waveIndex);
@@ -735,7 +725,7 @@ void APhotonTracer::PMwasHit(int PMnumber)
         //       qDebug()<<"cos() = "<<cosAngle;
     }
 
-    if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandGen->Rndm(); //else already calculated
+    if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandomHub.uniform(); //else already calculated
 
     bool bDetected;
     if (fSiPM)
@@ -805,8 +795,8 @@ void APhotonTracer::RandomDir()
     double a=0, b=0, r2=1;
     while (r2 > 0.25)
     {
-        a  = RandGen->Rndm() - 0.5;
-        b  = RandGen->Rndm() - 0.5;
+        a  = RandomHub.uniform() - 0.5;
+        b  = RandomHub.uniform() - 0.5;
         r2 =  a*a + b*b;
     }
     p->v[2] = ( -1.0 + 8.0 * r2 );

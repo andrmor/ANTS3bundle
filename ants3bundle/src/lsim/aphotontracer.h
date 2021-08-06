@@ -12,6 +12,7 @@ class APhotonSimSettings;
 class AMaterialHub;
 class AInterfaceRuleHub;
 class ASensorHub;
+class ARandomHub;
 class APhoton;
 class TGeoManager;
 class AMaterial;
@@ -57,10 +58,10 @@ private:
     const AInterfaceRuleHub  & RuleHub;
     const ASensorHub         & SensorHub;
     const APhotonSimSettings & SimSet;
+          ARandomHub         & RandomHub;
 
     TGeoManager   * GeoManager = nullptr;
     TGeoNavigator * Navigator  = nullptr;
-    TRandom2      * RandGen    = nullptr;
 
     AOneEvent     * OneEvent   = nullptr;
 
@@ -96,15 +97,15 @@ private:
 
     bool bAbort = false;
 
-    double c_in_vac = 2.997925e2; //speed of light in mm/ns
+    const double c_in_vac = 2.997925e2; //speed of light in mm/ns
 
     enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
-    AbsRayEnum AbsorptionAndRayleigh();
+    AbsRayEnum AbsorptionAndRayleigh();   // !!!*** TOD: fix Rayleigh
     double CalculateReflectionCoefficient();
     void PMwasHit(int PMnumber);
     bool PerformRefraction(double nn);
     void PerformReflection();
-    void RandomDir();
+    void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
     void ReturnFromGridShift();      // !!!***
     void AppendTrack();              // !!!***

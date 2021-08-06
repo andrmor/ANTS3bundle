@@ -12,7 +12,7 @@ class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
 class APair_ValueAndWeight;
-class TRandom2;
+class ARandomHub;
 
 class AMaterial
 {
@@ -84,7 +84,7 @@ public:
     TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager
     void generateTGeoMat();
 
-    double GeneratePrimScintTime(TRandom2 * RandGen) const;
+    double GeneratePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
 
     void updateRuntimeProperties();
 

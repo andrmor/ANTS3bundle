@@ -76,7 +76,9 @@ double bi_exp(double t, double tau1,double tau2)
 {
     return exp(-1.0*t/tau2)*(1.0-exp(-1.0*t/tau1))/tau2/tau2*(tau1+tau2);
 }
-double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
+
+#include "arandomhub.h"
+double AMaterial::GeneratePrimScintTime(ARandomHub & Random) const
 {
     //select decay time component
     double DecayTime = 0;
@@ -85,7 +87,7 @@ double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
     else
     {
         //selecting decay time component
-        const double generatedStatWeight = _PrimScintSumStatWeight_Decay * RandGen->Rndm();
+        const double generatedStatWeight = _PrimScintSumStatWeight_Decay * Random.uniform();
         double cumulativeStatWeight = 0;
         for (int i=0; i<PriScint_Decay.size(); i++)
         {
@@ -108,7 +110,7 @@ double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
     else
     {
         //selecting raise time component
-        const double generatedStatWeight = _PrimScintSumStatWeight__Raise * RandGen->Rndm();
+        const double generatedStatWeight = _PrimScintSumStatWeight__Raise * Random.uniform();
         double cumulativeStatWeight = 0;
         for (int i=0; i<PriScint_Raise.size(); i++)
         {
@@ -122,15 +124,15 @@ double AMaterial::GeneratePrimScintTime(TRandom2 * RandGen) const
     }
 
     if (RiseTime == 0)
-        return RandGen->Exp(DecayTime);
+        return Random.exp(DecayTime);
 
     double EmissionTime = 0;
     // From G4Scintillation of Geant4
     double d = (RiseTime + DecayTime) / DecayTime;
     while (true)
     {
-        double ran1 = RandGen->Rndm();
-        double ran2 = RandGen->Rndm();
+        double ran1 = Random.uniform();
+        double ran2 = Random.uniform();
         EmissionTime = -1.0 * DecayTime * log(1.0 - ran1);
         double gg = d * single_exp(EmissionTime, DecayTime);
         if (ran2 <= bi_exp(EmissionTime, RiseTime, DecayTime) / gg)
