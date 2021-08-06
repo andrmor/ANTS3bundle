@@ -21,14 +21,194 @@
 
 APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir, int id) :
     ConfigFN(fileName), WorkingDir(dir), ID(id),
-    SimSet(APhotonSimHub::getConstInstance().Settings) {}
-
-void APhotonSimulator::start()
+    SimSet(APhotonSimHub::getConstInstance().Settings)
 {
     ALogger::getInstance().open(QString("PhotonSimLog-%0.log").arg(ID));
     LOG << "Working Dir: " << WorkingDir << "\n";
     LOG << "Config file: " << ConfigFN   << "\n";
 
+    Event = new AOneEvent();
+
+    // Progress reporter (and the following times) should live in another thread
+    //QTimer * Timer = new QTimer(this);
+    //QObject::connect(Timer, &QTimer::timeout, this, &APhotonSimulator::onProgressTimer);
+    //Timer.start(300);
+
+    //prepare simulator thread, start on start()
+}
+
+// !!!*** Simstat -> singleton
+
+void APhotonSimulator::start()
+{
+    loadConfig();
+
+    setupNodeBased();
+
+    simulateNodeBased();
+
+//    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
+//    QFile fileOut(FileDir + '/' + outFN); fileOut.open(QIODevice::WriteOnly);
+//    QTextStream in(&fileIn);
+//    QTextStream out(&fileOut);
+
+
+
+//    EventsProcessed = 0;
+//    while (!in.atEnd())
+//    {
+//          QString line = in.readLine();
+//          line.replace(from, to);
+//          out << line << '\n';
+//          EventsProcessed++;
+//          QThread::msleep(1000); //just to simulate long execution!
+//          qApp->processEvents();
+//    }
+//    fileIn.close();
+//    fileOut.close();
+
+    QCoreApplication::exit();
+}
+
+void APhotonSimulator::setupNodeBased()
+{
+    // update runtime properties!!!  !!!***
+
+    Event->init();
+    //PhotonTracker->configure(&GenSimSettings, OneEvent, GenSimSettings.TrackBuildOptions.bBuildPhotonTracks, &tracks);
+
+/*
+    bLimitToVolume = PhotSimSettings.bLimitToVol;
+    if (bLimitToVolume)
+    {
+        const QString & Vol = PhotSimSettings.LimitVolume;
+        if ( !Vol.isEmpty() && detector.Sandwich->World->findObjectByName(Vol) )
+            LimitToVolume = PhotSimSettings.LimitVolume.toLocal8Bit().data();
+        else bLimitToVolume = false;
+    }
+*/
+
+/*
+    if (PhotSimSettings.PerNodeSettings.Mode == APhotonSim_PerNodeSettings::Custom)
+    {
+        delete CustomHist; CustomHist = nullptr;
+
+        const QVector<ADPair> Dist = PhotSimSettings.PerNodeSettings.CustomDist;
+        const int size = Dist.size();
+        if (size == 0)
+        {
+            ErrorString = "Config does not contain per-node photon distribution";
+            return false;
+        }
+
+        double X[size];
+        for (int i = 0; i < size; i++) X[i] = Dist.at(i).first;
+
+        CustomHist = new TH1D("", "NumPhotDist", size-1, X);
+        for (int i = 1; i < size + 1; i++) CustomHist->SetBinContent(i, Dist.at(i-1).second);
+        CustomHist->GetIntegral(); //will be thread safe after this
+    }
+*/
+
+/*
+    const APhotonSim_FixedPhotSettings & FS = PhotSimSettings.FixedPhotSettings;
+    Photon.waveIndex = FS.FixWaveIndex;
+    if (!SimSet.WaveSet.Enabled) Photon.waveIndex = -1;
+*/
+
+/*
+    bIsotropic = FS.bIsotropic;
+    if (!bIsotropic)
+    {
+        if (FS.DirectionMode == APhotonSim_FixedPhotSettings::Vector)
+        {
+            bCone = false;
+            Photon.v[0] = FS.FixDX;
+            Photon.v[1] = FS.FixDY;
+            Photon.v[2] = FS.FixDZ;
+            NormalizeVectorSilent(Photon.v);
+        }
+        else //Cone
+        {
+            bCone = true;
+            double v[3];
+            v[0] = FS.FixDX;
+            v[1] = FS.FixDY;
+            v[2] = FS.FixDZ;
+            NormalizeVectorSilent(v);
+            ConeDir = TVector3(v[0], v[1], v[2]);
+            CosConeAngle = cos(FS.FixConeAngle * TMath::Pi() / 180.0);
+        }
+    }
+*/
+    int TotalEvents = 0;
+
+    switch (SimSet.BombSet.GenerationMode)
+    {
+    case EBombGen::Single :
+        TotalEvents = 1; //the only case when we can split runs between threads
+        break;
+    case EBombGen::Grid :
+    {
+//        TotalEvents = PhotSimSettings.ScanSettings.countEvents();
+        break;
+    }
+    case EBombGen::Flood :
+//        TotalEvents = PhotSimSettings.FloodSettings.Nodes;
+        break;
+    case EBombGen::File :
+//        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
+//             TotalEvents = Nodes.size();
+//        else TotalEvents = PhotSimSettings.CustomNodeSettings.NumEventsInFile;
+        break;
+    case EBombGen::Script :
+//        TotalEvents = Nodes.size();
+        break;
+    default:
+//        ErrorString = "Unknown or not implemented photon simulation mode";
+        break;
+    }
+}
+
+void APhotonSimulator::simulateNodeBased()
+{
+    bStopRequested = false;
+    bHardAbortWasTriggered = false;
+
+    //ReserveSpace(getEventCount());
+
+    switch (SimSet.BombSet.GenerationMode)
+    {
+    case EBombGen::Single :
+//        fSuccess = simulateSingle();
+        break;
+    case EBombGen::Grid :
+//        fSuccess = simulateRegularGrid();
+        break;
+    case EBombGen::Flood :
+//        fSuccess = simulateFlood();
+        break;
+    case EBombGen::File :
+    {
+//        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
+//             fSuccess = simulateCustomNodes();
+//        else
+//             fSuccess = simulatePhotonsFromFile();
+        break;
+    }
+    case EBombGen::Script :
+//        fSuccess = simulateCustomNodes();
+        break;
+    default:
+        fSuccess = false;
+        break;
+    }
+
+    if (bHardAbortWasTriggered) fSuccess = false;
+}
+
+void APhotonSimulator::loadConfig()
+{
     QJsonObject json;
     jstools::loadJsonFromFile(json, ConfigFN);
 
@@ -50,33 +230,6 @@ void APhotonSimulator::start()
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
     LOG.flush();
-
-    Event = new AOneEvent();
-
-
-//    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
-//    QFile fileOut(FileDir + '/' + outFN); fileOut.open(QIODevice::WriteOnly);
-//    QTextStream in(&fileIn);
-//    QTextStream out(&fileOut);
-
-//    QTimer Timer;
-//    QObject::connect(&Timer, &QTimer::timeout, this, &A3PSim::onProgressTimer);
-//    Timer.start(300);
-
-//    EventsProcessed = 0;
-//    while (!in.atEnd())
-//    {
-//          QString line = in.readLine();
-//          line.replace(from, to);
-//          out << line << '\n';
-//          EventsProcessed++;
-//          QThread::msleep(1000); //just to simulate long execution!
-//          qApp->processEvents();
-//    }
-//    fileIn.close();
-//    fileOut.close();
-
-    QCoreApplication::exit();
 }
 
 /*

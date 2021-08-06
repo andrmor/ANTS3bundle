@@ -108,7 +108,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         if (PhotonTracksAdded < MaxTracks)
         {
             Track.HitSensor = false;
-            Track.ScintType = p->scint_type;
+            Track.SecondaryScint = p->SecondaryScint;
             Track.Positions.clear();
             Track.Positions.push_back(AVector3(p->r));
         }
@@ -610,7 +610,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
 
                     //if (SimSet->fTimeResolved)
                     //    p->time += RandGen->Exp(  MaterialFrom->PriScintDecayTime );
-                    p->time += MatHub[MatIndexFrom]->GeneratePrimScintTime(RandomHub);
+                    p->time += MatHub[MatIndexFrom]->generatePrimScintTime(RandomHub);
 
                     OneEvent->SimStat->Reemission++;
                     if (SimSet.RunSet.SavePhotonLog)

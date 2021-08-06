@@ -20,7 +20,7 @@ public:
 
     ASimulationStatistics * SimStat = nullptr;
 
-    void configure();
+    void init();
 
     //hits processing
     void clearHits();

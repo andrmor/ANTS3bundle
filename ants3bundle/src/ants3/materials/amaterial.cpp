@@ -78,7 +78,7 @@ double bi_exp(double t, double tau1,double tau2)
 }
 
 #include "arandomhub.h"
-double AMaterial::GeneratePrimScintTime(ARandomHub & Random) const
+double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 {
     //select decay time component
     double DecayTime = 0;

@@ -6,7 +6,7 @@
 APhoton::APhoton() {}
 
 APhoton::APhoton(double * pos, double * dir, int waveIndex, double time) :
-    time(time), waveIndex(waveIndex), scint_type(0)
+    time(time), waveIndex(waveIndex), SecondaryScint(false)
 {
     for (int i=0; i<3; i++)
     {
@@ -23,9 +23,9 @@ void APhoton::copyFrom(const APhoton *CopyFrom)
         v[i] = CopyFrom->v[i];
     }
 
-    time       = CopyFrom->time;
-    waveIndex  = CopyFrom->waveIndex;
-    scint_type = CopyFrom->scint_type;
+    time           = CopyFrom->time;
+    waveIndex      = CopyFrom->waveIndex;
+    SecondaryScint = CopyFrom->SecondaryScint;
 
     SimStat    = CopyFrom->SimStat;
 }

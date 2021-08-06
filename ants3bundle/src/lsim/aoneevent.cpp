@@ -16,7 +16,7 @@ AOneEvent::AOneEvent() :
     SimSet(APhotonSimHub::getInstance().Settings),
     SensorHub(ASensorHub::getConstInstance()), RandomHub(ARandomHub::getInstance()){}
 
-void AOneEvent::configure()
+void AOneEvent::init()
 {
     numPMs = SensorHub.countSensors();
 

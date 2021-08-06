@@ -22,6 +22,7 @@ INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
         anoderecord.cpp \
+        aphotongenerator.cpp \
         aphotonsimulator.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
@@ -66,6 +67,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     anoderecord.h \
+    aphotongenerator.h \
 aphotonsimulator.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \

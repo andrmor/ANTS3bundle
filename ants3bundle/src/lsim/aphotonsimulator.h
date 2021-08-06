@@ -34,9 +34,15 @@ protected:
 
     APhoton Photon;
 
-    int     EventsProcessed = 0;
+    int     EventsProcessed = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
+    bool bStopRequested = false;
+    bool bHardAbortWasTriggered = false;
+    bool fSuccess;
 
 private:
+    void loadConfig();
+    void setupNodeBased();
+    void simulateNodeBased();
     void terminate(const QString & reason);
 //    void simulateOneNode(const ANodeRecord & node);
 //    void generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint);

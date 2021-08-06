@@ -75,16 +75,12 @@ public:
 
     QVector<double> PrimarySpectrum_lambda;
     QVector<double> PrimarySpectrum;
-    TH1D          * PrimarySpectrumHist = 0;
     QVector<double> SecondarySpectrum_lambda;
     QVector<double> SecondarySpectrum;
-    TH1D          * SecondarySpectrumHist = 0;
 
-    TGeoMaterial  * GeoMat = nullptr; // handled by TGeoManager
-    TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager
     void generateTGeoMat();
 
-    double GeneratePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
+    double generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
 
     void updateRuntimeProperties();
 
@@ -95,10 +91,13 @@ public:
 
     QString checkMaterial() const;
 
-private:
     //run-time properties
-    double _PrimScintSumStatWeight_Decay;
-    double _PrimScintSumStatWeight__Raise;
+    TGeoMaterial  * GeoMat = nullptr; // handled by TGeoManager
+    TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager
+    double          _PrimScintSumStatWeight_Decay;
+    double          _PrimScintSumStatWeight__Raise;
+    TH1D          * PrimarySpectrumHist = nullptr;
+    TH1D          * SecondarySpectrumHist = nullptr;
 
 private:
     double FT(double td, double tr, double t) const;

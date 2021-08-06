@@ -11,15 +11,15 @@ public:
 
     double r[3]; //position
     double v[3]; //direction (must be already normalized to unit vector!!!)
-    double time; //time stamp
-    int waveIndex; //wavelength is always binned during simulations
-    int scint_type; //1 - primary //2 - secondary // 0 - undefined
+    double time           = 0;
+    int    waveIndex      = -1;     //wavelength is always binned during simulations
+    bool   SecondaryScint = false;
 
     ASimulationStatistics * SimStat = nullptr; // TODO: remove from here!
 
     void copyFrom(const APhoton * CopyFrom);
     void ensureUnitaryLength();
-    void generateRandomDir();
+    void generateRandomDir(); // !!!*** in APhotonGenerator now!
 };
 
 #endif // APHOTON

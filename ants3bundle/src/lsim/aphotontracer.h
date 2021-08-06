@@ -34,7 +34,7 @@ class ATrackRecord
 {
 public:
     bool HitSensor;
-    int  ScintType;
+    bool SecondaryScint;
     std::vector<AVector3> Positions;
 };
 
