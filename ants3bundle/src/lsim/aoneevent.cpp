@@ -11,8 +11,8 @@
 #include "TMath.h"
 #include "TH1D.h"
 
-AOneEvent::AOneEvent(ASimulationStatistics * simStat) :
-    SimStat(simStat),
+AOneEvent::AOneEvent() :
+    SimStat(new ASimulationStatistics()),
     SimSet(APhotonSimHub::getInstance().Settings),
     SensorHub(ASensorHub::getConstInstance()), RandomHub(ARandomHub::getInstance()){}
 

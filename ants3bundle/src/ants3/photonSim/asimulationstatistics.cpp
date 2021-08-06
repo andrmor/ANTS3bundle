@@ -8,19 +8,6 @@
 #include "TH1I.h"
 #include "TH1D.h"
 
-ASimulationStatistics::ASimulationStatistics(const TString nameID)
-{
-    WaveSpectrum = 0;
-    TimeSpectrum = 0;
-    AngularDistr = 0;
-    TransitionSpectrum = 0;
-    WaveNodes = 0;
-    numBins = 100;
-
-    NameID = nameID;
-    //initialize();
-}
-
 ASimulationStatistics::~ASimulationStatistics()
 {
     clearAll();
@@ -28,14 +15,11 @@ ASimulationStatistics::~ASimulationStatistics()
 
 void ASimulationStatistics::clearAll()
 {
-    if (WaveSpectrum) delete WaveSpectrum;
-    WaveSpectrum = 0;
-    if (TimeSpectrum) delete TimeSpectrum;
-    TimeSpectrum = 0;
-    if (AngularDistr) delete AngularDistr;
-    AngularDistr = 0;
-    if (TransitionSpectrum) delete TransitionSpectrum;
-    TransitionSpectrum = 0;
+    delete WaveSpectrum;       WaveSpectrum = nullptr;
+    delete TimeSpectrum;       TimeSpectrum = nullptr;
+    delete AngularDistr;       AngularDistr = nullptr;
+    delete TransitionSpectrum; TransitionSpectrum = nullptr;
+
     clearMonitors();
 }
 
@@ -44,20 +28,20 @@ void ASimulationStatistics::initialize(QVector<const AGeoObject*> monitorRecords
     if (nBins != 0) numBins = nBins;
     if (waveNodes != 0) WaveNodes = waveNodes;
 
-    if (WaveSpectrum) delete WaveSpectrum;
+    delete WaveSpectrum;
     if (WaveNodes != 0)
-       WaveSpectrum = new TH1D("iWaveSpectrum"+NameID,"WaveIndex spectrum", WaveNodes, 0, WaveNodes);
+       WaveSpectrum = new TH1D("iWaveSpectrum","WaveIndex spectrum", WaveNodes, 0, WaveNodes);
     else
-       WaveSpectrum = new TH1D("iWaveSpectrum"+NameID,"WaveIndex spectrum",numBins,0,-1);
+       WaveSpectrum = new TH1D("iWaveSpectrum","WaveIndex spectrum",numBins,0,-1);
 
-    if (TimeSpectrum) delete TimeSpectrum;
-    TimeSpectrum = new TH1D("TimeSpectrum"+NameID, "Time spectrum",numBins,0,-1);
+    delete TimeSpectrum;
+    TimeSpectrum = new TH1D("TimeSpectrum", "Time spectrum",numBins,0,-1);
 
-    if (AngularDistr) delete AngularDistr;
-    AngularDistr = new TH1D("AngularDistr"+NameID, "cosAngle spectrum", numBins, 0, 90.0);
+    delete AngularDistr;
+    AngularDistr = new TH1D("AngularDistr", "cosAngle spectrum", numBins, 0, 90.0);
 
-    if (TransitionSpectrum) delete TransitionSpectrum;
-    TransitionSpectrum = new TH1D("TransitionsSpectrum"+NameID, "Transitions", numBins, 0,-1);
+    delete TransitionSpectrum;
+    TransitionSpectrum = new TH1D("TransitionsSpectrum", "Transitions", numBins, 0,-1);
 
     Absorbed = OverrideLoss = HitPM = HitDummy = Escaped = LossOnGrid = TracingSkipped = MaxCyclesReached = GeneratedOutsideGeometry = KilledByMonitor = 0;
 

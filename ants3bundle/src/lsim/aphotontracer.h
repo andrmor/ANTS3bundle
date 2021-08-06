@@ -18,7 +18,6 @@ class TGeoManager;
 class AMaterial;
 class AOneEvent;
 class TGeoNavigator;
-class TRandom2;
 class TGeoVolume;
 class AGridElementRecord;
 

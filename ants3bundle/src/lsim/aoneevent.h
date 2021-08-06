@@ -12,13 +12,13 @@ class ASimulationStatistics;
 class AOneEvent
 {
 public:
-    AOneEvent(ASimulationStatistics * simStat);
+    AOneEvent();
 
     QVector<float>          PMhits;           // PM hits [pm]
     QVector<float>          PMsignals;        // -- converted to signal [pm]
     QVector<QBitArray>      SiPMpixels;       //on/off status of SiPM pixels [PM#] [time] [pixY] [pixX]
 
-    ASimulationStatistics * SimStat;
+    ASimulationStatistics * SimStat = nullptr;
 
     void configure();
 

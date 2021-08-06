@@ -3,7 +3,7 @@
 
 //#include "aphotonhistorylog.h"    !!!***
 
-#include <QVector>
+#include <QVector>   // to std::vector !!!***
 #include <QSet>
 
 #include "TString.h"
@@ -16,7 +16,6 @@ class AGeoObject;
 class ASimulationStatistics
 {
 public:
-    ASimulationStatistics(const TString nameID = "");
     ~ASimulationStatistics();
 
     // !!!***
@@ -61,16 +60,15 @@ public:
     QVector<AMonitor*> Monitors;
 
 private:
-    TH1D* WaveSpectrum;
-    TH1D* TimeSpectrum;
-    TH1D* AngularDistr;
-    TH1D* TransitionSpectrum;
+    TH1D* WaveSpectrum       = nullptr;
+    TH1D* TimeSpectrum       = nullptr;
+    TH1D* AngularDistr       = nullptr;
+    TH1D* TransitionSpectrum = nullptr;
 
-    int numBins;
-    TString NameID;
+    int numBins = 100;
 
     double WaveFrom, WaveTo;
-    int WaveNodes;
+    int WaveNodes = 0;
 
 
     long countPhotons();

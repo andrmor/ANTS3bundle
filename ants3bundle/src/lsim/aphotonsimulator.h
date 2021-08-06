@@ -1,8 +1,14 @@
 #ifndef APHOTONSIMULATOR_H
 #define APHOTONSIMULATOR_H
 
+#include "aphoton.h"
+
 #include <QObject>
 #include <QString>
+
+class APhotonSimSettings;
+class ANodeRecord;
+class AOneEvent;
 
 class APhotonSimulator : public QObject
 {
@@ -22,10 +28,18 @@ protected:
     QString WorkingDir;
     int     ID;
 
+    const APhotonSimSettings & SimSet;
+
+    AOneEvent * Event;
+
+    APhoton Photon;
+
     int     EventsProcessed = 0;
 
 private:
     void terminate(const QString & reason);
+//    void simulateOneNode(const ANodeRecord & node);
+//    void generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint);
 };
 
 #endif // APHOTONSIMULATOR_H

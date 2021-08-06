@@ -13,13 +13,10 @@
 #include "aphoton.h"
 #include "amonitor.h"
 
-//Qt
 #include <QDebug>
 
-//ROOT
 #include "TGeoManager.h"
 #include "TMath.h"
-#include "TRandom2.h"
 #include "TH1I.h"
 
 APhotonTracer::APhotonTracer() :
