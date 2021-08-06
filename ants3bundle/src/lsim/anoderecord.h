@@ -7,7 +7,7 @@ class ANodeRecord
 {
 public:
     static ANodeRecord* createS(double x, double y, double z, double time = 0, int numPhot = -1, ANodeRecord * rec= nullptr);
-    static ANodeRecord* createV(double * r, double time = 0, int numPhot = -1, ANodeRecord * rec= nullptr);
+    static ANodeRecord* createV(const double *r, double time = 0, int numPhot = -1, ANodeRecord * rec= nullptr);
 
     void addLinkedNode(ANodeRecord * node); // ownership is transferred to the chain of linked node of this node
 
@@ -25,7 +25,7 @@ public:
 
 private:  // prevent creation on the stack and copy/move
     ANodeRecord(double x, double y, double z, double time = 0, int numPhot = -1, ANodeRecord * rec = nullptr);
-    ANodeRecord(double * r, double time = 0, int numPhot = -1, ANodeRecord * rec = nullptr);
+    ANodeRecord(const double *r, double time = 0, int numPhot = -1, ANodeRecord * rec = nullptr);
 
     ANodeRecord(const ANodeRecord &) = delete;
     ANodeRecord & operator=(const ANodeRecord &) = delete;

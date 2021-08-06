@@ -58,6 +58,7 @@ SOURCES += \
         alogger.cpp \
         aoneevent.cpp \
         aphotonhistorylog.cpp \
+        astatisticshub.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -102,4 +103,5 @@ aphotonsimulator.h \
     aphotontracer.h \
     aoneevent.h \
     aphotonhistorylog.h \
-    alogger.h
+    alogger.h \
+    astatisticshub.h

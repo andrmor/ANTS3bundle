@@ -13,6 +13,7 @@ class AMaterialHub;
 class AInterfaceRuleHub;
 class ASensorHub;
 class ARandomHub;
+class ASimulationStatistics;
 class APhoton;
 class TGeoManager;
 class AMaterial;
@@ -41,12 +42,12 @@ public:
 class APhotonTracer
 {
 public:
-    explicit APhotonTracer();
+    explicit APhotonTracer(AOneEvent & event);
     ~APhotonTracer();
 
-    void configure(AOneEvent* oneEvent);
+    void init();
 
-    void TracePhoton(const APhoton* Photon);
+    void tracePhoton(const APhoton * Photon);
 
     void setMaxTracks(int maxTracks) {MaxTracks = maxTracks;}
 
@@ -57,12 +58,14 @@ private:
     const AInterfaceRuleHub  & RuleHub;
     const ASensorHub         & SensorHub;
     const APhotonSimSettings & SimSet;
-          ARandomHub         & RandomHub;
+    ARandomHub               & RandomHub;
+    ASimulationStatistics    & SimStat;
+
+    AOneEvent     & Event;
 
     TGeoManager   * GeoManager = nullptr;
     TGeoNavigator * Navigator  = nullptr;
 
-    AOneEvent     * OneEvent   = nullptr;
 
 //    const QVector<AGridElementRecord*>* grids;
 
@@ -70,7 +73,7 @@ private:
     QVector<APhotonHistoryLog> PhLog;
 
     int MaxTracks = 10;
-    int PhotonTracksAdded = 0;
+    int AddedTracks = 0;
 
     int Counter; //number of photon transitions - there is a limit on this set by user
     APhoton * p; //the photon which is traced

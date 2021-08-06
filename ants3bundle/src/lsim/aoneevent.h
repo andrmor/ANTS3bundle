@@ -18,7 +18,6 @@ public:
     QVector<float>          PMsignals;        // -- converted to signal [pm]
     QVector<QBitArray>      SiPMpixels;       //on/off status of SiPM pixels [PM#] [time] [pixY] [pixX]
 
-    ASimulationStatistics * SimStat = nullptr;
 
     void init();
 
@@ -37,7 +36,8 @@ public:
 private:
     const APhotonSimSettings & SimSet;
     const ASensorHub         & SensorHub;
-    ARandomHub         & RandomHub;
+    ARandomHub               & RandomHub;
+    ASimulationStatistics    & SimStat;
 
     //settings
     int numPMs;

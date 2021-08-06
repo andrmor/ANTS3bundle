@@ -10,7 +10,7 @@ ANodeRecord::ANodeRecord(double x, double y, double z, double time, int numPhot,
     R[2] = z;
 }
 
-ANodeRecord::ANodeRecord(double * r, double time, int numPhot, ANodeRecord *rec) :
+ANodeRecord::ANodeRecord(const double * r, double time, int numPhot, ANodeRecord *rec) :
     Time(time), NumPhot(numPhot), LinkedNode(rec)
 {
     for (int i=0; i<3; i++) R[i] = r[i];
@@ -42,7 +42,7 @@ ANodeRecord *ANodeRecord::createS(double x, double y, double z, double time, int
     return new ANodeRecord(x, y, z, time, numPhot, rec);
 }
 
-ANodeRecord *ANodeRecord::createV(double *r, double time, int numPhot, ANodeRecord *rec)
+ANodeRecord *ANodeRecord::createV(const double *r, double time, int numPhot, ANodeRecord *rec)
 {
     return new ANodeRecord(r, time, numPhot, rec);
 }

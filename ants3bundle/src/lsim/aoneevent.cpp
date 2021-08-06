@@ -2,6 +2,7 @@
 #include "asensorhub.h"
 #include "arandomhub.h"
 #include "aphotonsimhub.h"
+#include "astatisticshub.h"
 #include "asimulationstatistics.h"
 #include "aphotonsimsettings.h"
 //#include "acustomrandomsampling.h"
@@ -12,9 +13,10 @@
 #include "TH1D.h"
 
 AOneEvent::AOneEvent() :
-    SimStat(new ASimulationStatistics()),
     SimSet(APhotonSimHub::getInstance().Settings),
-    SensorHub(ASensorHub::getConstInstance()), RandomHub(ARandomHub::getInstance()){}
+    SensorHub(ASensorHub::getConstInstance()),
+    RandomHub(ARandomHub::getInstance()),
+    SimStat(AStatisticsHub::getInstance().SimStat) {}
 
 void AOneEvent::init()
 {
@@ -285,8 +287,8 @@ void AOneEvent::CollectStatistics(int WaveIndex, double time, double cosAngle, i
 {
     double angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
 
-    SimStat->registerWave(WaveIndex);
-    SimStat->registerTime(time);
-    SimStat->registerAngle(angle);
-    SimStat->registerNumTrans(Transitions);
+    SimStat.registerWave(WaveIndex);
+    SimStat.registerTime(time);
+    SimStat.registerAngle(angle);
+    SimStat.registerNumTrans(Transitions);
 }

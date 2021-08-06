@@ -7,6 +7,7 @@
 #include "aphotonsimhub.h"
 #include "anoderecord.h"
 #include "aoneevent.h"
+#include "aphotontracer.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -28,6 +29,7 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     LOG << "Config file: " << ConfigFN   << "\n";
 
     Event = new AOneEvent();
+    Tracer = new APhotonTracer(*Event);
 
     // Progress reporter (and the following times) should live in another thread
     //QTimer * Timer = new QTimer(this);
@@ -37,46 +39,38 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     //prepare simulator thread, start on start()
 }
 
-// !!!*** Simstat -> singleton
-
 void APhotonSimulator::start()
 {
     loadConfig();
 
-    setupNodeBased();
+    setupCommonProperties();
 
-    simulateNodeBased();
-
-//    QFile fileIn (FileDir + '/' + inFN);  fileIn .open(QIODevice::ReadOnly);
-//    QFile fileOut(FileDir + '/' + outFN); fileOut.open(QIODevice::WriteOnly);
-//    QTextStream in(&fileIn);
-//    QTextStream out(&fileOut);
-
-
-
-//    EventsProcessed = 0;
-//    while (!in.atEnd())
-//    {
-//          QString line = in.readLine();
-//          line.replace(from, to);
-//          out << line << '\n';
-//          EventsProcessed++;
-//          QThread::msleep(1000); //just to simulate long execution!
-//          qApp->processEvents();
-//    }
-//    fileIn.close();
-//    fileOut.close();
+    switch (SimSet.SimType)
+    {
+    case EPhotSimType::PhotonBombs :
+        setupPhotonBombs();
+        simulatePhotonBombs();
+        break;
+    case EPhotSimType::FromEnergyDepo :
+        break;
+    case EPhotSimType::IndividualPhotons :
+        break;
+    default:;
+    }
 
     QCoreApplication::exit();
 }
 
-void APhotonSimulator::setupNodeBased()
+void APhotonSimulator::setupCommonProperties()
 {
     // update runtime properties!!!  !!!***
 
     Event->init();
-    //PhotonTracker->configure(&GenSimSettings, OneEvent, GenSimSettings.TrackBuildOptions.bBuildPhotonTracks, &tracks);
+    Tracer->init();
+}
 
+void APhotonSimulator::setupPhotonBombs()
+{
 /*
     bLimitToVolume = PhotSimSettings.bLimitToVol;
     if (bLimitToVolume)
@@ -141,28 +135,28 @@ void APhotonSimulator::setupNodeBased()
         }
     }
 */
-    int TotalEvents = 0;
-
+    EventsToDo = 0;
     switch (SimSet.BombSet.GenerationMode)
     {
     case EBombGen::Single :
-        TotalEvents = 1; //the only case when we can split runs between threads
+        EventsToDo = 1; //the only case when we can split runs between threads
         break;
     case EBombGen::Grid :
     {
-//        TotalEvents = PhotSimSettings.ScanSettings.countEvents();
+//        EventsToDo = PhotSimSettings.ScanSettings.countEvents();
         break;
     }
     case EBombGen::Flood :
-//        TotalEvents = PhotSimSettings.FloodSettings.Nodes;
+//        EventsToDo = PhotSimSettings.FloodSettings.Nodes;
         break;
     case EBombGen::File :
 //        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
-//             TotalEvents = Nodes.size();
-//        else TotalEvents = PhotSimSettings.CustomNodeSettings.NumEventsInFile;
+//             EventsToDo = Nodes.size();
+//        else
+//               EventsToDo = PhotSimSettings.CustomNodeSettings.NumEventsInFile;
         break;
     case EBombGen::Script :
-//        TotalEvents = Nodes.size();
+//        EventsToDo = Nodes.size();
         break;
     default:
 //        ErrorString = "Unknown or not implemented photon simulation mode";
@@ -170,12 +164,10 @@ void APhotonSimulator::setupNodeBased()
     }
 }
 
-void APhotonSimulator::simulateNodeBased()
+void APhotonSimulator::simulatePhotonBombs()
 {
     bStopRequested = false;
     bHardAbortWasTriggered = false;
-
-    //ReserveSpace(getEventCount());
 
     switch (SimSet.BombSet.GenerationMode)
     {
@@ -207,6 +199,309 @@ void APhotonSimulator::simulateNodeBased()
     if (bHardAbortWasTriggered) fSuccess = false;
 }
 
+// ---
+
+bool APhotonSimulator::simulateSingle()
+{
+    const double * Position = SimSet.BombSet.Position;
+    std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position));
+
+/*
+    int eventsToDo = eventEnd - eventBegin; //runs are split between the threads, since node position is fixed for all
+    double updateFactor = (eventsToDo < 1) ? 100.0 : 100.0/eventsToDo;
+    progress = 0;
+    eventCurrent = 0;
+    for (int irun = 0; irun < eventsToDo; ++irun)
+    {
+        simulateOneNode(*node);
+        eventCurrent = irun;
+        progress = irun * updateFactor;
+        if (fStopRequested) return false;
+    }
+*/
+    simulateOneNode(*node);
+    if (bStopRequested) return false;
+    return true;
+}
+
+bool APhotonSimulator::simulateGrid()
+{
+/*
+    const APhotonSim_ScanSettings & ScanSet = PhotSimSettings.ScanSettings;
+
+    //extracting grid parameters
+    double RegGridOrigin[3]; //grid origin
+    RegGridOrigin[0] = ScanSet.X0;
+    RegGridOrigin[1] = ScanSet.Y0;
+    RegGridOrigin[2] = ScanSet.Z0;
+    //
+    double RegGridStep[3][3]; //vector [axis] [step]
+    int RegGridNodes[3]; //number of nodes along the 3 axes
+    bool RegGridFlagPositive[3]; //Axes option
+    //
+    for (int ic = 0; ic < 3; ic++)
+    {
+        const APhScanRecord & rec = ScanSet.ScanRecords.at(ic);
+        if (rec.bEnabled)
+        {
+            RegGridStep[ic][0] = rec.DX;
+            RegGridStep[ic][1] = rec.DY;
+            RegGridStep[ic][2] = rec.DZ;
+            RegGridNodes[ic]   = rec.Nodes;
+            RegGridFlagPositive[ic] = rec.bBiDirect;
+        }
+        else
+        {
+            RegGridStep[ic][0] = 0;
+            RegGridStep[ic][1] = 0;
+            RegGridStep[ic][2] = 0;
+            RegGridNodes[ic] = 1; //1 is disabled axis
+            RegGridFlagPositive[ic] = true;
+        }
+    }
+
+    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    int currentNode = 0;
+    eventCurrent = 0;
+    double updateFactor = 100.0 / ( NumRuns * (eventEnd - eventBegin) );
+    //Do the scan
+    int iAxis[3];
+    for (iAxis[0]=0; iAxis[0]<RegGridNodes[0]; iAxis[0]++)
+        for (iAxis[1]=0; iAxis[1]<RegGridNodes[1]; iAxis[1]++)
+            for (iAxis[2]=0; iAxis[2]<RegGridNodes[2]; iAxis[2]++)  //iAxis - counters along the axes!!!
+            {
+                if (currentNode < eventBegin)
+                { //this node is taken care of by another thread
+                    currentNode++;
+                    continue;
+                }
+
+                //calculating node coordinates
+                for (int i=0; i<3; i++) node->R[i] = RegGridOrigin[i];
+                //shift from the origin
+                for (int axis=0; axis<3; axis++)
+                { //going axis by axis
+                    double ioffset = 0;
+                    if (!RegGridFlagPositive[axis]) ioffset = -0.5*( RegGridNodes[axis] - 1 );
+                    for (int i=0; i<3; i++) node->R[i] += (ioffset + iAxis[axis]) * RegGridStep[axis][i];
+                }
+
+                //running this node
+                for (int irun = 0; irun < NumRuns; irun++)
+                {
+                    simulateOneNode(*node);
+                    eventCurrent++;
+                    progress = eventCurrent * updateFactor;
+                    if (fStopRequested) return false;
+                }
+                currentNode++;
+                if (currentNode >= eventEnd) return true;
+            }
+*/
+    return true;
+}
+
+bool APhotonSimulator::simulateFlood()
+{
+/*
+    const APhotonSim_FloodSettings & FloodSet = PhotSimSettings.FloodSettings;
+
+    //extracting flood parameters
+    double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
+    double Rad2in, Rad2out;
+    if (FloodSet.Shape == APhotonSim_FloodSettings::Rectangular)
+    {
+        Xfrom = FloodSet.Xfrom;
+        Xto =   FloodSet.Xto;
+        Yfrom = FloodSet.Yfrom;
+        Yto =   FloodSet.Yto;
+    }
+    else
+    {
+        CenterX = FloodSet.X0;
+        CenterY = FloodSet.Y0;
+        RadiusIn = 0.5 * FloodSet.InnerD;
+        RadiusOut = 0.5 * FloodSet.OuterD;
+
+        Rad2in  = RadiusIn  * RadiusIn;
+        Rad2out = RadiusOut * RadiusOut;
+        Xfrom   = CenterX - RadiusOut;
+        Xto     = CenterX + RadiusOut;
+        Yfrom   = CenterY - RadiusOut;
+        Yto     = CenterY + RadiusOut;
+    }
+    double Zfixed, Zfrom, Zto;
+    if (FloodSet.ZMode == APhotonSim_FloodSettings::Fixed)
+    {
+        Zfixed = FloodSet.Zfixed;
+    }
+    else
+    {
+        Zfrom = FloodSet.Zfrom;
+        Zto =   FloodSet.Zto;
+    }
+
+    //Do flood
+    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    int nodeCount = (eventEnd - eventBegin);
+    eventCurrent = 0;
+    int WatchdogThreshold = 100000;
+    double updateFactor = 100.0 / (NumRuns*nodeCount);
+    for (int inode = 0; inode < nodeCount; inode++)
+    {
+        if(fStopRequested) return false;
+
+        //choosing node coordinates
+        node->R[0] = Xfrom + (Xto - Xfrom) * RandGen->Rndm();
+        node->R[1] = Yfrom + (Yto - Yfrom) * RandGen->Rndm();
+
+        //running this node
+        if (FloodSet.Shape == APhotonSim_FloodSettings::Ring)
+        {
+            double r2  = (node->R[0] - CenterX)*(node->R[0] - CenterX) + (node->R[1] - CenterY)*(node->R[1] - CenterY);
+            if ( r2 > Rad2out || r2 < Rad2in )
+            {
+                inode--;
+                continue;
+            }
+        }
+
+        if (FloodSet.ZMode == APhotonSim_FloodSettings::Fixed)
+            node->R[2] = Zfixed;
+        else
+            node->R[2] = Zfrom + (Zto - Zfrom) * RandGen->Rndm();
+
+        if (bLimitToVolume && !isInsideLimitingObject(node->R))
+        {
+            WatchdogThreshold--;
+            if (WatchdogThreshold < 0 && inode == 0)
+            {
+                ErrorString = "100000 attempts to generate a point inside the limiting object has failed!";
+                return false;
+            }
+
+            inode--;
+            continue;
+        }
+
+        for (int irun = 0; irun < NumRuns; irun++)
+        {
+            simulateOneNode(*node);
+            eventCurrent++;
+            progress = eventCurrent * updateFactor;
+            if (fStopRequested) return false;
+        }
+    }
+*/
+    return true;
+}
+
+bool APhotonSimulator::simulateCustomNodes()
+{
+/*
+    int nodeCount = (eventEnd - eventBegin);
+    int currentNode = eventBegin;
+    eventCurrent = 0;
+    double updateFactor = 100.0 / ( NumRuns * nodeCount );
+
+    for (int inode = 0; inode < nodeCount; inode++)
+    {
+        ANodeRecord * thisNode = Nodes.at(currentNode);
+
+        for (int irun = 0; irun<NumRuns; irun++)
+        {
+            simulateOneNode(*thisNode);
+            eventCurrent++;
+            progress = eventCurrent * updateFactor;
+            if(fStopRequested) return false;
+        }
+        currentNode++;
+    }
+*/
+    return true;
+}
+
+bool APhotonSimulator::simulateBombsFromFile()
+{
+/*
+    eventCurrent = 0;
+    double updateFactor = 100.0 / (eventEnd - eventBegin);
+
+    const QString FileName = PhotSimSettings.CustomNodeSettings.FileName;
+    QFile file(FileName);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        ErrorString = "Cannot open file " + FileName;
+        return false;
+    }
+    QTextStream in(&file);
+
+    OneEvent->clearHits();
+
+    for (int iEvent = -1; iEvent < eventEnd; iEvent++)
+    {
+        while (!in.atEnd())
+        {
+            if (fStopRequested)
+            {
+                in.flush();
+                file.close();
+                return false;
+            }
+
+            QString line = in.readLine().simplified();
+            if (line.startsWith('#')) break; //next event in the next line of the file
+
+            if (iEvent < eventBegin) continue;
+
+            QStringList sl = line.split(' ', QString::SkipEmptyParts);
+            if (sl.size() < 8)
+            {
+                ErrorString = "Format error in the file with photon records";
+                file.close();
+                return false;
+            }
+
+            APhoton p;
+            p.r[0]      = sl.at(0).toDouble();
+            p.r[1]      = sl.at(1).toDouble();
+            p.r[2]      = sl.at(2).toDouble();
+            p.v[0]      = sl.at(3).toDouble();
+            p.v[1]      = sl.at(4).toDouble();
+            p.v[2]      = sl.at(5).toDouble();
+            p.waveIndex = sl.at(6).toInt();
+            p.time      = sl.at(7).toDouble();
+
+            p.scint_type = 0;
+            p.SimStat    = OneEvent->SimStat;
+
+            if (p.waveIndex < -1 || p.waveIndex >= GenSimSettings.WaveNodes) p.waveIndex = -1;
+
+            photonTracker->TracePhoton(&p);
+        }
+
+        if (iEvent < eventBegin) continue;
+
+        OneEvent->HitsToSignal();
+        dataHub->Events.append(OneEvent->PMsignals);
+        if (GenSimSettings.fTimeResolved)
+            dataHub->TimedEvents.append(OneEvent->TimedPMsignals);
+
+        AScanRecord * sr = new AScanRecord();
+        sr->Points.Reinitialize(0);
+        sr->ScintType = 0;
+        dataHub->Scan.append(sr);
+
+        OneEvent->clearHits();
+        progress = eventCurrent * updateFactor;
+        eventCurrent++;
+    }
+*/
+    return true;
+}
+
+// ---
+
 void APhotonSimulator::loadConfig()
 {
     QJsonObject json;
@@ -232,7 +527,6 @@ void APhotonSimulator::loadConfig()
     LOG.flush();
 }
 
-/*
 void APhotonSimulator::simulateOneNode(const ANodeRecord & node)
 {
     const ANodeRecord * thisNode = &node;
@@ -240,6 +534,8 @@ void APhotonSimulator::simulateOneNode(const ANodeRecord & node)
 
     const int numPoints = 1 + thisNode->getNumberOfLinkedNodes();
     Event->clearHits();
+
+/*
     AScanRecord * sr = new AScanRecord();
     sr->Points.Reinitialize(numPoints);
 
@@ -263,6 +559,7 @@ void APhotonSimulator::simulateOneNode(const ANodeRecord & node)
         thisNode = thisNode->getLinkedNode();
         if (!thisNode) break; //paranoic
     }
+*/
 
     Event->HitsToSignal();
 
@@ -270,6 +567,7 @@ void APhotonSimulator::simulateOneNode(const ANodeRecord & node)
 //    saveTrue();
 }
 
+/*
 #include "TGeoNavigator.h"
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -327,9 +625,9 @@ void APhotonSimulator::generateAndTracePhotons(AScanRecord *scs, double time0, i
 
 void APhotonSimulator::onProgressTimer()
 {
-    std::cout << "$$>" << EventsProcessed << "<$$\n";
+    std::cout << "$$>" << EventsDone << "<$$\n";
     std::cout.flush();
-    LOG << EventsProcessed << '\n';
+    LOG << EventsDone << '\n';
 }
 
 void APhotonSimulator::terminate(const QString & reason)

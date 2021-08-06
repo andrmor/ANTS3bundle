@@ -5,6 +5,7 @@
 #include "ageometryhub.h"
 #include "aphotonsimhub.h"
 #include "arandomhub.h"
+#include "astatisticshub.h"
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "asimulationstatistics.h"
@@ -19,18 +20,18 @@
 #include "TMath.h"
 #include "TH1I.h"
 
-APhotonTracer::APhotonTracer() :
+APhotonTracer::APhotonTracer(AOneEvent & event) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
+    SimStat(AStatisticsHub::getInstance().SimStat),
+    Event(event),
     GeoManager(AGeometryHub::getInstance().GeoManager)
 {
 //    grids = Grids;
     p = new APhoton();
-
-    Track.Positions.reserve(SimSet.OptSet.MaxPhotonTransitions + 1);
 }
 
 APhotonTracer::~APhotonTracer()
@@ -38,15 +39,15 @@ APhotonTracer::~APhotonTracer()
     delete p;
 }
 
-void APhotonTracer::configure(AOneEvent* oneEvent)
+void APhotonTracer::init()
 {
-    OneEvent = oneEvent;
+    Track.Positions.reserve(SimSet.OptSet.MaxPhotonTransitions + 1);
     bBuildTracks = SimSet.RunSet.SaveTracks;
-    MaxTracks = SimSet.RunSet.MaxTracks;
-    PhotonTracksAdded = 0;
+    MaxTracks    = SimSet.RunSet.MaxTracks;
+    AddedTracks  = 0;
 }
 
-void APhotonTracer::TracePhoton(const APhoton * Photon)
+void APhotonTracer::tracePhoton(const APhoton * Photon)
 {
     if (bAbort) return;
     //qDebug() << "----accel is on?"<<SimSet->fQEaccelerator<< "Build tracks?"<<fBuildTracks;
@@ -58,7 +59,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         {
             if (rnd > SensorHub.getMaxQEvsWave(Photon->waveIndex))  // !!!*** merge methods to one?
             {
-                OneEvent->SimStat->TracingSkipped++;
+                SimStat.TracingSkipped++;
                 return; //no need to trace this photon
             }
         }
@@ -66,7 +67,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         {
             if (rnd > SensorHub.getMaxQE())                         // !!!*** merge methods to one?
             {
-                OneEvent->SimStat->TracingSkipped++;
+                SimStat.TracingSkipped++;
                 return; //no need to trace this photon
             }
         }
@@ -87,7 +88,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
     if (Navigator->IsOutside())
     {
         //     qDebug()<<"Generated outside geometry!";
-        OneEvent->SimStat->GeneratedOutsideGeometry++;
+        SimStat.GeneratedOutsideGeometry++;
         if (SimSet.RunSet.SavePhotonLog)
         {
             PhLog.clear();
@@ -105,7 +106,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
 
     if (bBuildTracks)
     {
-        if (PhotonTracksAdded < MaxTracks)
+        if (AddedTracks < MaxTracks)
         {
             Track.HitSensor = false;
             Track.SecondaryScint = p->SecondaryScint;
@@ -180,7 +181,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                 //qDebug() << "...!!!...Photon would be outside the bulk if it takes the Step! -> killing the photon";
                 //qDebug() << "Conflicting position:"<<R_afterStep[0] << R_afterStep[1] << R_afterStep[2];
                 //if (fGridShiftOn) track->Nodes.append(TrackNodeStruct(R_afterStep, p->time)); //not drawing end of the track for such photons!
-                OneEvent->SimStat->LossOnGrid++;
+                SimStat.LossOnGrid++;
                 goto force_stop_tracing;
             }
         }
@@ -217,7 +218,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
         {
             //qDebug() << "Photon escaped!";
             Navigator->PopDummy();//clean up the stack
-            OneEvent->SimStat->Escaped++;
+            SimStat.Escaped++;
             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Escaped) );
             goto force_stop_tracing; //finished with this photon
         }
@@ -252,7 +253,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                 Navigator->PopDummy(); //clean up the stack
                 if (SimSet.RunSet.SavePhotonLog)
                     PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
-                OneEvent->SimStat->OverrideLoss++;
+                SimStat.OverrideLoss++;
                 goto force_stop_tracing; //finished with this photon
             case AInterfaceRule::Back:
                 //qDebug() << "-Override: photon bounced back";
@@ -260,14 +261,14 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                 Navigator->SetCurrentDirection(p->v); //updating direction
                 if (SimSet.RunSet.SavePhotonLog)
                     PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
-                OneEvent->SimStat->OverrideBack++;
+                SimStat.OverrideBack++;
                 continue; //send to the next iteration
             case AInterfaceRule::Forward:
                 Navigator->SetCurrentDirection(p->v); //updating direction
                 fDoFresnel = false; //stack cleaned afterwards
                 if (SimSet.RunSet.SavePhotonLog)
                     PhLog.append( APhotonHistoryLog(PhPos, nameTo, p->time, p->waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
-                OneEvent->SimStat->OverrideForward++;
+                SimStat.OverrideForward++;
                 break; //switch break
             case AInterfaceRule::NotTriggered:
                 fDoFresnel = true;
@@ -294,7 +295,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
             if (RandomHub.uniform() < prob)
             { //-----Reflection-----
                 //qDebug()<<"Fresnel - reflection!";
-                OneEvent->SimStat->FresnelReflected++;
+                SimStat.FresnelReflected++;
                 // photon remains in the same volume -> continue to the next iteration
                 Navigator->PopPoint(); //restore the point before the border
                 PerformReflection();
@@ -303,7 +304,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                 continue;
             }
             //otherwise transmission
-            OneEvent->SimStat->FresnelTransmitted++;
+            SimStat.FresnelTransmitted++;
         }
 
 
@@ -340,7 +341,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                 PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::HitPM, -1, -1, PMnumber) );
             }
             PMwasHit(PMnumber);
-            OneEvent->SimStat->HitPM++;
+            SimStat.HitPM++;
             goto force_stop_tracing; //finished with this photon
             }
 /*      !!!***
@@ -374,7 +375,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
                         p->SimStat->Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
                         if (p->SimStat->Monitors.at(iMon)->isStopsTracking())
                         {
-                            OneEvent->SimStat->KilledByMonitor++;
+                            SimStat.KilledByMonitor++;
                             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );
                             goto force_stop_tracing; //finished with this photon
                         }
@@ -404,7 +405,7 @@ void APhotonTracer::TracePhoton(const APhoton * Photon)
     } //while cycle: going to the next iteration
 
     // maximum number of transitions reached
-    if (Counter == SimSet.OptSet.MaxPhotonTransitions) OneEvent->SimStat->MaxCyclesReached++;
+    if (Counter == SimSet.OptSet.MaxPhotonTransitions) SimStat.MaxCyclesReached++;
 
     //here all tracing terminators end
 force_stop_tracing:
@@ -498,7 +499,7 @@ void APhotonTracer::AppendTrack()
 //    else
     {
         saveTrack();
-        PhotonTracksAdded++;
+        AddedTracks++;
     }
 }
 
@@ -552,8 +553,8 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
             //qDebug()<<"Absorption was triggered!";
             double refIndex = MaterialFrom->getRefractiveIndex(p->waveIndex);
             p->time += AbsPath/c_in_vac*refIndex;
-            OneEvent->SimStat->Absorbed++;
-            OneEvent->SimStat->BulkAbsorption++;
+            SimStat.Absorbed++;
+            SimStat.BulkAbsorption++;
 
             if (bBuildTracks || SimSet.RunSet.SavePhotonLog)
             {
@@ -612,7 +613,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
                     //    p->time += RandGen->Exp(  MaterialFrom->PriScintDecayTime );
                     p->time += MatHub[MatIndexFrom]->generatePrimScintTime(RandomHub);
 
-                    OneEvent->SimStat->Reemission++;
+                    SimStat.Reemission++;
                     if (SimSet.RunSet.SavePhotonLog)
                         PhLog.append( APhotonHistoryLog(R, nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Reemission, MatIndexFrom) );
                     return WaveShifted;
@@ -647,7 +648,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
 
             double refIndex = MaterialFrom->getRefractiveIndex(p->waveIndex);
             p->time += RayleighPath/c_in_vac*refIndex;
-            OneEvent->SimStat->Rayleigh++;
+            SimStat.Rayleigh++;
 
             //updating track if needed
             if (bBuildTracks)
@@ -726,9 +727,9 @@ void APhotonTracer::PMwasHit(int PMnumber)
 
     bool bDetected;
     if (fSiPM)
-        bDetected = OneEvent->CheckSiPMhit(PMnumber, p->time, p->waveIndex, local[0], local[1], cosAngle, Counter, rnd);
+        bDetected = Event.CheckSiPMhit(PMnumber, p->time, p->waveIndex, local[0], local[1], cosAngle, Counter, rnd);
     else
-        bDetected = OneEvent->CheckPMThit(PMnumber, p->time, p->waveIndex, local[0], local[1], cosAngle, Counter, rnd);
+        bDetected = Event.CheckPMThit(PMnumber, p->time, p->waveIndex, local[0], local[1], cosAngle, Counter, rnd);
 
     if (SimSet.RunSet.SavePhotonLog)
         PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p->time, p->waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, PMnumber) );

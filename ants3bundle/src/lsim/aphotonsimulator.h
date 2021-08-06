@@ -9,6 +9,7 @@
 class APhotonSimSettings;
 class ANodeRecord;
 class AOneEvent;
+class APhotonTracer;
 
 class APhotonSimulator : public QObject
 {
@@ -30,22 +31,31 @@ protected:
 
     const APhotonSimSettings & SimSet;
 
+    APhotonTracer * Tracer;
     AOneEvent * Event;
 
     APhoton Photon;
 
-    int     EventsProcessed = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
+    int  EventsToDo = 0;
+    int  EventsDone = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
+
     bool bStopRequested = false;
     bool bHardAbortWasTriggered = false;
     bool fSuccess;
 
 private:
     void loadConfig();
-    void setupNodeBased();
-    void simulateNodeBased();
+    void setupCommonProperties();
+    void setupPhotonBombs();
+    void simulatePhotonBombs();
     void terminate(const QString & reason);
-//    void simulateOneNode(const ANodeRecord & node);
-//    void generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint);
+    void simulateOneNode(const ANodeRecord & node);
+    //    void generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint);
+    bool simulateSingle();
+    bool simulateGrid();
+    bool simulateFlood();
+    bool simulateCustomNodes();
+    bool simulateBombsFromFile();
 };
 
 #endif // APHOTONSIMULATOR_H
