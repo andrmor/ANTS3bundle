@@ -172,7 +172,7 @@ void APhotonSimulator::simulatePhotonBombs()
     switch (SimSet.BombSet.GenerationMode)
     {
     case EBombGen::Single :
-//        fSuccess = simulateSingle();
+        fSuccess = simulateSingle();
         break;
     case EBombGen::Grid :
 //        fSuccess = simulateRegularGrid();

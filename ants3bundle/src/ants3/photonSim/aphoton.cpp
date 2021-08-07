@@ -26,8 +26,6 @@ void APhoton::copyFrom(const APhoton *CopyFrom)
     time           = CopyFrom->time;
     waveIndex      = CopyFrom->waveIndex;
     SecondaryScint = CopyFrom->SecondaryScint;
-
-    SimStat    = CopyFrom->SimStat;
 }
 
 void APhoton::ensureUnitaryLength()

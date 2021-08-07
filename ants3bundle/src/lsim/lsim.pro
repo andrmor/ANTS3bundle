@@ -54,11 +54,11 @@ SOURCES += \
         ../ants3/photonSim/aphoton.cpp \
         ../ants3/photonSim/asimulationstatistics.cpp \
         ../ants3/photonSim/aroothistappenders.cpp \
+        ../ants3/photonSim/astatisticshub.cpp \
         aphotontracer.cpp \
         alogger.cpp \
         aoneevent.cpp \
         aphotonhistorylog.cpp \
-        astatisticshub.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -100,8 +100,8 @@ aphotonsimulator.h \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/asimulationstatistics.h \
     ../ants3/photonSim/aroothistappenders.h \
+    ../ants3/photonSim/astatisticshub.h \
     aphotontracer.h \
     aoneevent.h \
     aphotonhistorylog.h \
-    alogger.h \
-    astatisticshub.h
+    alogger.h

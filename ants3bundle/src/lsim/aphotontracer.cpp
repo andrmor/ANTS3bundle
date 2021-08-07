@@ -359,21 +359,21 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
             {
                 const int iMon = NodeAfterInterface->GetNumber();
                 //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
-                if (p->SimStat->Monitors.at(iMon)->isForPhotons())
+                if (SimStat.Monitors.at(iMon)->isForPhotons())
                 {
                     Double_t local[3];
                     const Double_t *global = Navigator->GetCurrentPoint();
                     Navigator->MasterToLocal(global, local);
                     //qDebug()<<local[0]<<local[1];
-                    //qDebug() << "Monitors:"<<p->SimStat->Monitors.size();
-                    if ( (local[2]>0 && p->SimStat->Monitors.at(iMon)->isUpperSensitive()) || (local[2]<0 && p->SimStat->Monitors.at(iMon)->isLowerSensitive()) )
+                    //qDebug() << "Monitors:"<<SimStat.Monitors.size();
+                    if ( (local[2]>0 && SimStat.Monitors.at(iMon)->isUpperSensitive()) || (local[2]<0 && SimStat.Monitors.at(iMon)->isLowerSensitive()) )
                     {
                         //angle?
                         if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
                         double cosAngle = 0;
                         for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
-                        p->SimStat->Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
-                        if (p->SimStat->Monitors.at(iMon)->isStopsTracking())
+                        SimStat.Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
+                        if (SimStat.Monitors.at(iMon)->isStopsTracking())
                         {
                             SimStat.KilledByMonitor++;
                             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );
@@ -424,20 +424,20 @@ void APhotonTracer::AppendHistoryRecord()
 {
     bool bVeto = false;
     //by process
-    if (!p->SimStat->MustNotInclude_Processes.isEmpty())
+    if (!SimStat.MustNotInclude_Processes.isEmpty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( p->SimStat->MustNotInclude_Processes.contains(PhLog.at(i).process) )
+            if ( SimStat.MustNotInclude_Processes.contains(PhLog.at(i).process) )
             {
                 bVeto = true;
                 break;
             }
     }
     //by Volume
-    if (!bVeto && !p->SimStat->MustNotInclude_Volumes.isEmpty())
+    if (!bVeto && !SimStat.MustNotInclude_Volumes.isEmpty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( p->SimStat->MustNotInclude_Volumes.contains(PhLog.at(i).volumeName) )
+            if ( SimStat.MustNotInclude_Volumes.contains(PhLog.at(i).volumeName) )
             {
                 bVeto = true;
                 break;
@@ -448,11 +448,11 @@ void APhotonTracer::AppendHistoryRecord()
     {
         bool bFound = true;
         //in processes
-        for (int im = 0; im<p->SimStat->MustInclude_Processes.size(); im++)
+        for (int im = 0; im<SimStat.MustInclude_Processes.size(); im++)
         {
             bool bFoundThis = false;
             for (int i=PhLog.size()-1; i>-1; i--)
-                if ( p->SimStat->MustInclude_Processes.at(im) == PhLog.at(i).process)
+                if ( SimStat.MustInclude_Processes.at(im) == PhLog.at(i).process)
                 {
                     bFoundThis = true;
                     break;
@@ -467,11 +467,11 @@ void APhotonTracer::AppendHistoryRecord()
         //in volumes
         if (bFound)
         {
-            for (int im = 0; im<p->SimStat->MustInclude_Volumes.size(); im++)
+            for (int im = 0; im<SimStat.MustInclude_Volumes.size(); im++)
             {
                 bool bFoundThis = false;
                 for (int i=PhLog.size()-1; i>-1; i--)
-                    if ( p->SimStat->MustInclude_Volumes.at(im) == PhLog.at(i).volumeName)
+                    if ( SimStat.MustInclude_Volumes.at(im) == PhLog.at(i).volumeName)
                     {
                         bFoundThis = true;
                         break;

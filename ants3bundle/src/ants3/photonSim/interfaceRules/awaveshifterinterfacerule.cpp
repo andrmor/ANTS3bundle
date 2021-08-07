@@ -48,6 +48,7 @@ void AWaveshifterInterfaceRule::initializeWaveResolved()
     }
 }
 
+#include "astatisticshub.h"
 AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
@@ -73,16 +74,16 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
         {
             attempts++;
             if (attempts > 9)
-              {
+            {
                 Status = Absorption;
                 return Absorbed;
-              }
+            }
             wavelength = Spectrum->GetRandom();
             waveIndex = WaveSet.toIndexFast(wavelength);
         }
         while (waveIndex < Photon->waveIndex); //conserving energy
 
-        Photon->SimStat->wavelengthChanged++;
+        AStatisticsHub::getInstance().SimStat.wavelengthChanged++;
         Photon->waveIndex = waveIndex;
 
         if (ReemissionModel == 0)
@@ -91,11 +92,11 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
             //enering new volume or backscattering?
             //normal is in the positive direction in respect to the original direction!
             if (Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2] < 0)
-              {
+            {
                 // qDebug()<<"   scattering back";
                 Status = LambertianReflection;
                 return Back;
-              }
+            }
             // qDebug()<<"   continuing to the next volume";
             Status = Transmission;
             return Forward;
@@ -122,11 +123,11 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
 
         // qDebug()<<"2Pi lambertian scattering forward";
         do
-          {
+        {
             Photon->generateRandomDir();
             Photon->v[0] += NormalVector[0]; Photon->v[1] += NormalVector[1]; Photon->v[2] += NormalVector[2];
             norm2 = Photon->v[0]*Photon->v[0] + Photon->v[1]*Photon->v[1] + Photon->v[2]*Photon->v[2];
-          }
+        }
         while (norm2 < 0.000001);
 
         double normInverted = 1.0/TMath::Sqrt(norm2);

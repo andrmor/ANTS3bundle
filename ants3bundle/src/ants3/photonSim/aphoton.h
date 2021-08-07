@@ -1,8 +1,6 @@
 #ifndef APHOTON
 #define APHOTON
 
-class ASimulationStatistics;
-
 class APhoton
 {
 public:
@@ -14,8 +12,6 @@ public:
     double time           = 0;
     int    waveIndex      = -1;     //wavelength is always binned during simulations
     bool   SecondaryScint = false;
-
-    ASimulationStatistics * SimStat = nullptr; // TODO: remove from here!
 
     void copyFrom(const APhoton * CopyFrom);
     void ensureUnitaryLength();
