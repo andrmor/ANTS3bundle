@@ -69,16 +69,10 @@ double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) con
     return sqrt(2.0 * d * length_mm / v); // in mm
 }
 
-/*
 void AMaterialHub::updateRuntimeProperties()
 {
-    for (int imat = 0; imat < Materials.size(); imat++)
-    {
-        UpdateWaveResolvedProperties(imat);
-        Materials[imat]->updateRuntimeProperties();
-    }
+    for (AMaterial * mat : Materials) mat->updateRuntimeProperties();
 }
-*/
 
 QString AMaterialHub::getMaterialName(int matIndex) const
 {
@@ -182,117 +176,6 @@ int AMaterialHub::findMaterial(const QString & name) const
 
     return -1;
 }
-
-/*
-void A3MatHub::UpdateWaveResolvedProperties(int imat)
-{
-    //qDebug()<<"Wavelength-resolved?"<<WavelengthResolved;
-    //qDebug()<<"--updating wavelength-resolved properties for material index"<<imat;
-    if (WavelengthResolved)
-    {
-        //calculating histograms and "-Binned" for effective data
-        Materials[imat]->nWaveBinned.clear();
-        if (Materials[imat]->nWave_lambda.size() > 0)
-            ConvertToStandardWavelengthes(&Materials[imat]->nWave_lambda, &Materials[imat]->nWave, &Materials[imat]->nWaveBinned);
-
-        Materials[imat]->absWaveBinned.clear();
-        if (Materials[imat]->absWave_lambda.size() > 0)
-            ConvertToStandardWavelengthes(&Materials[imat]->absWave_lambda, &Materials[imat]->absWave, &Materials[imat]->absWaveBinned);
-
-        Materials[imat]->reemissionProbBinned.clear();
-        if (Materials[imat]->reemisProbWave_lambda.size() > 0)
-            ConvertToStandardWavelengthes(&Materials[imat]->reemisProbWave_lambda, &Materials[imat]->reemisProbWave, &Materials[imat]->reemissionProbBinned);
-
-        if (Materials[imat]->rayleighMFP != 0)
-        {
-            Materials[imat]->rayleighBinned.clear();
-            double baseWave4 = Materials[imat]->rayleighWave * Materials[imat]->rayleighWave * Materials[imat]->rayleighWave * Materials[imat]->rayleighWave;
-            double base = Materials[imat]->rayleighMFP / baseWave4;
-            for (int i=0; i<WaveNodes; i++)
-            {
-                double wave = WaveFrom + WaveStep*i;
-                double wave4 = wave*wave*wave*wave;
-                Materials[imat]->rayleighBinned.append(base * wave4);
-            }
-        }
-
-        if (Materials[imat]->PrimarySpectrumHist)
-        {
-            delete Materials[imat]->PrimarySpectrumHist;
-            Materials[imat]->PrimarySpectrumHist = 0;
-        }
-        if (Materials[imat]->PrimarySpectrum_lambda.size() > 0)
-        {
-            QVector<double> y;
-            ConvertToStandardWavelengthes(&Materials[imat]->PrimarySpectrum_lambda, &Materials[imat]->PrimarySpectrum, &y);
-            TString name = "PrimScSp";
-            name += imat;
-            Materials[imat]->PrimarySpectrumHist = new TH1D(name,"Primary scintillation", WaveNodes, WaveFrom, WaveTo);
-            for (int j = 1; j<WaveNodes+1; j++)  Materials[imat]->PrimarySpectrumHist->SetBinContent(j, y[j-1]);
-            Materials[imat]->PrimarySpectrumHist->GetIntegral(); //to make thread safe
-        }
-
-        if (Materials[imat]->SecondarySpectrumHist)
-        {
-            delete Materials[imat]->SecondarySpectrumHist;
-            Materials[imat]->SecondarySpectrumHist = 0;
-        }
-        if (Materials[imat]->SecondarySpectrum_lambda.size() > 0)
-        {
-            QVector<double> y;
-            ConvertToStandardWavelengthes(&Materials[imat]->SecondarySpectrum_lambda, &Materials[imat]->SecondarySpectrum, &y);
-            TString name = "SecScSp";
-            name += imat;
-            Materials[imat]->SecondarySpectrumHist = new TH1D(name,"Secondary scintillation", WaveNodes, WaveFrom, WaveTo);
-            for (int j = 1; j<WaveNodes+1; j++)  Materials[imat]->SecondarySpectrumHist->SetBinContent(j, y[j-1]);
-            Materials[imat]->SecondarySpectrumHist->GetIntegral(); //to make thread safe
-        }
-    }
-    else
-    {
-        //making empty histograms and "-Binned" for effective data
-        Materials[imat]->nWaveBinned.clear();
-        Materials[imat]->absWaveBinned.clear();
-        Materials[imat]->reemissionProbBinned.clear();
-        Materials[imat]->rayleighBinned.clear();
-        if (Materials[imat]->PrimarySpectrumHist)
-        {
-            delete Materials[imat]->PrimarySpectrumHist;
-            Materials[imat]->PrimarySpectrumHist = 0;
-        }
-        if (Materials[imat]->SecondarySpectrumHist)
-        {
-            delete Materials[imat]->SecondarySpectrumHist;
-            Materials[imat]->SecondarySpectrumHist = 0;
-        }
-    }
-}
-
-void A3MatHub::ConvertToStandardWavelengthes(QVector<double>* sp_x, QVector<double>* sp_y, QVector<double>* y)
-{
-    y->resize(0);
-
-    //qDebug()<<"Data range:"<<sp_x->at(0)<<sp_x->at(sp_x->size()-1);
-    double xx, yy;
-    for (int i=0; i<WaveNodes; i++)
-    {
-        xx = WaveFrom + WaveStep*i;
-        if (xx <= sp_x->at(0)) yy = sp_y->at(0);
-        else
-        {
-            if (xx >= sp_x->at(sp_x->size()-1)) yy = sp_y->at(sp_x->size()-1);
-            else
-            {
-                //general case
-                yy = GetInterpolatedValue(xx, sp_x, sp_y); //reusing interpolation function from functions.h
-                if (yy<0) yy = 0; //!!! protection against negative
-            }
-        }
-        //      qDebug()<<xx<<yy;
-        y->append(yy);
-    }
-}
-*/
 
 QString AMaterialHub::CheckMaterial(const AMaterial* mat) const
 {

@@ -66,6 +66,7 @@ void AWaveResSettings::toStandardBins(const QVector<double>* sp_x, const QVector
             {
                 //general case
                 yy = getInterpolatedValue(xx, sp_x, sp_y); //reusing interpolation function
+                if (yy<0) yy = 0; // !!!*** is it needed?
             }
         }
         y->append(yy);

@@ -46,7 +46,7 @@ double AMaterial::getRefractiveIndex(int iWave) const
 
 double AMaterial::getAbsorptionCoefficient(int iWave) const
 {
-    //qDebug() << iWave << ( absWaveBinned.size()  >0 ? absWaveBinned.at(iWave) : -1 ) ;
+    //qDebug() << iWave << absWaveBinned.size();
     if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
     return absWaveBinned.at(iWave);
 }
@@ -142,6 +142,7 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
     return EmissionTime;
 }
 
+#include "aphotonsimhub.h"
 void AMaterial::updateRuntimeProperties()
 {
     //updating sum stat weights for primary scintillation time generator
@@ -151,6 +152,77 @@ void AMaterial::updateRuntimeProperties()
         _PrimScintSumStatWeight_Decay += pair.statWeight;
     for (const APair_ValueAndWeight& pair : PriScint_Raise)
         _PrimScintSumStatWeight__Raise += pair.statWeight;
+
+    //wavelength-resolved properties
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    const int WaveNodes = WaveSet.countNodes();
+    if (WaveSet.Enabled)
+    {
+        //calculating histograms and "-Binned" for effective data
+        nWaveBinned.clear();
+        if (nWave_lambda.size() > 0)
+            WaveSet.toStandardBins(&nWave_lambda, &nWave, &nWaveBinned);
+
+        absWaveBinned.clear();
+        if (absWave_lambda.size() > 0)
+            WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
+
+        reemissionProbBinned.clear();
+        if (reemisProbWave_lambda.size() > 0)
+            WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
+
+        if (rayleighMFP != 0)
+        {
+            rayleighBinned.clear();
+            double baseWave4 = rayleighWave * rayleighWave * rayleighWave * rayleighWave;
+            double base = rayleighMFP / baseWave4;
+            for (int i = 0; i < WaveNodes; i++)
+            {
+                double wave  = WaveSet.From + WaveSet.Step * i;
+                double wave4 = wave * wave * wave * wave;
+                rayleighBinned.append(base * wave4);
+            }
+        }
+
+        if (PrimarySpectrumHist)
+        {
+            delete PrimarySpectrumHist;
+            PrimarySpectrumHist = 0;
+        }
+        if (PrimarySpectrum_lambda.size() > 0)
+        {
+            QVector<double> y;
+            WaveSet.toStandardBins(&PrimarySpectrum_lambda, &PrimarySpectrum, &y);
+            TString name = "PrimScSp";
+            PrimarySpectrumHist = new TH1D(name,"Primary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
+            for (int j = 1; j<WaveNodes+1; j++)  PrimarySpectrumHist->SetBinContent(j, y[j-1]);
+            PrimarySpectrumHist->GetIntegral(); //to make thread safe
+        }
+
+        if (SecondarySpectrumHist)
+        {
+            delete SecondarySpectrumHist;
+            SecondarySpectrumHist = 0;
+        }
+        if (SecondarySpectrum_lambda.size() > 0)
+        {
+            QVector<double> y;
+            WaveSet.toStandardBins(&SecondarySpectrum_lambda, &SecondarySpectrum, &y);
+            TString name = "SecScSp";
+            SecondarySpectrumHist = new TH1D(name,"Secondary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
+            for (int j = 1; j<WaveNodes+1; j++)  SecondarySpectrumHist->SetBinContent(j, y[j-1]);
+            SecondarySpectrumHist->GetIntegral(); //to make thread safe
+        }
+    }
+    else
+    {
+        nWaveBinned.clear();
+        absWaveBinned.clear();
+        reemissionProbBinned.clear();
+        rayleighBinned.clear();
+        delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
+        delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
+    }
 }
 
 void AMaterial::clear()

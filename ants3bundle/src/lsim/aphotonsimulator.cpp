@@ -63,7 +63,7 @@ void APhotonSimulator::start()
 
 void APhotonSimulator::setupCommonProperties()
 {
-    // update runtime properties!!!  !!!***
+    AMaterialHub::getInstance().updateRuntimeProperties();
 
     Event->init();
     Tracer->init();

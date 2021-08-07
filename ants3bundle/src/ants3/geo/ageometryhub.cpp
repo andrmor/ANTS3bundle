@@ -565,10 +565,8 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             if (!ok) return;
         }
 
-        //vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), (*MaterialCollection)[iMat]->GeoMed);
-        TGeoMaterial * Mat = new TGeoMaterial("dum", 1, 1, 0);
-        TGeoMedium * GeoMed = new TGeoMedium( "dummy", 0, Mat);
-        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), GeoMed);
+        AMaterialHub & MatHub = AMaterialHub::getInstance();
+        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), MatHub[obj->Material]->GeoMed);
 
         TGeoRotation * lRot = nullptr;
         if (obj->TrueRot)

@@ -75,7 +75,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
     //=====inits=====
     GeoManager = AGeometryHub::getInstance().GeoManager;
     Navigator = GeoManager->GetCurrentNavigator();
-    qDebug() << "Navigator:" << Navigator;
+    //qDebug() << "Navigator:" << Navigator;
     if (!Navigator)
     {
         qDebug() << "Photon tracer: current navigator does not exist, creating new";
@@ -100,10 +100,10 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
     }
 
     p->copyFrom(Photon);
-    //qDebug()<<"Photon starts from:";
-    //qDebug()<<navigator->GetPath();
-    //qDebug()<<"material name: "<<navigator->GetCurrentVolume()->GetMaterial()->GetName();
-    //qDebug()<<"material index: "<<navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
+    qDebug()<<"Photon starts from:";
+    qDebug()<<Navigator->GetPath();
+    qDebug()<<"material name: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetName();
+    qDebug()<<"material index: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
 
     if (bBuildTracks)
     {
@@ -513,7 +513,6 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
     //prepare abs
     bool DoAbsorption;
     double AbsPath;
-
     const double AbsCoeff = MatHub[MatIndexFrom]->getAbsorptionCoefficient(p->waveIndex);
     if (AbsCoeff > 0)
     {
