@@ -27,8 +27,7 @@ APhotonTracer::APhotonTracer(AOneEvent & event) :
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
     SimStat(AStatisticsHub::getInstance().SimStat),
-    Event(event),
-    GeoManager(AGeometryHub::getInstance().GeoManager)
+    Event(event)
 {
 //    grids = Grids;
     p = new APhoton();
@@ -74,6 +73,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
     }
 
     //=====inits=====
+    GeoManager = AGeometryHub::getInstance().GeoManager;
     Navigator = GeoManager->GetCurrentNavigator();
     qDebug() << "Navigator:" << Navigator;
     if (!Navigator)
