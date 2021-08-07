@@ -545,7 +545,6 @@ void APhotonSimulator::loadConfig()
 void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 {
     ANodeRecord * thisNode = &node;
-    std::unique_ptr<ANodeRecord> outNode(ANodeRecord::createS(1e10, 1e10, 1e10)); // if outside will use this instead of thisNode
 
     const int numPoints = 1 + thisNode->getNumberOfLinkedNodes();
     Event->clearHits();
@@ -563,7 +562,7 @@ void APhotonSimulator::simulateOneNode(ANodeRecord & node)
         else
             thisNode->NumPhot = 0;
 
-        generateAndTracePhotons(thisNode, iPoint);
+        generateAndTracePhotons(thisNode);
 
         //if exists, continue to work with the linked node(s)
         thisNode = thisNode->getLinkedNode();
@@ -581,13 +580,13 @@ void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 #include "TGeoNavigator.h"
 #include "TGeoManager.h"
 #include "TVector3.h"
-void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
+void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
 {
-    for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
-    Photon.time = node.Time;
+    for (int i = 0; i < 3; i++) Photon.r[i] = node->R[i];
+    Photon.time = node->Time;
 
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
-    for (int i = 0; i < node.NumPhot; i++)
+    for (int i = 0; i < node->NumPhot; i++)
     {
         //photon direction
 //        if (bIsotropic)
@@ -608,19 +607,19 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
         //else it is already set
 */
 
-        int thisMatIndex = 0;
+        int MatIndex = 0;
         TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
-        if (GeoNode) thisMatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
+        if (GeoNode) MatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
         else
         {
-            thisMatIndex = AGeometryHub::getInstance().Top->GetMaterial()->GetIndex(); //get material of the world
+            MatIndex = AGeometryHub::getInstance().Top->GetMaterial()->GetIndex(); //get material of the world
             qWarning() << "Node not found when generating photons, using material of the world";
         }
 
 //        if (!PhotSimSettings.FixedPhotSettings.bFixWave)
-            APhotonGenerator::generateWave(Photon, thisMatIndex);//if directly given wavelength -> waveindex is already set in PhotonOnStart
+            APhotonGenerator::generateWave(Photon, MatIndex);//if directly given wavelength -> waveindex is already set in PhotonOnStart
 
-        APhotonGenerator::generateTime(Photon, thisMatIndex);
+//        APhotonGenerator::generateTime(Photon, MatIndex);
 
         Tracer->tracePhoton(&Photon);
     }

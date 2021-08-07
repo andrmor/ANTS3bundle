@@ -50,7 +50,7 @@ private:
     void simulatePhotonBombs();
     void terminate(const QString & reason);
     void simulateOneNode(ANodeRecord & node);
-    void generateAndTracePhotons(const ANodeRecord & node);
+    void generateAndTracePhotons(const ANodeRecord * node);
     bool simulateSingle();
     bool simulateGrid();
     bool simulateFlood();

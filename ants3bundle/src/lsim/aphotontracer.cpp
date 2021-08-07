@@ -75,6 +75,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 
     //=====inits=====
     Navigator = GeoManager->GetCurrentNavigator();
+    qDebug() << "Navigator:" << Navigator;
     if (!Navigator)
     {
         qDebug() << "Photon tracer: current navigator does not exist, creating new";
