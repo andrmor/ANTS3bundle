@@ -117,7 +117,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         else bBuildTracks = false;
     }
 
-    TGeoNode* NodeAfterInterface;
+    TGeoNode * NodeAfterInterface;
     MatIndexFrom = Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
     fMissPM = true;
 
@@ -128,18 +128,19 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         PhLog.append( APhotonHistoryLog(p->r, Navigator->GetCurrentVolume()->GetName(), p->time, p->waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
     }
 
-    Counter = 0; //number of photon transitions - there is a limit on this set by user
+    Counter = -1; //number of photon transitions - there is a limit on this set by user
     //---------------------------------------------=====cycle=====-----------------------------------------
     while (Counter < SimSet.OptSet.MaxPhotonTransitions)
     {
         Counter++;
+      qDebug() << "tracing cycle #" << Counter;
 
         MaterialFrom = MatHub[MatIndexFrom]; //this is the material where the photon is currently in
         if (SimSet.RunSet.SavePhotonLog) nameFrom = Navigator->GetCurrentVolume()->GetName();
 
         Navigator->FindNextBoundary();
         Step = Navigator->GetStep();
-        //qDebug()<<"Step:"<<Step;
+      qDebug()<<"Step:"<<Step;
 
         //----- Bulk Absorption or Rayleigh scattering -----
         switch ( AbsorptionAndRayleigh() )
@@ -192,7 +193,8 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 
         //can make the track now - the photon made it to the other border in any case
         double refIndex = MaterialFrom->getRefractiveIndex(p->waveIndex);
-        p->time += Step/c_in_vac*refIndex;
+        //qDebug() << "Refractive index from:" << refIndex;
+        p->time += Step / c_in_vac * refIndex;
         if (bBuildTracks && Step>0.001)
         {
             if (fGridShiftOn)
@@ -217,7 +219,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         //check if after the border the photon is outside the defined world
         if (Navigator->IsOutside()) //outside of geometry - end tracing
         {
-            //qDebug() << "Photon escaped!";
+          qDebug() << "Photon escaped!";
             Navigator->PopDummy();//clean up the stack
             SimStat.Escaped++;
             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p->time, p->waveIndex, APhotonHistoryLog::Escaped) );
@@ -225,15 +227,15 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         }
 
         //new volume info
-        TGeoVolume* ThisVolume = NodeAfterInterface->GetVolume();
+        TGeoVolume * ThisVolume = NodeAfterInterface->GetVolume();
         if (SimSet.RunSet.SavePhotonLog) nameTo = Navigator->GetCurrentVolume()->GetName();
         MatIndexTo = ThisVolume->GetMaterial()->GetIndex();
         MaterialTo = MatHub[MatIndexTo];
         fHaveNormal = false;
 
-        //qDebug()<<"Found border with another volume: "<<ThisVolume->GetName();
-        //qDebug()<<"Mat index after interface: "<<MatIndexTo<<" Mat index before: "<<MatIndexFrom;
-        //qDebug()<<"coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
+        qDebug()<<"Found border with another volume: "<<ThisVolume->GetName();
+        qDebug()<<"Mat index after interface: "<<MatIndexTo<<" Mat index before: "<<MatIndexFrom;
+        qDebug()<<"coordinates: "<<Navigator->GetCurrentPoint()[0]<<Navigator->GetCurrentPoint()[1]<<Navigator->GetCurrentPoint()[2];
 
         //-----Checking overrides-----
         AInterfaceRule * rule = RuleHub.getRuleFast(MatIndexFrom, MatIndexTo);  // !!!*** to const

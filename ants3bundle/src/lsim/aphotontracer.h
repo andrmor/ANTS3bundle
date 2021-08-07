@@ -94,8 +94,8 @@ private:
     double FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
     TGeoVolume* GridVolume; // the grid bulk
 
-    QString nameFrom;
-    QString nameTo;
+    QString nameFrom;  // !!!*** to TString
+    QString nameTo;    // !!!*** to TString
 
     bool bAbort = false;
 
