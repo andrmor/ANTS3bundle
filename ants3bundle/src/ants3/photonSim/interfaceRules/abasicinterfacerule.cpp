@@ -50,7 +50,7 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton
         {
         case 0: //4Pi scattering
             // qDebug()<<"4Pi scatter";
-            Photon->generateRandomDir();
+             Photon->generateRandomDir();
             // qDebug()<<"New direction:"<<K[0]<<K[1]<<K[2];
 
             //enering new volume or backscattering?

@@ -49,13 +49,14 @@ private:
     void setupPhotonBombs();
     void simulatePhotonBombs();
     void terminate(const QString & reason);
-    void simulateOneNode(const ANodeRecord & node);
-    //    void generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint);
+    void simulateOneNode(ANodeRecord & node);
+    void generateAndTracePhotons(const ANodeRecord & node);
     bool simulateSingle();
     bool simulateGrid();
     bool simulateFlood();
     bool simulateCustomNodes();
     bool simulateBombsFromFile();
+    int  getNumPhotonsThisBomb();
 };
 
 #endif // APHOTONSIMULATOR_H

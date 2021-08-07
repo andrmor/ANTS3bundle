@@ -54,13 +54,13 @@ void APhoton::generateRandomDir()
     //Sphere function of Root:
     double a = 0, b = 0, r2 = 1.0;
     while (r2 > 0.25)
-      {
+    {
         a  = RandomHub.uniform() - 0.5;
         b  = RandomHub.uniform() - 0.5;
-        r2 =  a*a + b*b;
-      }
-    v[2] = ( -1.0 + 8.0 * r2 );
+        r2 = a*a + b*b;
+    }
     double scale = 8.0 * TMath::Sqrt(0.25 - r2);
-    v[0] = a*scale;
-    v[1] = b*scale;
+    v[0] = a * scale;
+    v[1] = b * scale;
+    v[2] = ( -1.0 + 8.0 * r2 );
 }

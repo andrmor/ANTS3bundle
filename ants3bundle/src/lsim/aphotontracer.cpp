@@ -49,9 +49,9 @@ void APhotonTracer::init()
 
 void APhotonTracer::tracePhoton(const APhoton * Photon)
 {
+    qDebug() << "Tracing photon";
     if (bAbort) return;
-    //qDebug() << "----accel is on?"<<SimSet->fQEaccelerator<< "Build tracks?"<<fBuildTracks;
-    //accelerators
+
     if (SimSet.OptSet.CheckQeBeforeTracking)
     {
         rnd = RandomHub.uniform();

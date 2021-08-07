@@ -9,6 +9,7 @@
 #include "TMath.h"  // remove? !!!***
 #include "TH1D.h"
 
+/*
 void APhotonGenerator::generateDirection(APhoton * Photon)
 {    
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -26,23 +27,24 @@ void APhotonGenerator::generateDirection(APhoton * Photon)
     Photon->v[0] = a * scale;
     Photon->v[1] = b * scale;
 }
+*/
 
-void APhotonGenerator::generateWave(APhoton * Photon, int iMaterial)
+void APhotonGenerator::generateWave(APhoton & Photon, int iMaterial)
 {
     const AMaterialHub & MaterialHub = AMaterialHub::getConstInstance();
     const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
     const AMaterial* Material = MaterialHub[iMaterial];
 
-    if (!SimSet.WaveSet.Enabled) Photon->waveIndex = -1;
+    if (!SimSet.WaveSet.Enabled) Photon.waveIndex = -1;
     {
-        if (Photon->SecondaryScint)
+        if (Photon.SecondaryScint)
         {
             if (SimSet.WaveSet.Enabled && Material->SecondarySpectrumHist)
             {
                 double wavelength = Material->SecondarySpectrumHist->GetRandom();
-                SimSet.WaveSet.toIndexFast(wavelength);
-                //  qDebug()<<"sec! lambda "<<wavelength<<" index:"<<Photon->waveIndex;
+                Photon.waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
+                //  qDebug()<<"sec! lambda "<<wavelength<<" index:"<<Photon.waveIndex;
             }
         }
         else
@@ -50,22 +52,22 @@ void APhotonGenerator::generateWave(APhoton * Photon, int iMaterial)
             if (Material->PrimarySpectrumHist)
             {
                 double wavelength = Material->PrimarySpectrumHist->GetRandom();
-                SimSet.WaveSet.toIndexFast(wavelength);
-                //  qDebug()<<"prim! lambda "<<wavelength<<" index:"<<Photon->waveIndex;
+                Photon.waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
+                //  qDebug()<<"prim! lambda "<<wavelength<<" index:"<<Photon.waveIndex;
             }
         }
     }
 }
 
-void APhotonGenerator::generateTime(APhoton * Photon, int iMaterial)
+void APhotonGenerator::generateTime(APhoton & Photon, int iMaterial)
 {
     ARandomHub & RandomHub = ARandomHub::getInstance();
     const AMaterialHub & MaterialHub = AMaterialHub::getConstInstance();
     const AMaterial * Material = MaterialHub[iMaterial];
 
-    if (!Photon->SecondaryScint) //primary scintillation
-        Photon->time += Material->generatePrimScintTime(RandomHub);
+    if (!Photon.SecondaryScint) //primary scintillation
+        Photon.time += Material->generatePrimScintTime(RandomHub);
     else //secondary scintillation
-        Photon->time += RandomHub.exp(Material->SecScintDecayTime);
+        Photon.time += RandomHub.exp(Material->SecScintDecayTime);
     //  qDebug()<<"Final time"<<Photon->time;
 }

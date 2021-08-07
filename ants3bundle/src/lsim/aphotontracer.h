@@ -47,7 +47,7 @@ public:
 
     void init();
 
-    void tracePhoton(const APhoton * Photon);
+    void tracePhoton(const APhoton * Photon);  // !!!*** to const reference
 
     void setMaxTracks(int maxTracks) {MaxTracks = maxTracks;}
 

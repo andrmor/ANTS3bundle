@@ -1,6 +1,8 @@
 #ifndef APHOTON
 #define APHOTON
 
+class ASimulationStatistics;
+
 class APhoton
 {
 public:
@@ -15,7 +17,7 @@ public:
 
     void copyFrom(const APhoton * CopyFrom);
     void ensureUnitaryLength();
-    void generateRandomDir(); // !!!*** in APhotonGenerator now!
+    void generateRandomDir(); // isotropic
 };
 
 #endif // APHOTON

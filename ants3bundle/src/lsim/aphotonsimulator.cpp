@@ -71,6 +71,7 @@ void APhotonSimulator::setupCommonProperties()
 
 void APhotonSimulator::setupPhotonBombs()
 {
+    Photon.SecondaryScint = false;
 /*
     bLimitToVolume = PhotSimSettings.bLimitToVol;
     if (bLimitToVolume)
@@ -201,24 +202,38 @@ void APhotonSimulator::simulatePhotonBombs()
 
 // ---
 
+int APhotonSimulator::getNumPhotonsThisBomb()
+{
+    int num = 0;
+
+    switch (SimSet.BombSet.PhotonNumberMode)
+    {
+    case EBombPhNumber::Constant :
+        num = 10;
+        break;
+    case EBombPhNumber::Uniform :
+//        num = RandGen->Rndm() * (PhotSimSettings.PerNodeSettings.Max - PhotSimSettings.PerNodeSettings.Min + 1) + PhotSimSettings.PerNodeSettings.Min;
+        break;
+    case EBombPhNumber::Normal :
+//        num = std::round( RandGen->Gaus(PhotSimSettings.PerNodeSettings.Mean, PhotSimSettings.PerNodeSettings.Sigma) );
+        break;
+    case EBombPhNumber::Custom :
+//        num = CustomHist->GetRandom();
+        break;
+    case EBombPhNumber::Poisson :
+//        num = RandGen->Poisson(PhotSimSettings.PerNodeSettings.PoisMean);
+        break;
+    }
+
+    if (num < 0) num = 0;
+    return num;
+}
+
 bool APhotonSimulator::simulateSingle()
 {
     const double * Position = SimSet.BombSet.Position;
-    std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position));
+    std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
 
-/*
-    int eventsToDo = eventEnd - eventBegin; //runs are split between the threads, since node position is fixed for all
-    double updateFactor = (eventsToDo < 1) ? 100.0 : 100.0/eventsToDo;
-    progress = 0;
-    eventCurrent = 0;
-    for (int irun = 0; irun < eventsToDo; ++irun)
-    {
-        simulateOneNode(*node);
-        eventCurrent = irun;
-        progress = irun * updateFactor;
-        if (fStopRequested) return false;
-    }
-*/
     simulateOneNode(*node);
     if (bStopRequested) return false;
     return true;
@@ -527,64 +542,57 @@ void APhotonSimulator::loadConfig()
     LOG.flush();
 }
 
-void APhotonSimulator::simulateOneNode(const ANodeRecord & node)
+void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 {
-    const ANodeRecord * thisNode = &node;
+    ANodeRecord * thisNode = &node;
     std::unique_ptr<ANodeRecord> outNode(ANodeRecord::createS(1e10, 1e10, 1e10)); // if outside will use this instead of thisNode
 
     const int numPoints = 1 + thisNode->getNumberOfLinkedNodes();
     Event->clearHits();
 
-/*
-    AScanRecord * sr = new AScanRecord();
-    sr->Points.Reinitialize(numPoints);
+    //writeNewEventMarker();
 
     for (int iPoint = 0; iPoint < numPoints; iPoint++)
     {
-        const bool bInside = !(bLimitToVolume && !isInsideLimitingObject(thisNode->R));
+        const bool bInside = true; // TODO:    !(bLimitToVolume && !isInsideLimitingObject(thisNode->R));
         if (bInside)
         {
-            for (int i=0; i<3; i++) sr->Points[iPoint].r[i] = thisNode->R[i];
-            sr->Points[iPoint].energy = (thisNode->NumPhot == -1 ? getNumPhotToRun() : thisNode->NumPhot);
+            if (thisNode->NumPhot == -1)
+                thisNode->NumPhot = getNumPhotonsThisBomb();
         }
         else
-        {
-            for (int i=0; i<3; i++) sr->Points[iPoint].r[i] =  outNode->R[i];
-            sr->Points[iPoint].energy = 0;
-        }
+            thisNode->NumPhot = 0;
 
-        generateAndTracePhotons(sr, thisNode->Time, iPoint);
+        generateAndTracePhotons(thisNode, iPoint);
 
         //if exists, continue to work with the linked node(s)
         thisNode = thisNode->getLinkedNode();
         if (!thisNode) break; //paranoic
     }
-*/
 
     Event->HitsToSignal();
 
-//    saveEvent();
-//    saveTrue();
+//    writeSignals();
+//    writeNodes();
 }
 
-/*
+#include "ageometryhub.h"
+#include "aphotongenerator.h"
 #include "TGeoNavigator.h"
 #include "TGeoManager.h"
 #include "TVector3.h"
-void APhotonSimulator::generateAndTracePhotons(AScanRecord *scs, double time0, int iPoint)
+void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
 {
+    for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
+    Photon.time = node.Time;
+
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
-
-    Photon.r[0] = scs->Points[iPoint].r[0];
-    Photon.r[1] = scs->Points[iPoint].r[1];
-    Photon.r[2] = scs->Points[iPoint].r[2];
-    Photon.scint_type = 0;
-    Photon.time = time0;
-
-    for (int i=0; i<scs->Points[iPoint].energy; i++)
+    for (int i = 0; i < node.NumPhot; i++)
     {
         //photon direction
-        if (bIsotropic) photonGenerator->GenerateDirection(&Photon);
+//        if (bIsotropic)
+            Photon.generateRandomDir();
+/*
         else if (bCone)
         {
             double z = CosConeAngle + RandGen->Rndm() * (1.0 - CosConeAngle);
@@ -598,30 +606,25 @@ void APhotonSimulator::generateAndTracePhotons(AScanRecord *scs, double time0, i
             Photon.v[2] = K1[2];
         }
         //else it is already set
+*/
 
-        int thisMatIndex;
-        TGeoNode* node = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
-        if (node) thisMatIndex = node->GetVolume()->GetMaterial()->GetIndex();
+        int thisMatIndex = 0;
+        TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
+        if (GeoNode) thisMatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
         else
         {
-            thisMatIndex = detector.top->GetMaterial()->GetIndex(); //get material of the world
+            thisMatIndex = AGeometryHub::getInstance().Top->GetMaterial()->GetIndex(); //get material of the world
             qWarning() << "Node not found when generating photons, using material of the world";
         }
 
-        if (!PhotSimSettings.FixedPhotSettings.bFixWave)
-            photonGenerator->GenerateWave(&Photon, thisMatIndex);//if directly given wavelength -> waveindex is already set in PhotonOnStart
+//        if (!PhotSimSettings.FixedPhotSettings.bFixWave)
+            APhotonGenerator::generateWave(Photon, thisMatIndex);//if directly given wavelength -> waveindex is already set in PhotonOnStart
 
-        photonGenerator->GenerateTime(&Photon, thisMatIndex);
+        APhotonGenerator::generateTime(Photon, thisMatIndex);
 
-        if (PhotSimSettings.SpatialDistSettings.bEnabled)
-            InNodeDistributor.apply(Photon, scs->Points[iPoint].r, RandGen->Rndm());
-
-        Photon.SimStat = Event->SimStat;
-
-        photonTracker->TracePhoton(&Photon);
+        Tracer->tracePhoton(&Photon);
     }
 }
-*/
 
 void APhotonSimulator::onProgressTimer()
 {
