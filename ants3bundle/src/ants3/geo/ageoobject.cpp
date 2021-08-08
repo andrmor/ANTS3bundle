@@ -1318,13 +1318,13 @@ QString randomString(int lettLength, int numLength)
     for(int i=0; i<lettLength; i++)
     {
         int index =  QRandomGenerator::global()->generate() % possibleLett.length();
-        QChar nextChar = possibleLett.at(index);
+        QChar nextChar = possibleLett[index];
         randomString.append(nextChar);
     }
     for(int i=0; i<numLength; i++)
     {
         int index =  QRandomGenerator::global()->generate() % possibleNum.length();
-        QChar nextChar = possibleNum.at(index);
+        QChar nextChar = possibleNum[index];
         randomString.append(nextChar);
     }
     return randomString;

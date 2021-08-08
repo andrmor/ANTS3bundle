@@ -41,21 +41,21 @@ double AMaterial::getIntrinsicEnergyResolution(int iParticle) const
 double AMaterial::getRefractiveIndex(int iWave) const
 {
     if (iWave == -1 || nWaveBinned.isEmpty()) return n;
-    return nWaveBinned.at(iWave);
+    return nWaveBinned[iWave];
 }
 
 double AMaterial::getAbsorptionCoefficient(int iWave) const
 {
     //qDebug() << iWave << absWaveBinned.size();
     if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
-    return absWaveBinned.at(iWave);
+    return absWaveBinned[iWave];
 }
 
 double AMaterial::getReemissionProbability(int iWave) const
 {
     //qDebug() << "reemis->" << iWave << ( reemissionProbBinned.size() > 0 ? reemissionProbBinned.at(iWave) : reemissionProb );
     if (iWave == -1 || reemissionProbBinned.isEmpty()) return reemissionProb;
-    return reemissionProbBinned.at(iWave);
+    return reemissionProbBinned[iWave];
 }
 
 void AMaterial::generateTGeoMat()
@@ -91,10 +91,10 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
         double cumulativeStatWeight = 0;
         for (int i=0; i<PriScint_Decay.size(); i++)
         {
-            cumulativeStatWeight += PriScint_Decay.at(i).statWeight;
+            cumulativeStatWeight += PriScint_Decay[i].statWeight;
             if (generatedStatWeight < cumulativeStatWeight)
             {
-                DecayTime = PriScint_Decay.at(i).value;
+                DecayTime = PriScint_Decay[i].value;
                 break;
             }
         }
@@ -114,10 +114,10 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
         double cumulativeStatWeight = 0;
         for (int i=0; i<PriScint_Raise.size(); i++)
         {
-            cumulativeStatWeight += PriScint_Raise.at(i).statWeight;
+            cumulativeStatWeight += PriScint_Raise[i].statWeight;
             if (generatedStatWeight < cumulativeStatWeight)
             {
-                RiseTime = PriScint_Raise.at(i).value;
+                RiseTime = PriScint_Raise[i].value;
                 break;
             }
         }
@@ -393,9 +393,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
             QJsonArray ar = json["PrimScint_Decay"].toArray();
             for (int i=0; i<ar.size(); i++)
             {
-                QJsonArray el = ar.at(i).toArray();
+                QJsonArray el = ar[i].toArray();
                 if (el.size() == 2)
-                    PriScint_Decay << APair_ValueAndWeight(el.at(1).toDouble(), el.at(0).toDouble());
+                    PriScint_Decay << APair_ValueAndWeight(el[1].toDouble(), el[0].toDouble());
                 else
                     qWarning() << "Bad size of decay time pair, skipping!";
             }
@@ -414,9 +414,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
             QJsonArray ar = json["PrimScint_Raise"].toArray();
             for (int i=0; i<ar.size(); i++)
             {
-                QJsonArray el = ar.at(i).toArray();
+                QJsonArray el = ar[i].toArray();
                 if (el.size() == 2)
-                    PriScint_Raise << APair_ValueAndWeight(el.at(1).toDouble(), el.at(0).toDouble());
+                    PriScint_Raise << APair_ValueAndWeight(el[1].toDouble(), el[0].toDouble());
                 else
                     qWarning() << "Bad size of raise time pair, skipping!";
             }
@@ -436,9 +436,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
             QJsonArray ar = json["PrimScintDecay"].toArray();
             for (int i=0; i<ar.size(); i++)
             {
-                QJsonArray el = ar.at(i).toArray();
+                QJsonArray el = ar[i].toArray();
                 if (el.size() == 2)
-                    PriScint_Decay << APair_ValueAndWeight(el.at(0).toDouble(), el.at(1).toDouble());
+                    PriScint_Decay << APair_ValueAndWeight(el[0].toDouble(), el[1].toDouble());
                 else
                     qWarning() << "Bad size of decay time pair, skipping!";
             }
@@ -457,9 +457,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
             QJsonArray ar = json["PrimScintRaise"].toArray();
             for (int i=0; i<ar.size(); i++)
             {
-                QJsonArray el = ar.at(i).toArray();
+                QJsonArray el = ar[i].toArray();
                 if (el.size() == 2)
-                    PriScint_Raise << APair_ValueAndWeight(el.at(0).toDouble(), el.at(1).toDouble());
+                    PriScint_Raise << APair_ValueAndWeight(el[0].toDouble(), el[1].toDouble());
                 else
                     qWarning() << "Bad size of raise time pair, skipping!";
             }

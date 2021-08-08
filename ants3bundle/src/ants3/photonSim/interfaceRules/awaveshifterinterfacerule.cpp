@@ -61,7 +61,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
         return Absorbed;
     }
 
-    double prob = ReemissionProbabilityBinned.at(Photon->waveIndex); // probability of reemission
+    double prob = ReemissionProbabilityBinned[Photon->waveIndex]; // probability of reemission
     if (RandomHub.uniform() < prob)
     {
         //triggered!

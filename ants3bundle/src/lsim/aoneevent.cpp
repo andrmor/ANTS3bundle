@@ -137,7 +137,7 @@ void AOneEvent::registerSiPMhit(int ipm, int iTime, int binX, int binY, float nu
 bool AOneEvent::isHitsEmpty() const
 {
     for (int ipm = 0; ipm < numPMs; ipm++)
-        if (PMhits.at(ipm) != 0) return false;  // set to exact zero on init, any non-zero is fine
+        if (PMhits[ipm] != 0) return false;  // set to exact zero on init, any non-zero is fine
     return true;
 }
 

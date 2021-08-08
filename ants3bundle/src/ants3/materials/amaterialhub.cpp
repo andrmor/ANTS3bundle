@@ -41,14 +41,14 @@ AMaterialHub::~AMaterialHub()
 
 double AMaterialHub::getDriftSpeed(int iMat) const
 {
-    return 0.01 * Materials.at(iMat)->e_driftVelocity; //given in cm/us - returns in mm/ns
+    return 0.01 * Materials[iMat]->e_driftVelocity; //given in cm/us - returns in mm/ns
 }
 
 double AMaterialHub::getDiffusionSigmaTime(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v^3)
     //https://doi.org/10.1016/j.nima.2016.01.094
-    const AMaterial * m = Materials.at(iMat);
+    const AMaterial * m = Materials[iMat];
     if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
 
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
@@ -60,7 +60,7 @@ double AMaterialHub::getDiffusionSigmaTime(int iMat, double length_mm) const
 double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) const
 {
     //sqrt(2Dl/v)
-    const AMaterial * m = Materials.at(iMat);
+    const AMaterial * m = Materials[iMat];
     if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
 
     const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
@@ -76,8 +76,8 @@ void AMaterialHub::updateRuntimeProperties()
 
 QString AMaterialHub::getMaterialName(int matIndex) const
 {
-    if (matIndex<0 || matIndex >= Materials.size()) return "";
-    return Materials.at(matIndex)->name;
+    if (matIndex < 0 || matIndex >= Materials.size()) return "";
+    return Materials[matIndex]->name;
 }
 
 QStringList AMaterialHub::getListOfMaterialNames() const
@@ -284,7 +284,7 @@ void AMaterialHub::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, 
     {
         if (!World->isMaterialInActiveUse(iM)) continue;
 
-        const AMaterial * mat = Materials.at(iM);
+        const AMaterial * mat = Materials[iM];
         if (!mat->ChemicalComposition.isDefined())
             Errors += QString("\nComposition not defined for %1, while needed for tracking!\n").arg(mat->name);
     }

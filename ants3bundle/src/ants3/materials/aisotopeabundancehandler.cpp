@@ -23,7 +23,7 @@ AIsotopeAbundanceHandler::AIsotopeAbundanceHandler()
         AllPossibleElements << s;
 
     for (int i=0; i<all.size(); i++)
-        SymbolToNumber.insert(all.at(i), i+1);
+        SymbolToNumber.insert(all[i], i+1);
 }
 
 const QStringList AIsotopeAbundanceHandler::getListOfElements() const
@@ -81,9 +81,9 @@ bool AIsotopeAbundanceHandler::isNatural(const AChemicalElement *el) const
 
     for (int i=0; i<list.size(); i++)
     {
-        const QPair<int, double> & p = list.at(i);
-        if (p.first != el->Isotopes.at(i).Mass) return false;
-        if ( std::abs(p.second - el->Isotopes.at(i).Abundancy)/p.second > 0.001) return false; // 0.1% tolerance
+        const QPair<int, double> & p = list[i];
+        if (p.first != el->Isotopes[i].Mass) return false;
+        if ( std::abs(p.second - el->Isotopes[i].Abundancy)/p.second > 0.001) return false; // 0.1% tolerance
     }
     return true;
 }

@@ -55,7 +55,7 @@ void ASimulationStatistics::initialize(QVector<const AGeoObject*> monitorRecords
     if (!monitorRecords.isEmpty())
     {
         for (int i=0; i<monitorRecords.size(); i++)
-            Monitors.append(new AMonitor(monitorRecords.at(i)));
+            Monitors.append(new AMonitor(monitorRecords[i]));
     }
 }
 

@@ -310,7 +310,7 @@ int AMaterialComposition::getNumberInJointIsotopeList(int iElement, int iIsotope
 {
     int iRet = 0;
     for (int iEl=0; iEl<ElementComposition.size(); iEl++)
-        for (int iIso=0; iIso<ElementComposition.at(iEl).Isotopes.size(); iIso++)
+        for (int iIso=0; iIso<ElementComposition[iEl].Isotopes.size(); iIso++)
         {
             if (iEl == iElement && iIso == iIsotope) return iRet;
             iRet++;
