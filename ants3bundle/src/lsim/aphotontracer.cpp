@@ -238,6 +238,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         qDebug()<<"coordinates: "<<Navigator->GetCurrentPoint()[0]<<Navigator->GetCurrentPoint()[1]<<Navigator->GetCurrentPoint()[2];
 
         //-----Checking overrides-----
+        qDebug() << MatIndexFrom << MatIndexTo << RuleHub.Rules.size();
         AInterfaceRule * rule = RuleHub.getRuleFast(MatIndexFrom, MatIndexTo);  // !!!*** to const
         if (rule)
         {

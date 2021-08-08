@@ -2,6 +2,7 @@
 #include "alogger.h"
 #include "ajsontools.h"
 #include "amaterialhub.h"
+#include "ainterfacerulehub.h"
 #include "ageometryhub.h"
 #include "asensorhub.h"
 #include "aphotonsimhub.h"
@@ -526,6 +527,8 @@ void APhotonSimulator::loadConfig()
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();
+    Error         = AInterfaceRuleHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
     Error         = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Geometry loaded\n";
