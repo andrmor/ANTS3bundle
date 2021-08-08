@@ -25,9 +25,9 @@ public:
     const QStringList getListOfModelNames() const;
 
     //temporary stubs
-    bool isSiPM(int index) const {return false;}
-    bool isAngularResolvedPDE(int index) const {return false;}
-    bool isAreaResolvedPDE(int index) const {return false;}
+    bool isSiPM(int index) const {return false;}// !!!***
+    bool isAngularResolvedPDE(int index) const {return false;}// !!!***
+    bool isAreaResolvedPDE(int index) const {return false;}// !!!***
 
     double getMaxQE() const;                // !!!***
     double getMaxQEvsWave(int iWave) const; // !!!***

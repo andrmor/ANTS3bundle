@@ -15,7 +15,7 @@ public:
     AOneEvent();
 
     QVector<float>          PMhits;           // PM hits [pm]
-    QVector<float>          PMsignals;        // -- converted to signal [pm]
+    QVector<float>          PMsignals;        // -- converted to signal [pm]   // !!!*** use the same "Hits" container?
     QVector<QBitArray>      SiPMpixels;       //on/off status of SiPM pixels [PM#] [time] [pixY] [pixX]
 
 

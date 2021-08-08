@@ -337,16 +337,16 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         {
         case 'P': // PM hit
             {
-            const int PMnumber = NodeAfterInterface->GetNumber();
-            //qDebug()<<"PM hit:"<<ThisVolume->GetName()<<PMnumber<<ThisVolume->GetTitle()<<"WaveIndex:"<<p->waveIndex;
-            if (SimSet.RunSet.SavePhotonLog)
-            {
-                PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
-                PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::HitPM, -1, -1, PMnumber) );
-            }
-            PMwasHit(PMnumber);
-            SimStat.HitPM++;
-            goto force_stop_tracing; //finished with this photon
+                const int PMnumber = NodeAfterInterface->GetNumber();
+               qDebug()<< "PM hit! (" << ThisVolume->GetTitle() <<") Sensor name:"<< ThisVolume->GetName() << "Sensor index" << PMnumber;
+                if (SimSet.RunSet.SavePhotonLog)
+                {
+                    PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                    PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::HitPM, -1, -1, PMnumber) );
+                }
+                PMwasHit(PMnumber);
+                SimStat.HitPM++;
+                goto force_stop_tracing; //finished with this photon
             }
 /*      !!!***
         case 'G': // grid hit

@@ -527,18 +527,24 @@ void APhotonSimulator::loadConfig()
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();
+
     Error         = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded optical rules" << '\n';
+    LOG.flush();
+
     Error         = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Geometry loaded\n";
     LOG << "World: " << AGeometryHub::getInstance().World << "\n";
     LOG << "GeoManager: " << AGeometryHub::getInstance().GeoManager << "\n";
     LOG.flush();
+
     Error         = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
-    LOG << "Loaded sensor models: " << ASensorHub::getInstance().countSensorModels();
+    LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countSensorModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
+
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";

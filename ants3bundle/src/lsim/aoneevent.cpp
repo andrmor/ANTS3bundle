@@ -22,12 +22,17 @@ void AOneEvent::init()
 {
     numPMs = SensorHub.countSensors();
 
+    PMhits.resize(numPMs);
+    PMsignals.resize(numPMs);
     SiPMpixels.resize(numPMs);
+
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
         const ASensorModel & model = SensorHub.getModelFast(ipm);
         if (model.SiPM)
             SiPMpixels[ipm] = QBitArray(model.PixelsX * model.PixelsY);
+        else
+            SiPMpixels[ipm] = QBitArray();
     }
 
     clearHits(); //clears and resizes the hits / signals containers
