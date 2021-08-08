@@ -4,7 +4,10 @@
 #include "ajsontools.h"
 
 AInterfaceRuleHub::AInterfaceRuleHub() :
-    MatHub(AMaterialHub::getConstInstance()) {}
+    MatHub(AMaterialHub::getConstInstance())
+{
+    clearRules();
+}
 
 AInterfaceRuleHub &AInterfaceRuleHub::getInstance()
 {
@@ -22,6 +25,18 @@ void AInterfaceRuleHub::updateWaveResolvedProperties()
     for (auto & rv : Rules)
         for (auto & r : rv)
             r->initializeWaveResolved();
+}
+
+void AInterfaceRuleHub::clearRules()
+{
+    for (auto & rv : Rules)
+        for (auto & r : rv)
+            delete r;
+
+    const int numMats = MatHub.countMaterials();
+    Rules.resize(numMats);
+    for (auto & rv : Rules)
+        rv = std::vector<AInterfaceRule*>(numMats, nullptr);
 }
 
 void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
@@ -42,6 +57,8 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
 
 QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
 {
+    clearRules();
+
     QJsonArray ar;
     bool ok = jstools::parseJson(json, "InterfaceRules", ar);
     if (!ok) return "Json does not contain settings for interface rules!";
@@ -75,6 +92,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
         Rules[MatFrom][MatTo] = rule;
     }
 
+    emit interfaceRulesChanged();
     return "";
 }
 
@@ -102,7 +120,7 @@ void AInterfaceRuleHub::onNewMaterialAdded()
 
 }
 
-void AInterfaceRuleHub::onMaterialDeleted(size_t iMat)
+void AInterfaceRuleHub::onMaterialDeleted(int iMat)
 {
     /*
     //clear overrides from other materials to this one

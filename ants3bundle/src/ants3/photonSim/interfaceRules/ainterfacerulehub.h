@@ -32,17 +32,22 @@ public:
 
     void updateWaveResolvedProperties();
 
+    void clearRules();
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
     QString checkAll();
 
 public slots:
-    void onMaterialDeleted(size_t iMat);
+    void onMaterialDeleted(int iMat);
     void onNewMaterialAdded();
 
 private:
     const AMaterialHub & MatHub;
+
+signals:
+    void interfaceRulesChanged();
 
 };
 
