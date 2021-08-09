@@ -21,9 +21,6 @@ INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
-        anoderecord.cpp \
-        aphotongenerator.cpp \
-        aphotonsimulator.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
         ../ants3/tools/arandomhub.cpp \
@@ -55,10 +52,13 @@ SOURCES += \
         ../ants3/photonSim/asimulationstatistics.cpp \
         ../ants3/photonSim/aroothistappenders.cpp \
         ../ants3/photonSim/astatisticshub.cpp \
+        anoderecord.cpp \
+        aphotongenerator.cpp \
+        aphotonsimulator.cpp \
         aphotontracer.cpp \
-        alogger.cpp \
         aoneevent.cpp \
         aphotonhistorylog.cpp \
+        alogger.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -67,9 +67,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    anoderecord.h \
-    aphotongenerator.h \
-aphotonsimulator.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
     ../ants3/tools/arandomhub.h \
@@ -101,7 +98,11 @@ aphotonsimulator.h \
     ../ants3/photonSim/asimulationstatistics.h \
     ../ants3/photonSim/aroothistappenders.h \
     ../ants3/photonSim/astatisticshub.h \
+    ../ants3/photonSim/aphotontrackrecord.h \
+    aphotonsimulator.h \
     aphotontracer.h \
     aoneevent.h \
     aphotonhistorylog.h \
+    anoderecord.h \
+    aphotongenerator.h \
     alogger.h

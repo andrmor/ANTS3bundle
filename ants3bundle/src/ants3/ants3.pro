@@ -179,6 +179,7 @@ HEADERS += \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \
+    photonSim/aphotontrackrecord.h \
     photonSim/aroothistappenders.h \
     photonSim/asensorhub.h \
     photonSim/asensormodel.h \

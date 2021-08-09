@@ -22,22 +22,7 @@ class TGeoNavigator;
 class TGeoVolume;
 class AGridElementRecord;
 
-class AVector3
-{
-public:
-    AVector3(const double * pos) {for (int i=0; i<3; i++) r[i] = pos[i];}
-    AVector3() {}
-
-    double r[3];
-};
-
-class ATrackRecord
-{
-public:
-    bool HitSensor;
-    bool SecondaryScint;
-    std::vector<AVector3> Positions;
-};
+#include "aphotontrackrecord.h"
 
 class APhotonTracer
 {
@@ -49,9 +34,10 @@ public:
 
     void tracePhoton(const APhoton * Photon);  // !!!*** to const reference
 
-    void setMaxTracks(int maxTracks) {MaxTracks = maxTracks;}
-
     void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels
+
+    APhotonTrackRecord         Track;
+    QVector<APhotonHistoryLog> PhLog;
 
 private:
     const AMaterialHub       & MatHub;
@@ -66,13 +52,8 @@ private:
     TGeoManager   * GeoManager = nullptr;
     TGeoNavigator * Navigator  = nullptr;
 
-
 //    const QVector<AGridElementRecord*>* grids;
 
-    ATrackRecord Track;
-    QVector<APhotonHistoryLog> PhLog;
-
-    int MaxTracks = 10;
     int AddedTracks = 0;
 
     int Counter; //number of photon transitions - there is a limit on this set by user
@@ -81,14 +62,12 @@ private:
     double Step;
     double * N; //normal vector to the surface
     bool fHaveNormal;
-    bool fMissPM;
     int MatIndexFrom; //material index of the current medium or medium before the interface
     int MatIndexTo;   //material index of the medium after interface
     const AMaterial * MaterialFrom; //material before the interface
     const AMaterial * MaterialTo;   //material after the interface
     double RefrIndexFrom, RefrIndexTo; //refractive indexes n1 and n2
     bool fDoFresnel; //flag - to perform or not the fresnel calculation on the interface
-    bool bBuildTracks = false;
     bool fGridShiftOn = false;
     double FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
     double FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates

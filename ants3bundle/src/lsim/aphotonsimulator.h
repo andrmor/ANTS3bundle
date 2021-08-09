@@ -43,6 +43,8 @@ protected:
     int  EventsToDo  = 0;
     int  EventsDone  = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
 
+    const int TrackOutputPrecision = 10000;
+
     bool bStopRequested = false;
     bool bHardAbortWasTriggered = false;
     bool fSuccess;
@@ -50,9 +52,10 @@ protected:
     //output
     QFile       * FileSensorSignals   = nullptr;
     QTextStream * StreamSensorSignals = nullptr;
-
     QFile       * FilePhotonBombs     = nullptr;
     QTextStream * StreamPhotonBombs   = nullptr;
+    QFile       * FileTracks          = nullptr;
+    QTextStream * StreamTracks        = nullptr;
 
 private:
     void loadConfig();
@@ -73,6 +76,7 @@ private:
     void    saveEventMarker();
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node);
+    void    saveTrack();
 };
 
 #endif // APHOTONSIMULATOR_H
