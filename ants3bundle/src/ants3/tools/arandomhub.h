@@ -22,6 +22,8 @@ public:
 
     double uniform();
     double exp(double tau);
+    double gauss(double mean, double sigma);
+    double poisson(double mean);
 };
 
 #endif // ARANDOMHUB_H

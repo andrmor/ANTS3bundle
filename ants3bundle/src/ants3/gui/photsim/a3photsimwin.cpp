@@ -52,14 +52,14 @@ void A3PhotSimWin::updatePhotBombGui()
 {
     {
         int index;
-        switch (SimSet.BombSet.PhotonNumberMode)
+        switch (SimSet.BombSet.PhotonsPerBomb.Mode)
         {
         default:
-        case EBombPhNumber::Constant : index = 0; break;
-        case EBombPhNumber::Poisson  : index = 1; break;
-        case EBombPhNumber::Uniform  : index = 2; break;
-        case EBombPhNumber::Normal   : index = 3; break;
-        case EBombPhNumber::Custom   : index = 4; break;
+        case APhotonsPerBombSettings::Constant : index = 0; break;
+        case APhotonsPerBombSettings::Poisson  : index = 1; break;
+        case APhotonsPerBombSettings::Uniform  : index = 2; break;
+        case APhotonsPerBombSettings::Normal   : index = 3; break;
+        case APhotonsPerBombSettings::Custom   : index = 4; break;
         }
         ui->cobScanNumPhotonsMode->setCurrentIndex(index);
     }
@@ -172,14 +172,16 @@ void A3PhotSimWin::on_cobSimType_activated(int index)
 
 void A3PhotSimWin::on_cobScanNumPhotonsMode_activated(int index)
 {
+    APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
+
     switch (index)
     {
     default:
-    case 0: SimSet.BombSet.PhotonNumberMode = EBombPhNumber::Constant; break;
-    case 1: SimSet.BombSet.PhotonNumberMode = EBombPhNumber::Poisson;  break;
-    case 2: SimSet.BombSet.PhotonNumberMode = EBombPhNumber::Uniform;  break;
-    case 3: SimSet.BombSet.PhotonNumberMode = EBombPhNumber::Normal;   break;
-    case 4: SimSet.BombSet.PhotonNumberMode = EBombPhNumber::Custom;   break;
+    case 0: PS.Mode = APhotonsPerBombSettings::Constant; break;
+    case 1: PS.Mode = APhotonsPerBombSettings::Poisson;  break;
+    case 2: PS.Mode = APhotonsPerBombSettings::Uniform;  break;
+    case 3: PS.Mode = APhotonsPerBombSettings::Normal;   break;
+    case 4: PS.Mode = APhotonsPerBombSettings::Custom;   break;
     }
 }
 

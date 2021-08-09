@@ -7,7 +7,6 @@
 class QJsonObject;
 
 enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
-enum class EBombPhNumber {Constant, Poisson, Uniform, Normal, Custom};
 enum class EBombGen      {Single, Grid, Flood, File, Script};
 
 class AWaveResSettings
@@ -41,6 +40,26 @@ public:
 
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);
+};
+
+typedef std::pair<double, double> ADPair;
+class APhotonsPerBombSettings
+{
+public:
+    enum EBombPhNumber {Constant, Poisson, Uniform, Normal, Custom};
+
+    EBombPhNumber   Mode        = Constant;
+    int             FixedNumber = 10;
+    int             UniformMin  = 10;
+    int             UniformMax  = 12;
+    double          NormalMean  = 100.0;
+    double          NormalSigma = 10.0;
+    double          PoissonMean = 10.0;
+    std::vector<ADPair> CustomDist;
+
+    void    clearSettings();
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 };
 
 class ASingleSettings
@@ -83,10 +102,8 @@ public:
 class APhotonBombsSettings
 {
 public:
-    // Number of photons
-    EBombPhNumber       PhotonNumberMode = EBombPhNumber::Constant;
+    APhotonsPerBombSettings PhotonsPerBomb;
 
-    // generation type
     EBombGen            GenerationMode   = EBombGen::Single;
     ASingleSettings     SingleSettings;
     AFloodSettings      FloodSettings;

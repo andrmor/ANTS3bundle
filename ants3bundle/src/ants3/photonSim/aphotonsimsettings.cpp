@@ -112,6 +112,84 @@ double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> 
 
 // ---
 
+void APhotonsPerBombSettings::clearSettings()
+{
+    Mode        = Constant;
+    FixedNumber = 10;
+    UniformMin  = 10;
+    UniformMax  = 12;
+    NormalMean  = 100.0;
+    NormalSigma = 10.0;
+    CustomDist.clear();
+}
+
+void APhotonsPerBombSettings::writeToJson(QJsonObject & json) const
+{
+    QString str;
+    switch (Mode)
+    {
+    case EBombPhNumber::Constant : str = "constant"; break;
+    case EBombPhNumber::Poisson  : str = "poisson";  break;
+    case EBombPhNumber::Uniform  : str = "uniform";  break;
+    case EBombPhNumber::Normal   : str = "normal";   break;
+    case EBombPhNumber::Custom   : str = "custom";   break;
+    }
+    json["Mode"] = str;
+
+    json["FixedNumber"] = FixedNumber;
+    json["UniformMin"]  = UniformMin;
+    json["UniformMax"]  = UniformMax;
+    json["NormalMean"]  = NormalMean;
+    json["NormalSigma"] = NormalSigma;
+    json["PoissonMean"] = PoissonMean;
+
+    QJsonArray ar;
+        for (const ADPair & pair : CustomDist)
+        {
+            QJsonArray el;
+                el << pair.first << pair.second;
+            ar.push_back(el);
+        }
+    json["CustomDist"] = ar;
+}
+
+QString APhotonsPerBombSettings::readFromJson(const QJsonObject & json)
+{
+    clearSettings();
+
+    QString str = "undefined";
+    jstools::parseJson(json, "Mode", str);
+
+    if      (str == "constant") Mode = EBombPhNumber::Constant;
+    else if (str == "poisson")  Mode = EBombPhNumber::Poisson;
+    else if (str == "uniform")  Mode = EBombPhNumber::Uniform;
+    else if (str == "normal")   Mode = EBombPhNumber::Normal;
+    else if (str == "custom")   Mode = EBombPhNumber::Custom;
+    else return QString("Unknown photons per bomb mode: " + str);
+
+    jstools::parseJson(json, "FixedNumber", FixedNumber);
+    jstools::parseJson(json, "UniformMin",  UniformMin);
+    jstools::parseJson(json, "UniformMax",  UniformMax);
+    jstools::parseJson(json, "NormalMean",  NormalMean);
+    jstools::parseJson(json, "NormalSigma", NormalSigma);
+    jstools::parseJson(json, "PoissonMean", PoissonMean);
+
+    QJsonArray ar;
+    jstools::parseJson(json, "CustomDist", ar);
+    CustomDist.reserve(ar.size());
+    for (int i = 0; i < ar.size(); i++)
+    {
+        QJsonArray el = ar[i].toArray();
+        double x = el[0].toDouble();
+        double y = el[1].toDouble();
+        CustomDist.push_back({x, y});
+    }
+
+    return "";
+}
+
+// ---
+
 void APhotOptSettings::writeToJson(QJsonObject &json) const
 {
     json["MaxPhotonTransitions"]  = MaxPhotonTransitions;
@@ -227,18 +305,10 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
 
 void APhotonBombsSettings::writeToJson(QJsonObject & json) const
 {
-    // PhotonNumberMode
     {
-        QString str;
-        switch (PhotonNumberMode)
-        {
-        case EBombPhNumber::Constant : str = "constant"; break;
-        case EBombPhNumber::Poisson  : str = "poisson";  break;
-        case EBombPhNumber::Uniform  : str = "uniform";  break;
-        case EBombPhNumber::Normal   : str = "normal";   break;
-        case EBombPhNumber::Custom   : str = "custom";   break;
-        }
-        json["PhotonNumberMode"] = str;
+        QJsonObject js;
+        PhotonsPerBomb.writeToJson(js);
+        json["PhotonsPerBomb"] = js;
     }
 
     // GenerationMode
@@ -277,19 +347,10 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
 {
     // PhotonNumberMode
     {
-        QString str = "undefined";
-        jstools::parseJson(json, "PhotonNumberMode", str);
-
-        if      (str == "constant") PhotonNumberMode = EBombPhNumber::Constant;
-        else if (str == "poisson")  PhotonNumberMode = EBombPhNumber::Poisson;
-        else if (str == "uniform")  PhotonNumberMode = EBombPhNumber::Uniform;
-        else if (str == "normal")   PhotonNumberMode = EBombPhNumber::Normal;
-        else if (str == "custom")   PhotonNumberMode = EBombPhNumber::Custom;
-        else
-        {
-            PhotonNumberMode = EBombPhNumber::Constant;
-            return QString("Unknown PhotonNumberMode: %1 -> replacing with 'Constant'").arg(str);
-        }
+        QJsonObject js;
+        jstools::parseJson(json, "PhotonsPerBomb", js);
+        QString ErrorString = PhotonsPerBomb.readFromJson(js);
+        if (!ErrorString.isEmpty()) return ErrorString;
     }
 
     // GenerationMode

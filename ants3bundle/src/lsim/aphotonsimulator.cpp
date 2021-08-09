@@ -307,22 +307,23 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 {
     int num = 0;
 
-    switch (SimSet.BombSet.PhotonNumberMode)
+    const APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
+    switch (PS.Mode)
     {
-    case EBombPhNumber::Constant :
-        num = 10;
+    case APhotonsPerBombSettings::Constant :
+        num = PS.FixedNumber;
         break;
-    case EBombPhNumber::Uniform :
-//        num = RandGen->Rndm() * (PhotSimSettings.PerNodeSettings.Max - PhotSimSettings.PerNodeSettings.Min + 1) + PhotSimSettings.PerNodeSettings.Min;
+    case APhotonsPerBombSettings::Uniform :
+        num = RandomHub.uniform() * (PS.UniformMax - PS.UniformMin + 1) + PS.UniformMin;
         break;
-    case EBombPhNumber::Normal :
-//        num = std::round( RandGen->Gaus(PhotSimSettings.PerNodeSettings.Mean, PhotSimSettings.PerNodeSettings.Sigma) );
+    case APhotonsPerBombSettings::Normal :
+        num = std::round( RandomHub.gauss(PS.NormalMean, PS.NormalSigma) );
         break;
-    case EBombPhNumber::Custom :
+    case APhotonsPerBombSettings::Custom :
 //        num = CustomHist->GetRandom();
         break;
-    case EBombPhNumber::Poisson :
-//        num = RandGen->Poisson(PhotSimSettings.PerNodeSettings.PoisMean);
+    case APhotonsPerBombSettings::Poisson :
+        num = RandomHub.poisson(PS.PoissonMean);
         break;
     }
 
