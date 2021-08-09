@@ -68,7 +68,8 @@ public:
     int     EventFrom;
     int     EventTo;
 
-    QString FileNameSensorSignals;
+    bool    SaveSensorSignals = true;
+    QString FileNameSensorSignals = "SensorSignals";
 
     bool    SaveTracks = true;
     int     MaxTracks;

@@ -14,8 +14,8 @@ void ASensorModel::clear()
     AngularSensitivityCosRefracted.clear();
     AngularN1 = 1.0;
 
-    EnablePositionSensitivity = false;
-    PositionFactors.clear();
+    EnableSpatialSensitivity = false;
+    SpatialFactors.clear();
     StepX = 1.0;
     StepY = 1.0;
 }
@@ -48,7 +48,7 @@ void ASensorModel::writeToJson(QJsonObject &json) const
     json["AngularResponse"] = angj;
 
     QJsonObject areaj;
-        areaj["EnablePositionSensitivity"] = EnablePositionSensitivity;
+        areaj["Enable"] = EnableSpatialSensitivity;
         areaj["StepX"] = StepX;
         areaj["StepY"] = StepY;
         QJsonArray arar;

@@ -59,9 +59,8 @@ bool AOneEvent::CheckPMThit(int ipm, double time, int WaveIndex, double x, doubl
         return false;
 
 //    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
-
-    PMhits[ipm] += 1.0f;
 */
+    PMhits[ipm] += 1.0f;
     return true;
 }
 

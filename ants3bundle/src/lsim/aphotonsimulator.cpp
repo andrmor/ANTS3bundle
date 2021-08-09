@@ -40,11 +40,20 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     //prepare simulator thread, start on start()
 }
 
+APhotonSimulator::~APhotonSimulator()
+{
+    if (FileSensorSignals) FileSensorSignals->close();
+    delete StreamSensorSignals;
+    delete FileSensorSignals;
+}
+
 void APhotonSimulator::start()
 {
     loadConfig();
 
     setupCommonProperties();
+
+    openOutput();
 
     switch (SimSet.SimType)
     {
@@ -68,6 +77,33 @@ void APhotonSimulator::setupCommonProperties()
 
     Event->init();
     Tracer->init();
+}
+
+QString APhotonSimulator::openOutput()
+{
+    const APhotSimRunSettings & RS = APhotonSimHub::getConstInstance().Settings.RunSet;
+    if (RS.SaveSensorSignals)
+    {
+        FileSensorSignals = new QFile(RS.FileNameSensorSignals, this);
+        if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + RS.FileNameSensorSignals;
+        StreamSensorSignals = new QTextStream(FileSensorSignals);
+    }
+
+    return "";
+}
+
+void APhotonSimulator::saveEventMarker()
+{
+    // no need to make marker for SensorSignals
+}
+
+void APhotonSimulator::saveEventOutput()
+{
+    if (StreamSensorSignals)
+    {
+        for (auto sig : qAsConst(Event->PMhits))
+            *StreamSensorSignals << sig << ' ';
+    }
 }
 
 void APhotonSimulator::setupPhotonBombs()
@@ -580,8 +616,7 @@ void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 
     Event->HitsToSignal();
 
-//    writeSignals();
-//    writeNodes();
+    saveEventOutput();
 }
 
 #include "ageometryhub.h"

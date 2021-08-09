@@ -10,6 +10,8 @@ class APhotonSimSettings;
 class ANodeRecord;
 class AOneEvent;
 class APhotonTracer;
+class QFile;
+class QTextStream;
 
 class APhotonSimulator : public QObject
 {
@@ -17,6 +19,7 @@ class APhotonSimulator : public QObject
 
 public:
     APhotonSimulator(const QString & fileName, const QString & dir, int id);
+    ~APhotonSimulator();
 
 public slots:
     void start();
@@ -43,6 +46,10 @@ protected:
     bool bHardAbortWasTriggered = false;
     bool fSuccess;
 
+    //output
+    QFile       * FileSensorSignals   = nullptr;
+    QTextStream * StreamSensorSignals = nullptr;
+
 private:
     void loadConfig();
     void setupCommonProperties();
@@ -57,6 +64,10 @@ private:
     bool simulateCustomNodes();
     bool simulateBombsFromFile();
     int  getNumPhotonsThisBomb();
+
+    QString openOutput();
+    void    saveEventMarker();
+    void    saveEventOutput();
 };
 
 #endif // APHOTONSIMULATOR_H

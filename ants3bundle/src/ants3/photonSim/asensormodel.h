@@ -26,8 +26,8 @@ public:
     std::vector<std::pair<double,double>> AngularFactors;
     double  AngularN1 = 1.0;                        // refractive index of the medium where PM was positioned to measure the angular response
 
-    bool    EnablePositionSensitivity = false;  // !!!***
-    std::vector<std::vector<double>> PositionFactors;
+    bool    EnableSpatialSensitivity = false;  // !!!***
+    std::vector<std::vector<double>> SpatialFactors;
     double  StepX = 1.0;   // in mm
     double  StepY = 1.0;
 

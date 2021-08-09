@@ -233,6 +233,7 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
     json["EventFrom"]             = EventFrom;
     json["EventTo"]               = EventTo;
 
+    json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
 
     json["SaveTracks"]            = SaveTracks;
@@ -248,6 +249,7 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EventFrom",             EventFrom);
     jstools::parseJson(json, "EventTo",               EventTo);
 
+    jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);
 
     jstools::parseJson(json, "SaveTracks",            SaveTracks);
@@ -290,6 +292,13 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
         BombSet.writeToJson(js);
         jsSim["PhotonBombs"] = js;
     }
+    //Run
+    {
+        QJsonObject js;
+        RunSet.writeToJson(js);
+        jsSim["Run"] = js;
+    }
+
     json["PhotonSim"] = jsSim;
 }
 
@@ -330,6 +339,12 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         QJsonObject js;
         jstools::parseJson(jsSim, "PhotonBombs", js);
         BombSet.readFromJson(js);
+    }
+    //Run
+    {
+        QJsonObject js;
+        jstools::parseJson(jsSim, "Run", js);
+        RunSet.readFromJson(js);
     }
 
     return "";
