@@ -40,6 +40,21 @@ private slots:
 
     void on_pbSimulate_clicked();
 
+    void on_sbFloodNumber_editingFinished();
+    void on_cobFloodShape_activated(int index);
+    void on_ledFloodXfrom_editingFinished();
+    void on_ledFloodXto_editingFinished();
+    void on_ledFloodYfrom_editingFinished();
+    void on_ledFloodYto_editingFinished();
+    void on_ledFloodCenterX_editingFinished();
+    void on_ledFloodCenterY_editingFinished();
+    void on_ledFloodOuterDiameter_editingFinished();
+    void on_ledFloodInnerDiameter_editingFinished();
+    void on_cobFloodZmode_activated(int index);
+    void on_ledFloodZ_editingFinished();
+    void on_ledFloodZfrom_editingFinished();
+    void on_ledFloodZto_editingFinished();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;

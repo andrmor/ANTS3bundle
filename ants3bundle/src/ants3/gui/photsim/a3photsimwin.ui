@@ -228,7 +228,7 @@
                  <enum>QFrame::NoFrame</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>4</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="pageScanConst">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -1576,12 +1576,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                   <item>
                    <widget class="QLabel" name="label_90">
                     <property name="text">
-                     <string>Nodes:</string>
+                     <string>Number:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="sbScanFloodNodes">
+                   <widget class="QSpinBox" name="sbFloodNumber">
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -1604,7 +1604,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="cobScanFloodShape">
+                   <widget class="QComboBox" name="cobFloodShape">
                     <item>
                      <property name="text">
                       <string>rectangle</string>
@@ -1651,7 +1651,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <number>3</number>
                   </property>
                   <item>
-                   <widget class="QStackedWidget" name="stackedWidget_2">
+                   <widget class="QStackedWidget" name="swFloodShape">
                     <property name="currentIndex">
                      <number>0</number>
                     </property>
@@ -1660,12 +1660,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       <item row="0" column="0">
                        <widget class="QLabel" name="label_139">
                         <property name="text">
-                         <string>X:  from</string>
+                         <string>X  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledScanFloodXfrom">
+                       <widget class="QLineEdit" name="ledFloodXfrom">
                         <property name="text">
                          <string>-15</string>
                         </property>
@@ -1679,7 +1679,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledScanFloodXto">
+                       <widget class="QLineEdit" name="ledFloodXto">
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -1695,12 +1695,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_245">
                         <property name="text">
-                         <string>Y:  from</string>
+                         <string>Y  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledScanFloodYfrom">
+                       <widget class="QLineEdit" name="ledFloodYfrom">
                         <property name="text">
                          <string>-15</string>
                         </property>
@@ -1714,7 +1714,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledScanFloodYto">
+                       <widget class="QLineEdit" name="ledFloodYto">
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -1742,7 +1742,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledScanFlood_CenterX">
+                       <widget class="QLineEdit" name="ledFloodCenterX">
                         <property name="text">
                          <string>0</string>
                         </property>
@@ -1756,7 +1756,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledScanFlood_CenterY">
+                       <widget class="QLineEdit" name="ledFloodCenterY">
                         <property name="text">
                          <string>0</string>
                         </property>
@@ -1765,12 +1765,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_259">
                         <property name="text">
-                         <string>D.(mm)out:</string>
+                         <string>Diam. outer</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledScanFlood_Radius">
+                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
                         <property name="text">
                          <string>40</string>
                         </property>
@@ -1779,12 +1779,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       <item row="1" column="2">
                        <widget class="QLabel" name="label_266">
                         <property name="text">
-                         <string>in.:</string>
+                         <string>inner</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledScanFlood_Radius0">
+                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
                         <property name="text">
                          <string>0</string>
                         </property>
@@ -1837,7 +1837,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                        </widget>
                       </item>
                       <item>
-                       <widget class="QComboBox" name="cobScanFloodZtype">
+                       <widget class="QComboBox" name="cobFloodZmode">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -1874,7 +1874,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                     <item>
                      <widget class="QStackedWidget" name="swScanFloodZ">
                       <property name="currentIndex">
-                       <number>1</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="page_4">
                        <layout class="QHBoxLayout" name="horizontalLayout_19">
@@ -1894,7 +1894,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                          <number>3</number>
                         </property>
                         <item>
-                         <widget class="QLineEdit" name="ledScanFloodZ">
+                         <widget class="QLineEdit" name="ledFloodZ">
                           <property name="maximumSize">
                            <size>
                             <width>100</width>
@@ -1956,7 +1956,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="ledScanFloodZfrom">
+                         <widget class="QLineEdit" name="ledFloodZfrom">
                           <property name="text">
                            <string>-2.49</string>
                           </property>
@@ -1973,7 +1973,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="ledScanFloodZto">
+                         <widget class="QLineEdit" name="ledFloodZto">
                           <property name="text">
                            <string>2.49</string>
                           </property>
@@ -3126,12 +3126,44 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>423</x>
+     <x>412</x>
      <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>391</x>
      <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobFloodShape</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>swFloodShape</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>233</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobFloodZmode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>swScanFloodZ</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>435</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>470</x>
+     <y>314</y>
     </hint>
    </hints>
   </connection>

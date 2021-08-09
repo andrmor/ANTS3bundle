@@ -78,9 +78,26 @@ void A3PhotSimWin::updatePhotBombGui()
         ui->cobNodeGenerationMode->setCurrentIndex(index);
     }
 
+    //Single
     ui->ledSingleX->setText(QString::number(SimSet.BombSet.SingleSettings.Position[0]));
     ui->ledSingleY->setText(QString::number(SimSet.BombSet.SingleSettings.Position[1]));
     ui->ledSingleZ->setText(QString::number(SimSet.BombSet.SingleSettings.Position[2]));
+
+    //Flood
+    ui->sbFloodNumber->setValue(SimSet.BombSet.FloodSettings.Number);
+    ui->cobFloodShape->setCurrentIndex(SimSet.BombSet.FloodSettings.Shape == AFloodSettings::Rectangular ? 0 : 1);
+    ui->ledFloodXfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Xfrom));
+    ui->ledFloodXto->setText(QString::number(SimSet.BombSet.FloodSettings.Xto));
+    ui->ledFloodYfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Yfrom));
+    ui->ledFloodYto->setText(QString::number(SimSet.BombSet.FloodSettings.Yto));
+    ui->ledFloodCenterX->setText(QString::number(SimSet.BombSet.FloodSettings.X0));
+    ui->ledFloodCenterY->setText(QString::number(SimSet.BombSet.FloodSettings.Y0));
+    ui->ledFloodOuterDiameter->setText(QString::number(SimSet.BombSet.FloodSettings.OuterDiameter));
+    ui->ledFloodInnerDiameter->setText(QString::number(SimSet.BombSet.FloodSettings.InnerDiameter));
+    ui->cobFloodZmode->setCurrentIndex(SimSet.BombSet.FloodSettings.Zmode == AFloodSettings::Fixed ? 0 : 1);
+    ui->ledFloodZ->setText(QString::number(SimSet.BombSet.FloodSettings.Zfixed));
+    ui->ledFloodZfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Zfrom));
+    ui->ledFloodZto->setText(QString::number(SimSet.BombSet.FloodSettings.Zto));
 }
 
 void A3PhotSimWin::updateGeneralSettingsGui()
@@ -201,5 +218,63 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     qApp->processEvents();
 
     APhotonSimManager::getInstance().simulate();
+}
+
+
+void A3PhotSimWin::on_sbFloodNumber_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();
+}
+void A3PhotSimWin::on_cobFloodShape_activated(int index)
+{
+    SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
+}
+void A3PhotSimWin::on_ledFloodXfrom_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodXto_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodYfrom_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodYto_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodCenterX_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodCenterY_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodOuterDiameter_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodInnerDiameter_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
+}
+void A3PhotSimWin::on_cobFloodZmode_activated(int index)
+{
+    SimSet.BombSet.FloodSettings.Zmode = (index == 0 ? AFloodSettings::Fixed : AFloodSettings::Range);
+}
+void A3PhotSimWin::on_ledFloodZ_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodZfrom_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
+}
+void A3PhotSimWin::on_ledFloodZto_editingFinished()
+{
+    SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
 }
 
