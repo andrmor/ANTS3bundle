@@ -12,6 +12,7 @@ class AOneEvent;
 class APhotonTracer;
 class QFile;
 class QTextStream;
+class ARandomHub;
 
 class APhotonSimulator : public QObject
 {
@@ -33,6 +34,7 @@ protected:
     int     ID;
 
     const APhotonSimSettings & SimSet;
+    ARandomHub               & RandomHub;
 
     APhotonTracer * Tracer = nullptr;
     AOneEvent     * Event  = nullptr;

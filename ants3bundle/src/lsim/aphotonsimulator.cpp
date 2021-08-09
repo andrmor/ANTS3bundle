@@ -9,6 +9,7 @@
 #include "anoderecord.h"
 #include "aoneevent.h"
 #include "aphotontracer.h"
+#include "arandomhub.h"
 #include "ajsontools.h"
 
 #include <QFile>
@@ -25,7 +26,8 @@
 
 APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir, int id) :
     ConfigFN(fileName), WorkingDir(dir), ID(id),
-    SimSet(APhotonSimHub::getConstInstance().Settings)
+    SimSet(APhotonSimHub::getConstInstance().Settings),
+    RandomHub(ARandomHub::getInstance())
 {
     ALogger::getInstance().open(QString("PhotonSimLog-%0.log").arg(ID));
     LOG << "Working Dir: " << WorkingDir << "\n";
@@ -136,6 +138,7 @@ void APhotonSimulator::saveSensorSignals()
 {
     for (auto sig : qAsConst(Event->PMhits))
         *StreamSensorSignals << sig << ' ';
+    *StreamSensorSignals << '\n';
 }
 
 void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
@@ -230,6 +233,8 @@ void APhotonSimulator::setupPhotonBombs()
         }
     }
 */
+
+/*
     EventsToDo = 0;
     switch (SimSet.BombSet.GenerationMode)
     {
@@ -242,7 +247,7 @@ void APhotonSimulator::setupPhotonBombs()
         break;
     }
     case EBombGen::Flood :
-//        EventsToDo = PhotSimSettings.FloodSettings.Nodes;
+        EventsToDo = SimSet.BombSet.FloodSettings.Number;
         break;
     case EBombGen::File :
 //        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
@@ -257,6 +262,8 @@ void APhotonSimulator::setupPhotonBombs()
 //        ErrorString = "Unknown or not implemented photon simulation mode";
         break;
     }
+*/
+
 }
 
 void APhotonSimulator::simulatePhotonBombs()
@@ -273,7 +280,7 @@ void APhotonSimulator::simulatePhotonBombs()
 //        fSuccess = simulateRegularGrid();
         break;
     case EBombGen::Flood :
-//        fSuccess = simulateFlood();
+        fSuccess = simulateFlood();
         break;
     case EBombGen::File :
     {
@@ -412,13 +419,13 @@ bool APhotonSimulator::simulateGrid()
 
 bool APhotonSimulator::simulateFlood()
 {
-/*
-    const APhotonSim_FloodSettings & FloodSet = PhotSimSettings.FloodSettings;
+    qDebug() << "aaaaaaaa";
+    const AFloodSettings & FloodSet = SimSet.BombSet.FloodSettings;
 
     //extracting flood parameters
     double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
     double Rad2in, Rad2out;
-    if (FloodSet.Shape == APhotonSim_FloodSettings::Rectangular)
+    if (FloodSet.Shape == AFloodSettings::Rectangular)
     {
         Xfrom = FloodSet.Xfrom;
         Xto =   FloodSet.Xto;
@@ -429,8 +436,8 @@ bool APhotonSimulator::simulateFlood()
     {
         CenterX = FloodSet.X0;
         CenterY = FloodSet.Y0;
-        RadiusIn = 0.5 * FloodSet.InnerD;
-        RadiusOut = 0.5 * FloodSet.OuterD;
+        RadiusIn = 0.5 * FloodSet.InnerDiameter;
+        RadiusOut = 0.5 * FloodSet.OuterDiameter;
 
         Rad2in  = RadiusIn  * RadiusIn;
         Rad2out = RadiusOut * RadiusOut;
@@ -440,46 +447,42 @@ bool APhotonSimulator::simulateFlood()
         Yto     = CenterY + RadiusOut;
     }
     double Zfixed, Zfrom, Zto;
-    if (FloodSet.ZMode == APhotonSim_FloodSettings::Fixed)
-    {
+    if (FloodSet.Zmode == AFloodSettings::Fixed)
         Zfixed = FloodSet.Zfixed;
-    }
     else
     {
         Zfrom = FloodSet.Zfrom;
         Zto =   FloodSet.Zto;
     }
 
-    //Do flood
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
-    int nodeCount = (eventEnd - eventBegin);
-    eventCurrent = 0;
-    int WatchdogThreshold = 100000;
-    double updateFactor = 100.0 / (NumRuns*nodeCount);
-    for (int inode = 0; inode < nodeCount; inode++)
+//    int WatchdogThreshold = 100000;
+//    double UpdateFactor = 100.0 / EventsToDo;
+    for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        if(fStopRequested) return false;
-
-        //choosing node coordinates
-        node->R[0] = Xfrom + (Xto - Xfrom) * RandGen->Rndm();
-        node->R[1] = Yfrom + (Yto - Yfrom) * RandGen->Rndm();
-
-        //running this node
-        if (FloodSet.Shape == APhotonSim_FloodSettings::Ring)
+        qDebug() << "Simulating flood, Event#" << CurrentEvent;
+        while (true)
         {
-            double r2  = (node->R[0] - CenterX)*(node->R[0] - CenterX) + (node->R[1] - CenterY)*(node->R[1] - CenterY);
-            if ( r2 > Rad2out || r2 < Rad2in )
+            if (bStopRequested) return false;
+
+            node->R[0] = Xfrom + (Xto - Xfrom) * RandomHub.uniform();
+            node->R[1] = Yfrom + (Yto - Yfrom) * RandomHub.uniform();
+
+            if (FloodSet.Shape == AFloodSettings::Ring)
             {
-                inode--;
-                continue;
+                double r2  = (node->R[0] - CenterX)*(node->R[0] - CenterX) + (node->R[1] - CenterY)*(node->R[1] - CenterY);
+                if ( r2 > Rad2out || r2 < Rad2in )
+                    continue;
             }
+            break;
         }
 
-        if (FloodSet.ZMode == APhotonSim_FloodSettings::Fixed)
+        if (FloodSet.Zmode == AFloodSettings::Fixed)
             node->R[2] = Zfixed;
         else
-            node->R[2] = Zfrom + (Zto - Zfrom) * RandGen->Rndm();
+            node->R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
 
+/*
         if (bLimitToVolume && !isInsideLimitingObject(node->R))
         {
             WatchdogThreshold--;
@@ -492,16 +495,14 @@ bool APhotonSimulator::simulateFlood()
             inode--;
             continue;
         }
-
-        for (int irun = 0; irun < NumRuns; irun++)
-        {
-            simulateOneNode(*node);
-            eventCurrent++;
-            progress = eventCurrent * updateFactor;
-            if (fStopRequested) return false;
-        }
-    }
 */
+
+        simulatePhotonBombCluster(*node);
+
+        EventsDone++;
+//        progress = EventsDone * UpdateFactor;
+    }
+
     return true;
 }
 
