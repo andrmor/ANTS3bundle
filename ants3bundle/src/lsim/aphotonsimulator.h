@@ -34,13 +34,14 @@ protected:
 
     const APhotonSimSettings & SimSet;
 
-    APhotonTracer * Tracer;
-    AOneEvent * Event;
+    APhotonTracer * Tracer = nullptr;
+    AOneEvent     * Event  = nullptr;
 
     APhoton Photon;
 
-    int  EventsToDo = 0;
-    int  EventsDone = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
+    int CurrentEvent = 0;
+    int  EventsToDo  = 0;
+    int  EventsDone  = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
 
     bool bStopRequested = false;
     bool bHardAbortWasTriggered = false;
@@ -50,13 +51,16 @@ protected:
     QFile       * FileSensorSignals   = nullptr;
     QTextStream * StreamSensorSignals = nullptr;
 
+    QFile       * FilePhotonBombs     = nullptr;
+    QTextStream * StreamPhotonBombs   = nullptr;
+
 private:
     void loadConfig();
     void setupCommonProperties();
     void setupPhotonBombs();
     void simulatePhotonBombs();
     void terminate(const QString & reason);
-    void simulateOneNode(ANodeRecord & node);
+    void simulatePhotonBombCluster(ANodeRecord & node);
     void generateAndTracePhotons(const ANodeRecord * node);
     bool simulateSingle();
     bool simulateGrid();
@@ -67,7 +71,8 @@ private:
 
     QString openOutput();
     void    saveEventMarker();
-    void    saveEventOutput();
+    void    saveSensorSignals();
+    void    savePhotonBomb(ANodeRecord *node);
 };
 
 #endif // APHOTONSIMULATOR_H

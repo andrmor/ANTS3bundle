@@ -45,6 +45,10 @@ APhotonSimulator::~APhotonSimulator()
     if (FileSensorSignals) FileSensorSignals->close();
     delete StreamSensorSignals;
     delete FileSensorSignals;
+
+    if (FilePhotonBombs) FilePhotonBombs->close();
+    delete StreamPhotonBombs;
+    delete FilePhotonBombs;
 }
 
 void APhotonSimulator::start()
@@ -81,34 +85,51 @@ void APhotonSimulator::setupCommonProperties()
 
 QString APhotonSimulator::openOutput()
 {
-    const APhotSimRunSettings & RS = APhotonSimHub::getConstInstance().Settings.RunSet;
-    if (RS.SaveSensorSignals)
+    if (SimSet.RunSet.SaveSensorSignals)
     {
-        FileSensorSignals = new QFile(RS.FileNameSensorSignals, this);
-        if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + RS.FileNameSensorSignals;
+        FileSensorSignals = new QFile(SimSet.RunSet.FileNameSensorSignals, this);
+        if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + SimSet.RunSet.FileNameSensorSignals;
         StreamSensorSignals = new QTextStream(FileSensorSignals);
     }
+
+    if (SimSet.RunSet.SavePhotonBombs)
+    {
+        FilePhotonBombs = new QFile(SimSet.RunSet.FileNamePhotonBombs, this);
+        if (!FilePhotonBombs->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon bombs' data: " + SimSet.RunSet.FileNamePhotonBombs;
+        StreamPhotonBombs = new QTextStream(FilePhotonBombs);
+    }
+
+
 
     return "";
 }
 
 void APhotonSimulator::saveEventMarker()
 {
-    // no need to make marker for SensorSignals
+    // no need to make marker for SensorSignals?
+
+    if (SimSet.RunSet.SavePhotonBombs)
+    {
+        *StreamPhotonBombs << '#' << ' ' << CurrentEvent << '\n';
+    }
 }
 
-void APhotonSimulator::saveEventOutput()
+void APhotonSimulator::saveSensorSignals()
 {
-    if (StreamSensorSignals)
-    {
-        for (auto sig : qAsConst(Event->PMhits))
-            *StreamSensorSignals << sig << ' ';
-    }
+    for (auto sig : qAsConst(Event->PMhits))
+        *StreamSensorSignals << sig << ' ';
+}
+
+void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
+{
+    *StreamPhotonBombs << node->R[0] << ' ' << node->R[1] << ' ' << node->R[2] << ' ' << node->Time << ' ' << node->NumPhot << '\n';
 }
 
 void APhotonSimulator::setupPhotonBombs()
 {
     Photon.SecondaryScint = false;
+
+    CurrentEvent = SimSet.RunSet.EventFrom;
 /*
     bLimitToVolume = PhotSimSettings.bLimitToVol;
     if (bLimitToVolume)
@@ -271,7 +292,7 @@ bool APhotonSimulator::simulateSingle()
     const double * Position = SimSet.BombSet.Position;
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
 
-    simulateOneNode(*node);
+    simulatePhotonBombCluster(*node);
     if (bStopRequested) return false;
     return true;
 }
@@ -587,16 +608,16 @@ void APhotonSimulator::loadConfig()
     LOG.flush();
 }
 
-void APhotonSimulator::simulateOneNode(ANodeRecord & node)
+void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
 {
     ANodeRecord * thisNode = &node;
 
-    const int numPoints = 1 + thisNode->getNumberOfLinkedNodes();
+    const int numBombs = 1 + thisNode->getNumberOfLinkedNodes();
     Event->clearHits();
 
-    //writeNewEventMarker();
+    saveEventMarker();
 
-    for (int iPoint = 0; iPoint < numPoints; iPoint++)
+    for (int iPoint = 0; iPoint < numBombs; iPoint++)
     {
         const bool bInside = true; // TODO:    !(bLimitToVolume && !isInsideLimitingObject(thisNode->R));
         if (bInside)
@@ -609,6 +630,8 @@ void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 
         generateAndTracePhotons(thisNode);
 
+        if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(thisNode);
+
         //if exists, continue to work with the linked node(s)
         thisNode = thisNode->getLinkedNode();
         if (!thisNode) break; //paranoic
@@ -616,7 +639,7 @@ void APhotonSimulator::simulateOneNode(ANodeRecord & node)
 
     Event->HitsToSignal();
 
-    saveEventOutput();
+    if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
 }
 
 #include "ageometryhub.h"

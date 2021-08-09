@@ -69,7 +69,10 @@ public:
     int     EventTo;
 
     bool    SaveSensorSignals = true;
-    QString FileNameSensorSignals = "SensorSignals";
+    QString FileNameSensorSignals = "SensorSignals.txt";
+
+    bool    SavePhotonBombs = true;
+    QString FileNamePhotonBombs = "PhotonBombs.txt";
 
     bool    SaveTracks = true;
     int     MaxTracks;
