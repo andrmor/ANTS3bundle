@@ -168,7 +168,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="cobScanNumPhotonsMode">
+               <widget class="QComboBox" name="cobNumPhotonsMode">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -210,7 +210,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QStackedWidget" name="swScan3">
+               <widget class="QStackedWidget" name="swNumPhotons">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -245,7 +245,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QSpinBox" name="sbScanNumPhotons">
+                   <widget class="QSpinBox" name="sbNumPhotons">
                     <property name="maximumSize">
                      <size>
                       <width>110</width>
@@ -310,7 +310,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledScanPoissonMean">
+                   <widget class="QLineEdit" name="ledPoissonMean">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
@@ -382,7 +382,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="sbScanNumMin">
+                     <widget class="QSpinBox" name="sbNumMin">
                       <property name="minimum">
                        <number>1</number>
                       </property>
@@ -437,7 +437,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="sbScanNumMax">
+                     <widget class="QSpinBox" name="sbNumMax">
                       <property name="minimum">
                        <number>1</number>
                       </property>
@@ -484,55 +484,6 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_31">
-                    <property name="rightMargin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QLabel" name="label_89">
-                      <property name="minimumSize">
-                       <size>
-                        <width>50</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>Sigma:</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="ledScanGaussSigma">
-                      <property name="maximumSize">
-                       <size>
-                        <width>100</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>2.5</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_30">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_30">
                     <property name="rightMargin">
                      <number>0</number>
@@ -554,7 +505,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="ledScanGaussMean">
+                     <widget class="QLineEdit" name="ledGaussMean">
                       <property name="maximumSize">
                        <size>
                         <width>100</width>
@@ -568,6 +519,55 @@
                     </item>
                     <item>
                      <spacer name="horizontalSpacer_8">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_31">
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_89">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Sigma:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ledGaussSigma">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>2.5</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_30">
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
                       </property>
@@ -598,7 +598,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QPushButton" name="pbScanDistrShow">
+                   <widget class="QPushButton" name="pbNumDistShow">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -624,7 +624,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="pbScanDistrLoad">
+                   <widget class="QPushButton" name="pbNumDistLoad">
                     <property name="maximumSize">
                      <size>
                       <width>80</width>
@@ -648,7 +648,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="pbScanDistrDelete">
+                   <widget class="QPushButton" name="pbNumDistDelete">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -3104,9 +3104,9 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    </hints>
   </connection>
   <connection>
-   <sender>cobScanNumPhotonsMode</sender>
+   <sender>cobNumPhotonsMode</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>swScan3</receiver>
+   <receiver>swNumPhotons</receiver>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3142,12 +3142,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>233</y>
+     <x>115</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
-     <x>284</x>
-     <y>276</y>
+     <x>115</x>
+     <y>228</y>
     </hint>
    </hints>
   </connection>
@@ -3158,12 +3158,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>278</y>
+     <x>115</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
-     <x>470</x>
-     <y>314</y>
+     <x>115</x>
+     <y>228</y>
     </hint>
    </hints>
   </connection>

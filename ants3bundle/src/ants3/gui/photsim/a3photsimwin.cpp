@@ -50,9 +50,10 @@ void A3PhotSimWin::updateGui()
 
 void A3PhotSimWin::updatePhotBombGui()
 {
+    const APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
     {
         int index;
-        switch (SimSet.BombSet.PhotonsPerBomb.Mode)
+        switch (PS.Mode)
         {
         default:
         case APhotonsPerBombSettings::Constant : index = 0; break;
@@ -61,7 +62,14 @@ void A3PhotSimWin::updatePhotBombGui()
         case APhotonsPerBombSettings::Normal   : index = 3; break;
         case APhotonsPerBombSettings::Custom   : index = 4; break;
         }
-        ui->cobScanNumPhotonsMode->setCurrentIndex(index);
+        ui->cobNumPhotonsMode->setCurrentIndex(index);
+
+        ui->sbNumPhotons->setValue(PS.FixedNumber);
+        ui->ledPoissonMean->setText( QString::number(PS.PoissonMean) );
+        ui->sbNumMin->setValue(PS.UniformMin);
+        ui->sbNumMax->setValue(PS.UniformMax);
+        ui->ledGaussMean->setText( QString::number(PS.NormalMean) );
+        ui->ledGaussSigma->setText( QString::number(PS.NormalSigma) );
     }
 
     {
@@ -278,5 +286,43 @@ void A3PhotSimWin::on_ledFloodZfrom_editingFinished()
 void A3PhotSimWin::on_ledFloodZto_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
+}
+
+
+void A3PhotSimWin::on_sbNumPhotons_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.FixedNumber = ui->sbNumPhotons->value();
+}
+void A3PhotSimWin::on_ledPoissonMean_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.PoissonMean = ui->ledPoissonMean->text().toDouble();
+}
+void A3PhotSimWin::on_sbNumMin_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.UniformMin = ui->sbNumMin->value();
+}
+void A3PhotSimWin::on_sbNumMax_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.UniformMax = ui->sbNumMax->value();
+}
+void A3PhotSimWin::on_ledGaussSigma_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.NormalSigma = ui->ledGaussSigma->text().toDouble();
+}
+void A3PhotSimWin::on_ledGaussMean_editingFinished()
+{
+    SimSet.BombSet.PhotonsPerBomb.NormalMean = ui->ledGaussMean->text().toDouble();
+}
+void A3PhotSimWin::on_pbNumDistShow_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbNumDistLoad_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbNumDistDelete_clicked()
+{
+
 }
 

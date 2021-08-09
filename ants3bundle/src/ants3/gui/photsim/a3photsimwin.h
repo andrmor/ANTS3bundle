@@ -55,6 +55,16 @@ private slots:
     void on_ledFloodZfrom_editingFinished();
     void on_ledFloodZto_editingFinished();
 
+    void on_sbNumPhotons_editingFinished();
+    void on_ledPoissonMean_editingFinished();
+    void on_sbNumMin_editingFinished();
+    void on_sbNumMax_editingFinished();
+    void on_ledGaussSigma_editingFinished();
+    void on_ledGaussMean_editingFinished();
+    void on_pbNumDistShow_clicked();
+    void on_pbNumDistLoad_clicked();
+    void on_pbNumDistDelete_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
