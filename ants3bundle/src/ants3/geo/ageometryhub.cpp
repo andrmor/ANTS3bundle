@@ -538,6 +538,8 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 {
     if (!obj->fActive) return;
 
+    ASensorHub & SensorHub = ASensorHub::getInstance();
+
     TGeoVolume     * vol    = nullptr;
     TGeoCombiTrans * lTrans = nullptr;
 
@@ -592,7 +594,12 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
         else
-            parent->AddNode(vol, forcedNodeNumber, lTrans);
+        {
+            if (obj->Role && obj->Role->getType() == "Sensor")
+                parent->AddNode(vol, SensorHub.Sensors.size(), lTrans); // attach to Sensors container below in the >SetTitle block
+            else
+                parent->AddNode(vol, forcedNodeNumber, lTrans);
+        }
     }
 
     // Position hosted objects
@@ -613,7 +620,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
     if      (obj->Type->isMonitor())                        vol->SetTitle("M---");
     else if (obj->Role && obj->Role->getType() == "Sensor")
     {
-        ASensorHub::getInstance().Sensors.push_back(obj);   vol->SetTitle("P---");
+        SensorHub.Sensors.push_back(obj);                   vol->SetTitle("P---");
     }
     else if (obj->Type->isGrid())                           vol->SetTitle("G---");
     else                                                    vol->SetTitle("----");
