@@ -9,6 +9,7 @@
 #include "anoderecord.h"
 #include "aoneevent.h"
 #include "aphotontracer.h"
+#include "ajsontools.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -20,6 +21,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <cmath>
 
 APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir, int id) :
     ConfigFN(fileName), WorkingDir(dir), ID(id),
@@ -141,8 +143,6 @@ void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
     *StreamPhotonBombs << node->R[0] << ' ' << node->R[1] << ' ' << node->R[2] << ' ' << node->Time << ' ' << node->NumPhot << '\n';
 }
 
-#include "ajsontools.h"
-#include <cmath>
 void APhotonSimulator::saveTrack()
 {
     QJsonObject json;
@@ -325,7 +325,7 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 
 bool APhotonSimulator::simulateSingle()
 {
-    const double * Position = SimSet.BombSet.Position;
+    const double * Position = SimSet.BombSet.SingleSettings.Position;
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
 
     simulatePhotonBombCluster(*node);

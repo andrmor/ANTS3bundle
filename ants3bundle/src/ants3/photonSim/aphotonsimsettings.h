@@ -43,20 +43,53 @@ public:
     void   readFromJson(const QJsonObject & json);
 };
 
+class ASingleSettings
+{
+public:
+    double  Position[3];
+
+    void    clearSettings();
+
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
+};
+
+class AFloodSettings
+{
+public:
+    enum AShapeEnum {Rectangular = 0, Ring = 1};
+    enum AZEnum     {Fixed = 0, Range = 1};
+
+    int        Number   = 100;
+    AShapeEnum Shape    = Rectangular;
+    double     Xfrom    = -15.0;
+    double     Xto      =  15.0;
+    double     Yfrom    = -15.0;
+    double     Yto      =  15.0;
+    double     X0       = 0;
+    double     Y0       = 0;
+    double     OuterDiameter   = 300.0;
+    double     InnerDiameter   = 0;
+    AZEnum     Zmode    = Fixed;
+    double     Zfixed   = 0;
+    double     Zfrom    = 0;
+    double     Zto      = 0;
+
+    void    clearSettings();
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
+};
+
 class APhotonBombsSettings
 {
 public:
-
-    // TODO reformat!
-
     // Number of photons
     EBombPhNumber       PhotonNumberMode = EBombPhNumber::Constant;
 
     // generation type
     EBombGen            GenerationMode   = EBombGen::Single;
-
-    // Single
-    double Position[3];
+    ASingleSettings     SingleSettings;
+    AFloodSettings      FloodSettings;
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);

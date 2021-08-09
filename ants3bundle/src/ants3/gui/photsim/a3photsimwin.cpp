@@ -78,9 +78,9 @@ void A3PhotSimWin::updatePhotBombGui()
         ui->cobNodeGenerationMode->setCurrentIndex(index);
     }
 
-    ui->ledSingleX->setText(QString::number(SimSet.BombSet.Position[0]));
-    ui->ledSingleY->setText(QString::number(SimSet.BombSet.Position[1]));
-    ui->ledSingleZ->setText(QString::number(SimSet.BombSet.Position[2]));
+    ui->ledSingleX->setText(QString::number(SimSet.BombSet.SingleSettings.Position[0]));
+    ui->ledSingleY->setText(QString::number(SimSet.BombSet.SingleSettings.Position[1]));
+    ui->ledSingleZ->setText(QString::number(SimSet.BombSet.SingleSettings.Position[2]));
 }
 
 void A3PhotSimWin::updateGeneralSettingsGui()
@@ -181,17 +181,17 @@ void A3PhotSimWin::on_cobNodeGenerationMode_activated(int index)
 
 void A3PhotSimWin::on_ledSingleX_editingFinished()
 {
-    SimSet.BombSet.Position[0] = ui->ledSingleX->text().toDouble();
+    SimSet.BombSet.SingleSettings.Position[0] = ui->ledSingleX->text().toDouble();
 }
 
 void A3PhotSimWin::on_ledSingleY_editingFinished()
 {
-    SimSet.BombSet.Position[1] = ui->ledSingleY->text().toDouble();
+    SimSet.BombSet.SingleSettings.Position[1] = ui->ledSingleY->text().toDouble();
 }
 
 void A3PhotSimWin::on_ledSingleZ_editingFinished()
 {
-    SimSet.BombSet.Position[2] = ui->ledSingleZ->text().toDouble();
+    SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
 void A3PhotSimWin::on_pbSimulate_clicked()

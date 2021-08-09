@@ -126,6 +126,105 @@ void APhotOptSettings::readFromJson(const QJsonObject &json)
 
 // ---
 
+void ASingleSettings::clearSettings()
+{
+    Position[0] = Position[1] = Position[2] = 0;
+}
+
+void ASingleSettings::writeToJson(QJsonObject &json) const
+{
+    QJsonObject js;
+        QJsonArray ar;
+        for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
+    json["Position"] = ar;
+}
+
+QString ASingleSettings::readFromJson(const QJsonObject & json)
+{
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, "Position", ar);
+    if (ok && ar.size() == 3)
+        for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
+    else return "Error in single photon bomb position data";
+    return "";
+}
+
+// ---
+
+void AFloodSettings::clearSettings()
+{
+    Number   = 100;
+    Shape    = Rectangular;
+    Xfrom    = -15.0;
+    Xto      =  15.0;
+    Yfrom    = -15.0;
+    Yto      =  15.0;
+    X0       = 0;
+    Y0       = 0;
+    OuterDiameter   = 300.0;
+    InnerDiameter   = 0;
+    Zmode    = Fixed;
+    Zfixed   = 0;
+    Zfrom    = 0;
+    Zto      = 0;
+}
+
+void AFloodSettings::writeToJson(QJsonObject &json) const
+{
+    json["Number"]        = Number;
+    json["Shape"]         = (Shape == Rectangular ? "rectangle" : "ring");
+    json["Xfrom"]         = Xfrom;
+    json["Xto"]           = Xto;
+    json["Yfrom"]         = Yfrom;
+    json["Yto"]           = Yto;
+    json["CenterX"]       = X0;
+    json["CenterY"]       = Y0;
+    json["OuterDiameter"] = OuterDiameter;
+    json["InnerDiameter"] = InnerDiameter;
+    json["Zmode"]         = (Zmode == Fixed ? "fixed" : "range");
+    json["Zfixed"]        = Zfixed;
+    json["Zfrom"]         = Zfrom;
+    json["Zto"]           = Zto;
+}
+
+QString AFloodSettings::readFromJson(const QJsonObject & json)
+{
+    clearSettings();
+
+    jstools::parseJson(json, "Number", Number);
+
+    QString shapeStr = "undefined";
+    jstools::parseJson(json, "Shape", shapeStr);
+    if      (shapeStr == "rectangle") Shape = Rectangular;
+    else if (shapeStr == "ring")      Shape = Ring;
+    else return "Unknown flood shape: " + shapeStr;
+
+    jstools::parseJson(json, "Xfrom", Xfrom);
+    jstools::parseJson(json, "Xto",   Xto);
+    jstools::parseJson(json, "Yfrom", Yfrom);
+    jstools::parseJson(json, "Yto",   Yto);
+
+    jstools::parseJson(json, "CenterX", X0);
+    jstools::parseJson(json, "CenterY", Y0);
+
+    jstools::parseJson(json, "OuterDiameter", OuterDiameter);
+    jstools::parseJson(json, "InnerDiameter", InnerDiameter);
+
+    QString zStr = "undefined";
+    jstools::parseJson(json, "Zmode", zStr);
+    if      (zStr == "fixed") Zmode = Fixed;
+    else if (zStr == "range") Zmode = Range;
+    else return "Unknown Z mode for flood: " + zStr;
+
+    jstools::parseJson(json, "Zfixed", Zfixed);
+    jstools::parseJson(json, "Zfrom",  Zfrom);
+    jstools::parseJson(json, "Zto",    Zto);
+
+    return "";
+}
+
+// ---
+
 void APhotonBombsSettings::writeToJson(QJsonObject & json) const
 {
     // PhotonNumberMode
@@ -160,12 +259,17 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
     // Single
     {
         QJsonObject js;
-            QJsonArray ar;
-            for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
-            js["Position"] = ar;
-        json["SingleMode"] = js;
+        SingleSettings.writeToJson(js);
+        json["Single"] = js;
     }
     // Grid
+
+    //Flood
+    {
+        QJsonObject js;
+        FloodSettings.writeToJson(js);
+        json["Flood"] = js;
+    }
 
 }
 
@@ -209,19 +313,19 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
     // Single
     {
         QJsonObject js;
-        jstools::parseJson(json, "SingleMode", js);
-            QJsonArray ar;
-            bool ok = jstools::parseJson(js, "Position", ar);
-            if (ok && ar.size() == 3)
-                for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
-            else
-            {
-                qWarning() << "Error in loading Position for Single mode";
-                for (int i = 0; i < 3 ; i++) Position[i] = 0;
-            }
+        jstools::parseJson(json, "Single", js);
+        QString ErrorString = SingleSettings.readFromJson(js);
+        if (!ErrorString.isEmpty()) return ErrorString;
     }
     // Grid
 
+    //Flood
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Flood", js);
+        QString ErrorString = FloodSettings.readFromJson(js);
+        if (!ErrorString.isEmpty()) return ErrorString;
+    }
 
     return "";
 }
