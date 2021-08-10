@@ -61,6 +61,8 @@ private slots:
     void on_pbNumDistLoad_clicked();
     void on_pbNumDistDelete_clicked();
 
+    void on_pbConfigureOutput_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;

@@ -61,6 +61,7 @@ SOURCES += \
     geo/ageospecial.cpp \
     gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
+    gui/photsim/aphotonsimoutputdialog.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -132,6 +133,7 @@ HEADERS += \
     geo/ageospecial.h \
     gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfacewidgetfactory.h \
+    gui/photsim/aphotonsimoutputdialog.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
@@ -208,6 +210,7 @@ FORMS += \
         gui/mainwindow.ui \
         gui/materials/a3matwin.ui \
         gui/photsim/a3photsimwin.ui \
+        gui/photsim/aphotonsimoutputdialog.ui \
         gui/raster/acameracontroldialog.ui
 
 RESOURCES += \

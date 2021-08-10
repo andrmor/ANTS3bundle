@@ -115,21 +115,23 @@ public:
 class APhotSimRunSettings
 {
 public:
-    int     EventFrom;
-    int     EventTo;
+    int     EventFrom = 0;
+    int     EventTo   = 0;
 
-    bool    SaveSensorSignals = true;
+    QString OutputDirectory;
+
+    bool    SaveSensorSignals     = true;
     QString FileNameSensorSignals = "SensorSignals.txt";
 
-    bool    SavePhotonBombs = true;
-    QString FileNamePhotonBombs = "PhotonBombs.txt";
+    bool    SavePhotonBombs       = true;
+    QString FileNamePhotonBombs   = "PhotonBombs.txt";
 
-    bool    SaveTracks = true;
-    int     MaxTracks;
-    QString FileNameTracks;
+    bool    SaveTracks            = true;
+    int     MaxTracks             = 1000;
+    QString FileNameTracks        = "Tracks.txt";
 
-    bool    SavePhotonLog = true;
-    QString FileNamePhotonLog;
+    bool    SavePhotonLog         = true;
+    QString FileNamePhotonLog     = "PhotonLog.txt";
 
     void    writeToJson(QJsonObject & json) const;
     void    readFromJson(const QJsonObject & json);

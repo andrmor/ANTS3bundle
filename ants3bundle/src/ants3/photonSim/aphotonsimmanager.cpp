@@ -31,7 +31,6 @@ bool APhotonSimManager::simulate(int numLocalProc)
         switch (SimSet.BombSet.GenerationMode)
         {
         case EBombGen::Single :
-            // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
             numEvents = 1;
             break;
         case EBombGen::Flood :

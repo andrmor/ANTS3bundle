@@ -346,3 +346,10 @@ void A3PhotSimWin::on_pbNumDistDelete_clicked()
 
 }
 
+#include "aphotonsimoutputdialog.h"
+void A3PhotSimWin::on_pbConfigureOutput_clicked()
+{
+    APhotonSimOutputDialog dialog(this);
+    dialog.exec();
+}
+
