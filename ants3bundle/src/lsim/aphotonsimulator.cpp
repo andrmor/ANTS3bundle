@@ -95,21 +95,21 @@ QString APhotonSimulator::openOutput()
 {
     if (SimSet.RunSet.SaveSensorSignals)
     {
-        FileSensorSignals = new QFile(SimSet.RunSet.FileNameSensorSignals, this);
+        FileSensorSignals = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameSensorSignals, this);
         if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + SimSet.RunSet.FileNameSensorSignals;
         StreamSensorSignals = new QTextStream(FileSensorSignals);
     }
 
     if (SimSet.RunSet.SavePhotonBombs)
     {
-        FilePhotonBombs = new QFile(SimSet.RunSet.FileNamePhotonBombs, this);
+        FilePhotonBombs = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNamePhotonBombs, this);
         if (!FilePhotonBombs->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon bombs' data: " + SimSet.RunSet.FileNamePhotonBombs;
         StreamPhotonBombs = new QTextStream(FilePhotonBombs);
     }
 
     if (SimSet.RunSet.SaveTracks)
     {
-        FileTracks = new QFile(SimSet.RunSet.FileNameTracks, this);
+        FileTracks = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameTracks, this);
         if (!FileTracks->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon tracks: " + SimSet.RunSet.FileNameTracks;
         StreamTracks = new QTextStream(FileTracks);
     }

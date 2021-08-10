@@ -178,7 +178,7 @@ void A3PhotSimWin::on_cobSimType_activated(int index)
     }
 }
 
-void A3PhotSimWin::on_cobScanNumPhotonsMode_activated(int index)
+void A3PhotSimWin::on_cobNumPhotonsMode_activated(int index)
 {
     APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
 

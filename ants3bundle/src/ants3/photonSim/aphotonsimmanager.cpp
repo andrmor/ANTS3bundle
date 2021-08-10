@@ -93,7 +93,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
-    Request.Command = "photonsim"; // name of the corresponding executable
+    Request.Command = "lsim"; // name of the corresponding executable
 
     const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
@@ -143,11 +143,20 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
             Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
 
             // config
+            /*
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
             QJsonObject jsSim;
             WorkSet.writeToJson(jsSim);
             QJsonObject json;
             A3Config::getInstance().formConfigForPhotonSimulation(jsSim, json);
+            jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
+            Worker.ConfigFile = ConfigFN;
+            */
+
+            QJsonObject json;
+            A3Config::getInstance().writeToJson(json);
+            WorkSet.writeToJson(json);
+            QString ConfigFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
             Worker.ConfigFile = ConfigFN;
 

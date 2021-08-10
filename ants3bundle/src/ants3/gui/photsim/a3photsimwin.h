@@ -21,24 +21,20 @@ public slots:
     void updateGui();
 
 private slots:
+    void on_pbSimulate_clicked();
+
     void on_pbdWave_clicked();
     void on_sbMaxNumbPhTransitions_editingFinished();
     void on_cbRndCheckBeforeTrack_clicked();
     void on_pbQEacceleratorHelp_clicked();
 
     void on_cobSimType_activated(int index);
-
-    void on_cobScanNumPhotonsMode_activated(int index);
-
+    void on_cobNumPhotonsMode_activated(int index);
     void on_cobNodeGenerationMode_activated(int index);
 
     void on_ledSingleX_editingFinished();
-
     void on_ledSingleY_editingFinished();
-
     void on_ledSingleZ_editingFinished();
-
-    void on_pbSimulate_clicked();
 
     void on_sbFloodNumber_editingFinished();
     void on_cobFloodShape_activated(int index);

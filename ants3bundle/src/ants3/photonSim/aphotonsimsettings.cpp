@@ -477,12 +477,13 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 {
     QJsonObject jsSim;
     bool ok = jstools::parseJson(json, "PhotonSim", jsSim);
-    if (!ok) return "Json does not contain photon sim settings!";
+    if (!ok) return "Json does not contain photon sim settings!\n";
 
     // Wave
     {
         QJsonObject js;
-        jstools::parseJson(jsSim, "WaveResolved", js);
+        ok = jstools::parseJson(jsSim, "WaveResolved", js);
+        if (!ok) return "Json does not contain wavelength-related settings!\n";
         WaveSet.readFromJson(js);
     }
     // Max trans and QE check before trace
@@ -502,7 +503,7 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         else
         {
             SimType = EPhotSimType::PhotonBombs;
-            return QString("Unknown photon simulation mode: %1 -> setting to 'bombs'").arg(str);
+            return QString("Unknown photon simulation mode: %1").arg(str);
         }
     }
     // Particular modes
