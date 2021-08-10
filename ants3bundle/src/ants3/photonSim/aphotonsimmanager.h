@@ -36,8 +36,6 @@ public slots:
 protected:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 
-signals:
-    void simFinished();
 };
 
 #endif // APHOTONSIMMANAGER_H

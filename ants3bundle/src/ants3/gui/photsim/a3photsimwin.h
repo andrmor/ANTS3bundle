@@ -69,6 +69,8 @@ private:
     void updateGeneralSettingsGui();
 
     void storeGeneralSettings();
+
+    void disableInterface(bool flag);
 };
 
 #endif // A3PHOTSIMWIN_H

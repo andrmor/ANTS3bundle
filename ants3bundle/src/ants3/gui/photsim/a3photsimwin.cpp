@@ -151,6 +151,15 @@ void A3PhotSimWin::storeGeneralSettings()
     SimSet.WaveSet.Step    = ui->ledWaveStep->text().toDouble();
 }
 
+void A3PhotSimWin::disableInterface(bool flag)
+{
+    ui->pbConfigureOutput->setDisabled(flag);
+    ui->pbSimulate->setDisabled(flag);
+
+    ui->progbSim->setEnabled(flag);
+    ui->pbAbort->setEnabled(flag);
+}
+
 void A3PhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
 {
     SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
@@ -224,12 +233,23 @@ void A3PhotSimWin::on_ledSingleZ_editingFinished()
 void A3PhotSimWin::on_pbSimulate_clicked()
 {
     ui->progbSim->setValue(0);
-    //disableInterface(true);
+    disableInterface(true);
     qApp->processEvents();
 
-    APhotonSimManager::getInstance().simulate();
-}
+    APhotonSimManager & SimMan = APhotonSimManager::getInstance();
+    bool ok = SimMan.simulate();
+    if (!ok)
+    {
+        ui->progbSim->setValue(0);
+        guitools::message("Simulation error:\n" + SimMan.ErrorString, this);
+    }
+    else
+    {
+        ui->progbSim->setValue(100);
+    }
 
+    disableInterface(false);
+}
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
 {
