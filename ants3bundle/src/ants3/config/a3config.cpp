@@ -4,6 +4,7 @@
 #include "amaterialhub.h"
 #include "aphotonsimhub.h"
 #include "ainterfacerulehub.h"
+#include "asensorhub.h"
 
 #include <QDebug>
 
@@ -24,7 +25,7 @@ void A3Config::writeToJson(QJsonObject & json) const
     AMaterialHub::getInstance().writeToJson(json);
     AGeometryHub::getInstance().writeToJson(json);
     AInterfaceRuleHub::getInstance().writeToJson(json);
-    // TODO: sensors
+    ASensorHub::getConstInstance().writeToJson(json); // !!!***
 
     APhotonSimHub::getConstInstance().writeToJson(json);
 
@@ -52,15 +53,7 @@ QString A3Config::readFromJson(const QJsonObject & json)
     if (!ErrorString.isEmpty()) return ErrorString;
     emit requestUpdatePhotSimGui();         // TODO: to the hub? !!!***
 
+    // !!!*** SensorHub
+
     return "";
-}
-
-void A3Config::formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json)
-{
-    AMaterialHub::getInstance().writeToJson(json);
-    AGeometryHub::getInstance().writeToJson(json);
-    AInterfaceRuleHub::getInstance().writeToJson(json);
-    // sensors
-
-    json["PhotonSim"] = jsSim;
 }

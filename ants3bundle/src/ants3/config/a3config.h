@@ -45,8 +45,6 @@ public:
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
-    void formConfigForPhotonSimulation(const QJsonObject & jsSim, QJsonObject & json);
-
 signals:
     void requestUpdateGeometryGui();
     void requestUpdatePhotSimGui();

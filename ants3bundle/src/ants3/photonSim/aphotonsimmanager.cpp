@@ -34,6 +34,9 @@ bool APhotonSimManager::simulate(int numLocalProc)
             // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
             numEvents = 1;
             break;
+        case EBombGen::Flood :
+            numEvents = SimSet.BombSet.FloodSettings.Number;
+            break;
         default:
             ErrorString = "Not yet implemented!";
             return false;
@@ -123,8 +126,15 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
                 case EBombGen::Single :
                     // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
                     WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = 0;
-                    WorkSet.RunSet.EventTo   = 1;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + 1;
+                    iEvent++;
+                    break;
+                case EBombGen::Flood :
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + num;
+                    iEvent += num;
                     break;
                 default:
                     ErrorString = "Not yet implemented!";
@@ -141,6 +151,8 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
             Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
             WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
             Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
+            WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0") .arg(iProcess);
+            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
 
             // config
             /*
