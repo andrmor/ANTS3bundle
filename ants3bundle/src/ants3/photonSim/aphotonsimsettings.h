@@ -115,6 +115,8 @@ public:
 class APhotSimRunSettings
 {
 public:
+    int     Seed = 0;
+
     int     EventFrom = 0;
     int     EventTo   = 0;
 

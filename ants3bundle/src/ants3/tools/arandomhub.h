@@ -18,12 +18,15 @@ private:
     ARandomHub& operator=(ARandomHub&&)      = delete;
 
 public:
-    TRandom2 * RandGen = nullptr;
+    void   setSeed(int seed);
 
     double uniform();
     double exp(double tau);
     double gauss(double mean, double sigma);
     double poisson(double mean);
+
+private:
+    TRandom2 * RandGen = nullptr;
 };
 
 #endif // ARANDOMHUB_H

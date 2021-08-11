@@ -120,6 +120,7 @@ SOURCES += \
     photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
     photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
     photonSim/interfaceRules/fsnpinterfacerule.cpp \
+    tools/afilemerger.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
@@ -194,6 +195,7 @@ HEADERS += \
     photonSim/interfaceRules/aspectralbasicinterfacerule.h \
     photonSim/interfaceRules/awaveshifterinterfacerule.h \
     photonSim/interfaceRules/fsnpinterfacerule.h \
+    tools/afilemerger.h \
     tools/ajsontools.h \
     tools/afiletools.h \
     gui/mainwindow.h \

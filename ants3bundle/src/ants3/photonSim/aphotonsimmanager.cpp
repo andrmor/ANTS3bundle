@@ -1,6 +1,7 @@
 #include "aphotonsimmanager.h"
 #include "aphotonsimhub.h"
 #include "aphotonsimsettings.h"
+#include "arandomhub.h"
 #include "a3config.h"
 #include "a3global.h"
 #include "a3dispinterface.h"
@@ -37,7 +38,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             numEvents = SimSet.BombSet.FloodSettings.Number;
             break;
         default:
-            ErrorString = "Not yet implemented!";
+            ErrorString = "This bomb generation mode is not implemented yet!";
             return false;
         }
         break;
@@ -45,10 +46,12 @@ bool APhotonSimManager::simulate(int numLocalProc)
         {
             // direct calculation here!
             // ...
-            return true;
+            //return true;
+            ErrorString = "This simulation mode is not implemented yet!";
+            return false;
         }
     default:
-        ErrorString = "Not yet implemented!";
+        ErrorString = "This simulation mode is not implemented yet!";
         return false;
     }
 
@@ -81,34 +84,43 @@ bool APhotonSimManager::simulate(int numLocalProc)
     QString Reply = Dispatcher.performTask(Request);
     qDebug() << "Reply message:" << Reply;
 
-    qDebug() << "Merging files...";
-    /*
-    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
-    ftools::mergeTextFiles(OutputFiles, ExchangeDir + '/' + ResultsFileName);
-    */
+    qDebug() << "Merging output files...";
+    const QString & OutputDir = SimSet.RunSet.OutputDirectory;
+    if (SimSet.RunSet.SaveSensorSignals) ErrorString += SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
+    if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
+    if (SimSet.RunSet.SavePhotonBombs)   ErrorString += BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
 
     qDebug() << "Photon simulation finished";
-    return true;
+    return ErrorString.isEmpty();
 }
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
+    // !!!*** enforce output and exchange directories exist!
+
     Request.Command = "lsim"; // name of the corresponding executable
 
     const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
 
+    SignalFileMerger.clear();
+    TrackFileMerger.clear();
+    BombFileMerger.clear();
+
+    ARandomHub & RandomHub = ARandomHub::getInstance();
+    RandomHub.setSeed(SimSet.RunSet.Seed);
+
     int iEvent = 0;
     int iProcess = 0;
     //OutputFiles.clear();
-    for (A3FarmNodeRecord & r : RunPlan)
+    for (A3FarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;
         nc.Port    = r.Port;
 
-        for (int num : r.Split)
+        for (int num : r.Split)            // per process at the node server
         {
             if (num == 0) break;
 
@@ -143,13 +155,28 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
                 return false;
             }
 
-            // standard output file names TODO: selective using ouput control!
-            WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
-            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
-            WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
-            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
-            WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0") .arg(iProcess);
-            Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
+            WorkSet.RunSet.Seed = INT_MAX * RandomHub.uniform();
+
+            // !!!*** refactor to a method
+            if (SimSet.RunSet.SaveSensorSignals)
+            {
+                WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
+                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
+                SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
+            }
+            if (SimSet.RunSet.SaveTracks)
+            {
+                WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
+                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
+                TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
+            }
+            if (SimSet.RunSet.SavePhotonBombs)
+            {
+                WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0") .arg(iProcess);
+                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
+                BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
+            }
+
 
             QJsonObject json;
             A3Config::getInstance().writeToJson(json);

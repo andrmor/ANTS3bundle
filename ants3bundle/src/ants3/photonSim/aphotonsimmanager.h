@@ -2,6 +2,7 @@
 #define APHOTONSIMMANAGER_H
 
 #include "a3farmnoderecord.h"
+#include "afilemerger.h"
 
 #include <QObject>
 #include <QString>
@@ -35,6 +36,11 @@ public slots:
 
 protected:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+
+private:
+    AFileMerger SignalFileMerger;
+    AFileMerger TrackFileMerger;
+    AFileMerger BombFileMerger;
 
 };
 

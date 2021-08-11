@@ -13,6 +13,11 @@ ARandomHub::ARandomHub()
     RandGen = new TRandom2();
 }
 
+void ARandomHub::setSeed(int seed)
+{
+    RandGen->SetSeed(seed);
+}
+
 double ARandomHub::uniform()
 {
     return RandGen->Rndm();

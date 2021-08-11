@@ -85,6 +85,8 @@ void APhotonSimulator::start()
 
 void APhotonSimulator::setupCommonProperties()
 {
+    RandomHub.setSeed(SimSet.RunSet.Seed);
+
     AMaterialHub::getInstance().updateRuntimeProperties();
 
     Event->init();

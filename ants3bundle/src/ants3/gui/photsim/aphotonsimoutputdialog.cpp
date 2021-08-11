@@ -44,6 +44,8 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
     RunSet.SavePhotonBombs       = ui->cbBombs->isChecked();
 
     RunSet.MaxTracks             = ui->sbMaxTracks->value();
+
+    accept();
 }
 
 void APhotonSimOutputDialog::on_pbChangeDir_clicked()
