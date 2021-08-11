@@ -1,5 +1,6 @@
 #include "a3photsimwin.h"
 #include "aphotonsimhub.h"
+#include "arandomhub.h"
 #include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
 #include "ui_a3photsimwin.h"
@@ -232,6 +233,8 @@ void A3PhotSimWin::on_ledSingleZ_editingFinished()
 
 void A3PhotSimWin::on_pbSimulate_clicked()
 {
+    SimSet.RunSet.Seed = INT_MAX * ARandomHub::getInstance().uniform();
+
     ui->progbSim->setValue(0);
     disableInterface(true);
     qApp->processEvents();
@@ -249,6 +252,15 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     }
 
     disableInterface(false);
+
+    if (ui->cbAutoLoadResults->isChecked())
+    {
+        if (SimSet.RunSet.SaveTracks)
+        {
+            ui->leTracksFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameTracks);
+            on_pbLoadAndShowTracks_clicked();
+        }
+    }
 }
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
@@ -351,5 +363,74 @@ void A3PhotSimWin::on_pbConfigureOutput_clicked()
 {
     APhotonSimOutputDialog dialog(this);
     dialog.exec();
+}
+
+
+// ========================= RESULTS ========================
+#include "ajsontools.h"
+#include "ageometryhub.h"
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include "TGeoManager.h"
+#include "TVirtualGeoTrack.h"
+#include "TGeoTrack.h"
+
+void A3PhotSimWin::on_pbSelectTracksFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with track data", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leTracksFile->setText(fileName);
+}
+
+void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
+{
+    const QString FileName = ui->leTracksFile->text();
+    QFile file(FileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    QTextStream in(&file);
+    while(!in.atEnd())
+    {
+        const QString line = in.readLine();
+        if (line.startsWith('#')) continue;
+
+        QJsonObject json = jstools::strToJson(line);
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "P", ar);
+        if (!ok)
+        {
+            guitools::message("Unknown file format!", this);
+            return;
+        }
+        const bool bHit = (json.contains("h") ? true : false);
+        const bool bSec = (json.contains("s") ? true : false);
+
+        TGeoTrack * track = new TGeoTrack(1, 22);
+        int Color = 7;
+        if (bSec) Color = kMagenta;
+        if (bHit) Color = 2;
+        track->SetLineColor(Color);
+        //track->SetLineWidth(th->Width);
+        //track->SetLineStyle(th->Style);
+
+        for (int iNode = 0; iNode < ar.size(); iNode++)
+        {
+            QJsonArray el = ar[iNode].toArray();
+            if (el.size() < 3) continue; // !!!***
+            track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
+        }
+        if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
+        else delete track;
+    }
+
+    emit requestShowGeometry(); // !!!***
+    emit requestShowTracks();
 }
 

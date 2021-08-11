@@ -742,7 +742,7 @@ void AGeometryWindow::ShowTracksAndMarkers()
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
-        DrawTracks();
+        ShowTracks();
         ShowGeoMarkers();
     }
     else
@@ -843,10 +843,10 @@ void AGeometryWindow::on_pbShowMonitorIndexes_clicked()
 
 void AGeometryWindow::on_pbShowTracks_clicked()
 {
-    DrawTracks();
+    ShowTracks();
 }
 
-void AGeometryWindow::DrawTracks()
+void AGeometryWindow::ShowTracks()
 {
     if (bDisableDraw) return;
 
@@ -872,7 +872,7 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
     GeoMarkers.append(marks1);
 
     ShowGeometry(false);
-    if (keepTracks) DrawTracks();
+    if (keepTracks) ShowTracks();
 }
 
 void AGeometryWindow::CenterView(double *r)

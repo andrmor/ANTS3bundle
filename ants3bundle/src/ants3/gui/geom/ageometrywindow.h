@@ -78,7 +78,7 @@ protected:
 
 public slots:
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
-    void DrawTracks();
+    void ShowTracks();
     void ShowPoint(double * r, bool keepTracks = false);
     void FocusVolume(QString name);
     void CenterView(double * r);

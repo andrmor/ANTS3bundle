@@ -49,6 +49,8 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     MatWin->initWindow();
 
     PhotSimWin = new A3PhotSimWin(this);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
 }
 
 MainWindow::~MainWindow()

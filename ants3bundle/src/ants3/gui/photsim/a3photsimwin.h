@@ -63,6 +63,10 @@ private slots:
 
     void on_pbConfigureOutput_clicked();
 
+    void on_pbSelectTracksFile_clicked();
+
+    void on_pbLoadAndShowTracks_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
@@ -73,6 +77,10 @@ private:
     void storeGeneralSettings();
 
     void disableInterface(bool flag);
+
+signals:
+    void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
+    void requestShowTracks();
 };
 
 #endif // A3PHOTSIMWIN_H
