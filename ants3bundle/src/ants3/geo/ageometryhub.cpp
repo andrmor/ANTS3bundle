@@ -904,6 +904,8 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "Geometry", js);
     if (!ok) return "Json does not contain geometry settings!";
 
+    clearWorld();
+
     QJsonArray arrGC;
     jstools::parseJson(js, "GeoConsts", arrGC);
     AGeoConsts::getInstance().readFromJsonArr(arrGC);
