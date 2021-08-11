@@ -395,6 +395,8 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
 
 void APhotSimRunSettings::writeToJson(QJsonObject & json) const
 {
+    json["Seed"]                  = Seed;
+
     json["EventFrom"]             = EventFrom;
     json["EventTo"]               = EventTo;
 
@@ -416,6 +418,8 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
 
 void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 {
+    jstools::parseJson(json, "Seed",                  Seed);
+
     jstools::parseJson(json, "EventFrom",             EventFrom);
     jstools::parseJson(json, "EventTo",               EventTo);
 
