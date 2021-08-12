@@ -12,6 +12,7 @@
 #include "ageometryhub.h"
 #include "a3matwin.h"
 #include "a3photsimwin.h"
+#include "ainterfacerulewin.h"
 
 #include <QDebug>
 
@@ -47,6 +48,9 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
+
+    RuleWin = new AInterfaceRuleWin(this);
+    RuleWin->updateGui();
 
     PhotSimWin = new A3PhotSimWin(this);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
@@ -204,5 +208,12 @@ void MainWindow::on_pbPhotSim_clicked()
 {
     PhotSimWin->showNormal();
     PhotSimWin->activateWindow();
+}
+
+
+void MainWindow::on_pbInterfaceRules_clicked()
+{
+    RuleWin->showNormal();
+    RuleWin->activateWindow();
 }
 

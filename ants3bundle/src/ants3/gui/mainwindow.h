@@ -13,6 +13,7 @@ class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
 class A3PhotSimWin;
+class AInterfaceRuleWin;
 
 class MainWindow : public QMainWindow
 {
@@ -26,16 +27,17 @@ public slots:
     void onProgressReceived(double progress);
 
 private:
-    A3Config        & Config;
-    A3ScriptManager & ScriptManager;
-    A3ScriptRes     & ScrRes;
+    A3Config          & Config;
+    A3ScriptManager   & ScriptManager;
+    A3ScriptRes       & ScrRes;
 
-    Ui::MainWindow  * ui = nullptr;
+    Ui::MainWindow    * ui = nullptr;
 
-    A3GeoConWin     * GeoConWin  = nullptr;
-    AGeometryWindow * GeoWin     = nullptr;
-    A3MatWin        * MatWin     = nullptr;
-    A3PhotSimWin    * PhotSimWin = nullptr;
+    A3GeoConWin       * GeoConWin  = nullptr;
+    AGeometryWindow   * GeoWin     = nullptr;
+    A3MatWin          * MatWin     = nullptr;
+    A3PhotSimWin      * PhotSimWin = nullptr;
+    AInterfaceRuleWin * RuleWin = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -53,6 +55,8 @@ private slots:
     void on_actionSave_configuration_triggered();
     void on_actionLoad_configuration_triggered();
     void on_pbPhotSim_clicked();
+
+    void on_pbInterfaceRules_clicked();
 
 private:
     void disableInterface(bool flag);

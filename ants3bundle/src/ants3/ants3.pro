@@ -60,6 +60,8 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     geo/ageospecial.cpp \
     gui/photsim/abombadvanceddialog.cpp \
+    gui/photsim/ainterfaceruledialog.cpp \
+    gui/photsim/ainterfacerulewin.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     photonSim/aphotonsimhub.cpp \
@@ -133,6 +135,8 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     geo/ageospecial.h \
     gui/photsim/abombadvanceddialog.h \
+    gui/photsim/ainterfaceruledialog.h \
+    gui/photsim/ainterfacerulewin.h \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     photonSim/aphotonsimhub.h \
@@ -212,6 +216,8 @@ FORMS += \
         gui/mainwindow.ui \
         gui/materials/a3matwin.ui \
         gui/photsim/a3photsimwin.ui \
+        gui/photsim/ainterfacerulewin.ui \
+        gui/photsim/ainterfaceruledialog.ui \
         gui/photsim/aphotonsimoutputdialog.ui \
         gui/raster/acameracontroldialog.ui
 

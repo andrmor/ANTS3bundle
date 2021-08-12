@@ -79,7 +79,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
             return QString("Bad material index %0\n").arg(MatFrom);
         if (MatTo < 0 || MatTo >= MatHub.countMaterials())
             return QString("Bad material index %0\n").arg(MatTo);
-        AInterfaceRule * rule = interfaceRuleFactory(Model, MatFrom, MatTo);
+        AInterfaceRule * rule = AInterfaceRule::interfaceRuleFactory(Model, MatFrom, MatTo);
         if (!rule)
             return "Unknown rule model: " + Model + '\n';
         bool ok = rule->readFromJson(js);

@@ -18,7 +18,6 @@
 #include <QComboBox>
 #include <QPushButton>
 
-/*
 QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidget * Caller, GraphWindowClass * GraphWindow)
 {
     ABasicInterfaceRule * bir = dynamic_cast<ABasicInterfaceRule*>(Rule);
@@ -42,7 +41,6 @@ QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidg
     f->setMinimumHeight(100);
     return f;
 }
-*/
 
 ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule) : QFrame()
 {

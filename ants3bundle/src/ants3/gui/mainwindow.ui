@@ -47,6 +47,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pbInterfaceRules">
+        <property name="text">
+         <string>InterRules</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pbPhotSim">
         <property name="text">
          <string>PhotSim</string>

@@ -33,7 +33,7 @@ bool AInterfaceRule::readFromJson(const QJsonObject &)
 #include "awaveshifterinterfacerule.h"
 #include "ametalinterfacerule.h"
 
-AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo)
+AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo)
 {
     if (Model == "Simplistic")
         return new ABasicInterfaceRule(MatFrom, MatTo);
@@ -49,7 +49,7 @@ AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int Ma
     return nullptr; //undefined override type!
 }
 
-QStringList getAllInterfaceRuleTypes()
+QStringList AInterfaceRule::getAllInterfaceRuleTypes()
 {
     QStringList l;
 

@@ -9,14 +9,14 @@ class QJsonObject;
 class ARandomHub;
 
 //  ----  !!!  ----
-// modify these two functions if you want to register a new override type
-AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
-QStringList      getAllInterfaceRuleTypes();
-
+// modify two static functions of the class below after adding a new override type!
 
 class AInterfaceRule
 {
 public:
+    static AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
+    static QStringList      getAllInterfaceRuleTypes();
+
     enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, _Error_}; //return status for photon tracing:
     enum ScatterStatusEnum {
         Absorption,
@@ -59,6 +59,7 @@ public:
 protected:
     ARandomHub & RandomHub;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
+
 };
 
 #endif // AINTERFACERULE_H
