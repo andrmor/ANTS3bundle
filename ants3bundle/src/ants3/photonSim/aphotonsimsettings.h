@@ -132,6 +132,9 @@ public:
     int     MaxTracks             = 1000;
     QString FileNameTracks        = "Tracks.txt";
 
+    bool    SaveStatistics        = true;
+    QString FileNameStatistics    = "Stats.txt";
+
     bool    SavePhotonLog         = true;
     QString FileNamePhotonLog     = "PhotonLog.txt";
 

@@ -21,7 +21,7 @@ QString APhotonHistoryLog::print() const
 
     s += GetProcessName(process);
 
-    if      (process == HitPM || process == Detected || process == NotDetected) s += " PM# " + QString::number(number);
+    if      (process == HitSensor || process == Detected || process == NotDetected) s += " PM# " + QString::number(number);
     else if (process == Fresnel_Reflection || process == Override_Loss || process == Override_Back || process == Fresnel_Transmition || process == Override_Forward)
     {
         const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
@@ -42,7 +42,7 @@ const QString APhotonHistoryLog::GetProcessName(int nodeType)
     {
     case Undefined: return "Undefined";
     case Created: return "Created";
-    case HitPM: return "HitPM";
+    case HitSensor: return "HitPM";
     case Escaped: return "Escaped";
     case Absorbed: return "Absorbed";
     case MaxNumberCyclesReached: return "MaxNumberCyclesReached";

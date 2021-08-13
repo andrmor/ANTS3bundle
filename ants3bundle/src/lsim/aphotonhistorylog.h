@@ -10,7 +10,7 @@ public:
     enum NodeType {
                    Undefined = 0,//keep the first one zero!!!
 
-                   Created, HitPM, Detected, NotDetected, Escaped, Absorbed, MaxNumberCyclesReached, Rayleigh,
+                   Created, HitSensor, Detected, NotDetected, Escaped, Absorbed, MaxNumberCyclesReached, Rayleigh,
                    Reemission, Fresnel_Reflection, Fresnel_Transmition, Override_Loss, Override_Forward, Override_Back, GeneratedOutsideGeometry,
                    Grid_Enter, Grid_Exit, Grid_ShiftIn, Grid_ShiftOut, KilledByMonitor,
 

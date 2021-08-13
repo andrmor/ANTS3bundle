@@ -20,11 +20,11 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
     return getInstance();
 }
 
-void AInterfaceRuleHub::updateWaveResolvedProperties()
+void AInterfaceRuleHub::updateRuntimeProperties()
 {
     for (auto & rv : Rules)
         for (auto & r : rv)
-            r->initializeWaveResolved();
+            if (r) r->initializeWaveResolved();
 }
 
 void AInterfaceRuleHub::onMaterialRemoved(int iMat)

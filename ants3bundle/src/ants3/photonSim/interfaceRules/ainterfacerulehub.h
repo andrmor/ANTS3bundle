@@ -30,7 +30,7 @@ public:
 
     std::vector<std::vector<AInterfaceRule*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 
-    void updateWaveResolvedProperties();
+    void updateRuntimeProperties();
 
     void onMaterialRemoved(int iMat);
     void onMaterialAdded(); // a new material can only be appended to the end of the list!

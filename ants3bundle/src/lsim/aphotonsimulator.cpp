@@ -6,6 +6,7 @@
 #include "ageometryhub.h"
 #include "asensorhub.h"
 #include "aphotonsimhub.h"
+#include "astatisticshub.h"
 #include "anoderecord.h"
 #include "aoneevent.h"
 #include "aphotontracer.h"
@@ -88,6 +89,8 @@ void APhotonSimulator::setupCommonProperties()
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
+    AInterfaceRuleHub::getInstance().updateRuntimeProperties();
+    AStatisticsHub::getInstance().SimStat.initialize(AGeometryHub::getInstance().MonitorsRecords, 100, SimSet.WaveSet.countNodes());
 
     Event->init();
     Tracer->init();

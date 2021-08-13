@@ -83,7 +83,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
         }
         while (waveIndex < Photon->waveIndex); //conserving energy
 
-        AStatisticsHub::getInstance().SimStat.wavelengthChanged++;
+        AStatisticsHub::getInstance().SimStat.WaveChanged++;
         Photon->waveIndex = waveIndex;
 
         if (ReemissionModel == 0)

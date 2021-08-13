@@ -8,6 +8,8 @@
 
 #include "TString.h"
 
+#include <vector>
+
 class TH1I;
 class TH1D;
 class AMonitor;
@@ -19,7 +21,7 @@ public:
     ~ASimulationStatistics();
 
     // !!!***
-    void initialize(QVector<const AGeoObject*> monitorRecords = QVector<const AGeoObject*>(), int nBins = 0, int waveNodes = 0); //0 - default (100) or previously set value will be used
+    void initialize(std::vector<const AGeoObject *> monitorRecords = std::vector<const AGeoObject*>(), int nBins = 0, int waveNodes = 0); //0 - default (100) or previously set value will be used
 
     void clearAll();
 
@@ -33,43 +35,33 @@ public:
     //since every thread has its own statistics container:
     void AppendSimulationStatistics(ASimulationStatistics *from);
 
-    //read-outs
-    TH1D* getWaveSpectrum() {return WaveSpectrum;}
-    TH1D* getTimeSpectrum() {return TimeSpectrum;}
-    TH1D* getAngularDistr() {return AngularDistr;}
-    TH1D* getTransitionSpectrum() {return TransitionSpectrum;}
-
     //photon loss statistics
-    long Absorbed, OverrideLoss, HitPM, HitDummy, Escaped, LossOnGrid, TracingSkipped, MaxCyclesReached, GeneratedOutsideGeometry, KilledByMonitor;
+    long Absorbed, InterfaceRuleLoss, HitSensor, Escaped, LossOnGrid, TracingSkipped, MaxTransitions, GeneratedOutside, MonitorKill;
 
     //statistics for optical processes
-    long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission; //general bulk
-    long OverrideBack, OverrideForward; //general override. Note that OverrideLoss is already defined
+    long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission;
+    long InterfaceRuleBack, InterfaceRuleForward;
 
-    //only affects script unit "photon" tracing!
 //    QVector< QVector <APhotonHistoryLog> > PhotonHistoryLog;    !!!***
-    QSet<int> MustNotInclude_Processes;   //v.fast
-    QVector<int> MustInclude_Processes;   //slow
-    QSet<QString> MustNotInclude_Volumes; //fast
-    QVector<QString> MustInclude_Volumes; //v.slow
+    QSet<int>        MustNotInclude_Processes; // v.fast
+    QVector<int>     MustInclude_Processes;    // slow
+    QSet<QString>    MustNotInclude_Volumes;   // fast
+    QVector<QString> MustInclude_Volumes;      // v.slow
 
     //only for optical override tester!
-    long wavelengthChanged = 0;
-    long timeChanged = 0;
+    long WaveChanged = 0;
+    long TimeChanged = 0;
 
-    QVector<AMonitor*> Monitors;
+    std::vector<AMonitor*> Monitors;
+
+    TH1D * WaveDistr       = nullptr;
+    TH1D * TimeDistr       = nullptr;
+    TH1D * AngularDistr    = nullptr;
+    TH1D * TransitionDistr = nullptr;
 
 private:
-    TH1D* WaveSpectrum       = nullptr;
-    TH1D* TimeSpectrum       = nullptr;
-    TH1D* AngularDistr       = nullptr;
-    TH1D* TransitionSpectrum = nullptr;
-
-    int numBins = 100;
-
-    double WaveFrom, WaveTo;
+    int NumBins = 100;
     int WaveNodes = 0;
-
 
     long countPhotons();
     void clearMonitors();

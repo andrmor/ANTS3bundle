@@ -5,7 +5,6 @@
 
 #include <QDebug>
 
-#include "TH1I.h"
 #include "TH1D.h"
 
 ASimulationStatistics::~ASimulationStatistics()
@@ -15,48 +14,37 @@ ASimulationStatistics::~ASimulationStatistics()
 
 void ASimulationStatistics::clearAll()
 {
-    delete WaveSpectrum;       WaveSpectrum = nullptr;
-    delete TimeSpectrum;       TimeSpectrum = nullptr;
-    delete AngularDistr;       AngularDistr = nullptr;
-    delete TransitionSpectrum; TransitionSpectrum = nullptr;
+    delete WaveDistr;    WaveDistr    = nullptr;
+    delete TimeDistr;    TimeDistr    = nullptr;
+    delete AngularDistr;    AngularDistr    = nullptr;
+    delete TransitionDistr; TransitionDistr = nullptr;
 
     clearMonitors();
 }
 
-void ASimulationStatistics::initialize(QVector<const AGeoObject*> monitorRecords, int nBins, int waveNodes)
+void ASimulationStatistics::initialize(std::vector<const AGeoObject*> monitorRecords, int nBins, int waveNodes)
 {    
-    if (nBins != 0) numBins = nBins;
+    if (nBins != 0)     NumBins = nBins;
     if (waveNodes != 0) WaveNodes = waveNodes;
 
-    delete WaveSpectrum;
-    if (WaveNodes != 0)
-       WaveSpectrum = new TH1D("iWaveSpectrum","WaveIndex spectrum", WaveNodes, 0, WaveNodes);
-    else
-       WaveSpectrum = new TH1D("iWaveSpectrum","WaveIndex spectrum",numBins,0,-1);
+    delete WaveDistr;
+    if (WaveNodes != 0)     WaveDistr = new TH1D("iWaveSpectrum", "WaveIndex spectrum", WaveNodes, 0, WaveNodes);
+    else                    WaveDistr = new TH1D("iWaveSpectrum", "WaveIndex spectrum", NumBins, 0, -1);
+    delete TimeDistr;       TimeDistr = new TH1D("TimeSpectrum", "Time spectrum", NumBins, 0, -1);
+    delete AngularDistr;    AngularDistr = new TH1D("AngularDistr", "cosAngle spectrum", NumBins, 0, 90.0);
+    delete TransitionDistr; TransitionDistr = new TH1D("TransitionsSpectrum", "Transitions", NumBins, 0,-1);
 
-    delete TimeSpectrum;
-    TimeSpectrum = new TH1D("TimeSpectrum", "Time spectrum",numBins,0,-1);
-
-    delete AngularDistr;
-    AngularDistr = new TH1D("AngularDistr", "cosAngle spectrum", numBins, 0, 90.0);
-
-    delete TransitionSpectrum;
-    TransitionSpectrum = new TH1D("TransitionsSpectrum", "Transitions", numBins, 0,-1);
-
-    Absorbed = OverrideLoss = HitPM = HitDummy = Escaped = LossOnGrid = TracingSkipped = MaxCyclesReached = GeneratedOutsideGeometry = KilledByMonitor = 0;
+    Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 
     FresnelTransmitted = FresnelReflected = BulkAbsorption = Rayleigh = Reemission = 0;
-    OverrideForward = OverrideBack = 0;
+    InterfaceRuleForward = InterfaceRuleBack = 0;
 
 //    PhotonHistoryLog.clear();  !!!***
 //    PhotonHistoryLog.squeeze(); !!!***
 
     clearMonitors();
-    if (!monitorRecords.isEmpty())
-    {
-        for (int i=0; i<monitorRecords.size(); i++)
-            Monitors.append(new AMonitor(monitorRecords[i]));
-    }
+    for (const AGeoObject * obj : monitorRecords)
+        Monitors.push_back(new AMonitor(obj));
 }
 
 bool ASimulationStatistics::isEmpty()
@@ -66,12 +54,12 @@ bool ASimulationStatistics::isEmpty()
 
 void ASimulationStatistics::registerWave(int iWave)
 {
-    WaveSpectrum->Fill(iWave);
+    WaveDistr->Fill(iWave);
 }
 
 void ASimulationStatistics::registerTime(double Time)
 {
-    TimeSpectrum->Fill(Time);
+    TimeDistr->Fill(Time);
 }
 
 void ASimulationStatistics::registerAngle(double angle)
@@ -81,43 +69,34 @@ void ASimulationStatistics::registerAngle(double angle)
 
 void ASimulationStatistics::registerNumTrans(int NumTransitions)
 {
-  TransitionSpectrum->Fill(NumTransitions);
+    TransitionDistr->Fill(NumTransitions);
 }
 
-//static void addTH1(TH1 *first, const TH1 *second)
-//{
-//    if (!first || !second) return;
-//    int bins = second->GetNbinsX();
-//    for(int i = 0; i < bins; i++)
-//        first->Fill(second->GetBinCenter(i), second->GetBinContent(i));
-//}
-
-void ASimulationStatistics::AppendSimulationStatistics(ASimulationStatistics* from)
+void ASimulationStatistics::AppendSimulationStatistics(ASimulationStatistics * from)
 {
-    appendTH1D(AngularDistr, from->getAngularDistr());
-    appendTH1D(TimeSpectrum, from->getTimeSpectrum());
-    appendTH1D(WaveSpectrum, from->getWaveSpectrum());
-    appendTH1D(TransitionSpectrum, from->getTransitionSpectrum());
+    appendTH1D(AngularDistr,    from->AngularDistr);
+    appendTH1D(TimeDistr,       from->TimeDistr);
+    appendTH1D(WaveDistr,       from->WaveDistr);
+    appendTH1D(TransitionDistr, from->TransitionDistr);
 
-    Absorbed += from->Absorbed;
-    OverrideLoss += from->OverrideLoss;
-    HitPM += from->HitPM;
-    HitDummy += from->HitDummy;
-    Escaped += from->Escaped;
-    LossOnGrid += from->LossOnGrid;
-    TracingSkipped += from->TracingSkipped;
-    MaxCyclesReached += from->MaxCyclesReached;
-    GeneratedOutsideGeometry += from->GeneratedOutsideGeometry;
-    KilledByMonitor += from->KilledByMonitor;
+    Absorbed             += from->Absorbed;
+    InterfaceRuleLoss    += from->InterfaceRuleLoss;
+    HitSensor            += from->HitSensor;
+    Escaped              += from->Escaped;
+    LossOnGrid           += from->LossOnGrid;
+    TracingSkipped       += from->TracingSkipped;
+    MaxTransitions       += from->MaxTransitions;
+    GeneratedOutside     += from->GeneratedOutside;
+    MonitorKill          += from->MonitorKill;
 
-    FresnelTransmitted += from->FresnelTransmitted;
-    FresnelReflected += from->FresnelReflected;
-    BulkAbsorption += from->BulkAbsorption;
-    Rayleigh += from->Rayleigh;
-    Reemission += from->Reemission;
+    FresnelTransmitted   += from->FresnelTransmitted;
+    FresnelReflected     += from->FresnelReflected;
+    BulkAbsorption       += from->BulkAbsorption;
+    Rayleigh             += from->Rayleigh;
+    Reemission           += from->Reemission;
 
-    OverrideBack += from->OverrideBack;
-    OverrideForward += from->OverrideForward;
+    InterfaceRuleBack    += from->InterfaceRuleBack;
+    InterfaceRuleForward += from->InterfaceRuleForward;
 
     if (Monitors.size() != from->Monitors.size())
     {
@@ -126,20 +105,19 @@ void ASimulationStatistics::AppendSimulationStatistics(ASimulationStatistics* fr
     }
     else
     {
-        for (int i=0; i<Monitors.size(); i++)
+        for (size_t i = 0; i < Monitors.size(); i++)
             Monitors[i]->appendDataFromAnotherMonitor(from->Monitors[i]);
     }
 }
 
 long ASimulationStatistics::countPhotons()
 {
-    return Absorbed + OverrideLoss + HitPM + HitDummy + Escaped + LossOnGrid + TracingSkipped + MaxCyclesReached + GeneratedOutsideGeometry + KilledByMonitor;
+    return Absorbed + InterfaceRuleLoss + HitSensor + Escaped + LossOnGrid + TracingSkipped + MaxTransitions + GeneratedOutside + MonitorKill;
 }
 
 void ASimulationStatistics::clearMonitors()
 {
-    for (AMonitor* mon : Monitors)
-        delete mon;
+    for (AMonitor * mon : Monitors) delete mon;
     Monitors.clear();
 }
 

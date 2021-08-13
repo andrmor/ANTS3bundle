@@ -620,7 +620,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
     if      (obj->Type->isMonitor())                        vol->SetTitle("M---");
     else if (obj->Role && obj->Role->getType() == "Sensor")
     {
-        SensorHub.Sensors.push_back(obj);                   vol->SetTitle("P---");
+        SensorHub.Sensors.push_back(obj);                   vol->SetTitle("S---");
     }
     else if (obj->Type->isGrid())                           vol->SetTitle("G---");
     else                                                    vol->SetTitle("----");

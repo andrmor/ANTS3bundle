@@ -412,6 +412,9 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
     json["MaxTracks"]             = MaxTracks;
     json["FileNameTracks"]        = FileNameTracks;
 
+    json["SaveStatistics"]        = SaveStatistics;
+    json["FileNameStatistics"]    = FileNameStatistics;
+
     json["SavePhotonLog"]         = SavePhotonLog;
     json["FileNamePhotonLog"]     = FileNamePhotonLog;
 }
@@ -434,6 +437,9 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SaveTracks",            SaveTracks);
     jstools::parseJson(json, "MaxTracks",             MaxTracks);
     jstools::parseJson(json, "FileNameTracks",        FileNameTracks);
+
+    jstools::parseJson(json, "SaveStatistics",        SaveStatistics);
+    jstools::parseJson(json, "FileNameStatistics",    FileNameStatistics);
 }
 
 // ---
