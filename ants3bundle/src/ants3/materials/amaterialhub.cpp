@@ -184,7 +184,6 @@ QString AMaterialHub::tryRemoveMaterial(int iMat)
                               "The first volume found: %0").arg(volName);
 
     removeMaterial(iMat);
-
     return "";
 }
 
@@ -194,8 +193,11 @@ void AMaterialHub::removeMaterial(int iMat)
     delete Materials[iMat]->PrimarySpectrumHist;
     delete Materials[iMat]->SecondarySpectrumHist;
 
-    AGeometryHub::getInstance().onMaterialRemoved(iMat);
+    delete Materials[iMat];
+    Materials.erase(Materials.begin() + iMat);
+
     AInterfaceRuleHub::getInstance().onMaterialRemoved(iMat);
+    AGeometryHub::getInstance().onMaterialRemoved(iMat);
 
     emit materialsChanged();
 }
