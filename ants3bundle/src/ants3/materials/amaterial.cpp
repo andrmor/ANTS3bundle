@@ -184,11 +184,7 @@ void AMaterial::updateRuntimeProperties()
             }
         }
 
-        if (PrimarySpectrumHist)
-        {
-            delete PrimarySpectrumHist;
-            PrimarySpectrumHist = 0;
-        }
+        delete PrimarySpectrumHist; PrimarySpectrumHist = nullptr;
         if (PrimarySpectrum_lambda.size() > 0)
         {
             QVector<double> y;
@@ -199,11 +195,7 @@ void AMaterial::updateRuntimeProperties()
             PrimarySpectrumHist->GetIntegral(); //to make thread safe
         }
 
-        if (SecondarySpectrumHist)
-        {
-            delete SecondarySpectrumHist;
-            SecondarySpectrumHist = 0;
-        }
+        delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
         if (SecondarySpectrum_lambda.size() > 0)
         {
             QVector<double> y;
@@ -260,14 +252,19 @@ void AMaterial::clear()
     SecondarySpectrum_lambda.clear();
     SecondarySpectrum.clear();
 
-    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
-    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
-
     PhotonYieldDefault = 0;
     IntrEnResDefault = 0;
 
-    GeoMat = nullptr; //if created, deleted by TGeoManager
-    GeoMed = nullptr; //if created, deleted by TGeoManager
+    GeoMat = nullptr; //if created, will be deleted by TGeoManager
+    GeoMed = nullptr; //if created, will be deleted by TGeoManager
+
+    clearDynamicProperties();
+}
+
+void AMaterial::clearDynamicProperties()
+{
+    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
+    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
 }
 
 void AMaterial::writeToJson(QJsonObject & json) const
@@ -355,12 +352,13 @@ void AMaterial::writeToJson(QJsonObject & json) const
     */
 
     json["bG4UseNistMaterial"] = bG4UseNistMaterial;
-    json["G4NistMaterial"] = G4NistMaterial;
+    json["G4NistMaterial"]     = G4NistMaterial;
 }
 
 bool AMaterial::readFromJson(const QJsonObject & json)
 {
-    clear(); //clear all settings and set default properties
+    clear();
+
     //general data
     jstools::parseJson(json, "*MaterialName", name);
     jstools::parseJson(json, "Density", density);
@@ -479,11 +477,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ElDiffusionL",     e_diffusion_L);
     jstools::parseJson(json, "ElDiffusionT",     e_diffusion_T);
     jstools::parseJson(json, "Comments",         Comments);
-
-    bG4UseNistMaterial = false;
     jstools::parseJson(json, "bG4UseNistMaterial", bG4UseNistMaterial);
-    G4NistMaterial.clear();
-    jstools::parseJson(json, "G4NistMaterial", G4NistMaterial);
+    jstools::parseJson(json, "G4NistMaterial",   G4NistMaterial);
 
 /*
     //wavelength-resolved data
@@ -521,7 +516,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     }
 */
 
-    jstools::parseJson(json, "PhotonYieldDefault", PhotonYieldDefault);
+    jstools::parseJson(json, "PhotonYieldDefault",   PhotonYieldDefault);
     jstools::parseJson(json, "IntrEnergyResDefault", IntrEnResDefault);
 
     return true;

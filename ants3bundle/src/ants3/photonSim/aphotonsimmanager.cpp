@@ -8,6 +8,8 @@
 #include "a3workdistrconfig.h"
 #include "ajsontools.h"
 
+#include <QDir>
+
 APhotonSimManager & APhotonSimManager::getInstance()
 {
     static APhotonSimManager instance;
@@ -24,8 +26,20 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Photon sim triggered";
     ErrorString.clear();
 
-    int numEvents = 0;
     const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
+
+    if (SimSet.RunSet.OutputDirectory.isEmpty())
+    {
+        ErrorString = "Output directory is not set!";
+        return false;
+    }
+    if (!QDir(SimSet.RunSet.OutputDirectory).exists())
+    {
+        ErrorString = "Output directory does not exist!";
+        return false;
+    }
+
+    int numEvents = 0;
     switch (SimSet.SimType)
     {
     case EPhotSimType::PhotonBombs :

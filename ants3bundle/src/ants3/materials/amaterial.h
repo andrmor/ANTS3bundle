@@ -1,9 +1,8 @@
 #ifndef AMATERIAL_H
 #define AMATERIAL_H
 
-#include <QVector>
-#include <QPair>
 #include <QString>
+#include <QVector>
 
 #include "amaterialcomposition.h"
 
@@ -27,7 +26,6 @@ public:
     double reemissionProb; //for waveshifters: probability that absorbed photon is reemitted
     double rayleighMFP = 0; //0 - no rayleigh scattering
     double rayleighWave;
-    QVector<double> rayleighBinned;//regular step (WaveStep step, WaveNodes bins)
     double e_driftVelocity;
     double W; //default W
     double e_diffusion_T = 0; //in mm2/ns
@@ -49,7 +47,7 @@ public:
 
     AMaterialComposition ChemicalComposition;
 
-    bool bG4UseNistMaterial = false;
+    bool    bG4UseNistMaterial = false;
     QString G4NistMaterial;
 
     /* make it possible to define for diffrent particles!
@@ -60,34 +58,31 @@ public:
     // !!!*** to std::vector<DPair>
     QVector<double> nWave_lambda;
     QVector<double> nWave;
-    QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    double getRefractiveIndex(int iWave = -1) const;
 
     QVector<double> absWave_lambda;
     QVector<double> absWave;
-    QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    double getAbsorptionCoefficient(int iWave = -1) const;
 
     QVector<double> reemisProbWave;
     QVector<double> reemisProbWave_lambda;
-    QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
-    double getReemissionProbability(int iWave = -1) const;
 
     QVector<double> PrimarySpectrum_lambda;
     QVector<double> PrimarySpectrum;
     QVector<double> SecondarySpectrum_lambda;
     QVector<double> SecondarySpectrum;
 
-    void generateTGeoMat();
+    void    clear();
+    void    clearDynamicProperties();
+    void    updateRuntimeProperties();
 
-    double generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
+    void    generateTGeoMat();
+    double  generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
 
-    void updateRuntimeProperties();
+    double  getRefractiveIndex(int iWave = -1) const;
+    double  getAbsorptionCoefficient(int iWave = -1) const;
+    double  getReemissionProbability(int iWave = -1) const;
 
-    void clear();
-
-    void writeToJson (QJsonObject & json) const;
-    bool readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
+    void    writeToJson (QJsonObject & json) const;
+    bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
 
     QString checkMaterial() const;
 
@@ -98,12 +93,16 @@ public:
     double          _PrimScintSumStatWeight__Raise;
     TH1D          * PrimarySpectrumHist = nullptr;
     TH1D          * SecondarySpectrumHist = nullptr;
+    QVector<double> rayleighBinned;//regular step (WaveStep step, WaveNodes bins)
+    QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
+    QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
+    QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
 
 private:
     double FT(double td, double tr, double t) const;
 };
 
-class APair_ValueAndWeight
+class APair_ValueAndWeight   // !!!*** AVector2 and AVector3
 {
 public:
     double value;

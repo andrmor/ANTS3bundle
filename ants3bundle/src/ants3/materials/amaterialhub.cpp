@@ -99,9 +99,7 @@ void AMaterialHub::clearMaterials()
 {
     for (AMaterial * mat : Materials)
     {
-        delete mat->PrimarySpectrumHist;
-        delete mat->SecondarySpectrumHist;
-
+        mat->clearDynamicProperties();
         delete mat;
     }
     Materials.clear();
@@ -189,10 +187,7 @@ QString AMaterialHub::tryRemoveMaterial(int iMat)
 
 void AMaterialHub::removeMaterial(int iMat)
 {
-    // !!!*** move to the destructor of AMaterial?
-    delete Materials[iMat]->PrimarySpectrumHist;
-    delete Materials[iMat]->SecondarySpectrumHist;
-
+    Materials[iMat]->clearDynamicProperties();
     delete Materials[iMat];
     Materials.erase(Materials.begin() + iMat);
 

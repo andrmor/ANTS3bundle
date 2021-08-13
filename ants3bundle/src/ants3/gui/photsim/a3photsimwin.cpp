@@ -253,7 +253,7 @@ void A3PhotSimWin::on_pbSimulate_clicked()
 
     disableInterface(false);
 
-    if (ui->cbAutoLoadResults->isChecked())
+    if (ok && ui->cbAutoLoadResults->isChecked())
     {
         if (SimSet.RunSet.SaveTracks)
         {
