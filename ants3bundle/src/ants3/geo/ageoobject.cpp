@@ -140,12 +140,12 @@ bool AGeoObject::readShapeFromString(const QString & GenerationString, bool Only
     return true;
 }
 
-void AGeoObject::DeleteMaterialIndex(int imat)
+void AGeoObject::onMaterialRemoved(int imat)
 {
     if (Material > imat) Material--;
 
     for (AGeoObject * obj : HostedObjects)
-        obj->DeleteMaterialIndex(imat);
+        obj->onMaterialRemoved(imat);
 }
 
 bool AGeoObject::isWorld() const
@@ -984,26 +984,24 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
         obj->updateWorldSize(XYm, Zm);
 }
 
-bool AGeoObject::isMaterialInUse(int imat) const
+bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
-    //qDebug() << Name << "--->"<<Material;
-
-    if (Type->isMonitor()) return false; //monitors are always made of Container's material and cannot host objects
+    if (Type->isMonitor())    return false; //monitors are always made of Container's material and cannot host objects
     if (Type->isPrototypes()) return false;
-    if (Type->isPrototype()) return false;
-    if (Type->isInstance()) return false;
-
-    //if (Type->isGridElement()) qDebug() << "----Grid element!";
-    //if (Type->isCompositeContainer()) qDebug() << "----Composite container!";
+    if (Type->isPrototype())  return false;
+    if (Type->isInstance())   return false;
 
     if (Material == imat)
     {
-        if ( !Type->isGridElement() && !Type->isCompositeContainer() )
+        if ( !Type->isGridElement() && !Type->isCompositeContainer() ) // !!!*** need it?
+        {
+            volName = Name;
             return true;
+        }
     }
 
     for (AGeoObject * obj : HostedObjects)
-        if (obj->isMaterialInUse(imat)) return true;
+        if (obj->isMaterialInUse(imat, volName)) return true;
 
     return false;
 }

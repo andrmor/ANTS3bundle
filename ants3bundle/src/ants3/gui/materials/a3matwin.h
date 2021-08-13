@@ -90,10 +90,12 @@ private slots:
 
     void on_pbUpdateMaterial_clicked();
 
+    void on_actionRemove_selected_material_triggered();
+
 private:
     AGeometryHub & Geometry;
-    AMaterialHub   & MatHub;
-    A3Global   & GlobSet;
+    AMaterialHub & MatHub;
+    A3Global     & GlobSet;
 
     Ui::A3MatWin * ui = nullptr;
 

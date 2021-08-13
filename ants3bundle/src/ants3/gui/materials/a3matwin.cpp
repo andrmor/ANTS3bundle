@@ -124,18 +124,14 @@ void A3MatWin::on_pbRename_clicked()
     const QString & oldName = MatHub[iMat]->name;
     if (newName == oldName) return;
 
-    for (int i = 0; i < MatHub.countMaterials(); i++)
-        if (i != iMat && newName == MatHub[i]->name)
-        {
-            guitools::message("There is already a material with name " + newName, this);
-            return;
-        }
+    bool ok = MatHub.renameMaterial(iMat, newName);
+    if (!ok)
+    {
+        guitools::message("There is already a material with name " + newName, this);
+        return;
+    }
 
-    MatHub[iMat]->name = newName;
-    ui->pbRename->setText("Rename " + newName);
-
-    updateGui(); // temporary here
-    //MW->ReconstructDetector(true); !!!*** update TGeo might be needed!
+    AGeometryHub::getInstance().populateGeoManager();
 }
 
 void A3MatWin::on_pbUpdateMaterial_clicked()
@@ -150,10 +146,9 @@ void A3MatWin::on_pbAddNewMaterial_clicked()
 
 void A3MatWin::addNewOrUpdateMaterial()
 {
+    qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
     if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
-
-    //tmpMaterial.updateRuntimeProperties();   // need? !!!***
 
     QString error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())
@@ -175,10 +170,7 @@ void A3MatWin::addNewOrUpdateMaterial()
         }
     }
 
-    MatHub.copyTmpToMaterialCollection(tmpMaterial); //if absent, new material is created!
-
-    //MW->ReconstructDetector(true);    !!!*** return to this later -> most likely not need it here
-    //MW->UpdateMaterialListEdit();     !!!*** sources? sim: node_exclusion?
+    MatHub.copyToMaterials(tmpMaterial); //if absent, new material is created!
 
     switchToMaterial(index);
 }
@@ -1166,3 +1158,15 @@ void A3MatWin::on_cbG4Material_toggled(bool)
 {
     updateG4RelatedGui();
 }
+
+void A3MatWin::on_actionRemove_selected_material_triggered()
+{
+    int iMat = ui->cobActiveMaterials->currentIndex();
+
+    bool ok = guitools::confirm(QString("Remove material %0?").arg(ui->cobActiveMaterials->currentText()), this);
+    if (!ok) return;
+
+    QString err = MatHub.tryRemoveMaterial(iMat);
+    if (!err.isEmpty()) guitools::message(err, this);
+}
+

@@ -15,6 +15,8 @@ class TGeoCombiTrans;
 class TGeoRotation;
 class QJsonObject;
 
+// !!!*** to QObject and add signal on geometry changed
+
 class AGeometryHub
 {
 public:
@@ -36,13 +38,13 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    std::vector<const AGeoObject*> MonitorsRecords;
+    std::vector<const AGeoObject*>   MonitorsRecords;
     std::vector<AGridElementRecord*> GridRecords;
 
     std::vector<QString>   MonitorIdNames;  //runtime
     std::vector<TGeoNode*> MonitorNodes; //runtime
 
-    void         populateGeoManager();
+    void         populateGeoManager();   // !!!*** emit signal
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);
@@ -66,8 +68,8 @@ public:
     //hexa - 2, outer circle diameter, inner circle diameter, full height
 */
 
-    bool         isMaterialInUse(int imat) const;
-    void         deleteMaterial(int imat);
+    bool         isMaterialInUse(int imat, QString & volName) const;
+    void         onMaterialRemoved(int imat);  // !!!*** add signal
 
     bool         isVolumeExistAndActive(const QString & name) const;
 

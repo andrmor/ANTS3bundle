@@ -32,6 +32,9 @@ public:
 
     void updateWaveResolvedProperties();
 
+    void onMaterialRemoved(int iMat);
+    void onMaterialAdded(); // a new material can only be appended to the end of the list!
+
     void clearRules();
 
     void    writeToJson(QJsonObject & json) const;
@@ -39,15 +42,11 @@ public:
 
     QString checkAll();
 
-public slots:
-    void onMaterialDeleted(int iMat);
-    void onNewMaterialAdded();
-
 private:
     const AMaterialHub & MatHub;
 
 signals:
-    void interfaceRulesChanged();
+    void rulesLoaded();
 
 };
 

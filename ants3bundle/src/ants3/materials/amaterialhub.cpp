@@ -1,9 +1,7 @@
 #include "amaterialhub.h"
-//#include "a3config.h"
-//#include "ainterfacerule.h"
-//#include "acommonfunctions.h"
-//#include "atracerstateful.h"
 #include "ageoobject.h"
+#include "ageometryhub.h"
+#include "ainterfacerulehub.h"
 #include "ajsontools.h"
 
 #include <QDebug>
@@ -113,9 +111,8 @@ void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
     AMaterial * m = new AMaterial;
 
-    // !!!*** override handling?
+    AInterfaceRuleHub::getInstance().onMaterialAdded();
 
-    //appending to the material collection
     Materials.push_back(m);
 
     if (!fSuppressChangedSignal) emit materialsChanged();
@@ -144,25 +141,24 @@ void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
     tmpMaterial.readFromJson(js);
 }
 
-void AMaterialHub::copyTmpToMaterialCollection(const AMaterial &tmpMaterial)
+void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
 {
     const QString name = tmpMaterial.name;
     int index = findMaterial(name);
     if (index == -1)
     {
-        //      qDebug()<<"MaterialCollection--> New material: "<<name;
+        qDebug() << "MatHub-> New material: " << name;
         addNewMaterial(true);
         index = Materials.size() - 1;
     }
-    else
-    {
-        //      qDebug()<<"MaterialCollection--> Material "+name+" already defined; index = "<<index;
-    }
+    else qDebug() << "MatHub-> Material " + name + " already defined; index = " << index;
 
-    //do not want to copy dynamic objects!
+    //do not copy dynamic properties!
     QJsonObject js;
     tmpMaterial.writeToJson(js);
     Materials[index]->readFromJson(js);
+
+    AGeometryHub::getInstance().populateGeoManager();
 
     emit materialsChanged();
 }
@@ -177,6 +173,33 @@ int AMaterialHub::findMaterial(const QString & name) const
     return -1;
 }
 
+QString AMaterialHub::tryRemoveMaterial(int iMat)
+{
+    int size = Materials.size();
+    if (iMat < 0 || iMat >= size) return QString("Cannot remove material with invalid index %0").arg(iMat);
+
+    QString volName;
+    bool bUsed = AGeometryHub::getInstance().isMaterialInUse(iMat, volName);
+    if (bUsed) return QString("Material is in used by at least one geometry volume.\n"
+                              "The first volume found: %0").arg(volName);
+
+    removeMaterial(iMat);
+
+    return "";
+}
+
+void AMaterialHub::removeMaterial(int iMat)
+{
+    // !!!*** move to the destructor of AMaterial?
+    delete Materials[iMat]->PrimarySpectrumHist;
+    delete Materials[iMat]->SecondarySpectrumHist;
+
+    AGeometryHub::getInstance().onMaterialRemoved(iMat);
+    AInterfaceRuleHub::getInstance().onMaterialRemoved(iMat);
+
+    emit materialsChanged();
+}
+
 QString AMaterialHub::CheckMaterial(const AMaterial* mat) const
 {
     if (!mat) return "nullptr material";
@@ -187,24 +210,6 @@ QString AMaterialHub::CheckMaterial(int iMat) const
 {
     if (iMat<0 || iMat>=Materials.size()) return "Wrong material index: " + QString::number(iMat);
     return CheckMaterial(Materials[iMat]);
-}
-
-bool AMaterialHub::DeleteMaterial(int imat)
-{
-    int size = Materials.size();
-    if (imat<0 || imat >= size)
-    {
-        qWarning()<<"Attempt to remove material with invalid index!";
-        return false;
-    }
-
-    //clear dynamic properties of this material
-    delete Materials[imat]->PrimarySpectrumHist;
-    delete Materials[imat]->SecondarySpectrumHist;
-
-    emit materialsChanged();
-
-    return true;
 }
 
 void AMaterialHub::writeToJson(QJsonObject & json) const
@@ -254,6 +259,17 @@ void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is 
     ensureMatNameIsUnique(mat);
 
     emit materialsChanged();
+}
+
+bool AMaterialHub::renameMaterial(int iMat, const QString & newName)
+{
+    for (const AMaterial * m : Materials)
+        if (newName == m->name) return false;
+
+    Materials[iMat]->name = newName;
+
+    emit materialsChanged();
+    return true;
 }
 
 void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)

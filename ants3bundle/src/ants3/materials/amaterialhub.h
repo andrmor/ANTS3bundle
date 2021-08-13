@@ -31,43 +31,43 @@ public:
     static       AMaterialHub & getInstance();
     static const AMaterialHub & getConstInstance();
 
+    AMaterial* operator[](int i) {return Materials[i];}
+    const AMaterial* operator[](int i) const {return Materials[i];}
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
-    QStringList getListOfMaterialNames() const;
+    void    generateGeoMedia();
+    void    updateRuntimeProperties();
 
-    void generateGeoMedia();
-    void updateRuntimeProperties();
+    void    addNewMaterial(bool fSuppressChangedSignal = false);               //
+    void    addNewMaterial(QString name, bool fSuppressChangedSignal = false); // !!!*** make single method!
+    void    addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
 
-    AMaterial* operator[](int i) {return Materials[i]; } //get pointer to material with index i
-    const AMaterial* operator[](int i) const {return Materials[i]; } //get pointer to material with index i
+    bool    renameMaterial(int iMat, const QString & newName);
 
-    int countMaterials() const {return Materials.size();}
+    int     findMaterial(const QString & name) const; //if not found, returns -1; if found, returns material index
+
+    QString tryRemoveMaterial(int iMat); // !!!*** add check for PhotonSources!
+
+    void    copyToMaterials(const AMaterial & tmpMaterial);  // update if name exists, otherwise creates new one
+    void    copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
+
+    int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;
-
-    void addNewMaterial(bool fSuppressChangedSignal = false);               //
-    void addNewMaterial(QString name, bool fSuppressChangedSignal = false); // !!!*** make single method!
-
-    int  findMaterial(const QString & name) const; //if not found, returns -1; if found, returns material index
-    bool DeleteMaterial(int imat); //takes care of overrides of materials with index larger than imat!
-
-    void copyTmpToMaterialCollection(const AMaterial & tmpMaterial);
-    void copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
-
-    void addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
-
-    //general purpose requests
-    double getDriftSpeed(int iMat) const; //returns in mm / ns
-    double getDiffusionSigmaTime(int iMat, double length_mm) const;
-    double getDiffusionSigmaTransverse(int iMat, double length_mm) const;
-    void   CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const;
+    QStringList getListOfMaterialNames() const;
+    double  getDriftSpeed(int iMat) const; //returns in mm / ns
+    double  getDiffusionSigmaTime(int iMat, double length_mm) const;
+    double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;
+    void    CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const;
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
 
 private:
-    void clearMaterials();
-    void ensureMatNameIsUnique(AMaterial * mat);
+    void    removeMaterial(int iMat); // !!!*** propagate to PhotonSources!
+    void    clearMaterials();
+    void    ensureMatNameIsUnique(AMaterial * mat);
 
 signals:
     void materialsChanged();

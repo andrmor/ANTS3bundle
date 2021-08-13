@@ -51,7 +51,7 @@ public:
   int width = 1;
 
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
-  void DeleteMaterialIndex(int imat);
+  void onMaterialRemoved(int imat); // assumes isMaterialInUse was already called (and returned false)!
   bool isWorld() const;
 
   int  getMaterial() const;
@@ -120,8 +120,8 @@ public:
   void clearAll();    // bad name!
   void clearContent();
   void updateWorldSize(double& XYm, double& Zm);
-  bool isMaterialInUse(int imat) const;  //including disabled objects
-  bool isMaterialInActiveUse(int imat) const;  //excluding disabled objects
+  bool isMaterialInUse(int imat, QString & volName) const;  //including disabled objects
+  bool isMaterialInActiveUse(int imat) const;  //excluding disabled objects  !!!**** need? if yes, synchronize with previous
   void collectContainingObjects(std::vector<AGeoObject*> & vec) const;
   double getMaxSize() const;
 

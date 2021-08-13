@@ -2367,8 +2367,15 @@ Wavelengths shoul be given in increasing order</string>
     <addaction name="separator"/>
     <addaction name="actionLoad_from_material_library"/>
    </widget>
+   <widget class="QMenu" name="menuRemove">
+    <property name="title">
+     <string>Remove</string>
+    </property>
+    <addaction name="actionRemove_selected_material"/>
+   </widget>
    <addaction name="menuLibrary"/>
    <addaction name="menuNew_material"/>
+   <addaction name="menuRemove"/>
   </widget>
   <action name="actionSave_material">
    <property name="text">
@@ -2425,6 +2432,11 @@ Wavelengths shoul be given in increasing order</string>
   <action name="actionReload_neutron_cross_sections_for_all_materials">
    <property name="text">
     <string>Reload neutron cross-sections for all materials</string>
+   </property>
+  </action>
+  <action name="actionRemove_selected_material">
+   <property name="text">
+    <string>Remove selected material</string>
    </property>
   </action>
  </widget>

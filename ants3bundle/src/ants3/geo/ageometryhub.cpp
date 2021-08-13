@@ -860,14 +860,16 @@ TGeoRotation * AGeometryHub::createCombinedRotation(TGeoRotation * firstRot, TGe
     return Rot;
 }
 
-bool AGeometryHub::isMaterialInUse(int imat) const
+bool AGeometryHub::isMaterialInUse(int imat, QString & volName) const
 {
-    return World->isMaterialInUse(imat);
+    return World->isMaterialInUse(imat, volName);
 }
 
-void AGeometryHub::deleteMaterial(int imat)
+void AGeometryHub::onMaterialRemoved(int imat)
 {
-    World->DeleteMaterialIndex(imat);
+    World->onMaterialRemoved(imat);
+
+    populateGeoManager();
 }
 
 bool AGeometryHub::isVolumeExistAndActive(const QString & name) const

@@ -14,10 +14,11 @@ AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->tabwMat, &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onMatCellDoubleClicked);
+    connect(&MatHub, &AMaterialHub::materialsChanged, this, &AInterfaceRuleWin::updateGui);
+    connect(&RuleHub, &AInterfaceRuleHub::rulesLoaded, this, &AInterfaceRuleWin::updateGui);
 
     updateGui();
 }
-
 
 AInterfaceRuleWin::~AInterfaceRuleWin()
 {

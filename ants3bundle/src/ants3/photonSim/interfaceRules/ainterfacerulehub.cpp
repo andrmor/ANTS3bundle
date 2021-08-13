@@ -27,6 +27,28 @@ void AInterfaceRuleHub::updateWaveResolvedProperties()
             r->initializeWaveResolved();
 }
 
+void AInterfaceRuleHub::onMaterialRemoved(int iMat)
+{
+    const int size = Rules.size();
+
+    //delete rules from this material to other ones
+    for (int iOther = 0; iOther < size; iOther++)
+    {
+        delete Rules[iMat][iOther]; Rules[iMat][iOther] = nullptr;
+    }
+
+    //delete rules from other materials to this one
+    for (int iOther = 0; iOther < size; iOther++)
+    {
+        if (iOther == iMat) continue;
+
+        delete Rules[iOther][iMat]; Rules[iOther][iMat] = nullptr;
+        Rules[iOther].erase(Rules[iOther].begin() + iMat);
+    }
+
+    Rules.erase(Rules.begin() + iMat);
+}
+
 void AInterfaceRuleHub::clearRules()
 {
     for (auto & rv : Rules)
@@ -92,7 +114,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
         Rules[MatFrom][MatTo] = rule;
     }
 
-    emit interfaceRulesChanged();
+    emit rulesLoaded();
     return "";
 }
 
@@ -115,32 +137,9 @@ QString AInterfaceRuleHub::checkAll()
     return err;
 }
 
-void AInterfaceRuleHub::onNewMaterialAdded()
+void AInterfaceRuleHub::onMaterialAdded()
 {
-
+    const int size = Rules.size();
+    for (auto & r : Rules) r.push_back(nullptr);
+    Rules.push_back(std::vector<AInterfaceRule*>(size+1, nullptr));
 }
-
-void AInterfaceRuleHub::onMaterialDeleted(int iMat)
-{
-    /*
-    //clear overrides from other materials to this one
-    for (int iOther=0; iOther<size; iOther++)
-    {
-        delete Materials[iOther]->OpticalOverrides[imat];
-        //Materials[iOther]->OpticalOverrides.remove(imat);
-        Materials[iOther]->OpticalOverrides.erase( std::next(Materials[iOther]->OpticalOverrides.begin(), imat) );
-    }
-
-    //delete this material
-    delete Materials[imat];
-    //Materials.remove(imat);
-    Materials.erase( std::next(Materials.begin(), imat) );
-
-    //update indices of override materials
-    for (int i=0; i<size-1; i++)
-        for (int j=0; j<size-1; j++)
-            if (Materials[i]->OpticalOverrides[j])
-                Materials[i]->OpticalOverrides[j]->updateMatIndices(i, j);
-    */
-}
-
