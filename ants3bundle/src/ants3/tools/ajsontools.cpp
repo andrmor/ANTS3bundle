@@ -6,7 +6,8 @@
 
 #include <cmath>
 
-//#include "TH1D.h"
+#include "TH1D.h"
+#include "TH2D.h"
 
 bool jstools::saveJsonToFile(const QJsonObject &json, const QString &fileName)
 {
@@ -54,6 +55,7 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, bool &var)
     }
     else return false;
 }
+
 bool jstools::parseJson(const QJsonObject &json, const QString &key, int &var)
 {
     if (json.contains(key))
@@ -86,6 +88,17 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, double &var
     }
     else return false;
 }
+
+bool jstools::parseJson(const QJsonObject &json, const QString &key, long &var)
+{
+    if (json.contains(key))
+    {
+        var = json[key].toDouble();
+        return true;
+    }
+    else return false;
+}
+
 bool jstools::parseJson(const QJsonObject &json, const QString &key, float &var)
 {
     if (json.contains(key))
@@ -95,6 +108,7 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, float &var)
     }
     else return false;
 }
+
 bool jstools::parseJson(const QJsonObject &json, const QString &key, QString &var)
 {
     if (json.contains(key))
@@ -125,20 +139,61 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, QJsonObject
     else return false;
 }
 
-
-/*
-bool jstools::writeTH1DtoJsonArr(TH1D * hist, QJsonArray &ja)
+QJsonObject jstools::regularTh1dToJson(TH1D * hist)
 {
-    for (int i=1; i<hist->GetSize(); i++)
+    QJsonObject json;
+    if (!hist) return json;
+
+    const int numBins = hist->GetNbinsX();
+    json["Bins"] = numBins;
+    json["From"] = hist->GetXaxis()->GetXmin();
+    json["To"]   = hist->GetXaxis()->GetXmax();
+
+    QJsonArray ar;
+    for (int i = 0; i < numBins+2; i++)
     {
         QJsonArray el;
-        el.append(hist->GetBinLowEdge(i));
-        el.append(hist->GetBinContent(i));
-        ja.append(el);
+            el.append(hist->GetBinCenter(i));
+            el.append(hist->GetBinContent(i));
+        ar.append(el);
     }
-    return true;
+    json["Data"] = ar;
+
+    json["Entries"] = hist->GetEntries();
+
+    return json;
 }
-*/
+
+QJsonObject jstools::regularTh2dToJson(TH2D * hist)
+{
+    QJsonObject json;
+    if (!hist) return json;
+
+    const int numX = hist->GetNbinsX();
+    json["Xbins"] = numX;
+    const int numY = hist->GetNbinsY();
+    json["Ybins"] = numY;
+    json["Xfrom"] = hist->GetXaxis()->GetXmin();
+    json["Xto"]   = hist->GetXaxis()->GetXmax();
+    json["Yfrom"] = hist->GetYaxis()->GetXmin();
+    json["Yto"]   = hist->GetYaxis()->GetXmax();
+
+    QJsonArray ar;
+    for (int iX = 0; iX < numX+2; iX++)
+        for (int iY = 0; iY < numY+2; iY++)
+        {
+            QJsonArray el;
+                el.append(hist->GetXaxis()->GetBinCenter(iX));
+                el.append(hist->GetYaxis()->GetBinCenter(iY));
+                el.append(hist->GetBinContent(iX, iY));
+            ar.append(el);
+        }
+    json["Data"] = ar;
+
+    json["Entries"] = hist->GetEntries();
+
+    return json;
+}
 
 /*
 bool jstools::writeTwoQVectorsToJArray(const QVector<double> &x, const QVector<double> &y, QJsonArray &ar)

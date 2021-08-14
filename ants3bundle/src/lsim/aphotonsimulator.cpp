@@ -1,6 +1,5 @@
 #include "aphotonsimulator.h"
 #include "alogger.h"
-#include "ajsontools.h"
 #include "amaterialhub.h"
 #include "ainterfacerulehub.h"
 #include "ageometryhub.h"
@@ -79,6 +78,13 @@ void APhotonSimulator::start()
     case EPhotSimType::IndividualPhotons :
         break;
     default:;
+    }
+
+    if (SimSet.RunSet.SaveStatistics)
+    {
+        QJsonObject json;
+        AStatisticsHub::getInstance().SimStat.writeToJson(json);
+        jstools::saveJsonToFile(json, SimSet.RunSet.FileNameStatistics);
     }
 
     QCoreApplication::exit();
@@ -425,7 +431,6 @@ bool APhotonSimulator::simulateGrid()
 
 bool APhotonSimulator::simulateFlood()
 {
-    qDebug() << "aaaaaaaa";
     const AFloodSettings & FloodSet = SimSet.BombSet.FloodSettings;
 
     //extracting flood parameters

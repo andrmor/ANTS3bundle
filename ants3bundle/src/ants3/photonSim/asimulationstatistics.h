@@ -14,6 +14,7 @@ class TH1I;
 class TH1D;
 class AMonitor;
 class AGeoObject;
+class QJsonObject;
 
 class ASimulationStatistics
 {
@@ -32,8 +33,10 @@ public:
     void registerAngle(double angle);
     void registerNumTrans(int NumTransitions);
 
-    //since every thread has its own statistics container:
-    void AppendSimulationStatistics(ASimulationStatistics *from);
+    void appendSimulationStatistics(ASimulationStatistics * from);
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     //photon loss statistics
     long Absorbed, InterfaceRuleLoss, HitSensor, Escaped, LossOnGrid, TracingSkipped, MaxTransitions, GeneratedOutside, MonitorKill;
@@ -42,6 +45,7 @@ public:
     long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission;
     long InterfaceRuleBack, InterfaceRuleForward;
 
+    // !!!*** to separate class hosted in AStatisticsHub
 //    QVector< QVector <APhotonHistoryLog> > PhotonHistoryLog;    !!!***
     QSet<int>        MustNotInclude_Processes; // v.fast
     QVector<int>     MustInclude_Processes;    // slow
