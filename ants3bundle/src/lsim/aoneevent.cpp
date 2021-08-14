@@ -57,9 +57,10 @@ bool AOneEvent::CheckPMThit(int ipm, double time, int WaveIndex, double x, doubl
     DetProbability *= PMs->getActualAreaResponse(ipm, x, y);
     if (rnd > DetProbability)  //random number is provided by the tracker - done for the accelerator function
         return false;
-
-//    if (SimSet->LogsStatOptions.bPhotonDetectionStat) CollectStatistics(WaveIndex, time, cosAngle, Transitions);
 */
+
+    if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(WaveIndex, time, cosAngle, Transitions);
+
     PMhits[ipm] += 1.0f;
     return true;
 }
@@ -287,7 +288,7 @@ float AOneEvent::generateDarkHitIncrement(int ipm) const
 */
 }
 
-void AOneEvent::CollectStatistics(int WaveIndex, double time, double cosAngle, int Transitions)
+void AOneEvent::fillDetectionStatistics(int WaveIndex, double time, double cosAngle, int Transitions)
 {
     double angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
 

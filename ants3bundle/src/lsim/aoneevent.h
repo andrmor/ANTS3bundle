@@ -31,7 +31,7 @@ public:
     //  void addHits(int ipm, float hits) {PMhits[ipm] += hits;}
     void addSignals(int ipm, float signal) {PMsignals[ipm] += signal;}  //only used in LRF-based sim
 
-    void CollectStatistics(int WaveIndex, double time, double cosAngle, int Transitions);
+    void fillDetectionStatistics(int WaveIndex, double time, double cosAngle, int Transitions);
 
 private:
     const APhotonSimSettings & SimSet;

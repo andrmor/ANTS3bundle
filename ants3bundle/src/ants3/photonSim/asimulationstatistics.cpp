@@ -23,6 +23,7 @@ void ASimulationStatistics::clearAll()
     clearMonitors();
 }
 
+//#include "aphotonsimhub.h"
 void ASimulationStatistics::initialize(std::vector<const AGeoObject*> monitorRecords, int nBins, int waveNodes)
 {
     if (nBins != 0)     NumBins = nBins;
@@ -30,10 +31,11 @@ void ASimulationStatistics::initialize(std::vector<const AGeoObject*> monitorRec
 
     delete WaveDistr;
     if (WaveNodes != 0)     WaveDistr = new TH1D("", "", WaveNodes, 0, WaveNodes);
-    else                    WaveDistr = new TH1D("", "", NumBins, 0, -1);
-    delete TimeDistr;       TimeDistr = new TH1D("", "", NumBins, 0, -1);
-    delete AngularDistr;    AngularDistr = new TH1D("", "", NumBins, 0, 90.0);
-    delete TransitionDistr; TransitionDistr = new TH1D("", "", NumBins, 0,-1);
+    else                    WaveDistr = new TH1D("", "", 1, -1, 0);
+    delete TimeDistr;       TimeDistr = new TH1D("", "", NumBins, 0, 0);
+    delete AngularDistr;    AngularDistr = new TH1D("", "", 90, 0, 90.0);
+    //delete TransitionDistr; TransitionDistr = new TH1D("", "", NumBins, 0, APhotonSimHub::getConstInstance().Settings.OptSet.MaxPhotonTransitions+1);
+    delete TransitionDistr; TransitionDistr = new TH1D("", "", NumBins, 0, 0);
 
     Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 

@@ -91,7 +91,6 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         if (SimSet.RunSet.SavePhotonLog)
         {
             PhLog.clear();
-            PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
             PhLog.append( APhotonHistoryLog(p->r, "", p->time, p->waveIndex, APhotonHistoryLog::GeneratedOutsideGeometry) );
         }
         return;
@@ -125,7 +124,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         PhLog.append( APhotonHistoryLog(p->r, Navigator->GetCurrentVolume()->GetName(), p->time, p->waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
     }
 
-    Counter = -1; //number of photon transitions - there is a limit on this set by user
+    Counter = 0; //number of photon transitions - there is a limit on this set by user
     //---------------------------------------------=====cycle=====-----------------------------------------
     while (Counter < SimSet.OptSet.MaxPhotonTransitions)
     {
@@ -341,7 +340,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
                     PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
                 }
                 Track.HitSensor = true;
-                PMwasHit(iSensor);
+                processSensorHit(iSensor);
                 SimStat.HitSensor++;
                 goto force_stop_tracing; //finished with this photon
             }
@@ -693,7 +692,7 @@ double APhotonTracer::CalculateReflectionCoefficient()
     }
 }
 
-void APhotonTracer::PMwasHit(int PMnumber)
+void APhotonTracer::processSensorHit(int PMnumber)
 {
     const bool fSiPM = SensorHub.isSiPM(PMnumber);
 
@@ -705,19 +704,14 @@ void APhotonTracer::PMwasHit(int PMnumber)
         //qDebug()<<local[0]<<local[1];
     }
 
-    double cosAngle;  //undefined for not AngResolved!
-    if (SensorHub.isAngularResolvedPDE(PMnumber))
-    {
-        //since we check vs cos of _refracted_:
-        if (fDoFresnel) PerformRefraction( RefrIndexFrom / RefrIndexTo); // true - successful
-        if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
-        //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
-        //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);
-        cosAngle = 0;
-        for (int i=0; i<3; i++)
-            cosAngle += N[i] * p->v[i];
-        //       qDebug()<<"cos() = "<<cosAngle;
-    }
+    //since we check vs cos of _refracted_:
+    if (fDoFresnel) PerformRefraction( RefrIndexFrom / RefrIndexTo); // true - successful
+    if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
+    //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
+    //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);
+    double cosAngle = 0;
+    for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
+    //       qDebug()<<"cos() = "<<cosAngle;
 
     if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandomHub.uniform(); //else already calculated
 
