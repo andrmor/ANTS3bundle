@@ -41,6 +41,7 @@ private:
     AFileMerger SignalFileMerger;
     AFileMerger TrackFileMerger;
     AFileMerger BombFileMerger;
+    AFileMerger StatisticsFileMerger;
 
 };
 

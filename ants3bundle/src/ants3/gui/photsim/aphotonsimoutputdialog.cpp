@@ -14,15 +14,20 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
     ui->leOutputDirectory->setText(RunSet.OutputDirectory);
-    ui->leSensorSignals->setText(RunSet.FileNameSensorSignals);
-    ui->lePhotonTracks->setText(RunSet.FileNameTracks);
-    ui->leBombs->setText(RunSet.FileNamePhotonBombs);
 
     ui->cbSensorSignals->setChecked(RunSet.SaveSensorSignals);
-    ui->cbPhotonTracks->setChecked(RunSet.SaveTracks);
-    ui->cbBombs->setChecked(RunSet.SavePhotonBombs);
+    ui->leSensorSignals->setText(RunSet.FileNameSensorSignals);
 
+    ui->cbPhotonTracks->setChecked(RunSet.SaveTracks);
+    ui->lePhotonTracks->setText(RunSet.FileNameTracks);
     ui->sbMaxTracks->setValue(RunSet.MaxTracks);
+
+    ui->cbBombs->setChecked(RunSet.SavePhotonBombs);
+    ui->leBombs->setText(RunSet.FileNamePhotonBombs);
+
+    ui->cbStatistics->setChecked(RunSet.SaveStatistics);
+    ui->leStatistics->setText(RunSet.FileNameStatistics);
+
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -35,15 +40,19 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
     APhotSimRunSettings & RunSet = APhotonSimHub::getInstance().Settings.RunSet;
 
     RunSet.OutputDirectory       = ui->leOutputDirectory->text();
-    RunSet.FileNameSensorSignals = ui->leSensorSignals->text();
-    RunSet.FileNameTracks        = ui->lePhotonTracks->text();
-    RunSet.FileNamePhotonBombs   = ui->leBombs->text();
 
     RunSet.SaveSensorSignals     = ui->cbSensorSignals->isChecked();
-    RunSet.SaveTracks            = ui->cbPhotonTracks->isChecked();
-    RunSet.SavePhotonBombs       = ui->cbBombs->isChecked();
+    RunSet.FileNameSensorSignals = ui->leSensorSignals->text();
 
+    RunSet.SaveTracks            = ui->cbPhotonTracks->isChecked();
+    RunSet.FileNameTracks        = ui->lePhotonTracks->text();
     RunSet.MaxTracks             = ui->sbMaxTracks->value();
+
+    RunSet.SavePhotonBombs       = ui->cbBombs->isChecked();
+    RunSet.FileNamePhotonBombs   = ui->leBombs->text();
+
+    RunSet.SaveStatistics        = ui->cbStatistics->isChecked();
+    RunSet.FileNameStatistics    = ui->leStatistics->text();
 
     accept();
 }
@@ -74,5 +83,11 @@ void APhotonSimOutputDialog::on_pbChangeBombs_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file to save photon bomb data", ui->leOutputDirectory->text());
     if (!fileName.isEmpty()) ui->leBombs->setText(fileName);
+}
+
+void APhotonSimOutputDialog::on_pbChangeStatistics_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save tracing/detection statistics", ui->leOutputDirectory->text());
+    if (!fileName.isEmpty()) ui->leStatistics->setText(fileName);
 }
 

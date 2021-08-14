@@ -84,7 +84,7 @@ void APhotonSimulator::start()
     {
         QJsonObject json;
         AStatisticsHub::getInstance().SimStat.writeToJson(json);
-        jstools::saveJsonToFile(json, SimSet.RunSet.FileNameStatistics);
+        jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameStatistics);
     }
 
     QCoreApplication::exit();

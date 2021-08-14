@@ -22,6 +22,8 @@ private slots:
     void on_pbChangeTracks_clicked();
     void on_pbChangeBombs_clicked();
 
+    void on_pbChangeStatistics_clicked();
+
 private:
     Ui::APhotonSimOutputDialog *ui;
 };
