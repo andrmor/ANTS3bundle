@@ -1,7 +1,7 @@
 #include "ametalinterfacerule.h"
 #include "amaterialhub.h"
 #include "aphoton.h"
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
 

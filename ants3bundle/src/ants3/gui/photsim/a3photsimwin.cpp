@@ -260,6 +260,13 @@ void A3PhotSimWin::on_pbSimulate_clicked()
             ui->leTracksFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameTracks);
             on_pbLoadAndShowTracks_clicked();
         }
+
+        if (SimSet.RunSet.SaveStatistics)
+        {
+            ui->leStatisticsFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameStatistics);
+            on_pbLoadAndShowStatistics_clicked();
+        }
+
     }
 }
 
@@ -432,5 +439,71 @@ void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
 
     emit requestShowGeometry(); // !!!***
     emit requestShowTracks();
+}
+
+#include "astatisticshub.h"
+void A3PhotSimWin::on_pbSelectStatisticsFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon statistics", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leStatisticsFile->setText(fileName);
+}
+void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
+{
+    const QString FileName = ui->leStatisticsFile->text();
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, FileName);
+    if(!ok)
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    Stat.readFromJson(json);
+
+    const int sum = Stat.Absorbed + Stat.InterfaceRuleLoss + Stat.HitSensor + Stat.Escaped + Stat.LossOnGrid + Stat.TracingSkipped +
+                    Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill;
+
+    QString s;
+    s += "Optical processes:\n"
+         "   Absorption (bulk): "      + QString::number(Stat.BulkAbsorption)       + "\n" +
+         "   Fresnel transmission: "   + QString::number(Stat.FresnelTransmitted)   + "\n" +
+         "   Fresnel reflection: "     + QString::number(Stat.FresnelReflected)     + "\n" +
+         "   InterfaceRule, loss: "    + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
+         "   InterfaceRule, back: "    + QString::number(Stat.InterfaceRuleBack)    + "\n" +
+         "   InterfaceRule, forward: " + QString::number(Stat.InterfaceRuleForward) + "\n" +
+         "   Rayleigh: "               + QString::number(Stat.Rayleigh)             + "\n" +
+         "   Reemission: "             + QString::number(Stat.Reemission)           + "\n" +
+         "\n" +
+         "Photon tracing end:\n" +
+         "   Absorbed: "               + QString::number(Stat.Absorbed)             + "\n" +
+         "   Escaped world: "          + QString::number(Stat.Escaped)              + "\n" +
+         "   Generated outside world: "+ QString::number(Stat.GeneratedOutside)     + "\n" +
+         "   Hit sensor: "             + QString::number(Stat.HitSensor)            + "\n" +
+         "   InterfaceRule loss: "     + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
+         "   Max transitions reached: "+ QString::number(Stat.MaxTransitions)       + "\n" +
+         "   Monitor kill: "           + QString::number(Stat.MonitorKill)          + "\n" +
+         "   Optical grid loss: "      + QString::number(Stat.LossOnGrid)           + "\n" +
+         "   Tracing skipped: "        + QString::number(Stat.TracingSkipped)       + "\n" +
+         "Total: "                     + QString::number(sum);
+
+    ui->ptePhotonStatistics->clear();
+    ui->ptePhotonStatistics->appendPlainText(s);
+}
+void A3PhotSimWin::on_pbShowTransitionDistr_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbShowWaveDistr_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbShowTimeDistr_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbShowAngleDistr_clicked()
+{
+
 }
 

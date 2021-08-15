@@ -1,7 +1,7 @@
 #ifndef APHOTON
 #define APHOTON
 
-class ASimulationStatistics;
+class APhotonStatistics;
 
 class APhoton
 {

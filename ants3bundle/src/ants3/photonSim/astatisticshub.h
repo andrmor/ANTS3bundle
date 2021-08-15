@@ -1,7 +1,7 @@
 #ifndef ASTATISTICSHUB_H
 #define ASTATISTICSHUB_H
 
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 
 class AStatisticsHub
 {
@@ -18,7 +18,7 @@ private:
     AStatisticsHub& operator=(AStatisticsHub&&)      = delete;
 
 public:
-    ASimulationStatistics SimStat;
+    APhotonStatistics SimStat;
 };
 
 #endif // ASTATISTICSHUB_H

@@ -13,7 +13,7 @@ class AMaterialHub;
 class AInterfaceRuleHub;
 class ASensorHub;
 class ARandomHub;
-class ASimulationStatistics;
+class APhotonStatistics;
 class APhoton;
 class TGeoManager;
 class AMaterial;
@@ -45,7 +45,7 @@ private:
     const ASensorHub         & SensorHub;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
-    ASimulationStatistics    & SimStat;
+    APhotonStatistics    & SimStat;
 
     AOneEvent     & Event;
 

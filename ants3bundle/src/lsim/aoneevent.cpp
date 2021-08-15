@@ -3,7 +3,7 @@
 #include "arandomhub.h"
 #include "aphotonsimhub.h"
 #include "astatisticshub.h"
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 #include "aphotonsimsettings.h"
 //#include "acustomrandomsampling.h"
 

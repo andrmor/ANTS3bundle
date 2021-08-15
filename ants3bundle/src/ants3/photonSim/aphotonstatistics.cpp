@@ -1,4 +1,4 @@
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 #include "aphotonsimhub.h"
 #include "ageoobject.h"
 #include "amonitor.h"
@@ -9,12 +9,12 @@
 
 #include "TH1D.h"
 
-ASimulationStatistics::~ASimulationStatistics()
+APhotonStatistics::~APhotonStatistics()
 {
     clear();
 }
 
-void ASimulationStatistics::clear()
+void APhotonStatistics::clear()
 {
     Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 
@@ -30,7 +30,7 @@ void ASimulationStatistics::clear()
 }
 
 #include "ageometryhub.h"
-void ASimulationStatistics::init()
+void APhotonStatistics::init()
 {
     clear();
 
@@ -55,32 +55,32 @@ void ASimulationStatistics::init()
 //        Monitors.push_back(new AMonitor(obj));
 }
 
-bool ASimulationStatistics::isEmpty()
+bool APhotonStatistics::isEmpty()
 {    
     return (countPhotons() == 0);
 }
 
-void ASimulationStatistics::registerWave(int iWave)
+void APhotonStatistics::registerWave(int iWave)
 {
     WaveDistr->Fill(iWave);
 }
 
-void ASimulationStatistics::registerTime(double Time)
+void APhotonStatistics::registerTime(double Time)
 {
     TimeDistr->Fill(Time);
 }
 
-void ASimulationStatistics::registerAngle(double angle)
+void APhotonStatistics::registerAngle(double angle)
 {
     AngularDistr->Fill(angle);
 }
 
-void ASimulationStatistics::registerNumTrans(int NumTransitions)
+void APhotonStatistics::registerNumTrans(int NumTransitions)
 {
     TransitionDistr->Fill(NumTransitions);
 }
 
-void ASimulationStatistics::append(ASimulationStatistics & from)
+void APhotonStatistics::append(APhotonStatistics & from)
 {
     appendTH1D(AngularDistr,    from.AngularDistr);
     appendTH1D(TimeDistr,       from.TimeDistr);
@@ -120,7 +120,7 @@ void ASimulationStatistics::append(ASimulationStatistics & from)
 */
 }
 
-void ASimulationStatistics::writeToJson(QJsonObject & json) const
+void APhotonStatistics::writeToJson(QJsonObject & json) const
 {
     json["Absorbed"]             = (double)Absorbed;
     json["InterfaceRuleLoss"]    = (double)InterfaceRuleLoss;
@@ -155,7 +155,7 @@ void toDistr(const QJsonObject & json, const QString & name, TH1D* & Distr)
     else     Distr = jstools::jsonToRegularTh1D(js);
 }
 
-void ASimulationStatistics::readFromJson(const QJsonObject & json)
+void APhotonStatistics::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Absorbed"            , Absorbed);
     jstools::parseJson(json, "InterfaceRuleLoss"   , InterfaceRuleLoss);
@@ -182,12 +182,12 @@ void ASimulationStatistics::readFromJson(const QJsonObject & json)
     toDistr(json, "TransitionDistr", TransitionDistr);
 }
 
-long ASimulationStatistics::countPhotons()
+long APhotonStatistics::countPhotons()
 {
     return Absorbed + InterfaceRuleLoss + HitSensor + Escaped + LossOnGrid + TracingSkipped + MaxTransitions + GeneratedOutside + MonitorKill;
 }
 
-void ASimulationStatistics::clearMonitors()
+void APhotonStatistics::clearMonitors()
 {
     for (AMonitor * mon : Monitors) delete mon;
     Monitors.clear();

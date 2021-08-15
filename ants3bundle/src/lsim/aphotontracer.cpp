@@ -8,7 +8,7 @@
 #include "astatisticshub.h"
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 #include "aoneevent.h"
 //#include "agridelementrecord.h"
 #include "aphoton.h"

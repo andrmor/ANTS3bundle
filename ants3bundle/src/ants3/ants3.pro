@@ -110,10 +110,10 @@ SOURCES += \
     photonSim/aphoton.cpp \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
+    photonSim/aphotonstatistics.cpp \
     photonSim/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
     photonSim/asensormodel.cpp \
-    photonSim/asimulationstatistics.cpp \
     photonSim/astatisticshub.cpp \
     photonSim/interfaceRules/abasicinterfacerule.cpp \
     photonSim/interfaceRules/ainterfacerule.cpp \
@@ -186,11 +186,11 @@ HEADERS += \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \
+    photonSim/aphotonstatistics.h \
     photonSim/aphotontrackrecord.h \
     photonSim/aroothistappenders.h \
     photonSim/asensorhub.h \
     photonSim/asensormodel.h \
-    photonSim/asimulationstatistics.h \
     photonSim/astatisticshub.h \
     photonSim/interfaceRules/abasicinterfacerule.h \
     photonSim/interfaceRules/ainterfacerule.h \

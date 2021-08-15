@@ -7,7 +7,7 @@
 class ASensorHub;
 class ARandomHub;
 class APhotonSimSettings;
-class ASimulationStatistics;
+class APhotonStatistics;
 
 class AOneEvent
 {
@@ -37,7 +37,7 @@ private:
     const APhotonSimSettings & SimSet;
     const ASensorHub         & SensorHub;
     ARandomHub               & RandomHub;
-    ASimulationStatistics    & SimStat;
+    APhotonStatistics    & SimStat;
 
     //settings
     int numPMs;

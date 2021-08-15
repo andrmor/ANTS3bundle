@@ -67,6 +67,18 @@ private slots:
 
     void on_pbLoadAndShowTracks_clicked();
 
+    void on_pbSelectStatisticsFile_clicked();
+
+    void on_pbLoadAndShowStatistics_clicked();
+
+    void on_pbShowTransitionDistr_clicked();
+
+    void on_pbShowWaveDistr_clicked();
+
+    void on_pbShowTimeDistr_clicked();
+
+    void on_pbShowAngleDistr_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;

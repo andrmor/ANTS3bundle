@@ -2,7 +2,7 @@
 #include "aphoton.h"
 #include "amaterial.h"
 #include "amaterialhub.h"
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 #include "ajsontools.h"
 #include "arandomhub.h"
 

@@ -18,10 +18,10 @@ class QJsonObject;
 
 //     TODO: !!!***  move monitors and photon log to separate objects!
 
-class ASimulationStatistics
+class APhotonStatistics
 {
 public:
-    ~ASimulationStatistics();
+    ~APhotonStatistics();
 
     void init();
 
@@ -34,7 +34,7 @@ public:
     void registerAngle(double angle);
     void registerNumTrans(int NumTransitions);
 
-    void append(ASimulationStatistics & from);
+    void append(APhotonStatistics & from);
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

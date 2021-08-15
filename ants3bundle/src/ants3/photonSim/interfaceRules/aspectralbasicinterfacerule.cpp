@@ -3,7 +3,7 @@
 #include "amaterial.h"
 #include "amaterialhub.h"
 #include "aphotonsimhub.h"
-#include "asimulationstatistics.h"
+#include "aphotonstatistics.h"
 //#include "acommonfunctions.h"
 #include "ajsontools.h"
 

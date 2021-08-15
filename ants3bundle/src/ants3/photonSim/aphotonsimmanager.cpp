@@ -106,7 +106,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
     if (SimSet.RunSet.SavePhotonBombs)   ErrorString += BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
 
-    ASimulationStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     Stat.clear();
     if (SimSet.RunSet.SaveStatistics)
     {
@@ -116,7 +116,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             bool ok = jstools::loadJsonFromFile(json, FN);
             if (ok)
             {
-                ASimulationStatistics thisStat;
+                APhotonStatistics thisStat;
                 thisStat.readFromJson(json);
                 Stat.append(thisStat);
             }
