@@ -1,4 +1,5 @@
 #include "asimulationstatistics.h"
+#include "aphotonsimhub.h"
 #include "ageoobject.h"
 #include "amonitor.h"
 #include "aroothistappenders.h"
@@ -23,19 +24,22 @@ void ASimulationStatistics::clearAll()
     clearMonitors();
 }
 
-//#include "aphotonsimhub.h"
-void ASimulationStatistics::initialize(std::vector<const AGeoObject*> monitorRecords, int nBins, int waveNodes)
+#include "ageometryhub.h"
+void ASimulationStatistics::init()
 {
-    if (nBins != 0)     NumBins = nBins;
-    if (waveNodes != 0) WaveNodes = waveNodes;
+    const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
+    const int WaveNodes = SimSet.WaveSet.countNodes();
     delete WaveDistr;
-    if (WaveNodes != 0)     WaveDistr = new TH1D("", "", WaveNodes, 0, WaveNodes);
-    else                    WaveDistr = new TH1D("", "", 1, -1, 0);
-    delete TimeDistr;       TimeDistr = new TH1D("", "", NumBins, 0, 0);
-    delete AngularDistr;    AngularDistr = new TH1D("", "", 90, 0, 90.0);
-    //delete TransitionDistr; TransitionDistr = new TH1D("", "", NumBins, 0, APhotonSimHub::getConstInstance().Settings.OptSet.MaxPhotonTransitions+1);
-    delete TransitionDistr; TransitionDistr = new TH1D("", "", NumBins, 0, 0);
+    if (SimSet.WaveSet.Enabled) WaveDistr       = new TH1D("", "", WaveNodes, 0, WaveNodes);
+    else                        WaveDistr       = new TH1D("", "", 1, -1, 0);
+
+    delete TimeDistr;           TimeDistr       = new TH1D("", "", 100, 0, SimSet.RunSet.UpperTimeLimit);
+
+    delete AngularDistr;        AngularDistr    = new TH1D("", "", 90, 0, 90.0);
+
+    //delete TransitionDistr;     TransitionDistr = new TH1D("", "", 100, 0, 0);
+    delete TransitionDistr;     TransitionDistr = new TH1D("", "", 100, 0, SimSet.OptSet.MaxPhotonTransitions+1);
 
     Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 
@@ -46,13 +50,13 @@ void ASimulationStatistics::initialize(std::vector<const AGeoObject*> monitorRec
 //    PhotonHistoryLog.squeeze(); !!!***
 
     clearMonitors();
-    for (const AGeoObject * obj : monitorRecords)
+    for (const AGeoObject * obj : AGeometryHub::getInstance().MonitorsRecords)
         Monitors.push_back(new AMonitor(obj));
 }
 
 bool ASimulationStatistics::isEmpty()
 {    
-  return (countPhotons() == 0);
+    return (countPhotons() == 0);
 }
 
 void ASimulationStatistics::registerWave(int iWave)
@@ -75,7 +79,7 @@ void ASimulationStatistics::registerNumTrans(int NumTransitions)
     TransitionDistr->Fill(NumTransitions);
 }
 
-void ASimulationStatistics::appendSimulationStatistics(ASimulationStatistics * from)
+void ASimulationStatistics::append(ASimulationStatistics * from)
 {
     appendTH1D(AngularDistr,    from->AngularDistr);
     appendTH1D(TimeDistr,       from->TimeDistr);
@@ -140,6 +144,14 @@ void ASimulationStatistics::writeToJson(QJsonObject & json) const
     json["TransitionDistr"]      = jstools::regularTh1dToJson(TransitionDistr);
 }
 
+void toDistr(const QJsonObject & json, const QString & name, TH1D* & Distr)
+{
+    QJsonObject js;
+    bool ok = jstools::parseJson(json, name, js);
+    if (!ok) Distr = nullptr;
+    else     Distr = jstools::jsonToRegularTh1D(js);
+}
+
 void ASimulationStatistics::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Absorbed"            , Absorbed);
@@ -161,7 +173,10 @@ void ASimulationStatistics::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "InterfaceRuleBack"   , InterfaceRuleBack);
     jstools::parseJson(json, "InterfaceRuleForward", InterfaceRuleForward);
 
-    // !!!***
+    toDistr(json, "WaveDistr",       WaveDistr);
+    toDistr(json, "TimeDistr",       TimeDistr);
+    toDistr(json, "AngularDistr",    AngularDistr);
+    toDistr(json, "TransitionDistr", TransitionDistr);
 }
 
 long ASimulationStatistics::countPhotons()

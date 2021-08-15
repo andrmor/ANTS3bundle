@@ -417,6 +417,7 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
 
     json["SavePhotonLog"]         = SavePhotonLog;
     json["FileNamePhotonLog"]     = FileNamePhotonLog;
+    json["UpperTimeLimit"]        = UpperTimeLimit;
 }
 
 void APhotSimRunSettings::readFromJson(const QJsonObject & json)
@@ -440,6 +441,7 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveStatistics",        SaveStatistics);
     jstools::parseJson(json, "FileNameStatistics",    FileNameStatistics);
+    jstools::parseJson(json, "UpperTimeLimit",        UpperTimeLimit);
 }
 
 // ---

@@ -21,8 +21,7 @@ class ASimulationStatistics
 public:
     ~ASimulationStatistics();
 
-    // !!!***
-    void initialize(std::vector<const AGeoObject *> monitorRecords = std::vector<const AGeoObject*>(), int nBins = 0, int waveNodes = 0); //0 - default (100) or previously set value will be used
+    void init();
 
     void clearAll();
 
@@ -33,7 +32,7 @@ public:
     void registerAngle(double angle);
     void registerNumTrans(int NumTransitions);
 
-    void appendSimulationStatistics(ASimulationStatistics * from);
+    void append(ASimulationStatistics * from);
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
@@ -53,8 +52,8 @@ public:
     QVector<QString> MustInclude_Volumes;      // v.slow
 
     //only for optical override tester!
-    long WaveChanged = 0;
-    long TimeChanged = 0;
+    long WaveChanged = 0;  // !!!*** to optical processes group?
+    long TimeChanged = 0;  // kill?
 
     std::vector<AMonitor*> Monitors;
 
@@ -64,9 +63,6 @@ public:
     TH1D * TransitionDistr = nullptr;
 
 private:
-    int NumBins = 100;
-    int WaveNodes = 0;
-
     long countPhotons();
     void clearMonitors();
 };

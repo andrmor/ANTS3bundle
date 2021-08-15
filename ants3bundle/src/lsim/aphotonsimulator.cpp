@@ -96,7 +96,7 @@ void APhotonSimulator::setupCommonProperties()
 
     AMaterialHub::getInstance().updateRuntimeProperties();
     AInterfaceRuleHub::getInstance().updateRuntimeProperties();
-    AStatisticsHub::getInstance().SimStat.initialize(AGeometryHub::getInstance().MonitorsRecords, 100, SimSet.WaveSet.countNodes());
+    AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();
     Tracer->init();

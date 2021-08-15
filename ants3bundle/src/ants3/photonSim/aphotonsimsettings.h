@@ -134,6 +134,7 @@ public:
 
     bool    SaveStatistics        = true;
     QString FileNameStatistics    = "Stats.txt";
+    double  UpperTimeLimit        = 100;
 
     bool    SavePhotonLog         = true;
     QString FileNamePhotonLog     = "PhotonLog.txt";
