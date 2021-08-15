@@ -11,47 +11,48 @@
 
 ASimulationStatistics::~ASimulationStatistics()
 {
-    clearAll();
+    clear();
 }
 
-void ASimulationStatistics::clearAll()
+void ASimulationStatistics::clear()
 {
-    delete WaveDistr;       WaveDistr       = nullptr;
-    delete TimeDistr;       TimeDistr       = nullptr;
-    delete AngularDistr;    AngularDistr    = nullptr;
-    delete TransitionDistr; TransitionDistr = nullptr;
-
-    clearMonitors();
-}
-
-#include "ageometryhub.h"
-void ASimulationStatistics::init()
-{
-    const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
-
-    const int WaveNodes = SimSet.WaveSet.countNodes();
-    delete WaveDistr;
-    if (SimSet.WaveSet.Enabled) WaveDistr       = new TH1D("", "", WaveNodes, 0, WaveNodes);
-    else                        WaveDistr       = new TH1D("", "", 1, -1, 0);
-
-    delete TimeDistr;           TimeDistr       = new TH1D("", "", 100, 0, SimSet.RunSet.UpperTimeLimit);
-
-    delete AngularDistr;        AngularDistr    = new TH1D("", "", 90, 0, 90.0);
-
-    //delete TransitionDistr;     TransitionDistr = new TH1D("", "", 100, 0, 0);
-    delete TransitionDistr;     TransitionDistr = new TH1D("", "", 100, 0, SimSet.OptSet.MaxPhotonTransitions+1);
-
     Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 
     FresnelTransmitted = FresnelReflected = BulkAbsorption = Rayleigh = Reemission = 0;
     InterfaceRuleForward = InterfaceRuleBack = 0;
 
-//    PhotonHistoryLog.clear();  !!!***
-//    PhotonHistoryLog.squeeze(); !!!***
+    delete WaveDistr;       WaveDistr       = nullptr;
+    delete TimeDistr;       TimeDistr       = nullptr;
+    delete AngularDistr;    AngularDistr    = nullptr;
+    delete TransitionDistr; TransitionDistr = nullptr;
 
-    clearMonitors();
-    for (const AGeoObject * obj : AGeometryHub::getInstance().MonitorsRecords)
-        Monitors.push_back(new AMonitor(obj));
+//    clearMonitors();
+}
+
+#include "ageometryhub.h"
+void ASimulationStatistics::init()
+{
+    clear();
+
+    const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
+    if (SimSet.WaveSet.Enabled)
+    {
+        const int WaveNodes = SimSet.WaveSet.countNodes();
+        WaveDistr   = new TH1D("", "", WaveNodes, 0, WaveNodes);
+    }
+    else
+    {
+        WaveDistr   = new TH1D("", "", 1, -1, 0);
+    }
+
+    TimeDistr       = new TH1D("", "", 100, 0, SimSet.RunSet.UpperTimeLimit);
+
+    AngularDistr    = new TH1D("", "", 90, 0, 90.0);
+
+    TransitionDistr = new TH1D("", "", 100, 0, SimSet.OptSet.MaxPhotonTransitions+1); //new TH1D("", "", 100, 0, 0);
+
+//    for (const AGeoObject * obj : AGeometryHub::getInstance().MonitorsRecords)
+//        Monitors.push_back(new AMonitor(obj));
 }
 
 bool ASimulationStatistics::isEmpty()
@@ -79,42 +80,44 @@ void ASimulationStatistics::registerNumTrans(int NumTransitions)
     TransitionDistr->Fill(NumTransitions);
 }
 
-void ASimulationStatistics::append(ASimulationStatistics * from)
+void ASimulationStatistics::append(ASimulationStatistics & from)
 {
-    appendTH1D(AngularDistr,    from->AngularDistr);
-    appendTH1D(TimeDistr,       from->TimeDistr);
-    appendTH1D(WaveDistr,       from->WaveDistr);
-    appendTH1D(TransitionDistr, from->TransitionDistr);
+    appendTH1D(AngularDistr,    from.AngularDistr);
+    appendTH1D(TimeDistr,       from.TimeDistr);
+    appendTH1D(WaveDistr,       from.WaveDistr);
+    appendTH1D(TransitionDistr, from.TransitionDistr);
 
-    Absorbed             += from->Absorbed;
-    InterfaceRuleLoss    += from->InterfaceRuleLoss;
-    HitSensor            += from->HitSensor;
-    Escaped              += from->Escaped;
-    LossOnGrid           += from->LossOnGrid;
-    TracingSkipped       += from->TracingSkipped;
-    MaxTransitions       += from->MaxTransitions;
-    GeneratedOutside     += from->GeneratedOutside;
-    MonitorKill          += from->MonitorKill;
+    Absorbed             += from.Absorbed;
+    InterfaceRuleLoss    += from.InterfaceRuleLoss;
+    HitSensor            += from.HitSensor;
+    Escaped              += from.Escaped;
+    LossOnGrid           += from.LossOnGrid;
+    TracingSkipped       += from.TracingSkipped;
+    MaxTransitions       += from.MaxTransitions;
+    GeneratedOutside     += from.GeneratedOutside;
+    MonitorKill          += from.MonitorKill;
 
-    FresnelTransmitted   += from->FresnelTransmitted;
-    FresnelReflected     += from->FresnelReflected;
-    BulkAbsorption       += from->BulkAbsorption;
-    Rayleigh             += from->Rayleigh;
-    Reemission           += from->Reemission;
+    FresnelTransmitted   += from.FresnelTransmitted;
+    FresnelReflected     += from.FresnelReflected;
+    BulkAbsorption       += from.BulkAbsorption;
+    Rayleigh             += from.Rayleigh;
+    Reemission           += from.Reemission;
 
-    InterfaceRuleBack    += from->InterfaceRuleBack;
-    InterfaceRuleForward += from->InterfaceRuleForward;
+    InterfaceRuleBack    += from.InterfaceRuleBack;
+    InterfaceRuleForward += from.InterfaceRuleForward;
 
-    if (Monitors.size() != from->Monitors.size())
+ /*   !!!***
+    if (Monitors.size() != from.Monitors.size())
     {
         qWarning() << "Cannot append monitor data - size mismatch:\n" <<
-                      "Monitors here and in 'from':" << Monitors.size() << from->Monitors.size();
+                      "Monitors here and in 'from':" << Monitors.size() << from.Monitors.size();
     }
     else
     {
         for (size_t i = 0; i < Monitors.size(); i++)
-            Monitors[i]->appendDataFromAnotherMonitor(from->Monitors[i]);
+            Monitors[i]->appendDataFromAnotherMonitor(from.Monitors[i]);
     }
+*/
 }
 
 void ASimulationStatistics::writeToJson(QJsonObject & json) const

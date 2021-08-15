@@ -16,6 +16,8 @@ class AMonitor;
 class AGeoObject;
 class QJsonObject;
 
+//     TODO: !!!***  move monitors and photon log to separate objects!
+
 class ASimulationStatistics
 {
 public:
@@ -23,7 +25,7 @@ public:
 
     void init();
 
-    void clearAll();
+    void clear();
 
     bool isEmpty();  //need update - particles added, so photons-only test is not valid
 
@@ -32,7 +34,7 @@ public:
     void registerAngle(double angle);
     void registerNumTrans(int NumTransitions);
 
-    void append(ASimulationStatistics * from);
+    void append(ASimulationStatistics & from);
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

@@ -38,10 +38,10 @@ protected:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 
 private:
-    AFileMerger SignalFileMerger;
-    AFileMerger TrackFileMerger;
-    AFileMerger BombFileMerger;
-    AFileMerger StatisticsFileMerger;
+    AFileMerger          SignalFileMerger;
+    AFileMerger          TrackFileMerger;
+    AFileMerger          BombFileMerger;
+    std::vector<QString> StatisticsFiles;
 
 };
 

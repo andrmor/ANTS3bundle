@@ -6,6 +6,7 @@
 #include "a3global.h"
 #include "a3dispinterface.h"
 #include "a3workdistrconfig.h"
+#include "astatisticshub.h"
 #include "ajsontools.h"
 
 #include <QDir>
@@ -21,6 +22,7 @@ const APhotonSimManager & APhotonSimManager::getConstInstance()
     return getInstance();
 }
 
+#include "TH1D.h"
 bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";
@@ -103,10 +105,25 @@ bool APhotonSimManager::simulate(int numLocalProc)
     if (SimSet.RunSet.SaveSensorSignals) ErrorString += SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
     if (SimSet.RunSet.SavePhotonBombs)   ErrorString += BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+
+    ASimulationStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    Stat.clear();
     if (SimSet.RunSet.SaveStatistics)
     {
-        // custom procedure !!!***
-        //ErrorString (OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
+        for (const QString & FN : StatisticsFiles)
+        {
+            QJsonObject json;
+            bool ok = jstools::loadJsonFromFile(json, FN);
+            if (ok)
+            {
+                ASimulationStatistics thisStat;
+                thisStat.readFromJson(json);
+                Stat.append(thisStat);
+            }
+        }
+        QJsonObject json;
+        Stat.writeToJson(json);
+        jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
     }
 
     qDebug() << "Photon simulation finished";
@@ -126,7 +143,7 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
     SignalFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
-    StatisticsFileMerger.clear();
+    StatisticsFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -196,11 +213,12 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
                 BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
             }
+
             if (SimSet.RunSet.SaveStatistics)
             {
                 WorkSet.RunSet.FileNameStatistics   = QString("stats-%0") .arg(iProcess);
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameStatistics);
-                StatisticsFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
+                StatisticsFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
             }
 
 

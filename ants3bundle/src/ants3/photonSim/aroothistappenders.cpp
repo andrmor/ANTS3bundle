@@ -5,25 +5,30 @@
 
 #include <QDebug>
 
-void appendTH1D(TH1D *toHist, TH1D *fromHist)
+void appendTH1D(TH1D* & toHist, const TH1D * fromHist)
 {
-    if (!toHist || !fromHist) return;
+    if (!toHist && !fromHist) return;
 
-    double numEntries = toHist->GetEntries();
+    if (!toHist)
+    {
+        toHist = static_cast<TH1D*>(fromHist->Clone());
+        return;
+    }
+
+    const double numEntries = toHist->GetEntries();
     if (numEntries < 1)
     {
-        *toHist = *fromHist;
+        toHist = static_cast<TH1D*>(fromHist->Clone());
+        return;
     }
-    else
-    {
-        int bins = fromHist->GetNbinsX();
 
-        for (int i = 0; i < bins+2; i++)
-            toHist->Fill(fromHist->GetBinCenter(i), fromHist->GetBinContent(i));
+    int bins = fromHist->GetNbinsX();
 
-        toHist->BufferEmpty(1); //otherwise set entries will not have effect for histograms with small number of entries (i.e. when buffer is not full)
-        toHist->TH1::SetEntries(numEntries + fromHist->GetEntries());
-    }
+    for (int i = 0; i < bins+2; i++)
+        toHist->Fill(fromHist->GetBinCenter(i), fromHist->GetBinContent(i));
+
+    toHist->BufferEmpty(1); //otherwise set entries will not have effect for histograms with small number of entries (i.e. when buffer is not full)
+    toHist->TH1::SetEntries(numEntries + fromHist->GetEntries());
 }
 
 /*

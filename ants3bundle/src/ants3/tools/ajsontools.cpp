@@ -296,6 +296,7 @@ TH1D * jstools::jsonToRegularTh1D(const QJsonObject & json)
         hist->Fill(el[0].toDouble(), el[1].toDouble());
     }
 
+    hist->BufferEmpty(1); //otherwise set entries will not have effect for histograms with small number of entries (i.e. when buffer is not full)
     hist->SetEntries(Entries);
     return hist;
 }
