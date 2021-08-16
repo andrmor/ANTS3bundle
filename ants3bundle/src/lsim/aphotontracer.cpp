@@ -13,6 +13,7 @@
 //#include "agridelementrecord.h"
 #include "aphoton.h"
 #include "amonitor.h"
+#include "amonitorhub.h"
 
 #include <QDebug>
 
@@ -357,23 +358,24 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 */
         case 'M': //monitor
             {
+                AMonitorHub & Mon = AMonitorHub::getInstance();
                 const int iMon = NodeAfterInterface->GetNumber();
                 //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
-                if (SimStat.Monitors[iMon]->isForPhotons())
+                if (Mon.Monitors[iMon]->isForPhotons())
                 {
                     Double_t local[3];
                     const Double_t *global = Navigator->GetCurrentPoint();
                     Navigator->MasterToLocal(global, local);
                     //qDebug()<<local[0]<<local[1];
                     //qDebug() << "Monitors:"<<SimStat.Monitors.size();
-                    if ( (local[2]>0 && SimStat.Monitors[iMon]->isUpperSensitive()) || (local[2]<0 && SimStat.Monitors[iMon]->isLowerSensitive()) )
+                    if ( (local[2]>0 && Mon.Monitors[iMon]->isUpperSensitive()) || (local[2]<0 && Mon.Monitors[iMon]->isLowerSensitive()) )
                     {
                         //angle?
                         if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
                         double cosAngle = 0;
                         for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
-                        SimStat.Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
-                        if (SimStat.Monitors[iMon]->isStopsTracking())
+                        Mon.Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
+                        if (Mon.Monitors[iMon]->isStopsTracking())
                         {
                             SimStat.MonitorKill++;
                             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );
@@ -385,7 +387,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
             }
         default:
             {
-            //other volumes have title '-'
+            //other volumes have title statring with '-'
             }
         }
 
@@ -422,22 +424,23 @@ void APhotonTracer::hardAbort()
 
 void APhotonTracer::AppendHistoryRecord()
 {
+    const APhotonLogSettings & LogSet = SimSet.RunSet.LogSet;
     bool bVeto = false;
     //by process
-    if (!SimStat.MustNotInclude_Processes.isEmpty())
+    if (!LogSet.MustNotInclude_Processes.isEmpty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( SimStat.MustNotInclude_Processes.contains(PhLog[i].process) )
+            if ( LogSet.MustNotInclude_Processes.contains(PhLog[i].process) )
             {
                 bVeto = true;
                 break;
             }
     }
     //by Volume
-    if (!bVeto && !SimStat.MustNotInclude_Volumes.isEmpty())
+    if (!bVeto && !LogSet.MustNotInclude_Volumes.isEmpty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( SimStat.MustNotInclude_Volumes.contains(PhLog[i].volumeName) )
+            if ( LogSet.MustNotInclude_Volumes.contains(PhLog[i].volumeName) )
             {
                 bVeto = true;
                 break;
@@ -448,11 +451,11 @@ void APhotonTracer::AppendHistoryRecord()
     {
         bool bFound = true;
         //in processes
-        for (int im = 0; im<SimStat.MustInclude_Processes.size(); im++)
+        for (int im = 0; im < LogSet.MustInclude_Processes.size(); im++)
         {
             bool bFoundThis = false;
             for (int i=PhLog.size()-1; i>-1; i--)
-                if ( SimStat.MustInclude_Processes[im] == PhLog[i].process)
+                if ( LogSet.MustInclude_Processes[im] == PhLog[i].process)
                 {
                     bFoundThis = true;
                     break;
@@ -467,11 +470,11 @@ void APhotonTracer::AppendHistoryRecord()
         //in volumes
         if (bFound)
         {
-            for (int im = 0; im<SimStat.MustInclude_Volumes.size(); im++)
+            for (int im = 0; im < LogSet.MustInclude_Volumes.size(); im++)
             {
                 bool bFoundThis = false;
                 for (int i=PhLog.size()-1; i>-1; i--)
-                    if ( SimStat.MustInclude_Volumes[im] == PhLog[i].volumeName)
+                    if ( LogSet.MustInclude_Volumes[im] == PhLog[i].volumeName)
                     {
                         bFoundThis = true;
                         break;

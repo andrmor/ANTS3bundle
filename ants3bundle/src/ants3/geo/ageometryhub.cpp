@@ -477,6 +477,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
+#include "amonitorhub.h"
 void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().Sensors.clear();
@@ -511,6 +512,8 @@ void AGeometryHub::populateGeoManager()
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
 
     GeoManager->CloseGeometry();
+
+    AMonitorHub::getInstance().init();
 }
 
 void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)

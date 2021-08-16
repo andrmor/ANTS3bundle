@@ -1,7 +1,5 @@
 #include "aphotonstatistics.h"
 #include "aphotonsimhub.h"
-#include "ageoobject.h"
-#include "amonitor.h"
 #include "aroothistappenders.h"
 #include "ajsontools.h"
 
@@ -25,11 +23,8 @@ void APhotonStatistics::clear()
     delete TimeDistr;       TimeDistr       = nullptr;
     delete AngularDistr;    AngularDistr    = nullptr;
     delete TransitionDistr; TransitionDistr = nullptr;
-
-//    clearMonitors();
 }
 
-#include "ageometryhub.h"
 void APhotonStatistics::init()
 {
     clear();
@@ -50,9 +45,6 @@ void APhotonStatistics::init()
     AngularDistr    = new TH1D("", "", 90, 0, 90.0);
 
     TransitionDistr = new TH1D("", "", 100, 0, SimSet.OptSet.MaxPhotonTransitions+1); //new TH1D("", "", 100, 0, 0);
-
-//    for (const AGeoObject * obj : AGeometryHub::getInstance().MonitorsRecords)
-//        Monitors.push_back(new AMonitor(obj));
 }
 
 bool APhotonStatistics::isEmpty()
@@ -80,7 +72,7 @@ void APhotonStatistics::registerNumTrans(int NumTransitions)
     TransitionDistr->Fill(NumTransitions);
 }
 
-void APhotonStatistics::append(APhotonStatistics & from)
+void APhotonStatistics::append(const APhotonStatistics &from)
 {
     appendTH1D(AngularDistr,    from.AngularDistr);
     appendTH1D(TimeDistr,       from.TimeDistr);
@@ -105,19 +97,6 @@ void APhotonStatistics::append(APhotonStatistics & from)
 
     InterfaceRuleBack    += from.InterfaceRuleBack;
     InterfaceRuleForward += from.InterfaceRuleForward;
-
- /*   !!!***
-    if (Monitors.size() != from.Monitors.size())
-    {
-        qWarning() << "Cannot append monitor data - size mismatch:\n" <<
-                      "Monitors here and in 'from':" << Monitors.size() << from.Monitors.size();
-    }
-    else
-    {
-        for (size_t i = 0; i < Monitors.size(); i++)
-            Monitors[i]->appendDataFromAnotherMonitor(from.Monitors[i]);
-    }
-*/
 }
 
 void APhotonStatistics::writeToJson(QJsonObject & json) const
@@ -147,12 +126,12 @@ void APhotonStatistics::writeToJson(QJsonObject & json) const
     json["TransitionDistr"]      = jstools::regularTh1dToJson(TransitionDistr);
 }
 
-void toDistr(const QJsonObject & json, const QString & name, TH1D* & Distr)
+void APhotonStatistics::toDistr(const QJsonObject & json, const QString & name, TH1D* & distr)
 {
     QJsonObject js;
     bool ok = jstools::parseJson(json, name, js);
-    if (!ok) Distr = nullptr;
-    else     Distr = jstools::jsonToRegularTh1D(js);
+    if (!ok) distr = nullptr;
+    else     distr = jstools::jsonToRegularTh1D(js);
 }
 
 void APhotonStatistics::readFromJson(const QJsonObject & json)
@@ -186,10 +165,3 @@ long APhotonStatistics::countPhotons()
 {
     return Absorbed + InterfaceRuleLoss + HitSensor + Escaped + LossOnGrid + TracingSkipped + MaxTransitions + GeneratedOutside + MonitorKill;
 }
-
-void APhotonStatistics::clearMonitors()
-{
-    for (AMonitor * mon : Monitors) delete mon;
-    Monitors.clear();
-}
-

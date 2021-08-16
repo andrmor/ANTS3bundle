@@ -403,8 +403,7 @@ void AGeometryWindow::ShowPMnumbers()
 void AGeometryWindow::ShowMonitorIndexes()
 {
     QVector<QString> tmp;
-    const std::vector<const AGeoObject*> & MonitorsRecords = Geometry.MonitorsRecords;
-    for (size_t i = 0; i < MonitorsRecords.size(); i++)
+    for (size_t i = 0; i < Geometry.MonitorsRecords.size(); i++)
         tmp.append( QString::number(i) );
     ShowText(tmp, kBlue, false);
 }

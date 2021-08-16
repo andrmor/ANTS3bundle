@@ -21,6 +21,7 @@ INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += \
+        ../ants3/geo/amonitorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
         ../ants3/tools/arandomhub.cpp \
@@ -67,6 +68,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/geo/amonitorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
     ../ants3/tools/arandomhub.h \

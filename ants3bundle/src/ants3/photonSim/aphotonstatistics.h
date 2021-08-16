@@ -1,22 +1,11 @@
 #ifndef ASIMULATIONSTATISTICS_H
 #define ASIMULATIONSTATISTICS_H
 
-//#include "aphotonhistorylog.h"    !!!***
-
-#include <QVector>   // to std::vector !!!***
-#include <QSet>
-
-#include "TString.h"
-
 #include <vector>
 
-class TH1I;
-class TH1D;
-class AMonitor;
-class AGeoObject;
 class QJsonObject;
-
-//     TODO: !!!***  move monitors and photon log to separate objects!
+class TH1D;
+class QString;
 
 class APhotonStatistics
 {
@@ -34,7 +23,7 @@ public:
     void registerAngle(double angle);
     void registerNumTrans(int NumTransitions);
 
-    void append(APhotonStatistics & from);
+    void append(const APhotonStatistics & from);
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
@@ -46,18 +35,9 @@ public:
     long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission;
     long InterfaceRuleBack, InterfaceRuleForward;
 
-    // !!!*** to separate class hosted in AStatisticsHub
-//    QVector< QVector <APhotonHistoryLog> > PhotonHistoryLog;    !!!***
-    QSet<int>        MustNotInclude_Processes; // v.fast
-    QVector<int>     MustInclude_Processes;    // slow
-    QSet<QString>    MustNotInclude_Volumes;   // fast
-    QVector<QString> MustInclude_Volumes;      // v.slow
-
     //only for optical override tester!
     long WaveChanged = 0;  // !!!*** to optical processes group?
     long TimeChanged = 0;  // kill?
-
-    std::vector<AMonitor*> Monitors;
 
     TH1D * WaveDistr       = nullptr;
     TH1D * TimeDistr       = nullptr;
@@ -66,7 +46,7 @@ public:
 
 private:
     long countPhotons();
-    void clearMonitors();
+    void toDistr(const QJsonObject & json, const QString & name, TH1D* & distr);
 };
 
 #endif // ASIMULATIONSTATISTICS_H

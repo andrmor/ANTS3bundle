@@ -1,8 +1,9 @@
 #ifndef APHOTONSIMSETTINGS_H
 #define APHOTONSIMSETTINGS_H
 
-#include <QVector> // TODO: std::vector !!!***
 #include <QString>
+#include <QVector> // TODO: std::vector !!!***
+#include <QSet>    // TODO: refactor
 
 class QJsonObject;
 
@@ -112,6 +113,18 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
+class APhotonLogSettings
+{
+public:
+    bool Save        = true;
+    QString FileName = "PhotonLog.txt";
+
+    QSet<int>        MustNotInclude_Processes; // v.fast
+    QVector<int>     MustInclude_Processes;    // slow
+    QSet<QString>    MustNotInclude_Volumes;   // fast
+    QVector<QString> MustInclude_Volumes;      // v.slow
+};
+
 class APhotSimRunSettings
 {
 public:
@@ -138,6 +151,8 @@ public:
 
     bool    SavePhotonLog         = true;
     QString FileNamePhotonLog     = "PhotonLog.txt";
+
+    APhotonLogSettings LogSet;
 
     void    writeToJson(QJsonObject & json) const;
     void    readFromJson(const QJsonObject & json);

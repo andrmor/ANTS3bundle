@@ -1,6 +1,8 @@
 #ifndef AROOTHISTAPPENDERS_H
 #define AROOTHISTAPPENDERS_H
 
+// TODO: refactor to histtools namespace, move here all hist-related from jstools and filetools
+
 class TH1D;
 class TH2D;
 

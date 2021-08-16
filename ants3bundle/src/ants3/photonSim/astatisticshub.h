@@ -19,6 +19,8 @@ private:
 
 public:
     APhotonStatistics SimStat;
+
+    //QVector<QVector<APhotonHistoryLog>> PhotonHistoryLog; !!!*** refactor!
 };
 
 #endif // ASTATISTICSHUB_H

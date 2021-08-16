@@ -38,11 +38,12 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    std::vector<const AGeoObject*>   MonitorsRecords;
-    std::vector<AGridElementRecord*> GridRecords;
-
-    std::vector<QString>   MonitorIdNames;  //runtime
+    std::vector<const AGeoObject*> MonitorsRecords;  // stays here, in case loadMonitors overrides "local" settings
+    // !!!*** next 2 - check if still needed. if yes, maybe can be moved to MonitorHub?
+    std::vector<QString> MonitorIdNames;  //runtime
     std::vector<TGeoNode*> MonitorNodes; //runtime
+
+    std::vector<AGridElementRecord*> GridRecords;
 
     void         populateGeoManager();   // !!!*** emit signal
 

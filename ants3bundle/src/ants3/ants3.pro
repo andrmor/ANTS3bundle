@@ -59,6 +59,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     geo/ageospecial.cpp \
+    geo/amonitorhub.cpp \
     gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfaceruledialog.cpp \
     gui/photsim/ainterfacerulewin.cpp \
@@ -134,6 +135,7 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     geo/ageospecial.h \
+    geo/amonitorhub.h \
     gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfaceruledialog.h \
     gui/photsim/ainterfacerulewin.h \
