@@ -2,6 +2,7 @@
 #define GUITOOLS_H
 
 #include <QString>
+#include <QIcon>
 
 class QWidget;
 
@@ -15,6 +16,11 @@ namespace guitools
     void inputString(const QString & label, QString & input, QWidget * parent = nullptr);
 
     bool AssureWidgetIsWithinVisibleArea(QWidget* w);
+
+    QIcon createColorCircleIcon(QSize size, Qt::GlobalColor color);
+
+    QString dialogSaveFile(QWidget * parent, const QString & text, const QString & filePattern);
+    QString dialogLoadFile(QWidget * parent, const QString & text, const QString & filePattern);
 }
 
 #endif // GUITOOLS_H

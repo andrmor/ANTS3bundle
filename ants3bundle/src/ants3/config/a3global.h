@@ -13,6 +13,7 @@ class A3Global final
 {
 public:
     static A3Global & getInstance();
+    static const A3Global & getConstInstance();
 
 private:
     A3Global();
@@ -26,8 +27,6 @@ private:
 public:
     QString ExecutableDir;
     QString ExchangeDir;
-
-    //QString DispatcherExecutable = "dispatcher";
 
     int LocalCores = 4;
     std::vector<A3FarmNodeRecord> FarmNodes;

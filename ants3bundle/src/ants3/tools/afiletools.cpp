@@ -34,7 +34,7 @@ bool ftools::saveTextToFile(const QString & Text, const QString & FileName)
 }
 
 
-QString ftools::mergeTextFiles(const std::vector<QString> &FilesToMerge, QString FileName)
+QString ftools::mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName)
 {
     QFile ofile(FileName);
     if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + FileName;
@@ -59,7 +59,9 @@ QString ftools::mergeTextFiles(const std::vector<QString> &FilesToMerge, QString
     return "";
 }
 
-QString ftools::loadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QString * header, int numLines)
+
+
+QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)
 {
     bool bGetHeader = (header && !header->isEmpty());
     QString HeaderId;
@@ -111,6 +113,75 @@ QString ftools::loadDoubleVectorsFromFile(QString FileName, QVector<double>* x, 
 
     return "";
 }
+
+QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V)
+{
+    if (FileName.isEmpty()) return("File name not provided");
+
+    QFile file(FileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return QString("Could not open file %1").arg(FileName);
+
+    const int Vsize = V.size();
+    if (Vsize == 0) return "Received no vectors to load";
+    for (QVector<double>* v : V) v->clear();
+
+    QTextStream in(&file);
+    QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    while (!in.atEnd())
+    {
+        const QString line = in.readLine();
+        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+
+        bool fOK = true;
+        QVector<double> tmp;
+        if (fields.size() >= Vsize )
+        {
+            for (int i = 0; i < Vsize; i++)
+            {
+                double x = fields.at(i).toDouble(&fOK);
+                if (!fOK) break;
+                tmp << x;
+            }
+        }
+        if (fOK && tmp.size() == Vsize)
+            for (int i=0; i<Vsize; i++) V[i]->append( tmp.at(i) );
+    }
+    file.close();
+
+    if (V.first()->isEmpty()) return QString("File %1 has invalid format").arg(FileName);
+
+    return "";
+}
+
+
+QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName)
+{
+    if (V.isEmpty()) return "No data to save!";
+    const int size = V.first()->size();
+    for (int i = 1; i < V.size(); i++)
+        if (V[i]->size() != size) return "Mismatch in vector size";
+
+    QFile outFile(FileName);
+    outFile.open(QIODevice::WriteOnly);
+    if (!outFile.isOpen()) return "Cannot open file " + FileName + " for output";
+
+    QTextStream outStream(&outFile);
+
+    for (int iLine = 0; iLine < size; iLine++)
+    {
+         for (int iVec = 0; iVec < V.size(); iVec++)
+         {
+             if (iVec != 0) outStream << ' ';
+             outStream << (*V[iVec])[iLine];
+         }
+         outStream << '\n';
+    }
+
+    outFile.close();
+    return "";
+}
+
+// ==============================================================================================
 
 
 /*
@@ -206,45 +277,6 @@ int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<doub
    }
 
   return 0;
-}
-
-const QString LoadDoubleVectorsFromFile(const QString FileName, QVector<QVector<double> *>& V)
-{
-    if (FileName.isEmpty()) return("File name not provided");
-
-    QFile file(FileName);
-    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return QString("Could not open file %1").arg(FileName);
-
-    const int Vsize = V.size();
-    if (Vsize == 0) return "Received no vectors to load";
-    for (QVector<double>* v : V) v->clear();
-
-    QTextStream in(&file);
-    QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-    while (!in.atEnd())
-    {
-        const QString line = in.readLine();
-        QStringList fields = line.split(rx, QString::SkipEmptyParts);
-
-        bool fOK = true;
-        QVector<double> tmp;
-        if (fields.size() >= Vsize )
-        {
-            for (int i = 0; i < Vsize; i++)
-            {
-                double x = fields.at(i).toDouble(&fOK);
-                if (!fOK) break;
-                tmp << x;
-            }
-        }
-        if (fOK && tmp.size() == Vsize)
-            for (int i=0; i<Vsize; i++) V[i]->append( tmp.at(i) );
-    }
-    file.close();
-
-    if (V.first()->isEmpty()) return QString("File %1 has invalid format").arg(FileName);
-
-    return "";
 }
 
 int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, int count)
@@ -446,4 +478,6 @@ int SaveIntVectorsToFile(QString FileName, const QVector<int> *x, const QVector<
   outFile.close();
   return 0;
 }
+
 */
+

@@ -13,22 +13,26 @@ namespace ftools
 
     QString mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName); //returns error string, otherwise ""
 
-    QString loadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QString *header = 0, int numLines = 10);  //cleans previous data
+    // to std::vector
+    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<double>* x, QVector<double>* y, QString *header = 0, int numLines = 10);  //cleans previous data
+    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V);  //cleans previous data, returns error string
+
+    QString saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName);
+
+    // TODO: refactor all next, minimize number of functions
 /*
-// can provide header (pointer to string with beginning symbol(s) of the header lines) -> then the function will return in the header the full header of the file
-int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x);  //cleans previous data
-int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QVector<double>* z);  //cleans previous data
-const QString LoadDoubleVectorsFromFile(const QString FileName, QVector<QVector<double> *> &V);  //cleans previous data, returns error string
+    //int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x);  //cleans previous data
+    int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QVector<double>* z);  //cleans previous data
 
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, int count = -1);
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, const QVector<double>* y, int count = -1);
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, const QVector<double>* y, const QVector<double>* z, int count = -1);
+    int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, int count = -1);
+    int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, const QVector<double>* y, int count = -1);
+    int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, const QVector<double>* y, const QVector<double>* z, int count = -1);
 
-int SaveIntVectorsToFile(QString FileName, const QVector<int>* x, int count = -1);
-int SaveIntVectorsToFile(QString FileName, const QVector<int>* x, const QVector<int>* y, int count = -1);
+    int SaveIntVectorsToFile(QString FileName, const QVector<int>* x, int count = -1);
+    int SaveIntVectorsToFile(QString FileName, const QVector<int>* x, const QVector<int>* y, int count = -1);
 
-int LoadIntVectorsFromFile(QString FileName, QVector<int>* x);
-int LoadIntVectorsFromFile(QString FileName, QVector<int>* x, QVector<int>* y);
+    int LoadIntVectorsFromFile(QString FileName, QVector<int>* x);
+    int LoadIntVectorsFromFile(QString FileName, QVector<int>* x, QVector<int>* y);
 */
 }
 

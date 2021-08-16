@@ -10,6 +10,11 @@ A3Global & A3Global::getInstance()
     return instance;
 }
 
+const A3Global &A3Global::getConstInstance()
+{
+    return getInstance();
+}
+
 A3Global::A3Global()
 {
 

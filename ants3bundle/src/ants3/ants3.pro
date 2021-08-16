@@ -41,6 +41,7 @@ INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
 INCLUDEPATH += gui/materials
 INCLUDEPATH += gui/photsim
+INCLUDEPATH += gui/graph
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
@@ -60,6 +61,28 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
+    gui/arootmarkerconfigurator.cpp \
+    gui/aroottextconfigurator.cpp \
+    gui/graph/aaxesdialog.cpp \
+    gui/graph/abasketitem.cpp \
+    gui/graph/abasketlistwidget.cpp \
+    gui/graph/abasketmanager.cpp \
+    gui/graph/adrawexplorerwidget.cpp \
+    gui/graph/adrawobject.cpp \
+    gui/graph/adrawtemplate.cpp \
+    gui/graph/alegenddialog.cpp \
+    gui/graph/alinemarkerfilldialog.cpp \
+    gui/graph/amultigraphdesigner.cpp \
+    gui/graph/apadgeometry.cpp \
+    gui/graph/apadproperties.cpp \
+    gui/graph/arootcolorselectordialog.cpp \
+    gui/graph/atemplateselectiondialog.cpp \
+    gui/graph/atemplateselectionrecord.cpp \
+    gui/graph/atextpavedialog.cpp \
+    gui/graph/atoolboxscene.cpp \
+    gui/graph/graphicsruler.cpp \
+    gui/graph/graphwindowclass.cpp \
+    gui/graph/shapeablerectitem.cpp \
     gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfaceruledialog.cpp \
     gui/photsim/ainterfacerulewin.cpp \
@@ -136,6 +159,29 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     geo/ageospecial.h \
     geo/amonitorhub.h \
+    gui/arootmarkerconfigurator.h \
+    gui/aroottextconfigurator.h \
+    gui/graph/aaxesdialog.h \
+    gui/graph/abasketitem.h \
+    gui/graph/abasketlistwidget.h \
+    gui/graph/abasketmanager.h \
+    gui/graph/adrawexplorerwidget.h \
+    gui/graph/adrawobject.h \
+    gui/graph/adrawtemplate.h \
+    gui/graph/alegenddialog.h \
+    gui/graph/alinemarkerfilldialog.h \
+    gui/graph/amultigraphdesigner.h \
+    gui/graph/apadgeometry.h \
+    gui/graph/apadproperties.h \
+    gui/graph/arootcolorselectordialog.h \
+    gui/graph/atemplateselectiondialog.h \
+    gui/graph/atemplateselectionrecord.h \
+    gui/graph/atextpavedialog.h \
+    gui/graph/atlegend.h.autosave \
+    gui/graph/atoolboxscene.h \
+    gui/graph/graphicsruler.h \
+    gui/graph/graphwindowclass.h \
+    gui/graph/shapeablerectitem.h \
     gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfaceruledialog.h \
     gui/photsim/ainterfacerulewin.h \
@@ -210,6 +256,15 @@ HEADERS += \
     tools/arandomhub.h
 
 FORMS += \
+        gui/aroottextconfigurator.ui \
+        gui/graph/aaxesdialog.ui \
+        gui/graph/alegenddialog.ui \
+        gui/graph/alinemarkerfilldialog.ui \
+        gui/graph/amultigraphdesigner.ui \
+        gui/graph/arootcolorselectordialog.ui \
+        gui/graph/atemplateselectiondialog.ui \
+        gui/graph/atextpavedialog.ui \
+        gui/graph/graphwindowclass.ui \
         gui/photsim/abombadvanceddialog.ui \
         gui/geom/a3geoconwin.ui \
         gui/geom/agridelementdialog.ui \

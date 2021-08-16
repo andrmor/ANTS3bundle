@@ -1,4 +1,5 @@
 #include "guitools.h"
+#include "a3global.h"
 
 #include <QMessageBox>
 #include <QInputDialog>
@@ -8,6 +9,8 @@
 #include <QPushButton>
 #include <QApplication>
 #include <QScreen>
+#include <QPainter>
+#include <QFileDialog>
 
 void guitools::message(QString text, QWidget* parent)
 {
@@ -77,4 +80,33 @@ bool guitools::AssureWidgetIsWithinVisibleArea(QWidget * w)
     if (!bVis) w->move(50,50);
 
     return bVis;
+}
+
+QIcon guitools::createColorCircleIcon(QSize size, Qt::GlobalColor color)
+{
+    QPixmap pm(size.width()-2, size.height()-2);
+    pm.fill(Qt::transparent);
+    QPainter b(&pm);
+    b.setBrush(QBrush(color));
+    if (color == Qt::white) b.setPen(Qt::white);
+    b.drawEllipse(0, 2, size.width()-5, size.width()-5);  //was -3 -3 before, and no y shift
+    return QIcon(pm);
+}
+
+QString guitools::dialogSaveFile(QWidget * parent, const QString & text, const QString & filePattern)
+{
+    A3Global & GlobSet = A3Global::getInstance();
+    QString fileName = QFileDialog::getSaveFileName(parent, text, GlobSet.LastSaveDir, filePattern);
+    if (fileName.isEmpty()) return "";
+    GlobSet.LastSaveDir = QFileInfo(fileName).absolutePath();
+    return fileName;
+}
+
+QString guitools::dialogLoadFile(QWidget *parent, const QString &text, const QString &filePattern)
+{
+    A3Global & GlobSet = A3Global::getInstance();
+    QString fileName = QFileDialog::getOpenFileName(parent, text, GlobSet.LastLoadDir, filePattern);
+    if (fileName.isEmpty()) return "";
+    GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
+    return fileName;
 }
