@@ -44,8 +44,6 @@ public:
     ~GraphWindowClass();
     friend class ADrawExplorerWidget;
 
-    QString LastDistributionShown;
-
     //Drawing
     void Draw(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
     void DrawWithoutFocus(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
@@ -104,39 +102,6 @@ public:
     double extractedY2();
     QList<double> extractedPolygon();
 
-    //deprecated!
-    TGraph* MakeGraph(const QVector<double> *x, const QVector<double> *y,
-                      Color_t color, const char *XTitle, const char *YTitle,
-                      int MarkerStyle=20, int MarkerSize=1, int LineStyle=1, int LineWidth = 2,
-                      const char* options = "",
-                      bool OnlyBuild = false);
-
-    //use this to only construct! ***todo: move to separate file+namespace
-    TGraph* ConstructTGraph(const QVector<double>& x, const QVector<double>& y) const;
-    TGraph* ConstructTGraph(const std::vector<float>& x, const std::vector<float>& y) const;
-    TGraph* ConstructTGraph(const QVector<double>& x, const QVector<double>& y,
-                            const char *Title, const char *XTitle, const char *YTitle,
-                            Color_t MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                            Color_t LineColor=2,   int LineStyle=1,    int LineWidth=2) const;
-    TGraph* ConstructTGraph(const QVector<double>& x, const QVector<double>& y,
-                            const QString & Title, const QString & XTitle, const QString & YTitle,
-                            Color_t MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                            Color_t LineColor=2,   int LineStyle=1,    int LineWidth=2) const;
-    TGraph* ConstructTGraph(const std::vector<float>& x, const std::vector<float>& y,
-                            const char *Title, const char *XTitle, const char *YTitle,
-                            Color_t MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                            Color_t LineColor=2,   int LineStyle=1,    int LineWidth=2) const;
-    TGraph2D* ConstructTGraph2D(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z) const;
-    TGraph2D* ConstructTGraph2D(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z,
-                              const char *Title, const char *XTitle, const char *YTitle, const char *ZTitle,
-                              Color_t MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                              Color_t LineColor=2,   int LineStyle=1,    int LineWidth=2);
-
-    void configureGraph(TGraph * graph, const QString & GraphTitle,
-                        const QString & XTitle, const QString & YTitle,
-                        int MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                        int LineColor=2,   int LineStyle=1,    int LineWidth=2) const;
-
     void AddLine(double x1, double y1, double x2, double y2, int color, int width, int style);
     void AddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
@@ -155,7 +120,7 @@ public:
     void SetStatPanelVisible(bool flag);
     void TriggerGlobalBusy(bool flag);
 
-    void MakeCopyOfDrawObjects();
+    void MakeCopyOfDrawObjects(); // !!!***
     void ClearCopyOfDrawObjects();
 
     void ClearBasketActiveId();
@@ -281,32 +246,32 @@ private slots:
     void onExternalBasketChange();
 private:
     Ui::GraphWindowClass * ui;
-    RasterWindowGraphClass * RasterWindow = nullptr; //owns
-    ADrawExplorerWidget * Explorer = nullptr; //owns
-    bool ExtractionCanceled = false;
-    int LastOptStat = 1111;
-    AMultiGraphDesigner * MGDesigner = nullptr;
 
-    QVector<ADrawObject> DrawObjects;  //always local objects -> can have a copy from the Basket
-    QVector<ADrawObject> PreviousDrawObjects; //last draw made from outside of the graph window
-    ABasketManager * Basket = nullptr;
-    ABasketListWidget * lwBasket = nullptr;
-    int ActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
-    int PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
+    ABasketManager         * Basket       = nullptr;
+    ADrawExplorerWidget    * Explorer     = nullptr;
+    ABasketListWidget      * lwBasket     = nullptr;
+    RasterWindowGraphClass * RasterWindow = nullptr;
+    QGraphicsView          * gvOver       = nullptr;
+    AToolboxScene          * scene        = nullptr;
+    AMultiGraphDesigner    * MGDesigner   = nullptr;
 
-    QVector<TObject*> tmpTObjects;
+    QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
+    QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
 
-    QGraphicsView* gvOver = 0;
-    AToolboxScene* scene = 0;
+    QVector<TObject*>       tmpTObjects;
 
-    ADrawTemplate DrawTemplate;
+    ADrawTemplate           DrawTemplate;
 
-    void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs
-
-    bool TMPignore = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
-    bool ColdStart = true;
+    int  ActiveBasketItem         = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
+    int  PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
+    bool ExtractionCanceled       = false;
+    int  LastOptStat              = 1111;
+    bool TMPignore                = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
+    bool ColdStart                = true;
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
+
+    void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs
 
     void clearTmpTObjects();   //enable qDebugs inside for diagnostics of cleanup!
 

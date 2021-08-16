@@ -5,7 +5,6 @@
 #include "ui_graphwindowclass.h"
 #include "rasterwindowgraphclass.h"
 //#include "windownavigatorclass.h"
-//#include "aglobalsettings.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "shapeablerectitem.h"
@@ -79,9 +78,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 {
     Basket = new ABasketManager();
 
-    //setting UI
     ui->setupUi(this);
-    return;
+
     setMinimumWidth(200);
     ui->swToolBox->setVisible(false);
     ui->swToolBox->setCurrentIndex(0);
@@ -92,12 +90,14 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     ui->labY->setText(QChar(8597));
 
     //window flags
+    /*
     Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
     windowFlags |= Qt::WindowCloseButtonHint;
     windowFlags |= Qt::WindowMinimizeButtonHint;
     windowFlags |= Qt::WindowMaximizeButtonHint;
     //windowFlags |= Qt::Tool;
-    this->setWindowFlags( windowFlags );
+    setWindowFlags( windowFlags );
+    */
 
     //DrawListWidget init
     Explorer = new ADrawExplorerWidget(*this, DrawObjects);
@@ -173,162 +173,6 @@ GraphWindowClass::~GraphWindowClass()
     delete Basket; Basket = nullptr;
 }
 
-TGraph* GraphWindowClass::MakeGraph(const QVector<double> *x, const QVector<double> *y,
-                                    Color_t color, const char *XTitle, const char *YTitle,
-                                    int MarkerStyle, int MarkerSize,
-                                    int LineStyle, int LineWidth,
-                                    const char* options,
-                                    bool OnlyBuild)
-{
-    int numEl = x->size();
-    TVectorD xx(numEl);
-    TVectorD yy(numEl);
-    for (int i=0; i < numEl; i++)
-    {
-        xx[i] = x->at(i);
-        yy[i] = y->at(i);
-    }
-
-    TGraph* gr = new TGraph(xx,yy);
-    gr->SetTitle(""); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(color); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(color); gr->SetLineStyle(LineStyle);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-
-    //in the case of OnlyBuild return the graph (no drawing)
-    if (OnlyBuild) return gr; //gr is not registered!
-
-    //drawing the graph
-    QString opts = options;
-    if (opts.contains("same",Qt::CaseInsensitive))
-    {
-        if (LineWidth == 0) Draw(gr, "P");
-        else Draw(gr, "PL");
-    }
-    else
-    {
-        if (LineWidth == 0) Draw(gr, "AP");
-        else Draw(gr, "APL");
-    }
-    RasterWindow->fCanvas->Update();
-
-    return 0;
-}
-
-TGraph *GraphWindowClass::ConstructTGraph(const QVector<double> &x, const QVector<double> &y) const
-{
-    int numEl = x.size();
-    TVectorD xx(numEl);
-    TVectorD yy(numEl);
-    for (int i=0; i < numEl; i++)
-    {
-        xx[i] = x.at(i);
-        yy[i] = y.at(i);
-    }
-
-    TGraph* gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-    return gr;
-}
-
-TGraph *GraphWindowClass::ConstructTGraph(const std::vector<float> &x, const std::vector<float> &y) const
-{
-    int numEl = (int)x.size();
-    TVectorD xx(numEl);
-    TVectorD yy(numEl);
-    for (int i=0; i < numEl; i++)
-    {
-        xx[i] = x.at(i);
-        yy[i] = y.at(i);
-    }
-
-    TGraph* gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-    return gr;
-}
-
-TGraph *GraphWindowClass::ConstructTGraph(const QVector<double> &x, const QVector<double> &y,
-                                          const char *Title, const char *XTitle, const char *YTitle,
-                                          Color_t MarkerColor, int MarkerStyle, int MarkerSize,
-                                          Color_t LineColor,   int LineStyle,   int LineWidth) const
-{
-    TGraph* gr = ConstructTGraph(x,y);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph *GraphWindowClass::ConstructTGraph(const QVector<double> &x, const QVector<double> &y,
-                                          const QString &Title, const QString &XTitle, const QString &YTitle,
-                                          Color_t MarkerColor, int MarkerStyle, int MarkerSize,
-                                          Color_t LineColor,   int LineStyle,   int LineWidth) const
-{
-    TGraph* gr = ConstructTGraph(x,y);
-    gr->SetTitle(Title.toLatin1().data()); gr->GetXaxis()->SetTitle(XTitle.toLatin1().data()); gr->GetYaxis()->SetTitle(YTitle.toLatin1().data());
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph *GraphWindowClass::ConstructTGraph(const std::vector<float> &x, const std::vector<float> &y,
-                                          const char *Title, const char *XTitle, const char *YTitle,
-                                          Color_t MarkerColor, int MarkerStyle, int MarkerSize,
-                                          Color_t LineColor,   int LineStyle,   int LineWidth) const
-{
-    TGraph* gr = ConstructTGraph(x,y);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset(1.30f);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph2D *GraphWindowClass::ConstructTGraph2D(const QVector<double> &x, const QVector<double> &y, const QVector<double> &z) const
-{
-    int numEl = x.size();
-    TGraph2D* gr = new TGraph2D(numEl, (double*)x.data(), (double*)y.data(), (double*)z.data());
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-    return gr;
-}
-
-TGraph2D *GraphWindowClass::ConstructTGraph2D(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z,
-                                              const char *Title, const char *XTitle, const char *YTitle, const char *ZTitle,
-                                              Color_t MarkerColor, int MarkerStyle, int MarkerSize,
-                                              Color_t LineColor, int LineStyle, int LineWidth)
-{
-    TGraph2D* gr = ConstructTGraph2D(x,y,z);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle); gr->GetZaxis()->SetTitle(ZTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-void GraphWindowClass::configureGraph(TGraph * graph, const QString & GraphTitle,
-                                      const QString & XTitle, const QString & YTitle,
-                                      int MarkerColor, int MarkerStyle, int MarkerSize,
-                                      int LineColor,   int LineStyle, int LineWidth) const
-{
-    graph->SetTitle(GraphTitle.toLatin1().data());
-
-    graph->GetXaxis()->SetTitle(XTitle.toLatin1().data());
-    graph->GetYaxis()->SetTitle(YTitle.toLatin1().data());
-
-    graph->SetMarkerColor(MarkerColor); graph->SetMarkerStyle(MarkerStyle); graph->SetMarkerSize(MarkerSize);
-    graph->SetLineColor(LineColor);     graph->SetLineStyle(LineStyle);     graph->SetLineWidth(LineWidth);
-
-    graph->SetEditable(false);
-    graph->GetYaxis()->SetTitleOffset(1.30f);
-}
-
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)
 {
     TLine* l = new TLine(x1, y1, x2, y2);
@@ -353,9 +197,9 @@ void GraphWindowClass::AddArrow(double x1, double y1, double x2, double y2, int 
 void GraphWindowClass::ShowAndFocus()
 {
     RasterWindow->fCanvas->cd();
-    this->show();
-    this->activateWindow();
-    this->raise();
+    show();
+    activateWindow();
+    raise();
 }
 
 void GraphWindowClass::SetAsActiveRootWindow()
@@ -782,6 +626,7 @@ bool GraphWindowClass::event(QEvent *event)
     }
 
     //  return AGuiWindow::event(event);  // !!!***
+    return QMainWindow::event(event);
 }
 
 void GraphWindowClass::closeEvent(QCloseEvent * event)
@@ -1781,15 +1626,8 @@ void GraphWindowClass::selBoxControlsUpdated()
     double dy = ui->ledHeight->text().toDouble();
     double angle = ui->ledAngle->text().toDouble();
 
-    //  qDebug() << RasterWindow->getCanvasMinX() << RasterWindow->getCanvasMaxX() << RasterWindow->getCanvasMinY() << RasterWindow->getCanvasMaxY();
-
     double scaleX = RasterWindow->getXperPixel();
     double scaleY = RasterWindow->getYperPixel();
-    //  qDebug() << "Scales: " << scaleX << scaleY;
-
-    //  double DX = dx/scaleX;
-    //  double DY = dy/scaleY;
-    //  qDebug() << "width/height in pixels:"<< DX << DY;
 
     ShapeableRectItem *SelBox = scene->getSelBox();
     SelBox->setScale(scaleX, scaleY);
@@ -1798,9 +1636,7 @@ void GraphWindowClass::selBoxControlsUpdated()
 
     int ix, iy;
     RasterWindow->XYtoPixel(x0, y0, ix, iy);
-    //  qDebug() << "position" << ix << iy;
     SelBox->setPos(ix, iy);
-    //SelBox->setTransform(QTransform().translate(ix, iy));
 
     scene->update(scene->sceneRect());
     gvOver->update();
@@ -1892,27 +1728,27 @@ void GraphWindowClass::on_pbResetRuler_clicked()
 
 void GraphWindowClass::on_pbXprojection_clicked()
 {
-    GraphWindowClass::ShowProjection("x");
+    ShowProjection("x");
 }
 
 void GraphWindowClass::on_pbYprojection_clicked()
 {
-    GraphWindowClass::ShowProjection("y");
+    ShowProjection("y");
 }
 
 void GraphWindowClass::on_pbDensityDistribution_clicked()
 {
-    GraphWindowClass::ShowProjection("dens");
+    ShowProjection("dens");
 }
 
 void GraphWindowClass::on_pbXaveraged_clicked()
 {
-    GraphWindowClass::ShowProjection("xAv");
+    ShowProjection("xAv");
 }
 
 void GraphWindowClass::on_pbYaveraged_clicked()
 {
-    GraphWindowClass::ShowProjection("yAv");
+    ShowProjection("yAv");
 }
 
 void GraphWindowClass::ShowProjection(QString type)

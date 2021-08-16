@@ -9,6 +9,8 @@ namespace Ui {
 class A3PhotSimWin;
 }
 
+class TObject;
+
 class A3PhotSimWin : public QMainWindow
 {
     Q_OBJECT
@@ -86,6 +88,7 @@ private:
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
 #endif // A3PHOTSIMWIN_H

@@ -17,6 +17,8 @@
 
 #include <QDebug>
 
+#include "TObject.h"
+
 MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     Config(A3Config::getInstance()), ScriptManager(SM), ScrRes(ScrRes),
     ui(new Ui::MainWindow)
@@ -57,7 +59,8 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
 
-    //GraphWin = new GraphWindowClass(this);
+    GraphWin = new GraphWindowClass(this);
+    connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 }
 
 MainWindow::~MainWindow()

@@ -6,8 +6,12 @@
 #include "ui_a3photsimwin.h"
 #include "a3config.h"
 #include "guitools.h"
+#include "agraphbuilder.h"
 
 #include <QDebug>
+
+#include "TH1D.h"
+#include "TObject.h"
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
@@ -494,18 +498,26 @@ void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
 }
 void A3PhotSimWin::on_pbShowTransitionDistr_clicked()
 {
-
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    if (Stat.TransitionDistr)
+        requestDraw(Stat.TransitionDistr, "hist", false, true);
 }
 void A3PhotSimWin::on_pbShowWaveDistr_clicked()
 {
-
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    if (Stat.WaveDistr)
+        requestDraw(Stat.WaveDistr, "hist", false, true);
 }
 void A3PhotSimWin::on_pbShowTimeDistr_clicked()
 {
-
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    if (Stat.TimeDistr)
+        requestDraw(Stat.TimeDistr, "hist", false, true);
 }
 void A3PhotSimWin::on_pbShowAngleDistr_clicked()
 {
-
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    if (Stat.AngularDistr)
+        requestDraw(Stat.AngularDistr, "hist", false, true);
 }
 
