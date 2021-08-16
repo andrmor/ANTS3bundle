@@ -3107,14 +3107,45 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Photon processes:</string>
+             <layout class="QHBoxLayout" name="horizontalLayout_32">
+              <property name="topMargin">
+               <number>0</number>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPlainTextEdit" name="ptePhotonStatistics"/>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_19">
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Processes:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="ptePhotonProcesses"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_16">
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_9">
+                  <property name="text">
+                   <string>Photon end of life:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="pteEndOfLife"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QLabel" name="label_8">

@@ -465,30 +465,32 @@ void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
                     Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill;
 
     QString s;
-    s += "Optical processes:\n"
-         "   Absorption (bulk): "      + QString::number(Stat.BulkAbsorption)       + "\n" +
-         "   Fresnel transmission: "   + QString::number(Stat.FresnelTransmitted)   + "\n" +
-         "   Fresnel reflection: "     + QString::number(Stat.FresnelReflected)     + "\n" +
-         "   InterfaceRule, loss: "    + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
-         "   InterfaceRule, back: "    + QString::number(Stat.InterfaceRuleBack)    + "\n" +
-         "   InterfaceRule, forward: " + QString::number(Stat.InterfaceRuleForward) + "\n" +
-         "   Rayleigh: "               + QString::number(Stat.Rayleigh)             + "\n" +
-         "   Reemission: "             + QString::number(Stat.Reemission)           + "\n" +
-         "\n" +
-         "Photon tracing end:\n" +
-         "   Absorbed: "               + QString::number(Stat.Absorbed)             + "\n" +
-         "   Escaped world: "          + QString::number(Stat.Escaped)              + "\n" +
-         "   Generated outside world: "+ QString::number(Stat.GeneratedOutside)     + "\n" +
-         "   Hit sensor: "             + QString::number(Stat.HitSensor)            + "\n" +
-         "   InterfaceRule loss: "     + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
-         "   Max transitions reached: "+ QString::number(Stat.MaxTransitions)       + "\n" +
-         "   Monitor kill: "           + QString::number(Stat.MonitorKill)          + "\n" +
-         "   Optical grid loss: "      + QString::number(Stat.LossOnGrid)           + "\n" +
-         "   Tracing skipped: "        + QString::number(Stat.TracingSkipped)       + "\n" +
-         "Total: "                     + QString::number(sum);
+    s = "Absorption (bulk): "      + QString::number(Stat.BulkAbsorption)       + "\n" +
+        "Fresnel transmission: "   + QString::number(Stat.FresnelTransmitted)   + "\n" +
+        "Fresnel reflection: "     + QString::number(Stat.FresnelReflected)     + "\n" +
+        "InterfaceRule, loss: "    + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
+        "InterfaceRule, back: "    + QString::number(Stat.InterfaceRuleBack)    + "\n" +
+        "InterfaceRule, forward: " + QString::number(Stat.InterfaceRuleForward) + "\n" +
+        "Rayleigh: "               + QString::number(Stat.Rayleigh)             + "\n" +
+        "Reemission: "             + QString::number(Stat.Reemission)           + "\n";
 
-    ui->ptePhotonStatistics->clear();
-    ui->ptePhotonStatistics->appendPlainText(s);
+    ui->ptePhotonProcesses->clear();
+    ui->ptePhotonProcesses->appendPlainText(s);
+
+    s = "Absorbed: "               + QString::number(Stat.Absorbed)             + "\n" +
+        "Escaped world: "          + QString::number(Stat.Escaped)              + "\n" +
+        "Generated outside world: "+ QString::number(Stat.GeneratedOutside)     + "\n" +
+        "Hit sensor: "             + QString::number(Stat.HitSensor)            + "\n" +
+        "InterfaceRule loss: "     + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
+        "Max transitions reached: "+ QString::number(Stat.MaxTransitions)       + "\n" +
+        "Monitor kill: "           + QString::number(Stat.MonitorKill)          + "\n" +
+        "Optical grid loss: "      + QString::number(Stat.LossOnGrid)           + "\n" +
+        "Tracing skipped: "        + QString::number(Stat.TracingSkipped)       + "\n" +
+        "---\n"
+        "Sum of all above: "       + QString::number(sum);
+
+    ui->pteEndOfLife->clear();
+    ui->pteEndOfLife->appendPlainText(s);
 }
 void A3PhotSimWin::on_pbShowTransitionDistr_clicked()
 {
