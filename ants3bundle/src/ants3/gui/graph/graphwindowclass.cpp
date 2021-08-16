@@ -3,7 +3,6 @@
 
 #include "graphwindowclass.h"
 #include "ui_graphwindowclass.h"
-#include "mainwindow.h"
 #include "rasterwindowgraphclass.h"
 //#include "windownavigatorclass.h"
 //#include "aglobalsettings.h"
@@ -73,7 +72,8 @@
 #include "TGaxis.h"
 #include "TFrame.h"
 
-GraphWindowClass::GraphWindowClass(QWidget *parent, MainWindow* mw) :
+GraphWindowClass::GraphWindowClass(QWidget * parent) :
+    QMainWindow(parent),
     //  AGuiWindow("graph", parent), MW(mw),
     ui(new Ui::GraphWindowClass)
 {
@@ -81,6 +81,7 @@ GraphWindowClass::GraphWindowClass(QWidget *parent, MainWindow* mw) :
 
     //setting UI
     ui->setupUi(this);
+    return;
     setMinimumWidth(200);
     ui->swToolBox->setVisible(false);
     ui->swToolBox->setCurrentIndex(0);
@@ -1547,10 +1548,11 @@ bool GraphWindowClass::DrawTree(TTree *tree, const QString& what, const QString&
     // --------------DRAW--------------
     qDebug() << "TreeDraw -> what:" << What << "cuts:" << Cond << "opt:"<<HowAdj;
 
+    // !!!*** REDO THIS BLOCK!!!
     GraphWindowClass * tmpWin = nullptr;
     if (bHistToGraph)
     {
-        tmpWin = new GraphWindowClass(this, MW);
+        tmpWin = new GraphWindowClass(this);
         tmpWin->SetAsActiveRootWindow();
     }
 

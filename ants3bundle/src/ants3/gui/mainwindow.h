@@ -14,6 +14,7 @@ class AGeometryWindow;
 class A3MatWin;
 class A3PhotSimWin;
 class AInterfaceRuleWin;
+class GraphWindowClass;
 
 class MainWindow : public QMainWindow
 {
@@ -37,7 +38,8 @@ private:
     AGeometryWindow   * GeoWin     = nullptr;
     A3MatWin          * MatWin     = nullptr;
     A3PhotSimWin      * PhotSimWin = nullptr;
-    AInterfaceRuleWin * RuleWin = nullptr;
+    AInterfaceRuleWin * RuleWin    = nullptr;
+    GraphWindowClass  * GraphWin   = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -57,6 +59,8 @@ private slots:
     void on_pbPhotSim_clicked();
 
     void on_pbInterfaceRules_clicked();
+
+    void on_pbGraphWin_clicked();
 
 private:
     void disableInterface(bool flag);

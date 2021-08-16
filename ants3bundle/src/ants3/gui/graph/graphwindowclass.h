@@ -40,7 +40,7 @@ class GraphWindowClass : public QMainWindow //AGuiWindow
     Q_OBJECT
 
 public:
-    explicit GraphWindowClass(QWidget *parent, MainWindow *mw);
+    explicit GraphWindowClass(QWidget * parent);
     ~GraphWindowClass();
     friend class ADrawExplorerWidget;
 
@@ -191,7 +191,7 @@ public slots:
     void onDrawRequest(TObject* obj, const QString options, bool transferOwnership, bool focusWindow);
     bool DrawTree(TTree* tree, const QString& what, const QString& cond, const QString& how,
                   const QVariantList binsAndRanges = QVariantList(), const QVariantList markersAndLines = QVariantList(),
-                  QString *result = 0);
+                  QString *result = 0);   // !!!*** ugly
 
 private slots:
     void Reshape();
@@ -280,8 +280,7 @@ private slots:
 
     void onExternalBasketChange();
 private:
-    MainWindow *MW;
-    Ui::GraphWindowClass *ui;
+    Ui::GraphWindowClass * ui;
     RasterWindowGraphClass * RasterWindow = nullptr; //owns
     ADrawExplorerWidget * Explorer = nullptr; //owns
     bool ExtractionCanceled = false;

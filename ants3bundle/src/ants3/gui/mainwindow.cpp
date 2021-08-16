@@ -13,6 +13,7 @@
 #include "a3matwin.h"
 #include "a3photsimwin.h"
 #include "ainterfacerulewin.h"
+#include "graphwindowclass.h"
 
 #include <QDebug>
 
@@ -55,6 +56,8 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     PhotSimWin = new A3PhotSimWin(this);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
+
+    //GraphWin = new GraphWindowClass(this);
 }
 
 MainWindow::~MainWindow()
@@ -215,5 +218,12 @@ void MainWindow::on_pbInterfaceRules_clicked()
 {
     RuleWin->showNormal();
     RuleWin->activateWindow();
+}
+
+
+void MainWindow::on_pbGraphWin_clicked()
+{
+    GraphWin->showNormal();
+    GraphWin->activateWindow();
 }
 
