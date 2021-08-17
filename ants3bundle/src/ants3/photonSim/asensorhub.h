@@ -2,6 +2,7 @@
 #define ASENSORHUB_H
 
 #include "asensormodel.h"
+#include "avector.h"
 
 #include <QString>
 #include <QStringList>
@@ -11,15 +12,21 @@
 class AGeoObject;
 class QJsonObject;
 
+struct ASensorData
+{
+    AGeoObject * GeoObj     = nullptr;
+    int          ModelIndex = 0;
+    AVector3     Position   = {0, 0, 0};
+};
+
 class ASensorHub
 {
 public:
     static ASensorHub & getInstance();
     static const ASensorHub & getConstInstance();
 
-    int countSensors() const {return Sensors.size();}
+    int countSensors() const {return SensorData.size();}
     int countSensorModels() const {return Models.size();}
-
 
     const QStringList getListOfModelNames() const;
 
@@ -49,7 +56,7 @@ private:
 
 public:
     // runtime - populated together with GeoManager
-    std::vector<AGeoObject*> Sensors;
+    std::vector<ASensorData> SensorData;
 
 };
 

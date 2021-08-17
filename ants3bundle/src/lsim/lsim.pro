@@ -53,6 +53,7 @@ SOURCES += \
         ../ants3/photonSim/aphotonstatistics.cpp \
         ../ants3/photonSim/aroothistappenders.cpp \
         ../ants3/photonSim/astatisticshub.cpp \
+        ../ants3/tools/avector.cpp \
         anoderecord.cpp \
         aphotongenerator.cpp \
         aphotonsimulator.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     ../ants3/photonSim/aroothistappenders.h \
     ../ants3/photonSim/astatisticshub.h \
     ../ants3/photonSim/aphotontrackrecord.h \
+    ../ants3/tools/avector.h \
     aphotonsimulator.h \
     aphotontracer.h \
     aoneevent.h \

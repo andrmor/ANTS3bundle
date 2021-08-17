@@ -480,7 +480,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 #include "amonitorhub.h"
 void AGeometryHub::populateGeoManager()
 {
-    ASensorHub::getInstance().Sensors.clear();
+    ASensorHub::getInstance().SensorData.clear();
     clearMonitorRecords();
     clearGridRecords();
 
@@ -537,11 +537,102 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     MonitorNodes.push_back(node);
 }
 
+void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
+{
+    ASensorHub & SensorHub = ASensorHub::getInstance();
+    const int SensorCounter = SensorHub.countSensors();
+
+    parent->AddNode(vol, SensorCounter, lTrans);
+
+    ASensorData sr;
+    sr.GeoObj = obj;
+    sr.ModelIndex = static_cast<AGeoSensor*>(obj->Role)->SensorModel;
+
+    TObjArray * nList = parent->GetNodes();
+    const int numNodes = nList->GetEntries();
+    const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
+    getGlobalPosition(node, sr.Position);
+
+    SensorHub.SensorData.push_back(sr);
+}
+
+bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)
+{
+    TGeoVolume * startVol = startNode->GetVolume();
+    //qDebug() << "    Starting from"<<startVol->GetName();
+    TObjArray * nList = startVol->GetNodes();
+    if (!nList) return false;
+    int numNodes = nList->GetEntries();
+    //qDebug() << "    Num nodes:"<< numNodes;
+    for (int inod=0; inod<numNodes; inod++)
+    {
+        TGeoNode * n = (TGeoNode*)nList->At(inod);
+        //qDebug() << "    Checking "<< n->GetName();
+        if (n == node)
+        {
+            //qDebug() << "    Match!";
+            foundNode = startNode;
+            return true;
+        }
+        //qDebug() << "    Sending down the line";
+        bool bFound = findMotherNodeFor(node, n, foundNode);
+        //qDebug() << "    Found?"<<bFound;
+        if (bFound) return true;
+    }
+    return false;
+}
+
+void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode)
+{
+    //qDebug() << "--- search for " << node->GetName();
+    TObjArray* allNodes = GeoManager->GetListOfNodes();
+    //qDebug() << allNodes->GetEntries();
+    if (allNodes->GetEntries() != 1) return; // should be only World
+    TGeoNode * worldNode = (TGeoNode*)allNodes->At(0);
+    //qDebug() << worldNode->GetName();
+
+    motherNode = worldNode;
+    if (node == worldNode) return; //already there
+
+    findMotherNodeFor(node, worldNode, motherNode); //bool OK = ...
+    //if (bOK) qDebug() << "--- found mother node:"<<motherNode->GetName();
+    //else qDebug() << "--- search failed!";
+}
+
+void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
+{
+    double master[3];
+    TGeoVolume * motherVol = node->GetMotherVolume();
+    while (motherVol)
+    {
+        node->LocalToMaster(position.data(), master);
+        position[0] = master[0];
+        position[1] = master[1];
+        position[2] = master[2];
+
+        const TGeoNode * motherNode = nullptr;
+        findMotherNode(node, motherNode);
+        if (!motherNode)
+        {
+            //qDebug() << "  Mother node not found!";
+            break;
+        }
+        if (motherNode == node)
+        {
+            //qDebug() << "  strange - world passed";
+            break;
+        }
+
+        node = motherNode;
+
+        motherVol = node->GetMotherVolume();
+        //qDebug() << "  Continue search: current node:"<<n->GetName();
+    }
+}
+
 void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber)
 {
     if (!obj->fActive) return;
-
-    ASensorHub & SensorHub = ASensorHub::getInstance();
 
     TGeoVolume     * vol    = nullptr;
     TGeoCombiTrans * lTrans = nullptr;
@@ -596,13 +687,10 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
+        else if (obj->Role && obj->Role->getType() == "Sensor")
+            addSensorNode(obj, vol, parent, lTrans);
         else
-        {
-            if (obj->Role && obj->Role->getType() == "Sensor")
-                parent->AddNode(vol, SensorHub.Sensors.size(), lTrans); // attach to Sensors container below in the >SetTitle block
-            else
-                parent->AddNode(vol, forcedNodeNumber, lTrans);
-        }
+            parent->AddNode(vol, forcedNodeNumber, lTrans);
     }
 
     // Position hosted objects
@@ -616,15 +704,13 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
 
-    //  Particle/Photon trackers use volume title for identification of volumes with special rules
+    //  Photon tracer uses volume title for identification of special volumes
     //  First character can be 'M' for monitor, 'S' for light sensor, 'G' for optical grid
-    //  Second character is used by the ParticleTracker to indicate that particles leaving the volume have to be saved to file
-
-    if      (obj->Type->isMonitor())                        vol->SetTitle("M---");
-    else if (obj->Role && obj->Role->getType() == "Sensor")
+    if      (obj->Role)
     {
-        SensorHub.Sensors.push_back(obj);                   vol->SetTitle("S---");
+         if (obj->Role->getType() == "Sensor")              vol->SetTitle("S---");
     }
+    else if (obj->Type->isMonitor())                        vol->SetTitle("M---");
     else if (obj->Type->isGrid())                           vol->SetTitle("G---");
     else                                                    vol->SetTitle("----");
 }

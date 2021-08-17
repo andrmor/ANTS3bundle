@@ -153,7 +153,8 @@ SOURCES += \
     gui/mainwindow.cpp \
     gui/guitools.cpp \
     js/a3farmsi.cpp \
-    tools/arandomhub.cpp
+    tools/arandomhub.cpp \
+    tools/avector.cpp
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
@@ -255,7 +256,8 @@ HEADERS += \
     gui/mainwindow.h \
     gui/guitools.h \
     js/a3farmsi.h \
-    tools/arandomhub.h
+    tools/arandomhub.h \
+    tools/avector.h
 
 FORMS += \
         gui/aroottextconfigurator.ui \

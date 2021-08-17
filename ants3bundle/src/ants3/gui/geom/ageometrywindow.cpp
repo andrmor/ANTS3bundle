@@ -2,6 +2,7 @@
 #include "ageometrywindow.h"
 #include "ui_ageometrywindow.h"
 #include "ageometryhub.h"
+#include "asensorhub.h"
 #include "rasterwindowbaseclass.h"
 #include "a3global.h"
 #include "ajsontools.h"
@@ -389,12 +390,12 @@ void AGeometryWindow::closeEvent(QCloseEvent * event)
 //#include "anetworkmodule.h"
 void AGeometryWindow::ShowPMnumbers()
 {
-    /*
     QVector<QString> tmp;
-    for (int i = 0; i < Detector.PMs->count(); i++)
+    for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.append( QString::number(i) );
     ShowText(tmp, kBlack, true);
 
+    /*
     emit requestUpdateRegisteredGeoManager();
     */
 }
@@ -508,21 +509,21 @@ void AGeometryWindow::generateSymbolMap()
 
 void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, bool onPMs, bool bFullCycle)
 {
-/*
-    const APmHub & PMs = *Detector.PMs;
-    const QVector<const AGeoObject*> & Mons = Detector.Sandwich->MonitorsRecords;
+    const ASensorHub & SensorHub = ASensorHub::getConstInstance();
+    const std::vector<const AGeoObject*> & Mons = Geometry.MonitorsRecords;
 
-    int numObj = ( onPMs ? PMs.count() : Mons.size() );
+    int numObj = ( onPMs ? SensorHub.countSensors() : Mons.size() );
     if (strData.size() != numObj)
     {
-        message("Show text: mismatch in vector size", this);
+        guitools::message("Show text: mismatch in vector size", this);
         return;
     }
     //qDebug() << "Objects:"<<numObj;
 
-    if (bFullCycle) Detector.GeoManager->ClearTracks();
+    if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
 
+    // TODO: make individual for each sensor   !!!***
     //font size
     //checking minimum size
     double minSize = 1e10;
@@ -530,12 +531,10 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
     {
         if (onPMs)
         {
-            int typ = PMs.at(i).type;
-            const APmType * tp = Detector.PMs->getType(typ);
-            if (tp->SizeX < minSize) minSize = tp->SizeX;
-            int shape = tp->Shape; //0 box, 1 round, 2 hexa
-            if (shape == 0)
-                if (tp->SizeY < minSize) minSize = tp->SizeY;
+            AGeoObject * obj = SensorHub.SensorData[i].GeoObj;
+            const double size = obj->Shape->minSize();   // TODO: fpr all sizes, or a new method: getRecommendedTextSize() !!!***
+            if (size < minSize) minSize = size;
+            if (minSize == 0) minSize = 10.0; // temporary! !!!***
         }
         else
         {
@@ -559,13 +558,14 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
         double Zcenter = 0;
         if (onPMs)
         {
-            Xcenter = PMs.at(iObj).x;
-            Ycenter = PMs.at(iObj).y;
-            Zcenter = PMs.at(iObj).z;
+            const AVector3 & pos = SensorHub.SensorData[iObj].Position;
+            Xcenter = pos[0];
+            Ycenter = pos[1];
+            Zcenter = pos[2];
         }
         else
         {
-            const TGeoNode * n = Detector.Sandwich->MonitorNodes.at(iObj);
+            const TGeoNode * n = Geometry.MonitorNodes.at(iObj);
             //qDebug() << "\nProcessing monitor"<<n->GetName();
 
             double pos[3], master[3];
@@ -625,8 +625,8 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
 
             //            qDebug()<<"position="<<idig<<  "  To show: str="<<str1<<"index of mapping="<<isymbol;
 
-            Int_t track_index = Detector.GeoManager->AddTrack(2,22); //  Here track_index is the index of the newly created track in the array of primaries. One can get the pointer of this track and make it known as current track by the manager class:
-            TVirtualGeoTrack *track = Detector.GeoManager->GetTrack(track_index);
+            Int_t track_index = Geometry.GeoManager->AddTrack(2,22); //  Here track_index is the index of the newly created track in the array of primaries. One can get the pointer of this track and make it known as current track by the manager class:
+            TVirtualGeoTrack *track = Geometry.GeoManager->GetTrack(track_index);
             if (str.right(1) == "F")
                 track->SetLineColor(kRed);
             else
@@ -646,10 +646,9 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
     if (bFullCycle)
     {
         ShowGeometry(false);
-        Detector.GeoManager->DrawTracks();
+        Geometry.GeoManager->DrawTracks();
         UpdateRootCanvas();
     }
-*/
 }
 
 void AGeometryWindow::AddLineToGeometry(QPointF& start, QPointF& end, Color_t color, int width)
