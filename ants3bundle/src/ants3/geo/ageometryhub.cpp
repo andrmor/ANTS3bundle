@@ -8,6 +8,7 @@
 #include "ageospecial.h"
 #include "ajsontools.h"
 #include "asensorhub.h"
+#include "amonitorhub.h"
 
 #include <QDebug>
 
@@ -54,7 +55,7 @@ void AGeometryHub::clearWorld()
     World->HostedObjects.push_back(Prototypes);
 
     clearGridRecords();
-    clearMonitorRecords();
+    AMonitorHub::getInstance().clear();
 }
 
 void AGeometryHub::clearGridRecords()
@@ -63,13 +64,6 @@ void AGeometryHub::clearGridRecords()
     for (auto * gr : GridRecords) delete gr;
     GridRecords.clear();
 */
-}
-
-void AGeometryHub::clearMonitorRecords()
-{
-    MonitorsRecords.clear(); //do not delete - it contains pointers to world tree objects
-    MonitorIdNames.clear();
-    MonitorNodes.clear();
 }
 
 bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
@@ -477,11 +471,10 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
-#include "amonitorhub.h"
 void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().SensorData.clear();
-    clearMonitorRecords();
+    AMonitorHub::getInstance().clear();
     clearGridRecords();
 
     expandPrototypeInstances();
@@ -512,29 +505,33 @@ void AGeometryHub::populateGeoManager()
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
 
     GeoManager->CloseGeometry();
-
-    AMonitorHub::getInstance().init();
 }
 
+#include "amonitor.h"
 void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
 {
-    const int MonitorCounter = MonitorsRecords.size();
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    const int MonitorCounter = MonitorHub.countMonitors();
+
+    (static_cast<ATypeMonitorObject*>(obj->Type))->index = MonitorCounter;
+    parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
     fixedName += "_-_";
     fixedName += MonitorCounter;
     vol->SetName(fixedName);
 
-    MonitorsRecords.push_back(obj);
-    (static_cast<ATypeMonitorObject*>(obj->Type))->index = MonitorCounter;
-    parent->AddNode(vol, MonitorCounter, lTrans);
-
-    MonitorIdNames.push_back(QString("%1_%2").arg(vol->GetName()).arg(MonitorCounter));
+    AMonitorData md;
+    md.Name    = QString("%1_%2").arg(vol->GetName()).arg(MonitorCounter);
+    md.GeoObj  = obj;
+    md.Monitor = new AMonitor(obj);
 
     TObjArray * nList = parent->GetNodes();
     const int numNodes = nList->GetEntries();
-    TGeoNode * node = (TGeoNode*)nList->At(numNodes-1);
-    MonitorNodes.push_back(node);
+    const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
+    getGlobalPosition(node, md.Position);
+
+    MonitorHub.Monitors.push_back(md);
 }
 
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)

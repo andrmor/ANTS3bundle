@@ -1,10 +1,23 @@
 #ifndef AMONITORHUB_H
 #define AMONITORHUB_H
 
+#include "avector.h"
+
+#include <QString>
+
 #include <vector>
 
 class AMonitor;
 class QString;
+class AGeoObject;
+
+struct AMonitorData
+{
+    QString      Name;
+    AMonitor   * Monitor;
+    AGeoObject * GeoObj   = nullptr;
+    AVector3     Position = {0, 0, 0};
+};
 
 class AMonitorHub
 {
@@ -22,14 +35,14 @@ private:
     AMonitorHub& operator=(AMonitorHub&&)      = delete;
 
 public:
-    std::vector<AMonitor*> Monitors;
+    std::vector<AMonitorData> Monitors;
 
-    void init();
+    void clear();
+
+    int  countMonitors() const {return Monitors.size();}
 
     void appendFromFile(const QString & fileName);
 
-private:
-    void clear();
 };
 
 #endif // AMONITORHUB_H

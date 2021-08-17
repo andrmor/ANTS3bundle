@@ -19,12 +19,6 @@ AMonitorHub::~AMonitorHub()
     clear();
 }
 
-void AMonitorHub::init()
-{
-    for (const AGeoObject * obj : AGeometryHub::getInstance().MonitorsRecords)
-        Monitors.push_back(new AMonitor(obj));
-}
-
 void AMonitorHub::appendFromFile(const QString & fileName)
 {
     /*   !!!***
@@ -43,7 +37,7 @@ void AMonitorHub::appendFromFile(const QString & fileName)
 
 void AMonitorHub::clear()
 {
-    for (AMonitor * mon : Monitors) delete mon;
+    for (AMonitorData & md : Monitors) delete md.Monitor;
     Monitors.clear();
 }
 

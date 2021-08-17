@@ -9,6 +9,10 @@ class TGraph;
 class TGraph2D;
 class QString;
 
+// TODO:
+// refactor to methods:
+// graph, title, line, marker
+
 namespace AGraphBuilder
 {
     static TGraph * graph(const QVector<double>& x, const QVector<double>& y);

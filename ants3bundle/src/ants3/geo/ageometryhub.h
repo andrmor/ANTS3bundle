@@ -2,7 +2,6 @@
 #define AGEOMETRYHUB_H
 
 #include <QString>
-#include <QStringList>
 
 #include <vector>
 
@@ -39,12 +38,7 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    std::vector<const AGeoObject*> MonitorsRecords;  // stays here, in case loadMonitors overrides "local" settings
-    // !!!*** next 2 - check if still needed. if yes, maybe can be moved to MonitorHub?
-    std::vector<QString> MonitorIdNames;  //runtime
-    std::vector<TGeoNode*> MonitorNodes; //runtime  change position determination as in sensors, then this is not needed
-
-    std::vector<AGridElementRecord*> GridRecords;
+    std::vector<AGridElementRecord*> GridRecords;  // !!!*** refactor / transfer
 
     void         populateGeoManager();   // !!!*** emit signal
 
@@ -78,7 +72,7 @@ public:
     void         colorVolumes(int scheme, int id = 0);
     void         changeLineWidthOfVolumes(int delta);
 
-    //World size-related
+    //World size-related   !!!*** still need?
     bool         isWorldSizeFixed() const;
     void         setWorldSizeFixed(bool bFlag);
     double       getWorldSizeXY() const;
@@ -104,7 +98,6 @@ private:
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearGridRecords();
-    void clearMonitorRecords();
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);

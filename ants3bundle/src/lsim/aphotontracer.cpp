@@ -358,24 +358,24 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 */
         case 'M': //monitor
             {
-                AMonitorHub & Mon = AMonitorHub::getInstance();
+                AMonitorHub & MonitorHub = AMonitorHub::getInstance();
                 const int iMon = NodeAfterInterface->GetNumber();
                 //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
-                if (Mon.Monitors[iMon]->isForPhotons())
+                if (MonitorHub.Monitors[iMon].Monitor->isForPhotons())
                 {
                     Double_t local[3];
                     const Double_t *global = Navigator->GetCurrentPoint();
                     Navigator->MasterToLocal(global, local);
                     //qDebug()<<local[0]<<local[1];
                     //qDebug() << "Monitors:"<<SimStat.Monitors.size();
-                    if ( (local[2]>0 && Mon.Monitors[iMon]->isUpperSensitive()) || (local[2]<0 && Mon.Monitors[iMon]->isLowerSensitive()) )
+                    if ( (local[2]>0 && MonitorHub.Monitors[iMon].Monitor->isUpperSensitive()) || (local[2]<0 && MonitorHub.Monitors[iMon].Monitor->isLowerSensitive()) )
                     {
                         //angle?
                         if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
                         double cosAngle = 0;
                         for (int i=0; i<3; i++) cosAngle += N[i] * p->v[i];
-                        Mon.Monitors[iMon]->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
-                        if (Mon.Monitors[iMon]->isStopsTracking())
+                        MonitorHub.Monitors[iMon].Monitor->fillForPhoton(local[0], local[1], p->time, 180.0/3.1415926535*TMath::ACos(cosAngle), p->waveIndex);
+                        if (MonitorHub.Monitors[iMon].Monitor->isStopsTracking())
                         {
                             SimStat.MonitorKill++;
                             if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::KilledByMonitor) );

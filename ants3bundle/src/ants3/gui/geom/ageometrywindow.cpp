@@ -3,14 +3,18 @@
 #include "ui_ageometrywindow.h"
 #include "ageometryhub.h"
 #include "asensorhub.h"
+#include "amonitorhub.h"
 #include "rasterwindowbaseclass.h"
 #include "a3global.h"
 #include "ajsontools.h"
 //#include "anetworkmodule.h"
 #include "ageomarkerclass.h"
 #include "ageoshape.h"
+#include "ageoobject.h"
 #include "acameracontroldialog.h"
 #include "guitools.h"
+
+#include <vector>
 
 #include <QStringList>
 #include <QDebug>
@@ -400,59 +404,12 @@ void AGeometryWindow::ShowPMnumbers()
     */
 }
 
-#include <vector>
 void AGeometryWindow::ShowMonitorIndexes()
 {
+    const int numMon = AMonitorHub::getConstInstance().countMonitors();
     QVector<QString> tmp;
-    for (size_t i = 0; i < Geometry.MonitorsRecords.size(); i++)
-        tmp.append( QString::number(i) );
+    for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
     ShowText(tmp, kBlue, false);
-}
-
-#include "ageoobject.h"
-#include "TGeoNode.h"
-bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)
-{
-    TGeoVolume * startVol = startNode->GetVolume();
-    //qDebug() << "    Starting from"<<startVol->GetName();
-    TObjArray * nList = startVol->GetNodes();
-    if (!nList) return false;
-    int numNodes = nList->GetEntries();
-    //qDebug() << "    Num nodes:"<< numNodes;
-    for (int inod=0; inod<numNodes; inod++)
-    {
-        TGeoNode * n = (TGeoNode*)nList->At(inod);
-        //qDebug() << "    Checking "<< n->GetName();
-        if (n == node)
-        {
-            //qDebug() << "    Match!";
-            foundNode = startNode;
-            return true;
-        }
-        //qDebug() << "    Sending down the line";
-        bool bFound = findMotherNodeFor(node, n, foundNode);
-        //qDebug() << "    Found?"<<bFound;
-        if (bFound) return true;
-    }
-    return false;
-}
-
-void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode)
-{
-    //qDebug() << "--- search for " << node->GetName();
-    TObjArray* allNodes = gGeoManager->GetListOfNodes();
-    //qDebug() << allNodes->GetEntries();
-    if (allNodes->GetEntries() != 1) return; // should be only World
-    TGeoNode * worldNode = (TGeoNode*)allNodes->At(0);
-    //qDebug() << worldNode->GetName();
-
-    motherNode = worldNode;
-    if (node == worldNode) return; //already there
-
-    findMotherNodeFor(node, worldNode, motherNode); //bool OK = ...
-    //    if (bOK)
-    //        qDebug() << "--- found mother node:"<<motherNode->GetName();
-    //    else qDebug() << "--- search failed!";
 }
 
 void AGeometryWindow::generateSymbolMap()
@@ -509,13 +466,13 @@ void AGeometryWindow::generateSymbolMap()
 
 void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, bool onPMs, bool bFullCycle)
 {
-    const ASensorHub & SensorHub = ASensorHub::getConstInstance();
-    const std::vector<const AGeoObject*> & Mons = Geometry.MonitorsRecords;
+    const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
+    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
 
-    int numObj = ( onPMs ? SensorHub.countSensors() : Mons.size() );
+    int numObj = ( onPMs ? SensorHub.countSensors() : MonitorHub.countMonitors() );
     if (strData.size() != numObj)
     {
-        guitools::message("Show text: mismatch in vector size", this);
+        guitools::message("Show text: mismatch in vector sizes", this);
         return;
     }
 
@@ -531,68 +488,16 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
 
     for (int iObj = 0; iObj < numObj; iObj++)
     {
-        double Xcenter = 0;
-        double Ycenter = 0;
-        double Zcenter = 0;
-        if (onPMs)
-        {
-            const AVector3 & pos = SensorHub.SensorData[iObj].Position;
-            Xcenter = pos[0];
-            Ycenter = pos[1];
-            Zcenter = pos[2];
-        }
-        else
-        {
-            const TGeoNode * n = Geometry.MonitorNodes.at(iObj);
-            //qDebug() << "\nProcessing monitor"<<n->GetName();
-
-            // TODO: reuse infrastructure in geometryhub !!!***
-
-            double pos[3], master[3];
-            pos[0] = 0;
-            pos[1] = 0;
-            pos[2] = 0;
-
-            TGeoVolume * motherVol = n->GetMotherVolume();
-            while (motherVol)
-            {
-                //qDebug() << "  Mother vol is:"<< motherVol->GetName();
-                n->LocalToMaster(pos, master);
-                pos[0] = master[0];
-                pos[1] = master[1];
-                pos[2] = master[2];
-                //qDebug() << "  Position:"<<pos[0]<<pos[1]<<pos[2];
-
-                const TGeoNode * motherNode = nullptr;
-                findMotherNode(n, motherNode);
-                if (!motherNode)
-                {
-                    //qDebug() << "  Mother node not found!";
-                    break;
-                }
-                if (motherNode == n)
-                {
-                    //qDebug() << "  strange - world passed";
-                    break;
-                }
-
-                n = motherNode;
-
-                motherVol = n->GetMotherVolume();
-                //qDebug() << "  Continue search: current node:"<<n->GetName();
-            }
-            Xcenter = pos[0];
-            Ycenter = pos[1];
-            Zcenter = pos[2];
-        }
-
         QString str = strData[iObj];
         if (str.isEmpty()) continue;
+
+        AVector3 centerPos = ( onPMs ? SensorHub.SensorData[iObj].Position
+                                     : MonitorHub.Monitors[iObj].Position );
         int numDigits = str.size();
         if (str.right(1) == "F") numDigits--;
 
-        double size = ( onPMs ? SensorHub.SensorData[iObj].GeoObj->Shape->minSize()
-                              : Mons.at(iObj)->Shape->minSize() );  // !!!*** expand minSize for other shapes!!!
+        double size = ( onPMs ? SensorHub.SensorData[iObj].GeoObj->Shape->minSize()    // !!!*** expand minSize for other shapes!!!
+                              : MonitorHub.Monitors[iObj].GeoObj->Shape->minSize() );
         if (size == 0) size = 2.0; // temporary! !!!***
         size = size / 3.0 / (0.5+0.5*MaxSymbols); // was /5.0
         int lineWidth = 2;
@@ -616,9 +521,9 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
             if (isymbol > -1)
                 for (int i=0; i<numbersX[isymbol].size(); i++)
                 {
-                    double x = Xcenter - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * numbersX[isymbol][i];
-                    double y = Ycenter + size * numbersY[isymbol][i];
-                    track->AddPoint(x, y, Zcenter, 0);
+                    double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * numbersX[isymbol][i];
+                    double y = centerPos[1] + size * numbersY[isymbol][i];
+                    track->AddPoint(x, y, centerPos[2], 0);
                 }
         }
     }
