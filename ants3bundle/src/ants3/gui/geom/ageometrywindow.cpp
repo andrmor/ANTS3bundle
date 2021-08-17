@@ -507,7 +507,7 @@ void AGeometryWindow::generateSymbolMap()
     numbersY.append({ 0, 0});
 }
 
-void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, bool onPMs, bool bFullCycle)
+void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, bool onPMs, bool bFullCycle)
 {
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
     const std::vector<const AGeoObject*> & Mons = Geometry.MonitorsRecords;
@@ -518,38 +518,16 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
         guitools::message("Show text: mismatch in vector size", this);
         return;
     }
-    //qDebug() << "Objects:"<<numObj;
 
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
 
-    // TODO: make individual for each sensor   !!!***
-    //font size
-    //checking minimum size
-    double minSize = 1e10;
-    for (int i = 0; i < numObj; i++)
-    {
-        if (onPMs)
-        {
-            AGeoObject * obj = SensorHub.SensorData[i].GeoObj;
-            const double size = obj->Shape->minSize();   // TODO: fpr all sizes, or a new method: getRecommendedTextSize() !!!***
-            if (size < minSize) minSize = size;
-            if (minSize == 0) minSize = 10.0; // temporary! !!!***
-        }
-        else
-        {
-            double msize = Mons.at(i)->Shape->minSize();
-            if (msize < minSize) minSize = msize;
-        }
-    }
-
-    //max number of digits
-    int symbols = 0;
+    //max number of symbols to show
+    int MaxSymbols = 0;
     for (int i=0; i<numObj; i++)
-        if (strData[i].size() > symbols) symbols = strData[i].size();
-    if (symbols == 0) symbols++;
-    //        qDebug()<<"Max number of symbols"<<symbols;
-    double size = minSize/5.0/(0.5+0.5*symbols);
+        if (strData[i].size() > MaxSymbols)
+            MaxSymbols = strData[i].size();
+    if (MaxSymbols == 0) MaxSymbols = 1;
 
     for (int iObj = 0; iObj < numObj; iObj++)
     {
@@ -567,6 +545,8 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
         {
             const TGeoNode * n = Geometry.MonitorNodes.at(iObj);
             //qDebug() << "\nProcessing monitor"<<n->GetName();
+
+            // TODO: reuse infrastructure in geometryhub !!!***
 
             double pos[3], master[3];
             pos[0] = 0;
@@ -610,34 +590,34 @@ void AGeometryWindow::ShowText(const QVector<QString> &strData, Color_t color, b
         if (str.isEmpty()) continue;
         int numDigits = str.size();
         if (str.right(1) == "F") numDigits--;
-        //        qDebug()<<"PM number: "<<ipm<<"    string="<<str<<"  digits="<<numDigits<<"size"<<size;
 
+        double size = ( onPMs ? SensorHub.SensorData[iObj].GeoObj->Shape->minSize()
+                              : Mons.at(iObj)->Shape->minSize() );  // !!!*** expand minSize for other shapes!!!
+        if (size == 0) size = 2.0; // temporary! !!!***
+        size = size / 3.0 / (0.5+0.5*MaxSymbols); // was /5.0
         int lineWidth = 2;
-        if (size<2) lineWidth = 1;
+        //if (size<2) lineWidth = 1;
 
-        for (int idig=0; idig<numDigits; idig++)
+        for (int iDig = 0; iDig < numDigits; iDig++)
         {
-            QString str1 = str.mid(idig,1);
+            QString str1 = str.mid(iDig, 1);
 
             int isymbol = -1;
-            for (int i=0; i<SymbolMap.size(); i++)
-                if (str1 == SymbolMap[i]) isymbol = i;
+            for (int i = 0; i < SymbolMap.size(); i++)
+                if (str1 == SymbolMap[i])
+                    isymbol = i;
 
-            //            qDebug()<<"position="<<idig<<  "  To show: str="<<str1<<"index of mapping="<<isymbol;
-
-            Int_t track_index = Geometry.GeoManager->AddTrack(2,22); //  Here track_index is the index of the newly created track in the array of primaries. One can get the pointer of this track and make it known as current track by the manager class:
-            TVirtualGeoTrack *track = Geometry.GeoManager->GetTrack(track_index);
-            if (str.right(1) == "F")
-                track->SetLineColor(kRed);
-            else
-                track->SetLineColor(color);
+            Int_t track_index = Geometry.GeoManager->AddTrack(2, 22);
+            TVirtualGeoTrack * track = Geometry.GeoManager->GetTrack(track_index);
+            if (str.right(1) == "F") track->SetLineColor(kRed);
+            else                     track->SetLineColor(color);
             track->SetLineWidth(lineWidth);
 
             if (isymbol > -1)
                 for (int i=0; i<numbersX[isymbol].size(); i++)
                 {
-                    double x = Xcenter - 2.6*size*(0.5*(numDigits-1) - 1.0*idig) + size*numbersX[isymbol][i];
-                    double y = Ycenter + size*numbersY[isymbol][i];
+                    double x = Xcenter - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * numbersX[isymbol][i];
+                    double y = Ycenter + size * numbersY[isymbol][i];
                     track->AddPoint(x, y, Zcenter, 0);
                 }
         }
