@@ -72,7 +72,7 @@ void APhotonStatistics::registerNumTrans(int NumTransitions)
     TransitionDistr->Fill(NumTransitions);
 }
 
-void APhotonStatistics::append(const APhotonStatistics &from)
+void APhotonStatistics::append(const APhotonStatistics & from)
 {
     appendTH1D(AngularDistr,    from.AngularDistr);
     appendTH1D(TimeDistr,       from.TimeDistr);

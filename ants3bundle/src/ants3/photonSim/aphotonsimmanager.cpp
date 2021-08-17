@@ -22,13 +22,14 @@ const APhotonSimManager & APhotonSimManager::getConstInstance()
     return getInstance();
 }
 
-#include "TH1D.h"
+APhotonSimManager::APhotonSimManager() :
+    SimSet(APhotonSimHub::getInstance().Settings)
+{}
+
 bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";
     ErrorString.clear();
-
-    const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
 
     if (SimSet.RunSet.OutputDirectory.isEmpty())
     {
@@ -92,15 +93,25 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Obtained run plan over local/farm nodes:";
     for (A3FarmNodeRecord & r : RunPlan) qDebug() << "--->" << r.Address << r.Split;
 
+    qDebug() << "Configuring simulation...";
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
     bool ok = configureSimulation(RunPlan, Request);
     if (!ok) return false;
 
+    qDebug() << "Running simulation...";
     QString Reply = Dispatcher.performTask(Request);
     qDebug() << "Reply message:" << Reply;
 
     qDebug() << "Merging output files...";
+    mergeOutput();
+
+    qDebug() << "Photon simulation finished";
+    return ErrorString.isEmpty();
+}
+
+void APhotonSimManager::mergeOutput()
+{
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
     if (SimSet.RunSet.SaveSensorSignals) ErrorString += SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
@@ -125,9 +136,6 @@ bool APhotonSimManager::simulate(int numLocalProc)
         Stat.writeToJson(json);
         jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
     }
-
-    qDebug() << "Photon simulation finished";
-    return ErrorString.isEmpty();
 }
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
@@ -136,7 +144,6 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
 
     Request.Command = "lsim"; // name of the corresponding executable
 
-    const APhotonSimSettings & SimSet = APhotonSimHub::getInstance().Settings;
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
 

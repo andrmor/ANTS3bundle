@@ -10,6 +10,7 @@
 #include <vector>
 
 class A3WorkDistrConfig;
+class APhotonSimSettings;
 
 class APhotonSimManager final : public QObject
 {
@@ -20,7 +21,7 @@ public:
     static const APhotonSimManager & getConstInstance();
 
 private:
-    APhotonSimManager(){}
+    APhotonSimManager();
     ~APhotonSimManager(){}
 
     APhotonSimManager(const APhotonSimManager&)            = delete;
@@ -34,10 +35,12 @@ public:
 public slots:
     bool simulate(int numLocalProc = -1);
 
-protected:
-    bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
-
 private:
+    bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    void mergeOutput();
+
+    const APhotonSimSettings & SimSet;
+
     AFileMerger          SignalFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
