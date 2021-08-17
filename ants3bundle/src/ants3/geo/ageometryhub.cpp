@@ -715,9 +715,9 @@ void AGeometryHub::positionArrayElement(int ix, int iy, int iz, AGeoObject * el,
 
     //Position
     double local[3], master[3];
-    local[0] = el->Position[0] + ix * array->stepX;
-    local[1] = el->Position[1] + iy * array->stepY;
-    local[2] = el->Position[2] + iz * array->stepZ;
+    local[0] = el->Position[0] + (ix - 0.5*(array->numX - 1)) * array->stepX;
+    local[1] = el->Position[1] + (iy - 0.5*(array->numY - 1)) * array->stepY;
+    local[2] = el->Position[2] + (iz - 0.5*(array->numZ - 1)) * array->stepZ;
     TGeoRotation ArRot("0", arrayObj->Orientation[0] , arrayObj->Orientation[1], arrayObj->Orientation[2]);
     if (arrayObj->TrueRot)
     {
