@@ -152,6 +152,9 @@ public:
     bool    SavePhotonLog         = true;
     QString FileNamePhotonLog     = "PhotonLog.txt";
 
+    bool    SaveMonitors          = true;
+    QString FileNameMonitors      = "Monitors.txt";
+
     APhotonLogSettings LogSet;
 
     void    writeToJson(QJsonObject & json) const;

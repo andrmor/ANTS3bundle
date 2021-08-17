@@ -18,6 +18,9 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbSensorSignals->setChecked(RunSet.SaveSensorSignals);
     ui->leSensorSignals->setText(RunSet.FileNameSensorSignals);
 
+    ui->cbMonitors->setChecked(RunSet.SaveMonitors);
+    ui->leMonitors->setText(RunSet.FileNameMonitors);
+
     ui->cbPhotonTracks->setChecked(RunSet.SaveTracks);
     ui->lePhotonTracks->setText(RunSet.FileNameTracks);
     ui->sbMaxTracks->setValue(RunSet.MaxTracks);
@@ -28,7 +31,6 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbStatistics->setChecked(RunSet.SaveStatistics);
     ui->leStatistics->setText(RunSet.FileNameStatistics);
     ui->ledTimeLimit->setText(QString::number(RunSet.UpperTimeLimit));
-
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -45,6 +47,9 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
     RunSet.SaveSensorSignals     = ui->cbSensorSignals->isChecked();
     RunSet.FileNameSensorSignals = ui->leSensorSignals->text();
 
+    RunSet.SaveMonitors          = ui->cbMonitors->isChecked();
+    RunSet.FileNameMonitors      = ui->leMonitors->text();
+
     RunSet.SaveTracks            = ui->cbPhotonTracks->isChecked();
     RunSet.FileNameTracks        = ui->lePhotonTracks->text();
     RunSet.MaxTracks             = ui->sbMaxTracks->value();
@@ -58,6 +63,8 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
 
     accept();
 }
+
+// !!!*** add to gui tools: select dir
 
 void APhotonSimOutputDialog::on_pbChangeDir_clicked()
 {
@@ -93,3 +100,8 @@ void APhotonSimOutputDialog::on_pbChangeStatistics_clicked()
     if (!fileName.isEmpty()) ui->leStatistics->setText(fileName);
 }
 
+void APhotonSimOutputDialog::on_pbChangeMonitors_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save monitor data", ui->leOutputDirectory->text());
+    if (!fileName.isEmpty()) ui->leMonitors->setText(fileName);
+}

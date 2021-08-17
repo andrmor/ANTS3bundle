@@ -4,6 +4,7 @@
 #include "avector.h"
 
 #include <QString>
+#include <QJsonObject>
 
 #include <vector>
 
@@ -38,10 +39,13 @@ public:
     std::vector<AMonitorData> Monitors;
 
     void clear();
+    void clearData();
 
     int  countMonitors() const {return Monitors.size();}
 
     void appendFromFile(const QString & fileName);
+
+    void writeDataToJson(QJsonObject & json) const;
 
 };
 

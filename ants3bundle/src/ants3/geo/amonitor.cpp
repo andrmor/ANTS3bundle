@@ -3,6 +3,7 @@
 #include "ageotype.h"
 //     #include "aroothistappenders.h"
 //     #include "ahistogram.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 
@@ -24,11 +25,11 @@ AMonitor::~AMonitor()
 
 void AMonitor::clearData()
 {
-    delete time; time = 0;
-    delete xy;   xy = 0;
-    delete angle; angle = 0;
-    delete wave; wave = 0;
-    delete energy; energy = 0;
+    delete time;   time   = nullptr;
+    delete xy;     xy     = nullptr;
+    delete angle;  angle  = nullptr;
+    delete wave;   wave   = nullptr;
+    delete energy; energy = nullptr;
 }
 
 int AMonitor::getHits() const
@@ -80,6 +81,16 @@ bool AMonitor::readFromGeoObject(const AGeoObject *MonitorRecord)
     else initEnergyHist();
 
     return true;
+}
+
+void AMonitor::writeDataToJson(QJsonObject & json) const
+{
+    json["Time"] = jstools::regularTh1dToJson(time);
+    json["Wave"] = jstools::regularTh1dToJson(wave);
+    json["Angle"] = jstools::regularTh1dToJson(angle);
+    json["Energy"] = jstools::regularTh1dToJson(energy);
+
+    json["XY"] = jstools::regularTh2dToJson(xy);
 }
 
 void AMonitor::appendDataFromAnotherMonitor(AMonitor *from)

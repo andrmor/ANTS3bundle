@@ -59,6 +59,7 @@ APhotonSimulator::~APhotonSimulator()
     delete FileTracks;
 }
 
+#include "amonitorhub.h"
 void APhotonSimulator::start()
 {
     loadConfig();
@@ -85,6 +86,13 @@ void APhotonSimulator::start()
         QJsonObject json;
         AStatisticsHub::getInstance().SimStat.writeToJson(json);
         jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameStatistics);
+    }
+
+    if (SimSet.RunSet.SaveMonitors)
+    {
+        QJsonObject json;
+        AMonitorHub::getInstance().writeDataToJson(json);
+        jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
 
     QCoreApplication::exit();

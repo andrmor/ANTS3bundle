@@ -110,6 +110,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     return ErrorString.isEmpty();
 }
 
+#include "amonitorhub.h"
 void APhotonSimManager::mergeOutput()
 {
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
@@ -136,6 +137,19 @@ void APhotonSimManager::mergeOutput()
         Stat.writeToJson(json);
         jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
     }
+
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    MonitorHub.clearData();
+    if (SimSet.RunSet.SaveMonitors)
+    {
+        for (const QString & FN : MonitorFiles)
+        {
+            QJsonObject json;
+            //bool ok = jstools::loadJsonFromFile(json, FN);
+
+            // ...
+        }
+    }
 }
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
@@ -151,6 +165,7 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
     TrackFileMerger.clear();
     BombFileMerger.clear();
     StatisticsFiles.clear();
+    MonitorFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -210,22 +225,28 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
             }
             if (SimSet.RunSet.SaveTracks)
             {
-                WorkSet.RunSet.FileNameTracks       = QString("tracks-%0") .arg(iProcess);
+                WorkSet.RunSet.FileNameTracks       = QString("tracks-%0").arg(iProcess);
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
                 TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
             }
             if (SimSet.RunSet.SavePhotonBombs)
             {
-                WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0") .arg(iProcess);
+                WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
                 BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
             }
 
             if (SimSet.RunSet.SaveStatistics)
             {
-                WorkSet.RunSet.FileNameStatistics   = QString("stats-%0") .arg(iProcess);
+                WorkSet.RunSet.FileNameStatistics   = QString("stats-%0").arg(iProcess);
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameStatistics);
                 StatisticsFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
+            }
+            if (SimSet.RunSet.SaveMonitors)
+            {
+                WorkSet.RunSet.FileNameMonitors     = QString("monitors-%0").arg(iProcess);
+                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitors);
+                MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
             }
 
 

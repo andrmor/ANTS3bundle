@@ -44,7 +44,9 @@ private:
     AFileMerger          SignalFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
+
     std::vector<QString> StatisticsFiles;
+    std::vector<QString> MonitorFiles;
 
 };
 

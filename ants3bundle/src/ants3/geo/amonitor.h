@@ -37,6 +37,8 @@ public:
 //configuration
   bool readFromGeoObject(const AGeoObject* MonitorRecord);
 
+  void writeDataToJson(QJsonObject & json) const;
+
   void overrideDataFromJson(const QJsonObject & json);
 
 // stat data handling

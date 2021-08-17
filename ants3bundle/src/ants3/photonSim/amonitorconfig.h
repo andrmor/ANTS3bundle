@@ -29,12 +29,12 @@ public:
     bool   bIndirect = true;
 
     //histogram properties
-    int    xbins = 100;
-    int    ybins = 100;
-    int    timeBins = 100;
+    int    xbins = 10;
+    int    ybins = 10;
+    int    timeBins = 10;
     double timeFrom = 0;
     double timeTo = 0;
-    int    angleBins = 100;
+    int    angleBins = 90;
     double angleFrom = 0;
     double angleTo = 90.0;
     int    waveBins = 150;

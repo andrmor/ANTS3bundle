@@ -2,6 +2,7 @@
 #include "amonitor.h"
 #include "ageometryhub.h"
 #include "ageoobject.h"
+#include "ajsontools.h"
 
 AMonitorHub & AMonitorHub::getInstance()
 {
@@ -35,9 +36,28 @@ void AMonitorHub::appendFromFile(const QString & fileName)
    */
 }
 
+void AMonitorHub::writeDataToJson(QJsonObject & json) const
+{
+    QJsonArray ar;
+
+    for (const AMonitorData & md : Monitors)
+    {
+        QJsonObject js;
+        md.Monitor->writeDataToJson(js);
+        ar.push_back(js);
+    }
+
+    json["MonitorData"] = ar;
+}
+
 void AMonitorHub::clear()
 {
     for (AMonitorData & md : Monitors) delete md.Monitor;
     Monitors.clear();
+}
+
+void AMonitorHub::clearData()
+{
+    for (AMonitorData & md : Monitors) md.Monitor->clearData();
 }
 
