@@ -67,14 +67,21 @@ void appendTH1DwithStat(TH1D * & toHist, TH1D *fromHist)
 }
 */
 
-void appendTH2D(TH2D *toHist, TH2D *fromHist)
+void appendTH2D(TH2D* & toHist, const TH2D * fromHist)
 {
     if (!toHist || !fromHist) return;
+
+    if (!toHist)
+    {
+        toHist = static_cast<TH2D*>(fromHist->Clone());
+        return;
+    }
 
     double numEntries = toHist->GetEntries();
     if (numEntries < 1)
     {
-        *toHist = *fromHist;
+        toHist = static_cast<TH2D*>(fromHist->Clone());
+        return;
     }
     else
     {

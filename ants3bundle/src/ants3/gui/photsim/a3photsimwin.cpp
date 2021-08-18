@@ -265,6 +265,12 @@ void A3PhotSimWin::on_pbSimulate_clicked()
             on_pbLoadAndShowTracks_clicked();
         }
 
+        if (SimSet.RunSet.SaveMonitors)
+        {
+            ui->leMonitorsFileName->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameMonitors);
+            on_pbLoadMonitorsData_clicked();
+        }
+
         if (SimSet.RunSet.SaveStatistics)
         {
             ui->leStatisticsFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameStatistics);
@@ -619,5 +625,16 @@ void A3PhotSimWin::on_pbNextMonitor_clicked()
 
     if (iMon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(iMon);
     updateMonitorGui();
+}
+
+
+void A3PhotSimWin::on_pbMonitorShowAngle_clicked()
+{
+    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
+    const int numMonitors = MonitorHub.countMonitors();
+
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->angle, "hist", false, true);
 }
 

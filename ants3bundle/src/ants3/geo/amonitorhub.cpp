@@ -69,7 +69,7 @@ int AMonitorHub::countMonitorsWithHits() const
 {
     int counter = 0;
     for (const AMonitorData & md : Monitors)
-        counter += md.Monitor->getHits();
+        if (md.Monitor->getHits() > 0) counter++;
     return counter;
 }
 

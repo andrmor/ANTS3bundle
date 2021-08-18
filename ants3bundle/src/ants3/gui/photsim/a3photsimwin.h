@@ -75,14 +75,12 @@ private slots:
     void on_pbShowAngleDistr_clicked();
 
     void on_cobMonitor_activated(int index);
-
     void on_sbMonitorIndex_editingFinished();
-
     void on_pbNextMonitor_clicked();
-
     void on_pbChooseMonitorsFile_clicked();
-
     void on_pbLoadMonitorsData_clicked();
+
+    void on_pbMonitorShowAngle_clicked();
 
 private:
     APhotonSimSettings & SimSet;

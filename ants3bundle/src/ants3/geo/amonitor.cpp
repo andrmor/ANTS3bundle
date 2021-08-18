@@ -33,8 +33,8 @@ void AMonitor::clearData()
 
 int AMonitor::getHits() const
 {
-    if (!xy) return 0;
-    return xy->GetEntries();
+    if (!time) return 0;
+    return time->GetEntries();
 }
 
 void AMonitor::fillForParticle(double x, double y, double Time, double Angle, double Energy)
