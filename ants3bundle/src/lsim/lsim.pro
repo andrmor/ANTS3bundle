@@ -51,7 +51,7 @@ SOURCES += \
         ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
         ../ants3/photonSim/aphoton.cpp \
         ../ants3/photonSim/aphotonstatistics.cpp \
-        ../ants3/photonSim/aroothistappenders.cpp \
+        ../ants3/tools/aroothistappenders.cpp \
         ../ants3/photonSim/astatisticshub.cpp \
         ../ants3/tools/avector.cpp \
         anoderecord.cpp \
@@ -99,7 +99,7 @@ HEADERS += \
     ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/aphotonstatistics.h \
-    ../ants3/photonSim/aroothistappenders.h \
+    ../ants3/tools/aroothistappenders.h \
     ../ants3/photonSim/astatisticshub.h \
     ../ants3/photonSim/aphotontrackrecord.h \
     ../ants3/tools/avector.h \

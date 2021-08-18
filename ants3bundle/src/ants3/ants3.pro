@@ -135,7 +135,8 @@ SOURCES += \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
     photonSim/aphotonstatistics.cpp \
-    photonSim/aroothistappenders.cpp \
+    tools/ahistogram.cpp \
+    tools/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
     photonSim/asensormodel.cpp \
     photonSim/astatisticshub.cpp \
@@ -238,7 +239,8 @@ HEADERS += \
     photonSim/aphotonsimsettings.h \
     photonSim/aphotonstatistics.h \
     photonSim/aphotontrackrecord.h \
-    photonSim/aroothistappenders.h \
+    tools/ahistogram.h \
+    tools/aroothistappenders.h \
     photonSim/asensorhub.h \
     photonSim/asensormodel.h \
     photonSim/astatisticshub.h \
