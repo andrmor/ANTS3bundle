@@ -10,6 +10,7 @@ class A3PhotSimWin;
 }
 
 class TObject;
+class AMonitorHub;
 
 class A3PhotSimWin : public QMainWindow
 {
@@ -82,8 +83,24 @@ private slots:
 
     void on_pbMonitorShowAngle_clicked();
 
+    void on_pbMonitorShowXY_clicked();
+
+    void on_pbMonitorShowTime_clicked();
+
+    void on_pbMonitorShowWaveIndex_clicked();
+
+    void on_pbMonitorShowWavelength_clicked();
+
+    void on_pbMonitorShowEnergy_clicked();
+
+    void on_pbShowMonitorHitDistribution_clicked();
+
+    void on_pbShowMonitorTimeOverall_clicked();
+
 private:
     APhotonSimSettings & SimSet;
+    const AMonitorHub & MonitorHub;
+
     Ui::A3PhotSimWin * ui = nullptr;
 
     void updatePhotBombGui();

@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3006,7 +3006,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -3287,7 +3287,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                      <item>
                       <widget class="QLabel" name="label_17">
                        <property name="text">
-                        <string>Detections:</string>
+                        <string>Hits:</string>
                        </property>
                       </widget>
                      </item>
@@ -3358,7 +3358,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QPushButton" name="pbMonitorShowWave">
+                      <widget class="QPushButton" name="pbMonitorShowWaveIndex">
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
@@ -3371,7 +3371,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="pbShowWavelength">
+                      <widget class="QPushButton" name="pbMonitorShowWavelength">
                        <property name="text">
                         <string>Wavelength</string>
                        </property>

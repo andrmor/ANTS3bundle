@@ -1,5 +1,7 @@
 #include "a3photsimwin.h"
 #include "aphotonsimhub.h"
+#include "amonitorhub.h"
+#include "amonitor.h"
 #include "arandomhub.h"
 #include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
@@ -11,11 +13,13 @@
 #include <QDebug>
 
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TObject.h"
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
     SimSet(APhotonSimHub::getInstance().Settings),
+    MonitorHub(AMonitorHub::getConstInstance()),
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);
@@ -558,7 +562,6 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
 
 void A3PhotSimWin::updateMonitorGui()
 {
-    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
     const int numMonitors = MonitorHub.countMonitors();
     ui->labNumMonitors->setText(QString::number(numMonitors));
     const int numWithHits = MonitorHub.countMonitorsWithHits();
@@ -586,9 +589,16 @@ void A3PhotSimWin::updateMonitorGui()
         ui->leDetections->setText( QString::number(Mon.getHits()) );
 
         const bool bPhotonMode = (Mon.config.PhotonOrParticle == 0);
-        ui->pbMonitorShowWave->setVisible(bPhotonMode);
-        ui->pbShowWavelength->setVisible(bPhotonMode);
+        ui->pbMonitorShowWaveIndex->setVisible(bPhotonMode);
+        ui->pbMonitorShowWavelength->setVisible(bPhotonMode);
         ui->pbMonitorShowEnergy->setVisible(!bPhotonMode);
+
+        ui->pbMonitorShowXY->setEnabled(Mon.xy);
+        ui->pbMonitorShowTime->setEnabled(Mon.time);
+        ui->pbMonitorShowAngle->setEnabled(Mon.angle);
+        ui->pbMonitorShowWaveIndex->setEnabled(Mon.wave);
+        ui->pbMonitorShowWavelength->setEnabled(Mon.wave);
+        ui->pbMonitorShowEnergy->setEnabled(Mon.energy);
     }
 }
 
@@ -608,7 +618,7 @@ void A3PhotSimWin::on_sbMonitorIndex_editingFinished()
 
 void A3PhotSimWin::on_pbNextMonitor_clicked()
 {
-    int numMon = AMonitorHub::getConstInstance().countMonitors();
+    int numMon = MonitorHub.countMonitors();
     if (numMon == 0) return;
 
     int iMon = ui->cobMonitor->currentIndex();
@@ -619,7 +629,7 @@ void A3PhotSimWin::on_pbNextMonitor_clicked()
         iMon++;
         if (iMon >= numMon) iMon = 0;
         if (iMon == iMonStart) return;
-        hits = AMonitorHub::getConstInstance().Monitors[iMon].Monitor->getHits();
+        hits = MonitorHub.Monitors[iMon].Monitor->getHits();
     }
     while (hits == 0);
 
@@ -627,14 +637,146 @@ void A3PhotSimWin::on_pbNextMonitor_clicked()
     updateMonitorGui();
 }
 
-
 void A3PhotSimWin::on_pbMonitorShowAngle_clicked()
 {
-    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
     const int numMonitors = MonitorHub.countMonitors();
-
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
         emit requestDraw(MonitorHub.Monitors[iMon].Monitor->angle, "hist", false, true);
 }
 
+void A3PhotSimWin::on_pbMonitorShowXY_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors();
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->xy, "colz", false, true);
+}
+
+void A3PhotSimWin::on_pbMonitorShowTime_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors();
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->time, "hist", false, true);
+}
+
+void A3PhotSimWin::on_pbMonitorShowWaveIndex_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors();
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->wave, "hist", false, true);
+}
+
+void A3PhotSimWin::on_pbMonitorShowWavelength_clicked()
+{
+    if (!SimSet.WaveSet.Enabled)
+    {
+        on_pbMonitorShowWaveIndex_clicked();
+        return;
+    }
+
+    const int numMonitors = MonitorHub.countMonitors();
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+    {
+        TH1D * h = MonitorHub.Monitors[iMon].Monitor->wave;
+        int nbins = h->GetXaxis()->GetNbins();
+
+        double gsWaveFrom = SimSet.WaveSet.From;
+        double gsWaveTo = SimSet.WaveSet.To;
+        double gsWaveBins = SimSet.WaveSet.countNodes();
+        if (gsWaveBins > 1) gsWaveBins--;
+        double wavePerBin = (gsWaveTo - gsWaveFrom) / gsWaveBins;
+
+        double binFrom = h->GetBinLowEdge(1);
+        double waveFrom = gsWaveFrom + (binFrom - 0.5) * wavePerBin;
+        double binTo = h->GetBinLowEdge(nbins+1);
+        double waveTo = gsWaveFrom + (binTo - 0.5) * wavePerBin;
+
+        TH1D * hnew = new TH1D("", "", nbins, waveFrom, waveTo);
+        for (int i=1; i <= nbins; i++)
+        {
+            double y = h->GetBinContent(i);
+            hnew->SetBinContent(i, y);
+        }
+        hnew->SetXTitle("Wavelength, nm");
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->wave, "hist", true, true);
+    }
+}
+
+void A3PhotSimWin::on_pbMonitorShowEnergy_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors();
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.Monitors[iMon].Monitor->energy, "hist", false, true);
+}
+
+void A3PhotSimWin::on_pbShowMonitorHitDistribution_clicked()
+{
+    const int numMon = MonitorHub.countMonitors();
+    if (numMon == 0) return;
+
+    TH1D * h = new TH1D("", "Monitor hits", numMon, 0, numMon);
+    int sumHits = 0;
+    for (int iMon = 0; iMon < numMon; iMon++)
+    {
+        int hits = MonitorHub.Monitors[iMon].Monitor->getHits();
+        sumHits += hits;
+        if (hits > 0) h->Fill(iMon, hits);
+    }
+
+    if (sumHits == 0) return;
+    h->SetEntries(sumHits);
+    h->GetXaxis()->SetTitle("Monitor index");
+    h->GetYaxis()->SetTitle("Hits");
+    emit requestDraw(h, "hist", true, true);
+}
+
+void A3PhotSimWin::on_pbShowMonitorTimeOverall_clicked()
+{
+    const int numMon = MonitorHub.countMonitors();
+    if (numMon == 0) return;
+
+    int    bins = 1000;
+    double from = -1e30;
+    double to   = +1e30;
+
+    for (int iM = 0; iM < numMon; iM++)
+    {
+        TH1D * hh = MonitorHub.Monitors[iM].Monitor->time;
+        if (!hh) continue;
+
+        int thisBins = hh->GetXaxis()->GetNbins();
+        int thisFrom = hh->GetBinLowEdge(1);
+        int thisTo   = hh->GetBinLowEdge(bins+1);
+
+        if (thisBins < bins) bins = thisBins;
+        if (thisFrom > from) from = thisFrom;
+        if (thisTo   < to  ) to   = thisTo;
+    }
+
+    TH1D * time = new TH1D("", "Time of hits", bins, from, to);
+
+    int sumHits = 0;
+    for (int iMon = 0; iMon < numMon; iMon++)
+    {
+        TH1D * h = MonitorHub.Monitors[iMon].Monitor->time;
+        int hits = h->GetEntries();
+        if (hits == 0) continue;
+
+        sumHits += hits;
+        for (int iBin = 1; iBin <= h->GetNbinsX(); iBin++)
+            time->Fill(h->GetBinCenter(iBin), h->GetBinContent(iBin));
+    }
+
+    // TODO under / overflow  !!!***
+
+    time->BufferEmpty(1);
+    time->SetEntries(sumHits);
+    time->GetXaxis()->SetTitle("Time, ns");
+    time->GetYaxis()->SetTitle("Hits");
+    emit requestDraw(time, "hist", true, true);
+}

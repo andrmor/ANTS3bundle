@@ -69,7 +69,7 @@ void appendTH1DwithStat(TH1D * & toHist, TH1D *fromHist)
 
 void appendTH2D(TH2D* & toHist, const TH2D * fromHist)
 {
-    if (!toHist || !fromHist) return;
+    if (!toHist && !fromHist) return;
 
     if (!toHist)
     {
