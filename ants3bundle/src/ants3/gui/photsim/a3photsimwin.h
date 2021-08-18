@@ -74,6 +74,16 @@ private slots:
     void on_pbShowTimeDistr_clicked();
     void on_pbShowAngleDistr_clicked();
 
+    void on_cobMonitor_activated(int index);
+
+    void on_sbMonitorIndex_editingFinished();
+
+    void on_pbNextMonitor_clicked();
+
+    void on_pbChooseMonitorsFile_clicked();
+
+    void on_pbLoadMonitorsData_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     Ui::A3PhotSimWin * ui = nullptr;
@@ -84,6 +94,8 @@ private:
     void storeGeneralSettings();
 
     void disableInterface(bool flag);
+
+    void updateMonitorGui();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

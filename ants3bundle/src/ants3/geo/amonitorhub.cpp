@@ -65,3 +65,11 @@ void AMonitorHub::clearData()
     for (AMonitorData & md : Monitors) md.Monitor->clearData();
 }
 
+int AMonitorHub::countMonitorsWithHits() const
+{
+    int counter = 0;
+    for (const AMonitorData & md : Monitors)
+        counter += md.Monitor->getHits();
+    return counter;
+}
+

@@ -521,3 +521,103 @@ void A3PhotSimWin::on_pbShowAngleDistr_clicked()
         requestDraw(Stat.AngularDistr, "hist", false, true);
 }
 
+// --- monitors ---
+
+#include "amonitorhub.h"
+#include "amonitor.h"
+
+void A3PhotSimWin::on_pbChooseMonitorsFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by monitors", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leMonitorsFileName->setText(fileName);
+}
+
+void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
+{
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    MonitorHub.clearData();
+
+    const QString FileName = ui->leMonitorsFileName->text();
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, FileName);
+    if(!ok)
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    MonitorHub.appendDataFromJson(json);
+    updateMonitorGui();
+}
+
+void A3PhotSimWin::updateMonitorGui()
+{
+    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
+    const int numMonitors = MonitorHub.countMonitors();
+    ui->labNumMonitors->setText(QString::number(numMonitors));
+    const int numWithHits = MonitorHub.countMonitorsWithHits();
+    ui->labMonitorsWithHits->setText(QString::number(numWithHits));
+
+    ui->frMonitors->setVisible(numMonitors != 0);
+
+    if (numMonitors > 0)
+    {
+        const int oldNum = ui->cobMonitor->currentIndex();
+
+        ui->cobMonitor->clear();
+        for (int i = 0; i < numMonitors; i++)
+            ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
+
+        if (oldNum >-1 && oldNum < numMonitors)
+        {
+            ui->cobMonitor->setCurrentIndex(oldNum);
+            ui->sbMonitorIndex->setValue(oldNum);
+        }
+        else ui->sbMonitorIndex->setValue(0);
+
+        const int imon = ui->cobMonitor->currentIndex();
+        const AMonitor & Mon = *MonitorHub.Monitors[imon].Monitor;
+        ui->leDetections->setText( QString::number(Mon.getHits()) );
+
+        const bool bPhotonMode = (Mon.config.PhotonOrParticle == 0);
+        ui->pbMonitorShowWave->setVisible(bPhotonMode);
+        ui->pbShowWavelength->setVisible(bPhotonMode);
+        ui->pbMonitorShowEnergy->setVisible(!bPhotonMode);
+    }
+}
+
+void A3PhotSimWin::on_cobMonitor_activated(int)
+{
+    updateMonitorGui();
+}
+
+void A3PhotSimWin::on_sbMonitorIndex_editingFinished()
+{
+    int mon = ui->sbMonitorIndex->value();
+    if (mon >= ui->cobMonitor->count()) mon = 0;
+    ui->sbMonitorIndex->setValue(mon);
+    if (mon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(mon); //protection: can be empty
+    updateMonitorGui();
+}
+
+void A3PhotSimWin::on_pbNextMonitor_clicked()
+{
+    int numMon = AMonitorHub::getConstInstance().countMonitors();
+    if (numMon == 0) return;
+
+    int iMon = ui->cobMonitor->currentIndex();
+    int iMonStart = iMon;
+    int hits;
+    do
+    {
+        iMon++;
+        if (iMon >= numMon) iMon = 0;
+        if (iMon == iMonStart) return;
+        hits = AMonitorHub::getConstInstance().Monitors[iMon].Monitor->getHits();
+    }
+    while (hits == 0);
+
+    if (iMon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(iMon);
+    updateMonitorGui();
+}
+

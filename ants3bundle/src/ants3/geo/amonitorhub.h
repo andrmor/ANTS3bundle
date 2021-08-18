@@ -42,6 +42,7 @@ public:
     void clearData();
 
     int  countMonitors() const {return Monitors.size();}
+    int  countMonitorsWithHits() const;
 
     void    writeDataToJson(QJsonObject & json) const;
     QString appendDataFromJson(const QJsonObject & json);

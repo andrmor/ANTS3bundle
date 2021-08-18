@@ -33,31 +33,35 @@ void AMonitor::clearData()
 
 int AMonitor::getHits() const
 {
+    if (!xy) return 0;
     return xy->GetEntries();
 }
 
 void AMonitor::fillForParticle(double x, double y, double Time, double Angle, double Energy)
 {
-    xy->Fill(x,y);
-    time->Fill(Time);
-    angle->Fill(Angle);
+    if (xy) xy->Fill(x,y);
+    if (time) time->Fill(Time);
+    if (angle) angle->Fill(Angle);
 
-    switch (config.energyUnitsInHist)
+    if (energy)
     {
-    case 0: Energy *= 1.0e6; break;
-    case 1: Energy *= 1.0e3; break;
-    case 2: break;
-    case 3: Energy *= 1.0e-3;break;
+        switch (config.energyUnitsInHist)
+        {
+        case 0: Energy *= 1.0e6; break;
+        case 1: Energy *= 1.0e3; break;
+        case 2: break;
+        case 3: Energy *= 1.0e-3;break;
+        }
+        energy->Fill(Energy);
     }
-    energy->Fill(Energy);
 }
 
 void AMonitor::fillForPhoton(double x, double y, double Time, double Angle, int waveIndex)
 {
-    xy->Fill(x,y);
-    time->Fill(Time);
-    angle->Fill(Angle);
-    wave->Fill(waveIndex);
+    if (xy)    xy->Fill(x,y);
+    if (time)  time->Fill(Time);
+    if (angle) angle->Fill(Angle);
+    if (wave)  wave->Fill(waveIndex);
 }
 
 bool AMonitor::readFromGeoObject(const AGeoObject *MonitorRecord)
