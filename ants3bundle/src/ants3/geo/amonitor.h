@@ -38,26 +38,11 @@ public:
   bool readFromGeoObject(const AGeoObject* MonitorRecord);
 
   void writeDataToJson(QJsonObject & json) const;
-
-  void overrideDataFromJson(const QJsonObject & json);
+  void readDataFromJson(const QJsonObject & json);
 
 // stat data handling
   void clearData();
 
-  TH1D* getTime() const    {return time;}
-  TH2D* getXY()   const    {return xy;}
-  TH1D* getWave() const    {return wave;}
-  TH1D* getAngle() const   {return angle;}
-  TH1D* getEnergy() const  {return energy;}
-
-  int getHits() const;
-  const QString getName() const {return name;}
-
-  void appendDataFromAnotherMonitor(AMonitor* from); // used to merge data from several threads
-
-  const AMonitorConfig & getConfig() const {return config;}
-
-private:
   QString name;
 
   TH1D * time   = nullptr;
@@ -68,13 +53,17 @@ private:
 
   AMonitorConfig config;
 
+  int getHits() const;
+
+  void append(const AMonitor & from);
+
+private:
   void initXYHist();
   void initTimeHist();
   void initWaveHist();
   void initAngleHist();
   void initEnergyHist();
 
-  void update1D(const QJsonObject & json, TH1D *& old);
 };
 
 #endif // AMONITOR_H

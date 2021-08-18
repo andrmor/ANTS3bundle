@@ -144,11 +144,13 @@ void APhotonSimManager::mergeOutput()
     {
         for (const QString & FN : MonitorFiles)
         {
-            QJsonObject json;
-            //bool ok = jstools::loadJsonFromFile(json, FN);
-
-            // ...
+            QJsonObject js;
+            bool ok = jstools::loadJsonFromFile(js, FN);
+            if (ok) MonitorHub.appendDataFromJson(js);
         }
+        QJsonObject json;
+        MonitorHub.writeDataToJson(json);
+        jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
 }
 

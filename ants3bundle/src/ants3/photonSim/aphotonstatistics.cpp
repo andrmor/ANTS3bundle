@@ -126,14 +126,6 @@ void APhotonStatistics::writeToJson(QJsonObject & json) const
     json["TransitionDistr"]      = jstools::regularTh1dToJson(TransitionDistr);
 }
 
-void APhotonStatistics::toDistr(const QJsonObject & json, const QString & name, TH1D* & distr)
-{
-    QJsonObject js;
-    bool ok = jstools::parseJson(json, name, js);
-    if (!ok) distr = nullptr;
-    else     distr = jstools::jsonToRegularTh1D(js);
-}
-
 void APhotonStatistics::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Absorbed"            , Absorbed);
@@ -155,10 +147,10 @@ void APhotonStatistics::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "InterfaceRuleBack"   , InterfaceRuleBack);
     jstools::parseJson(json, "InterfaceRuleForward", InterfaceRuleForward);
 
-    toDistr(json, "WaveDistr",       WaveDistr);
-    toDistr(json, "TimeDistr",       TimeDistr);
-    toDistr(json, "AngularDistr",    AngularDistr);
-    toDistr(json, "TransitionDistr", TransitionDistr);
+    jstools::parseJson(json, "WaveDistr"           , WaveDistr);
+    jstools::parseJson(json, "TimeDistr"           , TimeDistr);
+    jstools::parseJson(json, "AngularDistr"        , AngularDistr);
+    jstools::parseJson(json, "TransitionDistr"     , TransitionDistr);
 }
 
 long APhotonStatistics::countPhotons()

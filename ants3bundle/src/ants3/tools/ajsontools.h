@@ -36,7 +36,11 @@ bool        parseJson(const QJsonObject & json, const QString & key, std::vector
 QJsonObject regularTh1dToJson(TH1D * hist);
 QJsonObject regularTh2dToJson(TH2D * hist);
 
+bool        parseJson(const QJsonObject & json, const QString & name, TH1D* & distr);
+bool        parseJson(const QJsonObject & json, const QString & name, TH2D* & distr);
+
 TH1D *      jsonToRegularTh1D(const QJsonObject & json);
+TH2D *      jsonToRegularTh2D(const QJsonObject & json);
 
 /*
 bool writeTwoQVectorsToJArray(const QVector<double> &x, const QVector<double> &y, QJsonArray &ar);

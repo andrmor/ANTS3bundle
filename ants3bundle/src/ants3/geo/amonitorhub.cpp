@@ -20,22 +20,6 @@ AMonitorHub::~AMonitorHub()
     clear();
 }
 
-void AMonitorHub::appendFromFile(const QString & fileName)
-{
-    /*   !!!***
-       if (Monitors.size() != from.Monitors.size())
-       {
-           qWarning() << "Cannot append monitor data - size mismatch:\n" <<
-                         "Monitors here and in 'from':" << Monitors.size() << from.Monitors.size();
-       }
-       else
-       {
-           for (size_t i = 0; i < Monitors.size(); i++)
-               Monitors[i]->appendDataFromAnotherMonitor(from.Monitors[i]);
-       }
-   */
-}
-
 void AMonitorHub::writeDataToJson(QJsonObject & json) const
 {
     QJsonArray ar;
@@ -48,6 +32,26 @@ void AMonitorHub::writeDataToJson(QJsonObject & json) const
     }
 
     json["MonitorData"] = ar;
+}
+
+QString AMonitorHub::appendDataFromJson(const QJsonObject &json)
+{
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, "MonitorData", ar);
+    if (!ok) return "json does not contain monitor data";
+
+    if (ar.size() != (int)Monitors.size()) return "json contain data for wrong number of monitors";
+
+    for (int i=0; i<ar.size(); i++)
+    {
+        QJsonObject js = ar[i].toObject();
+        AMonitor tmp;
+        tmp.readDataFromJson(js);
+
+        Monitors[i].Monitor->append(tmp);
+    }
+
+    return "";
 }
 
 void AMonitorHub::clear()

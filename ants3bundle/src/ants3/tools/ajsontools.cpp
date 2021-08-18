@@ -331,3 +331,55 @@ QJsonObject jstools::regularTh2dToJson(TH2D * hist)
 
     return json;
 }
+
+TH2D * jstools::jsonToRegularTh2D(const QJsonObject & json)
+{
+    bool ok;
+    int    Xbins; ok = jstools::parseJson(json, "Xbin",  Xbins); if (!ok) return nullptr;
+    double Xfrom; ok = jstools::parseJson(json, "Xfrom", Xfrom); if (!ok) return nullptr;
+    double Xto;   ok = jstools::parseJson(json, "Xto",   Xto);   if (!ok) return nullptr;
+    int    Ybins; ok = jstools::parseJson(json, "Ybin",  Ybins); if (!ok) return nullptr;
+    double Yfrom; ok = jstools::parseJson(json, "Yfrom", Yfrom); if (!ok) return nullptr;
+    double Yto;   ok = jstools::parseJson(json, "Yto",   Yto);   if (!ok) return nullptr;
+
+    QJsonArray ar;
+    ok = jstools::parseJson(json, "Data", ar); if (!ok) return nullptr;
+    if (ar.size() != (Xbins+2)*(Ybins+2)) return nullptr;
+
+    TH2D * hist = new TH2D("", "", Xbins, Xfrom, Xto, Ybins, Yfrom, Yto);
+    for (int i = 0; i < ar.size(); i++)
+    {
+        QJsonArray el = ar[i].toArray();
+        hist->Fill(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+    }
+
+    int Entries; ok = jstools::parseJson(json, "Entries", Entries); if (!ok) return nullptr;
+
+    hist->BufferEmpty(1);
+    hist->SetEntries(Entries);
+    return hist;
+}
+
+bool jstools::parseJson(const QJsonObject & json, const QString & name, TH1D* & distr)
+{
+    QJsonObject js;
+    if (!parseJson(json, name, js))
+    {
+        distr = nullptr;
+        return false;
+    }
+    distr = jstools::jsonToRegularTh1D(js);
+    return true;
+}
+
+bool jstools::parseJson(const QJsonObject &json, const QString &name, TH2D *&distr)
+{
+    QJsonObject js;
+    if (!parseJson(json, name, js))
+    {
+        distr = nullptr;
+        return false;
+    }
+    distr = jstools::jsonToRegularTh2D(js);
+    return true;
+}

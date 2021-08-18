@@ -43,9 +43,8 @@ public:
 
     int  countMonitors() const {return Monitors.size();}
 
-    void appendFromFile(const QString & fileName);
-
-    void writeDataToJson(QJsonObject & json) const;
+    void    writeDataToJson(QJsonObject & json) const;
+    QString appendDataFromJson(const QJsonObject & json);
 
 };
 
