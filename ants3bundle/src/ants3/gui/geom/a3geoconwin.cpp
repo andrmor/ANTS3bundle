@@ -5,18 +5,15 @@
 #include "amaterialhub.h"
 #include "mainwindow.h"
 //#include "checkupwindowclass.h"
-
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageodelegatewidget.h"
-
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
 #include "guitools.h"
 //#include "acommonfunctions.h"
 #include "ageometrytester.h"
-//#include "amaterialparticlecolection.h"
 //#include "aconfiguration.h"
 #include "ajsontools.h"
 #include "afiletools.h"
@@ -28,6 +25,7 @@
 #include <QDesktopServices>
 #include <QEvent>
 #include <QRegularExpression>
+#include <QMenu>
 
 #include <vector>
 
@@ -60,7 +58,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   ui->saGeo->setWidget(twGeo->twGeoTree);
   // !!!***
 //  connect(twGeo, SIGNAL(RequestListOfParticles(QStringList&)), Detector->MpCollection, SLOT(OnRequestListOfParticles(QStringList&)));
-  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::OnrequestShowMonitor);
+  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::onRequestShowMonitor);
 
   // prototype tree widget
   ui->saPrototypes->setWidget(twGeo->twPrototypes);
@@ -260,25 +258,25 @@ void A3GeoConWin::ShowAllInstances(QString name)
     */
 }
 
-void A3GeoConWin::OnrequestShowMonitor(const AGeoObject * mon)
+void A3GeoConWin::onRequestShowMonitor(const AGeoObject * mon)
 {
-    /*
-    if (!mon->ObjectType->isMonitor())
+    const ATypeMonitorObject * tmo = dynamic_cast<const ATypeMonitorObject*>(mon->Type);
+    if (!tmo)
     {
         qWarning() << "This is not a monitor!";
         return;
     }
 
-    const ATypeMonitorObject * tmo = static_cast<const ATypeMonitorObject*>(mon->ObjectType);
     const AMonitorConfig & c = tmo->config;
 
     double length1 = c.size1;
     double length2 = c.size2;
     if (c.shape == 1) length2 = length1;
 
-    Detector->GeoManager->ClearTracks();
-    Int_t track_index = Detector->GeoManager->AddTrack(1,22);
-    TVirtualGeoTrack * track = Detector->GeoManager->GetTrack(track_index);
+    TGeoManager * GeoManager = Geometry.GeoManager;
+    GeoManager->ClearTracks();
+    Int_t track_index = GeoManager->AddTrack(1,22);
+    TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
 
     double worldPos[3];
     mon->getPositionInWorld(worldPos);
@@ -292,11 +290,11 @@ void A3GeoConWin::OnrequestShowMonitor(const AGeoObject * mon)
     double mhl[3]; //master coordinates (world)
     double mvl[3]; //master coordinates (world)
 
-    TGeoNavigator * navigator = gGeoManager->GetCurrentNavigator();
+    TGeoNavigator * navigator = GeoManager->GetCurrentNavigator();
     if (!navigator)
     {
         qDebug() << "Show monitor: Current navigator does not exist, creating new";
-        navigator = gGeoManager->AddNavigator();
+        navigator = GeoManager->AddNavigator();
     }
     navigator->FindNode(x, y, z);
     //qDebug() << navigator->GetCurrentVolume()->GetName();
@@ -317,8 +315,8 @@ void A3GeoConWin::OnrequestShowMonitor(const AGeoObject * mon)
     navigator->LocalToMasterVect(l, m);
     if (c.bUpper)
     {
-        track_index = Detector->GeoManager->AddTrack(1,22);
-        track = Detector->GeoManager->GetTrack(track_index);
+        track_index = GeoManager->AddTrack(1,22);
+        track = GeoManager->GetTrack(track_index);
         track->AddPoint(x, y, z, 0);
         track->AddPoint(x+m[0], y+m[1], z+m[2], 0);
         track->SetLineWidth(4);
@@ -326,15 +324,16 @@ void A3GeoConWin::OnrequestShowMonitor(const AGeoObject * mon)
     }
     if (c.bLower)
     {
-        track_index = Detector->GeoManager->AddTrack(1,22);
-        track = Detector->GeoManager->GetTrack(track_index);
+        track_index = GeoManager->AddTrack(1,22);
+        track = GeoManager->GetTrack(track_index);
         track->AddPoint(x, y, z, 0);
         track->AddPoint(x-m[0], y-m[1], z-m[2], 0);
         track->SetLineWidth(4);
         track->SetLineColor(kRed);
     }
-    MW->GeometryWindow->DrawTracks();
-    */
+
+    //emit requestShowGeometry(true, true, true);
+    emit requestShowTracks();
 }
 
 void A3GeoConWin::onRequestEnableGeoConstWidget(bool flag)
@@ -1254,7 +1253,6 @@ void A3GeoConWin::on_tabwConstants_cellChanged(int row, int column)
     updateGeoConstsIndication();
 }
 
-#include <QMenu>
 void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
 {
     AGeoConsts & GC = AGeoConsts::getInstance();
