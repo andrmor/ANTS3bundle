@@ -477,6 +477,8 @@ void AGeometryHub::populateGeoManager()
     AMonitorHub::getInstance().clear();
     clearGridRecords();
 
+    World->introduceGeoConstValues();
+    World->updateAllStacks();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
@@ -1016,9 +1018,6 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
         delete obj;
         break;
     }
-
-    // stacks can be updated only now, when values using GeoConsts have been evaluated
-    World->updateAllStacks();
 
     populateGeoManager();
     return "";

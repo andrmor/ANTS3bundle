@@ -65,6 +65,8 @@ public:
   void writeToJson(QJsonObject & json) const;
   void readFromJson(const QJsonObject & json);
 
+  void introduceGeoConstValues();
+
   //recursive json, using single object json
   void writeAllToJarr(QJsonArray & jarr);
   QString readAllFromJarr(AGeoObject * World, const QJsonArray & jarr);  // returns "" if no errors
@@ -107,11 +109,11 @@ public:
   bool isContainsLocked();
   bool isDisabled() const;
   void enableUp();
-  void addObjectFirst(AGeoObject* Object);
-  void addObjectLast(AGeoObject* Object);
+  void addObjectFirst(AGeoObject* Object);  // !!!***
+  void addObjectLast(AGeoObject* Object);   // !!!***
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
-  bool suicide(); // not possible for locked and static objects
+  bool suicide(); // not possible for locked and static objects  !!!***
   void recursiveSuicide(); // does not remove locked and static objects, but removes all unlocked objects down the chain
   void lockUpTheChain();
   void lockBuddies();
@@ -155,7 +157,7 @@ private:
   void addSuffixToNameRecursive(const QString & suffix);
 
 public:
-  static QString GenerateRandomName();
+  static QString GenerateRandomName();   // !!!***
   static QString GenerateRandomObjectName();
   static QString GenerateRandomPrototypeName();
   static QString GenerateRandomCompositeName();

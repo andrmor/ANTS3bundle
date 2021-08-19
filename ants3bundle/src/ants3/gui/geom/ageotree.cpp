@@ -1204,7 +1204,7 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
 {
     if (selected.isEmpty()) return;
 
-    QVector<AGeoObject*> objs;
+    std::vector<AGeoObject*> objs;
     AGeoObject * ContObj = nullptr;
     for (QTreeWidgetItem * item : selected)
     {
@@ -1246,17 +1246,17 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
             return;
         }
 
-        objs << obj;
+        objs.push_back(obj);
     }
 
     AGeoObject * stackObj = new AGeoObject();
     delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.first()->Name;
+    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
     do stackObj->Name = AGeoObject::GenerateRandomStackName();
     while (World->isNameExists(stackObj->Name));
 
-    AGeoObject * contObj = objs.first()->Container; // All selected objects always have the same container!
+    AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
     stackObj->Container = contObj;
 
     for (AGeoObject * obj : objs)

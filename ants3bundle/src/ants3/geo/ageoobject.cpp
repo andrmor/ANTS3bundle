@@ -286,16 +286,12 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         OrientationStr[i].clear();
     }
 
-    const AGeoConsts & GC = AGeoConsts::getConstInstance();
-
-    // TODO: control of error on formula call
-
-    if (jstools::parseJson(json, "strX",     PositionStr[0]))    GC.evaluateFormula(PositionStr[0], Position[0]);
-    if (jstools::parseJson(json, "strY",     PositionStr[1]))    GC.evaluateFormula(PositionStr[1], Position[1]);
-    if (jstools::parseJson(json, "strZ",     PositionStr[2]))    GC.evaluateFormula(PositionStr[2], Position[2]);
-    if (jstools::parseJson(json, "strPhi",   OrientationStr[0])) GC.evaluateFormula(OrientationStr[0], Orientation[0]);
-    if (jstools::parseJson(json, "strTheta", OrientationStr[1])) GC.evaluateFormula(OrientationStr[1], Orientation[1]);
-    if (jstools::parseJson(json, "strPsi",   OrientationStr[2])) GC.evaluateFormula(OrientationStr[2], Orientation[2]);
+    jstools::parseJson(json, "strX",     PositionStr[0]);
+    jstools::parseJson(json, "strY",     PositionStr[1]);
+    jstools::parseJson(json, "strZ",     PositionStr[2]);
+    jstools::parseJson(json, "strPhi",   OrientationStr[0]);
+    jstools::parseJson(json, "strTheta", OrientationStr[1]);
+    jstools::parseJson(json, "strPsi",   OrientationStr[2]);
 
     //Shape
     if (json.contains("Shape"))
@@ -303,14 +299,10 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         QString ShapeType = json["Shape"].toString();
         QJsonObject js = json["ShapeSpecific"].toObject();
 
-        //compatibility: old TGeoPgon is new TGeoPolygon
-        if (ShapeType == "TGeoPgon")
-            if (js.contains("rminL")) ShapeType = "TGeoPolygon";
-
         Shape = AGeoShape::GeoShapeFactory(ShapeType);
         Shape->readFromJson(js);
 
-        //composite: cannot update memebers at this phase - HostedObjects are not set yet!
+        //composite: cannot update memebers at this phase - HostedObjects are not set yet!  INVESTIGATE !!!***
     }
 
     //Type
@@ -322,10 +314,8 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         AGeoType * newType = AGeoType::TypeObjectFactory(tmpType);
         if (newType)
         {
-            delete Type;
-            Type = newType;
+            delete Type; Type = newType;
             Type->readFromJson(jj);
-            if (Type->isMonitor()) updateMonitorShape();
         }
         else qDebug() << "Type read failed for object:" << Name << ", keeping default type";
     }
@@ -336,6 +326,29 @@ void AGeoObject::readFromJson(const QJsonObject & json)
     QJsonObject jsRole;
     if (jstools::parseJson(json, "SpecialRole", jsRole))
         Role = GeoRoleFactory::make(jsRole);
+}
+
+void AGeoObject::introduceGeoConstValues()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+
+    // TODO: add error control !!!***
+
+    if (!PositionStr[0].isEmpty()) GC.evaluateFormula(PositionStr[0], Position[0]);
+    if (!PositionStr[1].isEmpty()) GC.evaluateFormula(PositionStr[1], Position[1]);
+    if (!PositionStr[2].isEmpty()) GC.evaluateFormula(PositionStr[2], Position[2]);
+
+    if (!OrientationStr[0].isEmpty()) GC.evaluateFormula(OrientationStr[0], Orientation[0]);
+    if (!OrientationStr[1].isEmpty()) GC.evaluateFormula(OrientationStr[1], Orientation[1]);
+    if (!OrientationStr[2].isEmpty()) GC.evaluateFormula(OrientationStr[2], Orientation[2]);
+
+    if (Shape) Shape->introduceGeoConstValues();
+
+    if (Type)
+    {
+        Type->introduceGeoConstValues();
+        if (Type->isMonitor()) updateMonitorShape();
+    }
 }
 
 void AGeoObject::writeAllToJarr(QJsonArray &jarr)
@@ -1305,7 +1318,7 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
 }
 
 #include <QRandomGenerator>
-QString randomString(int lettLength, int numLength)
+QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {
     //const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
     const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZ");

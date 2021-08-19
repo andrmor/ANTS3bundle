@@ -273,7 +273,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (shape)
         {
             errorStr.clear();
-            errorStr = shape->updateShape();
+            errorStr = shape->introduceGeoConstValues();
             if (!errorStr.isEmpty())
             {
                 qDebug() << errorStr;
@@ -2157,7 +2157,7 @@ void AGeoPconDelegate::onCellEdited()
         pcon = dynamic_cast<AGeoPcon*>(scaled->BaseShape);
     }
 
-    if (pcon) pcon->updateShape();
+    if (pcon) pcon->introduceGeoConstValues();
 }
 
 void AGeoPconDelegate::onAddAbove()
@@ -2639,10 +2639,9 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     a.strStepZ = ledStepZ->text();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = ATypeArrayObject::evaluateStringValues(a);
+    QString errorStr = a.introduceGeoConstValues();
     if (!errorStr.isEmpty())
     {
-        qDebug() << errorStr;
         QMessageBox::warning(this->ParentWidget, "", errorStr);
         return false;
     }
@@ -2749,10 +2748,9 @@ bool AGeoCircularArrayDelegate::updateObject(AGeoObject *obj) const
     a.strRadius      = ledRadius->text();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = ATypeCircularArrayObject::evaluateStringValues(a);
+    QString errorStr = a.introduceGeoConstValues();
     if (!errorStr.isEmpty())
     {
-        qDebug() << errorStr;
         QMessageBox::warning(this->ParentWidget, "", errorStr);
         return false;
     }

@@ -41,6 +41,8 @@ public:
     virtual void writeToJson(QJsonObject & json) const;         // CALL THIS, then save additional properties of the concrete type
     virtual void readFromJson(const QJsonObject & /*json*/) {}  // if present, read properties of the concrete type
 
+    virtual QString introduceGeoConstValues() {return "";}
+
     static AGeoType * TypeObjectFactory(const QString & Type);  // TYPE FACTORY !!!
 
 protected:
@@ -123,6 +125,8 @@ public:
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
+    QString introduceGeoConstValues() override;
+
     int numX = 2;
     int numY = 2;
     int numZ = 1;
@@ -132,8 +136,6 @@ public:
     QString strNumX, strNumY, strNumZ, strStepX, strStepY, strStepZ;
     int startIndex = 0;
     QString strStartIndex;
-
-    static QString evaluateStringValues(ATypeArrayObject & ArrayType);
 };
 
 class ATypeCircularArrayObject : public ATypeArrayObject
@@ -151,12 +153,12 @@ public:
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
+    QString introduceGeoConstValues() override;
+
     int    num         = 6;
     double angularStep = 30.0; //in degrees
     double radius      = 100.0;
     QString strNum, strAngularStep, strRadius;
-
-    static QString evaluateStringValues(ATypeCircularArrayObject & A);
 };
 
 class ATypeGridObject : public AGeoType
@@ -189,6 +191,8 @@ public:
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
+
+    QString introduceGeoConstValues() override;
 
     AMonitorConfig config;
 

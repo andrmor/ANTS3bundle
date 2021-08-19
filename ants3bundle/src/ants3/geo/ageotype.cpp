@@ -37,22 +37,22 @@ void ATypeArrayObject::Reconfigure(int NumX, int NumY, int NumZ, double StepX, d
     stepX = StepX; stepY = StepY; stepZ = StepZ;
 }
 
-QString ATypeArrayObject::evaluateStringValues(ATypeArrayObject & A)
+QString ATypeArrayObject::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
     QString errorStr;
     bool ok;
 
-    ok = GC.updateParameter(errorStr, A.strNumX, A.numX, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strNumY, A.numY, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strNumZ, A.numZ, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNumX, numX, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNumY, numY, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNumZ, numZ, true, true) ; if (!ok) return errorStr;
 
-    ok = GC.updateParameter(errorStr, A.strStepX, A.stepX, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strStepY, A.stepY, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strStepZ, A.stepZ, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStepX, stepX, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) return errorStr;
 
-    ok = GC.updateParameter(errorStr, A.strStartIndex, A.startIndex, false, true) ; if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) return errorStr;
 
     return "";
 }
@@ -118,8 +118,6 @@ void ATypeArrayObject::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strStepY", strStepY)) strStepY.clear();
     if (!jstools::parseJson(json, "strStepZ", strStepZ)) strStepZ.clear();
     if (!jstools::parseJson(json, "strStartIndex", strStartIndex)) strStartIndex.clear();
-
-    ATypeArrayObject::evaluateStringValues(*this);
 }
 
 void ATypeGridElementObject::writeToJson(QJsonObject &json) const
@@ -163,6 +161,11 @@ void ATypeMonitorObject::replaceGeoConstName(const QRegularExpression &nameRegEx
 {
     config.str2size1.replace(nameRegExp, newName);
     config.str2size2.replace(nameRegExp, newName);
+}
+
+QString ATypeMonitorObject::introduceGeoConstValues()
+{
+    return config.updateFromGeoConstants();
 }
 
 bool ATypeMonitorObject::isParticleInUse(int partId) const
@@ -257,21 +260,19 @@ void ATypeCircularArrayObject::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strAngularStep", strAngularStep)) strAngularStep.clear();
     if (!jstools::parseJson(json, "strRadius",      strRadius))      strRadius.clear();
     if (!jstools::parseJson(json, "strStartIndex",  strStartIndex))  strStartIndex.clear();
-
-    ATypeCircularArrayObject::evaluateStringValues(*this);
 }
 
-QString ATypeCircularArrayObject::evaluateStringValues(ATypeCircularArrayObject &A)
+QString ATypeCircularArrayObject::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
     QString errorStr;
     bool ok;
 
-    ok = GC.updateParameter(errorStr, A.strNum,         A.num,         true,  true) ;        if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strAngularStep, A.angularStep, true,  false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strRadius,      A.radius,      true,  true,  false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, A.strStartIndex,  A.startIndex,  false, true) ;        if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNum,         num,         true,  true);         if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStartIndex,  startIndex,  false, true);         if (!ok) return errorStr;
 
     return "";
 }

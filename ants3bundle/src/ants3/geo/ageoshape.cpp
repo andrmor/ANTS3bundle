@@ -105,7 +105,7 @@ QString AGeoBox::getHelp() const
            "The box will range from: -dx to dx on X-axis, from -dy to dy on Y and from -dz to dz on Z.";
 }
 
-QString AGeoBox::updateShape()
+QString AGeoBox::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -191,8 +191,6 @@ void AGeoBox::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2dx", str2dx)) str2dx.clear();
     if (!jstools::parseJson(json, "str2dy", str2dy)) str2dy.clear();
     if (!jstools::parseJson(json, "str2dz", str2dz)) str2dz.clear();
-
-    updateShape();
 }
 
 bool AGeoBox::readFromTShape(TGeoShape *Tshape)
@@ -227,7 +225,7 @@ QString AGeoPara::getHelp() const
            " • phi: phi angle of the same segment";
 }
 
-QString AGeoPara::updateShape()
+QString AGeoPara::introduceGeoConstValues()
 {
     QString errorStr = "";
     bool ok;
@@ -351,8 +349,6 @@ void AGeoPara::writeToJson(QJsonObject &json) const
     if (!strAlpha.isEmpty()) json["strAlpha"] = strAlpha;
     if (!strTheta.isEmpty()) json["strTheta"] = strTheta;
     if (!strPhi  .isEmpty()) json["strPhi"]   = strPhi;
-
-
 }
 
 void AGeoPara::readFromJson(const QJsonObject &json)
@@ -370,8 +366,6 @@ void AGeoPara::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strAlpha", strAlpha)) strAlpha.clear();
     if (!jstools::parseJson(json, "strTheta", strTheta)) strTheta.clear();
     if (!jstools::parseJson(json, "strPhi",   strPhi))   strPhi  .clear();
-
-    updateShape();
 }
 
 bool AGeoPara::readFromTShape(TGeoShape *Tshape)
@@ -471,7 +465,7 @@ QString AGeoSphere::getHelp() const
            " • phi2: ending phi value (0, 360] in degrees (phi1<phi2)";
 }
 
-QString AGeoSphere::updateShape()
+QString AGeoSphere::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -613,8 +607,6 @@ void AGeoSphere::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strTheta2", strTheta2)) strTheta2.clear();
     if (!jstools::parseJson(json, "strPhi1",   strPhi1))   strPhi1.clear();
     if (!jstools::parseJson(json, "strPhi2",   strPhi2))   strPhi2.clear();
-
-    updateShape();
 }
 
 bool AGeoSphere::readFromTShape(TGeoShape *Tshape)
@@ -642,7 +634,7 @@ QString AGeoTubeSeg::getHelp() const
            "The full Z range is from -dz to +dz.";
 }
 
-QString AGeoTubeSeg::updateShape()
+QString AGeoTubeSeg::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -772,8 +764,6 @@ void AGeoTubeSeg::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2dz"  , str2dz))   str2dz.clear();
     if (!jstools::parseJson(json, "strPhi1",  strPhi1))  strPhi1.clear();
     if (!jstools::parseJson(json, "strPhi2",  strPhi2))  strPhi2.clear();
-
-    updateShape();
 }
 
 bool AGeoTubeSeg::readFromTShape(TGeoShape *Tshape)
@@ -801,7 +791,7 @@ QString AGeoCtub::getHelp() const
            "The shape has a minimum (rmin) and a maximum (rmax) radius.\n";
 }
 
-QString AGeoCtub::updateShape()
+QString AGeoCtub::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -815,7 +805,7 @@ QString AGeoCtub::updateShape()
 
     if (nzlow >= 0) return "Lower Nz should be negative";
     if (nzhi  <= 0) return "Upper Nz should be positive";
-    return AGeoTubeSeg::updateShape();
+    return AGeoTubeSeg::introduceGeoConstValues();
 }
 
 bool AGeoCtub::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -964,7 +954,6 @@ void AGeoCtub::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strnxhi",  strnxhi))  strnxhi .clear();
     if (!jstools::parseJson(json, "strnyhi",  strnyhi))  strnyhi .clear();
     if (!jstools::parseJson(json, "strnzhi",  strnzhi))  strnzhi .clear();
-    updateShape();
 }
 
 bool AGeoCtub::readFromTShape(TGeoShape *Tshape)
@@ -993,7 +982,7 @@ QString AGeoTube::getHelp() const
            "The full Z range is from -dz to +dz.";
 }
 
-QString AGeoTube::updateShape()
+QString AGeoTube::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1103,8 +1092,6 @@ void AGeoTube::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2rmax", str2rmax)) str2rmax.clear();
     if (!jstools::parseJson(json, "str2rmin", str2rmin)) str2rmin.clear();
     if (!jstools::parseJson(json, "str2dz",   str2dz))   str2dz.clear();
-
-    updateShape();
 }
 
 bool AGeoTube::readFromTShape(TGeoShape *Tshape)
@@ -1131,7 +1118,7 @@ QString AGeoTrd1::getHelp() const
            " • dz: half length in Z\n";
 }
 
-QString AGeoTrd1::updateShape()
+QString AGeoTrd1::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1250,8 +1237,6 @@ void AGeoTrd1::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2dx2", str2dx2)) str2dx2.clear();
     if (!jstools::parseJson(json, "str2dy",  str2dy))  str2dy .clear();
     if (!jstools::parseJson(json, "str2dz",  str2dz))  str2dz .clear();
-
-    updateShape();
 }
 
 bool AGeoTrd1::readFromTShape(TGeoShape *Tshape)
@@ -1279,7 +1264,7 @@ QString AGeoTrd2::getHelp() const
            " • dz: half length in Z\n";
 }
 
-QString AGeoTrd2::updateShape()
+QString AGeoTrd2::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1409,8 +1394,6 @@ void AGeoTrd2::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2dy1", str2dy1)) str2dy1.clear();
     if (!jstools::parseJson(json, "str2dy2", str2dy2)) str2dy2.clear();
     if (!jstools::parseJson(json, "str2dz",  str2dz))  str2dz .clear();
-
-    updateShape();
 }
 
 bool AGeoTrd2::readFromTShape(TGeoShape *Tshape)
@@ -1437,7 +1420,7 @@ QString AGeoPgon::getHelp() const
            "{z : rmin : rmax} - arbitrary number of sections defined with z position, minimum and maximum radii";
 }
 
-QString AGeoPgon::updateShape()
+QString AGeoPgon::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1445,7 +1428,7 @@ QString AGeoPgon::updateShape()
     ok = GC.updateParameter(errorStr, strNedges, nedges, true, true); if (!ok) return errorStr;
     if (nedges < 3)  return "There should be at least 3 edges";
 
-    return AGeoPcon::updateShape();
+    return AGeoPcon::introduceGeoConstValues();
 
 }
 
@@ -1590,8 +1573,6 @@ void AGeoPgon::readFromJson(const QJsonObject &json)
     nedges = json["nedges"].toInt();
     if (!jstools::parseJson(json, "strNedges", strNedges)) strNedges.clear();
     AGeoPcon::readFromJson(json);
-
-    updateShape();
 }
 
 bool AGeoPgon::readFromTShape(TGeoShape *Tshape)
@@ -1625,7 +1606,7 @@ QString AGeoConeSeg::getHelp() const
            "phi2 - angle (0, 360]";
 }
 
-QString AGeoConeSeg::updateShape()
+QString AGeoConeSeg::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1636,7 +1617,7 @@ QString AGeoConeSeg::updateShape()
     if (phi1   <  0 || phi1   >= 360) return   "Phi1 should be in the range of [0, 360)";
     if (phi2   <= 0 || phi2   >  360) return   "Phi2 should be in the range of (0, 360]";
 
-    return AGeoCone::updateShape();
+    return AGeoCone::introduceGeoConstValues();
 }
 
 bool AGeoConeSeg::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1755,7 +1736,6 @@ void AGeoConeSeg::readFromJson(const QJsonObject &json)
 
     if (!jstools::parseJson(json, "strPhi1", strPhi1)) strPhi1.clear();
     if (!jstools::parseJson(json, "strPhi2", strPhi2)) strPhi2.clear();
-    updateShape();
 }
 
 bool AGeoConeSeg::readFromTShape(TGeoShape *Tshape)
@@ -1784,7 +1764,7 @@ QString AGeoParaboloid::getHelp() const
             " • +dz = a·rhi·rhi + b";
 }
 
-QString AGeoParaboloid::updateShape()
+QString AGeoParaboloid::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -1894,8 +1874,6 @@ void AGeoParaboloid::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2rlo", str2rlo)) str2rlo.clear();
     if (!jstools::parseJson(json, "str2rhi", str2rhi)) str2rhi.clear();
     if (!jstools::parseJson(json, "str2dz", str2dz))   str2dz.clear() ;
-
-    updateShape();
 }
 
 bool AGeoParaboloid::readFromTShape(TGeoShape *Tshape)
@@ -1920,7 +1898,7 @@ QString AGeoCone::getHelp() const
            "rmaxU - external radius at Z+dz";
 }
 
-QString AGeoCone::updateShape()
+QString AGeoCone::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -2059,7 +2037,6 @@ void AGeoCone::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2rmaxL", str2rmaxL)) str2rmaxL.clear();
     if (!jstools::parseJson(json, "str2rminU", str2rminU)) str2rminU.clear();
     if (!jstools::parseJson(json, "str2rmaxU", str2rmaxU)) str2rmaxU.clear();
-    updateShape();
 }
 
 bool AGeoCone::readFromTShape(TGeoShape *Tshape)
@@ -2081,7 +2058,7 @@ QString AGeoEltu::getHelp() const
     return "An elliptical tube is defined by the two semi-axes a and b. It ranges from –dz to +dz in Z direction.";
 }
 
-QString AGeoEltu::updateShape()
+QString AGeoEltu::introduceGeoConstValues()
 {
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
@@ -2192,8 +2169,6 @@ void AGeoEltu::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2a", str2a))   str2a.clear();
     if (!jstools::parseJson(json, "str2b", str2b))   str2b.clear();
     if (!jstools::parseJson(json, "str2dz", str2dz)) str2dz.clear();
-
-    updateShape();
 }
 
 bool AGeoEltu::readFromTShape(TGeoShape *Tshape)
@@ -2251,7 +2226,7 @@ QString AGeoArb8::getHelp() const
     return s;
 }
 
-QString AGeoArb8::updateShape()
+QString AGeoArb8::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -2422,7 +2397,6 @@ void AGeoArb8::readFromJson(const QJsonObject &json)
     dz     = json["dz"].toDouble();
     str2dz = json["str2dz"].toString();
 
-
     QJsonArray ar = json["Vertices"].toArray();
     for (int i=0; i<8; i++)
     {
@@ -2438,8 +2412,6 @@ void AGeoArb8::readFromJson(const QJsonObject &json)
         strVertices[i][0] = el[0].toString();
         strVertices[i][1] = el[1].toString();
     }
-
-    updateShape();
 }
 
 bool AGeoArb8::readFromTShape(TGeoShape *Tshape)
@@ -2479,7 +2451,7 @@ QString AGeoPcon::getHelp() const
            "{z : rmin : rmax} - arbitrary number of sections defined with z position, minimum and maximum radii";
 }
 
-QString AGeoPcon::updateShape()
+QString AGeoPcon::introduceGeoConstValues()
 {
     QString errorStr = "";
     bool ok;
@@ -2686,7 +2658,6 @@ void AGeoPcon::readFromJson(const QJsonObject &json)
         qWarning() << "Error in reading AGeoPcone from json";
         Sections.resize(2);
     }
-    updateShape();
 }
 
 bool AGeoPcon::readFromTShape(TGeoShape *Tshape)
@@ -2833,7 +2804,7 @@ QString AGeoPolygon::getHelp() const
            "rmaxU - outer size on upper side\n";
 }
 
-QString AGeoPolygon::updateShape()
+QString AGeoPolygon::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -3000,8 +2971,6 @@ void AGeoPolygon::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2rmaxL", str2rmaxL)) str2rmaxL.clear();
     if (!jstools::parseJson(json, "str2rminU", str2rminU)) str2rminU.clear();
     if (!jstools::parseJson(json, "str2rmaxU", str2rmaxU)) str2rmaxU.clear();
-
-    updateShape();
 }
 
 AGeoScaledShape::AGeoScaledShape(QString ShapeGenerationString, double scaleX, double scaleY, double scaleZ) :
@@ -3326,7 +3295,6 @@ void AGeoScaledShape::readFromJson(const QJsonObject &json)
         BaseShape = new AGeoBox();
     }
     updateScalingFactors();
-
 }
 
 bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
@@ -3369,7 +3337,7 @@ QString AGeoTorus::getHelp() const
                       "• Dphi - phi extent";
 }
 
-QString AGeoTorus::updateShape()
+QString AGeoTorus::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
@@ -3501,8 +3469,6 @@ void AGeoTorus::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2Rmax", str2Rmax)) str2Rmax.clear();
     if (!jstools::parseJson(json, "strPhi1",  strPhi1))  strPhi1.clear();
     if (!jstools::parseJson(json, "strDphi",  strDphi))  strDphi.clear();
-
-    updateShape();
 }
 
 bool AGeoTorus::readFromTShape(TGeoShape *Tshape)
