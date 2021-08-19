@@ -61,6 +61,7 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
+    gui/aproxystyle.cpp \
     gui/arootmarkerconfigurator.cpp \
     gui/aroottextconfigurator.cpp \
     gui/geom/ageometrytester.cpp \
@@ -163,6 +164,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     geo/ageospecial.h \
     geo/amonitorhub.h \
+    gui/aproxystyle.h \
     gui/arootmarkerconfigurator.h \
     gui/aroottextconfigurator.h \
     gui/geom/ageometrytester.h \

@@ -741,18 +741,17 @@ bool AGeoObject::migrateTo(AGeoObject * objTo, bool fAfter, AGeoObject *reorderO
     else            return true;
 }
 
-bool AGeoObject::repositionInHosted(AGeoObject *objTo, bool fAfter)
+bool AGeoObject::repositionInHosted(AGeoObject * objTo, bool fAfter)
 {
     if (!objTo) return false;
     if (Container != objTo->Container) return false;
 
-//    int iTo = Container->HostedObjects.indexOf(objTo);
-//    int iThis = Container->HostedObjects.indexOf(this);
-//    if (iTo==-1 || iThis ==-1) return false;
-//    if (fAfter) iTo++;
-//    Container->HostedObjects.removeOne(this);
-//    if (iThis<iTo) iTo--;
-//    Container->HostedObjects.insert(iTo, this);
+    for (auto it = Container->HostedObjects.begin(); it != Container->HostedObjects.end(); ++it)
+        if (*it == this)
+        {
+            Container->HostedObjects.erase(it);
+            break;
+        }
 
     for (auto it = Container->HostedObjects.begin(); it != Container->HostedObjects.end(); ++it)
         if (*it == objTo)

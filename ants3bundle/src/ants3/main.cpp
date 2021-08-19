@@ -9,7 +9,7 @@
 #ifdef GUI
     #include <QApplication>
     #include "mainwindow.h"
-    // #include "aproxystyle.h"
+    #include "aproxystyle.h"
 #else
     #include <QCoreApplication>
 #endif
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         QApplication * qa = new QApplication(argc, argv);
-        //qa->setStyle(new AProxyStyle);
+        qa->setStyle(new AProxyStyle);
         app.reset(qa);
     }
     else app.reset(new QCoreApplication(argc, argv));
