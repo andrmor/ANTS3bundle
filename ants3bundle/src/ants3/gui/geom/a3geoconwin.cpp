@@ -1305,10 +1305,11 @@ void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     }
     else if (selected == setCommentA)
     {
-//        QString txt = inputString("New comment (empty to remove)", this);
-//        GC.setNewComment(index, txt);
+        QString txt;
+        guitools::inputString("New comment (empty to remove)", txt, this);
+        GC.setNewComment(index, txt);
 //        MW->writeDetectorToJson(MW->Config->JSON);
-//        updateGeoConstsIndication();
+        updateGeoConstsIndication();
     }
 }
 
