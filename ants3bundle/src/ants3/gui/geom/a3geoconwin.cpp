@@ -1,6 +1,8 @@
 #include "a3geoconwin.h"
 #include "ui_a3geoconwin.h"
 #include "ageometryhub.h"
+#include "ageoconsts.h"
+#include "amaterialhub.h"
 #include "mainwindow.h"
 //#include "checkupwindowclass.h"
 
@@ -13,12 +15,11 @@
 #include "ageotype.h"
 #include "guitools.h"
 //#include "acommonfunctions.h"
-//#include "ageometrytester.h"
+#include "ageometrytester.h"
 //#include "amaterialparticlecolection.h"
 //#include "aconfiguration.h"
 #include "ajsontools.h"
 #include "afiletools.h"
-#include "ageoconsts.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -41,7 +42,9 @@
 #include "TGeoCompositeShape.h"
 
 A3GeoConWin::A3GeoConWin(QWidget * parent) :
-  QMainWindow(parent), Geometry(AGeometryHub::getInstance()),
+  QMainWindow(parent),
+  Geometry(AGeometryHub::getInstance()),
+  MaterialHub(AMaterialHub::getConstInstance()),
   ui(new Ui::A3GeoConWin)
 {
   ui->setupUi(this);
@@ -158,7 +161,7 @@ void A3GeoConWin::ShowObject(QString name)
 {
     highlightVolume(name);
     Geometry.GeoManager->ClearTracks();
-    emit requestDraw(true, false, false);
+    emit requestShowGeometry(true, false, false);
 }
 
 void A3GeoConWin::FocusVolume(QString name)
@@ -929,9 +932,8 @@ void A3GeoConWin::on_cbAutoCheck_clicked(bool checked)
 
 void A3GeoConWin::on_pbRunTestParticle_clicked()
 {
-    /*
    ui->pteTP->clear();
-   AGeometryTester Tester(Detector->GeoManager);
+   AGeometryTester Tester(Geometry.GeoManager);
 
    double Start[3];
    double Dir[3];
@@ -942,9 +944,6 @@ void A3GeoConWin::on_pbRunTestParticle_clicked()
    Dir[0]   = ui->ledTPi->text().toDouble();
    Dir[1]   = ui->ledTPj->text().toDouble();
    Dir[2]   = ui->ledTPk->text().toDouble();
-
-   NormalizeVector(Dir);
-   //qDebug() << Dir[0]<<Dir[1]<<Dir[2];
 
    Tester.Test(Start, Dir);
 
@@ -963,7 +962,7 @@ void A3GeoConWin::on_pbRunTestParticle_clicked()
        int green = 255*rc->GetGreen();
        int blue = 255*rc->GetBlue();
        s += "<span style = \"color:rgb("+QString::number(red)+", "+QString::number(green)+", "+QString::number(blue)+")\">";
-       s += Detector->MpCollection->getMaterialName(r.matIndex);
+       s += MaterialHub.getMaterialName(r.matIndex);
        s += "</span>";
        s += ",  from ";
        s += "(" + QString::number(r.startX)+", "+ QString::number(r.startY)+", "+ QString::number(r.startZ)+")";
@@ -988,32 +987,28 @@ void A3GeoConWin::on_pbRunTestParticle_clicked()
        ui->pteTP->appendHtml(s);
    }
 
-   if (MW->GeometryWindow->isVisible())
+   Geometry.GeoManager->ClearTracks();
+
+   for (int i=0; i<Tester.Record.size(); i++)
    {
-       Detector->GeoManager->ClearTracks();
-
-       for (int i=0; i<Tester.Record.size(); i++)
+       const AGeometryTesterReportRecord& r = Tester.Record.at(i);
+       TGeoTrack* track = new TGeoTrack(1, 10);
+       track->SetLineColor(r.matIndex+1);
+       track->SetLineWidth(4);
+       track->AddPoint(r.startX, r.startY, r.startZ, 0);
+       if (i != Tester.Record.size()-1)
        {
-           const AGeometryTesterReportRecord& r = Tester.Record.at(i);
-           TGeoTrack* track = new TGeoTrack(1, 10);
-           track->SetLineColor(r.matIndex+1);
-           track->SetLineWidth(4);
-           track->AddPoint(r.startX, r.startY, r.startZ, 0);
-           if (i != Tester.Record.size()-1)
-           {
-               const AGeometryTesterReportRecord& r1 = Tester.Record.at(i+1);
-               track->AddPoint(r1.startX, r1.startY, r1.startZ, 0);
-           }
-           else
-               track->AddPoint(Tester.escapeX, Tester.escapeY, Tester.escapeZ, 0);
-
-          Detector->GeoManager->AddTrack(track);
+           const AGeometryTesterReportRecord& r1 = Tester.Record.at(i+1);
+           track->AddPoint(r1.startX, r1.startY, r1.startZ, 0);
        }
+       else
+           track->AddPoint(Tester.escapeX, Tester.escapeY, Tester.escapeZ, 0);
 
-       MW->GeometryWindow->ShowGeometry(false);
-       MW->GeometryWindow->DrawTracks();
+       Geometry.GeoManager->AddTrack(track);
    }
-   */
+
+   emit requestShowGeometry(false, true, true);
+   emit requestShowTracks();
 }
 
 void A3GeoConWin::on_cbAutoCheck_stateChanged(int)

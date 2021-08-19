@@ -575,7 +575,8 @@ void A3PhotSimWin::updateMonitorGui()
 
         ui->cobMonitor->clear();
         for (int i = 0; i < numMonitors; i++)
-            ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
+            //ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
+            ui->cobMonitor->addItem(MonitorHub.Monitors[i].Name);
 
         if (oldNum >-1 && oldNum < numMonitors)
         {

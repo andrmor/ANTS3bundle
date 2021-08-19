@@ -522,9 +522,9 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     vol->SetName(fixedName);
 
     AMonitorData md;
-    md.Name    = QString("%1_%2").arg(vol->GetName()).arg(MonitorCounter);
-    md.GeoObj  = obj;
-    md.Monitor = new AMonitor(obj);
+    md.Name     = QString(fixedName);
+    md.GeoObj   = obj;
+    md.Monitor  = new AMonitor(obj);
 
     TObjArray * nList = parent->GetNodes();
     const int numNodes = nList->GetEntries();

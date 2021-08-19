@@ -63,6 +63,7 @@ SOURCES += \
     geo/amonitorhub.cpp \
     gui/arootmarkerconfigurator.cpp \
     gui/aroottextconfigurator.cpp \
+    gui/geom/ageometrytester.cpp \
     gui/graph/aaxesdialog.cpp \
     gui/graph/abasketitem.cpp \
     gui/graph/abasketlistwidget.cpp \
@@ -164,6 +165,7 @@ HEADERS += \
     geo/amonitorhub.h \
     gui/arootmarkerconfigurator.h \
     gui/aroottextconfigurator.h \
+    gui/geom/ageometrytester.h \
     gui/graph/aaxesdialog.h \
     gui/graph/abasketitem.h \
     gui/graph/abasketlistwidget.h \

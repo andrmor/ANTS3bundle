@@ -6,6 +6,7 @@
 #include <QMainWindow>
 
 class AGeometryHub;
+class AMaterialHub;
 class AGeoTree;
 class AGeoObject;
 
@@ -49,7 +50,8 @@ private slots:
   void on_cbShowPrototypes_toggled(bool checked);
 
 private:
-  AGeometryHub      & Geometry;
+  AGeometryHub       & Geometry;
+  const AMaterialHub & MaterialHub;
 
   Ui::A3GeoConWin * ui    = nullptr;
   AGeoTree        * twGeo = nullptr;                // WorldTree widget
@@ -77,7 +79,8 @@ public slots:
 
 signals:
   void requestRebuildGeometry(); // to the parent, direct connection
-  void requestDraw(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
+  void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
+  void requestShowTracks();
   void requestFocusVolume(QString name);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
