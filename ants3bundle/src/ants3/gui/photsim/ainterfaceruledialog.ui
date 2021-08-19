@@ -43,6 +43,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="leMatFrom">
+       <property name="text">
+        <string/>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>

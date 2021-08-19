@@ -1,5 +1,5 @@
 #include "ainterfaceruledialog.h"
-#include "ui_aopticaloverridedialog.h"
+#include "ui_ainterfaceruledialog.h"
 #include "amaterialhub.h"
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"

@@ -33,11 +33,11 @@ public:
   AGeoSpecial * Role  = nullptr;   // mainly remains nullptr after construction!
 
   QString Name;
-  int Material = 0;
-  double Position[3];
-  double Orientation[3];
-  bool fLocked = false;
-  bool fActive = true;
+  int     Material = 0;
+  double  Position[3];
+  double  Orientation[3];
+  bool    fLocked = false;
+  bool    fActive = true;
 
   QString PositionStr[3];
   QString OrientationStr[3];
