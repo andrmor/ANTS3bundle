@@ -73,3 +73,11 @@ int AMonitorHub::countMonitorsWithHits() const
     return counter;
 }
 
+std::vector<const AMonitorData *> AMonitorHub::getMonitors(const AGeoObject * obj) const
+{
+    std::vector<const AMonitorData *> vec;
+    for (const AMonitorData & md : Monitors)
+        if (md.GeoObj == obj) vec.push_back(&md);
+    return vec;
+}
+

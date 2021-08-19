@@ -47,9 +47,11 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
 {
   ui->setupUi(this);
 
+  /*
   Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
   windowFlags |= Qt::WindowCloseButtonHint;
   this->setWindowFlags(windowFlags);
+  */
 
   ui->pbBackToSandwich->setEnabled(false);
 
@@ -58,7 +60,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   ui->saGeo->setWidget(twGeo->twGeoTree);
   // !!!***
 //  connect(twGeo, SIGNAL(RequestListOfParticles(QStringList&)), Detector->MpCollection, SLOT(OnRequestListOfParticles(QStringList&)));
-  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::onRequestShowMonitor);
+  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::onRequestShowMonitorActiveDirection);
 
   // prototype tree widget
   ui->saPrototypes->setWidget(twGeo->twPrototypes);
@@ -258,81 +260,82 @@ void A3GeoConWin::ShowAllInstances(QString name)
     */
 }
 
-void A3GeoConWin::onRequestShowMonitor(const AGeoObject * mon)
+#include "amonitorhub.h"
+#include "amonitor.h"
+void A3GeoConWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
 {
-    const ATypeMonitorObject * tmo = dynamic_cast<const ATypeMonitorObject*>(mon->Type);
-    if (!tmo)
+    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
+    std::vector<const AMonitorData*> Mons = MonitorHub.getMonitors(mon);
+    if (Mons.empty())
     {
-        qWarning() << "This is not a monitor!";
+        qWarning() << "Monitor records were not found for this object!";
         return;
     }
 
-    const AMonitorConfig & c = tmo->config;
-
+    const AMonitorConfig & c = Mons.front()->Monitor->config;
     double length1 = c.size1;
     double length2 = c.size2;
     if (c.shape == 1) length2 = length1;
 
     TGeoManager * GeoManager = Geometry.GeoManager;
     GeoManager->ClearTracks();
-    Int_t track_index = GeoManager->AddTrack(1,22);
-    TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
 
-    double worldPos[3];
-    mon->getPositionInWorld(worldPos);
-    const double & x = worldPos[0];
-    const double & y = worldPos[1];
-    const double & z = worldPos[2];
-    //qDebug() << "World pos:"<< x << y << z;
-
-    double hl[3] = {-length1, 0, 0}; //local coordinates
-    double vl[3] = {0, -length2, 0}; //local coordinates
-    double mhl[3]; //master coordinates (world)
-    double mvl[3]; //master coordinates (world)
-
-    TGeoNavigator * navigator = GeoManager->GetCurrentNavigator();
-    if (!navigator)
+    for (const AMonitorData * MonData : Mons)
     {
-        qDebug() << "Show monitor: Current navigator does not exist, creating new";
-        navigator = GeoManager->AddNavigator();
-    }
-    navigator->FindNode(x, y, z);
-    //qDebug() << navigator->GetCurrentVolume()->GetName();
-    navigator->LocalToMasterVect(hl, mhl); //qDebug() << mhl[0]<< mhl[1]<< mhl[2];
-    navigator->LocalToMasterVect(vl, mvl);
+        Int_t track_index = GeoManager->AddTrack(1,22);
+        TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
 
-    track->AddPoint(x+mhl[0], y+mhl[1], z+mhl[2], 0);
-    track->AddPoint(x-mhl[0], y-mhl[1], z-mhl[2], 0);
-    track->AddPoint(x, y, z, 0);
-    track->AddPoint(x+mvl[0], y+mvl[1], z+mvl[2], 0);
-    track->AddPoint(x-mvl[0], y-mvl[1], z-mvl[2], 0);
-    track->SetLineWidth(4);
-    track->SetLineColor(kBlack);
+        const double * worldPos = MonData->Position.data();
 
-    //show orientation
-    double l[3] = {0,0, std::max(length1,length2)}; //local coordinates
-    double m[3]; //master coordinates (world)
-    navigator->LocalToMasterVect(l, m);
-    if (c.bUpper)
-    {
-        track_index = GeoManager->AddTrack(1,22);
-        track = GeoManager->GetTrack(track_index);
-        track->AddPoint(x, y, z, 0);
-        track->AddPoint(x+m[0], y+m[1], z+m[2], 0);
+        double hl[3] = {-length1, 0, 0}; //local coordinates
+        double vl[3] = {0, -length2, 0}; //local coordinates
+        double mhl[3]; //master coordinates (world)
+        double mvl[3]; //master coordinates (world)
+
+        TGeoNavigator * navigator = GeoManager->GetCurrentNavigator();
+        if (!navigator)
+        {
+            qDebug() << "Show monitor: Current navigator does not exist, creating new";
+            navigator = GeoManager->AddNavigator();
+        }
+        navigator->FindNode(worldPos[0], worldPos[1], worldPos[2]);
+        //qDebug() << navigator->GetCurrentVolume()->GetName();
+        navigator->LocalToMasterVect(hl, mhl); //qDebug() << mhl[0]<< mhl[1]<< mhl[2];
+        navigator->LocalToMasterVect(vl, mvl);
+
+        track->AddPoint(worldPos[0]+mhl[0], worldPos[1]+mhl[1], worldPos[2]+mhl[2], 0);
+        track->AddPoint(worldPos[0]-mhl[0], worldPos[1]-mhl[1], worldPos[2]-mhl[2], 0);
+        track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+        track->AddPoint(worldPos[0]+mvl[0], worldPos[1]+mvl[1], worldPos[2]+mvl[2], 0);
+        track->AddPoint(worldPos[0]-mvl[0], worldPos[1]-mvl[1], worldPos[2]-mvl[2], 0);
         track->SetLineWidth(4);
-        track->SetLineColor(kRed);
-    }
-    if (c.bLower)
-    {
-        track_index = GeoManager->AddTrack(1,22);
-        track = GeoManager->GetTrack(track_index);
-        track->AddPoint(x, y, z, 0);
-        track->AddPoint(x-m[0], y-m[1], z-m[2], 0);
-        track->SetLineWidth(4);
-        track->SetLineColor(kRed);
+        track->SetLineColor(kBlack);
+
+        //show orientation
+        double l[3] = {0,0, std::max(length1,length2)}; //local coordinates
+        double m[3]; //master coordinates (world)
+        navigator->LocalToMasterVect(l, m);
+        if (c.bUpper)
+        {
+            track_index = GeoManager->AddTrack(1,22);
+            track = GeoManager->GetTrack(track_index);
+            track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+            track->AddPoint(worldPos[0]+m[0], worldPos[1]+m[1], worldPos[2]+m[2], 0);
+            track->SetLineWidth(4);
+            track->SetLineColor(kRed);
+        }
+        if (c.bLower)
+        {
+            track_index = GeoManager->AddTrack(1,22);
+            track = GeoManager->GetTrack(track_index);
+            track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+            track->AddPoint(worldPos[0]-m[0], worldPos[1]-m[1], worldPos[2]-m[2], 0);
+            track->SetLineWidth(4);
+            track->SetLineColor(kRed);
+        }
     }
 
-    //emit requestShowGeometry(true, true, true);
+    emit requestShowGeometry(true, true, true);
     emit requestShowTracks();
 }
 

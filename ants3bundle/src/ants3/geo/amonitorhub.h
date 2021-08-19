@@ -44,6 +44,8 @@ public:
     int  countMonitors() const {return Monitors.size();}
     int  countMonitorsWithHits() const;
 
+    std::vector<const AMonitorData*> getMonitors(const AGeoObject *obj) const;  // returns nullptr if not found
+
     void    writeDataToJson(QJsonObject & json) const;
     QString appendDataFromJson(const QJsonObject & json);
 
