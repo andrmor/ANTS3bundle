@@ -351,6 +351,14 @@ void AGeoObject::introduceGeoConstValues()
     }
 }
 
+void AGeoObject::introduceGeoConstValuesRecursive()
+{
+    introduceGeoConstValues();
+
+    for (auto * obj : HostedObjects)
+        obj->introduceGeoConstValuesRecursive();
+}
+
 void AGeoObject::writeAllToJarr(QJsonArray &jarr)
 {
     QJsonObject js;

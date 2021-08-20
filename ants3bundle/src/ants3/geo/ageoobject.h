@@ -66,6 +66,7 @@ public:
   void readFromJson(const QJsonObject & json);
 
   void introduceGeoConstValues();
+  void introduceGeoConstValuesRecursive();
 
   //recursive json, using single object json
   void writeAllToJarr(QJsonArray & jarr);

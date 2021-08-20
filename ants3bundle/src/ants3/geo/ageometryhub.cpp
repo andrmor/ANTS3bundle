@@ -477,7 +477,7 @@ void AGeometryHub::populateGeoManager()
     AMonitorHub::getInstance().clear();
     clearGridRecords();
 
-    World->introduceGeoConstValues();
+    World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
     expandPrototypeInstances();
 
