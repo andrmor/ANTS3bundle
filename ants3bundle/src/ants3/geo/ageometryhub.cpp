@@ -726,9 +726,9 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
         ATypeCircularArrayObject * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
         if (!circArray)
         {
-            for (int ix = 0; ix < array->numX; ix++)
+            for (int iz = 0; iz < array->numZ; iz++)
                 for (int iy = 0; iy < array->numY; iy++)
-                    for (int iz = 0; iz < array->numZ; iz++)
+                    for (int ix = 0; ix < array->numX; ix++)
                         positionArrayElement(ix, iy, iz, el, obj, vol, iCounter++);
         }
         else
