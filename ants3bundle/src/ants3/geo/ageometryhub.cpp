@@ -741,11 +741,19 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
             else
             {
                 for (int iy = 0; iy < hexArray->NumY; iy++)
+                {
+                    bool bOdd = ( (iy+1) % 2 == 0);
                     for (int ix = 0; ix < hexArray->NumX; ix++)
                     {
-                        if (hexArray->SkipOddLast && (iy+1) % 2 == 0 && ix == hexArray->NumX-1) continue;
-                        positionArrayElement(ix, iy, 0, el, obj, vol, iCounter++);
+                        if (hexArray->SkipOddLast && bOdd && ix == hexArray->NumX-1) continue;
+
+                        double x = el->Position[0] + (ix - 0.5*(hexArray->NumX - 1)) * hexArray->Step;
+                        if (bOdd) x +=  0.5 * hexArray->Step;
+                        double y = el->Position[1] + (iy - 0.5*(hexArray->NumY - 1)) * hexArray->Step * cos(30.0*3.1415926535/180.0);
+
+                        positionHexArrayElement(x, y, el, obj, vol, iCounter++);
                     }
+                }
             }
         }
         else
