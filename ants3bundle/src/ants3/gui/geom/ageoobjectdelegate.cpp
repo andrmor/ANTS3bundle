@@ -2776,6 +2776,145 @@ void AGeoCircularArrayDelegate::Update(const AGeoObject *obj)
     }
 }
 
+// ---
+
+AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & materials, QWidget * parent)
+    : AGeoObjectDelegate(materials, parent)
+{
+    DelegateTypeName = "Hexagonal array";
+
+    QVBoxLayout * lVer = new QVBoxLayout();
+    lVer->setContentsMargins(5, 3, 5, 3);
+    lVer->setSpacing(3);
+
+    QGridLayout * grAW = new QGridLayout();
+    grAW->setContentsMargins(0,0,0,0);
+    grAW->setVerticalSpacing(0);
+
+    QLabel * la = nullptr;
+
+    la = new QLabel("Pitch:");        grAW->addWidget(la, 0, 0);
+    ledStep = new AOneLineTextEdit(Widget); grAW->addWidget(ledStep, 0, 1);
+    la = new QLabel("mm");            grAW->addWidget(la, 0, 2);
+
+    //la = new QLabel("Shape:");        grAW->addWidget(la, 1, 0);
+    cobShape = new QComboBox(Widget); grAW->addWidget(cobShape, 0, 3);
+    cobShape->addItems({"Hexagonal shape", "Rectangular shape"});
+
+    QLabel * laR = new QLabel("Rings:"); grAW->addWidget(laR, 2, 0);
+    ledNumRings = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumRings, 2, 1);
+
+    QLabel * laX = new QLabel("Number in X:"); grAW->addWidget(laX, 3, 0);
+    ledNumX      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumX, 3, 1);
+    QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
+    ledNumY      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumY, 3, 3);
+
+    cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
+    grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
+
+    lVer->addLayout(grAW);
+
+    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, [this, laR, laX, laY](int index)
+    {
+        laR->setVisible(index == 0);
+        ledNumRings->setVisible(index == 0);
+
+        laX->setVisible(index == 1);
+        laY->setVisible(index == 1);
+        ledNumX->setVisible(index == 1);
+        ledNumY->setVisible(index == 1);
+        cbSkipLastOdd->setVisible(index == 1);
+    });
+    cobShape->setCurrentIndex(1);
+    cobShape->setCurrentIndex(0);
+
+    QHBoxLayout * lHor = new QHBoxLayout();
+    lHor->addStretch();
+    lHor->addWidget(new QLabel("Index of the first node:"));
+    ledStartIndex = new AOneLineTextEdit(Widget);
+    lHor->addWidget(ledStartIndex);
+    lHor->addStretch();
+
+    lVer->addLayout(lHor);
+
+    addLocalLayout(lVer);
+
+    QVector<AOneLineTextEdit*> l = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
+    for (AOneLineTextEdit * le : l)
+    {
+        //le->setMaximumWidth(75);
+        le->setContextMenuPolicy(Qt::NoContextMenu);
+        configureHighligherAndCompleter(le);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+    }
+
+    cbScale->setChecked(false);
+    cbScale->setVisible(false);
+
+    lMat->setVisible(false);
+    cobMat->setVisible(false);
+
+    pbTransform->setVisible(false);
+    pbShapeInfo->setVisible(false);
+}
+
+bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
+{
+    QVector<AOneLineTextEdit*> v = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
+    if (isLeEmpty(v))
+    {
+        QMessageBox::warning(this->ParentWidget, "", "Empty line!");
+        return false;
+    }
+
+    if (!CurrentObject->Type->isHexagonalArray()) return false;
+
+    ATypeHexagonalArrayObject a;
+    a.strStep       = ledStep->text();
+    a.strRings      = ledNumRings->text();
+    a.strNumX       = ledNumX->text();
+    a.strNumY       = ledNumY->text();
+    a.strStartIndex = ledStartIndex->text();
+
+    a.Shape         = ( cobShape->currentIndex() == 0 ? ATypeHexagonalArrayObject::Hexagonal : ATypeHexagonalArrayObject::XY );
+    a.SkipOddLast   = cbSkipLastOdd->isChecked();
+
+    QString errorStr = a.introduceGeoConstValues();
+    if (!errorStr.isEmpty())
+    {
+        QMessageBox::warning(this->ParentWidget, "", errorStr);
+        return false;
+    }
+
+    ATypeHexagonalArrayObject * array = static_cast<ATypeHexagonalArrayObject*>(obj->Type);
+    *array = a;
+
+    return AGeoObjectDelegate::updateObject(obj);
+}
+
+void AGeoHexagonalArrayDelegate::Update(const AGeoObject *obj)
+{
+    AGeoObjectDelegate::Update(obj);
+
+    ATypeHexagonalArrayObject * array = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
+
+    if (array)
+    {
+        cobShape->setCurrentIndex( array->Shape == ATypeHexagonalArrayObject::Hexagonal ? 0 : 1);
+        ledStep->setText(array->strStep.isEmpty() ? QString::number(array->Step) : array->strStep);
+        ledNumRings->setText(array->strRings.isEmpty() ? QString::number(array->Rings) : array->strRings);
+        ledNumX->setText(array->strNumX.isEmpty() ? QString::number(array->NumX) : array->strNumX);
+        ledNumY->setText(array->strNumY.isEmpty() ? QString::number(array->NumY) : array->strNumY);
+        cbSkipLastOdd->setChecked(array->SkipOddLast);
+
+        ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);
+    }
+}
+
+// ---
+
 AGeoSetDelegate::AGeoSetDelegate(const QStringList &materials, QWidget *parent)
    : AGeoObjectDelegate(materials, parent)
 {

@@ -7,9 +7,9 @@
 AGeoType *AGeoType::TypeObjectFactory(const QString & Type)
 {
     if (Type == "Single")             return new ATypeSingleObject();
-    if (Type == "Array" ||
-        Type == "XYArray")            return new ATypeArrayObject();
+    if (Type == "Array")              return new ATypeArrayObject();
     if (Type == "CircularArray")      return new ATypeCircularArrayObject();
+    if (Type == "HexagonalArray")     return new ATypeHexagonalArrayObject();
     if (Type == "Monitor")            return new ATypeMonitorObject();
     if (Type == "Stack")              return new ATypeStackContainerObject();
     if (Type == "Instance")           return new ATypeInstanceObject();
@@ -273,6 +273,92 @@ QString ATypeCircularArrayObject::introduceGeoConstValues()
     ok = GC.updateParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) return errorStr;
     ok = GC.updateParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) return errorStr;
     ok = GC.updateParameter(errorStr, strStartIndex,  startIndex,  false, true);         if (!ok) return errorStr;
+
+    return "";
+}
+
+// ---
+
+void ATypeHexagonalArrayObject::Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
+{
+    Step        = step;
+    Shape       = shape;
+    Rings       = rings;
+    NumX        = numX;
+    NumY        = numY;
+    SkipOddLast = skipOddLast;
+}
+
+bool ATypeHexagonalArrayObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
+{
+    if (strStep.contains(nameRegExp))       return true;
+    if (strRings.contains(nameRegExp))      return true;
+    if (strNumX.contains(nameRegExp))       return true;
+    if (strNumY.contains(nameRegExp))       return true;
+    if (strStartIndex.contains(nameRegExp)) return true;
+    return false;
+}
+
+void ATypeHexagonalArrayObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    strStep.replace(nameRegExp, newName);
+    strRings.replace(nameRegExp, newName);
+    strNumX.replace(nameRegExp, newName);
+    strNumY.replace(nameRegExp, newName);
+    strStartIndex.replace(nameRegExp, newName);
+}
+
+void ATypeHexagonalArrayObject::writeToJson(QJsonObject & json) const
+{
+    AGeoType::writeToJson(json);
+
+    json["Step"]        = Step;
+    json["Shape"]       = ( Shape == Hexagonal ? "Hexagonal" : "XY" );
+    json["Rings"]       = Rings;
+    json["NumX"]        = NumX;
+    json["NumY"]        = NumY;
+    json["SkipOddLast"] = SkipOddLast;
+    json["startIndex"]  = startIndex;
+
+    if (!strStep.isEmpty())       json["strStep"]       = strStep;
+    if (!strRings.isEmpty())      json["strRings"]      = strRings;
+    if (!strNumX.isEmpty())       json["strNumX"]       = strNumX;
+    if (!strNumY.isEmpty())       json["strNumY"]       = strNumY;
+    if (!strStartIndex.isEmpty()) json["strStartIndex"] = strStartIndex;
+}
+
+void ATypeHexagonalArrayObject::readFromJson(const QJsonObject & json)
+{
+    QString ModeStr;
+    jstools::parseJson(json, "Shape",  ModeStr);
+    if (ModeStr == "XY") Shape = XY;
+    else                 Shape = Hexagonal;
+
+    jstools::parseJson(json, "Step",       Step);
+    jstools::parseJson(json, "Rings",      Rings);
+    jstools::parseJson(json, "NumX",       NumX);
+    jstools::parseJson(json, "NumY",       NumY);
+    jstools::parseJson(json, "startIndex", startIndex);
+
+    if (!jstools::parseJson(json, "strStep",       strStep))       strStep.clear();
+    if (!jstools::parseJson(json, "strRings",      strRings))      strRings.clear();
+    if (!jstools::parseJson(json, "strNumX",       strNumX))       strNumX.clear();
+    if (!jstools::parseJson(json, "strNumY",       strNumY))       strNumY.clear();
+    if (!jstools::parseJson(json, "strStartIndex", strStartIndex)) strStartIndex.clear();
+}
+
+QString ATypeHexagonalArrayObject::introduceGeoConstValues()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+
+    QString errorStr;
+    bool ok;
+
+    ok = GC.updateParameter(errorStr, strStep,       Step,       true,  true, false);  if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strRings,      Rings,      false, true);         if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNumX,       NumX,       true,  true);         if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strNumY,       NumY,       true,  true);         if (!ok) return errorStr;
+    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true);         if (!ok) return errorStr;
 
     return "";
 }

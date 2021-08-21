@@ -512,6 +512,28 @@ protected:
     AOneLineTextEdit *ledStartIndex;
 };
 
+class AGeoHexagonalArrayDelegate : public AGeoObjectDelegate
+{
+    Q_OBJECT
+
+public:
+    AGeoHexagonalArrayDelegate(const QStringList & materials, QWidget * parent);
+
+    bool updateObject(AGeoObject * obj) const override;
+
+    void Update(const AGeoObject * obj) override;
+
+protected:
+    QComboBox        * cobShape;
+    AOneLineTextEdit * ledStep;
+    AOneLineTextEdit * ledNumRings;
+    AOneLineTextEdit * ledNumX;
+    AOneLineTextEdit * ledNumY;
+    QCheckBox        * cbSkipLastOdd;
+
+    AOneLineTextEdit * ledStartIndex;
+};
+
 class AGeoSetDelegate : public AGeoObjectDelegate
 {
     Q_OBJECT

@@ -143,6 +143,8 @@ AGeoBaseDelegate * AGeoDelegateWidget::createAndAddGeoObjectDelegate()
 
     if (CurrentObject->Type->isCircularArray())
         Del = new AGeoCircularArrayDelegate(Materials.getListOfMaterialNames(), this);
+    else if (CurrentObject->Type->isHexagonalArray())
+        Del = new AGeoHexagonalArrayDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isArray())
         Del = new AGeoArrayDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isInstance())

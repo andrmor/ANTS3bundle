@@ -1073,6 +1073,12 @@ double AGeoObject::getMaxSize() const
         const ATypeCircularArrayObject * a = static_cast<const ATypeCircularArrayObject*>(Type);
         return 2.0 * a->radius;
     }
+    else if (Type->isHexagonalArray())
+    {
+        const ATypeHexagonalArrayObject * a = static_cast<const ATypeHexagonalArrayObject*>(Type);
+        if (a->Shape == ATypeHexagonalArrayObject::Hexagonal) return 2.0 * a->Rings * a->Step;
+        return 2.0 * a->Step * sqrt(a->NumX * a->NumX  +  a->NumY * a->NumY);
+    }
     else if (Type->isComposite())
     {
         const AGeoObject * cont = getContainerWithLogical();

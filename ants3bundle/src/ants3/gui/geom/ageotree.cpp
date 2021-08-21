@@ -405,6 +405,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   QAction* newArrayA  = Action(menu, "Add array");
   QAction* newCircArrayA  = Action(menu, "Add circular array");
+  QAction* newHexArrayA  = Action(menu, "Add hexagonal array");
   QAction* newCompositeA  = Action(menu, "Add composite object");
   QAction* newGridA = Action(menu, "Add optical grid");
   QAction* newMonitorA = Action(menu, "Add monitor");
@@ -465,6 +466,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       newCompositeA->setEnabled(fNotGridNotMonitor);
       newArrayA->setEnabled(fNotGridNotMonitor);
       newCircArrayA->setEnabled(fNotGridNotMonitor);
+      newHexArrayA->setEnabled(fNotGridNotMonitor);
       newMonitorA->setEnabled(fNotGridNotMonitor);
       newGridA->setEnabled(fNotGridNotMonitor);
       cloneA->setEnabled(true);
@@ -523,6 +525,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == newCompositeA)  menuActionAddNewComposite(obj);
   else if (SelectedAction == newArrayA)      menuActionAddNewArray(obj);
   else if (SelectedAction == newCircArrayA)  menuActionAddNewCircularArray(obj);
+  else if (SelectedAction == newHexArrayA)   menuActionAddNewHexagonalArray(obj);
   else if (SelectedAction == newGridA)       menuActionAddNewGrid(obj);
   else if (SelectedAction == newMonitorA)    menuActionAddNewMonitor(obj);
   else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
@@ -962,6 +965,32 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
 
     delete newObj->Type;
     newObj->Type = new ATypeCircularArrayObject();
+
+    newObj->color = 1;
+    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+
+    //element inside
+    AGeoObject* elObj = new AGeoObject();
+    while (World->isNameExists(elObj->Name))
+      elObj->Name = AGeoObject::GenerateRandomObjectName();
+    elObj->color = 1;
+    newObj->addObjectFirst(elObj);
+
+    const QString name = newObj->Name;
+    emit RequestRebuildDetector();
+    UpdateGui(name);
+}
+
+void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
+{
+    if (!ContObj) return;
+
+    AGeoObject* newObj = new AGeoObject();
+    do newObj->Name = AGeoObject::GenerateRandomArrayName();
+    while (World->isNameExists(newObj->Name));
+
+    delete newObj->Type;
+    newObj->Type = new ATypeHexagonalArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!

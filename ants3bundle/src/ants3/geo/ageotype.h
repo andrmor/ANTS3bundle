@@ -29,6 +29,7 @@ public:
     bool isComposite() const        {return Type == "Composite";}
     bool isArray() const            {return Type == "Array";}
     bool isCircularArray() const    {return Type == "CircularArray";}
+    bool isHexagonalArray() const   {return Type == "HexagonalArray";}
     bool isInstance() const         {return Type == "Instance";}
     bool isPrototype() const        {return Type == "Prototype";}
     bool isGrid() const             {return Type == "Grid";}
@@ -159,6 +160,32 @@ public:
     double angularStep = 30.0; //in degrees
     double radius      = 100.0;
     QString strNum, strAngularStep, strRadius;
+};
+
+class ATypeHexagonalArrayObject : public ATypeArrayObject
+{
+public:
+    enum EShapeMode {Hexagonal, XY};
+    ATypeHexagonalArrayObject() {Type = "HexagonalArray"; Handling = "Array";}
+
+    void Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast);
+
+    bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
+
+    void writeToJson(QJsonObject & json) const override;
+    void readFromJson(const QJsonObject & json) override;
+
+    QString introduceGeoConstValues() override;
+
+    double     Step         = 30.0;
+    EShapeMode Shape        = Hexagonal;
+    int        Rings        = 3;
+    int        NumX         = 5;
+    int        NumY         = 4;
+    bool       SkipOddLast = true;
+
+    QString    strStep, strRings, strNumX, strNumY;
 };
 
 class ATypeGridObject : public AGeoType

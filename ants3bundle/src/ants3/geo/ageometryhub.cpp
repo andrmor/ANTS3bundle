@@ -718,23 +718,42 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
 {
     ATypeArrayObject * array = static_cast<ATypeArrayObject*>(obj->Type);
 
+    ATypeCircularArrayObject  * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
+    ATypeHexagonalArrayObject * hexArray  = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
+
     for (AGeoObject * el : obj->HostedObjects)
     {
         int iCounter = array->startIndex;
         if (iCounter < 0) iCounter = 0;
 
-        ATypeCircularArrayObject * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
-        if (!circArray)
+        if (circArray)
+        {
+            for (int ia = 0; ia < circArray->num; ia++)
+                positionCircularArrayElement(ia, el, obj, vol, iCounter++);
+        }
+        else if (hexArray)
+        {
+            if (hexArray->Shape == ATypeHexagonalArrayObject::Hexagonal)
+            {
+                for (int iR = 0; iR < hexArray->Rings; iR++)
+                    positionHexArrayRing(iR, el, obj, vol, iCounter++);
+            }
+            else
+            {
+                for (int iy = 0; iy < hexArray->NumY; iy++)
+                    for (int ix = 0; ix < hexArray->NumX; ix++)
+                    {
+                        if (hexArray->SkipOddLast && (iy+1) % 2 == 0 && ix == hexArray->NumX-1) continue;
+                        positionArrayElement(ix, iy, 0, el, obj, vol, iCounter++);
+                    }
+            }
+        }
+        else
         {
             for (int iz = 0; iz < array->numZ; iz++)
                 for (int iy = 0; iy < array->numY; iy++)
                     for (int ix = 0; ix < array->numX; ix++)
                         positionArrayElement(ix, iy, iz, el, obj, vol, iCounter++);
-        }
-        else
-        {
-            for (int ia = 0; ia < circArray->num; ia++)
-                positionCircularArrayElement(ia, el, obj, vol, iCounter++);
         }
     }
 }
@@ -862,6 +881,90 @@ void AGeometryHub::positionCircularArrayElement(int ia, AGeoObject * el, AGeoObj
     el->TrueRot->RegisterYourself();
 
     addTGeoVolumeRecursively(el, parent, arrayIndex);
+}
+
+void AGeometryHub::positionHexArrayElement(double localX, double localY, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex)
+{
+    //Position
+    double local[3], master[3];
+    local[0] = el->Position[0] + localX;
+    local[1] = el->Position[1] + localY;
+    local[2] = el->Position[2];
+    TGeoRotation ArRot("0", arrayObj->Orientation[0], arrayObj->Orientation[1], arrayObj->Orientation[2]);
+    if (arrayObj->TrueRot)
+    {
+        arrayObj->TrueRot->LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + arrayObj->TruePos[i];
+    }
+    else
+    {
+        ArRot.LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + arrayObj->Position[i];
+    }
+
+    //Orientation
+    TGeoRotation elRot("1", el->Orientation[0], el->Orientation[1], el->Orientation[2]);
+    if (arrayObj->TrueRot)
+        el->TrueRot = createCombinedRotation(&elRot, arrayObj->TrueRot);
+    else
+        el->TrueRot = createCombinedRotation(&elRot, &ArRot);
+    el->TrueRot->RegisterYourself();
+
+    addTGeoVolumeRecursively(el, parent, arrayIndex);
+}
+
+void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex)
+{
+    ATypeHexagonalArrayObject * array = static_cast<ATypeHexagonalArrayObject*>(arrayObj->Type);
+
+    double CtC = array->Step;
+    double CtCbis = CtC * cos(30.0*3.1415926535/180.0);
+
+    double x, y;
+    if (iR == 0)
+        positionHexArrayElement(0,0, el, arrayObj, parent, arrayIndex++);
+    else
+    {
+        x = iR * CtC;
+        y = 0;
+        positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        for (int j=1; j<iR+1; j++)
+        {  //   //
+            x -= 0.5*CtC;
+            y -= CtCbis;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+        for (int j=1; j<iR+1; j++)
+        {   // --
+            x -= CtC;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+        for (int j=1; j<iR+1; j++)
+        {  // \\ //
+            x -= 0.5*CtC;
+            y += CtCbis;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+        for (int j=1; j<iR+1; j++)
+        {  // //
+            x += 0.5*CtC;
+            y += CtCbis;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+        for (int j=1; j<iR+1; j++)
+        {   // --
+            x += CtC;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+        for (int j=1; j<iR; j++)
+        {  // \\       //dont do the last step - already positioned PM
+            x += 0.5*CtC;
+            y -= CtCbis;
+            positionHexArrayElement(x,y, el, arrayObj, parent, arrayIndex++);
+        }
+    }
 }
 
 void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
