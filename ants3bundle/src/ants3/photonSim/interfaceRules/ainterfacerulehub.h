@@ -58,6 +58,9 @@ public:
 private:
     const AMaterialHub & MatHub;
 
+    QString readMaterialRulesFromJson(const QJsonObject & json);
+    QString readVolumeRulesFromJson(const QJsonObject & json);
+
 signals:
     void rulesLoaded();
 

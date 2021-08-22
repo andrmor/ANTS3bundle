@@ -243,9 +243,8 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 
         if (VolumeFrom->GetTitle()[1] == '*' && VolumeTo->GetTitle()[2] == '*')
         {
-            qDebug() << "There could be a volume override...";
             rule = RuleHub.getVolumeRule(VolumeFrom->GetName(), VolumeTo->GetName());
-            qDebug() << rule;
+            rule->updateMatIndices(MatIndexFrom, MatIndexTo);
         }
         if (!rule) rule = RuleHub.getMaterialRuleFast(MatIndexFrom, MatIndexTo);  // !!!*** to const
 

@@ -94,16 +94,33 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
 
-    QJsonArray ar;
-    for (auto & rv : MaterialRules)
-        for (auto & r : rv)
-            if (r)
-            {
-                QJsonObject js;
-                r->writeToJson(js);
-                ar.append(js);
-            }
-    js["MaterialRules"] = ar;
+    // Material to material
+    {
+        QJsonArray ar;
+        for (auto & rv : MaterialRules)
+            for (auto & r : rv)
+                if (r)
+                {
+                    QJsonObject js;
+                    r->writeToJson(js);
+                    ar.append(js);
+                }
+        js["MaterialRules"] = ar;
+    }
+
+    // Volume to volume
+    {
+        QJsonArray ar;
+        for (auto const & r : VolumeRules)
+        {
+            QJsonObject jj;
+            TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
+            TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
+            r.second->writeToJson(js);
+            ar.append(jj);
+        }
+        js["VolumeRules"] = ar;
+    }
 
     json["InterfaceRules"] = js;
 }
@@ -116,8 +133,20 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "InterfaceRules", js);
     if (!ok) return "Config json does not contain settings for interface rules!";
 
+    QString err = readMaterialRulesFromJson(js);
+    if (!err.isEmpty()) return err;
+
+    err = readVolumeRulesFromJson(js);
+    if (!err.isEmpty()) return err;
+
+    emit rulesLoaded();
+    return "";
+}
+
+QString AInterfaceRuleHub::readMaterialRulesFromJson(const QJsonObject & json)
+{
     QJsonArray ar;
-    jstools::parseJson(js, "MaterialRules", ar);
+    jstools::parseJson(json, "MaterialRules", ar);
     for (int iAr = 0; iAr < ar.size(); iAr++)
     {
         QJsonObject js = ar[iAr].toObject();
@@ -147,7 +176,41 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
         MaterialRules[MatFrom][MatTo] = rule;
     }
 
-    emit rulesLoaded();
+    return "";
+}
+
+QString AInterfaceRuleHub::readVolumeRulesFromJson(const QJsonObject & json)
+{
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, "VolumeRules", ar);
+    if (ok)
+    {
+        for (int i=0; i<ar.size(); i++)
+        {
+            QJsonObject js = ar[i].toObject();
+            QString From = js["VolumeFrom"].toString();
+            QString To   = js["VolumeTo"].toString();
+
+            QString Model = "NotProvided";
+            int MatFrom = 0;  // updated in runtime
+            int MatTo   = 0;  // updated in runtime
+
+            jstools::parseJson(js, "Model",   Model);
+            jstools::parseJson(js, "MatFrom", MatFrom);
+            jstools::parseJson(js, "MatTo",   MatTo);
+
+            AInterfaceRule * rule = AInterfaceRule::interfaceRuleFactory(Model, MatFrom, MatTo);
+            if (!rule) return "Unknown rule model: " + Model + '\n';
+            bool ok = rule->readFromJson(js);
+            if (!ok)
+            {
+                delete rule;
+                return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
+            }
+            setVolumeRule(From.toLatin1().data(), To.toLatin1().data(), rule);
+        }
+    }
+
     return "";
 }
 
