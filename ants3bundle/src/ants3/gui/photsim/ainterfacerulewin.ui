@@ -131,7 +131,7 @@
     <item>
      <widget class="QTabWidget" name="twType">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -156,7 +156,7 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Double-clicka cell to edit or define a new rule</string>
+           <string>Double-click a cell to edit or define a new rule</string>
           </property>
          </widget>
         </item>
@@ -169,6 +169,40 @@
        <attribute name="title">
         <string>Volume&lt;-&gt;volume</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Double-click to edit</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabwVolumes"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbAddNewVolumeRule">
+          <property name="text">
+           <string>Add new rule</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
