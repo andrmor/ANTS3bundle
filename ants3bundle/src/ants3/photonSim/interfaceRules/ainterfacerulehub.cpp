@@ -20,7 +20,7 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
     return getInstance();
 }
 
-AInterfaceRule *AInterfaceRuleHub::getVolumeRule(const TString & from, const TString & to) const
+AInterfaceRule * AInterfaceRuleHub::getVolumeRule(const TString & from, const TString & to) const
 {
     auto it = VolumeRules.find({from, to});
     if (it != VolumeRules.end())
@@ -31,8 +31,6 @@ AInterfaceRule *AInterfaceRuleHub::getVolumeRule(const TString & from, const TSt
 void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule)
 {
     VolumeRules[{from, to}] = rule;
-    VolumesFrom.insert(from);
-    VolumesTo.insert(to);
 }
 
 bool AInterfaceRuleHub::isFromVolume(const char * name) const
@@ -43,6 +41,13 @@ bool AInterfaceRuleHub::isFromVolume(const char * name) const
 bool AInterfaceRuleHub::isToVolume(const char * name) const
 {
     return (VolumesTo.find(name) != VolumesTo.end());
+}
+
+void AInterfaceRuleHub::removeVolumeRule(const TString & from, const TString & to)
+{
+    AInterfaceRule * old = getVolumeRule(from, to);
+    delete old;
+    VolumeRules.erase({from, to});
 }
 
 void AInterfaceRuleHub::updateRuntimeProperties()
@@ -116,7 +121,7 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
             QJsonObject jj;
             TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
             TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
-            r.second->writeToJson(js);
+            r.second->writeToJson(jj);
             ar.append(jj);
         }
         js["VolumeRules"] = ar;
@@ -212,6 +217,17 @@ QString AInterfaceRuleHub::readVolumeRulesFromJson(const QJsonObject & json)
     }
 
     return "";
+}
+
+void AInterfaceRuleHub::updateVolumesFromTo()
+{
+    VolumesFrom.clear();
+    VolumesTo.clear();
+    for (auto const & r : VolumeRules)
+    {
+        VolumesFrom.insert(r.first.first);
+        VolumesTo  .insert(r.first.second);
+    }
 }
 
 QString AInterfaceRuleHub::checkAll()

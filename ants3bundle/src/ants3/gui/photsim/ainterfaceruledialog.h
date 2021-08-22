@@ -19,8 +19,10 @@ class AInterfaceRuleDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleDialog(int matFrom, int matTo, QWidget * parent);
+    explicit AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent);
     ~AInterfaceRuleDialog();
+
+    AInterfaceRule * getRule();
 
 private slots:
     void on_pbAccept_clicked();
@@ -35,20 +37,21 @@ private:
     AMaterialHub      & MatHub;
     AInterfaceRuleHub & RuleHub;
 
+    int MatFrom;
+    int MatTo;
+
     Ui::AInterfaceRuleDialog * ui           = nullptr;
-    AInterfaceRule           * ovLocal      = nullptr;
+    AInterfaceRule           * LocalRule    = nullptr;
     AOpticalOverrideTester   * TesterWindow = nullptr;
-    int matFrom;
-    int matTo;
 
     int customWidgetPositionInLayout = 5;
     QWidget * customWidget = nullptr;
 
-    QSet<AInterfaceRule*> openedOVs;
+    QSet<AInterfaceRule*> TmpRules;
 
     void updateGui();
     AInterfaceRule * findInOpended(const QString & ovType);
-    void clearOpenedExcept(AInterfaceRule * keepOV);
+    void clearTmpRules();
 };
 
 #endif // AINTERFACERULEDIALOG_H

@@ -30,20 +30,15 @@ public:
     static       AInterfaceRuleHub & getInstance();
     static const AInterfaceRuleHub & getConstInstance();
 
+    void updateVolumesFromTo();  // run it before filling GeoManager
+    bool isFromVolume(const char * name) const;
+    bool isToVolume(const char * name) const;
+
     AInterfaceRule * getMaterialRuleFast(int MatFrom, int MatTo) const {return MaterialRules[MatFrom][MatTo];} // TODO: size_t and const !!!***
     AInterfaceRule * getVolumeRule(const TString & from, const TString & to) const;
 
     void setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule);
-    bool isFromVolume(const char * name) const;
-    bool isToVolume(const char * name) const;
-
-    std::vector<std::vector<AInterfaceRule*>> MaterialRules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
-
-    std::map<std::pair<TString, TString>, AInterfaceRule*> VolumeRules;
-    std::set<TString> VolumesFrom; //runtime
-    std::set<TString> VolumesTo;   //runtime
-
-    void updateRuntimeProperties();
+    void removeVolumeRule(const TString & from, const TString & to);
 
     void onMaterialRemoved(int iMat);
     void onMaterialAdded(); // a new material can only be appended to the end of the list!
@@ -53,13 +48,22 @@ public:
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
-    QString checkAll();
+    void updateRuntimeProperties();
+
+    QString checkAll(); // !!!***
+
+    std::vector<std::vector<AInterfaceRule*>> MaterialRules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
+
+    std::map<std::pair<TString, TString>, AInterfaceRule*> VolumeRules;
+    std::set<TString> VolumesFrom; //runtime
+    std::set<TString> VolumesTo;   //runtime
 
 private:
     const AMaterialHub & MatHub;
 
     QString readMaterialRulesFromJson(const QJsonObject & json);
     QString readVolumeRulesFromJson(const QJsonObject & json);
+
 
 signals:
     void rulesLoaded();

@@ -215,15 +215,15 @@ void MainWindow::on_pbPhotSim_clicked()
 {
     PhotSimWin->showNormal();
     PhotSimWin->activateWindow();
+    PhotSimWin->updateGui();
 }
-
 
 void MainWindow::on_pbInterfaceRules_clicked()
 {
     RuleWin->showNormal();
     RuleWin->activateWindow();
+    RuleWin->updateGui();
 }
-
 
 void MainWindow::on_pbGraphWin_clicked()
 {

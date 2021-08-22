@@ -27,16 +27,17 @@ private:
     Ui::AInterfaceRuleWin * ui = nullptr;
 
     int NumMatRules = 0;
+    bool BulkUpdate = false;
 
     void updateMatGui();
     void updateVolGui();
 
 private slots:
     void onMatCellDoubleClicked();
-    void onMatDialogAccepted();
+    void onVolCellDoubleClicked();
+    void onVolCellChanged();
 
     void on_pbAddNewVolumeRule_clicked();
-    void onVolCellDoubleClicked();
 };
 
 #endif // AINTERFACERULEWIN_H

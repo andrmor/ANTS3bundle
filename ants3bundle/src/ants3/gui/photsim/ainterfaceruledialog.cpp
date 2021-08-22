@@ -11,12 +11,12 @@
 #include <QVBoxLayout>
 #include <QDebug>
 
-AInterfaceRuleDialog::AInterfaceRuleDialog(int matFrom, int matTo, QWidget * parent) :
+AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent) :
     QDialog(parent),
     MatHub(AMaterialHub::getInstance()),
     RuleHub(AInterfaceRuleHub::getInstance()),
-    ui(new Ui::AInterfaceRuleDialog),
-    matFrom(matFrom), matTo(matTo)
+    MatFrom(matFrom), MatTo(matTo),
+    ui(new Ui::AInterfaceRuleDialog)
 {
     ui->setupUi(this);
     ui->pbInterceptorForEnter->setVisible(false);
@@ -32,11 +32,10 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(int matFrom, int matTo, QWidget * par
 
     MatHub.updateRuntimeProperties();
 
-    AInterfaceRule * ov = RuleHub.MaterialRules[matFrom][matTo];
-    if (ov)
+    if (rule)
     {
-        ovLocal = AInterfaceRule::interfaceRuleFactory(ov->getType(), matFrom, matTo);
-        QJsonObject json; ov->writeToJson(json); ovLocal->readFromJson(json);
+        LocalRule = AInterfaceRule::interfaceRuleFactory(rule->getType(), matFrom, matTo);
+        QJsonObject json; rule->writeToJson(json); LocalRule->readFromJson(json);
     }
 
     updateGui();
@@ -47,8 +46,18 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(int matFrom, int matTo, QWidget * par
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
 {
+    qDebug() << "Destr for AInterfaceRuleDialog";
     //TesterWindow is saved and deleted on CloseEvent
     delete ui;
+    clearTmpRules();
+    delete LocalRule;
+}
+
+AInterfaceRule * AInterfaceRuleDialog::getRule()
+{
+    AInterfaceRule * r = LocalRule;
+    LocalRule = nullptr;
+    return r;
 }
 
 void AInterfaceRuleDialog::updateGui()
@@ -60,18 +69,18 @@ void AInterfaceRuleDialog::updateGui()
         delete customWidget; customWidget = nullptr;
     }
 
-    if (ovLocal)
+    if (LocalRule)
     {
         ui->frNoOverride->setVisible(false);
         ui->pbTestOverride->setVisible(true);
 
         QStringList avOv = AInterfaceRule::getAllInterfaceRuleTypes();
-        int index = avOv.indexOf(ovLocal->getType()); //TODO -> if not found?
+        int index = avOv.indexOf(LocalRule->getType()); //TODO -> if not found?
         ui->cobType->setCurrentIndex(index+1);
 
         QVBoxLayout* l = static_cast<QVBoxLayout*>(layout());
         //customWidget = ovLocal->getEditWidget(this, MW->GraphWindow);
-        customWidget = AInterfaceWidgetFactory::createEditWidget(ovLocal, this, nullptr); // !!!***
+        customWidget = AInterfaceWidgetFactory::createEditWidget(LocalRule, this, nullptr); // !!!***
         l->insertWidget(customWidgetPositionInLayout, customWidget);
     }
     else
@@ -81,36 +90,35 @@ void AInterfaceRuleDialog::updateGui()
     }
 }
 
-AInterfaceRule * AInterfaceRuleDialog::findInOpended(const QString &ovType)
+AInterfaceRule * AInterfaceRuleDialog::findInOpended(const QString & ovType)
 {
-    for (AInterfaceRule* ov : openedOVs)
-        if (ov->getType() == ovType) return ov;
-    return 0;
+    for (AInterfaceRule* ov : qAsConst(TmpRules))
+        if (ov->getType() == ovType)
+        {
+            TmpRules.remove(ov);
+            return ov;
+        }
+
+    return nullptr;
 }
 
-void AInterfaceRuleDialog::clearOpenedExcept(AInterfaceRule *keepOV)
+void AInterfaceRuleDialog::clearTmpRules()
 {
-    for (AInterfaceRule * ov : openedOVs)
-        if (ov != keepOV) delete ov;
-    openedOVs.clear();
+    for (AInterfaceRule * ov : qAsConst(TmpRules)) delete ov;
+    TmpRules.clear();
 }
 
 void AInterfaceRuleDialog::on_pbAccept_clicked()
 {
-    if (ovLocal)
+    if (LocalRule)
     {
-        QString err = ovLocal->checkOverrideData();
+        QString err = LocalRule->checkOverrideData();
         if (!err.isEmpty())
         {
             guitools::message(err, this);
             return;
         }
     }
-
-    clearOpenedExcept(ovLocal);
-
-    delete RuleHub.MaterialRules[matFrom][matTo]; RuleHub.MaterialRules[matFrom][matTo] = ovLocal;
-    ovLocal = nullptr;
     accept();
 }
 
@@ -121,9 +129,6 @@ void AInterfaceRuleDialog::on_pbCancel_clicked()
 
 void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 {
-    clearOpenedExcept(ovLocal); //to avoid double-delete
-    delete ovLocal; ovLocal = 0;
-
 //    TesterWindow->writeToJson(MW->OvTesterSettings);
 //    TesterWindow->hide();
 //    delete TesterWindow; TesterWindow = nullptr;
@@ -133,15 +138,15 @@ void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 
 void AInterfaceRuleDialog::on_cobType_activated(int index)
 {
-    if (ovLocal) openedOVs << ovLocal;
-    ovLocal = 0;
+    if (LocalRule) TmpRules << LocalRule;
+    LocalRule = nullptr;
 
     if (index != 0)
     {
          QString selectedType = ui->cobType->currentText();
-         ovLocal = findInOpended(selectedType);
-         if (!ovLocal)
-            ovLocal = AInterfaceRule::interfaceRuleFactory(ui->cobType->currentText(), matFrom, matTo);
+         LocalRule = findInOpended(selectedType);
+         if (!LocalRule)
+            LocalRule = AInterfaceRule::interfaceRuleFactory(ui->cobType->currentText(), MatFrom, MatTo);
     }
     updateGui();
 }

@@ -5,6 +5,8 @@
 #include "ainterfacerule.h"
 #include "ainterfaceruledialog.h"
 
+#include <QDebug>
+
 AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
@@ -18,6 +20,7 @@ AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
 
     connect(ui->tabwMat,     &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onMatCellDoubleClicked);
     connect(ui->tabwVolumes, &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onVolCellDoubleClicked);
+    connect(ui->tabwVolumes, &QTableWidget::itemChanged, this, &AInterfaceRuleWin::onVolCellChanged);
 
     updateGui();
 }
@@ -69,6 +72,8 @@ void AInterfaceRuleWin::updateMatGui()
 
 void AInterfaceRuleWin::updateVolGui()
 {
+    BulkUpdate = true; // -->
+
     ui->tabwVolumes->setColumnCount(3);
     ui->tabwVolumes->setRowCount(RuleHub.VolumeRules.size());
 
@@ -90,6 +95,8 @@ void AInterfaceRuleWin::updateVolGui()
 
         ui->tabwVolumes->setItem(iRow, 2, it);
     }
+
+    BulkUpdate = false; // <--
 }
 
 void AInterfaceRuleWin::onMatCellDoubleClicked()
@@ -97,16 +104,66 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
     int iFrom = ui->tabwMat->currentRow();
     int iTo   = ui->tabwMat->currentColumn();
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(iFrom, iTo, this);
-    d->setAttribute(Qt::WA_DeleteOnClose);
+    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
+    //d->setAttribute(Qt::WA_DeleteOnClose);
     d->setWindowModality(Qt::WindowModal);
-    QObject::connect(d, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::onMatDialogAccepted);
-    d->show();
+    int res = d->exec();
+    if (res == QDialog::Accepted) RuleHub.MaterialRules[iFrom][iTo] = d->getRule();
+    updateMatGui();
+    delete d;
 }
 
-void AInterfaceRuleWin::onMatDialogAccepted()
+void AInterfaceRuleWin::onVolCellDoubleClicked()
 {
-    updateMatGui();
+    int iRow = ui->tabwVolumes->currentRow();
+    int iCol = ui->tabwVolumes->currentColumn();
+    if (iCol != 2) return;
+
+    TString From(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
+    TString To  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+
+    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getVolumeRule(From, To), 0, 0, this);
+    d->setWindowModality(Qt::WindowModal);
+    int res = d->exec();
+    if (res == QDialog::Accepted)
+    {
+        AInterfaceRule * newRule = d->getRule();
+        if (newRule) RuleHub.setVolumeRule(From, To, newRule);
+        else         RuleHub.removeVolumeRule(From, To);
+    }
+    delete d;
+
+    updateVolGui();
+}
+
+void AInterfaceRuleWin::onVolCellChanged()
+{
+    if (BulkUpdate) return;
+
+    int iRow = ui->tabwVolumes->currentRow();
+    int iCol = ui->tabwVolumes->currentColumn();
+
+    const TString OldFrom(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
+    const TString OldTo  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+
+    if (iCol == 0)
+    {
+        const TString NewFrom(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
+        if (NewFrom == OldFrom) return;
+        AInterfaceRule * rule = RuleHub.getVolumeRule(OldFrom, OldTo);
+        RuleHub.removeVolumeRule(OldFrom, OldTo);
+        RuleHub.setVolumeRule(NewFrom, OldTo, rule);
+    }
+    else if (iCol == 1)
+    {
+        const TString NewTo(ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+        if (NewTo == OldTo) return;
+        AInterfaceRule * rule = RuleHub.getVolumeRule(OldFrom, OldTo);
+        RuleHub.removeVolumeRule(OldFrom, OldTo);
+        RuleHub.setVolumeRule(OldFrom, NewTo, rule);
+    }
+
+    updateVolGui();
 }
 
 #include "abasicinterfacerule.h"
@@ -115,19 +172,3 @@ void AInterfaceRuleWin::on_pbAddNewVolumeRule_clicked()
     RuleHub.setVolumeRule("NameFrom", "NameTo", new ABasicInterfaceRule(0,0));
     updateGui();
 }
-
-void AInterfaceRuleWin::onVolCellDoubleClicked()
-{
-    int iRow = ui->tabwMat->currentRow();
-    int iCol = ui->tabwMat->currentColumn();
-
-    if (iCol == 2)
-    {
-//        AInterfaceRuleDialog * d = new AInterfaceRuleDialog(0, 0, this);
-//        d->setAttribute(Qt::WA_DeleteOnClose);
-//        d->setWindowModality(Qt::WindowModal);
-//        QObject::connect(d, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::onMatDialogAccepted);
-//        d->show();
-    }
-}
-

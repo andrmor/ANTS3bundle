@@ -504,7 +504,9 @@ void AGeometryHub::populateGeoManager()
     GeoManager->SetTopVolume(Top);
     GeoManager->SetTopVisible(true);
 
+    AInterfaceRuleHub::getInstance().updateVolumesFromTo();
     addTGeoVolumeRecursively(World, Top);
+
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
 
     GeoManager->CloseGeometry();
