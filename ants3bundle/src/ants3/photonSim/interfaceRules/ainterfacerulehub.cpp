@@ -20,21 +20,46 @@ const AInterfaceRuleHub &AInterfaceRuleHub::getConstInstance()
     return getInstance();
 }
 
+AInterfaceRule *AInterfaceRuleHub::getVolumeRule(const TString & from, const TString & to) const
+{
+    auto it = VolumeRules.find({from, to});
+    if (it != VolumeRules.end())
+        return it->second;
+    else return nullptr;
+}
+
+void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule)
+{
+    VolumeRules[{from, to}] = rule;
+    VolumesFrom.insert(from);
+    VolumesTo.insert(to);
+}
+
+bool AInterfaceRuleHub::isFromVolume(const char * name) const
+{
+    return (VolumesFrom.find(name) != VolumesFrom.end());
+}
+
+bool AInterfaceRuleHub::isToVolume(const char * name) const
+{
+    return (VolumesTo.find(name) != VolumesTo.end());
+}
+
 void AInterfaceRuleHub::updateRuntimeProperties()
 {
-    for (auto & rv : Rules)
+    for (auto & rv : MaterialRules)
         for (auto & r : rv)
             if (r) r->initializeWaveResolved();
 }
 
 void AInterfaceRuleHub::onMaterialRemoved(int iMat)
 {
-    const int size = Rules.size();
+    const int size = MaterialRules.size();
 
     //delete rules from this material to other ones
     for (int iOther = 0; iOther < size; iOther++)
     {
-        delete Rules[iMat][iOther]; Rules[iMat][iOther] = nullptr;
+        delete MaterialRules[iMat][iOther]; MaterialRules[iMat][iOther] = nullptr;
     }
 
     //delete rules from other materials to this one
@@ -42,30 +67,35 @@ void AInterfaceRuleHub::onMaterialRemoved(int iMat)
     {
         if (iOther == iMat) continue;
 
-        delete Rules[iOther][iMat]; Rules[iOther][iMat] = nullptr;
-        Rules[iOther].erase(Rules[iOther].begin() + iMat);
+        delete MaterialRules[iOther][iMat]; MaterialRules[iOther][iMat] = nullptr;
+        MaterialRules[iOther].erase(MaterialRules[iOther].begin() + iMat);
     }
 
-    Rules.erase(Rules.begin() + iMat);
+    MaterialRules.erase(MaterialRules.begin() + iMat);
 }
 
 void AInterfaceRuleHub::clearRules()
 {
-    for (auto & rv : Rules)
+    for (auto & rv : MaterialRules)
         for (auto & r : rv)
             delete r;
-
     const int numMats = MatHub.countMaterials();
-    Rules.resize(numMats);
-    for (auto & rv : Rules)
+    MaterialRules.resize(numMats);
+    for (auto & rv : MaterialRules)
         rv = std::vector<AInterfaceRule*>(numMats, nullptr);
+
+    for (auto const & r : VolumeRules) delete r.second;
+    VolumeRules.clear();
+    VolumesFrom.clear();
+    VolumesTo.clear();
 }
 
 void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
 {
-    QJsonArray ar;
+    QJsonObject js;
 
-    for (auto & rv : Rules)
+    QJsonArray ar;
+    for (auto & rv : MaterialRules)
         for (auto & r : rv)
             if (r)
             {
@@ -73,18 +103,21 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
                 r->writeToJson(js);
                 ar.append(js);
             }
+    js["MaterialRules"] = ar;
 
-    json["InterfaceRules"] = ar;
+    json["InterfaceRules"] = js;
 }
 
 QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
 {
     clearRules();
 
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, "InterfaceRules", ar);
-    if (!ok) return "Json does not contain settings for interface rules!";
+    QJsonObject js;
+    bool ok = jstools::parseJson(json, "InterfaceRules", js);
+    if (!ok) return "Config json does not contain settings for interface rules!";
 
+    QJsonArray ar;
+    jstools::parseJson(js, "MaterialRules", ar);
     for (int iAr = 0; iAr < ar.size(); iAr++)
     {
         QJsonObject js = ar[iAr].toObject();
@@ -111,7 +144,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
             return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
         }
 
-        Rules[MatFrom][MatTo] = rule;
+        MaterialRules[MatFrom][MatTo] = rule;
     }
 
     emit rulesLoaded();
@@ -122,7 +155,7 @@ QString AInterfaceRuleHub::checkAll()
 {
     QString err;
 
-    for (auto & rv : Rules)
+    for (auto & rv : MaterialRules)
         for (auto & r : rv)
         {
             QString es = r->checkOverrideData();
@@ -139,7 +172,7 @@ QString AInterfaceRuleHub::checkAll()
 
 void AInterfaceRuleHub::onMaterialAdded()
 {
-    const int size = Rules.size();
-    for (auto & r : Rules) r.push_back(nullptr);
-    Rules.push_back(std::vector<AInterfaceRule*>(size+1, nullptr));
+    const int size = MaterialRules.size();
+    for (auto & r : MaterialRules) r.push_back(nullptr);
+    MaterialRules.push_back(std::vector<AInterfaceRule*>(size+1, nullptr));
 }

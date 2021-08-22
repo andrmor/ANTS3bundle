@@ -5,6 +5,7 @@
 //#include "agridelementrecord.h"
 #include "ageoconsts.h"
 #include "amaterialhub.h"
+#include "ainterfacerulehub.h"
 #include "ageospecial.h"
 #include "ajsontools.h"
 #include "asensorhub.h"
@@ -703,15 +704,26 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
 
+    setVolumeTitle(obj, vol);
+}
+
+void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
+{
     //  Photon tracer uses volume title for identification of special volumes
     //  First character can be 'M' for monitor, 'S' for light sensor, 'G' for optical grid
+    TString title = "----";
     if      (obj->Role)
     {
-         if (obj->Role->getType() == "Sensor")              vol->SetTitle("S---");
+         if (obj->Role->getType() == "Sensor") title[0] = 'S';
     }
-    else if (obj->Type->isMonitor())                        vol->SetTitle("M---");
-    else if (obj->Type->isGrid())                           vol->SetTitle("G---");
-    else                                                    vol->SetTitle("----");
+    else if (obj->Type->isMonitor())           title[0] = 'M';
+    else if (obj->Type->isGrid())              title[0] = 'G';
+
+    const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
+    if (IRH.isFromVolume(vol->GetName())) title[1] = '*';
+    if (IRH.isToVolume(vol->GetName()))   title[2] = '*';
+
+    vol->SetTitle(title);
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)

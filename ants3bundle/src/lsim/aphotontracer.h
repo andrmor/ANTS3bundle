@@ -64,6 +64,8 @@ private:
     bool fHaveNormal;
     int MatIndexFrom; //material index of the current medium or medium before the interface
     int MatIndexTo;   //material index of the medium after interface
+    const TGeoVolume * VolumeFrom;
+    const TGeoVolume * VolumeTo;
     const AMaterial * MaterialFrom; //material before the interface
     const AMaterial * MaterialTo;   //material after the interface
     double RefrIndexFrom, RefrIndexTo; //refractive indexes n1 and n2

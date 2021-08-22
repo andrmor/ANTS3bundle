@@ -103,6 +103,7 @@ private:
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
+    void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
 };
 
 #endif // AGEOMETRYHUB_H

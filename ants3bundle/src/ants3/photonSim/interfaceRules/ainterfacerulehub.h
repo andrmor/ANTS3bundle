@@ -5,6 +5,10 @@
 #include <QString>
 
 #include <vector>
+#include <map>
+#include <set>
+
+#include "TString.h"
 
 class AInterfaceRule;
 class QJsonObject;
@@ -26,9 +30,18 @@ public:
     static       AInterfaceRuleHub & getInstance();
     static const AInterfaceRuleHub & getConstInstance();
 
-    AInterfaceRule * getRuleFast(int MatFrom, int MatTo) const {return Rules[MatFrom][MatTo];} // TODO: size_t and const !!!***
+    AInterfaceRule * getMaterialRuleFast(int MatFrom, int MatTo) const {return MaterialRules[MatFrom][MatTo];} // TODO: size_t and const !!!***
+    AInterfaceRule * getVolumeRule(const TString & from, const TString & to) const;
 
-    std::vector<std::vector<AInterfaceRule*>> Rules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
+    void setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule);
+    bool isFromVolume(const char * name) const;
+    bool isToVolume(const char * name) const;
+
+    std::vector<std::vector<AInterfaceRule*>> MaterialRules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
+
+    std::map<std::pair<TString, TString>, AInterfaceRule*> VolumeRules;
+    std::set<TString> VolumesFrom; //runtime
+    std::set<TString> VolumesTo;   //runtime
 
     void updateRuntimeProperties();
 

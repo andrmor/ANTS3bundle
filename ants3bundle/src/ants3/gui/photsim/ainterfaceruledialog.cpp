@@ -32,7 +32,7 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(int matFrom, int matTo, QWidget * par
 
     MatHub.updateRuntimeProperties();
 
-    AInterfaceRule * ov = RuleHub.Rules[matFrom][matTo];
+    AInterfaceRule * ov = RuleHub.MaterialRules[matFrom][matTo];
     if (ov)
     {
         ovLocal = AInterfaceRule::interfaceRuleFactory(ov->getType(), matFrom, matTo);
@@ -109,7 +109,7 @@ void AInterfaceRuleDialog::on_pbAccept_clicked()
 
     clearOpenedExcept(ovLocal);
 
-    delete RuleHub.Rules[matFrom][matTo]; RuleHub.Rules[matFrom][matTo] = ovLocal;
+    delete RuleHub.MaterialRules[matFrom][matTo]; RuleHub.MaterialRules[matFrom][matTo] = ovLocal;
     ovLocal = nullptr;
     accept();
 }

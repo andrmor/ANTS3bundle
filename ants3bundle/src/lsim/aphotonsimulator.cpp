@@ -352,6 +352,7 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 
 bool APhotonSimulator::simulateSingle()
 {
+
     const double * Position = SimSet.BombSet.SingleSettings.Position;
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
 

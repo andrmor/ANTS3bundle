@@ -43,7 +43,7 @@ void AInterfaceRuleWin::updateMatGui()
     for (int ifrom = 0; ifrom < numMat; ifrom++)
         for (int ito = 0; ito < numMat; ito++)
         {
-            AInterfaceRule * ov = RuleHub.Rules[ifrom][ito];
+            AInterfaceRule * ov = RuleHub.MaterialRules[ifrom][ito];
             QString text;
             if (ov) text = ov->getAbbreviation();
             QTableWidgetItem * it = new QTableWidgetItem(text);

@@ -115,8 +115,8 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         else APhotonSimHub::getInstance().Settings.RunSet.SaveTracks = false;
     }
 
-    TGeoNode * NodeAfterInterface;
-    MatIndexFrom = Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
+    VolumeTo   = Navigator->GetCurrentVolume();
+    MatIndexTo = VolumeTo->GetMaterial()->GetIndex();
 
     if (SimSet.RunSet.SavePhotonLog)
     {
@@ -125,12 +125,16 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         PhLog.append( APhotonHistoryLog(p->r, Navigator->GetCurrentVolume()->GetName(), p->time, p->waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
     }
 
+    TGeoNode * NodeAfterInterface;
     Counter = 0; //number of photon transitions - there is a limit on this set by user
     //---------------------------------------------=====cycle=====-----------------------------------------
     while (Counter < SimSet.OptSet.MaxPhotonTransitions)
     {
         Counter++;
         //qDebug() << "tracing cycle #" << Counter;
+
+        VolumeFrom   = VolumeTo;
+        MatIndexFrom = MatIndexTo;
 
         MaterialFrom = MatHub[MatIndexFrom]; //this is the material where the photon is currently in
         if (SimSet.RunSet.SavePhotonLog) nameFrom = Navigator->GetCurrentVolume()->GetName();
@@ -224,9 +228,9 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         }
 
         //new volume info
-        TGeoVolume * ThisVolume = NodeAfterInterface->GetVolume();
+        VolumeTo = NodeAfterInterface->GetVolume();
         if (SimSet.RunSet.SavePhotonLog) nameTo = Navigator->GetCurrentVolume()->GetName();
-        MatIndexTo = ThisVolume->GetMaterial()->GetIndex();
+        MatIndexTo = VolumeTo->GetMaterial()->GetIndex();
         MaterialTo = MatHub[MatIndexTo];
         fHaveNormal = false;
 
@@ -235,7 +239,16 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
         //qDebug()<<"coordinates: "<<Navigator->GetCurrentPoint()[0]<<Navigator->GetCurrentPoint()[1]<<Navigator->GetCurrentPoint()[2];
 
         //-----Checking overrides-----
-        AInterfaceRule * rule = RuleHub.getRuleFast(MatIndexFrom, MatIndexTo);  // !!!*** to const
+        AInterfaceRule * rule = nullptr;
+
+        if (VolumeFrom->GetTitle()[1] == '*' && VolumeTo->GetTitle()[2] == '*')
+        {
+            qDebug() << "There could be a volume override...";
+            rule = RuleHub.getVolumeRule(VolumeFrom->GetName(), VolumeTo->GetName());
+            qDebug() << rule;
+        }
+        if (!rule) rule = RuleHub.getMaterialRuleFast(MatIndexFrom, MatIndexTo);  // !!!*** to const
+
         if (rule)
         {
             //qDebug() << "Interface rule defined! Model = "<<ov->getType();
@@ -326,7 +339,7 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
 
         //const char* VolName = ThisVolume->GetName();
         //qDebug()<<"Photon entered new volume:" << VolName;
-        const char* VolTitle = ThisVolume->GetTitle();
+        const char* VolTitle = VolumeTo->GetTitle();
         //qDebug() << "Title:"<<VolTitle;
 
         switch (VolTitle[0])
@@ -403,7 +416,6 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
                 PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p->time, p->waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
         }
 
-        MatIndexFrom = MatIndexTo;
     } //while cycle: going to the next iteration
 
     // maximum number of transitions reached
