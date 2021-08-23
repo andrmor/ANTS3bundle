@@ -32,24 +32,22 @@ AInterfaceRuleWin::~AInterfaceRuleWin()
 
 void AInterfaceRuleWin::updateGui()
 {
-    NumMatRules = 0;
     updateMatGui();
     updateVolGui();
-
-    ui->labNumMatMat->setText( QString::number(NumMatRules) );
-    ui->labNumVolVol->setText( QString::number(RuleHub.VolumeRules.size()) );
 }
 
 void AInterfaceRuleWin::updateMatGui()
 {
-    const int numMat = MatHub.countMaterials();
+    ui->tabwMat->clear();
 
+    const int numMat = MatHub.countMaterials();
     ui->tabwMat->setColumnCount(numMat);
     ui->tabwMat->setRowCount(numMat);
 
     ui->tabwMat->setVerticalHeaderLabels(MatHub.getListOfMaterialNames());
     ui->tabwMat->setHorizontalHeaderLabels(MatHub.getListOfMaterialNames());
 
+    NumMatRules = 0;
     for (int ifrom = 0; ifrom < numMat; ifrom++)
         for (int ito = 0; ito < numMat; ito++)
         {
@@ -67,13 +65,16 @@ void AInterfaceRuleWin::updateMatGui()
             it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
             ui->tabwMat->setItem(ifrom, ito, it);
-        } 
+        }
+
+    ui->labNumMatMat->setText( QString::number(NumMatRules) );
 }
 
 void AInterfaceRuleWin::updateVolGui()
 {
     BulkUpdate = true; // -->
 
+    ui->tabwVolumes->clear();
     ui->tabwVolumes->setColumnCount(3);
     ui->tabwVolumes->setRowCount(RuleHub.VolumeRules.size());
 
@@ -94,9 +95,12 @@ void AInterfaceRuleWin::updateVolGui()
         it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
         ui->tabwVolumes->setItem(iRow, 2, it);
+        iRow++;
     }
 
     BulkUpdate = false; // <--
+
+    ui->labNumVolVol->setText( QString::number(RuleHub.VolumeRules.size()) );
 }
 
 void AInterfaceRuleWin::onMatCellDoubleClicked()
@@ -115,9 +119,9 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
 
 void AInterfaceRuleWin::onVolCellDoubleClicked()
 {
-    int iRow = ui->tabwVolumes->currentRow();
     int iCol = ui->tabwVolumes->currentColumn();
     if (iCol != 2) return;
+    int iRow = ui->tabwVolumes->currentRow();
 
     TString From(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
     TString To  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
@@ -140,27 +144,32 @@ void AInterfaceRuleWin::onVolCellChanged()
 {
     if (BulkUpdate) return;
 
-    int iRow = ui->tabwVolumes->currentRow();
     int iCol = ui->tabwVolumes->currentColumn();
+    if (iCol > 1) return;
+    int iRow = ui->tabwVolumes->currentRow();
 
-    const TString OldFrom(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
-    const TString OldTo  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+    TString OldFrom;
+    TString OldTo;
+    int iCounter = 0;
+    for (auto const & r : RuleHub.VolumeRules)
+    {
+        OldFrom = r.first.first;
+        OldTo   = r.first.second;
+        if (iCounter == iRow) break;
+        iCounter++;
+    }
 
     if (iCol == 0)
     {
         const TString NewFrom(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
         if (NewFrom == OldFrom) return;
-        AInterfaceRule * rule = RuleHub.getVolumeRule(OldFrom, OldTo);
-        RuleHub.removeVolumeRule(OldFrom, OldTo);
-        RuleHub.setVolumeRule(NewFrom, OldTo, rule);
+        RuleHub.moveVolumeRule(OldFrom, OldTo, NewFrom, OldTo);
     }
-    else if (iCol == 1)
+    else
     {
         const TString NewTo(ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
         if (NewTo == OldTo) return;
-        AInterfaceRule * rule = RuleHub.getVolumeRule(OldFrom, OldTo);
-        RuleHub.removeVolumeRule(OldFrom, OldTo);
-        RuleHub.setVolumeRule(OldFrom, NewTo, rule);
+        RuleHub.moveVolumeRule(OldFrom, OldTo, OldFrom, NewTo);
     }
 
     updateVolGui();
@@ -170,5 +179,5 @@ void AInterfaceRuleWin::onVolCellChanged()
 void AInterfaceRuleWin::on_pbAddNewVolumeRule_clicked()
 {
     RuleHub.setVolumeRule("NameFrom", "NameTo", new ABasicInterfaceRule(0,0));
-    updateGui();
+    updateVolGui();
 }

@@ -50,6 +50,13 @@ void AInterfaceRuleHub::removeVolumeRule(const TString & from, const TString & t
     VolumeRules.erase({from, to});
 }
 
+void AInterfaceRuleHub::moveVolumeRule(const TString & oldFrom, const TString & oldTo, const TString & newFrom, const TString & newTo)
+{
+    AInterfaceRule * rule = getVolumeRule(oldFrom, oldTo);
+    VolumeRules.erase({oldFrom, oldTo});
+    setVolumeRule(newFrom, newTo, rule);
+}
+
 void AInterfaceRuleHub::updateRuntimeProperties()
 {
     for (auto & rv : MaterialRules)

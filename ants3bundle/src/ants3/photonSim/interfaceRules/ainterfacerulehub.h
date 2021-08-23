@@ -39,6 +39,7 @@ public:
 
     void setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule);
     void removeVolumeRule(const TString & from, const TString & to);
+    void moveVolumeRule(const TString & oldFrom, const TString & oldTo, const TString & newFrom, const TString & newTo);
 
     void onMaterialRemoved(int iMat);
     void onMaterialAdded(); // a new material can only be appended to the end of the list!
