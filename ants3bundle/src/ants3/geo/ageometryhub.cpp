@@ -1240,3 +1240,28 @@ void AGeometryHub::colorVolumes(int scheme, int id)
         }
     }
 }
+
+int AGeometryHub::checkGeometryForConflicts()
+{
+    if (!GeoManager) return 0;
+
+    const double Precision = 0.01; //overlap search precision - in cm
+
+    GeoManager->ClearOverlaps();
+    int segments = GeoManager->GetNsegments();
+
+    GeoManager->CheckOverlaps(Precision);
+    TObjArray * overlaps = GeoManager->GetListOfOverlaps();
+    int overlapCount = overlaps->GetEntries();
+    if (overlapCount == 0)
+    {
+        // Repeating the search with sampling
+        //qDebug() << "No overlaps found, checking using sampling method..";
+        GeoManager->CheckOverlaps(Precision, "s"); // could be "sd", but the result is the same
+        overlaps = GeoManager->GetListOfOverlaps();
+        overlapCount = overlaps->GetEntries();
+    }
+
+    GeoManager->SetNsegments(segments);  //restore back, get auto reset during the check to some bad default value
+    return overlapCount;
+}

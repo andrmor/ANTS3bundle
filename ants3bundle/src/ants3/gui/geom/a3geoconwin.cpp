@@ -47,19 +47,11 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
 {
   ui->setupUi(this);
 
-  /*
-  Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
-  windowFlags |= Qt::WindowCloseButtonHint;
-  this->setWindowFlags(windowFlags);
-  */
-
   ui->pbBackToSandwich->setEnabled(false);
 
   // world tree widget
   twGeo = new AGeoTree();
   ui->saGeo->setWidget(twGeo->twGeoTree);
-  // !!!***
-//  connect(twGeo, SIGNAL(RequestListOfParticles(QStringList&)), Detector->MpCollection, SLOT(OnRequestListOfParticles(QStringList&)));
   connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::onRequestShowMonitorActiveDirection);
 
   // prototype tree widget
@@ -118,6 +110,7 @@ void A3GeoConWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
     emit requestRebuildGeometry();
+
 /*
   if (MW->DoNotUpdateGeometry) return; //if bulk update in progress
 
@@ -126,13 +119,13 @@ void A3GeoConWin::onRebuildDetectorRequest()
   {
       guitools::message("Errors were detected during detector construction:\n\n" + Detector->ErrorString, this);
   }
-
-  if (ui->cbAutoCheck->isChecked())
-  {
-      int nooverlaps = MW->CheckUpWindow->CheckGeoOverlaps();
-      if (nooverlaps != 0) MW->CheckUpWindow->show();
-  }
 */
+
+    if (ui->cbAutoCheck->isChecked())
+    {
+        int nooverlaps = Geometry.checkGeometryForConflicts();
+        if (nooverlaps != 0) on_pbCheckGeometry_clicked();
+    }
 }
 
 void A3GeoConWin::updateGui()
@@ -918,10 +911,18 @@ void A3GeoConWin::on_pbRootWeb_clicked()
 
 void A3GeoConWin::on_pbCheckGeometry_clicked()
 {
-    /*
-    MW->CheckUpWindow->CheckGeoOverlaps();
-    MW->CheckUpWindow->show();
-    */
+    int overlapCount = Geometry.checkGeometryForConflicts();
+    if (overlapCount == 0)
+    {
+        guitools::message("No conflicts were detected", this);
+        return;
+    }
+
+    TObjArray * overlaps = Geometry.GeoManager->GetListOfOverlaps();
+    QString text;
+    for (int i = 0; i < overlapCount; i++)
+        text += QString::fromLocal8Bit(((TNamed*)overlaps->At(i))->GetTitle()) + '\n';
+    guitools::message1(text, "Detected conflicts:", this);
 }
 
 void A3GeoConWin::on_cbAutoCheck_clicked(bool checked)
@@ -1015,14 +1016,12 @@ void A3GeoConWin::on_pbRunTestParticle_clicked()
 
 void A3GeoConWin::on_cbAutoCheck_stateChanged(int)
 {
-    /*
-  bool checked = ui->cbAutoCheck->isChecked();
-  QColor col = (checked ? Qt::black : Qt::red);
-  QPalette p = ui->cbAutoCheck->palette();
-  p.setColor(QPalette::Active, QPalette::WindowText, col );
-  p.setColor(QPalette::Inactive, QPalette::WindowText, col );
-  ui->cbAutoCheck->setPalette(p);
-  */
+    bool checked = ui->cbAutoCheck->isChecked();
+    QColor col = (checked ? Qt::black : Qt::red);
+    QPalette p = ui->cbAutoCheck->palette();
+    p.setColor(QPalette::Active, QPalette::WindowText, col );
+    p.setColor(QPalette::Inactive, QPalette::WindowText, col );
+    ui->cbAutoCheck->setPalette(p);
 }
 
 #include "aonelinetextedit.h"

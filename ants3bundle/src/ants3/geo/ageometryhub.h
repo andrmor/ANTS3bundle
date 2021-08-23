@@ -80,6 +80,8 @@ public:
     double       getWorldSizeZ() const;
     void         setWorldSizeZ(double size);
 
+    int          checkGeometryForConflicts();
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
