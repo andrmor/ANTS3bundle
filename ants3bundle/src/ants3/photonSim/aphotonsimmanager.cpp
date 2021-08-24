@@ -41,6 +41,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
         ErrorString = "Output directory does not exist!";
         return false;
     }
+    removeOutputFiles();
 
     int numEvents = 0;
     switch (SimSet.SimType)
@@ -121,6 +122,23 @@ void APhotonSimManager::processReply(const QJsonObject & json)
     if (bSuccess) return; // success
 
     ErrorString = "Unknown error";
+}
+
+void APhotonSimManager::removeOutputFiles()
+{
+    qDebug() << "Removing (if exist) files with the names listed in output files";
+
+    const QString & OutputDir = SimSet.RunSet.OutputDirectory;
+    std::vector<QString> fileNames;
+
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
+
+    for (const QString & fn : fileNames)
+        QFile::remove(fn);
 }
 
 #include "amonitorhub.h"
