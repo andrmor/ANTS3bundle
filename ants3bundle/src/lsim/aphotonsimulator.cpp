@@ -37,20 +37,16 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     Event = new AOneEvent();
     Tracer = new APhotonTracer(*Event);
 
-    /*
-    ProgressThread = new QThread();
+ // /*
     ProgressReporter = new AProgressReporter(EventsDone, 200);
+    ProgressThread = new QThread();
     ProgressReporter->moveToThread(ProgressThread);
     connect(ProgressThread, &QThread::started,  ProgressReporter,  &AProgressReporter::start);
-    */
+ // */
 }
 
 APhotonSimulator::~APhotonSimulator()
 {
-    if (ProgressThread) ProgressThread->quit();
-    delete ProgressThread;
-    delete ProgressReporter;
-
     if (FileSensorSignals) FileSensorSignals->close();
     delete StreamSensorSignals;
     delete FileSensorSignals;
@@ -62,6 +58,14 @@ APhotonSimulator::~APhotonSimulator()
     if (FileTracks) FileTracks->close();
     delete StreamTracks;
     delete FileTracks;
+
+    if (ProgressThread)
+    {
+        ProgressThread->quit();
+        ProgressThread->wait(500);
+        delete ProgressThread;
+    }
+    delete ProgressReporter;
 }
 
 void APhotonSimulator::start()
