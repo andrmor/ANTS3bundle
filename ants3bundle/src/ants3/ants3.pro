@@ -1,12 +1,18 @@
+# optional features
+CONFIG += ants3_GUI          #if commented away, GUI is not compiled
+CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
 #CONFIG += ants2_Python      #enable Python scripting
 #CONFIG += ants2_RootServer  #enable cern CERN ROOT html server
 #CONFIG += ants2_jsroot       #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
 
-CONFIG += ants2_GUI         #if disabled, GUI is not compiled
+# CERN ROOT
+INCLUDEPATH += $$system(root-config --incdir)
+LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+#ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 QT += core
-ants2_GUI {
+ants3_GUI {
     QT += gui
     QT += widgets
     DEFINES += GUI
@@ -24,11 +30,6 @@ QMAKE_CXXFLAGS += -march=native
 
 TARGET = ants3
 TEMPLATE = app
-
-# CERN ROOT
-     INCLUDEPATH += $$system(root-config --incdir)
-     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
-     ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 DEFINES += QT_DEPRECATED_WARNINGS
 # You can also make your code fail to compile if you use deprecated APIs. In order to do so, uncomment the following line.
@@ -291,7 +292,7 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-ants2_WS {
+ants3_FARM {
     QT += websockets
     DEFINES += WEBSOCKETS
 

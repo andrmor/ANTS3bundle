@@ -9,6 +9,11 @@
 
 int main(int argc, char *argv[])
 {
+#ifndef WEBSOCKETS
+    qDebug() << "Websockets are not enabled in the config. Exiting";
+    exit(1);
+#endif
+
     if (argc < 2)
     {
         qCritical() << "Executable should be called with the argument = websocket server port";

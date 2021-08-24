@@ -26,7 +26,8 @@ public:
 
 public slots:
     void start();
-    void executeCommand(QJsonObject json); // only local use
+
+    void executeLocalCommand(QJsonObject json); // farm node uses onRemoteCommandReceived to start
 
 private slots:
     void onReportProgressTimer();

@@ -1,5 +1,7 @@
-QT -= gui
+# optional features
+CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
+QT -= gui
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
@@ -38,7 +40,7 @@ HEADERS += \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h
 
-ants2_WS{
+ants3_FARM {
     QT += websockets
     DEFINES += WEBSOCKETS
 
@@ -57,5 +59,3 @@ ants2_WS{
 } else {
     QT -= websockets
 }
-
-

@@ -96,7 +96,7 @@ void A3Dispatcher::onReportProgressTimer()
     }
 }
 
-void A3Dispatcher::executeCommand(QJsonObject json)
+void A3Dispatcher::executeLocalCommand(QJsonObject json)
 {
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
@@ -141,6 +141,8 @@ void A3Dispatcher::executeCommand(QJsonObject json)
 
     waitForWorkFinished();
     //qDebug() << "DEBUG:FINISHED";
+
+    //bool ok = checkExitStatusOfWorkers();
 
     clearHandlers();
 
