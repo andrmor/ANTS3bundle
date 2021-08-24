@@ -6,6 +6,7 @@
 #include "asensorhub.h"
 #include "aphotonsimhub.h"
 #include "astatisticshub.h"
+#include "amonitorhub.h"
 #include "anoderecord.h"
 #include "aoneevent.h"
 #include "aphotontracer.h"
@@ -36,16 +37,20 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     Event = new AOneEvent();
     Tracer = new APhotonTracer(*Event);
 
-    // Progress reporter (and the following times) should live in another thread
-    //QTimer * Timer = new QTimer(this);
-    //QObject::connect(Timer, &QTimer::timeout, this, &APhotonSimulator::onProgressTimer);
-    //Timer.start(300);
-
-    //prepare simulator thread, start on start()
+    /*
+    ProgressThread = new QThread();
+    ProgressReporter = new AProgressReporter(EventsDone, 200);
+    ProgressReporter->moveToThread(ProgressThread);
+    connect(ProgressThread, &QThread::started,  ProgressReporter,  &AProgressReporter::start);
+    */
 }
 
 APhotonSimulator::~APhotonSimulator()
 {
+    if (ProgressThread) ProgressThread->quit();
+    delete ProgressThread;
+    delete ProgressReporter;
+
     if (FileSensorSignals) FileSensorSignals->close();
     delete StreamSensorSignals;
     delete FileSensorSignals;
@@ -59,7 +64,6 @@ APhotonSimulator::~APhotonSimulator()
     delete FileTracks;
 }
 
-#include "amonitorhub.h"
 void APhotonSimulator::start()
 {
     loadConfig();
@@ -67,6 +71,8 @@ void APhotonSimulator::start()
     setupCommonProperties();
 
     openOutput();
+
+    if (ProgressThread) ProgressThread->start();
 
     switch (SimSet.SimType)
     {
@@ -80,6 +86,8 @@ void APhotonSimulator::start()
         break;
     default:;
     }
+
+    if (ProgressThread) ProgressReporter->stop();
 
     if (SimSet.RunSet.SaveStatistics)
     {
@@ -520,7 +528,6 @@ bool APhotonSimulator::simulateFlood()
         simulatePhotonBombCluster(*node);
 
         EventsDone++;
-//        progress = EventsDone * UpdateFactor;
     }
 
     return true;
@@ -751,15 +758,21 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
     }
 }
 
-void APhotonSimulator::onProgressTimer()
-{
-    std::cout << "$$>" << EventsDone << "<$$\n";
-    std::cout.flush();
-    LOG << EventsDone << '\n';
-}
-
 void APhotonSimulator::terminate(const QString & reason)
 {
     LOG << reason;
     exit(1);
+}
+
+
+// ---
+
+void AProgressReporter::start()
+{
+    while (bRun)
+    {
+        std::cout << "$$>" << EventsDone << "<$$\n";
+        std::cout.flush();
+        QThread::msleep(Interval);
+    }
 }

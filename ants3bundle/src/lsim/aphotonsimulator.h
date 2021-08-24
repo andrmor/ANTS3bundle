@@ -13,6 +13,7 @@ class APhotonTracer;
 class QFile;
 class QTextStream;
 class ARandomHub;
+class AProgressReporter;
 
 class APhotonSimulator : public QObject
 {
@@ -25,9 +26,6 @@ public:
 public slots:
     void start();
 
-private slots:
-    void onProgressTimer();
-
 protected:
     QString ConfigFN;
     QString WorkingDir;
@@ -38,6 +36,9 @@ protected:
 
     APhotonTracer * Tracer = nullptr;
     AOneEvent     * Event  = nullptr;
+
+    QThread           * ProgressThread   = nullptr;
+    AProgressReporter * ProgressReporter = nullptr;
 
     APhoton Photon;
 
@@ -79,6 +80,20 @@ private:
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node);
     void    saveTrack();
+};
+
+class AProgressReporter : public QObject
+{
+    Q_OBJECT
+public:
+    AProgressReporter(int & eventsDone, double msInterval) : EventsDone(eventsDone), Interval(msInterval) {}
+
+    void start();
+    void stop() {bRun = false;}
+
+    int    & EventsDone;
+    double   Interval = 100;
+    bool     bRun     = true;
 };
 
 #endif // APHOTONSIMULATOR_H
