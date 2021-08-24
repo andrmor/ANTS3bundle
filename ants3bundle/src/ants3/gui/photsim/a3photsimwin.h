@@ -24,6 +24,8 @@ public slots:
     void updateGui();
 
 private slots:
+    void onProgressReceived(double progress);
+
     void on_pbSimulate_clicked();
 
     void on_pbdWave_clicked();
@@ -99,7 +101,7 @@ private slots:
 
 private:
     APhotonSimSettings & SimSet;
-    const AMonitorHub & MonitorHub;
+    const AMonitorHub  & MonitorHub;
 
     Ui::A3PhotSimWin * ui = nullptr;
 

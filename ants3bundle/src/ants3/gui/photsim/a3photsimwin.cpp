@@ -9,6 +9,7 @@
 #include "a3config.h"
 #include "guitools.h"
 #include "agraphbuilder.h"
+#include "adispatcherinterface.h"
 
 #include <QDebug>
 
@@ -23,6 +24,9 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     ui(new Ui::A3PhotSimWin)
 {
     ui->setupUi(this);
+
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
 
     connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, this, &A3PhotSimWin::updateGui);
 
@@ -167,6 +171,15 @@ void A3PhotSimWin::disableInterface(bool flag)
 
     ui->progbSim->setEnabled(flag);
     ui->pbAbort->setEnabled(flag);
+
+    qApp->processEvents();
+}
+
+void A3PhotSimWin::onProgressReceived(double progress)
+{
+    if (!ui->progbSim->isEnabled()) return; // simulation is not running
+
+    ui->progbSim->setValue(progress * 100.0);
 }
 
 void A3PhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()

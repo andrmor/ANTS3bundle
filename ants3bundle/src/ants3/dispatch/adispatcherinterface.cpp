@@ -23,8 +23,8 @@ ADispatcherInterface::ADispatcherInterface() : QObject(nullptr)
     //connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
     Dispatcher = new A3Dispatcher(0);
     connect(this,       &ADispatcherInterface::sendCommand, Dispatcher, &A3Dispatcher::executeLocalCommand,        Qt::QueuedConnection);
-    connect(Dispatcher, &A3Dispatcher::workFinished,   this,       &ADispatcherInterface::onWorkFinsihed,     Qt::QueuedConnection);
-    connect(Dispatcher, &A3Dispatcher::reportProgress, this,       &ADispatcherInterface::onProgressReceived, Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::workFinished,        this,       &ADispatcherInterface::onWorkFinsihed,     Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::reportProgress,      this,       &ADispatcherInterface::onProgressReceived, Qt::QueuedConnection);
 }
 
 void ADispatcherInterface::aboutToQuit()
