@@ -27,17 +27,14 @@ bool A3ProcessHandler::isRunning()
 
 bool A3ProcessHandler::start()
 {
-    if (Process)
-    {
-        ErrorString = "Already started";
-        return false;
-    }
+    if (Process) return false;
+
     EventsDone = 0;
 
     Process = new QProcess();
     Process->setProcessChannelMode(QProcess::MergedChannels);
 
-    //QObject::connect(G4antsProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----FINISHED!-----";});//this, &MainWindow::on_cameraControlExit);
+    //QObject::connect(G4antsProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----FINISHED!-----";});
     //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
     //QObject::connect(G4antsProcess,&QProcess::readyReadStandardOutput, this, &AParticleSourceSimulator::onG4ProcessSendMessage);
 
