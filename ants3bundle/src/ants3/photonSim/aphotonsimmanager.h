@@ -37,6 +37,7 @@ public slots:
 
 private:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool checkDirectories();
     void processReply(const QJsonObject & json);
     void removeOutputFiles();
     void mergeOutput();

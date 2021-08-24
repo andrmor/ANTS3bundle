@@ -98,6 +98,12 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
         runPlan.front().Split.front() += remainingEvents;
     }
 
+    // debug
+    qDebug() << "Obtained run plan over local/farm nodes:";
+    int iNode = 0;
+    for (A3FarmNodeRecord & r : runPlan)
+        qDebug() << iNode++ << ">--->" << (r.Address.isEmpty() ? "Local" : r.Address) << " Number of events:"<< r.Split;
+
     return "";
 }
 

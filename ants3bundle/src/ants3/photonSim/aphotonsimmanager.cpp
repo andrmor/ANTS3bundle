@@ -31,16 +31,9 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Photon sim triggered";
     ErrorString.clear();
 
-    if (SimSet.RunSet.OutputDirectory.isEmpty())
-    {
-        ErrorString = "Output directory is not set!";
-        return false;
-    }
-    if (!QDir(SimSet.RunSet.OutputDirectory).exists())
-    {
-        ErrorString = "Output directory does not exist!";
-        return false;
-    }
+    bool ok = checkDirectories();
+    if (!ok) return false;
+
     removeOutputFiles();
 
     int numEvents = 0;
@@ -62,9 +55,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
         break;
     case EPhotSimType::FromLRFs :
         {
-            // direct calculation here!
-            // ...
-            //return true;
+            // TODO direct calculation here! !!!***
             ErrorString = "This simulation mode is not implemented yet!";
             return false;
         }
@@ -91,18 +82,14 @@ bool APhotonSimManager::simulate(int numLocalProc)
         ErrorString = err;
         return false;
     }
-    qDebug() << "Obtained run plan over local/farm nodes:";
-    for (A3FarmNodeRecord & r : RunPlan) qDebug() << "--->" << r.Address << r.Split;
 
-    qDebug() << "Configuring simulation...";
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
-    bool ok = configureSimulation(RunPlan, Request);
+    ok = configureSimulation(RunPlan, Request);
     if (!ok) return false;
 
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
-    qDebug() << "Reply message:" << Reply;
 
     processReply(Reply);
 
@@ -112,8 +99,37 @@ bool APhotonSimManager::simulate(int numLocalProc)
     return ErrorString.isEmpty();
 }
 
+bool APhotonSimManager::checkDirectories()
+{
+    if (SimSet.RunSet.OutputDirectory.isEmpty())
+    {
+        ErrorString = "Output directory is not set!";
+        return false;
+    }
+    if (!QDir(SimSet.RunSet.OutputDirectory).exists())
+    {
+        ErrorString = "Output directory does not exist!";
+        return false;
+    }
+
+    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
+    if (ExchangeDir.isEmpty())
+    {
+        ErrorString = "Exchange directory is not set!";
+        return false;
+    }
+    if (!QDir(ExchangeDir).exists())
+    {
+        ErrorString = "Exchange directory does not exist!";
+        return false;
+    }
+    return true;
+}
+
 void APhotonSimManager::processReply(const QJsonObject & json)
 {
+     qDebug() << "Reply message:" << json;
+
     jstools::parseJson(json, "Error", ErrorString);
     if (!ErrorString.isEmpty()) return; // error
 
@@ -189,7 +205,7 @@ void APhotonSimManager::mergeOutput()
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
-    // !!!*** enforce output and exchange directories exist!
+    qDebug() << "Configuring simulation...";
 
     Request.Command = "lsim"; // name of the corresponding executable
 
