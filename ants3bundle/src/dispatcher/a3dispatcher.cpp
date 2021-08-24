@@ -1,5 +1,5 @@
 #include "a3dispatcher.h"
-#include "a3processhandler.h"  // in ANTS3 dir!
+#include "a3processhandler.h"
 #include "a3workdistrconfig.h" // in ANTS3 dir!
 #include "ajsontools.h"        // in ANTS3 dir!
 
@@ -13,7 +13,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDir>
-//#include <QSocketNotifier>
 #include <QTextStream>
 #include <QByteArray>
 #include <QFile>
@@ -26,36 +25,30 @@
 #include <ios>
 
 A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
-    QObject(parent), PortPersistentWS(port)
+    QObject(parent), WebSocketPort(port)
 {
     QString dir = QDir::currentPath();
-    StandaloneDir = dir + '/' + "Dispatcher-" + QString::number(PortPersistentWS);
+    StandaloneDir = dir + '/' + "Dispatcher-" + QString::number(WebSocketPort);
     if (!QDir(StandaloneDir).exists()) QDir().mkdir(StandaloneDir);
 
-    OutFile = new QFile(StandaloneDir + "/dispLog.txt");
-    OutFile->open(QIODevice::WriteOnly | QFile::Text);
-    LogStream = new QTextStream(OutFile);
+    LogFile = new QFile(StandaloneDir + "/dispLog.txt");
+    LogFile->open(QIODevice::WriteOnly | QFile::Text);
+    LogStream = new QTextStream(LogFile);
 
-    if (PortPersistentWS == 0)
-    {
-        //Notifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, this);
-        //connect(Notifier, SIGNAL(activated(int)), this, SLOT(executeCommand()), Qt::QueuedConnection);
-        //log("---->Dispatcher is listening on std::cin");
-    }
-    else
+    if (WebSocketPort != 0)
     {
 #ifdef WEBSOCKETS
         WebSocketServer = new AWebSocketSessionServer(StandaloneDir, this);
         connect(WebSocketServer, &AWebSocketSessionServer::remoteCommandReceived, this, &A3Dispatcher::onRemoteCommandReceived, Qt::QueuedConnection);
         log("---->Standalone dispatcher started on WS port " + QString::number(port));
 #else
-        log("->Cannot start served: compilation without WEBSOCKET flag");
+        log("->Cannot start server: compilation without WEBSOCKET flag");
 #endif
     }
 
-    ProgressReportTimer = new QTimer();
-    connect(ProgressReportTimer, &QTimer::timeout, this, &A3Dispatcher::onReportProgressTimer);
-    ProgressReportTimer->setInterval(300);
+    ProgressTimer = new QTimer();
+    connect(ProgressTimer, &QTimer::timeout, this, &A3Dispatcher::onReportProgressTimer);
+    ProgressTimer->setInterval(300);
 }
 
 A3Dispatcher::~A3Dispatcher()
@@ -63,16 +56,16 @@ A3Dispatcher::~A3Dispatcher()
     clearHandlers();
 
     log("====>Finished");
-    OutFile->close();
+    LogFile->close();
     delete LogStream;
-    delete OutFile;
+    delete LogFile;
 }
 
 void A3Dispatcher::start()
 {
 #ifdef WEBSOCKETS
-    if (PortPersistentWS != 0)
-        WebSocketServer->startListen(QHostAddress("127.0.0.1"), PortPersistentWS); // TODO -> IP from startup arguments
+    if (WebSocketPort != 0)
+        WebSocketServer->startListen(QHostAddress("127.0.0.1"), WebSocketPort); // TODO -> IP from startup arguments !!!***
 #endif
 }
 
@@ -92,7 +85,7 @@ void A3Dispatcher::onReportProgressTimer()
     {
         //std::cout << "$$>" << total << "<$$\n";
         //std::cout.flush();
-        emit updateProgress(total);
+        emit reportProgress(total);
     }
 }
 
@@ -206,7 +199,7 @@ QString A3Dispatcher::startWorkFarm(const A3WorkDistrConfig & wdc)
 
 void A3Dispatcher::waitForWorkFinished()
 {
-    ProgressReportTimer->start();
+    ProgressTimer->start();
 
     bool bAllStopped;
     do
@@ -222,7 +215,7 @@ void A3Dispatcher::waitForWorkFinished()
     }
     while (!bAllStopped);
 
-    ProgressReportTimer->stop();
+    ProgressTimer->stop();
     log("All workers finished");
     qApp->processEvents();
 }

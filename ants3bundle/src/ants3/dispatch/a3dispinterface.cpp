@@ -24,7 +24,7 @@ A3DispInterface::A3DispInterface() : QObject(nullptr)
     Dispatcher = new A3Dispatcher(0);
     connect(this,       &A3DispInterface::sendCommand, Dispatcher, &A3Dispatcher::executeLocalCommand,        Qt::QueuedConnection);
     connect(Dispatcher, &A3Dispatcher::workFinished,   this,       &A3DispInterface::onWorkFinsihed,     Qt::QueuedConnection);
-    connect(Dispatcher, &A3Dispatcher::updateProgress, this,       &A3DispInterface::onProgressReceived, Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::reportProgress, this,       &A3DispInterface::onProgressReceived, Qt::QueuedConnection);
 }
 
 void A3DispInterface::aboutToQuit()

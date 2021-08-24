@@ -7,7 +7,6 @@
 
 #include <vector>
 
-class QSocketNotifier;
 class AWebSocketSessionServer;
 class QFile;
 class QTextStream;
@@ -21,11 +20,11 @@ class A3Dispatcher : public QObject
     Q_OBJECT
 
 public:
-    A3Dispatcher(quint16 port, QObject * parent = nullptr); // port = 0 -> persistent web socket server not started
+    A3Dispatcher(quint16 port, QObject * parent = nullptr); // port = 0 -> WebSocket server not started
     ~A3Dispatcher();
 
 public slots:
-    void start();
+    void start(); // !!!*** IP from arguments too
 
     void executeLocalCommand(QJsonObject json); // farm node uses onRemoteCommandReceived to start
 
@@ -34,17 +33,15 @@ private slots:
 
 signals:
     void workFinished(QJsonObject result);
-    void updateProgress(double eventsDone);
+    void reportProgress(double eventsDone);
 
 protected:
-    quint16 PortPersistentWS = 0;
-
-    QSocketNotifier         * Notifier        = nullptr;
+    quint16       WebSocketPort = 0;
     AWebSocketSessionServer * WebSocketServer = nullptr;
 
-    QFile       * OutFile             = nullptr;
-    QTextStream * LogStream           = nullptr;
-    QTimer      * ProgressReportTimer = nullptr;
+    QFile       * LogFile       = nullptr;
+    QTextStream * LogStream     = nullptr;
+    QTimer      * ProgressTimer = nullptr;
 
     std::vector<A3WorkerHandler*> Handlers;
 
