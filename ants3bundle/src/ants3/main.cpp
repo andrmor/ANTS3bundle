@@ -1,7 +1,7 @@
 #include "a3particlesimmanager.h"
 #include "a3scriptres.h"
 #include "a3scriptmanager.h"
-#include "a3dispinterface.h"
+#include "adispatcherinterface.h"
 #include "a3global.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     A3Global & GlobSet = A3Global::getInstance();
     GlobSet.configureDirectories();
 
-    A3DispInterface & Dispatcher = A3DispInterface::getInstance();
-    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &A3DispInterface::aboutToQuit);
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
     A3ParticleSimManager * PSM      = new A3ParticleSimManager(&(*app));
 

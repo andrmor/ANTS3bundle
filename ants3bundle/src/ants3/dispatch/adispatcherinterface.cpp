@@ -1,4 +1,4 @@
-#include "a3dispinterface.h"
+#include "adispatcherinterface.h"
 #include "a3dispatcher.h"
 #include "a3global.h"
 #include "a3workdistrconfig.h"
@@ -12,22 +12,22 @@
 
 #include <cmath>
 
-A3DispInterface & A3DispInterface::getInstance()
+ADispatcherInterface & ADispatcherInterface::getInstance()
 {
-    static A3DispInterface instance;
+    static ADispatcherInterface instance;
     return instance;
 }
 
-A3DispInterface::A3DispInterface() : QObject(nullptr)
+ADispatcherInterface::ADispatcherInterface() : QObject(nullptr)
 {
     //connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
     Dispatcher = new A3Dispatcher(0);
-    connect(this,       &A3DispInterface::sendCommand, Dispatcher, &A3Dispatcher::executeLocalCommand,        Qt::QueuedConnection);
-    connect(Dispatcher, &A3Dispatcher::workFinished,   this,       &A3DispInterface::onWorkFinsihed,     Qt::QueuedConnection);
-    connect(Dispatcher, &A3Dispatcher::reportProgress, this,       &A3DispInterface::onProgressReceived, Qt::QueuedConnection);
+    connect(this,       &ADispatcherInterface::sendCommand, Dispatcher, &A3Dispatcher::executeLocalCommand,        Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::workFinished,   this,       &ADispatcherInterface::onWorkFinsihed,     Qt::QueuedConnection);
+    connect(Dispatcher, &A3Dispatcher::reportProgress, this,       &ADispatcherInterface::onProgressReceived, Qt::QueuedConnection);
 }
 
-void A3DispInterface::aboutToQuit()
+void ADispatcherInterface::aboutToQuit()
 {
     qDebug() << "AboutToExit for DispInterface";
     //emit sendMessage("$$EXIT\n");
@@ -35,12 +35,12 @@ void A3DispInterface::aboutToQuit()
     Dispatcher = nullptr;
 }
 
-A3DispInterface::~A3DispInterface()
+ADispatcherInterface::~ADispatcherInterface()
 {
     qDebug() << "Destr for DispInterface";
 }
 
-QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, int numEvents, int overrideLocalCores)
+QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores)
 {
     runPlan.clear();
 
@@ -101,7 +101,7 @@ QString A3DispInterface::prepareRunPlan(std::vector<A3FarmNodeRecord> &runPlan, 
     return "";
 }
 
-QString A3DispInterface::performTask(const A3WorkDistrConfig & Request)
+QJsonObject ADispatcherInterface::performTask(const A3WorkDistrConfig & Request)
 {
     Reply = QJsonObject();
     NumEvents = Request.NumEvents;
@@ -114,10 +114,10 @@ QString A3DispInterface::performTask(const A3WorkDistrConfig & Request)
     waitForReply();
 
     qDebug() << "...work completed, dispatcher reply:\n" << Reply;
-    return jstools::jsonToString(Reply);
+    return Reply;
 }
 
-void A3DispInterface::waitForReply()
+void ADispatcherInterface::waitForReply()
 {
     // TODO: filter reply! need "status: finished" or error
 
@@ -129,14 +129,14 @@ void A3DispInterface::waitForReply()
     return;
 }
 
-void A3DispInterface::onProgressReceived(double progress)
+void ADispatcherInterface::onProgressReceived(double progress)
 {
     double val = (NumEvents == 0 ? 0 : progress / NumEvents);
     emit updateProgress(val); // to GUI if present
 }
 
 #include <memory>
-void A3DispInterface::onWorkFinsihed(QJsonObject result)
+void ADispatcherInterface::onWorkFinsihed(QJsonObject result)
 {
     const std::lock_guard<std::mutex> lock(ReplyMutex);
     Reply = result;

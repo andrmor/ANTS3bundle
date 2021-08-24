@@ -1,5 +1,5 @@
 #include "a3particlesimmanager.h"
-#include "a3dispinterface.h"
+#include "adispatcherinterface.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3workdistrconfig.h"
@@ -13,7 +13,7 @@
 #include <QJsonDocument>
 
 A3ParticleSimManager::A3ParticleSimManager(QObject * parent) :
-    QObject(parent), Dispatch(A3DispInterface::getInstance()) {}
+    QObject(parent), Dispatch(ADispatcherInterface::getInstance()) {}
 
 A3ParticleSimManager::~A3ParticleSimManager()
 {
@@ -36,7 +36,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     }
 
     std::vector<A3FarmNodeRecord> RunPlan;
-    QString err = Dispatch.prepareRunPlan(RunPlan, numEvents, numLocalProc);
+    QString err = Dispatch.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
     {
         ErrorString = err;
@@ -50,8 +50,8 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     bool ok = configureParticleSimulation(RunPlan, Request);
     if (!ok) return false;
 
-    QString Reply = Dispatch.performTask(Request);
-    qDebug() << "Reply message:" << Reply;
+    QJsonObject Reply = Dispatch.performTask(Request);
+    qDebug() << "Reply:" << Reply;
 
     qDebug() << "Merging files...";
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;

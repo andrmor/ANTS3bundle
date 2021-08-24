@@ -8,7 +8,7 @@
 
 #include <vector>
 
-class A3DispInterface;
+class ADispatcherInterface;
 class A3WorkDistrConfig;
 
 class A3ParticleSimManager : public QObject
@@ -30,7 +30,7 @@ signals:
     void simFinished();
 
 protected:
-    A3DispInterface    & Dispatch;
+    ADispatcherInterface    & Dispatch;
 
     std::vector<QString> OutputFiles;
 

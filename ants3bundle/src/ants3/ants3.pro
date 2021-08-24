@@ -60,6 +60,7 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    dispatch/adispatcherinterface.cpp \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
     gui/aproxystyle.cpp \
@@ -129,7 +130,6 @@ SOURCES += \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
     particleSim/a3particlesimmanager.cpp \
-    dispatch/a3dispinterface.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
@@ -163,6 +163,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    dispatch/adispatcherinterface.h \
     geo/ageospecial.h \
     geo/amonitorhub.h \
     gui/aproxystyle.h \
@@ -233,7 +234,6 @@ HEADERS += \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
     particleSim/a3particlesimmanager.h \
-    dispatch/a3dispinterface.h \
     config/a3config.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \

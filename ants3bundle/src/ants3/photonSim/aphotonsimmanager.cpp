@@ -4,7 +4,7 @@
 #include "arandomhub.h"
 #include "a3config.h"
 #include "a3global.h"
-#include "a3dispinterface.h"
+#include "adispatcherinterface.h"
 #include "a3workdistrconfig.h"
 #include "astatisticshub.h"
 #include "ajsontools.h"
@@ -83,8 +83,8 @@ bool APhotonSimManager::simulate(int numLocalProc)
     if (numLocalProc < 0) numLocalProc = 4;
 
     std::vector<A3FarmNodeRecord> RunPlan;
-    A3DispInterface & Dispatcher = A3DispInterface::getInstance();
-    QString err = Dispatcher.prepareRunPlan(RunPlan, numEvents, numLocalProc);
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
     {
         ErrorString = err;
@@ -100,19 +100,34 @@ bool APhotonSimManager::simulate(int numLocalProc)
     if (!ok) return false;
 
     qDebug() << "Running simulation...";
-    QString Reply = Dispatcher.performTask(Request);
+    QJsonObject Reply = Dispatcher.performTask(Request);
     qDebug() << "Reply message:" << Reply;
 
-    qDebug() << "Merging output files...";
-    mergeOutput();
+    processReply(Reply);
+
+    if (ErrorString.isEmpty()) mergeOutput();
 
     qDebug() << "Photon simulation finished";
     return ErrorString.isEmpty();
 }
 
+void APhotonSimManager::processReply(const QJsonObject & json)
+{
+    jstools::parseJson(json, "Error", ErrorString);
+    if (!ErrorString.isEmpty()) return; // error
+
+    bool bSuccess = false;
+    jstools::parseJson(json, "Success", bSuccess);
+    if (bSuccess) return; // success
+
+    ErrorString = "Unknown error";
+}
+
 #include "amonitorhub.h"
 void APhotonSimManager::mergeOutput()
 {
+    qDebug() << "Merging output files...";
+
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
     if (SimSet.RunSet.SaveSensorSignals) ErrorString += SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);

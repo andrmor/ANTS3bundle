@@ -8,7 +8,7 @@
 
 class QJSEngine;
 class QString;
-class A3DispInterface;
+class ADispatcherInterface;
 
 class A3ScriptWorker : public QObject
 {
@@ -35,7 +35,7 @@ signals:
 
 protected:
     A3ScriptRes & ScrRes;
-    A3DispInterface * Disp = nullptr;
+    ADispatcherInterface * Disp = nullptr;
 
     QJSEngine * Engine = nullptr;
     bool bBusy = false;

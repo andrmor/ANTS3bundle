@@ -37,6 +37,7 @@ public slots:
 
 private:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    void processReply(const QJsonObject & json);
     void mergeOutput();
 
     const APhotonSimSettings & SimSet;
