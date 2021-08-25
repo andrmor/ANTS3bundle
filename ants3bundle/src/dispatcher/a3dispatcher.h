@@ -21,7 +21,7 @@ class A3Dispatcher : public QObject
     Q_OBJECT
 
 public:
-    A3Dispatcher(quint16 port, QObject * parent = nullptr); // port = 0 -> WebSocket server not started
+    A3Dispatcher(const QString & ip, quint16 port, int maxProcesses, QObject * parent = nullptr); // port = 0 -> WebSocket server not started
     ~A3Dispatcher();
 
 public slots:
@@ -37,7 +37,10 @@ signals:
     void reportProgress(double eventsDone);
 
 protected:
+    QString       IP;
     quint16       WebSocketPort = 0;
+    int           MaxNumberProcesses = 4;
+
     AWebSocketSessionServer * WebSocketServer = nullptr;
 
     QFile       * LogFile       = nullptr;
@@ -47,8 +50,6 @@ protected:
     std::vector<A3WorkerHandler*> Handlers;
 
     QString StandaloneDir;
-
-    int     MaxNumberProcesses = 4;
 
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);
@@ -63,7 +64,7 @@ protected:
 protected:
     QString startWorkFarm(const A3WorkDistrConfig & wdc); //returns error, otherwise ""
 private slots:
-    void onRemoteCommandReceived(QJsonObject json); // only server use
+    void    onRemoteCommandReceived(QJsonObject json); // only server use
 #endif
 };
 

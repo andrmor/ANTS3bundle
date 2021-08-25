@@ -24,8 +24,9 @@
 #include <iostream>
 #include <ios>
 
-A3Dispatcher::A3Dispatcher(quint16 port, QObject *parent) :
-    QObject(parent), WebSocketPort(port)
+A3Dispatcher::A3Dispatcher(const QString & ip, quint16 port, int maxProcesses, QObject *parent) :
+    QObject(parent),
+    IP(ip), WebSocketPort(port), MaxNumberProcesses(maxProcesses)
 {
     QString dir = QDir::currentPath();
     StandaloneDir = dir + '/' + "Dispatcher-" + QString::number(WebSocketPort);

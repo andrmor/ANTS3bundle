@@ -14,18 +14,23 @@ int main(int argc, char *argv[])
     exit(1);
 #endif
 
-    if (argc < 2)
+    if (argc < 4)
     {
-        qCritical() << "Executable should be called with the argument = websocket server port";
+        qCritical() << "Executable should be called with three arguments: IP port maxProcesses";
         exit(1);
     }
 
     QCoreApplication a(argc, argv);
 
-    QString portStr = argv[1];
+    QString ip = argv[1];
+
+    QString portStr = argv[2];
     quint16 port = portStr.toUShort();
 
-    A3Dispatcher Disp(port);
+    QString maxPrStr = argv[3];
+    quint16 maxPr = maxPrStr.toInt();
+
+    A3Dispatcher Disp(ip, port, maxPr);
     Disp.start();
     //A3Dispatcher * Disp = new A3Dispatcher(&a);
     //QTimer::singleShot(0, Disp, &A3Dispatcher::start);
