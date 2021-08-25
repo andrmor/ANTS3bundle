@@ -95,7 +95,7 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
         {
             double toDo = perCore + lastDelta;
             num = std::round(toDo);
-            lastDelta = num - toDo;
+            lastDelta = toDo - num;
 
             if (num > remainingEvents) num = remainingEvents;
             remainingEvents -= num;

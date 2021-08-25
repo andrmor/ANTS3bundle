@@ -13,7 +13,7 @@ public:
 
     enum EStatus {Unknown, Connecting, Available, NotResponding, Busy};
 
-    QString Name        = "Undefined";
+    QString Name        = "NotDefined";
     QString Address     = "127.0.0.1";
     int     Port        = 12345;
     int     Processes   = 1;
