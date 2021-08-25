@@ -95,9 +95,12 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
         {
             double toDo = perCore + lastDelta;
             num = std::round(toDo);
+
+            if (num == 0) num = 1;
+            if (num > remainingEvents) num = remainingEvents;
+
             lastDelta = toDo - num;
 
-            if (num > remainingEvents) num = remainingEvents;
             remainingEvents -= num;
             if (remainingEvents == 0) break;
         }
@@ -121,6 +124,8 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
 
 QJsonObject ADispatcherInterface::performTask(const A3WorkDistrConfig & Request)
 {
+    clearOutputFiles(Request);
+
     Reply = QJsonObject();
     NumEvents = Request.NumEvents;
 
@@ -158,4 +163,13 @@ void ADispatcherInterface::onWorkFinsihed(QJsonObject result)
 {
     const std::lock_guard<std::mutex> lock(ReplyMutex);
     Reply = result;
+}
+
+#include <QFile>
+void ADispatcherInterface::clearOutputFiles(const A3WorkDistrConfig & Request)
+{
+    for (const A3WorkNodeConfig & node : Request.Nodes)
+        for (const A3NodeWorkerConfig & wc : node.Workers)
+            for (const QString & fn : wc.OutputFiles)
+                QFile::remove(Request.ExchangeDir + '/' + fn);
 }

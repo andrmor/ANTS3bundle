@@ -35,7 +35,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     bool ok = checkDirectories();
     if (!ok) return false;
 
-    removeOutputFiles();
+    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
     int numEvents = 0;
     switch (SimSet.SimType)

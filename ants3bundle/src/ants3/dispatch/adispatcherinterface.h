@@ -52,6 +52,9 @@ protected:
     int            NumEvents;
     QJsonObject    Reply;
     std::mutex     ReplyMutex;
+
+private:
+    void clearOutputFiles(const A3WorkDistrConfig & Request);
 };
 
 #endif // ADISPATCHERINTERFACE_H
