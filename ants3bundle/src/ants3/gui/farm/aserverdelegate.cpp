@@ -36,7 +36,6 @@ AServerDelegate::AServerDelegate(A3FarmNodeRecord * modelRecord) : QFrame(), mod
             leName->setMaximumWidth(100);
             leName->setMinimumWidth(100);
             QObject::connect(leName, &QLineEdit::editingFinished, this, &AServerDelegate::updateModel);
-            QObject::connect(leName, &QLineEdit::editingFinished, this, &AServerDelegate::nameWasChanged);
             leName->setToolTip("Name of the dispatcher. It has only cosmetic function.");
         l->addWidget(leName);
 
@@ -91,27 +90,33 @@ AServerDelegate::AServerDelegate(A3FarmNodeRecord * modelRecord) : QFrame(), mod
         l->addWidget(lab);
         */
 
-        labThreads = new QLabel(" #Th: 0");
-            labThreads->setAlignment(Qt::AlignCenter);
-            labThreads->setToolTip("Number of threads to be used with this dispatcher.");
-        l->addWidget(labThreads);
+        labProcesses = new QLabel(" #Pr: 0");
+            labProcesses->setAlignment(Qt::AlignCenter);
+            labProcesses->setToolTip("Number of threads to be used with this dispatcher.");
+        l->addWidget(labProcesses);
 
 //        lab = new QLabel(" ");
 //            lab->setAlignment(Qt::AlignHCenter);
 //        l->addWidget(lab);
 
-        labSpeedFactor = new QLabel(" SF: 1.00 ");
-            labSpeedFactor->setAlignment(Qt::AlignCenter);
-            labSpeedFactor->setToolTip("Speed factor of this dispatcher (the larger is the factor, the more load will be given to this server).");
-        l->addWidget(labSpeedFactor);
+        QLabel * lsf = new QLabel(" SF:");
+        l->addWidget(lsf);
+        ledSpeedFactor = new QLineEdit();
+            ledSpeedFactor->setToolTip("Speed factor of this dispatcher (the larger is the factor, the more load will be given to this server).");
+            QDoubleValidator* doubleVal = new QDoubleValidator(this);
+            doubleVal->setBottom(0);
+            ledSpeedFactor->setValidator(doubleVal);
+            ledSpeedFactor->setMaximumWidth(75);
+            QObject::connect(ledSpeedFactor, &QLineEdit::editingFinished, this, &AServerDelegate::updateModel);
+        l->addWidget(ledSpeedFactor);
 
-        pbProgress = new QProgressBar();
-            pbProgress->setAlignment(Qt::AlignHCenter);
-            pbProgress->setMaximumHeight(15);
-            pbProgress->setMaximumWidth(125);
-        l->addWidget(pbProgress);
+//        pbProgress = new QProgressBar();
+//            pbProgress->setAlignment(Qt::AlignHCenter);
+//            pbProgress->setMaximumHeight(15);
+//            pbProgress->setMaximumWidth(125);
+//        l->addWidget(pbProgress);
 
-        //l->addStretch();
+        l->addStretch();
         this->setLayout(l);
 
         // done
@@ -124,26 +129,26 @@ void AServerDelegate::updateGui()
     {
     case A3FarmNodeRecord::Unknown:
         setIcon(0);
-        pbProgress->setEnabled(false);
-        pbProgress->setValue(0);
+//        pbProgress->setEnabled(false);
+//        pbProgress->setValue(0);
         break;
     case A3FarmNodeRecord::Connecting:
         setIcon(0);
-        pbProgress->setEnabled(true);
+//        pbProgress->setEnabled(true);
         break;
     case A3FarmNodeRecord::Available:
         setIcon(1);
-        pbProgress->setEnabled(true);
+//        pbProgress->setEnabled(true);
         break;
     case A3FarmNodeRecord::NotResponding:
         setIcon(2);
-        pbProgress->setEnabled(false);
-        pbProgress->setValue(0);
+//        pbProgress->setEnabled(false);
+//        pbProgress->setValue(0);
         break;
     case A3FarmNodeRecord::Busy:
         setIcon(3);
-        pbProgress->setEnabled(false);
-        pbProgress->setValue(0);
+//        pbProgress->setEnabled(false);
+//        pbProgress->setValue(0);
         break;
     }
 
@@ -152,16 +157,10 @@ void AServerDelegate::updateGui()
     leIP->setText(modelRecord->Address);
     sbPort->setValue(modelRecord->Port);
 
-    //leiThreads->setText( QString::number(modelRecord->NumThreads) );
+    labProcesses->setText(QString(" #Pr: %0").arg(modelRecord->Processes));
 
-//    QString st;
-//    if (modelRecord->NumThreads_Allocated < modelRecord->NumThreads_Possible)
-//        st =QString(" #Thr: %1/%2").arg(modelRecord->NumThreads_Allocated).arg(modelRecord->NumThreads_Possible);
-//    else
-//        st = QString(" #Thr: %1").arg(modelRecord->NumThreads_Allocated);
-//    labThreads->setText( st );
+    ledSpeedFactor->setText( QString("%0").arg(modelRecord->SpeedFactor, 3, 'f', 2) );
 
-    labSpeedFactor->setText( QString(" SF: %1 ").arg(modelRecord->SpeedFactor, 3, 'f', 2) );
 //    pbProgress->setValue(modelRecord->Progress);
 
     bool bEnabled = cbEnabled->isChecked();
@@ -183,8 +182,8 @@ void AServerDelegate::updateGui()
     }
     else
     {
-        pbProgress->setFormat("");
-        pbProgress->setValue(0);
+//        pbProgress->setFormat("");
+//        pbProgress->setValue(0);
     }
 
     emit updateSizeHint(this);
