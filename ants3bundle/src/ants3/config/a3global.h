@@ -26,6 +26,8 @@ public:
 
     int NumSegmentsTGeo = 20;
 
+    bool AutoCheckGeometry = true;
+
     QString LastSaveDir;
     QString LastLoadDir;
 

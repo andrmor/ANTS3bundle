@@ -82,6 +82,9 @@ public:
 
     int          checkGeometryForConflicts();
 
+    QString      exportToGDML(const QString & fileName) const;
+    QString      exportToROOT(const QString & fileName) const;
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 

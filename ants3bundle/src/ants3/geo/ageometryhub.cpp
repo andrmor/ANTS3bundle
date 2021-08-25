@@ -1265,3 +1265,47 @@ int AGeometryHub::checkGeometryForConflicts()
     GeoManager->SetNsegments(segments);  //restore back, get auto reset during the check to some bad default value
     return overlapCount;
 }
+
+#include <QFileInfo>
+#include "afiletools.h"
+QString AGeometryHub::exportToGDML(const QString & fileName) const
+{
+    QFileInfo fi(fileName);
+    if (fi.suffix().compare("gdml", Qt::CaseInsensitive))
+        return "File name should have .gdml extension";
+
+    QByteArray ba = fileName.toLocal8Bit();
+    const char *c_str = ba.data();
+    GeoManager->SetName("geometry");
+    GeoManager->Export(c_str);
+
+    QFile f(fileName);
+    if (f.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&f);
+        QString txt = in.readAll();
+        f.close();
+
+        if (f.remove())
+        {
+            txt.replace("unit=\"cm\"", "unit=\"mm\"");
+            bool bOK = ftools::saveTextToFile(txt, fileName);
+            if (bOK) return "";
+        }
+    }
+    return "Error during cm->mm conversion stage";
+}
+
+QString AGeometryHub::exportToROOT(const QString & fileName) const
+{
+    QFileInfo fi(fileName);
+    if (fi.suffix().compare("root", Qt::CaseInsensitive))
+        return "File name should have .root extension";
+
+    QByteArray ba = fileName.toLocal8Bit();
+    const char *c_str = ba.data();
+    GeoManager->SetName("geometry");
+    GeoManager->Export(c_str);
+
+    return "";
+}

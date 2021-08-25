@@ -34,8 +34,6 @@ private slots:
 
   void on_tabwConstants_customContextMenuRequested(const QPoint &pos);
   void on_pbSaveTGeo_clicked();
-  void on_pbLoadTGeo_clicked();
-  void on_pbBackToSandwich_clicked();
   void on_pbRootWeb_clicked();
   void on_pbCheckGeometry_clicked();
   void on_cbAutoCheck_clicked(bool checked);
@@ -60,8 +58,8 @@ private:
   bool bGeoConstsWidgetUpdateInProgress = false;
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
+
   bool    GDMLtoTGeo(const QString &fileName);
-  QString loadGDML(const QString &fileName, QString &gdml);  //returns error string - empty if OK
   void    updateGeoConstsIndication();
   QString createScript(QString &script, bool usePython);
 

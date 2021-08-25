@@ -4,19 +4,18 @@
 #include "ageoconsts.h"
 #include "amaterialhub.h"
 #include "mainwindow.h"
-//#include "checkupwindowclass.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageodelegatewidget.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-#include "guitools.h"
+#include "a3global.h"
 //#include "acommonfunctions.h"
 #include "ageometrytester.h"
-//#include "aconfiguration.h"
 #include "ajsontools.h"
 #include "afiletools.h"
+#include "guitools.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -46,8 +45,6 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   ui(new Ui::A3GeoConWin)
 {
   ui->setupUi(this);
-
-  ui->pbBackToSandwich->setEnabled(false);
 
   // world tree widget
   twGeo = new AGeoTree();
@@ -92,7 +89,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
       w->setValidator(dv);
 
-  //ui->cbAutoCheck->setChecked( MW->GlobSet.PerformAutomaticGeometryCheck );
+  ui->cbAutoCheck->setChecked( A3Global::getConstInstance().AutoCheckGeometry );
   on_cbAutoCheck_stateChanged(111);
 
   //if (!MW->PythonScriptWindow) ui->actionTo_Python->setEnabled(false);
@@ -373,22 +370,6 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
     }
 }
 
-void A3GeoConWin::on_pbSaveTGeo_clicked()
-{
-    /*
-  QString starter = MW->GlobSet.LastOpenDir;
-  QFileDialog *fileDialog = new QFileDialog;
-  fileDialog->setDefaultSuffix("gdml");
-  QString fileName = fileDialog->getSaveFileName(this, "Export detector geometry", starter, "GDML files (*.gdml)");
-  if (fileName.isEmpty()) return;
-  MW->GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-
-  QString err = Detector->exportToGDML(fileName);
-
-  if (!err.isEmpty()) guitools::message(err, this);
-  */
-}
-
 void ShowNodes(const TGeoNode* node, int level)
 {
     int numNodes = node->GetNdaughters();
@@ -666,181 +647,6 @@ void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
     }    
 }
 
-bool A3GeoConWin::GDMLtoTGeo(const QString& fileName)
-{
-    /*
-    QString txt;
-    bool bOK = LoadTextFromFile(fileName, txt);
-    if (!bOK)
-    {
-        guitools::message("Cannot read the file", this);
-        return false;
-    }
-
-    if (txt.contains("unit=\"cm\"") || txt.contains("unit=\"m\""))
-    {
-        guitools::message("Cannot load GDML files with length units other than \"mm\"", this);
-        return false;
-    }
-
-    txt.replace("unit=\"mm\"", "unit=\"cm\"");
-    QString tmpFileName = MW->GlobSet.TmpDir + "/gdmlTMP.gdml";
-    bOK = SaveTextToFile(tmpFileName, txt);
-    if (!bOK)
-    {
-        guitools::message("Conversion failed - tmp file cannot be allocated", this);
-        return false;
-    }
-
-    Detector->GeoManager = TGeoManager::Import(tmpFileName.toLatin1());
-    QFile(tmpFileName).remove();
-    */
-    return true;
-}
-
-void A3GeoConWin::on_pmParseInGeometryFromGDML_clicked()
-{
-    /*
-    QString fileName = QFileDialog::getOpenFileName(this, "Load GDML file", MW->GlobSet.LastOpenDir, "GDML files (*.gdml)");
-    if (fileName.isEmpty()) return;
-    MW->GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-    QFileInfo fi(fileName);
-    if (fi.suffix() != "gdml")
-      {
-        guitools::message("Only GDML files are accepted!", this);
-        return;
-      }
-
-    MW->Config->LoadConfig(MW->GlobSet.ExamplesDir + "/Empty.json");
-
-    QString PMtemplate = ui->lePMtemplate->text();
-    if (PMtemplate.isEmpty()) PMtemplate = "_.._#"; //clumsy, but otherwise propagate changes to readGeoObjectTree
-
-    delete Detector->GeoManager; Detector->GeoManager = nullptr;
-    GDMLtoTGeo(fileName.toLatin1());
-    if (!Detector->GeoManager || !Detector->GeoManager->IsClosed())
-    {
-        guitools::message("Load failed!", this);
-        Detector->BuildDetector();
-        return;
-    }
-    qDebug() << "--> tmp GeoManager loaded from GDML file";
-
-    const TGeoNode* top = Detector->GeoManager->GetTopNode();
-    //ShowNodes(top, 0); //just qDebug output
-
-    //==== materials ====
-    AMaterialParticleCollection tmpMats;
-    TObjArray* list = Detector->GeoManager->GetListOfVolumes();
-    int size = list->GetEntries();
-    qDebug() << "  Number of defined volumes:"<<size;
-    for (int i=0; i<size; i++)
-    {
-        TGeoVolume* vol = (TGeoVolume*)list->At(i);
-        QString MatName = vol->GetMaterial()->GetName();
-        int iMat = tmpMats.FindMaterial(MatName);
-        if (iMat == -1)
-        {
-          tmpMats.AddNewMaterial(MatName);
-          qDebug() << "Added mat:"<<MatName;
-        }
-    }
-    QJsonObject mats;
-    tmpMats.writeToJson(mats);
-    Detector->MpCollection->readFromJson(mats);
-
-    //==== PM types ====
-    Detector->PMs->clearPMtypes();
-    Detector->PMarrays[0].Regularity = 2;
-    Detector->PMarrays[0].fActive = true;
-    Detector->PMarrays[1].fActive = false;
-    Detector->PMarrays[0].PositionsAnglesTypes.clear();
-    Detector->PMarrays[1].PositionsAnglesTypes.clear();
-    int counter = 0;
-    for (int i=0; i<size; i++)
-    {
-        TGeoVolume* vol = (TGeoVolume*)list->At(i);
-        QString Vname = vol->GetName();
-        if (!Vname.startsWith(PMtemplate)) continue;
-
-        QString PMshape = vol->GetShape()->ClassName();
-        qDebug() << "Found new PM type:"<<Vname<<"Shape:"<<PMshape;
-        APmType *type = new APmType();
-        type->Name = PMtemplate + QString::number(counter);
-        type->MaterialIndex = tmpMats.FindMaterial(vol->GetMaterial()->GetName());
-        type->tmpVol = vol;
-        if (PMshape=="TGeoBBox")
-        {
-            TGeoBBox* b = static_cast<TGeoBBox*>(vol->GetShape());
-            type->SizeX = 2.0*b->GetDX();
-            type->SizeY = 2.0*b->GetDY();
-            type->SizeZ = 2.0*b->GetDZ();
-            type->Shape = 0;
-        }
-        else if (PMshape=="TGeoTube" || PMshape=="TGeoTubeSeg")
-        {
-            TGeoTube* b = static_cast<TGeoTube*>(vol->GetShape());
-            type->SizeX = 2.0*b->GetRmax();
-            type->SizeZ = 2.0*b->GetDz();
-            type->Shape = 1;
-        }
-        else
-        {
-            qWarning() << "non-implemented sensor shape:"<<PMshape<<" - making cylinder";
-            type->SizeX = 12.3456789;
-            type->SizeZ = 12.3456789;
-            type->Shape = 1;
-        }
-        Detector->PMs->appendNewPMtype(type);
-        counter++;
-    }
-    if (counter==0) Detector->PMs->appendNewPMtype(new APmType()); //maybe there are no PMs in the file or template error
-
-    //==== geometry ====
-    qDebug() << "Processing geometry";
-    Detector->Sandwich->clearWorld();
-    readGeoObjectTree(Detector->Sandwich->World, top, &tmpMats, PMtemplate, Detector, Detector->GeoManager->GetCurrentNavigator(), "/");
-    Detector->Sandwich->World->makeItWorld(); //just to reset the name
-    AGeoBox * wb = dynamic_cast<AGeoBox*>(Detector->Sandwich->World->Shape);
-    if (wb)
-    {
-        Detector->Sandwich->setWorldSizeXY( std::max(wb->dx, wb->dy) );
-        Detector->Sandwich->setWorldSizeZ(wb->dz);
-    }
-    Detector->Sandwich->setWorldSizeFixed(wb);
-
-    Detector->GeoManager->FindNode(0,0,0);
-    //qDebug() << "----------------------------"<<Detector->GeoManager->GetPath();
-
-    Detector->writeToJson(MW->Config->JSON);
-    //SaveJsonToFile(MW->Config->JSON, "D:/temp/CONFIGJSON.json");
-    qDebug() << "Rebuilding detector...";
-    Detector->BuildDetector();
-    */
-}
-
-QString A3GeoConWin::loadGDML(const QString& fileName, QString& gdml)
-{
-    /*
-    QFileInfo fi(fileName);
-    if (fi.suffix() != "gdml")
-        return "Only GDML files are accepted!";
-
-    QFile f(fileName);
-    if (!f.open(QFile::ReadOnly | QFile::Text))
-        return QString("Cannot open file %1").arg(fileName);
-
-    QTextStream in(&f);
-    gdml = in.readAll();
-
-    if (gdml.contains("unit=\"cm\"") || gdml.contains("unit=\"m\""))
-        return "Cannot load GDML files with length units other than \"mm\"";
-
-    gdml.replace("unit=\"mm\"", "unit=\"cm\"");
-    */
-    return "";
-}
-
 void A3GeoConWin::resizeEvent(QResizeEvent *event)
 {
     if (!isVisible()) return;
@@ -861,47 +667,6 @@ void A3GeoConWin::resizeEvent(QResizeEvent *event)
 
     //AGuiWindow::resizeEvent(event);
     QMainWindow::resizeEvent(event);
-}
-
-void A3GeoConWin::on_pbLoadTGeo_clicked()
-{
-    /*
-    QString gdml;
-
-    QString fileName = QFileDialog::getOpenFileName(this, "Load GDML file", MW->GlobSet.LastOpenDir, "GDML files (*.gdml)");
-    if (fileName.isEmpty()) return;
-    MW->GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-
-    const QString err = loadGDML(fileName, gdml);
-    if (!err.isEmpty())
-    {
-        guitools::message(err, this);
-        return;
-    }
-
-    //attempting to load and validity check
-    bool fOK = Detector->importGDML(gdml);
-    if (fOK)
-    {
-        //qDebug() << "--> GDML successfully registered";
-        MW->NumberOfPMsHaveChanged();
-        MW->GeometryWindow->ShowGeometry();
-    }
-    else guitools::message(Detector->ErrorString, this);
-
-    MW->onGDMLstatusChage(fOK); //update MW GUI
-    ui->pbBackToSandwich->setEnabled(fOK);
-    */
-}
-
-void A3GeoConWin::on_pbBackToSandwich_clicked()
-{
-    /*
-  Detector->clearGDML();
-  MW->onGDMLstatusChage(false); //update MW GUI
-  MW->ReconstructDetector();
-  ui->pbBackToSandwich->setEnabled(false);
-  */
 }
 
 void A3GeoConWin::on_pbRootWeb_clicked()
@@ -927,10 +692,7 @@ void A3GeoConWin::on_pbCheckGeometry_clicked()
 
 void A3GeoConWin::on_cbAutoCheck_clicked(bool checked)
 {
-    /*
-    MW->GlobSet.PerformAutomaticGeometryCheck = checked;
-    if (!checked) MW->CheckUpWindow->hide();
-    */
+    A3Global::getInstance().AutoCheckGeometry = checked;
 }
 
 void A3GeoConWin::on_pbRunTestParticle_clicked()
@@ -1377,4 +1139,177 @@ void A3GeoConWin::on_actionTo_JavaScript_triggered()
 void A3GeoConWin::on_cbShowPrototypes_toggled(bool checked)
 {
     ui->saPrototypes->setVisible(checked);
+}
+
+// --- export ----
+
+void A3GeoConWin::on_pbSaveTGeo_clicked()
+{
+    QString fileName = guitools::dialogSaveFile(this, "Export geometry to file (use .gdml or .root suffix)", "GDML files (*.gdml);;Root files(*.root)");
+    if (fileName.isEmpty()) return;
+
+    if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".gdml";
+
+    QString err;
+    if (QFileInfo(fileName).suffix() == "root") err = Geometry.exportToROOT(fileName);
+    else                                        err = Geometry.exportToGDML(fileName);
+
+    if (!err.isEmpty()) guitools::message(err, this);
+}
+
+// --- import ---
+
+// to GeometryHub !!!***
+
+void A3GeoConWin::on_pmParseInGeometryFromGDML_clicked()
+{
+    /*
+    QString fileName = QFileDialog::getOpenFileName(this, "Load GDML file", MW->GlobSet.LastOpenDir, "GDML files (*.gdml)");
+    if (fileName.isEmpty()) return;
+    MW->GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
+    QFileInfo fi(fileName);
+    if (fi.suffix() != "gdml")
+      {
+        guitools::message("Only GDML files are accepted!", this);
+        return;
+      }
+
+    MW->Config->LoadConfig(MW->GlobSet.ExamplesDir + "/Empty.json");
+
+    QString PMtemplate = ui->lePMtemplate->text();
+    if (PMtemplate.isEmpty()) PMtemplate = "_.._#"; //clumsy, but otherwise propagate changes to readGeoObjectTree
+
+    delete Detector->GeoManager; Detector->GeoManager = nullptr;
+    GDMLtoTGeo(fileName.toLatin1());
+    if (!Detector->GeoManager || !Detector->GeoManager->IsClosed())
+    {
+        guitools::message("Load failed!", this);
+        Detector->BuildDetector();
+        return;
+    }
+    qDebug() << "--> tmp GeoManager loaded from GDML file";
+
+    const TGeoNode* top = Detector->GeoManager->GetTopNode();
+    //ShowNodes(top, 0); //just qDebug output
+
+    //==== materials ====
+    AMaterialParticleCollection tmpMats;
+    TObjArray* list = Detector->GeoManager->GetListOfVolumes();
+    int size = list->GetEntries();
+    qDebug() << "  Number of defined volumes:"<<size;
+    for (int i=0; i<size; i++)
+    {
+        TGeoVolume* vol = (TGeoVolume*)list->At(i);
+        QString MatName = vol->GetMaterial()->GetName();
+        int iMat = tmpMats.FindMaterial(MatName);
+        if (iMat == -1)
+        {
+          tmpMats.AddNewMaterial(MatName);
+          qDebug() << "Added mat:"<<MatName;
+        }
+    }
+    QJsonObject mats;
+    tmpMats.writeToJson(mats);
+    Detector->MpCollection->readFromJson(mats);
+
+    //==== PM types ====
+    Detector->PMs->clearPMtypes();
+    Detector->PMarrays[0].Regularity = 2;
+    Detector->PMarrays[0].fActive = true;
+    Detector->PMarrays[1].fActive = false;
+    Detector->PMarrays[0].PositionsAnglesTypes.clear();
+    Detector->PMarrays[1].PositionsAnglesTypes.clear();
+    int counter = 0;
+    for (int i=0; i<size; i++)
+    {
+        TGeoVolume* vol = (TGeoVolume*)list->At(i);
+        QString Vname = vol->GetName();
+        if (!Vname.startsWith(PMtemplate)) continue;
+
+        QString PMshape = vol->GetShape()->ClassName();
+        qDebug() << "Found new PM type:"<<Vname<<"Shape:"<<PMshape;
+        APmType *type = new APmType();
+        type->Name = PMtemplate + QString::number(counter);
+        type->MaterialIndex = tmpMats.FindMaterial(vol->GetMaterial()->GetName());
+        type->tmpVol = vol;
+        if (PMshape=="TGeoBBox")
+        {
+            TGeoBBox* b = static_cast<TGeoBBox*>(vol->GetShape());
+            type->SizeX = 2.0*b->GetDX();
+            type->SizeY = 2.0*b->GetDY();
+            type->SizeZ = 2.0*b->GetDZ();
+            type->Shape = 0;
+        }
+        else if (PMshape=="TGeoTube" || PMshape=="TGeoTubeSeg")
+        {
+            TGeoTube* b = static_cast<TGeoTube*>(vol->GetShape());
+            type->SizeX = 2.0*b->GetRmax();
+            type->SizeZ = 2.0*b->GetDz();
+            type->Shape = 1;
+        }
+        else
+        {
+            qWarning() << "non-implemented sensor shape:"<<PMshape<<" - making cylinder";
+            type->SizeX = 12.3456789;
+            type->SizeZ = 12.3456789;
+            type->Shape = 1;
+        }
+        Detector->PMs->appendNewPMtype(type);
+        counter++;
+    }
+    if (counter==0) Detector->PMs->appendNewPMtype(new APmType()); //maybe there are no PMs in the file or template error
+
+    //==== geometry ====
+    qDebug() << "Processing geometry";
+    Detector->Sandwich->clearWorld();
+    readGeoObjectTree(Detector->Sandwich->World, top, &tmpMats, PMtemplate, Detector, Detector->GeoManager->GetCurrentNavigator(), "/");
+    Detector->Sandwich->World->makeItWorld(); //just to reset the name
+    AGeoBox * wb = dynamic_cast<AGeoBox*>(Detector->Sandwich->World->Shape);
+    if (wb)
+    {
+        Detector->Sandwich->setWorldSizeXY( std::max(wb->dx, wb->dy) );
+        Detector->Sandwich->setWorldSizeZ(wb->dz);
+    }
+    Detector->Sandwich->setWorldSizeFixed(wb);
+
+    Detector->GeoManager->FindNode(0,0,0);
+    //qDebug() << "----------------------------"<<Detector->GeoManager->GetPath();
+
+    Detector->writeToJson(MW->Config->JSON);
+    //SaveJsonToFile(MW->Config->JSON, "D:/temp/CONFIGJSON.json");
+    qDebug() << "Rebuilding detector...";
+    Detector->BuildDetector();
+    */
+}
+
+bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
+{
+    /*
+    QString txt;
+    bool bOK = LoadTextFromFile(fileName, txt);
+    if (!bOK)
+    {
+        guitools::message("Cannot read the file", this);
+        return false;
+    }
+
+    if (txt.contains("unit=\"cm\"") || txt.contains("unit=\"m\""))
+    {
+        guitools::message("Cannot load GDML files with length units other than \"mm\"", this);
+        return false;
+    }
+
+    txt.replace("unit=\"mm\"", "unit=\"cm\"");
+    QString tmpFileName = MW->GlobSet.TmpDir + "/gdmlTMP.gdml";
+    bOK = SaveTextToFile(tmpFileName, txt);
+    if (!bOK)
+    {
+        guitools::message("Conversion failed - tmp file cannot be allocated", this);
+        return false;
+    }
+
+    Detector->GeoManager = TGeoManager::Import(tmpFileName.toLatin1());
+    QFile(tmpFileName).remove();
+    */
+    return true;
 }
