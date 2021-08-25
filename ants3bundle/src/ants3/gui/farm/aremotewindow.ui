@@ -105,7 +105,11 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QListWidget" name="lwServers"/>
+       <widget class="QListWidget" name="lwServers">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -245,5 +249,22 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cbUseFarm</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lwServers</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>78</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

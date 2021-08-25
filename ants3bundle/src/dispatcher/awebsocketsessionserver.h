@@ -27,6 +27,7 @@ public:
     void    sendProgress(int eventsDone);
     void    sendError(const QString& error);
     void    sendWorkFinished(const QString& error);
+    void    sendStatus(int MaxNumberProcesses);
 
     bool    isBinaryEmpty() const;
     void    clearBinary();

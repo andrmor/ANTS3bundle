@@ -21,22 +21,37 @@ bool A3WSClient::start()
     if (!ok)
     {
         ErrorString = "Cannot conect";
+        reportFinished();
         return false;
     }
 
     for (const A3NodeWorkerConfig & worker : Node.Workers)
     {
-        bool ok = Session->sendFile(ExchangeDir + '/' + worker.ConfigFile, worker.ConfigFile);
-        if (!ok) return false;
+        bool ok = true;
+        if (!worker.ConfigFile.isEmpty())
+            ok = Session->sendFile(ExchangeDir + '/' + worker.ConfigFile, worker.ConfigFile);
+        if (!ok)
+        {
+            reportFinished();
+            return false;
+        }
         for (const QString & fn : worker.InputFiles)
         {
             ok = Session->sendFile(ExchangeDir + '/' + fn, fn);
-            if (!ok) return false;
+            if (!ok)
+            {
+                reportFinished();
+                return false;
+            }
         }
         for (const QString & fn : CommonFiles)
         {
             ok = Session->sendFile(ExchangeDir + '/' + fn, fn);
-            if (!ok) return false;
+            if (!ok)
+            {
+                reportFinished();
+                return false;
+            }
         }
     }
 
@@ -63,6 +78,11 @@ void A3WSClient::onWorkFinished(QString message)
         }
     }
 
+    reportFinished(message);
+}
+
+void A3WSClient::reportFinished(QString message)
+{
     emit remoteWorkFinished(message);
     emit finished();
 }

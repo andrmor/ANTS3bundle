@@ -249,6 +249,12 @@ void AWebSocketSessionServer::sendWorkFinished(const QString &error)
         Client->sendTextMessage("{ \"status\" : \"finished\", \"error\" : \"" + error + "\" }");
 }
 
+void AWebSocketSessionServer::sendStatus(int MaxNumberProcesses)
+{
+    if (Client && Client->state() == QAbstractSocket::ConnectedState)
+        Client->sendTextMessage( QString("{ \"status\" : \"free\", \"processes\" : %0 }").arg(MaxNumberProcesses) );
+}
+
 void AWebSocketSessionServer::sendError(const QString &error)
 {
     if (Client && Client->state() == QAbstractSocket::ConnectedState)

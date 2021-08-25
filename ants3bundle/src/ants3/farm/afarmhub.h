@@ -28,14 +28,20 @@ public:
     bool UseFarm        = false;
     const std::vector<A3FarmNodeRecord*> & getNodes() const {return FarmNodes;}
 
+    double TimeoutMs    = 10000;
+
     void addNewNode();
     bool addNode(const QString & name, const QString & ip, int port, int maxProcesses, double speedFactor);
 
     bool removeNode(int index);
     void clearNodes();
 
+    void checkFarmStatus();
+
 private:
     std::vector<A3FarmNodeRecord*> FarmNodes;
+
+    bool isIPandPortAlreadyExist(const QString & address, int port) const;
 
 };
 

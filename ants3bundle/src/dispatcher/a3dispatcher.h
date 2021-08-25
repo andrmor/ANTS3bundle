@@ -14,6 +14,7 @@ class QTimer;
 class A3WorkerHandler;
 class A3WorkNodeConfig;
 class A3WorkDistrConfig;
+class A3FarmNodeRecord;
 
 class A3Dispatcher : public QObject
 {
@@ -26,7 +27,7 @@ public:
 public slots:
     void start(); // !!!*** IP from arguments too
 
-    void executeLocalCommand(QJsonObject json); // farm node uses onRemoteCommandReceived to start
+    void executeLocalCommand(QJsonObject json);
 
 private slots:
     void onReportProgressTimer();
@@ -47,12 +48,16 @@ protected:
 
     QString StandaloneDir;
 
+    int     MaxNumberProcesses = 4;
+
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);
     void    log(const QString & text);
     bool    startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
     void    waitForWorkFinished();
     void    clearHandlers();
+
+    void    checkFarmStatus(const A3WorkDistrConfig & wdc);
 
 #ifdef WEBSOCKETS
 protected:

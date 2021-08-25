@@ -94,6 +94,12 @@ void A3Dispatcher::executeLocalCommand(QJsonObject json)
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
 
+    if (wdc.Command == "check")
+    {
+        checkFarmStatus(wdc);
+        return;
+    }
+
     //qDebug() << "Current dir:\n" << QDir::currentPath();
     //qDebug() << "Exchange dir:\n" << wdc.ExchangeDir;
 
@@ -163,6 +169,13 @@ void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
 {
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
+
+    if (wdc.Command == "check")
+    {
+        qDebug() << "Received status request, answering with max number of processes of " << MaxNumberProcesses;
+        WebSocketServer->sendStatus(MaxNumberProcesses);
+        return;
+    }
 
     A3WorkNodeConfig & Node = wdc.Nodes.front();
 
@@ -247,4 +260,49 @@ void A3Dispatcher::clearHandlers()
 {
     for (A3WorkerHandler * h : Handlers) delete h;
     Handlers.clear();
+}
+
+void A3Dispatcher::checkFarmStatus(const A3WorkDistrConfig & wdc)
+{
+    qDebug() << "Checking farm status";
+
+#ifdef WEBSOCKETS
+    for (size_t iNode = 0; iNode < wdc.Nodes.size(); iNode++)
+    {
+        const A3WorkNodeConfig & Node = wdc.Nodes[iNode];
+        {
+            qDebug() << "...testing connection to to farm node " << Node.Address << ":" << Node.Port;
+            A3RemoteHandler * h = new A3RemoteHandler(Node, wdc.Command, wdc.ExchangeDir, wdc.CommonFiles);
+            Handlers.push_back(h);
+            h->start();
+        }
+    }
+
+    waitForWorkFinished();
+    //qDebug() << "...finished";
+
+    // !!!*** busy status?
+    QJsonArray NodeStatus; // #processes, -1 if failed to connect
+
+    for (A3WorkerHandler * h : Handlers)
+    {
+        A3RemoteHandler * rh = static_cast<A3RemoteHandler*>(h);
+
+        QJsonObject json = jstools::strToJson(rh->Reply);
+        qDebug() << "------------------>" << h->ErrorString << rh->Reply;
+        int processes = -1;
+        jstools::parseJson(json, "processes", processes);
+        NodeStatus.push_back(processes);
+    }
+
+    clearHandlers();
+
+    QJsonObject js;
+    js["NodeStatus"] = NodeStatus;
+    emit workFinished(js);
+
+#else
+    qDebug() << "WebSockets are not enabled!";
+    localReplyFinished();
+#endif
 }

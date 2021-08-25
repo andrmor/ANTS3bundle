@@ -37,6 +37,7 @@ HEADERS += \
     a3dispatcher.h \
     a3processhandler.h \
     ../ants3/dispatch/a3workdistrconfig.h \
+    ../ants3/farm/a3farmnoderecord.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h
 

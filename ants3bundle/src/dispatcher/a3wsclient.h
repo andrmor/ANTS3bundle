@@ -39,6 +39,8 @@ protected:
     std::vector<QString> CommonFiles;
 
     AWebSocketSession  * Session = nullptr;
+
+    void reportFinished(QString message = "");
 };
 
 #endif // A3WSCLIENT_H

@@ -47,6 +47,7 @@ void ARemoteWindow::updateGui()
     ui->cbUseLocal->setChecked(FarmHub.UseLocal);
     ui->sbLocalProcesses->setValue(FarmHub.LocalProcesses);
     ui->cbUseFarm ->setChecked(FarmHub.UseFarm);
+    ui->leiTimeout->setText(QString::number(FarmHub.TimeoutMs));
 }
 
 void ARemoteWindow::onBusy(bool flag)
@@ -55,6 +56,7 @@ void ARemoteWindow::onBusy(bool flag)
     ui->pbRemove->setDisabled(flag);
     ui->pbStatus->setDisabled(flag);
     ui->pbRateServers->setDisabled(flag);
+    ui->lwServers->setDisabled(flag);
 }
 
 void ARemoteWindow::addNewNodeDelegate(A3FarmNodeRecord * record)
@@ -108,22 +110,16 @@ void ARemoteWindow::onGuiUpdate()
 void ARemoteWindow::on_pbStatus_clicked()
 {
     onBusy(true);
-    QString err = ""; // FarmHub.checkStatus(); !!!***
+    qApp->processEvents();
+    FarmHub.checkFarmStatus();
     onBusy(false);
 
-    if (!err.isEmpty()) guitools::message(err, this);
-    else
-    {
-        ui->pbRateServers->setEnabled(true);
-    }
+    updateGui();
+
+//    ui->pbRateServers->setEnabled(true);
 }
 
 void ARemoteWindow::on_pbRateServers_clicked()
-{
-
-}
-
-void ARemoteWindow::on_leiTimeout_editingFinished()
 {
 
 }
@@ -156,4 +152,9 @@ void ARemoteWindow::on_sbLocalProcesses_editingFinished()
 void ARemoteWindow::on_cbUseFarm_clicked(bool checked)
 {
     FarmHub.UseFarm = checked;
+}
+
+void ARemoteWindow::on_leiTimeout_editingFinished()
+{
+    FarmHub.TimeoutMs = ui->leiTimeout->text().toDouble();
 }

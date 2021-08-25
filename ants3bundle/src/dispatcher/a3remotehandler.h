@@ -40,6 +40,9 @@ protected:
     A3WSClient         * Client = nullptr;
 
     bool                 bRunning = true;
+
+public:
+    QString              Reply;
 };
 
 #endif // A3REMOTEHANDLER_H
