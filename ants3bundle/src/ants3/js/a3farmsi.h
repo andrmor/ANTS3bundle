@@ -1,12 +1,10 @@
 #ifndef A3FARMSI_H
 #define A3FARMSI_H
 
-#include "a3farmnoderecord.h"
-
 #include <QObject>
 #include <QString>
 
-#include <vector>
+class AFarmHub;
 
 class A3FarmSI : public QObject
 {
@@ -21,7 +19,7 @@ public slots:
     void addNode(QString Name, QString Address, int Port, int Cores, double SpeedFactor = 1.0);
 
 private:
-    std::vector<A3FarmNodeRecord> & FarmNodes;
+    AFarmHub & FarmHub;
 };
 
 #endif // A3FARMSI_H

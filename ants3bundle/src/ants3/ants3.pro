@@ -43,6 +43,7 @@ INCLUDEPATH += gui/raster
 INCLUDEPATH += gui/materials
 INCLUDEPATH += gui/photsim
 INCLUDEPATH += gui/graph
+INCLUDEPATH += gui/farm
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
@@ -61,11 +62,14 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     dispatch/adispatcherinterface.cpp \
+    farm/afarmhub.cpp \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
     gui/aproxystyle.cpp \
     gui/arootmarkerconfigurator.cpp \
     gui/aroottextconfigurator.cpp \
+    gui/farm/aremotewindow.cpp \
+    gui/farm/aserverdelegate.cpp \
     gui/geom/ageometrytester.cpp \
     gui/graph/aaxesdialog.cpp \
     gui/graph/abasketitem.cpp \
@@ -164,11 +168,14 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     dispatch/adispatcherinterface.h \
+    farm/afarmhub.h \
     geo/ageospecial.h \
     geo/amonitorhub.h \
     gui/aproxystyle.h \
     gui/arootmarkerconfigurator.h \
     gui/aroottextconfigurator.h \
+    gui/farm/aremotewindow.h \
+    gui/farm/aserverdelegate.h \
     gui/geom/ageometrytester.h \
     gui/graph/aaxesdialog.h \
     gui/graph/abasketitem.h \
@@ -268,6 +275,7 @@ HEADERS += \
 
 FORMS += \
         gui/aroottextconfigurator.ui \
+        gui/farm/aremotewindow.ui \
         gui/graph/aaxesdialog.ui \
         gui/graph/alegenddialog.ui \
         gui/graph/alinemarkerfilldialog.ui \

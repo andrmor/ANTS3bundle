@@ -26,6 +26,7 @@ APhotonSimManager::APhotonSimManager() :
     SimSet(APhotonSimHub::getInstance().Settings)
 {}
 
+#include "afarmhub.h"
 bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";
@@ -70,10 +71,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
         return false;
     }
 
-    // configure number of lical/remote processes to run
-    //A3Global & GlobSet = A3Global::getInstance();
-    if (numLocalProc < 0) numLocalProc = 4;
-
+    // configure number of local/remote processes to run
     std::vector<A3FarmNodeRecord> RunPlan;
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);

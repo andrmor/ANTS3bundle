@@ -4,6 +4,7 @@
 #include "adispatcherinterface.h"
 #include "a3scriptres.h"
 #include "a3config.h"
+#include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "a3particlesimmanager.h"
@@ -14,6 +15,7 @@
 #include "a3photsimwin.h"
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
+#include "aremotewindow.h"
 
 #include <QDebug>
 
@@ -62,6 +64,8 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
 
     GraphWin = new GraphWindowClass(this);
     connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+
+    FarmWin = new ARemoteWindow(this);
 }
 
 MainWindow::~MainWindow()
@@ -70,7 +74,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-#include "ageometryhub.h"
 void MainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
@@ -166,7 +169,6 @@ void MainWindow::on_pbAbort_clicked()
     ScriptManager.abort();
 }
 
-
 void MainWindow::on_pbGeometry_clicked()
 {
     GeoConWin->showNormal();
@@ -191,7 +193,7 @@ void MainWindow::on_actionSave_configuration_triggered()
     QJsonObject json;
     A3Config::getInstance().writeToJson(json);
 
-    QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");  // !!!***
     if (fileName.isEmpty()) return;
 
     jstools::saveJsonToFile(json, fileName);
@@ -229,5 +231,12 @@ void MainWindow::on_pbGraphWin_clicked()
 {
     GraphWin->showNormal();
     GraphWin->activateWindow();
+}
+
+void MainWindow::on_pbFarm_clicked()
+{
+    FarmWin->showNormal();
+    FarmWin->activateWindow();
+    FarmWin->updateGui();
 }
 

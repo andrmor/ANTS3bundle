@@ -40,33 +40,45 @@ ADispatcherInterface::~ADispatcherInterface()
     qDebug() << "Destr for DispInterface";
 }
 
-QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores)
+#include "afarmhub.h"
+QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalProcesses)
 {
     runPlan.clear();
 
-    A3Global & GlobSet = A3Global::getInstance();
-    int numLocals = (overrideLocalCores == -1 ? GlobSet.LocalCores : overrideLocalCores);
+    int numLocalsProcesses = overrideLocalProcesses;
+    const AFarmHub & FarmHub = AFarmHub::getConstInstance();
+    if (overrideLocalProcesses < 0)
+    {
+        numLocalsProcesses = 0;
+        const AFarmHub & FarmHub = AFarmHub::getConstInstance();
+        if (FarmHub.UseLocal)
+            numLocalsProcesses = FarmHub.LocalProcesses;
+    }
 
     QVector<A3FarmNodeRecord> tmpPlan;
     int    num      = 0;
     double totSpeed = 0;
 
-    if (numLocals > 0)
+    if (numLocalsProcesses > 0)
     {
-        tmpPlan << A3FarmNodeRecord("", 0, numLocals);
-        num      += numLocals;
-        totSpeed += 1.0 * numLocals;
+        tmpPlan << A3FarmNodeRecord("", 0, numLocalsProcesses);
+        num      += numLocalsProcesses;
+        totSpeed += 1.0 * numLocalsProcesses;
     }
 
-    std::vector<A3FarmNodeRecord> & FarmNodes = GlobSet.FarmNodes;
-    for (const A3FarmNodeRecord & r : FarmNodes)
-        if (r.Enabled)
-        {
-            tmpPlan << r;
-            num      += r.Cores;
-            totSpeed += r.SpeedFactor * r.Cores;
-        }
-    if (num      == 0) return "There are no cores to run";
+    if (FarmHub.UseFarm)
+    {
+        const std::vector<A3FarmNodeRecord*> & FarmNodes = FarmHub.getNodes();
+        for (const A3FarmNodeRecord * FarmNode : FarmNodes)
+            if (FarmNode->Enabled)
+            {
+                tmpPlan << *FarmNode;
+                num      += FarmNode->Processes;
+                totSpeed += FarmNode->SpeedFactor * FarmNode->Processes;
+            }
+    }
+
+    if (num      == 0) return "No local/remote processes were allocated";
     if (totSpeed == 0) return "Total allocated speed factor is zero";
 
     //dividing work
@@ -77,7 +89,7 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
     {
         if (remainingEvents == 0) break;
 
-        r.Split = std::vector<int>(r.Cores, 0);
+        r.Split = std::vector<int>(r.Processes, 0);
         double perCore = r.SpeedFactor * eventsPerUnitSpeed;
         for (int & num : r.Split)
         {

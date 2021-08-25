@@ -15,6 +15,7 @@ class A3MatWin;
 class A3PhotSimWin;
 class AInterfaceRuleWin;
 class GraphWindowClass;
+class ARemoteWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -40,6 +41,7 @@ private:
     A3PhotSimWin      * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     GraphWindowClass  * GraphWin   = nullptr;
+    ARemoteWindow     * FarmWin   = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -61,6 +63,8 @@ private slots:
     void on_pbInterfaceRules_clicked();
 
     void on_pbGraphWin_clicked();
+
+    void on_pbFarm_clicked();
 
 private:
     void disableInterface(bool flag);

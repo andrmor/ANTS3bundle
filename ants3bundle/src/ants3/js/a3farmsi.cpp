@@ -1,23 +1,21 @@
 #include "a3farmsi.h"
-#include "a3global.h"
+#include "afarmhub.h"
 
-A3FarmSI::A3FarmSI(QObject * parent) : QObject(parent), FarmNodes(A3Global::getInstance().FarmNodes) {}
+A3FarmSI::A3FarmSI(QObject * parent) :
+    QObject(parent),
+    FarmHub(AFarmHub::getInstance()) {}
 
 void A3FarmSI::clearNodes()
 {
-    FarmNodes.clear();
+    FarmHub.clearNodes();
 }
 
 void A3FarmSI::addNode(QString Name, QString Address, int Port, int Cores, double SpeedFactor)
 {
-    //A3Global & GlobSet = A3Global::getInstance();
+    bool ok = FarmHub.addNode(Name, Address, Port, Cores, SpeedFactor);
 
-    A3FarmNodeRecord nn;
-    nn.Name = Name;
-    nn.Address = Address;
-    nn.Port = Port;
-    nn.Cores = Cores;
-    nn.SpeedFactor = SpeedFactor;
-
-    FarmNodes.push_back(nn);
+    if (!ok)
+    {
+        // abort! !!!***
+    }
 }

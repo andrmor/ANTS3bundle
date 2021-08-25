@@ -39,7 +39,7 @@ private:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
     void processReply(const QJsonObject & json);
-    void removeOutputFiles();
+    void removeOutputFiles();  // !!!*** also remov efiles in exchange
     void mergeOutput();
 
     const APhotonSimSettings & SimSet;

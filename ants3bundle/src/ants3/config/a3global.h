@@ -1,13 +1,9 @@
 #ifndef A3GLOBAL_H
 #define A3GLOBAL_H
 
-#include "a3farmnoderecord.h"
-
 #include <QString>
-#include <QStringList>
-#include <QJsonObject>
-
-#include <vector>
+//#include <QStringList>
+//#include <QJsonObject>
 
 class A3Global final
 {
@@ -27,9 +23,6 @@ private:
 public:
     QString ExecutableDir;
     QString ExchangeDir;
-
-    int LocalCores = 4;
-    std::vector<A3FarmNodeRecord> FarmNodes;
 
     int NumSegmentsTGeo = 20;
 

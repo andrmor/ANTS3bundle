@@ -22,9 +22,8 @@ A3ParticleSimManager::~A3ParticleSimManager()
 
 bool A3ParticleSimManager::simulate(int numLocalProc)
 {
-    qDebug() << "Particle sim triggered";
+    qDebug() << "Mock work triggered";
     ErrorString.clear();
-    if (numLocalProc < 0) numLocalProc = 4;
 
     A3Config & Config = A3Config::getInstance();
     QStringList Events = Config.lines.split('\n', Qt::SkipEmptyParts);
@@ -57,7 +56,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     ftools::mergeTextFiles(OutputFiles, ExchangeDir + '/' + ResultsFileName);
 
-    qDebug() << "Particle simulation finished";
+    qDebug() << "Mock work finished";
     emit simFinished();
     return true;
 }

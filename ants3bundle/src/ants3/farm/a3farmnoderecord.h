@@ -5,17 +5,21 @@
 
 #include <vector>
 
-struct A3FarmNodeRecord
+class A3FarmNodeRecord
 {
-    A3FarmNodeRecord(QString Address, int Port, int Cores) : Address(Address), Port(Port), Cores(Cores) {}
+public:
+    A3FarmNodeRecord(QString Address, int Port, int Cores) : Address(Address), Port(Port), Processes(Cores) {}
     A3FarmNodeRecord(){}
+
+    enum EStatus {Unknown, Connecting, Available, NotResponding, Busy};
 
     QString Name        = "Undefined";
     QString Address     = "127.0.0.1";
     int     Port        = 12345;
-    int     Cores       = 1;
+    int     Processes   = 1;
     double  SpeedFactor = 1.0;
     bool    Enabled     = true;
+    EStatus Status      = Unknown;
 
     //runtime
     bool    Checked     = false;
