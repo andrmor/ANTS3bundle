@@ -25,7 +25,7 @@ public:
     ~A3Dispatcher();
 
 public slots:
-    void start(); // !!!*** IP from arguments too
+    void start();
 
     void executeLocalCommand(QJsonObject json);
 

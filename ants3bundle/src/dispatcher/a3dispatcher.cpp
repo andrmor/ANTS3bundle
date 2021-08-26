@@ -84,8 +84,6 @@ void A3Dispatcher::onReportProgressTimer()
     }
     else
     {
-        //std::cout << "$$>" << total << "<$$\n";
-        //std::cout.flush();
         emit reportProgress(total);
     }
 }
