@@ -15,6 +15,7 @@
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
 #include "aremotewindow.h"
+#include "aparticlesimwin.h"
 
 #include <QDebug>
 
@@ -66,6 +67,8 @@ MainWindow::MainWindow(A3ScriptManager & SM) :
     connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
+
+    PartSimWin = new AParticleSimWin(this);
 }
 
 MainWindow::~MainWindow()
@@ -240,5 +243,12 @@ void MainWindow::on_pbFarm_clicked()
     FarmWin->showNormal();
     FarmWin->activateWindow();
     FarmWin->updateGui();
+}
+
+void MainWindow::on_pbParticleSim_clicked()
+{
+    PartSimWin->showNormal();
+    PartSimWin->activateWindow();
+    PartSimWin->updateGui();
 }
 
