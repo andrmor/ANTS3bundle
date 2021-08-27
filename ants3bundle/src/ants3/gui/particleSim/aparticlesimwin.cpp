@@ -83,7 +83,7 @@ void AParticleSimWin::on_pteStepLimits_textChanged()
 
     G4SimSet.StepLimits.clear();
     const QString t = ui->pteStepLimits->document()->toPlainText();
-    QStringList sl = t.split('\n', Qt::SkipEmptyParts);
+    const QStringList sl = t.split('\n', Qt::SkipEmptyParts);
     for (const QString & str : sl)
     {
         QStringList f = str.split(rx2, Qt::SkipEmptyParts);
