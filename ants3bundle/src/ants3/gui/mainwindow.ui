@@ -116,11 +116,7 @@
         <item>
          <widget class="QPlainTextEdit" name="pteScript">
           <property name="plainText">
-           <string>farm.clearNodes()
-farm.addNode(&quot;One&quot;, &quot;127.0.0.1&quot;, 12345, 2, 1)
-farm.addNode(&quot;Two&quot;, &quot;127.0.0.1&quot;, 22345, 2, 1)
-
-simp.simulate(4)</string>
+           <string>lsim.simulate(true)</string>
           </property>
          </widget>
         </item>
@@ -162,6 +158,19 @@ simp.simulate(4)</string>
          </layout>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="minimumSize">
+         <size>
+          <width>10</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -251,7 +260,7 @@ simp.simulate(4)</string>
         <item>
          <widget class="QPushButton" name="pbSimulate">
           <property name="text">
-           <string>Simulate</string>
+           <string>Run demo</string>
           </property>
          </widget>
         </item>

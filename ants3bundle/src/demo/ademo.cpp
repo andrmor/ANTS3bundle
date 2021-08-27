@@ -1,4 +1,4 @@
-#include "a3psim.h"
+#include "ademo.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -11,10 +11,10 @@
 
 #include <iostream>
 
-A3PSim::A3PSim(const QString & fileName, const QString &dir, bool debug) :
+ADemo::ADemo(const QString & fileName, const QString &dir, bool debug) :
     FileName(fileName), FileDir(dir), Debug(debug) {}
 
-A3PSim::~A3PSim()
+ADemo::~ADemo()
 {
     delete Log;
 
@@ -22,7 +22,7 @@ A3PSim::~A3PSim()
     delete Ofile;
 }
 
-void A3PSim::start()
+void ADemo::start()
 {
     QFile file(FileName);
     file.open(QIODevice::ReadOnly);
@@ -39,7 +39,7 @@ void A3PSim::start()
 
     if (Debug)
     {
-        Ofile = new QFile(QString("psim_log_id%0.txt").arg(id));
+        Ofile = new QFile(QString("demo_log_id%0.txt").arg(id));
         Ofile->open(QIODevice::WriteOnly | QFile::Text);
         Log = new QTextStream(Ofile);
         *Log << FileName << '\n';
@@ -53,7 +53,7 @@ void A3PSim::start()
     QTextStream out(&fileOut);
 
     QTimer Timer;
-    QObject::connect(&Timer, &QTimer::timeout, this, &A3PSim::onProgressTimer);
+    QObject::connect(&Timer, &QTimer::timeout, this, &ADemo::onProgressTimer);
     Timer.start(300);
 
     EventsProcessed = 0;
@@ -72,7 +72,7 @@ void A3PSim::start()
     exit(0);
 }
 
-void A3PSim::onProgressTimer()
+void ADemo::onProgressTimer()
 {
     std::cout << "$$>" << EventsProcessed << "<$$\n";
     std::cout.flush();

@@ -25,6 +25,7 @@ public slots:
 
 private slots:
     void onProgressReceived(double progress);
+    void showSimulationResults();
 
     void on_pbSimulate_clicked();
 

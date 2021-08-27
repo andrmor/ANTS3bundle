@@ -1,4 +1,4 @@
-#include "a3psim.h"
+#include "ademo.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
     }
 
     QCoreApplication a(argc, argv);
-    A3PSim Sim(argv[1], argv[2], true);
-    QTimer::singleShot(0, &Sim, &A3PSim::start);
+    ADemo Demo(argv[1], argv[2], true);
+    QTimer::singleShot(0, &Demo, &ADemo::start);
     a.exec();
 
     return 0;

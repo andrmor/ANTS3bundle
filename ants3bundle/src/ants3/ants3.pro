@@ -96,6 +96,8 @@ SOURCES += \
     gui/photsim/ainterfacerulewin.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
+    ademomanager.cpp \
+    js/aphotonsimsi.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -127,13 +129,11 @@ SOURCES += \
     main.cpp \
     js/a3scriptworker.cpp \
     js/a3scriptmanager.cpp \
-    js/a3scriptres.cpp \
     materials/achemicalelement.cpp \
     materials/aisotope.cpp \
     materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
-    particleSim/a3particlesimmanager.cpp \
     config/a3config.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
@@ -203,6 +203,8 @@ HEADERS += \
     gui/photsim/ainterfacerulewin.h \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
+    ademomanager.h \
+    js/aphotonsimsi.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
@@ -234,13 +236,11 @@ HEADERS += \
     gui/raster/rasterwindowgraphclass.h \
     js/a3scriptworker.h \
     js/a3scriptmanager.h \
-    js/a3scriptres.h \
     materials/achemicalelement.h \
     materials/aisotope.h \
     materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
-    particleSim/a3particlesimmanager.h \
     config/a3config.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \

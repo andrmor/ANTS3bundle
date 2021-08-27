@@ -1,5 +1,5 @@
-#ifndef A3PSIM_H
-#define A3PSIM_H
+#ifndef ADEMO_H
+#define ADEMO_H
 
 #include <QObject>
 #include <QString>
@@ -7,13 +7,13 @@
 class QFile;
 class QTextStream;
 
-class A3PSim : public QObject
+class ADemo : public QObject
 {
     Q_OBJECT
 
 public:
-    A3PSim(const QString & fileName, const QString & dir, bool debug = false);
-    ~A3PSim();
+    ADemo(const QString & fileName, const QString & dir, bool debug = false);
+    ~ADemo();
 
 public slots:
     void start();
@@ -32,4 +32,4 @@ protected:
     int           EventsProcessed = 0;
 };
 
-#endif // A3PSIM_H
+#endif // ADEMO_H

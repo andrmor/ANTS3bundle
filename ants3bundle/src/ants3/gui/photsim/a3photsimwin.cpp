@@ -30,6 +30,9 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
 
     connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, this, &A3PhotSimWin::updateGui);
 
+    APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // to class! !!!***
+    connect(&SimMan, &APhotonSimManager::requestUpdateGUI, this, &A3PhotSimWin::showSimulationResults);
+
     QList<QPushButton*> listDummyButtons = this->findChildren<QPushButton*>();
     for (QPushButton * pb : qAsConst(listDummyButtons))
         if (pb->objectName().startsWith("pbd"))
@@ -274,7 +277,12 @@ void A3PhotSimWin::on_pbSimulate_clicked()
 
     disableInterface(false);
 
-    if (ok && ui->cbAutoLoadResults->isChecked())
+    if (ok) showSimulationResults();
+}
+
+void A3PhotSimWin::showSimulationResults()
+{
+    if (ui->cbAutoLoadResults->isChecked())
     {
         if (SimSet.RunSet.SaveTracks)
         {

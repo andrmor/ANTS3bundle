@@ -7,6 +7,7 @@
 #include "adispatcherinterface.h"
 #include "a3workdistrconfig.h"
 #include "astatisticshub.h"
+#include "a3farmnoderecord.h"
 #include "ajsontools.h"
 
 #include <QDir>
@@ -26,7 +27,6 @@ APhotonSimManager::APhotonSimManager() :
     SimSet(APhotonSimHub::getInstance().Settings)
 {}
 
-#include "afarmhub.h"
 bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";

@@ -1,8 +1,6 @@
 #ifndef A3SCRIPTWORKER_H
 #define A3SCRIPTWORKER_H
 
-#include "a3scriptres.h"
-
 #include <QObject>
 #include <QJSValue>
 
@@ -14,7 +12,7 @@ class A3ScriptWorker : public QObject
 {
     Q_OBJECT
 public:
-    A3ScriptWorker(A3ScriptRes & ScrRes) : ScrRes(ScrRes){}
+    A3ScriptWorker() {}
     ~A3ScriptWorker();
 
     bool isBusy() const {return bBusy;}
@@ -34,7 +32,6 @@ signals:
     void stopped();
 
 protected:
-    A3ScriptRes & ScrRes;
     ADispatcherInterface * Disp = nullptr;
 
     QJSEngine * Engine = nullptr;

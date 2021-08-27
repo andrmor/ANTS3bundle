@@ -2,12 +2,11 @@
 #include "ui_mainwindow.h"
 #include "a3scriptmanager.h"
 #include "adispatcherinterface.h"
-#include "a3scriptres.h"
 #include "a3config.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
-#include "a3particlesimmanager.h"
+#include "ademomanager.h"
 #include "a3geoconwin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
@@ -21,8 +20,8 @@
 
 #include "TObject.h"
 
-MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
-    Config(A3Config::getInstance()), ScriptManager(SM), ScrRes(ScrRes),
+MainWindow::MainWindow(A3ScriptManager & SM) :
+    Config(A3Config::getInstance()), ScriptManager(SM),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -30,8 +29,9 @@ MainWindow::MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes) :
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &MainWindow::onProgressReceived);
 
+    ADemoManager & DemoMan = ADemoManager::getInstance();
     connect(&SM, &A3ScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
-    connect(ScrRes.ParticleSim, &A3ParticleSimManager::simFinished, this, &MainWindow::onParticleSimulationFinsihed);
+    connect(&DemoMan, &ADemoManager::finished, this, &MainWindow::onDemoFinsihed);
 
     ui->pteData->appendPlainText(Config.lines);
     ui->leFrom->setText(Config.from);
@@ -118,20 +118,21 @@ void MainWindow::onScriptEvaluationFinished(bool bSuccess)
 }
 
 #include "a3global.h"
-void MainWindow::onParticleSimulationFinsihed()
+void MainWindow::onDemoFinsihed()
 {
     disableInterface(false);
 
-    if (!ScrRes.ParticleSim->ErrorString.isEmpty())
+    ADemoManager & DemoMan = ADemoManager::getInstance();
+    if (!DemoMan.ErrorString.isEmpty())
     {
-        guitools::message1(ScrRes.ParticleSim->ErrorString, "Error!", this);
+        guitools::message1(DemoMan.ErrorString, "Error!", this);
         ui->prBar->setValue(0);
     }
     else
     {
         A3Global & GlobSet = A3Global::getInstance();
         QString res;
-        ftools::loadTextFromFile(res, GlobSet.ExchangeDir + '/' + ScrRes.ParticleSim->ResultsFileName);
+        ftools::loadTextFromFile(res, GlobSet.ExchangeDir + '/' + DemoMan.ResultsFileName);
         ui->pteData->clear();
         ui->pteData->appendPlainText(res);
         ui->prBar->setValue(100.0);
@@ -146,7 +147,8 @@ void MainWindow::on_pbSimulate_clicked()
     qApp->processEvents();
 
     Config.lines = ui->pteData->document()->toPlainText();
-    ScrRes.ParticleSim->simulate();
+    ADemoManager & DemoMan = ADemoManager::getInstance();
+    DemoMan.run();
 }
 
 void MainWindow::on_leFrom_editingFinished()

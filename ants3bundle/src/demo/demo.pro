@@ -17,7 +17,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 DESTDIR = ../../bin
 
 SOURCES += main.cpp \
-    a3psim.cpp
+    ademo.cpp
 
 HEADERS += \
-    a3psim.h
+    ademo.h

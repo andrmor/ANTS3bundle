@@ -1,5 +1,3 @@
-#include "a3particlesimmanager.h"
-#include "a3scriptres.h"
 #include "a3scriptmanager.h"
 #include "adispatcherinterface.h"
 #include "a3global.h"
@@ -55,21 +53,16 @@ int main(int argc, char *argv[])
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
-    A3ParticleSimManager * PSM      = new A3ParticleSimManager(&(*app));
-
-    A3ScriptRes ScrRes;
-    ScrRes.ParticleSim = PSM;
-
-    A3ScriptManager * SM = new A3ScriptManager(ScrRes, &(*app));
+    A3ScriptManager * SM = new A3ScriptManager(&(*app));
 
     AMaterialHub::getInstance().addNewMaterial("Dummy", true);
 
 #ifdef GUI
     if (argc == 1)
     {
-        MainWindow * w = new MainWindow(*SM, ScrRes);
+        MainWindow * w = new MainWindow(*SM);
         w->show();
-        int res = app->exec();
+        app->exec();
         delete w;
     }
     else

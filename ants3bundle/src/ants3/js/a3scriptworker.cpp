@@ -1,5 +1,4 @@
 #include "a3scriptworker.h"
-#include "a3scriptres.h"
 
 #include <QJSEngine>
 #include <QDebug>
@@ -39,18 +38,25 @@ int A3ScriptWorker::getErrorLineNumber()
     return Result.property("lineNumber").toInt();
 }
 
-#include "a3particlesimmanager.h"
+#include "ademomanager.h"
 #include "a3farmsi.h"
+#include "aphotonsimsi.h"
 void A3ScriptWorker::initialize()
 {
     Engine = new QJSEngine();
 
-    QJSValue sv = Engine->newQObject(ScrRes.ParticleSim);
-    Engine->globalObject().setProperty("simp", sv);
+    // proper approach is to have a SI -> will be enforced later
+    ADemoManager & DemoMan = ADemoManager::getInstance();
+    QJSValue sv = Engine->newQObject(&DemoMan);
+    Engine->globalObject().setProperty("demo", sv);
 
     A3FarmSI * farm = new A3FarmSI(this);
     QJSValue svf = Engine->newQObject(farm);
     Engine->globalObject().setProperty("farm", svf);
+
+    APhotonSimSI * lsim = new APhotonSimSI(this);
+    QJSValue svls = Engine->newQObject(lsim);
+    Engine->globalObject().setProperty("lsim", svls);
 }
 
 void A3ScriptWorker::evaluate(const QString & script)

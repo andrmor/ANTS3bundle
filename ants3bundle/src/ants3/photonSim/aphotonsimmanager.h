@@ -35,6 +35,9 @@ public:
 public slots:
     bool simulate(int numLocalProc = -1);
 
+signals:
+    void requestUpdateGUI();
+
 private:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
@@ -50,7 +53,6 @@ private:
 
     std::vector<QString> StatisticsFiles;
     std::vector<QString> MonitorFiles;
-
 };
 
 #endif // APHOTONSIMMANAGER_H

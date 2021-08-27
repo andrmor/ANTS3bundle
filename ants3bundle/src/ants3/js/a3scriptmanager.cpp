@@ -1,12 +1,11 @@
 #include "a3scriptmanager.h"
 #include "a3scriptworker.h"
-#include "a3scriptres.h"
 
 #include <QThread>
 #include <QDebug>
 
-A3ScriptManager::A3ScriptManager(A3ScriptRes & ScrRes, QObject *parent) :
-    QObject(parent), ScrRes(ScrRes)
+A3ScriptManager::A3ScriptManager(QObject *parent) :
+    QObject(parent)
 {
     //qDebug() << "Creating script manager" << QThread::currentThreadId();
     start();
@@ -23,7 +22,7 @@ void A3ScriptManager::start()
 {
     //qDebug() << "Starting script worlker"<< QThread::currentThreadId();
     Thread = new QThread();
-    Worker = new A3ScriptWorker(ScrRes);
+    Worker = new A3ScriptWorker();
     Worker->moveToThread(Thread);
 
     connect(Thread, &QThread::started,             Worker, &A3ScriptWorker::initialize);

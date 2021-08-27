@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QJSValue>
 
-class A3ScriptRes;
 class QThread;
 class A3ScriptWorker;
 
@@ -12,7 +11,7 @@ class A3ScriptManager : public QObject
 {
     Q_OBJECT
 public:
-    A3ScriptManager(A3ScriptRes & ScrRes, QObject * parent = nullptr);
+    A3ScriptManager(QObject * parent = nullptr);
     ~A3ScriptManager();
 
     bool evaluate(const QString & script);
@@ -36,7 +35,6 @@ signals:
     void doExit();
 
 protected:
-    A3ScriptRes & ScrRes;
     QThread * Thread = nullptr;
     A3ScriptWorker * Worker = nullptr;
 

@@ -8,7 +8,6 @@ class MainWindow;
 }
 class A3Config;
 class A3ScriptManager;
-class A3ScriptRes;
 class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
@@ -22,7 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(A3ScriptManager & SM, A3ScriptRes & ScrRes);
+    explicit MainWindow(A3ScriptManager & SM);
     ~MainWindow();
 
 public slots:
@@ -31,7 +30,6 @@ public slots:
 private:
     A3Config          & Config;
     A3ScriptManager   & ScriptManager;
-    A3ScriptRes       & ScrRes;
 
     Ui::MainWindow    * ui = nullptr;
 
@@ -45,7 +43,7 @@ private:
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
-    void onParticleSimulationFinsihed();
+    void onDemoFinsihed();
     void onRebuildGeometryRequested();
 
     void on_pbEvaluateScript_clicked();

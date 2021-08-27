@@ -1,9 +1,9 @@
 TEMPLATE = subdirs
-SUBDIRS = ants3 dispatcher psim lsim g4ants3
+SUBDIRS = ants3 dispatcher demo lsim g4ants3
 
 ants3.subdir      = src/ants3
 dispatcher.subdir = src/dispatcher
-psim.subdir       = src/psim
+demo.subdir       = src/demo
 lsim.subdir       = src/lsim
 g4ants3.subdir    = src/g4ants3
 

@@ -1,4 +1,4 @@
-#include "a3particlesimmanager.h"
+#include "ademomanager.h"
 #include "adispatcherinterface.h"
 #include "ajsontools.h"
 #include "afiletools.h"
@@ -12,15 +12,16 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-A3ParticleSimManager::A3ParticleSimManager(QObject * parent) :
-    QObject(parent), Dispatch(ADispatcherInterface::getInstance()) {}
+ADemoManager::ADemoManager() :
+    QObject(nullptr), Dispatch(ADispatcherInterface::getInstance()) {}
 
-A3ParticleSimManager::~A3ParticleSimManager()
+ADemoManager &ADemoManager::getInstance()
 {
-    qDebug() << "Destr for ParticleSimManager";
+    static ADemoManager instance;
+    return instance;
 }
 
-bool A3ParticleSimManager::simulate(int numLocalProc)
+bool ADemoManager::run(int numLocalProc)
 {
     qDebug() << "Mock work triggered";
     ErrorString.clear();
@@ -46,7 +47,7 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
-    bool ok = configureParticleSimulation(RunPlan, Request);
+    bool ok = configure(RunPlan, Request);
     if (!ok) return false;
 
     QJsonObject Reply = Dispatch.performTask(Request);
@@ -57,13 +58,13 @@ bool A3ParticleSimManager::simulate(int numLocalProc)
     ftools::mergeTextFiles(OutputFiles, ExchangeDir + '/' + ResultsFileName);
 
     qDebug() << "Mock work finished";
-    emit simFinished();
+    emit finished();
     return true;
 }
 
-bool A3ParticleSimManager::configureParticleSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool ADemoManager::configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
-    Request.Command = "psim"; // name of the corresponding executable
+    Request.Command = "demo"; // name of the corresponding executable
 
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
