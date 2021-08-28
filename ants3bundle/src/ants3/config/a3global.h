@@ -31,10 +31,11 @@ public:
     QString LastSaveDir;
     QString LastLoadDir;
 
-    void configureDirectories();
+    void    configureDirectories();
+    QString checkExchangeDir();
 
-    void saveConfig();
-    void loadConfig();
+    void    saveConfig();
+    void    loadConfig();
 };
 
 #endif // A3GLOBAL_H

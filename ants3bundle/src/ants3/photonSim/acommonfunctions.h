@@ -12,8 +12,8 @@
 class TH1;
 class TRandom2;
 
-double GetRandomFromHist(TH1* hist, TRandom2* RandGen);    //integral must be already calculated to be thread-safe
-int    GetRandomBinFromHist(TH1* hist, TRandom2* RandGen); //integral must be already calculated to be thread-safe
+double GetRandomFromHist(TH1* hist);    //integral must be already calculated to be thread-safe
+int    GetRandomBinFromHist(TH1* hist); //integral must be already calculated to be thread-safe
 
 bool NormalizeVector(double *arr);
 void NormalizeVectorSilent(double *arr); //if failed, returns (0,0,1) vector

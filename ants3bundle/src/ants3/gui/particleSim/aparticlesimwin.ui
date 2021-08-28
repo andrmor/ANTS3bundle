@@ -41,7 +41,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
-         <number>3</number>
+         <number>10</number>
         </property>
         <property name="leftMargin">
          <number>3</number>
@@ -527,7 +527,7 @@ Format: Volume_name  Step_in_mm</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
         <property name="spacing">
-         <number>3</number>
+         <number>6</number>
         </property>
         <property name="leftMargin">
          <number>3</number>
@@ -578,7 +578,7 @@ Format: Volume_name  Step_in_mm</string>
             <property name="minimumSize">
              <size>
               <width>150</width>
-              <height>0</height>
+              <height>30</height>
              </size>
             </property>
             <property name="font">
@@ -622,7 +622,7 @@ Format: Volume_name  Step_in_mm</string>
             <property name="maximumSize">
              <size>
               <width>60</width>
-              <height>21</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="font">
@@ -651,7 +651,7 @@ Format: Volume_name  Step_in_mm</string>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>21</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="font">
@@ -673,19 +673,6 @@ Format: Volume_name  Step_in_mm</string>
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_9">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>37</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item>
          <widget class="QStackedWidget" name="swParticleGenerationMode">
@@ -941,10 +928,16 @@ Format: Volume_name  Step_in_mm</string>
                  </property>
                  <item>
                   <widget class="QComboBox" name="cobPartPerEvent">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
-                     <height>21</height>
+                     <height>16777215</height>
                     </size>
                    </property>
                    <property name="font">
@@ -976,7 +969,7 @@ Format: Volume_name  Step_in_mm</string>
                     </font>
                    </property>
                    <property name="text">
-                    <string>particles per event:</string>
+                    <string>per event:</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -988,7 +981,7 @@ Format: Volume_name  Step_in_mm</string>
                    <property name="maximumSize">
                     <size>
                      <width>75</width>
-                     <height>21</height>
+                     <height>16777215</height>
                     </size>
                    </property>
                    <property name="font">

@@ -30,6 +30,13 @@ void A3Global::configureDirectories()
     qDebug() << "Exchange dir set to:"<< ExchangeDir;
 }
 
+QString A3Global::checkExchangeDir()
+{
+    if (ExchangeDir.isEmpty())       return "Exchange directory is not set!";
+    if (!QDir(ExchangeDir).exists()) return "Exchange directory does not exist!";
+    return "";
+}
+
 void A3Global::saveConfig()
 {
 }

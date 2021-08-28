@@ -1,7 +1,7 @@
 #ifndef APARTICLESIMHUB_H
 #define APARTICLESIMHUB_H
 
-#include "ag4simulationsettings.h"
+#include "aparticlesimsettings.h"
 
 #include <QObject>
 
@@ -22,7 +22,7 @@ private:
     AParticleSimHub& operator=(AParticleSimHub&&)      = delete;
 
 public:
-    AG4SimulationSettings RunSet;
+    AParticleSimSettings  Settings;
 };
 
 #endif // APARTICLESIMHUB_H

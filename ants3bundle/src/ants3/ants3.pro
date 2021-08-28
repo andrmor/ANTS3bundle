@@ -102,6 +102,9 @@ SOURCES += \
     js/aphotonsimsi.cpp \
     particleSim/ag4simulationsettings.cpp \
     particleSim/aparticlesimhub.cpp \
+    particleSim/aparticlesimmanager.cpp \
+    particleSim/aparticlesimsettings.cpp \
+    particleSim/aparticlesourcerecord.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -212,6 +215,9 @@ HEADERS += \
     js/aphotonsimsi.h \
     particleSim/ag4simulationsettings.h \
     particleSim/aparticlesimhub.h \
+    particleSim/aparticlesimmanager.h \
+    particleSim/aparticlesimsettings.h \
+    particleSim/aparticlesourcerecord.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \

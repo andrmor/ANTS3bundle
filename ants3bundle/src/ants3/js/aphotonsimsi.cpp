@@ -9,7 +9,7 @@ QString APhotonSimSI::simulate(bool updateGui)
     bool ok = SimMan.simulate(-1);
     if (ok)
     {
-        if (updateGui) emit SimMan.requestUpdateGUI();
+        if (updateGui) emit SimMan.requestUpdateResultsGUI();
         return "Done!";
     }
     else

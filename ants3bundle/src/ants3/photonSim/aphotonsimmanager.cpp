@@ -99,29 +99,12 @@ bool APhotonSimManager::simulate(int numLocalProc)
 
 bool APhotonSimManager::checkDirectories()
 {
-    if (SimSet.RunSet.OutputDirectory.isEmpty())
-    {
-        ErrorString = "Output directory is not set!";
-        return false;
-    }
-    if (!QDir(SimSet.RunSet.OutputDirectory).exists())
-    {
-        ErrorString = "Output directory does not exist!";
-        return false;
-    }
+    if (SimSet.RunSet.OutputDirectory.isEmpty())       addErrorLine("Output directory is not set!");
+    if (!QDir(SimSet.RunSet.OutputDirectory).exists()) addErrorLine("Output directory does not exist!");
 
-    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
-    if (ExchangeDir.isEmpty())
-    {
-        ErrorString = "Exchange directory is not set!";
-        return false;
-    }
-    if (!QDir(ExchangeDir).exists())
-    {
-        ErrorString = "Exchange directory does not exist!";
-        return false;
-    }
-    return true;
+    addErrorLine(A3Global::getInstance().checkExchangeDir());
+
+    return ErrorString.isEmpty();
 }
 
 void APhotonSimManager::processReply(const QJsonObject & json)
@@ -199,6 +182,14 @@ void APhotonSimManager::mergeOutput()
         MonitorHub.writeDataToJson(json);
         jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
+}
+
+void APhotonSimManager::addErrorLine(const QString & error)
+{
+    if (error.isEmpty()) return;
+
+    if (ErrorString.isEmpty()) ErrorString = error;
+    else                       ErrorString += QString("\n%0").arg(error);
 }
 
 bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)

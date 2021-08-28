@@ -11,7 +11,7 @@
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     QMainWindow(parent),
-    G4SimSet(AParticleSimHub::getInstance().getInstance().RunSet),
+    G4SimSet(AParticleSimHub::getInstance().getInstance().Settings.G4Set),
     ui(new Ui::AParticleSimWin)
 {
     ui->setupUi(this);

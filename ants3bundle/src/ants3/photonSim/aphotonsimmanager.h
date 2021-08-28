@@ -32,11 +32,10 @@ private:
 public:
     QString ErrorString;
 
-public slots:
     bool simulate(int numLocalProc = -1);
 
 signals:
-    void requestUpdateGUI();
+    void requestUpdateResultsGUI();
 
 private:
     bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
@@ -44,6 +43,7 @@ private:
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remov efiles in exchange
     void mergeOutput();
+    void addErrorLine(const QString & error);
 
     const APhotonSimSettings & SimSet;
 
