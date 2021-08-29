@@ -93,6 +93,7 @@ SOURCES += \
     gui/graph/graphwindowclass.cpp \
     gui/graph/shapeablerectitem.cpp \
     gui/particleSim/aparticlesimwin.cpp \
+    gui/particleSim/aparticlesourcedialog.cpp \
     gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfaceruledialog.cpp \
     gui/photsim/ainterfacerulewin.cpp \
@@ -101,10 +102,12 @@ SOURCES += \
     ademomanager.cpp \
     js/aphotonsimsi.cpp \
     particleSim/ag4simulationsettings.cpp \
+    particleSim/aparticlerecord.cpp \
     particleSim/aparticlesimhub.cpp \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
+    particleSim/asourceparticlegenerator.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -206,6 +209,7 @@ HEADERS += \
     gui/graph/graphwindowclass.h \
     gui/graph/shapeablerectitem.h \
     gui/particleSim/aparticlesimwin.h \
+    gui/particleSim/aparticlesourcedialog.h \
     gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfaceruledialog.h \
     gui/photsim/ainterfacerulewin.h \
@@ -214,10 +218,13 @@ HEADERS += \
     ademomanager.h \
     js/aphotonsimsi.h \
     particleSim/ag4simulationsettings.h \
+    particleSim/aparticlegun.h \
+    particleSim/aparticlerecord.h \
     particleSim/aparticlesimhub.h \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
+    particleSim/asourceparticlegenerator.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
@@ -298,6 +305,7 @@ FORMS += \
         gui/graph/atextpavedialog.ui \
         gui/graph/graphwindowclass.ui \
         gui/particleSim/aparticlesimwin.ui \
+        gui/particleSim/aparticlesourcedialog.ui \
         gui/photsim/abombadvanceddialog.ui \
         gui/geom/a3geoconwin.ui \
         gui/geom/agridelementdialog.ui \

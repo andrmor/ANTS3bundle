@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 
+class AParticleSimSettings;
 class AG4SimulationSettings;
+class QListWidgetItem;
 
 namespace Ui {
 class AParticleSimWin;
@@ -27,13 +29,21 @@ private slots:
     void on_cbBinaryOutput_clicked(bool checked);
     void on_sbPrecision_editingFinished();
     void on_pteSensitiveVolumes_textChanged();  // redo  !!!***
-
     void on_pteStepLimits_textChanged();
 
+    void on_pbEditParticleSource_clicked();
+    void on_pbAddSource_clicked();
+    void on_pbCloneSource_clicked();
+    void on_pbRemoveSource_clicked();
+
+    void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
+
 private:
-    AG4SimulationSettings & G4SimSet;
+    AParticleSimSettings  & SimSet;
+    AG4SimulationSettings & G4SimSet; // !!!*** remove?
 
     Ui::AParticleSimWin *ui;
+    void updateListSources();
 };
 
 #endif // APARTICLESIMWIN_H

@@ -787,7 +787,14 @@ Format: Volume_name  Step_in_mm</string>
                    <string>Right-click to clone the selected source</string>
                   </property>
                   <property name="text">
-                   <string>New/clone</string>
+                   <string>New</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pbCloneSource">
+                  <property name="text">
+                   <string>Clone</string>
                   </property>
                  </widget>
                 </item>
