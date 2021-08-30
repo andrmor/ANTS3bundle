@@ -47,8 +47,9 @@ public:
 
 signals:
     void requestUpdateGeometryGui();
-    void requestUpdatePhotSimGui();
     void requestUpdateInterfaceRuleGui();
+    void requestUpdatePhotSimGui();
+    void requestUpdateParticleSimGui();
 
 };
 

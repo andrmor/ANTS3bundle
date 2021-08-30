@@ -20,6 +20,7 @@ public:
     explicit AParticleSimWin(QWidget *parent = nullptr);
     ~AParticleSimWin();
 
+public slots:
     void updateGui();
 
 private slots:

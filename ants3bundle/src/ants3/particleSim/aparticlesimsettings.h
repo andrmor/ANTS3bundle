@@ -17,12 +17,12 @@ class ASourceParticleGenerator;
 class ASourceGenSettings
 {
 public:
-    enum AMultiMode {Constant = 0, Poisson = 1};
+    enum EMultiMode {Constant = 0, Poisson = 1};
 
     QVector<AParticleSourceRecord*> ParticleSourcesData;  // !!!*** reformat
 
     bool       MultiEnabled = false;
-    AMultiMode MultiMode    = Constant;
+    EMultiMode MultiMode    = Constant;
     double     MultiNumber  = 1.0;
 
     void writeToJson(QJsonObject & json) const;

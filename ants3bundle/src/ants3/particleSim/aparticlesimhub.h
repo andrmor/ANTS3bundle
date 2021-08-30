@@ -5,6 +5,8 @@
 
 #include <QObject>
 
+class QJsonObject;
+
 class AParticleSimHub : public QObject
 {
     Q_OBJECT
@@ -24,6 +26,9 @@ private:
 
 public:
     AParticleSimSettings  Settings;
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 };
 
 #endif // APARTICLESIMHUB_H

@@ -5,6 +5,7 @@
 #include "aphotonsimhub.h"
 #include "ainterfacerulehub.h"
 #include "asensorhub.h"
+#include "aparticlesimhub.h"
 
 #include <QDebug>
 
@@ -28,10 +29,10 @@ void A3Config::writeToJson(QJsonObject & json) const
     ASensorHub::getConstInstance().writeToJson(json); // !!!***
 
     APhotonSimHub::getConstInstance().writeToJson(json);
-
-    // Particle simulation
+    AParticleSimHub::getConstInstance().writeToJson(json);
 
     // Reconstruction
+    // LRFs
 }
 
 QString A3Config::readFromJson(const QJsonObject & json)
@@ -49,11 +50,18 @@ QString A3Config::readFromJson(const QJsonObject & json)
     if (!ErrorString.isEmpty()) return ErrorString;
     emit requestUpdateInterfaceRuleGui();   // TODO: to the hub? !!!***
 
+    // !!!*** SensorHub
+
     ErrorString = APhotonSimHub::getInstance().readFromJson(json);
     if (!ErrorString.isEmpty()) return ErrorString;
     emit requestUpdatePhotSimGui();         // TODO: to the hub? !!!***
 
-    // !!!*** SensorHub
+    AParticleSimHub::getInstance().readFromJson(json);
+    // error handling!
+    emit requestUpdateParticleSimGui();         // TODO: to the hub? !!!***
+
+    // Reconstruction
+    // LRFs
 
     return "";
 }

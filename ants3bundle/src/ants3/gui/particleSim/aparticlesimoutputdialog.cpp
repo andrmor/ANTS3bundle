@@ -24,7 +24,7 @@ AParticleSimOutputDialog::~AParticleSimOutputDialog()
 
 void AParticleSimOutputDialog::on_pbAccept_clicked()
 {
-    RunSet.OutputDirectory       = ui->leOutputDirectory->text();
+    RunSet.OutputDirectory = ui->leOutputDirectory->text();
 
     RunSet.AsciiPrecision = ui->sbAsciiPrecision->value();
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
@@ -32,6 +32,7 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.SaveTrackingData = ui->cbTrackingData->isChecked();
     RunSet.FileNameTrackingData = ui->leTracks->text();
 
+    accept();
 }
 
 void AParticleSimOutputDialog::on_pbChangeDir_clicked()
