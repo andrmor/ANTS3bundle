@@ -8,10 +8,9 @@
 #include "TVector3.h"
 
 class  ASourceGenSettings;
-class  AMaterialParticleCollection;
 class  QJsonObject;
 struct AParticleSourceRecord;
-class ARandomHub;
+class  ARandomHub;
 
 class ALinkedParticle
 {
@@ -26,10 +25,10 @@ public:
 class ASourceParticleGenerator : public AParticleGun
 {
 public:
-    ASourceParticleGenerator(const ASourceGenSettings & Settings);
+    ASourceParticleGenerator();
 
     bool Init() override; // !!! has to be called before the first use of GenerateEvent()!
-    bool GenerateEvent(QVector<AParticleRecord*> & GeneratedParticles, int iEvent) override; // !!!*** inside
+    bool GenerateEvent(std::vector<AParticleRecord*> & GeneratedParticles, int iEvent) override; // !!!*** inside
 
 private:
     const ASourceGenSettings & Settings;
@@ -43,7 +42,7 @@ private:
     QVector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
     void generatePosition(int isource, double *R) const;
-    void addParticleInCone(int isource, int iparticle, QVector<AParticleRecord*> & GeneratedParticles) const; //QVector - only pointer is transferred!
+    void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord *> &GeneratedParticles) const; //QVector - only pointer is transferred!
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

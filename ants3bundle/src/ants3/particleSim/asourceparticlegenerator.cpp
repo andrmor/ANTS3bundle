@@ -2,6 +2,7 @@
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
 #include "aparticlesourcerecord.h"
+#include "aparticlesimhub.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
 #include "afiletools.h"
@@ -18,8 +19,9 @@
 #include "TMath.h"
 #include "TGeoManager.h"
 
-ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGenSettings & Settings) :
-    Settings(Settings), RandomHub(ARandomHub::getInstance()) {}
+ASourceParticleGenerator::ASourceParticleGenerator() :
+    Settings(AParticleSimHub::getConstInstance().Settings.SourceGenSettings),
+    RandomHub(ARandomHub::getInstance()){}
 
 bool ASourceParticleGenerator::Init()
 {  
@@ -40,7 +42,7 @@ bool ASourceParticleGenerator::Init()
         QString err = ps->checkSource();
         if (!err.isEmpty())
         {
-            ErrorString = QString("Error in source %1:\n%2").arg(ps->name).arg(err);
+            ErrorString = QString("Error in source %1:\n%2").arg(ps->name, err);
             return false;
         }
     }
@@ -48,7 +50,7 @@ bool ASourceParticleGenerator::Init()
     TotalParticleWeight.fill(0, NumSources);
     for (int isource = 0; isource<NumSources; isource++)
     {
-        for (int i=0; i<Settings.ParticleSourcesData[isource]->GunParticles.size(); i++)
+        for (size_t i=0; i<Settings.ParticleSourcesData[isource]->GunParticles.size(); i++)
             if (Settings.ParticleSourcesData[isource]->GunParticles[i]->Individual)
                 TotalParticleWeight[isource] += Settings.ParticleSourcesData[isource]->GunParticles[i]->StatWeight;
     }
@@ -115,8 +117,7 @@ bool ASourceParticleGenerator::Init()
     return true; //TODO  check for fails
 }
 
-#include "arandomhub.h"
-bool ASourceParticleGenerator::GenerateEvent(QVector<AParticleRecord*> & GeneratedParticles, int iEvent)
+bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & GeneratedParticles, int iEvent)
 {
     //after any operation with sources (add, remove), init should be called before the first use!
     bAbortRequested = false;
@@ -175,7 +176,7 @@ bool ASourceParticleGenerator::GenerateEvent(QVector<AParticleRecord*> & Generat
 
     //selecting the particle
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(isource);
-    int iparticle;
+    size_t iparticle;
     for (iparticle = 0; iparticle < Source->GunParticles.size() - 1; iparticle++)
     {
         if (Source->GunParticles[iparticle]->Individual)
@@ -192,7 +193,7 @@ bool ASourceParticleGenerator::GenerateEvent(QVector<AParticleRecord*> & Generat
         //there are no linked particles
         //qDebug()<<"Generating individual particle"<<iparticle;
         addParticleInCone(isource, iparticle, GeneratedParticles);
-        AParticleRecord * p = GeneratedParticles.last();
+        AParticleRecord * p = GeneratedParticles.back();
         p->r[0] = R[0];
         p->r[1] = R[1];
         p->r[2] = R[2];
@@ -261,10 +262,10 @@ bool ASourceParticleGenerator::GenerateEvent(QVector<AParticleRecord*> & Generat
                     ps->v[0] = -GeneratedParticles.at(index)->v[0];
                     ps->v[1] = -GeneratedParticles.at(index)->v[1];
                     ps->v[2] = -GeneratedParticles.at(index)->v[2];
-                    GeneratedParticles << ps;
+                    GeneratedParticles.push_back(ps);
                 }
 
-                AParticleRecord * p = GeneratedParticles.last();
+                AParticleRecord * p = GeneratedParticles.back();
                 p->r[0] = R[0];
                 p->r[1] = R[1];
                 p->r[2] = R[2];
@@ -279,16 +280,16 @@ bool ASourceParticleGenerator::GenerateEvent(QVector<AParticleRecord*> & Generat
 void ASourceParticleGenerator::generatePosition(int isource, double *R) const
 {
     AParticleSourceRecord * rec = Settings.ParticleSourcesData[isource];
-  const int& iShape = rec->shape;
-  const double& X0 = rec->X0;
-  const double& Y0 = rec->Y0;
-  const double& Z0 = rec->Z0;
-  const double& Phi = rec->Phi * 3.1415926535 / 180.0;
-  const double& Theta = rec->Theta * 3.1415926535 / 180.0;
-  const double& Psi = rec->Psi * 3.1415926535 / 180.0;
-  const double& size1 = rec->size1;
-  const double& size2 = rec->size2;
-  const double& size3 = rec->size3;
+  const int    & iShape = rec->shape;
+  const double & X0     = rec->X0;
+  const double & Y0     = rec->Y0;
+  const double & Z0     = rec->Z0;
+  const double   Phi    = rec->Phi   * 3.1415926535 / 180.0;
+  const double   Theta  = rec->Theta * 3.1415926535 / 180.0;
+  const double   Psi    = rec->Psi   * 3.1415926535 / 180.0;
+  const double & size1  = rec->size1;
+  const double & size2  = rec->size2;
+  const double & size3  = rec->size3;
 
   switch (iShape) //source geometry type
     {
@@ -400,12 +401,13 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
   return;
 }
 
-void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, QVector<AParticleRecord*> & GeneratedParticles) const
+void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord*> & GeneratedParticles) const
 {
-  AParticleRecord* ps = new AParticleRecord();
+    AParticleRecord* ps = new AParticleRecord();
 
-  ps->particle = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Particle;
-  ps->energy = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->generateEnergy();
+    ps->particle = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Particle;
+    ps->energy = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->generateEnergy();
+
     //generating random direction inside the collimation cone
     double spread = Settings.ParticleSourcesData[isource]->Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
     double cosTheta = cos(spread);
@@ -415,124 +417,9 @@ void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, QVe
     TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
     TVector3 Coll(CollimationDirection[isource]);
     K1.RotateUz(Coll);
-  ps->v[0] = K1[0];
-  ps->v[1] = K1[1];
-  ps->v[2] = K1[2];
+    ps->v[0] = K1[0];
+    ps->v[1] = K1[1];
+    ps->v[2] = K1[2];
 
-  GeneratedParticles << ps;
+    GeneratedParticles.push_back(ps);
 }
-
-/*
-TVector3 ASourceParticleGenerator::GenerateRandomDirection()
-{
-  //Sphere function of Root:
-  double a=0,b=0,r2=1;
-  while (r2 > 0.25)
-    {
-      a  = RandGen.Rndm() - 0.5;
-      b  = RandGen.Rndm() - 0.5;
-      r2 =  a*a + b*b;
-    }
-  double scale = 8.0 * TMath::Sqrt(0.25 - r2);
-
-  return TVector3(a*scale, b*scale, -1.0 + 8.0 * r2 );
-}
-*/
-
-/*
-#include <QSet>
-bool ASourceParticleGenerator::IsParticleInUse(int particleId, QString &SourceNames) const
-{
-    SourceNames.clear();
-    QSet<QString> sources;
-
-    for (const AParticleSourceRecord * ps : Settings.ParticleSourcesData)
-    {
-        for (int ip = 0; ip < ps->GunParticles.size(); ip++)
-        {
-            if ( particleId == ps->GunParticles[ip]->ParticleId )
-                sources << ps->name;
-        }
-    }
-
-    if (sources.isEmpty()) return false;
-    else
-    {
-        for (const QString& s : sources)
-        {
-            if (!SourceNames.isEmpty()) SourceNames += ", ";
-            SourceNames += s;
-        }
-        return true;
-    }
-}
-*/
-
-/*
-void ASourceParticleGenerator::RemoveParticle(int particleId)
-{
-  for (int isource=0; isource < Settings.ParticleSourcesData.size(); isource++ )
-    {
-      AParticleSourceRecord* ps = Settings.ParticleSourcesData[isource];
-      for (int ip = 0; ip<ps->GunParticles.size(); ip++)
-          if ( ps->GunParticles[ip]->ParticleId > particleId)
-              ps->GunParticles[ip]->ParticleId--;
-  }
-}
-*/
-
-/*
-int ASourceParticleGenerator::countSources() const
-{
-    return Settings.ParticleSourcesData.size();
-}
-*/
-
-/*
-AParticleSourceRecord *ASourceParticleGenerator::getSource(int iSource)
-{
-    return Settings.ParticleSourcesData[iSource];
-}
-*/
-
-/*
-bool ASourceParticleGenerator::LoadGunEnergySpectrum(int iSource, int iParticle, QString fileName)
-{
-  if (iSource < 0 || iSource >= Settings.ParticleSourcesData.size())
-    {
-      qWarning("Energy spectrum was NOT loaded - wrong source index");
-      return false;
-    }
-  if (iParticle < 0 || iParticle >= Settings.ParticleSourcesData[iSource]->GunParticles.size())
-    {
-      qWarning("Energy spectrum was NOT loaded - wrong particle index");
-      return false;
-    }
-
-  QVector<double> x, y;
-  int error = LoadDoubleVectorsFromFile(fileName, &x, &y);
-  if (error>0) return false;
-
-  if (Settings.ParticleSourcesData[iSource]->GunParticles[iParticle]->spectrum)
-      delete Settings.ParticleSourcesData[iSource]->GunParticles[iParticle]->spectrum;
-  int size = x.size();
-  double* xx = new double [size];
-  for (int i = 0; i<size; i++) xx[i]=x[i];
-
-  //generating unique name for the histogram
-  QString str = "EnSp" + QString::number(iSource) + "s" + QString::number(iParticle) + "p";
-  QByteArray ba = str.toLocal8Bit();
-  const char *c_str = ba.data();
-  Settings.ParticleSourcesData[iSource]->GunParticles[iParticle]->spectrum = new TH1D(c_str,"Energy spectrum", size-1, xx);
-  for (int j = 1; j<size+1; j++) Settings.ParticleSourcesData[iSource]->GunParticles[iParticle]->spectrum->SetBinContent(j, y[j-1]);
-
-  return true;
-}
-*/
-
-
-
-
-
-
-

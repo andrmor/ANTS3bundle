@@ -306,3 +306,305 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
     on_pbEditParticleSource_clicked();
 }
 
+#include "TGeoManager.h"
+#include "aparticlesimmanager.h"
+void AParticleSimWin::on_pbGunTest_clicked()
+{
+    AParticleSimManager & SimManager = AParticleSimManager::getInstance();
+//    WindowNavigator->BusyOn();   // -->
+
+    gGeoManager->ClearTracks();
+    emit requestShowGeometry(true, true, false);
+
+    if (ui->cobParticleGenerationMode->currentIndex() == 0)
+    {
+        if (ui->pbGunShowSource->isChecked())
+            for (int i = 0; i < SimSet.SourceGenSettings.getNumSources(); i++)
+                drawSource(i);
+    }
+
+    AParticleGun * pg = nullptr;
+    switch (ui->cobParticleGenerationMode->currentIndex())
+    {
+    case 0:
+        pg = SimManager.Generator_Sources;
+        break;
+    case 1:
+//        pg = SimManager->FileParticleGenerator;
+//        SimManager->FileParticleGenerator->InitWithCheck(SimulationManager->Settings.partSimSet.FileGenSettings, false);
+        break;
+    case 2:
+//        pg = SimManager->ScriptParticleGenerator;
+        break;
+    default:
+        guitools::message("This generation mode is not implemented!", this);
+//        WindowNavigator->BusyOff(); // <--
+        return;
+    }
+
+    ui->pbAbort->setEnabled(true);
+    QFont font = ui->pbAbort->font();
+    font.setBold(true);
+    ui->pbAbort->setFont(font);
+
+    SimSet.FileGenSettings.ValidationMode = AFileGenSettings::Relaxed;
+    testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
+
+    ui->pbAbort->setEnabled(false);
+    ui->pbAbort->setText("stop");
+    font.setBold(false);
+    ui->pbAbort->setFont(font);
+
+
+    emit requestShowTracks();
+//    emit requestShowMarkers();
+
+//    WindowNavigator->BusyOff();  // <--
+}
+
+#include "TVirtualGeoTrack.h"
+#include "ageometryhub.h"
+#include "aparticlerecord.h"
+void AParticleSimWin::drawSource(int iSource)
+{
+    const AParticleSourceRecord * p = SimSet.SourceGenSettings.getSourceRecord(iSource);
+    if (!p) return;
+
+    int index = p->shape;
+    double X0 = p->X0;
+    double Y0 = p->Y0;
+    double Z0 = p->Z0;
+    double Phi = p->Phi*3.1415926535/180.0;
+    double Theta = p->Theta*3.1415926535/180.0;
+    double Psi = p->Psi*3.1415926535/180.0;
+    double size1 = p->size1;
+    double size2 = p->size2;
+    double size3 = p->size3;
+    double CollPhi = p->CollPhi*3.1415926535/180.0;
+    double CollTheta = p->CollTheta*3.1415926535/180.0;
+    double Spread = p->Spread*3.1415926535/180.0;
+
+    //calculating unit vector along 1D direction
+    TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
+    //qDebug()<<VV[0]<<VV[1]<<VV[2];
+
+    TVector3 V[3];
+    V[0].SetXYZ(size1, 0, 0);
+    V[1].SetXYZ(0, size2, 0);
+    V[2].SetXYZ(0, 0, size3);
+    for (int i=0; i<3; i++)
+    {
+        V[i].RotateX(Phi);
+        V[i].RotateY(Theta);
+        V[i].RotateZ(Psi);
+    }
+    switch (index)
+    {
+    case 0:
+    {
+        gGeoManager->SetCurrentPoint(X0,Y0,Z0);
+        gGeoManager->DrawCurrentPoint(9);
+//        GeometryWindow->ClearGeoMarkers();
+//        GeoMarkerClass* marks = new GeoMarkerClass("Source", 3, 10, kBlack);
+//        marks->SetNextPoint(X0, Y0, Z0);
+//        GeometryWindow->GeoMarkers.append(marks);
+//        GeoMarkerClass* marks1 = new GeoMarkerClass("Source", 4, 3, kBlack);
+//        marks1->SetNextPoint(X0, Y0, Z0);
+//        GeometryWindow->GeoMarkers.append(marks1);
+//        GeometryWindow->ShowGeometry(false);
+        break;
+    }
+    case (1):
+    { //linear source
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        track->AddPoint(X0+VV[0]*size1, Y0+VV[1]*size1, Z0+VV[2]*size1, 0);
+        track->AddPoint(X0-VV[0]*size1, Y0-VV[1]*size1, Z0-VV[2]*size1, 0);
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    case (2):
+    { //area source - square
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        track->AddPoint(X0-V[0][0]-V[1][0], Y0-V[0][1]-V[1][1], Z0-V[0][2]-V[1][2], 0);
+        track->AddPoint(X0+V[0][0]-V[1][0], Y0+V[0][1]-V[1][1], Z0+V[0][2]-V[1][2], 0);
+        track->AddPoint(X0+V[0][0]+V[1][0], Y0+V[0][1]+V[1][1], Z0+V[0][2]+V[1][2], 0);
+        track->AddPoint(X0-V[0][0]+V[1][0], Y0-V[0][1]+V[1][1], Z0-V[0][2]+V[1][2], 0);
+        track->AddPoint(X0-V[0][0]-V[1][0], Y0-V[0][1]-V[1][1], Z0-V[0][2]-V[1][2], 0);
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    case (3):
+    { //area source - round
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVector3 Circ;
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(x,y,0);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+
+    case (4):
+    { //volume source - box
+        for (int i=0; i<3; i++)
+            for (int j=0; j<3; j++)
+            {
+                if (j==i) continue;
+                //third k
+                int k = 0;
+                for (; k<2; k++)
+                    if (k!=i && k!=j) break;
+                for (int s=-1; s<2; s+=2)
+                {
+                    //  qDebug()<<"i j k shift"<<i<<j<<k<<s;
+                    Int_t track_index = gGeoManager->AddTrack(1,22);
+                    TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+                    track->AddPoint(X0-V[i][0]-V[j][0]+V[k][0]*s, Y0-V[i][1]-V[j][1]+V[k][1]*s, Z0-V[i][2]-V[j][2]+V[k][2]*s, 0);
+                    track->AddPoint(X0+V[i][0]-V[j][0]+V[k][0]*s, Y0+V[i][1]-V[j][1]+V[k][1]*s, Z0+V[i][2]-V[j][2]+V[k][2]*s, 0);
+                    track->AddPoint(X0+V[i][0]+V[j][0]+V[k][0]*s, Y0+V[i][1]+V[j][1]+V[k][1]*s, Z0+V[i][2]+V[j][2]+V[k][2]*s, 0);
+                    track->AddPoint(X0-V[i][0]+V[j][0]+V[k][0]*s, Y0-V[i][1]+V[j][1]+V[k][1]*s, Z0-V[i][2]+V[j][2]+V[k][2]*s, 0);
+                    track->AddPoint(X0-V[i][0]-V[j][0]+V[k][0]*s, Y0-V[i][1]-V[j][1]+V[k][1]*s, Z0-V[i][2]-V[j][2]+V[k][2]*s, 0);
+                    track->SetLineWidth(3);
+                    track->SetLineColor(9);
+                }
+            }
+        break;
+    }
+    case(5):
+    { //volume source - cylinder
+        TVector3 Circ;
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        double z = size3;
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(x,y,z);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        track_index = gGeoManager->AddTrack(1,22);
+        track = gGeoManager->GetTrack(track_index);
+        z = -z;
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(x,y,z);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    }
+
+    TVector3 K(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta)); //collimation direction
+    Int_t track_index = gGeoManager->AddTrack(1,22);
+    TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+    const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
+    const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
+    double Klength = std::max(WorldSizeXY, WorldSizeZ)*0.5;
+
+    track->AddPoint(X0, Y0, Z0, 0);
+    track->AddPoint(X0+K[0]*Klength, Y0+K[1]*Klength, Z0+K[2]*Klength, 0);
+    track->SetLineWidth(2);
+    track->SetLineColor(9);
+
+    TVector3 Knorm = K.Orthogonal();
+    TVector3 K1(K);
+    K1.Rotate(Spread, Knorm);
+    for (int i=0; i<8; i++)  //drawing spread
+    {
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+
+        track->AddPoint(X0, Y0, Z0, 0);
+        track->AddPoint(X0+K1[0]*Klength, Y0+K1[1]*Klength, Z0+K1[2]*Klength, 0);
+        K1.Rotate(3.1415926535/4.0, K);
+
+        track->SetLineWidth(1);
+        track->SetLineColor(9);
+    }
+}
+
+void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
+{
+    if (!Gun)
+    {
+        guitools::message("Particle gun is not defined", this);
+        return;
+    }
+
+    bool bOK = Gun->Init();
+    if (!bOK)
+    {
+        guitools::message("Failed to initialize particle gun!\n" + Gun->GetErrorString(), this);
+        return;
+    }
+    Gun->SetStartEvent(0);
+//    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
+
+    const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
+    const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
+    double Length = std::max(WorldSizeXY, WorldSizeZ)*0.4;
+    double R[3], K[3];
+    std::vector<AParticleRecord*> GP;
+    int numTracks = 0;
+    for (int iRun=0; iRun<numParticles; iRun++)
+    {
+        bool bOK = Gun->GenerateEvent(GP, iRun);
+        if (bOK && numTracks < 1000)
+        {
+            for (const AParticleRecord * p : GP)
+            {
+                R[0] = p->r[0];
+                R[1] = p->r[1];
+                R[2] = p->r[2];
+
+                K[0] = p->v[0];
+                K[1] = p->v[1];
+                K[2] = p->v[2];
+
+                int track_index = gGeoManager->AddTrack(1, 22);
+                TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+                track->AddPoint(R[0], R[1], R[2], 0);
+                track->AddPoint(R[0] + K[0]*Length, R[1] + K[1]*Length, R[2] + K[2]*Length, 0);
+//                SimulationManager->TrackBuildOptions.applyToParticleTrack(track, p->Id);
+
+//                GeoMarkerClass* marks = new GeoMarkerClass("t", 7, 1, SimulationManager->TrackBuildOptions.getParticleColor(p->Id));
+//                marks->SetNextPoint(R[0], R[1], R[2]);
+//                GeometryWindow->GeoMarkers.append(marks);
+
+                ++numTracks;
+                if (numTracks > 1000) break;
+            }
+        }
+
+        for (const AParticleRecord * p : GP) delete p;
+        GP.clear();
+
+        if (!bOK) break;
+    }
+}

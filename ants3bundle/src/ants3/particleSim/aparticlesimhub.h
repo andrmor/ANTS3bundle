@@ -11,6 +11,7 @@ class AParticleSimHub : public QObject
 
 public:
     static AParticleSimHub & getInstance();
+    static const AParticleSimHub & getConstInstance();
 
 private:
     AParticleSimHub(){}

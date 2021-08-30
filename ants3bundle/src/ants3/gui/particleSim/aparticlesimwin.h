@@ -6,6 +6,7 @@
 class AParticleSimSettings;
 class AG4SimulationSettings;
 class QListWidgetItem;
+class AParticleGun;
 
 namespace Ui {
 class AParticleSimWin;
@@ -38,12 +39,20 @@ private slots:
 
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
+    void on_pbGunTest_clicked();
+
+signals:
+    void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
+    void requestShowTracks();
+
 private:
     AParticleSimSettings  & SimSet;
     AG4SimulationSettings & G4SimSet; // !!!*** remove?
 
     Ui::AParticleSimWin *ui;
     void updateListSources();
+    void drawSource(int iSource);  // !!!***
+    void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
 };
 
 #endif // APARTICLESIMWIN_H

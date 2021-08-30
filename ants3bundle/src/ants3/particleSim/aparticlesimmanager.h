@@ -4,6 +4,7 @@
 #include <QString>
 
 class AParticleSimSettings;
+class ASourceParticleGenerator;
 
 class AParticleSimManager
 {
@@ -12,7 +13,7 @@ public:
 
 private:
     AParticleSimManager();
-    ~AParticleSimManager(){}
+    ~AParticleSimManager();
 
     AParticleSimManager(const AParticleSimManager&)            = delete;
     AParticleSimManager(AParticleSimManager&&)                 = delete;
@@ -21,7 +22,10 @@ private:
 
 public:
     AParticleSimSettings & SimSet;
+
     QString ErrorString;
+
+    ASourceParticleGenerator * Generator_Sources = nullptr;
 
     bool simulate(int numLocalProc = -1);
 

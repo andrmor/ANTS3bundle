@@ -2,8 +2,9 @@
 #define APARTICLEGUN_H
 
 #include <QObject>
-#include <QVector>
 #include <QString>
+
+#include <vector>
 
 class QJsonObject;
 class AParticleRecord;
@@ -17,7 +18,7 @@ public:
 
     virtual bool Init() = 0;             //called before first use
     virtual void ReleaseResources() {}   //called after end of operation
-    virtual bool GenerateEvent(QVector<AParticleRecord*> & GeneratedParticles, int iEvent) = 0;
+    virtual bool GenerateEvent(std::vector<AParticleRecord*> & GeneratedParticles, int iEvent) = 0;
 
     //virtual void RemoveParticle(int particleId) = 0; //should NOT be used to remove one of particles in use! use onIsPareticleInUse first
     //virtual bool IsParticleInUse(int particleId, QString& SourceNames) const = 0;

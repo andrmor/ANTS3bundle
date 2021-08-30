@@ -69,6 +69,8 @@ MainWindow::MainWindow(A3ScriptManager & SM) :
     FarmWin = new ARemoteWindow(this);
 
     PartSimWin = new AParticleSimWin(this);
+    connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
 }
 
 MainWindow::~MainWindow()

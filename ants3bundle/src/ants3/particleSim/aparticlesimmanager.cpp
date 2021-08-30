@@ -1,6 +1,7 @@
 #include "aparticlesimmanager.h"
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
+#include "asourceparticlegenerator.h"
 
 #include <QDebug>
 
@@ -11,7 +12,15 @@ AParticleSimManager & AParticleSimManager::getInstance()
 }
 
 AParticleSimManager::AParticleSimManager() :
-    SimSet(AParticleSimHub::getInstance().Settings){}
+    SimSet(AParticleSimHub::getInstance().Settings)
+{
+    Generator_Sources = new ASourceParticleGenerator();
+}
+
+AParticleSimManager::~AParticleSimManager()
+{
+    delete Generator_Sources;
+}
 
 #include "a3farmnoderecord.h"
 #include "a3workdistrconfig.h"

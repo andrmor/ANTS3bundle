@@ -11,24 +11,20 @@ public:
     AParticleRecord(const QString & particle,
                     double x, double y, double z,
                     double vx, double vy, double vz,
-                    double time, double energy,
-                    int secondaryOf = -1);
+                    double time,
+                    double energy);
     AParticleRecord(){}
 
-    QString particle;    // Geant4 name
-    double  r[3];        //starting point
-    double  v[3];        //starting vector
-    double  time = 0;        //time on start
-    double  energy;      //staring energy
-    int     secondaryOf = -1; //use in primary tracker to designate secondary particles and link to their primary ***!!! to change to bool
+    QString particle;    // particle name in Geant4
+    double  r[3];        // starting position, in mm
+    double  v[3];        // starting direction vector (unitary)
+    double  time = 0;    // starting time, in ns
+    double  energy;      // staring energy, in keV
 
     AParticleRecord * clone(); // TODO no need?
     void ensureUnitaryLength();
-    void randomDir(); // !!!***
+    void randomDir(); // !!!*** need?
 
-    // runtime properties
-    AParticleTrackingRecord * ParticleRecord = nullptr; // used only of log is on!  it is != nullptr if secondary
-    bool bInteracted = false;
 };
 
 #endif // APARTICLERECORD_H
