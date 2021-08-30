@@ -1,10 +1,16 @@
 #ifndef APARTICLESIMMANAGER_H
 #define APARTICLESIMMANAGER_H
 
+#include "a3farmnoderecord.h"
+
 #include <QString>
+
+#include <vector>
 
 class AParticleSimSettings;
 class ASourceParticleGenerator;
+class AGeometryHub;
+class A3WorkDistrConfig;
 
 class AParticleSimManager
 {
@@ -22,6 +28,7 @@ private:
 
 public:
     AParticleSimSettings & SimSet;
+    const AGeometryHub   & Geometry;
 
     QString ErrorString;
 
@@ -31,9 +38,9 @@ public:
 
 private:
     void addErrorLine(const QString & error);
-    bool checkDirectories();
-
-
+    void checkDirectories();
+    void checkG4Settings();
+    bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 };
 
 #endif // APARTICLESIMMANAGER_H

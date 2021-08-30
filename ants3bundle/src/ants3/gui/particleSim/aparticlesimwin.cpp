@@ -656,5 +656,5 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 
 void AParticleSimWin::on_pbSimulate_clicked()
 {
-
+    AParticleSimManager::getInstance().simulate();
 }

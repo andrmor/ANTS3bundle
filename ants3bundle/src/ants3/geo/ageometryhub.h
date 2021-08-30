@@ -14,6 +14,7 @@ class TGeoCombiTrans;
 class TGeoRotation;
 class QJsonObject;
 class AVector3;
+class QStringLists;
 
 // !!!*** to QObject and add signal on geometry changed
 
@@ -21,6 +22,7 @@ class AGeometryHub
 {
 public:
     static AGeometryHub & getInstance();
+    static const AGeometryHub & getConstInstance();
 
 private:
     AGeometryHub();
@@ -81,9 +83,11 @@ public:
     void         setWorldSizeZ(double size);
 
     int          checkGeometryForConflicts();
+    QString      checkVolumesExist(const QStringList & VolumesAndWildcards) const;
 
     QString      exportToGDML(const QString & fileName) const;
     QString      exportToROOT(const QString & fileName) const;
+
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);

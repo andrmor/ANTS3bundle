@@ -119,10 +119,6 @@ const QString AG4SimulationSettings::getExitParticleFileName(int iThreadNum) con
     return getPath() + QString("exits-%1.dat").arg(iThreadNum);
 }
 
-const QString AG4SimulationSettings::getGdmlFileName() const
-{
-    return getPath() + "Detector.gdml";
-}
 
 bool AG4SimulationSettings::checkPathValid() const
 {

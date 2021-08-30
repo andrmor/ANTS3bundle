@@ -22,6 +22,11 @@ AGeometryHub & AGeometryHub::getInstance()
     return instance;
 }
 
+const AGeometryHub &AGeometryHub::getConstInstance()
+{
+    return getInstance();
+}
+
 AGeometryHub::AGeometryHub()
 {
     World = new AGeoObject("World");
@@ -1308,4 +1313,53 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
     GeoManager->Export(c_str);
 
     return "";
+}
+
+QString AGeometryHub::checkVolumesExist(const QStringList & VolumesAndWildcards) const
+{
+    if (VolumesAndWildcards.isEmpty()) return ""; //can be empty
+
+    QStringList NotFoundVolumes;
+    TObjArray * va = GeoManager->GetListOfVolumes();
+    const int numVol = va->GetEntries();
+
+    for (const QString & vw : VolumesAndWildcards)
+    {
+        QString s = vw;
+
+        bool bWild = false;
+        if (s.endsWith('*'))
+        {
+            s.chop(1);
+            bWild = true;
+        }
+
+        bool bFound = false;
+        for (int iV=0; iV<numVol; iV++)
+        {
+            const TString tname = ((TGeoVolume*)va->At(iV))->GetName();
+            const QString sname(tname.Data());
+
+            if (bWild)
+            {
+                if (sname.startsWith(s))
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (sname == s)
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+        }
+        if (!bFound) NotFoundVolumes << s;
+    }
+
+    if (NotFoundVolumes.isEmpty()) return "";
+    else return QString("The following volumes/widlcards do not identify any volume in the geometry:\n%1").arg(NotFoundVolumes.join(", "));
 }

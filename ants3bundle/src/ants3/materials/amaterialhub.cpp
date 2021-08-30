@@ -291,8 +291,10 @@ void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
     mat->name = name;
 }
 
-void AMaterialHub::CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const
+void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 {
+    const AGeoObject * World = AGeometryHub::getInstance().World;
+
     for (int iM = 0; iM<Materials.size(); iM++)
     {
         if (!World->isMaterialInActiveUse(iM)) continue;

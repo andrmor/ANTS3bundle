@@ -2,6 +2,7 @@
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
 #include "asourceparticlegenerator.h"
+#include "ageometryhub.h"
 
 #include <QDebug>
 
@@ -12,7 +13,8 @@ AParticleSimManager & AParticleSimManager::getInstance()
 }
 
 AParticleSimManager::AParticleSimManager() :
-    SimSet(AParticleSimHub::getInstance().Settings)
+    SimSet(AParticleSimHub::getInstance().Settings),
+    Geometry(AGeometryHub::getConstInstance())
 {
     Generator_Sources = new ASourceParticleGenerator();
 }
@@ -25,13 +27,19 @@ AParticleSimManager::~AParticleSimManager()
 #include "a3farmnoderecord.h"
 #include "a3workdistrconfig.h"
 #include "adispatcherinterface.h"
+#include "a3global.h"
 bool AParticleSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Particle sim triggered";
     ErrorString.clear();
 
-    bool ok = checkDirectories();
-    if (!ok) return false;
+    checkG4Settings();
+    checkDirectories();
+    addErrorLine(Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes));
+
+    if (!ErrorString.isEmpty()) return false;
+
+
 
 //    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
@@ -83,7 +91,8 @@ bool AParticleSimManager::simulate(int numLocalProc)
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
-//    ok = configureSimulation(RunPlan, Request);
+
+    bool ok = configureSimulation(RunPlan, Request);
     if (!ok) return false;
 
     qDebug() << "Running simulation...";
@@ -97,6 +106,35 @@ bool AParticleSimManager::simulate(int numLocalProc)
     return ErrorString.isEmpty();
 }
 
+#include "amaterialhub.h"
+void AParticleSimManager::checkG4Settings()
+{
+    // TODO: no sensitive volumes but photon sim scheduled
+
+    // TODO: optical grids will not be expanded
+
+    AMaterialHub::getInstance().checkReadyForGeant4Sim(ErrorString);
+}
+
+bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+{
+    Request.Command = "lsim";
+
+    const QString ExchangeDir = A3Global::getConstInstance().ExchangeDir;
+
+    const QString LocalGdmlName = ExchangeDir + '/' +SimSet.RunSet.getGdmlFileName();
+    QString err = Geometry.exportToGDML(LocalGdmlName);
+    if (!err.isEmpty())
+    {
+        ErrorString = err;
+        return false;
+    }
+    Request.CommonFiles.push_back(LocalGdmlName);
+
+    // ...
+
+    return true;
+}
 
 // ---
 
@@ -110,12 +148,10 @@ void AParticleSimManager::addErrorLine(const QString &error)
 
 #include "a3global.h"
 #include <QDir>
-bool AParticleSimManager::checkDirectories()
+void AParticleSimManager::checkDirectories()
 {
     if (SimSet.RunSet.OutputDirectory.isEmpty())       addErrorLine("Output directory is not set!");
     if (!QDir(SimSet.RunSet.OutputDirectory).exists()) addErrorLine("Output directory does not exist!");
 
     addErrorLine(A3Global::getInstance().checkExchangeDir());
-
-    return ErrorString.isEmpty();
 }

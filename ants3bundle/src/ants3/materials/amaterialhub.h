@@ -59,7 +59,7 @@ public:
     double  getDriftSpeed(int iMat) const; //returns in mm / ns
     double  getDiffusionSigmaTime(int iMat, double length_mm) const;
     double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;
-    void    CheckReadyForGeant4Sim(QString & Errors, QString & Warnings, const AGeoObject * World) const;
+    void    checkReadyForGeant4Sim(QString & Errors) const;
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error

@@ -126,6 +126,8 @@ public:
     void readFromJson(const QJsonObject & json);
 
     void clear();
+
+    QString getGdmlFileName() const {return "Detector.gdml";}
 };
 
 

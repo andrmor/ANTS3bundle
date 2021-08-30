@@ -24,6 +24,7 @@ public:
 
     void clear();
 
+
 /*
     const QString getPrimariesFileName(int iThreadNum) const;
     const QString getDepositionFileName(int iThreadNum) const;
@@ -32,7 +33,6 @@ public:
     const QString getTracksFileName(int iThreadNum) const;
     const QString getMonitorDataFileName(int iThreadNum) const;
     const QString getExitParticleFileName(int iThreadNum) const;
-    const QString getGdmlFileName() const;
 
     bool  checkPathValid() const;
     bool  checkExecutableExists() const;
