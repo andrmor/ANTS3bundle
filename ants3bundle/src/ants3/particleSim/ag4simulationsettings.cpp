@@ -10,13 +10,11 @@
 
 AG4SimulationSettings::AG4SimulationSettings()
 {
-    Commands = QStringList({"/run/setCut 0.7 mm"});
+    Commands = QStringList();
 }
 
 void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 {
-    json["TrackParticles"] = bTrackParticles;
-
     json["PhysicsList"] = PhysicsList;
 
     QJsonArray arSV;
@@ -38,15 +36,12 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
     }
     json["StepLimits"] = arSL;
 
-    json["BinaryOutput"]  = BinaryOutput;
-    json["Precision"]     = Precision;
-
     json["UseTSphys"]     = UseTSphys;
 }
 
 void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 {
-    jstools::parseJson(json, "TrackParticles", bTrackParticles);
+    clear();
 
     jstools::parseJson(json, "PhysicsList", PhysicsList);
 
@@ -76,10 +71,16 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
         }
     }
 
-    jstools::parseJson(json, "BinaryOutput", BinaryOutput);
-    jstools::parseJson(json, "Precision",    Precision);
-
     jstools::parseJson(json, "UseTSphys", UseTSphys);
+}
+
+void AG4SimulationSettings::clear()
+{
+    PhysicsList = "QGSP_BERT_HP";
+    SensitiveVolumes.clear();
+    Commands = QStringList({"/run/setCut 0.7 mm"});
+    StepLimits.clear();
+    UseTSphys = false;
 }
 
 /*

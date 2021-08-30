@@ -19,7 +19,7 @@ class ASourceGenSettings
 public:
     enum AMultiMode {Constant = 0, Poisson = 1};
 
-    QVector<AParticleSourceRecord*> ParticleSourcesData;
+    QVector<AParticleSourceRecord*> ParticleSourcesData;  // !!!*** reformat
 
     bool       MultiEnabled = false;
     AMultiMode MultiMode    = Constant;
@@ -114,13 +114,18 @@ public:
     int     EventFrom = 0;
     int     EventTo   = 0;
 
+    bool    AsciiOutput    = true;
+    int     AsciiPrecision = 6;
+
     QString OutputDirectory;
 
-    //bool    SaveSensorSignals     = true;
-    //QString FileNameSensorSignals = "SensorSignals.txt";
+    bool    SaveTrackingData = true;
+    QString FileNameTrackingData = "TrackingData.txt";
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    void clear();
 };
 
 
@@ -142,9 +147,9 @@ public:
     bool    bIgnoreNoHits   = false; // !!!*** ?
     bool    bIgnoreNoDepo   = false; // !!!*** ?
 
-    bool    bClusterMerge   = false; // !!!*** to output?
-    double  ClusterRadius   = 0.1; // !!!*** to output?
-    double  ClusterTime     = 1.0; // !!!*** to output?
+    bool    bClusterMerge   = false; // !!!*** to photon from depo settings
+    double  ClusterRadius   = 0.1;   // !!!*** to photon from depo settings
+    double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
 
     ASourceGenSettings SourceGenSettings;
     AFileGenSettings   FileGenSettings;

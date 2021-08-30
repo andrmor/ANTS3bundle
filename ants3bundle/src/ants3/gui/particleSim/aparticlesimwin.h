@@ -27,8 +27,6 @@ private slots:
     void on_cobRefPhysLists_activated(int index);
     void on_cbUseTSphys_clicked(bool checked);
     void on_pteCommands_textChanged();
-    void on_cbBinaryOutput_clicked(bool checked);
-    void on_sbPrecision_editingFinished();
     void on_pteSensitiveVolumes_textChanged();  // redo  !!!***
     void on_pteStepLimits_textChanged();
 

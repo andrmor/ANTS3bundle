@@ -21,33 +21,51 @@ void AParticleSimSettings::clearSettings()
     SourceGenSettings.clear();
     FileGenSettings.clear();
     ScriptGenSettings.clear();
+
+    G4Set.clear();
+    RunSet.clear();
 }
 
 void AParticleSimSettings::writeToJson(QJsonObject & json) const
 {
+    //Run settings -> modified by the simulation manager for each process!
     {
         QJsonObject js;
-            QString s;
-                switch (GenerationMode)
-                {
-                case Sources: s = "Sources"; break;
-                case File:    s = "File";    break;
-                case Script:  s = "Script";  break;
-                }
-            js["ParticleGenerationMode"] = s;
-            js["Events"] = Events;
-
-            js["DoS1"] = bDoS1;
-            js["DoS2"] = bDoS2;
-            js["IgnoreNoHitsEvents"] = bIgnoreNoHits;
-            js["IgnoreNoDepoEvents"] = bIgnoreNoDepo;
-            js["ClusterMerge"] = bClusterMerge;
-            js["ClusterMergeRadius"] = ClusterRadius;
-            js["ClusterMergeTime"] = ClusterTime;
-        json["SourceControlOptions"] = js;
+        RunSet.writeToJson(js);
+        json["RunSettings"] = js;
     }
 
-    SourceGenSettings.writeToJson(json);
+    //Geant4 settings
+    {
+        QJsonObject js;
+        G4Set.writeToJson(js);
+        json["Geant4Settings"] = js;
+    }
+
+    QString s;
+    switch (GenerationMode)
+    {
+        case Sources: s = "Sources"; break;
+        case File:    s = "File";    break;
+        case Script:  s = "Script";  break;
+    }
+    json["ParticleGenerationMode"] = s;
+    json["Events"] = Events;
+
+    json["DoS1"] = bDoS1;
+    json["DoS2"] = bDoS2;
+    json["IgnoreNoHitsEvents"] = bIgnoreNoHits;
+    json["IgnoreNoDepoEvents"] = bIgnoreNoDepo;
+    json["ClusterMerge"] = bClusterMerge;
+    json["ClusterMergeRadius"] = ClusterRadius;
+    json["ClusterMergeTime"] = ClusterTime;
+
+
+    {
+        QJsonObject js;
+            SourceGenSettings.writeToJson(js);
+        json["GenerationFromSources"] = js;
+    }
 
     {
         QJsonObject js;
@@ -66,45 +84,56 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
 {
     clearSettings();
 
+    // run
     {
         QJsonObject js;
-        bool ok = jstools::parseJson(json, "SourceControlOptions", js);
-        if (!ok)
-        {
-            qWarning() << "Bad format of particle sim settings json";
-            return;
-        }
-
-        QString PartGenMode = "Sources";
-        jstools::parseJson(js, "ParticleGenerationMode", PartGenMode);
-        if      (PartGenMode == "Sources") GenerationMode = Sources;
-        else if (PartGenMode == "File")    GenerationMode = File;
-        else if (PartGenMode == "Script")  GenerationMode = Script;
-        else qWarning() << "Unknown particle generation mode";
-
-        jstools::parseJson(js, "Events", Events);
-
-        jstools::parseJson(js, "DoS1", bDoS1);
-        jstools::parseJson(js, "DoS2", bDoS2);
-        jstools::parseJson(js, "IgnoreNoHitsEvents", bIgnoreNoHits);
-        jstools::parseJson(js, "IgnoreNoDepoEvents", bIgnoreNoDepo);
-        jstools::parseJson(js, "ClusterMerge", bClusterMerge);
-        jstools::parseJson(js, "ClusterMergeRadius", ClusterRadius);
-        jstools::parseJson(js, "ClusterMergeTime", ClusterTime);
+        jstools::parseJson(json, "RunSettings", js);
+        RunSet.readFromJson(js);
     }
 
-    SourceGenSettings.readFromJson(json);
-
+    // geant4
     {
         QJsonObject js;
-            bool ok = jstools::parseJson(json, "GenerationFromFile", js);
-        if (ok) FileGenSettings.readFromJson(js);
+        jstools::parseJson(json, "Geant4Settings", js);
+        G4Set.readFromJson(js);
     }
 
+    QString PartGenMode = "Sources";
+    jstools::parseJson(json, "ParticleGenerationMode", PartGenMode);
+    if      (PartGenMode == "Sources") GenerationMode = Sources;
+    else if (PartGenMode == "File")    GenerationMode = File;
+    else if (PartGenMode == "Script")  GenerationMode = Script;
+    else qWarning() << "Unknown particle generation mode";
+
+    jstools::parseJson(json, "Events", Events);
+
+    jstools::parseJson(json, "DoS1", bDoS1);
+    jstools::parseJson(json, "DoS2", bDoS2);
+    jstools::parseJson(json, "IgnoreNoHitsEvents", bIgnoreNoHits);
+    jstools::parseJson(json, "IgnoreNoDepoEvents", bIgnoreNoDepo);
+    jstools::parseJson(json, "ClusterMerge", bClusterMerge);
+    jstools::parseJson(json, "ClusterMergeRadius", ClusterRadius);
+    jstools::parseJson(json, "ClusterMergeTime", ClusterTime);
+
+    // sources
     {
         QJsonObject js;
-            bool ok = jstools::parseJson(json, "GenerationFromScript", js);
-        if (ok) ScriptGenSettings.readFromJson(js);
+        jstools::parseJson(json, "GenerationFromSources", js);
+        SourceGenSettings.readFromJson(js);
+    }
+
+    // file
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "GenerationFromFile", js);
+        FileGenSettings.readFromJson(js);
+    }
+
+    // script
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "GenerationFromScript", js);
+        ScriptGenSettings.readFromJson(js);
     }
 }
 
@@ -397,10 +426,45 @@ void ASourceGenSettings::remove(int iSource)
 
 void AParticleRunSettings::writeToJson(QJsonObject &json) const
 {
+    json["Seed"]                 = Seed;
 
+    json["EventFrom"]            = EventFrom;
+    json["EventTo"]              = EventTo;
+
+    json["OutputDirectory"]      = OutputDirectory;
+
+    json["AsciiOutput"]          = AsciiOutput;
+    json["AsciiPrecision"]       = AsciiPrecision;
+
+    json["SaveTrackingData"]     = SaveTrackingData;
+    json["FileNameTrackingData"] = FileNameTrackingData;
 }
 
 void AParticleRunSettings::readFromJson(const QJsonObject &json)
 {
+    clear();
 
+    jstools::parseJson(json, "Seed",                 Seed);
+
+    jstools::parseJson(json, "EventFrom",            EventFrom);
+    jstools::parseJson(json, "EventTo",              EventTo);
+
+    jstools::parseJson(json, "OutputDirectory",      OutputDirectory);
+
+    jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
+    jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);
+
+    jstools::parseJson(json, "SaveTrackingData",     SaveTrackingData);
+    jstools::parseJson(json, "FileNameTrackingData", FileNameTrackingData);
+}
+
+void AParticleRunSettings::clear()
+{
+    AsciiOutput    = true;
+    AsciiPrecision = 6;
+
+    OutputDirectory.clear();
+
+    SaveTrackingData = true;
+    FileNameTrackingData = "TrackingData.txt";
 }

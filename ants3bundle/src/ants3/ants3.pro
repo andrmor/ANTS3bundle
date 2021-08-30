@@ -92,6 +92,7 @@ SOURCES += \
     gui/graph/graphicsruler.cpp \
     gui/graph/graphwindowclass.cpp \
     gui/graph/shapeablerectitem.cpp \
+    gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
     gui/particleSim/aparticlesourcedialog.cpp \
     gui/photsim/abombadvanceddialog.cpp \
@@ -208,6 +209,7 @@ HEADERS += \
     gui/graph/graphicsruler.h \
     gui/graph/graphwindowclass.h \
     gui/graph/shapeablerectitem.h \
+    gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
     gui/particleSim/aparticlesourcedialog.h \
     gui/photsim/abombadvanceddialog.h \
@@ -304,6 +306,7 @@ FORMS += \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \
         gui/graph/graphwindowclass.ui \
+        gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
         gui/photsim/abombadvanceddialog.ui \

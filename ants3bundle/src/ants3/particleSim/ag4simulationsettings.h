@@ -12,19 +12,17 @@ class AG4SimulationSettings
 public:
     AG4SimulationSettings();
 
-    bool bTrackParticles = false;
-
     QString               PhysicsList = "QGSP_BERT_HP";
     QStringList           SensitiveVolumes;
-    QStringList           Commands;
+    QStringList           Commands = QStringList({"/run/setCut 0.7 mm"});
     QMap<QString, double> StepLimits;
-    bool                  BinaryOutput = false;
-    int                   Precision = 6;
 
     bool                  UseTSphys = false;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    void clear();
 
 /*
     const QString getPrimariesFileName(int iThreadNum) const;

@@ -59,9 +59,6 @@ void AParticleSimWin::updateG4Gui()
     for (auto & key : G4SimSet.StepLimits.keys())
         ui->pteStepLimits->appendPlainText( QString("%1 %2").arg(key).arg(G4SimSet.StepLimits.value(key)) );
 
-    ui->cbBinaryOutput->setChecked(G4SimSet.BinaryOutput);
-    ui->sbPrecision->setValue(G4SimSet.Precision);
-
     ui->cbUseTSphys->setChecked(G4SimSet.UseTSphys);
 }
 
@@ -84,14 +81,6 @@ void AParticleSimWin::on_pteCommands_textChanged()
 {
     const QString t = ui->pteCommands->document()->toPlainText();
     G4SimSet.Commands = t.split('\n', Qt::SkipEmptyParts);
-}
-void AParticleSimWin::on_cbBinaryOutput_clicked(bool checked)
-{
-    G4SimSet.BinaryOutput = checked;
-}
-void AParticleSimWin::on_sbPrecision_editingFinished()
-{
-    G4SimSet.Precision = ui->sbPrecision->value();
 }
 void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
 {
@@ -658,11 +647,12 @@ void AParticleSimWin::on_sbEvents_editingFinished()
     SimSet.Events = ui->sbEvents->value();
 }
 
+#include "aparticlesimoutputdialog.h"
 void AParticleSimWin::on_pbConfigureOutput_clicked()
 {
-
+    AParticleSimOutputDialog d(this);
+    d.exec();
 }
-
 
 void AParticleSimWin::on_pbSimulate_clicked()
 {
