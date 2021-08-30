@@ -26,6 +26,26 @@ AParticleSimWin::~AParticleSimWin()
 
 void AParticleSimWin::updateGui()
 {
+    updateG4Gui();
+    updateSimGui();
+}
+
+void AParticleSimWin::updateSimGui()
+{
+    ui->sbEvents->setValue(SimSet.Events);
+
+    int iMode = 0;
+    if      (SimSet.GenerationMode == AParticleSimSettings::Sources) iMode = 0;
+    else if (SimSet.GenerationMode == AParticleSimSettings::File)    iMode = 1;
+    else if (SimSet.GenerationMode == AParticleSimSettings::Script)  iMode = 2;
+    else qWarning() << "Unknown particle generation mode!";
+    ui->cobParticleGenerationMode->setCurrentIndex(iMode);
+
+    updateSourceList();
+}
+
+void AParticleSimWin::updateG4Gui()
+{
     ui->lePhysicsList->setText(G4SimSet.PhysicsList);
     ui->cobRefPhysLists->setCurrentIndex(-1);
 
@@ -178,7 +198,7 @@ void AParticleSimWin::on_pbAddSource_clicked()
     SimSet.SourceGenSettings.append(s);
 
 //    on_pbUpdateSimConfig_clicked();
-    updateListSources();
+    updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 }
 
@@ -195,7 +215,7 @@ void AParticleSimWin::on_pbCloneSource_clicked()
     if (!ok) return;
 
 //    on_pbUpdateSimConfig_clicked();
-    updateListSources();
+    updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(index+1);
 }
 
@@ -220,7 +240,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
     if (!ok) return;
 
     SimSet.SourceGenSettings.remove(isource);
-    updateListSources();
+    updateSourceList();
 
 //    on_pbUpdateSimConfig_clicked();
 //    if (ui->pbGunShowSource->isChecked())
@@ -234,7 +254,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
 //    }
 }
 
-void AParticleSimWin::updateListSources()
+void AParticleSimWin::updateSourceList()
 {
     ASourceGenSettings & SourceGenSettings = SimSet.SourceGenSettings;
     const int numSources = SourceGenSettings.getNumSources();
@@ -607,4 +627,44 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
         if (!bOK) break;
     }
+}
+
+void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
+{
+    if (checked)
+    {
+        emit requestShowGeometry(true, true, true);
+        for (int i = 0; i < SimSet.SourceGenSettings.getNumSources(); i++)
+            drawSource(i);
+        emit requestShowTracks();
+    }
+    else
+    {
+//        GeometryWindow->ClearGeoMarkers();
+        gGeoManager->ClearTracks();
+        emit requestShowGeometry(false, true, true);
+    }
+}
+
+void AParticleSimWin::on_cobParticleGenerationMode_activated(int index)
+{
+    if      (index == 0) SimSet.GenerationMode = AParticleSimSettings::Sources;
+    else if (index == 1) SimSet.GenerationMode = AParticleSimSettings::File;
+    else                 SimSet.GenerationMode = AParticleSimSettings::Script;
+}
+
+void AParticleSimWin::on_sbEvents_editingFinished()
+{
+    SimSet.Events = ui->sbEvents->value();
+}
+
+void AParticleSimWin::on_pbConfigureOutput_clicked()
+{
+
+}
+
+
+void AParticleSimWin::on_pbSimulate_clicked()
+{
+
 }

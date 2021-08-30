@@ -12,13 +12,21 @@ class QJsonObject;
 class AParticleSourceRecord;
 class ASourceParticleGenerator;
 
-class ASourceGenSettings   // ! this class uses MpCollection obtained through singleton GlobalSettings. read from json for non-existing particles triggers global update!
+// TODO !!!*** error handling
+
+class ASourceGenSettings
 {
 public:
+    enum AMultiMode {Constant = 0, Poisson = 1};
+
     QVector<AParticleSourceRecord*> ParticleSourcesData;
 
+    bool       MultiEnabled = false;
+    AMultiMode MultiMode    = Constant;
+    double     MultiNumber  = 1.0;
+
     void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void readFromJson(const QJsonObject & json); // Error handling !!!***
 
     void clear();
 
@@ -123,15 +131,10 @@ public:
 class AParticleSimSettings
 {
 public:
-    enum AGenMode   {Sources = 0, File = 1, Script = 2};
-    enum AMultiMode {Constant = 0, Poisson = 1};   // !!!*** to ASourceGenSettings
+    enum EGenMode   {Sources = 0, File = 1, Script = 2};
 
-    AGenMode GenerationMode = Sources;
-    int     EventsToDo      = 1;
-
-    bool    bMultiple       = false;           // !!!*** to ASourceGenSettings
-    double  MeanPerEvent    = 1.0;           // !!!*** to ASourceGenSettings
-    AMultiMode MultiMode    = Constant;    // !!!*** to ASourceGenSettings
+    EGenMode GenerationMode = Sources;
+    int      Events         = 1;
 
     bool    bDoS1           = true;  // !!!*** to run settings?
     bool    bDoS2           = false; // !!!*** to run settings?

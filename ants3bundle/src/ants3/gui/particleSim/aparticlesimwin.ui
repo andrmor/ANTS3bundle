@@ -1332,7 +1332,7 @@ Format: Volume_name  Step_in_mm</string>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="sbGunEvents">
+           <widget class="QSpinBox" name="sbEvents">
             <property name="minimum">
              <number>1</number>
             </property>
@@ -1375,14 +1375,14 @@ Format: Volume_name  Step_in_mm</string>
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pbConfigureOutput">
             <property name="text">
              <string>Configure output</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pbParticleSourcesSimulate">
+           <widget class="QPushButton" name="pbSimulate">
             <property name="minimumSize">
              <size>
               <width>150</width>
@@ -1522,12 +1522,12 @@ Format: Volume_name  Step_in_mm</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>518</x>
-     <y>176</y>
+     <x>107</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
-     <x>513</x>
-     <y>211</y>
+     <x>107</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>

@@ -8,10 +8,8 @@
 void AParticleSimSettings::clearSettings()
 {
     GenerationMode = Sources;
-    EventsToDo     = 1;
-    bMultiple      = false;
-    MeanPerEvent   = 1;
-    MultiMode      = Constant;
+    Events     = 1;
+
     bDoS1          = true;
     bDoS2          = false;
     bIgnoreNoHits  = false;
@@ -37,10 +35,8 @@ void AParticleSimSettings::writeToJson(QJsonObject & json) const
                 case Script:  s = "Script";  break;
                 }
             js["ParticleGenerationMode"] = s;
-            js["EventsToDo"] = EventsToDo;
-            js["AllowMultipleParticles"] = bMultiple;
-            js["AverageParticlesPerEvent"] = MeanPerEvent;
-            js["TypeParticlesPerEvent"] = MultiMode;
+            js["Events"] = Events;
+
             js["DoS1"] = bDoS1;
             js["DoS2"] = bDoS2;
             js["IgnoreNoHitsEvents"] = bIgnoreNoHits;
@@ -86,12 +82,8 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
         else if (PartGenMode == "Script")  GenerationMode = Script;
         else qWarning() << "Unknown particle generation mode";
 
-        jstools::parseJson(js, "EventsToDo", EventsToDo);
-        jstools::parseJson(js, "AllowMultipleParticles", bMultiple);
-        jstools::parseJson(js, "AverageParticlesPerEvent", MeanPerEvent);
-        int iMulti = 0;
-        jstools::parseJson(js, "TypeParticlesPerEvent", iMulti);
-        MultiMode = (iMulti == 1 ? Poisson : Constant);
+        jstools::parseJson(js, "Events", Events);
+
         jstools::parseJson(js, "DoS1", bDoS1);
         jstools::parseJson(js, "DoS2", bDoS2);
         jstools::parseJson(js, "IgnoreNoHitsEvents", bIgnoreNoHits);
@@ -100,7 +92,6 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
         jstools::parseJson(js, "ClusterMergeRadius", ClusterRadius);
         jstools::parseJson(js, "ClusterMergeTime", ClusterTime);
     }
-    if (GenerationMode != Sources) bMultiple = false;  // TODO: move bMultiple to Sources!
 
     SourceGenSettings.readFromJson(json);
 
@@ -275,6 +266,12 @@ void ASourceGenSettings::writeToJson(QJsonObject &json) const
         ja.append(js);
     }
     json["ParticleSources"] = ja;
+
+    QJsonObject js;
+        js["Enabled"] = MultiEnabled;
+        js["Mode"]    = ( MultiMode == Constant ? "Constant" : "Poisson" );
+        js["Number"]  = MultiNumber;
+    json["MultiplePerEvent"] = js;
 }
 
 void ASourceGenSettings::readFromJson(const QJsonObject &  json)
@@ -304,6 +301,20 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
     }
 
     calculateTotalActivity();
+
+    QJsonObject js;
+    jstools::parseJson(json, "MultiplePerEvent", js);
+    {
+        jstools::parseJson(js, "Enabled", MultiEnabled);
+        jstools::parseJson(js, "Number",  MultiNumber);
+
+        QString strMulti;
+        jstools::parseJson(js, "Mode",    strMulti);
+        if (strMulti == "Poisson")
+            MultiMode = Poisson;
+        else
+            MultiMode = Constant;
+    }
 }
 
 void ASourceGenSettings::clear()
@@ -312,6 +323,10 @@ void ASourceGenSettings::clear()
     ParticleSourcesData.clear();
 
     TotalActivity = 0;
+
+    MultiEnabled   = false;
+    MultiNumber    = 1;
+    MultiMode      = Constant;
 }
 
 int ASourceGenSettings::getNumSources() const

@@ -40,6 +40,14 @@ private slots:
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
+    void on_pbGunShowSource_toggled(bool checked);
+    void on_pbConfigureOutput_clicked();
+
+    void on_pbSimulate_clicked();
+
+    void on_cobParticleGenerationMode_activated(int index);
+
+    void on_sbEvents_editingFinished();
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
@@ -47,10 +55,13 @@ signals:
 
 private:
     AParticleSimSettings  & SimSet;
-    AG4SimulationSettings & G4SimSet; // !!!*** remove?
+    AG4SimulationSettings & G4SimSet;
 
     Ui::AParticleSimWin *ui;
-    void updateListSources();
+
+    void updateG4Gui();
+    void updateSimGui();
+    void updateSourceList();
     void drawSource(int iSource);  // !!!***
     void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
 };
