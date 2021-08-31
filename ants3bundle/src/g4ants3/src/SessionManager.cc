@@ -727,8 +727,7 @@ void SessionManager::ReadConfig(const std::string &ConfigFileName)
     PhysicsList = jo["PhysicsList"].string_value();
     if (PhysicsList.empty()) terminateSession("Reference physics list is not provided");
 
-    bUseThermalScatteringNeutronPhysics = false;
-    if (jo.object_items().count("ActivateThermalScattering") != 0) bUseThermalScatteringNeutronPhysics = jo["ActivateThermalScattering"].bool_value();
+    bUseThermalScatteringNeutronPhysics = jo["ActivateThermalScattering"].bool_value();
 
     bG4antsPrimaries = false;
     if (jo.object_items().count("Primaries_G4ants") != 0) bG4antsPrimaries = jo["Primaries_G4ants"].bool_value();
@@ -782,8 +781,8 @@ void SessionManager::ReadConfig(const std::string &ConfigFileName)
     if (!jo["Seed"].is_number())
         terminateSession("Format error for the random generator seed in the config file");
     Seed = jo["Seed"].int_value();
-    if (Seed == 0)
-        terminateSession("Seed: read from the config file failed");
+//    if (Seed == 0)
+//        terminateSession("Seed: read from the config file failed");
     std::cout << "Random generator seed: " << Seed << std::endl;
 
     //extracting particle info
@@ -849,6 +848,7 @@ void SessionManager::ReadConfig(const std::string &ConfigFileName)
     }
 
     bGuiMode = jo["GuiMode"].bool_value();
+    std::cout << "GUI mode? " << bGuiMode << std::endl;
 
     if (jo.object_items().count("BinaryOutput") == 0)
         bBinaryOutput = false;
@@ -892,7 +892,7 @@ void SessionManager::ReadConfig(const std::string &ConfigFileName)
 
     Precision = jo["Precision"].int_value();
 
-    if (!FileName_Monitors.empty()) //compatibility while the corresponding ANTS version is not on master
+    if (!FileName_Monitors.empty())
     {
         std::vector<json11::Json> MonitorArray = jo["Monitors"].array_items();
         for (size_t i=0; i<MonitorArray.size(); i++)

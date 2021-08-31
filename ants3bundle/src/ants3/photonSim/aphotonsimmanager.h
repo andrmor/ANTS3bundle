@@ -38,7 +38,7 @@ signals:
     void requestUpdateResultsGUI();
 
 private:
-    bool configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configureSimulation(const std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remov efiles in exchange

@@ -192,7 +192,7 @@ void APhotonSimManager::addErrorLine(const QString & error)
     else                       ErrorString += QString("\n%0").arg(error);
 }
 
-bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     qDebug() << "Configuring simulation...";
 
@@ -212,8 +212,8 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
 
     int iEvent = 0;
     int iProcess = 0;
-    //OutputFiles.clear();
-    for (A3FarmNodeRecord & r : RunPlan)   // per node server
+
+    for (const A3FarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;
@@ -289,20 +289,12 @@ bool APhotonSimManager::configureSimulation(std::vector<A3FarmNodeRecord> & RunP
                 MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
             }
 
-
             QJsonObject json;
             A3Config::getInstance().writeToJson(json);
             WorkSet.writeToJson(json);
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
             Worker.ConfigFile = ConfigFN;
-
-/*
-            QString inputFN =  QString("data-%0.txt").arg(iProcess);
-            ftools::saveTextToFile(text, ExchangeDir + '/' + inputFN);
-            Worker.InputFiles.push_back(inputFN);
-            OutputFiles.push_back(ExchangeDir + '/' + outputFN);
-*/
 
             nc.Workers.push_back(Worker);
             iProcess++;

@@ -95,13 +95,12 @@ int main(int argc, char** argv)
 
     SM.startSession();
 
-    G4VisManager* visManager = 0;
+    G4VisManager* visManager = nullptr;
 
     if (!SM.isGuiMode())
         SM.runSimulation();
     else
     {
-
         visManager = new G4VisExecutive("Quiet");
         visManager->Initialize();
         UImanager->ApplyCommand("/control/execute vis.mac");

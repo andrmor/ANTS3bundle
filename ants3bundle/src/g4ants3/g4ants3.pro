@@ -10,6 +10,8 @@ G4INCLUDE = $$join(G4DIR,,,/include/Geant4)
 INCLUDEPATH += $$G4INCLUDE
 LIBS += $$system(geant4-config --libs) -lxerces-c
 
+DESTDIR = ../../bin
+
 INCLUDEPATH += include
 
 SOURCES += \

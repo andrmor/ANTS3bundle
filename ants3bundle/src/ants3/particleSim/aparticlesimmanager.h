@@ -11,6 +11,8 @@ class AParticleSimSettings;
 class ASourceParticleGenerator;
 class AGeometryHub;
 class A3WorkDistrConfig;
+class QJsonObject;
+class AParticleRunSettings;
 
 class AParticleSimManager
 {
@@ -41,6 +43,7 @@ private:
     void checkDirectories();
     void checkG4Settings();
     bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    void generateG4antsConfigCommon(const AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json);
 };
 
 #endif // APARTICLESIMMANAGER_H

@@ -128,6 +128,7 @@ public:
     void clear();
 
     QString getGdmlFileName() const {return "Detector.gdml";}
+    QString getPrimariesFileName(int index) const {return QString("primaries-%1.txt").arg(index); }
 };
 
 
