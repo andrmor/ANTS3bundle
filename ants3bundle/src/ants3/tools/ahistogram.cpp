@@ -4,92 +4,143 @@
 #include <QDebug>
 
 AHistogram1D::AHistogram1D(int Bins, double From, double To) :
-    bins(Bins), from(From), to(To)
+    Bins(Bins), From(From), To(To)
 {
-    if (bins < 1) bins = 1;
-    data.resize(bins + 2);
+    if (Bins < 1) Bins = 1;
+    Data.resize(Bins + 2);
 
-    if (to > from)
+    if (To > From)
     {
-        deltaBin = (to - from) / bins;
+        DeltaBin = (To - From) / Bins;
     }
     else
     {
-        bFixedRange = false;
-        buffer.reserve(bufferSize);
+        FixedRange = false;
+        Buffer.reserve(BufferSize);
     }
 }
 
-void AHistogram1D::Fill(double x, double val)
+void AHistogram1D::fill(double x, double val)
 {
-    entries += 1.0;
+    Entries += 1.0;
 
-    if (bFixedRange)
+    if (FixedRange)
         fillFixed(x, val);
     else
     {
-        buffer.push_back( std::pair<double,double>(x, val) );
-        if (buffer.size() == bufferSize)
+        Buffer.push_back( std::pair<double,double>(x, val) );
+        if (Buffer.size() == BufferSize)
             processBuffer();
     }
 }
 
 const std::vector<double> &AHistogram1D::getContent()
 {
-    if (!bFixedRange) processBuffer();
-    return data;
+    if (!FixedRange) processBuffer();
+    return Data;
 }
 
 const std::vector<double> AHistogram1D::getStat()
 {
-    return {sumVal, sumVal2, sumValX, sumValX2, entries};
+    return {SumVal, SumVal2, SumValX, SumValX2, Entries};
+}
+
+bool AHistogram1D::initRandomGenerator()
+{
+    if (!FixedRange) processBuffer();
+
+    const size_t size = Data.size();
+    if (size < 3) return false; //over and underflow!
+
+    SumBins.resize(size - 1);
+
+    double sum = 0;
+    SumBins[0] = 0;
+    for (size_t i = 1; i < size-1; i++)
+    {
+        if (Data[i] < 0) return false;
+        sum += Data[i];
+        SumBins[i] = sum;
+    }
+    //qDebug() << Data << SumBins;
+    return true;
+}
+
+#include "arandomhub.h"
+#include <algorithm>
+double AHistogram1D::getRandom()
+{
+    if (SumBins.empty()) return 0;
+
+    double integral = SumBins.back();
+    if (integral == 0) return 0;
+
+    double r1 = integral * ARandomHub::getInstance().uniform();
+    int ibin = std::upper_bound(SumBins.begin(), SumBins.end(), r1) - SumBins.begin() - 1;
+
+    double x = From + ibin * DeltaBin;
+    if (r1 > SumBins[ibin])
+        x += DeltaBin * (r1 - SumBins[ibin]) / (SumBins[ibin+1] - SumBins[ibin]);
+
+    return x;
+}
+
+int AHistogram1D::getRandomBin()
+{
+    if (SumBins.empty()) return 0;
+
+    double integral = SumBins.back();
+    if (integral == 0) return 0;
+
+    double r1 = integral * ARandomHub::getInstance().uniform();
+    return std::upper_bound(SumBins.begin(), SumBins.end(), r1) - SumBins.begin() - 1;
 }
 
 void AHistogram1D::fillFixed(double x, double val)
 {
-    if (x < from)
-        data[0] += val;
-    else if (x > to)
-        data[bins+1] += val;
+    if (x < From)
+        Data[0] += val;
+    else if (x > To)
+        Data[Bins+1] += val;
     else
     {
-        data[ 1 + (x - from)/deltaBin ] += val;
+        Data[ 1 + (x - From)/DeltaBin ] += val;
 
-        sumVal   += val;
-        sumVal2  += val*val;
-        sumValX  += val*x;
-        sumValX2 += val*x*x;
+        SumVal   += val;
+        SumVal2  += val*val;
+        SumValX  += val*x;
+        SumValX2 += val*x*x;
     }
 }
 
 void AHistogram1D::processBuffer()
 {
-    if (buffer.empty()) return;
+    if (Buffer.empty()) return;
 
-    from = to = buffer[0].first;
-    for (size_t i=1; i<buffer.size(); i++)
+    From = To = Buffer[0].first;
+    for (size_t i=1; i<Buffer.size(); i++)
     {
-        const double & x = buffer[i].first;
-        if      (x < from) from = x;
-        else if (x > to)   to   = x;
+        const double & x = Buffer[i].first;
+        if      (x < From) From = x;
+        else if (x > To)   To   = x;
     }
 
-    if (from == to)
+    if (From == To)
     {
-        from *= 0.995;
-        to   *= 1.005;
+        From *= 0.995;
+        To   *= 1.005;
     }
 
-    deltaBin = (to - from) / bins + std::numeric_limits<double>::epsilon();
+    DeltaBin = (To - From) / Bins + std::numeric_limits<double>::epsilon();
 
-    for (size_t i=0; i<buffer.size(); i++)
+    for (size_t i=0; i<Buffer.size(); i++)
     {
-        const double & x   = buffer[i].first;
-        const double & val = buffer[i].second;
+        const double & x   = Buffer[i].first;
+        const double & val = Buffer[i].second;
         fillFixed(x, val);
     }
 
-    bFixedRange = true;
+    FixedRange = true;
 }
 
 AHistogram2D::AHistogram2D(int XBins, double XFrom, double XTo, int YBins, double YFrom, double YTo) :
