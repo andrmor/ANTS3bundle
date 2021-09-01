@@ -47,7 +47,8 @@ bool ASourceParticleGenerator::Init()
         }
     }
 
-    TotalParticleWeight.fill(0, NumSources);
+    //TotalParticleWeight.fill(0, NumSources);
+    TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
         for (size_t i=0; i<Settings.ParticleSourcesData[isource]->GunParticles.size(); i++)
@@ -67,19 +68,19 @@ bool ASourceParticleGenerator::Init()
             if (!Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Individual) continue; //nothing to do for non-individual particles
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
-            LinkedPartiles[isource][iparticle].append(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
+            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip=iparticle+1; ip<numParts; ip++)
                 if (!Settings.ParticleSourcesData[isource]->GunParticles[ip]->Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
-                    for (int idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
+                    for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
                     {
                         int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
                         int linkedTo = Settings.ParticleSourcesData[isource]->GunParticles[ip]->LinkedTo;
                         if ( linkedTo == compareWith)
                         {
-                            LinkedPartiles[isource][iparticle].append(ALinkedParticle(ip, linkedTo));
+                            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
                             break;
                         }
                     }
@@ -112,7 +113,6 @@ bool ASourceParticleGenerator::Init()
 
         CollimationDirection[isource] = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
-        //CollimationSpreadProduct[isource] = cos(Spread); //scalar product of coll direction and max spread unit vectors
     }
     return true; //TODO  check for fails
 }
@@ -140,18 +140,17 @@ bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & Gen
     double R[3];
     if (Source->bLimitToMat)
     {
-        QElapsedTimer timer; // !*! TODO make dynamic member
-        timer.start();
+        int attempts = 10000;
+        TGeoNode * node = nullptr;
         do
         {
             if (bAbortRequested) return false;
-            if (timer.elapsed() > 500) return false;
-            //qDebug() << "Time passed" << timer.elapsed() << "milliseconds";
+            if (attempts-- == 0) return false;
             generatePosition(isource, R);
+            node = gGeoManager->FindNode(R[0], R[1], R[2]);
+            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == Source->LimitedToMat) break;
         }
-        // !*! TODO check node not nullptr!
-//        while ( Detector.GeoManager->FindNode(R[0], R[1], R[2])->GetVolume()->GetMaterial()->GetIndex() != Source->LimitedToMat );
-        while (false);
+        while (attempts-- != 0);
     }
     else generatePosition(isource, R);
 
@@ -207,7 +206,7 @@ bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & Gen
         QVector<bool> WasGenerated(LinkedPartiles[isource][iparticle].size(), false);
         do
         {
-            for (int ip = 0; ip < LinkedPartiles[isource][iparticle].size(); ip++)  //ip - index in the list of linked particles
+            for (size_t ip = 0; ip < LinkedPartiles[isource][iparticle].size(); ip++)  //ip - index in the list of linked particles
             {
                 //qDebug()<<"---Testing particle:"<<ip;
                 int thisParticle = LinkedPartiles[isource][iparticle][ip].iParticle;

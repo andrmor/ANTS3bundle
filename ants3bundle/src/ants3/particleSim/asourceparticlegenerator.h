@@ -7,8 +7,9 @@
 
 #include "TVector3.h"
 
+#include <vector>
+
 class  ASourceGenSettings;
-class  QJsonObject;
 struct AParticleSourceRecord;
 class  ARandomHub;
 
@@ -35,14 +36,14 @@ private:
     ARandomHub & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
-    QVector< QVector< QVector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
+    std::vector< std::vector< std::vector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
 
-    QVector<double>   TotalParticleWeight;
-    QVector<TVector3> CollimationDirection;   //[isource] collimation direction
-    QVector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
+    std::vector<double>   TotalParticleWeight;
+    std::vector<TVector3> CollimationDirection;   //[isource] collimation direction
+    std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
     void generatePosition(int isource, double *R) const;
-    void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord *> &GeneratedParticles) const; //QVector - only pointer is transferred!
+    void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord *> & GeneratedParticles) const;
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H
