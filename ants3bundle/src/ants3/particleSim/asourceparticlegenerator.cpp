@@ -23,7 +23,7 @@ ASourceParticleGenerator::ASourceParticleGenerator() :
     Settings(AParticleSimHub::getConstInstance().Settings.SourceGenSettings),
     RandomHub(ARandomHub::getInstance()){}
 
-bool ASourceParticleGenerator::Init()
+bool ASourceParticleGenerator::init()
 {  
     int NumSources = Settings.ParticleSourcesData.size();
     if (NumSources == 0)
@@ -42,12 +42,11 @@ bool ASourceParticleGenerator::Init()
         QString err = ps->checkSource();
         if (!err.isEmpty())
         {
-            ErrorString = QString("Error in source %1:\n%2").arg(ps->name, err);
+            ErrorString = QString("Error in source %1:\n%2").arg(ps->name, err).toLatin1().data();
             return false;
         }
     }
 
-    //TotalParticleWeight.fill(0, NumSources);
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
@@ -117,10 +116,10 @@ bool ASourceParticleGenerator::Init()
     return true; //TODO  check for fails
 }
 
-bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & GeneratedParticles, int iEvent)
+bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent)
 {
     //after any operation with sources (add, remove), init should be called before the first use!
-    bAbortRequested = false;
+    AbortRequested = false;
 
     //select the source
     int isource = 0;
@@ -144,7 +143,7 @@ bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & Gen
         TGeoNode * node = nullptr;
         do
         {
-            if (bAbortRequested) return false;
+            if (AbortRequested) return false;
             if (attempts-- == 0) return false;
             generatePosition(isource, R);
             node = gGeoManager->FindNode(R[0], R[1], R[2]);
@@ -192,11 +191,11 @@ bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & Gen
         //there are no linked particles
         //qDebug()<<"Generating individual particle"<<iparticle;
         addParticleInCone(isource, iparticle, GeneratedParticles);
-        AParticleRecord * p = GeneratedParticles.back();
-        p->r[0] = R[0];
-        p->r[1] = R[1];
-        p->r[2] = R[2];
-        p->time = time;
+        AParticleRecord & p = GeneratedParticles.back();
+        p.r[0] = R[0];
+        p.r[1] = R[1];
+        p.r[2] = R[2];
+        p.time = time;
     }
     else
     {
@@ -255,20 +254,20 @@ bool ASourceParticleGenerator::GenerateEvent(std::vector<AParticleRecord*> & Gen
                         if (WasGenerated.at(i)) index++;
                     //qDebug() << "making this particle opposite to:"<<linkedTo<<"index in GeneratedParticles:"<<index;
 
-                    AParticleRecord * ps = new AParticleRecord();
-                    ps->particle = Source->GunParticles[thisParticle]->Particle;
-                    ps->energy = Source->GunParticles[thisParticle]->generateEnergy();
-                    ps->v[0] = -GeneratedParticles.at(index)->v[0];
-                    ps->v[1] = -GeneratedParticles.at(index)->v[1];
-                    ps->v[2] = -GeneratedParticles.at(index)->v[2];
+                    AParticleRecord ps;
+                    ps.particle = Source->GunParticles[thisParticle]->Particle;
+                    ps.energy = Source->GunParticles[thisParticle]->generateEnergy();
+                    ps.v[0] = -GeneratedParticles.at(index).v[0];
+                    ps.v[1] = -GeneratedParticles.at(index).v[1];
+                    ps.v[2] = -GeneratedParticles.at(index).v[2];
                     GeneratedParticles.push_back(ps);
                 }
 
-                AParticleRecord * p = GeneratedParticles.back();
-                p->r[0] = R[0];
-                p->r[1] = R[1];
-                p->r[2] = R[2];
-                p->time = time;
+                AParticleRecord & p = GeneratedParticles.back();
+                p.r[0] = R[0];
+                p.r[1] = R[1];
+                p.r[2] = R[2];
+                p.time = time;
             }
         }
         while (NoEvent);
@@ -400,12 +399,12 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
   return;
 }
 
-void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord*> & GeneratedParticles) const
+void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord> & GeneratedParticles) const
 {
-    AParticleRecord* ps = new AParticleRecord();
+    AParticleRecord ps;
 
-    ps->particle = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Particle;
-    ps->energy = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->generateEnergy();
+    ps.particle = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Particle;
+    ps.energy = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->generateEnergy();
 
     //generating random direction inside the collimation cone
     double spread = Settings.ParticleSourcesData[isource]->Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
@@ -416,9 +415,9 @@ void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std
     TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
     TVector3 Coll(CollimationDirection[isource]);
     K1.RotateUz(Coll);
-    ps->v[0] = K1[0];
-    ps->v[1] = K1[1];
-    ps->v[2] = K1[2];
+    ps.v[0] = K1[0];
+    ps.v[1] = K1[1];
+    ps.v[2] = K1[2];
 
     GeneratedParticles.push_back(ps);
 }

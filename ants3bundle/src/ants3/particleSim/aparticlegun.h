@@ -1,38 +1,28 @@
 #ifndef APARTICLEGUN_H
 #define APARTICLEGUN_H
 
-#include <QObject>
-#include <QString>
+#include "aparticlerecord.h"
 
 #include <vector>
+#include <string>
 
 class QJsonObject;
 class AParticleRecord;
 
-class AParticleGun : public QObject
+class AParticleGun
 {
-    Q_OBJECT
-
 public:
     virtual ~AParticleGun(){}
 
-    virtual bool Init() = 0;             //called before first use
-    virtual void ReleaseResources() {}   //called after end of operation
-    virtual bool GenerateEvent(std::vector<AParticleRecord*> & GeneratedParticles, int iEvent) = 0;
+    virtual bool init() = 0;             //called before first use
+    virtual void releaseResources() {}   //called after end of operation
+    virtual bool generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent) = 0;
 
-    virtual void SetStartEvent(int) {} // for 'from file' generator
+    virtual void setStartEvent(int) {} // for 'from file' generator
 
-    const QString & GetErrorString() const {return ErrorString;}
-    void            SetErrorString(const QString& str) {ErrorString = str;}
+    std::string ErrorString;
+    bool        AbortRequested;
 
-    bool            IsAbortRequested() const {return bAbortRequested;}
-
-public slots:
-    virtual void abort() {bAbortRequested = true;}
-
-protected:
-    QString ErrorString;
-    bool bAbortRequested = false;
 };
 
 #endif // APARTICLEGUN_H

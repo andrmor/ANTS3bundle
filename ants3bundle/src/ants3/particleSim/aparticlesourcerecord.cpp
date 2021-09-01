@@ -254,7 +254,7 @@ const QString AParticleSourceRecord::checkSource() const
 {
     if (shape < 0 || shape > 5) return "unknown source shape";
 
-    int numParts = GunParticles.size();     //11 - no particles defined
+    const int numParts = GunParticles.size();
     if (numParts == 0) return "no particles defined";
 
     if (Spread < 0) return "negative spread angle";

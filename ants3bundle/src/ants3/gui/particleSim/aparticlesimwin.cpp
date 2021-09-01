@@ -566,35 +566,35 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         return;
     }
 
-    bool bOK = Gun->Init();
+    bool bOK = Gun->init();
     if (!bOK)
     {
-        guitools::message("Failed to initialize particle gun!\n" + Gun->GetErrorString(), this);
+        guitools::message( QString("Failed to initialize particle gun!\n%0").arg(Gun->ErrorString.data()), this);
         return;
     }
-    Gun->SetStartEvent(0);
+    Gun->setStartEvent(0);
 //    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
     double Length = std::max(WorldSizeXY, WorldSizeZ)*0.4;
     double R[3], K[3];
-    std::vector<AParticleRecord*> GP;
+    std::vector<AParticleRecord> GP;
     int numTracks = 0;
     for (int iRun=0; iRun<numParticles; iRun++)
     {
-        bool bOK = Gun->GenerateEvent(GP, iRun);
+        bool bOK = Gun->generateEvent(GP, iRun);
         if (bOK && numTracks < 1000)
         {
-            for (const AParticleRecord * p : GP)
+            for (const AParticleRecord & p : GP)
             {
-                R[0] = p->r[0];
-                R[1] = p->r[1];
-                R[2] = p->r[2];
+                R[0] = p.r[0];
+                R[1] = p.r[1];
+                R[2] = p.r[2];
 
-                K[0] = p->v[0];
-                K[1] = p->v[1];
-                K[2] = p->v[2];
+                K[0] = p.v[0];
+                K[1] = p.v[1];
+                K[2] = p.v[2];
 
                 int track_index = gGeoManager->AddTrack(1, 22);
                 TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
@@ -611,7 +611,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
             }
         }
 
-        for (const AParticleRecord * p : GP) delete p;
         GP.clear();
 
         if (!bOK) break;

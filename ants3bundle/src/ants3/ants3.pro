@@ -173,6 +173,7 @@ SOURCES += \
     gui/guitools.cpp \
     js/a3farmsi.cpp \
     tools/arandomhub.cpp \
+    tools/ath.cpp \
     tools/avector.cpp
 
 HEADERS += \
@@ -293,6 +294,7 @@ HEADERS += \
     gui/guitools.h \
     js/a3farmsi.h \
     tools/arandomhub.h \
+    tools/ath.h \
     tools/avector.h
 
 FORMS += \

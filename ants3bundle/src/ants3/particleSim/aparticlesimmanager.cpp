@@ -131,9 +131,9 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
         ErrorString = "Unknown or not implemented particle generation mode";
         return false;
     }
-    if ( !ParticleGun->Init() )
+    if ( !ParticleGun->init() )
     {
-        ErrorString = ParticleGun->GetErrorString();
+        ErrorString = ParticleGun->ErrorString.data();
         return false;
     }
 
