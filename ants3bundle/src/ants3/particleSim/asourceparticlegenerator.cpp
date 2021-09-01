@@ -25,7 +25,7 @@ ASourceParticleGenerator::ASourceParticleGenerator() :
 
 bool ASourceParticleGenerator::init()
 {  
-    int NumSources = Settings.ParticleSourcesData.size();
+    int NumSources = Settings.SourceData.size();
     if (NumSources == 0)
     {
         ErrorString = "No sources are defined";
@@ -37,7 +37,7 @@ bool ASourceParticleGenerator::init()
         return false;
     }
 
-    for (AParticleSourceRecord * ps : Settings.ParticleSourcesData)
+    for (AParticleSourceRecord * ps : Settings.SourceData)
     {
         QString err = ps->checkSource();
         if (!err.isEmpty())
@@ -50,33 +50,33 @@ bool ASourceParticleGenerator::init()
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
-        for (size_t i=0; i<Settings.ParticleSourcesData[isource]->GunParticles.size(); i++)
-            if (Settings.ParticleSourcesData[isource]->GunParticles[i]->Individual)
-                TotalParticleWeight[isource] += Settings.ParticleSourcesData[isource]->GunParticles[i]->StatWeight;
+        for (GunParticleStruct * gp : Settings.SourceData[isource]->GunParticles)
+            if (gp->Individual)
+                TotalParticleWeight[isource] += gp->StatWeight;
     }
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        int numParts = Settings.ParticleSourcesData[isource]->GunParticles.size();
+        int numParts = Settings.SourceData[isource]->GunParticles.size();
         LinkedPartiles[isource].resize(numParts);
         for (int iparticle=0; iparticle<numParts; iparticle++)
         {
             LinkedPartiles[isource][iparticle].resize(0);
-            if (!Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Individual) continue; //nothing to do for non-individual particles
+            if (!Settings.SourceData[isource]->GunParticles[iparticle]->Individual) continue; //nothing to do for non-individual particles
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip=iparticle+1; ip<numParts; ip++)
-                if (!Settings.ParticleSourcesData[isource]->GunParticles[ip]->Individual) //only looking for non-individuals
+                if (!Settings.SourceData[isource]->GunParticles[ip]->Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
                     {
                         int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
-                        int linkedTo = Settings.ParticleSourcesData[isource]->GunParticles[ip]->LinkedTo;
+                        int linkedTo = Settings.SourceData[isource]->GunParticles[ip]->LinkedTo;
                         if ( linkedTo == compareWith)
                         {
                             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
@@ -106,9 +106,9 @@ bool ASourceParticleGenerator::init()
     //CollimationSpreadProduct.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        double CollPhi = Settings.ParticleSourcesData[isource]->CollPhi*3.1415926535/180.0;
-        double CollTheta = Settings.ParticleSourcesData[isource]->CollTheta*3.1415926535/180.0;
-        double Spread = Settings.ParticleSourcesData[isource]->Spread*3.1415926535/180.0;
+        double CollPhi = Settings.SourceData[isource]->CollPhi*3.1415926535/180.0;
+        double CollTheta = Settings.SourceData[isource]->CollTheta*3.1415926535/180.0;
+        double Spread = Settings.SourceData[isource]->Spread*3.1415926535/180.0;
 
         CollimationDirection[isource] = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
@@ -129,11 +129,11 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
         double rnd = ARandomHub::getInstance().uniform() * Settings.getTotalActivity();
         for (; isource<NumSources - 1; isource++)
         {
-            if (Settings.ParticleSourcesData[isource]->Activity >= rnd) break; //this source selected
-            rnd -= Settings.ParticleSourcesData[isource]->Activity;
+            if (Settings.SourceData[isource]->Activity >= rnd) break; //this source selected
+            rnd -= Settings.SourceData[isource]->Activity;
         }
     }
-    AParticleSourceRecord * Source = Settings.ParticleSourcesData[isource];
+    AParticleSourceRecord * Source = Settings.SourceData[isource];
 
     //position
     double R[3];
@@ -277,7 +277,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
 
 void ASourceParticleGenerator::generatePosition(int isource, double *R) const
 {
-    AParticleSourceRecord * rec = Settings.ParticleSourcesData[isource];
+    AParticleSourceRecord * rec = Settings.SourceData[isource];
   const int    & iShape = rec->shape;
   const double & X0     = rec->X0;
   const double & Y0     = rec->Y0;
@@ -403,11 +403,11 @@ void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std
 {
     AParticleRecord ps;
 
-    ps.particle = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->Particle;
-    ps.energy = Settings.ParticleSourcesData[isource]->GunParticles[iparticle]->generateEnergy();
+    ps.particle = Settings.SourceData[isource]->GunParticles[iparticle]->Particle;
+    ps.energy = Settings.SourceData[isource]->GunParticles[iparticle]->generateEnergy();
 
     //generating random direction inside the collimation cone
-    double spread = Settings.ParticleSourcesData[isource]->Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
+    double spread = Settings.SourceData[isource]->Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
     double cosTheta = cos(spread);
     double z = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
     double tmp = TMath::Sqrt(1.0 - z*z);

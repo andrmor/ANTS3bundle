@@ -2,7 +2,6 @@
 #define APARTICLEMODESETTINGS_H
 
 #include <QString>
-#include <QVector>
 #include <QDateTime>
 #include <QStringList>
 
@@ -19,16 +18,16 @@ class ASourceGenSettings
 public:
     enum EMultiMode {Constant = 0, Poisson = 1};
 
-    QVector<AParticleSourceRecord*> ParticleSourcesData;  // !!!*** reformat
+    std::vector<AParticleSourceRecord*> SourceData;  // !!!*** reformat
 
     bool       MultiEnabled = false;
     EMultiMode MultiMode    = Constant;
     double     MultiNumber  = 1.0;
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json); // Error handling !!!***
+    void   writeToJson(QJsonObject & json) const;
+    void   readFromJson(const QJsonObject & json); // Error handling !!!***
 
-    void clear();
+    void   clear();
 
     int    getNumSources() const;
 
@@ -38,10 +37,10 @@ public:
     void   calculateTotalActivity();
     double getTotalActivity() const {return TotalActivity;}
 
-    void   append(AParticleSourceRecord * gunParticle);
+    void   append(AParticleSourceRecord * source);
     bool   clone(int iSource);
-    void   forget(AParticleSourceRecord * gunParticle);
-    bool   replace(int iSource, AParticleSourceRecord * gunParticle);
+    //void   forget(AParticleSourceRecord * source);
+    bool   replace(int iSource, AParticleSourceRecord * source);
     void   remove(int iSource);
 
 private:

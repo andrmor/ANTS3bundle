@@ -288,7 +288,7 @@ void AFileGenSettings::clearStatistics()
 void ASourceGenSettings::writeToJson(QJsonObject &json) const
 {
     QJsonArray ja;
-    for (const AParticleSourceRecord * ps : ParticleSourcesData)
+    for (const AParticleSourceRecord * ps : SourceData)
     {
         QJsonObject js;
         ps->writeToJson(js);
@@ -321,7 +321,7 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
         QJsonObject js = ar.at(iSource).toObject();
         AParticleSourceRecord * ps = new AParticleSourceRecord();
         bool ok = ps->readFromJson(js);
-        if (ok) ParticleSourcesData << ps;
+        if (ok) SourceData.push_back(ps);
         else
         {
             qWarning() << "||| Load particle source #" << iSource << "from json failed!";
@@ -348,8 +348,8 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
 
 void ASourceGenSettings::clear()
 {
-    for (AParticleSourceRecord * r : ParticleSourcesData) delete r;
-    ParticleSourcesData.clear();
+    for (AParticleSourceRecord * r : SourceData) delete r;
+    SourceData.clear();
 
     TotalActivity = 0;
 
@@ -360,67 +360,69 @@ void ASourceGenSettings::clear()
 
 int ASourceGenSettings::getNumSources() const
 {
-    return ParticleSourcesData.size();
+    return SourceData.size();
 }
 
 const AParticleSourceRecord * ASourceGenSettings::getSourceRecord(int iSource) const
 {
-    if (iSource < 0 || iSource >= ParticleSourcesData.size()) return nullptr;
-    return ParticleSourcesData.at(iSource);
+    if (iSource < 0 || iSource >= SourceData.size()) return nullptr;
+    return SourceData.at(iSource);
 }
 
 AParticleSourceRecord *ASourceGenSettings::getSourceRecord(int iSource)
 {
-    if (iSource < 0 || iSource >= ParticleSourcesData.size()) return nullptr;
-    return ParticleSourcesData.at(iSource);
+    if (iSource < 0 || iSource >= SourceData.size()) return nullptr;
+    return SourceData.at(iSource);
 }
 
 void ASourceGenSettings::calculateTotalActivity()
 {
     TotalActivity = 0;
-    for (const AParticleSourceRecord * r : ParticleSourcesData)
+    for (const AParticleSourceRecord * r : SourceData)
         TotalActivity += r->Activity;
 }
 
-void ASourceGenSettings::append(AParticleSourceRecord * gunParticle)
+void ASourceGenSettings::append(AParticleSourceRecord * source)
 {
-    ParticleSourcesData.append(gunParticle);
+    SourceData.push_back(source);
     calculateTotalActivity();
 }
 
 bool ASourceGenSettings::clone(int iSource)
 {
-    if (iSource < 0 || iSource >= ParticleSourcesData.size()) return false;
+    if (iSource < 0 || iSource >= SourceData.size()) return false;
 
-    AParticleSourceRecord * r = ParticleSourcesData.at(iSource)->clone();
+    AParticleSourceRecord * r = SourceData.at(iSource)->clone();
     r->name += "_c";
-    ParticleSourcesData.insert(iSource + 1, r);
+    SourceData.insert(SourceData.begin() + iSource + 1, r);
     return true;
 }
 
-void ASourceGenSettings::forget(AParticleSourceRecord *gunParticle)
+/*
+void ASourceGenSettings::forget(AParticleSourceRecord *source)
 {
-    ParticleSourcesData.removeAll(gunParticle);
+    SourceData.removeAll(source);
     calculateTotalActivity();
 }
+*/
 
-bool ASourceGenSettings::replace(int iSource, AParticleSourceRecord * gunParticle)
+bool ASourceGenSettings::replace(int iSource, AParticleSourceRecord * source)
 {
-    if (iSource < 0 || iSource >= ParticleSourcesData.size()) return false;
+    if (iSource < 0 || iSource >= SourceData.size()) return false;
 
-    delete ParticleSourcesData[iSource];
-    ParticleSourcesData[iSource] = gunParticle;
+    delete SourceData[iSource];
+    SourceData[iSource] = source;
     calculateTotalActivity();
     return true;
 }
 
 void ASourceGenSettings::remove(int iSource)
 {
-    if (ParticleSourcesData.isEmpty()) return;
-    if (iSource < 0 || iSource >= ParticleSourcesData.size()) return;
+    if (SourceData.empty()) return;
+    if (iSource < 0 || iSource >= SourceData.size()) return;
 
-    delete ParticleSourcesData[iSource];
-    ParticleSourcesData.remove(iSource);
+    delete SourceData[iSource];
+    SourceData.erase(SourceData.begin() + iSource);
     calculateTotalActivity();
 }
 
