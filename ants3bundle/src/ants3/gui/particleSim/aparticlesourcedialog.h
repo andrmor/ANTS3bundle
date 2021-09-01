@@ -2,6 +2,7 @@
 #define APARTICLESOURCEDIALOG_H
 
 #include "asourceparticlegenerator.h"
+#include "aparticlesourcerecord.h"
 
 #include <QDialog>
 
@@ -16,10 +17,10 @@ class AParticleSourceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AParticleSourceDialog(const AParticleSourceRecord * Rec, QWidget * parent);
+    explicit AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent);
     ~AParticleSourceDialog();
 
-    AParticleSourceRecord * getResult(); //transfers ownership
+    AParticleSourceRecord & getResult(); //transfers ownership
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -49,8 +50,8 @@ signals:
     void delayClose();
 
 private:
-    AParticleSourceRecord * Rec = nullptr;
-    const AParticleSourceRecord * OriginalRec = nullptr;
+    AParticleSourceRecord         LocalRec;
+    const AParticleSourceRecord & OriginalRec;
 
     Ui::AParticleSourceDialog * ui;
 

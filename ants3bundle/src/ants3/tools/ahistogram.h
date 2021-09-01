@@ -7,6 +7,8 @@ class AHistogram1D
 {
 public:
     AHistogram1D(int Bins, double From, double To);
+    AHistogram1D();
+
     void setBufferSize(size_t size) {BufferSize = size;}
 
     void fill(double x, double val);
@@ -17,13 +19,15 @@ public:
     std::vector<double> getStat();    // [0] - sumVals, [1] - sumVals2, [2] - sumValX, [3] - sumValX2, [4] - # entries
 
     bool   initRandomGenerator(); // returns false if data size is < 3 or there are bins with negative content!
-    double getRandom();           // returns 0 if initRandomGenerator was not yet calculated (and it returned true)
+    double getRandom() const;           // returns 0 if initRandomGenerator was not yet calculated (and it returned true)
     int    getRandomBin();        // returns 0 if initRandomGenerator was not yet calculated (and it returned true)
 
+    void clear() {} // !!!***
+
 private:
-    int    Bins;
-    double From;
-    double To;
+    int    Bins = 100;
+    double From = 0;
+    double To   = 0;
     double DeltaBin;
 
     double Entries  = 0;
@@ -32,7 +36,7 @@ private:
     double SumValX  = 0;
     double SumValX2 = 0;
 
-    bool   FixedRange = true;
+    bool   FixedRange = false;
     size_t BufferSize = 1000;
 
     std::vector<double> Data; // [0] - underflow, [bins+1] - overflow; size = Bins + 2

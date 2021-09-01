@@ -12,12 +12,19 @@ AHistogram1D::AHistogram1D(int Bins, double From, double To) :
     if (To > From)
     {
         DeltaBin = (To - From) / Bins;
+        FixedRange = true;
     }
     else
     {
-        FixedRange = false;
         Buffer.reserve(BufferSize);
+        FixedRange = false;
     }
+}
+
+AHistogram1D::AHistogram1D()
+{
+    Buffer.reserve(BufferSize);
+    FixedRange = false;
 }
 
 void AHistogram1D::fill(double x, double val)
@@ -68,7 +75,7 @@ bool AHistogram1D::initRandomGenerator()
 
 #include "arandomhub.h"
 #include <algorithm>
-double AHistogram1D::getRandom()
+double AHistogram1D::getRandom() const
 {
     if (SumBins.empty()) return 0;
 

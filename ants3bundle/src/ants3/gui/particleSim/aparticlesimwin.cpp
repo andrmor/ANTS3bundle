@@ -133,20 +133,14 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         return;
     }
 
-    AParticleSourceDialog * ParticleSourceDialog = new AParticleSourceDialog(SourceGenSettings.getSourceRecord(isource), this);
+    AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
 
-    int res = ParticleSourceDialog->exec(); // if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
-    if (res == QDialog::Rejected)
-    {
-        delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
-        return;
-    }
+    int res = ParticleSourceDialog.exec(); // if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
+    if (res == QDialog::Rejected) return;
 
-    SourceGenSettings.replace(isource, ParticleSourceDialog->getResult());
-    delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
-
-    AParticleSourceRecord * ps = SourceGenSettings.getSourceRecord(isource);
-    ps->updateLimitedToMat();
+    AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
+    ps.updateLimitedToMat();
+    SourceGenSettings.replace(isource, ps);
 
 //    on_pbUpdateSimConfig_clicked();
 
@@ -182,8 +176,8 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
 void AParticleSimWin::on_pbAddSource_clicked()
 {
-    AParticleSourceRecord* s = new AParticleSourceRecord();
-    s->GunParticles.push_back(new GunParticleStruct());
+    AParticleSourceRecord s;
+    s.GunParticles.push_back(GunParticleStruct());
     SimSet.SourceGenSettings.append(s);
 
 //    on_pbUpdateSimConfig_clicked();
@@ -224,7 +218,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
         return;
     }
 
-    const QString SourceName = SimSet.SourceGenSettings.getSourceRecord(isource)->name;
+    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).name;
     bool ok = guitools::confirm(QString("Remove source %0?").arg(SourceName), this);
     if (!ok) return;
 
@@ -253,7 +247,7 @@ void AParticleSimWin::updateSourceList()
 
     for (int i = 0; i < numSources; i++)
     {
-        AParticleSourceRecord * pr = SourceGenSettings.getSourceRecord(i);
+        AParticleSourceRecord & pr = SourceGenSettings.SourceData[i];
         QListWidgetItem * item = new QListWidgetItem();
         ui->lwDefinedParticleSources->addItem(item);
 
@@ -261,35 +255,35 @@ void AParticleSimWin::updateSourceList()
         fr->setFrameShape(QFrame::Box);
         QHBoxLayout* l = new QHBoxLayout();
         l->setContentsMargins(3, 2, 3, 2);
-            QLabel* lab = new QLabel(pr->name);
+            QLabel* lab = new QLabel(pr.name);
             lab->setMinimumWidth(110);
             QFont f = lab->font();
             f.setBold(true);
             lab->setFont(f);
         l->addWidget(lab);
-        l->addWidget(new QLabel(pr->getShapeString() + ','));
-        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr->GunParticles.size()).arg( pr->GunParticles.size()>1 ? "s" : "" ) ) );
+        l->addWidget(new QLabel(pr.getShapeString() + ','));
+        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.GunParticles.size()).arg( pr.GunParticles.size()>1 ? "s" : "" ) ) );
         l->addStretch();
 
         l->addWidget(new QLabel("Fraction:"));
-            QLineEdit* e = new QLineEdit(QString::number(pr->Activity));
+            QLineEdit* e = new QLineEdit(QString::number(pr.Activity));
             e->setMaximumWidth(50);
             e->setMinimumWidth(50);
             QDoubleValidator* val = new QDoubleValidator(this);
             val->setBottom(0);
             e->setValidator(val);
-            QObject::connect(e, &QLineEdit::editingFinished, [pr, e, this]()
+            QObject::connect(e, &QLineEdit::editingFinished, [&pr, e, this]()
             {
                 double newVal = e->text().toDouble();
-                if (pr->Activity == newVal) return;
-                pr->Activity = newVal;
+                if (pr.Activity == newVal) return;
+                pr.Activity = newVal;
                 e->clearFocus();
-//                emit this->RequestUpdateSimConfig();  // !!!*** need?
+//                emit this->RequestUpdateSimConfig();  // !!!*** update gui!
             });
         l->addWidget(e);
 
             double totAct = SourceGenSettings.getTotalActivity();
-            double per = ( totAct == 0 ? 0 : 100.0 * pr->Activity / totAct );
+            double per = ( totAct == 0 ? 0 : 100.0 * pr.Activity / totAct );
             QString t = (per == 0 ? "-Off-" : QString("%1%").arg(per, 3, 'g', 3) );
             lab = new QLabel(t);
             lab->setMinimumWidth(45);
@@ -301,7 +295,7 @@ void AParticleSimWin::updateSourceList()
         item->setSizeHint(fr->sizeHint());
 
         bool bVis = (numSources > 1);
-        if (!bVis && pr->Activity == 0) bVis = true;
+        if (!bVis && pr.Activity == 0) bVis = true;
         e->setVisible(bVis);
     }
 
@@ -376,22 +370,22 @@ void AParticleSimWin::on_pbGunTest_clicked()
 #include "aparticlerecord.h"
 void AParticleSimWin::drawSource(int iSource)
 {
-    const AParticleSourceRecord * p = SimSet.SourceGenSettings.getSourceRecord(iSource);
-    if (!p) return;
+    //check iSource is correct  !!!***
+    const AParticleSourceRecord & p = SimSet.SourceGenSettings.SourceData.at(iSource);
 
-    int index = p->shape;
-    double X0 = p->X0;
-    double Y0 = p->Y0;
-    double Z0 = p->Z0;
-    double Phi = p->Phi*3.1415926535/180.0;
-    double Theta = p->Theta*3.1415926535/180.0;
-    double Psi = p->Psi*3.1415926535/180.0;
-    double size1 = p->size1;
-    double size2 = p->size2;
-    double size3 = p->size3;
-    double CollPhi = p->CollPhi*3.1415926535/180.0;
-    double CollTheta = p->CollTheta*3.1415926535/180.0;
-    double Spread = p->Spread*3.1415926535/180.0;
+    int index = p.shape;
+    double X0 = p.X0;
+    double Y0 = p.Y0;
+    double Z0 = p.Z0;
+    double Phi = p.Phi*3.1415926535/180.0;
+    double Theta = p.Theta*3.1415926535/180.0;
+    double Psi = p.Psi*3.1415926535/180.0;
+    double size1 = p.size1;
+    double size2 = p.size2;
+    double size3 = p.size3;
+    double CollPhi = p.CollPhi*3.1415926535/180.0;
+    double CollTheta = p.CollTheta*3.1415926535/180.0;
+    double Spread = p.Spread*3.1415926535/180.0;
 
     //calculating unit vector along 1D direction
     TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));

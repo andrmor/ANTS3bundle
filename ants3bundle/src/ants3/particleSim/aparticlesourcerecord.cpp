@@ -9,39 +9,26 @@
 
 #include "TH1D.h"
 
-GunParticleStruct * GunParticleStruct::clone() const
-{
-    //shallow copy
-    GunParticleStruct* gp = new GunParticleStruct(*this);
-
-    //clear dynamic
-    gp->spectrum = 0;
-
-    //deep copy for dynamic properties
-    if (spectrum)
-        gp->spectrum = new TH1D(*spectrum);
-
-    return gp;
-}
-
 double GunParticleStruct::generateEnergy() const
 {
-    if (bUseFixedEnergy || !spectrum) return energy;
-    return GetRandomFromHist(spectrum);
+    if (bUseFixedEnergy) return energy;
+    return EnergyDistr.getRandom();
 }
 
 bool GunParticleStruct::loadSpectrum(const QString &fileName)
 {
+/*
     QVector<double> x, y;
     QVector<QVector<double> *> V = {&x, &y};
     const QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
     if (!res.isEmpty()) return false; // !!!*** return string
 
-    delete spectrum; spectrum = 0;
+    delete EnergyDistr; EnergyDistr = 0;
     int size = x.size();
-    spectrum = new TH1D("","Energy spectrum", size-1, x.data());
+    EnergyDistr = new TH1D("","Energy spectrum", size-1, x.data());
     for (int j = 1; j < size+1; j++)
-        spectrum->SetBinContent(j, y[j-1]);
+        EnergyDistr->SetBinContent(j, y[j-1]);
+*/
     return true;
 }
 
@@ -51,8 +38,8 @@ void GunParticleStruct::writeToJson(QJsonObject & json) const
     json["StatWeight"] = StatWeight;
     json["Individual"] = Individual;
     json["LinkedTo"] = LinkedTo;
-    json["LinkingProbability"] = LinkingProbability;
-    json["LinkingOppositeDir"] = LinkingOppositeDir;
+    json["LinkingProbability"] = LinkedProb;
+    json["LinkingOppositeDir"] = LinkedOpposite;
     json["Energy"] = energy;
     json["UseFixedEnergy"] = bUseFixedEnergy;
 //    if ( spectrum )
@@ -70,13 +57,14 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "StatWeight",  StatWeight );
     jstools::parseJson(json, "Individual",  Individual );
     jstools::parseJson(json, "LinkedTo",  LinkedTo ); //linked always to previously already defined particles!
-    jstools::parseJson(json, "LinkingProbability",  LinkingProbability );
-    jstools::parseJson(json, "LinkingOppositeDir",  LinkingOppositeDir );
+    jstools::parseJson(json, "LinkingProbability",  LinkedProb );
+    jstools::parseJson(json, "LinkingOppositeDir",  LinkedOpposite );
 
     jstools::parseJson(json, "Energy",  energy );
     jstools::parseJson(json, "PreferredUnits",  PreferredUnits );
     jstools::parseJson(json, "UseFixedEnergy",  bUseFixedEnergy );
 
+/*
     QJsonArray ar = json["EnergySpectrum"].toArray();
     if (!ar.isEmpty())
     {
@@ -88,46 +76,16 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
             xx[i] = ar[i].toArray()[0].toDouble();
             yy[i] = ar[i].toArray()[1].toDouble();
         }
-        spectrum = new TH1D("", "", size-1, xx);
-        for (int j = 1; j<size+1; j++) spectrum->SetBinContent(j, yy[j-1]);
+        EnergyDistr = new TH1D("", "", size-1, xx);
+        for (int j = 1; j<size+1; j++) EnergyDistr->SetBinContent(j, yy[j-1]);
         delete[] xx;
         delete[] yy;
     }
+*/
     return true;
 }
 
-GunParticleStruct::~GunParticleStruct()
-{
-    delete spectrum; spectrum = nullptr;
-}
-
 // ---------------------- AParticleSourceRecord ----------------------
-
-AParticleSourceRecord::~AParticleSourceRecord()
-{
-    clearGunParticles();
-}
-
-void AParticleSourceRecord::clearGunParticles()
-{
-    for (GunParticleStruct * g : GunParticles) delete g;
-    GunParticles.clear();
-}
-
-AParticleSourceRecord * AParticleSourceRecord::clone() const
-{
-    //shallow copy
-    AParticleSourceRecord * newRec = new AParticleSourceRecord(*this);
-
-    //clear dynamic
-    newRec->GunParticles.clear();
-
-    //deep copy of dynamic resources
-    for (GunParticleStruct* g : GunParticles)
-        newRec->GunParticles.push_back(g->clone());
-
-    return newRec;
-}
 
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
@@ -162,10 +120,10 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     int GunParticleSize = GunParticles.size();
     json["Particles"] = GunParticleSize;
     QJsonArray jParticleEntries;
-    for (const GunParticleStruct* gp : GunParticles)
+    for (const GunParticleStruct & gp : GunParticles)
     {
         QJsonObject js;
-        gp->writeToJson(js);
+        gp.writeToJson(js);
         jParticleEntries.append(js);
     }
     json["GunParticles"] = jParticleEntries;
@@ -215,7 +173,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     }
 
     //GunParticles
-    clearGunParticles();
+    GunParticles.clear();
     QJsonArray jGunPartArr = json["GunParticles"].toArray();
     int numGP = jGunPartArr.size();
     //qDebug()<<"Entries in gunparticles:"<<numGP;
@@ -223,11 +181,11 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     {
         QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
 
-        GunParticleStruct* gp = new GunParticleStruct();
-        bool bOK = gp->readFromJson(jThisGunPart);
+        GunParticleStruct gp;
+        bool bOK = gp.readFromJson(jThisGunPart);
         if (!bOK)
         {
-            delete gp;
+            qWarning() << "Error reading gunparticle #"<< ip;
             return false;
         }
         GunParticles.push_back(gp);
@@ -265,22 +223,22 @@ const QString AParticleSourceRecord::checkSource() const
     double TotPartWeight = 0;
     for (int ip = 0; ip<numParts; ip++)
     {
-        GunParticleStruct * gp = GunParticles.at(ip);
-        if (gp->Individual)
+        const GunParticleStruct & gp = GunParticles.at(ip);
+        if (gp.Individual)
         {
             //individual
             numIndParts++;
-            if (GunParticles.at(ip)->StatWeight < 0) return QString("negative statistical weight for particle #%1").arg(ip);
-            TotPartWeight += GunParticles.at(ip)->StatWeight;
+            if (GunParticles.at(ip).StatWeight < 0) return QString("negative statistical weight for particle #%1").arg(ip);
+            TotPartWeight += GunParticles.at(ip).StatWeight;
         }
         else
         {
             //linked
-            if (ip == gp->LinkedTo) return QString("particle #%1 is linked to itself").arg(ip);
-            if (ip < gp->LinkedTo) return QString("invalid linking for particle #%1").arg(ip);
+            if (ip == gp.LinkedTo) return QString("particle #%1 is linked to itself").arg(ip);
+            if (ip < gp.LinkedTo) return QString("invalid linking for particle #%1").arg(ip);
         }
 
-        if (gp->energy <= 0) return QString("invalid energy of %1 for particle #%2").arg(gp->energy).arg(ip);
+        if (gp.energy <= 0) return QString("invalid energy of %1 for particle #%2").arg(gp.energy).arg(ip);
     }
 
     if (numIndParts == 0) return "no individual particles defined";

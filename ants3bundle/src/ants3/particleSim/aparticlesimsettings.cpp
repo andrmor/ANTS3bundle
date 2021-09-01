@@ -288,10 +288,10 @@ void AFileGenSettings::clearStatistics()
 void ASourceGenSettings::writeToJson(QJsonObject &json) const
 {
     QJsonArray ja;
-    for (const AParticleSourceRecord * ps : SourceData)
+    for (const AParticleSourceRecord & ps : SourceData)
     {
         QJsonObject js;
-        ps->writeToJson(js);
+        ps.writeToJson(js);
         ja.append(js);
     }
     json["ParticleSources"] = ja;
@@ -319,13 +319,12 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
     for (int iSource = 0; iSource < ar.size(); iSource++)
     {
         QJsonObject js = ar.at(iSource).toObject();
-        AParticleSourceRecord * ps = new AParticleSourceRecord();
-        bool ok = ps->readFromJson(js);
+        AParticleSourceRecord ps;
+        bool ok = ps.readFromJson(js);
         if (ok) SourceData.push_back(ps);
         else
         {
             qWarning() << "||| Load particle source #" << iSource << "from json failed!";
-            delete ps;
         }
     }
 
@@ -348,7 +347,6 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
 
 void ASourceGenSettings::clear()
 {
-    for (AParticleSourceRecord * r : SourceData) delete r;
     SourceData.clear();
 
     TotalActivity = 0;
@@ -363,26 +361,14 @@ int ASourceGenSettings::getNumSources() const
     return SourceData.size();
 }
 
-const AParticleSourceRecord * ASourceGenSettings::getSourceRecord(int iSource) const
-{
-    if (iSource < 0 || iSource >= SourceData.size()) return nullptr;
-    return SourceData.at(iSource);
-}
-
-AParticleSourceRecord *ASourceGenSettings::getSourceRecord(int iSource)
-{
-    if (iSource < 0 || iSource >= SourceData.size()) return nullptr;
-    return SourceData.at(iSource);
-}
-
 void ASourceGenSettings::calculateTotalActivity()
 {
     TotalActivity = 0;
-    for (const AParticleSourceRecord * r : SourceData)
-        TotalActivity += r->Activity;
+    for (const AParticleSourceRecord & r : SourceData)
+        TotalActivity += r.Activity;
 }
 
-void ASourceGenSettings::append(AParticleSourceRecord * source)
+void ASourceGenSettings::append(AParticleSourceRecord & source)
 {
     SourceData.push_back(source);
     calculateTotalActivity();
@@ -392,8 +378,8 @@ bool ASourceGenSettings::clone(int iSource)
 {
     if (iSource < 0 || iSource >= SourceData.size()) return false;
 
-    AParticleSourceRecord * r = SourceData.at(iSource)->clone();
-    r->name += "_c";
+    AParticleSourceRecord r = SourceData[iSource];
+    r.name += "_c";
     SourceData.insert(SourceData.begin() + iSource + 1, r);
     return true;
 }
@@ -406,11 +392,10 @@ void ASourceGenSettings::forget(AParticleSourceRecord *source)
 }
 */
 
-bool ASourceGenSettings::replace(int iSource, AParticleSourceRecord * source)
+bool ASourceGenSettings::replace(int iSource, AParticleSourceRecord & source)
 {
     if (iSource < 0 || iSource >= SourceData.size()) return false;
 
-    delete SourceData[iSource];
     SourceData[iSource] = source;
     calculateTotalActivity();
     return true;
@@ -421,7 +406,6 @@ void ASourceGenSettings::remove(int iSource)
     if (SourceData.empty()) return;
     if (iSource < 0 || iSource >= SourceData.size()) return;
 
-    delete SourceData[iSource];
     SourceData.erase(SourceData.begin() + iSource);
     calculateTotalActivity();
 }

@@ -1,7 +1,6 @@
 #include "aparticlesourcedialog.h"
 #include "ui_aparticlesourcedialog.h"
 #include "mainwindow.h"
-#include "aparticlesourcerecord.h"
 #include "graphwindowclass.h"
 #include "ajsontools.h"
 #include "guitools.h"
@@ -17,9 +16,9 @@
 #include "TGeoManager.h"
 #include "TH1D.h"
 
-AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord * Rec, QWidget * parent) :
+AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent) :
     QDialog(parent),
-    Rec(Rec->clone()), OriginalRec(Rec),
+    LocalRec(Rec), OriginalRec(Rec),
     ui(new Ui::AParticleSourceDialog)
 {
     ui->setupUi(this);
@@ -37,40 +36,40 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord * Rec, 
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
-    ui->leSourceName->setText(Rec->name);
-    ui->cobGunSourceType->setCurrentIndex(Rec->shape);
+    ui->leSourceName->setText(Rec.name);
+    ui->cobGunSourceType->setCurrentIndex(Rec.shape);
 
-    ui->ledGun1DSize->setText(QString::number(2.0 * Rec->size1));
-    ui->ledGun2DSize->setText(QString::number(2.0 * Rec->size2));
-    ui->ledGun3DSize->setText(QString::number(2.0 * Rec->size3));
+    ui->ledGun1DSize->setText(QString::number(2.0 * Rec.size1));
+    ui->ledGun2DSize->setText(QString::number(2.0 * Rec.size2));
+    ui->ledGun3DSize->setText(QString::number(2.0 * Rec.size3));
 
-    ui->ledGunOriginX->setText(QString::number(Rec->X0));
-    ui->ledGunOriginY->setText(QString::number(Rec->Y0));
-    ui->ledGunOriginZ->setText(QString::number(Rec->Z0));
+    ui->ledGunOriginX->setText(QString::number(Rec.X0));
+    ui->ledGunOriginY->setText(QString::number(Rec.Y0));
+    ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
 
-    ui->ledGunPhi->setText(QString::number(Rec->Phi));
-    ui->ledGunTheta->setText(QString::number(Rec->Theta));
-    ui->ledGunPsi->setText(QString::number(Rec->Psi));
+    ui->ledGunPhi->setText(QString::number(Rec.Phi));
+    ui->ledGunTheta->setText(QString::number(Rec.Theta));
+    ui->ledGunPsi->setText(QString::number(Rec.Psi));
 
-    ui->ledGunCollPhi->setText(QString::number(Rec->CollPhi));
-    ui->ledGunCollTheta->setText(QString::number(Rec->CollTheta));
-    ui->ledGunSpread->setText(QString::number(Rec->Spread));
+    ui->ledGunCollPhi->setText(QString::number(Rec.CollPhi));
+    ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
+    ui->ledGunSpread->setText(QString::number(Rec.Spread));
 
-    ui->cbSourceLimitmat->setChecked(Rec->DoMaterialLimited);
-    ui->leSourceLimitMaterial->setText(Rec->LimtedToMatName);
+    ui->cbSourceLimitmat->setChecked(Rec.DoMaterialLimited);
+    ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName);
 
-    ui->cobTimeAverageMode->setCurrentIndex(Rec->TimeAverageMode);
-    ui->ledTimeAverageFixed->setText( QString::number(Rec->TimeAverage) );
-    ui->ledTimeAverageStart->setText( QString::number(Rec->TimeAverageStart) );
-    ui->ledTimeAveragePeriod->setText( QString::number(Rec->TimeAveragePeriod) );
-    ui->cobTimeSpreadMode->setCurrentIndex(Rec->TimeSpreadMode);
-    ui->ledTimeSpreadSigma->setText( QString::number(Rec->TimeSpreadSigma) );
-    ui->ledTimeSpreadWidth->setText( QString::number(Rec->TimeSpreadWidth) );
+    ui->cobTimeAverageMode->setCurrentIndex(Rec.TimeAverageMode);
+    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeAverage) );
+    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeAverageStart) );
+    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeAveragePeriod) );
+    ui->cobTimeSpreadMode->setCurrentIndex(Rec.TimeSpreadMode);
+    ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
+    ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
 
     ui->frSecondary->setVisible(false);
     UpdateListWidget();
     updateColorLimitingMat();
-    if ( !Rec->GunParticles.empty() )
+    if ( !Rec.GunParticles.empty() )
     {
         ui->lwGunParticles->setCurrentRow(0);
         UpdateParticleInfo();
@@ -88,14 +87,11 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord * Rec, 
 AParticleSourceDialog::~AParticleSourceDialog()
 {
     delete ui;
-    delete Rec;
 }
 
-AParticleSourceRecord *AParticleSourceDialog::getResult()
+AParticleSourceRecord & AParticleSourceDialog::getResult()
 {
-    AParticleSourceRecord* tmp = Rec;
-    Rec = 0;
-    return tmp;
+    return LocalRec;
 }
 
 void AParticleSourceDialog::closeEvent(QCloseEvent *e)
@@ -103,8 +99,8 @@ void AParticleSourceDialog::closeEvent(QCloseEvent *e)
     on_pbUpdateRecord_clicked();
 
     QJsonObject jo, jn;
-    Rec->writeToJson(jo);
-    OriginalRec->writeToJson(jn);
+    LocalRec.writeToJson(jo);
+    OriginalRec.writeToJson(jn);
     if (jo != jn)
     {
         QMessageBox msgBox(this);
@@ -204,20 +200,20 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
 
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
 {
-    GunParticleStruct* tmp = new GunParticleStruct();
-    tmp->Particle = ui->leGunParticle->text();
-    tmp->StatWeight = ui->ledGunParticleWeight->text().toDouble();
-    tmp->energy = ui->ledGunEnergy->text().toDouble();
-    Rec->GunParticles.push_back(tmp);
+    GunParticleStruct tmp;
+    tmp.Particle = ui->leGunParticle->text();
+    tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
+    tmp.energy = ui->ledGunEnergy->text().toDouble();
+    LocalRec.GunParticles.push_back(tmp);
 
     UpdateListWidget();
-    ui->lwGunParticles->setCurrentRow( Rec->GunParticles.size()-1 );
+    ui->lwGunParticles->setCurrentRow( LocalRec.GunParticles.size()-1 );
     UpdateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbGunRemove_clicked()
 {
-    if (Rec->GunParticles.size() < 2)
+    if (LocalRec.GunParticles.size() < 2)
     {
         guitools::message("There should be at least one particle!", this);
         return;
@@ -230,12 +226,11 @@ void AParticleSourceDialog::on_pbGunRemove_clicked()
         return;
     }
 
-    delete Rec->GunParticles[iparticle];
     //Rec->GunParticles.remove(iparticle);
-    Rec->GunParticles.erase(Rec->GunParticles.begin() + iparticle);
+    LocalRec.GunParticles.erase(LocalRec.GunParticles.begin() + iparticle);
 
     UpdateListWidget();
-    ui->lwGunParticles->setCurrentRow( Rec->GunParticles.size()-1 );
+    ui->lwGunParticles->setCurrentRow( LocalRec.GunParticles.size()-1 );
     UpdateParticleInfo();
 }
 
@@ -245,33 +240,33 @@ void AParticleSourceDialog::UpdateListWidget()
 
     ui->lwGunParticles->clear();
     int counter = 0;
-    for (const GunParticleStruct* gps : Rec->GunParticles)
+    for (const GunParticleStruct & gps : LocalRec.GunParticles)
     {
-        bool Individual = gps->Individual;
+        bool Individual = gps.Individual;
 
         QString str, str1;
         if (Individual) str = "";
         else str = ">";
         str1.setNum(counter++);
         str += str1 + "> ";
-        str += gps->Particle;
-        if (gps->bUseFixedEnergy)
-             str += QString(" E=%1").arg(gps->energy);
+        str += gps.Particle;
+        if (gps.bUseFixedEnergy)
+             str += QString(" E=%1").arg(gps.energy);
         else str += " E=spec";
 
         if (Individual)
         {
             str += " W=";
-            str1.setNum(gps->StatWeight);
+            str1.setNum(gps.StatWeight);
             str += str1;
         }
         else
         {
             str += " Link:";
-            str += QString::number(gps->LinkedTo);
+            str += QString::number(gps.LinkedTo);
             str += " P=";
-            str += QString::number(gps->LinkingProbability);
-            if (gps->LinkingOppositeDir)
+            str += QString::number(gps.LinkedProb);
+            if (gps.LinkedOpposite)
                 str += " Opposite";
         }
         ui->lwGunParticles->addItem(str);
@@ -284,41 +279,40 @@ void AParticleSourceDialog::UpdateParticleInfo()
 {
     int row = ui->lwGunParticles->currentRow();
 
-    int DefinedSourceParticles = Rec->GunParticles.size();
+    int DefinedSourceParticles = LocalRec.GunParticles.size();
     if (DefinedSourceParticles > 0 && row>-1)
     {
         ui->fGunParticle->setEnabled(true);
-        QString part = Rec->GunParticles.at(row)->Particle;
+        QString part = LocalRec.GunParticles.at(row).Particle;
         ui->leGunParticle->setText(part);
 
-        const GunParticleStruct* gRec = Rec->GunParticles.at(row);
+        const GunParticleStruct & gRec = LocalRec.GunParticles.at(row);
 
         QString str;
-        str.setNum(gRec->StatWeight);
+        str.setNum(gRec.StatWeight);
         ui->ledGunParticleWeight->setText(str);
 
-        int iPrefUnits = ui->cobUnits->findText(gRec->PreferredUnits);
-        double energy = gRec->energy;
+        int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits);
+        double energy = gRec.energy;
         if (iPrefUnits > -1)
         {
             ui->cobUnits->setCurrentIndex(iPrefUnits);
-            if      (gRec->PreferredUnits == "MeV") energy *= 1.0e-3;
-            else if (gRec->PreferredUnits == "keV") ;
-            else if (gRec->PreferredUnits == "eV") energy *= 1.0e3;
-            else if (gRec->PreferredUnits == "meV") energy *= 1.0e6;
+            if      (gRec.PreferredUnits == "MeV") energy *= 1.0e-3;
+            else if (gRec.PreferredUnits == "keV") ;
+            else if (gRec.PreferredUnits == "eV") energy *= 1.0e3;
+            else if (gRec.PreferredUnits == "meV") energy *= 1.0e6;
         }
         else ui->cobUnits->setCurrentText("keV");
         ui->ledGunEnergy->setText( QString::number(energy) );
 
-        ui->cbLinkedParticle->setChecked(!gRec->Individual);
-        ui->frSecondary->setVisible(!gRec->Individual);
-        ui->sbLinkedTo->setValue(gRec->LinkedTo);
-        str.setNum(gRec->LinkingProbability);
+        ui->cbLinkedParticle->setChecked(!gRec.Individual);
+        ui->frSecondary->setVisible(!gRec.Individual);
+        ui->sbLinkedTo->setValue(gRec.LinkedTo);
+        str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
-        ui->cbLinkingOpposite->setChecked(gRec->LinkingOppositeDir);
+        ui->cbLinkingOpposite->setChecked(gRec.LinkedOpposite);
 
-        ui->pbGunShowSpectrum->setEnabled(gRec->spectrum);
-        bool bFix = gRec->bUseFixedEnergy;
+        bool bFix = gRec.bUseFixedEnergy;
         ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
         ui->pbGunShowSpectrum->setVisible(!bFix);
         ui->pbGunLoadSpectrum->setVisible(!bFix);
@@ -340,7 +334,7 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 {
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart == -1) return;
-    Rec->GunParticles[iPart]->PreferredUnits = ui->cobUnits->currentText();
+    LocalRec.GunParticles[iPart].PreferredUnits = ui->cobUnits->currentText();
     UpdateParticleInfo();
 }
 
@@ -365,56 +359,56 @@ void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
-    Rec->name = ui->leSourceName->text();
-    Rec->shape = ui->cobGunSourceType->currentIndex();
+    LocalRec.name = ui->leSourceName->text();
+    LocalRec.shape = ui->cobGunSourceType->currentIndex();
 
-    Rec->size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
-    Rec->size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
-    Rec->size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
+    LocalRec.size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
+    LocalRec.size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
+    LocalRec.size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
 
-    Rec->DoMaterialLimited = ui->cbSourceLimitmat->isChecked();
-    Rec->LimtedToMatName = ui->leSourceLimitMaterial->text();
+    LocalRec.DoMaterialLimited = ui->cbSourceLimitmat->isChecked();
+    LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text();
     //ParticleSources->checkLimitedToMaterial(Rec);
 
-    Rec->X0 = ui->ledGunOriginX->text().toDouble();
-    Rec->Y0 = ui->ledGunOriginY->text().toDouble();
-    Rec->Z0 = ui->ledGunOriginZ->text().toDouble();
+    LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
+    LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
+    LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
 
-    Rec->Phi = ui->ledGunPhi->text().toDouble();
-    Rec->Theta = ui->ledGunTheta->text().toDouble();
-    Rec->Psi = ui->ledGunPsi->text().toDouble();
+    LocalRec.Phi = ui->ledGunPhi->text().toDouble();
+    LocalRec.Theta = ui->ledGunTheta->text().toDouble();
+    LocalRec.Psi = ui->ledGunPsi->text().toDouble();
 
-    Rec->CollPhi = ui->ledGunCollPhi->text().toDouble();
-    Rec->CollTheta = ui->ledGunCollTheta->text().toDouble();
-    Rec->Spread = ui->ledGunSpread->text().toDouble();
+    LocalRec.CollPhi = ui->ledGunCollPhi->text().toDouble();
+    LocalRec.CollTheta = ui->ledGunCollTheta->text().toDouble();
+    LocalRec.Spread = ui->ledGunSpread->text().toDouble();
 
-    Rec->TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
-    Rec->TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
-    Rec->TimeAverageStart = ui->ledTimeAverageStart->text().toDouble();
-    Rec->TimeAveragePeriod = ui->ledTimeAveragePeriod->text().toDouble();
-    Rec->TimeSpreadMode = ui->cobTimeSpreadMode->currentIndex();
-    Rec->TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
-    Rec->TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
+    LocalRec.TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
+    LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
+    LocalRec.TimeAverageStart = ui->ledTimeAverageStart->text().toDouble();
+    LocalRec.TimeAveragePeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    LocalRec.TimeSpreadMode = ui->cobTimeSpreadMode->currentIndex();
+    LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
+    LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
 
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
     {
-        GunParticleStruct* p = Rec->GunParticles[iPart];
+        GunParticleStruct & p = LocalRec.GunParticles[iPart];
 
-        p->Particle = ui->leGunParticle->text();
-        p->StatWeight = ui->ledGunParticleWeight->text().toDouble();
-        p->bUseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
-        p->PreferredUnits = ui->cobUnits->currentText();
+        p.Particle = ui->leGunParticle->text();
+        p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
+        p.bUseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
+        p.PreferredUnits = ui->cobUnits->currentText();
         double energy = ui->ledGunEnergy->text().toDouble();
-        if      (p->PreferredUnits == "MeV") energy *= 1.0e3;
-        else if (p->PreferredUnits == "keV") ;
-        else if (p->PreferredUnits == "eV") energy *= 1.0e-3;
-        else if (p->PreferredUnits == "meV") energy *= 1.0e-6;
-        p->energy = energy;
-        p->Individual = !ui->cbLinkedParticle->isChecked();
-        p->LinkedTo = ui->sbLinkedTo->value();
-        p->LinkingProbability = ui->ledLinkingProbability->text().toDouble();
-        p->LinkingOppositeDir = ui->cbLinkingOpposite->isChecked();
+        if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
+        else if (p.PreferredUnits == "keV") ;
+        else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
+        else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
+        p.energy = energy;
+        p.Individual = !ui->cbLinkedParticle->isChecked();
+        p.LinkedTo = ui->sbLinkedTo->value();
+        p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
+        p.LinkedOpposite = ui->cbLinkingOpposite->isChecked();
     }
 
     int curRow = ui->lwGunParticles->currentRow();
@@ -489,7 +483,8 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
-    delete Rec->GunParticles[iPart]->spectrum; Rec->GunParticles[iPart]->spectrum = 0;
+    LocalRec.GunParticles[iPart].EnergyDistr.clear();
+    LocalRec.GunParticles[iPart].bUseFixedEnergy = false;
 
     UpdateParticleInfo();
 }

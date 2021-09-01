@@ -1,6 +1,8 @@
 #ifndef APARTICLEMODESETTINGS_H
 #define APARTICLEMODESETTINGS_H
 
+#include "aparticlesourcerecord.h"
+
 #include <QString>
 #include <QDateTime>
 #include <QStringList>
@@ -8,7 +10,6 @@
 #include <vector>
 
 class QJsonObject;
-class AParticleSourceRecord;
 class ASourceParticleGenerator;
 
 // TODO !!!*** error handling
@@ -18,7 +19,7 @@ class ASourceGenSettings
 public:
     enum EMultiMode {Constant = 0, Poisson = 1};
 
-    std::vector<AParticleSourceRecord*> SourceData;  // !!!*** reformat
+    std::vector<AParticleSourceRecord> SourceData;
 
     bool       MultiEnabled = false;
     EMultiMode MultiMode    = Constant;
@@ -31,16 +32,13 @@ public:
 
     int    getNumSources() const;
 
-    const AParticleSourceRecord * getSourceRecord(int iSource) const;
-    AParticleSourceRecord * getSourceRecord(int iSource);
-
     void   calculateTotalActivity();
     double getTotalActivity() const {return TotalActivity;}
 
-    void   append(AParticleSourceRecord * source);
+    void   append(AParticleSourceRecord & source);
     bool   clone(int iSource);
     //void   forget(AParticleSourceRecord * source);
-    bool   replace(int iSource, AParticleSourceRecord * source);
+    bool   replace(int iSource, AParticleSourceRecord & source);
     void   remove(int iSource);
 
 private:

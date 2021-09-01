@@ -37,12 +37,12 @@ bool ASourceParticleGenerator::init()
         return false;
     }
 
-    for (AParticleSourceRecord * ps : Settings.SourceData)
+    for (const AParticleSourceRecord & ps : Settings.SourceData)
     {
-        QString err = ps->checkSource();
+        QString err = ps.checkSource();
         if (!err.isEmpty())
         {
-            ErrorString = QString("Error in source %1:\n%2").arg(ps->name, err).toLatin1().data();
+            ErrorString = QString("Error in source %1:\n%2").arg(ps.name, err).toLatin1().data();
             return false;
         }
     }
@@ -50,33 +50,33 @@ bool ASourceParticleGenerator::init()
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
-        for (GunParticleStruct * gp : Settings.SourceData[isource]->GunParticles)
-            if (gp->Individual)
-                TotalParticleWeight[isource] += gp->StatWeight;
+        for (const GunParticleStruct & gp : Settings.SourceData[isource].GunParticles)
+            if (gp.Individual)
+                TotalParticleWeight[isource] += gp.StatWeight;
     }
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        int numParts = Settings.SourceData[isource]->GunParticles.size();
+        int numParts = Settings.SourceData[isource].GunParticles.size();
         LinkedPartiles[isource].resize(numParts);
         for (int iparticle=0; iparticle<numParts; iparticle++)
         {
             LinkedPartiles[isource][iparticle].resize(0);
-            if (!Settings.SourceData[isource]->GunParticles[iparticle]->Individual) continue; //nothing to do for non-individual particles
+            if (!Settings.SourceData[isource].GunParticles[iparticle].Individual) continue; //nothing to do for non-individual particles
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip=iparticle+1; ip<numParts; ip++)
-                if (!Settings.SourceData[isource]->GunParticles[ip]->Individual) //only looking for non-individuals
+                if (!Settings.SourceData[isource].GunParticles[ip].Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
                     {
                         int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
-                        int linkedTo = Settings.SourceData[isource]->GunParticles[ip]->LinkedTo;
+                        int linkedTo = Settings.SourceData[isource].GunParticles[ip].LinkedTo;
                         if ( linkedTo == compareWith)
                         {
                             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
@@ -106,9 +106,9 @@ bool ASourceParticleGenerator::init()
     //CollimationSpreadProduct.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        double CollPhi = Settings.SourceData[isource]->CollPhi*3.1415926535/180.0;
-        double CollTheta = Settings.SourceData[isource]->CollTheta*3.1415926535/180.0;
-        double Spread = Settings.SourceData[isource]->Spread*3.1415926535/180.0;
+        double CollPhi = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
+        double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
+        double Spread = Settings.SourceData[isource].Spread*3.1415926535/180.0;
 
         CollimationDirection[isource] = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
@@ -129,15 +129,15 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
         double rnd = ARandomHub::getInstance().uniform() * Settings.getTotalActivity();
         for (; isource<NumSources - 1; isource++)
         {
-            if (Settings.SourceData[isource]->Activity >= rnd) break; //this source selected
-            rnd -= Settings.SourceData[isource]->Activity;
+            if (Settings.SourceData[isource].Activity >= rnd) break; //this source selected
+            rnd -= Settings.SourceData[isource].Activity;
         }
     }
-    AParticleSourceRecord * Source = Settings.SourceData[isource];
+    const AParticleSourceRecord & Source = Settings.SourceData[isource];
 
     //position
     double R[3];
-    if (Source->bLimitToMat)
+    if (Source.bLimitToMat)
     {
         int attempts = 10000;
         TGeoNode * node = nullptr;
@@ -147,7 +147,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
             if (attempts-- == 0) return false;
             generatePosition(isource, R);
             node = gGeoManager->FindNode(R[0], R[1], R[2]);
-            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == Source->LimitedToMat) break;
+            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == Source.LimitedToMat) break;
         }
         while (attempts-- != 0);
     }
@@ -155,32 +155,32 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
 
     //time
     double time;
-    if (Source->TimeAverageMode == 0)
-        time = Source->TimeAverage;
+    if (Source.TimeAverageMode == 0)
+        time = Source.TimeAverage;
     else
-        time = Source->TimeAverageStart + iEvent * Source->TimeAveragePeriod;
-    switch (Source->TimeSpreadMode)
+        time = Source.TimeAverageStart + iEvent * Source.TimeAveragePeriod;
+    switch (Source.TimeSpreadMode)
     {
     default:
     case 0:
         break;
     case 1:
-        time = ARandomHub::getInstance().gauss(time, Source->TimeSpreadSigma);
+        time = ARandomHub::getInstance().gauss(time, Source.TimeSpreadSigma);
         break;
     case 2:
-        time += (-0.5 * Source->TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source->TimeSpreadWidth);
+        time += (-0.5 * Source.TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source.TimeSpreadWidth);
         break;
     }
 
     //selecting the particle
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(isource);
-    size_t iparticle;
-    for (iparticle = 0; iparticle < Source->GunParticles.size() - 1; iparticle++)
+    size_t iparticle = 0;
+    for ( ; iparticle < Source.GunParticles.size() - 1; iparticle++)
     {
-        if (Source->GunParticles[iparticle]->Individual)
+        if (Source.GunParticles[iparticle].Individual)
         {
-            if (Source->GunParticles[iparticle]->StatWeight >= rnd) break; //this one
-            rnd -= Source->GunParticles[iparticle]->StatWeight;
+            if (Source.GunParticles[iparticle].StatWeight >= rnd) break; //this one
+            rnd -= Source.GunParticles[iparticle].StatWeight;
         }
     }
     //qDebug() << "----Particle" << iparticle << "selected";
@@ -210,7 +210,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                 //qDebug()<<"---Testing particle:"<<ip;
                 int thisParticle = LinkedPartiles[isource][iparticle][ip].iParticle;
                 int linkedTo = LinkedPartiles[isource][iparticle][ip].LinkedTo;
-                bool fOpposite = Source->GunParticles[thisParticle]->LinkingOppositeDir;
+                bool fOpposite = Source.GunParticles[thisParticle].LinkedOpposite;
 
                 if (ip != 0)
                 {
@@ -221,7 +221,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                         continue;
                     }
                     //probability test
-                    double LinkingProb = Source->GunParticles[thisParticle]->LinkingProbability;
+                    double LinkingProb = Source.GunParticles[thisParticle].LinkedProb;
                     if (ARandomHub::getInstance().uniform() > LinkingProb)
                     {
                         //qDebug()<<"skip: linking prob fail";
@@ -255,8 +255,8 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                     //qDebug() << "making this particle opposite to:"<<linkedTo<<"index in GeneratedParticles:"<<index;
 
                     AParticleRecord ps;
-                    ps.particle = Source->GunParticles[thisParticle]->Particle;
-                    ps.energy = Source->GunParticles[thisParticle]->generateEnergy();
+                    ps.particle = Source.GunParticles[thisParticle].Particle;
+                    ps.energy = Source.GunParticles[thisParticle].generateEnergy();
                     ps.v[0] = -GeneratedParticles.at(index).v[0];
                     ps.v[1] = -GeneratedParticles.at(index).v[1];
                     ps.v[2] = -GeneratedParticles.at(index).v[2];
@@ -277,27 +277,27 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
 
 void ASourceParticleGenerator::generatePosition(int isource, double *R) const
 {
-    AParticleSourceRecord * rec = Settings.SourceData[isource];
-  const int    & iShape = rec->shape;
-  const double & X0     = rec->X0;
-  const double & Y0     = rec->Y0;
-  const double & Z0     = rec->Z0;
-  const double   Phi    = rec->Phi   * 3.1415926535 / 180.0;
-  const double   Theta  = rec->Theta * 3.1415926535 / 180.0;
-  const double   Psi    = rec->Psi   * 3.1415926535 / 180.0;
-  const double & size1  = rec->size1;
-  const double & size2  = rec->size2;
-  const double & size3  = rec->size3;
+    const AParticleSourceRecord & rec = Settings.SourceData[isource];
+    const int    & iShape = rec.shape;
+    const double & X0     = rec.X0;
+    const double & Y0     = rec.Y0;
+    const double & Z0     = rec.Z0;
+    const double   Phi    = rec.Phi   * 3.1415926535 / 180.0;
+    const double   Theta  = rec.Theta * 3.1415926535 / 180.0;
+    const double   Psi    = rec.Psi   * 3.1415926535 / 180.0;
+    const double & size1  = rec.size1;
+    const double & size2  = rec.size2;
+    const double & size3  = rec.size3;
 
-  switch (iShape) //source geometry type
+    switch (iShape) //source geometry type
     {
-     case (0):
-      { //point source
+    case (0):
+    { //point source
         R[0] = X0; R[1] = Y0; R[2] = Z0;
         return;
-      }
-     case (1):
-      {
+    }
+    case (1):
+    {
         //line source
         TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
         double off = -1.0 + 2.0 * RandomHub.uniform();
@@ -306,20 +306,20 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[1] = Y0+VV[1]*off;
         R[2] = Z0+VV[2]*off;
         return;
-      }
-     case (2):
-      {
+    }
+    case (2):
+    {
         //surface square source
         TVector3 V[3];
         V[0].SetXYZ(size1, 0, 0);
         V[1].SetXYZ(0, size2, 0);
         V[2].SetXYZ(0, 0, size3);
         for (int i=0; i<3; i++)
-         {
-          V[i].RotateX(Phi);
-          V[i].RotateY(Theta);
-          V[i].RotateZ(Psi);
-         }
+        {
+            V[i].RotateX(Phi);
+            V[i].RotateY(Theta);
+            V[i].RotateZ(Psi);
+        }
 
         double off1 = -1.0 + 2.0 * RandomHub.uniform();
         double off2 = -1.0 + 2.0 * RandomHub.uniform();
@@ -327,9 +327,9 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[1] = Y0+V[0][1]*off1+V[1][1]*off2;
         R[2] = Z0+V[0][2]*off1+V[1][2]*off2;
         return;
-      }
+    }
     case (3):
-      {
+    {
         //surface round source
         TVector3 Circ;
         double angle = RandomHub.uniform()*3.1415926535*2.0;
@@ -347,20 +347,20 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[1] = Y0+Circ[1];
         R[2] = Z0+Circ[2];
         return;
-      }
+    }
     case (4):
-      {
+    {
         //cube source
         TVector3 V[3];
         V[0].SetXYZ(size1, 0, 0);
         V[1].SetXYZ(0, size2, 0);
         V[2].SetXYZ(0, 0, size3);
         for (int i=0; i<3; i++)
-         {
-          V[i].RotateX(Phi);
-          V[i].RotateY(Theta);
-          V[i].RotateZ(Psi);
-         }
+        {
+            V[i].RotateX(Phi);
+            V[i].RotateY(Theta);
+            V[i].RotateZ(Psi);
+        }
 
         double off1 = -1.0 + 2.0 * RandomHub.uniform();
         double off2 = -1.0 + 2.0 * RandomHub.uniform();
@@ -369,9 +369,9 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[1] = Y0+V[0][1]*off1+V[1][1]*off2+V[2][1]*off3;
         R[2] = Z0+V[0][2]*off1+V[1][2]*off2+V[2][2]*off3;
         return;
-      }
+    }
     case (5):
-      {
+    {
         //cylinder source
         TVector3 Circ;
         double off = (-1.0 + 2.0 * RandomHub.uniform())*size3;
@@ -389,25 +389,25 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[1] = Y0+Circ[1];
         R[2] = Z0+Circ[2];
         return;
-      }
-    default:
-      qWarning()<<"Unknown source geometry!";
-      R[0] = 0;
-      R[1] = 0;
-      R[2] = 0;
     }
-  return;
+    default:
+        qWarning()<<"Unknown source geometry!";
+        R[0] = 0;
+        R[1] = 0;
+        R[2] = 0;
+    }
+    return;
 }
 
 void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord> & GeneratedParticles) const
 {
     AParticleRecord ps;
 
-    ps.particle = Settings.SourceData[isource]->GunParticles[iparticle]->Particle;
-    ps.energy = Settings.SourceData[isource]->GunParticles[iparticle]->generateEnergy();
+    ps.particle = Settings.SourceData[isource].GunParticles[iparticle].Particle;
+    ps.energy = Settings.SourceData[isource].GunParticles[iparticle].generateEnergy();
 
     //generating random direction inside the collimation cone
-    double spread = Settings.SourceData[isource]->Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
+    double spread = Settings.SourceData[isource].Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
     double cosTheta = cos(spread);
     double z = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
     double tmp = TMath::Sqrt(1.0 - z*z);
