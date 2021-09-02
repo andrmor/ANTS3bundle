@@ -36,7 +36,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
-    ui->leSourceName->setText(Rec.name);
+    ui->leSourceName->setText(Rec.name.data());
     ui->cobGunSourceType->setCurrentIndex(Rec.shape);
 
     ui->ledGun1DSize->setText(QString::number(2.0 * Rec.size1));
@@ -56,7 +56,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunSpread->setText(QString::number(Rec.Spread));
 
     ui->cbSourceLimitmat->setChecked(Rec.DoMaterialLimited);
-    ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName);
+    ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
 
     ui->cobTimeAverageMode->setCurrentIndex(Rec.TimeAverageMode);
     ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeAverage) );
@@ -201,7 +201,7 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
 {
     GunParticleStruct tmp;
-    tmp.Particle = ui->leGunParticle->text();
+    tmp.Particle = ui->leGunParticle->text().toLatin1().data();
     tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
     tmp.energy = ui->ledGunEnergy->text().toDouble();
     LocalRec.GunParticles.push_back(tmp);
@@ -249,7 +249,7 @@ void AParticleSourceDialog::UpdateListWidget()
         else str = ">";
         str1.setNum(counter++);
         str += str1 + "> ";
-        str += gps.Particle;
+        str += QString(gps.Particle.data());
         if (gps.bUseFixedEnergy)
              str += QString(" E=%1").arg(gps.energy);
         else str += " E=spec";
@@ -283,7 +283,7 @@ void AParticleSourceDialog::UpdateParticleInfo()
     if (DefinedSourceParticles > 0 && row>-1)
     {
         ui->fGunParticle->setEnabled(true);
-        QString part = LocalRec.GunParticles.at(row).Particle;
+        QString part = LocalRec.GunParticles.at(row).Particle.data();
         ui->leGunParticle->setText(part);
 
         const GunParticleStruct & gRec = LocalRec.GunParticles.at(row);
@@ -292,7 +292,7 @@ void AParticleSourceDialog::UpdateParticleInfo()
         str.setNum(gRec.StatWeight);
         ui->ledGunParticleWeight->setText(str);
 
-        int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits);
+        int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits.data());
         double energy = gRec.energy;
         if (iPrefUnits > -1)
         {
@@ -334,7 +334,7 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 {
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart == -1) return;
-    LocalRec.GunParticles[iPart].PreferredUnits = ui->cobUnits->currentText();
+    LocalRec.GunParticles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
     UpdateParticleInfo();
 }
 
@@ -359,7 +359,7 @@ void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
-    LocalRec.name = ui->leSourceName->text();
+    LocalRec.name = ui->leSourceName->text().toLatin1().data();
     LocalRec.shape = ui->cobGunSourceType->currentIndex();
 
     LocalRec.size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
@@ -367,7 +367,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
 
     LocalRec.DoMaterialLimited = ui->cbSourceLimitmat->isChecked();
-    LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text();
+    LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();
     //ParticleSources->checkLimitedToMaterial(Rec);
 
     LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
@@ -395,10 +395,10 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     {
         GunParticleStruct & p = LocalRec.GunParticles[iPart];
 
-        p.Particle = ui->leGunParticle->text();
+        p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
         p.bUseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
-        p.PreferredUnits = ui->cobUnits->currentText();
+        p.PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
         double energy = ui->ledGunEnergy->text().toDouble();
         if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
         else if (p.PreferredUnits == "keV") ;

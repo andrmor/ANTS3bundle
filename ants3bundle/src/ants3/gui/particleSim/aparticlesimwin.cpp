@@ -218,7 +218,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
         return;
     }
 
-    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).name;
+    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).name.data();
     bool ok = guitools::confirm(QString("Remove source %0?").arg(SourceName), this);
     if (!ok) return;
 
@@ -257,13 +257,13 @@ void AParticleSimWin::updateSourceList()
         fr->setFrameShape(QFrame::Box);
         QHBoxLayout* l = new QHBoxLayout();
         l->setContentsMargins(3, 2, 3, 2);
-            QLabel* lab = new QLabel(pr.name);
+            QLabel* lab = new QLabel(pr.name.data());
             lab->setMinimumWidth(110);
             QFont f = lab->font();
             f.setBold(true);
             lab->setFont(f);
         l->addWidget(lab);
-        l->addWidget(new QLabel(pr.getShapeString() + ','));
+        l->addWidget(new QLabel( QString(pr.getShapeString().data()) + ','));
         l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.GunParticles.size()).arg( pr.GunParticles.size()>1 ? "s" : "" ) ) );
         l->addStretch();
 

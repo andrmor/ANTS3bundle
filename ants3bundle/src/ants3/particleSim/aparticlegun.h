@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 
-class QJsonObject;
 class AParticleRecord;
 
 class AParticleGun
@@ -22,7 +21,6 @@ public:
 
     std::string ErrorString;
     bool        AbortRequested;
-
 };
 
 #endif // APARTICLEGUN_H

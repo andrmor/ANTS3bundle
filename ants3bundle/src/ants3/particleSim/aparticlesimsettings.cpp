@@ -363,7 +363,7 @@ std::string ASourceGenSettings::check() const
     for (const AParticleSourceRecord & ps : SourceData)
     {
         const std::string err = ps.check();
-        if (!err.empty()) Error += "Source " + std::string(ps.name.toLatin1().data()) + ": " + err + "\n";
+        if (!err.empty()) Error += "Source " + ps.name + ": " + err + "\n";
     }
     return Error;
 }

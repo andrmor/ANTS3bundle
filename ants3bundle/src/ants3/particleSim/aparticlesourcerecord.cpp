@@ -15,7 +15,7 @@ double GunParticleStruct::generateEnergy() const
     return EnergyDistr.getRandom();
 }
 
-bool GunParticleStruct::loadSpectrum(const QString &fileName)
+bool GunParticleStruct::loadSpectrum(const std::string &fileName)
 {
 /*
     QVector<double> x, y;
@@ -34,7 +34,7 @@ bool GunParticleStruct::loadSpectrum(const QString &fileName)
 
 void GunParticleStruct::writeToJson(QJsonObject & json) const
 {
-    json["Particle"] = Particle;
+    json["Particle"]   = QString(Particle.data());
     json["StatWeight"] = StatWeight;
     json["Individual"] = Individual;
     json["LinkedTo"] = LinkedTo;
@@ -48,12 +48,14 @@ void GunParticleStruct::writeToJson(QJsonObject & json) const
 //            writeTH1DtoJsonArr(spectrum, ja);
 //        json["EnergySpectrum"] = ja;
 //    }
-    json["PreferredUnits"] = PreferredUnits;
+    json["PreferredUnits"] = QString(PreferredUnits.data());
 }
 
 bool GunParticleStruct::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "Particle",  Particle );
+    QString tmp;
+    jstools::parseJson(json, "Particle", tmp); Particle = tmp.toLatin1().data();
+
     jstools::parseJson(json, "StatWeight",  StatWeight );
     jstools::parseJson(json, "Individual",  Individual );
     jstools::parseJson(json, "LinkedTo",  LinkedTo ); //linked always to previously already defined particles!
@@ -61,7 +63,7 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "LinkingOppositeDir",  LinkedOpposite );
 
     jstools::parseJson(json, "Energy",  energy );
-    jstools::parseJson(json, "PreferredUnits",  PreferredUnits );
+    jstools::parseJson(json, "PreferredUnits",  tmp); PreferredUnits = tmp.toLatin1().data();
     jstools::parseJson(json, "UseFixedEnergy",  bUseFixedEnergy );
 
 /*
@@ -89,7 +91,7 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
 
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
-    json["Name"] = name;
+    json["Name"] = QString(name.data());
     json["Type"] = shape;
     json["Activity"] = Activity;
     json["X"] = X0;
@@ -106,7 +108,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["Spread"] = Spread;
 
     json["DoMaterialLimited"] = DoMaterialLimited;
-    json["LimitedToMaterial"] = LimtedToMatName;
+    json["LimitedToMaterial"] = QString(LimtedToMatName.data());
 
     json["TimeAverageMode"] = TimeAverageMode;
     json["TimeAverage"] = TimeAverage;
@@ -131,7 +133,8 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 
 bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "Name", name);
+    QString tmp;
+    jstools::parseJson(json, "Name", tmp); name = tmp.toLatin1().data();
     jstools::parseJson(json, "Type", shape);
     jstools::parseJson(json, "Activity", Activity);
     jstools::parseJson(json, "X", X0);
@@ -167,7 +170,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     if (json.contains("DoMaterialLimited"))
     {
         jstools::parseJson(json, "DoMaterialLimited", DoMaterialLimited);
-        jstools::parseJson(json, "LimitedToMaterial", LimtedToMatName);
+        jstools::parseJson(json, "LimitedToMaterial", tmp); LimtedToMatName = tmp.toLatin1().data();
 
         if (DoMaterialLimited) updateLimitedToMat();
     }
@@ -193,7 +196,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     return true;
 }
 
-QString AParticleSourceRecord::getShapeString() const
+std::string AParticleSourceRecord::getShapeString() const
 {
     switch (shape)
     {
@@ -250,8 +253,9 @@ void AParticleSourceRecord::updateLimitedToMat()
     bool bFound = false;
     int iMat = 0;
     const QStringList mats = AMaterialHub::getConstInstance().getListOfMaterialNames();
+    const QString LimitTo = LimtedToMatName.data();
     for (; iMat < mats.size(); iMat++)
-        if (LimtedToMatName == mats[iMat])
+        if (LimitTo == mats[iMat])
         {
             bFound = true;
             break;
