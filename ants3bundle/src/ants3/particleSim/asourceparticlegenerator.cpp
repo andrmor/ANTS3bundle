@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QElapsedTimer>
 
+#include <string>
+
 #include "TH1D.h"
 #include "TMath.h"
 #include "TGeoManager.h"
@@ -31,21 +33,16 @@ bool ASourceParticleGenerator::init()
         ErrorString = "No sources are defined";
         return false;
     }
-    if (Settings.getTotalActivity() == 0)
+
+    TotalActivity = Settings.calculateTotalActivity();
+    if (TotalActivity == 0)
     {
         ErrorString = "Total activity is zero";
         return false;
     }
 
-    for (const AParticleSourceRecord & ps : Settings.SourceData)
-    {
-        QString err = ps.checkSource();
-        if (!err.isEmpty())
-        {
-            ErrorString = QString("Error in source %1:\n%2").arg(ps.name, err).toLatin1().data();
-            return false;
-        }
-    }
+    ErrorString = Settings.check();
+    if (!ErrorString.empty()) return false;
 
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
@@ -54,6 +51,8 @@ bool ASourceParticleGenerator::init()
             if (gp.Individual)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
+
+    // !!!*** check energy histograms, init them
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
@@ -87,33 +86,19 @@ bool ASourceParticleGenerator::init()
         }
     }
 
-    /*
-  //debug
-  for (int isource=0; isource<NumSources; isource++)
-    for (int iparticle=0; iparticle<ParticleSourcesData[isource]->GunParticles.size(); iparticle++)
-      if (LinkedPartiles[isource][iparticle].size()>0)
-        {
-          QString str;
-          for (int ip= 0; ip<LinkedPartiles[isource][iparticle].size(); ip++) str += QString::number(LinkedPartiles[isource][iparticle][ip].iParticle)+" ";
-          qDebug()<<isource<<iparticle<<str;
-        }
- */
-
-
     //vectors related to collmation direction
     CollimationDirection.resize(NumSources);
     CollimationProbability.resize(NumSources);
-    //CollimationSpreadProduct.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        double CollPhi = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
+        double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
         double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
-        double Spread = Settings.SourceData[isource].Spread*3.1415926535/180.0;
+        double Spread    = Settings.SourceData[isource].Spread*3.1415926535/180.0;
 
         CollimationDirection[isource] = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
     }
-    return true; //TODO  check for fails
+    return true;
 }
 
 bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent)
@@ -126,7 +111,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
     int NumSources = Settings.getNumSources();
     if (NumSources > 1)
     {
-        double rnd = ARandomHub::getInstance().uniform() * Settings.getTotalActivity();
+        double rnd = ARandomHub::getInstance().uniform() * TotalActivity;
         for (; isource<NumSources - 1; isource++)
         {
             if (Settings.SourceData[isource].Activity >= rnd) break; //this source selected

@@ -328,8 +328,6 @@ void ASourceGenSettings::readFromJson(const QJsonObject &  json)
         }
     }
 
-    calculateTotalActivity();
-
     QJsonObject js;
     jstools::parseJson(json, "MultiplePerEvent", js);
     {
@@ -349,8 +347,6 @@ void ASourceGenSettings::clear()
 {
     SourceData.clear();
 
-    TotalActivity = 0;
-
     MultiEnabled   = false;
     MultiNumber    = 1;
     MultiMode      = Constant;
@@ -361,17 +357,28 @@ int ASourceGenSettings::getNumSources() const
     return SourceData.size();
 }
 
-void ASourceGenSettings::calculateTotalActivity()
+std::string ASourceGenSettings::check() const
 {
-    TotalActivity = 0;
+    std::string Error;
+    for (const AParticleSourceRecord & ps : SourceData)
+    {
+        const std::string err = ps.check();
+        if (!err.empty()) Error += "Source " + std::string(ps.name.toLatin1().data()) + ": " + err + "\n";
+    }
+    return Error;
+}
+
+double ASourceGenSettings::calculateTotalActivity() const
+{
+    double TotalActivity = 0;
     for (const AParticleSourceRecord & r : SourceData)
         TotalActivity += r.Activity;
+    return TotalActivity;
 }
 
 void ASourceGenSettings::append(AParticleSourceRecord & source)
 {
     SourceData.push_back(source);
-    calculateTotalActivity();
 }
 
 bool ASourceGenSettings::clone(int iSource)
@@ -388,7 +395,6 @@ bool ASourceGenSettings::clone(int iSource)
 void ASourceGenSettings::forget(AParticleSourceRecord *source)
 {
     SourceData.removeAll(source);
-    calculateTotalActivity();
 }
 */
 
@@ -397,7 +403,6 @@ bool ASourceGenSettings::replace(int iSource, AParticleSourceRecord & source)
     if (iSource < 0 || iSource >= SourceData.size()) return false;
 
     SourceData[iSource] = source;
-    calculateTotalActivity();
     return true;
 }
 
@@ -407,7 +412,6 @@ void ASourceGenSettings::remove(int iSource)
     if (iSource < 0 || iSource >= SourceData.size()) return;
 
     SourceData.erase(SourceData.begin() + iSource);
-    calculateTotalActivity();
 }
 
 void AParticleRunSettings::writeToJson(QJsonObject &json) const

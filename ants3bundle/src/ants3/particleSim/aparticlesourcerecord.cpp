@@ -193,7 +193,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     return true;
 }
 
-const QString AParticleSourceRecord::getShapeString() const
+QString AParticleSourceRecord::getShapeString() const
 {
     switch (shape)
     {
@@ -205,44 +205,41 @@ const QString AParticleSourceRecord::getShapeString() const
     case 5: return "Cylinder";
     default: ;
     }
-    return "-error-";
+    return "-unknown-";
 }
 
-const QString AParticleSourceRecord::checkSource() const
+std::string AParticleSourceRecord::check() const
 {
-    if (shape < 0 || shape > 5) return "unknown source shape";
+    if (shape < 0 || shape > 5) return "Unknown source shape";
 
     const int numParts = GunParticles.size();
-    if (numParts == 0) return "no particles defined";
+    if (numParts == 0) return "No particles defined";
 
-    if (Spread < 0) return "negative spread angle";
-    if (Activity < 0) return "negative activity";
+    if (Spread < 0)    return "negative spread angle";
+    if (Activity < 0)  return "negative activity";
 
-    //checking all particles
-    int numIndParts = 0;
+    int    numIndParts   = 0;
     double TotPartWeight = 0;
-    for (int ip = 0; ip<numParts; ip++)
+    for (int ip = 0; ip < numParts; ip++)
     {
         const GunParticleStruct & gp = GunParticles.at(ip);
         if (gp.Individual)
         {
-            //individual
             numIndParts++;
-            if (GunParticles.at(ip).StatWeight < 0) return QString("negative statistical weight for particle #%1").arg(ip);
+            if (GunParticles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);
             TotPartWeight += GunParticles.at(ip).StatWeight;
         }
         else
         {
-            //linked
-            if (ip == gp.LinkedTo) return QString("particle #%1 is linked to itself").arg(ip);
-            if (ip < gp.LinkedTo) return QString("invalid linking for particle #%1").arg(ip);
+            if (ip == gp.LinkedTo) return "Particle #" + std::to_string(ip) + " is linked to itself";
+            if (ip <  gp.LinkedTo) return "Invalid linking for particle #" + std::to_string(ip);
         }
 
-        if (gp.energy <= 0) return QString("invalid energy of %1 for particle #%2").arg(gp.energy).arg(ip);
+        if (gp.energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
     }
 
-    if (numIndParts == 0) return "no individual particles defined";
-    if (TotPartWeight == 0) return "total statistical weight of individual particles is zero";
+    if (numIndParts   == 0) return "No individual particles defined";
+    if (TotPartWeight == 0) return "Total statistical weight of individual particles is zero";
 
     return "";
 }

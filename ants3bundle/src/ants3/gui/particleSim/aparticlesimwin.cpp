@@ -245,6 +245,8 @@ void AParticleSimWin::updateSourceList()
     int curRow = ui->lwDefinedParticleSources->currentRow();
     ui->lwDefinedParticleSources->clear();
 
+    const double TotalActivity = SourceGenSettings.calculateTotalActivity();
+
     for (int i = 0; i < numSources; i++)
     {
         AParticleSourceRecord & pr = SourceGenSettings.SourceData[i];
@@ -282,8 +284,7 @@ void AParticleSimWin::updateSourceList()
             });
         l->addWidget(e);
 
-            double totAct = SourceGenSettings.getTotalActivity();
-            double per = ( totAct == 0 ? 0 : 100.0 * pr.Activity / totAct );
+            double per = ( TotalActivity == 0 ? 0 : 100.0 * pr.Activity / TotalActivity );
             QString t = (per == 0 ? "-Off-" : QString("%1%").arg(per, 3, 'g', 3) );
             lab = new QLabel(t);
             lab->setMinimumWidth(45);

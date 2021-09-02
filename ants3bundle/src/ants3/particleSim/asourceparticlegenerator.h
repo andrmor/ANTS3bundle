@@ -36,6 +36,8 @@ private:
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
     std::vector< std::vector< std::vector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
 
+    double TotalActivity = 0;
+
     std::vector<double>   TotalParticleWeight;
     std::vector<TVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi

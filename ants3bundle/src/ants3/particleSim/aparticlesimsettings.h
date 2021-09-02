@@ -31,9 +31,9 @@ public:
     void   clear();
 
     int    getNumSources() const;
+    double calculateTotalActivity() const;
 
-    void   calculateTotalActivity();
-    double getTotalActivity() const {return TotalActivity;}
+    std::string check() const;
 
     void   append(AParticleSourceRecord & source);
     bool   clone(int iSource);
@@ -41,8 +41,6 @@ public:
     bool   replace(int iSource, AParticleSourceRecord & source);
     void   remove(int iSource);
 
-private:
-    double TotalActivity = 0;
 };
 
 struct AParticleInFileStatRecord

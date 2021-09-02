@@ -33,30 +33,30 @@ struct GunParticleStruct
 struct AParticleSourceRecord
 {
     QString name = "No_name";
-    int shape = 0;    // !!!*** change to enum
+    int     shape = 0;    // !!!*** change to enum
     //position
-    double X0 = 0;
-    double Y0 = 0;
-    double Z0 = 0;
+    double  X0 = 0;
+    double  Y0 = 0;
+    double  Z0 = 0;
     //orientation
-    double Phi = 0;
-    double Theta = 0;
-    double Psi = 0;
+    double  Phi = 0;
+    double  Theta = 0;
+    double  Psi = 0;
     //size
-    double size1 = 10.0;
-    double size2 = 10.0;
-    double size3 = 10.0;
+    double  size1 = 10.0;
+    double  size2 = 10.0;
+    double  size3 = 10.0;
     //collimation
-    double CollPhi = 0;
-    double CollTheta = 0;
-    double Spread = 45.0;
+    double  CollPhi = 0;
+    double  CollTheta = 0;
+    double  Spread = 45.0;
 
     //limit to material
-    bool DoMaterialLimited = false;
+    bool    DoMaterialLimited = false;
     QString LimtedToMatName;
 
     //Relative activity
-    double Activity = 1.0;
+    double  Activity = 1.0;
 
     //time
     int    TimeAverageMode = 0;
@@ -73,9 +73,9 @@ struct AParticleSourceRecord
     void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json);
 
-    const QString getShapeString() const;
+    QString getShapeString() const;
 
-    const QString checkSource() const; //return error description if error found
+    std::string check() const;
 
     void updateLimitedToMat();
 
