@@ -8,7 +8,6 @@
 #include <vector>
 
 class  ASourceGenSettings;
-struct AParticleSourceRecord;
 class  ARandomHub;
 
 class ALinkedParticle
@@ -42,8 +41,12 @@ private:
     std::vector<TVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
+    std::vector<int>      LimitedToMat;
+
     void generatePosition(int isource, double * R) const;
     void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord> & GeneratedParticles) const;
+
+    void updateLimitedToMat();
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

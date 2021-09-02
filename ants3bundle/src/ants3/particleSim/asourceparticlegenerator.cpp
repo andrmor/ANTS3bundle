@@ -52,6 +52,8 @@ bool ASourceParticleGenerator::init()
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
 
+    updateLimitedToMat(); // !!!*** error handling?
+
     // !!!*** check energy histograms, init them
 
     //creating lists of linked particles
@@ -122,7 +124,8 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
 
     //position
     double R[3];
-    if (Source.bLimitToMat)
+    if (LimitedToMat[isource] < 0) generatePosition(isource, R);
+    else
     {
         int attempts = 10000;
         TGeoNode * node = nullptr;
@@ -132,11 +135,10 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
             if (attempts-- == 0) return false;
             generatePosition(isource, R);
             node = gGeoManager->FindNode(R[0], R[1], R[2]);
-            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == Source.LimitedToMat) break;
+            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[isource]) break;
         }
         while (attempts-- != 0);
     }
-    else generatePosition(isource, R);
 
     //time
     double time;
@@ -376,7 +378,6 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[2] = Z0+Circ[2];
         return;
     }
-    default:; // sources are supposed to be checked for errors in init()
     }
     return;
 }
@@ -402,4 +403,34 @@ void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std
     ps.v[2] = K1[2];
 
     GeneratedParticles.push_back(ps);
+}
+
+#include "amaterialhub.h"
+void ASourceParticleGenerator::updateLimitedToMat()
+{
+    LimitedToMat.clear();
+
+    const QStringList mats = AMaterialHub::getConstInstance().getListOfMaterialNames();
+
+    for (const AParticleSourceRecord & source : Settings.SourceData)
+    {
+        int matIndex = -1; // not limited
+
+        if (source.DoMaterialLimited)
+        {
+            bool bFound = false;
+            int iMat = 0;
+            const QString LimitTo = source.LimtedToMatName.data();
+            for (; iMat < mats.size(); iMat++)
+                if (LimitTo == mats[iMat])
+                {
+                    bFound = true;
+                    break;
+                }
+
+            if (bFound) matIndex = iMat;
+        }
+
+        LimitedToMat.push_back(matIndex);
+    }
 }

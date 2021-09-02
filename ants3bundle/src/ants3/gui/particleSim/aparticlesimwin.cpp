@@ -139,7 +139,6 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     if (res == QDialog::Rejected) return;
 
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
-    ps.updateLimitedToMat();
     SourceGenSettings.replace(isource, ps);
 
 //    on_pbUpdateSimConfig_clicked();

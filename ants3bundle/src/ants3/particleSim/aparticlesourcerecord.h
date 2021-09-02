@@ -83,12 +83,6 @@ struct AParticleSourceRecord
     std::string getShapeString() const;
 
     std::string check() const;
-
-    // next 3: !!!*** to generator?
-    void updateLimitedToMat();
-    //runtime properties
-    int  LimitedToMat; //automatically calculated if LimtedToMatName matches a material
-    bool bLimitToMat = false;
 };
 
 

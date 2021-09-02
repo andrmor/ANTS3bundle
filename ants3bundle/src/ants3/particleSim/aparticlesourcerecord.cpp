@@ -285,24 +285,4 @@ std::string AParticleSourceRecord::check() const
     return "";
 }
 
-#include "amaterialhub.h"
-void AParticleSourceRecord::updateLimitedToMat()
-{
-    bool bFound = false;
-    int iMat = 0;
-    const QStringList mats = AMaterialHub::getConstInstance().getListOfMaterialNames();
-    const QString LimitTo = LimtedToMatName.data();
-    for (; iMat < mats.size(); iMat++)
-        if (LimitTo == mats[iMat])
-        {
-            bFound = true;
-            break;
-        }
 
-    if (bFound)
-    {
-        bLimitToMat = true;
-        LimitedToMat = iMat;
-    }
-    else bLimitToMat = false;
-}
