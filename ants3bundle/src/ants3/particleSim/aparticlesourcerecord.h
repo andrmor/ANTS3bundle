@@ -12,8 +12,8 @@ struct GunParticleStruct
 {
     std::string  Particle        = "geantino";
     double       StatWeight      = 1.0;
-    bool         bUseFixedEnergy = true;
-    double       energy          = 100.0; //in keV
+    bool         UseFixedEnergy  = true;
+    double       Energy          = 100.0; //in keV
     std::string  PreferredUnits  = "keV";
     bool         Individual      = true; // true = individual particle; false = linked
     int          LinkedTo        = 0; // index of the "parent" particle this one is following
@@ -31,33 +31,39 @@ struct GunParticleStruct
 
 struct AParticleSourceRecord
 {
-    std::string name = "No_name";
-    int         shape = 0;    // !!!*** change to enum
-    //position
-    double      X0 = 0;
-    double      Y0 = 0;
-    double      Z0 = 0;
-    //orientation
-    double      Phi = 0;
+    enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
+
+    std::string name  = "No_name";
+    EShape      shape = Point;
+
+    // Position
+    double      X0    = 0;
+    double      Y0    = 0;
+    double      Z0    = 0;
+
+    // Orientation
+    double      Phi   = 0;
     double      Theta = 0;
-    double      Psi = 0;
-    //size
+    double      Psi   = 0;
+
+    // Size
     double      size1 = 10.0;
     double      size2 = 10.0;
     double      size3 = 10.0;
-    //collimation
-    double      CollPhi = 0;
-    double      CollTheta = 0;
-    double      Spread = 45.0;
 
-    //limit to material
+    // Collimation
+    double      CollPhi   = 0;
+    double      CollTheta = 0;
+    double      Spread    = 45.0;
+
+    // Limit to material
     bool        DoMaterialLimited = false;
     std::string LimtedToMatName;
 
-    //Relative activity
+    // Relative activity
     double      Activity = 1.0;
 
-    //time
+    // Time
     int         TimeAverageMode = 0;
     double      TimeAverage = 0;
     double      TimeAverageStart = 0;
@@ -66,11 +72,13 @@ struct AParticleSourceRecord
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;
 
-    //particles
+    // Particles
     std::vector<GunParticleStruct> GunParticles;
 
+    void clear();
+
     void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json);
+    bool readFromJson(const QJsonObject & json); // !!!*** error handling?
 
     std::string getShapeString() const;
 

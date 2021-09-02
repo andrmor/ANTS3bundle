@@ -263,13 +263,14 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
 void ASourceParticleGenerator::generatePosition(int isource, double *R) const
 {
     const AParticleSourceRecord & rec = Settings.SourceData[isource];
+
     const int    & iShape = rec.shape;
     const double & X0     = rec.X0;
     const double & Y0     = rec.Y0;
     const double & Z0     = rec.Z0;
-    const double   Phi    = rec.Phi   * 3.1415926535 / 180.0;
-    const double   Theta  = rec.Theta * 3.1415926535 / 180.0;
-    const double   Psi    = rec.Psi   * 3.1415926535 / 180.0;
+    const double   Phi    = rec.Phi   * 3.14159265358979323846 / 180.0;
+    const double   Theta  = rec.Theta * 3.14159265358979323846 / 180.0;
+    const double   Psi    = rec.Psi   * 3.14159265358979323846 / 180.0;
     const double & size1  = rec.size1;
     const double & size2  = rec.size2;
     const double & size3  = rec.size3;
@@ -375,11 +376,7 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
         R[2] = Z0+Circ[2];
         return;
     }
-    default:
-        qWarning()<<"Unknown source geometry!";
-        R[0] = 0;
-        R[1] = 0;
-        R[2] = 0;
+    default:; // sources are supposed to be checked for errors in init()
     }
     return;
 }

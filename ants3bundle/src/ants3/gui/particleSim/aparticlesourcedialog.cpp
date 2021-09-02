@@ -203,7 +203,7 @@ void AParticleSourceDialog::on_pbGunAddNew_clicked()
     GunParticleStruct tmp;
     tmp.Particle = ui->leGunParticle->text().toLatin1().data();
     tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-    tmp.energy = ui->ledGunEnergy->text().toDouble();
+    tmp.Energy = ui->ledGunEnergy->text().toDouble();
     LocalRec.GunParticles.push_back(tmp);
 
     UpdateListWidget();
@@ -250,8 +250,8 @@ void AParticleSourceDialog::UpdateListWidget()
         str1.setNum(counter++);
         str += str1 + "> ";
         str += QString(gps.Particle.data());
-        if (gps.bUseFixedEnergy)
-             str += QString(" E=%1").arg(gps.energy);
+        if (gps.UseFixedEnergy)
+             str += QString(" E=%1").arg(gps.Energy);
         else str += " E=spec";
 
         if (Individual)
@@ -293,7 +293,7 @@ void AParticleSourceDialog::UpdateParticleInfo()
         ui->ledGunParticleWeight->setText(str);
 
         int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits.data());
-        double energy = gRec.energy;
+        double energy = gRec.Energy;
         if (iPrefUnits > -1)
         {
             ui->cobUnits->setCurrentIndex(iPrefUnits);
@@ -312,7 +312,7 @@ void AParticleSourceDialog::UpdateParticleInfo()
         ui->ledLinkingProbability->setText(str);
         ui->cbLinkingOpposite->setChecked(gRec.LinkedOpposite);
 
-        bool bFix = gRec.bUseFixedEnergy;
+        bool bFix = gRec.UseFixedEnergy;
         ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
         ui->pbGunShowSpectrum->setVisible(!bFix);
         ui->pbGunLoadSpectrum->setVisible(!bFix);
@@ -360,7 +360,16 @@ void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
     LocalRec.name = ui->leSourceName->text().toLatin1().data();
-    LocalRec.shape = ui->cobGunSourceType->currentIndex();
+
+    switch (ui->cobGunSourceType->currentIndex())
+    {
+    case 0 : LocalRec.shape = AParticleSourceRecord::Point;     break;
+    case 1 : LocalRec.shape = AParticleSourceRecord::Line;      break;
+    case 2 : LocalRec.shape = AParticleSourceRecord::Rectangle; break;
+    case 3 : LocalRec.shape = AParticleSourceRecord::Round;     break;
+    case 4 : LocalRec.shape = AParticleSourceRecord::Box;       break;
+    case 5 : LocalRec.shape = AParticleSourceRecord::Cylinder;  break;
+    }
 
     LocalRec.size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
     LocalRec.size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
@@ -368,7 +377,6 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     LocalRec.DoMaterialLimited = ui->cbSourceLimitmat->isChecked();
     LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();
-    //ParticleSources->checkLimitedToMaterial(Rec);
 
     LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
     LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
@@ -397,14 +405,14 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
         p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-        p.bUseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
+        p.UseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
         p.PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
         double energy = ui->ledGunEnergy->text().toDouble();
         if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
         else if (p.PreferredUnits == "keV") ;
         else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
         else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
-        p.energy = energy;
+        p.Energy = energy;
         p.Individual = !ui->cbLinkedParticle->isChecked();
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
@@ -484,7 +492,7 @@ void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
     LocalRec.GunParticles[iPart].EnergyDistr.clear();
-    LocalRec.GunParticles[iPart].bUseFixedEnergy = false;
+    LocalRec.GunParticles[iPart].UseFixedEnergy = false;
 
     UpdateParticleInfo();
 }

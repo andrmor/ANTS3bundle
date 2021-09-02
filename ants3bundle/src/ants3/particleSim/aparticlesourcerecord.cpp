@@ -11,7 +11,7 @@
 
 double GunParticleStruct::generateEnergy() const
 {
-    if (bUseFixedEnergy) return energy;
+    if (UseFixedEnergy) return Energy;
     return EnergyDistr.getRandom();
 }
 
@@ -40,8 +40,8 @@ void GunParticleStruct::writeToJson(QJsonObject & json) const
     json["LinkedTo"] = LinkedTo;
     json["LinkingProbability"] = LinkedProb;
     json["LinkingOppositeDir"] = LinkedOpposite;
-    json["Energy"] = energy;
-    json["UseFixedEnergy"] = bUseFixedEnergy;
+    json["Energy"] = Energy;
+    json["UseFixedEnergy"] = UseFixedEnergy;
 //    if ( spectrum )
 //    {
 //        QJsonArray ja;
@@ -62,9 +62,9 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "LinkingProbability",  LinkedProb );
     jstools::parseJson(json, "LinkingOppositeDir",  LinkedOpposite );
 
-    jstools::parseJson(json, "Energy",  energy );
+    jstools::parseJson(json, "Energy",  Energy );
     jstools::parseJson(json, "PreferredUnits",  tmp); PreferredUnits = tmp.toLatin1().data();
-    jstools::parseJson(json, "UseFixedEnergy",  bUseFixedEnergy );
+    jstools::parseJson(json, "UseFixedEnergy",  UseFixedEnergy );
 
 /*
     QJsonArray ar = json["EnergySpectrum"].toArray();
@@ -89,10 +89,59 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
 
 // ---------------------- AParticleSourceRecord ----------------------
 
+void AParticleSourceRecord::clear()
+{
+    name  = "No_name";
+    shape = Point;
+
+    X0    = 0;
+    Y0    = 0;
+    Z0    = 0;
+
+    Phi   = 0;
+    Theta = 0;
+    Psi   = 0;
+
+    size1 = 10.0;
+    size2 = 10.0;
+    size3 = 10.0;
+
+    CollPhi   = 0;
+    CollTheta = 0;
+    Spread    = 45.0;
+
+    DoMaterialLimited = false;
+    LimtedToMatName.clear();
+
+    Activity = 1.0;
+
+    TimeAverageMode = 0;
+    TimeAverage = 0;
+    TimeAverageStart = 0;
+    TimeAveragePeriod = 10.0;
+    TimeSpreadMode = 0;
+    TimeSpreadSigma = 50.0;
+    TimeSpreadWidth = 100.0;
+
+    GunParticles.clear();
+}
+
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
     json["Name"] = QString(name.data());
-    json["Type"] = shape;
+
+    QString str;
+    switch (shape)
+    {
+    case Point     : str = "point";
+    case Line      : str = "line";
+    case Rectangle : str = "rectangle";
+    case Round     : str = "round";
+    case Box       : str = "box";
+    case Cylinder  : str = "cylinder";
+    }
+    json["Shape"] = str;
+
     json["Activity"] = Activity;
     json["X"] = X0;
     json["Y"] = Y0;
@@ -133,64 +182,57 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 
 bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
 {
+    clear();
+
     QString tmp;
     jstools::parseJson(json, "Name", tmp); name = tmp.toLatin1().data();
-    jstools::parseJson(json, "Type", shape);
+
+    jstools::parseJson(json, "Type", tmp);
+    if      (tmp == "point")     shape = Point;
+    else if (tmp == "line")      shape = Line;
+    else if (tmp == "rectangle") shape = Rectangle;
+    else if (tmp == "round")     shape = Round;
+    else if (tmp == "box")       shape = Box;
+    else if (tmp == "cylinder")  shape = Cylinder;
+
     jstools::parseJson(json, "Activity", Activity);
+
     jstools::parseJson(json, "X", X0);
     jstools::parseJson(json, "Y", Y0);
     jstools::parseJson(json, "Z", Z0);
+
     jstools::parseJson(json, "Size1", size1);
     jstools::parseJson(json, "Size2", size2);
     jstools::parseJson(json, "Size3", size3);
-    jstools::parseJson(json, "Phi", Phi);
+
+    jstools::parseJson(json, "Phi",   Phi);
     jstools::parseJson(json, "Theta", Theta);
-    jstools::parseJson(json, "Psi", Psi);
-    jstools::parseJson(json, "CollPhi", CollPhi);
+    jstools::parseJson(json, "Psi",   Psi);
+
+    jstools::parseJson(json, "CollPhi",   CollPhi);
     jstools::parseJson(json, "CollTheta", CollTheta);
-    jstools::parseJson(json, "Spread", Spread);
+    jstools::parseJson(json, "Spread",    Spread);
 
-    TimeAverageMode = 0;
-    jstools::parseJson(json, "TimeAverageMode", TimeAverageMode);
-    TimeAverage = 0;
-    jstools::parseJson(json, "TimeAverage", TimeAverage);
-    TimeAverageStart = 0;
-    jstools::parseJson(json, "TimeAverageStart", TimeAverageStart);
-    TimeAveragePeriod = 10.0;
+    jstools::parseJson(json, "TimeAverageMode",   TimeAverageMode);
+    jstools::parseJson(json, "TimeAverage",       TimeAverage);
+    jstools::parseJson(json, "TimeAverageStart",  TimeAverageStart);
     jstools::parseJson(json, "TimeAveragePeriod", TimeAveragePeriod);
-    TimeSpreadMode = 0;
-    jstools::parseJson(json, "TimeSpreadMode", TimeSpreadMode);
-    TimeSpreadSigma = 50.0;
-    jstools::parseJson(json, "TimeSpreadSigma", TimeSpreadSigma);
-    TimeSpreadWidth = 100.0;
-    jstools::parseJson(json, "TimeSpreadWidth", TimeSpreadWidth);
+    jstools::parseJson(json, "TimeSpreadMode",    TimeSpreadMode);
+    jstools::parseJson(json, "TimeSpreadSigma",   TimeSpreadSigma);
+    jstools::parseJson(json, "TimeSpreadWidth",   TimeSpreadWidth);
 
-    DoMaterialLimited = bLimitToMat = false;
-    LimtedToMatName = "";
-    if (json.contains("DoMaterialLimited"))
-    {
-        jstools::parseJson(json, "DoMaterialLimited", DoMaterialLimited);
-        jstools::parseJson(json, "LimitedToMaterial", tmp); LimtedToMatName = tmp.toLatin1().data();
+    jstools::parseJson(json, "DoMaterialLimited", DoMaterialLimited);
+    jstools::parseJson(json, "LimitedToMaterial", tmp); LimtedToMatName = tmp.toLatin1().data();
 
-        if (DoMaterialLimited) updateLimitedToMat();
-    }
-
-    //GunParticles
-    GunParticles.clear();
     QJsonArray jGunPartArr = json["GunParticles"].toArray();
-    int numGP = jGunPartArr.size();
-    //qDebug()<<"Entries in gunparticles:"<<numGP;
+    const int numGP = jGunPartArr.size();
     for (int ip = 0; ip < numGP; ip++)
     {
         QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
 
         GunParticleStruct gp;
         bool bOK = gp.readFromJson(jThisGunPart);
-        if (!bOK)
-        {
-            qWarning() << "Error reading gunparticle #"<< ip;
-            return false;
-        }
+        if (!bOK) return false;
         GunParticles.push_back(gp);
     }
     return true;
@@ -200,21 +242,17 @@ std::string AParticleSourceRecord::getShapeString() const
 {
     switch (shape)
     {
-    case 0: return "Point";
-    case 1: return "Linear";
-    case 2: return "Square";
-    case 3: return "Round";
-    case 4: return "Box";
-    case 5: return "Cylinder";
-    default: ;
+    case Point     : return "Point";
+    case Line      : return "Line";
+    case Rectangle : return "Rectangle";
+    case Round     : return "Round";
+    case Box       : return "Box";
+    case Cylinder  : return "Cylinder";
     }
-    return "-unknown-";
 }
 
 std::string AParticleSourceRecord::check() const
 {
-    if (shape < 0 || shape > 5) return "Unknown source shape";
-
     const int numParts = GunParticles.size();
     if (numParts == 0) return "No particles defined";
 
@@ -238,7 +276,7 @@ std::string AParticleSourceRecord::check() const
             if (ip <  gp.LinkedTo) return "Invalid linking for particle #" + std::to_string(ip);
         }
 
-        if (gp.energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
+        if (gp.Energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
     }
 
     if (numIndParts   == 0) return "No individual particles defined";

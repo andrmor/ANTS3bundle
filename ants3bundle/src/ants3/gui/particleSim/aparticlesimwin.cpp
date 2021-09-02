@@ -135,7 +135,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
 
-    int res = ParticleSourceDialog.exec(); // if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
+    int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
     if (res == QDialog::Rejected) return;
 
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();

@@ -6,8 +6,6 @@
 #include <vector>
 #include <string>
 
-class AParticleRecord;
-
 class AParticleGun
 {
 public:

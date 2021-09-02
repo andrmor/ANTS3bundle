@@ -70,7 +70,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Geometry:</string>
+          <string>Shape</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -111,27 +111,27 @@
          </item>
          <item>
           <property name="text">
-           <string>Linear</string>
+           <string>Line</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Surface - square</string>
+           <string>Rectangle</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Surface - round</string>
+           <string>Round</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Volume - box</string>
+           <string>Box</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Volume - cylinder</string>
+           <string>Cylinder</string>
           </property>
          </item>
         </widget>
@@ -967,7 +967,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <widget class="QCheckBox" name="cbLinkedParticle">
           <property name="text">
-           <string>Linked particle</string>
+           <string>It is linked particle</string>
           </property>
           <property name="checked">
            <bool>false</bool>
