@@ -3,7 +3,7 @@
 
 #include "aparticlegun.h"
 
-#include "TVector3.h"
+#include "avector.h"
 
 #include <vector>
 
@@ -24,14 +24,14 @@ public:
 class ASourceParticleGenerator : public AParticleGun
 {
 public:
-    ASourceParticleGenerator();
+    ASourceParticleGenerator(const ASourceGenSettings & settings);
 
     bool init() override; // !!! has to be called before the first use of GenerateEvent()!
     bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
 
 private:
     const ASourceGenSettings & Settings;
-    ARandomHub & RandomHub;
+    ARandomHub               & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
     std::vector< std::vector< std::vector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
@@ -39,14 +39,12 @@ private:
     double TotalActivity = 0;
 
     std::vector<double>   TotalParticleWeight;
-    std::vector<TVector3> CollimationDirection;   //[isource] collimation direction
+    std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
     std::vector<int>      LimitedToMat;
 
-    void addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
-
-    void updateLimitedToMat();
+    void   updateLimitedToMat();
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
@@ -54,6 +52,7 @@ private:
     bool   selectPosition(int iSource, double * R) const;
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
+    void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

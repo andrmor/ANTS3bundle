@@ -368,6 +368,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
 #include "TVirtualGeoTrack.h"
 #include "ageometryhub.h"
 #include "aparticlerecord.h"
+#include "TVector3.h"
 void AParticleSimWin::drawSource(int iSource)
 {
     //check iSource is correct  !!!***
@@ -577,7 +578,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     auto handler = [&numTracks, Length](const AParticleRecord & particle)
     {
-        if (numTracks > 1000) return;
+        if (numTracks > 10000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
@@ -588,7 +589,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     for (int iRun=0; iRun<numParticles; iRun++)
     {
         bool bOK = Gun->generateEvent(handler, iRun);
-        if (!bOK || numTracks > 1000) break;
+        if (!bOK || numTracks > 10000) break;
     }
 
     /*

@@ -25,7 +25,16 @@ public:
     double & operator[](int index) {return r[index];}
     const double & operator[](int index) const {return r[index];}
 
+    void rotateX(double angle);
+    void rotateY(double angle);
+    void rotateZ(double angle);
+
+    void rotateUz(const AVector3 & NewUzVector); // NewUzVector must be unitary vector
+
+
     double r[3];
+
+
 };
 
 #endif // AVECTOR_H

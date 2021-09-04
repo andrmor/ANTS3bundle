@@ -2,27 +2,13 @@
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
 #include "aparticlesourcerecord.h"
-#include "aparticlesimhub.h"
 #include "arandomhub.h"
-#include "ajsontools.h"
-#include "afiletools.h"
-
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonParseError>
-#include <QFileInfo>
-#include <QDebug>
-#include <QElapsedTimer>
 
 #include <string>
+#include <cmath>
 
-#include "TH1D.h"
-#include "TMath.h"
-#include "TGeoManager.h"
-
-ASourceParticleGenerator::ASourceParticleGenerator() :
-    Settings(AParticleSimHub::getConstInstance().Settings.SourceGenSettings),
+ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGenSettings & settings) :
+    Settings(settings),
     RandomHub(ARandomHub::getInstance()){}
 
 bool ASourceParticleGenerator::init()
@@ -95,11 +81,11 @@ bool ASourceParticleGenerator::init()
     CollimationProbability.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
-        double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
-        double Spread    = Settings.SourceData[isource].Spread*3.1415926535/180.0;
+        const double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
+        const double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
+        const double Spread    = Settings.SourceData[isource].Spread*3.1415926535/180.0;
 
-        CollimationDirection[isource] = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
+        CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
     }
     return true;
@@ -123,6 +109,7 @@ int ASourceParticleGenerator::selectSource() const
     return iSource;
 }
 
+#include "TGeoManager.h"
 bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 {
     const AParticleSourceRecord & Source = Settings.SourceData[iSource];
@@ -288,95 +275,97 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     case (1):
     {
         //line source
-        TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
+        AVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
         double off = -1.0 + 2.0 * RandomHub.uniform();
         off *= size1;
-        R[0] = X0+VV[0]*off;
-        R[1] = Y0+VV[1]*off;
-        R[2] = Z0+VV[2]*off;
+        R[0] = X0 + VV[0]*off;
+        R[1] = Y0 + VV[1]*off;
+        R[2] = Z0 + VV[2]*off;
         return;
     }
     case (2):
     {
         //surface square source
-        TVector3 V[3];
-        V[0].SetXYZ(size1, 0, 0);
-        V[1].SetXYZ(0, size2, 0);
-        V[2].SetXYZ(0, 0, size3);
-        for (int i=0; i<3; i++)
+        AVector3 V[3];
+        V[0] = AVector3(size1, 0,     0);
+        V[1] = AVector3(0,     size2, 0);
+        V[2] = AVector3(0,     0,     size3);
+        for (int i = 0; i < 3; i++)
         {
-            V[i].RotateX(Phi);
-            V[i].RotateY(Theta);
-            V[i].RotateZ(Psi);
+            V[i].rotateX(Phi);
+            V[i].rotateY(Theta);
+            V[i].rotateZ(Psi);
         }
 
-        double off1 = -1.0 + 2.0 * RandomHub.uniform();
-        double off2 = -1.0 + 2.0 * RandomHub.uniform();
-        R[0] = X0+V[0][0]*off1+V[1][0]*off2;
-        R[1] = Y0+V[0][1]*off1+V[1][1]*off2;
-        R[2] = Z0+V[0][2]*off1+V[1][2]*off2;
+        const double off1 = -1.0 + 2.0 * RandomHub.uniform();
+        const double off2 = -1.0 + 2.0 * RandomHub.uniform();
+
+        R[0] = X0 + V[0][0]*off1 + V[1][0]*off2;
+        R[1] = Y0 + V[0][1]*off1 + V[1][1]*off2;
+        R[2] = Z0 + V[0][2]*off1 + V[1][2]*off2;
         return;
     }
     case (3):
     {
         //surface round source
-        TVector3 Circ;
-        double angle = RandomHub.uniform()*3.1415926535*2.0;
+        const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
         double r = RandomHub.uniform() + RandomHub.uniform();  //  !!!*** why?
-        if (r > 1.0) r = (2.0-r)*size1;
+        if (r > 1.0) r = (2.0 - r) * size1;
         else r *=  size1;
-        double x = r*cos(angle);
-        double y = r*sin(angle);
+        double x = r * cos(angle);
+        double y = r * sin(angle);
 
-        Circ.SetXYZ(x,y,0);
-        Circ.RotateX(Phi);
-        Circ.RotateY(Theta);
-        Circ.RotateZ(Psi);
-        R[0] = X0+Circ[0];
-        R[1] = Y0+Circ[1];
-        R[2] = Z0+Circ[2];
+        AVector3 Circ(x, y, 0);
+        Circ.rotateX(Phi);
+        Circ.rotateY(Theta);
+        Circ.rotateZ(Psi);
+
+        R[0] = X0 + Circ[0];
+        R[1] = Y0 + Circ[1];
+        R[2] = Z0 + Circ[2];
         return;
     }
     case (4):
     {
         //cube source
-        TVector3 V[3];
-        V[0].SetXYZ(size1, 0, 0);
-        V[1].SetXYZ(0, size2, 0);
-        V[2].SetXYZ(0, 0, size3);
-        for (int i=0; i<3; i++)
+        AVector3 V[3];
+        V[0] = AVector3(size1, 0,     0);
+        V[1] = AVector3(0,     size2, 0);
+        V[2] = AVector3(0,     0,     size3);
+        for (int i = 0; i < 3; i++)
         {
-            V[i].RotateX(Phi);
-            V[i].RotateY(Theta);
-            V[i].RotateZ(Psi);
+            V[i].rotateX(Phi);
+            V[i].rotateY(Theta);
+            V[i].rotateZ(Psi);
         }
 
-        double off1 = -1.0 + 2.0 * RandomHub.uniform();
-        double off2 = -1.0 + 2.0 * RandomHub.uniform();
-        double off3 = -1.0 + 2.0 * RandomHub.uniform();
-        R[0] = X0+V[0][0]*off1+V[1][0]*off2+V[2][0]*off3;
-        R[1] = Y0+V[0][1]*off1+V[1][1]*off2+V[2][1]*off3;
-        R[2] = Z0+V[0][2]*off1+V[1][2]*off2+V[2][2]*off3;
+        const double off1 = -1.0 + 2.0 * RandomHub.uniform();
+        const double off2 = -1.0 + 2.0 * RandomHub.uniform();
+        const double off3 = -1.0 + 2.0 * RandomHub.uniform();
+
+        R[0] = X0 + V[0][0]*off1 + V[1][0]*off2 + V[2][0]*off3;
+        R[1] = Y0 + V[0][1]*off1 + V[1][1]*off2 + V[2][1]*off3;
+        R[2] = Z0 + V[0][2]*off1 + V[1][2]*off2 + V[2][2]*off3;
         return;
     }
     case (5):
     {
         //cylinder source
-        TVector3 Circ;
-        double off = (-1.0 + 2.0 * RandomHub.uniform())*size3;
-        double angle = RandomHub.uniform()*3.1415926535*2.0;
+        const double off = (-1.0 + 2.0 * RandomHub.uniform()) * size3;
+        const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
         double r = RandomHub.uniform() + RandomHub.uniform();
-        if (r > 1.0) r = (2.0-r)*size1;
+        if (r > 1.0) r = (2.0 - r) * size1;
         else r *=  size1;
-        double x = r*cos(angle);
-        double y = r*sin(angle);
-        Circ.SetXYZ(x,y,off);
-        Circ.RotateX(Phi);
-        Circ.RotateY(Theta);
-        Circ.RotateZ(Psi);
-        R[0] = X0+Circ[0];
-        R[1] = Y0+Circ[1];
-        R[2] = Z0+Circ[2];
+        double x = r * cos(angle);
+        double y = r * sin(angle);
+
+        AVector3 Circ(x, y, off);
+        Circ.rotateX(Phi);
+        Circ.rotateY(Theta);
+        Circ.rotateZ(Psi);
+        R[0] = X0 + Circ[0];
+        R[1] = Y0 + Circ[1];
+        R[2] = Z0 + Circ[2];
         return;
     }
     }
@@ -390,14 +379,14 @@ void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, dou
     AParticleRecord particle(gp.Particle, position, time, gp.generateEnergy());
 
     //generating random direction inside the collimation cone
-    double spread   = Settings.SourceData[iSource].Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
+    double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
     double cosTheta = cos(spread);
     double z = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
-    double tmp = TMath::Sqrt(1.0 - z*z);
-    double phi = RandomHub.uniform() * 3.1415926535*2.0;
-    TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-    TVector3 Coll(CollimationDirection[iSource]);
-    K1.RotateUz(Coll);
+    double tmp = sqrt(1.0 - z * z);
+    double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+    AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+    AVector3 Coll( CollimationDirection[iSource] );
+    K1.rotateUz(Coll);
 
     for (int i=0; i<3; i++) particle.v[i] = K1[i];
 

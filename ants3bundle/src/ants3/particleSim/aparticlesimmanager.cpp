@@ -16,7 +16,7 @@ AParticleSimManager::AParticleSimManager() :
     SimSet(AParticleSimHub::getInstance().Settings),
     Geometry(AGeometryHub::getConstInstance())
 {
-    Generator_Sources = new ASourceParticleGenerator();
+    Generator_Sources = new ASourceParticleGenerator(SimSet.SourceGenSettings);
 }
 
 AParticleSimManager::~AParticleSimManager()
