@@ -23,7 +23,7 @@ struct AGunParticle
     AHistogram1D EnergyDistr; //energy spectrum   !!!*** check initRandomGenerator is called
 
     double  generateEnergy() const;
-    bool    loadSpectrum(const std::string & fileName); // !!!***
+    bool    loadSpectrum(const std::string & fileName); // !!!***  wrong place!
 
     void    writeToJson(QJsonObject & json) const;   // !!!***
     bool    readFromJson(const QJsonObject & json);  // !!!***
@@ -84,6 +84,5 @@ struct AParticleSourceRecord
 
     std::string check() const;
 };
-
 
 #endif // APARTICLESOURCERECORD_H

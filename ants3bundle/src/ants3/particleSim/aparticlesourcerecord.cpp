@@ -1,13 +1,11 @@
 #include "aparticlesourcerecord.h"
 #include "afiletools.h"
 #include "ajsontools.h"
-#include "acommonfunctions.h"
+//#include "acommonfunctions.h"
 
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonArray>
-
-#include "TH1D.h"
 
 double AGunParticle::generateEnergy() const
 {
