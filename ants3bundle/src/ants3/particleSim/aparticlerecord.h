@@ -11,6 +11,7 @@ public:
                     double vx, double vy, double vz,
                     double time,
                     double energy);
+    AParticleRecord(const std::string & particle, double * position, double time, double energy); // direction undefined!
     AParticleRecord(){}
 
     std::string particle; // particle name in Geant4

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 class AParticleGun
 {
@@ -13,7 +14,7 @@ public:
 
     virtual bool init() = 0;             //called before first use
     virtual void releaseResources() {}   //called after end of operation
-    virtual bool generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent) = 0;
+    virtual bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) = 0;
 
     virtual void setStartEvent(int) {} // for 'from file' generator
 

@@ -8,6 +8,7 @@
 #include <vector>
 
 class  ASourceGenSettings;
+struct AParticleSourceRecord;
 class  ARandomHub;
 
 class ALinkedParticle
@@ -26,7 +27,7 @@ public:
     ASourceParticleGenerator();
 
     bool init() override; // !!! has to be called before the first use of GenerateEvent()!
-    bool generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent) override; // !!!*** inside
+    bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
 
 private:
     const ASourceGenSettings & Settings;
@@ -43,12 +44,16 @@ private:
 
     std::vector<int>      LimitedToMat;
 
-    void generatePosition(int isource, double * R) const;
-    void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord> & GeneratedParticles) const;
+    void addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
 
     void updateLimitedToMat();
 
-    int generateNumberOfPrimaries() const;
+    int    selectNumberOfPrimaries() const;
+    int    selectSource() const;   // !!!*** to size_t
+    size_t selectParticle(int iSource) const;
+    bool   selectPosition(int iSource, double * R) const;
+    void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
+    double selectTime(const AParticleSourceRecord & Source, int iEvent);
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

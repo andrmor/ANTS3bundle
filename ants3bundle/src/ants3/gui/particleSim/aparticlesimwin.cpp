@@ -572,9 +572,28 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
     double Length = std::max(WorldSizeXY, WorldSizeZ)*0.4;
+
+    int numTracks = 0;
+
+    auto handler = [&numTracks, Length](const AParticleRecord & particle)
+    {
+        if (numTracks > 1000) return;
+        int track_index = gGeoManager->AddTrack(1, 22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
+        track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
+        numTracks++;
+    };
+
+    for (int iRun=0; iRun<numParticles; iRun++)
+    {
+        bool bOK = Gun->generateEvent(handler, iRun);
+        if (!bOK || numTracks > 1000) break;
+    }
+
+    /*
     double R[3], K[3];
     std::vector<AParticleRecord> GP;
-    int numTracks = 0;
     for (int iRun=0; iRun<numParticles; iRun++)
     {
         bool bOK = Gun->generateEvent(GP, iRun);
@@ -609,6 +628,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
         if (!bOK) break;
     }
+    */
 }
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)

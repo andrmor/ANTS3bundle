@@ -17,6 +17,12 @@ AParticleRecord::AParticleRecord(const std::string & particle,
     v[2] = vz;
 }
 
+AParticleRecord::AParticleRecord(const std::string & particle, double * position, double time, double energy) :
+    particle(particle), time(time), energy(energy)
+{
+    for (int i = 0; i < 3; i++) r[i] = position[i];
+}
+
 void AParticleRecord::ensureUnitaryLength()
 {
     double mod = 0;
