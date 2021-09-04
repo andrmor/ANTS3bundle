@@ -47,7 +47,7 @@ bool ASourceParticleGenerator::init()
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
-        for (const GunParticleStruct & gp : Settings.SourceData[isource].GunParticles)
+        for (const AGunParticle & gp : Settings.SourceData[isource].Particles)
             if (gp.Individual)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
@@ -60,24 +60,24 @@ bool ASourceParticleGenerator::init()
     LinkedPartiles.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        int numParts = Settings.SourceData[isource].GunParticles.size();
+        int numParts = Settings.SourceData[isource].Particles.size();
         LinkedPartiles[isource].resize(numParts);
         for (int iparticle=0; iparticle<numParts; iparticle++)
         {
             LinkedPartiles[isource][iparticle].resize(0);
-            if (!Settings.SourceData[isource].GunParticles[iparticle].Individual) continue; //nothing to do for non-individual particles
+            if (!Settings.SourceData[isource].Particles[iparticle].Individual) continue; //nothing to do for non-individual particles
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip=iparticle+1; ip<numParts; ip++)
-                if (!Settings.SourceData[isource].GunParticles[ip].Individual) //only looking for non-individuals
+                if (!Settings.SourceData[isource].Particles[ip].Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
                     {
                         int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
-                        int linkedTo = Settings.SourceData[isource].GunParticles[ip].LinkedTo;
+                        int linkedTo = Settings.SourceData[isource].Particles[ip].LinkedTo;
                         if ( linkedTo == compareWith)
                         {
                             LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
@@ -106,7 +106,7 @@ bool ASourceParticleGenerator::init()
 bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & GeneratedParticles, int iEvent)
 {
     //after any operation with sources (add, remove), init should be called before the first use!
-    AbortRequested = false;
+    AbortRequested = false; // !!!*** is it safe here? abort-before-start?
 
     //select the source
     int isource = 0;
@@ -162,12 +162,12 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
     //selecting the particle
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(isource);
     size_t iparticle = 0;
-    for ( ; iparticle < Source.GunParticles.size() - 1; iparticle++)
+    for ( ; iparticle < Source.Particles.size() - 1; iparticle++)
     {
-        if (Source.GunParticles[iparticle].Individual)
+        if (Source.Particles[iparticle].Individual)
         {
-            if (Source.GunParticles[iparticle].StatWeight >= rnd) break; //this one
-            rnd -= Source.GunParticles[iparticle].StatWeight;
+            if (Source.Particles[iparticle].StatWeight >= rnd) break; //this one
+            rnd -= Source.Particles[iparticle].StatWeight;
         }
     }
     //qDebug() << "----Particle" << iparticle << "selected";
@@ -197,7 +197,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                 //qDebug()<<"---Testing particle:"<<ip;
                 int thisParticle = LinkedPartiles[isource][iparticle][ip].iParticle;
                 int linkedTo = LinkedPartiles[isource][iparticle][ip].LinkedTo;
-                bool fOpposite = Source.GunParticles[thisParticle].LinkedOpposite;
+                bool fOpposite = Source.Particles[thisParticle].LinkedOpposite;
 
                 if (ip != 0)
                 {
@@ -208,7 +208,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                         continue;
                     }
                     //probability test
-                    double LinkingProb = Source.GunParticles[thisParticle].LinkedProb;
+                    double LinkingProb = Source.Particles[thisParticle].LinkedProb;
                     if (ARandomHub::getInstance().uniform() > LinkingProb)
                     {
                         //qDebug()<<"skip: linking prob fail";
@@ -227,7 +227,7 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                 else fOpposite = false; //(paranoic) protection
 
                 //generating particle
-                //qDebug()<<"success, adding his particle!";
+                //qDebug()<<"success, adding this particle!";
                 NoEvent = false;
                 WasGenerated[ip] = true;
 
@@ -242,8 +242,8 @@ bool ASourceParticleGenerator::generateEvent(std::vector<AParticleRecord> & Gene
                     //qDebug() << "making this particle opposite to:"<<linkedTo<<"index in GeneratedParticles:"<<index;
 
                     AParticleRecord ps;
-                    ps.particle = Source.GunParticles[thisParticle].Particle;
-                    ps.energy = Source.GunParticles[thisParticle].generateEnergy();
+                    ps.particle = Source.Particles[thisParticle].Particle;
+                    ps.energy = Source.Particles[thisParticle].generateEnergy();
                     ps.v[0] = -GeneratedParticles.at(index).v[0];
                     ps.v[1] = -GeneratedParticles.at(index).v[1];
                     ps.v[2] = -GeneratedParticles.at(index).v[2];
@@ -266,16 +266,16 @@ void ASourceParticleGenerator::generatePosition(int isource, double *R) const
 {
     const AParticleSourceRecord & rec = Settings.SourceData[isource];
 
-    const int    & iShape = rec.shape;
+    const int    & iShape = rec.Shape;
     const double & X0     = rec.X0;
     const double & Y0     = rec.Y0;
     const double & Z0     = rec.Z0;
     const double   Phi    = rec.Phi   * 3.14159265358979323846 / 180.0;
     const double   Theta  = rec.Theta * 3.14159265358979323846 / 180.0;
     const double   Psi    = rec.Psi   * 3.14159265358979323846 / 180.0;
-    const double & size1  = rec.size1;
-    const double & size2  = rec.size2;
-    const double & size3  = rec.size3;
+    const double & size1  = rec.Size1;
+    const double & size2  = rec.Size2;
+    const double & size3  = rec.Size3;
 
     switch (iShape) //source geometry type
     {
@@ -386,8 +386,8 @@ void ASourceParticleGenerator::addParticleInCone(int isource, int iparticle, std
 {
     AParticleRecord ps;
 
-    ps.particle = Settings.SourceData[isource].GunParticles[iparticle].Particle;
-    ps.energy = Settings.SourceData[isource].GunParticles[iparticle].generateEnergy();
+    ps.particle = Settings.SourceData[isource].Particles[iparticle].Particle;
+    ps.energy = Settings.SourceData[isource].Particles[iparticle].generateEnergy();
 
     //generating random direction inside the collimation cone
     double spread = Settings.SourceData[isource].Spread * 3.1415926535 / 180.0; //max angle away from generation diretion
@@ -416,7 +416,7 @@ void ASourceParticleGenerator::updateLimitedToMat()
     {
         int matIndex = -1; // not limited
 
-        if (source.DoMaterialLimited)
+        if (source.MaterialLimited)
         {
             bool bFound = false;
             int iMat = 0;
@@ -433,4 +433,15 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
         LimitedToMat.push_back(matIndex);
     }
+}
+
+int ASourceParticleGenerator::generateNumberOfPrimaries() const
+{
+    if (!Settings.MultiEnabled) return 1;
+
+    if (Settings.MultiMode == ASourceGenSettings::Constant)
+        return std::round(Settings.MultiNumber);
+
+    int num = RandomHub.poisson(Settings.MultiNumber);
+    return std::max(1, num);
 }

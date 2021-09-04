@@ -8,33 +8,33 @@
 
 class QJsonObject;
 
-struct GunParticleStruct
+struct AGunParticle
 {
     std::string  Particle        = "geantino";
     double       StatWeight      = 1.0;
     bool         UseFixedEnergy  = true;
-    double       Energy          = 100.0; //in keV
+    double       Energy          = 100.0;      //in keV
     std::string  PreferredUnits  = "keV";
-    bool         Individual      = true; // true = individual particle; false = linked
-    int          LinkedTo        = 0; // index of the "parent" particle this one is following
-    double       LinkedProb      = 0;  //probability to be emitted after the parent particle
-    bool         LinkedOpposite  = false; // false = random direction; otherwise particle is emitted in the opposite direction in respect to the LinkedTo particle
+    bool         Individual      = true;       // true = individual particle; false = linked
+    int          LinkedTo        = 0;          // index of the "parent" particle this one is following
+    double       LinkedProb      = 0;          //probability to be emitted after the parent particle
+    bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
 
     AHistogram1D EnergyDistr; //energy spectrum   !!!*** check initRandomGenerator is called
 
     double  generateEnergy() const;
     bool    loadSpectrum(const std::string & fileName); // !!!***
 
-    void writeToJson(QJsonObject & json) const;   // !!!***
-    bool readFromJson(const QJsonObject & json);  // !!!***
+    void    writeToJson(QJsonObject & json) const;   // !!!***
+    bool    readFromJson(const QJsonObject & json);  // !!!***
 };
 
 struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
 
-    std::string name  = "No_name";
-    EShape      shape = Point;
+    std::string Name  = "No_name";
+    EShape      Shape = Point;
 
     // Position
     double      X0    = 0;
@@ -47,9 +47,9 @@ struct AParticleSourceRecord
     double      Psi   = 0;
 
     // Size
-    double      size1 = 10.0;
-    double      size2 = 10.0;
-    double      size3 = 10.0;
+    double      Size1 = 10.0;
+    double      Size2 = 10.0;
+    double      Size3 = 10.0;
 
     // Collimation
     double      CollPhi   = 0;
@@ -57,23 +57,23 @@ struct AParticleSourceRecord
     double      Spread    = 45.0;
 
     // Limit to material
-    bool        DoMaterialLimited = false;
+    bool        MaterialLimited = false;  // !!!*** remove? use empty LimtedToMatName
     std::string LimtedToMatName;
 
     // Relative activity
     double      Activity = 1.0;
 
     // Time
-    int         TimeAverageMode = 0;
+    int         TimeAverageMode = 0;  // !!!*** to enum
     double      TimeAverage = 0;
     double      TimeAverageStart = 0;
     double      TimeAveragePeriod = 10.0;
-    int         TimeSpreadMode = 0;
+    int         TimeSpreadMode = 0;  // !!!*** to enum
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;
 
     // Particles
-    std::vector<GunParticleStruct> GunParticles;
+    std::vector<AGunParticle> Particles;
 
     void clear();
 

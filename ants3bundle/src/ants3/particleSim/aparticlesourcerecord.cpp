@@ -9,13 +9,13 @@
 
 #include "TH1D.h"
 
-double GunParticleStruct::generateEnergy() const
+double AGunParticle::generateEnergy() const
 {
     if (UseFixedEnergy) return Energy;
     return EnergyDistr.getRandom();
 }
 
-bool GunParticleStruct::loadSpectrum(const std::string &fileName)
+bool AGunParticle::loadSpectrum(const std::string &fileName)
 {
 /*
     QVector<double> x, y;
@@ -32,7 +32,7 @@ bool GunParticleStruct::loadSpectrum(const std::string &fileName)
     return true;
 }
 
-void GunParticleStruct::writeToJson(QJsonObject & json) const
+void AGunParticle::writeToJson(QJsonObject & json) const
 {
     json["Particle"]   = QString(Particle.data());
     json["StatWeight"] = StatWeight;
@@ -51,7 +51,7 @@ void GunParticleStruct::writeToJson(QJsonObject & json) const
     json["PreferredUnits"] = QString(PreferredUnits.data());
 }
 
-bool GunParticleStruct::readFromJson(const QJsonObject & json)
+bool AGunParticle::readFromJson(const QJsonObject & json)
 {
     QString tmp;
     jstools::parseJson(json, "Particle", tmp); Particle = tmp.toLatin1().data();
@@ -91,8 +91,8 @@ bool GunParticleStruct::readFromJson(const QJsonObject & json)
 
 void AParticleSourceRecord::clear()
 {
-    name  = "No_name";
-    shape = Point;
+    Name  = "No_name";
+    Shape = Point;
 
     X0    = 0;
     Y0    = 0;
@@ -102,36 +102,36 @@ void AParticleSourceRecord::clear()
     Theta = 0;
     Psi   = 0;
 
-    size1 = 10.0;
-    size2 = 10.0;
-    size3 = 10.0;
+    Size1 = 10.0;
+    Size2 = 10.0;
+    Size3 = 10.0;
 
     CollPhi   = 0;
     CollTheta = 0;
     Spread    = 45.0;
 
-    DoMaterialLimited = false;
+    MaterialLimited = false;
     LimtedToMatName.clear();
 
     Activity = 1.0;
 
-    TimeAverageMode = 0;
-    TimeAverage = 0;
-    TimeAverageStart = 0;
+    TimeAverageMode   = 0;
+    TimeAverage       = 0;
+    TimeAverageStart  = 0;
     TimeAveragePeriod = 10.0;
-    TimeSpreadMode = 0;
-    TimeSpreadSigma = 50.0;
-    TimeSpreadWidth = 100.0;
+    TimeSpreadMode    = 0;
+    TimeSpreadSigma   = 50.0;
+    TimeSpreadWidth   = 100.0;
 
-    GunParticles.clear();
+    Particles.clear();
 }
 
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
-    json["Name"] = QString(name.data());
+    json["Name"] = QString(Name.data());
 
     QString str;
-    switch (shape)
+    switch (Shape)
     {
     case Point     : str = "point";
     case Line      : str = "line";
@@ -143,41 +143,45 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["Shape"] = str;
 
     json["Activity"] = Activity;
+
     json["X"] = X0;
     json["Y"] = Y0;
     json["Z"] = Z0;
-    json["Size1"] = size1;
-    json["Size2"] = size2;
-    json["Size3"] = size3;
-    json["Phi"] = Phi;
-    json["Theta"] = Theta;
-    json["Psi"] = Psi;
-    json["CollPhi"] = CollPhi;
-    json["CollTheta"] = CollTheta;
-    json["Spread"] = Spread;
 
-    json["DoMaterialLimited"] = DoMaterialLimited;
+    json["Size1"] = Size1;
+    json["Size2"] = Size2;
+    json["Size3"] = Size3;
+
+    json["Phi"]   = Phi;
+    json["Theta"] = Theta;
+    json["Psi"]   = Psi;
+
+    json["CollPhi"]   = CollPhi;
+    json["CollTheta"] = CollTheta;
+    json["Spread"]    = Spread;
+
+    json["MaterialLimited"] = MaterialLimited;
     json["LimitedToMaterial"] = QString(LimtedToMatName.data());
 
-    json["TimeAverageMode"] = TimeAverageMode;
-    json["TimeAverage"] = TimeAverage;
-    json["TimeAverageStart"] = TimeAverageStart;
+    json["TimeAverageMode"]   = TimeAverageMode;
+    json["TimeAverage"]       = TimeAverage;
+    json["TimeAverageStart"]  = TimeAverageStart;
     json["TimeAveragePeriod"] = TimeAveragePeriod;
-    json["TimeSpreadMode"] = TimeSpreadMode;
-    json["TimeSpreadSigma"] = TimeSpreadSigma;
-    json["TimeSpreadWidth"] = TimeSpreadWidth;
+    json["TimeSpreadMode"]    = TimeSpreadMode;
+    json["TimeSpreadSigma"]   = TimeSpreadSigma;
+    json["TimeSpreadWidth"]   = TimeSpreadWidth;
 
     //particles
-    int GunParticleSize = GunParticles.size();
+    int GunParticleSize = Particles.size();
     json["Particles"] = GunParticleSize;
     QJsonArray jParticleEntries;
-    for (const GunParticleStruct & gp : GunParticles)
+    for (const AGunParticle & gp : Particles)
     {
         QJsonObject js;
         gp.writeToJson(js);
         jParticleEntries.append(js);
     }
-    json["GunParticles"] = jParticleEntries;
+    json["Particles"] = jParticleEntries;
 }
 
 bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
@@ -185,15 +189,15 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     clear();
 
     QString tmp;
-    jstools::parseJson(json, "Name", tmp); name = tmp.toLatin1().data();
+    jstools::parseJson(json, "Name", tmp); Name = tmp.toLatin1().data();
 
     jstools::parseJson(json, "Type", tmp);
-    if      (tmp == "point")     shape = Point;
-    else if (tmp == "line")      shape = Line;
-    else if (tmp == "rectangle") shape = Rectangle;
-    else if (tmp == "round")     shape = Round;
-    else if (tmp == "box")       shape = Box;
-    else if (tmp == "cylinder")  shape = Cylinder;
+    if      (tmp == "point")     Shape = Point;
+    else if (tmp == "line")      Shape = Line;
+    else if (tmp == "rectangle") Shape = Rectangle;
+    else if (tmp == "round")     Shape = Round;
+    else if (tmp == "box")       Shape = Box;
+    else if (tmp == "cylinder")  Shape = Cylinder;
 
     jstools::parseJson(json, "Activity", Activity);
 
@@ -201,9 +205,9 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Y", Y0);
     jstools::parseJson(json, "Z", Z0);
 
-    jstools::parseJson(json, "Size1", size1);
-    jstools::parseJson(json, "Size2", size2);
-    jstools::parseJson(json, "Size3", size3);
+    jstools::parseJson(json, "Size1", Size1);
+    jstools::parseJson(json, "Size2", Size2);
+    jstools::parseJson(json, "Size3", Size3);
 
     jstools::parseJson(json, "Phi",   Phi);
     jstools::parseJson(json, "Theta", Theta);
@@ -221,26 +225,26 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "TimeSpreadSigma",   TimeSpreadSigma);
     jstools::parseJson(json, "TimeSpreadWidth",   TimeSpreadWidth);
 
-    jstools::parseJson(json, "DoMaterialLimited", DoMaterialLimited);
+    jstools::parseJson(json, "MaterialLimited", MaterialLimited);
     jstools::parseJson(json, "LimitedToMaterial", tmp); LimtedToMatName = tmp.toLatin1().data();
 
-    QJsonArray jGunPartArr = json["GunParticles"].toArray();
+    QJsonArray jGunPartArr = json["Particles"].toArray();
     const int numGP = jGunPartArr.size();
     for (int ip = 0; ip < numGP; ip++)
     {
         QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
 
-        GunParticleStruct gp;
+        AGunParticle gp;
         bool bOK = gp.readFromJson(jThisGunPart);
         if (!bOK) return false;
-        GunParticles.push_back(gp);
+        Particles.push_back(gp);
     }
     return true;
 }
 
 std::string AParticleSourceRecord::getShapeString() const
 {
-    switch (shape)
+    switch (Shape)
     {
     case Point     : return "Point";
     case Line      : return "Line";
@@ -253,7 +257,7 @@ std::string AParticleSourceRecord::getShapeString() const
 
 std::string AParticleSourceRecord::check() const
 {
-    const int numParts = GunParticles.size();
+    const int numParts = Particles.size();
     if (numParts == 0) return "No particles defined";
 
     if (Spread < 0)    return "negative spread angle";
@@ -263,12 +267,12 @@ std::string AParticleSourceRecord::check() const
     double TotPartWeight = 0;
     for (int ip = 0; ip < numParts; ip++)
     {
-        const GunParticleStruct & gp = GunParticles.at(ip);
+        const AGunParticle & gp = Particles.at(ip);
         if (gp.Individual)
         {
             numIndParts++;
-            if (GunParticles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);
-            TotPartWeight += GunParticles.at(ip).StatWeight;
+            if (Particles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);
+            TotPartWeight += Particles.at(ip).StatWeight;
         }
         else
         {

@@ -47,6 +47,8 @@ private:
     void addParticleInCone(int isource, int iparticle, std::vector<AParticleRecord> & GeneratedParticles) const;
 
     void updateLimitedToMat();
+
+    int generateNumberOfPrimaries() const;
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

@@ -36,12 +36,12 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
-    ui->leSourceName->setText(Rec.name.data());
-    ui->cobGunSourceType->setCurrentIndex(Rec.shape);
+    ui->leSourceName->setText(Rec.Name.data());
+    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
 
-    ui->ledGun1DSize->setText(QString::number(2.0 * Rec.size1));
-    ui->ledGun2DSize->setText(QString::number(2.0 * Rec.size2));
-    ui->ledGun3DSize->setText(QString::number(2.0 * Rec.size3));
+    ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
+    ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
+    ui->ledGun3DSize->setText(QString::number(2.0 * Rec.Size3));
 
     ui->ledGunOriginX->setText(QString::number(Rec.X0));
     ui->ledGunOriginY->setText(QString::number(Rec.Y0));
@@ -55,7 +55,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
     ui->ledGunSpread->setText(QString::number(Rec.Spread));
 
-    ui->cbSourceLimitmat->setChecked(Rec.DoMaterialLimited);
+    ui->cbSourceLimitmat->setChecked(Rec.MaterialLimited);
     ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
 
     ui->cobTimeAverageMode->setCurrentIndex(Rec.TimeAverageMode);
@@ -69,7 +69,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->frSecondary->setVisible(false);
     UpdateListWidget();
     updateColorLimitingMat();
-    if ( !Rec.GunParticles.empty() )
+    if ( !Rec.Particles.empty() )
     {
         ui->lwGunParticles->setCurrentRow(0);
         UpdateParticleInfo();
@@ -200,20 +200,20 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
 
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
 {
-    GunParticleStruct tmp;
+    AGunParticle tmp;
     tmp.Particle = ui->leGunParticle->text().toLatin1().data();
     tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
     tmp.Energy = ui->ledGunEnergy->text().toDouble();
-    LocalRec.GunParticles.push_back(tmp);
+    LocalRec.Particles.push_back(tmp);
 
     UpdateListWidget();
-    ui->lwGunParticles->setCurrentRow( LocalRec.GunParticles.size()-1 );
+    ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
     UpdateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbGunRemove_clicked()
 {
-    if (LocalRec.GunParticles.size() < 2)
+    if (LocalRec.Particles.size() < 2)
     {
         guitools::message("There should be at least one particle!", this);
         return;
@@ -227,10 +227,10 @@ void AParticleSourceDialog::on_pbGunRemove_clicked()
     }
 
     //Rec->GunParticles.remove(iparticle);
-    LocalRec.GunParticles.erase(LocalRec.GunParticles.begin() + iparticle);
+    LocalRec.Particles.erase(LocalRec.Particles.begin() + iparticle);
 
     UpdateListWidget();
-    ui->lwGunParticles->setCurrentRow( LocalRec.GunParticles.size()-1 );
+    ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
     UpdateParticleInfo();
 }
 
@@ -240,7 +240,7 @@ void AParticleSourceDialog::UpdateListWidget()
 
     ui->lwGunParticles->clear();
     int counter = 0;
-    for (const GunParticleStruct & gps : LocalRec.GunParticles)
+    for (const AGunParticle & gps : LocalRec.Particles)
     {
         bool Individual = gps.Individual;
 
@@ -279,14 +279,14 @@ void AParticleSourceDialog::UpdateParticleInfo()
 {
     int row = ui->lwGunParticles->currentRow();
 
-    int DefinedSourceParticles = LocalRec.GunParticles.size();
+    int DefinedSourceParticles = LocalRec.Particles.size();
     if (DefinedSourceParticles > 0 && row>-1)
     {
         ui->fGunParticle->setEnabled(true);
-        QString part = LocalRec.GunParticles.at(row).Particle.data();
+        QString part = LocalRec.Particles.at(row).Particle.data();
         ui->leGunParticle->setText(part);
 
-        const GunParticleStruct & gRec = LocalRec.GunParticles.at(row);
+        const AGunParticle & gRec = LocalRec.Particles.at(row);
 
         QString str;
         str.setNum(gRec.StatWeight);
@@ -334,7 +334,7 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 {
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart == -1) return;
-    LocalRec.GunParticles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
+    LocalRec.Particles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
     UpdateParticleInfo();
 }
 
@@ -359,23 +359,23 @@ void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
-    LocalRec.name = ui->leSourceName->text().toLatin1().data();
+    LocalRec.Name = ui->leSourceName->text().toLatin1().data();
 
     switch (ui->cobGunSourceType->currentIndex())
     {
-    case 0 : LocalRec.shape = AParticleSourceRecord::Point;     break;
-    case 1 : LocalRec.shape = AParticleSourceRecord::Line;      break;
-    case 2 : LocalRec.shape = AParticleSourceRecord::Rectangle; break;
-    case 3 : LocalRec.shape = AParticleSourceRecord::Round;     break;
-    case 4 : LocalRec.shape = AParticleSourceRecord::Box;       break;
-    case 5 : LocalRec.shape = AParticleSourceRecord::Cylinder;  break;
+    case 0 : LocalRec.Shape = AParticleSourceRecord::Point;     break;
+    case 1 : LocalRec.Shape = AParticleSourceRecord::Line;      break;
+    case 2 : LocalRec.Shape = AParticleSourceRecord::Rectangle; break;
+    case 3 : LocalRec.Shape = AParticleSourceRecord::Round;     break;
+    case 4 : LocalRec.Shape = AParticleSourceRecord::Box;       break;
+    case 5 : LocalRec.Shape = AParticleSourceRecord::Cylinder;  break;
     }
 
-    LocalRec.size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
-    LocalRec.size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
-    LocalRec.size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
+    LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
+    LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
+    LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
 
-    LocalRec.DoMaterialLimited = ui->cbSourceLimitmat->isChecked();
+    LocalRec.MaterialLimited = ui->cbSourceLimitmat->isChecked();
     LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();
 
     LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
@@ -401,7 +401,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
     {
-        GunParticleStruct & p = LocalRec.GunParticles[iPart];
+        AGunParticle & p = LocalRec.Particles[iPart];
 
         p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
@@ -491,8 +491,8 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
-    LocalRec.GunParticles[iPart].EnergyDistr.clear();
-    LocalRec.GunParticles[iPart].UseFixedEnergy = false;
+    LocalRec.Particles[iPart].EnergyDistr.clear();
+    LocalRec.Particles[iPart].UseFixedEnergy = false;
 
     UpdateParticleInfo();
 }

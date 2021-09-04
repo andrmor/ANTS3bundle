@@ -363,7 +363,7 @@ std::string ASourceGenSettings::check() const
     for (const AParticleSourceRecord & ps : SourceData)
     {
         const std::string err = ps.check();
-        if (!err.empty()) Error += "Source " + ps.name + ": " + err + "\n";
+        if (!err.empty()) Error += "Source " + ps.Name + ": " + err + "\n";
     }
     return Error;
 }
@@ -386,7 +386,7 @@ bool ASourceGenSettings::clone(int iSource)
     if (iSource < 0 || iSource >= SourceData.size()) return false;
 
     AParticleSourceRecord r = SourceData[iSource];
-    r.name += "_c";
+    r.Name += "_c";
     SourceData.insert(SourceData.begin() + iSource + 1, r);
     return true;
 }

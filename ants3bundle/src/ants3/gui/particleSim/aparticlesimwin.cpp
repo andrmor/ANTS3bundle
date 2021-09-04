@@ -176,7 +176,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 void AParticleSimWin::on_pbAddSource_clicked()
 {
     AParticleSourceRecord s;
-    s.GunParticles.push_back(GunParticleStruct());
+    s.Particles.push_back(AGunParticle());
     SimSet.SourceGenSettings.append(s);
 
 //    on_pbUpdateSimConfig_clicked();
@@ -217,7 +217,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
         return;
     }
 
-    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).name.data();
+    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).Name.data();
     bool ok = guitools::confirm(QString("Remove source %0?").arg(SourceName), this);
     if (!ok) return;
 
@@ -256,14 +256,14 @@ void AParticleSimWin::updateSourceList()
         fr->setFrameShape(QFrame::Box);
         QHBoxLayout* l = new QHBoxLayout();
         l->setContentsMargins(3, 2, 3, 2);
-            QLabel* lab = new QLabel(pr.name.data());
+            QLabel* lab = new QLabel(pr.Name.data());
             lab->setMinimumWidth(110);
             QFont f = lab->font();
             f.setBold(true);
             lab->setFont(f);
         l->addWidget(lab);
         l->addWidget(new QLabel( QString(pr.getShapeString().data()) + ','));
-        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.GunParticles.size()).arg( pr.GunParticles.size()>1 ? "s" : "" ) ) );
+        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.Particles.size()).arg( pr.Particles.size()>1 ? "s" : "" ) ) );
         l->addStretch();
 
         l->addWidget(new QLabel("Fraction:"));
@@ -373,16 +373,16 @@ void AParticleSimWin::drawSource(int iSource)
     //check iSource is correct  !!!***
     const AParticleSourceRecord & p = SimSet.SourceGenSettings.SourceData.at(iSource);
 
-    int index = p.shape;
+    int index = p.Shape;
     double X0 = p.X0;
     double Y0 = p.Y0;
     double Z0 = p.Z0;
     double Phi = p.Phi*3.1415926535/180.0;
     double Theta = p.Theta*3.1415926535/180.0;
     double Psi = p.Psi*3.1415926535/180.0;
-    double size1 = p.size1;
-    double size2 = p.size2;
-    double size3 = p.size3;
+    double size1 = p.Size1;
+    double size2 = p.Size2;
+    double size3 = p.Size3;
     double CollPhi = p.CollPhi*3.1415926535/180.0;
     double CollTheta = p.CollTheta*3.1415926535/180.0;
     double Spread = p.Spread*3.1415926535/180.0;
