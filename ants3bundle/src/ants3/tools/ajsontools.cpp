@@ -119,6 +119,15 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, QString &va
     else return false;
 }
 
+bool jstools::parseJson(const QJsonObject &json, const QString &key, std::string &var)
+{
+    QString tmp;
+    bool ok = parseJson(json, key, tmp);
+    if (!ok) return false;
+    var = tmp.toLatin1().data();
+    return true;
+}
+
 bool jstools::parseJson(const QJsonObject &json, const QString &key, QJsonArray &var)
 {
     if (json.contains(key))

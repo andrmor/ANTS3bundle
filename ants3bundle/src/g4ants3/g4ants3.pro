@@ -12,13 +12,20 @@ LIBS += $$system(geant4-config --libs) -lxerces-c
 
 DESTDIR = ../../bin
 
-INCLUDEPATH += include
+INCLUDEPATH += src
+INCLUDEPATH += ../ants3/particleSim
+INCLUDEPATH += ../ants3/tools
 
 DEFINES += GEANT4
 DEFINES += JSON11
 
 SOURCES += \
         main.cpp \
+        ../ants3/particleSim/aparticlesourcerecord.cpp \
+        ../ants3/particleSim/asourcegeneratorsettings.cpp \
+        ../ants3/particleSim/asourceparticlegenerator.cpp \
+        ../ants3/tools/ahistogram.cpp \
+        ../ants3/tools/avector.cpp \
         src/ActionInitialization.cc \
         src/DetectorConstruction.cc \
         src/EventAction.cc \
@@ -29,7 +36,8 @@ SOURCES += \
         src/StackingAction.cc \
         src/SteppingAction.cc \
         src/TrackingAction.cc \
-        src/ahistogram.cc \
+        #src/ahistogram.cc \
+        src/arandomg4hub.cpp \
         src/json11.cc \
         src/js11tools.cc
 
@@ -39,16 +47,22 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    include/ActionInitialization.hh \
-    include/DetectorConstruction.hh \
-    include/EventAction.hh \
-    include/PrimaryGeneratorAction.hh \
-    include/RunAction.hh \
-    include/SensitiveDetector.hh \
-    include/SessionManager.hh \
-    include/StackingAction.hh \
-    include/SteppingAction.hh \
-    include/TrackingAction.hh \
-    include/ahistogram.hh \
-    include/json11.hh \
-    include/js11tools.hh
+    ../ants3/particleSim/aparticlesourcerecord.h \
+    ../ants3/particleSim/asourcegeneratorsettings.h \
+    ../ants3/particleSim/asourceparticlegenerator.h \
+    ../ants3/tools/ahistogram.h \
+    ../ants3/tools/avector.h \
+    src/ActionInitialization.hh \
+    src/DetectorConstruction.hh \
+    src/EventAction.hh \
+    src/PrimaryGeneratorAction.hh \
+    src/RunAction.hh \
+    src/SensitiveDetector.hh \
+    src/SessionManager.hh \
+    src/StackingAction.hh \
+    src/SteppingAction.hh \
+    src/TrackingAction.hh \
+    #src/ahistogram.hh \
+    src/arandomg4hub.h \
+    src/json11.hh \
+    src/js11tools.hh

@@ -56,6 +56,7 @@ void ASourceGeneratorSettings::remove(int iSource)
     SourceData.erase(SourceData.begin() + iSource);
 }
 
+#ifndef JSON11
 void ASourceGeneratorSettings::writeToJson(QJsonObject &json) const
 {
     QJsonArray ja;
@@ -73,21 +74,29 @@ void ASourceGeneratorSettings::writeToJson(QJsonObject &json) const
     js["Number"]  = MultiNumber;
     json["MultiplePerEvent"] = js;
 }
+#endif
 
+#ifdef JSON11
+bool ASourceGeneratorSettings::readFromJson(const json11::Json::object &json)
+#else
 bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
+#endif
 {
     clear();
 
-    if (!json.contains("ParticleSources"))
-    {
-        // error?
-        return false;
-    }
-
-    QJsonArray ar = json["ParticleSources"].toArray();
+#ifdef JSON11
+    json11::Json::array ar;
+#else
+    QJsonArray ar;
+#endif
+    jstools::parseJson(json, "ParticleSources", ar);
     for (int iSource = 0; iSource < ar.size(); iSource++)
     {
+#ifdef JSON11
+        json11::Json::object js = ar[iSource].object_items();
+#else
         QJsonObject js = ar.at(iSource).toObject();
+#endif
         AParticleSourceRecord ps;
         bool ok = ps.readFromJson(js);
         if (ok) SourceData.push_back(ps);
@@ -98,13 +107,17 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
         }
     }
 
+#ifdef JSON11
+    json11::Json::object js;
+#else
     QJsonObject js;
+#endif
     jstools::parseJson(json, "MultiplePerEvent", js);
     {
         jstools::parseJson(js, "Enabled", MultiEnabled);
         jstools::parseJson(js, "Number",  MultiNumber);
 
-        QString strMulti;
+        std::string strMulti;
         jstools::parseJson(js, "Mode",    strMulti);
         if (strMulti == "Poisson")
             MultiMode = Poisson;

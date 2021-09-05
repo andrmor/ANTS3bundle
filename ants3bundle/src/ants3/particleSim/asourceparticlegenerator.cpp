@@ -109,7 +109,11 @@ int ASourceParticleGenerator::selectSource() const
     return iSource;
 }
 
-#include "TGeoManager.h"
+#ifdef GEANT4
+
+#else
+    #include "TGeoManager.h"
+#endif
 bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 {
     const AParticleSourceRecord & Source = Settings.SourceData[iSource];
@@ -118,14 +122,25 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
     else
     {
         int attempts = 10000;
+
+#ifdef GEANT4
+        // !!!***
+#else
         TGeoNode * node = nullptr;
+#endif
+
         do
         {
             if (AbortRequested) return false;
             if (attempts-- == 0) return false;
             doGeneratePosition(Source, R);
+
+#ifdef GEANT4
+            // !!!***
+#else
             node = gGeoManager->FindNode(R[0], R[1], R[2]);
             if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[iSource]) break;
+#endif
         }
         while (attempts-- != 0);
     }
@@ -393,6 +408,12 @@ void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, dou
     generatedParticles.push_back(particle);
 }
 
+#ifdef GEANT4
+void ASourceParticleGenerator::updateLimitedToMat()
+{
+    // TODO!!!  !!!***
+}
+#else
 #include "amaterialhub.h"
 void ASourceParticleGenerator::updateLimitedToMat()
 {
@@ -422,6 +443,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
         LimitedToMat.push_back(matIndex);
     }
 }
+#endif
+
 
 int ASourceParticleGenerator::selectNumberOfPrimaries() const
 {

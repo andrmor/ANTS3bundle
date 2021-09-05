@@ -1,11 +1,13 @@
 #include "aparticlesourcerecord.h"
-#include "afiletools.h"
-#include "ajsontools.h"
-//#include "acommonfunctions.h"
 
-#include <QDebug>
-#include <QJsonObject>
-#include <QJsonArray>
+#ifdef JSON11
+// already in the header
+#else
+#include "ajsontools.h"
+#include "afiletools.h"
+#endif
+
+#include <QDebug> // !!!*** temporary only !!!
 
 double AGunParticle::generateEnergy() const
 {
@@ -30,6 +32,7 @@ bool AGunParticle::loadSpectrum(const std::string &fileName)
     return true;
 }
 
+#ifndef JSON11
 void AGunParticle::writeToJson(QJsonObject & json) const
 {
     json["Particle"]   = QString(Particle.data());
@@ -48,21 +51,24 @@ void AGunParticle::writeToJson(QJsonObject & json) const
 //    }
     json["PreferredUnits"] = QString(PreferredUnits.data());
 }
+#endif
 
+#ifdef JSON11
+bool AGunParticle::readFromJson(const json11::Json::object & json)
+#else
 bool AGunParticle::readFromJson(const QJsonObject & json)
+#endif
 {
-    QString tmp;
-    jstools::parseJson(json, "Particle", tmp); Particle = tmp.toLatin1().data();
+    jstools::parseJson(json, "Particle",           Particle);
+    jstools::parseJson(json, "StatWeight",         StatWeight );
+    jstools::parseJson(json, "Individual",         Individual );
+    jstools::parseJson(json, "LinkedTo",           LinkedTo ); //linked always to previously already defined particles!
+    jstools::parseJson(json, "LinkingProbability", LinkedProb );
+    jstools::parseJson(json, "LinkingOppositeDir", LinkedOpposite );
 
-    jstools::parseJson(json, "StatWeight",  StatWeight );
-    jstools::parseJson(json, "Individual",  Individual );
-    jstools::parseJson(json, "LinkedTo",  LinkedTo ); //linked always to previously already defined particles!
-    jstools::parseJson(json, "LinkingProbability",  LinkedProb );
-    jstools::parseJson(json, "LinkingOppositeDir",  LinkedOpposite );
-
-    jstools::parseJson(json, "Energy",  Energy );
-    jstools::parseJson(json, "PreferredUnits",  tmp); PreferredUnits = tmp.toLatin1().data();
-    jstools::parseJson(json, "UseFixedEnergy",  UseFixedEnergy );
+    jstools::parseJson(json, "Energy",             Energy );
+    jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
+    jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
 
 /*
     QJsonArray ar = json["EnergySpectrum"].toArray();
@@ -124,6 +130,7 @@ void AParticleSourceRecord::clear()
     Particles.clear();
 }
 
+#ifndef JSON11
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
     json["Name"] = QString(Name.data());
@@ -181,14 +188,19 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     }
     json["Particles"] = jParticleEntries;
 }
+#endif
 
+#ifdef JSON11
+bool AParticleSourceRecord::readFromJson(const json11::Json::object & json)
+#else
 bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
+#endif
 {
     clear();
 
-    QString tmp;
-    jstools::parseJson(json, "Name", tmp); Name = tmp.toLatin1().data();
+    jstools::parseJson(json, "Name", Name);
 
+    std::string tmp;
     jstools::parseJson(json, "Type", tmp);
     if      (tmp == "point")     Shape = Point;
     else if (tmp == "line")      Shape = Line;
@@ -224,13 +236,23 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "TimeSpreadWidth",   TimeSpreadWidth);
 
     jstools::parseJson(json, "MaterialLimited", MaterialLimited);
-    jstools::parseJson(json, "LimitedToMaterial", tmp); LimtedToMatName = tmp.toLatin1().data();
+    jstools::parseJson(json, "LimitedToMaterial", LimtedToMatName);
 
-    QJsonArray jGunPartArr = json["Particles"].toArray();
+#ifdef JSON11
+    json11::Json::array jGunPartArr;
+#else
+    QJsonArray jGunPartArr;
+#endif
+    jstools::parseJson(json, "Particles", jGunPartArr);
     const int numGP = jGunPartArr.size();
     for (int ip = 0; ip < numGP; ip++)
     {
+
+#ifdef JSON11
+        json11::Json::object jThisGunPart = jGunPartArr[ip].object_items();
+#else
         QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
+#endif
 
         AGunParticle gp;
         bool bOK = gp.readFromJson(jThisGunPart);
@@ -286,5 +308,3 @@ std::string AParticleSourceRecord::check() const
 
     return "";
 }
-
-

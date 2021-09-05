@@ -16,7 +16,7 @@ public:
     int  getNumBins() const {return Bins;}
     void getLimits(double & from, double & to) const {from = From; to = To;}
     const std::vector<double> & getContent(); // [0] - underflow;  [1] - bin#0, ..., [bins] - bin#(bins-1); [bins+1] - overflow
-    std::vector<double> getStat();    // [0] - sumVals, [1] - sumVals2, [2] - sumValX, [3] - sumValX2, [4] - # entries
+    std::vector<double> getStat() const;    // [0] - sumVals, [1] - sumVals2, [2] - sumValX, [3] - sumValX2, [4] - # entries
 
     bool   initRandomGenerator(); // returns false if data size is < 3 or there are bins with negative content!
     double getRandom() const;           // returns 0 if initRandomGenerator was not yet calculated (and it returned true)

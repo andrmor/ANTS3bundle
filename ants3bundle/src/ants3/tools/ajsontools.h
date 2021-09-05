@@ -6,6 +6,7 @@
 #include <QString>
 
 #include <vector>
+#include <string>
 
 class TH1D;
 class TH2D;
@@ -27,6 +28,7 @@ bool        parseJson(const QJsonObject &json, const QString &key, double &var);
 bool        parseJson(const QJsonObject &json, const QString &key, long   &var);
 bool        parseJson(const QJsonObject &json, const QString &key, float &var);
 bool        parseJson(const QJsonObject &json, const QString &key, QString &var);
+bool        parseJson(const QJsonObject &json, const QString &key, std::string &var);
 bool        parseJson(const QJsonObject &json, const QString &key, QJsonArray &var);
 bool        parseJson(const QJsonObject &json, const QString &key, QJsonObject &obj);
 

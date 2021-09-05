@@ -1,7 +1,16 @@
 #include "ahistogram.h"
 
+#ifdef GEANT4
+#include "arandomg4hub.h"
+#else
+#include "arandomhub.h"
+#endif
+
+#include <algorithm>
 #include <limits>
-#include <QDebug>
+#include <tuple>
+
+//#include <QDebug>
 
 AHistogram1D::AHistogram1D(int Bins, double From, double To) :
     Bins(Bins), From(From), To(To)
@@ -47,7 +56,7 @@ const std::vector<double> &AHistogram1D::getContent()
     return Data;
 }
 
-std::vector<double> AHistogram1D::getStat()
+std::vector<double> AHistogram1D::getStat() const
 {
     return {SumVal, SumVal2, SumValX, SumValX2, Entries};
 }
@@ -73,8 +82,6 @@ bool AHistogram1D::initRandomGenerator()
     return true;
 }
 
-#include "arandomhub.h"
-#include <algorithm>
 double AHistogram1D::getRandom() const
 {
     if (SumBins.empty()) return 0;

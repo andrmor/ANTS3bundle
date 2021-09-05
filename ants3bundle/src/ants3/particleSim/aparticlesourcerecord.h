@@ -6,7 +6,11 @@
 #include <string>
 #include <vector>
 
-class QJsonObject;
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    class QJsonObject;
+#endif
 
 struct AGunParticle
 {
@@ -25,8 +29,12 @@ struct AGunParticle
     double  generateEnergy() const;
     bool    loadSpectrum(const std::string & fileName); // !!!***  wrong place!
 
+#ifdef JSON11
+    bool    readFromJson(const json11::Json::object & json);  // !!!***
+#else
     void    writeToJson(QJsonObject & json) const;   // !!!***
     bool    readFromJson(const QJsonObject & json);  // !!!***
+#endif
 };
 
 struct AParticleSourceRecord
@@ -77,8 +85,12 @@ struct AParticleSourceRecord
 
     void clear();
 
+#ifdef JSON11
+    bool readFromJson(const json11::Json::object & json); // !!!*** error handling?
+#else
     void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json); // !!!*** error handling?
+#endif
 
     std::string getShapeString() const;
 

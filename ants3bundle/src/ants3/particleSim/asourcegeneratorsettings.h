@@ -25,8 +25,12 @@ public:
     bool        replace(int iSource, AParticleSourceRecord & source);
     void        remove(int iSource);
 
+#ifdef JSON11
+    bool        readFromJson(const json11::Json::object & json); // Error handling !!!***
+#else
     void        writeToJson(QJsonObject & json) const;
     bool        readFromJson(const QJsonObject & json); // Error handling !!!***
+#endif
 
 };
 

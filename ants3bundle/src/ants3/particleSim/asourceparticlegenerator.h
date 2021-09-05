@@ -44,12 +44,12 @@ private:
 
     std::vector<int>      LimitedToMat;
 
-    void   updateLimitedToMat();
+    void   updateLimitedToMat();  // !!!*** implementation for Geant4
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
     size_t selectParticle(int iSource) const;
-    bool   selectPosition(int iSource, double * R) const;
+    bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
     void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
