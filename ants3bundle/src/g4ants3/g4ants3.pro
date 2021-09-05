@@ -22,6 +22,7 @@ DEFINES += JSON11
 SOURCES += \
         main.cpp \
         ../ants3/particleSim/aparticlesourcerecord.cpp \
+        ../ants3/particleSim/aparticlerecord.cpp \
         ../ants3/particleSim/asourcegeneratorsettings.cpp \
         ../ants3/particleSim/asourceparticlegenerator.cpp \
         ../ants3/tools/ahistogram.cpp \
@@ -48,6 +49,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     ../ants3/particleSim/aparticlesourcerecord.h \
+    ../ants3/particleSim/aparticlerecord.h \
     ../ants3/particleSim/asourcegeneratorsettings.h \
     ../ants3/particleSim/asourceparticlegenerator.h \
     ../ants3/tools/ahistogram.h \

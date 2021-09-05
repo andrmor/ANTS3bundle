@@ -1,6 +1,6 @@
 #include "SensitiveDetector.hh"
 #include "SessionManager.hh"
-#include "ahistogram.hh"
+#include "ahistogram.h"
 
 #include <sstream>
 #include <iomanip>
@@ -78,11 +78,11 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             if ( localPosition[2] < 0  && !bAcceptLower ) return true;
             const double x = localPosition[0] / mm;
             const double y = localPosition[1] / mm;
-            hPosition->Fill(x, y);
+            hPosition->fill(x, y);
 
             // time info
             double time = step->GetPostStepPoint()->GetGlobalTime()/ns;
-            hTime->Fill(time);
+            hTime->fill(time);
 
             // angle info
             G4ThreeVector vec = step->GetTrack()->GetMomentumDirection();
@@ -91,11 +91,11 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             double angle = 180.0/3.14159265358979323846*acos(vec[2]);
             if (angle > 90.0) angle = 180.0 - angle;
             //std::cout << "Local vector: " << vec[0] << " " << vec[1] << " " << vec[2] << " "<< angle << std::endl;
-            hAngle->Fill(angle);
+            hAngle->fill(angle);
 
             //energy
             double energy = step->GetPostStepPoint()->GetKineticEnergy() / keV;
-            hEnergy->Fill(energy);
+            hEnergy->fill(energy);
 
             //stop tracking?
             if (bStopTracking)

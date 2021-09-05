@@ -2,6 +2,7 @@
 #define AHISTOGRAM_H
 
 #include <vector>
+#include <tuple>
 
 class AHistogram1D
 {
@@ -11,7 +12,7 @@ public:
 
     void setBufferSize(size_t size) {BufferSize = size;}
 
-    void fill(double x, double val);
+    void fill(double x, double val = 1.0);
 
     int  getNumBins() const {return Bins;}
     void getLimits(double & from, double & to) const {from = From; to = To;}
@@ -56,7 +57,7 @@ public:
     AHistogram2D(int XBins, double XFrom, double XTo, int YBins, double YFrom, double YTo);
     void setBufferSize(size_t size) {bufferSize = size;}
 
-    void Fill(double x, double y, double val);
+    void fill(double x, double y, double val = 1.0);
 
     void getLimits(double & Xfrom, double & Xto, double & Yfrom, double & Yto) const {Xfrom = xfrom; Xto = xto; Yfrom = yfrom; Yto = yto;}
     const std::vector< std::vector<double> > & getContent(); //[y][x]; in each X: [0] - underflow, [1] - bin#0, ..., [bins] - bin#(bins-1), [bins+1] - overflow

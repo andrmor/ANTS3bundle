@@ -178,7 +178,7 @@ AHistogram2D::AHistogram2D(int XBins, double XFrom, double XTo, int YBins, doubl
     }
 }
 
-void AHistogram2D::Fill(double x, double y, double val)
+void AHistogram2D::fill(double x, double y, double val)
 {
     entries += 1.0;
 
