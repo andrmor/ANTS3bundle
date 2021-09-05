@@ -10,38 +10,6 @@
 #include <vector>
 
 class QJsonObject;
-class ASourceParticleGenerator;
-
-// TODO !!!*** error handling
-
-class ASourceGenSettings
-{
-public:
-    enum EMultiMode {Constant = 0, Poisson = 1};
-
-    std::vector<AParticleSourceRecord> SourceData;
-
-    bool       MultiEnabled = false;
-    EMultiMode MultiMode    = Constant;
-    double     MultiNumber  = 1.0;
-
-    void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json); // Error handling !!!***
-
-    void   clear();
-
-    int    getNumSources() const;
-    double calculateTotalActivity() const;
-
-    std::string check() const;
-
-    void   append(AParticleSourceRecord & source);
-    bool   clone(int iSource);
-    //void   forget(AParticleSourceRecord * source);
-    bool   replace(int iSource, AParticleSourceRecord & source);
-    void   remove(int iSource);
-
-};
 
 struct AParticleInFileStatRecord
 {
@@ -129,6 +97,7 @@ public:
 
 // -------------- Main -------------
 
+#include "asourcegeneratorsettings.h"
 #include "ag4simulationsettings.h"
 
 class AParticleSimSettings
@@ -149,9 +118,9 @@ public:
     double  ClusterRadius   = 0.1;   // !!!*** to photon from depo settings
     double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
 
-    ASourceGenSettings SourceGenSettings;
-    AFileGenSettings   FileGenSettings;
-    AScriptGenSettings ScriptGenSettings;
+    ASourceGeneratorSettings SourceGenSettings;
+    AFileGenSettings         FileGenSettings;
+    AScriptGenSettings       ScriptGenSettings;
 
     AG4SimulationSettings G4Set;
     AParticleRunSettings  RunSet;

@@ -108,6 +108,7 @@ SOURCES += \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
+    particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
@@ -227,6 +228,7 @@ HEADERS += \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
+    particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \

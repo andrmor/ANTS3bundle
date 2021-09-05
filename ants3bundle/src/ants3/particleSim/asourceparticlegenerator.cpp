@@ -7,7 +7,7 @@
 #include <string>
 #include <cmath>
 
-ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGenSettings & settings) :
+ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGeneratorSettings & settings) :
     Settings(settings),
     RandomHub(ARandomHub::getInstance()){}
 
@@ -427,7 +427,7 @@ int ASourceParticleGenerator::selectNumberOfPrimaries() const
 {
     if (!Settings.MultiEnabled) return 1;
 
-    if (Settings.MultiMode == ASourceGenSettings::Constant)
+    if (Settings.MultiMode == ASourceGeneratorSettings::Constant)
         return std::round(Settings.MultiNumber);
 
     int num = RandomHub.poisson(Settings.MultiNumber);

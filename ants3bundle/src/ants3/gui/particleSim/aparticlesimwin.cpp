@@ -125,7 +125,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         guitools::message("Select a source to edit", this);
         return;
     }
-    ASourceGenSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
     const int numSources = SourceGenSettings.getNumSources();
     if (isource >= numSources)
     {
@@ -177,7 +177,7 @@ void AParticleSimWin::on_pbAddSource_clicked()
 {
     AParticleSourceRecord s;
     s.Particles.push_back(AGunParticle());
-    SimSet.SourceGenSettings.append(s);
+    SimSet.SourceGenSettings.SourceData.push_back(s);
 
 //    on_pbUpdateSimConfig_clicked();
     updateSourceList();
@@ -238,7 +238,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
 
 void AParticleSimWin::updateSourceList()
 {
-    ASourceGenSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
     const int numSources = SourceGenSettings.getNumSources();
 
     int curRow = ui->lwDefinedParticleSources->currentRow();

@@ -14,6 +14,9 @@ DESTDIR = ../../bin
 
 INCLUDEPATH += include
 
+DEFINES += GEANT4
+DEFINES += JSON11
+
 SOURCES += \
         main.cpp \
         src/ActionInitialization.cc \
@@ -27,7 +30,8 @@ SOURCES += \
         src/SteppingAction.cc \
         src/TrackingAction.cc \
         src/ahistogram.cc \
-        src/json11.cc
+        src/json11.cc \
+        src/js11tools.cc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -46,4 +50,5 @@ HEADERS += \
     include/SteppingAction.hh \
     include/TrackingAction.hh \
     include/ahistogram.hh \
-    include/json11.hh
+    include/json11.hh \
+    include/js11tools.hh

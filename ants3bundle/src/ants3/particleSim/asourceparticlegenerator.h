@@ -7,7 +7,7 @@
 
 #include <vector>
 
-class  ASourceGenSettings;
+class  ASourceGeneratorSettings;
 struct AParticleSourceRecord;
 class  ARandomHub;
 
@@ -24,13 +24,13 @@ public:
 class ASourceParticleGenerator : public AParticleGun
 {
 public:
-    ASourceParticleGenerator(const ASourceGenSettings & settings);
+    ASourceParticleGenerator(const ASourceGeneratorSettings & settings);
 
     bool init() override; // !!! has to be called before the first use of GenerateEvent()!
     bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
 
 private:
-    const ASourceGenSettings & Settings;
+    const ASourceGeneratorSettings & Settings;
     ARandomHub               & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
