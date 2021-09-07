@@ -350,7 +350,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
     font.setBold(true);
     ui->pbAbort->setFont(font);
 
-    SimSet.FileGenSettings.ValidationMode = AFileGenSettings::Relaxed;
+    SimSet.FileGenSettings.ValidationMode = AFileGeneratorSettings::Relaxed;
     testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
 
     ui->pbAbort->setEnabled(false);

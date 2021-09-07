@@ -26,7 +26,7 @@ void AParticleSimSettings::clearSettings()
     RunSet.clear();
 }
 
-void AParticleSimSettings::writeToJson(QJsonObject & json) const
+void AParticleSimSettings::writeToJson(QJsonObject & json, bool minimal) const
 {
     //Run settings -> modified by the simulation manager for each process!
     {
@@ -60,19 +60,21 @@ void AParticleSimSettings::writeToJson(QJsonObject & json) const
     json["ClusterMergeRadius"] = ClusterRadius;
     json["ClusterMergeTime"] = ClusterTime;
 
-
+    if (!minimal || GenerationMode == Sources)
     {
         QJsonObject js;
             SourceGenSettings.writeToJson(js);
         json["GenerationFromSources"] = js;
     }
 
+    if (!minimal || GenerationMode == File)
     {
         QJsonObject js;
             FileGenSettings.writeToJson(js);
         json["GenerationFromFile"] = js;
     }
 
+    if (!minimal || GenerationMode == Script)
     {
         QJsonObject js;
             ScriptGenSettings.writeToJson(js);
@@ -154,171 +156,6 @@ void AScriptGenSettings::readFromJson(const QJsonObject & json)
 void AScriptGenSettings::clear()
 {
     Script.clear();
-}
-
-bool AFileGenSettings::isValidated() const
-{
-    if (FileFormat == Undefined || FileFormat == BadFormat) return false;
-
-    switch (ValidationMode)
-    {
-    case None:
-        return false;
-    case Relaxed:
-        break;         // not enforcing anything
-    case Strict:
-    {
-//        if (LastValidationMode != Strict) return false;
-//        QSet<QString> ValidatedList = QSet<QString>::fromList(ValidatedWithParticles);
-//        AMaterialParticleCollection * MpCollection = AGlobalSettings::getInstance().getMpCollection();
-//        QSet<QString> CurrentList = QSet<QString>::fromList(MpCollection->getListOfParticleNames());
-//        if ( !CurrentList.contains(ValidatedList) ) return false;
-        break;
-    }
-    default: qWarning() << "Unknown validation mode!";
-    }
-
-    QFileInfo fi(FileName);
-    if (!fi.exists()) return false;
-    if (FileLastModified != fi.lastModified()) return false;
-
-    return true;
-}
-
-void AFileGenSettings::invalidateFile()
-{
-    FileFormat         = Undefined;
-    NumEventsInFile    = 0;
-    ValidationMode     = None;
-    LastValidationMode = None;
-    FileLastModified   = QDateTime();
-    ValidatedWithParticles.clear();
-    clearStatistics();
-}
-
-QString AFileGenSettings::getFormatName() const
-{
-    switch (FileFormat)
-    {
-    case Simplistic: return "Simplistic";
-    case G4Binary:   return "G4-binary";
-    case G4Ascii:    return "G4-txt";
-    case Undefined:  return "?";
-    case BadFormat:  return "Invalid";
-    default:         return "Error";
-    }
-}
-
-bool AFileGenSettings::isFormatG4() const
-{
-    return (FileFormat == G4Ascii || FileFormat == G4Binary);
-}
-
-bool AFileGenSettings::isFormatBinary() const
-{
-    return (FileFormat == G4Binary);
-}
-
-void AFileGenSettings::writeToJson(QJsonObject &json) const
-{
-    json["FileName"]         = FileName;
-    json["FileFormat"]       = FileFormat; //static_cast<int>(FileFormat);
-    json["NumEventsInFile"]  = NumEventsInFile;
-    json["LastValidation"]   = LastValidationMode; //static_cast<int>(LastValidationMode);
-    json["FileLastModified"] = FileLastModified.toMSecsSinceEpoch();
-
-    QJsonArray ar; ar.fromStringList(ValidatedWithParticles);
-    json["ValidatedWithParticles"] = ar;
-}
-
-void AFileGenSettings::readFromJson(const QJsonObject & json)
-{
-    clear();
-
-    jstools::parseJson(json, "FileName", FileName);
-
-    FileFormat = Undefined;
-    if (json.contains("FileFormat"))
-    {
-        int im;
-        jstools::parseJson(json, "FileFormat", im);
-        if (im >= 0 && im < 5)
-            FileFormat = static_cast<FileFormatEnum>(im);
-    }
-
-    jstools::parseJson(json, "NumEventsInFile", NumEventsInFile);
-
-    int iVal = static_cast<int>(None);
-    jstools::parseJson(json, "LastValidation", iVal);
-    LastValidationMode = static_cast<ValidStateEnum>(iVal);
-    ValidationMode = LastValidationMode;
-
-    qint64 lastMod;
-    jstools::parseJson(json, "FileLastModified", lastMod);
-    FileLastModified = QDateTime::fromMSecsSinceEpoch(lastMod);
-
-    QJsonArray ar;
-    jstools::parseJson(json, "ValidatedWithParticles", ar);
-    ValidatedWithParticles.clear();
-    for (int i=0; i<ar.size(); i++) ValidatedWithParticles << ar.at(i).toString();
-}
-
-void AFileGenSettings::clear()
-{
-    FileName.clear();
-    FileFormat         = Undefined;
-    NumEventsInFile    = 0;
-    ValidationMode     = None;
-    LastValidationMode = None;
-    FileLastModified   = QDateTime();
-    ValidatedWithParticles.clear();
-
-    clearStatistics();
-}
-
-void AFileGenSettings::clearStatistics()
-{
-    NumEventsInFile          = 0;
-    statNumEmptyEventsInFile = 0;
-    statNumMultipleEvents    = 0;
-
-    ParticleStat.clear();
-}
-
-// ---
-
-void AParticleRunSettings::writeToJson(QJsonObject &json) const
-{
-    json["Seed"]                 = Seed;
-
-    json["EventFrom"]            = EventFrom;
-    json["EventTo"]              = EventTo;
-
-    json["OutputDirectory"]      = OutputDirectory;
-
-    json["AsciiOutput"]          = AsciiOutput;
-    json["AsciiPrecision"]       = AsciiPrecision;
-
-    json["SaveTrackingData"]     = SaveTrackingData;
-    json["FileNameTrackingData"] = FileNameTrackingData;
-}
-
-void AParticleRunSettings::readFromJson(const QJsonObject &json)
-{
-    clear();
-
-    jstools::parseJson(json, "Seed",                 Seed);
-
-    jstools::parseJson(json, "EventFrom",            EventFrom);
-    jstools::parseJson(json, "EventTo",              EventTo);
-
-    jstools::parseJson(json, "OutputDirectory",      OutputDirectory);
-
-    jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
-    jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);
-
-    jstools::parseJson(json, "SaveTrackingData",     SaveTrackingData);
-    jstools::parseJson(json, "FileNameTrackingData", FileNameTrackingData);
 }
 
 void AParticleRunSettings::clear()

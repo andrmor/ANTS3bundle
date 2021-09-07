@@ -102,8 +102,10 @@ SOURCES += \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
     js/aphotonsimsi.cpp \
+    particleSim/afilegeneratorsettings.cpp \
     particleSim/ag4simulationsettings.cpp \
     particleSim/aparticlerecord.cpp \
+    particleSim/aparticlerunsettings.cpp \
     particleSim/aparticlesimhub.cpp \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
@@ -221,9 +223,11 @@ HEADERS += \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
     js/aphotonsimsi.h \
+    particleSim/afilegeneratorsettings.h \
     particleSim/ag4simulationsettings.h \
     particleSim/aparticlegun.h \
     particleSim/aparticlerecord.h \
+    particleSim/aparticlerunsettings.h \
     particleSim/aparticlesimhub.h \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
