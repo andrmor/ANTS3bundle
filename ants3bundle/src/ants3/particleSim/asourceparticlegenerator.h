@@ -10,6 +10,8 @@
 class  ASourceGeneratorSettings;
 struct AParticleSourceRecord;
 class  ARandomHub;
+class  G4Navigator;
+class  G4Material;
 
 class ALinkedParticle
 {
@@ -31,7 +33,7 @@ public:
 
 private:
     const ASourceGeneratorSettings & Settings;
-    ARandomHub               & RandomHub;
+    ARandomHub & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
     std::vector< std::vector< std::vector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
@@ -42,7 +44,12 @@ private:
     std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
-    std::vector<int>      LimitedToMat;
+#ifdef GEANT4
+    G4Navigator * Navigator = nullptr;
+    std::vector<G4Material*> LimitedToMat;
+#else
+    std::vector<int>         LimitedToMat;
+#endif
 
     void   updateLimitedToMat();  // !!!*** implementation for Geant4
 
@@ -53,6 +60,7 @@ private:
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
     void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
+
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

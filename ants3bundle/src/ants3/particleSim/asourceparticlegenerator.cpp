@@ -2,10 +2,21 @@
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
 #include "aparticlesourcerecord.h"
-#include "arandomhub.h"
 
 #include <string>
 #include <cmath>
+
+#ifdef GEANT4
+    #include "G4VPhysicalVolume.hh"
+    #include "G4LogicalVolume.hh"
+    #include "G4Navigator.hh"
+    #include "arandomg4hub.h"
+    //#include "G4ParticleDefinition.hh"
+#else
+    #include "TGeoManager.h"
+    #include "amaterialhub.h"
+    #include "arandomhub.h"
+#endif
 
 ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGeneratorSettings & settings) :
     Settings(settings),
@@ -109,41 +120,43 @@ int ASourceParticleGenerator::selectSource() const
     return iSource;
 }
 
-#ifdef GEANT4
-
-#else
-    #include "TGeoManager.h"
-#endif
 bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 {
     const AParticleSourceRecord & Source = Settings.SourceData[iSource];
-
-    if (LimitedToMat[iSource] < 0) doGeneratePosition(Source, R);
-    else
-    {
-        int attempts = 10000;
+    int attempts = 10000;
 
 #ifdef GEANT4
-        // !!!***
-#else
-        TGeoNode * node = nullptr;
-#endif
-
+    if (!LimitedToMat[iSource]) doGeneratePosition(Source, R);
+    else
+    {
         do
         {
             if (AbortRequested) return false;
-            if (attempts-- == 0) return false;
             doGeneratePosition(Source, R);
 
-#ifdef GEANT4
-            // !!!***
-#else
-            node = gGeoManager->FindNode(R[0], R[1], R[2]);
-            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[iSource]) break;
-#endif
+            G4VPhysicalVolume * vol = Navigator->LocateGlobalPointAndSetup({R[0], R[1], R[2]});
+            if (vol && vol->GetLogicalVolume())
+                if (vol->GetLogicalVolume()->GetMaterial() == LimitedToMat[iSource])
+                    break;
         }
         while (attempts-- != 0);
     }
+#else
+    if (LimitedToMat[iSource] < 0) doGeneratePosition(Source, R);
+    else
+    {
+        do
+        {
+            if (AbortRequested) return false;
+            doGeneratePosition(Source, R);
+
+            TGeoNode * node = gGeoManager->FindNode(R[0], R[1], R[2]);
+            if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[iSource]) break;
+        }
+        while (attempts-- != 0);
+    }
+#endif
+
     return true;
 }
 
@@ -408,17 +421,28 @@ void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, dou
     generatedParticles.push_back(particle);
 }
 
-#ifdef GEANT4
-void ASourceParticleGenerator::updateLimitedToMat()
-{
-    // TODO!!!  !!!***
-}
-#else
-#include "amaterialhub.h"
 void ASourceParticleGenerator::updateLimitedToMat()
 {
     LimitedToMat.clear();
 
+#ifdef GEANT4
+    Navigator = new G4Navigator();
+//    SessionManager & SM = SessionManager::getInstance();
+//    Navigator->SetWorldVolume(SM.physWorld);
+
+    for (const AParticleSourceRecord & source : Settings.SourceData)
+    {
+        G4Material * mat = nullptr;
+
+        if (source.MaterialLimited)
+        {
+//            G4NistManager * man = G4NistManager::Instance();
+//            SourceMat = man->FindMaterial(source.LimtedToMatName);
+        }
+
+        LimitedToMat.push_back(mat);
+    }
+#else
     const QStringList mats = AMaterialHub::getConstInstance().getListOfMaterialNames();
 
     for (const AParticleSourceRecord & source : Settings.SourceData)
@@ -442,9 +466,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
         LimitedToMat.push_back(matIndex);
     }
-}
 #endif
-
+}
 
 int ASourceParticleGenerator::selectNumberOfPrimaries() const
 {

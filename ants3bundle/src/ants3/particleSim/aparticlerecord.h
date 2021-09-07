@@ -3,6 +3,8 @@
 
 #include <string>
 
+class G4ParticleDefinition;
+
 class AParticleRecord
 {
 public:
@@ -21,6 +23,9 @@ public:
     double      energy;   // keV
 
     void ensureUnitaryLength();
+
+    // run-time
+    G4ParticleDefinition * DefinitionG4 = nullptr;
 };
 
 #endif // APARTICLERECORD_H
