@@ -23,7 +23,7 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
 #endif
 
 #ifdef JSON11
-void readFromJson(const json11::Json::object & json);
+void AParticleRunSettings::readFromJson(const json11::Json::object & json)
 #else
 void AParticleRunSettings::readFromJson(const QJsonObject & json)
 #endif
@@ -42,4 +42,15 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveTrackingData",     SaveTrackingData);
     jstools::parseJson(json, "FileNameTrackingData", FileNameTrackingData);
+}
+
+void AParticleRunSettings::clear()
+{
+    AsciiOutput    = true;
+    AsciiPrecision = 6;
+
+    OutputDirectory.clear();
+
+    SaveTrackingData = true;
+    FileNameTrackingData = "TrackingData.txt";
 }

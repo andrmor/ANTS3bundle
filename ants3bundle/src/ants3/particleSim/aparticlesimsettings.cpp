@@ -157,14 +157,3 @@ void AScriptGenSettings::clear()
 {
     Script.clear();
 }
-
-void AParticleRunSettings::clear()
-{
-    AsciiOutput    = true;
-    AsciiPrecision = 6;
-
-    OutputDirectory.clear();
-
-    SaveTrackingData = true;
-    FileNameTrackingData = "TrackingData.txt";
-}

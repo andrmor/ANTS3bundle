@@ -44,16 +44,16 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
     jstools::parseJson(json, "UseTSphys",   UseTSphys);
 
 #ifdef JSON11
-    // ...
+    json11::Json::array arSV;
 #else
     QJsonArray arSV;
 #endif
     jstools::parseJson(json, "SensitiveVolumes", arSV);
-    for (int i=0; i<arSV.size(); i++)
+    for (int i = 0; i < (int)arSV.size(); i++)
     {
         std::string sv;
 #ifdef JSON11
-        //...
+        sv = arSV[i].string_value();
 #else
         sv = arSV.at(i).toString().toLatin1().data();
 #endif
@@ -61,16 +61,16 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
     }
 
 #ifdef JSON11
-        //...
+    json11::Json::array arC;
 #else
     QJsonArray arC;
 #endif
     jstools::parseJson(json, "Commands", arC);
-    for (int i=0; i<arC.size(); i++)
+    for (int i = 0; i < (int)arC.size(); i++)
     {
         std::string com;
 #ifdef JSON11
-        //...
+        com = arC[i].string_value();
 #else
         com = arC.at(i).toString().toLatin1().data();
 #endif
@@ -78,21 +78,28 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
     }
 
 #ifdef JSON11
-        //...
+    json11::Json::array arSL;
 #else
     QJsonArray arSL;
 #endif
     jstools::parseJson(json, "StepLimits", arSL);
-    for (int i=0; i<arSL.size(); i++)
+    for (int i = 0; i < (int)arSL.size(); i++)
     {
 #ifdef JSON11
-        //...
+        json11::Json::array el = arSL[i].array_items();
+        if (el.size() > 1)
+        {
+            const std::string vol = el[0].string_value();
+            const double step = el[1].number_value();
+            StepLimits[vol] = step;
+        }
+
 #else
         QJsonArray el = arSL[i].toArray();
         if (el.size() > 1)
         {
-            QString vol = el[0].toString();
-            double step = el[1].toDouble();
+            const QString vol = el[0].toString();
+            const double step = el[1].toDouble();
             StepLimits[vol.toLatin1().data()] = step;
         }
 #endif
