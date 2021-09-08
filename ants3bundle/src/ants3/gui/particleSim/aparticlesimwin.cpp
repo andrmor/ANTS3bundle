@@ -49,15 +49,17 @@ void AParticleSimWin::updateG4Gui()
     ui->lePhysicsList->setText(G4SimSet.PhysicsList.data());
     ui->cobRefPhysLists->setCurrentIndex(-1);
 
-    for (auto& s : G4SimSet.Commands)
+    ui->pteCommands->clear();
+    for (const auto & s : G4SimSet.Commands)
         ui->pteCommands->appendPlainText(s.data());
 
-    for (auto& s : G4SimSet.SensitiveVolumes)
+    ui->pteSensitiveVolumes->clear();
+    for (const auto & s : G4SimSet.SensitiveVolumes)
         ui->pteSensitiveVolumes->appendPlainText(s.data());
 
-    ui->pteStepLimits->clear();   // !!!*** redo
-    for (auto & key : G4SimSet.StepLimits.keys())
-        ui->pteStepLimits->appendPlainText( QString("%1 %2").arg(key).arg(G4SimSet.StepLimits.value(key)) );
+    ui->pteStepLimits->clear();
+    for (const auto & it : G4SimSet.StepLimits)
+        ui->pteStepLimits->appendPlainText( QString("%1 %2").arg(it.first.data(), it.second) );
 
     ui->cbUseTSphys->setChecked(G4SimSet.UseTSphys);
 }
@@ -115,7 +117,7 @@ void AParticleSimWin::on_pteStepLimits_textChanged()
             guitools::message("Bad format of step limits: failed to convert to double value: " + f[1]);
             return;
         }
-        G4SimSet.StepLimits[vol] = step;
+        G4SimSet.StepLimits[vol.toLatin1().data()] = step;
     }
 }
 

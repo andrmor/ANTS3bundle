@@ -254,10 +254,10 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     json["GDML"] = RunSet.getGdmlFileName();
 
     QJsonArray arSL;
-    for (auto & key : G4SimSet.StepLimits.keys())
+    for (const auto & it : G4SimSet.StepLimits)
     {
         QJsonArray el;
-        el << key << G4SimSet.StepLimits.value(key);
+            el << QString(it.first.data()) << it.second;
         arSL.push_back(el);
     }
     json["StepLimits"] = arSL;
