@@ -5,16 +5,17 @@
 #include <QStringList>
 #include <QMap>
 
+#include <string>
+#include <vector>
+
 class QJsonObject;
 
 class AG4SimulationSettings
 {
 public:
-    AG4SimulationSettings();
-
-    QString               PhysicsList = "QGSP_BERT_HP";
-    QStringList           SensitiveVolumes;
-    QStringList           Commands = QStringList({"/run/setCut 0.7 mm"});
+    std::string              PhysicsList = "QGSP_BERT_HP";
+    std::vector<std::string> SensitiveVolumes;
+    std::vector<std::string> Commands = {"/run/setCut 0.7 mm"};
     QMap<QString, double> StepLimits;
 
     bool                  UseTSphys = false;

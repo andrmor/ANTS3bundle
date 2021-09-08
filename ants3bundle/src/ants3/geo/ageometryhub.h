@@ -4,6 +4,7 @@
 #include <QString>
 
 #include <vector>
+#include <string>
 
 class AGeoObject;
 class TGeoManager;
@@ -83,7 +84,7 @@ public:
     void         setWorldSizeZ(double size);
 
     int          checkGeometryForConflicts();
-    QString      checkVolumesExist(const QStringList & VolumesAndWildcards) const;
+    QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
     QString      exportToGDML(const QString & fileName) const;
     QString      exportToROOT(const QString & fileName) const;

@@ -46,14 +46,14 @@ void AParticleSimWin::updateSimGui()
 
 void AParticleSimWin::updateG4Gui()
 {
-    ui->lePhysicsList->setText(G4SimSet.PhysicsList);
+    ui->lePhysicsList->setText(G4SimSet.PhysicsList.data());
     ui->cobRefPhysLists->setCurrentIndex(-1);
 
     for (auto& s : G4SimSet.Commands)
-        ui->pteCommands->appendPlainText(s);
+        ui->pteCommands->appendPlainText(s.data());
 
     for (auto& s : G4SimSet.SensitiveVolumes)
-        ui->pteSensitiveVolumes->appendPlainText(s);
+        ui->pteSensitiveVolumes->appendPlainText(s.data());
 
     ui->pteStepLimits->clear();   // !!!*** redo
     for (auto & key : G4SimSet.StepLimits.keys())
@@ -66,7 +66,7 @@ void AParticleSimWin::updateG4Gui()
 
 void AParticleSimWin::on_lePhysicsList_editingFinished()
 {
-    G4SimSet.PhysicsList = ui->lePhysicsList->text();
+    G4SimSet.PhysicsList = ui->lePhysicsList->text().toLatin1().data();
 }
 void AParticleSimWin::on_cobRefPhysLists_activated(int index)
 {
@@ -80,13 +80,17 @@ void AParticleSimWin::on_cbUseTSphys_clicked(bool checked)
 void AParticleSimWin::on_pteCommands_textChanged()
 {
     const QString t = ui->pteCommands->document()->toPlainText();
-    G4SimSet.Commands = t.split('\n', Qt::SkipEmptyParts);
+    const QStringList sl = t.split('\n', Qt::SkipEmptyParts);
+    G4SimSet.Commands.clear();
+    for (auto & s : sl) G4SimSet.Commands.push_back(s.toLatin1().data());
 }
 void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
 {
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\n|\\t)"); //separators: ' ' or ',' or 'n' or '\t'
     QString t = ui->pteSensitiveVolumes->document()->toPlainText();
-    G4SimSet.SensitiveVolumes = t.split(rx, Qt::SkipEmptyParts);
+    const QStringList sl = t.split(rx, Qt::SkipEmptyParts);
+    G4SimSet.SensitiveVolumes.clear();
+    for (auto & s : sl) G4SimSet.SensitiveVolumes.push_back(s.toLatin1().data());
 }
 void AParticleSimWin::on_pteStepLimits_textChanged()
 {

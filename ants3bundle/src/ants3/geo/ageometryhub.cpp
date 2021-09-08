@@ -1315,17 +1315,17 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
     return "";
 }
 
-QString AGeometryHub::checkVolumesExist(const QStringList & VolumesAndWildcards) const
+QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const
 {
-    if (VolumesAndWildcards.isEmpty()) return ""; //can be empty
+    if (VolumesAndWildcards.empty()) return ""; //can be empty
 
     QStringList NotFoundVolumes;
     TObjArray * va = GeoManager->GetListOfVolumes();
     const int numVol = va->GetEntries();
 
-    for (const QString & vw : VolumesAndWildcards)
+    for (const std::string & vw : VolumesAndWildcards)
     {
-        QString s = vw;
+        QString s(vw.data());
 
         bool bWild = false;
         if (s.endsWith('*'))

@@ -8,23 +8,18 @@
 #include <QFileInfo>
 #include <QDebug>
 
-AG4SimulationSettings::AG4SimulationSettings()
-{
-    Commands = QStringList();
-}
-
 void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 {
-    json["PhysicsList"] = PhysicsList;
+    json["PhysicsList"] = QString(PhysicsList.data());
 
     QJsonArray arSV;
     for (auto & v : SensitiveVolumes)
-        arSV.append(v);
+        arSV.push_back(QString(v.data()));
     json["SensitiveVolumes"] = arSV;
 
     QJsonArray arC;
     for (auto & c : Commands)
-        arC.append(c);
+        arC.push_back(QString(c.data()));
     json["Commands"] = arC;
 
     QJsonArray arSL;
@@ -49,13 +44,13 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
     SensitiveVolumes.clear();
     jstools::parseJson(json, "SensitiveVolumes", arSV);
     for (int i=0; i<arSV.size(); i++)
-        SensitiveVolumes << arSV.at(i).toString();
+        SensitiveVolumes.push_back( arSV.at(i).toString().toLatin1().data() );
 
     QJsonArray arC;
     Commands.clear();
     jstools::parseJson(json, "Commands", arC);
     for (int i=0; i<arC.size(); i++)
-        Commands << arC.at(i).toString();
+        Commands.push_back( arC.at(i).toString().toLatin1().data() );
 
     QJsonArray arSL;
     StepLimits.clear();
@@ -78,7 +73,7 @@ void AG4SimulationSettings::clear()
 {
     PhysicsList = "QGSP_BERT_HP";
     SensitiveVolumes.clear();
-    Commands = QStringList({"/run/setCut 0.7 mm"});
+    Commands = {"/run/setCut 0.7 mm"};
     StepLimits.clear();
     UseTSphys = false;
 }

@@ -24,9 +24,6 @@ public:
     void clear();
 };
 
-// -------------- Main -------------
-
-
 class AParticleSimSettings
 {
 public:

@@ -224,26 +224,9 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
 
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
 
-    json["PhysicsList"] = G4SimSet.PhysicsList;
+    json["PhysicsList"] = G4SimSet.PhysicsList.data();
 
     json["LogHistory"] = RunSet.SaveTrackingData;
-
-/*
-    QJsonArray Parr;
-    const int numPart = MpCollection.countParticles();
-    for (int iP=0; iP<numPart; iP++)
-    {
-        const AParticle * part = MpCollection.getParticle(iP);
-        if (part->isIon())
-        {
-            QJsonArray ar;
-            ar << part->ParticleName << part->ionZ << part->ionA;
-            Parr << ar;
-        }
-        else Parr << part->ParticleName;
-    }
-    json["Particles"] = Parr;
-*/
 
     const QStringList Materials = MatHub.getListOfMaterialNames();
     QJsonArray Marr;
@@ -265,7 +248,7 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     json["ActivateThermalScattering"] = G4SimSet.UseTSphys;
 
     QJsonArray SVarr;
-    for (auto & v : G4SimSet.SensitiveVolumes ) SVarr << v;
+    for (auto & v : G4SimSet.SensitiveVolumes ) SVarr << v.data();
     json["SensitiveVolumes"] = SVarr;
 
     json["GDML"] = RunSet.getGdmlFileName();
@@ -280,7 +263,7 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     json["StepLimits"] = arSL;
 
     QJsonArray Carr;
-    for (auto & c : G4SimSet.Commands ) Carr << c;
+    for (auto & c : G4SimSet.Commands) Carr << c.data();
     json["Commands"] = Carr;
 
     json["GuiMode"] = false;
