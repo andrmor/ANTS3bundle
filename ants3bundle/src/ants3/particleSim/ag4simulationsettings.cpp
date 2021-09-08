@@ -1,11 +1,8 @@
 #include "ag4simulationsettings.h"
 
-#ifdef JSON11
-    #include "js11tools.hh"
-#else
-    #include "ajsontools.h"
+#ifndef JSON11
+#include "ajsontools.h"
 #endif
-
 
 #ifndef JSON11
 void AG4SimulationSettings::writeToJson(QJsonObject &json) const

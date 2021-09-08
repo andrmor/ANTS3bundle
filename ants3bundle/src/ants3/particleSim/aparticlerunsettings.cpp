@@ -1,7 +1,10 @@
 #include "aparticlerunsettings.h"
 
-#include "ajsontools.h"
+#ifndef JSON11
+    #include "ajsontools.h"
+#endif
 
+#ifndef JSON11
 void AParticleRunSettings::writeToJson(QJsonObject &json) const
 {
     json["Seed"]                 = Seed;
@@ -9,16 +12,21 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["EventFrom"]            = EventFrom;
     json["EventTo"]              = EventTo;
 
-    json["OutputDirectory"]      = OutputDirectory;
+    json["OutputDirectory"]      = QString(OutputDirectory.data());
 
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
 
     json["SaveTrackingData"]     = SaveTrackingData;
-    json["FileNameTrackingData"] = FileNameTrackingData;
+    json["FileNameTrackingData"] = QString(FileNameTrackingData.data());
 }
+#endif
 
-void AParticleRunSettings::readFromJson(const QJsonObject &json)
+#ifdef JSON11
+void readFromJson(const json11::Json::object & json);
+#else
+void AParticleRunSettings::readFromJson(const QJsonObject & json)
+#endif
 {
     clear();
 

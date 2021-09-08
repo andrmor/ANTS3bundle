@@ -1,9 +1,13 @@
 #ifndef APARTICLERUNSETTINGS_H
 #define APARTICLERUNSETTINGS_H
 
-#include <QString>
+#include <string>
 
-class QJsonObject;
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    class QJsonObject;
+#endif
 
 class AParticleRunSettings
 {
@@ -16,18 +20,19 @@ public:
     bool    AsciiOutput    = true;
     int     AsciiPrecision = 6;
 
-    QString OutputDirectory;
+    std::string OutputDirectory;
 
     bool    SaveTrackingData = true;
-    QString FileNameTrackingData = "TrackingData.txt";
+    std::string FileNameTrackingData = "TrackingData.txt";
 
+#ifdef JSON11
+    void readFromJson(const json11::Json::object & json);
+#else
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+#endif
 
     void clear();
-
-    QString getGdmlFileName() const {return "Detector.gdml";}
-    QString getPrimariesFileName(int index) const {return QString("primaries-%1.txt").arg(index); }
 };
 
 #endif // APARTICLERUNSETTINGS_H

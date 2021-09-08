@@ -5,7 +5,11 @@
 #include <vector>
 #include <map>
 
-class QJsonObject;
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    class QJsonObject;
+#endif
 
 class AG4SimulationSettings
 {

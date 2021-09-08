@@ -11,7 +11,7 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->leOutputDirectory->setText(RunSet.OutputDirectory);
+    ui->leOutputDirectory->setText(RunSet.OutputDirectory.data());
 
     ui->cobAsciiBinary->setCurrentIndex( RunSet.AsciiOutput ? 0 : 1);
     ui->sbAsciiPrecision->setValue(RunSet.AsciiPrecision);
@@ -24,13 +24,13 @@ AParticleSimOutputDialog::~AParticleSimOutputDialog()
 
 void AParticleSimOutputDialog::on_pbAccept_clicked()
 {
-    RunSet.OutputDirectory = ui->leOutputDirectory->text();
+    RunSet.OutputDirectory = ui->leOutputDirectory->text().toLatin1().data();
 
     RunSet.AsciiPrecision = ui->sbAsciiPrecision->value();
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
 
     RunSet.SaveTrackingData = ui->cbTrackingData->isChecked();
-    RunSet.FileNameTrackingData = ui->leTracks->text();
+    RunSet.FileNameTrackingData = ui->leTracks->text().toLatin1().data();
 
     accept();
 }
@@ -38,7 +38,7 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 void AParticleSimOutputDialog::on_pbChangeDir_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this, "Select output directory",
-                                                    RunSet.OutputDirectory,
+                                                    RunSet.OutputDirectory.data(),
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (!dir.isEmpty()) ui->leOutputDirectory->setText(dir);

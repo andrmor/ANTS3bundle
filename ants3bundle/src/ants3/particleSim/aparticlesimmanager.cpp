@@ -96,7 +96,8 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
     const QString ExchangeDir = A3Global::getConstInstance().ExchangeDir;
 
-    const QString LocalGdmlName = ExchangeDir + '/' +SimSet.RunSet.getGdmlFileName();
+    const QString GdmlName = "Detector.gdml";
+    const QString LocalGdmlName = ExchangeDir + "/" + GdmlName;
     QString err = Geometry.exportToGDML(LocalGdmlName);
     if (!err.isEmpty())
     {
@@ -251,7 +252,7 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     for (auto & v : G4SimSet.SensitiveVolumes ) SVarr << v.data();
     json["SensitiveVolumes"] = SVarr;
 
-    json["GDML"] = RunSet.getGdmlFileName();
+//    json["GDML"] = RunSet.getGdmlFileName();
 
     QJsonArray arSL;
     for (const auto & it : G4SimSet.StepLimits)
@@ -282,7 +283,7 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     json["Primaries_G4ants"] = bG4Primaries;
     json["Primaries_Binary"] = bBinaryPrimaries;
 
-    QString primFN = RunSet.getPrimariesFileName(ThreadIndex);
+    QString primFN = QString("primaries-%1.txt").arg(ThreadIndex);
     json["File_Primaries"] = primFN;
 //    removeOldFile(primFN, "primaries");
 
@@ -360,8 +361,8 @@ void AParticleSimManager::addErrorLine(const QString &error)
 #include <QDir>
 void AParticleSimManager::checkDirectories()
 {
-    if (SimSet.RunSet.OutputDirectory.isEmpty())       addErrorLine("Output directory is not set!");
-    if (!QDir(SimSet.RunSet.OutputDirectory).exists()) addErrorLine("Output directory does not exist!");
+    if (SimSet.RunSet.OutputDirectory.empty())                addErrorLine("Output directory is not set!");
+    if (!QDir(SimSet.RunSet.OutputDirectory.data()).exists()) addErrorLine("Output directory does not exist!");
 
     addErrorLine(A3Global::getInstance().checkExchangeDir());
 }
