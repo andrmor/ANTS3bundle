@@ -17,8 +17,12 @@ public:
 
     std::map<std::string, double> StepLimits;
 
+#ifdef JSON11
+    void readFromJson(const json11::Json::object & json);
+#else
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+#endif
 
     void clear();
 };

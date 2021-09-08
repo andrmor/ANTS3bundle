@@ -1,6 +1,13 @@
 #include "ag4simulationsettings.h"
-#include "ajsontools.h"
 
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    #include "ajsontools.h"
+#endif
+
+
+#ifndef JSON11
 void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 {
     json["PhysicsList"] = QString(PhysicsList.data());
@@ -26,30 +33,64 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 
     json["UseTSphys"]     = UseTSphys;
 }
+#endif
 
+#ifdef JSON11
+void AG4SimulationSettings::readFromJson(const json11::Json::object & json)
+#else
 void AG4SimulationSettings::readFromJson(const QJsonObject &json)
+#endif
 {
     clear();
 
     jstools::parseJson(json, "PhysicsList", PhysicsList);
+    jstools::parseJson(json, "UseTSphys",   UseTSphys);
 
+#ifdef JSON11
+    // ...
+#else
     QJsonArray arSV;
-    SensitiveVolumes.clear();
+#endif
     jstools::parseJson(json, "SensitiveVolumes", arSV);
     for (int i=0; i<arSV.size(); i++)
-        SensitiveVolumes.push_back( arSV.at(i).toString().toLatin1().data() );
+    {
+        std::string sv;
+#ifdef JSON11
+        //...
+#else
+        sv = arSV.at(i).toString().toLatin1().data();
+#endif
+        SensitiveVolumes.push_back(sv);
+    }
 
+#ifdef JSON11
+        //...
+#else
     QJsonArray arC;
-    Commands.clear();
+#endif
     jstools::parseJson(json, "Commands", arC);
     for (int i=0; i<arC.size(); i++)
-        Commands.push_back( arC.at(i).toString().toLatin1().data() );
+    {
+        std::string com;
+#ifdef JSON11
+        //...
+#else
+        com = arC.at(i).toString().toLatin1().data();
+#endif
+        Commands.push_back(com);
+    }
 
+#ifdef JSON11
+        //...
+#else
     QJsonArray arSL;
-    StepLimits.clear();
+#endif
     jstools::parseJson(json, "StepLimits", arSL);
     for (int i=0; i<arSL.size(); i++)
     {
+#ifdef JSON11
+        //...
+#else
         QJsonArray el = arSL[i].toArray();
         if (el.size() > 1)
         {
@@ -57,16 +98,15 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
             double step = el[1].toDouble();
             StepLimits[vol.toLatin1().data()] = step;
         }
+#endif
     }
-
-    jstools::parseJson(json, "UseTSphys", UseTSphys);
 }
 
 void AG4SimulationSettings::clear()
 {
     PhysicsList = "QGSP_BERT_HP";
-    SensitiveVolumes.clear();
-    Commands = {"/run/setCut 0.7 mm"};
-    StepLimits.clear();
     UseTSphys = false;
+    Commands = {"/run/setCut 0.7 mm"};
+    SensitiveVolumes.clear();
+    StepLimits.clear();
 }
