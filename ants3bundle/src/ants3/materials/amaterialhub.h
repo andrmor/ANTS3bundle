@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include <vector>
+#include <string>
 
 class ATracerStateful;
 class AGeoObject;
@@ -56,6 +57,7 @@ public:
     int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;
     QStringList getListOfMaterialNames() const;
+    std::vector<std::string> getMaterialNames() const;
     double  getDriftSpeed(int iMat) const; //returns in mm / ns
     double  getDiffusionSigmaTime(int iMat, double length_mm) const;
     double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;

@@ -43,7 +43,7 @@ private:
     void checkDirectories();
     void checkG4Settings();
     bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
-    void generateG4antsConfigCommon(const AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
+    void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
 };
 
 #endif // APARTICLESIMMANAGER_H

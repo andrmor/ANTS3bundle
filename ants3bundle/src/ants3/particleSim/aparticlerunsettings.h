@@ -2,6 +2,7 @@
 #define APARTICLERUNSETTINGS_H
 
 #include <string>
+#include <vector>
 
 #ifdef JSON11
     #include "js11tools.hh"
@@ -19,6 +20,8 @@ public:
 
     bool    AsciiOutput    = true;
     int     AsciiPrecision = 6;
+
+    std::vector<std::string> Materials;
 
     std::string OutputDirectory;
 

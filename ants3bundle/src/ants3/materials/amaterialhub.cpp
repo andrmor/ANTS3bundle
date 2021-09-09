@@ -85,6 +85,13 @@ QStringList AMaterialHub::getListOfMaterialNames() const
     return l;
 }
 
+std::vector<std::string> AMaterialHub::getMaterialNames() const
+{
+    std::vector<std::string> v;
+    for (AMaterial * m : Materials) v.push_back(m->name.toLatin1().data());
+    return v;
+}
+
 void AMaterialHub::generateGeoMedia()
 {
     for (size_t iMat = 0; iMat < Materials.size(); iMat++)

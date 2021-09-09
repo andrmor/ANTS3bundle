@@ -12,6 +12,10 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["EventFrom"]            = EventFrom;
     json["EventTo"]              = EventTo;
 
+    QJsonArray matAr;
+        for (const auto & mat : Materials) matAr.push_back(mat.data());
+    json["Materials"]            = matAr;
+
     json["OutputDirectory"]      = QString(OutputDirectory.data());
 
     json["AsciiOutput"]          = AsciiOutput;
@@ -35,6 +39,12 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EventFrom",            EventFrom);
     jstools::parseJson(json, "EventTo",              EventTo);
 
+#ifdef JSON11 // runtime only!
+    json11::Json::array arMat;
+    jstools::parseJson(json, "Materials", arMat);
+    for (size_t i = 0; i < arMat.size(); i++) Materials.push_back(arMat[i].string_value());
+#endif
+
     jstools::parseJson(json, "OutputDirectory",      OutputDirectory);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
@@ -48,6 +58,8 @@ void AParticleRunSettings::clear()
 {
     AsciiOutput    = true;
     AsciiPrecision = 6;
+
+    Materials.clear();
 
     OutputDirectory.clear();
 

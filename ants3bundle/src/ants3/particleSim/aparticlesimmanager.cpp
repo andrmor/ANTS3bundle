@@ -219,20 +219,12 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 }
 
 #include "ageoobject.h"
-void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json)
+void AParticleSimManager::generateG4antsConfigCommon(AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json)
 {
     const AG4SimulationSettings & G4SimSet = SimSet.G4Set;
 
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-
-    json["PhysicsList"] = G4SimSet.PhysicsList.data();
-
-    json["LogHistory"] = RunSet.SaveTrackingData;
-
-    const QStringList Materials = MatHub.getListOfMaterialNames();
-    QJsonArray Marr;
-    for (auto & mname : Materials ) Marr << mname;
-    json["Materials"] = Marr;
+    RunSet.Materials = MatHub.getMaterialNames();
 
     QJsonArray OverrideMats;
     for (int iMat = 0; iMat < MatHub.countMaterials(); iMat++)
@@ -246,46 +238,26 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
     }
     if (!OverrideMats.isEmpty()) json["MaterialsToRebuild"] = OverrideMats;
 
-    json["ActivateThermalScattering"] = G4SimSet.UseTSphys;
-
-    QJsonArray SVarr;
-    for (auto & v : G4SimSet.SensitiveVolumes ) SVarr << v.data();
-    json["SensitiveVolumes"] = SVarr;
-
 //    json["GDML"] = RunSet.getGdmlFileName();
 
-    QJsonArray arSL;
-    for (const auto & it : G4SimSet.StepLimits)
-    {
-        QJsonArray el;
-            el << QString(it.first.data()) << it.second;
-        arSL.push_back(el);
-    }
-    json["StepLimits"] = arSL;
-
-    QJsonArray Carr;
-    for (auto & c : G4SimSet.Commands) Carr << c.data();
-    json["Commands"] = Carr;
 
     json["GuiMode"] = false;
 
-    json["Seed"] = RunSet.Seed;
-
+/*
     bool bG4Primaries = false;
     bool bBinaryPrimaries = false;
-/*
     if (PartSimSet.GenerationMode == AParticleSimSettings::File)
     {
         bG4Primaries     = PartSimSet.FileGenSettings.isFormatG4();
         bBinaryPrimaries = PartSimSet.FileGenSettings.isFormatBinary();
     }
-*/
     json["Primaries_G4ants"] = bG4Primaries;
     json["Primaries_Binary"] = bBinaryPrimaries;
-
     QString primFN = QString("primaries-%1.txt").arg(ThreadIndex);
     json["File_Primaries"] = primFN;
 //    removeOldFile(primFN, "primaries");
+*/
+
 
 //    QString depoFN = G4SimSet.getDepositionFileName(ThreadIndex);
 //    json["File_Deposition"] = depoFN;
@@ -302,9 +274,6 @@ void AParticleSimManager::generateG4antsConfigCommon(const AParticleRunSettings 
 //    QString monFeedbackFN = G4SimSet.getMonitorDataFileName(ThreadIndex);
 //    json["File_Monitors"] = monFeedbackFN;
 //    removeOldFile(monFeedbackFN, "monitor data");
-
-    json["BinaryOutput"] = !RunSet.AsciiOutput;
-    json["Precision"]    = RunSet.AsciiPrecision;
 
 /*
     const ASaveParticlesToFileSettings & ExitSimSet = GenSimSettings.ExitParticleSettings;
