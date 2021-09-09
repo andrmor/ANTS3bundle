@@ -38,7 +38,7 @@ class SessionManager
         SessionManager(SessionManager const&) = delete;
         void operator=(SessionManager const&) = delete;
 
-        void ReadConfig(const std::string & ConfigFileName);
+        void ReadConfig(const std::string & ConfigFileName, const std::string & WorkingDir, int ID);
 
         void startSession();
         void terminateSession(const std::string & ReturnMessage); //calls exit()!

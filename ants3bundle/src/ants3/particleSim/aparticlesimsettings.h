@@ -2,17 +2,21 @@
 #define APARTICLEMODESETTINGS_H
 
 #include "aparticlesourcerecord.h"
-#include "afilegeneratorsettings.h"
+//#include "afilegeneratorsettings.h"
 #include "aparticlerunsettings.h"
 #include "asourcegeneratorsettings.h"
 #include "ag4simulationsettings.h"
 
-#include <QString>
-
 #include <vector>
+#include <string>
 
+#ifdef JSON11
+#include "js11tools.hh"
+#else
 class QJsonObject;
+#endif
 
+/*
 class AScriptGenSettings
 {
 public:
@@ -23,6 +27,7 @@ public:
 
     void clear();
 };
+*/
 
 class AParticleSimSettings
 {
@@ -35,7 +40,6 @@ public:
     bool    bDoS1           = true;  // !!!*** to run settings?
     bool    bDoS2           = false; // !!!*** to run settings?
 
-    bool    bIgnoreNoHits   = false; // !!!*** ?
     bool    bIgnoreNoDepo   = false; // !!!*** ?
 
     bool    bClusterMerge   = false; // !!!*** to photon from depo settings
@@ -43,14 +47,18 @@ public:
     double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
 
     ASourceGeneratorSettings SourceGenSettings;
-    AFileGeneratorSettings   FileGenSettings;
-    AScriptGenSettings       ScriptGenSettings;
+//    AFileGeneratorSettings   FileGenSettings;
+//    AScriptGenSettings       ScriptGenSettings;
 
     AG4SimulationSettings    G4Set;
     AParticleRunSettings     RunSet;
 
+#ifdef JSON11
+    void readFromJson(const json11::Json::object & json);
+#else
     void writeToJson(QJsonObject & json, bool minimal = false) const;
-    void readFromJson(const QJsonObject & json);
+    void readFromJson(const QJsonObject & json);  // !!!*** add error handling!
+#endif
 
     void clearSettings();
 };

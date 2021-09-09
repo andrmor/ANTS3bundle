@@ -34,6 +34,7 @@ public:
     std::vector<std::pair<std::string, std::string>> MaterialsFromNist;  // !!!*** G4settings? TODO: show list in the particle GUI
 
     std::string GDML;
+    std::string Receipt;
 
     bool GuiMode = false;
 

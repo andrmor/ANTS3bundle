@@ -22,6 +22,7 @@ DEFINES += JSON11
 SOURCES += \
         ../ants3/particleSim/ag4simulationsettings.cpp \
         ../ants3/particleSim/aparticlerunsettings.cpp \
+        ../ants3/particleSim/aparticlesimsettings.cpp \
         main.cpp \
         ../ants3/particleSim/aparticlesourcerecord.cpp \
         ../ants3/particleSim/aparticlerecord.cpp \
@@ -52,6 +53,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ../ants3/particleSim/ag4simulationsettings.h \
     ../ants3/particleSim/aparticlerunsettings.h \
+    ../ants3/particleSim/aparticlesimsettings.h \
     ../ants3/particleSim/aparticlesourcerecord.h \
     ../ants3/particleSim/aparticlerecord.h \
     ../ants3/particleSim/asourcegeneratorsettings.h \

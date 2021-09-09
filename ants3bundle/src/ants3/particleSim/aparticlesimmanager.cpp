@@ -170,6 +170,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
             WorkSet.RunSet.Seed = INT_MAX * RandomHub.uniform();
 
+            WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
 /*
             if (SimSet.RunSet.SaveSensorSignals)
             {

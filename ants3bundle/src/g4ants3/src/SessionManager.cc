@@ -12,6 +12,8 @@
 #include "G4UImanager.hh"
 #include "Randomize.hh"
 
+#include <QDebug> // !!!***
+
 SessionManager &SessionManager::getInstance()
 {
     static SessionManager instance; // Guaranteed to be destroyed, instantiated on first use.
@@ -703,10 +705,11 @@ void SessionManager::prepareMonitors()
     }
 }
 
-void SessionManager::ReadConfig(const std::string &ConfigFileName)
+#include "aparticlesimsettings.h"
+void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::string & WorkingDir, int ID)
 {
     //opening config file
-    std::ifstream in(ConfigFileName);
+    std::ifstream in(WorkingDir + "/" + ConfigFileName);
     std::stringstream sstr;
     sstr << in.rdbuf();
     std::string s = sstr.str();
@@ -717,17 +720,25 @@ void SessionManager::ReadConfig(const std::string &ConfigFileName)
     json11::Json jo = json11::Json::parse(s, err);
     if (!err.empty()) terminateSession(err);
 
-    //extracting name of the receipt file - should be first so we can report back to the known receipt file!
-    FileName_Receipt = jo["File_Receipt"].string_value();
+    json11::Json::object json = jo.object_items();
+
+    AParticleSimSettings Settings;
+    Settings.readFromJson(json);
+
+    qDebug() << Settings.RunSet.Receipt.data();
+    FileName_Receipt = Settings.RunSet.Receipt;
     if (FileName_Receipt.empty()) terminateSession("File name for receipt was not provided");
 
-    GDML = jo["GDML"].string_value();
+    qDebug() << Settings.RunSet.GDML.data();
+    GDML = Settings.RunSet.GDML;
     if (GDML.empty()) terminateSession("GDML file name is not provided");
 
-    PhysicsList = jo["PhysicsList"].string_value();
+    qDebug() << Settings.G4Set.PhysicsList.data();
+    PhysicsList = Settings.G4Set.PhysicsList;
     if (PhysicsList.empty()) terminateSession("Reference physics list is not provided");
 
-    bUseThermalScatteringNeutronPhysics = jo["ActivateThermalScattering"].bool_value();
+    bUseThermalScatteringNeutronPhysics = Settings.G4Set.UseTSphys;
+    qDebug() << "TS?" << bUseThermalScatteringNeutronPhysics;
 
     bG4antsPrimaries = false;
     if (jo.object_items().count("Primaries_G4ants") != 0) bG4antsPrimaries = jo["Primaries_G4ants"].bool_value();

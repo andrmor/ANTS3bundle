@@ -30,9 +30,9 @@
 int main(int argc, char** argv)
 {
     SessionManager& SM = SessionManager::getInstance();
-    if (argc < 2)
-        SM.terminateSession("Config file not provided as the first argument");
-    SM.ReadConfig(argv[1]);
+    if (argc < 4)
+        SM.terminateSession("Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)");
+    SM.ReadConfig(argv[1], argv[2], atoi(argv[3]));
     bool bGui = SM.isGuiMode();
 
     G4UIExecutive* ui =  0;

@@ -25,6 +25,7 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["Materials"]            = matAr;
 
     json["GDML"]                 = QString(GDML.data());
+    json["Receipt"]              = QString(Receipt.data());
 
     json["GuiMode"]              = false;
 
@@ -75,6 +76,8 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     }
 
     jstools::parseJson(json, "GDML",                 GDML);
+    jstools::parseJson(json, "Receipt",              Receipt);
+
     jstools::parseJson(json, "GuiMode",              GuiMode);
 
 
