@@ -204,13 +204,10 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
             }
 */
 
-/*
             QJsonObject json;
-            A3Config::getInstance().writeToJson(json);
-            WorkSet.writeToJson(json);
-*/
+            WorkSet.writeToJson(json, true);
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
-//            jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
+            jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
             Worker.ConfigFile = ConfigFN;
 
             nc.Workers.push_back(Worker);

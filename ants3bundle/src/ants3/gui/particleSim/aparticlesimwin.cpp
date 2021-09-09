@@ -676,5 +676,7 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 
 void AParticleSimWin::on_pbSimulate_clicked()
 {
-    AParticleSimManager::getInstance().simulate();
+    AParticleSimManager & SimMan = AParticleSimManager::getInstance();
+    bool ok = SimMan.simulate();
+    if (!ok) guitools::message(SimMan.ErrorString, this);
 }

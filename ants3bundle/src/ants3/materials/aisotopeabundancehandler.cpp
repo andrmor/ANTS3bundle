@@ -24,6 +24,8 @@ AIsotopeAbundanceHandler::AIsotopeAbundanceHandler()
 
     for (int i=0; i<all.size(); i++)
         SymbolToNumber.insert(all[i], i+1);
+
+    loadNaturalAbunances();
 }
 
 const QStringList AIsotopeAbundanceHandler::getListOfElements() const
@@ -36,15 +38,15 @@ int AIsotopeAbundanceHandler::getZ(const QString &Symbol) const
     return SymbolToNumber[Symbol];
 }
 
-void AIsotopeAbundanceHandler::configureNaturalAbunances(const QString & NaturalAbundanceFileName)
+void AIsotopeAbundanceHandler::loadNaturalAbunances()
 {
     NaturalAbundancies.clear();
 
     QString NaturalAbundances;
-    bool bOK = ftools::loadTextFromFile(NaturalAbundances, NaturalAbundanceFileName);
+    bool bOK = ftools::loadTextFromFile(NaturalAbundances, ":/data/data/NaturalAbundance.txt");
     if (!bOK)
     {
-            qCritical() << "Cannot load file with natural abundances: " + NaturalAbundanceFileName;
+            qCritical() << "Cannot load file with natural abundances!";
     }
     else
     {

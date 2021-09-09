@@ -22,7 +22,7 @@ class AIsotopeAbundanceHandler
 public:
     static AIsotopeAbundanceHandler & getInstance();
 
-    void configureNaturalAbunances(const QString & NaturalAbundanceFileName);
+    void loadNaturalAbunances();
 
     bool isNaturalAbundanceTableEmpty() const {return NaturalAbundancies.isEmpty();}
     bool isElementExist(const QString& elSymbol) const {return AllPossibleElements.contains(elSymbol);}

@@ -14,4 +14,7 @@
         <file>gui/images/BotSt.png</file>
         <file>gui/images/BotGr.png</file>
     </qresource>
+    <qresource prefix="/data">
+        <file>data/NaturalAbundance.txt</file>
+    </qresource>
 </RCC>
