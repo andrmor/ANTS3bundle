@@ -13,20 +13,29 @@
 class AParticleRunSettings
 {
 public:
-    int     Seed = 0;
-
-    int     EventFrom = 0;
-    int     EventTo   = 0;
-
-    bool    AsciiOutput    = true;
-    int     AsciiPrecision = 6;
-
-    std::vector<std::string> Materials;
-
+    // ants3 only
     std::string OutputDirectory;
 
-    bool    SaveTrackingData = true;
+
+    // ants3 and g4ants3
+    int         Seed = 0;
+
+    bool        SaveTrackingData = true;
     std::string FileNameTrackingData = "TrackingData.txt";
+
+    bool        AsciiOutput    = true;
+    int         AsciiPrecision = 6;
+
+    // g4ants3 only
+    int         EventFrom = 0;
+    int         EventTo   = 0;
+
+    std::vector<std::string> Materials;
+    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;  // !!!*** G4settings? TODO: show list in the particle GUI
+
+    std::string GDML;
+
+    bool GuiMode = false;
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);

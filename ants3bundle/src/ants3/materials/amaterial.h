@@ -47,7 +47,7 @@ public:
 
     AMaterialComposition ChemicalComposition;
 
-    bool    bG4UseNistMaterial = false;
+    bool    bG4UseNistMaterial = false;  // !!!*** empty if false:
     QString G4NistMaterial;
 
     /* make it possible to define for diffrent particles!

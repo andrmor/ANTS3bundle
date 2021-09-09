@@ -88,7 +88,16 @@ QStringList AMaterialHub::getListOfMaterialNames() const
 std::vector<std::string> AMaterialHub::getMaterialNames() const
 {
     std::vector<std::string> v;
-    for (AMaterial * m : Materials) v.push_back(m->name.toLatin1().data());
+    for (const AMaterial * m : Materials) v.push_back(m->name.toLatin1().data());
+    return v;
+}
+
+std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFromNist() const
+{
+    std::vector<std::pair<std::string, std::string>> v;
+    for (const AMaterial * m : Materials)
+        if (m->bG4UseNistMaterial)
+            v.push_back( {m->name.toLatin1().data(), m->G4NistMaterial.toLatin1().data()} );
     return v;
 }
 

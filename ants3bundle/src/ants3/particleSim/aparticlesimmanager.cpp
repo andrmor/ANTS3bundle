@@ -3,6 +3,12 @@
 #include "aparticlesimsettings.h"
 #include "asourceparticlegenerator.h"
 #include "ageometryhub.h"
+#include "a3farmnoderecord.h"
+#include "a3workdistrconfig.h"
+#include "adispatcherinterface.h"
+#include "a3global.h"
+#include "arandomhub.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 
@@ -24,32 +30,21 @@ AParticleSimManager::~AParticleSimManager()
     delete Generator_Sources;
 }
 
-#include "a3farmnoderecord.h"
-#include "a3workdistrconfig.h"
-#include "adispatcherinterface.h"
-#include "a3global.h"
 bool AParticleSimManager::simulate(int numLocalProc)
 {
-    qDebug() << "Particle sim triggered";
     ErrorString.clear();
 
-    checkG4Settings();
-    checkDirectories();
-    addErrorLine(Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes));
+    doPreSimChecks();
     if (!ErrorString.isEmpty()) return false;
 
-//    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
-
-    int numEvents = SimSet.Events;
-    if (SimSet.GenerationMode == AParticleSimSettings::File)
-    {
-        //limit to max in file
-    }
+    const int numEvents = getNumberEvents();
     if (numEvents == 0)
     {
-        ErrorString = "Nothing to simulate!";
+        ErrorString = "Configuration resports zero events to simulate";
         return false;
     }
+
+//    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
     // configure number of local/remote processes to run
     std::vector<A3FarmNodeRecord> RunPlan;
@@ -74,8 +69,14 @@ bool AParticleSimManager::simulate(int numLocalProc)
 
 //    if (ErrorString.isEmpty()) mergeOutput();
 
-    qDebug() << "Particle simulation finished";
     return ErrorString.isEmpty();
+}
+
+void AParticleSimManager::doPreSimChecks()
+{
+    checkG4Settings();
+    checkDirectories();
+    addErrorLine(Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes));
 }
 
 #include "amaterialhub.h"
@@ -88,26 +89,29 @@ void AParticleSimManager::checkG4Settings()
     AMaterialHub::getInstance().checkReadyForGeant4Sim(ErrorString);
 }
 
-#include "arandomhub.h"
-#include "ajsontools.h"
+int AParticleSimManager::getNumberEvents() const
+{
+    int numEvents = SimSet.Events;
+    if (SimSet.GenerationMode == AParticleSimSettings::File)
+    {
+        //limit to max in file
+    }
+    return numEvents;
+}
+
 bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "g4ants3";
 
     const QString ExchangeDir = A3Global::getConstInstance().ExchangeDir;
 
-    const QString GdmlName = "Detector.gdml";
-    const QString LocalGdmlName = ExchangeDir + "/" + GdmlName;
-    QString err = Geometry.exportToGDML(LocalGdmlName);
-    if (!err.isEmpty())
-    {
-        ErrorString = err;
-        return false;
-    }
-    Request.CommonFiles.push_back(LocalGdmlName);
+    bool ok = configureGDML(Request, ExchangeDir);
+    if (!ok) return false;
 
-//  ...
-//    MonitorFiles.clear();
+    ok = configureMonitors(Request, ExchangeDir); // !!!***
+    if (!ok) return false;
+
+    configureMaterials();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -218,31 +222,41 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     return true;
 }
 
+bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir)
+{
+    SimSet.RunSet.GDML = "detector.gdml";
+
+    const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
+    Request.CommonFiles.push_back(LocalGdmlName);
+    QString err = Geometry.exportToGDML(LocalGdmlName);
+
+    if (err.isEmpty()) return true;
+    else
+    {
+        ErrorString = err;
+        return false;
+    }
+}
+
+bool AParticleSimManager::configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir)
+{
+    // !!!***
+    //    MonitorFiles.clear();
+    return true;
+}
+
+void AParticleSimManager::configureMaterials()
+{
+    const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+
+    SimSet.RunSet.Materials         = MatHub.getMaterialNames();
+    SimSet.RunSet.MaterialsFromNist = MatHub.getMaterialsFromNist();
+}
+
 #include "ageoobject.h"
 void AParticleSimManager::generateG4antsConfigCommon(AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json)
 {
-    const AG4SimulationSettings & G4SimSet = SimSet.G4Set;
-
-    const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-    RunSet.Materials = MatHub.getMaterialNames();
-
-    QJsonArray OverrideMats;
-    for (int iMat = 0; iMat < MatHub.countMaterials(); iMat++)
-    {
-        const AMaterial * mat = MatHub[iMat];
-        if (mat->bG4UseNistMaterial)
-        {
-            QJsonArray el; el << mat->name << mat->G4NistMaterial;
-            OverrideMats << el;
-        }
-    }
-    if (!OverrideMats.isEmpty()) json["MaterialsToRebuild"] = OverrideMats;
-
-//    json["GDML"] = RunSet.getGdmlFileName();
-
-
-    json["GuiMode"] = false;
-
+//    const AG4SimulationSettings & G4SimSet = SimSet.G4Set;
 /*
     bool bG4Primaries = false;
     bool bBinaryPrimaries = false;

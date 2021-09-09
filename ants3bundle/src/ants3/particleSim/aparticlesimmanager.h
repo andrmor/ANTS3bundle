@@ -39,10 +39,17 @@ public:
     bool simulate(int numLocalProc = -1);
 
 private:
+    int  getNumberEvents() const;
     void addErrorLine(const QString & error);
+    void doPreSimChecks();
     void checkDirectories();
     void checkG4Settings();
+
     bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
+    bool configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir); // !!!***
+    void configureMaterials();
+
     void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
 };
 
