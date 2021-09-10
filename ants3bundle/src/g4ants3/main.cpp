@@ -69,9 +69,9 @@ int main(int argc, char** argv)
     }
     if (!physicsList)
         SM.terminateSession("Unknown reference physics list");
-
     physicsList->RegisterPhysics(new G4StepLimiterPhysics());
     runManager->SetUserInitialization(physicsList);
+
     runManager->SetUserInitialization(new ActionInitialization());
 
     G4UImanager* UImanager = G4UImanager::GetUIpointer();

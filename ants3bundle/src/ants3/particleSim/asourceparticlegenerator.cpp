@@ -263,7 +263,13 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                         for (int i = 0; i < linkedTo + 1; i++)
                             if (WasGenerated.at(i)) index++;
 
-                        AParticleRecord ps(Source.Particles[thisParticle].Particle, R, time, Source.Particles[thisParticle].generateEnergy());
+                        AParticleRecord ps(
+                                 #ifdef GEANT4
+                                    Source.Particles[thisParticle].particleDefinition,
+                                 #else
+                                    Source.Particles[thisParticle].Particle,
+                                 #endif
+                                    R, time, Source.Particles[thisParticle].generateEnergy());
                         for (int i=0; i<3; i++) ps.v[i] = -GeneratedParticles.at(index).v[i];
                         GeneratedParticles.push_back(ps);
                     }
@@ -404,7 +410,13 @@ void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, dou
 {
     const AGunParticle & gp = Settings.SourceData[iSource].Particles[iParticle];
 
-    AParticleRecord particle(gp.Particle, position, time, gp.generateEnergy());
+    AParticleRecord particle(
+            #ifdef GEANT4
+               gp.particleDefinition,
+            #else
+                gp.Particle,
+            #endif
+                position, time, gp.generateEnergy());
 
     //generating random direction inside the collimation cone
     double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion

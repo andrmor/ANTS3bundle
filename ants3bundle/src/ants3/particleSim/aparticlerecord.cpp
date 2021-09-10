@@ -2,7 +2,12 @@
 
 #include <cmath>
 
-AParticleRecord::AParticleRecord(const std::string & particle,
+AParticleRecord::AParticleRecord(
+        #ifdef GEANT4
+                                 G4ParticleDefinition * particle,
+        #else
+                                 const std::string & particle,
+        #endif
                                  double x,  double y,  double z,
                                  double vx, double vy, double vz,
                                  double time, double energy) :
@@ -17,7 +22,13 @@ AParticleRecord::AParticleRecord(const std::string & particle,
     v[2] = vz;
 }
 
-AParticleRecord::AParticleRecord(const std::string & particle, double * position, double time, double energy) :
+AParticleRecord::AParticleRecord(
+        #ifdef GEANT4
+                                 G4ParticleDefinition * particle,
+        #else
+                                 const std::string & particle,
+        #endif
+                                 double * position, double time, double energy) :
     particle(particle), time(time), energy(energy)
 {
     for (int i = 0; i < 3; i++) r[i] = position[i];

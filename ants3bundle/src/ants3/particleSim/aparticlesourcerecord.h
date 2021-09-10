@@ -12,6 +12,8 @@
     class QJsonObject;
 #endif
 
+class G4ParticleDefinition;
+
 struct AGunParticle
 {
     std::string  Particle        = "geantino";
@@ -25,6 +27,9 @@ struct AGunParticle
     bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
 
     AHistogram1D EnergyDistr; //energy spectrum   !!!*** check initRandomGenerator is called
+
+    //run-time
+    G4ParticleDefinition * particleDefinition = nullptr;
 
     double  generateEnergy() const;
     bool    loadSpectrum(const std::string & fileName); // !!!***  wrong place!

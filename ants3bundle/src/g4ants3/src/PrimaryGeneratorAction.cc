@@ -9,8 +9,7 @@
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction()
 {
-    G4int nofParticles = 1;
-    fParticleGun = new G4ParticleGun(nofParticles);
+    fParticleGun = new G4ParticleGun(1);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
@@ -19,9 +18,13 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 }
 
 #include "G4IonTable.hh"
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+#include "aparticlegun.h"
+#include "aparticlerecord.h"
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event * anEvent)
 {
     SessionManager & SM = SessionManager::getInstance();
+
+    /*
     const std::vector<ParticleRecord> & GeneratedPrimaries = SM.getNextEventPrimaries();
 
     for (const ParticleRecord & r : GeneratedPrimaries)
@@ -39,4 +42,22 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
         SM.incrementPredictedTrackID();
     }
+    */
+
+    int * NextTrackID = &SM.NextTrackID;
+
+    auto Handler = [this, NextTrackID, anEvent](const AParticleRecord & particle)
+    {
+        fParticleGun->SetParticleDefinition(particle.particle);
+        fParticleGun->SetParticlePosition({particle.r[0], particle.r[1], particle.r[2]}); //position in millimeters - no need units
+        fParticleGun->SetParticleMomentumDirection({particle.v[0], particle.v[1], particle.v[2]});
+        fParticleGun->SetParticleEnergy(particle.energy * keV);
+        fParticleGun->SetParticleTime(particle.time); //in ns - no need units
+
+        fParticleGun->GeneratePrimaryVertex(anEvent);
+
+        ++(*NextTrackID);
+    };
+
+    SM.ParticleGun->generateEvent(Handler, SM.CurrentEvent);
 }

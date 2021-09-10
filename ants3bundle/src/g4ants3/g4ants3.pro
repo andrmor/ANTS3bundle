@@ -52,6 +52,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     ../ants3/particleSim/ag4simulationsettings.h \
+    ../ants3/particleSim/aparticlegun.h \
     ../ants3/particleSim/aparticlerunsettings.h \
     ../ants3/particleSim/aparticlesimsettings.h \
     ../ants3/particleSim/aparticlesourcerecord.h \

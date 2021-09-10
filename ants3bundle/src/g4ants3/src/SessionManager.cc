@@ -1,4 +1,5 @@
 #include "SessionManager.hh"
+#include "arandomg4hub.h"
 
 #include <iostream>
 #include <sstream>
@@ -10,7 +11,8 @@
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 #include "G4UImanager.hh"
-#include "Randomize.hh"
+
+#include "Randomize.hh"  // !!!*** need?
 
 #include <QDebug> // !!!***
 
@@ -38,17 +40,19 @@ SessionManager::~SessionManager()
 
 void SessionManager::startSession()
 {
+    prepareParticleGun();
+
     //populate particle collection
-    prepareParticleCollection();
+    //prepareParticleCollection();
 
     //prepare monitors: populate particle pointers
-    prepareMonitors();
+    //prepareMonitors();
 
     // opening file with primaries
-    prepareInputStream();
+    //prepareInputStream();
 
     // preparing ouptut for deposition data
-    prepareOutputDepoStream();
+    //prepareOutputDepoStream();
 
     // preparing ouptut for track export
     if (CollectHistory != NotCollecting) prepareOutputHistoryStream();
@@ -56,14 +60,24 @@ void SessionManager::startSession()
     // preparing ouptut for exiting particle export
     if (bExitParticles) prepareOutputExitStream();
 
-    //set random generator. The seed was provided in the config file
-    CLHEP::RanecuEngine* randGen = new CLHEP::RanecuEngine();
-    randGen->setSeed(Settings.RunSet.Seed); // !!!*** random hub
-    G4Random::setTheEngine(randGen);
+    //set random generator
+    ARandomHub::getInstance().init(Settings.RunSet.Seed);
 
     executeAdditionalCommands();
 
     findExitVolume();
+}
+
+#include "asourceparticlegenerator.h"
+void SessionManager::prepareParticleGun()
+{
+    for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
+        for (AGunParticle & particle : source.Particles)
+            particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+
+    ParticleGun = new ASourceParticleGenerator(Settings.SourceGenSettings);
+    bool ok = ParticleGun->init();
+    qDebug() << "Particle gun init:" << ok;
 }
 
 void SessionManager::terminateSession(const std::string & ReturnMessage)
@@ -91,34 +105,25 @@ void SessionManager::runSimulation()
 {
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-    DepoByRegistered = 0;
-    DepoByNotRegistered = 0;
+    CurrentEvent = Settings.RunSet.EventFrom;
+    int NumEvents = Settings.RunSet.EventTo - Settings.RunSet.EventFrom;
 
-    EventsDone = 0;
-    ProgressLastReported = 0;
-    if (NumEventsToDo != 0)
-        ProgressInc = 100.0 / NumEventsToDo;
+    //DepoByRegistered = 0;
+    //DepoByNotRegistered = 0;
 
-    while (!isEndOfInputFileReached())
-        UImanager->ApplyCommand("/run/beamOn");
+    //while (!isEndOfInputFileReached()) UImanager->ApplyCommand("/run/beamOn");
+
+    //SM.runManager->BeamOn(NumEvents);
+    UImanager->ApplyCommand("/run/beamOn " + std::to_string(NumEvents));
 }
 
-void SessionManager::onRunFinished()
+void SessionManager::onEventFinished()
 {
-    updateEventId();
+    //EventId = NextEventId;
+    CurrentEvent++;
 
-    EventsDone++;
-    double Progress = (double)EventsDone * ProgressInc;
-    if (Progress - ProgressLastReported > 1.0) //1% intervales
-    {
-        std::cout << "$$progress>" << (int)Progress << "<$$"<< std::endl << std::flush;
-        ProgressLastReported = Progress;
-    }
-}
-
-void SessionManager::updateEventId()
-{
-    EventId = NextEventId;
+    int EventsDone = CurrentEvent - Settings.RunSet.EventFrom;
+    std::cout << "$$>" << EventsDone << "<$$\n";
 }
 
 std::vector<ParticleRecord> &SessionManager::getNextEventPrimaries()
@@ -254,8 +259,7 @@ int SessionManager::findParticle(const std::string & particleName)
     auto it = ParticleMap.find(particleName);
     if (it == ParticleMap.end())
     {
-        //terminateSession("Found deposition by particle not listed in the config json: " + particleName);
-        SeenNotRegisteredParticles.insert(particleName);
+        //SeenNotRegisteredParticles.insert(particleName);
         return -1;
     }
 
@@ -407,14 +411,16 @@ void SessionManager::updateMaterials(G4VPhysicalVolume * worldPV)
 
 void SessionManager::writeNewEventMarker()
 {
-    const int iEvent = std::stoi( EventId.substr(1) );  // kill leading '#'
+    //const int iEvent = std::stoi( EventId.substr(1) );  // kill leading '#'
+    //CurrentEvent
+    EventId = "#" + std::to_string(CurrentEvent);
 
     if (outStreamDeposition)
     {
         if (bBinaryOutput)
         {
             *outStreamDeposition << char(0xEE);
-             outStreamDeposition->write((char*)&iEvent, sizeof(int));
+             outStreamDeposition->write((char*)&CurrentEvent, sizeof(int));
         }
         else
             *outStreamDeposition << EventId.data() << std::endl;
@@ -426,7 +432,7 @@ void SessionManager::writeNewEventMarker()
             if (bBinaryOutput)
             {
                 *outStreamHistory << char(0xEE);
-                 outStreamHistory->write((char*)&iEvent, sizeof(int));
+                 outStreamHistory->write((char*)&CurrentEvent, sizeof(int));
             }
             else
                 *outStreamHistory << EventId.data() << std::endl;
@@ -437,7 +443,7 @@ void SessionManager::writeNewEventMarker()
         if (bExitBinary)
         {
             *outStreamExit << char(0xEE);
-             outStreamExit->write((char*)&iEvent, sizeof(int));
+             outStreamExit->write((char*)&CurrentEvent, sizeof(int));
         }
         else
             *outStreamExit << EventId.data() << std::endl;
@@ -979,13 +985,13 @@ void SessionManager::generateReceipt()
     receipt["Success"] = !bError;
     if (bError) receipt["Error"] = ErrorMessage;
 
-    receipt["DepoByRegistered"] = DepoByRegistered;
-    receipt["DepoByNotRegistered"] = DepoByNotRegistered;
+    //receipt["DepoByRegistered"] = DepoByRegistered;
+    //receipt["DepoByNotRegistered"] = DepoByNotRegistered;
 
-    json11::Json::array NRP;
-    for (const std::string & snr : SeenNotRegisteredParticles)
-        NRP.push_back(snr);
-    if (!NRP.empty()) receipt["SeenNotRegisteredParticles"] = NRP;
+    //json11::Json::array NRP;
+    //for (const std::string & snr : SeenNotRegisteredParticles)
+    //    NRP.push_back(snr);
+    //if (!NRP.empty()) receipt["SeenNotRegisteredParticles"] = NRP;
 
     std::string json_str = json11::Json(receipt).dump();
 

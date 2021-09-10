@@ -17,6 +17,7 @@ class G4StepPoint;
 class MonitorSensitiveDetector;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
+class AParticleGun;
 
 struct ParticleRecord
 {
@@ -48,9 +49,8 @@ class SessionManager
 
         void runSimulation();
 
-        void onRunFinished();
+        void onEventFinished();
         const std::string & getEventId() const {return EventId;}
-        void updateEventId();
         std::vector<ParticleRecord> & getNextEventPrimaries();
         bool isEndOfInputFileReached() const;
         const std::vector<std::string> & getListOfSensitiveVolumes() const {return SensitiveVolumes;}
@@ -89,8 +89,8 @@ public:
         AParticleSimSettings Settings;
 
         //runtime
-        double DepoByRegistered = 0;
-        double DepoByNotRegistered = 0;
+        //double DepoByRegistered = 0;
+        //double DepoByNotRegistered = 0;
 
         enum HistoryMode {NotCollecting, OnlyTracks, FullLog};
         HistoryMode CollectHistory = NotCollecting;
@@ -109,6 +109,10 @@ public:
         double ExitTimeTo = 1.0e6;
         bool   bExitKill = true;
 
+        int CurrentEvent = 0;
+        AParticleGun * ParticleGun = nullptr;
+        int NextTrackID = 1;
+
 private:
         void prepareParticleCollection();
         void prepareMonitors();
@@ -124,7 +128,6 @@ private:
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:
-
         std::string FileName_Input;
         std::string FileName_Output;
         std::string FileName_Monitors;
@@ -153,14 +156,8 @@ private:
         std::string FileName_Exit;
         std::string ExitVolumeName;
 
-        int EventsDone = 0;
-        int NumEventsToDo = 0;
-        double ProgressLastReported = 0;
-        double ProgressInc = 1.0;
 
-        int NextTrackID = 1;
-
-        std::unordered_set<std::string> SeenNotRegisteredParticles;
+        //std::unordered_set<std::string> SeenNotRegisteredParticles;
 
         //to report back to ants2
         bool bError;
@@ -168,6 +165,7 @@ private:
         std::vector<std::string> WarningMessages;
 
         std::map<std::string, int> ElementToZ;
+        void prepareParticleGun();
 };
 
 #endif // SESSIONMANAGER_H

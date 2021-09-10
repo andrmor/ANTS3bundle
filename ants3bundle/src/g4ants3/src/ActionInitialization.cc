@@ -2,7 +2,7 @@
 #include "SessionManager.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
-//#include "EventAction.hh"
+#include "EventAction.hh"
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
 //#include "StackingAction.hh"
@@ -16,9 +16,10 @@ void ActionInitialization::Build() const
 {
     SetUserAction(new PrimaryGeneratorAction);
 
-    SetUserAction(new RunAction);
+    //SetUserAction(new RunAction);
 
-    //SetUserAction(new EventAction);
+    SetUserAction(new EventAction);
+
     //SetUserAction(new StackingAction);
 
     SessionManager & SM = SessionManager::getInstance();

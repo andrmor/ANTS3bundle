@@ -33,8 +33,8 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
     SM.saveDepoRecord(iPart, iMat, edep, pos, time);
 
-    if (iPart < 0) SM.DepoByNotRegistered += edep;
-    else SM.DepoByRegistered += edep;
+    //if (iPart < 0) SM.DepoByNotRegistered += edep;
+    //else SM.DepoByRegistered += edep;
 
     return true;
 }

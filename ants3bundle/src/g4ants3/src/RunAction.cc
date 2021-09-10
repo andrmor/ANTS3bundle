@@ -27,5 +27,5 @@ void RunAction::BeginOfRunAction(const G4Run*)
 void RunAction::EndOfRunAction(const G4Run* )
 {
     SessionManager & SM = SessionManager::getInstance();
-    SM.onRunFinished();
+    SM.onEventFinished();
 }
