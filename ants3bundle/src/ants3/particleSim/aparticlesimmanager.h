@@ -2,6 +2,7 @@
 #define APARTICLESIMMANAGER_H
 
 #include "a3farmnoderecord.h"
+#include "afilemerger.h"
 
 #include <QString>
 
@@ -39,6 +40,8 @@ public:
     bool simulate(int numLocalProc = -1);
 
 private:
+    AFileMerger HistoryFileMerger;
+
     int  getNumberEvents() const;
     void addErrorLine(const QString & error);
     void doPreSimChecks();
@@ -51,6 +54,8 @@ private:
     void configureMaterials();
 
     void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
+    void removeOutputFiles();
+    void mergeOutput();
 };
 
 #endif // APARTICLESIMMANAGER_H

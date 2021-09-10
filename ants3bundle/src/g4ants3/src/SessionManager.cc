@@ -864,10 +864,10 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     //bool bBuildTracks = jo["BuildTracks"].bool_value();
     //bool bLogHistory = jo["LogHistory"].bool_value();
     //TracksToBuild = jo["MaxTracks"].int_value();
-    if (Settings.RunSet.SaveTrackingData)
+    if (Settings.RunSet.SaveTrackingHistory)
     {
         CollectHistory = FullLog;
-        FileName_Tracks = Settings.RunSet.FileNameTrackingData;
+        FileName_Tracks = Settings.RunSet.FileNameTrackingHistory;
         if (FileName_Tracks.empty())
             terminateSession("File name with tracks to export was not provided");
     }

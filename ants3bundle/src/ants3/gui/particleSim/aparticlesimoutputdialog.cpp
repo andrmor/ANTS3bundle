@@ -16,8 +16,8 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
     ui->cobAsciiBinary->setCurrentIndex( RunSet.AsciiOutput ? 0 : 1);
     ui->sbAsciiPrecision->setValue(RunSet.AsciiPrecision);
 
-    ui->cbTrackingData->setChecked(RunSet.SaveTrackingData);
-    ui->leTracks->setText(RunSet.FileNameTrackingData.data());
+    ui->cbTrackingData->setChecked(RunSet.SaveTrackingHistory);
+    ui->leTracks->setText(RunSet.FileNameTrackingHistory.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -32,8 +32,8 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.AsciiPrecision = ui->sbAsciiPrecision->value();
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
 
-    RunSet.SaveTrackingData = ui->cbTrackingData->isChecked();
-    RunSet.FileNameTrackingData = ui->leTracks->text().toLatin1().data();
+    RunSet.SaveTrackingHistory = ui->cbTrackingData->isChecked();
+    RunSet.FileNameTrackingHistory = ui->leTracks->text().toLatin1().data();
 
     accept();
 }

@@ -11,8 +11,8 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
 
     json["Seed"]                 = Seed;
 
-    json["SaveTrackingData"]     = SaveTrackingData;
-    json["FileNameTrackingData"] = QString(FileNameTrackingData.data());
+    json["SaveTrackingHistory"]     = SaveTrackingHistory;
+    json["FileNameTrackingHistory"] = QString(FileNameTrackingHistory.data());
 
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
@@ -52,8 +52,8 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "Seed",                 Seed);
 
-    jstools::parseJson(json, "SaveTrackingData",     SaveTrackingData);
-    jstools::parseJson(json, "FileNameTrackingData", FileNameTrackingData);
+    jstools::parseJson(json, "SaveTrackingHistory",     SaveTrackingHistory);
+    jstools::parseJson(json, "FileNameTrackingHistory", FileNameTrackingHistory);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);
@@ -90,8 +90,8 @@ void AParticleRunSettings::clear()
 
     Seed = 0;
 
-    SaveTrackingData = true;
-    FileNameTrackingData = "TrackingData.txt";
+    SaveTrackingHistory = true;
+    FileNameTrackingHistory = "TrackingData.txt";
 
     AsciiOutput    = true;
     AsciiPrecision = 6;

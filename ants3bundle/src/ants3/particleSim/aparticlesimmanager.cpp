@@ -44,7 +44,7 @@ bool AParticleSimManager::simulate(int numLocalProc)
         return false;
     }
 
-//    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
+    removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
     // configure number of local/remote processes to run
     std::vector<A3FarmNodeRecord> RunPlan;
@@ -67,9 +67,23 @@ bool AParticleSimManager::simulate(int numLocalProc)
 
 //    processReply(Reply);
 
-//    if (ErrorString.isEmpty()) mergeOutput();
+    if (ErrorString.isEmpty()) mergeOutput();
 
     return ErrorString.isEmpty();
+}
+
+#include <QFile>
+void AParticleSimManager::removeOutputFiles()
+{
+    qDebug() << "Removing (if exist) files with the names listed in output files";
+
+    const QString OutputDir(SimSet.RunSet.OutputDirectory.data());
+    std::vector<QString> fileNames;
+
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+
+    for (const QString & fn : fileNames)
+        QFile::remove(fn);
 }
 
 void AParticleSimManager::doPreSimChecks()
@@ -113,6 +127,8 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     if (!ok) return false;
 
     configureMaterials();
+
+    HistoryFileMerger.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -171,43 +187,15 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
             WorkSet.RunSet.Seed = INT_MAX * RandomHub.uniform();
 
-            if (SimSet.RunSet.SaveTrackingData)
+            if (SimSet.RunSet.SaveTrackingHistory)
             {
                 const QString fileName = QString("history-%0").arg(iProcess);
-                WorkSet.RunSet.FileNameTrackingData = fileName.toLatin1().data();
+                WorkSet.RunSet.FileNameTrackingHistory = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
-                //TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
+                HistoryFileMerger.add(ExchangeDir + '/' + fileName);
             }
 
             WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
-/*
-            if (SimSet.RunSet.SaveSensorSignals)
-            {
-                WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
-                SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
-            }
-
-            if (SimSet.RunSet.SavePhotonBombs)
-            {
-                WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
-                BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
-            }
-
-            if (SimSet.RunSet.SaveStatistics)
-            {
-                WorkSet.RunSet.FileNameStatistics   = QString("stats-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameStatistics);
-                StatisticsFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
-            }
-            if (SimSet.RunSet.SaveMonitors)
-            {
-                WorkSet.RunSet.FileNameMonitors     = QString("monitors-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitors);
-                MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
-            }
-*/
 
             QJsonObject json;
             WorkSet.writeToJson(json, true);
@@ -351,3 +339,31 @@ void AParticleSimManager::checkDirectories()
 
     addErrorLine(A3Global::getInstance().checkExchangeDir());
 }
+
+//#include "amonitorhub.h"
+void AParticleSimManager::mergeOutput()
+{
+    qDebug() << "Merging output files...";
+
+    const QString & OutputDir(SimSet.RunSet.OutputDirectory.data());
+
+    if (SimSet.RunSet.SaveTrackingHistory) ErrorString += HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+
+/*
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    MonitorHub.clearData();
+    if (SimSet.RunSet.SaveMonitors)
+    {
+        for (const QString & FN : MonitorFiles)
+        {
+            QJsonObject js;
+            bool ok = jstools::loadJsonFromFile(js, FN);
+            if (ok) MonitorHub.appendDataFromJson(js);
+        }
+        QJsonObject json;
+        MonitorHub.writeDataToJson(json);
+        jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
+    }
+*/
+}
+

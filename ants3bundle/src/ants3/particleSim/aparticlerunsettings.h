@@ -20,8 +20,8 @@ public:
     // ants3 and g4ants3
     int         Seed = 0;
 
-    bool        SaveTrackingData = true;
-    std::string FileNameTrackingData = "TrackingData.txt";
+    bool        SaveTrackingHistory = true;
+    std::string FileNameTrackingHistory = "TrackingHistory.txt";
 
     bool        AsciiOutput    = true;
     int         AsciiPrecision = 6;
