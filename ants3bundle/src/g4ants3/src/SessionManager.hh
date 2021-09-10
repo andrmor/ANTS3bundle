@@ -1,6 +1,8 @@
 #ifndef SESSIONMANAGER_H
 #define SESSIONMANAGER_H
 
+#include "aparticlesimsettings.h"
+
 #include "json11.hh" //https://github.com/dropbox/json11
 
 #include <string>
@@ -38,7 +40,7 @@ class SessionManager
         SessionManager(SessionManager const&) = delete;
         void operator=(SessionManager const&) = delete;
 
-        void ReadConfig(const std::string & ConfigFileName, const std::string & WorkingDir, int ID);
+        void ReadConfig(const std::string & ConfigFileName, const std::string & workingDir, int ID);
 
         void startSession();
         void terminateSession(const std::string & ReturnMessage); //calls exit()!
@@ -47,9 +49,6 @@ class SessionManager
         void runSimulation();
 
         void onRunFinished();
-        bool isGuiMode() const {return bGuiMode;}
-        const std::string & getGDML() const {return GDML;}
-        const std::string & getPhysicsList() const {return PhysicsList;}
         const std::string & getEventId() const {return EventId;}
         void updateEventId();
         std::vector<ParticleRecord> & getNextEventPrimaries();
@@ -86,6 +85,9 @@ class SessionManager
         void saveParticle(const G4String & particle, double energy, double time, double * PosDir);
 
 public:
+        std::string          WorkingDir;
+        AParticleSimSettings Settings;
+
         //runtime
         double DepoByRegistered = 0;
         double DepoByNotRegistered = 0;
@@ -122,24 +124,18 @@ private:
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:
+
         std::string FileName_Input;
         std::string FileName_Output;
         std::string FileName_Monitors;
-        std::string FileName_Receipt;
         std::string FileName_Tracks;
-        long Seed = 0;
         std::string EventId; //  "#number"
         std::string NextEventId;
-        std::string GDML;
-        std::string PhysicsList;
-        bool        bUseThermalScatteringNeutronPhysics = false;
         std::vector<json11::Json> ParticleJsonArray;
         std::vector<G4ParticleDefinition*> ParticleCollection; // does not own
         std::map<std::string, int> ParticleMap;
         std::map<std::string, int> MaterialMap;
-        std::vector<std::pair<std::string, std::string>> MaterialsToOverrideWithStandard;
         std::vector<std::string> SensitiveVolumes;
-        std::vector<std::string> OnStartCommands;
         std::map<std::string, double> StepLimitMap;
         bool bG4antsPrimaries = false;
         bool bBinaryPrimaries = false;
@@ -148,7 +144,6 @@ private:
         std::ofstream * outStreamHistory    = nullptr;
         std::ofstream * outStreamExit       = nullptr;
         std::vector<ParticleRecord> GeneratedPrimaries;
-        bool bGuiMode = false;
 
         bool bExitBinary = false;
         bool bBinaryOutput = false;

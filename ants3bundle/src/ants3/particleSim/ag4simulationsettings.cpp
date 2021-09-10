@@ -110,7 +110,7 @@ void AG4SimulationSettings::clear()
 {
     PhysicsList = "QGSP_BERT_HP";
     UseTSphys = false;
-    Commands = {"/run/setCut 0.7 mm"};
+    Commands.clear();
     SensitiveVolumes.clear();
     StepLimits.clear();
 }

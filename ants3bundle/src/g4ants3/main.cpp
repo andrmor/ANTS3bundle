@@ -29,24 +29,23 @@
 
 int main(int argc, char** argv)
 {
-    SessionManager& SM = SessionManager::getInstance();
-    if (argc < 4)
-        SM.terminateSession("Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)");
+    SessionManager & SM = SessionManager::getInstance();
+    if (argc < 4) SM.terminateSession("Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)");
     SM.ReadConfig(argv[1], argv[2], atoi(argv[3]));
-    bool bGui = SM.isGuiMode();
+    const bool bGui = SM.Settings.RunSet.GuiMode;
 
-    G4UIExecutive* ui =  0;
+    G4UIExecutive * ui = nullptr;
     if (bGui) ui = new G4UIExecutive(argc, argv);
 
-    G4RunManager* runManager = new G4RunManager;
+    G4RunManager * runManager = new G4RunManager;
     G4GDMLParser parser;
-    parser.Read(SM.getGDML(), false); //false - no validation
+    parser.Read(SM.WorkingDir + "/" + SM.Settings.RunSet.GDML, false); //false - no validation
     // need to implement own G4excpetion-based handler class  ->  SM.terminateSession("Error parsing GDML file");
     runManager->SetUserInitialization(new DetectorConstruction(parser.GetWorldVolume()));
     SM.updateMaterials(parser.GetWorldVolume()); // if present in config, indicated materials will be replaced with those from nist database
     //runManager->PhysicsHasBeenModified();
 
-    std::string pl = SM.getPhysicsList();
+    const std::string & pl = SM.Settings.G4Set.PhysicsList;
     G4VModularPhysicsList *          physicsList = nullptr;
     if      (pl == "QGSP_BIC")       physicsList = new QGSP_BIC();
     else if (pl == "QGSP_BIC_HP")    physicsList = new QGSP_BIC_HP();
@@ -97,7 +96,7 @@ int main(int argc, char** argv)
 
     G4VisManager* visManager = nullptr;
 
-    if (!SM.isGuiMode())
+    if (!SM.Settings.RunSet.GuiMode)
         SM.runSimulation();
     else
     {

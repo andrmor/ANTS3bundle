@@ -58,7 +58,7 @@ void SessionManager::startSession()
 
     //set random generator. The seed was provided in the config file
     CLHEP::RanecuEngine* randGen = new CLHEP::RanecuEngine();
-    randGen->setSeed(Seed);
+    randGen->setSeed(Settings.RunSet.Seed); // !!!*** random hub
     G4Random::setTheEngine(randGen);
 
     executeAdditionalCommands();
@@ -290,7 +290,7 @@ int SessionManager::findMaterial(const std::string &materialName)
 #include "G4SystemOfUnits.hh"
 bool SessionManager::activateNeutronThermalScatteringPhysics()
 {
-    if (!bUseThermalScatteringNeutronPhysics) return false;
+    if (!Settings.G4Set.UseTSphys) return false;
 
     // based on Hadr04 example of Geant4
 
@@ -370,7 +370,7 @@ void SessionManager::updateMaterials(G4VPhysicalVolume * worldPV)
     G4LogicalVolume * worldLV = worldPV->GetLogicalVolume();
 
     G4NistManager * man = G4NistManager::Instance();
-    for (auto & pair : MaterialsToOverrideWithStandard)
+    for (auto & pair : Settings.RunSet.MaterialsFromNist)
     {
         G4String name   = pair.first;
         G4String G4Name = pair.second;
@@ -705,9 +705,10 @@ void SessionManager::prepareMonitors()
     }
 }
 
-#include "aparticlesimsettings.h"
-void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::string & WorkingDir, int ID)
+void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::string & workingDir, int ID)
 {
+    WorkingDir = workingDir;
+
     //opening config file
     std::ifstream in(WorkingDir + "/" + ConfigFileName);
     std::stringstream sstr;
@@ -722,24 +723,20 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
 
     json11::Json::object json = jo.object_items();
 
-    AParticleSimSettings Settings;
     Settings.readFromJson(json);
 
     qDebug() << Settings.RunSet.Receipt.data();
-    FileName_Receipt = Settings.RunSet.Receipt;
-    if (FileName_Receipt.empty()) terminateSession("File name for receipt was not provided");
+    if (Settings.RunSet.Receipt.empty()) terminateSession("File name for receipt was not provided");
 
     qDebug() << Settings.RunSet.GDML.data();
-    GDML = Settings.RunSet.GDML;
-    if (GDML.empty()) terminateSession("GDML file name is not provided");
+    if (Settings.RunSet.GDML.empty()) terminateSession("GDML file name is not provided");
 
     qDebug() << Settings.G4Set.PhysicsList.data();
-    PhysicsList = Settings.G4Set.PhysicsList;
-    if (PhysicsList.empty()) terminateSession("Reference physics list is not provided");
+    if (Settings.G4Set.PhysicsList.empty()) terminateSession("Reference physics list is not provided");
 
-    bUseThermalScatteringNeutronPhysics = Settings.G4Set.UseTSphys;
-    qDebug() << "TS?" << bUseThermalScatteringNeutronPhysics;
+    qDebug() << "TS?" << Settings.G4Set.UseTSphys;
 
+/*
     bG4antsPrimaries = false;
     if (jo.object_items().count("Primaries_G4ants") != 0) bG4antsPrimaries = jo["Primaries_G4ants"].bool_value();
     bBinaryPrimaries = false;
@@ -748,17 +745,23 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
     FileName_Input = jo["File_Primaries"].string_value();
     if (FileName_Input.empty())
         terminateSession("File name with primaries to generate was not provided");
+*/
 
+/*
     //extracting name of the file for deposition output
     FileName_Output = jo["File_Deposition"].string_value();
     if (FileName_Output.empty())
         terminateSession("File name for deposition output was not provided");
+*/
 
+/*
     //extracting name of the monitor output
     FileName_Monitors = jo["File_Monitors"].string_value();
     //if (FileName_Monitors.empty())
     //    terminateSession("File name for monitor data output was not provided");
+*/
 
+/*
     //read list of sensitive volumes - they will be linked to SensitiveDetector
     std::vector<json11::Json> arSV = jo["SensitiveVolumes"].array_items();
     if (arSV.empty())
@@ -771,75 +774,42 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
         std::cout << name << std::endl;
         SensitiveVolumes.push_back(name);
     }
+*/
 
-    //read on-start Geant4 commands
-    std::vector<json11::Json> arC = jo["Commands"].array_items();
-    OnStartCommands.clear();
-    if (!arSV.empty())
-    {
-        std::cout << "On-start commands:" << std::endl;
-        for (auto & j : arC)
-        {
-            std::string cmd = j.string_value();
-            std::cout << cmd << std::endl;
-            OnStartCommands.push_back(cmd);
-        }
-    }
+    qDebug() << "Number of on start commands:" << Settings.G4Set.Commands.size();
+    std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
 
-    //read and configure random gen seed
-    if (jo.object_items().count("Seed") == 0)
-        terminateSession("Seed is not provided in the config file");
-    if (!jo["Seed"].is_number())
-        terminateSession("Format error for the random generator seed in the config file");
-    Seed = jo["Seed"].int_value();
-//    if (Seed == 0)
-//        terminateSession("Seed: read from the config file failed");
-    std::cout << "Random generator seed: " << Seed << std::endl;
-
+/*
     //extracting particle info
     ParticleJsonArray = jo["Particles"].array_items();
     if (ParticleJsonArray.empty())
         terminateSession("Particles are not defined in the configuration file!");
+*/
 
     //extracting defined materials
     MaterialMap.clear();
-    std::vector<json11::Json> Marr = jo["Materials"].array_items();
-    if (Marr.empty())
-        terminateSession("Materials are not defined in the configuration file!");
     std::cout << "Config lists the following materials:" << std::endl;
-    for (size_t i=0; i<Marr.size(); i++)
+    for (size_t i=0; i < Settings.RunSet.Materials.size(); i++)
     {
-        const json11::Json & j = Marr[i];
-        std::string name = j.string_value();
-        std::cout << name << std::endl;
+        const std::string & name = Settings.RunSet.Materials[i];
+        std::cout << i << " -> " << name << std::endl;
         MaterialMap[name] = (int)i;
     }
 
-    //extracting materials which have to be overriden with G4 materials from G4NistManager
-    MaterialsToOverrideWithStandard.clear();
-    Marr = jo["MaterialsToRebuild"].array_items();
-    if (!Marr.empty())
+    if (!Settings.RunSet.MaterialsFromNist.empty())
     {
         std::cout << "The following materials will be constructed using G4NistManager:" << std::endl;
-        for (size_t i=0; i<Marr.size(); i++)
+        for (size_t i=0; i<Settings.RunSet.MaterialsFromNist.size(); i++)
         {
-            const json11::Json & el = Marr[i];
-            std::vector<json11::Json> par = el.array_items();
-            if (par.size() < 2)
-            {
-                terminateSession("MaterialsToRebuild json element should be array of arrays [[name, G4_name], ...]");
-                return;
-            }
-
-            std::string name   = par[0].string_value();
-            std::string G4Name = par[1].string_value();
+            const std::string & name   = Settings.RunSet.MaterialsFromNist[i].first;
+            const std::string & G4Name = Settings.RunSet.MaterialsFromNist[i].second;
             std::cout << name << " -replace_with-> " << G4Name << std::endl;
-            MaterialsToOverrideWithStandard.push_back({name,G4Name});
         }
     }
 
     //extracting step limits
     StepLimitMap.clear();
+/*
     std::vector<json11::Json> StepLimitArray = jo["StepLimits"].array_items();
     if (!StepLimitArray.empty())
     {
@@ -857,17 +827,17 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
             }
         }
     }
+*/
 
-    bGuiMode = jo["GuiMode"].bool_value();
-    std::cout << "GUI mode? " << bGuiMode << std::endl;
+    std::cout << "GUI mode? " << Settings.RunSet.GuiMode << std::endl;
 
-    if (jo.object_items().count("BinaryOutput") == 0)
-        bBinaryOutput = false;
-    else
-        bBinaryOutput = jo["BinaryOutput"].bool_value();
+    bBinaryOutput = !Settings.RunSet.AsciiOutput;
     std::cout << "Binary output? " << bBinaryOutput << std::endl;
+    Precision = Settings.RunSet.AsciiPrecision;
 
-    if (jo.object_items().count("SaveExitParticles") == 0) bExitParticles = false;
+//    if (jo.object_items().count("SaveExitParticles") == 0)
+        bExitParticles = false;
+/*
     else
     {
         json11::Json jsExit = jo["SaveExitParticles"].object_items();
@@ -887,9 +857,12 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
             std::cout << "Save exit particles enabled for volume: " << ExitVolumeName << "  Kill on exit? " << bExitKill << std::endl;
     }
     std::cout << "Save exit particles? " << bExitParticles << " Binary file? " << bExitBinary << std::endl;
+*/
 
-    NumEventsToDo = jo["NumEvents"].int_value();
 
+//    NumEventsToDo = jo["NumEvents"].int_value();
+
+/*
     bool bBuildTracks = jo["BuildTracks"].bool_value();
     bool bLogHistory = jo["LogHistory"].bool_value();
     TracksToBuild = jo["MaxTracks"].int_value();
@@ -900,9 +873,9 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
     if (bLogHistory) CollectHistory = FullLog;
     else if (bBuildTracks && TracksToBuild > 0) CollectHistory = OnlyTracks;
     else CollectHistory = NotCollecting;
+*/
 
-    Precision = jo["Precision"].int_value();
-
+/*
     if (!FileName_Monitors.empty())
     {
         std::vector<json11::Json> MonitorArray = jo["Monitors"].array_items();
@@ -917,6 +890,7 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
         }
         std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
     }
+*/
 }
 
 void SessionManager::prepareInputStream()
@@ -992,7 +966,7 @@ void SessionManager::prepareOutputExitStream()
 void SessionManager::executeAdditionalCommands()
 {
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
-    for (auto & cmd : OnStartCommands)
+    for (const auto & cmd : Settings.G4Set.Commands)
         UImanager->ApplyCommand(cmd);
 
     UImanager->ApplyCommand("/run/initialize");
@@ -1016,7 +990,7 @@ void SessionManager::generateReceipt()
     std::string json_str = json11::Json(receipt).dump();
 
     std::ofstream outStream;
-    outStream.open(FileName_Receipt);
+    outStream.open(Settings.RunSet.Receipt);
     if (outStream.is_open())
         outStream << json_str << std::endl;
     outStream.close();
