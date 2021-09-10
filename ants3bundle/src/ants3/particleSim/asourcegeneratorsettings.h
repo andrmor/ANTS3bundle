@@ -3,6 +3,12 @@
 
 #include "aparticlesourcerecord.h"
 
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    class QJsonObject;
+#endif
+
 class ASourceGeneratorSettings
 {
 public:

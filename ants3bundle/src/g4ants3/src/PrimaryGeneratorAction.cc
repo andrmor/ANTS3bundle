@@ -20,6 +20,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 #include "G4IonTable.hh"
 #include "aparticlegun.h"
 #include "aparticlerecord.h"
+//#include <QDebug>
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event * anEvent)
 {
     SessionManager & SM = SessionManager::getInstance();
@@ -48,6 +49,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event * anEvent)
 
     auto Handler = [this, NextTrackID, anEvent](const AParticleRecord & particle)
     {
+        //qDebug() << particle.r[0]<<particle.r[1]<< particle.r[2] << "  V: " << particle.v[0]<< particle.v[1]<< particle.v[2];
+
         fParticleGun->SetParticleDefinition(particle.particle);
         fParticleGun->SetParticlePosition({particle.r[0], particle.r[1], particle.r[2]}); //position in millimeters - no need units
         fParticleGun->SetParticleMomentumDirection({particle.v[0], particle.v[1], particle.v[2]});

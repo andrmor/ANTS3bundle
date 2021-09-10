@@ -11,8 +11,8 @@
 
 #include <iostream>
 
-ADemo::ADemo(const QString & fileName, const QString &dir, bool debug) :
-    FileName(fileName), FileDir(dir), Debug(debug) {}
+ADemo::ADemo(const QString & dir, const QString & fileName, bool debug) :
+    FileDir(dir), FileName(fileName), Debug(debug) {}
 
 ADemo::~ADemo()
 {
@@ -24,7 +24,7 @@ ADemo::~ADemo()
 
 void ADemo::start()
 {
-    QFile file(FileName);
+    QFile file(FileDir + "/" + FileName);
     file.open(QIODevice::ReadOnly);
     QByteArray data = file.readAll();
     file.close();

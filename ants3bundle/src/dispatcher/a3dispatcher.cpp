@@ -155,7 +155,7 @@ bool A3Dispatcher::startWorkHere(const QString & executable, const QString & exc
     {
         //log("...starting worker #" + QString::number(iWorker));
         //qDebug() << "...starting worker #" << iWorker;
-        A3ProcessHandler * h = new A3ProcessHandler("./" + executable, {exchangeDir + '/' + localNode.Workers[iWorker].ConfigFile, exchangeDir, QString::number(iWorker)});
+        A3ProcessHandler * h = new A3ProcessHandler("./" + executable, {exchangeDir, localNode.Workers[iWorker].ConfigFile, QString::number(iWorker)});
         Handlers.push_back(h);
         bool ok = h->start();
         if (!ok) return false;

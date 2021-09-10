@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 4)
     {
-        qDebug() << "Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)";
+        qDebug() << "Need 3 arguments:  WorkingDir, ConfigFileName (no dir, should be in WorkingDir), Id(int)";
         exit(1);
     }
 

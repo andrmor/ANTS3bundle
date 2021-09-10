@@ -94,7 +94,7 @@ struct AParticleSourceRecord
     bool readFromJson(const json11::Json::object & json); // !!!*** error handling?
 #else
     void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json); // !!!*** error handling?
+    bool readFromJson(const QJsonObject & json); // !!!*** error handling
 #endif
 
     std::string getShapeString() const;

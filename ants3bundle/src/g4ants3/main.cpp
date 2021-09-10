@@ -33,11 +33,10 @@ int main(int argc, char** argv)
 {
     SessionManager & SM = SessionManager::getInstance();
 
-    if (argc < 4) SM.terminateSession("Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)");
-    qDebug() << argv[1] << argv[2] << atoi(argv[3]);
+    if (argc < 4) SM.terminateSession("Need 3 arguments: WorkingDir, ConfigFileName(no dir, should be in WorkingDir), Id(int)");
 
     SM.ReadConfig(argv[1], argv[2], atoi(argv[3]));
-    const bool bGui = SM.Settings.RunSet.GuiMode;
+    const bool & bGui = SM.Settings.RunSet.GuiMode;
 
     G4UIExecutive * ui = nullptr;
     if (bGui) ui = new G4UIExecutive(argc, argv);

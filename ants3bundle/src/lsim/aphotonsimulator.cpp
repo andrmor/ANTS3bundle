@@ -25,8 +25,8 @@
 #include <iostream>
 #include <cmath>
 
-APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir, int id) :
-    ConfigFN(fileName), WorkingDir(dir), ID(id),
+APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
+    WorkingDir(dir), ConfigFN(fileName), ID(id),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance())
 {
@@ -37,7 +37,7 @@ APhotonSimulator::APhotonSimulator(const QString & fileName, const QString & dir
     Event = new AOneEvent();
     Tracer = new APhotonTracer(*Event);
 
- // /*
+ // /*   !!!*** simplify, just report after event is ready
     ProgressReporter = new AProgressReporter(EventsDone, 200);
     ProgressThread = new QThread();
     ProgressReporter->moveToThread(ProgressThread);
@@ -646,7 +646,7 @@ bool APhotonSimulator::simulateBombsFromFile()
 void APhotonSimulator::loadConfig()
 {
     QJsonObject json;
-    jstools::loadJsonFromFile(json, ConfigFN);
+    jstools::loadJsonFromFile(json, WorkingDir + "/" + ConfigFN);
 
     QString Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);

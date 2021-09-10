@@ -12,7 +12,7 @@ class ADemo : public QObject
     Q_OBJECT
 
 public:
-    ADemo(const QString & fileName, const QString & dir, bool debug = false);
+    ADemo(const QString & dir, const QString & fileName, bool debug = false);
     ~ADemo();
 
 public slots:
@@ -22,8 +22,8 @@ private slots:
     void onProgressTimer();
 
 protected:
-    QString       FileName;
     QString       FileDir;
+    QString       FileName;
     bool          Debug = true;
 
     QFile       * Ofile = nullptr;

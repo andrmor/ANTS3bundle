@@ -288,7 +288,6 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
 
 void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & rec, double * R) const
 {
-    const int    & iShape = rec.Shape;
     const double & X0     = rec.X0;
     const double & Y0     = rec.Y0;
     const double & Z0     = rec.Z0;
@@ -299,16 +298,15 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     const double & size2  = rec.Size2;
     const double & size3  = rec.Size3;
 
-    switch (iShape) //source geometry type
+    switch (rec.Shape) //source geometry type
     {
-    case (0):
-    { //point source
+    case AParticleSourceRecord::Point :
+    {
         R[0] = X0; R[1] = Y0; R[2] = Z0;
         return;
     }
-    case (1):
+    case AParticleSourceRecord::Line :
     {
-        //line source
         AVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
         double off = -1.0 + 2.0 * RandomHub.uniform();
         off *= size1;
@@ -317,9 +315,8 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
         R[2] = Z0 + VV[2]*off;
         return;
     }
-    case (2):
+    case AParticleSourceRecord::Rectangle :
     {
-        //surface square source
         AVector3 V[3];
         V[0] = AVector3(size1, 0,     0);
         V[1] = AVector3(0,     size2, 0);
@@ -339,9 +336,8 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
         R[2] = Z0 + V[0][2]*off1 + V[1][2]*off2;
         return;
     }
-    case (3):
+    case AParticleSourceRecord::Round :
     {
-        //surface round source
         const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
         double r = RandomHub.uniform() + RandomHub.uniform();  //  !!!*** why?
         if (r > 1.0) r = (2.0 - r) * size1;
@@ -359,9 +355,8 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
         R[2] = Z0 + Circ[2];
         return;
     }
-    case (4):
+    case AParticleSourceRecord::Box :
     {
-        //cube source
         AVector3 V[3];
         V[0] = AVector3(size1, 0,     0);
         V[1] = AVector3(0,     size2, 0);
@@ -382,9 +377,8 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
         R[2] = Z0 + V[0][2]*off1 + V[1][2]*off2 + V[2][2]*off3;
         return;
     }
-    case (5):
+    case AParticleSourceRecord::Cylinder :
     {
-        //cylinder source
         const double off = (-1.0 + 2.0 * RandomHub.uniform()) * size3;
         const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
         double r = RandomHub.uniform() + RandomHub.uniform();

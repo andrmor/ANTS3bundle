@@ -1,6 +1,8 @@
 #include "asourcegeneratorsettings.h"
 
+#ifndef JSON11
 #include "ajsontools.h"
+#endif
 
 void ASourceGeneratorSettings::clear()
 {
@@ -90,7 +92,8 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
     QJsonArray ar;
 #endif
     jstools::parseJson(json, "ParticleSources", ar);
-    for (int iSource = 0; iSource < ar.size(); iSource++)
+
+    for (int iSource = 0; iSource < (int)ar.size(); iSource++)
     {
 #ifdef JSON11
         json11::Json::object js = ar[iSource].object_items();

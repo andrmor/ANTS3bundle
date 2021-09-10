@@ -711,7 +711,7 @@ void SessionManager::prepareMonitors()
     }
 }
 
-void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::string & workingDir, int ID)
+void SessionManager::ReadConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
 {
     WorkingDir = workingDir;
 
@@ -731,16 +731,9 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
 
     Settings.readFromJson(json);
 
-    qDebug() << Settings.RunSet.Receipt.data();
-    if (Settings.RunSet.Receipt.empty()) terminateSession("File name for receipt was not provided");
-
-    qDebug() << Settings.RunSet.GDML.data();
-    if (Settings.RunSet.GDML.empty()) terminateSession("GDML file name is not provided");
-
-    qDebug() << Settings.G4Set.PhysicsList.data();
+    if (Settings.RunSet.Receipt.empty())    terminateSession("File name for receipt was not provided");
+    if (Settings.RunSet.GDML.empty())       terminateSession("GDML file name is not provided");
     if (Settings.G4Set.PhysicsList.empty()) terminateSession("Reference physics list is not provided");
-
-    qDebug() << "TS?" << Settings.G4Set.UseTSphys;
 
 /*
     bG4antsPrimaries = false;
@@ -782,7 +775,6 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
     }
 */
 
-    qDebug() << "Number of on start commands:" << Settings.G4Set.Commands.size();
     std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
 
 /*

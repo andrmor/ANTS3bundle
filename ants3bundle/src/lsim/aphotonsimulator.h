@@ -20,15 +20,15 @@ class APhotonSimulator : public QObject
     Q_OBJECT
 
 public:
-    APhotonSimulator(const QString & fileName, const QString & dir, int id);
+    APhotonSimulator(const QString & dir, const QString & fileName, int id);
     ~APhotonSimulator();
 
 public slots:
     void start();
 
 protected:
-    QString ConfigFN;
     QString WorkingDir;
+    QString ConfigFN;
     int     ID;
 
     const APhotonSimSettings & SimSet;

@@ -7,8 +7,6 @@
 #include "afiletools.h"
 #endif
 
-#include <QDebug> // !!!*** temporary only !!!
-
 double AGunParticle::generateEnergy() const
 {
     if (UseFixedEnergy) return Energy;
@@ -138,12 +136,12 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     QString str;
     switch (Shape)
     {
-    case Point     : str = "point";
-    case Line      : str = "line";
-    case Rectangle : str = "rectangle";
-    case Round     : str = "round";
-    case Box       : str = "box";
-    case Cylinder  : str = "cylinder";
+    case Point     : str = "point";     break;
+    case Line      : str = "line";      break;
+    case Rectangle : str = "rectangle"; break;
+    case Round     : str = "round";     break;
+    case Box       : str = "box";       break;
+    case Cylinder  : str = "cylinder";  break;
     }
     json["Shape"] = str;
 
@@ -201,7 +199,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Name", Name);
 
     std::string tmp;
-    jstools::parseJson(json, "Type", tmp);
+    jstools::parseJson(json, "Shape", tmp);
     if      (tmp == "point")     Shape = Point;
     else if (tmp == "line")      Shape = Line;
     else if (tmp == "rectangle") Shape = Rectangle;
