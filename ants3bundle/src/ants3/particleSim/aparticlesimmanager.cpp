@@ -103,7 +103,8 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 {
     Request.Command = "g4ants3";
 
-    const QString ExchangeDir = A3Global::getConstInstance().ExchangeDir;
+    const QString & ExchangeDir = A3Global::getConstInstance().ExchangeDir;
+    Request.ExchangeDir = ExchangeDir;
 
     bool ok = configureGDML(Request, ExchangeDir);
     if (!ok) return false;
@@ -170,6 +171,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
             WorkSet.RunSet.Seed = INT_MAX * RandomHub.uniform();
 
+            if (SimSet.RunSet.SaveTrackingData)
+            {
+                const QString fileName = QString("history-%0").arg(iProcess);
+                WorkSet.RunSet.FileNameTrackingData = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                //TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
+            }
+
             WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
 /*
             if (SimSet.RunSet.SaveSensorSignals)
@@ -178,12 +187,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
                 SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
             }
-            if (SimSet.RunSet.SaveTracks)
-            {
-                WorkSet.RunSet.FileNameTracks       = QString("tracks-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
-                TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
-            }
+
             if (SimSet.RunSet.SavePhotonBombs)
             {
                 WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);

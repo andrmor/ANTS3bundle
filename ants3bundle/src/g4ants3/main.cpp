@@ -27,10 +27,15 @@
 #include "FTFP_INCLXX.hh"
 #include "FTFP_INCLXX_HP.hh"
 
+#include <QDebug>
+
 int main(int argc, char** argv)
 {
     SessionManager & SM = SessionManager::getInstance();
+
     if (argc < 4) SM.terminateSession("Need 3 arguments: ConfigFileName,  WorkingDir, Id(int)");
+    qDebug() << argv[1] << argv[2] << atoi(argv[3]);
+
     SM.ReadConfig(argv[1], argv[2], atoi(argv[3]));
     const bool bGui = SM.Settings.RunSet.GuiMode;
 

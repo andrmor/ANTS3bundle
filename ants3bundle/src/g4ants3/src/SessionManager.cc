@@ -531,7 +531,7 @@ void SessionManager::saveTrackStart(int trackID, int parentTrackID,
         ss << volName << ' ';
         ss << volIndex;
 
-        *outStreamHistory << ss.rdbuf() << std::endl;
+        *outStreamHistory << ss.rdbuf() << '\n';
     }
 
 }
@@ -868,18 +868,18 @@ void SessionManager::ReadConfig(const std::string & ConfigFileName, const std::s
 
 //    NumEventsToDo = jo["NumEvents"].int_value();
 
-/*
-    bool bBuildTracks = jo["BuildTracks"].bool_value();
-    bool bLogHistory = jo["LogHistory"].bool_value();
-    TracksToBuild = jo["MaxTracks"].int_value();
-    FileName_Tracks = jo["File_Tracks"].string_value();
-    if ( (bBuildTracks || bLogHistory) && FileName_Tracks.empty())
-        terminateSession("File name with tracks to export was not provided");
 
-    if (bLogHistory) CollectHistory = FullLog;
-    else if (bBuildTracks && TracksToBuild > 0) CollectHistory = OnlyTracks;
+    //bool bBuildTracks = jo["BuildTracks"].bool_value();
+    //bool bLogHistory = jo["LogHistory"].bool_value();
+    //TracksToBuild = jo["MaxTracks"].int_value();
+    if (Settings.RunSet.SaveTrackingData)
+    {
+        CollectHistory = FullLog;
+        FileName_Tracks = Settings.RunSet.FileNameTrackingData;
+        if (FileName_Tracks.empty())
+            terminateSession("File name with tracks to export was not provided");
+    }
     else CollectHistory = NotCollecting;
-*/
 
 /*
     if (!FileName_Monitors.empty())
@@ -948,9 +948,9 @@ void SessionManager::prepareOutputHistoryStream()
     outStreamHistory = new std::ofstream();
 
     if (bBinaryOutput)
-        outStreamHistory->open(FileName_Tracks, std::ios::out | std::ios::binary);
+        outStreamHistory->open(WorkingDir + "/" + FileName_Tracks, std::ios::out | std::ios::binary);
     else
-        outStreamHistory->open(FileName_Tracks);
+        outStreamHistory->open(WorkingDir + "/" + FileName_Tracks);
 
     if (!outStreamHistory->is_open())
         terminateSession("Cannot open file to export history/tracks data");
@@ -996,7 +996,7 @@ void SessionManager::generateReceipt()
     std::string json_str = json11::Json(receipt).dump();
 
     std::ofstream outStream;
-    outStream.open(Settings.RunSet.Receipt);
+    outStream.open(WorkingDir + "/" + Settings.RunSet.Receipt);
     if (outStream.is_open())
         outStream << json_str << std::endl;
     outStream.close();
