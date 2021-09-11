@@ -111,6 +111,7 @@ SOURCES += \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
+    particleSim/aparticletrackvisuals.cpp \
     particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
@@ -235,6 +236,7 @@ HEADERS += \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
+    particleSim/aparticletrackvisuals.h \
     particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \

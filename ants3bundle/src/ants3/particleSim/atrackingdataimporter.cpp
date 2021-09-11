@@ -12,16 +12,14 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
-ATrackingDataImporter::ATrackingDataImporter(const QStringList & ParticleNames,
-                                             std::vector<AEventTrackingRecord *> * History) :
-    ParticleNames(ParticleNames), History(History) {}
+ATrackingDataImporter::ATrackingDataImporter(std::vector<AEventTrackingRecord *> * History) : History(History) {}
 
 ATrackingDataImporter::~ATrackingDataImporter()
 {
     clearImportResources();
 }
 
-const QString ATrackingDataImporter::processFile(const QString & FileName, int StartEvent, bool bBinary)
+QString ATrackingDataImporter::processFile(const QString & FileName, int StartEvent, bool bBinary)
 {
     bBinaryInput = bBinary;
     Error.clear();
@@ -492,11 +490,9 @@ void ATrackingDataImporter::processNewEvent()
         return;
     }
 
-    if (History)
-    {
-        CurrentEventRecord = AEventTrackingRecord::create();
-        History->push_back(CurrentEventRecord);
-    }
+    CurrentEventRecord = AEventTrackingRecord::create();
+    History->push_back(CurrentEventRecord);
+
     ExpectedEvent++;
     CurrentStatus = ExpectingTrack;
 }
@@ -519,37 +515,35 @@ void ATrackingDataImporter::processNewTrack()
     readNewTrack();
     if (!Error.isEmpty()) return;
 
-    if (History)
+    if (!CurrentEventRecord)
     {
-        if (!CurrentEventRecord)
+        Error = "Attempt to start new track when event record does not exist";
+        return;
+    }
+
+    // if primary (parent track == 0), create a new primary record in this event
+    // else a pointer to empty record should be in the list of promised secondaries -> update the record
+    if (isPrimaryRecord())
+    {
+        AParticleTrackingRecord * r = createAndInitParticleTrackingRecord();
+        CurrentEventRecord->addPrimaryRecord(r);
+        CurrentParticleRecord = r;
+    }
+    else
+    {
+        int trIndex = getNewTrackIndex();
+        AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
+        if (!secrec)
         {
-            Error = "Attempt to start new track when event record does not exist";
+            Error = "Promised secondary not found!";
             return;
         }
 
-        // if primary (parent track == 0), create a new primary record in this event
-        // else a pointer to empty record should be in the list of promised secondaries -> update the record
-        if (isPrimaryRecord())
-        {
-            AParticleTrackingRecord * r = createAndInitParticleTrackingRecord();
-            CurrentEventRecord->addPrimaryRecord(r);
-            CurrentParticleRecord = r;
-        }
-        else
-        {
-            int trIndex = getNewTrackIndex();
-            AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
-            if (!secrec)
-            {
-                Error = "Promised secondary not found!";
-                return;
-            }
-
-            updatePromisedSecondary(secrec);
-            CurrentParticleRecord = secrec;
-            PromisedSecondaries.remove(trIndex);
-        }
+        updatePromisedSecondary(secrec);
+        CurrentParticleRecord = secrec;
+        PromisedSecondaries.remove(trIndex);
     }
+
     CurrentStatus = ExpectingStep;
 }
 
@@ -558,15 +552,12 @@ void ATrackingDataImporter::processNewStep()
     readNewStep();
     if (!Error.isEmpty()) return;
 
-    if (History)
+    if (!CurrentParticleRecord)
     {
-        if (!CurrentParticleRecord)
-        {
-            Error = "Attempt to add step when particle record does not exist";
-            return;
-        }
-        addHistoryStep();
+        Error = "Attempt to add step when particle record does not exist";
+        return;
     }
+    addHistoryStep();
 
     CurrentStatus = TrackOngoing;
 }

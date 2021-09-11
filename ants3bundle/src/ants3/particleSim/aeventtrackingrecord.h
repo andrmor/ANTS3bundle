@@ -7,7 +7,7 @@
 
 class AParticleTrackingRecord;
 class TrackHolderClass;
-class ATrackBuildOptions;
+//class ATrackBuildOptions;
 class TGeoNode;
 class TrackHolderClass;
 

@@ -16,15 +16,13 @@ class ATrackingStepData;
 class ATrackingDataImporter
 {
 public:
-    ATrackingDataImporter(const QStringList & ParticleNames,
-                          std::vector<AEventTrackingRecord*> * History);
+    ATrackingDataImporter(std::vector<AEventTrackingRecord*> * History);
     ~ATrackingDataImporter();
 
-    const QString processFile(const QString & FileName, int StartEvent, bool bBinary = false);
+    QString processFile(const QString & FileName, int StartEvent, bool bBinary = false);
 
 private:
-    const QStringList ParticleNames;
-    std::vector<AEventTrackingRecord *> * History = nullptr; // if nullptr - do not collect history
+    std::vector<AEventTrackingRecord *> * History = nullptr;
     bool bBinaryInput = false;
 
     AEventTrackingRecord    * CurrentEventRecord = nullptr;      // history of the current event
