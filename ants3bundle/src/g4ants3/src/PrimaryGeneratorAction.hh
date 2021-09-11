@@ -16,6 +16,8 @@ public:
 
 private:
     G4ParticleGun * fParticleGun;
+
+    double factor = 1.0;
 };
 
 #endif // PrimaryGeneratorAction_h

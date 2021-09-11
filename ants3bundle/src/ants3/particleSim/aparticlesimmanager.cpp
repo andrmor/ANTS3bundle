@@ -373,14 +373,11 @@ bool AParticleSimManager::buildTracks(const QString & fileName, const QStringLis
     // binary or ascii !!!***
     bool bBinary = false;
 
-    if (bBinary)
-    {
+    std::vector<AEventTrackingRecord*> history;
 
-    }
-    else
-    {
-
-    }
+    ATrackingDataImporter tdi(fileName, bBinary, history);
+    QString error = tdi.processFile(0, 10000);
+    qDebug() << "Error:" << error << " Length of history:" << history.size();
 
     return true;
 }

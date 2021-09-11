@@ -12,24 +12,25 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
-ATrackingDataImporter::ATrackingDataImporter(std::vector<AEventTrackingRecord *> * History) : History(History) {}
+ATrackingDataImporter::ATrackingDataImporter(const QString & fileName, bool binary, std::vector<AEventTrackingRecord*> & history) :
+    FileName(fileName), bBinaryInput(binary), History(history)
+{
+    prepareImportResources(FileName);
+}
 
 ATrackingDataImporter::~ATrackingDataImporter()
 {
     clearImportResources();
 }
 
-QString ATrackingDataImporter::processFile(const QString & FileName, int StartEvent, bool bBinary)
+QString ATrackingDataImporter::processFile(int FromEvent, int ToEvent)
 {
-    bBinaryInput = bBinary;
-    Error.clear();
-
-    prepareImportResources(FileName);
     if (!Error.isEmpty()) return Error;
 
-    ExpectedEvent = StartEvent;
+    EndEvent = ToEvent;
+    ExpectedEvent = FromEvent;
     CurrentStatus = ExpectingEvent;
-    CurrentEventRecord = AEventTrackingRecord::create();
+    CurrentEventRecord = AEventTrackingRecord::create();  // !!!*** kill?
 
     while (!isEndReached())
     {
@@ -354,7 +355,7 @@ void ATrackingDataImporter::addHistoryStep()
     CurrentParticleRecord->addStep(step);
 
     readSecondaries();
-    for (const int & index : BsecVec)
+    for (const int & index : qAsConst(BsecVec))
     {
         if (PromisedSecondaries.contains(index))
         {
@@ -491,7 +492,7 @@ void ATrackingDataImporter::processNewEvent()
     }
 
     CurrentEventRecord = AEventTrackingRecord::create();
-    History->push_back(CurrentEventRecord);
+    History.push_back(CurrentEventRecord);
 
     ExpectedEvent++;
     CurrentStatus = ExpectingTrack;
@@ -549,6 +550,8 @@ void ATrackingDataImporter::processNewTrack()
 
 void ATrackingDataImporter::processNewStep()
 {
+    if (!Error.isEmpty()) return;
+
     readNewStep();
     if (!Error.isEmpty()) return;
 

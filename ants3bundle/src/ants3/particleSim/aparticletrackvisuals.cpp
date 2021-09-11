@@ -116,13 +116,6 @@ void AParticleTrackVisuals::clear()
 {
     DefaultAttributes.color = 15;
     DefaultAttributes.width = 2;
-    DefaultColors.clear();
     DefaultColors = { 1, 2, 3, 4, 6, 7, 8, 9, 28, 30, 36, 38, 39, 40, 46, 49};
-
-    clearCustomParticleAttributes();
-}
-
-void AParticleTrackVisuals::clearCustomParticleAttributes()
-{
     CustomAttributes.clear();
 }

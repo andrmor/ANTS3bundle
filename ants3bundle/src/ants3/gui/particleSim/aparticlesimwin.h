@@ -51,6 +51,10 @@ private slots:
 
     void on_pbShowTracks_clicked();
 
+    void on_pbChooseWorkingDirectory_clicked();
+
+    void on_pbChooseFileTrackingData_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();

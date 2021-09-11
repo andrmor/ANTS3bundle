@@ -28,8 +28,18 @@ public:
 class AParticleTrackVisuals
 {
 public:
-    AParticleTrackVisuals();
+    static AParticleTrackVisuals & getInstance();
 
+private:
+    AParticleTrackVisuals();
+    ~AParticleTrackVisuals(){}
+
+    AParticleTrackVisuals(const AParticleTrackVisuals&)            = delete;
+    AParticleTrackVisuals(AParticleTrackVisuals&&)                 = delete;
+    AParticleTrackVisuals& operator=(const AParticleTrackVisuals&) = delete;
+    AParticleTrackVisuals& operator=(AParticleTrackVisuals&&)      = delete;
+
+public:
     ATrackAttributes DefaultAttributes;  //default width/style and color for particle # beyound covered in DefaultParticle_Colors
     std::vector<int> DefaultColors;  // !!!*** change to default for gamma neutron electron positron etc
     std::map<QString, ATrackAttributes> CustomAttributes;
@@ -38,11 +48,9 @@ public:
     void readFromJson(const QJsonObject& json);
 
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
-//    int  getParticleColor(const QString & Particle) const;
 
 private:
     void clear(); //clear and reset to default values
-    void clearCustomParticleAttributes();
 };
 
 #endif // ATRACKDRAWOPTIONS_H

@@ -699,3 +699,20 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     emit requestShowGeometry(true, true, true);
     emit requestShowTracks();
 }
+
+#include <QFileDialog>
+void AParticleSimWin::on_pbChooseWorkingDirectory_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, "Select data directory",
+                                                    SimSet.RunSet.OutputDirectory.data(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (!dir.isEmpty()) ui->leWorkingDirectory->setText(dir);
+}
+
+void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with tracking data", ui->leWorkingDirectory->text());
+    if (!fileName.isEmpty()) ui->leTrackingDataFile->setText(QFileInfo(fileName).baseName());
+}
+

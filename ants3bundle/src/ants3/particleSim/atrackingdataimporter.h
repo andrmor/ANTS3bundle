@@ -16,24 +16,26 @@ class ATrackingStepData;
 class ATrackingDataImporter
 {
 public:
-    ATrackingDataImporter(std::vector<AEventTrackingRecord*> * History);
+    ATrackingDataImporter(const QString & fileName, bool binary, std::vector<AEventTrackingRecord*> & history);
     ~ATrackingDataImporter();
 
-    QString processFile(const QString & FileName, int StartEvent, bool bBinary = false);
+    QString processFile(int FromEvent, int ToEvent);
 
 private:
-    std::vector<AEventTrackingRecord *> * History = nullptr;
-    bool bBinaryInput = false;
+    QString FileName;
+    bool    bBinaryInput;
+    std::vector<AEventTrackingRecord*> & History;
 
-    AEventTrackingRecord    * CurrentEventRecord = nullptr;      // history of the current event
+    AEventTrackingRecord    * CurrentEventRecord   = nullptr;   // history of the current event
     AParticleTrackingRecord * CurrentParticleRecord = nullptr;  // current particle - can be primary or secondary
 
-    QMap<int, AParticleTrackingRecord *> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
+    QMap<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
 
     enum Status {ExpectingEvent, ExpectingTrack, ExpectingStep, TrackOngoing};
 
     Status CurrentStatus = ExpectingEvent;
     int ExpectedEvent;
+    int EndEvent;
 
     QString Error;
 
