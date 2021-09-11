@@ -7,6 +7,7 @@ class AParticleSimSettings;
 class AG4SimulationSettings;
 class QListWidgetItem;
 class AParticleGun;
+class AParticleSimManager;
 
 namespace Ui {
 class AParticleSimWin;
@@ -48,6 +49,8 @@ private slots:
 
     void on_sbEvents_editingFinished();
 
+    void on_pbShowTracks_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -55,6 +58,7 @@ signals:
 private:
     AParticleSimSettings  & SimSet;
     AG4SimulationSettings & G4SimSet;
+    AParticleSimManager   & SimManager;
 
     Ui::AParticleSimWin *ui;
 

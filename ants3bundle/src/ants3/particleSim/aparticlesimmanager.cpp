@@ -367,3 +367,15 @@ void AParticleSimManager::mergeOutput()
 */
 }
 
+bool AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
+{
+    // binary or ascii !!!***
+    bool bAscii = true;
+
+    if (bAscii)
+    {
+
+    }
+
+    return true;
+}

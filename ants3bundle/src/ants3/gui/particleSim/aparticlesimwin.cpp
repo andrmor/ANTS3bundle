@@ -3,6 +3,7 @@
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
 #include "ag4simulationsettings.h"
+#include "aparticlesimmanager.h"
 #include "guitools.h"
 
 #include <QListWidget>
@@ -14,6 +15,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     QMainWindow(parent),
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
+    SimManager(AParticleSimManager::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
     ui->setupUi(this);
@@ -316,10 +318,8 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
 }
 
 #include "TGeoManager.h"
-#include "aparticlesimmanager.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
-    AParticleSimManager & SimManager = AParticleSimManager::getInstance();
 //    WindowNavigator->BusyOn();   // -->
 
     gGeoManager->ClearTracks();
@@ -676,7 +676,26 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 
 void AParticleSimWin::on_pbSimulate_clicked()
 {
-    AParticleSimManager & SimMan = AParticleSimManager::getInstance();
-    bool ok = SimMan.simulate();
-    if (!ok) guitools::message(SimMan.ErrorString, this);
+    bool ok = SimManager.simulate();
+    if (!ok) guitools::message(SimManager.ErrorString, this);
+}
+
+void AParticleSimWin::on_pbShowTracks_clicked()
+{
+    const QString fileName = ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text();
+
+    const QStringList LimitTo;
+    const QStringList Exclude;
+
+    const int MaxTracks = ui->sbMaxTracks->value();
+
+    bool ok = SimManager.buildTracks(fileName, LimitTo, Exclude, MaxTracks, -1);
+    if (!ok)
+    {
+        guitools::message(SimManager.ErrorString, this);
+        return;
+    }
+
+    emit requestShowGeometry(true, true, true);
+    emit requestShowTracks();
 }
