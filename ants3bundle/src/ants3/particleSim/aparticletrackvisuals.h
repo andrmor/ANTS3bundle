@@ -1,9 +1,10 @@
 #ifndef ATRACKDRAWOPTIONS_H
 #define ATRACKDRAWOPTIONS_H
 
-#include <QVector>
-
+#include <map>
 #include <vector>
+
+#include <QString>
 
 class QJsonObject;
 class TVirtualGeoTrack;
@@ -15,7 +16,7 @@ public:
     int width = 1;
     int style = 1;
 
-    void setTrackAttributes(TVirtualGeoTrack* track) const;
+    void setTrackAttributes(TVirtualGeoTrack * track) const;
 
     void writeToJson(QJsonObject& json) const;
     const QJsonObject writeToJson() const;
@@ -29,15 +30,15 @@ class AParticleTrackVisuals
 public:
     AParticleTrackVisuals();
 
-    ATrackAttributes TA_DefaultParticle;  //default width/style and color for particle # beyound covered in DefaultParticle_Colors
-    std::vector<int> DefaultParticle_Colors;
-    QVector<ATrackAttributes*> CustomParticle_Attributes;
+    ATrackAttributes DefaultAttributes;  //default width/style and color for particle # beyound covered in DefaultParticle_Colors
+    std::vector<int> DefaultColors;  // !!!*** change to default for gamma neutron electron positron etc
+    std::map<QString, ATrackAttributes> CustomAttributes;
 
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
 
-    void applyToParticleTrack(TVirtualGeoTrack *track, int ParticleId) const;
-    int  getParticleColor(int ParticleId) const;
+    void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
+//    int  getParticleColor(const QString & Particle) const;
 
 private:
     void clear(); //clear and reset to default values

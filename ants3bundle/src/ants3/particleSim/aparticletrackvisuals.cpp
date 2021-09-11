@@ -47,18 +47,23 @@ AParticleTrackVisuals::AParticleTrackVisuals()
 
 void AParticleTrackVisuals::writeToJson(QJsonObject &json) const
 {
-    json["Particle_DefaultAttributes"] = TA_DefaultParticle.writeToJson();
+    json["DefaultAttributes"] = DefaultAttributes.writeToJson();
+
     QJsonArray ar;
-    for (const int& c : DefaultParticle_Colors) ar, c;
-    json["Particle_DefaultColors"] = ar;
+    for (auto c : DefaultColors) ar << c;
+    json["DefaultColors"] = ar;
+
     ar = QJsonArray();
-    for (ATrackAttributes* ta : CustomParticle_Attributes)
+    for (auto const & x : CustomAttributes)
     {
-        QJsonObject js;
-        if (ta) ta->writeToJson(js);
-        ar, js;
+        QJsonArray el;
+            el.push_back(x.first);
+                QJsonObject js;
+                x.second.writeToJson(js);
+            el.push_back(js);
+        ar.push_back(el);
     }
-    json["Particle_CustomAttribtes"] = ar;
+    json["CustomAttribtes"] = ar;
 }
 
 void AParticleTrackVisuals::readFromJson(const QJsonObject &json)
@@ -67,68 +72,57 @@ void AParticleTrackVisuals::readFromJson(const QJsonObject &json)
     if (json.isEmpty()) return;
 
     QJsonObject js;
-    jstools::parseJson(json, "Particle_DefaultAttributes", js);
-    TA_DefaultParticle.readFromJson(js);
+    jstools::parseJson(json, "DefaultAttributes", js);
+    DefaultAttributes.readFromJson(js);
 
     QJsonArray ar;
-    jstools::parseJson(json, "Particle_DefaultColors", ar);
-    DefaultParticle_Colors.clear();
+    jstools::parseJson(json, "DefaultColors", ar);
+    DefaultColors.clear();
     for (int i=0; i<ar.size(); i++)
-        DefaultParticle_Colors.push_back( ar.at(i).toInt(1) );
+        DefaultColors.push_back( ar.at(i).toInt(1) );
 
-    clearCustomParticleAttributes();
+    CustomAttributes.clear();
     ar = QJsonArray();
-    jstools::parseJson(json, "Particle_CustomAttribtes", ar);
+    jstools::parseJson(json, "CustomAttribtes", ar);
     for (int i=0; i<ar.size(); i++)
     {
-        QJsonObject js = ar.at(i).toObject();
-        ATrackAttributes* ta = 0;
-        if (!js.isEmpty())
-        {
-            ta = new ATrackAttributes();
-            ta->readFromJson(js);
-        }
-        CustomParticle_Attributes, ta;
+        QJsonArray el = ar[i].toArray();
+        if (el.size() < 2) continue;  // !!!*** error report?
+
+        QString pn = el[0].toString();
+
+        QJsonObject js = el[1].toObject();
+        ATrackAttributes ta;
+        ta.readFromJson(js);
+
+        CustomAttributes[pn]= ta;
     }
 }
 
-void AParticleTrackVisuals::applyToParticleTrack(TVirtualGeoTrack *track, int ParticleId) const
+void AParticleTrackVisuals::applyToParticleTrack(TVirtualGeoTrack *track, const QString & Particle) const
 {
-    if ( ParticleId >= 0 && ParticleId < CustomParticle_Attributes.size() && CustomParticle_Attributes.at(ParticleId) )
-    {
-        //custom properties defined for this particle
-        CustomParticle_Attributes.at(ParticleId)->setTrackAttributes(track);
-        return;
-    }
+    auto search = CustomAttributes.find(Particle);
 
-    TA_DefaultParticle.setTrackAttributes(track);
+    if (search == CustomAttributes.end())
+        DefaultAttributes.setTrackAttributes(track);
+    else
+        search->second.setTrackAttributes(track);
 
-    if ( ParticleId >=0 && ParticleId < DefaultParticle_Colors.size())
-        track->SetLineColor( DefaultParticle_Colors.at(ParticleId) );
-}
-
-int AParticleTrackVisuals::getParticleColor(int ParticleId) const
-{
-    if ( ParticleId >=0 && ParticleId < CustomParticle_Attributes.size() && CustomParticle_Attributes.at(ParticleId) )
-        return CustomParticle_Attributes.at(ParticleId)->color; //custom properties defined for this particle
-
-    if ( ParticleId >=0 && ParticleId < DefaultParticle_Colors.size()) return DefaultParticle_Colors.at(ParticleId);
-    else return TA_DefaultParticle.color;
+//    if ( ParticleId >=0 && ParticleId < DefaultColors.size())
+//        track->SetLineColor( DefaultColors.at(ParticleId) );
 }
 
 void AParticleTrackVisuals::clear()
 {
-    TA_DefaultParticle.color = 15;
-    TA_DefaultParticle.width = 2;
-    DefaultParticle_Colors.clear();
-    DefaultParticle_Colors = {1, 2, 3, 4, 6, 7, 8, 9, 28, 30, 36, 38, 39, 40, 46, 49};
+    DefaultAttributes.color = 15;
+    DefaultAttributes.width = 2;
+    DefaultColors.clear();
+    DefaultColors = { 1, 2, 3, 4, 6, 7, 8, 9, 28, 30, 36, 38, 39, 40, 46, 49};
 
     clearCustomParticleAttributes();
 }
 
 void AParticleTrackVisuals::clearCustomParticleAttributes()
 {
-    for (ATrackAttributes* t : CustomParticle_Attributes)
-        delete t;
-    CustomParticle_Attributes.clear();
+    CustomAttributes.clear();
 }
