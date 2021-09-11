@@ -367,12 +367,17 @@ void AParticleSimManager::mergeOutput()
 */
 }
 
+#include "atrackingdataimporter.h"
 bool AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
 {
     // binary or ascii !!!***
-    bool bAscii = true;
+    bool bBinary = false;
 
-    if (bAscii)
+    if (bBinary)
+    {
+
+    }
+    else
     {
 
     }

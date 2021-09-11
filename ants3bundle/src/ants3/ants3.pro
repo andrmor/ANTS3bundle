@@ -102,6 +102,7 @@ SOURCES += \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
     js/aphotonsimsi.cpp \
+    particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/ag4simulationsettings.cpp \
     particleSim/aparticlerecord.cpp \
@@ -112,6 +113,7 @@ SOURCES += \
     particleSim/aparticlesourcerecord.cpp \
     particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
+    particleSim/atrackingdataimporter.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -223,6 +225,7 @@ HEADERS += \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
     js/aphotonsimsi.h \
+    particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/ag4simulationsettings.h \
     particleSim/aparticlegun.h \
@@ -234,6 +237,7 @@ HEADERS += \
     particleSim/aparticlesourcerecord.h \
     particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
+    particleSim/atrackingdataimporter.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
