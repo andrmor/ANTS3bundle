@@ -9,12 +9,12 @@
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction()
 {
-    fParticleGun = new G4ParticleGun(1);
+    GeantParticleGun = new G4ParticleGun(1);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-    delete fParticleGun;
+    delete GeantParticleGun;
 }
 
 #include "G4IonTable.hh"
@@ -44,21 +44,17 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event * anEvent)
     }
     */
 
-    auto Handler = [this, anEvent](const AParticleRecord & particle)
+    auto Handler = [this, anEvent](const AParticleRecord & particle) mutable
     {
         //qDebug() << particle.r[0]<<particle.r[1]<< particle.r[2] << "  V: " << particle.v[0]<< particle.v[1]<< particle.v[2];
+        GeantParticleGun->SetParticleDefinition(particle.particle);
+        GeantParticleGun->SetParticlePosition({particle.r[0], particle.r[1], particle.r[2]}); //position in millimeters - no need units
+        GeantParticleGun->SetParticleMomentumDirection({particle.v[0], particle.v[1], particle.v[2]});
+        GeantParticleGun->SetParticleEnergy(particle.energy * keV);
+        GeantParticleGun->SetParticleTime(particle.time); //in ns - no need units
 
-        fParticleGun->SetParticleDefinition(particle.particle);
-        fParticleGun->SetParticlePosition({particle.r[0], particle.r[1], particle.r[2]}); //position in millimeters - no need units
-        fParticleGun->SetParticleMomentumDirection({particle.v[0], particle.v[1], particle.v[2]});
-        fParticleGun->SetParticleEnergy(factor * particle.energy * keV);
-        fParticleGun->SetParticleTime(particle.time); //in ns - no need units
-
-        fParticleGun->GeneratePrimaryVertex(anEvent);
-
-        //SM.incrementPredictedTrackID();
-        factor *= 100.0;
+        GeantParticleGun->GeneratePrimaryVertex(anEvent);
     };
 
-    SM.ParticleGun->generateEvent(Handler, SM.CurrentEvent);
+    SM.ParticleGenerator->generateEvent(Handler, SM.CurrentEvent);
 }

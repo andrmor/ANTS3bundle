@@ -44,6 +44,10 @@ void AParticleSimWin::updateSimGui()
     ui->cobParticleGenerationMode->setCurrentIndex(iMode);
 
     updateSourceList();
+
+    ui->cbGunAllowMultipleEvents->setChecked(SimSet.SourceGenSettings.MultiEnabled);
+    ui->cobPartPerEvent->setCurrentIndex(SimSet.SourceGenSettings.MultiMode == ASourceGeneratorSettings::Constant ? 0 : 1);
+    ui->ledGunAverageNumPartperEvent->setText(QString::number(SimSet.SourceGenSettings.MultiNumber));
 }
 
 void AParticleSimWin::updateG4Gui()
@@ -714,5 +718,28 @@ void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with tracking data", ui->leWorkingDirectory->text());
     if (!fileName.isEmpty()) ui->leTrackingDataFile->setText(QFileInfo(fileName).baseName());
+}
+
+void AParticleSimWin::on_cbGunAllowMultipleEvents_clicked(bool checked)
+{
+    SimSet.SourceGenSettings.MultiEnabled = checked;
+}
+void AParticleSimWin::on_cobPartPerEvent_activated(int index)
+{
+    SimSet.SourceGenSettings.MultiMode = (index == 0 ? ASourceGeneratorSettings::Constant : ASourceGeneratorSettings::Poisson);
+}
+void AParticleSimWin::on_ledGunAverageNumPartperEvent_editingFinished()
+{
+    SimSet.SourceGenSettings.MultiNumber = ui->ledGunAverageNumPartperEvent->text().toDouble();
+}
+void AParticleSimWin::on_cbGunAllowMultipleEvents_toggled(bool checked)
+{
+    ui->cobPartPerEvent->setVisible(checked);
+    ui->labPartPerEvent->setVisible(checked);
+    ui->ledGunAverageNumPartperEvent->setVisible(checked);
+}
+void AParticleSimWin::on_cobPartPerEvent_currentIndexChanged(int index)
+{
+    ui->labPartPerEvent->setText(index == 0 ? "per event" : "with mean");
 }
 

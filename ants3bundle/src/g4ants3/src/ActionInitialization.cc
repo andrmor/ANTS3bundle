@@ -14,9 +14,9 @@ ActionInitialization::~ActionInitialization() {}
 
 void ActionInitialization::Build() const
 {
-    SetUserAction(new PrimaryGeneratorAction);
+    SetUserAction(new PrimaryGeneratorAction());
 
-    //SetUserAction(new RunAction);
+    //SetUserAction(new RunAction);  // rebased all to Action!
 
     SetUserAction(new EventAction);
 

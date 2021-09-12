@@ -59,7 +59,7 @@ private:
     bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles) const;
+    void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles);
 
 };
 

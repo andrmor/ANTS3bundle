@@ -75,8 +75,8 @@ void SessionManager::prepareParticleGun()
         for (AGunParticle & particle : source.Particles)
             particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
 
-    ParticleGun = new ASourceParticleGenerator(Settings.SourceGenSettings);
-    bool ok = ParticleGun->init();
+    ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
+    bool ok = ParticleGenerator->init();
     qDebug() << "Particle gun init:" << ok;
 }
 
@@ -610,6 +610,19 @@ void SessionManager::saveTrackRecord(const std::string & procName,
 
         *outStreamHistory << ss.rdbuf() << std::endl;
     }
+}
+
+void SessionManager::resetPredictedTrackID()
+{
+    ParticleGenerator->resetPredictedTrackID();
+}
+void SessionManager::incrementPredictedTrackID()
+{
+    ParticleGenerator->incrementPredictedTrackID();
+}
+int SessionManager::getPredictedTrackID() const
+{
+    return ParticleGenerator->getPredictedTrackID();
 }
 
 #include "G4LogicalVolumeStore.hh"

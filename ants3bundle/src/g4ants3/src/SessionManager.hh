@@ -76,9 +76,9 @@ class SessionManager
                              const std::vector<int> *secondaries = nullptr,
                              int iMatTo = -1, const std::string &volNameTo = "", int volIndexTo = -1);
 
-        void resetPredictedTrackID() {NextTrackID = 1;}
-        void incrementPredictedTrackID() {NextTrackID++;}
-        int  getPredictedTrackID() {return NextTrackID;}
+        void resetPredictedTrackID();
+        void incrementPredictedTrackID();
+        int  getPredictedTrackID() const;
 
         void findExitVolume();
 
@@ -110,8 +110,7 @@ public:
         bool   bExitKill = true;
 
         int CurrentEvent = 0;
-        AParticleGun * ParticleGun = nullptr;
-        int NextTrackID = 1;
+        AParticleGun * ParticleGenerator = nullptr;
 
 private:
         void prepareParticleCollection();

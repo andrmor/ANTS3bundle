@@ -18,7 +18,7 @@ class AParticleSimWin : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit AParticleSimWin(QWidget *parent = nullptr);
+    explicit AParticleSimWin(QWidget *parent = nullptr);  // !!!*** add validators
     ~AParticleSimWin();
 
 public slots:
@@ -54,6 +54,16 @@ private slots:
     void on_pbChooseWorkingDirectory_clicked();
 
     void on_pbChooseFileTrackingData_clicked();
+
+    void on_cbGunAllowMultipleEvents_clicked(bool checked);
+
+    void on_cobPartPerEvent_activated(int index);
+
+    void on_ledGunAverageNumPartperEvent_editingFinished();
+
+    void on_cbGunAllowMultipleEvents_toggled(bool checked);
+
+    void on_cobPartPerEvent_currentIndexChanged(int index);
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
