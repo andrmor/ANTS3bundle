@@ -693,10 +693,10 @@ void AParticleSimWin::on_pbShowTracks_clicked()
 
     const int MaxTracks = ui->sbMaxTracks->value();
 
-    bool ok = SimManager.buildTracks(fileName, LimitTo, Exclude, MaxTracks, -1);
-    if (!ok)
+    QString err = SimManager.buildTracks(fileName, LimitTo, Exclude, MaxTracks, -1);
+    if (!err.isEmpty())
     {
-        guitools::message(SimManager.ErrorString, this);
+        guitools::message(err, this);
         return;
     }
 

@@ -39,7 +39,7 @@ public:
 
     bool simulate(int numLocalProc = -1);
 
-    bool buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent = -1);
+    QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent = -1);
 
 private:
     AFileMerger HistoryFileMerger;

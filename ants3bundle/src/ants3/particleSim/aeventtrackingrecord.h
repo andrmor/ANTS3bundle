@@ -104,6 +104,8 @@ public:
     static AEventTrackingRecord* create();
     void   addPrimaryRecord(AParticleTrackingRecord * rec);
 
+    void   clear();
+
     bool   isEmpty() const {return PrimaryParticleRecords.empty();}
     int    countPrimaries() const;
 

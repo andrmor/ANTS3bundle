@@ -368,16 +368,21 @@ void AParticleSimManager::mergeOutput()
 }
 
 #include "atrackingdataimporter.h"
-bool AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
+#include "aeventtrackingrecord.h"
+#include "guitools.h"
+QString AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
 {
     // binary or ascii !!!***
     bool bBinary = false;
 
-    std::vector<AEventTrackingRecord*> history;
+    AEventTrackingRecord * record = AEventTrackingRecord::create();
 
-    ATrackingDataImporter tdi(fileName, bBinary, history);
-    QString error = tdi.processFile(0, 10000);
-    qDebug() << "Error:" << error << " Length of history:" << history.size();
+    ATrackingDataImporter tdi(fileName, bBinary);
+    bool ok = tdi.extractEvent(0, record);
 
-    return true;
+    if (!ok) return tdi.ErrorString;
+
+    qDebug() << "AAAAAAAAAAAAAAAAAAAAAAA:"<< record->countPrimaries();
+
+    return "";
 }

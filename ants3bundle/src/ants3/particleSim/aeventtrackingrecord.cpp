@@ -267,13 +267,18 @@ AEventTrackingRecord::AEventTrackingRecord(){}
 
 AEventTrackingRecord::~AEventTrackingRecord()
 {
-    for (AParticleTrackingRecord * pr : PrimaryParticleRecords) delete pr;
-    PrimaryParticleRecords.clear();
+    clear();
 }
 
 void AEventTrackingRecord::addPrimaryRecord(AParticleTrackingRecord *rec)
 {
     PrimaryParticleRecords.push_back(rec);
+}
+
+void AEventTrackingRecord::clear()
+{
+    for (AParticleTrackingRecord * pr : PrimaryParticleRecords) delete pr;
+    PrimaryParticleRecords.clear();
 }
 
 int AEventTrackingRecord::countPrimaries() const

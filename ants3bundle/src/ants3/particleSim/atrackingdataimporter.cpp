@@ -12,10 +12,13 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
-ATrackingDataImporter::ATrackingDataImporter(const QString & fileName, bool binary, std::vector<AEventTrackingRecord*> & history) :
-    FileName(fileName), bBinaryInput(binary), History(history)
+ATrackingDataImporter::ATrackingDataImporter(const QString & fileName, bool binary) :
+    FileName(fileName), bBinaryInput(binary)
 {
     prepareImportResources(FileName);
+
+    CurrentStatus = Initialization;
+    processFile();
 }
 
 ATrackingDataImporter::~ATrackingDataImporter()
@@ -23,14 +26,45 @@ ATrackingDataImporter::~ATrackingDataImporter()
     clearImportResources();
 }
 
-QString ATrackingDataImporter::processFile(int FromEvent, int ToEvent)
+bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * EventRecord)
 {
-    if (!Error.isEmpty()) return Error;
+    if (iEvent == CurrentEvent) return readCurrentEvent(EventRecord);
 
-    EndEvent = ToEvent;
-    ExpectedEvent = FromEvent;
-    CurrentStatus = ExpectingEvent;
-    CurrentEventRecord = AEventTrackingRecord::create();  // !!!*** kill?
+    if (iEvent < FileBeginEvent)
+    {
+        ErrorString = "Event number is less than the first event index in the file";
+        return false;
+    }
+    if (FileEndEvent != -1 && iEvent > FileEndEvent)
+    {
+        ErrorString = "Event number is larger than the last event index in the file";
+        return false;
+    }
+
+    bool ok = gotoEvent(iEvent);
+    if (!ok) return false;
+
+    return readCurrentEvent(EventRecord);
+}
+
+bool ATrackingDataImporter::gotoEvent(int iEvent)
+{
+    return true;
+}
+
+bool ATrackingDataImporter::readCurrentEvent(AEventTrackingRecord * EventRecord)
+{
+    CurrentEventRecord = EventRecord;
+    CurrentEventRecord->clear();
+
+    return processFile();
+}
+
+bool ATrackingDataImporter::processFile()
+{
+    if (!ErrorString.isEmpty()) return false;
+
+//    CurrentStatus = ExpectingEvent;
 
     while (!isEndReached())
     {
@@ -44,24 +78,33 @@ QString ATrackingDataImporter::processFile(int FromEvent, int ToEvent)
             if (currentLine.isEmpty()) continue;
         }
 
-        if      (isNewEvent()) processNewEvent();
+        if      (isNewEvent())
+        {
+            processNewEvent();
+            break;
+        }
+        else if (CurrentStatus == Initialization)
+        {
+            ErrorString = "Invalid format of the file";
+            return false;
+        }
         else if (isNewTrack()) processNewTrack();
         else                   processNewStep();
 
-        if (!Error.isEmpty())
+        if (!ErrorString.isEmpty())
         {
-            clearImportResources();
-            return Error;
+            clearImportResources(); // !!!*** why here?
+            return false;
         }
     }
 
     if (isErrorInPromises())
     {
-        clearImportResources();
-        return Error;
+        clearImportResources(); // !!!*** why here?
+        return false;
     }
 
-    return "";
+    return true;
 }
 
 bool ATrackingDataImporter::isEndReached() const
@@ -80,7 +123,7 @@ void ATrackingDataImporter::readBuffer()
         *inStream >> binHeader;
         if (inStream->eof()) return; //this is the proper way to reach end of file
         if (inStream->fail())
-            Error = "Error in header char input";
+            ErrorString = "Error in header char input";
     }
     else
         currentLine = inTextStream->readLine();
@@ -88,7 +131,7 @@ void ATrackingDataImporter::readBuffer()
 
 bool ATrackingDataImporter::isNewEvent()
 {
-    if (!Error.isEmpty()) return false;
+    if (!ErrorString.isEmpty()) return false;
 
     if (bBinaryInput)
     {
@@ -101,7 +144,7 @@ bool ATrackingDataImporter::isNewEvent()
 
 bool ATrackingDataImporter::isNewTrack()
 {
-    if (!Error.isEmpty()) return false;
+    if (!ErrorString.isEmpty()) return false;
 
     if (bBinaryInput)
     {
@@ -120,7 +163,7 @@ void ATrackingDataImporter::prepareImportResources(const QString & FileName)
 
         if (!inStream->is_open())
         {
-            Error = "Failed to open file " + FileName;
+            ErrorString = "Failed to open file " + FileName;
             return;
         }
     }
@@ -129,7 +172,7 @@ void ATrackingDataImporter::prepareImportResources(const QString & FileName)
         inTextFile = new QFile(FileName);
         if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
         {
-            Error = "Failed to open file " + FileName;
+            ErrorString = "Failed to open file " + FileName;
             return;
         }
         inTextStream = new QTextStream(inTextFile);
@@ -149,7 +192,7 @@ int ATrackingDataImporter::extractEventId()
     {
         int evId;
         inStream->read((char*)&evId, sizeof(int));
-        if (inStream->fail()) Error = "Error in header char input";
+        if (inStream->fail()) ErrorString = "Error in header char input";
         //qDebug() << "Event id:" << evId << "  error?" << !Error.isEmpty();
         return evId;
     }
@@ -159,7 +202,7 @@ int ATrackingDataImporter::extractEventId()
         currentLine.remove(0, 1);
         bool bOK = false;
         int evId = currentLine.toInt(&bOK);
-        if (!bOK) Error = "Error in conversion of event number to integer";
+        if (!bOK) ErrorString = "Error in conversion of event number to integer";
         return evId;
     }
 }
@@ -183,7 +226,7 @@ void ATrackingDataImporter::readNewTrack()
 
         if (inStream->fail())
         {
-            Error = "Unexpected format of a new track binary record";
+            ErrorString = "Unexpected format of a new track binary record";
             return;
         }
     }
@@ -195,7 +238,7 @@ void ATrackingDataImporter::readNewTrack()
         //   0           1           2         3 4 5   6  7   8     9       10
         inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
         if (inputSL.size() != 11)
-            Error = "Bad format in new track line";
+            ErrorString = "Bad format in new track line";
     }
 }
 
@@ -315,11 +358,11 @@ void ATrackingDataImporter::readNewStep()
             if (inStream->fail())
                 if (!inStream->eof())
                 {
-                    Error = "Unexpected format of a step in history/track binary file";
+                    ErrorString = "Unexpected format of a step in history/track binary file";
                     return;
                 }
         }
-        else Error = "Unexpected header char for a step in history/track binary file";
+        else ErrorString = "Unexpected header char for a step in history/track binary file";
     }
     else
     {
@@ -337,12 +380,12 @@ void ATrackingDataImporter::readNewStep()
         inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
         if (inputSL.size() < 7)
         {
-            Error = "Bad format in step line";
+            ErrorString = "Bad format in step line";
             return;
         }
         if (inputSL.first() == "T" && inputSL.size() < 10)
         {
-            Error = "Bad format in tracking line (transportation step)";
+            ErrorString = "Bad format in tracking line (transportation step)";
             return;
         }
     }
@@ -359,7 +402,7 @@ void ATrackingDataImporter::addHistoryStep()
     {
         if (PromisedSecondaries.contains(index))
         {
-            Error = QString("Error: secondary with index %1 was already promised").arg(index);
+            ErrorString = QString("Error: secondary with index %1 was already promised").arg(index);
             return;
         }
         AParticleTrackingRecord * sr = AParticleTrackingRecord::create(); //empty!
@@ -473,52 +516,58 @@ void ATrackingDataImporter::readString(std::string & str) const
 
 void ATrackingDataImporter::processNewEvent()
 {
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
     if (CurrentStatus == ExpectingStep)
     {
-        Error = "Unexpected start of event - single step in one record";
+        ErrorString = "Unexpected start of event - single step in one record";
         return;
     }
     if (isErrorInPromises()) return; // container of promises should be empty at the end of event
 
     int evId = extractEventId();
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
-    if (evId != ExpectedEvent)
+    if (CurrentStatus == Initialization)
     {
-        Error = QString("Expected event #%1, but received #%2").arg(ExpectedEvent).arg(evId);
+        FileBeginEvent = evId;
+        CurrentEvent = evId;
+    }
+    else CurrentEvent++;
+
+    if (evId != CurrentEvent)
+    {
+        ErrorString = QString("Expected event #%1, but received #%2").arg(CurrentEvent).arg(evId);
         return;
     }
 
-    CurrentEventRecord = AEventTrackingRecord::create();
-    History.push_back(CurrentEventRecord);
+//    CurrentEventRecord = AEventTrackingRecord::create();
+//    History.push_back(CurrentEventRecord);
 
-    ExpectedEvent++;
     CurrentStatus = ExpectingTrack;
 }
 
 void ATrackingDataImporter::processNewTrack()
 {
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
     if (CurrentStatus == ExpectingEvent)
     {
-        Error = "Unexpected start of track - waiting new event";
+        ErrorString = "Unexpected start of track - waiting new event";
         return;
     }
     if (CurrentStatus == ExpectingStep)
     {
-        Error = "Unexpected start of track - waiting for 1st step";
+        ErrorString = "Unexpected start of track - waiting for 1st step";
         return;
     }
 
     readNewTrack();
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
     if (!CurrentEventRecord)
     {
-        Error = "Attempt to start new track when event record does not exist";
+        ErrorString = "Attempt to start new track when event record does not exist";
         return;
     }
 
@@ -536,7 +585,7 @@ void ATrackingDataImporter::processNewTrack()
         AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
         if (!secrec)
         {
-            Error = "Promised secondary not found!";
+            ErrorString = "Promised secondary not found!";
             return;
         }
 
@@ -550,14 +599,14 @@ void ATrackingDataImporter::processNewTrack()
 
 void ATrackingDataImporter::processNewStep()
 {
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
     readNewStep();
-    if (!Error.isEmpty()) return;
+    if (!ErrorString.isEmpty()) return;
 
     if (!CurrentParticleRecord)
     {
-        Error = "Attempt to add step when particle record does not exist";
+        ErrorString = "Attempt to add step when particle record does not exist";
         return;
     }
     addHistoryStep();
@@ -569,7 +618,7 @@ bool ATrackingDataImporter::isErrorInPromises()
 {
     if (!PromisedSecondaries.isEmpty())
     {
-        Error = "Untreated promises of secondaries remained on event finish!";
+        ErrorString = "Untreated promises of secondaries remained on event finish!";
         return true;
     }
     return false;
