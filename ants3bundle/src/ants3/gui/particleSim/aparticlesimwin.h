@@ -49,20 +49,14 @@ private slots:
 
     void on_sbEvents_editingFinished();
 
+    void on_pbChooseWorkingDirectory_clicked();
+    void on_pbChooseFileTrackingData_clicked();
     void on_pbShowTracks_clicked();
 
-    void on_pbChooseWorkingDirectory_clicked();
-
-    void on_pbChooseFileTrackingData_clicked();
-
     void on_cbGunAllowMultipleEvents_clicked(bool checked);
-
     void on_cobPartPerEvent_activated(int index);
-
     void on_ledGunAverageNumPartperEvent_editingFinished();
-
     void on_cbGunAllowMultipleEvents_toggled(bool checked);
-
     void on_cobPartPerEvent_currentIndexChanged(int index);
 
 signals:

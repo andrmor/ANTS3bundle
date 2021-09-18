@@ -717,7 +717,10 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_clicked()
 void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with tracking data", ui->leWorkingDirectory->text());
-    if (!fileName.isEmpty()) ui->leTrackingDataFile->setText(QFileInfo(fileName).baseName());
+    if (fileName.isEmpty()) return;
+
+    fileName = QFileInfo(fileName).completeBaseName() + "." + QFileInfo(fileName).suffix();
+    ui->leTrackingDataFile->setText(fileName);
 }
 
 void AParticleSimWin::on_cbGunAllowMultipleEvents_clicked(bool checked)
