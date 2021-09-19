@@ -8,6 +8,8 @@ class AG4SimulationSettings;
 class QListWidgetItem;
 class AParticleGun;
 class AParticleSimManager;
+class QTreeWidgetItem;
+class AParticleTrackingRecord;
 
 namespace Ui {
 class AParticleSimWin;
@@ -59,6 +61,13 @@ private slots:
     void on_cbGunAllowMultipleEvents_toggled(bool checked);
     void on_cobPartPerEvent_currentIndexChanged(int index);
 
+    // event view
+    void on_pbShowEventTree_clicked();
+    void on_pbEventView_clicked();
+    void on_sbEVexpansionLevel_valueChanged(int);
+    void on_cbEVhideTrans_clicked();
+    void on_cbEVhideTransPrim_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -70,11 +79,18 @@ private:
 
     Ui::AParticleSimWin *ui;
 
+    std::vector<bool> ExpandedItems;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
     void drawSource(int iSource);  // !!!***
     void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
+
+    //event viewer
+    void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
+    void EV_showTree();
+    void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
 };
 
 #endif // APARTICLESIMWIN_H

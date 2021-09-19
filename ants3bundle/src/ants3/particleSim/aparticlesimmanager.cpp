@@ -423,7 +423,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
     gGeoManager->ClearTracks();
 
-    ATrackingDataImporter tdi(fileName, bBinary);
+    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
 
     AEventTrackingRecord * record = AEventTrackingRecord::create();
     int iEvent = 0;
@@ -447,5 +447,17 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
                      iTrack, MaxTracks);
     }
 
+    return "";
+}
+
+QString AParticleSimManager::fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record)
+{
+    // binary or ascii !!!***
+    bool bBinary = false;
+
+    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+
+    bool ok = tdi.extractEvent(iEvent, record);
+    if (!ok) return tdi.ErrorString;
     return "";
 }
