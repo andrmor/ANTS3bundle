@@ -1802,6 +1802,13 @@ Format: Volume_name  Step_in_mm</string>
                    </widget>
                   </item>
                   <item>
+                   <widget class="QLabel" name="labNumEvents">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="pbPreviousEvent">
                     <property name="maximumSize">
                      <size>
@@ -1854,19 +1861,12 @@ Format: Volume_name  Step_in_mm</string>
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>Number of events:</string>
+                   <widget class="QCheckBox" name="cbEVshowFilters">
+                    <property name="toolTip">
+                     <string>Affect 'Next' and 'Previous' navigation buttons at the bottom</string>
                     </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labNumEvents">
                     <property name="text">
-                     <string>0</string>
+                     <string>Show filters</string>
                     </property>
                    </widget>
                   </item>
@@ -1909,13 +1909,6 @@ Format: Volume_name  Step_in_mm</string>
                    <property name="bottomMargin">
                     <number>3</number>
                    </property>
-                   <item>
-                    <widget class="QCheckBox" name="cbEVshowFilters">
-                     <property name="text">
-                      <string>Show event filters (affect 'Next' and 'Previous' navigation buttons at the bottom)</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item>
                     <widget class="QFrame" name="frEventFilters">
                      <property name="minimumSize">
@@ -2086,6 +2079,9 @@ Format: Volume_name  Step_in_mm</string>
                      <property name="contextMenuPolicy">
                       <enum>Qt::CustomContextMenu</enum>
                      </property>
+                     <attribute name="headerVisible">
+                      <bool>false</bool>
+                     </attribute>
                      <column>
                       <property name="text">
                        <string>Particle tracking history</string>
@@ -2504,28 +2500,14 @@ Format: Volume_name  Step_in_mm</string>
                       </spacer>
                      </item>
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_32">
-                       <property name="spacing">
-                        <number>1</number>
+                      <widget class="QCheckBox" name="cbEVtracks">
+                       <property name="text">
+                        <string>Show tracks</string>
                        </property>
-                       <item>
-                        <widget class="QCheckBox" name="cbEVtracks">
-                         <property name="text">
-                          <string>Show tracks</string>
-                         </property>
-                         <property name="checked">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="cbEVsupressSec">
-                         <property name="text">
-                          <string>Suppress tracks of secondaries</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_38">
@@ -2539,6 +2521,13 @@ Format: Volume_name  Step_in_mm</string>
                         </size>
                        </property>
                       </spacer>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="cbEVsupressSec">
+                       <property name="text">
+                        <string>Suppress tracks of secondaries</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <widget class="QPushButton" name="pbShowEventTree">
