@@ -64,6 +64,8 @@ public:
     bool isTouchedVolumes(const QStringList & Vols, const QStringList &VolsStartsWith) const;
     bool isContainParticle(const QStringList & PartNames) const;
 
+    bool isNoInteractions() const;
+
     void logToString(QString & str, int offset, bool bExpandSecondaries) const;
 
     void fillELDD(ATrackingStepData * IdByStep, std::vector<float> & dist, std::vector<float> & ELDD) const;

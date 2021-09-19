@@ -377,37 +377,46 @@ void AParticleSimManager::mergeOutput()
 
 namespace
 {
-    void addTrack(const AParticleTrackingRecord * r, bool WithSecondaries, int & iTrack, int MaxTracks)
+    void addTrack(const AParticleTrackingRecord * r,
+                  bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
+                  int & iTrack, int MaxTracks)
     {
         if (iTrack >= MaxTracks) return;
 
-        TGeoTrack * track = new TGeoTrack(1, 22);
+        const bool DoSkipPrim = SkipPrimaries || (SkipPrimNoInter && r->isNoInteractions());
 
-        track->SetLineColor(7);
-        track->SetLineWidth(2);
-        track->SetLineStyle(1);
-
-
-        const std::vector<ATrackingStepData *> & Steps = r->getSteps();
-        for (const ATrackingStepData * step : Steps)
+        if (!DoSkipPrim)
         {
-            if (step->Process != "T")
-                track->AddPoint(step->Position[0], step->Position[1], step->Position[2], step->Time);
-        }
-//        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
-        gGeoManager->AddTrack(track);
-        iTrack++;
+            TGeoTrack * track = new TGeoTrack(1, 22);
 
-        if (WithSecondaries)
+            track->SetLineColor(7);
+            track->SetLineWidth(2);
+            track->SetLineStyle(1);
+//        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
+
+            const std::vector<ATrackingStepData *> & Steps = r->getSteps();
+            for (const ATrackingStepData * step : Steps)
+            {
+                if (step->Process != "T")
+                    track->AddPoint(step->Position[0], step->Position[1], step->Position[2], step->Time);
+            }
+            gGeoManager->AddTrack(track);
+            iTrack++;
+        }
+
+        if (!SkipSecondaries)
         {
             const std::vector<AParticleTrackingRecord *> & Secondaries = r->getSecondaries();
             for (AParticleTrackingRecord * sec : Secondaries)
-                addTrack(sec, WithSecondaries, iTrack, MaxTracks);
+                addTrack(sec, false, false, SkipSecondaries,  // already no primaries from this level down
+                         iTrack, MaxTracks);
         }
     }
 }
 
-QString AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
+QString AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
+                                         bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
+                                         const int MaxTracks, int LimitToEvent)
 {
     // binary or ascii !!!***
     bool bBinary = false;
@@ -433,7 +442,9 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
         const std::vector<AParticleTrackingRecord *> Prims = record->getPrimaryParticleRecords();
         for (const AParticleTrackingRecord * r : Prims)
-            addTrack(r, true, iTrack, MaxTracks);
+            addTrack(r,
+                     SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                     iTrack, MaxTracks);
     }
 
     return "";

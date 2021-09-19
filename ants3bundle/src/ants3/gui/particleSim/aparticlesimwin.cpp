@@ -693,7 +693,13 @@ void AParticleSimWin::on_pbShowTracks_clicked()
 
     const int MaxTracks = ui->sbMaxTracks->value();
 
-    QString err = SimManager.buildTracks(fileName, LimitTo, Exclude, MaxTracks, -1);
+    const bool SkipPrimaries   = ui->cbSkipPrimaryTracks->isChecked();
+    const bool SkipPrimNoInter = ui->cbSkipPrimaryTracksNoInteraction->isChecked();
+    const bool SkipSecondaries = ui->cbSkipSecondaryTracks->isChecked();
+
+    QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
+                                         SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                                         MaxTracks, -1);
     if (!err.isEmpty())
     {
         guitools::message(err, this);

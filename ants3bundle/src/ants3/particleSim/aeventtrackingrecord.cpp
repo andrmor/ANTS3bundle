@@ -172,6 +172,18 @@ bool AParticleTrackingRecord::isContainParticle(const QStringList & PartNames) c
     return false;
 }
 
+bool AParticleTrackingRecord::isNoInteractions() const
+{
+    for (const ATrackingStepData * s : Steps)
+    {
+        if (s->Process == "C") continue;
+        if (s->Process == "T") continue;
+        if (s->Process == "O") return true;
+        return false;
+    }
+    return true;
+}
+
 void AParticleTrackingRecord::logToString(QString & str, int offset, bool bExpandSecondaries) const
 {
     str += QString(' ').repeated(offset) + '>';
