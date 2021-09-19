@@ -40,6 +40,12 @@ void ATrackAttributes::reset()
 
 // ---
 
+AParticleTrackVisuals &AParticleTrackVisuals::getInstance()
+{
+    static AParticleTrackVisuals instance;
+    return instance;
+}
+
 AParticleTrackVisuals::AParticleTrackVisuals()
 {
     clear();

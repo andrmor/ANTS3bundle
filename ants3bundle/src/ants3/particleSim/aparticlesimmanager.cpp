@@ -369,20 +369,72 @@ void AParticleSimManager::mergeOutput()
 
 #include "atrackingdataimporter.h"
 #include "aeventtrackingrecord.h"
-#include "guitools.h"
+//#include "atrackrecords.h"
+//#include "atrackbuildoptions.h"
+#include "TGeoTrack.h"
+#include "TGeoManager.h"
+#include "aparticletrackvisuals.h"
+
+namespace
+{
+    void addTrack(const AParticleTrackingRecord * r, bool WithSecondaries, int & iTrack, int MaxTracks)
+    {
+        if (iTrack >= MaxTracks) return;
+
+        TGeoTrack * track = new TGeoTrack(1, 22);
+
+        track->SetLineColor(7);
+        track->SetLineWidth(2);
+        track->SetLineStyle(1);
+
+
+        const std::vector<ATrackingStepData *> & Steps = r->getSteps();
+        for (const ATrackingStepData * step : Steps)
+        {
+            if (step->Process != "T")
+                track->AddPoint(step->Position[0], step->Position[1], step->Position[2], step->Time);
+        }
+//        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
+        gGeoManager->AddTrack(track);
+        iTrack++;
+
+        if (WithSecondaries)
+        {
+            const std::vector<AParticleTrackingRecord *> & Secondaries = r->getSecondaries();
+            for (AParticleTrackingRecord * sec : Secondaries)
+                addTrack(sec, WithSecondaries, iTrack, MaxTracks);
+        }
+    }
+}
+
 QString AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles, const int MaxTracks, int LimitToEvent)
 {
     // binary or ascii !!!***
     bool bBinary = false;
 
-    AEventTrackingRecord * record = AEventTrackingRecord::create();
+    gGeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName, bBinary);
-    bool ok = tdi.extractEvent(0, record);
 
-    if (!ok) return tdi.ErrorString;
+    AEventTrackingRecord * record = AEventTrackingRecord::create();
+    int iEvent = 0;
+    int iTrack = 0;
+    while (iTrack < MaxTracks)
+    {
+        bool ok = tdi.extractEvent(iEvent, record);
+        iEvent++;
 
-    qDebug() << "AAAAAAAAAAAAAAAAAAAAAAA:"<< record->countPrimaries();
+        qDebug() << ok << tdi.ErrorString;
+        if (!ok)
+        {
+            if (tdi.isEndReached()) return "";
+            return tdi.ErrorString;
+        }
+
+        const std::vector<AParticleTrackingRecord *> Prims = record->getPrimaryParticleRecords();
+        for (const AParticleTrackingRecord * r : Prims)
+            addTrack(r, true, iTrack, MaxTracks);
+    }
 
     return "";
 }

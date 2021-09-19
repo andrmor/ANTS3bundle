@@ -2,8 +2,7 @@
 
 #include <QDebug>
 
-#include "TGeoManager.h"
-#include "TGeoNode.h"
+#include <cmath>
 
 // ============= Step ==============
 
@@ -190,28 +189,6 @@ void AParticleTrackingRecord::logToString(QString & str, int offset, bool bExpan
     }
 }
 
-/*
-#include "atrackrecords.h"
-#include "atrackbuildoptions.h"
-void AParticleTrackingRecord::makeTrack(std::vector<TrackHolderClass *> & Tracks, const QStringList & ParticleNames, const ATrackBuildOptions & TrackBuildOptions, bool bWithSecondaries) const
-{
-    TrackHolderClass * tr = new TrackHolderClass();
-    tr->UserIndex = 22;
-    TrackBuildOptions.applyToParticleTrack(tr, ParticleNames.indexOf(ParticleName));
-    Tracks.push_back(tr);
-
-    for (ATrackingStepData * step : Steps)
-    {
-        if (step->Process != "T")
-            tr->Nodes.append( TrackNodeStruct(step->Position[0], step->Position[1], step->Position[2], step->Time) );
-    }
-
-    if (bWithSecondaries)
-        for (AParticleTrackingRecord * sec : Secondaries)
-            sec->makeTrack(Tracks, ParticleNames, TrackBuildOptions, bWithSecondaries);
-}
-*/
-
 void AParticleTrackingRecord::fillELDD(ATrackingStepData *IdByStep, std::vector<float> &dist, std::vector<float> &ELDD) const
 {
     dist.clear();
@@ -309,11 +286,3 @@ bool AEventTrackingRecord::isContainParticle(const QStringList & PartNames) cons
 
     return false;
 }
-
-/*
-void AEventTrackingRecord::makeTracks(std::vector<TrackHolderClass *> &Tracks, const QStringList &ParticleNames, const ATrackBuildOptions &TrackBuildOptions, bool bWithSecondaries) const
-{
-    for (AParticleTrackingRecord * r : PrimaryParticleRecords)
-        r->makeTrack(Tracks, ParticleNames, TrackBuildOptions, bWithSecondaries);
-}
-*/

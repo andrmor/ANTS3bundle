@@ -20,6 +20,7 @@ public:
     ~ATrackingDataImporter();
 
     bool extractEvent(int iEvent, AEventTrackingRecord * EventRecord);
+    bool isEndReached() const;
 
     QString ErrorString;
 
@@ -71,7 +72,6 @@ private:
     //to speedup, maybe add QString fields to mirrow std::strings appear?
 
 private:
-    bool isEndReached() const;
     void readBuffer();
     bool isNewEvent();
     bool isNewTrack();

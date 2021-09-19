@@ -5,12 +5,6 @@
 #include <QStringList>
 #include <vector>
 
-class AParticleTrackingRecord;
-class TrackHolderClass;
-//class ATrackBuildOptions;
-class TGeoNode;
-class TrackHolderClass;
-
 class ATrackingStepData
 {
 public:
@@ -72,8 +66,6 @@ public:
 
     void logToString(QString & str, int offset, bool bExpandSecondaries) const;
 
-    // !!!***
-//    void makeTrack(std::vector<TrackHolderClass *> & Tracks, const QStringList & ParticleNames, const ATrackBuildOptions & TrackBuildOptions, bool bWithSecondaries) const;
     void fillELDD(ATrackingStepData * IdByStep, std::vector<float> & dist, std::vector<float> & ELDD) const;
 
     virtual ~AParticleTrackingRecord();
@@ -112,9 +104,6 @@ public:
     bool   isHaveProcesses(const QStringList & Proc, bool bOnlyPrimary) const;
     bool   isTouchedVolumes(const QStringList & Vols, const QStringList & VolsStartsWith) const;
     bool   isContainParticle(const QStringList & PartNames) const;
-
-    // !!!***
-//    void   makeTracks(std::vector<TrackHolderClass *> & Tracks, const QStringList & ParticleNames, const ATrackBuildOptions & TrackBuildOptions, bool bWithSecondaries) const;
 
     const std::vector<AParticleTrackingRecord *> & getPrimaryParticleRecords() const {return PrimaryParticleRecords;}
 
