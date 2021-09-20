@@ -26,26 +26,27 @@ public:
 
 private:
     bool gotoEvent(int iEvent);
-    bool readCurrentEvent(AEventTrackingRecord * EventRecord);
+    bool readCurrentEvent();
 
-    bool processFile();
+    bool processFile(bool SeekMode = false);
 
     QString FileName;
     bool    bBinaryInput;
 
-    AEventTrackingRecord    * CurrentEventRecord   = nullptr;   // history of the current event
+    AEventTrackingRecord    * CurrentEventRecord    = nullptr;
     AParticleTrackingRecord * CurrentParticleRecord = nullptr;  // current particle - can be primary or secondary
 
     QMap<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
 
-    enum Status {ExpectingEvent, ExpectingTrack, ExpectingStep, TrackOngoing,    Initialization};
+    enum EStatus {ExpectingEvent, ExpectingTrack, ExpectingStep, TrackOngoing, Initialization};
 
-    Status CurrentStatus = ExpectingEvent;
+    EStatus CurrentStatus = ExpectingEvent;
 
     int CurrentEvent = -1;
 
-    int FileBeginEvent = 0;
-    int FileEndEvent = 0;
+    int SeekEvent = 0;
+
+    int FileEndEvent = -1;
 
     //resources for ascii input
     QFile *       inTextFile = nullptr;
@@ -76,9 +77,9 @@ private:
     bool isNewEvent();
     bool isNewTrack();
 
-    void processNewEvent();
-    void processNewTrack();
-    void processNewStep();
+    void processNewEvent(bool SeekMode = false);
+    void processNewTrack(bool SeekMode);
+    void processNewStep(bool SeekMode);
 
     bool isErrorInPromises();
 
@@ -86,12 +87,12 @@ private:
     void clearImportResources();
 
     int  extractEventId();
-    void readNewTrack();
+    void readNewTrack(bool SeekMode);
     bool isPrimaryRecord() const;
     AParticleTrackingRecord * createAndInitParticleTrackingRecord() const;
     int  getNewTrackIndex() const;
     void updatePromisedSecondary(AParticleTrackingRecord * secrec);
-    void readNewStep();
+    void readNewStep(bool SeekMode);
     void addHistoryStep();
     bool isTransportationStep() const;
     ATrackingStepData * createHistoryTransportationStep() const;

@@ -1408,7 +1408,11 @@ Format: Volume_name  Step_in_mm</string>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="leWorkingDirectory"/>
+           <widget class="QLineEdit" name="leWorkingDirectory">
+            <property name="text">
+             <string>/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pbChooseWorkingDirectory">
@@ -1451,7 +1455,11 @@ Format: Volume_name  Step_in_mm</string>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="leTrackingDataFile"/>
+               <widget class="QLineEdit" name="leTrackingDataFile">
+                <property name="text">
+                 <string>TrackingData.txt</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pbChooseFileTrackingData">

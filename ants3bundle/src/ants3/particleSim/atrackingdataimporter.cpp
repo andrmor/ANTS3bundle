@@ -28,11 +28,13 @@ ATrackingDataImporter::~ATrackingDataImporter()
 
 bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * EventRecord)
 {
-    if (iEvent == CurrentEvent) return readCurrentEvent(EventRecord);
+    CurrentEventRecord = EventRecord;
 
-    if (iEvent < FileBeginEvent)
+    if (iEvent == CurrentEvent) return readCurrentEvent();
+
+    if (iEvent < 0)
     {
-        ErrorString = "Event number is less than the first event index in the file";
+        ErrorString = "Event number should be >= 0";
         return false;
     }
     if (FileEndEvent != -1 && iEvent > FileEndEvent)
@@ -44,30 +46,38 @@ bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * Even
     bool ok = gotoEvent(iEvent);
     if (!ok) return false;
 
-    return readCurrentEvent(EventRecord);
+    return readCurrentEvent();
 }
 
 bool ATrackingDataImporter::gotoEvent(int iEvent)
 {
-    return true;
+    if (CurrentEvent == iEvent) return true;
+
+    if (iEvent < CurrentEvent)
+    {
+        if (bBinaryInput) inStream->seekg(0);
+        else inTextStream->seek(0);
+        CurrentEvent = -1;
+    }
+
+    SeekEvent = iEvent;
+    return processFile(true);
 }
 
-bool ATrackingDataImporter::readCurrentEvent(AEventTrackingRecord * EventRecord)
+bool ATrackingDataImporter::readCurrentEvent()
 {
-    CurrentEventRecord = EventRecord;
     CurrentEventRecord->clear();
-
     return processFile();
 }
 
-bool ATrackingDataImporter::processFile()
+bool ATrackingDataImporter::processFile(bool SeekMode)
 {
     if (!ErrorString.isEmpty()) return false;
 
-//    CurrentStatus = ExpectingEvent;
-
     while (!isEndReached())
     {
+        if (!ErrorString.isEmpty()) return false;
+
         readBuffer();
         if (bBinaryInput)
         {
@@ -80,27 +90,29 @@ bool ATrackingDataImporter::processFile()
 
         if      (isNewEvent())
         {
-            processNewEvent();
-            break;
+            processNewEvent(SeekMode);
+            if (SeekMode && CurrentEvent != SeekEvent) continue;
+            else break;
         }
         else if (CurrentStatus == Initialization)
         {
             ErrorString = "Invalid format of the file";
             return false;
         }
-        else if (isNewTrack()) processNewTrack();
-        else                   processNewStep();
-
-        if (!ErrorString.isEmpty())
-        {
-            clearImportResources(); // !!!*** why here?
-            return false;
-        }
+        else if (isNewTrack()) processNewTrack(SeekMode);
+        else                   processNewStep(SeekMode);
     }
 
+    if (!ErrorString.isEmpty()) return false;
+    if (isEndReached()) FileEndEvent = CurrentEvent;
+    if (SeekMode && isEndReached())
+    {
+        ErrorString = QString("End reached while seeking event index of %0").arg(SeekEvent);
+        return false;
+    }
     if (isErrorInPromises())
     {
-        clearImportResources(); // !!!*** why here?
+        ErrorString = "Untreated promises of secondaries remained on event finish!";
         return false;
     }
 
@@ -207,7 +219,7 @@ int ATrackingDataImporter::extractEventId()
     }
 }
 
-void ATrackingDataImporter::readNewTrack()
+void ATrackingDataImporter::readNewTrack(bool SeekMode)
 {
     if (bBinaryInput)
     {
@@ -233,6 +245,9 @@ void ATrackingDataImporter::readNewTrack()
     else
     {
         //qDebug() << "NT:"<<currentLine;
+
+        if (SeekMode) return;
+
         currentLine.remove(0, 1);
         //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
         //   0           1           2         3 4 5   6  7   8     9       10
@@ -329,7 +344,7 @@ void ATrackingDataImporter::updatePromisedSecondary(AParticleTrackingRecord *sec
     }
 }
 
-void ATrackingDataImporter::readNewStep()
+void ATrackingDataImporter::readNewStep(bool SeekMode)
 {
     if (bBinaryInput)
     {
@@ -376,6 +391,8 @@ void ATrackingDataImporter::readNewStep()
         // format for all other processes:
         // ProcName X Y Z Time KinE DirectDepoE [secondaries]
         //     0    1 2 3   4    5      6           ...
+
+        if (SeekMode) return;
 
         inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
         if (inputSL.size() < 7)
@@ -514,7 +531,7 @@ void ATrackingDataImporter::readString(std::string & str) const
     }
 }
 
-void ATrackingDataImporter::processNewEvent()
+void ATrackingDataImporter::processNewEvent(bool SeekMode)
 {
     if (!ErrorString.isEmpty()) return;
 
@@ -528,12 +545,10 @@ void ATrackingDataImporter::processNewEvent()
     int evId = extractEventId();
     if (!ErrorString.isEmpty()) return;
 
-    if (CurrentStatus == Initialization)
-    {
-        FileBeginEvent = evId;
+    if (CurrentStatus == Initialization || SeekMode)
         CurrentEvent = evId;
-    }
-    else CurrentEvent++;
+    else
+        CurrentEvent++;
 
     if (evId != CurrentEvent)
     {
@@ -541,13 +556,10 @@ void ATrackingDataImporter::processNewEvent()
         return;
     }
 
-//    CurrentEventRecord = AEventTrackingRecord::create();
-//    History.push_back(CurrentEventRecord);
-
     CurrentStatus = ExpectingTrack;
 }
 
-void ATrackingDataImporter::processNewTrack()
+void ATrackingDataImporter::processNewTrack(bool SeekMode)
 {
     if (!ErrorString.isEmpty()) return;
 
@@ -562,64 +574,59 @@ void ATrackingDataImporter::processNewTrack()
         return;
     }
 
-    readNewTrack();
+    readNewTrack(SeekMode);
     if (!ErrorString.isEmpty()) return;
 
-    if (!CurrentEventRecord)
+    if (!SeekMode)
     {
-        ErrorString = "Attempt to start new track when event record does not exist";
-        return;
-    }
-
-    // if primary (parent track == 0), create a new primary record in this event
-    // else a pointer to empty record should be in the list of promised secondaries -> update the record
-    if (isPrimaryRecord())
-    {
-        AParticleTrackingRecord * r = createAndInitParticleTrackingRecord();
-        CurrentEventRecord->addPrimaryRecord(r);
-        CurrentParticleRecord = r;
-    }
-    else
-    {
-        int trIndex = getNewTrackIndex();
-        AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
-        if (!secrec)
+        // if primary (parent track == 0), create a new primary record in this event
+        // else a pointer to empty record should be in the list of promised secondaries -> update the record
+        if (isPrimaryRecord())
         {
-            ErrorString = "Promised secondary not found!";
-            return;
+            AParticleTrackingRecord * r = createAndInitParticleTrackingRecord();
+            CurrentEventRecord->addPrimaryRecord(r);
+            CurrentParticleRecord = r;
         }
+        else
+        {
+            int trIndex = getNewTrackIndex();
+            AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
+            if (!secrec)
+            {
+                ErrorString = "Promised secondary not found!";
+                return;
+            }
 
-        updatePromisedSecondary(secrec);
-        CurrentParticleRecord = secrec;
-        PromisedSecondaries.remove(trIndex);
+            updatePromisedSecondary(secrec);
+            CurrentParticleRecord = secrec;
+            PromisedSecondaries.remove(trIndex);
+        }
     }
 
     CurrentStatus = ExpectingStep;
 }
 
-void ATrackingDataImporter::processNewStep()
+void ATrackingDataImporter::processNewStep(bool SeekMode)
 {
     if (!ErrorString.isEmpty()) return;
 
-    readNewStep();
+    readNewStep(SeekMode);
     if (!ErrorString.isEmpty()) return;
 
-    if (!CurrentParticleRecord)
+    if (!SeekMode)
     {
-        ErrorString = "Attempt to add step when particle record does not exist";
-        return;
+        if (!CurrentParticleRecord)
+        {
+            ErrorString = "Attempt to add step when particle record does not exist";
+            return;
+        }
+        addHistoryStep();
     }
-    addHistoryStep();
 
     CurrentStatus = TrackOngoing;
 }
 
 bool ATrackingDataImporter::isErrorInPromises()
 {
-    if (!PromisedSecondaries.isEmpty())
-    {
-        ErrorString = "Untreated promises of secondaries remained on event finish!";
-        return true;
-    }
-    return false;
+    return !PromisedSecondaries.isEmpty();
 }
