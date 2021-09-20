@@ -87,6 +87,10 @@ private:
     void drawSource(int iSource);  // !!!***
     void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
 
+    void clearResultsGui();
+
+    void disableGui(bool flag);
+
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
     void EV_showTree();

@@ -644,6 +644,16 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     */
 }
 
+void AParticleSimWin::clearResultsGui()
+{
+    ui->trwEventView->clear();
+}
+
+void AParticleSimWin::disableGui(bool flag)
+{
+    setDisabled(flag);
+}
+
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
     if (checked)
@@ -682,8 +692,25 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 
 void AParticleSimWin::on_pbSimulate_clicked()
 {
+    clearResultsGui();
+
+    disableGui(true);
     bool ok = SimManager.simulate();
+    disableGui(false);
+
     if (!ok) guitools::message(SimManager.ErrorString, this);
+    else if (ui->cbAutoLoadResults->isChecked())
+    {
+        ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+
+        if (SimSet.RunSet.SaveTrackingHistory)
+        {
+            on_pbShowTracks_clicked();
+
+            ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            EV_showTree();
+        }
+    }
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()

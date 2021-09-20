@@ -433,7 +433,6 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
         bool ok = tdi.extractEvent(iEvent, record);
         iEvent++;
 
-        qDebug() << ok << tdi.ErrorString;
         if (!ok)
         {
             if (tdi.isEndReached()) return "";
