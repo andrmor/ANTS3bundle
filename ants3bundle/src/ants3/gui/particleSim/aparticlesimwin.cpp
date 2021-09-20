@@ -1035,12 +1035,12 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     {
         if (MW->SimulationManager->TrackingHistory.empty())
         {
-            message("Tracking history is empty!", this);
+            guitools::message("Tracking history is empty!", this);
             return;
         }
         int newi = findEventWithFilters(i, true);
         if (newi == -1 && i != MW->EventsDataHub->countEvents()-1)
-            message("There are no events according to the selected criteria", this);
+            guitools::message("There are no events according to the selected criteria", this);
         else i = newi;
     }
     else i++;
@@ -1058,12 +1058,12 @@ void AParticleSimWin::on_pbPreviousEvent_clicked()
     {
         if (MW->SimulationManager->TrackingHistory.empty())
         {
-            message("Tracking history is empty!", this);
+            guitools::message("Tracking history is empty!", this);
             return;
         }
         int newi = findEventWithFilters(i, false);
         if (newi == -1 && i != 0)
-            message("There are no events according to the selected criteria", this);
+            guitools::message("There are no events according to the selected criteria", this);
         else i = newi;
     }
     else i--;
@@ -1213,3 +1213,411 @@ void AParticleSimWin::on_pbEventView_clicked()
 {
     EV_showTree();
 }
+
+// --- Statistics ---
+
+#include "atrackinghistorycrawler.h"
+#include "TH1D.h"
+#include "TH2D.h"
+
+void AParticleSimWin::on_pbPTHistRequest_clicked()
+{
+
+    AFindRecordSelector Opt;
+    ATrackingHistoryCrawler Crawler{};
+
+    Opt.bParticle = ui->cbPTHistParticle->isChecked();
+    Opt.Particle = ui->lePTHistParticle->text();
+    Opt.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
+    Opt.bSecondary = ui->cbPTHistOnlySec->isChecked();
+    Opt.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
+
+    int    bins = ui->sbPTHistBinsX->value();
+    double from = ui->ledPTHistFromX->text().toDouble();
+    double to   = ui->ledPTHistToX  ->text().toDouble();
+
+    int    bins2 = ui->sbPTHistBinsY->value();
+    double from2 = ui->ledPTHistFromY->text().toDouble();
+    double to2   = ui->ledPTHistToY  ->text().toDouble();
+
+    int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
+    if (Selector == 0)
+    {
+        Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
+        Opt.Material = ui->cobPTHistVolMat->currentIndex();
+        Opt.bVolume = ui->cbPTHistVolVolume->isChecked();
+        Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
+        Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
+        Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
+
+        int What = ui->cobPTHistVolRequestWhat->currentIndex();
+        switch (What)
+        {
+        case 0:
+          {
+            AHistorySearchProcessor_findParticles p;
+            Crawler.find(Opt, p);
+            QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
+            ui->ptePTHist->clear();
+            ui->ptePTHist->appendPlainText("Particles found:\n");
+            while (it != p.FoundParticles.constEnd())
+            {
+                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
+                ++it;
+            }
+            break;
+          }
+        case 1:
+          {
+            int mode = ui->cobPTHistVolPlus->currentIndex();
+            if (mode < 0 || mode > 2)
+            {
+                guitools::message("Unknown process selection mode", this);
+                return;
+            }
+
+            AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
+            AHistorySearchProcessor_findProcesses p(sm);
+            Crawler.find(Opt, p);
+
+            QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
+            ui->ptePTHist->clear();
+            ui->ptePTHist->appendPlainText("Processes found:\n");
+            while (it != p.FoundProcesses.constEnd())
+            {
+                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
+                ++it;
+            }
+
+            selectedModeForProcess = mode;
+            break;
+          }
+        case 2:
+          {
+            AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
+            Crawler.find(Opt, p);
+
+            if (p.Hist->GetEntries() == 0)
+                guitools::message("No trajectories found", this);
+            else
+            {
+//                MW->GraphWindow->Draw(p.Hist);
+                p.Hist = nullptr;
+            }
+            binsDistance = bins;
+            fromDistance = from;
+            toDistance = to;
+
+            break;
+          }
+        case 3:
+          {
+            int mode = ui->cobPTHistVolPlus->currentIndex();
+            if (mode < 0 || mode > 2)
+            {
+                guitools::message("Unknown energy deposition collection mode", this);
+                return;
+            }
+            AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
+
+            if (ui->cbPTHistVolVsTime->isChecked())
+            {
+                AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
+                Crawler.find(Opt, p);
+
+                if (p.Hist2D->GetEntries() == 0)
+                    guitools::message("No deposition detected", this);
+                else
+                {
+//                    MW->GraphWindow->Draw(p.Hist2D, "colz");
+                    p.Hist2D = nullptr;
+                }
+                binsTime = bins2;
+                fromTime = from2;
+                toTime   = to2;
+            }
+            else
+            {
+                AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
+                Crawler.find(Opt, p);
+
+                if (p.Hist->GetEntries() == 0)
+                    guitools::message("No deposition detected", this);
+                else
+                {
+//                    MW->GraphWindow->Draw(p.Hist);
+                    p.Hist = nullptr;
+                }
+            }
+            selectedModeForEnergyDepo = mode;
+            binsEnergy = bins;
+            fromEnergy = from;
+            toEnergy = to;
+            break;
+          }
+        case 4:
+         {
+            AHistorySearchProcessor_getDepositionStats * p = nullptr;
+            if (ui->cbLimitTimeWindow->isChecked())
+            {
+                p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
+                Crawler.find(Opt, *p);
+            }
+            else
+            {
+                p = new AHistorySearchProcessor_getDepositionStats();
+                Crawler.find(Opt, *p);
+            }
+
+            ui->ptePTHist->clear();
+            ui->ptePTHist->appendPlainText("Deposition statistics:\n");
+            QMap<QString, AParticleDepoStat>::const_iterator it = p->DepoData.constBegin();
+            QVector< QPair<QString, AParticleDepoStat> > vec;
+            double sum = 0;
+            while (it != p->DepoData.constEnd())
+            {
+                vec << QPair<QString, AParticleDepoStat>(it.key(), it.value());
+                sum += it.value().sum;
+                ++it;
+            }
+            double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+
+            std::sort(vec.begin(), vec.end(), [](const QPair<QString, AParticleDepoStat> & a, const QPair<QString, AParticleDepoStat> & b)->bool{return a.second.sum > b.second.sum;});
+
+            for (const auto & el : vec)
+            {
+                const AParticleDepoStat & rec = el.second;
+                const double mean = rec.sum / rec.num;
+                const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
+
+                QString str = QString("%1\t%2 keV (%3%)\t#: %4").arg(el.first).arg(rec.sum).arg( QString::number(rec.sum*sumInv, 'g', 4) ).arg(rec.num);
+
+                if (rec.num > 1)  str += QString("\tmean: %1 keV").arg(mean);
+                if (rec.num > 10) str += QString("\tsigma: %1 keV").arg(sigma);
+
+                ui->ptePTHist->appendPlainText(str);
+            }
+            ui->ptePTHist->appendPlainText("\n---------\n");
+            ui->ptePTHist->appendPlainText(QString("sum of all listed depositions: %1 keV").arg(sum));
+            delete p;
+            break;
+         }
+        default:
+            qWarning() << "Unknown type of volume request";
+        }
+    }
+    else
+    {
+        //Border
+        Opt.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
+        Opt.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
+        Opt.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
+        Opt.bEscaping = ui->cbPTHistEscaping->isChecked();
+        Opt.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
+        Opt.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
+        Opt.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
+
+        Opt.bToMat = ui->cbPTHistVolMatTo->isChecked();
+        Opt.ToMat = ui->cobPTHistVolMatTo->currentIndex();
+        Opt.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
+        Opt.bCreated = ui->cbPTHistCreated->isChecked();
+        Opt.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
+        Opt.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
+        Opt.ToVolIndex = ui->sbPTHistVolIndexTo->value();
+
+        QString what = ui->lePTHistBordWhat->text();
+        QString vsWhat = ui->lePTHistBordVsWhat->text();
+        QString andVsWhat = ui->lePTHistBordAndVsWhat->text();
+        QString cuts = ui->lePTHistBordCuts->text();
+
+        bool bVs = ui->cbPTHistBordVs->isChecked();
+        bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
+        bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
+
+        if (!bVs)
+        {
+            //1D stat
+            AHistorySearchProcessor_Border p(what, cuts, bins, from, to);
+            if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+            else
+            {
+                Crawler.find(Opt, p);
+                if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
+                else
+                {
+//                    MW->GraphWindow->Draw(p.Hist1D, "hist");
+                    p.Hist1D = nullptr;
+                }
+            }
+        }
+        else
+        {
+            // "vs" is activated
+            if (!bVsVs && bAveraged)
+            {
+                //1D vs
+                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to);
+                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+                else
+                {
+                    Crawler.find(Opt, p);
+                    if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
+                    else
+                    {
+//                        MW->GraphWindow->Draw(p.Hist1D, "hist");
+                        p.Hist1D = nullptr;
+                    }
+                }
+            }
+            else if (!bVsVs && !bAveraged)
+            {
+                //2D stat
+                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to, bins2, from2, to2);
+                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+                else
+                {
+                    Crawler.find(Opt, p);
+                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
+                    else
+                    {
+//                        MW->GraphWindow->Draw(p.Hist2D, "colz");
+                        p.Hist2D = nullptr;
+                    }
+                }
+                binsB2 = bins2;
+                fromB2 = from2;
+                toB2 = to2;
+            }
+            else if (bVsVs)
+            {
+                //2D vsvs
+                AHistorySearchProcessor_Border p(what, vsWhat, andVsWhat, cuts, bins, from, to, bins2, from2, to2);
+                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+                else
+                {
+                    Crawler.find(Opt, p);
+                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
+                    else
+                    {
+//                        MW->GraphWindow->Draw(p.Hist2D, "colz");
+                        p.Hist2D = nullptr;
+                    }
+                }
+                binsB2 = bins2;
+                fromB2 = from2;
+                toB2 = to2;
+            }
+            else guitools::message("Unexpected mode!", this);
+        }
+        binsB1 = bins;
+        fromB1 = from;
+        toB1 = to;
+    }
+}
+
+void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)
+{
+    if (checked) ui->cbPTHistOnlySec->setChecked(false);
+}
+
+void AParticleSimWin::on_cbPTHistOnlySec_clicked(bool checked)
+{
+    if (checked) ui->cbPTHistOnlyPrim->setChecked(false);
+}
+
+void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
+{
+    updatePTHistoryBinControl();
+
+    if (index == 1)
+    {
+        ui->cobPTHistVolPlus->clear();
+        ui->cobPTHistVolPlus->addItems(QStringList() << "All"<<"With energy deposition"<<"Track end");
+        ui->cobPTHistVolPlus->setCurrentIndex(selectedModeForProcess);
+    }
+    else if (index == 2)
+    {
+        ui->sbPTHistBinsX->setValue(binsDistance);
+        ui->ledPTHistFromX->setText(QString::number(fromDistance));
+        ui->ledPTHistToX->setText(QString::number(toDistance));
+    }
+    else if (index == 3)
+    {
+        ui->sbPTHistBinsX->setValue(binsEnergy);
+        ui->ledPTHistFromX->setText(QString::number(fromEnergy));
+        ui->ledPTHistToX->setText(QString::number(toEnergy));
+
+        ui->sbPTHistBinsY->setValue(binsTime);
+        ui->ledPTHistFromY->setText(QString::number(fromTime));
+        ui->ledPTHistToY->setText(QString::number(toTime));
+
+        ui->cobPTHistVolPlus->clear();
+        ui->cobPTHistVolPlus->addItems(QStringList() << "Individual"<<"With secondaries"<<"Over event");
+        ui->cobPTHistVolPlus->setCurrentIndex(selectedModeForEnergyDepo);
+    }
+    ui->cobPTHistVolPlus->setVisible(index == 1 || index == 3);
+
+    ui->frTimeAware->setVisible(index == 4);
+
+    ui->cbPTHistVolVsTime->setVisible(index == 3);
+}
+
+void AParticleSimWin::on_twPTHistType_currentChanged(int index)
+{
+    if (index == 0)
+        on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
+    else
+    {
+        ui->sbPTHistBinsX->setValue(binsB1);
+        ui->ledPTHistFromX->setText(QString::number(fromB1));
+        ui->ledPTHistToX->setText(QString::number(toB1));
+        ui->sbPTHistBinsY->setValue(binsB2);
+        ui->ledPTHistFromY->setText(QString::number(fromB2));
+        ui->ledPTHistToY->setText(QString::number(toB2));
+    }
+
+    updatePTHistoryBinControl();
+}
+
+void AParticleSimWin::updatePTHistoryBinControl()
+{
+    if (ui->twPTHistType->currentIndex() == 0)
+    {
+        //Volume
+        ui->frPTHistX->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() > 1  && ui->cobPTHistVolRequestWhat->currentIndex() != 4);
+        ui->frPTHistY->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() == 3 && ui->cbPTHistVolVsTime->isChecked() );
+    }
+    else
+    {
+        //Border
+        bool bVs = ui->cbPTHistBordVs->isChecked();
+        ui->lePTHistBordVsWhat->setEnabled(bVs);
+        ui->cbPTHistBordAndVs->setEnabled(bVs);
+        if (!bVs) ui->cbPTHistBordAndVs->setChecked(false);
+
+        bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
+        if (bVsVs) ui->cbPTHistBordAsStat->setChecked(true);
+        ui->lePTHistBordAndVsWhat->setEnabled(bVs && bVsVs);
+        ui->cbPTHistBordAsStat->setEnabled(bVs && !bVsVs);
+        bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
+
+        ui->frPTHistX->setVisible(true);
+        ui->frPTHistY->setVisible(bVsVs || (bVs && !bAveraged));
+    }
+}
+
+void AParticleSimWin::on_cbPTHistBordVs_toggled(bool)
+{
+    updatePTHistoryBinControl();
+}
+
+void AParticleSimWin::on_cbPTHistBordAndVs_toggled(bool)
+{
+    updatePTHistoryBinControl();
+}
+
+void AParticleSimWin::on_cbPTHistBordAsStat_toggled(bool)
+{
+    updatePTHistoryBinControl();
+}
+

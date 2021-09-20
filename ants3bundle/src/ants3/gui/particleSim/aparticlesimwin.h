@@ -68,6 +68,16 @@ private slots:
     void on_cbEVhideTrans_clicked();
     void on_cbEVhideTransPrim_clicked();
 
+    // statistics
+    void on_pbPTHistRequest_clicked();
+    void on_cbPTHistOnlyPrim_clicked(bool checked);
+    void on_cbPTHistOnlySec_clicked(bool checked);
+    void on_cobPTHistVolRequestWhat_currentIndexChanged(int index);
+    void on_twPTHistType_currentChanged(int index);
+    void on_cbPTHistBordVs_toggled(bool);
+    void on_cbPTHistBordAndVs_toggled(bool);
+    void on_cbPTHistBordAsStat_toggled(bool);
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -80,6 +90,24 @@ private:
     Ui::AParticleSimWin *ui;
 
     std::vector<bool> ExpandedItems;
+
+    int    binsEnergy = 100;
+    double fromEnergy = 0;
+    double toEnergy = 0;
+    int    selectedModeForEnergyDepo = 0;
+    int    selectedModeForProcess = 0;
+    int    binsDistance = 100;
+    double fromDistance = 0;
+    double toDistance = 0;
+    int    binsTime = 100;
+    double fromTime = 0;
+    double toTime = 0;
+    int    binsB1 = 100;
+    double fromB1 = 0;
+    double toB1 = 0;
+    int    binsB2 = 100;
+    double fromB2 = 0;
+    double toB2 = 0;
 
     void updateG4Gui();
     void updateSimGui();
@@ -95,6 +123,7 @@ private:
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
     void EV_showTree();
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
+    void updatePTHistoryBinControl();
 };
 
 #endif // APARTICLESIMWIN_H
