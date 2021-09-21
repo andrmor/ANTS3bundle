@@ -10,6 +10,7 @@ class AParticleGun;
 class AParticleSimManager;
 class QTreeWidgetItem;
 class AParticleTrackingRecord;
+class TObject;
 
 namespace Ui {
 class AParticleSimWin;
@@ -81,6 +82,7 @@ private slots:
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
 private:
     AParticleSimSettings  & SimSet;

@@ -72,6 +72,7 @@ MainWindow::MainWindow(A3ScriptManager & SM) :
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
     connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, PartSimWin, &AParticleSimWin::updateGui);
+    connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 }
 
 MainWindow::~MainWindow()

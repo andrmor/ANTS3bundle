@@ -267,14 +267,17 @@ public:
 class ATrackingHistoryCrawler
 {
 public:
+    ATrackingHistoryCrawler(const QString & fileName, bool binary) : FileName(fileName), bBinary(binary) {}
+
     void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const;
 
 private:
-    const AEventTrackingRecord * EventRecord;
-
     enum ProcessType {Creation, Local, NormalTransportation, ExitingWorld};
 
     void findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector &opt, AHistorySearchProcessor & processor) const;
+
+    QString FileName;
+    bool    bBinary;
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

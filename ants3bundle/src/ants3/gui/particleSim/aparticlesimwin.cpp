@@ -21,6 +21,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->setupUi(this);
 
     ui->frEventFilters->setVisible(false);
+
+    on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -1222,9 +1224,11 @@ void AParticleSimWin::on_pbEventView_clicked()
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
-
+    // !!!***
+    //add multithread
+    // move to SimManager?
     AFindRecordSelector Opt;
-    ATrackingHistoryCrawler Crawler{};
+    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
     Opt.bParticle = ui->cbPTHistParticle->isChecked();
     Opt.Particle = ui->lePTHistParticle->text();
@@ -1301,7 +1305,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 guitools::message("No trajectories found", this);
             else
             {
-//                MW->GraphWindow->Draw(p.Hist);
+                emit requestDraw(p.Hist, "hist", true, true);
                 p.Hist = nullptr;
             }
             binsDistance = bins;
@@ -1329,7 +1333,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                     guitools::message("No deposition detected", this);
                 else
                 {
-//                    MW->GraphWindow->Draw(p.Hist2D, "colz");
+                    emit requestDraw(p.Hist2D, "colz", true, true);
                     p.Hist2D = nullptr;
                 }
                 binsTime = bins2;
@@ -1345,7 +1349,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                     guitools::message("No deposition detected", this);
                 else
                 {
-//                    MW->GraphWindow->Draw(p.Hist);
+                    emit requestDraw(p.Hist, "hist", true, true);
                     p.Hist = nullptr;
                 }
             }
@@ -1372,11 +1376,11 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Deposition statistics:\n");
             QMap<QString, AParticleDepoStat>::const_iterator it = p->DepoData.constBegin();
-            QVector< QPair<QString, AParticleDepoStat> > vec;
+            std::vector< QPair<QString, AParticleDepoStat> > vec;
             double sum = 0;
             while (it != p->DepoData.constEnd())
             {
-                vec << QPair<QString, AParticleDepoStat>(it.key(), it.value());
+                vec.push_back( QPair<QString, AParticleDepoStat>(it.key(), it.value()) );
                 sum += it.value().sum;
                 ++it;
             }
@@ -1445,7 +1449,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
-//                    MW->GraphWindow->Draw(p.Hist1D, "hist");
+                    emit requestDraw(p.Hist1D, "hist", true, true);
                     p.Hist1D = nullptr;
                 }
             }
@@ -1464,7 +1468,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                     if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
-//                        MW->GraphWindow->Draw(p.Hist1D, "hist");
+                        emit requestDraw(p.Hist1D, "hist", true, true);
                         p.Hist1D = nullptr;
                     }
                 }
@@ -1480,7 +1484,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
-//                        MW->GraphWindow->Draw(p.Hist2D, "colz");
+                        emit requestDraw(p.Hist2D, "colz", true, true);
                         p.Hist2D = nullptr;
                     }
                 }
@@ -1499,7 +1503,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
-//                        MW->GraphWindow->Draw(p.Hist2D, "colz");
+                        emit requestDraw(p.Hist2D, "colz", true, true);
                         p.Hist2D = nullptr;
                     }
                 }

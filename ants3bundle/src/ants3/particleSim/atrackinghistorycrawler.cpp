@@ -9,21 +9,30 @@
 #include "TTree.h"
 #include "TFormula.h"
 
+#include "atrackingdataimporter.h"
 void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const
 {
+    // !!!*** add error control
+
+    ATrackingDataImporter imp(FileName, bBinary);
+
     processor.beforeSearch();
 
-    //int iEv = 0;
+    AEventTrackingRecord * event = AEventTrackingRecord::create();
+    int iEv = 0;
 //    for (const AEventTrackingRecord * eventRecord : History)
+    while (imp.extractEvent(iEv, event))
     {
-        //qDebug() << "Event #"<<iEv++;
+        qDebug() << "-------------Event #" << iEv;
         processor.onNewEvent();
 
-        const std::vector<AParticleTrackingRecord *> & prim = EventRecord->getPrimaryParticleRecords();
+        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
         for (const AParticleTrackingRecord * p : prim)
             findRecursive(*p, criteria, processor);
 
         processor.onEventEnd();
+
+        iEv++;
     }
 
     processor.afterSearch();
