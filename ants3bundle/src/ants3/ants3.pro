@@ -104,6 +104,7 @@ SOURCES += \
     js/aphotonsimsi.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
+    particleSim/afileparticlegenerator.cpp \
     particleSim/ag4simulationsettings.cpp \
     particleSim/aparticlerecord.cpp \
     particleSim/aparticlerunsettings.cpp \
@@ -229,6 +230,7 @@ HEADERS += \
     js/aphotonsimsi.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
+    particleSim/afileparticlegenerator.h \
     particleSim/ag4simulationsettings.h \
     particleSim/aparticlegun.h \
     particleSim/aparticlerecord.h \
