@@ -18,6 +18,14 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->cbTrackingData->setChecked(RunSet.SaveTrackingHistory);
     ui->leTracks->setText(RunSet.FileNameTrackingHistory.data());
+
+    ui->cbSaveParticles->setChecked(RunSet.SaveSettings.Enabled);
+    ui->leSaveParticles->setText( QString(RunSet.SaveSettings.FileName.data()) );
+    ui->leVolume->setText( QString(RunSet.SaveSettings.VolumeName.data()) );
+    ui->cbStopTracking->setChecked(RunSet.SaveSettings.StopTrack);
+    ui->cbUseTimeWindow->setChecked(RunSet.SaveSettings.TimeWindow);
+    ui->ledTimeFrom->setText(QString::number(RunSet.SaveSettings.TimeFrom));
+    ui->ledTimeTo->setText(QString::number(RunSet.SaveSettings.TimeTo));
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -34,6 +42,14 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.SaveTrackingHistory = ui->cbTrackingData->isChecked();
     RunSet.FileNameTrackingHistory = ui->leTracks->text().toLatin1().data();
+
+    RunSet.SaveSettings.Enabled = ui->cbSaveParticles->isChecked();
+    RunSet.SaveSettings.FileName = ui->leSaveParticles->text().toLatin1().data();
+    RunSet.SaveSettings.VolumeName = ui->leVolume->text().toLatin1().data();
+    RunSet.SaveSettings.StopTrack = ui->cbStopTracking->isChecked();
+    RunSet.SaveSettings.TimeWindow = ui->cbUseTimeWindow->isChecked();
+    RunSet.SaveSettings.TimeFrom = ui->ledTimeFrom->text().toDouble();
+    RunSet.SaveSettings.TimeTo = ui->ledTimeTo->text().toDouble();
 
     accept();
 }
@@ -57,5 +73,11 @@ void AParticleSimOutputDialog::on_pbChangeTracks_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file to save tracking data", ui->leOutputDirectory->text());
     if (!fileName.isEmpty()) ui->leTracks->setText(fileName);
+}
+
+void AParticleSimOutputDialog::on_pbChangeParticles_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save particles", ui->leOutputDirectory->text());
+    if (!fileName.isEmpty()) ui->leSaveParticles->setText(fileName);
 }
 

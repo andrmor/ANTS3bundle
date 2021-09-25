@@ -4,6 +4,50 @@
     #include "ajsontools.h"
 #endif
 
+// ---
+
+void ASaveParticlesSettings::clear()
+{
+    Enabled    = false;
+    VolumeName.clear();
+    StopTrack  = true;
+    TimeWindow = false;
+    TimeFrom   = 0;
+    TimeTo     = 1e10;
+}
+
+#ifndef JSON11
+void ASaveParticlesSettings::writeToJson(QJsonObject &json) const
+{
+    json["Enabled"]    = Enabled;
+    json["FileName"]   = QString(FileName.data());
+    json["VolumeName"] = QString(VolumeName.data());
+    json["StopTrack"]  = StopTrack;
+    json["TimeWindow"] = TimeWindow;
+    json["TimeFrom"]   = TimeFrom;
+    json["TimeTo"]     = TimeTo;
+}
+#endif
+
+#ifdef JSON11
+void ASaveParticlesSettings::readFromJson(const json11::Json::object & json)
+#else
+void ASaveParticlesSettings::readFromJson(const QJsonObject & json)
+#endif
+{
+    clear();
+
+    jstools::parseJson(json, "Enabled",    Enabled);
+    jstools::parseJson(json, "FileName",   FileName);
+    jstools::parseJson(json, "VolumeName", VolumeName);
+    jstools::parseJson(json, "StopTrack",  StopTrack);
+    jstools::parseJson(json, "TimeWindow", TimeWindow);
+    jstools::parseJson(json, "TimeFrom",   TimeFrom);
+    jstools::parseJson(json, "TimeTo",     TimeTo);
+}
+
+// ---
+
 #ifndef JSON11
 void AParticleRunSettings::writeToJson(QJsonObject &json) const
 {
@@ -37,6 +81,10 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
             nistAr.push_back(el);
         }
     json["MaterialsFromNist"]    = nistAr;
+
+    QJsonObject js;
+        SaveSettings.writeToJson(js);
+    json["SaveParticles"] = js;
 }
 #endif
 
@@ -54,6 +102,14 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveTrackingHistory",     SaveTrackingHistory);
     jstools::parseJson(json, "FileNameTrackingHistory", FileNameTrackingHistory);
+
+#ifdef JSON11
+    json11::Json::object js;
+#else
+    QJsonObject js;
+#endif
+    jstools::parseJson(json, "SaveParticles", js);
+    SaveSettings.readFromJson(js);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);
@@ -79,8 +135,6 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Receipt",              Receipt);
 
     jstools::parseJson(json, "GuiMode",              GuiMode);
-
-
 #endif
 }
 
@@ -100,3 +154,4 @@ void AParticleRunSettings::clear()
 
     Materials.clear();
 }
+

@@ -48,6 +48,7 @@ public:
 
 private:
     AFileMerger HistoryFileMerger;
+    AFileMerger ParticlesFileMerger;
 
     int  getNumberEvents() const;
     void addErrorLine(const QString & error);

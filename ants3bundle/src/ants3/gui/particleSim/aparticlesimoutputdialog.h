@@ -26,6 +26,8 @@ private slots:
 
     void on_pbChangeTracks_clicked();
 
+    void on_pbChangeParticles_clicked();
+
 private:
     AParticleRunSettings & RunSet;
 

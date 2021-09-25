@@ -81,6 +81,7 @@ void AParticleSimManager::removeOutputFiles()
     std::vector<QString> fileNames;
 
     fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
     for (const QString & fn : fileNames)
         QFile::remove(fn);
@@ -129,6 +130,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     configureMaterials();
 
     HistoryFileMerger.clear();
+    ParticlesFileMerger.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -193,6 +195,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 WorkSet.RunSet.FileNameTrackingHistory = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 HistoryFileMerger.add(ExchangeDir + '/' + fileName);
+            }
+
+            if (SimSet.RunSet.SaveSettings.Enabled)
+            {
+                const QString fileName = QString("particles-%0").arg(iProcess);
+                WorkSet.RunSet.SaveSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                ParticlesFileMerger.add(ExchangeDir + '/' + fileName);
             }
 
             WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
@@ -347,7 +357,11 @@ void AParticleSimManager::mergeOutput()
 
     const QString & OutputDir(SimSet.RunSet.OutputDirectory.data());
 
-    if (SimSet.RunSet.SaveTrackingHistory) ErrorString += HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+    if (SimSet.RunSet.SaveTrackingHistory)
+        ErrorString += HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+
+    if (SimSet.RunSet.SaveSettings.Enabled)
+        ErrorString += ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
 /*
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();

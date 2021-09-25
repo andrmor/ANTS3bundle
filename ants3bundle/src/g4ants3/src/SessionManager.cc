@@ -629,6 +629,8 @@ int SessionManager::getPredictedTrackID() const
 #include "G4LogicalVolume.hh"
 void SessionManager::findExitVolume()
 {
+    qDebug() << "ahaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << bExitParticles << ExitVolumeName.data();
+
     if (!bExitParticles) return;
 
     G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
@@ -846,33 +848,18 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     std::cout << "Binary output? " << bBinaryOutput << std::endl;
     Precision = Settings.RunSet.AsciiPrecision;
 
-//    if (jo.object_items().count("SaveExitParticles") == 0)
-        bExitParticles = false;
-/*
-    else
-    {
-        json11::Json jsExit = jo["SaveExitParticles"].object_items();
-
-        bExitParticles   = jsExit["Enabled"].bool_value();
-        bExitBinary      = jsExit["UseBinary"].bool_value();
-        bExitTimeWindow  = jsExit["UseTimeWindow"].bool_value();
-        bExitKill        = jsExit["StopTrack"].bool_value();
-
-        FileName_Exit    = jsExit["FileName"].string_value();
-        ExitVolumeName   = jsExit["VolumeName"].string_value();
-
-        ExitTimeFrom     = jsExit["TimeFrom"].number_value();
-        ExitTimeTo       = jsExit["TimeTo"].number_value();
-
-        if (bExitParticles)
-            std::cout << "Save exit particles enabled for volume: " << ExitVolumeName << "  Kill on exit? " << bExitKill << std::endl;
-    }
-    std::cout << "Save exit particles? " << bExitParticles << " Binary file? " << bExitBinary << std::endl;
-*/
-
+    bExitParticles   = Settings.RunSet.SaveSettings.Enabled;
+    FileName_Exit    = Settings.RunSet.SaveSettings.FileName;
+    bExitBinary      = bBinaryOutput;
+    ExitVolumeName   = Settings.RunSet.SaveSettings.VolumeName;
+    bExitKill        = Settings.RunSet.SaveSettings.StopTrack;
+    bExitTimeWindow  = Settings.RunSet.SaveSettings.TimeWindow;
+    ExitTimeFrom     = Settings.RunSet.SaveSettings.TimeFrom;
+    ExitTimeTo       = Settings.RunSet.SaveSettings.TimeTo;
+    if (bExitParticles)
+        std::cout << "Save exit particles enabled for volume: " << ExitVolumeName << "  Kill on exit? " << bExitKill << std::endl;
 
 //    NumEventsToDo = jo["NumEvents"].int_value();
-
 
     //bool bBuildTracks = jo["BuildTracks"].bool_value();
     //bool bLogHistory = jo["LogHistory"].bool_value();
@@ -966,9 +953,9 @@ void SessionManager::prepareOutputExitStream()
     outStreamExit = new std::ofstream();
 
     if (bExitBinary)
-        outStreamExit->open(FileName_Exit, std::ios::out | std::ios::binary);
+        outStreamExit->open(WorkingDir + "/" + FileName_Exit, std::ios::out | std::ios::binary);
     else
-        outStreamExit->open(FileName_Exit);
+        outStreamExit->open(WorkingDir + "/" + FileName_Exit);
 
     if (!outStreamExit->is_open())
         terminateSession("Cannot open file to export exiting particle data");

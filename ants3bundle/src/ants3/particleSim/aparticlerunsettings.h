@@ -10,6 +10,28 @@
     class QJsonObject;
 #endif
 
+class ASaveParticlesSettings
+{
+public:
+    bool        Enabled    = false;
+    std::string FileName   = "SavedParticles.dat";
+    std::string VolumeName;
+    bool        StopTrack = true;
+
+    bool        TimeWindow = false;
+    double      TimeFrom   = 0;
+    double      TimeTo     = 1e10;
+
+    void clear();
+
+#ifdef JSON11
+    void readFromJson(const json11::Json::object & json);
+#else
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+#endif
+};
+
 class AParticleRunSettings
 {
 public:
@@ -22,6 +44,8 @@ public:
 
     bool        SaveTrackingHistory = true;
     std::string FileNameTrackingHistory = "TrackingHistory.txt";
+
+    ASaveParticlesSettings SaveSettings;
 
     bool        AsciiOutput    = true;
     int         AsciiPrecision = 6;
