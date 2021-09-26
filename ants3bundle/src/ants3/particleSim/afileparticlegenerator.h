@@ -31,6 +31,8 @@ public:
 
     bool            generateG4File(int eventBegin, int eventEnd, const QString & FileName);
 
+    std::string     getErrorString() const;
+
 public:
     AFileGeneratorSettings & Settings;
 

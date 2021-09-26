@@ -2,6 +2,7 @@
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
 #include "asourceparticlegenerator.h"
+#include "afileparticlegenerator.h"
 #include "ageometryhub.h"
 #include "a3farmnoderecord.h"
 #include "a3workdistrconfig.h"
@@ -23,11 +24,13 @@ AParticleSimManager::AParticleSimManager() :
     Geometry(AGeometryHub::getConstInstance())
 {
     Generator_Sources = new ASourceParticleGenerator(SimSet.SourceGenSettings);
+    Generator_File    = new AFileParticleGenerator(SimSet.FileGenSettings);
 }
 
 AParticleSimManager::~AParticleSimManager()
 {
     delete Generator_Sources;
+    delete Generator_File;
 }
 
 bool AParticleSimManager::simulate(int numLocalProc)

@@ -2,7 +2,7 @@
 #define APARTICLEMODESETTINGS_H
 
 #include "aparticlesourcerecord.h"
-//#include "afilegeneratorsettings.h"
+#include "afilegeneratorsettings.h"
 #include "aparticlerunsettings.h"
 #include "asourcegeneratorsettings.h"
 #include "ag4simulationsettings.h"
@@ -47,7 +47,7 @@ public:
     double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
 
     ASourceGeneratorSettings SourceGenSettings;
-//    AFileGeneratorSettings   FileGenSettings;
+    AFileGeneratorSettings   FileGenSettings;
 //    AScriptGenSettings       ScriptGenSettings;
 
     AG4SimulationSettings    G4Set;

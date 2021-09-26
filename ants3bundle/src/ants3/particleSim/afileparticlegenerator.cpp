@@ -184,9 +184,13 @@ bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const 
         return false;
 }
 
+std::string AFileParticleGenerator::getErrorString() const
+{
+    if (!Engine) return "Engoine is nullptr";
+    return Engine->ErrorString;
+}
+
 // ***************************************************************************
-
-
 
 AFilePGEngineG4antsTxt::~AFilePGEngineG4antsTxt()
 {

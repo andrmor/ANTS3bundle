@@ -326,6 +326,7 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
 }
 
 #include "TGeoManager.h"
+#include "afileparticlegenerator.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
 //    WindowNavigator->BusyOn();   // -->
@@ -341,14 +342,17 @@ void AParticleSimWin::on_pbGunTest_clicked()
     }
 
     AParticleGun * pg = nullptr;
+
+    qDebug() << "aaaaaaaaaaa" << ui->cobParticleGenerationMode->currentIndex();
+
     switch (ui->cobParticleGenerationMode->currentIndex())
     {
     case 0:
         pg = SimManager.Generator_Sources;
         break;
     case 1:
-//        pg = SimManager->FileParticleGenerator;
-//        SimManager->FileParticleGenerator->InitWithCheck(SimulationManager->Settings.partSimSet.FileGenSettings, false);
+        pg = SimManager.Generator_File;
+        SimManager.Generator_File->initWithCheck(false);
         break;
     case 2:
 //        pg = SimManager->ScriptParticleGenerator;
@@ -364,7 +368,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
     font.setBold(true);
     ui->pbAbort->setFont(font);
 
-//    SimSet.FileGenSettings.ValidationMode = AFileGeneratorSettings::Relaxed;
     testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
 
     ui->pbAbort->setEnabled(false);
@@ -582,7 +585,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         return;
     }
     Gun->setStartEvent(0);
-//    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
+    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
@@ -1625,3 +1628,178 @@ void AParticleSimWin::on_cbPTHistBordAsStat_toggled(bool)
     updatePTHistoryBinControl();
 }
 
+// ---- from file ----
+
+void AParticleSimWin::on_pbGenerateFromFile_Help_clicked()
+{
+    QString s = "Ants2 supports 3 formats:\n"
+                "\n"
+                "1. G4ants ascii file\n"
+                "Each event is marked with a special line,\n"
+                "starting with '#' symbol immediately followed by the event index.\n"
+                "The first event should have index of 0: #0\n"
+                "Each record of a particle occupies one line, the format is:\n"
+                "ParticleName Energy X Y Z DirX DirY DirZ Time\n"
+                "\n"
+                "2. G4ants binary file\n"
+                "Each new entry starts either with a (char)EE or a (char)FF\n"
+                "0xEE is followed by the event number (int),\n"
+                "0xFF is followed by the particle record, which is\n"
+                "ParticleName Energy X Y Z DirX DirY DirZ Time\n"
+                "where ParticleName is 0-terminated string and the rest are doubles\n"
+                "\n"
+                "Energy is in keV, Position is in mm,\n"
+                "Direction is unitary vector and Time is in ns.\n";
+
+    guitools::message(s, this);
+}
+
+void AParticleSimWin::on_pbGenerateFromFile_Change_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Select a file with particle generation data", "All files (*)");
+    if (fileName.isEmpty()) return;
+    ui->leGenerateFromFile_FileName->setText(fileName);
+    on_leGenerateFromFile_FileName_editingFinished();
+}
+
+void AParticleSimWin::on_leGenerateFromFile_FileName_editingFinished()
+{
+    const std::string newName = ui->leGenerateFromFile_FileName->text().toLatin1().data();
+    if (newName == SimSet.FileGenSettings.FileName) return;
+
+    SimSet.FileGenSettings.clear();
+    SimSet.FileGenSettings.FileName = newName;
+    updateFileParticleGeneratorGui();
+}
+
+void AParticleSimWin::updateFileParticleGeneratorGui()
+{
+    ui->leGenerateFromFile_FileName->setText(SimSet.FileGenSettings.FileName.data());
+    ui->lwFileStatistics->clear();
+    ui->lwFileStatistics->setEnabled(false);
+    qApp->processEvents();
+
+    QFileInfo fi(SimSet.FileGenSettings.FileName.data());
+    if (!fi.exists())
+    {
+        ui->lwFileStatistics->clear();
+        ui->lwFileStatistics->addItem("File not found");
+        return;
+    }
+
+    QString s = "Format: ";
+    s += SimSet.FileGenSettings.getFormatName().data();
+
+/*
+    if (FileGenSettings.isValidated())
+    {
+        s += QString("  Events: %1").arg(FileGenSettings.NumEventsInFile);
+        if (FileGenSettings.statNumEmptyEventsInFile > 0) s += QString(", %1 empty").arg(FileGenSettings.statNumEmptyEventsInFile);
+        if (FileGenSettings.statNumMultipleEvents    > 0) s += QString(", %1 multiple").arg(FileGenSettings.statNumMultipleEvents);
+
+        ui->lwFileStatistics->setEnabled(FileGenSettings.ParticleStat.size() > 0);
+        for (const AParticleInFileStatRecord & rec : FileGenSettings.ParticleStat)
+        {
+            ui->lwFileStatistics->addItem( QString("%1 \t# %2 \t <E>: %4 keV")
+                                           .arg(rec.NameQt)
+                                           .arg(rec.Entries)
+                                           //.arg( QString::number(rec.Energy, 'g', 6) )
+                                           .arg( QString::number(rec.Energy / rec.Entries, 'g', 6) ) );
+        }
+    }
+    else
+        s += " Click 'Analyse file' to see statistics";
+    ui->labGenerateFromFile_info->setText(s);
+*/
+}
+
+void AParticleSimWin::on_pbGenerateFromFile_Check_clicked()
+{
+    AFileParticleGenerator * pg = SimManager.Generator_File;
+//    WindowNavigator->BusyOn();  // -->
+    bool bOK = pg->initWithCheck(ui->cbFileCollectStatistics->isChecked());
+//    WindowNavigator->BusyOff(); // <--
+
+    if (!bOK) guitools::message(pg->getErrorString().data(), this);
+    updateFileParticleGeneratorGui();
+}
+
+#include <iostream>
+#include <fstream>
+// !!!*** move to engine!
+void AParticleSimWin::on_pbFilePreview_clicked()
+{
+    AFileParticleGenerator * fg = SimManager.Generator_File;
+
+//    WindowNavigator->BusyOn();  // -->
+    fg->initWithCheck(false);
+//    WindowNavigator->BusyOff();  // <--
+
+    const QString FileName = SimSet.FileGenSettings.FileName.data();
+    int iCounter = 100;
+    QString txt;
+    if (SimSet.FileGenSettings.isFormatBinary())
+    {
+        std::ifstream inB(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+        if (!inB.is_open())
+            txt = QString("Cannot open file %1").arg(FileName);
+        else
+        {
+            char h;
+            int eventId;
+            while (inB.get(h) && iCounter > 0)
+            {
+                if (h == (char)0xEE)
+                {
+                    inB.read((char*)&eventId, sizeof(int));
+                    txt += QString("EE -> %1\n").arg(eventId);
+                }
+                else if (h == (char)0xFF)
+                {
+                    std::string pn;
+                    while (inB >> h)
+                    {
+                        if (h == (char)0x00) break;
+                        pn += h;
+                    }
+                    double buf[8];
+                    inB.read((char*)buf, 8*sizeof(double));
+                    if (inB.fail())
+                        txt += "Unexpected format of a line in the binary file with the input particles";
+                    else
+                    {
+                        QString s(pn.data());
+                        for (int i=0; i<8; i++)
+                            s += " " + QString::number(buf[i]);
+                        txt += QString("FF -> %1\n").arg(s);
+                    }
+                }
+                else
+                {
+                    txt += "Unexpected format of a line in the binary file with the input particles";
+                    break;
+                }
+                iCounter--;
+            }
+        }
+    }
+    else
+    {
+        QFile file(FileName);
+        if(!file.open(QIODevice::ReadOnly | QFile::Text))
+            txt = QString("Cannot open file %1").arg(FileName);
+        else
+        {
+            QTextStream Stream(&file);
+            while (!Stream.atEnd() && iCounter > 0)
+            {
+                const QString line = Stream.readLine().simplified();
+                txt += line + "\n";
+                iCounter--;
+            }
+        }
+    }
+
+    if (iCounter == 0) txt += "...";
+    guitools::message1(txt, FileName, this);
+}

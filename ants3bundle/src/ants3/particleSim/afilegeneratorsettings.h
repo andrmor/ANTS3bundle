@@ -29,6 +29,9 @@ public:
     void            writeToJson(QJsonObject & json) const;
     void            readFromJson(const QJsonObject & json);
 
+    //temporary! !!!***
+    bool            isFormatBinary() const {return FileFormat == G4Binary;}
+
     void            clear();
     void            clearStatistics();
 

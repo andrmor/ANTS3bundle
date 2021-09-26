@@ -10,6 +10,7 @@
 
 class AParticleSimSettings;
 class ASourceParticleGenerator;
+class AFileParticleGenerator;
 class AGeometryHub;
 class A3WorkDistrConfig;
 class QJsonObject;
@@ -37,6 +38,7 @@ public:
     QString ErrorString;
 
     ASourceParticleGenerator * Generator_Sources = nullptr;
+    AFileParticleGenerator   * Generator_File    = nullptr;
 
     bool simulate(int numLocalProc = -1);
 

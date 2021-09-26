@@ -79,6 +79,11 @@ private slots:
     void on_cbPTHistBordAndVs_toggled(bool);
     void on_cbPTHistBordAsStat_toggled(bool);
 
+    void on_pbGenerateFromFile_Help_clicked();
+    void on_pbGenerateFromFile_Change_clicked();
+    void on_leGenerateFromFile_FileName_editingFinished();
+    void on_pbFilePreview_clicked();
+    void on_pbGenerateFromFile_Check_clicked();
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -126,6 +131,7 @@ private:
     void EV_showTree();
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
     void updatePTHistoryBinControl();
+    void updateFileParticleGeneratorGui();
 };
 
 #endif // APARTICLESIMWIN_H
