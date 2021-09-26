@@ -342,9 +342,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
     }
 
     AParticleGun * pg = nullptr;
-
-    qDebug() << "aaaaaaaaaaa" << ui->cobParticleGenerationMode->currentIndex();
-
     switch (ui->cobParticleGenerationMode->currentIndex())
     {
     case 0:
