@@ -18,6 +18,7 @@ struct AParticleInFileStatRecord
 class AFileGeneratorSettings
 {
 public:
+    // !!!*** delegate format handling to engine?
     enum            FileFormatEnum {Undefined = 0, BadFormat, G4Ascii, G4Binary};
 
     std::string     FileName;

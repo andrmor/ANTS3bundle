@@ -29,6 +29,8 @@ public:
 
     void            setStartEvent(int startEvent) override;
 
+    std::string     getPreview(int maxLines);
+
     bool            generateG4File(int eventBegin, int eventEnd, const QString & FileName);
 
     std::string     getErrorString() const;
@@ -56,6 +58,8 @@ public:
     virtual bool doSetStartEvent(int startEvent) = 0;
     virtual bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) = 0;
 
+    virtual std::string getPreview(int maxLines) = 0;
+
     std::string ErrorString;
 
 protected:
@@ -76,6 +80,8 @@ public:
     bool doSetStartEvent(int startEvent) override;
     bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) override;
 
+    std::string getPreview(int maxLines) override;
+
 private:
     std::ifstream * inStream = nullptr;
 };
@@ -91,6 +97,8 @@ public:
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
     bool doSetStartEvent(int startEvent) override;
     bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) override;
+
+    std::string getPreview(int maxLines) override;
 
 private:
     std::ifstream * inStream = nullptr;

@@ -47,6 +47,7 @@ bool AFileParticleGenerator::init()
 
 bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 {
+    ErrorString.clear();
     bool bNeedInspect = true; // !!!***
 
     releaseResources();
@@ -176,6 +177,12 @@ void AFileParticleGenerator::setStartEvent(int startEvent)
     if (Engine) Engine->doSetStartEvent(startEvent);
 }
 
+std::string AFileParticleGenerator::getPreview(int maxLines)
+{
+    if (Engine) return Engine->getPreview(maxLines);
+    else return "";
+}
+
 bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const QString & FileName)
 {
     if (Engine)
@@ -186,7 +193,7 @@ bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const 
 
 std::string AFileParticleGenerator::getErrorString() const
 {
-    if (!Engine) return "Engoine is nullptr";
+    if (!Engine) return "Engine is nullptr";
     return Engine->ErrorString;
 }
 
@@ -412,6 +419,24 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
 
     ErrorString = "Unexpected end of file";
     return false;
+}
+
+std::string AFilePGEngineG4antsTxt::getPreview(int maxLines)
+{
+    std::ifstream tmpStream(Settings.FileName);
+    if (!tmpStream.is_open()) return "Cannot open file " + Settings.FileName;
+
+    int iCounter = maxLines;
+    std::string txt, str;
+    while (!tmpStream.eof() && iCounter > 0)
+    {
+        getline(tmpStream, str);
+        txt += str + '\n';
+        iCounter--;
+    }
+
+    if (maxLines > 0 && iCounter == 0) txt += "...";
+    return txt;
 }
 
 AFilePGEngineG4antsBin::~AFilePGEngineG4antsBin()
@@ -711,6 +736,54 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
 
     ErrorString = "Unexpected end of file";
     return false;
+}
+
+std::string AFilePGEngineG4antsBin::getPreview(int maxLines)
+{
+    std::ifstream inB(Settings.FileName, std::ios::in | std::ios::binary);
+    if (!inB.is_open()) return "Cannot open file " + Settings.FileName;
+
+    int iCounter = maxLines;
+    std::string txt;
+    char h;
+    int eventId;
+    while (inB.get(h) && iCounter > 0)
+    {
+        if (h == (char)0xEE)
+        {
+            inB.read((char*)&eventId, sizeof(int));
+            txt += "EE -> " + std::to_string(eventId)+ '\n';
+        }
+        else if (h == (char)0xFF)
+        {
+            std::string pn;
+            while (inB >> h)
+            {
+                if (h == (char)0x00) break;
+                pn += h;
+            }
+            double buf[8];
+            inB.read((char*)buf, 8*sizeof(double));
+            if (inB.fail())
+                txt += "Unexpected format of a line in the binary file with the input particles";
+            else
+            {
+                std::string s = pn;
+                for (int i = 0; i < 8; i++)
+                    s += " " + std::to_string(buf[i]);
+                txt += "FF -> " + s + '\n';
+            }
+        }
+        else
+        {
+            txt += "Unexpected format of a line in the binary file with the input particles";
+            break;
+        }
+        iCounter--;
+    }
+
+    if (maxLines > 0 && iCounter == 0) txt += "...";
+    return txt;
 }
 
 AParticleInFileStatRecord::AParticleInFileStatRecord(const std::string & name, double energy)

@@ -6,18 +6,14 @@
 
 std::string AFileGeneratorSettings::getFormatName() const
 {
-    /*
     switch (FileFormat)
     {
     case G4Binary:   return "G4-binary";
     case G4Ascii:    return "G4-txt";
-    case Undefined:  return "?";
+    case Undefined:  return "Not checked yet";
     case BadFormat:  return "Invalid";
     default:         return "Error";
     }
-    */
-    // !!!*** delegate to engine?
-    return "notYetDone";
 }
 
 void AFileGeneratorSettings::writeToJson(QJsonObject &json) const
