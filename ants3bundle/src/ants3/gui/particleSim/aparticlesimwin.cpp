@@ -1671,32 +1671,34 @@ void AParticleSimWin::updateFileParticleGeneratorGui()
 {
     const QString FileName(SimSet.FileGenSettings.getFileName().data());
     ui->leGenerateFromFile_FileName->setText(FileName);
+
+    ui->labFileFormat->setText("Undefined");
+    ui->labNumberEventsInFile->setText("--");
     ui->lwFileStatistics->clear();
 
     QFileInfo fi(FileName);
     if (!fi.exists())
     {
-        ui->lwFileStatistics->clear();
-        ui->lwFileStatistics->addItem("File not found");
+        ui->labFileFormat->setText("File not found");
         return;
     }
 
-    //if (SimSet.FileGenSettings.isValidated())
-    if (SimSet.FileGenSettings.NumEvents > 0)
+    if (SimSet.FileGenSettings.isValidated())
     {
-        ui->lwFileStatistics->addItem( "Format: " + QString(SimSet.FileGenSettings.getFormatName().data()) );
-        ui->lwFileStatistics->addItem( QString("  Events: %1").arg(SimSet.FileGenSettings.NumEvents) );
+        ui->labFileFormat->setText( QString(SimSet.FileGenSettings.getFormatName().data()) );
+
+        QString numStr = QString::number(SimSet.FileGenSettings.NumEvents);
         if (SimSet.FileGenSettings.statNumEmptyEventsInFile > 0)
-            ui->lwFileStatistics->addItem( QString(", %1 empty").arg(SimSet.FileGenSettings.statNumEmptyEventsInFile) );
+            numStr += QString(", empty %1").arg(SimSet.FileGenSettings.statNumEmptyEventsInFile);
         if (SimSet.FileGenSettings.statNumMultipleEvents    > 0)
-            ui->lwFileStatistics->addItem( QString(", %1 multiple").arg(SimSet.FileGenSettings.statNumMultipleEvents) );
+            numStr += QString(", multiple %1").arg(SimSet.FileGenSettings.statNumMultipleEvents);
+        ui->labNumberEventsInFile->setText(numStr);
 
         for (const AParticleInFileStatRecord & rec : SimSet.FileGenSettings.ParticleStat)
         {
             ui->lwFileStatistics->addItem( QString("%1 \t# %2 \t <E>: %4 keV")
                                            .arg(rec.Name.data())
                                            .arg(rec.Entries)
-                                           //.arg( QString::number(rec.Energy, 'g', 6) )
                                            .arg( QString::number(rec.Energy / rec.Entries, 'g', 6) ) );
         }
     }
