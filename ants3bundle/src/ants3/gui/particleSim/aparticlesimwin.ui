@@ -596,7 +596,7 @@ Format: Volume_name  Step_in_mm</string>
            <enum>QFrame::Sunken</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="twParticleGenerationModePage1">
            <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -966,7 +966,7 @@ Format: Volume_name  Step_in_mm</string>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pbGenerateFromFile_Check">
+               <widget class="QPushButton" name="pbAnalyzeFile">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>

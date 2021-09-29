@@ -5,10 +5,7 @@
 #include "ajsontools.h"
 
 #include <QDebug>
-#include <QFile>
-#include <QTextStream>
 #include <QStringList>
-#include <QFileInfo>
 
 #include <iostream>
 #include <fstream>
@@ -22,7 +19,7 @@ AFileParticleGenerator::AFileParticleGenerator(AFileGeneratorSettings & settings
 
 AFileParticleGenerator::~AFileParticleGenerator()
 {
-    releaseResources();
+    delete Engine; Engine = nullptr;
 }
 
 bool AFileParticleGenerator::init()
@@ -45,14 +42,17 @@ bool AFileParticleGenerator::init()
     return Engine->doInit();
 }
 
+#include <QFileInfo>
 bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 {
     ErrorString.clear();
-    bool bNeedInspect = true; // !!!***
+
+    bool bNeedInspect = !Settings.isValidated() || bExpanded;
+    if (bNeedInspect) Settings.clearStatistics();
 
     releaseResources();
 
-    if (Settings.FileName.empty())
+    if (Settings.getFileName().empty())
     {
         ErrorString = "File name is not defined";
         return false;
@@ -77,7 +77,10 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
     }
 
     if (bNeedInspect)
+    {
         bOK = Engine->doInitAndInspect(bExpanded);
+        Settings.FileLastModified = QFileInfo(Settings.getFileName().data()).lastModified();
+    }
     else
         bOK = Engine->doInit();
 
@@ -94,65 +97,22 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 
 bool AFileParticleGenerator::determineFileFormat()
 {
-    if (isFileG4Binary())
+    if (AFilePGEngineG4antsBin::isFileG4AntsBin(Settings.getFileName()))
     {
-        //qDebug() << "Assuming it is G4 bin format";
         Settings.FileFormat = AFileGeneratorSettings::G4Binary;
         return true;
     }
 
-    if (isFileG4Ascii())
+    if (AFilePGEngineG4antsTxt::isFileG4AntsAscii(Settings.getFileName()))
     {
-        //qDebug() << "Assuming it is G4 ascii format";
         Settings.FileFormat = AFileGeneratorSettings::G4Ascii;
         return true;
     }
 
-    Settings.FileFormat = AFileGeneratorSettings::BadFormat;
+    Settings.FileFormat = AFileGeneratorSettings::Invalid;
     if (!ErrorString.empty()) return false;
 
-    ErrorString = "Unexpected format of the file " + Settings.FileName;
-    return false;
-}
-
-bool AFileParticleGenerator::isFileG4Binary()
-{
-    std::ifstream inB(Settings.FileName, std::ios::in | std::ios::binary);
-    if (!inB.is_open())
-    {
-        ErrorString = "Cannot open file " + Settings.FileName;
-        return false;
-    }
-    char ch;
-    inB.get(ch);
-    if (ch == (char)0xEE)
-    {
-        int iEvent = -1;
-        inB.read((char*)&iEvent, sizeof(int));
-        if (iEvent == 0) return true;
-    }
-    return false;
-}
-
-bool AFileParticleGenerator::isFileG4Ascii()
-{
-    std::ifstream inT(Settings.FileName);
-    if (!inT.is_open())
-    {
-        ErrorString = "Cannot open file " + Settings.FileName;
-        return false;
-    }
-
-    std::string str;
-    getline(inT, str);
-    inT.close();
-    if (str.size() > 1 && str[0] == '#')
-    {
-        QString line = QString(str.data()).mid(1);
-        bool bOK;
-        int iEvent = line.toInt(&bOK);
-        if (bOK && iEvent == 0) return true;
-    }
+    ErrorString = "Unexpected format of the file " + Settings.getFileName();
     return false;
 }
 
@@ -183,7 +143,7 @@ std::string AFileParticleGenerator::getPreview(int maxLines)
     else return "";
 }
 
-bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const QString & FileName)
+bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const std::string & FileName)
 {
     if (Engine)
         return Engine->doGenerateG4File(eventBegin, eventEnd, FileName);
@@ -207,10 +167,10 @@ AFilePGEngineG4antsTxt::~AFilePGEngineG4antsTxt()
 
 bool AFilePGEngineG4antsTxt::doInit()
 {
-    inStream = new std::ifstream(Settings.FileName);
+    inStream = new std::ifstream(Settings.getFileName());
     if (!inStream->is_open())
     {
-        ErrorString = "Cannot open file " + Settings.FileName;
+        ErrorString = "Cannot open file " + Settings.getFileName();
         return false;
     }
     return true;
@@ -218,11 +178,11 @@ bool AFilePGEngineG4antsTxt::doInit()
 
 bool AFilePGEngineG4antsTxt::doInitAndInspect(bool bDetailedInspection)
 {
-    inStream = new std::ifstream(Settings.FileName);
+    inStream = new std::ifstream(Settings.getFileName());
 
     if (!inStream->is_open())
     {
-        ErrorString = "Cannot open file " + Settings.FileName;
+        ErrorString = "Cannot open file " + Settings.getFileName();
         return false;
     }
 
@@ -257,15 +217,13 @@ bool AFilePGEngineG4antsTxt::doInitAndInspect(bool bDetailedInspection)
                 continue;
             }
 
-            QStringList f = QString(str.data()).split(rx, Qt::SkipEmptyParts);
+            QStringList f = QString(str.data()).split(' ', Qt::SkipEmptyParts);
             //pname en x y z i j k time
-
             if (f.size() != 9)
             {
                 ErrorString = "Bad format of particle record!";
                 return false;
             }
-
             std::string name = f[0].toLatin1().data();
 
             if (bDetailedInspection)
@@ -311,7 +269,7 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
 
         if (str[0] == '#') return true; //new event
 
-        QStringList f = QString(str.data()).split(rx, Qt::SkipEmptyParts); //pname en time x y z i j k
+        QStringList f = QString(str.data()).split(' ', Qt::SkipEmptyParts); //pname en time x y z i j k
         if (f.size() != 9)
         {
             ErrorString = "Bad format of particle record!";
@@ -365,10 +323,10 @@ bool AFilePGEngineG4antsTxt::doSetStartEvent(int startEvent)
     return false;
 }
 
-bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, const QString &FileName)
+bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName)
 {
     std::ofstream outStream;
-    outStream.open(FileName.toLatin1().data());
+    outStream.open(FileName);
     if (!outStream.is_open())
     {
         ErrorString = "Cannot open file to export primaries for G4ants sim";
@@ -423,8 +381,8 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
 
 std::string AFilePGEngineG4antsTxt::getPreview(int maxLines)
 {
-    std::ifstream tmpStream(Settings.FileName);
-    if (!tmpStream.is_open()) return "Cannot open file " + Settings.FileName;
+    std::ifstream tmpStream(Settings.getFileName());
+    if (!tmpStream.is_open()) return "Cannot open file " + Settings.getFileName();
 
     int iCounter = maxLines;
     std::string txt, str;
@@ -439,6 +397,28 @@ std::string AFilePGEngineG4antsTxt::getPreview(int maxLines)
     return txt;
 }
 
+bool AFilePGEngineG4antsTxt::isFileG4AntsAscii(const std::string & FileName)
+{
+    std::ifstream inT(FileName);
+    if (!inT.is_open())
+    {
+//        ErrorString = "Cannot open file " + FileName;
+        return false;
+    }
+
+    std::string str;
+    getline(inT, str);
+    inT.close();
+    if (str.size() > 1 && str[0] == '#')
+    {
+        QString line = QString(str.data()).mid(1);
+        bool bOK;
+        int iEvent = line.toInt(&bOK);
+        if (bOK && iEvent == 0) return true;
+    }
+    return false;
+}
+
 AFilePGEngineG4antsBin::~AFilePGEngineG4antsBin()
 {
     if (inStream) inStream->close();
@@ -447,10 +427,10 @@ AFilePGEngineG4antsBin::~AFilePGEngineG4antsBin()
 
 bool AFilePGEngineG4antsBin::doInit()
 {
-    inStream = new std::ifstream(Settings.FileName, std::ios::in | std::ios::binary);
+    inStream = new std::ifstream(Settings.getFileName(), std::ios::in | std::ios::binary);
     if (!inStream->is_open()) //paranoic
     {
-        ErrorString = "Cannot open file " + Settings.FileName;
+        ErrorString = "Cannot open file " + Settings.getFileName();
         return false;
     }
     inStream->clear();
@@ -459,11 +439,11 @@ bool AFilePGEngineG4antsBin::doInit()
 
 bool AFilePGEngineG4antsBin::doInitAndInspect(bool bDetailedInspection)
 {
-    inStream = new std::ifstream(Settings.FileName, std::ios::in | std::ios::binary);
+    inStream = new std::ifstream(Settings.getFileName(), std::ios::in | std::ios::binary);
 
     if (!inStream->is_open()) //paranoic
     {
-        ErrorString = "Cannot open file " + Settings.FileName;
+        ErrorString = "Cannot open file " + Settings.getFileName();
         return false;
     }
 
@@ -645,10 +625,10 @@ bool AFilePGEngineG4antsBin::doSetStartEvent(int startEvent)
     return false;
 }
 
-bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, const QString &FileName)
+bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName)
 {
     std::ofstream  outStream;
-    outStream.open(FileName.toLatin1().data(), std::ios::out | std::ios::binary);
+    outStream.open(FileName, std::ios::out | std::ios::binary);
     if (!outStream.is_open())
     {
         ErrorString = "Cannot open file to export primaries for G4ants sim";
@@ -740,8 +720,8 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
 
 std::string AFilePGEngineG4antsBin::getPreview(int maxLines)
 {
-    std::ifstream inB(Settings.FileName, std::ios::in | std::ios::binary);
-    if (!inB.is_open()) return "Cannot open file " + Settings.FileName;
+    std::ifstream inB(Settings.getFileName(), std::ios::in | std::ios::binary);
+    if (!inB.is_open()) return "Cannot open file " + Settings.getFileName();
 
     int iCounter = maxLines;
     std::string txt;
@@ -784,6 +764,25 @@ std::string AFilePGEngineG4antsBin::getPreview(int maxLines)
 
     if (maxLines > 0 && iCounter == 0) txt += "...";
     return txt;
+}
+
+bool AFilePGEngineG4antsBin::isFileG4AntsBin(const std::string & FileName)
+{
+    std::ifstream inB(FileName, std::ios::in | std::ios::binary);
+    if (!inB.is_open())
+    {
+//        ErrorString = "Cannot open file " + FileName;
+        return false;
+    }
+    char ch;
+    inB.get(ch);
+    if (ch == (char)0xEE)
+    {
+        int iEvent = -1;
+        inB.read((char*)&iEvent, sizeof(int));
+        if (iEvent == 0) return true;
+    }
+    return false;
 }
 
 AParticleInFileStatRecord::AParticleInFileStatRecord(const std::string & name, double energy)

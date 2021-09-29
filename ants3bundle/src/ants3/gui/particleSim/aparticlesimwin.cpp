@@ -1662,18 +1662,18 @@ void AParticleSimWin::on_pbGenerateFromFile_Change_clicked()
 void AParticleSimWin::on_leGenerateFromFile_FileName_editingFinished()
 {
     const std::string newName = ui->leGenerateFromFile_FileName->text().toLatin1().data();
-    if (newName == SimSet.FileGenSettings.FileName) return;
-    SimSet.FileGenSettings.clear();
-    SimSet.FileGenSettings.FileName = newName;
+    if (newName == SimSet.FileGenSettings.getFileName()) return;
+    SimSet.FileGenSettings.setFileName(newName);
     updateFileParticleGeneratorGui();
 }
 
 void AParticleSimWin::updateFileParticleGeneratorGui()
 {
-    ui->leGenerateFromFile_FileName->setText(SimSet.FileGenSettings.FileName.data());
+    const QString FileName(SimSet.FileGenSettings.getFileName().data());
+    ui->leGenerateFromFile_FileName->setText(FileName);
     ui->lwFileStatistics->clear();
 
-    QFileInfo fi(SimSet.FileGenSettings.FileName.data());
+    QFileInfo fi(FileName);
     if (!fi.exists())
     {
         ui->lwFileStatistics->clear();
@@ -1703,7 +1703,7 @@ void AParticleSimWin::updateFileParticleGeneratorGui()
     else ui->lwFileStatistics->addItem(" Click 'Analyse file' to see statistics");
 }
 
-void AParticleSimWin::on_pbGenerateFromFile_Check_clicked()
+void AParticleSimWin::on_pbAnalyzeFile_clicked()
 {
     AFileParticleGenerator * pg = SimManager.Generator_File;
 //    WindowNavigator->BusyOn();  // -->
@@ -1722,6 +1722,6 @@ void AParticleSimWin::on_pbFilePreview_clicked()
     else
     {
         QString out(SimManager.Generator_File->getPreview(100).data());
-        guitools::message1(out, SimSet.FileGenSettings.FileName.data(), this);
+        guitools::message1(out, SimSet.FileGenSettings.getFileName().data(), this);
     }
 }

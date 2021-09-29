@@ -3,11 +3,6 @@
 
 #include "aparticlegun.h"
 
-#include <QString>
-#include <QFile>
-#include <QRegularExpression>
-#include <QVector>
-
 #include <string>
 #include <vector>
 
@@ -31,7 +26,7 @@ public:
 
     std::string     getPreview(int maxLines);
 
-    bool            generateG4File(int eventBegin, int eventEnd, const QString & FileName);
+    bool            generateG4File(int eventBegin, int eventEnd, const std::string & FileName);
 
     std::string     getErrorString() const;
 
@@ -42,8 +37,6 @@ private:
     AFilePGEngine * Engine = nullptr;
 
     bool determineFileFormat();
-    bool isFileG4Binary();
-    bool isFileG4Ascii();
 };
 
 class AFilePGEngine
@@ -56,7 +49,7 @@ public:
     virtual bool doInitAndInspect(bool bDetailedInspection) = 0;
     virtual bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) = 0;
     virtual bool doSetStartEvent(int startEvent) = 0;
-    virtual bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) = 0;
+    virtual bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) = 0;
 
     virtual std::string getPreview(int maxLines) = 0;
 
@@ -65,7 +58,6 @@ public:
 protected:
     AFileGeneratorSettings & Settings;
 
-    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)");  // separators are: ' ' or ',' or ':' or '\t'
 };
 
 class AFilePGEngineG4antsTxt : public AFilePGEngine
@@ -78,9 +70,11 @@ public:
     bool doInitAndInspect(bool bDetailedInspection) override;
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
     bool doSetStartEvent(int startEvent) override;
-    bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) override;
+    bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) override;
 
     std::string getPreview(int maxLines) override;
+
+    static bool isFileG4AntsAscii(const std::string & FileName);
 
 private:
     std::ifstream * inStream = nullptr;
@@ -96,9 +90,11 @@ public:
     bool doInitAndInspect(bool bDetailedInspection) override;
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
     bool doSetStartEvent(int startEvent) override;
-    bool doGenerateG4File(int eventBegin, int eventEnd, const QString & FileName) override;
+    bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) override;
 
     std::string getPreview(int maxLines) override;
+
+    static bool isFileG4AntsBin(const std::string & FileName);
 
 private:
     std::ifstream * inStream = nullptr;

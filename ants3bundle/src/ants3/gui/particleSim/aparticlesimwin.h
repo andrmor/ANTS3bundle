@@ -83,7 +83,7 @@ private slots:
     void on_pbGenerateFromFile_Change_clicked();
     void on_leGenerateFromFile_FileName_editingFinished();
     void on_pbFilePreview_clicked();
-    void on_pbGenerateFromFile_Check_clicked();
+    void on_pbAnalyzeFile_clicked();
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
