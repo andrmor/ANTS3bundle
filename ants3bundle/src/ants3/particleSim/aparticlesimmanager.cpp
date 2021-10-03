@@ -138,32 +138,11 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
+    AParticleGun * ParticleGun = configureParticleGun();
+    if (!ParticleGun) return false;
+
     int iEvent = 0;
     int iProcess = 0;
-
-    AParticleGun * ParticleGun = nullptr;
-    switch (SimSet.GenerationMode)
-    {
-    case AParticleSimSettings::Sources :
-        ParticleGun = Generator_Sources;
-        break;
-    case AParticleSimSettings::File :
-        //break;
-    case AParticleSimSettings::Script :
-        //break;
-    default:;
-    }
-    if (!ParticleGun)
-    {
-        ErrorString = "Unknown or not implemented particle generation mode";
-        return false;
-    }
-    if ( !ParticleGun->init() )
-    {
-        ErrorString = ParticleGun->ErrorString.data();
-        return false;
-    }
-
     for (const A3FarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
@@ -177,13 +156,25 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
             A3NodeWorkerConfig Worker;
             AParticleSimSettings WorkSet;
 
+            WorkSet = SimSet;
+            WorkSet.RunSet.EventFrom = iEvent;
+            WorkSet.RunSet.EventTo   = iEvent + num;
+            iEvent += num;
+
             switch (SimSet.GenerationMode)
             {
             case AParticleSimSettings::Sources :
-                WorkSet = SimSet;
-                WorkSet.RunSet.EventFrom = iEvent;
-                WorkSet.RunSet.EventTo   = iEvent + num;
-                iEvent += num;
+                // nothing to do
+                break;
+            case AParticleSimSettings::File :
+                {
+                    ParticleGun->setStartEvent(iEvent);
+                    const QString fileName = QString("primaries-%0").arg(iProcess);
+                    WorkSet.FileGenSettings.setFileName(fileName.toLatin1().data());
+                    //refactor to avoid scanning from the begionning every time !!!***
+                    static_cast<AFileParticleGenerator*>(ParticleGun)->generateG4File(iEvent, iEvent+num, (ExchangeDir + '/' + fileName).toLatin1().data());
+                    Worker.InputFiles.push_back(fileName);
+                }
                 break;
             default:
                 ErrorString = "Not yet implemented!";
@@ -223,6 +214,38 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     }
 
     return true;
+}
+
+AParticleGun * AParticleSimManager::configureParticleGun()
+{
+    AParticleGun * ParticleGun = nullptr;
+
+    switch (SimSet.GenerationMode)
+    {
+    case AParticleSimSettings::Sources :
+        ParticleGun = Generator_Sources;
+        break;
+    case AParticleSimSettings::File :
+        ParticleGun = Generator_File;
+        break;
+    case AParticleSimSettings::Script :
+        //break;
+    default:;
+    }
+
+    if (!ParticleGun)
+    {
+        ErrorString = "Unknown or not implemented particle generation mode";
+        return nullptr;
+    }
+
+    if ( !ParticleGun->init() )
+    {
+        ErrorString = ParticleGun->ErrorString.data();
+        return nullptr;
+    }
+
+    return ParticleGun;
 }
 
 bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir)

@@ -16,6 +16,7 @@ class A3WorkDistrConfig;
 class QJsonObject;
 class AParticleRunSettings;
 class AEventTrackingRecord;
+class AParticleGun;
 
 class AParticleSimManager
 {
@@ -62,6 +63,7 @@ private:
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     bool configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir); // !!!***
     void configureMaterials();
+    AParticleGun * configureParticleGun();
 
     void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
     void removeOutputFiles();
