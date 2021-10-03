@@ -45,8 +45,9 @@ public:
     AFilePGEngine(AFileGeneratorSettings & settings) : Settings(settings) {}
     virtual ~AFilePGEngine(){}
 
+    bool inspect(bool bDetailedInspection);
+
     virtual bool doInit() = 0;
-    virtual bool doInitAndInspect(bool bDetailedInspection) = 0;
     virtual bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) = 0;
     virtual bool doSetStartEvent(int startEvent) = 0;
     virtual bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) = 0;
@@ -58,6 +59,7 @@ public:
 protected:
     AFileGeneratorSettings & Settings;
 
+    virtual bool doInspect(bool bDetailedInspection) = 0;
 };
 
 class AFilePGEngineG4antsTxt : public AFilePGEngine
@@ -66,8 +68,6 @@ public:
     AFilePGEngineG4antsTxt(AFileGeneratorSettings & settings) : AFilePGEngine(settings) {}
     ~AFilePGEngineG4antsTxt();
 
-    bool doInit() override;
-    bool doInitAndInspect(bool bDetailedInspection) override;
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
     bool doSetStartEvent(int startEvent) override;
     bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) override;
@@ -78,6 +78,9 @@ public:
 
 private:
     std::ifstream * inStream = nullptr;
+
+    bool doInit() override;
+    bool doInspect(bool bDetailedInspection) override;
 };
 
 class AFilePGEngineG4antsBin : public AFilePGEngine
@@ -87,7 +90,6 @@ public:
     ~AFilePGEngineG4antsBin();
 
     bool doInit() override;
-    bool doInitAndInspect(bool bDetailedInspection) override;
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
     bool doSetStartEvent(int startEvent) override;
     bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) override;
@@ -98,6 +100,8 @@ public:
 
 private:
     std::ifstream * inStream = nullptr;
+
+    bool doInspect(bool bDetailedInspection) override;
 };
 
 #endif // AFILEPARTICLEGENERATOR_H

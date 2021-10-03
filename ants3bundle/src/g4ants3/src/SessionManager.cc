@@ -69,13 +69,31 @@ void SessionManager::startSession()
 }
 
 #include "asourceparticlegenerator.h"
+#include "afileparticlegenerator.h"
 void SessionManager::prepareParticleGun()
 {
-    for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
-        for (AGunParticle & particle : source.Particles)
-            particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+    switch (Settings.GenerationMode)
+    {
+    case AParticleSimSettings::Sources :
+        {
+            for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
+                for (AGunParticle & particle : source.Particles)
+                    particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
 
-    ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
+            ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
+        }
+        break;
+    case AParticleSimSettings::File :
+        {
+            ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
+        }
+        break;
+    default :
+        {
+            terminateSession("Unknown or not-implemented primary generation mode");
+        }
+    }
+
     bool ok = ParticleGenerator->init();
     qDebug() << "Particle gun init:" << ok;
 }
@@ -846,6 +864,7 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     std::cout << "Binary output? " << bBinaryOutput << std::endl;
     Precision = Settings.RunSet.AsciiPrecision;
 
+    // refactor !!!***
     bExitParticles   = Settings.RunSet.SaveSettings.Enabled;
     FileName_Exit    = Settings.RunSet.SaveSettings.FileName;
     bExitBinary      = bBinaryOutput;

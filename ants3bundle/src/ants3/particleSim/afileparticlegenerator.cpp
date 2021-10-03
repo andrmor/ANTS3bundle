@@ -4,8 +4,11 @@
 #include "aparticlerecord.h"
 #include "ajsontools.h"
 
-#include <QDebug>
-#include <QStringList>
+#include <QDebug> //tyemporary! !!!***
+#ifndef GEANT4
+    #include <QStringList>
+    #include <QFileInfo>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -42,7 +45,6 @@ bool AFileParticleGenerator::init()
     return Engine->doInit();
 }
 
-#include <QFileInfo>
 bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 {
     ErrorString.clear();
@@ -78,20 +80,20 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 
     if (bNeedInspect)
     {
-        bOK = Engine->doInitAndInspect(bExpanded);
-        Settings.FileLastModified = QFileInfo(Settings.getFileName().data()).lastModified();
-    }
-    else
-        bOK = Engine->doInit();
+        bOK = Engine->inspect(bExpanded);
+        if (!bOK) return false;
 
-    if (bOK && Settings.ParticleStat.size() > 0)
-    {
-        std::sort(Settings.ParticleStat.begin(), Settings.ParticleStat.end(),
-                  [](const AParticleInFileStatRecord & l, const AParticleInFileStatRecord & r)
-                  {
-                    return (l.Entries > r.Entries);
-                  });
+        if (bOK && Settings.ParticleStat.size() > 0)
+        {
+            std::sort(Settings.ParticleStat.begin(), Settings.ParticleStat.end(),
+                      [](const AParticleInFileStatRecord & l, const AParticleInFileStatRecord & r)
+                      {
+                        return (l.Entries > r.Entries);
+                      });
+        }
     }
+
+    bOK = Engine->doInit();
     return bOK;
 }
 
@@ -159,6 +161,20 @@ std::string AFileParticleGenerator::getErrorString() const
 
 // ***************************************************************************
 
+bool AFilePGEngine::inspect(bool bDetailedInspection)
+{
+    bool ok = doInspect(bDetailedInspection);
+    if (!ok) return false;
+
+#ifndef GEANT4
+        Settings.FileLastModified = QFileInfo(Settings.getFileName().data()).lastModified();
+#endif
+
+    return true;
+}
+
+// ***************************************************************************
+
 AFilePGEngineG4antsTxt::~AFilePGEngineG4antsTxt()
 {
     if (inStream) inStream->close();
@@ -176,7 +192,7 @@ bool AFilePGEngineG4antsTxt::doInit()
     return true;
 }
 
-bool AFilePGEngineG4antsTxt::doInitAndInspect(bool bDetailedInspection)
+bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
 {
     inStream = new std::ifstream(Settings.getFileName());
 
@@ -253,7 +269,6 @@ bool AFilePGEngineG4antsTxt::doInitAndInspect(bool bDetailedInspection)
         return true;
 }
 
-//bool AFilePGEngineG4antsTxt::doGenerateEvent(QVector<AParticleRecord *> &GeneratedParticles)
 bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticleRecord &)> handler)
 {
     std::string str;
@@ -437,7 +452,7 @@ bool AFilePGEngineG4antsBin::doInit()
     return true;
 }
 
-bool AFilePGEngineG4antsBin::doInitAndInspect(bool bDetailedInspection)
+bool AFilePGEngineG4antsBin::doInspect(bool bDetailedInspection)
 {
     inStream = new std::ifstream(Settings.getFileName(), std::ios::in | std::ios::binary);
 
@@ -530,7 +545,6 @@ bool AFilePGEngineG4antsBin::doInitAndInspect(bool bDetailedInspection)
     return true;
 }
 
-//bool AFilePGEngineG4antsBin::doGenerateEvent(QVector<AParticleRecord *> & GeneratedParticles)
 bool AFilePGEngineG4antsBin::doGenerateEvent(std::function<void(const AParticleRecord&)> handler)
 {
     char h;
