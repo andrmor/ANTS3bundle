@@ -20,6 +20,7 @@ DEFINES += GEANT4
 DEFINES += JSON11
 
 SOURCES += \
+        ../ants3/particleSim/afilegeneratorsettings.cpp \
         ../ants3/particleSim/ag4simulationsettings.cpp \
         ../ants3/particleSim/aparticlerunsettings.cpp \
         ../ants3/particleSim/aparticlesimsettings.cpp \
@@ -51,6 +52,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/particleSim/afilegeneratorsettings.h \
     ../ants3/particleSim/ag4simulationsettings.h \
     ../ants3/particleSim/aparticlegun.h \
     ../ants3/particleSim/aparticlerunsettings.h \

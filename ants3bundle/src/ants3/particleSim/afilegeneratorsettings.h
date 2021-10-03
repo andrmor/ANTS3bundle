@@ -4,7 +4,12 @@
 #include <string>
 #include <vector>
 
-#include <QDateTime>
+#ifdef JSON11
+    #include "js11tools.hh"
+#else
+    class QJsonObject;
+    #include <QDateTime>
+#endif
 
 class QJsonObject;
 
@@ -20,7 +25,6 @@ struct AParticleInFileStatRecord
 class AFileGeneratorSettings
 {
 public:
-    // !!!*** delegate format handling to engine?
     enum            FileFormatEnum {Undefined = 0, Invalid, G4Ascii, G4Binary};
 
     std::string     getFileName() const {return FileName;}
@@ -29,13 +33,19 @@ public:
     FileFormatEnum  FileFormat = Undefined;
     int             NumEvents  = 0;
 
+#ifndef JSON11
     QDateTime       FileLastModified;
+#endif
 
     bool            isValidated() const;
     std::string     getFormatName() const;
 
+#ifdef JSON11
+    void            readFromJson(const json11::Json::object & json); // Error handling !!!***
+#else
     void            writeToJson(QJsonObject & json) const;
-    void            readFromJson(const QJsonObject & json);
+    void            readFromJson(const QJsonObject & json); // Error handling !!!***
+#endif
 
     //temporary! !!!***
     bool            isFormatBinary() const {return FileFormat == G4Binary;}
@@ -51,6 +61,5 @@ public:
 private:
     std::string     FileName; // private so it is not possible to change the name without resetting the format
 };
-
 
 #endif // AFILEGENERATORSETTINGS_H

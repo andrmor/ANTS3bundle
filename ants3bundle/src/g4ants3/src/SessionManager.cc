@@ -629,8 +629,6 @@ int SessionManager::getPredictedTrackID() const
 #include "G4LogicalVolume.hh"
 void SessionManager::findExitVolume()
 {
-    qDebug() << "ahaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << bExitParticles << ExitVolumeName.data();
-
     if (!bExitParticles) return;
 
     G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();

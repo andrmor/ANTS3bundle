@@ -18,7 +18,7 @@ void AParticleSimSettings::clearSettings()
     ClusterTime    = 1.0;
 
     SourceGenSettings.clear();
-//    FileGenSettings.clear();
+    FileGenSettings.clear();
 //    ScriptGenSettings.clear();
 
     G4Set.clear();
@@ -66,14 +66,12 @@ void AParticleSimSettings::writeToJson(QJsonObject & json, bool minimal) const
         json["GenerationFromSources"] = js;
     }
 
-/*
     if (!minimal || GenerationMode == File)
     {
         QJsonObject js;
             FileGenSettings.writeToJson(js);
         json["GenerationFromFile"] = js;
     }
-*/
 
 /*
     if (!minimal || GenerationMode == Script)
@@ -143,14 +141,16 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
         SourceGenSettings.readFromJson(js);
     }
 
-/*
     // file
     {
+#ifdef JSON11
+        json11::Json::object js;
+#else
         QJsonObject js;
+#endif
         jstools::parseJson(json, "GenerationFromFile", js);
         FileGenSettings.readFromJson(js);
     }
-*/
 
 /*
     // script
