@@ -32,7 +32,7 @@ public:
     QString LastLoadDir;
 
     void    configureDirectories();
-    QString checkExchangeDir();
+    std::string checkExchangeDir();
 
     void    saveConfig();
     void    loadConfig();

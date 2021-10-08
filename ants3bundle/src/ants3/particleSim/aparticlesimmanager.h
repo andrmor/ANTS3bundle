@@ -36,12 +36,10 @@ public:
     AParticleSimSettings & SimSet;
     const AGeometryHub   & Geometry;
 
-    QString ErrorString;
-
     ASourceParticleGenerator * Generator_Sources = nullptr;
     AFileParticleGenerator   * Generator_File    = nullptr;
 
-    bool simulate(int numLocalProc = -1);
+    void simulate(int numLocalProc = -1);
 
     QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
                         bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
@@ -54,7 +52,6 @@ private:
     AFileMerger ParticlesFileMerger;
 
     int  getNumberEvents() const;
-    void addErrorLine(const QString & error);
     void doPreSimChecks();
     void checkDirectories();
     void checkG4Settings();

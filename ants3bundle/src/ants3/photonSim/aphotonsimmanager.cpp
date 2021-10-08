@@ -102,7 +102,7 @@ bool APhotonSimManager::checkDirectories()
     if (SimSet.RunSet.OutputDirectory.isEmpty())       addErrorLine("Output directory is not set!");
     if (!QDir(SimSet.RunSet.OutputDirectory).exists()) addErrorLine("Output directory does not exist!");
 
-    addErrorLine(A3Global::getInstance().checkExchangeDir());
+    addErrorLine(A3Global::getInstance().checkExchangeDir().data());
 
     return ErrorString.isEmpty();
 }
@@ -139,14 +139,16 @@ void APhotonSimManager::removeOutputFiles()
 }
 
 #include "amonitorhub.h"
+#include "aerrorhub.h"
 void APhotonSimManager::mergeOutput()
 {
     qDebug() << "Merging output files...";
 
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
-    if (SimSet.RunSet.SaveSensorSignals) ErrorString += SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
-    if (SimSet.RunSet.SaveTracks)        ErrorString += TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
-    if (SimSet.RunSet.SavePhotonBombs)   ErrorString += BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
+    if (SimSet.RunSet.SaveTracks)        TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
+    if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    if (AErrorHub::isError()) ErrorString = AErrorHub::getError().data(); // temporary
 
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     Stat.clear();

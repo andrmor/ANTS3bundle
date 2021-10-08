@@ -25,6 +25,7 @@ SOURCES += \
         ../ants3/particleSim/ag4simulationsettings.cpp \
         ../ants3/particleSim/aparticlerunsettings.cpp \
         ../ants3/particleSim/aparticlesimsettings.cpp \
+        ../ants3/tools/aerrorhub.cpp \
         main.cpp \
         ../ants3/particleSim/aparticlesourcerecord.cpp \
         ../ants3/particleSim/aparticlerecord.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     ../ants3/particleSim/aparticlerecord.h \
     ../ants3/particleSim/asourcegeneratorsettings.h \
     ../ants3/particleSim/asourceparticlegenerator.h \
+    ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ahistogram.h \
     ../ants3/tools/avector.h \
     src/ActionInitialization.hh \

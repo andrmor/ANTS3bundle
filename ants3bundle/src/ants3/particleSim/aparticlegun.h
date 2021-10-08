@@ -22,7 +22,6 @@ public:
     void incrementPredictedTrackID() {NextTrackID++;}
     int  getPredictedTrackID() const {return NextTrackID;}
 
-    std::string ErrorString;
     bool        AbortRequested = false;
 
 protected:

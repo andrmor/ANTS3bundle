@@ -1,4 +1,5 @@
 #include "asourcegeneratorsettings.h"
+#include "aerrorhub.h"
 
 #ifndef JSON11
 #include "ajsontools.h"
@@ -21,7 +22,7 @@ double ASourceGeneratorSettings::calculateTotalActivity() const
     return TotalActivity;
 }
 
-std::string ASourceGeneratorSettings::check() const
+bool ASourceGeneratorSettings::check() const
 {
     std::string Error;
     for (const AParticleSourceRecord & ps : SourceData)
@@ -29,7 +30,11 @@ std::string ASourceGeneratorSettings::check() const
         const std::string err = ps.check();
         if (!err.empty()) Error += "Source " + ps.Name + ": " + err + "\n";
     }
-    return Error;
+
+    if (Error.empty()) return true;
+
+    AErrorHub::addError(Error.data());
+    return false;
 }
 
 bool ASourceGeneratorSettings::clone(int iSource)

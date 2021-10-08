@@ -36,7 +36,7 @@ public:
 private:
     AFilePGEngine * Engine = nullptr;
 
-    bool determineFileFormat();
+    void determineFileFormat();
 };
 
 class AFilePGEngine

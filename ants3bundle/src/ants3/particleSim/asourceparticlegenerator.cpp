@@ -2,6 +2,7 @@
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
 #include "aparticlesourcerecord.h"
+#include "aerrorhub.h"
 
 #include <string>
 #include <cmath>
@@ -29,19 +30,18 @@ bool ASourceParticleGenerator::init()
     int NumSources = Settings.SourceData.size();
     if (NumSources == 0)
     {
-        ErrorString = "No sources are defined";
+        AErrorHub::addError("No sources are defined");
         return false;
     }
 
     TotalActivity = Settings.calculateTotalActivity();
     if (TotalActivity == 0)
     {
-        ErrorString = "Total activity is zero";
+        AErrorHub::addError("Total activity is zero");
         return false;
     }
 
-    ErrorString = Settings.check();
-    if (!ErrorString.empty()) return false;
+    if (!Settings.check()) return false;
 
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)

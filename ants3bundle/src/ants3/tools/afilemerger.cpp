@@ -1,4 +1,5 @@
 #include "afilemerger.h"
+#include "aerrorhub.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -13,10 +14,14 @@ void AFileMerger::add(const QString &fileName)
     FilesToMerge.push_back(fileName);
 }
 
-QString AFileMerger::mergeToFile(const QString & fileName) const
+void AFileMerger::mergeToFile(const QString & fileName) const
 {
     QFile ofile(fileName);
-    if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + fileName;
+    if (!ofile.open(QIODevice::WriteOnly | QFile::Text))
+    {
+        AErrorHub::addError( QString("Cannot open output file:\n" + fileName).toLatin1().data() );
+        return;
+    }
     QTextStream out(&ofile);
 
     QByteArray buffer;
@@ -24,7 +29,11 @@ QString AFileMerger::mergeToFile(const QString & fileName) const
     for (const QString & fn : FilesToMerge)
     {
         QFile file(fn);
-        if (!file.open(QIODevice::ReadOnly | QFile::Text)) return "Cannot open input file:\n" + fn;
+        if (!file.open(QIODevice::ReadOnly | QFile::Text))
+        {
+            AErrorHub::addError( QString("Cannot open input file:\n" + fn).toLatin1().data() );
+            return;
+        }
 
         while (!file.atEnd())
         {
@@ -35,5 +44,4 @@ QString AFileMerger::mergeToFile(const QString & fileName) const
         file.close();
     }
     ofile.close();
-    return "";
 }

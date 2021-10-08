@@ -570,6 +570,8 @@ void AParticleSimWin::drawSource(int iSource)
 
 void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 {
+    AErrorHub::clear();
+
     if (!Gun)
     {
         guitools::message("Particle gun is not defined", this);
@@ -579,7 +581,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     bool bOK = Gun->init();
     if (!bOK)
     {
-        guitools::message( QString("Failed to initialize particle gun!\n%0").arg(Gun->ErrorString.data()), this);
+        guitools::message( QString("Failed to initialize particle gun!\n%0").arg(AErrorHub::getError().data()), this);
         return;
     }
     Gun->setStartEvent(0);
@@ -698,10 +700,10 @@ void AParticleSimWin::on_pbSimulate_clicked()
     clearResultsGui();
 
     disableGui(true);
-    bool ok = SimManager.simulate();
+    SimManager.simulate();
     disableGui(false);
 
-    if (!ok) guitools::message(SimManager.ErrorString, this);
+    if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
     else if (ui->cbAutoLoadResults->isChecked())
     {
         ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
@@ -1708,6 +1710,8 @@ void AParticleSimWin::updateFileParticleGeneratorGui()
 
 void AParticleSimWin::on_pbAnalyzeFile_clicked()
 {
+    AErrorHub::clear();
+
     AFileParticleGenerator * pg = SimManager.Generator_File;
 //    WindowNavigator->BusyOn();  // -->
     bool bOK = pg->initWithCheck(ui->cbFileCollectStatistics->isChecked());
@@ -1719,9 +1723,11 @@ void AParticleSimWin::on_pbAnalyzeFile_clicked()
 
 void AParticleSimWin::on_pbFilePreview_clicked()
 {
+    AErrorHub::clear();
+
     bool ok = SimManager.Generator_File->initWithCheck(false);
     if (!ok)
-        guitools::message(SimManager.Generator_File->ErrorString.data(), this);
+        guitools::message(AErrorHub::getError().data(), this);
     else
     {
         QString out(SimManager.Generator_File->getPreview(100).data());

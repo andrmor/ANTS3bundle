@@ -25,7 +25,7 @@ public:
     int         getNumSources() const {return SourceData.size();}
     double      calculateTotalActivity() const;
 
-    std::string check() const;
+    bool        check() const;
 
     bool        clone(int iSource);
     bool        replace(int iSource, AParticleSourceRecord & source);

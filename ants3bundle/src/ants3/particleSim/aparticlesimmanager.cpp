@@ -10,6 +10,7 @@
 #include "a3global.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -33,18 +34,18 @@ AParticleSimManager::~AParticleSimManager()
     delete Generator_File;
 }
 
-bool AParticleSimManager::simulate(int numLocalProc)
+void AParticleSimManager::simulate(int numLocalProc)
 {
-    ErrorString.clear();
+    AErrorHub::clear();
 
     doPreSimChecks();
-    if (!ErrorString.isEmpty()) return false;
+    if (AErrorHub::isError()) return;
 
     const int numEvents = getNumberEvents();
     if (numEvents == 0)
     {
-        ErrorString = "Configuration resports zero events to simulate";
-        return false;
+        AErrorHub::addError("Configuration reports zero events to simulate");
+        return;
     }
 
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
@@ -55,24 +56,22 @@ bool AParticleSimManager::simulate(int numLocalProc)
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
     {
-        ErrorString = err;
-        return false;
+        AErrorHub::addError(err.toLatin1().data());
+        return;
     }
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
 
     bool ok = configureSimulation(RunPlan, Request);
-    if (!ok) return false;
+    if (!ok) return;
 
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
 
 //    processReply(Reply);
 
-    if (ErrorString.isEmpty()) mergeOutput();
-
-    return ErrorString.isEmpty();
+    if (!AErrorHub::isError()) mergeOutput();
 }
 
 #include <QFile>
@@ -94,7 +93,11 @@ void AParticleSimManager::doPreSimChecks()
 {
     checkG4Settings();
     checkDirectories();
-    addErrorLine(Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes));
+
+    // !!!*** refactor
+    QString err;
+    err = Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes);
+    if (!err.isEmpty()) AErrorHub::addError(err.toLatin1().data());
 }
 
 #include "amaterialhub.h"
@@ -104,7 +107,10 @@ void AParticleSimManager::checkG4Settings()
 
     // TODO: optical grids will not be expanded
 
-    AMaterialHub::getInstance().checkReadyForGeant4Sim(ErrorString);
+    //reformat !!!***
+    QString Error;
+    AMaterialHub::getInstance().checkReadyForGeant4Sim(Error);
+    if (!Error.isEmpty()) AErrorHub::addError(Error.toLatin1().data());
 }
 
 int AParticleSimManager::getNumberEvents() const
@@ -177,7 +183,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 }
                 break;
             default:
-                ErrorString = "Not yet implemented!";
+                AErrorHub::addError("This generation mode is not yet implemented!");
                 return false;
             }
 
@@ -235,15 +241,11 @@ AParticleGun * AParticleSimManager::configureParticleGun()
 
     if (!ParticleGun)
     {
-        ErrorString = "Unknown or not implemented particle generation mode";
+        AErrorHub::addError("Unknown or not implemented particle generation mode");
         return nullptr;
     }
 
-    if ( !ParticleGun->init() )
-    {
-        ErrorString = ParticleGun->ErrorString.data();
-        return nullptr;
-    }
+    if ( !ParticleGun->init() ) return nullptr;
 
     return ParticleGun;
 }
@@ -256,10 +258,11 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
     Request.CommonFiles.push_back(LocalGdmlName);
     QString err = Geometry.exportToGDML(LocalGdmlName);
 
+    // refactor !!!***
     if (err.isEmpty()) return true;
     else
     {
-        ErrorString = err;
+        AErrorHub::addError(err.toLatin1().data());
         return false;
     }
 }
@@ -358,22 +361,14 @@ void AParticleSimManager::generateG4antsConfigCommon(AParticleRunSettings  & Run
 
 // ---
 
-void AParticleSimManager::addErrorLine(const QString &error)
-{
-    if (error.isEmpty()) return;
-
-    if (ErrorString.isEmpty()) ErrorString = error;
-    else                       ErrorString += QString("\n%0").arg(error);
-}
-
 #include "a3global.h"
 #include <QDir>
 void AParticleSimManager::checkDirectories()
 {
-    if (SimSet.RunSet.OutputDirectory.empty())                addErrorLine("Output directory is not set!");
-    if (!QDir(SimSet.RunSet.OutputDirectory.data()).exists()) addErrorLine("Output directory does not exist!");
+    if (SimSet.RunSet.OutputDirectory.empty())                AErrorHub::addError("Output directory is not set!");
+    if (!QDir(SimSet.RunSet.OutputDirectory.data()).exists()) AErrorHub::addError("Output directory does not exist!");
 
-    addErrorLine(A3Global::getInstance().checkExchangeDir());
+    AErrorHub::addError(A3Global::getInstance().checkExchangeDir());
 }
 
 //#include "amonitorhub.h"
@@ -384,10 +379,10 @@ void AParticleSimManager::mergeOutput()
     const QString & OutputDir(SimSet.RunSet.OutputDirectory.data());
 
     if (SimSet.RunSet.SaveTrackingHistory)
-        ErrorString += HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+        HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
 
     if (SimSet.RunSet.SaveSettings.Enabled)
-        ErrorString += ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
+        ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
 /*
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();

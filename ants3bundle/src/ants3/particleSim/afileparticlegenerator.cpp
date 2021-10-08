@@ -3,6 +3,7 @@
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include <QDebug> //tyemporary! !!!***
 #ifndef GEANT4
@@ -38,7 +39,7 @@ bool AFileParticleGenerator::init()
         Engine = new AFilePGEngineG4antsTxt(Settings);
         break;
     default:
-        ErrorString = "Invalid file format";
+        AErrorHub::addError("Invalid file format");
         return false;
     }
 
@@ -47,8 +48,6 @@ bool AFileParticleGenerator::init()
 
 bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 {
-    ErrorString.clear();
-
     bool bNeedInspect = !Settings.isValidated() || bExpanded;
     if (bNeedInspect) Settings.clearStatistics();
 
@@ -56,14 +55,14 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
 
     if (Settings.getFileName().empty())
     {
-        ErrorString = "File name is not defined";
+        AErrorHub::addError("File name is not defined");
         return false;
     }
 
     Settings.clearStatistics();
 
-    bool bOK = determineFileFormat();
-    if (!bOK) return false;
+    determineFileFormat();
+    if (!AErrorHub::isError()) return false;
 
     switch (Settings.FileFormat)
     {
@@ -74,13 +73,13 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
         Engine = new AFilePGEngineG4antsTxt(Settings);
         break;
     default:
-        ErrorString = "Invalid file format";
+        AErrorHub::addError("Invalid file format");
         return false;
     }
 
     if (bNeedInspect)
     {
-        bOK = Engine->inspect(bExpanded);
+        bool bOK = Engine->inspect(bExpanded);
         if (!bOK) return false;
 
         if (bOK && Settings.ParticleStat.size() > 0)
@@ -93,29 +92,26 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
         }
     }
 
-    bOK = Engine->doInit();
-    return bOK;
+    return Engine->doInit();
 }
 
-bool AFileParticleGenerator::determineFileFormat()
+void AFileParticleGenerator::determineFileFormat()
 {
     if (AFilePGEngineG4antsBin::isFileG4AntsBin(Settings.getFileName()))
     {
         Settings.FileFormat = AFileGeneratorSettings::G4Binary;
-        return true;
+        return;
     }
 
     if (AFilePGEngineG4antsTxt::isFileG4AntsAscii(Settings.getFileName()))
     {
         Settings.FileFormat = AFileGeneratorSettings::G4Ascii;
-        return true;
+        return;
     }
 
     Settings.FileFormat = AFileGeneratorSettings::Invalid;
-    if (!ErrorString.empty()) return false;
-
-    ErrorString = "Unexpected format of the file " + Settings.getFileName();
-    return false;
+    AErrorHub::addError("Invalid format of the primary particle file " + Settings.getFileName());
+    return;
 }
 
 void AFileParticleGenerator::releaseResources()
@@ -127,7 +123,7 @@ bool AFileParticleGenerator::generateEvent(std::function<void(const AParticleRec
 {
     if (!Engine)
     {
-        ErrorString = "Generator is not configured!";
+        AErrorHub::addError("Generator is not configured!");
         return false;
     }
 
@@ -417,7 +413,7 @@ bool AFilePGEngineG4antsTxt::isFileG4AntsAscii(const std::string & FileName)
     std::ifstream inT(FileName);
     if (!inT.is_open())
     {
-//        ErrorString = "Cannot open file " + FileName;
+        AErrorHub::addError("Cannot open file " + FileName);
         return false;
     }
 
@@ -785,7 +781,7 @@ bool AFilePGEngineG4antsBin::isFileG4AntsBin(const std::string & FileName)
     std::ifstream inB(FileName, std::ios::in | std::ios::binary);
     if (!inB.is_open())
     {
-//        ErrorString = "Cannot open file " + FileName;
+        AErrorHub::addError("Cannot open file " + FileName);
         return false;
     }
     char ch;
