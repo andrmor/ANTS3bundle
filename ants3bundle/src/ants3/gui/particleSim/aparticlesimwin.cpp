@@ -5,6 +5,7 @@
 #include "ag4simulationsettings.h"
 #include "aparticlesimmanager.h"
 #include "guitools.h"
+#include "aerrorhub.h"
 
 #include <QListWidget>
 #include <QDebug>
