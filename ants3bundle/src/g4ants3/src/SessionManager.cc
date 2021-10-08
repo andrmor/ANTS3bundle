@@ -85,6 +85,8 @@ void SessionManager::prepareParticleGun()
         break;
     case AParticleSimSettings::File :
         {
+            Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
+            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Settings.FileGenSettings.FileName.data();
             ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
         }
         break;
@@ -96,6 +98,8 @@ void SessionManager::prepareParticleGun()
 
     bool ok = ParticleGenerator->init();
     qDebug() << "Particle gun init:" << ok;
+
+    if (ok) ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
 }
 
 void SessionManager::terminateSession(const std::string & ReturnMessage)

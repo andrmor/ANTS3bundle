@@ -174,8 +174,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 {
                     ParticleGun->setStartEvent(iEvent);
                     const QString fileName = QString("primaries-%0").arg(iProcess);
-                    WorkSet.FileGenSettings.setFileName(fileName.toLatin1().data());
-                    qDebug() << "-----------------" << iProcess << fileName;
+                    WorkSet.FileGenSettings.FileName = fileName.toLatin1().data();
                     //refactor to avoid scanning from the beginning every time !!!***
                     static_cast<AFileParticleGenerator*>(ParticleGun)->generateG4File(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, (ExchangeDir + '/' + fileName).toLatin1().data());
                     Worker.InputFiles.push_back(fileName);

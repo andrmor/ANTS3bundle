@@ -7,14 +7,6 @@
 #include <QDebug>
 #endif
 
-void AFileGeneratorSettings::setFileName(const std::string &fileName)
-{
-    if (FileName == fileName) return;
-
-    clear();
-    FileName = fileName;
-}
-
 bool AFileGeneratorSettings::isValidated() const
 {
     if (FileFormat == Undefined || FileFormat == Invalid) return false;

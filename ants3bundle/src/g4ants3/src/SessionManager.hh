@@ -112,6 +112,7 @@ public:
         int CurrentEvent = 0;
         AParticleGun * ParticleGenerator = nullptr;
 
+        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
 private:
         void prepareParticleCollection();
         void prepareMonitors();
@@ -123,7 +124,6 @@ private:
         void generateReceipt();
         void storeMonitorsData();
 
-        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:

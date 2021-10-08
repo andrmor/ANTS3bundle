@@ -27,8 +27,7 @@ class AFileGeneratorSettings
 public:
     enum            FileFormatEnum {Undefined = 0, Invalid, G4Ascii, G4Binary};
 
-    std::string     getFileName() const {return FileName;}
-    void            setFileName(const std::string & fileName);
+    std::string     FileName; // private so it is not possible to change the name without resetting the format
 
     FileFormatEnum  FileFormat = Undefined;
     int             NumEvents  = 0;
@@ -58,8 +57,6 @@ public:
     int             statNumMultipleEvents    = 0;
     std::vector<AParticleInFileStatRecord> ParticleStat;
 
-private:
-    std::string     FileName; // private so it is not possible to change the name without resetting the format
 };
 
 #endif // AFILEGENERATORSETTINGS_H

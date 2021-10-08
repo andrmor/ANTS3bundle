@@ -56,7 +56,8 @@ void AParticleSimWin::updateSimGui()
     ui->cobPartPerEvent->setCurrentIndex(SimSet.SourceGenSettings.MultiMode == ASourceGeneratorSettings::Constant ? 0 : 1);
     ui->ledGunAverageNumPartperEvent->setText(QString::number(SimSet.SourceGenSettings.MultiNumber));
 
-    ui->leGenerateFromFile_FileName->setText(SimSet.FileGenSettings.getFileName().data());
+    //ui->leGenerateFromFile_FileName->setText(SimSet.FileGenSettings.FileName.data());
+    updateFileParticleGeneratorGui();
 }
 
 void AParticleSimWin::updateG4Gui()
@@ -1669,14 +1670,16 @@ void AParticleSimWin::on_pbGenerateFromFile_Change_clicked()
 void AParticleSimWin::on_leGenerateFromFile_FileName_editingFinished()
 {
     const std::string newName = ui->leGenerateFromFile_FileName->text().toLatin1().data();
-    if (newName == SimSet.FileGenSettings.getFileName()) return;
-    SimSet.FileGenSettings.setFileName(newName);
+    if (newName == SimSet.FileGenSettings.FileName) return;
+
+    SimSet.FileGenSettings.clear();
+    SimSet.FileGenSettings.FileName = newName;
     updateFileParticleGeneratorGui();
 }
 
 void AParticleSimWin::updateFileParticleGeneratorGui()
 {
-    const QString FileName(SimSet.FileGenSettings.getFileName().data());
+    const QString FileName(SimSet.FileGenSettings.FileName.data());
     ui->leGenerateFromFile_FileName->setText(FileName);
 
     ui->labFileFormat->setText("Undefined");
@@ -1735,6 +1738,6 @@ void AParticleSimWin::on_pbFilePreview_clicked()
     else
     {
         QString out(SimManager.Generator_File->getPreview(100).data());
-        guitools::message1(out, SimSet.FileGenSettings.getFileName().data(), this);
+        guitools::message1(out, SimSet.FileGenSettings.FileName.data(), this);
     }
 }

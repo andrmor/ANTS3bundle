@@ -40,8 +40,11 @@ private:
 class AFilePGEngine
 {
 public:
-    AFilePGEngine(AFileGeneratorSettings & settings) : Settings(settings) {}
+    AFilePGEngine(AFileGeneratorSettings & settings, int & nextTrackID) :
+        Settings(settings), NextTrackID(nextTrackID) {}
     virtual ~AFilePGEngine(){}
+
+    void incrementPredictedTrackID() {NextTrackID++;}
 
     bool inspect(bool bDetailedInspection);
 
@@ -54,6 +57,7 @@ public:
 
 protected:
     AFileGeneratorSettings & Settings;
+    int & NextTrackID;
 
     virtual bool doInspect(bool bDetailedInspection) = 0;
 };
@@ -61,7 +65,7 @@ protected:
 class AFilePGEngineG4antsTxt : public AFilePGEngine
 {
 public:
-    AFilePGEngineG4antsTxt(AFileGeneratorSettings & settings) : AFilePGEngine(settings) {}
+    AFilePGEngineG4antsTxt(AFileGeneratorSettings & settings, int & nextTrackID) : AFilePGEngine(settings, nextTrackID) {}
     ~AFilePGEngineG4antsTxt();
 
     bool doGenerateEvent(std::function<void(const AParticleRecord&)> handler) override;
@@ -82,7 +86,7 @@ private:
 class AFilePGEngineG4antsBin : public AFilePGEngine
 {
 public:
-    AFilePGEngineG4antsBin(AFileGeneratorSettings & settings) : AFilePGEngine(settings) {}
+    AFilePGEngineG4antsBin(AFileGeneratorSettings & settings, int & nextTrackID) : AFilePGEngine(settings, nextTrackID) {}
     ~AFilePGEngineG4antsBin();
 
     bool doInit() override;
