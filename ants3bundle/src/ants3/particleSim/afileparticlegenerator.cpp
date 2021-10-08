@@ -149,12 +149,6 @@ bool AFileParticleGenerator::generateG4File(int eventBegin, int eventEnd, const 
         return false;
 }
 
-std::string AFileParticleGenerator::getErrorString() const
-{
-    if (!Engine) return "Engine is nullptr";
-    return Engine->ErrorString;
-}
-
 // ***************************************************************************
 
 bool AFilePGEngine::inspect(bool bDetailedInspection)
@@ -182,7 +176,7 @@ bool AFilePGEngineG4antsTxt::doInit()
     inStream = new std::ifstream(Settings.getFileName());
     if (!inStream->is_open())
     {
-        ErrorString = "Cannot open file " + Settings.getFileName();
+        AErrorHub::addError("Cannot open file " + Settings.getFileName());
         return false;
     }
     return true;
@@ -194,7 +188,7 @@ bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
 
     if (!inStream->is_open())
     {
-        ErrorString = "Cannot open file " + Settings.getFileName();
+        AErrorHub::addError("Cannot open file " + Settings.getFileName());
         return false;
     }
 
@@ -214,7 +208,7 @@ bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
                     break;
                 }
 
-                ErrorString = "Found empty line!";
+                AErrorHub::addError("Found empty line!");
                 return false;
             }
 
@@ -233,7 +227,7 @@ bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
             //pname en x y z i j k time
             if (f.size() != 9)
             {
-                ErrorString = "Bad format of particle record!";
+                AErrorHub::addError("Bad format of particle record!");
                 return false;
             }
             std::string name = f[0].toLatin1().data();
@@ -274,7 +268,7 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
         if (str.empty())
         {
             if (inStream->eof()) return false;
-            ErrorString = "Found empty line!";
+            AErrorHub::addError("Found empty line!");
             return false;
         }
 
@@ -283,7 +277,7 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
         QStringList f = QString(str.data()).split(' ', Qt::SkipEmptyParts); //pname en time x y z i j k
         if (f.size() != 9)
         {
-            ErrorString = "Bad format of particle record!";
+            AErrorHub::addError("Bad format of particle record!");
             return false;
         }
 
@@ -340,7 +334,7 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
     outStream.open(FileName);
     if (!outStream.is_open())
     {
-        ErrorString = "Cannot open file to export primaries for G4ants sim";
+        AErrorHub::addError("Cannot open file to export primaries for G4ants sim");
         return false;
     }
 
@@ -356,13 +350,13 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
             if (eventsToDo == 0) return true;
             else
             {
-                ErrorString = "Unexpected end of file";
+                AErrorHub::addError("Unexpected end of file");
                 return false;
             }
         }
         if (str.empty())
         {
-            ErrorString = "Found empty line!";
+            AErrorHub::addError("Found empty line!");
             return false;
         }
 
@@ -386,7 +380,7 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
 
     if (eventsToDo == 0) return true;
 
-    ErrorString = "Unexpected end of file";
+    AErrorHub::addError("Unexpected end of file");
     return false;
 }
 
@@ -441,7 +435,7 @@ bool AFilePGEngineG4antsBin::doInit()
     inStream = new std::ifstream(Settings.getFileName(), std::ios::in | std::ios::binary);
     if (!inStream->is_open()) //paranoic
     {
-        ErrorString = "Cannot open file " + Settings.getFileName();
+        AErrorHub::addError("Cannot open file " + Settings.getFileName());
         return false;
     }
     inStream->clear();
@@ -454,7 +448,7 @@ bool AFilePGEngineG4antsBin::doInspect(bool bDetailedInspection)
 
     if (!inStream->is_open()) //paranoic
     {
-        ErrorString = "Cannot open file " + Settings.getFileName();
+        AErrorHub::addError("Cannot open file " + Settings.getFileName());
         return false;
     }
 
@@ -498,7 +492,7 @@ bool AFilePGEngineG4antsBin::doInspect(bool bDetailedInspection)
                 inStream->read((char*)&time,         sizeof(double));
                 if (inStream->fail())
                 {
-                    ErrorString = "Unexpected format of a line in the binary file with the input particles";
+                    AErrorHub::addError("Unexpected format of a line in the binary file with the input particles");
                     return false;
                 }
 
@@ -525,13 +519,13 @@ bool AFilePGEngineG4antsBin::doInspect(bool bDetailedInspection)
             }
             else
             {
-                ErrorString = "Format error in binary file!";
+                AErrorHub::addError("Format error in binary file!");
                 return false;
             }
         }
         if (!inStream->eof())
         {
-            ErrorString = "Format error in binary file!";
+            AErrorHub::addError("Format error in binary file!");
             return false;
         }
         if (bWasMulty)     Settings.statNumMultipleEvents++;
@@ -582,7 +576,7 @@ bool AFilePGEngineG4antsBin::doGenerateEvent(std::function<void(const AParticleR
             inStream->read((char*)&p.time,     sizeof(double));
             if (inStream->fail())
             {
-                ErrorString = "Unexpected format of a line in the binary file with the input particles";
+                AErrorHub::addError("Unexpected format of a line in the binary file with the input particles");
                 return false;
             }
 
@@ -591,7 +585,7 @@ bool AFilePGEngineG4antsBin::doGenerateEvent(std::function<void(const AParticleR
         }
         else
         {
-            ErrorString = "Unexpected format of a line in the binary file with the input particles";
+            AErrorHub::addError("Unexpected format of a line in the binary file with the input particles");
             return false;
         }
     }
@@ -641,7 +635,7 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
     outStream.open(FileName, std::ios::out | std::ios::binary);
     if (!outStream.is_open())
     {
-        ErrorString = "Cannot open file to export primaries for G4ants sim";
+        AErrorHub::addError("Cannot open file to export primaries for G4ants sim");
         return false;
     }
 
@@ -661,13 +655,13 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
             if (eventsToDo == 0) return true;
             else
             {
-                ErrorString = "Unexpected end of file";
+                AErrorHub::addError("Unexpected end of file");
                 return false;
             }
         }
         if (inStream->fail())
         {
-            ErrorString = "Unexpected error during reading of a header char in the G4ants binary file";
+            AErrorHub::addError("Unexpected error during reading of a header char in the G4ants binary file");
             return false;
         }
 
@@ -703,7 +697,7 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
             inStream->read((char*)&time,     sizeof(double));
             if (inStream->fail())
             {
-                ErrorString = "Unexpected format of a line in the G4ants binary file";
+                AErrorHub::addError("Unexpected format of a line in the G4ants binary file");
                 return false;
             }
             if (!bSkippingEvents)
@@ -717,14 +711,14 @@ bool AFilePGEngineG4antsBin::doGenerateG4File(int eventBegin, int eventEnd, cons
         }
         else
         {
-            ErrorString = "Unexpected format of a header char in the binary file with the input particles";
+            AErrorHub::addError("Unexpected format of a header char in the binary file with the input particles");
             return false;
         }
     }
 
     if (eventsToDo == 0) return true;
 
-    ErrorString = "Unexpected end of file";
+    AErrorHub::addError("Unexpected end of file");
     return false;
 }
 

@@ -1714,10 +1714,10 @@ void AParticleSimWin::on_pbAnalyzeFile_clicked()
 
     AFileParticleGenerator * pg = SimManager.Generator_File;
 //    WindowNavigator->BusyOn();  // -->
-    bool bOK = pg->initWithCheck(ui->cbFileCollectStatistics->isChecked());
+    pg->initWithCheck(ui->cbFileCollectStatistics->isChecked());
 //    WindowNavigator->BusyOff(); // <--
 
-    if (!bOK) guitools::message(pg->getErrorString().data(), this);
+    if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
     updateFileParticleGeneratorGui();
 }
 

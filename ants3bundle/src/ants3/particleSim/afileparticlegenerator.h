@@ -28,8 +28,6 @@ public:
 
     bool            generateG4File(int eventBegin, int eventEnd, const std::string & FileName);
 
-    std::string     getErrorString() const;
-
 public:
     AFileGeneratorSettings & Settings;
 
@@ -53,8 +51,6 @@ public:
     virtual bool doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName) = 0;
 
     virtual std::string getPreview(int maxLines) = 0;
-
-    std::string ErrorString;
 
 protected:
     AFileGeneratorSettings & Settings;
