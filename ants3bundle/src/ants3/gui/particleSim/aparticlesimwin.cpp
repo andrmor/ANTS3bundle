@@ -354,7 +354,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
         break;
     case 1:
         pg = SimManager.Generator_File;
-        SimManager.Generator_File->initWithCheck(false);
+        SimManager.Generator_File->checkFile(false);
         break;
     case 2:
 //        pg = SimManager->ScriptParticleGenerator;
@@ -1718,7 +1718,7 @@ void AParticleSimWin::on_pbAnalyzeFile_clicked()
 
     AFileParticleGenerator * pg = SimManager.Generator_File;
 //    WindowNavigator->BusyOn();  // -->
-    pg->initWithCheck(ui->cbFileCollectStatistics->isChecked());
+    pg->checkFile(ui->cbFileCollectStatistics->isChecked());
 //    WindowNavigator->BusyOff(); // <--
 
     if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
@@ -1729,7 +1729,7 @@ void AParticleSimWin::on_pbFilePreview_clicked()
 {
     AErrorHub::clear();
 
-    bool ok = SimManager.Generator_File->initWithCheck(false);
+    bool ok = SimManager.Generator_File->checkFile(false);
     if (!ok)
         guitools::message(AErrorHub::getError().data(), this);
     else

@@ -46,7 +46,7 @@ bool AFileParticleGenerator::init()
     return Engine->doInit();
 }
 
-bool AFileParticleGenerator::initWithCheck(bool bExpanded)
+bool AFileParticleGenerator::checkFile(bool bExpanded)
 {
     bool bNeedInspect = !Settings.isValidated() || bExpanded;
     if (bNeedInspect) Settings.clearStatistics();
@@ -330,6 +330,9 @@ bool AFilePGEngineG4antsTxt::doSetStartEvent(int startEvent)
 
 bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, const std::string & FileName)
 {
+    inStream->clear();
+    inStream->seekg(0);
+
     std::ofstream outStream;
     outStream.open(FileName);
     if (!outStream.is_open())
@@ -341,13 +344,12 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
     int currentEvent = -1;
     int eventsToDo = eventEnd - eventBegin;
     bool bSkippingEvents = (eventBegin != 0);
-    inStream->seekg(0);
     std::string str;
     while ( getline(*inStream, str) )
     {
         if (inStream->eof())
         {
-            if (eventsToDo == 0) return true;
+            if (!bSkippingEvents && eventsToDo <= 1) return true; // in the last event we do not have the "end of event" mark!
             else
             {
                 AErrorHub::addError("Unexpected end of file");
@@ -365,18 +367,15 @@ bool AFilePGEngineG4antsTxt::doGenerateG4File(int eventBegin, int eventEnd, cons
             if (eventsToDo == 0) return true;
             currentEvent++;
 
-            if (bSkippingEvents && currentEvent == eventBegin) bSkippingEvents = false;
+            if (currentEvent == eventBegin) bSkippingEvents = false;
 
-            if (!bSkippingEvents)
-            {
-                outStream << str << std::endl;
-                eventsToDo--;
-            }
-            continue;
+            if (!bSkippingEvents) eventsToDo--;
         }
 
-        if (!bSkippingEvents) outStream << str << std::endl;
+        if (!bSkippingEvents) outStream << str << '\n';
     }
+
+    outStream.close();
 
     if (eventsToDo == 0) return true;
 

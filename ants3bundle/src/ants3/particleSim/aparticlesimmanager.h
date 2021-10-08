@@ -38,6 +38,7 @@ public:
 
     ASourceParticleGenerator * Generator_Sources = nullptr;
     AFileParticleGenerator   * Generator_File    = nullptr;
+    AParticleGun             * ParticleGun       = nullptr; // alias pointing to one of the generators above
 
     void simulate(int numLocalProc = -1);
 
@@ -60,7 +61,7 @@ private:
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     bool configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir); // !!!***
     void configureMaterials();
-    AParticleGun * configureParticleGun();
+    bool configureParticleGun();
 
     void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
     void removeOutputFiles();

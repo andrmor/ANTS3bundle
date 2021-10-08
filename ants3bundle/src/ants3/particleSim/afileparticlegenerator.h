@@ -17,7 +17,7 @@ public:
     virtual         ~AFileParticleGenerator();
 
     bool            init() override;  // cannot modify settings, so validation is not possible with this method
-    bool            initWithCheck(bool bExpanded);
+    bool            checkFile(bool bExpanded);
 
     void            releaseResources() override;
     bool            generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override;

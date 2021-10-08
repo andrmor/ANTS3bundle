@@ -41,6 +41,9 @@ void AParticleSimManager::simulate(int numLocalProc)
     doPreSimChecks();
     if (AErrorHub::isError()) return;
 
+    bool ok = configureParticleGun();
+    if (!ok) return;
+
     const int numEvents = getNumberEvents();
     if (numEvents == 0)
     {
@@ -63,7 +66,7 @@ void AParticleSimManager::simulate(int numLocalProc)
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
 
-    bool ok = configureSimulation(RunPlan, Request);
+    ok = configureSimulation(RunPlan, Request);
     if (!ok) return;
 
     qDebug() << "Running simulation...";
@@ -117,9 +120,7 @@ int AParticleSimManager::getNumberEvents() const
 {
     int numEvents = SimSet.Events;
     if (SimSet.GenerationMode == AParticleSimSettings::File)
-    {
-        //limit to max in file
-    }
+        numEvents = std::min(numEvents, SimSet.FileGenSettings.NumEvents);
     return numEvents;
 }
 
@@ -143,9 +144,6 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
-
-    AParticleGun * ParticleGun = configureParticleGun();
-    if (!ParticleGun) return false;
 
     int iEvent = 0;
     int iProcess = 0;
@@ -177,8 +175,9 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                     ParticleGun->setStartEvent(iEvent);
                     const QString fileName = QString("primaries-%0").arg(iProcess);
                     WorkSet.FileGenSettings.setFileName(fileName.toLatin1().data());
-                    //refactor to avoid scanning from the begionning every time !!!***
-                    static_cast<AFileParticleGenerator*>(ParticleGun)->generateG4File(iEvent, iEvent+num, (ExchangeDir + '/' + fileName).toLatin1().data());
+                    qDebug() << "-----------------" << iProcess << fileName;
+                    //refactor to avoid scanning from the beginning every time !!!***
+                    static_cast<AFileParticleGenerator*>(ParticleGun)->generateG4File(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, (ExchangeDir + '/' + fileName).toLatin1().data());
                     Worker.InputFiles.push_back(fileName);
                 }
                 break;
@@ -222,9 +221,9 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     return true;
 }
 
-AParticleGun * AParticleSimManager::configureParticleGun()
+bool AParticleSimManager::configureParticleGun()
 {
-    AParticleGun * ParticleGun = nullptr;
+    ParticleGun = nullptr;
 
     switch (SimSet.GenerationMode)
     {
@@ -233,6 +232,11 @@ AParticleGun * AParticleSimManager::configureParticleGun()
         break;
     case AParticleSimSettings::File :
         ParticleGun = Generator_File;
+        if (!SimSet.FileGenSettings.isValidated())
+        {
+            Generator_File->checkFile(false);
+            if (AErrorHub::isError()) return false;
+        }
         break;
     case AParticleSimSettings::Script :
         //break;
@@ -242,12 +246,10 @@ AParticleGun * AParticleSimManager::configureParticleGun()
     if (!ParticleGun)
     {
         AErrorHub::addError("Unknown or not implemented particle generation mode");
-        return nullptr;
+        return false;
     }
 
-    if ( !ParticleGun->init() ) return nullptr;
-
-    return ParticleGun;
+    return ParticleGun->init();
 }
 
 bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir)
