@@ -992,7 +992,7 @@ Format: Volume_name  Step_in_mm</string>
               <item>
                <widget class="QLabel" name="labNumberEventsInFile">
                 <property name="text">
-                 <string>0</string>
+                 <string>?</string>
                 </property>
                </widget>
               </item>

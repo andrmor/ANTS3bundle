@@ -59,10 +59,8 @@ bool AFileParticleGenerator::initWithCheck(bool bExpanded)
         return false;
     }
 
-    Settings.clearStatistics();
-
     determineFileFormat();
-    if (!AErrorHub::isError()) return false;
+    if (AErrorHub::isError()) return false;
 
     switch (Settings.FileFormat)
     {
@@ -102,12 +100,14 @@ void AFileParticleGenerator::determineFileFormat()
         Settings.FileFormat = AFileGeneratorSettings::G4Binary;
         return;
     }
+    if (AErrorHub::isError()) return;
 
     if (AFilePGEngineG4antsTxt::isFileG4AntsAscii(Settings.getFileName()))
     {
         Settings.FileFormat = AFileGeneratorSettings::G4Ascii;
         return;
     }
+    if (AErrorHub::isError()) return;
 
     Settings.FileFormat = AFileGeneratorSettings::Invalid;
     AErrorHub::addError("Invalid format of the primary particle file " + Settings.getFileName());

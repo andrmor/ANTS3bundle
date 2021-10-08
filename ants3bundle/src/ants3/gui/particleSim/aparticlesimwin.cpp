@@ -24,6 +24,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->frEventFilters->setVisible(false);
 
     on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
+
+    updateGui();
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -53,6 +55,8 @@ void AParticleSimWin::updateSimGui()
     ui->cbGunAllowMultipleEvents->setChecked(SimSet.SourceGenSettings.MultiEnabled);
     ui->cobPartPerEvent->setCurrentIndex(SimSet.SourceGenSettings.MultiMode == ASourceGeneratorSettings::Constant ? 0 : 1);
     ui->ledGunAverageNumPartperEvent->setText(QString::number(SimSet.SourceGenSettings.MultiNumber));
+
+    ui->leGenerateFromFile_FileName->setText(SimSet.FileGenSettings.getFileName().data());
 }
 
 void AParticleSimWin::updateG4Gui()
