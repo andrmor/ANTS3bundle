@@ -2,11 +2,12 @@
 #include "afilegeneratorsettings.h"
 #include "aparticlesimsettings.h"
 #include "aparticlerecord.h"
-#include "ajsontools.h"
 #include "aerrorhub.h"
 
-#include <QDebug> //tyemporary! !!!***
-#ifndef GEANT4
+//#include <QDebug> //temporary! !!!***
+#ifdef GEANT4
+    #include "SessionManager.hh"  // needed for particle name -> geant4 particle definition, plan to move to separate class !!!***
+#else
     #include <QStringList>
     #include <QFileInfo>
 #endif
@@ -192,82 +193,94 @@ bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
         return false;
     }
 
-        //qDebug() << "Inspecting G4ants-generated txt file:" << FileName;
-        std::string str;
-        bool bWasParticle = true;
-        bool bWasMulty    = false;
-        Settings.NumEvents = 0;
-        while (!inStream->eof())
+    std::string str;
+    std::vector<std::string> vec(100);
+    bool bWasParticle = true;
+    bool bWasMulty    = false;
+    Settings.NumEvents = 0;
+    while (!inStream->eof())
+    {
+        getline( *inStream, str );
+        if (str.empty())
         {
-            getline( *inStream, str );
-            if (str.empty())
+            if (inStream->eof())
             {
-                if (inStream->eof())
+                inStream->clear();  // will reuse the stream
+                break;
+            }
+
+            AErrorHub::addError("Found empty line!");
+            return false;
+        }
+
+        if (str[0] == '#')
+        {
+            //new event
+            Settings.NumEvents++;
+            if (bWasMulty)     Settings.statNumMultipleEvents++;
+            if (!bWasParticle) Settings.statNumEmptyEventsInFile++;
+            bWasMulty = false;
+            bWasParticle = false;
+            continue;
+        }
+
+        //pname en x y z i j k time
+        vec.clear();
+        size_t pos = 0;
+        while ((pos = str.find(' ')) != std::string::npos)
+        {
+            vec.push_back(str.substr(0, pos));
+            str.erase(0, pos + 1);
+        }
+        vec.push_back(str);
+        //std::string sss; for (auto & s : vec) sss += " " + s; qDebug() << vec.size() << "->" << sss.data();
+
+        if (vec.size() != 9)
+        {
+            AErrorHub::addError("Bad format of particle record!");
+            return false;
+        }
+        const std::string & name = vec[0];
+        double energy = std::atof(vec[1].data()); // gives 0 on string, but we cannot forbid 0
+        if (energy < 0)
+        {
+            AErrorHub::addError("Bad format of particle record: found negative energy");
+            return false;
+        }
+
+        if (bDetailedInspection)
+        {
+            bool bNotFound = true;
+            for (AParticleInFileStatRecord & rec : Settings.ParticleStat)
+            {
+                if (rec.Name == name)
                 {
-                    inStream->clear();  // will reuse the stream
+                    rec.Entries++;
+                    rec.Energy += energy;
+                    bNotFound = false;
                     break;
                 }
-
-                AErrorHub::addError("Found empty line!");
-                return false;
             }
 
-            if (str[0] == '#')
-            {
-                //new event
-                Settings.NumEvents++;
-                if (bWasMulty)     Settings.statNumMultipleEvents++;
-                if (!bWasParticle) Settings.statNumEmptyEventsInFile++;
-                bWasMulty = false;
-                bWasParticle = false;
-                continue;
-            }
-
-            QStringList f = QString(str.data()).split(' ', Qt::SkipEmptyParts);
-            //pname en x y z i j k time
-            if (f.size() != 9)
-            {
-                AErrorHub::addError("Bad format of particle record!");
-                return false;
-            }
-            std::string name = f[0].toLatin1().data();
-
-            if (bDetailedInspection)
-            {
-                bool bNotFound = true;
-                for (AParticleInFileStatRecord & rec : Settings.ParticleStat)
-                {
-                    if (rec.Name == name)
-                    {
-                        rec.Entries++;
-                        rec.Energy += f.at(1).toDouble();
-                        bNotFound = false;
-                        break;
-                    }
-                }
-
-                if (bNotFound)
-                    Settings.ParticleStat.push_back(AParticleInFileStatRecord(name, f.at(1).toDouble()));
-            }
-
-            if (bWasParticle) bWasMulty = true;
-            bWasParticle = true;
+            if (bNotFound) Settings.ParticleStat.push_back(AParticleInFileStatRecord(name, energy));
         }
-        if (bWasMulty)     Settings.statNumMultipleEvents++;
-        if (!bWasParticle) Settings.statNumEmptyEventsInFile++;
 
-        return true;
+        if (bWasParticle) bWasMulty = true;
+        bWasParticle = true;
+    }
+    if (bWasMulty)     Settings.statNumMultipleEvents++;
+    if (!bWasParticle) Settings.statNumEmptyEventsInFile++;
+
+    return true;
 }
 
-#ifdef GEANT4
-#include "SessionManager.hh"
-#endif
+#include <QDebug>
 bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticleRecord &)> handler)
 {
     std::string str;
     while ( getline(*inStream, str) )
     {
-        qDebug() << str.data();
+        //qDebug() << str.data();
         if (str.empty())
         {
             if (inStream->eof()) return false;
@@ -289,7 +302,7 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
         AParticleRecord p;
      #ifdef GEANT4
         p.particle = SessionManager::getInstance().findGeant4Particle(name.toLatin1().data());
-        qDebug() << name << p.particle;
+        //qDebug() << name << p.particle;
      #else
         //kill [***] appearing in ion names
         int iBracket = name.indexOf('[');
@@ -420,10 +433,10 @@ bool AFilePGEngineG4antsTxt::isFileG4AntsAscii(const std::string & FileName)
     inT.close();
     if (str.size() > 1 && str[0] == '#')
     {
-        QString line = QString(str.data()).mid(1);
-        bool bOK;
-        int iEvent = line.toInt(&bOK);
-        if (bOK && iEvent == 0) return true;
+        str.erase(0, 1);
+        int iEvent = -1;
+        iEvent = std::atoi(str.data());
+        if (iEvent == 0) return true;
     }
     return false;
 }

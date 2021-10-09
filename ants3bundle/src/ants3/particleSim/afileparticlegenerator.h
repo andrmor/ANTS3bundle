@@ -70,7 +70,7 @@ public:
 
     std::string getPreview(int maxLines) override;
 
-    static bool isFileG4AntsAscii(const std::string & FileName);
+    static bool isFileG4AntsAscii(const std::string & FileName); // !!!*** check atoi is ok for this purpose
 
 private:
     std::ifstream * inStream = nullptr;
