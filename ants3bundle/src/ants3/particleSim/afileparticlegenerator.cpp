@@ -33,10 +33,10 @@ bool AFileParticleGenerator::init()
     switch (Settings.FileFormat)
     {
     case AFileGeneratorSettings::G4Binary:
-        Engine = new AFilePGEngineG4antsBin(Settings, NextTrackID);
+        Engine = new AFilePGEngineG4antsBin(Settings);
         break;
     case AFileGeneratorSettings::G4Ascii:
-        Engine = new AFilePGEngineG4antsTxt(Settings, NextTrackID);
+        Engine = new AFilePGEngineG4antsTxt(Settings);
         break;
     default:
         AErrorHub::addError("Invalid file format");
@@ -65,10 +65,10 @@ bool AFileParticleGenerator::checkFile(bool bExpanded)
     switch (Settings.FileFormat)
     {
     case AFileGeneratorSettings::G4Binary:
-        Engine = new AFilePGEngineG4antsBin(Settings, NextTrackID);
+        Engine = new AFilePGEngineG4antsBin(Settings);
         break;
     case AFileGeneratorSettings::G4Ascii:
-        Engine = new AFilePGEngineG4antsTxt(Settings, NextTrackID);
+        Engine = new AFilePGEngineG4antsTxt(Settings);
         break;
     default:
         AErrorHub::addError("Invalid file format");
@@ -306,7 +306,6 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
         p.time   = f.at(8).toDouble();
 
         handler(p);
-        incrementPredictedTrackID();
     }
 
     if (inStream->eof()) return true;
@@ -581,7 +580,6 @@ bool AFilePGEngineG4antsBin::doGenerateEvent(std::function<void(const AParticleR
             }
 
             handler(p);
-            incrementPredictedTrackID();
         }
         else
         {

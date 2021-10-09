@@ -634,17 +634,18 @@ void SessionManager::saveTrackRecord(const std::string & procName,
     }
 }
 
+#include "PrimaryGeneratorAction.hh"
 void SessionManager::resetPredictedTrackID()
 {
-    ParticleGenerator->resetPredictedTrackID();
+    PrimGenAction->resetPredictedTrackID();
 }
 void SessionManager::incrementPredictedTrackID()
 {
-    ParticleGenerator->incrementPredictedTrackID();
+    PrimGenAction->incrementPredictedTrackID();
 }
 int SessionManager::getPredictedTrackID() const
 {
-    return ParticleGenerator->getPredictedTrackID();
+    return PrimGenAction->getPredictedTrackID();
 }
 
 #include "G4LogicalVolumeStore.hh"

@@ -18,6 +18,7 @@ class MonitorSensitiveDetector;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 class AParticleGun;
+class PrimaryGeneratorAction;
 
 struct ParticleRecord
 {
@@ -108,6 +109,8 @@ public:
         double ExitTimeFrom = 0;
         double ExitTimeTo = 1.0e6;
         bool   bExitKill = true;
+
+        PrimaryGeneratorAction * PrimGenAction = nullptr;
 
         int CurrentEvent = 0;
         AParticleGun * ParticleGenerator = nullptr;

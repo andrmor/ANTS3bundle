@@ -273,7 +273,6 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                         for (int i=0; i<3; i++) ps.v[i] = -GeneratedParticles.at(index).v[i];
 
                         GeneratedParticles.push_back(ps);
-                        incrementPredictedTrackID();
                     }
                 }
             }
@@ -427,7 +426,6 @@ void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, dou
     for (int i=0; i<3; i++) particle.v[i] = K1[i];
 
     generatedParticles.push_back(particle);
-    incrementPredictedTrackID();
 }
 
 void ASourceParticleGenerator::updateLimitedToMat()

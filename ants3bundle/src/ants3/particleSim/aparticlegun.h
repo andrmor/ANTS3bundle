@@ -18,14 +18,7 @@ public:
 
     virtual void setStartEvent(int) {} // for 'from file' generator
 
-    void resetPredictedTrackID()     {NextTrackID = 1;}
-    void incrementPredictedTrackID() {NextTrackID++;}
-    int  getPredictedTrackID() const {return NextTrackID;}
-
     bool        AbortRequested = false;
-
-protected:
-    int         NextTrackID    = 1;
 };
 
 #endif // APARTICLEGUN_H

@@ -12,10 +12,15 @@ public:
     PrimaryGeneratorAction();
     virtual ~PrimaryGeneratorAction();
 
-    virtual void GeneratePrimaries(G4Event* );
+    virtual void GeneratePrimaries(G4Event * );
+
+    void resetPredictedTrackID()     {NextTrackID = 1;}
+    void incrementPredictedTrackID() {NextTrackID++;}
+    int  getPredictedTrackID() const {return NextTrackID;}
 
 private:
     G4ParticleGun * GeantParticleGun = nullptr;
+    int NextTrackID = 1;
 };
 
 #endif // PrimaryGeneratorAction_h

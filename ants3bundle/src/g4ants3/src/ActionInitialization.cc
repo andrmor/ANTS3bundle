@@ -14,7 +14,10 @@ ActionInitialization::~ActionInitialization() {}
 
 void ActionInitialization::Build() const
 {
-    SetUserAction(new PrimaryGeneratorAction());
+    SessionManager & SM = SessionManager::getInstance();
+
+    SM.PrimGenAction = new PrimaryGeneratorAction();
+    SetUserAction(SM.PrimGenAction);
 
     //SetUserAction(new RunAction);  // rebased all to Action!
 
@@ -22,7 +25,6 @@ void ActionInitialization::Build() const
 
     //SetUserAction(new StackingAction);
 
-    SessionManager & SM = SessionManager::getInstance();
     if (SM.CollectHistory != SessionManager::NotCollecting || SM.bMonitorsRequireSteppingAction || SM.bExitParticles)
         SetUserAction(new SteppingAction);
 
