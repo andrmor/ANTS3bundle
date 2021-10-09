@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <istream>
 #include <iostream>
@@ -274,7 +275,7 @@ bool AFilePGEngineG4antsTxt::doInspect(bool bDetailedInspection)
     return true;
 }
 
-#include <QDebug>
+//#include <QDebug>
 bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticleRecord &)> handler)
 {
     std::string str;
@@ -290,33 +291,25 @@ bool AFilePGEngineG4antsTxt::doGenerateEvent(std::function<void (const AParticle
 
         if (str[0] == '#') return true; //new event
 
-        QStringList f = QString(str.data()).split(' ', Qt::SkipEmptyParts); //pname en time x y z i j k
-        if (f.size() != 9)
-        {
-            AErrorHub::addError("Bad format of particle record!");
-            return false;
-        }
-
-        QString name = f.first();
+        std::string particleName;
 
         AParticleRecord p;
+        std::stringstream ss(str);
+        ss >> particleName
+           >> p.energy
+           >> p.r[0] >> p.r[1] >> p.r[2]
+           >> p.v[0] >> p.v[1] >> p.v[2]
+           >> p.time;
+
      #ifdef GEANT4
-        p.particle = SessionManager::getInstance().findGeant4Particle(name.toLatin1().data());
+        p.particle = SessionManager::getInstance().findGeant4Particle(particleName);
         //qDebug() << name << p.particle;
      #else
-        //kill [***] appearing in ion names
-        int iBracket = name.indexOf('[');
-        if (iBracket != -1) name = name.left(iBracket);
-        p.particle = name.toLatin1().data();
+        //kill [***] appearing in ion names !!!***
+        //int iBracket = name.indexOf('[');
+        //if (iBracket != -1) name = name.left(iBracket);
+        p.particle = particleName;
      #endif
-        p.energy = f.at(1).toDouble();
-        p.r[0]   = f.at(2).toDouble();
-        p.r[1]   = f.at(3).toDouble();
-        p.r[2]   = f.at(4).toDouble();
-        p.v[0]   = f.at(5).toDouble();
-        p.v[1]   = f.at(6).toDouble();
-        p.v[2]   = f.at(7).toDouble();
-        p.time   = f.at(8).toDouble();
 
         handler(p);
     }
@@ -634,7 +627,7 @@ bool AFilePGEngineG4antsBin::doSetStartEvent(int startEvent)
         }
         else
         {
-            qWarning() << "Unexpected format of a line in the binary file with the input particles";
+            AErrorHub::addError("Unexpected format of a line in the binary file with the input particles");
             return false;
         }
     }
