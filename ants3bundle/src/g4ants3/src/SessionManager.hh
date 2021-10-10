@@ -128,8 +128,6 @@ private:
         std::string EventId; //  "#number"
         std::map<std::string, int> MaterialMap;
         std::map<std::string, double> StepLimitMap;
-        bool bG4antsPrimaries = false;
-        bool bBinaryPrimaries = false;
         std::ofstream * outStreamDeposition = nullptr;
         std::ofstream * outStreamHistory    = nullptr;
         std::ofstream * outStreamExit       = nullptr;

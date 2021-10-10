@@ -580,18 +580,7 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     if (Settings.RunSet.GDML.empty())       terminateSession("GDML file name is not provided");
     if (Settings.G4Set.PhysicsList.empty()) terminateSession("Reference physics list is not provided");
 
-/*
-    bG4antsPrimaries = false;
-    if (jo.object_items().count("Primaries_G4ants") != 0) bG4antsPrimaries = jo["Primaries_G4ants"].bool_value();
-    bBinaryPrimaries = false;
-    if (jo.object_items().count("Primaries_Binary") != 0) bBinaryPrimaries = jo["Primaries_Binary"].bool_value();
-    //extracting name of the file with primaries to generate
-    FileName_Input = jo["File_Primaries"].string_value();
-    if (FileName_Input.empty())
-        terminateSession("File name with primaries to generate was not provided");
-*/
-
-    //extracting name of the file for deposition output
+    // !!!***
     FileName_Output = Settings.RunSet.FileNameDeposition;
     if (Settings.RunSet.SaveDeposition && FileName_Output.empty())
         terminateSession("File name for deposition output was not provided");
@@ -603,18 +592,12 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     //    terminateSession("File name for monitor data output was not provided");
 */
 
-    //read list of sensitive volumes - they will be linked to SensitiveDetector
+    //read list of sensitive volumes - they will be linked to SensitiveDetector !!!***
     SensitiveVolumes = Settings.G4Set.SensitiveVolumes;
 
 
     std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
 
-/*
-    //extracting particle info
-    ParticleJsonArray = jo["Particles"].array_items();
-    if (ParticleJsonArray.empty())
-        terminateSession("Particles are not defined in the configuration file!");
-*/
 
     //extracting defined materials
     MaterialMap.clear();
@@ -676,8 +659,6 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     ExitTimeTo       = Settings.RunSet.SaveSettings.TimeTo;
     if (bExitParticles)
         std::cout << "Save exit particles enabled for volume: " << ExitVolumeName << "  Kill on exit? " << bExitKill << std::endl;
-
-//    NumEventsToDo = jo["NumEvents"].int_value();
 
     if (Settings.RunSet.SaveTrackingHistory)
     {
