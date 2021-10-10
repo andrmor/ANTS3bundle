@@ -223,8 +223,6 @@ public:
 
     AMonitorConfig config;
 
-    bool isParticleInUse(int partId) const;
-
     //runtime, not saved
     int index;  //index of this monitor to access statistics
 };

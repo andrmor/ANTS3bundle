@@ -1685,10 +1685,10 @@ QString AGeoTree::makeScriptString_monitorConfig(const AGeoObject *obj) const
     }
     else
     {
-        //geo.Monitor_ConfigureForParticles( MonitorName,  ParticleIndex,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
+        //geo.Monitor_ConfigureForParticles( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
         return QString("geo.Monitor_ConfigureForParticles( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
                 .arg("'" + obj->Name + "'")
-                .arg(c.ParticleIndex)
+                .arg(c.Particle)
                 .arg(c.bPrimary && c.bSecondary ? 0 : (c.bPrimary ? 1 : 2))
                 .arg(c.bDirect  && c.bIndirect  ? 0 : (c.bDirect  ? 1 : 2))
                 .arg(c.xbins)

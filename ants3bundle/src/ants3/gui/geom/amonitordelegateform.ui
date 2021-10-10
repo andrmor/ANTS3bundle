@@ -521,26 +521,7 @@ changed</string>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="cobParticle">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-       </widget>
+       <widget class="QLineEdit" name="leParticle"/>
       </item>
       <item>
        <widget class="QComboBox" name="cobPrimarySecondary">
@@ -1205,8 +1186,8 @@ changed</string>
      <y>45</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1217,12 +1198,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>526</x>
+     <x>523</x>
      <y>29</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1233,12 +1214,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>331</x>
-     <y>216</y>
+     <x>327</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1249,12 +1230,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>290</y>
+     <x>363</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1265,28 +1246,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>518</x>
-     <y>289</y>
+     <x>515</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobParticle</sender>
-   <signal>activated(int)</signal>
-   <receiver>pbContentChanged</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>277</x>
-     <y>354</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1297,12 +1262,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>418</x>
-     <y>354</y>
+     <x>409</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1317,8 +1282,8 @@ changed</string>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1333,8 +1298,8 @@ changed</string>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1349,8 +1314,8 @@ changed</string>
      <y>435</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1365,8 +1330,8 @@ changed</string>
      <y>467</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1381,8 +1346,8 @@ changed</string>
      <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1397,8 +1362,8 @@ changed</string>
      <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1409,12 +1374,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>435</y>
+     <x>363</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1425,12 +1390,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>467</y>
+     <x>363</x>
+     <y>466</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1441,12 +1406,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>499</y>
+     <x>363</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1457,12 +1422,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>531</y>
+     <x>363</x>
+     <y>530</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1473,12 +1438,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>435</y>
+     <x>463</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1489,12 +1454,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>467</y>
+     <x>463</x>
+     <y>466</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1505,12 +1470,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>499</y>
+     <x>463</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1521,12 +1486,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>531</y>
+     <x>463</x>
+     <y>530</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1537,12 +1502,12 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>532</x>
-     <y>531</y>
+     <x>529</x>
+     <y>530</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>149</y>
+     <x>348</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
@@ -1553,12 +1518,28 @@ changed</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>354</y>
+     <x>505</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>145</y>
+     <x>348</x>
+     <y>137</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leParticle</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbContentChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>117</y>
     </hint>
    </hints>
   </connection>

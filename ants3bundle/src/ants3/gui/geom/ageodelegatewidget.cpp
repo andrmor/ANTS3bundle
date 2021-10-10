@@ -210,9 +210,7 @@ AGeoBaseDelegate * AGeoDelegateWidget::createAndAddGridElementDelegate()
 
 AGeoBaseDelegate *AGeoDelegateWidget::createAndAddMonitorDelegate()
 {
-    QStringList particles;
-    emit tw->RequestListOfParticles(particles);
-    AMonitorDelegate* Del = new AMonitorDelegate(particles, this);
+    AMonitorDelegate* Del = new AMonitorDelegate(this);
     connect(Del, &AMonitorDelegate::requestShowSensitiveFaces, this, &AGeoDelegateWidget::onMonitorRequestsShowSensitiveDirection);
     return Del;
 }

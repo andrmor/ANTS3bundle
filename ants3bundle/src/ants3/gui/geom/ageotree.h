@@ -126,7 +126,6 @@ signals:
   void RequestShowObjectRecursive(QString name);
   void RequestShowAllInstances(QString name);
   void RequestNormalDetectorDraw();
-  void RequestListOfParticles(QStringList & definedParticles);
   void RequestShowMonitor(const AGeoObject * mon);
   void RequestShowPrototypeList();
 };

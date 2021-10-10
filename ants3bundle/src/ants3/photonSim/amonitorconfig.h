@@ -22,7 +22,7 @@ public:
     bool   bStopTracking = false;
 
     //particle specific
-    int    ParticleIndex = 0;
+    QString Particle;
     bool   bPrimary = true;
     bool   bSecondary = true;
     bool   bDirect = true;

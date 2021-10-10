@@ -9,14 +9,12 @@
 
 #include <QDebug>
 
-AMonitorDelegateForm::AMonitorDelegateForm(QStringList particles, QWidget *parent) :
+AMonitorDelegateForm::AMonitorDelegateForm(QWidget * parent) :
     QWidget(parent),
     ui(new Ui::AMonitorDelegateForm)
 {
     ui->setupUi(this);
 
-    particles.insert(0, "All particles");
-    ui->cobParticle->addItems(particles);
     ui->pbContentChanged->setVisible(false);
 
     ui->cobEnergyUnits->setCurrentIndex(2);
@@ -42,7 +40,7 @@ AMonitorDelegateForm::AMonitorDelegateForm(QStringList particles, QWidget *paren
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = findChildren<QLineEdit*>();
-    for (QLineEdit * w : list)
+    for (QLineEdit * w : qAsConst(list))
         if (w->objectName().startsWith("led")) w->setValidator(dv);
 }
 
@@ -85,9 +83,7 @@ bool AMonitorDelegateForm::updateGUI(const AGeoObject *obj)
 
     ui->cbStopTracking->setChecked(config.bStopTracking);
 
-    const int effIndex = config.ParticleIndex + 1; // shifting -1 (is for "all particles") to 0
-    if (effIndex > -1 && effIndex < ui->cobParticle->count())
-        ui->cobParticle->setCurrentIndex(effIndex);
+    ui->leParticle->setText(config.Particle);
 
     int prsec = 0;
     if (config.bSecondary && !config.bPrimary) prsec = 1;
@@ -196,7 +192,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 
     if (ui->cobMonitoring->currentIndex() == 1)
     {
-        config.ParticleIndex = ui->cobParticle->currentIndex() - 1; // shift!
+        config.Particle = ui->leParticle->text();
 
         int prsec =  ui->cobPrimarySecondary->currentIndex();
         switch (prsec)

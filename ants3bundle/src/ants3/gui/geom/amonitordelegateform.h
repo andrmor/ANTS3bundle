@@ -15,7 +15,7 @@ class AMonitorDelegateForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit AMonitorDelegateForm(QStringList particles, QWidget *parent = 0);
+    explicit AMonitorDelegateForm(QWidget *parent = 0);
     ~AMonitorDelegateForm();
 
     Ui::AMonitorDelegateForm *ui;

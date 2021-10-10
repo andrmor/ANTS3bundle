@@ -8,7 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-AMonitorDelegate::AMonitorDelegate(const QStringList &definedParticles, QWidget *ParentWidget) :
+AMonitorDelegate::AMonitorDelegate(QWidget *ParentWidget) :
     AGeoBaseDelegate(ParentWidget)
 {
     QFrame * frMainFrame = new QFrame();
@@ -35,7 +35,7 @@ AMonitorDelegate::AMonitorDelegate(const QStringList &definedParticles, QWidget 
     labType->setFont(font);
     vl->addWidget(labType);
 
-    del = new AMonitorDelegateForm(definedParticles, Widget);
+    del = new AMonitorDelegateForm(Widget);
     del->UpdateVisibility();
     connect(del, &AMonitorDelegateForm::contentChanged, this, &AMonitorDelegate::onContentChanged);
     connect(del, &AMonitorDelegateForm::showSensDirection, this, &AMonitorDelegate::requestShowSensitiveFaces);

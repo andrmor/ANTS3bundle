@@ -168,12 +168,6 @@ QString ATypeMonitorObject::introduceGeoConstValues()
     return config.updateFromGeoConstants();
 }
 
-bool ATypeMonitorObject::isParticleInUse(int partId) const
-{
-    if (config.PhotonOrParticle == 0) return false;
-    return (config.ParticleIndex == partId);
-}
-
 void ATypeWorldObject::writeToJson(QJsonObject & json) const
 {
     AGeoType::writeToJson(json);

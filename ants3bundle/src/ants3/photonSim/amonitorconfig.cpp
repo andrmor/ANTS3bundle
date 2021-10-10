@@ -20,7 +20,7 @@ void AMonitorConfig::writeToJson(QJsonObject &json) const
    json["bLower"] = bLower;
    json["bStopTracking"] = bStopTracking;
 
-   json["ParticleIndex"] = ParticleIndex;
+   json["Particle"]   = Particle;
    json["bPrimary"]   = bPrimary;
    json["bSecondary"] = bSecondary;
    json["bDirect"]    = bDirect;
@@ -64,7 +64,7 @@ void AMonitorConfig::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "bLower", bLower);
     jstools::parseJson(json, "bStopTracking", bStopTracking);
 
-    jstools::parseJson(json, "ParticleIndex", ParticleIndex);
+    jstools::parseJson(json, "Particle",   Particle);
     jstools::parseJson(json, "bPrimary",   bPrimary);
     jstools::parseJson(json, "bSecondary", bSecondary);
     jstools::parseJson(json, "bDirect",    bDirect);

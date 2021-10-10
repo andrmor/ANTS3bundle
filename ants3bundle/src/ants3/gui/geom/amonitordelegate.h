@@ -4,14 +4,13 @@
 #include "ageobasedelegate.h"
 
 class AMonitorDelegateForm;
-class QStringList;
 
 class AMonitorDelegate : public AGeoBaseDelegate
 {
     Q_OBJECT
 
 public:
-    AMonitorDelegate(const QStringList & definedParticles, QWidget * ParentWidget);
+    AMonitorDelegate(QWidget * ParentWidget);
 
     QString getName() const override;
     bool updateObject(AGeoObject * obj) const override;
