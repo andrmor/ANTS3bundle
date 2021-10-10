@@ -51,7 +51,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
                     if (SM.bExitKill)
                         step->GetTrack()->SetTrackStatus(fStopAndKill);
 
-                    if (SM.CollectHistory != SessionManager::NotCollecting)
+                    if (SM.CollectHistory)
                     {
                         const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
                         const double depoE = step->GetTotalEnergyDeposit()/keV;
@@ -72,7 +72,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
                 step->GetTrack()->SetUserInformation(new G4VUserTrackInformation()); // owned by track!
         }
 
-    if (SM.CollectHistory == SessionManager::NotCollecting) return; // the rest is only to record telemetry!
+    if (!SM.CollectHistory) return; // the rest is only to record telemetry!
 
     if (SM.bStoppedOnMonitor) // bug fix for Geant4 - have to be removed when it is fixed! Currently track has one more step after kill
     {
@@ -81,9 +81,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     }
 
     const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
-    if (proc && proc->GetProcessType() == fTransportation)
-        if (step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary && SM.CollectHistory == SessionManager::OnlyTracks)
-            return; // skip transportation if only collecting tracks
 
     bool bTransport = false;
     std::string procName;

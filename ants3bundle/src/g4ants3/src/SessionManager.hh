@@ -85,9 +85,7 @@ public:
         std::string          WorkingDir;
         AParticleSimSettings Settings;
 
-        enum HistoryMode {NotCollecting, OnlyTracks, FullLog};
-        HistoryMode CollectHistory = NotCollecting;
-        int TracksToBuild = 0;
+        bool CollectHistory = false;
 
         int Precision    = 6;
 
@@ -126,7 +124,7 @@ private:
         std::string FileName_Input;
         std::string FileName_Output; // !!!*** rename
         std::string FileName_Monitors;
-        std::string FileName_Tracks;
+        std::string FileName_Tracks;  // !!!*** remove, it is Settings.RunSet.FileNameTrackingHistory
         std::string EventId; //  "#number"
         std::map<std::string, int> MaterialMap;
         std::map<std::string, double> StepLimitMap;

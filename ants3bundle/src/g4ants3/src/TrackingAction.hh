@@ -12,7 +12,7 @@ public:
     virtual ~TrackingAction();
 
     virtual void PreUserTrackingAction(const G4Track* track);
-    virtual void PostUserTrackingAction(const G4Track* track);
+    //virtual void PostUserTrackingAction(const G4Track* track);
 };
 
 #endif // TrackingAction_h

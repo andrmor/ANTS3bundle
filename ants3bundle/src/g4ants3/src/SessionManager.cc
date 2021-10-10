@@ -48,7 +48,7 @@ void SessionManager::startSession()
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
 
     // preparing ouptut for track export
-    if (CollectHistory != NotCollecting) prepareOutputHistoryStream();
+    if (CollectHistory) prepareOutputHistoryStream();
 
     // preparing ouptut for exiting particle export
     if (bExitParticles) prepareOutputExitStream();
@@ -297,7 +297,7 @@ void SessionManager::writeNewEventMarker()
             *outStreamDeposition << EventId.data() << std::endl;
     }
 
-    if (CollectHistory != SessionManager::NotCollecting)
+    if (CollectHistory)
         if (outStreamHistory)
         {
             if (bBinaryOutput)
@@ -679,17 +679,14 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
 
 //    NumEventsToDo = jo["NumEvents"].int_value();
 
-    //bool bBuildTracks = jo["BuildTracks"].bool_value();
-    //bool bLogHistory = jo["LogHistory"].bool_value();
-    //TracksToBuild = jo["MaxTracks"].int_value();
     if (Settings.RunSet.SaveTrackingHistory)
     {
-        CollectHistory = FullLog;
+        CollectHistory = true;
         FileName_Tracks = Settings.RunSet.FileNameTrackingHistory;
         if (FileName_Tracks.empty())
             terminateSession("File name with tracks to export was not provided");
     }
-    else CollectHistory = NotCollecting;
+    else CollectHistory = false;
 
 /*
     if (!FileName_Monitors.empty())
