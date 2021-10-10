@@ -48,6 +48,9 @@ public:
     bool        SaveDeposition = true;
     std::string FileNameDeposition = "Deposition.dat";
 
+    bool        SaveMonitors = true;
+    std::string FileNameMonitors = "Monitors.dat";
+
     ASaveParticlesSettings SaveSettings;
 
     bool        AsciiOutput    = true;

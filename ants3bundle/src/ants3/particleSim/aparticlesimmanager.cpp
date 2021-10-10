@@ -134,9 +134,6 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     bool ok = configureGDML(Request, ExchangeDir);
     if (!ok) return false;
 
-    ok = configureMonitors(Request, ExchangeDir); // !!!***
-    if (!ok) return false;
-
     configureMaterials();
 
     HistoryFileMerger.clear();
@@ -216,6 +213,13 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
             QJsonObject json;
             WorkSet.writeToJson(json, true);
+            // tmp here !!!***
+            if (SimSet.RunSet.SaveMonitors)
+            {
+                const QString fileName = QString("monitors-%0").arg(iProcess);
+                writeMonitorData(json);
+            }
+            //
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
             Worker.ConfigFile = ConfigFN;
@@ -277,13 +281,6 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
     }
 }
 
-bool AParticleSimManager::configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir)
-{
-    // !!!***
-    //    MonitorFiles.clear();
-    return true;
-}
-
 void AParticleSimManager::configureMaterials()
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
@@ -292,81 +289,27 @@ void AParticleSimManager::configureMaterials()
     SimSet.RunSet.MaterialsFromNist = MatHub.getMaterialsFromNist();
 }
 
-#include "ageoobject.h"
-void AParticleSimManager::generateG4antsConfigCommon(AParticleRunSettings  & RunSet, int ThreadIndex, QJsonObject & json)
+#include "amonitorhub.h"
+#include "amonitor.h"
+void AParticleSimManager::writeMonitorData(QJsonObject & json)
 {
-//    const AG4SimulationSettings & G4SimSet = SimSet.G4Set;
-/*
-    bool bG4Primaries = false;
-    bool bBinaryPrimaries = false;
-    if (PartSimSet.GenerationMode == AParticleSimSettings::File)
-    {
-        bG4Primaries     = PartSimSet.FileGenSettings.isFormatG4();
-        bBinaryPrimaries = PartSimSet.FileGenSettings.isFormatBinary();
-    }
-    json["Primaries_G4ants"] = bG4Primaries;
-    json["Primaries_Binary"] = bBinaryPrimaries;
-    QString primFN = QString("primaries-%1.txt").arg(ThreadIndex);
-    json["File_Primaries"] = primFN;
-//    removeOldFile(primFN, "primaries");
-*/
-
-
-//    QString depoFN = G4SimSet.getDepositionFileName(ThreadIndex);
-//    json["File_Deposition"] = depoFN;
-//    removeOldFile(depoFN, "deposition");
-
-//    QString recFN = G4SimSet.getReceitFileName(ThreadIndex);
-//    json["File_Receipt"] = recFN;
-//    removeOldFile(recFN, "receipt");
-
-//    QString tracFN = G4SimSet.getTracksFileName(ThreadIndex);
-//    json["File_Tracks"] = tracFN;
-//    removeOldFile(tracFN, "tracking");
-
-//    QString monFeedbackFN = G4SimSet.getMonitorDataFileName(ThreadIndex);
-//    json["File_Monitors"] = monFeedbackFN;
-//    removeOldFile(monFeedbackFN, "monitor data");
-
-/*
-    const ASaveParticlesToFileSettings & ExitSimSet = GenSimSettings.ExitParticleSettings;
-    QString exitParticleFN  = G4SimSet.getExitParticleFileName(ThreadIndex);
-    QJsonObject jsExit;
-    jsExit["Enabled" ]      = ExitSimSet.SaveParticles;
-    jsExit["VolumeName"]    = ExitSimSet.VolumeName;
-    jsExit["FileName"]      = exitParticleFN;
-    jsExit["UseBinary"]     = ExitSimSet.UseBinary;
-    jsExit["UseTimeWindow"] = ExitSimSet.UseTimeWindow;
-    jsExit["TimeFrom"]      = ExitSimSet.TimeFrom;
-    jsExit["TimeTo"]        = ExitSimSet.TimeTo;
-    jsExit["StopTrack"]     = ExitSimSet.StopTrack;
-    json["SaveExitParticles"] = jsExit;
-*/
-
-/*
     QJsonArray arMon;
-    const QVector<const AGeoObject*> & MonitorsRecords = detector.Sandwich->MonitorsRecords;
-    for (int iMon = 0; iMon <  MonitorsRecords.size(); iMon++)
+    const std::vector<AMonitorData> & MonitorsRecords = AMonitorHub::getConstInstance().Monitors;
+    for (int iMon = 0; iMon < (int)MonitorsRecords.size(); iMon++)
     {
-        const AGeoObject * obj = MonitorsRecords.at(iMon);
-        const AMonitorConfig * mc = obj->getMonitorConfig();
-        if (mc && mc->PhotonOrParticle == 1)
+        const AMonitorData & mon = MonitorsRecords[iMon];
+        const AMonitorConfig & mc = mon.Monitor->config;
+        if (mc.PhotonOrParticle == 1)
         {
-            const QStringList ParticleList = MpCollection.getListOfParticleNames();
-            const int particleIndex = mc->ParticleIndex;
-            if ( particleIndex >= -1 && particleIndex < ParticleList.size() )
-            {
                 QJsonObject mjs;
-                mc->writeToJson(mjs);
-                mjs["Name"] = obj->Name + "_-_" + QString::number(iMon);
-                mjs["ParticleName"] = ( particleIndex == -1 ? "" : ParticleList.at(particleIndex) );
-                mjs["MonitorIndex"] = iMon;
+                    mc.writeToJson(mjs);
+                    mjs["Name"] = mon.Name;
+                    mjs["Particle"] = mc.Particle;
+                    mjs["MonitorIndex"] = iMon;
                 arMon.append(mjs);
-            }
         }
     }
     json["Monitors"] = arMon;
-*/
 }
 
 // ---

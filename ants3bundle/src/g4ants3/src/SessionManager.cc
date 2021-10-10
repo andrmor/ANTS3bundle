@@ -669,7 +669,7 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     }
     else CollectHistory = false;
 
-/*
+
     if (!FileName_Monitors.empty())
     {
         std::vector<json11::Json> MonitorArray = jo["Monitors"].array_items();
@@ -684,7 +684,7 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
         }
         std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
     }
-*/
+
 }
 
 void SessionManager::prepareOutputDepoStream()

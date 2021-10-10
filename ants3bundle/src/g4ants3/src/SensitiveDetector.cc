@@ -173,20 +173,6 @@ void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
     hEnergy   = new AHistogram1D(energyBins, energyFrom, energyTo);
 
     hPosition = new AHistogram2D(xbins, -size1, size1, ybins, -size2, size2);
-
-    /*
-    vTime.resize(timeBins+2);
-    timeDelta = (timeTo - timeFrom) / timeBins;
-    vAngle.resize(angleBins+2);
-    angleDelta = (angleTo - angleFrom) / angleBins;
-    vEnergy.resize(energyBins+2);
-    energyDelta = (energyTo - energyFrom) / energyBins;
-    vSpatial.resize(ybins+2);
-    for (auto & v : vSpatial)
-        v.resize(xbins+2);
-    xDelta = 2.0 * size1 / xbins;
-    yDelta = 2.0 * size2 / ybins;
-    */
 }
 
 void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)

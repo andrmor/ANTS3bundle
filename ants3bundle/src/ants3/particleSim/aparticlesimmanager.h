@@ -60,11 +60,10 @@ private:
 
     bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
-    bool configureMonitors(A3WorkDistrConfig & Request, const QString & ExchangeDir); // !!!***
     void configureMaterials();
     bool configureParticleGun();
 
-    void generateG4antsConfigCommon(AParticleRunSettings &RunSet, int ThreadIndex, QJsonObject & json); // !!!*** simset directly to json + custom RunSet
+    void writeMonitorData(QJsonObject & json); // !!!***
     void removeOutputFiles();
     void mergeOutput();
 };
