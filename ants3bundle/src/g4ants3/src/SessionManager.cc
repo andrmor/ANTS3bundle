@@ -35,21 +35,14 @@ SessionManager::~SessionManager()
     delete outStreamExit;
     delete outStreamDeposition;
     delete outStreamHistory;
-    delete inStreamPrimaries;
 }
 
 void SessionManager::startSession()
 {
     prepareParticleGun();
 
-    //populate particle collection
-    //prepareParticleCollection();
-
     //prepare monitors: populate particle pointers
     //prepareMonitors();
-
-    // opening file with primaries
-    //prepareInputStream();
 
     // preparing ouptut for deposition data
     //prepareOutputDepoStream();
@@ -130,9 +123,6 @@ void SessionManager::runSimulation()
     CurrentEvent = Settings.RunSet.EventFrom;
     int NumEvents = Settings.RunSet.EventTo - Settings.RunSet.EventFrom;
 
-    //DepoByRegistered = 0;
-    //DepoByNotRegistered = 0;
-
     //while (!isEndOfInputFileReached()) UImanager->ApplyCommand("/run/beamOn");
 
     //SM.runManager->BeamOn(NumEvents);
@@ -148,146 +138,6 @@ void SessionManager::onEventFinished()
     std::cout << "$$>" << EventsDone << "<$$\n";
 }
 
-std::vector<ParticleRecord> &SessionManager::getNextEventPrimaries()
-{
-    GeneratedPrimaries.clear();
-
-    if (bG4antsPrimaries)
-    {
-        if (bBinaryPrimaries)
-        {
-            int eventId;
-            std::string pn;
-            char ch;
-            while (inStreamPrimaries->get(ch))
-            {
-                if (inStreamPrimaries->eof()) break;
-
-                if (ch == (char)0xEE)
-                {
-                    inStreamPrimaries->read((char*)&eventId, sizeof(int));
-                    NextEventId = '#' + std::to_string(eventId);
-                    break; //event finished
-                }
-                else if (ch == (char)0xFF)
-                {
-                    pn.clear();
-                    while (inStreamPrimaries->get(ch))
-                    {
-                        if (ch == (char)0x00) break;
-                        pn += ch;
-                    }
-
-                    ParticleRecord r;
-                    r.Particle = findGeant4Particle(pn); // terminates session if not found
-                    inStreamPrimaries->read((char*)&r.Energy,       sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Position[0],  sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Position[1],  sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Position[2],  sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Direction[0], sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Direction[1], sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Direction[2], sizeof(double));
-                    inStreamPrimaries->read((char*)&r.Time,         sizeof(double));
-
-                    //std::cout << pn << " -> " << r.Particle->GetParticleName() << " time="<< r.Time << std::endl;
-
-                    GeneratedPrimaries.push_back(r);
-                }
-            }
-        }
-        else
-        {
-            for( std::string line; getline( *inStreamPrimaries, line ); )
-            {
-                //std::cout << line << std::endl;
-                if (line.size() < 1) continue; //allow empty lines
-
-                if (line[0] == '#')
-                {
-                    NextEventId = line;
-                    break; //event finished
-                }
-
-                ParticleRecord r;
-                std::string particleName;
-                std::stringstream ss(line);
-                ss >> particleName
-                   >> r.Energy >> r.Position[0] >> r.Position[1]  >> r.Position[2]
-                   >> r.Direction[0] >> r.Direction[1] >> r.Direction[2]
-                   >> r.Time;
-/*
-                int numRead = std::sscanf(line.data(), "%s %lf %lf %lf %lf %lf %lf %lf %lf",
-                                          &particleName,
-                                          &r.Energy,
-                                          &r.Position[0],  &r.Position[1],  &r.Position[2],
-                                          &r.Direction[0], &r.Direction[1], &r.Direction[2],
-                                          &r.Time);
-                if (numRead != 9)
-                    terminateSession("Unexpected format of file with primaries");
-                */
-
-                r.Particle = findGeant4Particle(particleName); // terminates session if not found
-
-                //std::cout << particleName << " -> " << r.Particle->GetParticleName() << " time="<< r.Time << std::endl;
-
-                GeneratedPrimaries.push_back(r);
-            }
-        }
-    }
-    else
-    {
-        for( std::string line; getline( *inStreamPrimaries, line ); )
-        {
-            //std::cout << line << std::endl;
-            if (line.size() < 1) continue; //allow empty lines
-
-            if (line[0] == '#')
-            {
-                NextEventId = line;
-                break; //event finished
-            }
-
-            ParticleRecord r;
-            int Id;
-            int numRead = std::sscanf(line.data(), "%d %lf %lf %lf %lf %lf %lf %lf %lf",
-                                      &Id,
-                                      &r.Energy,
-                                      &r.Position[0],  &r.Position[1],  &r.Position[2],
-                                      &r.Direction[0], &r.Direction[1], &r.Direction[2],
-                                      &r.Time);
-            if (numRead != 9)
-                terminateSession("Unexpected format of file with primaries");
-
-            if (Id >= 0 || Id < (int)ParticleCollection.size() )
-                r.Particle = ParticleCollection[Id];
-            if (!r.Particle)
-                terminateSession("Use of unknown particle index");
-
-            GeneratedPrimaries.push_back( r );
-        }
-    }
-
-    return GeneratedPrimaries;
-}
-
-bool SessionManager::isEndOfInputFileReached() const
-{
-    if (!inStreamPrimaries) return true;
-    return inStreamPrimaries->eof();
-}
-
-int SessionManager::findParticle(const std::string & particleName)
-{
-    auto it = ParticleMap.find(particleName);
-    if (it == ParticleMap.end())
-    {
-        //SeenNotRegisteredParticles.insert(particleName);
-        return -1;
-    }
-
-    return it->second;
-}
-
 int SessionManager::findMaterial(const std::string &materialName)
 {
     auto it = MaterialMap.find(materialName);
@@ -298,7 +148,6 @@ int SessionManager::findMaterial(const std::string &materialName)
 }
 
 #include "G4ProcessManager.hh"
-
 #include "G4HadronElasticProcess.hh"
 #include "G4NeutronHPElasticData.hh"
 #include "G4NeutronHPThermalScatteringData.hh"
@@ -472,7 +321,7 @@ void SessionManager::writeNewEventMarker()
     }
 }
 
-void SessionManager::saveDepoRecord(int iPart, int iMat, double edep, double *pos, double time)
+void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double edep, double *pos, double time)
 {
     if (!outStreamDeposition) return;
 
@@ -483,7 +332,8 @@ void SessionManager::saveDepoRecord(int iPart, int iMat, double edep, double *po
     {
         *outStreamDeposition << char(0xFF);
 
-        outStreamDeposition->write((char*)&iPart,   sizeof(int));
+        *outStreamDeposition << pName << char(0x00);
+
         outStreamDeposition->write((char*)&iMat,    sizeof(int));
         outStreamDeposition->write((char*)&edep,    sizeof(double));
         outStreamDeposition->write((char*)pos,    3*sizeof(double));
@@ -494,7 +344,7 @@ void SessionManager::saveDepoRecord(int iPart, int iMat, double edep, double *po
         std::stringstream ss;
         ss.precision(Precision);
 
-        ss << iPart << ' ';
+        ss << pName << ' ';
         ss << iMat << ' ';
         ss << edep << ' ';
         ss << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ' ';
@@ -696,47 +546,6 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
     }
 }
 
-void SessionManager::prepareParticleCollection()
-{
-    ParticleMap.clear();
-    ParticleCollection.clear();
-
-    std::cout << "Config lists the following particles:" << std::endl;
-    for (size_t i=0; i<ParticleJsonArray.size(); i++)
-    {
-        const json11::Json & j = ParticleJsonArray[i];
-        std::string name = "";
-        G4ParticleDefinition * pParticleDefinition = nullptr;
-        if (j.is_string())
-        {
-            name = j.string_value();
-            std::cout << name << std::endl;
-            pParticleDefinition = G4ParticleTable::GetParticleTable()->FindParticle(name);
-        }
-        else if (j.is_array())
-        {
-            //ion
-            std::vector<json11::Json> par = j.array_items();
-            if (par.size() == 3)
-            {
-                name = par[0].string_value();
-                int Z = par[1].int_value();
-                int A = par[2].int_value();
-
-                pParticleDefinition = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(Z, A);
-                std::cout << name << " Z=" << Z << " A=" << A << std::endl;
-            }
-        }
-        if (name.empty())
-            terminateSession("Bad format of particle record in config");
-        if (!pParticleDefinition)
-            terminateSession(name + " - particle not found in Geant4 particle/ion table!");
-
-        ParticleMap[name] = (int)i;
-        ParticleCollection.push_back(pParticleDefinition);
-    }
-}
-
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
@@ -913,37 +722,6 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
 */
 }
 
-void SessionManager::prepareInputStream()
-{
-    if (bG4antsPrimaries && bBinaryPrimaries)
-    {
-        inStreamPrimaries = new std::ifstream(FileName_Input, std::ios::in | std::ios::binary);
-        if (!inStreamPrimaries->is_open()) terminateSession("Cannot open binary file with primaries");
-
-        int eventId;
-        char ch = (char)0x00;
-        inStreamPrimaries->get(ch);
-        if (ch == (char)0xEE)
-        {
-            inStreamPrimaries->read((char*)&eventId, sizeof(int));
-            EventId = '#' + std::to_string(eventId);
-        }
-
-        if (ch != (char)0xEE || inStreamPrimaries->fail())
-            terminateSession("Unexpected format of the binary file with primaries");
-    }
-    else
-    {
-        inStreamPrimaries = new std::ifstream(FileName_Input);
-        if (!inStreamPrimaries->is_open()) terminateSession("Cannot open file with primaries");
-
-        getline( *inStreamPrimaries, EventId );
-        if (EventId.size()<2 || EventId[0] != '#') terminateSession("Unexpected format of the file with primaries");
-    }
-
-    std::cout << EventId << std::endl;
-}
-
 void SessionManager::prepareOutputDepoStream()
 {
     outStreamDeposition = new std::ofstream();
@@ -998,14 +776,6 @@ void SessionManager::generateReceipt()
 
     receipt["Success"] = !bError;
     if (bError) receipt["Error"] = ErrorMessage;
-
-    //receipt["DepoByRegistered"] = DepoByRegistered;
-    //receipt["DepoByNotRegistered"] = DepoByNotRegistered;
-
-    //json11::Json::array NRP;
-    //for (const std::string & snr : SeenNotRegisteredParticles)
-    //    NRP.push_back(snr);
-    //if (!NRP.empty()) receipt["SeenNotRegisteredParticles"] = NRP;
 
     std::string json_str = json11::Json(receipt).dump();
 

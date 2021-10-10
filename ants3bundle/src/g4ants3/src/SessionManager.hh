@@ -52,12 +52,9 @@ class SessionManager
 
         void onEventFinished();
         const std::string & getEventId() const {return EventId;}
-        std::vector<ParticleRecord> & getNextEventPrimaries();
-        bool isEndOfInputFileReached() const;
         const std::vector<std::string> & getListOfSensitiveVolumes() const {return SensitiveVolumes;}
         std::vector<MonitorSensitiveDetector*> & getMonitors() {return Monitors;}
         const std::map<std::string, double> & getStepLimitMap() const {return StepLimitMap;}
-        int findParticle(const std::string & particleName);  // change to pointer search?
         int findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
@@ -65,7 +62,7 @@ class SessionManager
 
         void writeNewEventMarker();
 
-        void saveDepoRecord(int iPart, int iMat, double edep, double * pos, double time);
+        void saveDepoRecord(const std::string & pName, int iMat, double edep, double * pos, double time);
 
         void saveTrackStart(int trackID, int parentTrackID,
                             const G4String & particleName,
@@ -88,10 +85,6 @@ class SessionManager
 public:
         std::string          WorkingDir;
         AParticleSimSettings Settings;
-
-        //runtime
-        //double DepoByRegistered = 0;
-        //double DepoByNotRegistered = 0;
 
         enum HistoryMode {NotCollecting, OnlyTracks, FullLog};
         HistoryMode CollectHistory = NotCollecting;
@@ -117,9 +110,8 @@ public:
 
         G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
 private:
-        void prepareParticleCollection();
+        void prepareParticleGun();
         void prepareMonitors();
-        void prepareInputStream();
         void prepareOutputDepoStream();
         void prepareOutputHistoryStream();
         void prepareOutputExitStream();
@@ -135,20 +127,14 @@ private:
         std::string FileName_Monitors;
         std::string FileName_Tracks;
         std::string EventId; //  "#number"
-        std::string NextEventId;
-        std::vector<json11::Json> ParticleJsonArray;
-        std::vector<G4ParticleDefinition*> ParticleCollection; // does not own
-        std::map<std::string, int> ParticleMap;
         std::map<std::string, int> MaterialMap;
         std::vector<std::string> SensitiveVolumes;
         std::map<std::string, double> StepLimitMap;
         bool bG4antsPrimaries = false;
         bool bBinaryPrimaries = false;
-        std::ifstream * inStreamPrimaries   = nullptr;
         std::ofstream * outStreamDeposition = nullptr;
         std::ofstream * outStreamHistory    = nullptr;
         std::ofstream * outStreamExit       = nullptr;
-        std::vector<ParticleRecord> GeneratedPrimaries;
 
         bool bExitBinary = false;
         bool bBinaryOutput = false;
@@ -158,16 +144,12 @@ private:
         std::string FileName_Exit;
         std::string ExitVolumeName;
 
-
-        //std::unordered_set<std::string> SeenNotRegisteredParticles;
-
         //to report back to ants2
         bool bError;
         std::string ErrorMessage;
         std::vector<std::string> WarningMessages;
 
         std::map<std::string, int> ElementToZ;
-        void prepareParticleGun();
 };
 
 #endif // SESSIONMANAGER_H
