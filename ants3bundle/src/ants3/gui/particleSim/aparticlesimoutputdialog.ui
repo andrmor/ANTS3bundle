@@ -305,7 +305,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QCheckBox" name="cbStatistics">
+      <widget class="QCheckBox" name="cbDeposition">
        <property name="minimumSize">
         <size>
          <width>125</width>
@@ -318,10 +318,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leStatistics"/>
+      <widget class="QLineEdit" name="leDeposition"/>
      </item>
      <item>
-      <widget class="QPushButton" name="pbChangeStatistics">
+      <widget class="QPushButton" name="pbChangeDeposition">
        <property name="text">
         <string>Change</string>
        </property>

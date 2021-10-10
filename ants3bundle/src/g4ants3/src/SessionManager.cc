@@ -45,7 +45,7 @@ void SessionManager::startSession()
     //prepareMonitors();
 
     // preparing ouptut for deposition data
-    //prepareOutputDepoStream();
+    if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
 
     // preparing ouptut for track export
     if (CollectHistory != NotCollecting) prepareOutputHistoryStream();
@@ -591,12 +591,10 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
         terminateSession("File name with primaries to generate was not provided");
 */
 
-/*
     //extracting name of the file for deposition output
-    FileName_Output = jo["File_Deposition"].string_value();
-    if (FileName_Output.empty())
+    FileName_Output = Settings.RunSet.FileNameDeposition;
+    if (Settings.RunSet.SaveDeposition && FileName_Output.empty())
         terminateSession("File name for deposition output was not provided");
-*/
 
 /*
     //extracting name of the monitor output
@@ -605,20 +603,9 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     //    terminateSession("File name for monitor data output was not provided");
 */
 
-/*
     //read list of sensitive volumes - they will be linked to SensitiveDetector
-    std::vector<json11::Json> arSV = jo["SensitiveVolumes"].array_items();
-    if (arSV.empty())
-        WarningMessages.push_back("Sensitive volumes are not provided in the configuration file!");
-    SensitiveVolumes.clear();
-    std::cout << "Sensitive volumes:" << std::endl;
-    for (auto & j : arSV)
-    {
-        std::string name = j.string_value();
-        std::cout << name << std::endl;
-        SensitiveVolumes.push_back(name);
-    }
-*/
+    SensitiveVolumes = Settings.G4Set.SensitiveVolumes;
+
 
     std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
 
@@ -727,9 +714,9 @@ void SessionManager::prepareOutputDepoStream()
     outStreamDeposition = new std::ofstream();
 
     if (bBinaryOutput)
-        outStreamDeposition->open(FileName_Output, std::ios::out | std::ios::binary);
+        outStreamDeposition->open(WorkingDir + "/" + FileName_Output, std::ios::out | std::ios::binary);
     else
-        outStreamDeposition->open(FileName_Output);
+        outStreamDeposition->open(WorkingDir + "/" + FileName_Output);
 
     if (!outStreamDeposition->is_open())
         terminateSession("Cannot open file to store deposition data");

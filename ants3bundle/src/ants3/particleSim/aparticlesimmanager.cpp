@@ -140,6 +140,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     configureMaterials();
 
     HistoryFileMerger.clear();
+    DepositionFileMerger.clear();
     ParticlesFileMerger.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -193,6 +194,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 WorkSet.RunSet.FileNameTrackingHistory = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 HistoryFileMerger.add(ExchangeDir + '/' + fileName);
+            }
+
+            if (SimSet.RunSet.SaveDeposition)
+            {
+                const QString fileName = QString("depo-%0").arg(iProcess);
+                WorkSet.RunSet.FileNameDeposition = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                DepositionFileMerger.add(ExchangeDir + '/' + fileName);
             }
 
             if (SimSet.RunSet.SaveSettings.Enabled)
@@ -381,6 +390,9 @@ void AParticleSimManager::mergeOutput()
 
     if (SimSet.RunSet.SaveTrackingHistory)
         HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+
+    if (SimSet.RunSet.SaveDeposition)
+        DepositionFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameDeposition.data());
 
     if (SimSet.RunSet.SaveSettings.Enabled)
         ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());

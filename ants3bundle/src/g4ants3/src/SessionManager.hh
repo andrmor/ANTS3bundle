@@ -52,7 +52,6 @@ class SessionManager
 
         void onEventFinished();
         const std::string & getEventId() const {return EventId;}
-        const std::vector<std::string> & getListOfSensitiveVolumes() const {return SensitiveVolumes;}
         std::vector<MonitorSensitiveDetector*> & getMonitors() {return Monitors;}
         const std::map<std::string, double> & getStepLimitMap() const {return StepLimitMap;}
         int findMaterial(const std::string & materialName);  // change to pointer search?
@@ -108,6 +107,8 @@ public:
         int CurrentEvent = 0;
         AParticleGun * ParticleGenerator = nullptr;
 
+        std::vector<std::string> SensitiveVolumes;  // !!!*** not needed alias
+
         G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
 private:
         void prepareParticleGun();
@@ -123,12 +124,11 @@ private:
 
     private:
         std::string FileName_Input;
-        std::string FileName_Output;
+        std::string FileName_Output; // !!!*** rename
         std::string FileName_Monitors;
         std::string FileName_Tracks;
         std::string EventId; //  "#number"
         std::map<std::string, int> MaterialMap;
-        std::vector<std::string> SensitiveVolumes;
         std::map<std::string, double> StepLimitMap;
         bool bG4antsPrimaries = false;
         bool bBinaryPrimaries = false;

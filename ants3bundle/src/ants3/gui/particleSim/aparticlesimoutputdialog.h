@@ -28,6 +28,8 @@ private slots:
 
     void on_pbChangeParticles_clicked();
 
+    void on_pbChangeDeposition_clicked();
+
 private:
     AParticleRunSettings & RunSet;
 

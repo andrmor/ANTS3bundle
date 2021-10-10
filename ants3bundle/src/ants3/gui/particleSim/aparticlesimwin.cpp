@@ -35,8 +35,12 @@ AParticleSimWin::~AParticleSimWin()
 
 void AParticleSimWin::updateGui()
 {
+    bGuiUpdateInProgress = true;  // -->
+
     updateG4Gui();
     updateSimGui();
+
+    bGuiUpdateInProgress = false; // <--
 }
 
 void AParticleSimWin::updateSimGui()
@@ -69,9 +73,10 @@ void AParticleSimWin::updateG4Gui()
     for (const auto & s : G4SimSet.Commands)
         ui->pteCommands->appendPlainText(s.data());
 
+    QStringList svl;
     ui->pteSensitiveVolumes->clear();
-    for (const auto & s : G4SimSet.SensitiveVolumes)
-        ui->pteSensitiveVolumes->appendPlainText(s.data());
+    for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
+    ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
 
     ui->pteStepLimits->clear();
     for (const auto & it : G4SimSet.StepLimits)
@@ -97,6 +102,8 @@ void AParticleSimWin::on_cbUseTSphys_clicked(bool checked)
 }
 void AParticleSimWin::on_pteCommands_textChanged()
 {
+    if (bGuiUpdateInProgress) return;
+
     const QString t = ui->pteCommands->document()->toPlainText();
     const QStringList sl = t.split('\n', Qt::SkipEmptyParts);
     G4SimSet.Commands.clear();
@@ -104,6 +111,8 @@ void AParticleSimWin::on_pteCommands_textChanged()
 }
 void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
 {
+    if (bGuiUpdateInProgress) return;
+
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\n|\\t)"); //separators: ' ' or ',' or 'n' or '\t'
     QString t = ui->pteSensitiveVolumes->document()->toPlainText();
     const QStringList sl = t.split(rx, Qt::SkipEmptyParts);
@@ -112,6 +121,8 @@ void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
 }
 void AParticleSimWin::on_pteStepLimits_textChanged()
 {
+    if (bGuiUpdateInProgress) return;
+
     const QRegularExpression rx2 = QRegularExpression("(\\ |\\t)"); //separators: ' ' or '\t'
 
     G4SimSet.StepLimits.clear();

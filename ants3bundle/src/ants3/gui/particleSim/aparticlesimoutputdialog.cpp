@@ -26,6 +26,9 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
     ui->cbUseTimeWindow->setChecked(RunSet.SaveSettings.TimeWindow);
     ui->ledTimeFrom->setText(QString::number(RunSet.SaveSettings.TimeFrom));
     ui->ledTimeTo->setText(QString::number(RunSet.SaveSettings.TimeTo));
+
+    ui->cbDeposition->setChecked(RunSet.SaveDeposition);
+    ui->leDeposition->setText(RunSet.FileNameDeposition.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -50,6 +53,9 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.SaveSettings.TimeWindow = ui->cbUseTimeWindow->isChecked();
     RunSet.SaveSettings.TimeFrom = ui->ledTimeFrom->text().toDouble();
     RunSet.SaveSettings.TimeTo = ui->ledTimeTo->text().toDouble();
+
+    RunSet.SaveDeposition = ui->cbDeposition->isChecked();
+    RunSet.FileNameDeposition = ui->leDeposition->text().toLatin1().data();
 
     accept();
 }
@@ -79,5 +85,11 @@ void AParticleSimOutputDialog::on_pbChangeParticles_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file to save particles", ui->leOutputDirectory->text());
     if (!fileName.isEmpty()) ui->leSaveParticles->setText(fileName);
+}
+
+void AParticleSimOutputDialog::on_pbChangeDeposition_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save deposition data", ui->leOutputDirectory->text());
+    if (!fileName.isEmpty()) ui->leDeposition->setText(fileName);
 }
 

@@ -45,6 +45,9 @@ public:
     bool        SaveTrackingHistory = true;
     std::string FileNameTrackingHistory = "TrackingHistory.txt";
 
+    bool        SaveDeposition = true;
+    std::string FileNameDeposition = "Deposition.dat";
+
     ASaveParticlesSettings SaveSettings;
 
     bool        AsciiOutput    = true;

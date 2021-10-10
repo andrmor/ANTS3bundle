@@ -58,6 +58,9 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["SaveTrackingHistory"]     = SaveTrackingHistory;
     json["FileNameTrackingHistory"] = QString(FileNameTrackingHistory.data());
 
+    json["SaveDeposition"]       = SaveDeposition;
+    json["FileNameDeposition"]   = QString(FileNameDeposition.data());
+
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
 
@@ -102,6 +105,9 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveTrackingHistory",     SaveTrackingHistory);
     jstools::parseJson(json, "FileNameTrackingHistory", FileNameTrackingHistory);
+
+    jstools::parseJson(json, "SaveDeposition",       SaveDeposition);
+    jstools::parseJson(json, "FileNameDeposition",   FileNameDeposition);
 
 #ifdef JSON11
     json11::Json::object js;

@@ -116,6 +116,8 @@ private:
     double fromB2 = 0;
     double toB2 = 0;
 
+    bool   bGuiUpdateInProgress = false;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();

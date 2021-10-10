@@ -51,6 +51,7 @@ public:
 private:
     AFileMerger HistoryFileMerger;
     AFileMerger ParticlesFileMerger;
+    AFileMerger DepositionFileMerger;
 
     int  getNumberEvents() const;
     void doPreSimChecks();

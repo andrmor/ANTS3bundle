@@ -220,6 +220,9 @@ void MainWindow::on_actionLoad_configuration_triggered()
 
     GeoConWin->updateGui();
     MatWin->initWindow();
+
+    PhotSimWin->updateGui();
+    PartSimWin->updateGui();
 }
 
 void MainWindow::on_pbPhotSim_clicked()
