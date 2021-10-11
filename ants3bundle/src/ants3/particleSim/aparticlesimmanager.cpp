@@ -138,6 +138,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
     ParticlesFileMerger.clear();
+    MonitorFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -213,7 +214,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 const QString fileName = QString("monitors-%0").arg(iProcess);
                 WorkSet.RunSet.MonitorSettings.FileName = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
-                //special rules for merging!
+                MonitorFiles.push_back(ExchangeDir + '/' + fileName);
             }
 
             WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
@@ -306,7 +307,7 @@ void AParticleSimManager::checkDirectories()
     AErrorHub::addError(A3Global::getInstance().checkExchangeDir());
 }
 
-//#include "amonitorhub.h"
+#include "amonitorhub.h"
 void AParticleSimManager::mergeOutput()
 {
     qDebug() << "Merging output files...";
@@ -322,22 +323,11 @@ void AParticleSimManager::mergeOutput()
     if (SimSet.RunSet.SaveSettings.Enabled)
         ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
-/*
+
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData();
-    if (SimSet.RunSet.SaveMonitors)
-    {
-        for (const QString & FN : MonitorFiles)
-        {
-            QJsonObject js;
-            bool ok = jstools::loadJsonFromFile(js, FN);
-            if (ok) MonitorHub.appendDataFromJson(js);
-        }
-        QJsonObject json;
-        MonitorHub.writeDataToJson(json);
-        jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
-    }
-*/
+    if (SimSet.RunSet.MonitorSettings.Enabled)
+        MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
 }
 
 #include "atrackingdataimporter.h"

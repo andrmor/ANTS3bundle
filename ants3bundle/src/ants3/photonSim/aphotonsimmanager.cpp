@@ -173,17 +173,7 @@ void APhotonSimManager::mergeOutput()
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData();
     if (SimSet.RunSet.SaveMonitors)
-    {
-        for (const QString & FN : MonitorFiles)
-        {
-            QJsonObject js;
-            bool ok = jstools::loadJsonFromFile(js, FN);
-            if (ok) MonitorHub.appendDataFromJson(js);
-        }
-        QJsonObject json;
-        MonitorHub.writeDataToJson(json);
-        jstools::saveJsonToFile(json, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
-    }
+        MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
 }
 
 void APhotonSimManager::addErrorLine(const QString & error)

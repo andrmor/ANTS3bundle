@@ -81,3 +81,24 @@ std::vector<const AMonitorData *> AMonitorHub::getMonitors(const AGeoObject * ob
     return vec;
 }
 
+void AMonitorHub::mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile)
+{
+    clearData();
+
+    for (const QString & FN : inFiles)
+    {
+        QJsonObject js;
+        bool ok = jstools::loadJsonFromFile(js, FN);
+        if (ok) appendDataFromJson(js);
+    }
+
+    QJsonObject json;
+        writeDataToJson(json);
+        jstools::saveJsonToFile(json, outFile);
+}
+
+void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile)
+{
+
+}
+

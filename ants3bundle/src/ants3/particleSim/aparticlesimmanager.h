@@ -52,6 +52,7 @@ private:
     AFileMerger HistoryFileMerger;
     AFileMerger ParticlesFileMerger;
     AFileMerger DepositionFileMerger;
+    std::vector<QString> MonitorFiles;
 
     int  getNumberEvents() const;
     void doPreSimChecks();

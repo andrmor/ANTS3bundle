@@ -46,6 +46,9 @@ public:
 
     std::vector<const AMonitorData*> getMonitors(const AGeoObject *obj) const;  // returns nullptr if not found
 
+    void mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** cosnider config where there are phton and particle monitors simultaneously!
+    void mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** cosnider config where there are phton and particle monitors simultaneously!
+
     void    writeDataToJson(QJsonObject & json) const;
     QString appendDataFromJson(const QJsonObject & json);
 
