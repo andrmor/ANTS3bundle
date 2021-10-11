@@ -1,6 +1,8 @@
 #ifndef APARTICLERUNSETTINGS_H
 #define APARTICLERUNSETTINGS_H
 
+#include "amonitorsettings.h"
+
 #include <string>
 #include <vector>
 
@@ -48,10 +50,9 @@ public:
     bool        SaveDeposition = true;
     std::string FileNameDeposition = "Deposition.dat";
 
-    bool        SaveMonitors = true;
-    std::string FileNameMonitors = "Monitors.dat";
-
     ASaveParticlesSettings SaveSettings;
+
+    AMonitorSettings MonitorSettings;
 
     bool        AsciiOutput    = true;
     int         AsciiPrecision = 6;

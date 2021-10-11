@@ -61,9 +61,9 @@ private:
     bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     void configureMaterials();
+    void configureMonitors();
     bool configureParticleGun();
 
-    void writeMonitorData(QJsonObject & json); // !!!***
     void removeOutputFiles();
     void mergeOutput();
 };

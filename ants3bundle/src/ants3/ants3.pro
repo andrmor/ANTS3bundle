@@ -106,6 +106,7 @@ SOURCES += \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
     particleSim/ag4simulationsettings.cpp \
+    particleSim/amonitorsettings.cpp \
     particleSim/aparticlerecord.cpp \
     particleSim/aparticlerunsettings.cpp \
     particleSim/aparticlesimhub.cpp \
@@ -233,6 +234,7 @@ HEADERS += \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
     particleSim/ag4simulationsettings.h \
+    particleSim/amonitorsettings.h \
     particleSim/aparticlegun.h \
     particleSim/aparticlerecord.h \
     particleSim/aparticlerunsettings.h \

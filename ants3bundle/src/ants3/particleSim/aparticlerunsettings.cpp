@@ -61,9 +61,6 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["SaveDeposition"]       = SaveDeposition;
     json["FileNameDeposition"]   = QString(FileNameDeposition.data());
 
-    json["SaveMonitors"]         = SaveMonitors;
-    json["FileNameMonitors"]     = QString(FileNameMonitors.data());
-
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
 
@@ -88,9 +85,13 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
         }
     json["MaterialsFromNist"]    = nistAr;
 
-    QJsonObject js;
-        SaveSettings.writeToJson(js);
-    json["SaveParticles"] = js;
+    QJsonObject sjs;
+        SaveSettings.writeToJson(sjs);
+    json["SaveParticles"] = sjs;
+
+    QJsonObject mjs;
+        MonitorSettings.writeToJson(mjs);
+    json["MonitorSettings"] = mjs;
 }
 #endif
 
@@ -112,16 +113,21 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SaveDeposition",       SaveDeposition);
     jstools::parseJson(json, "FileNameDeposition",   FileNameDeposition);
 
-    jstools::parseJson(json, "SaveMonitors",         SaveMonitors);
-    jstools::parseJson(json, "FileNameMonitors",     FileNameMonitors);
+#ifdef JSON11
+    json11::Json::object sjs;
+#else
+    QJsonObject sjs;
+#endif
+    jstools::parseJson(json, "SaveParticles", sjs);
+    SaveSettings.readFromJson(sjs);
 
 #ifdef JSON11
-    json11::Json::object js;
+    json11::Json::object mjs;
 #else
-    QJsonObject js;
+    QJsonObject mjs;
 #endif
-    jstools::parseJson(json, "SaveParticles", js);
-    SaveSettings.readFromJson(js);
+    jstools::parseJson(json, "SaveParticles", mjs);
+    SaveSettings.readFromJson(mjs);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);

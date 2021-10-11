@@ -30,8 +30,8 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
     ui->cbDeposition->setChecked(RunSet.SaveDeposition);
     ui->leDeposition->setText(RunSet.FileNameDeposition.data());
 
-    ui->cbMonitors->setChecked(RunSet.SaveMonitors);
-    ui->leMonitors->setText(RunSet.FileNameMonitors.data());
+    ui->cbMonitors->setChecked(RunSet.MonitorSettings.Enabled);
+    ui->leMonitors->setText(RunSet.MonitorSettings.FileName.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -60,8 +60,8 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.SaveDeposition = ui->cbDeposition->isChecked();
     RunSet.FileNameDeposition = ui->leDeposition->text().toLatin1().data();
 
-    RunSet.SaveMonitors = ui->cbMonitors->isChecked();
-    RunSet.FileNameMonitors = ui->leMonitors->text().toLatin1().data();
+    RunSet.MonitorSettings.Enabled = ui->cbMonitors->isChecked();
+    RunSet.MonitorSettings.FileName = ui->leMonitors->text().toLatin1().data();
 
     accept();
 }

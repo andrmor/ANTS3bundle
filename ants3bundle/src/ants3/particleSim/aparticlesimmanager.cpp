@@ -131,10 +131,9 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     const QString & ExchangeDir = A3Global::getConstInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
 
-    bool ok = configureGDML(Request, ExchangeDir);
-    if (!ok) return false;
-
+    bool ok = configureGDML(Request, ExchangeDir); if (!ok) return false;
     configureMaterials();
+    configureMonitors();
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
@@ -209,17 +208,18 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 ParticlesFileMerger.add(ExchangeDir + '/' + fileName);
             }
 
+            if (SimSet.RunSet.MonitorSettings.Enabled)
+            {
+                const QString fileName = QString("monitors-%0").arg(iProcess);
+                WorkSet.RunSet.MonitorSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                //special rules for merging!
+            }
+
             WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
 
             QJsonObject json;
             WorkSet.writeToJson(json, true);
-            // tmp here !!!***
-            if (SimSet.RunSet.SaveMonitors)
-            {
-                const QString fileName = QString("monitors-%0").arg(iProcess);
-                writeMonitorData(json);
-            }
-            //
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
             Worker.ConfigFile = ConfigFN;
@@ -289,27 +289,9 @@ void AParticleSimManager::configureMaterials()
     SimSet.RunSet.MaterialsFromNist = MatHub.getMaterialsFromNist();
 }
 
-#include "amonitorhub.h"
-#include "amonitor.h"
-void AParticleSimManager::writeMonitorData(QJsonObject & json)
+void AParticleSimManager::configureMonitors()
 {
-    QJsonArray arMon;
-    const std::vector<AMonitorData> & MonitorsRecords = AMonitorHub::getConstInstance().Monitors;
-    for (int iMon = 0; iMon < (int)MonitorsRecords.size(); iMon++)
-    {
-        const AMonitorData & mon = MonitorsRecords[iMon];
-        const AMonitorConfig & mc = mon.Monitor->config;
-        if (mc.PhotonOrParticle == 1)
-        {
-                QJsonObject mjs;
-                    mc.writeToJson(mjs);
-                    mjs["Name"] = mon.Name;
-                    mjs["Particle"] = mc.Particle;
-                    mjs["MonitorIndex"] = iMon;
-                arMon.append(mjs);
-        }
-    }
-    json["Monitors"] = arMon;
+    SimSet.RunSet.MonitorSettings.initFromHub();
 }
 
 // ---
