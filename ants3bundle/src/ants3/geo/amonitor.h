@@ -57,6 +57,8 @@ public:
 
   void append(const AMonitor & from);
 
+  void overrideDataFromJson(const QJsonObject & json);
+
 private:
   void initXYHist();
   void initTimeHist();
@@ -64,6 +66,7 @@ private:
   void initAngleHist();
   void initEnergyHist();
 
+  void update1D(const QJsonObject &json, TH1D *&old);
 };
 
 #endif // AMONITOR_H

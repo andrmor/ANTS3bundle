@@ -15,7 +15,7 @@ namespace jstools
 {
 bool        saveJsonToFile(const QJsonObject &json, const QString& fileName);
 bool        loadJsonFromFile(QJsonObject &json, const QString& fileName);
-//bool        loadJsonArrayFromFile(QJsonArray &ar, const QString& fileName);
+bool        loadJsonArrayFromFile(QJsonArray &ar, const QString& fileName);
 
 QJsonObject strToJson(const QString& s);
 QString     jsonToString(const QJsonObject& json);

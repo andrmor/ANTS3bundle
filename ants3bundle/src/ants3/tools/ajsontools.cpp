@@ -32,7 +32,6 @@ bool jstools::loadJsonFromFile(QJsonObject &json, const QString &fileName)
     return true;
 }
 
-/*
 bool jstools::loadJsonArrayFromFile(QJsonArray &ar, const QString &fileName)
 {
     QFile loadFile(fileName);
@@ -44,7 +43,6 @@ bool jstools::loadJsonArrayFromFile(QJsonArray &ar, const QString &fileName)
     loadFile.close();
     return true;
 }
-*/
 
 bool jstools::parseJson(const QJsonObject &json, const QString &key, bool &var)
 {

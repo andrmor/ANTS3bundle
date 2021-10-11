@@ -171,7 +171,7 @@ void APhotonSimManager::mergeOutput()
     }
 
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData();
+    MonitorHub.clearData(); // !!!*** only photon mons!
     if (SimSet.RunSet.SaveMonitors)
         MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
 }

@@ -211,7 +211,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
             if (SimSet.RunSet.MonitorSettings.Enabled)
             {
-                const QString fileName = QString("monitors-%0").arg(iProcess);
+                const QString fileName = QString("particleMonitors-%0").arg(iProcess);
                 WorkSet.RunSet.MonitorSettings.FileName = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 MonitorFiles.push_back(ExchangeDir + '/' + fileName);
@@ -325,7 +325,7 @@ void AParticleSimManager::mergeOutput()
 
 
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData();
+    MonitorHub.clearData(); // !!!*** only pareticle mons
     if (SimSet.RunSet.MonitorSettings.Enabled)
         MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
 }

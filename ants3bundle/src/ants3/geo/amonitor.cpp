@@ -166,3 +166,81 @@ void AMonitor::initEnergyHist()
     energy = new TH1D("", "", config.energyBins, from, to);
     energy->SetXTitle(title);
 }
+
+//#include "ahistogram.h"
+#include "ath.h"
+#include <QJsonObject>
+#include <QJsonArray>
+void AMonitor::overrideDataFromJson(const QJsonObject &json)
+{
+    QJsonObject jEnergy = json["Energy"].toObject();
+    update1D(jEnergy, energy);
+
+    QJsonObject jAngle = json["Angle"].toObject();
+    update1D(jAngle, angle);
+
+    QJsonObject jTime = json["Time"].toObject();
+    update1D(jTime, time);
+
+    QJsonObject jSpatial = json["Spatial"].toObject();
+    double xfrom = jSpatial["xfrom"].toDouble();
+    double xto   = jSpatial["xto"].toDouble();
+    double yfrom = jSpatial["yfrom"].toDouble();
+    double yto   = jSpatial["yto"].toDouble();
+
+    QJsonArray dataAr = jSpatial["data"].toArray();
+    int ybins = dataAr.size();
+    std::vector<std::vector<double>> dataVec;
+    dataVec.resize(ybins);
+    for (int iy=0; iy<ybins; iy++)
+    {
+        QJsonArray row = dataAr[iy].toArray();
+        int xbins = row.size();
+        dataVec[iy].resize(xbins);
+        for (int ix=0; ix<xbins; ix++)
+            dataVec[iy][ix] = row[ix].toDouble();
+    }
+    QJsonArray statAr = jSpatial["stat"].toArray();
+    std::vector<double> statVec;
+    for (int i=0; i<statAr.size(); i++)
+        statVec.push_back(statAr[i].toDouble());
+    ATH2D * hist = new ATH2D("", "", 100, 0, 1.0, 100, 0, 1.0);
+    hist->Import(xfrom, xto, yfrom, yto, dataVec, statVec);
+    delete xy; xy = hist;
+}
+
+void AMonitor::update1D(const QJsonObject & json, TH1D* & old)
+{
+    double from = json["from"].toDouble();
+    double to =   json["to"].toDouble();
+
+    QJsonArray dataAr = json["data"].toArray();
+    std::vector<double> dataVec;
+    for (int i=0; i<dataAr.size(); i++)
+        dataVec.push_back(dataAr[i].toDouble());
+
+    QJsonArray statAr = json["stat"].toArray();
+    std::vector<double> statVec;
+    for (int i=0; i<statAr.size(); i++)
+        statVec.push_back(statAr[i].toDouble());
+
+    double multiplier = 1.0;
+    if (old == energy)
+    {
+        switch (config.energyUnitsInHist)
+        {
+        case 0:  multiplier = 1.0e6;  break;// keV -> meV
+        case 1:  multiplier = 1.0e3;  break;// keV -> eV
+        default: multiplier = 1.0;    break;// keV -> keV
+        case 3:  multiplier = 1.0e-3; break;// keV -> MeV
+        }
+    }
+
+    ATH1D * hist;
+    if (old) hist = new ATH1D(*old); //to inherit all properties, including the axis titles
+    else hist = new ATH1D("", "", 10,0,1);
+
+    hist->Import(from * multiplier, to * multiplier, dataVec, statVec);
+    delete old;
+    old = hist;
+}

@@ -99,6 +99,46 @@ void AMonitorHub::mergePhotonMonitorFiles(const std::vector<QString> & inFiles, 
 
 void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile)
 {
+    clearData();
 
+    const int numMon = Monitors.size();
+    for (const QString & FN : inFiles)
+    {
+        QJsonArray ar;
+        bool ok = jstools::loadJsonArrayFromFile(ar, FN);
+        if (!ok)
+        {
+            // !!!*** errorhub!
+            qWarning() << "failed to read particle monitor file:" << FN;
+            return;
+        }
+
+        for (int i=0; i<ar.size(); i++)
+        {
+            QJsonObject json = ar[i].toObject();
+            int iMon;
+            bool bOK = jstools::parseJson(json, "MonitorIndex", iMon);
+            if (!bOK)
+            {
+                // !!!*** errorhub!
+                qWarning() << "Failed to read monitor data: Monitor index not found";
+                return;
+            }
+            if (iMon < 0 || iMon >= numMon)
+            {
+                // !!!*** errorhub!
+                qWarning() << "Failed to read monitor data: Bad monitor index";
+                return;
+            }
+
+            AMonitor tmp;
+            tmp.overrideDataFromJson(json);
+            Monitors[iMon].Monitor->append(tmp);
+        }
+    }
+
+    QJsonObject json;
+    writeDataToJson(json);
+    jstools::saveJsonToFile(json, outFile);
 }
 
