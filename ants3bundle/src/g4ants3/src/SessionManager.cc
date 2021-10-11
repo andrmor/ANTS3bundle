@@ -42,7 +42,7 @@ void SessionManager::startSession()
     prepareParticleGun();
 
     //prepare monitors: populate particle pointers
-    //prepareMonitors();
+    prepareMonitors();
 
     // preparing ouptut for deposition data
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
@@ -664,18 +664,16 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     }
     else CollectHistory = false;
 
-    if (!Settings.RunSet.MonitorSettings.Enabled)
+    if (Settings.RunSet.MonitorSettings.Enabled)
     {
         FileName_Monitors = Settings.RunSet.MonitorSettings.FileName;
 
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
-            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name);
+            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
             mobj->readFromJson(r.ConfigJson);
             Monitors.push_back(mobj);
             if (!mobj->bAcceptDirect || !mobj->bAcceptIndirect) bMonitorsRequireSteppingAction = true;
-
-            qDebug() << mobj->Name.data() << mobj->ParticleName.data();
         }
         std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
     }
@@ -757,7 +755,7 @@ void SessionManager::storeMonitorsData()
     }
 
     std::ofstream outStream;
-    outStream.open(FileName_Monitors);
+    outStream.open(WorkingDir + "/" + FileName_Monitors);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

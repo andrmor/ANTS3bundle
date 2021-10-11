@@ -79,7 +79,7 @@ void AMonitorSettings::readFromJson(const json11::Json::object & json)
 void AMonitorSettings::readFromJson(const QJsonObject & json)
 #endif
 {
-    jstools::parseJson(json, "Enabled", Enabled);
+    jstools::parseJson(json, "Enabled",  Enabled);
     jstools::parseJson(json, "FileName", FileName);
 
     Monitors.clear();

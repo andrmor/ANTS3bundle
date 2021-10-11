@@ -126,8 +126,8 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 #else
     QJsonObject mjs;
 #endif
-    jstools::parseJson(json, "SaveParticles", mjs);
-    SaveSettings.readFromJson(mjs);
+    jstools::parseJson(json, "MonitorSettings", mjs);
+    MonitorSettings.readFromJson(mjs);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);

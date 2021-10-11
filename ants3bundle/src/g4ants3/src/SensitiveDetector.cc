@@ -40,12 +40,13 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
 #include "G4VProcess.hh"
 
-MonitorSensitiveDetector::MonitorSensitiveDetector(const G4String &name)
-    : G4VSensitiveDetector(name) {}
+MonitorSensitiveDetector::MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index) :
+    G4VSensitiveDetector(name),
+    Name(name), ParticleName(particle), MonitorIndex(index) {}
 
 MonitorSensitiveDetector::~MonitorSensitiveDetector()
 {
-    std::cout << "Deleting monitor object" << std::endl;
+    //std::cout << "Deleting monitor object" << std::endl;
 }
 
 G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
@@ -121,10 +122,6 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
 
 void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
 {
-    Name =              json["Name"].string_value();
-    ParticleName =      json["ParticleName"].string_value();
-    MonitorIndex =      json["MonitorIndex"].int_value();
-
     //std::cout << "Monitor created for volume " << Name << " and particle " << ParticleName << std::endl;
 
     bAcceptLower =      json["bLower"].bool_value();

@@ -22,7 +22,7 @@ class AHistogram2D;
 class MonitorSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    MonitorSensitiveDetector(const G4String & name);
+    MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index);
     virtual ~MonitorSensitiveDetector();
 
     virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
