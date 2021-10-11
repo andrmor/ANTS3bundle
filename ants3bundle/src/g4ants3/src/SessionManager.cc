@@ -556,6 +556,7 @@ void SessionManager::prepareMonitors()
     }
 }
 
+#include "amonitorsettings.h"
 void SessionManager::ReadConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
 {
     WorkingDir = workingDir;
@@ -585,12 +586,6 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     if (Settings.RunSet.SaveDeposition && FileName_Output.empty())
         terminateSession("File name for deposition output was not provided");
 
-/*
-    //extracting name of the monitor output
-    FileName_Monitors = jo["File_Monitors"].string_value();
-    //if (FileName_Monitors.empty())
-    //    terminateSession("File name for monitor data output was not provided");
-*/
 
     //read list of sensitive volumes - they will be linked to SensitiveDetector !!!***
     SensitiveVolumes = Settings.G4Set.SensitiveVolumes;
@@ -669,22 +664,21 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
     }
     else CollectHistory = false;
 
-
-    if (!FileName_Monitors.empty())
+    if (!Settings.RunSet.MonitorSettings.Enabled)
     {
-        std::vector<json11::Json> MonitorArray = jo["Monitors"].array_items();
-        for (size_t i=0; i<MonitorArray.size(); i++)
+        FileName_Monitors = Settings.RunSet.MonitorSettings.FileName;
+
+        for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
-            const json11::Json & mjs = MonitorArray[i];
-            std::string Name = mjs["Name"].string_value();
-            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(Name);
-            mobj->readFromJson(mjs);
+            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name);
+            mobj->readFromJson(r.ConfigJson);
             Monitors.push_back(mobj);
             if (!mobj->bAcceptDirect || !mobj->bAcceptIndirect) bMonitorsRequireSteppingAction = true;
+
+            qDebug() << mobj->Name.data() << mobj->ParticleName.data();
         }
         std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
     }
-
 }
 
 void SessionManager::prepareOutputDepoStream()
