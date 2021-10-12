@@ -23,6 +23,8 @@ struct AMonitorData
 class AMonitorHub
 {
 public:
+    enum EType {Photon, Particle};
+
     static AMonitorHub & getInstance();
     static const AMonitorHub & getConstInstance();
 
@@ -36,21 +38,26 @@ private:
     AMonitorHub& operator=(AMonitorHub&&)      = delete;
 
 public:
-    std::vector<AMonitorData> Monitors;
+    std::vector<AMonitorData> PhotonMonitors;
+    std::vector<AMonitorData> ParticleMonitors;
 
-    void clear();
-    void clearData();
+    void clear(EType type);
+    void clearData(EType type);
 
-    int  countMonitors() const {return Monitors.size();}
-    int  countMonitorsWithHits() const;
+    int  countMonitors(EType type) const;
+    int  countMonitorsWithHits(EType type) const;
 
-    std::vector<const AMonitorData*> getMonitors(const AGeoObject *obj) const;  // returns nullptr if not found
+    std::vector<const AMonitorData*> getMonitors(const AGeoObject * obj) const;  // returns nullptr if not found
 
     void mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** cosnider config where there are phton and particle monitors simultaneously!
     void mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** cosnider config where there are phton and particle monitors simultaneously!
 
-    void    writeDataToJson(QJsonObject & json) const;
-    QString appendDataFromJson(const QJsonObject & json);
+    void writeDataToJson(EType type, QJsonObject & json) const;
+
+    QString appendPhotonDataFromJson(const QJsonObject & json);
+
+    static constexpr auto PhotonJsonName   = "ParticleMonitorData";
+    static constexpr auto ParticleJsonName = "PhotonMonitorData";
 
 };
 

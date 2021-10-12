@@ -60,8 +60,15 @@ void AGeometryHub::clearWorld()
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
+    clearMonitors();
     clearGridRecords();
-    AMonitorHub::getInstance().clear();
+}
+
+void AGeometryHub::clearMonitors()
+{
+    AMonitorHub & mh = AMonitorHub::getInstance();
+    mh.clear(AMonitorHub::Photon);
+    mh.clear(AMonitorHub::Particle);
 }
 
 void AGeometryHub::clearGridRecords()
@@ -480,7 +487,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().SensorData.clear();
-    AMonitorHub::getInstance().clear();
+    clearMonitors();
     clearGridRecords();
 
     World->introduceGeoConstValuesRecursive();

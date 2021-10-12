@@ -103,7 +103,7 @@ void APhotonSimulator::start()
     if (SimSet.RunSet.SaveMonitors)
     {
         QJsonObject json;
-        AMonitorHub::getInstance().writeDataToJson(json);
+        AMonitorHub::getInstance().writeDataToJson(AMonitorHub::Photon, json);
         jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
 

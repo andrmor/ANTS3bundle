@@ -41,20 +41,18 @@ void AMonSetRecord::readFromJson(const QJsonObject &json)
 void AMonitorSettings::initFromHub()
 {
     Monitors.clear();
-    const std::vector<AMonitorData> & MonitorsRecords = AMonitorHub::getConstInstance().Monitors;
+    const std::vector<AMonitorData> & MonitorsRecords = AMonitorHub::getConstInstance().ParticleMonitors;
     for (int iMon = 0; iMon < (int)MonitorsRecords.size(); iMon++)
     {
         const AMonitorData & mon = MonitorsRecords[iMon];
         const AMonitorConfig & mc = mon.Monitor->config;
-        if (mc.PhotonOrParticle == 1)
-        {
-            AMonSetRecord r;
-            r.Name     = mon.Name.toLatin1().data();
-            r.Particle = mc.Particle.toLatin1().data();
-            r.Index    = iMon;
-            r.Config   = &mon.Monitor->config;
-            Monitors.push_back(r);
-        }
+
+        AMonSetRecord r;
+        r.Name     = mon.Name.toLatin1().data();
+        r.Particle = mc.Particle.toLatin1().data();
+        r.Index    = iMon;
+        r.Config   = &mon.Monitor->config;
+        Monitors.push_back(r);
     }
 }
 void AMonitorSettings::writeToJson(QJsonObject & json) const
@@ -97,6 +95,3 @@ void AMonitorSettings::readFromJson(const QJsonObject & json)
 #endif
     // no need to read configs on ANTS3 side
 }
-
-
-
