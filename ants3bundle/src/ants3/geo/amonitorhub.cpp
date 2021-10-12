@@ -35,13 +35,15 @@ void AMonitorHub::writeDataToJson(EType type, QJsonObject & json) const
     json[QString(type == Photon ? PhotonJsonName : ParticleJsonName)] = ar;
 }
 
-QString AMonitorHub::appendPhotonDataFromJson(const QJsonObject &json)
+QString AMonitorHub::appendDataFromJson(const QJsonObject & json, EType type)
 {
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, QString(PhotonJsonName), ar);
-    if (!ok) return "json does not contain monitor data";
+    std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
 
-    if (ar.size() != (int)PhotonMonitors.size()) return "json contain data for wrong number of monitors";
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, QString(type == Photon ? PhotonJsonName : ParticleJsonName), ar);
+    if (!ok) return QString("json does not contain %0 monitor data").arg(type == Photon ? "photon" : "particle");
+
+    if (ar.size() != (int)mons.size()) return "json contain data for wrong number of monitors";
 
     for (int i=0; i<ar.size(); i++)
     {
@@ -49,7 +51,7 @@ QString AMonitorHub::appendPhotonDataFromJson(const QJsonObject &json)
         AMonitor tmp;
         tmp.readDataFromJson(js);
 
-        PhotonMonitors[i].Monitor->append(tmp);
+        mons[i].Monitor->append(tmp);
     }
 
     return "";
@@ -104,7 +106,7 @@ void AMonitorHub::mergePhotonMonitorFiles(const std::vector<QString> & inFiles, 
     {
         QJsonObject js;
         bool ok = jstools::loadJsonFromFile(js, FN);
-        if (ok) appendPhotonDataFromJson(js);
+        if (ok) appendDataFromJson(js, AMonitorHub::Photon);
     }
 
     QJsonObject json;

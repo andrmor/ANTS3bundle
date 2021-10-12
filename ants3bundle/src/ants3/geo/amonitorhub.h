@@ -54,7 +54,7 @@ public:
 
     void writeDataToJson(EType type, QJsonObject & json) const;
 
-    QString appendPhotonDataFromJson(const QJsonObject & json);
+    QString appendDataFromJson(const QJsonObject & json, EType type);
 
     static constexpr auto PhotonJsonName   = "ParticleMonitorData";
     static constexpr auto ParticleJsonName = "PhotonMonitorData";

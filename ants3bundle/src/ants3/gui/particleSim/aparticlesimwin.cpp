@@ -6,6 +6,9 @@
 #include "aparticlesimmanager.h"
 #include "guitools.h"
 #include "aerrorhub.h"
+#include "amonitorhub.h"
+#include "amonitor.h"
+#include "ajsontools.h"
 
 #include <QListWidget>
 #include <QDebug>
@@ -17,6 +20,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
     SimManager(AParticleSimManager::getInstance()),
+    MonitorHub(AMonitorHub::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
     ui->setupUi(this);
@@ -731,6 +735,9 @@ void AParticleSimWin::on_pbSimulate_clicked()
             ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
             EV_showTree();
         }
+
+        if (SimSet.RunSet.MonitorSettings.Enabled)
+            updateMonitorGui(); // data will be already loaded for merging
     }
 }
 
@@ -1751,4 +1758,201 @@ void AParticleSimWin::on_pbFilePreview_clicked()
         QString out(SimManager.Generator_File->getPreview(100).data());
         guitools::message1(out, SimSet.FileGenSettings.FileName.data(), this);
     }
+}
+
+// ------------------ monitors -----------------------
+
+void AParticleSimWin::on_pbChooseMonitorsFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by particle monitors", SimSet.RunSet.OutputDirectory.data());
+    if (!fileName.isEmpty()) ui->leMonitorsFileName->setText(fileName);
+}
+
+void AParticleSimWin::on_pbLoadMonitorsData_clicked()
+{
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    MonitorHub.clearData(AMonitorHub::Particle);
+
+    const QString FileName = ui->leMonitorsFileName->text();
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, FileName);
+    if(!ok)
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    QString err = MonitorHub.appendDataFromJson(json, AMonitorHub::Particle);
+    if (!err.isEmpty()) guitools::message(err, this);
+    updateMonitorGui();
+}
+
+void AParticleSimWin::updateMonitorGui()
+{
+    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
+    ui->labNumMonitors->setText(QString::number(numMonitors));
+    const int numWithHits = MonitorHub.countMonitorsWithHits(AMonitorHub::Particle);
+    ui->labMonitorsWithHits->setText(QString::number(numWithHits));
+
+    ui->frMonitors->setVisible(numMonitors != 0);
+
+    if (numMonitors > 0)
+    {
+        const int oldNum = ui->cobMonitor->currentIndex();
+
+        ui->cobMonitor->clear();
+        for (int i = 0; i < numMonitors; i++)
+            //ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
+            ui->cobMonitor->addItem(MonitorHub.ParticleMonitors[i].Name);
+
+        if (oldNum >-1 && oldNum < numMonitors)
+        {
+            ui->cobMonitor->setCurrentIndex(oldNum);
+            ui->sbMonitorIndex->setValue(oldNum);
+        }
+        else ui->sbMonitorIndex->setValue(0);
+
+        const int imon = ui->cobMonitor->currentIndex();
+        const AMonitor & Mon = *MonitorHub.ParticleMonitors[imon].Monitor;
+        ui->leDetections->setText( QString::number(Mon.getHits()) );
+
+        ui->pbMonitorShowXY->setEnabled(Mon.xy);
+        ui->pbMonitorShowTime->setEnabled(Mon.time);
+        ui->pbMonitorShowAngle->setEnabled(Mon.angle);
+        ui->pbMonitorShowEnergy->setEnabled(Mon.energy);
+    }
+}
+
+void AParticleSimWin::on_cobMonitor_activated(int)
+{
+    updateMonitorGui();
+}
+
+void AParticleSimWin::on_sbMonitorIndex_editingFinished()
+{
+    int mon = ui->sbMonitorIndex->value();
+    if (mon >= ui->cobMonitor->count()) mon = 0;
+    ui->sbMonitorIndex->setValue(mon);
+    if (mon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(mon); //protection: can be empty
+    updateMonitorGui();
+}
+
+void AParticleSimWin::on_pbNextMonitor_clicked()
+{
+    int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (numMon == 0) return;
+
+    int iMon = ui->cobMonitor->currentIndex();
+    int iMonStart = iMon;
+    int hits;
+    do
+    {
+        iMon++;
+        if (iMon >= numMon) iMon = 0;
+        if (iMon == iMonStart) return;
+        hits = MonitorHub.ParticleMonitors[iMon].Monitor->getHits();
+    }
+    while (hits == 0);
+
+    if (iMon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(iMon);
+    updateMonitorGui();
+}
+
+void AParticleSimWin::on_pbMonitorShowAngle_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->angle, "hist", false, true);
+}
+
+void AParticleSimWin::on_pbMonitorShowXY_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->xy, "colz", false, true);
+}
+
+void AParticleSimWin::on_pbMonitorShowTime_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->time, "hist", false, true);
+}
+
+void AParticleSimWin::on_pbMonitorShowEnergy_clicked()
+{
+    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
+    const int iMon = ui->cobMonitor->currentIndex();
+    if (iMon >=0 && iMon < numMonitors)
+        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->energy, "hist", false, true);
+}
+
+void AParticleSimWin::on_pbShowMonitorHitDistribution_clicked()
+{
+    const int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (numMon == 0) return;
+
+    TH1D * h = new TH1D("", "Monitor hits", numMon, 0, numMon);
+    int sumHits = 0;
+    for (int iMon = 0; iMon < numMon; iMon++)
+    {
+        int hits = MonitorHub.ParticleMonitors[iMon].Monitor->getHits();
+        sumHits += hits;
+        if (hits > 0) h->Fill(iMon, hits);
+    }
+
+    if (sumHits == 0) return;
+    h->SetEntries(sumHits);
+    h->GetXaxis()->SetTitle("Monitor index");
+    h->GetYaxis()->SetTitle("Hits");
+    emit requestDraw(h, "hist", true, true);
+}
+
+void AParticleSimWin::on_pbShowMonitorTimeOverall_clicked()
+{
+    const int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (numMon == 0) return;
+
+    int    bins = 1000;
+    double from = -1e30;
+    double to   = +1e30;
+
+    for (int iM = 0; iM < numMon; iM++)
+    {
+        TH1D * hh = MonitorHub.ParticleMonitors[iM].Monitor->time;
+        if (!hh) continue;
+
+        int thisBins = hh->GetXaxis()->GetNbins();
+        int thisFrom = hh->GetBinLowEdge(1);
+        int thisTo   = hh->GetBinLowEdge(bins+1);
+
+        if (thisBins < bins) bins = thisBins;
+        if (thisFrom > from) from = thisFrom;
+        if (thisTo   < to  ) to   = thisTo;
+    }
+
+    TH1D * time = new TH1D("", "Time of hits", bins, from, to);
+
+    int sumHits = 0;
+    for (int iMon = 0; iMon < numMon; iMon++)
+    {
+        TH1D * h = MonitorHub.ParticleMonitors[iMon].Monitor->time;
+        int hits = h->GetEntries();
+        if (hits == 0) continue;
+
+        sumHits += hits;
+        for (int iBin = 1; iBin <= h->GetNbinsX(); iBin++)
+            time->Fill(h->GetBinCenter(iBin), h->GetBinContent(iBin));
+    }
+
+    // TODO under / overflow  !!!***
+
+    time->BufferEmpty(1);
+    time->SetEntries(sumHits);
+    time->GetXaxis()->SetTitle("Time, ns");
+    time->GetYaxis()->SetTitle("Hits");
+    emit requestDraw(time, "hist", true, true);
 }

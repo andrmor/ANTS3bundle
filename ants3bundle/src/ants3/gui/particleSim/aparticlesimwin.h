@@ -11,6 +11,7 @@ class AParticleSimManager;
 class QTreeWidgetItem;
 class AParticleTrackingRecord;
 class TObject;
+class AMonitorHub;
 
 namespace Ui {
 class AParticleSimWin;
@@ -84,6 +85,20 @@ private slots:
     void on_leGenerateFromFile_FileName_editingFinished();
     void on_pbFilePreview_clicked();
     void on_pbAnalyzeFile_clicked();
+
+    void on_cobMonitor_activated(int index);
+    void on_sbMonitorIndex_editingFinished();
+    void on_pbNextMonitor_clicked();
+    void on_pbChooseMonitorsFile_clicked();
+    void on_pbLoadMonitorsData_clicked();
+
+    void on_pbMonitorShowAngle_clicked();
+    void on_pbMonitorShowXY_clicked();
+    void on_pbMonitorShowTime_clicked();
+    void on_pbMonitorShowEnergy_clicked();
+    void on_pbShowMonitorHitDistribution_clicked();
+    void on_pbShowMonitorTimeOverall_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -93,6 +108,7 @@ private:
     AParticleSimSettings  & SimSet;
     AG4SimulationSettings & G4SimSet;
     AParticleSimManager   & SimManager;
+    AMonitorHub           & MonitorHub;
 
     Ui::AParticleSimWin *ui;
 
@@ -127,6 +143,8 @@ private:
     void clearResultsGui();
 
     void disableGui(bool flag);
+
+    void updateMonitorGui();
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;

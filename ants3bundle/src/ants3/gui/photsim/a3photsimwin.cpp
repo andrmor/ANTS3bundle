@@ -577,7 +577,8 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
         return;
     }
 
-    MonitorHub.appendPhotonDataFromJson(json);
+    QString err = MonitorHub.appendDataFromJson(json, AMonitorHub::Photon);
+    if (!err.isEmpty()) guitools::message(err, this);
     updateMonitorGui();
 }
 
