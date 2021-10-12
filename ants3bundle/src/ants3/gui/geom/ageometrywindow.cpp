@@ -406,15 +406,21 @@ void AGeometryWindow::ShowPMnumbers()
 
 void AGeometryWindow::ShowMonitorIndexes()
 {
+    Geometry.GeoManager->ClearTracks();
+
     int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
     QVector<QString> tmp;
     for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
-    ShowText(tmp, kBlue, PhotMons);
+    ShowText(tmp, kBlue, PhotMons, false);
 
     numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
     tmp.clear();
     for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
-    ShowText(tmp, kGreen, PartMons);
+    ShowText(tmp, kGreen, PartMons, false);
+
+    ShowGeometry(false);
+    Geometry.GeoManager->DrawTracks();
+    UpdateRootCanvas();
 }
 
 void AGeometryWindow::generateSymbolMap()
@@ -526,6 +532,8 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
         size = size / 3.0 / (0.5+0.5*MaxSymbols); // was /5.0
         int lineWidth = 2;
         //if (size<2) lineWidth = 1;
+
+        qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
 
         for (int iDig = 0; iDig < numDigits; iDig++)
         {

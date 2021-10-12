@@ -38,7 +38,7 @@ void AMonitorHub::writeDataToJson(EType type, QJsonObject & json) const
 QString AMonitorHub::appendPhotonDataFromJson(const QJsonObject &json)
 {
     QJsonArray ar;
-    bool ok = jstools::parseJson(json, "MonitorData", ar);
+    bool ok = jstools::parseJson(json, QString(PhotonJsonName), ar);
     if (!ok) return "json does not contain monitor data";
 
     if (ar.size() != (int)PhotonMonitors.size()) return "json contain data for wrong number of monitors";
