@@ -79,8 +79,6 @@ bool AMonitorDelegateForm::updateGUI(const AGeoObject *obj)
     else if (config.bLower && config.bUpper) sens = 2;
     ui->cobSensitiveDirection->setCurrentIndex(sens);
 
-    ui->cobMonitoring->setCurrentIndex(config.PhotonOrParticle);
-
     ui->cbStopTracking->setChecked(config.bStopTracking);
 
     ui->leParticle->setText(config.Particle);
@@ -112,6 +110,8 @@ bool AMonitorDelegateForm::updateGUI(const AGeoObject *obj)
     ui->ledWaveTo->setText( QString::number(config.waveTo) );
     ui->ledEnergyTo->setText( QString::number(config.energyTo) );
     ui->cobEnergyUnits->setCurrentIndex( config.energyUnitsInHist );
+
+    setPhotonOrParticle(config.PhotonOrParticle);
 
     return true;
 }
@@ -186,11 +186,9 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
       default: qWarning() << "Bad sensitive directions!";
     }
 
-    config.PhotonOrParticle = ui->cobMonitoring->currentIndex();
-
     config.bStopTracking = ui->cbStopTracking->isChecked();
 
-    if (ui->cobMonitoring->currentIndex() == 1)
+    if (config.PhotonOrParticle == 1)
     {
         config.Particle = ui->leParticle->text();
 
@@ -237,7 +235,6 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 void AMonitorDelegateForm::UpdateVisibility()
 {
     on_cobShape_currentIndexChanged(ui->cobShape->currentIndex());
-    on_cobMonitoring_currentIndexChanged(ui->cobMonitoring->currentIndex());
 }
 
 void AMonitorDelegateForm::on_cobShape_currentIndexChanged(int index)
@@ -250,7 +247,7 @@ void AMonitorDelegateForm::on_cobShape_currentIndexChanged(int index)
     ui->labSizeX->setText( (bRectangular ? "Size X:" : "Diameter:") );
 }
 
-void AMonitorDelegateForm::on_cobMonitoring_currentIndexChanged(int index)
+void AMonitorDelegateForm::setPhotonOrParticle(int index)
 {
     ui->frParticle->setVisible(index == 1);
 

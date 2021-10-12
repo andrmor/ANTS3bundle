@@ -98,7 +98,7 @@ private:
   void menuActionAddNewCircularArray(AGeoObject * ContObj);
   void menuActionAddNewHexagonalArray(AGeoObject * ContObj);
   void menuActionAddNewGrid(AGeoObject * ContObj);
-  void menuActionAddNewMonitor(AGeoObject * ContObj);
+  void menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon);
   void menuActionAddInstance(AGeoObject * ContObj, const QString & PrototypeName);
   void menuActionMakeItPrototype(const QList<QTreeWidgetItem *> & selected);
   void menuActionMoveProtoToWorld(AGeoObject * obj);
