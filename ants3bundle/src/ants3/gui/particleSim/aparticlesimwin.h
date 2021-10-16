@@ -34,7 +34,9 @@ private slots:
     void on_cbUseTSphys_clicked(bool checked);
     void on_pteCommands_textChanged();
     void on_pteSensitiveVolumes_textChanged();  // redo  !!!***
-    void on_pteStepLimits_textChanged();
+    void on_pbAddNewStepLimit_clicked(); // !!!*** possible override of step limit with overlapping volume name using wildcard *
+    void on_lwStepLimits_itemDoubleClicked(QListWidgetItem *item);
+    void on_pbRemoveStepLimit_clicked();
 
     void on_pbEditParticleSource_clicked();
     void on_pbAddSource_clicked();
@@ -152,6 +154,7 @@ private:
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();
+    void showStepLimitDialog(const QString &volName, double limit);
 };
 
 #endif // APARTICLESIMWIN_H

@@ -82,9 +82,9 @@ void AParticleSimWin::updateG4Gui()
     for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
     ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
 
-    ui->pteStepLimits->clear();
+    ui->lwStepLimits->clear();
     for (const auto & it : G4SimSet.StepLimits)
-        ui->pteStepLimits->appendPlainText( QString("%1 %2").arg(it.first.data(), it.second) );
+        ui->lwStepLimits->addItem( QString("%0 -> %1").arg(it.first.data(), QString::number(it.second)) );
 
     ui->cbUseTSphys->setChecked(G4SimSet.UseTSphys);
 }
@@ -123,33 +123,98 @@ void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
     G4SimSet.SensitiveVolumes.clear();
     for (auto & s : sl) G4SimSet.SensitiveVolumes.push_back(s.toLatin1().data());
 }
-void AParticleSimWin::on_pteStepLimits_textChanged()
+#include <QDialog>
+void AParticleSimWin::on_pbAddNewStepLimit_clicked()
 {
-    if (bGuiUpdateInProgress) return;
+    showStepLimitDialog("", 0);
+}
 
-    const QRegularExpression rx2 = QRegularExpression("(\\ |\\t)"); //separators: ' ' or '\t'
+void AParticleSimWin::showStepLimitDialog(const QString & volName, double limit)
+{
+    QDialog d(this);
 
-    G4SimSet.StepLimits.clear();
-    const QString t = ui->pteStepLimits->document()->toPlainText();
-    const QStringList sl = t.split('\n', Qt::SkipEmptyParts);
-    for (const QString & str : sl)
+    QVBoxLayout * vl = new QVBoxLayout(&d);
+
+    QHBoxLayout * hl = new QHBoxLayout();
+        hl->addWidget(new QLabel("Volume:"));
+        QLineEdit * leVol = new QLineEdit(); hl->addWidget(leVol);
+        if (!volName.isEmpty()) leVol->setText(volName);
+        hl->addWidget(new QLabel("Step limit:"));
+        QLineEdit * leStep = new QLineEdit(); hl->addWidget(leStep);
+        if (limit > 0) leStep->setText(QString::number(limit));
+        QDoubleValidator * dv = new QDoubleValidator(&d);
+        leStep->setValidator(dv);
+    vl->addLayout(hl);
+
+    QPushButton * pbAccept = new QPushButton("Add this limit");
+    QObject::connect(pbAccept, &QPushButton::clicked, &d,
+    [leVol, leStep, &d]()
     {
-        QStringList f = str.split(rx2, Qt::SkipEmptyParts);
-        if (f.size() != 2)
+        const QString vol = leVol->text();
+        if (vol.isEmpty())
         {
-            guitools::message("Bad format of step limits, it should be (new line for each):\nVolume_name Step_Limit");
+            guitools::message("Volume is empty!", &d);
             return;
         }
-        QString vol = f[0];
-        bool bOK;
-        double step = f[1].toDouble(&bOK);
-        if (!bOK)
+        if (vol.contains('*') && (vol.count('*') > 1 || vol.indexOf('*') != vol.length()-1) )
         {
-            guitools::message("Bad format of step limits: failed to convert to double value: " + f[1]);
+            guitools::message("Only one '*' can be used in the volume name,\nand it should be at the end!", &d);
             return;
         }
-        G4SimSet.StepLimits[vol.toLatin1().data()] = step;
+        double step = leStep->text().toDouble();
+        if (step <= 0)
+        {
+            guitools::message("Step limit should have a positive numeric value", &d);
+            return;
+        }
+        d.accept();
     }
+    );
+
+    vl->addWidget(pbAccept);
+
+    int res = d.exec();
+    if (res == QDialog::Rejected) return;
+
+
+    G4SimSet.StepLimits[leVol->text().toLatin1().data()] = leStep->text().toDouble();
+    updateG4Gui();
+}
+void AParticleSimWin::on_lwStepLimits_itemDoubleClicked(QListWidgetItem * item)
+{
+    const QString line = item->text();
+    QStringList sl = line.split(" -> ");
+    if (sl.size() != 2)
+    {
+        guitools::message("Something went wrong!", this);
+        return;
+    }
+
+    QString vol = sl.first();
+    double limit = sl[1].toDouble();
+
+    G4SimSet.StepLimits.erase(vol.toLatin1().data());
+
+    showStepLimitDialog(vol, limit);
+}
+void AParticleSimWin::on_pbRemoveStepLimit_clicked()
+{
+     QListWidgetItem * item = ui->lwStepLimits->currentItem();
+     if (!item)
+     {
+         guitools::message("Select a record to remove", this);
+         return;
+     }
+     const QString line = item->text();
+     QStringList sl = line.split(" -> ");
+     if (sl.size() != 2)
+     {
+         guitools::message("Something went wrong!", this);
+         return;
+     }
+     QString vol = sl.first();
+     G4SimSet.StepLimits.erase(vol.toLatin1().data());
+     updateG4Gui();
 }
 
 #include "aparticlesourcedialog.h"

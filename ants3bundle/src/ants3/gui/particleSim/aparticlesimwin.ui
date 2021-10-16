@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -371,15 +371,28 @@ Format: Volume_name  Step_in_mm</string>
               </widget>
              </item>
              <item>
-              <widget class="QPlainTextEdit" name="pteStepLimits">
-               <property name="toolTip">
-                <string>Each line configures the maximum tracking step for a volume.
-Format: Volume_name  Step_in_mm</string>
+              <widget class="QListWidget" name="lwStepLimits"/>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <property name="topMargin">
+                <number>0</number>
                </property>
-               <property name="plainText">
-                <string/>
-               </property>
-              </widget>
+               <item>
+                <widget class="QPushButton" name="pbAddNewStepLimit">
+                 <property name="text">
+                  <string>Add new</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pbRemoveStepLimit">
+                 <property name="text">
+                  <string>Remove</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </widget>
