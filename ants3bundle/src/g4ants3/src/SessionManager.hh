@@ -53,7 +53,6 @@ class SessionManager
         void onEventFinished();
         const std::string & getEventId() const {return EventId;}
         std::vector<MonitorSensitiveDetector*> & getMonitors() {return Monitors;}
-        const std::map<std::string, double> & getStepLimitMap() const {return StepLimitMap;}
         int findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
@@ -127,7 +126,6 @@ private:
         std::string FileName_Tracks;  // !!!*** remove, it is Settings.RunSet.FileNameTrackingHistory
         std::string EventId; //  "#number"
         std::map<std::string, int> MaterialMap;
-        std::map<std::string, double> StepLimitMap;
         std::ofstream * outStreamDeposition = nullptr;
         std::ofstream * outStreamHistory    = nullptr;
         std::ofstream * outStreamExit       = nullptr;

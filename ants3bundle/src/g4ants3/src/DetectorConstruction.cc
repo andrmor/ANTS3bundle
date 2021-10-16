@@ -71,7 +71,7 @@ bool DetectorConstruction::isAccordingTo(const std::string &name, const std::str
 void DetectorConstruction::setStepLimiters()
 {
     SessionManager & SM = SessionManager::getInstance();
-    const std::map<std::string, double> & StepLimitMap = SM.getStepLimitMap();
+    const std::map<std::string, double> & StepLimitMap = SM.Settings.G4Set.StepLimits;
 
     if (StepLimitMap.empty()) return;
 

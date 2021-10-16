@@ -615,28 +615,6 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
         }
     }
 
-    //extracting step limits
-    StepLimitMap.clear();
-/*
-    std::vector<json11::Json> StepLimitArray = jo["StepLimits"].array_items();
-    if (!StepLimitArray.empty())
-    {
-        std::cout << "Defined step limiters:" << std::endl;
-        for (size_t i=0; i<StepLimitArray.size(); i++)
-        {
-            const json11::Json & el = StepLimitArray[i];
-            std::vector<json11::Json> par = el.array_items();
-            if (par.size() > 1)
-            {
-                std::string vol = par[0].string_value();
-                double step     = par[1].number_value();
-                StepLimitMap[vol] = step;
-                std::cout << vol << " -> " << step << " mm" << std::endl;
-            }
-        }
-    }
-*/
-
     std::cout << "GUI mode? " << Settings.RunSet.GuiMode << std::endl;
 
     bBinaryOutput = !Settings.RunSet.AsciiOutput;
