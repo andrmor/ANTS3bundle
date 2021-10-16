@@ -51,8 +51,6 @@ class SessionManager
         void runSimulation();
 
         void onEventFinished();
-        const std::string & getEventId() const {return EventId;}
-        std::vector<MonitorSensitiveDetector*> & getMonitors() {return Monitors;}
         int findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
@@ -77,6 +75,7 @@ class SessionManager
         int  getPredictedTrackID() const;
 
         void findExitVolume();
+        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
 
         void saveParticle(const G4String & particle, double energy, double time, double * PosDir);
 
@@ -84,29 +83,17 @@ public:
         std::string          WorkingDir;
         AParticleSimSettings Settings;
 
-        bool CollectHistory = false;
+        bool   bMonitorsRequireSteppingAction = false;
+        bool   bStoppedOnMonitor = false; // bug fix for Geant4? used in (Monitor)SensitiveDetector and SteppingAction
 
-        int Precision    = 6;
-
-        bool bMonitorsRequireSteppingAction = false;
-
-        bool bStoppedOnMonitor = false; // bug fix for Geant4? used in (Monitor)SensitiveDetector and SteppingAction
-
-        bool bExitParticles = false;
-        G4LogicalVolume * ExitVolume = nullptr;
-        bool   bExitTimeWindow = false;
-        double ExitTimeFrom = 0;
-        double ExitTimeTo = 1.0e6;
-        bool   bExitKill = true;
-
-        PrimaryGeneratorAction * PrimGenAction = nullptr;
+        PrimaryGeneratorAction * PrimGenAction     = nullptr;
+        G4LogicalVolume        * ExitVolume        = nullptr;
+        AParticleGun           * ParticleGenerator = nullptr;
 
         int CurrentEvent = 0;
-        AParticleGun * ParticleGenerator = nullptr;
 
-        std::vector<std::string> SensitiveVolumes;  // !!!*** not needed alias
+        std::vector<MonitorSensitiveDetector*> Monitors; //can contain nullptr!
 
-        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
 private:
         void prepareParticleGun();
         void prepareMonitors();
@@ -116,34 +103,22 @@ private:
         void executeAdditionalCommands();
         void generateReceipt();
         void storeMonitorsData();
-
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:
-        std::string FileName_Input;
-        std::string FileName_Output; // !!!*** rename
-        std::string FileName_Monitors; // !!!*** remove alias
-        std::string FileName_Tracks;  // !!!*** remove, it is Settings.RunSet.FileNameTrackingHistory
-        std::string EventId; //  "#number"
-        std::map<std::string, int> MaterialMap;
         std::ofstream * outStreamDeposition = nullptr;
         std::ofstream * outStreamHistory    = nullptr;
         std::ofstream * outStreamExit       = nullptr;
 
+        std::map<std::string, int> ElementToZ;
+        std::map<std::string, int> MaterialMap;
+
         bool bExitBinary = false;
         bool bBinaryOutput = false;
-
-        std::vector<MonitorSensitiveDetector*> Monitors; //can contain nullptr!
-
-        std::string FileName_Exit;
-        std::string ExitVolumeName;
 
         //to report back to ants2
         bool bError;
         std::string ErrorMessage;
-        std::vector<std::string> WarningMessages;
-
-        std::map<std::string, int> ElementToZ;
 };
 
 #endif // SESSIONMANAGER_H

@@ -48,17 +48,17 @@ void SessionManager::startSession()
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
 
     // preparing ouptut for track export
-    if (CollectHistory) prepareOutputHistoryStream();
+    if (Settings.RunSet.SaveTrackingHistory) prepareOutputHistoryStream();
 
     // preparing ouptut for exiting particle export
-    if (bExitParticles) prepareOutputExitStream();
+    if (Settings.RunSet.SaveSettings.Enabled) prepareOutputExitStream();
 
     //set random generator
     ARandomHub::getInstance().init(Settings.RunSet.Seed);
 
     executeAdditionalCommands();
 
-    findExitVolume();
+    if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 }
 
 #include "asourceparticlegenerator.h"
@@ -282,9 +282,7 @@ void SessionManager::updateMaterials(G4VPhysicalVolume * worldPV)
 
 void SessionManager::writeNewEventMarker()
 {
-    //const int iEvent = std::stoi( EventId.substr(1) );  // kill leading '#'
-    //CurrentEvent
-    EventId = "#" + std::to_string(CurrentEvent);
+    std::string EventId = "#" + std::to_string(CurrentEvent);
 
     if (outStreamDeposition)
     {
@@ -297,7 +295,7 @@ void SessionManager::writeNewEventMarker()
             *outStreamDeposition << EventId.data() << std::endl;
     }
 
-    if (CollectHistory)
+    if (Settings.RunSet.SaveTrackingHistory)
         if (outStreamHistory)
         {
             if (bBinaryOutput)
@@ -342,7 +340,7 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
     else
     {
         std::stringstream ss;
-        ss.precision(Precision);
+        ss.precision(Settings.RunSet.AsciiPrecision);
 
         ss << pName << ' ';
         ss << iMat << ' ';
@@ -390,7 +388,7 @@ void SessionManager::saveTrackStart(int trackID, int parentTrackID,
         // > TrackID ParentTrackID Particle X Y Z Time E iMat VolName VolIndex
 
         std::stringstream ss;
-        ss.precision(Precision);
+        ss.precision(Settings.RunSet.AsciiPrecision);
 
         ss << '>';
         ss << trackID << ' ';
@@ -456,7 +454,7 @@ void SessionManager::saveTrackRecord(const std::string & procName,
     else
     {
         std::stringstream ss;
-        ss.precision(Precision);
+        ss.precision(Settings.RunSet.AsciiPrecision);
 
         ss << procName << ' ';
 
@@ -502,14 +500,12 @@ int SessionManager::getPredictedTrackID() const
 #include "G4LogicalVolume.hh"
 void SessionManager::findExitVolume()
 {
-    if (!bExitParticles) return;
-
-    G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+    G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
 
     std::vector<G4LogicalVolume*>::const_iterator lvciter;
     for (lvciter = lvs->begin(); lvciter != lvs->end(); ++lvciter)
     {
-        if ( (std::string)(*lvciter)->GetName() == ExitVolumeName)
+        if ( (std::string)(*lvciter)->GetName() == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;
             std::cout << "Found exit volume " << ExitVolume << " --> " << ExitVolume->GetName().data() << std::endl;
@@ -518,7 +514,7 @@ void SessionManager::findExitVolume()
     }
 
     //not found
-    bExitParticles = false;
+    Settings.RunSet.SaveSettings.Enabled = false;
 }
 
 void SessionManager::saveParticle(const G4String &particle, double energy, double time, double *PosDir)
@@ -534,7 +530,7 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
     else
     {
         std::stringstream ss;
-        ss.precision(Precision);
+        ss.precision(Settings.RunSet.AsciiPrecision);
 
         ss << particle << ' ';
         ss << energy << ' ';
@@ -561,40 +557,33 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
 {
     WorkingDir = workingDir;
 
-    //opening config file
     std::ifstream in(WorkingDir + "/" + ConfigFileName);
     std::stringstream sstr;
     sstr << in.rdbuf();
     std::string s = sstr.str();
+    std::cout << "Config file:\n" << s << std::endl;
 
-    std::cout << s << std::endl;
-
-    std::string err;
-    json11::Json jo = json11::Json::parse(s, err);
-    if (!err.empty()) terminateSession(err);
+    json11::Json jo = json11::Json::parse(s, ErrorMessage);
+    if (!ErrorMessage.empty()) terminateSession(ErrorMessage);
 
     json11::Json::object json = jo.object_items();
 
     Settings.readFromJson(json);
 
-    if (Settings.RunSet.Receipt.empty())    terminateSession("File name for receipt was not provided");
-    if (Settings.RunSet.GDML.empty())       terminateSession("GDML file name is not provided");
-    if (Settings.G4Set.PhysicsList.empty()) terminateSession("Reference physics list is not provided");
+    if (Settings.RunSet.Receipt.empty())
+        terminateSession("File name for receipt was not provided");
+    if (Settings.RunSet.GDML.empty())
+        terminateSession("GDML file name is not provided");
+    if (Settings.G4Set.PhysicsList.empty())
+        terminateSession("Reference physics list is not provided");
+    if (Settings.RunSet.SaveDeposition && Settings.RunSet.FileNameDeposition.empty())
+        terminateSession("File name for deposition output not provided");
+    if (Settings.RunSet.SaveTrackingHistory && Settings.RunSet.FileNameTrackingHistory.empty())
+        terminateSession("File name for tracking history output not provided");
 
-    // !!!***
-    FileName_Output = Settings.RunSet.FileNameDeposition;
-    if (Settings.RunSet.SaveDeposition && FileName_Output.empty())
-        terminateSession("File name for deposition output was not provided");
-
-
-    //read list of sensitive volumes - they will be linked to SensitiveDetector !!!***
-    SensitiveVolumes = Settings.G4Set.SensitiveVolumes;
-
-
+    std::cout << "GUI mode? " << Settings.RunSet.GuiMode << std::endl;
     std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
 
-
-    //extracting defined materials
     MaterialMap.clear();
     std::cout << "Config lists the following materials:" << std::endl;
     for (size_t i=0; i < Settings.RunSet.Materials.size(); i++)
@@ -603,7 +592,6 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
         std::cout << i << " -> " << name << std::endl;
         MaterialMap[name] = (int)i;
     }
-
     if (!Settings.RunSet.MaterialsFromNist.empty())
     {
         std::cout << "The following materials will be constructed using G4NistManager:" << std::endl;
@@ -615,37 +603,15 @@ void SessionManager::ReadConfig(const std::string & workingDir, const std::strin
         }
     }
 
-    std::cout << "GUI mode? " << Settings.RunSet.GuiMode << std::endl;
-
     bBinaryOutput = !Settings.RunSet.AsciiOutput;
+    bExitBinary   = bBinaryOutput;
     std::cout << "Binary output? " << bBinaryOutput << std::endl;
-    Precision = Settings.RunSet.AsciiPrecision;
 
-    // refactor !!!***
-    bExitParticles   = Settings.RunSet.SaveSettings.Enabled;
-    FileName_Exit    = Settings.RunSet.SaveSettings.FileName;
-    bExitBinary      = bBinaryOutput;
-    ExitVolumeName   = Settings.RunSet.SaveSettings.VolumeName;
-    bExitKill        = Settings.RunSet.SaveSettings.StopTrack;
-    bExitTimeWindow  = Settings.RunSet.SaveSettings.TimeWindow;
-    ExitTimeFrom     = Settings.RunSet.SaveSettings.TimeFrom;
-    ExitTimeTo       = Settings.RunSet.SaveSettings.TimeTo;
-    if (bExitParticles)
-        std::cout << "Save exit particles enabled for volume: " << ExitVolumeName << "  Kill on exit? " << bExitKill << std::endl;
-
-    if (Settings.RunSet.SaveTrackingHistory)
-    {
-        CollectHistory = true;
-        FileName_Tracks = Settings.RunSet.FileNameTrackingHistory;
-        if (FileName_Tracks.empty())
-            terminateSession("File name with tracks to export was not provided");
-    }
-    else CollectHistory = false;
+    if (Settings.RunSet.SaveSettings.Enabled)
+        std::cout << "Save exit particles enabled for volume: " << Settings.RunSet.SaveSettings.VolumeName << "  Kill on exit? " << Settings.RunSet.SaveSettings.StopTrack << std::endl;
 
     if (Settings.RunSet.MonitorSettings.Enabled)
     {
-        FileName_Monitors = Settings.RunSet.MonitorSettings.FileName;
-
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
             MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
@@ -662,9 +628,9 @@ void SessionManager::prepareOutputDepoStream()
     outStreamDeposition = new std::ofstream();
 
     if (bBinaryOutput)
-        outStreamDeposition->open(WorkingDir + "/" + FileName_Output, std::ios::out | std::ios::binary);
+        outStreamDeposition->open(WorkingDir + "/" + Settings.RunSet.FileNameDeposition, std::ios::out | std::ios::binary);
     else
-        outStreamDeposition->open(WorkingDir + "/" + FileName_Output);
+        outStreamDeposition->open(WorkingDir + "/" + Settings.RunSet.FileNameDeposition);
 
     if (!outStreamDeposition->is_open())
         terminateSession("Cannot open file to store deposition data");
@@ -675,9 +641,9 @@ void SessionManager::prepareOutputHistoryStream()
     outStreamHistory = new std::ofstream();
 
     if (bBinaryOutput)
-        outStreamHistory->open(WorkingDir + "/" + FileName_Tracks, std::ios::out | std::ios::binary);
+        outStreamHistory->open(WorkingDir + "/" + Settings.RunSet.FileNameTrackingHistory, std::ios::out | std::ios::binary);
     else
-        outStreamHistory->open(WorkingDir + "/" + FileName_Tracks);
+        outStreamHistory->open(WorkingDir + "/" + Settings.RunSet.FileNameTrackingHistory);
 
     if (!outStreamHistory->is_open())
         terminateSession("Cannot open file to export history/tracks data");
@@ -688,9 +654,9 @@ void SessionManager::prepareOutputExitStream()
     outStreamExit = new std::ofstream();
 
     if (bExitBinary)
-        outStreamExit->open(WorkingDir + "/" + FileName_Exit, std::ios::out | std::ios::binary);
+        outStreamExit->open(WorkingDir + "/" + Settings.RunSet.SaveSettings.FileName, std::ios::out | std::ios::binary);
     else
-        outStreamExit->open(WorkingDir + "/" + FileName_Exit);
+        outStreamExit->open(WorkingDir + "/" + Settings.RunSet.SaveSettings.FileName);
 
     if (!outStreamExit->is_open())
         terminateSession("Cannot open file to export exiting particle data");
@@ -733,7 +699,7 @@ void SessionManager::storeMonitorsData()
     }
 
     std::ofstream outStream;
-    outStream.open(WorkingDir + "/" + FileName_Monitors);
+    outStream.open(WorkingDir + "/" + Settings.RunSet.MonitorSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

@@ -101,7 +101,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
                 step->GetTrack()->SetTrackStatus(fStopAndKill);
 
                 SessionManager & SM = SessionManager::getInstance();
-                if (SM.CollectHistory)
+                if (SM.Settings.RunSet.SaveTrackingHistory)
                 {
                     const G4ThreeVector & pos = step->GetPostStepPoint()->GetPosition();
                     const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;

@@ -25,9 +25,9 @@ void ActionInitialization::Build() const
 
     //SetUserAction(new StackingAction);
 
-    if (SM.CollectHistory || SM.bMonitorsRequireSteppingAction || SM.bExitParticles)
+    if (SM.Settings.RunSet.SaveTrackingHistory || SM.bMonitorsRequireSteppingAction || SM.Settings.RunSet.SaveSettings.Enabled)
         SetUserAction(new SteppingAction);
 
-    if (SM.CollectHistory)
+    if (SM.Settings.RunSet.SaveTrackingHistory)
         SetUserAction(new TrackingAction);
 }

@@ -21,7 +21,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 {
     SessionManager & SM = SessionManager::getInstance();
 
-    if (SM.bExitParticles)
+    if (SM.Settings.RunSet.SaveSettings.Enabled)
     {
         const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
         if (proc && proc->GetProcessType() == fTransportation)
@@ -31,7 +31,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
             {
                 const G4StepPoint * postP  = step->GetPostStepPoint();
                 const double time = postP->GetGlobalTime()/ns;
-                if (!SM.bExitTimeWindow || (time > SM.ExitTimeFrom && time < SM.ExitTimeTo) )
+                if ( !SM.Settings.RunSet.SaveSettings.TimeWindow ||
+                     (time > SM.Settings.RunSet.SaveSettings.TimeFrom && time < SM.Settings.RunSet.SaveSettings.TimeTo) )
                 {
                     double buf[6];
                     const G4ThreeVector & pos = postP->GetPosition();
@@ -48,10 +49,10 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
                                     time,
                                     buf);
 
-                    if (SM.bExitKill)
+                    if (SM.Settings.RunSet.SaveSettings.StopTrack)
                         step->GetTrack()->SetTrackStatus(fStopAndKill);
 
-                    if (SM.CollectHistory)
+                    if (SM.Settings.RunSet.SaveTrackingHistory)
                     {
                         const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
                         const double depoE = step->GetTotalEnergyDeposit()/keV;
@@ -72,7 +73,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
                 step->GetTrack()->SetUserInformation(new G4VUserTrackInformation()); // owned by track!
         }
 
-    if (!SM.CollectHistory) return; // the rest is only to record telemetry!
+    if (!SM.Settings.RunSet.SaveTrackingHistory) return; // the rest is only to record telemetry!
 
     if (SM.bStoppedOnMonitor) // bug fix for Geant4 - have to be removed when it is fixed! Currently track has one more step after kill
     {

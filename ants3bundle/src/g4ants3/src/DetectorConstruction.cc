@@ -29,7 +29,7 @@ void DetectorConstruction::ConstructSDandField()
     SessionManager & SM = SessionManager::getInstance();
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
 
-    const std::vector<std::string> & SVlist = SM.SensitiveVolumes;
+    const std::vector<std::string> & SVlist = SM.Settings.G4Set.SensitiveVolumes;
     for (auto & sv : SVlist)
     {
         if (sv.size() == 0) continue;
@@ -56,7 +56,7 @@ void DetectorConstruction::ConstructSDandField()
     }
 
     // ---- Monitors ----
-    for (MonitorSensitiveDetector * mon : SM.getMonitors())
+    for (MonitorSensitiveDetector * mon : SM.Monitors)
         SetSensitiveDetector(mon->Name, mon);
 }
 
