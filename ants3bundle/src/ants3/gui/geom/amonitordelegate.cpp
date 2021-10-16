@@ -28,7 +28,7 @@ AMonitorDelegate::AMonitorDelegate(QWidget *ParentWidget) :
     vl->setContentsMargins(5,5,5,5);
 
     //object type
-    QLabel * labType = new QLabel("Monitor");
+    labType = new QLabel("Monitor");
     labType->setAlignment(Qt::AlignCenter);
     QFont font = labType->font();
     font.setBold(true);
@@ -58,8 +58,16 @@ bool AMonitorDelegate::updateObject(AGeoObject *obj) const
     return del->updateObject(obj);
 }
 
+#include "ageotype.h"
+#include "ageoobject.h"
 void AMonitorDelegate::Update(const AGeoObject *obj)
 {
+    ATypeMonitorObject * tmo = dynamic_cast<ATypeMonitorObject*>(obj->Type);
+    QString txt;
+    if (tmo->config.PhotonOrParticle == 0) txt = "Photon monitor";
+    else txt = "Particle monitor";
+    labType->setText(txt);
+
     bool bOK = del->updateGUI(obj);
     if (!bOK) return;
 }

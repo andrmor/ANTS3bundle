@@ -35,6 +35,8 @@ public:
 
     QVector<GeoMarkerClass*> GeoMarkers;
 
+    enum EDraw {PMs, PhotMons, PartMons};
+
     void ShowAndFocus();
     void SetAsActiveRootWindow();
     void ClearRootCanvas();
@@ -85,8 +87,7 @@ public slots:
     void ShowPMnumbers();  // !!!***
     void ShowMonitorIndexes();
 
-    // refactor !!!***
-    void ShowText(const QVector<QString> & strData, Color_t color, bool onPMs = true, bool bFullCycle = true); //onPMs=false -> srawing on monitors
+    void ShowText(const QVector<QString> & strData, Color_t color, EDraw onWhat, bool bFullCycle = true);
 
     void on_pbTop_clicked();
     void on_pbFront_clicked();

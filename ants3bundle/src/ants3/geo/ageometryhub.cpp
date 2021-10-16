@@ -60,8 +60,15 @@ void AGeometryHub::clearWorld()
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
+    clearMonitors();
     clearGridRecords();
-    AMonitorHub::getInstance().clear();
+}
+
+void AGeometryHub::clearMonitors()
+{
+    AMonitorHub & mh = AMonitorHub::getInstance();
+    mh.clear(AMonitorHub::Photon);
+    mh.clear(AMonitorHub::Particle);
 }
 
 void AGeometryHub::clearGridRecords()
@@ -480,7 +487,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().SensorData.clear();
-    AMonitorHub::getInstance().clear();
+    clearMonitors();
     clearGridRecords();
 
     World->introduceGeoConstValuesRecursive();
@@ -520,10 +527,14 @@ void AGeometryHub::populateGeoManager()
 #include "amonitor.h"
 void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
 {
-    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    const int MonitorCounter = MonitorHub.countMonitors();
+    ATypeMonitorObject * monTobj = static_cast<ATypeMonitorObject*>(obj->Type);
 
-    (static_cast<ATypeMonitorObject*>(obj->Type))->index = MonitorCounter;
+    const AMonitorHub::EType MonType = (monTobj->config.PhotonOrParticle == 0 ? AMonitorHub::Photon : AMonitorHub::Particle);
+
+    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
+    const int MonitorCounter = MonitorHub.countMonitors(MonType);
+
+    monTobj->index = MonitorCounter;
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
@@ -541,7 +552,8 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
     getGlobalPosition(node, md.Position);
 
-    MonitorHub.Monitors.push_back(md);
+    if (MonType == AMonitorHub::Photon) MonitorHub.PhotonMonitors.push_back(md);
+    else                                MonitorHub.ParticleMonitors.push_back(md);
 }
 
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
@@ -718,13 +730,20 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 {
     //  Photon tracer uses volume title for identification of special volumes
     //  First character can be 'M' for monitor, 'S' for light sensor, 'G' for optical grid
-    TString title = "----";
+    //  * in the second (or third) places indicate that this volume has a defined optical interface rule from (or to)
+
+    TString title = "---";
+
     if      (obj->Role)
     {
-         if (obj->Role->getType() == "Sensor") title[0] = 'S';
+         if (obj->Role->getType() == "Sensor")     title[0] = 'S';
     }
-    else if (obj->Type->isMonitor())           title[0] = 'M';
-    else if (obj->Type->isGrid())              title[0] = 'G';
+    else if (obj->Type->isMonitor())
+    {
+        ATypeMonitorObject * monTobj = static_cast<ATypeMonitorObject*>(obj->Type);
+        if (monTobj->config.PhotonOrParticle == 0) title[0] = 'M';
+    }
+    else if (obj->Type->isGrid())                  title[0] = 'G';
 
     const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
     if (IRH.isFromVolume(vol->GetName())) title[1] = '*';

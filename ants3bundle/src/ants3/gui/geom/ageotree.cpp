@@ -408,7 +408,10 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* newHexArrayA  = Action(menu, "Add hexagonal array");
   QAction* newCompositeA  = Action(menu, "Add composite object");
   QAction* newGridA = Action(menu, "Add optical grid");
-  QAction* newMonitorA = Action(menu, "Add monitor");
+
+  QMenu * addMonitorMenu = menu.addMenu("Add monitor"); addMonitorMenu->setEnabled(false);
+    QAction* newPhotonMonitorA   = addMonitorMenu->addAction("Optical photons");
+    QAction* newParticleMonitorA = addMonitorMenu->addAction("Particles");
 
   menu.addSeparator();
 
@@ -467,7 +470,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       newArrayA->setEnabled(fNotGridNotMonitor);
       newCircArrayA->setEnabled(fNotGridNotMonitor);
       newHexArrayA->setEnabled(fNotGridNotMonitor);
-      newMonitorA->setEnabled(fNotGridNotMonitor);
+      addMonitorMenu->setEnabled(fNotGridNotMonitor);
       newGridA->setEnabled(fNotGridNotMonitor);
       cloneA->setEnabled(true);
       removeHostedA->setEnabled(fNotGridNotMonitor);
@@ -527,7 +530,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == newCircArrayA)  menuActionAddNewCircularArray(obj);
   else if (SelectedAction == newHexArrayA)   menuActionAddNewHexagonalArray(obj);
   else if (SelectedAction == newGridA)       menuActionAddNewGrid(obj);
-  else if (SelectedAction == newMonitorA)    menuActionAddNewMonitor(obj);
+  else if (SelectedAction == newPhotonMonitorA)    menuActionAddNewMonitor(obj, true);
+  else if (SelectedAction == newParticleMonitorA)  menuActionAddNewMonitor(obj, false);
   else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
   else if (SelectedAction == stackA)         menuActionFormStack(selected);
   else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
@@ -592,7 +596,10 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     QAction* newArrayA  = Action(menu, "Add array");
     QAction* newCompositeA  = Action(menu, "Add composite object");
     //QAction* newGridA = Action(menu, "Add optical grid");
-    QAction* newMonitorA = Action(menu, "Add monitor");
+
+    QMenu * addMonitorMenu = menu.addMenu("Add monitor"); addMonitorMenu->setEnabled(false);
+      QAction* newPhotonMonitorA   = addMonitorMenu->addAction("Optical photons");
+      QAction* newParticleMonitorA = addMonitorMenu->addAction("Particles");
 
     menu.addSeparator();
 
@@ -630,7 +637,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         addObjMenu->setEnabled(bNotGridNotMonitor);
         newCompositeA->setEnabled(bNotGridNotMonitor);
         newArrayA->setEnabled(bNotGridNotMonitor);
-        newMonitorA->setEnabled(bNotGridNotMonitor);
+        addMonitorMenu->setEnabled(bNotGridNotMonitor);
         cloneA->setEnabled(true);
         removeHostedA->setEnabled(bNotGridNotMonitor);
         removeWithContA->setEnabled(true);
@@ -674,7 +681,8 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     else if (SelectedAction == newCompositeA)  menuActionAddNewComposite(obj);
     else if (SelectedAction == newArrayA)      menuActionAddNewArray(obj);
     //else if (SelectedAction == newGridA)       menuActionAddNewGrid(obj);
-    else if (SelectedAction == newMonitorA)    menuActionAddNewMonitor(obj);
+    else if (SelectedAction == newPhotonMonitorA)   menuActionAddNewMonitor(obj, true);
+    else if (SelectedAction == newParticleMonitorA) menuActionAddNewMonitor(obj, false);
 
     else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
     else if (SelectedAction == stackA)         menuActionFormStack(selected);
@@ -1030,7 +1038,7 @@ void AGeoTree::menuActionAddNewGrid(AGeoObject * ContObj)
   */
 }
 
-void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj)
+void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
 {
     if (!ContObj) return;
 
@@ -1042,6 +1050,7 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj)
 
     delete newObj->Type;
     newObj->Type = new ATypeMonitorObject();
+    static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (Photon ? 0 : 1);
 
     newObj->updateMonitorShape();
 

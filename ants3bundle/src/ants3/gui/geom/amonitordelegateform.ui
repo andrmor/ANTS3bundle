@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>531</width>
-    <height>533</height>
+    <width>473</width>
+    <height>477</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,9 @@
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_11">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -158,7 +161,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <property name="spacing">
-      <number>15</number>
+      <number>12</number>
      </property>
      <property name="topMargin">
       <number>5</number>
@@ -403,7 +406,7 @@ changed</string>
        </item>
        <item>
         <property name="text">
-         <string>From top and bottom</string>
+         <string>Top and bottom</string>
         </property>
        </item>
       </widget>
@@ -421,76 +424,21 @@ changed</string>
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="cbStopTracking">
+     <property name="toolTip">
+      <string>if checked, the photon/particle triggered the monitor is removed from tracking</string>
+     </property>
+     <property name="text">
+      <string>Stops tracking on hit</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_10">
-     <property name="spacing">
-      <number>15</number>
-     </property>
-     <property name="leftMargin">
-      <number>15</number>
-     </property>
-     <property name="topMargin">
-      <number>5</number>
-     </property>
-     <property name="rightMargin">
-      <number>15</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label_18">
-       <property name="text">
-        <string>Monitoring:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="cobMonitoring">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <item>
-        <property name="text">
-         <string>Optical photons</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Particles</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="cbStopTracking">
-       <property name="toolTip">
-        <string>if checked, the photon/particle triggered the monitor is removed from tracking</string>
-       </property>
-       <property name="text">
-        <string>Stops tracking</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item>
     <widget class="QFrame" name="frParticle">
@@ -502,13 +450,13 @@ changed</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="leftMargin">
-       <number>25</number>
+       <number>20</number>
       </property>
       <property name="topMargin">
        <number>1</number>
       </property>
       <property name="rightMargin">
-       <number>25</number>
+       <number>20</number>
       </property>
       <property name="bottomMargin">
        <number>1</number>
@@ -806,7 +754,7 @@ changed</string>
      <item row="0" column="2">
       <widget class="QLabel" name="label_37">
        <property name="text">
-        <string>X bins:</string>
+        <string>Xbins:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -957,7 +905,7 @@ changed</string>
      <item row="0" column="1">
       <widget class="QLabel" name="label_19">
        <property name="text">
-        <string>     Position     </string>
+        <string>   Position   </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -967,7 +915,7 @@ changed</string>
      <item row="0" column="4">
       <widget class="QLabel" name="label_20">
        <property name="text">
-        <string>Y bins:</string>
+        <string>Ybins:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1216,22 +1164,6 @@ changed</string>
     <hint type="sourcelabel">
      <x>327</x>
      <y>193</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>348</x>
-     <y>137</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobMonitoring</sender>
-   <signal>activated(int)</signal>
-   <receiver>pbContentChanged</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>363</x>
-     <y>278</y>
     </hint>
     <hint type="destinationlabel">
      <x>348</x>

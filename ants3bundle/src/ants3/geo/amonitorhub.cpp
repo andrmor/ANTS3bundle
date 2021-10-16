@@ -17,30 +17,33 @@ const AMonitorHub & AMonitorHub::getConstInstance()
 
 AMonitorHub::~AMonitorHub()
 {
-    clear();
+    clear(Photon);
+    clear(Particle);
 }
 
-void AMonitorHub::writeDataToJson(QJsonObject & json) const
+void AMonitorHub::writeDataToJson(EType type, QJsonObject & json) const
 {
-    QJsonArray ar;
+    const std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
 
-    for (const AMonitorData & md : Monitors)
+    QJsonArray ar;
+    for (const AMonitorData & md : mons)
     {
         QJsonObject js;
         md.Monitor->writeDataToJson(js);
         ar.push_back(js);
     }
-
-    json["MonitorData"] = ar;
+    json[QString(type == Photon ? PhotonJsonName : ParticleJsonName)] = ar;
 }
 
-QString AMonitorHub::appendDataFromJson(const QJsonObject &json)
+QString AMonitorHub::appendDataFromJson(const QJsonObject & json, EType type)
 {
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, "MonitorData", ar);
-    if (!ok) return "json does not contain monitor data";
+    std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
 
-    if (ar.size() != (int)Monitors.size()) return "json contain data for wrong number of monitors";
+    QJsonArray ar;
+    bool ok = jstools::parseJson(json, QString(type == Photon ? PhotonJsonName : ParticleJsonName), ar);
+    if (!ok) return QString("json does not contain %0 monitor data").arg(type == Photon ? "photon" : "particle");
+
+    if (ar.size() != (int)mons.size()) return "json contain data for wrong number of monitors";
 
     for (int i=0; i<ar.size(); i++)
     {
@@ -48,27 +51,39 @@ QString AMonitorHub::appendDataFromJson(const QJsonObject &json)
         AMonitor tmp;
         tmp.readDataFromJson(js);
 
-        Monitors[i].Monitor->append(tmp);
+        mons[i].Monitor->append(tmp);
     }
 
     return "";
 }
 
-void AMonitorHub::clear()
+void AMonitorHub::clear(EType type)
 {
-    for (AMonitorData & md : Monitors) delete md.Monitor;
-    Monitors.clear();
+    std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
+
+    for (AMonitorData & md : mons) delete md.Monitor;
+    mons.clear();
 }
 
-void AMonitorHub::clearData()
+void AMonitorHub::clearData(EType type)
 {
-    for (AMonitorData & md : Monitors) md.Monitor->clearData();
+    std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
+
+    for (AMonitorData & md : mons) md.Monitor->clearData();
 }
 
-int AMonitorHub::countMonitorsWithHits() const
+int AMonitorHub::countMonitors(EType type) const
 {
+    const std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
+    return mons.size();
+}
+
+int AMonitorHub::countMonitorsWithHits(EType type) const
+{
+    const std::vector<AMonitorData> & mons = (type == Photon ? PhotonMonitors : ParticleMonitors);
+
     int counter = 0;
-    for (const AMonitorData & md : Monitors)
+    for (const AMonitorData & md : mons)
         if (md.Monitor->getHits() > 0) counter++;
     return counter;
 }
@@ -76,32 +91,34 @@ int AMonitorHub::countMonitorsWithHits() const
 std::vector<const AMonitorData *> AMonitorHub::getMonitors(const AGeoObject * obj) const
 {
     std::vector<const AMonitorData *> vec;
-    for (const AMonitorData & md : Monitors)
+    for (const AMonitorData & md : PhotonMonitors)
+        if (md.GeoObj == obj) vec.push_back(&md);
+    for (const AMonitorData & md : ParticleMonitors)
         if (md.GeoObj == obj) vec.push_back(&md);
     return vec;
 }
 
 void AMonitorHub::mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile)
 {
-    clearData();
+    clearData(Photon);
 
     for (const QString & FN : inFiles)
     {
         QJsonObject js;
         bool ok = jstools::loadJsonFromFile(js, FN);
-        if (ok) appendDataFromJson(js);
+        if (ok) appendDataFromJson(js, AMonitorHub::Photon);
     }
 
     QJsonObject json;
-        writeDataToJson(json);
-        jstools::saveJsonToFile(json, outFile);
+        writeDataToJson(Photon, json);
+    jstools::saveJsonToFile(json, outFile);
 }
 
 void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile)
 {
-    clearData();
+    clearData(Particle);
 
-    const int numMon = Monitors.size();
+    const int numMon = ParticleMonitors.size();
     for (const QString & FN : inFiles)
     {
         QJsonArray ar;
@@ -133,12 +150,12 @@ void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles
 
             AMonitor tmp;
             tmp.overrideDataFromJson(json);
-            Monitors[iMon].Monitor->append(tmp);
+            ParticleMonitors[iMon].Monitor->append(tmp);
         }
     }
 
     QJsonObject json;
-    writeDataToJson(json);
+        writeDataToJson(Particle, json);
     jstools::saveJsonToFile(json, outFile);
 }
 

@@ -109,6 +109,7 @@ private:
     void addSensorNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
+    void clearMonitors();
     void clearGridRecords();  // !!!***
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);

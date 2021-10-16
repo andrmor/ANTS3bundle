@@ -36,12 +36,13 @@ private:
     AOneLineTextEdit * leTheta = nullptr;
     AOneLineTextEdit * lePsi   = nullptr;
 
+    void setPhotonOrParticle(int index);
+
 public slots:
     void UpdateVisibility();
 
 private slots:
     void on_cobShape_currentIndexChanged(int index);
-    void on_cobMonitoring_currentIndexChanged(int index);
     void on_pbContentChanged_clicked();
     void on_pbShowSensitiveDirection_clicked();
 

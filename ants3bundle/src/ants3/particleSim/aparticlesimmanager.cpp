@@ -325,7 +325,7 @@ void AParticleSimManager::mergeOutput()
 
 
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData(); // !!!*** only pareticle mons
+    MonitorHub.clearData(AMonitorHub::Particle);
     if (SimSet.RunSet.MonitorSettings.Enabled)
         MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
 }

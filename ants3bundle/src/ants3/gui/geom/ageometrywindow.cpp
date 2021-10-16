@@ -397,7 +397,7 @@ void AGeometryWindow::ShowPMnumbers()
     QVector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.append( QString::number(i) );
-    ShowText(tmp, kBlack, true);
+    ShowText(tmp, kBlack, PMs);
 
     /*
     emit requestUpdateRegisteredGeoManager();
@@ -406,10 +406,21 @@ void AGeometryWindow::ShowPMnumbers()
 
 void AGeometryWindow::ShowMonitorIndexes()
 {
-    const int numMon = AMonitorHub::getConstInstance().countMonitors();
+    Geometry.GeoManager->ClearTracks();
+
+    int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
     QVector<QString> tmp;
     for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
-    ShowText(tmp, kBlue, false);
+    ShowText(tmp, kBlue, PhotMons, false);
+
+    numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
+    tmp.clear();
+    for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
+    ShowText(tmp, kGreen, PartMons, false);
+
+    ShowGeometry(false);
+    Geometry.GeoManager->DrawTracks();
+    UpdateRootCanvas();
 }
 
 void AGeometryWindow::generateSymbolMap()
@@ -464,12 +475,19 @@ void AGeometryWindow::generateSymbolMap()
     numbersY.append({ 0, 0});
 }
 
-void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, bool onPMs, bool bFullCycle)
+void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, EDraw onWhat, bool bFullCycle)
 {
     const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
     const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
 
-    int numObj = ( onPMs ? SensorHub.countSensors() : MonitorHub.countMonitors() );
+    int numObj;
+    switch (onWhat)
+    {
+    case PMs      : numObj = SensorHub.countSensors();                        break;
+    case PhotMons : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
+    case PartMons : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
+    }
+
     if (strData.size() != numObj)
     {
         guitools::message("Show text: mismatch in vector sizes", this);
@@ -491,17 +509,31 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
         QString str = strData[iObj];
         if (str.isEmpty()) continue;
 
-        AVector3 centerPos = ( onPMs ? SensorHub.SensorData[iObj].Position
-                                     : MonitorHub.Monitors[iObj].Position );
         int numDigits = str.size();
         if (str.right(1) == "F") numDigits--;
-
-        double size = ( onPMs ? SensorHub.SensorData[iObj].GeoObj->Shape->minSize()    // !!!*** expand minSize for other shapes!!!
-                              : MonitorHub.Monitors[iObj].GeoObj->Shape->minSize() );
+        AVector3 centerPos;
+        double size;
+        switch (onWhat)
+        {
+        case PMs :
+            centerPos = SensorHub.SensorData[iObj].Position;
+            size      = SensorHub.SensorData[iObj].GeoObj->Shape->minSize();    // !!!*** expand minSize for other shapes!!!
+            break;
+        case PhotMons :
+            centerPos = MonitorHub.PhotonMonitors[iObj].Position;
+            size      = MonitorHub.PhotonMonitors[iObj].GeoObj->Shape->minSize();
+            break;
+        case PartMons :
+            centerPos = MonitorHub.ParticleMonitors[iObj].Position;
+            size      = MonitorHub.ParticleMonitors[iObj].GeoObj->Shape->minSize();
+            break;
+        }
         if (size == 0) size = 2.0; // temporary! !!!***
         size = size / 3.0 / (0.5+0.5*MaxSymbols); // was /5.0
         int lineWidth = 2;
         //if (size<2) lineWidth = 1;
+
+        qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
 
         for (int iDig = 0; iDig < numDigits; iDig++)
         {
@@ -591,7 +623,7 @@ void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycl
     QVector<QString> tmp;
     for (const float & f : Event)
         tmp.append( QString::number(f) );
-    ShowText(tmp, kBlack, true, bFullCycle);
+    ShowText(tmp, kBlack, PMs, bFullCycle);
 }
 
 void AGeometryWindow::ShowGeoMarkers()
