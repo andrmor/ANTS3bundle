@@ -60,6 +60,7 @@ void A3PhotSimWin::updateGui()
     ui->cobSimType->setCurrentIndex(index);
 
     updatePhotBombGui();
+    updateDepoGui();
 
     updateGeneralSettingsGui();
 }
@@ -122,6 +123,19 @@ void A3PhotSimWin::updatePhotBombGui()
     ui->ledFloodZ->setText(QString::number(SimSet.BombSet.FloodSettings.Zfixed));
     ui->ledFloodZfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Zfrom));
     ui->ledFloodZto->setText(QString::number(SimSet.BombSet.FloodSettings.Zto));
+}
+
+void A3PhotSimWin::updateDepoGui()
+{
+    ui->leDepositionFile->setText(SimSet.DepoSet.FileName);
+    ui->labDepositionFileFormat->setText(SimSet.DepoSet.getFormatName());
+
+    QString strEvents = "--";
+    if (SimSet.DepoSet.isValidated()) strEvents = QString::number(SimSet.DepoSet.NumEvents);
+    ui->labDepositionEvents->setText(strEvents);
+
+    ui->cbPrimaryScint->setChecked(SimSet.DepoSet.Primary);
+    ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
 }
 
 void A3PhotSimWin::updateGeneralSettingsGui()
@@ -803,3 +817,31 @@ void A3PhotSimWin::on_pbShowMonitorTimeOverall_clicked()
     time->GetYaxis()->SetTitle("Hits");
     emit requestDraw(time, "hist", true, true);
 }
+
+void A3PhotSimWin::on_pbChangeDepositionFile_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Select file with energy deposition data", "");
+    if (fileName.isEmpty()) return;
+    ui->leDepositionFile->setText(fileName);
+    on_leDepositionFile_editingFinished();
+}
+
+void A3PhotSimWin::on_leDepositionFile_editingFinished()
+{
+    QString NewFileName = ui->leDepositionFile->text();
+    if (NewFileName != SimSet.DepoSet.FileName)
+    {
+        SimSet.DepoSet.clear();
+        SimSet.DepoSet.FileName = ui->leDepositionFile->text();
+        updateDepoGui();
+    }
+}
+void A3PhotSimWin::on_cbPrimaryScint_clicked(bool checked)
+{
+    SimSet.DepoSet.Primary = checked;
+}
+void A3PhotSimWin::on_cbSecondaryScint_clicked(bool checked)
+{
+    SimSet.DepoSet.Secondary = checked;
+}
+

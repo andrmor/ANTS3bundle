@@ -93,6 +93,12 @@ private slots:
     void on_pbShowMonitorHitDistribution_clicked();
     void on_pbShowMonitorTimeOverall_clicked();
 
+    void on_pbChangeDepositionFile_clicked();
+    void on_leDepositionFile_editingFinished();
+    void on_cbPrimaryScint_clicked(bool checked);
+    void on_cbSecondaryScint_clicked(bool checked);
+
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -100,6 +106,7 @@ private:
     Ui::A3PhotSimWin * ui = nullptr;
 
     void updatePhotBombGui();
+    void updateDepoGui();
     void updateGeneralSettingsGui();
 
     void storeGeneralSettings();

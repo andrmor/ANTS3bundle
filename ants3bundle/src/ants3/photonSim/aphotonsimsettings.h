@@ -113,7 +113,7 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
-class APhotonLogSettings
+class APhotonLogSettings   // !!!*** remove?
 {
 public:
     bool Save        = true;
@@ -161,6 +161,28 @@ public:
     void    readFromJson(const QJsonObject & json);
 };
 
+class APhotonDepoSettings
+{
+public:
+    enum    EFormat {Undefined = 0, Invalid, G4Ascii, G4Binary};
+
+    QString FileName;
+    EFormat FileFormat = Undefined;
+    int     NumEvents  = 0;
+
+//    QDateTime       FileLastModified;
+
+    bool    Primary   = true;
+    bool    Secondary = false;
+
+    void    writeToJson(QJsonObject & json) const;
+    void    readFromJson(const QJsonObject & json);
+
+    void    clear();
+    bool    isValidated() const; // !!!***
+    QString getFormatName() const;
+};
+
 // ===
 
 class APhotonSimSettings
@@ -169,6 +191,7 @@ public:
     EPhotSimType         SimType = EPhotSimType::PhotonBombs;
 
     APhotonBombsSettings BombSet;
+    APhotonDepoSettings  DepoSet;
 
     AWaveResSettings     WaveSet;
     APhotOptSettings     OptSet;

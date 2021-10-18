@@ -488,6 +488,11 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
         BombSet.writeToJson(js);
         jsSim["PhotonBombs"] = js;
     }
+    {
+        QJsonObject js;
+        DepoSet.writeToJson(js);
+        jsSim["Deposition"] = js;
+    }
     //Run
     {
         QJsonObject js;
@@ -537,6 +542,11 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         jstools::parseJson(jsSim, "PhotonBombs", js);
         BombSet.readFromJson(js);
     }
+    {
+        QJsonObject js;
+        jstools::parseJson(jsSim, "Deposition", js);
+        DepoSet.readFromJson(js);
+    }
     //Run
     {
         QJsonObject js;
@@ -546,3 +556,63 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 
     return "";
 }
+
+// ---- Depo ----
+
+void APhotonDepoSettings::writeToJson(QJsonObject &json) const
+{
+    json["FileName"]   = FileName;
+    json["FileFormat"] = getFormatName();
+    json["NumEvents"]  = NumEvents;
+
+    json["Primary"]    = Primary;
+    json["Secondary"]  = Secondary;
+}
+
+void APhotonDepoSettings::readFromJson(const QJsonObject &json)
+{
+    clear();
+
+    jstools::parseJson(json, "FileName", FileName);
+
+    QString format;
+    jstools::parseJson(json, "FileFormat", format);
+    if      (format == "Invalid")  FileFormat = Invalid;
+    else if (format == "G4Ascii")  FileFormat = G4Ascii;
+    else if (format == "G4Binary") FileFormat = G4Binary;
+    else                           FileFormat = Undefined;
+
+    jstools::parseJson(json, "NumEvents", NumEvents);
+
+    jstools::parseJson(json, "Primary",   Primary);
+    jstools::parseJson(json, "Secondary", Secondary);
+}
+
+void APhotonDepoSettings::clear()
+{
+    FileName.clear();
+    FileFormat = Undefined;
+    NumEvents  = 0;
+
+    Primary   = true;
+    Secondary = false;
+}
+
+bool APhotonDepoSettings::isValidated() const
+{
+    return false;
+}
+
+QString APhotonDepoSettings::getFormatName() const
+{
+    switch (FileFormat)
+    {
+    case Invalid  : return "Invalid";
+    case G4Ascii  : return "G4Ascii";
+    case G4Binary : return "G4Binary";
+    default:;
+    }
+    return "Undefined";
+}
+
+// ----

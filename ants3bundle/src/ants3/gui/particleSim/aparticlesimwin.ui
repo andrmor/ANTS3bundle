@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -552,7 +552,7 @@ Format: Volume_name  Step_in_mm</string>
            <enum>QFrame::Sunken</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="twParticleGenerationModePage1">
            <layout class="QVBoxLayout" name="verticalLayout_9">
