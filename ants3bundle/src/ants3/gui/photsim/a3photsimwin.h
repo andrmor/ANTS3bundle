@@ -98,7 +98,6 @@ private slots:
     void on_cbPrimaryScint_clicked(bool checked);
     void on_cbSecondaryScint_clicked(bool checked);
 
-
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

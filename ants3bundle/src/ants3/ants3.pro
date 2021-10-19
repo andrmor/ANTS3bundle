@@ -118,6 +118,7 @@ SOURCES += \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
     particleSim/atrackinghistorycrawler.cpp \
+    photonSim/adepositionfilehandler.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -247,6 +248,7 @@ HEADERS += \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
     particleSim/atrackinghistorycrawler.h \
+    photonSim/adepositionfilehandler.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
