@@ -13,108 +13,164 @@
 
 
 
-bool ADepositionFileHandler::processG4DepositionData()
+ADepositionFileHandler::~ADepositionFileHandler()
 {
-    if (bBinary)
+    clearResources();
+}
+
+void ADepositionFileHandler::clearResources()
+{
+    delete inStream;     inStream     = nullptr;
+
+    delete inTextStream; inTextStream = nullptr;
+
+    if (inTextFile) inTextFile->close();
+    delete inTextFile;   inTextFile   = nullptr;
+
+    CurrentEvent = -1;
+    EventEndReached = false;
+}
+
+bool ADepositionFileHandler::init()
+{
+    clearResources();
+
+    if (Binary)
     {
         inStream = new std::ifstream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
 
         if (!inStream->is_open())
         {
-            AErrorHub::addError( QString("Cannot open input file: " + FileName).toLatin1().data() );
+            AErrorHub::addQError( QString("Cannot open input file: " + FileName) );
             return false;
         }
-        eventCurrent = eventBegin - 1;
-        bool bOK = readG4DepoEventFromBinFile(true); //only reads the header of the first event
-        if (!bOK) return false;
+
+        char header;
+        *inStream >> header;
+        if (inStream->bad() || header != (char)0xEE)
+        {
+            AErrorHub::addError("Bad format in binary energy depo file");
+            return false;
+        }
     }
     else
     {
         inTextFile = new QFile(FileName);
         if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
         {
-            AErrorHub::addError( QString("Cannot open input file: " + FileName).toLatin1().data() );
+            AErrorHub::addQError( QString("Cannot open input file: " + FileName) );
             return false;
         }
         inTextStream = new QTextStream(inTextFile);
-        G4DepoLine = inTextStream->readLine();
-    }
 
-/*
-    for (eventCurrent = eventBegin; eventCurrent < eventEnd; eventCurrent++)
-    {
-        if (fStopRequested) break;
-        if (EnergyVector.size() > 0) clearEnergyVector();
-
-        //Filling EnergyVector for this event
-        //  qDebug() << "iEv="<<eventCurrent << "building energy vector...";
-        bool bOK = (GenSimSettings.G4SimSet.BinaryOutput ? readG4DepoEventFromBinFile()
-                                                      : readG4DepoEventFromTextFile() );
-        if (!bOK) return false;
-        //  qDebug() << "Energy vector contains" << EnergyVector.size() << "cells";
-
-        bOK = generateAndTrackPhotons();
-        if (!bOK) return false;
-
-        if (!GenSimSettings.fLRFsim) OneEvent->HitsToSignal();
-
-        dataHub->Events.append(OneEvent->PMsignals);
-        if (timeRange != 0) dataHub->TimedEvents.append(OneEvent->TimedPMsignals);
-
-        EnergyVectorToScan();
-
-        progress = (eventCurrent - eventBegin + 1) * updateFactor;
-    }
-*/
-
-    return true;
-}
-
-bool ADepositionFileHandler::readG4DepoEventFromTextFile()
-{
-    //  qDebug() << " CurEv:"<<eventCurrent <<" -> " << G4DepoLine;
-    if (!G4DepoLine.startsWith('#') || G4DepoLine.size() < 2)
-    {
-        AErrorHub::addError("Format error for #event field in G4ants energy deposition file");
-        return false;
-    }
-    G4DepoLine.remove(0, 1);
-    //  qDebug() << G4DepoLine << eventCurrent;
-    if (G4DepoLine.toInt() != eventCurrent)
-    {
-        AErrorHub::addError("Missmatch of event number in G4ants energy deposition file");
-        return false;
-    }
-
-    do
-    {
-        G4DepoLine = inTextStream->readLine();
-        if (G4DepoLine.startsWith('#'))
-            break; //next event
-
-        //  qDebug() << ID << "->"<<G4DepoLine;
-        //pId mId dE x y z t
-        // 0   1   2 3 4 5 6     // pId can be = -1 !
-        //populating energy vector data
-        QStringList fields = G4DepoLine.split(' ', Qt::SkipEmptyParts);
-        if (fields.isEmpty()) break; //last event had no depo - end of file reached
-        if (fields.size() < 7)
+        QString G4DepoLine = inTextStream->readLine();
+        if (!G4DepoLine.startsWith('#'))
         {
-            AErrorHub::addError("Format error in G4ants energy deposition file");
+            AErrorHub::addError("Format error for #event field in ascii energy deposition file");
             return false;
         }
-/*
-        AEnergyDepositionCell* cell = new AEnergyDepositionCell(fields[3].toDouble(), fields[4].toDouble(), fields[5].toDouble(), //x y z
-                                                                fields[6].toDouble(), fields[2].toDouble(),  //time dE
-                                                                fields[0].toInt(), fields[1].toInt(), 0, eventCurrent); //part mat sernum event
-        EnergyVector << cell;
-*/
     }
-    while (!inTextStream->atEnd());
+    return processEventHeader();
+}
 
+bool ADepositionFileHandler::processEventHeader()
+{
+    if (Binary)
+    {
+        inStream->read((char*)&CurrentEvent, sizeof(int));
+        if (inStream->bad())
+        {
+            AErrorHub::addError("Bad format in binary energy depo file (event record)");
+            return false;
+        }
+    }
+    else
+    {
+        LineText.remove(0, 1);
+        bool ok;
+        CurrentEvent = LineText.toInt(&ok);
+        if (!ok)
+        {
+            AErrorHub::addError("Bad format in ascii energy depo file (event record)");
+            return false;
+        }
+    }
     return true;
 }
 
+bool ADepositionFileHandler::gotoEvent(int iEvent)
+{
+    if (CurrentEvent == iEvent) return true;
+    if (CurrentEvent > iEvent)
+    {
+        init();
+        if (CurrentEvent == iEvent) return true;
+    }
+
+    // iEvent is larger than CurrentEvent
+    if (Binary)
+    {
+        AErrorHub::addError("Binary depo not yet implemented");
+        return false;
+    }
+    else
+    {
+        do
+        {
+            LineText = inTextStream->readLine();
+            if (!LineText.startsWith('#')) continue;
+            bool ok = processEventHeader();
+            if (!ok) return false;
+
+            if (CurrentEvent == iEvent) return true;
+        }
+        while (!inTextStream->atEnd());
+    }
+
+    AErrorHub::addQError( QString("Could not find event #%0 in depo file %1").arg(iEvent).arg(FileName) );
+    return false;
+}
+
+bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
+{
+    if (EventEndReached) return false;
+
+    if (Binary)
+    {
+        AErrorHub::addError("Binary depo not yet implemented");
+        return false;
+    }
+    else
+    {
+        LineText = inTextStream->readLine();
+        if (LineText.startsWith('#'))
+        {
+            EventEndReached = true;
+            return false;
+        }
+        const QStringList fields = LineText.split(' ', Qt::SkipEmptyParts);
+//        if (fields.isEmpty()) break; //last event had no depo - end of file reached
+        if (fields.size() < 7)
+        {
+            AErrorHub::addError("Format error in ascii depo file (deposition record)");
+            return false;
+        }
+        //particle mId dE x y z t
+        // 0        1   2 3 4 5 6
+        record.Particle =  fields[0];
+        record.MatIndex =  fields[1].toInt();
+        record.Energy   =  fields[2].toDouble();
+        record.Pos      = {fields[3].toDouble(),
+                           fields[4].toDouble(),
+                           fields[5].toDouble()};
+        record.Time     =  fields[6].toDouble();
+    }
+    return true;
+}
+
+
+//while (!inTextStream->atEnd());
+/*
 bool ADepositionFileHandler::readG4DepoEventFromBinFile(bool expectNewEvent)
 {
     char header = 0;
@@ -124,9 +180,9 @@ bool ADepositionFileHandler::readG4DepoEventFromBinFile(bool expectNewEvent)
         {
             inStream->read((char*)&G4NextEventId, sizeof(int));
             //qDebug() << G4NextEventId << "expecting:" << eventCurrent+1;
-            if (G4NextEventId != eventCurrent + 1)
+            if (G4NextEventId != CurrentEvent + 1)
             {
-                AErrorHub::addError( QString("Bad event number in G4ants energy depo file: expected %1 and got %2").arg(eventCurrent, G4NextEventId).toLatin1().data() );
+                AErrorHub::addError( QString("Bad event number in G4ants energy depo file: expected %1 and got %2").arg(CurrentEvent, G4NextEventId).toLatin1().data() );
                 return false;
             }
             return true; //ready to read this event
@@ -138,11 +194,10 @@ bool ADepositionFileHandler::readG4DepoEventFromBinFile(bool expectNewEvent)
         }
         else if (header == char(0xff))
         {
-/*
             AEnergyDepositionCell * cell = new AEnergyDepositionCell();
 
             // format:
-            // partId(int) matId(int) DepoE(double) X(double) Y(double) Z(double) Time(double)
+            // partId(0-terminated string) matId(int) DepoE(double) X(double) Y(double) Z(double) Time(double)
             inStream->read((char*)&cell->ParticleId, sizeof(int));
             inStream->read((char*)&cell->MaterialId, sizeof(int));
             inStream->read((char*)&cell->dE,         sizeof(double));
@@ -152,7 +207,6 @@ bool ADepositionFileHandler::readG4DepoEventFromBinFile(bool expectNewEvent)
             inStream->read((char*)&cell->time,       sizeof(double));
 
             EnergyVector << cell;
-*/
         }
         else
         {
@@ -173,3 +227,4 @@ bool ADepositionFileHandler::readG4DepoEventFromBinFile(bool expectNewEvent)
     qWarning() << "Error - 'should not be here' reached";
     return true; //should not be here
 }
+*/

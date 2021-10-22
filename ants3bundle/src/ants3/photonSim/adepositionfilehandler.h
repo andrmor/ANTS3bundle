@@ -31,32 +31,36 @@ public:
     enum EFileFormat {Unknown, Invalid, G4ascii, G4binary};
 
     ADepositionFileHandler(const QString & fileName, bool binary) :
-        FileName(fileName), bBinary(binary) {}
+        FileName(fileName), Binary(binary) {}
+    virtual ~ADepositionFileHandler();
 
+    bool validate(bool collectStatistics) {return false;}
 
+    bool init();
+    bool gotoEvent(int iEvent);
 
-    bool readNextRecordOfSameEvent(ADepoRecord & record) {} // returns false if event ended
-    bool acknowledgeNextEventStarted() {}
+    bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
+    void acknowledgeNextEvent() {EventEndReached = false;}
 
+    QString         FileName;
+    bool            Binary       = false;
 
-    QString FileName;
-    bool bBinary = false;
+    int             CurrentEvent = -1;
+    bool            EventEndReached = false;
 
     //resources for ascii input
     QFile         * inTextFile    = nullptr;
     QTextStream   * inTextStream  = nullptr;
-    QString         G4DepoLine;
+    QString         LineText;
     //resources for binary input
     std::ifstream * inStream      = nullptr;
-    int             G4NextEventId = -1;
+    char            Header        = 0x00;
 
-    int eventCurrent = 0;
-    int eventBegin = 0;
-    int eventEnd = 0;
+    //bool readG4DepoEventFromBinFile(bool expectNewEvent);
 
-    bool processG4DepositionData();
-    bool readG4DepoEventFromTextFile();
-    bool readG4DepoEventFromBinFile(bool expectNewEvent);
+private:
+    void clearResources();
+    bool processEventHeader();
 };
 
 #endif // ADEPOSITIONFILEHANDLER_H

@@ -3,13 +3,25 @@
 
 #include <string>
 
+#ifdef QT
+    #include <QString>
+#endif
 class AErrorHub
 {
 public:
     static void clear();
+
     static void addError(const std::string & ErrorLine);
+#ifdef QT
+    static void addQError(const QString & ErrorLine);
+#endif
+
     static bool isError();
+
     static const std::string & getError();
+ #ifdef QT
+    static QString getQError();
+#endif
 
 private:
     AErrorHub(){}
