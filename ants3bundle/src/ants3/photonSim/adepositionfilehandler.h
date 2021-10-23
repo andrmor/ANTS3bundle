@@ -25,7 +25,7 @@ public:
 class ADepositionFileHandler
 {
 public:
-    ADepositionFileHandler(const QString & fileName, APhotonDepoSettings::EFormat format);
+    ADepositionFileHandler(APhotonDepoSettings & depoSettings);
     virtual ~ADepositionFileHandler();
 
     int  checkFile(bool collectStatistics); // returns number of events    !!!*** add statistics!
@@ -36,11 +36,10 @@ public:
     bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
-    static APhotonDepoSettings::EFormat determineFormat(const QString & FileName); // very simplistic, better to make more strict !!!***
+    void determineFormat(); // very simplistic, better to make more strict !!!***
 
 private:
-    QString         FileName;
-    bool            Binary       = false;
+    APhotonDepoSettings & Settings;
 
     int             CurrentEvent = -1;
     bool            EventEndReached = false;

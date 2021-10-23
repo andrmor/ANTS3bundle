@@ -3,14 +3,15 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QFileInfo>
 #include <QDebug>
 
 #include <fstream>
 
 // WORK IN PROGRESS
 
-ADepositionFileHandler::ADepositionFileHandler(const QString &fileName, APhotonDepoSettings::EFormat format) :
-    FileName(fileName), Binary(format == APhotonDepoSettings::G4Binary) {}
+ADepositionFileHandler::ADepositionFileHandler(APhotonDepoSettings & depoSettings) :
+    Settings(depoSettings) {}
 
 ADepositionFileHandler::~ADepositionFileHandler()
 {
@@ -21,6 +22,8 @@ int ADepositionFileHandler::checkFile(bool collectStatistics)
 {
     bool ok = init();
     if (!ok) return -1;
+
+    Settings.FileLastModified = QFileInfo(Settings.FileName).lastModified();
 
     while (gotoEvent(CurrentEvent + 1)) CurrentEvent++;
     return CurrentEvent + 1;
@@ -43,13 +46,13 @@ bool ADepositionFileHandler::init()
 {
     clearResources();
 
-    if (Binary)
+    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
     {
-        inStream = new std::ifstream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+        inStream = new std::ifstream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
 
         if (!inStream->is_open())
         {
-            AErrorHub::addQError( QString("Cannot open input file: " + FileName) );
+            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
             return false;
         }
 
@@ -63,10 +66,10 @@ bool ADepositionFileHandler::init()
     }
     else
     {
-        inTextFile = new QFile(FileName);
+        inTextFile = new QFile(Settings.FileName);
         if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
         {
-            AErrorHub::addQError( QString("Cannot open input file: " + FileName) );
+            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
             return false;
         }
         inTextStream = new QTextStream(inTextFile);
@@ -83,7 +86,7 @@ bool ADepositionFileHandler::init()
 
 bool ADepositionFileHandler::processEventHeader()
 {
-    if (Binary)
+    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
     {
         inStream->read((char*)&CurrentEvent, sizeof(int));
         if (inStream->bad())
@@ -116,7 +119,7 @@ bool ADepositionFileHandler::gotoEvent(int iEvent)
     }
 
     // iEvent is larger than CurrentEvent
-    if (Binary)
+    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
     {
         AErrorHub::addError("Binary depo not yet implemented");
         return false;
@@ -142,7 +145,7 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
 {
     if (EventEndReached) return false;
 
-    if (Binary)
+    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
     {
         AErrorHub::addError("Binary depo not yet implemented");
         return false;
@@ -175,10 +178,14 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
     return true;
 }
 
-APhotonDepoSettings::EFormat ADepositionFileHandler::determineFormat(const QString & FileName)
+void ADepositionFileHandler::determineFormat()
 {
-    QFile TextFile(FileName);
-    if (!TextFile.open(QIODevice::ReadOnly | QFile::Text)) return APhotonDepoSettings::Invalid;
+    QFile TextFile(Settings.FileName);
+    if (!TextFile.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        Settings.FileFormat = APhotonDepoSettings::Invalid;
+        return;
+    }
     QTextStream TextStream(&TextFile);
 
     QString Line = TextStream.readLine();
@@ -187,16 +194,28 @@ APhotonDepoSettings::EFormat ADepositionFileHandler::determineFormat(const QStri
         Line.remove(0, 1);
         bool ok;
         Line.toInt(&ok);
-        if (ok) return APhotonDepoSettings::G4Ascii;
+        if (ok)
+        {
+            Settings.FileFormat = APhotonDepoSettings::G4Ascii;
+            return;
+        }
     }
 
-    std::ifstream inStream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
-    if (!inStream.is_open()) return APhotonDepoSettings::Invalid;
+    std::ifstream inStream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+    if (!inStream.is_open())
+    {
+        Settings.FileFormat = APhotonDepoSettings::Invalid;
+        return;
+    }
     char header = 0x00;
     inStream >> header;
-    if (inStream.good() && header == (char)0xEE) return APhotonDepoSettings::G4Binary;
+    if (inStream.good() && header == (char)0xEE)
+    {
+        Settings.FileFormat = APhotonDepoSettings::G4Binary;
+        return;
+    }
 
-    return APhotonDepoSettings::Undefined;
+    Settings.FileFormat = APhotonDepoSettings::Undefined;
 }
 
 

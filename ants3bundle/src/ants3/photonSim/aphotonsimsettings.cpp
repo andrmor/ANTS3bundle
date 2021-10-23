@@ -564,6 +564,7 @@ void APhotonDepoSettings::writeToJson(QJsonObject &json) const
     json["FileName"]   = FileName;
     json["FileFormat"] = getFormatName();
     json["NumEvents"]  = NumEvents;
+    json["FileLastModified"] = FileLastModified.toMSecsSinceEpoch();
 
     json["Primary"]    = Primary;
     json["Secondary"]  = Secondary;
@@ -584,6 +585,10 @@ void APhotonDepoSettings::readFromJson(const QJsonObject &json)
 
     jstools::parseJson(json, "NumEvents", NumEvents);
 
+    qint64 lastMod;
+    jstools::parseJson(json, "FileLastModified", lastMod);
+    FileLastModified = QDateTime::fromMSecsSinceEpoch(lastMod);
+
     jstools::parseJson(json, "Primary",   Primary);
     jstools::parseJson(json, "Secondary", Secondary);
 }
@@ -591,17 +596,25 @@ void APhotonDepoSettings::readFromJson(const QJsonObject &json)
 void APhotonDepoSettings::clear()
 {
     FileName.clear();
-    FileFormat = Undefined;
-    NumEvents  = -1;
 
-    Primary   = true;
-    Secondary = false;
+    FileFormat       = Undefined;
+    NumEvents        = -1;
+    FileLastModified = QDateTime();
+
+    Primary          = true;
+    Secondary        = false;
 }
 
+#include <QFileInfo>
 bool APhotonDepoSettings::isValidated() const
 {
-    if (FileFormat == G4Ascii || FileFormat == G4Binary) return true;
-    return false;
+    if (FileFormat == Undefined || FileFormat == Invalid) return false;
+
+    QFileInfo fi(FileName);
+    if (!fi.exists()) return false;
+    if (FileLastModified != fi.lastModified()) return false;
+
+    return true;
 }
 
 QString APhotonDepoSettings::getFormatName() const

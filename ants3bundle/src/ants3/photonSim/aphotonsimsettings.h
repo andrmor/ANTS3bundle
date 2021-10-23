@@ -161,26 +161,28 @@ public:
     void    readFromJson(const QJsonObject & json);
 };
 
+#include <QDateTime>
 class APhotonDepoSettings
 {
 public:
     enum    EFormat {Undefined = 0, Invalid, G4Ascii, G4Binary};
 
-    QString FileName;
-    EFormat FileFormat = Undefined;
-    int     NumEvents  = -1;
+    QString   FileName;
+    EFormat   FileFormat = Undefined;
+    int       NumEvents  = -1;
+    QDateTime FileLastModified;
 
-//    QDateTime       FileLastModified;
+    bool      Primary   = true;
+    bool      Secondary = false;
 
-    bool    Primary   = true;
-    bool    Secondary = false;
+    void      writeToJson(QJsonObject & json) const;
+    void      readFromJson(const QJsonObject & json);
 
-    void    writeToJson(QJsonObject & json) const;
-    void    readFromJson(const QJsonObject & json);
+    void      clear();
 
-    void    clear();
-    bool    isValidated() const; // !!!***
-    QString getFormatName() const;
+    bool      isValidated() const;
+
+    QString   getFormatName() const;
 };
 
 // ===
