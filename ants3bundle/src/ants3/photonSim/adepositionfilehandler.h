@@ -14,6 +14,7 @@ class ADepoRecord
 public:
     ADepoRecord(double energy, const AVector3 & pos, double time, const QString & particle, int matIndex) :
         Energy(energy), Pos(pos), Time(time), Particle(particle), MatIndex(matIndex) {}
+    ADepoRecord(){}
 
     double   Energy; // in keV
     AVector3 Pos;    // in mmm
@@ -28,7 +29,8 @@ public:
     ADepositionFileHandler(APhotonDepoSettings & depoSettings);
     virtual ~ADepositionFileHandler();
 
-    int  checkFile(bool collectStatistics); // returns number of events    !!!*** add statistics!
+    void determineFormat(); // very simplistic, better to make more strict !!!***
+    bool checkFile(bool collectStatistics); // !!!*** add statistics!
 
     bool init();
     bool gotoEvent(int iEvent);
@@ -36,7 +38,7 @@ public:
     bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
-    void determineFormat(); // very simplistic, better to make more strict !!!***
+    bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
 
 private:
     APhotonDepoSettings & Settings;

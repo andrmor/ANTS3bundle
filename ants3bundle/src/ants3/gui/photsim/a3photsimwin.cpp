@@ -851,6 +851,9 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
 
+    const bool CollectStats = ui->cbCollectDepoStatistics->isChecked();
+    if (SimSet.DepoSet.isValidated() && !CollectStats) return; // already up to date
+
     if (!SimSet.DepoSet.isValidated())
     {
         fh.determineFormat();
@@ -879,12 +882,16 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
         return;
     }
 
-    SimSet.DepoSet.NumEvents = fh.checkFile(true);
+    fh.checkFile(true);
     if (SimSet.DepoSet.NumEvents == -1)
     {
         guitools::message("Deposition file is invalid", this);
         SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
     }
     updateDepoGui();
+
+    fh.copyToFile(0, 2, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test0.dat");
+    fh.copyToFile(2, 4, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test1.dat");
+    fh.copyToFile(5, 8, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test2.dat");
 }
 

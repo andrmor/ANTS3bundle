@@ -2270,6 +2270,13 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="cbCollectDepoStatistics">
+                <property name="text">
+                 <string>Collect statistics</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_48">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>

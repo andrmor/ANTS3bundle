@@ -18,15 +18,24 @@ ADepositionFileHandler::~ADepositionFileHandler()
     clearResources();
 }
 
-int ADepositionFileHandler::checkFile(bool collectStatistics)
+bool ADepositionFileHandler::checkFile(bool collectStatistics)
 {
     bool ok = init();
-    if (!ok) return -1;
+    if (!ok) return false; // error already added
 
     Settings.FileLastModified = QFileInfo(Settings.FileName).lastModified();
 
-    while (gotoEvent(CurrentEvent + 1)) CurrentEvent++;
-    return CurrentEvent + 1;
+    Settings.NumEvents = 1;
+    while (gotoEvent(CurrentEvent + 1))
+    {
+        if (AErrorHub::isError())
+        {
+            Settings.FileFormat = APhotonDepoSettings::Invalid;
+            return false;
+        }
+        Settings.NumEvents++;
+    }
+    return true;
 }
 
 void ADepositionFileHandler::clearResources()
@@ -52,6 +61,7 @@ bool ADepositionFileHandler::init()
 
         if (!inStream->is_open())
         {
+            Settings.FileFormat = APhotonDepoSettings::Undefined;
             AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
             return false;
         }
@@ -60,6 +70,7 @@ bool ADepositionFileHandler::init()
         *inStream >> header;
         if (inStream->bad() || header != (char)0xEE)
         {
+            Settings.FileFormat = APhotonDepoSettings::Invalid;
             AErrorHub::addError("Bad format in binary energy depo file");
             return false;
         }
@@ -69,6 +80,7 @@ bool ADepositionFileHandler::init()
         inTextFile = new QFile(Settings.FileName);
         if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
         {
+            Settings.FileFormat = APhotonDepoSettings::Undefined;
             AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
             return false;
         }
@@ -77,6 +89,7 @@ bool ADepositionFileHandler::init()
         LineText = inTextStream->readLine();
         if (!LineText.startsWith('#'))
         {
+            Settings.FileFormat = APhotonDepoSettings::Invalid;
             AErrorHub::addError("Format error for #event field in ascii energy deposition file");
             return false;
         }
@@ -91,6 +104,7 @@ bool ADepositionFileHandler::processEventHeader()
         inStream->read((char*)&CurrentEvent, sizeof(int));
         if (inStream->bad())
         {
+            Settings.FileFormat = APhotonDepoSettings::Invalid;
             AErrorHub::addError("Bad format in binary energy depo file (event record)");
             return false;
         }
@@ -102,6 +116,7 @@ bool ADepositionFileHandler::processEventHeader()
         CurrentEvent = LineText.toInt(&ok);
         if (!ok)
         {
+            Settings.FileFormat = APhotonDepoSettings::Invalid;
             AErrorHub::addError("Bad format in ascii energy depo file (event record)");
             return false;
         }
@@ -216,6 +231,55 @@ void ADepositionFileHandler::determineFormat()
     }
 
     Settings.FileFormat = APhotonDepoSettings::Undefined;
+}
+
+bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QString & fileName)
+{
+    bool ok = gotoEvent(fromEvent);
+    if (!ok)
+    {
+        AErrorHub::addQError( QString("Bad start event index in depo file copy").arg(fromEvent) );
+        return false;
+    }
+
+    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
+    {
+        AErrorHub::addError("Binary depo not yet implemented");
+        return false;
+    }
+    else
+    {
+        QFile OutFile(fileName);
+        if (!OutFile.open(QIODevice::WriteOnly | QFile::Text))
+        {
+            AErrorHub::addQError( QString("Cannot open depo output file: " + fileName) );
+            return false;
+        }
+        QTextStream OutStream(&OutFile);
+
+        do
+        {
+            OutStream << '#' << CurrentEvent << '\n';
+            ADepoRecord r;
+            while (readNextRecordOfSameEvent(r))
+            {
+                //particle mId dE x y z t
+                // 0        1   2 3 4 5 6
+                OutStream << r.Particle << ' '
+                          << r.MatIndex << ' '
+                          << r.Energy   << ' '
+                          << r.Pos[0]   << ' '
+                          << r.Pos[1]   << ' '
+                          << r.Pos[2]   << ' '
+                          << r.Time     << '\n';
+            }
+            CurrentEvent++;
+            acknowledgeNextEvent();
+        }
+        while (CurrentEvent != toEvent);
+    }
+
+    return true;
 }
 
 
