@@ -592,7 +592,7 @@ void APhotonDepoSettings::clear()
 {
     FileName.clear();
     FileFormat = Undefined;
-    NumEvents  = 0;
+    NumEvents  = -1;
 
     Primary   = true;
     Secondary = false;
@@ -600,6 +600,7 @@ void APhotonDepoSettings::clear()
 
 bool APhotonDepoSettings::isValidated() const
 {
+    if (FileFormat == G4Ascii || FileFormat == G4Binary) return true;
     return false;
 }
 

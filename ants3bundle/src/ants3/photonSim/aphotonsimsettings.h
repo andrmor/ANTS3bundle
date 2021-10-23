@@ -168,7 +168,7 @@ public:
 
     QString FileName;
     EFormat FileFormat = Undefined;
-    int     NumEvents  = 0;
+    int     NumEvents  = -1;
 
 //    QDateTime       FileLastModified;
 

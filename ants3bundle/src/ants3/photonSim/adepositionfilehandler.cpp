@@ -7,15 +7,23 @@
 
 #include <fstream>
 
-
-
 // WORK IN PROGRESS
 
-
+ADepositionFileHandler::ADepositionFileHandler(const QString &fileName, APhotonDepoSettings::EFormat format) :
+    FileName(fileName), Binary(format == APhotonDepoSettings::G4Binary) {}
 
 ADepositionFileHandler::~ADepositionFileHandler()
 {
     clearResources();
+}
+
+int ADepositionFileHandler::checkFile(bool collectStatistics)
+{
+    bool ok = init();
+    if (!ok) return -1;
+
+    while (gotoEvent(CurrentEvent + 1)) CurrentEvent++;
+    return CurrentEvent + 1;
 }
 
 void ADepositionFileHandler::clearResources()
@@ -63,8 +71,8 @@ bool ADepositionFileHandler::init()
         }
         inTextStream = new QTextStream(inTextFile);
 
-        QString G4DepoLine = inTextStream->readLine();
-        if (!G4DepoLine.startsWith('#'))
+        LineText = inTextStream->readLine();
+        if (!LineText.startsWith('#'))
         {
             AErrorHub::addError("Format error for #event field in ascii energy deposition file");
             return false;
@@ -127,7 +135,6 @@ bool ADepositionFileHandler::gotoEvent(int iEvent)
         while (!inTextStream->atEnd());
     }
 
-    AErrorHub::addQError( QString("Could not find event #%0 in depo file %1").arg(iEvent).arg(FileName) );
     return false;
 }
 
@@ -166,6 +173,30 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
         record.Time     =  fields[6].toDouble();
     }
     return true;
+}
+
+APhotonDepoSettings::EFormat ADepositionFileHandler::determineFormat(const QString & FileName)
+{
+    QFile TextFile(FileName);
+    if (!TextFile.open(QIODevice::ReadOnly | QFile::Text)) return APhotonDepoSettings::Invalid;
+    QTextStream TextStream(&TextFile);
+
+    QString Line = TextStream.readLine();
+    if (Line.startsWith('#'))
+    {
+        Line.remove(0, 1);
+        bool ok;
+        Line.toInt(&ok);
+        if (ok) return APhotonDepoSettings::G4Ascii;
+    }
+
+    std::ifstream inStream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+    if (!inStream.is_open()) return APhotonDepoSettings::Invalid;
+    char header = 0x00;
+    inStream >> header;
+    if (inStream.good() && header == (char)0xEE) return APhotonDepoSettings::G4Binary;
+
+    return APhotonDepoSettings::Undefined;
 }
 
 

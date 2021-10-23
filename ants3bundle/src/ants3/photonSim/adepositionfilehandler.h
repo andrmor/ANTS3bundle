@@ -2,12 +2,9 @@
 #define ADEPOSITIONFILEHANDLER_H
 
 #include "avector.h"
+#include "aphotonsimsettings.h"
 
 #include <QString>
-
-// TRANSFER FROM ANTS2 !!!***    to be refactored to a universal class
-
-// WORK IN PROGRESS
 
 class QFile;
 class QTextStream;
@@ -28,13 +25,10 @@ public:
 class ADepositionFileHandler
 {
 public:
-    enum EFileFormat {Unknown, Invalid, G4ascii, G4binary};
-
-    ADepositionFileHandler(const QString & fileName, bool binary) :
-        FileName(fileName), Binary(binary) {}
+    ADepositionFileHandler(const QString & fileName, APhotonDepoSettings::EFormat format);
     virtual ~ADepositionFileHandler();
 
-    bool validate(bool collectStatistics) {return false;}
+    int  checkFile(bool collectStatistics); // returns number of events    !!!*** add statistics!
 
     bool init();
     bool gotoEvent(int iEvent);
@@ -42,6 +36,9 @@ public:
     bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
+    static APhotonDepoSettings::EFormat determineFormat(const QString & FileName); // very simplistic, better to make more strict !!!***
+
+private:
     QString         FileName;
     bool            Binary       = false;
 
@@ -56,9 +53,6 @@ public:
     std::ifstream * inStream      = nullptr;
     char            Header        = 0x00;
 
-    //bool readG4DepoEventFromBinFile(bool expectNewEvent);
-
-private:
     void clearResources();
     bool processEventHeader();
 };

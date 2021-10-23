@@ -845,3 +845,43 @@ void A3PhotSimWin::on_cbSecondaryScint_clicked(bool checked)
     SimSet.DepoSet.Secondary = checked;
 }
 
+#include "adepositionfilehandler.h"
+#include "aerrorhub.h"
+void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
+{
+    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Undefined || SimSet.DepoSet.FileFormat == APhotonDepoSettings::Invalid)
+        SimSet.DepoSet.FileFormat = ADepositionFileHandler::determineFormat(SimSet.DepoSet.FileName);
+
+    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Invalid)
+    {
+        guitools::message("Cannot open file!", this);
+        updateDepoGui();
+        return;
+    }
+    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Undefined)
+    {
+        guitools::message("Unknown format of the depo file!", this);
+        updateDepoGui();
+        return;
+    }
+
+    ADepositionFileHandler fh(SimSet.DepoSet.FileName, SimSet.DepoSet.FileFormat);
+    AErrorHub::clear();
+    bool ok = fh.init();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+        updateDepoGui();
+        return;
+    }
+
+    SimSet.DepoSet.NumEvents = fh.checkFile(true);
+    if (SimSet.DepoSet.NumEvents == -1)
+    {
+        guitools::message("Deposition file is invalid", this);
+        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+    }
+    updateDepoGui();
+}
+
