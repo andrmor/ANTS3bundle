@@ -9,8 +9,12 @@
 #include "astatisticshub.h"
 #include "a3farmnoderecord.h"
 #include "ajsontools.h"
+#include "adepositionfilehandler.h"
+#include "aerrorhub.h" // CONVERT to using it !!!***
 
 #include <QDir>
+
+#include <memory>
 
 APhotonSimManager & APhotonSimManager::getInstance()
 {
@@ -24,8 +28,7 @@ const APhotonSimManager & APhotonSimManager::getConstInstance()
 }
 
 APhotonSimManager::APhotonSimManager() :
-    SimSet(APhotonSimHub::getInstance().Settings)
-{}
+    SimSet(APhotonSimHub::getInstance().Settings) {}
 
 bool APhotonSimManager::simulate(int numLocalProc)
 {
@@ -52,6 +55,22 @@ bool APhotonSimManager::simulate(int numLocalProc)
         default:
             ErrorString = "This bomb generation mode is not implemented yet!";
             return false;
+        }
+        break;
+    case EPhotSimType::FromEnergyDepo :
+        {
+            if (!SimSet.DepoSet.isValidated())
+            {
+                ADepositionFileHandler fh(SimSet.DepoSet);
+                bool ok = fh.checkFile(false);
+                if (!ok)
+                {
+                    ErrorString = AErrorHub::getQError();
+                    return false;
+                }
+            }
+            numEvents = SimSet.DepoSet.NumEvents;
+            // !!!*** add possibility to limit to a given number of events!
         }
         break;
     case EPhotSimType::FromLRFs :
@@ -199,6 +218,13 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     StatisticsFiles.clear();
     MonitorFiles.clear();
 
+    std::unique_ptr<ADepositionFileHandler> DF_handler;
+    if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
+    {
+        DF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
+        if (!DF_handler->init()) return false;
+    }
+
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
@@ -239,6 +265,21 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                 default:
                     ErrorString = "Not yet implemented!";
                     return false;
+                }
+                break;
+            case EPhotSimType::FromEnergyDepo :
+                {
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + num;
+                    iEvent += num;
+
+                    WorkSet.DepoSet.NumEvents = num;
+                    WorkSet.DepoSet.FileName = QString("inDepo-%0").arg(iProcess);
+                    QString localFileName = ExchangeDir + '/' + WorkSet.DepoSet.FileName;
+                    DF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName); // !!!*** error handling?
+                    WorkSet.DepoSet.FileLastModified = QFileInfo(localFileName).lastModified();
+                    Worker.InputFiles.push_back(localFileName);
                 }
                 break;
             default:

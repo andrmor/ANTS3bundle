@@ -45,7 +45,7 @@ private:
     void mergeOutput();
     void addErrorLine(const QString & error);
 
-    const APhotonSimSettings & SimSet;
+    APhotonSimSettings & SimSet;
 
     AFileMerger          SignalFileMerger;
     AFileMerger          TrackFileMerger;
