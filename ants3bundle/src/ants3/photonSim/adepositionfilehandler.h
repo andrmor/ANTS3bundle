@@ -1,27 +1,13 @@
 #ifndef ADEPOSITIONFILEHANDLER_H
 #define ADEPOSITIONFILEHANDLER_H
 
-#include "avector.h"
+#include "adeporecord.h"
 #include "aphotonsimsettings.h"
 
 #include <QString>
 
 class QFile;
 class QTextStream;
-
-class ADepoRecord
-{
-public:
-    ADepoRecord(double energy, const AVector3 & pos, double time, const QString & particle, int matIndex) :
-        Energy(energy), Pos(pos), Time(time), Particle(particle), MatIndex(matIndex) {}
-    ADepoRecord(){}
-
-    double   Energy; // in keV
-    AVector3 Pos;    // in mmm
-    double   Time;
-    QString  Particle;
-    int      MatIndex;
-};
 
 class ADepositionFileHandler
 {

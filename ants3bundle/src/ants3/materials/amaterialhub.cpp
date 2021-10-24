@@ -152,7 +152,21 @@ void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
     //do not want to copy dynamic objects!
     QJsonObject js;
         Materials[imat]->writeToJson(js);
-    tmpMaterial.readFromJson(js);
+        tmpMaterial.readFromJson(js);
+}
+
+double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
+{
+    if (iMat < 0 || iMat >= (int)Materials.size()) return 0;
+    return Materials[iMat]->PhotonYieldDefault;
+    //if (particle.isEmpty()) return Materials[iMat]->PhotonYieldDefault;
+    //else return ***;
+}
+
+double AMaterialHub::getS1IntrEnRes(int iMat, const QString & particle) const
+{
+    if (iMat < 0 || iMat >= (int)Materials.size()) return 0;
+    return Materials[iMat]->IntrEnResDefault;
 }
 
 void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)

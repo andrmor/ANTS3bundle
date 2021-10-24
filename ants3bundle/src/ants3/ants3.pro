@@ -250,6 +250,7 @@ HEADERS += \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
     particleSim/atrackinghistorycrawler.h \
+    photonSim/adeporecord.h \
     photonSim/adepositionfilehandler.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \

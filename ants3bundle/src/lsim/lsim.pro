@@ -62,6 +62,7 @@ SOURCES += \
         aoneevent.cpp \
         aphotonhistorylog.cpp \
         alogger.cpp \
+        as1generator.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -71,6 +72,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     ../ants3/geo/amonitorhub.h \
+    ../ants3/photonSim/adeporecord.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
     ../ants3/tools/arandomhub.h \
@@ -111,4 +113,5 @@ HEADERS += \
     aphotonhistorylog.h \
     anoderecord.h \
     aphotongenerator.h \
-    alogger.h
+    alogger.h \
+    as1generator.h

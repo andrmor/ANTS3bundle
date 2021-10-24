@@ -54,6 +54,9 @@ public:
     void    copyToMaterials(const AMaterial & tmpMaterial);  // update if name exists, otherwise creates new one
     void    copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
 
+    double  getS1PhotonYield(int iMat, const QString & particle = "") const; // !!!***
+    double  getS1IntrEnRes(int iMat, const QString & particle = "") const;   // !!!***
+
     int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;
     QStringList getListOfMaterialNames() const;

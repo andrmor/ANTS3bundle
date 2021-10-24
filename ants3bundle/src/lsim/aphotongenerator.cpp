@@ -6,28 +6,7 @@
 
 #include <QDebug>
 
-#include "TMath.h"  // remove? !!!***
 #include "TH1D.h"
-
-/*
-void APhotonGenerator::generateDirection(APhoton * Photon)
-{    
-    ARandomHub & RandomHub = ARandomHub::getInstance();
-
-    //using Sphere function of Root
-    double a = 0, b = 0, r2 = 1.0;
-    while (r2 > 0.25)
-    {
-        a  = RandomHub.uniform() - 0.5;
-        b  = RandomHub.uniform() - 0.5;
-        r2 =  a*a + b*b;
-    }
-    Photon->v[2] = ( -1.0 + 8.0 * r2 );
-    double scale = 8.0 * TMath::Sqrt(0.25 - r2);
-    Photon->v[0] = a * scale;
-    Photon->v[1] = b * scale;
-}
-*/
 
 void APhotonGenerator::generateWave(APhoton & Photon, int iMaterial)
 {
