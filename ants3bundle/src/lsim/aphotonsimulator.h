@@ -14,6 +14,8 @@ class QFile;
 class QTextStream;
 class ARandomHub;
 class AProgressReporter;
+class ADepositionFileHandler;
+class AS1Generator;
 
 class APhotonSimulator : public QObject
 {
@@ -31,8 +33,8 @@ protected:
     QString ConfigFN;
     int     ID;
 
-    const APhotonSimSettings & SimSet;
-    ARandomHub               & RandomHub;
+    APhotonSimSettings & SimSet;
+    ARandomHub         & RandomHub;
 
     APhotonTracer * Tracer = nullptr;
     AOneEvent     * Event  = nullptr;
@@ -60,11 +62,20 @@ protected:
     QFile       * FileTracks          = nullptr;
     QTextStream * StreamTracks        = nullptr;
 
+    //depo
+    ADepositionFileHandler * DepoHandler = nullptr;
+    AS1Generator           * S1Gen       = nullptr;
+
 private:
     void loadConfig();
     void setupCommonProperties();
+
     void setupPhotonBombs();
     void simulatePhotonBombs();
+
+    void setupFromDepo();
+    void simulateFromDepo();
+
     void terminate(const QString & reason);
     void simulatePhotonBombCluster(ANodeRecord & node);
     void generateAndTracePhotons(const ANodeRecord * node);

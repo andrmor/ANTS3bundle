@@ -20,8 +20,12 @@ INCLUDEPATH += ../ants3/photonSim
 INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
 
+DEFINES += QT
+
 SOURCES += \
         ../ants3/geo/amonitorhub.cpp \
+        ../ants3/photonSim/adepositionfilehandler.cpp \
+        ../ants3/tools/aerrorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
         ../ants3/tools/arandomhub.cpp \
@@ -73,6 +77,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ../ants3/geo/amonitorhub.h \
     ../ants3/photonSim/adeporecord.h \
+    ../ants3/photonSim/adepositionfilehandler.h \
+    ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
     ../ants3/tools/arandomhub.h \

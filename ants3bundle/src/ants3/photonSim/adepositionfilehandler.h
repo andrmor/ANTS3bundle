@@ -12,7 +12,7 @@ class QTextStream;
 class ADepositionFileHandler
 {
 public:
-    ADepositionFileHandler(APhotonDepoSettings & depoSettings);
+    ADepositionFileHandler(APhotonDepoSettings & depoSettings); // reformat to add rundir? !!!***
     virtual ~ADepositionFileHandler();
 
     void determineFormat(); // very simplistic, better to make more strict !!!***

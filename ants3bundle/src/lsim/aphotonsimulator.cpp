@@ -12,6 +12,9 @@
 #include "aphotontracer.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
+#include "adepositionfilehandler.h"
+#include "aerrorhub.h"
+#include "as1generator.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -27,7 +30,7 @@
 
 APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
     WorkingDir(dir), ConfigFN(fileName), ID(id),
-    SimSet(APhotonSimHub::getConstInstance().Settings),
+    SimSet(APhotonSimHub::getInstance().Settings),
     RandomHub(ARandomHub::getInstance())
 {
     ALogger::getInstance().open(QString("PhotonSimLog-%0.log").arg(ID));
@@ -47,6 +50,9 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
 
 APhotonSimulator::~APhotonSimulator()
 {
+    delete S1Gen;
+    delete DepoHandler;
+
     if (FileSensorSignals) FileSensorSignals->close();
     delete StreamSensorSignals;
     delete FileSensorSignals;
@@ -85,11 +91,15 @@ void APhotonSimulator::start()
         simulatePhotonBombs();
         break;
     case EPhotSimType::FromEnergyDepo :
+        setupFromDepo();
+        simulateFromDepo();
         break;
     case EPhotSimType::IndividualPhotons :
         break;
     default:;
     }
+
+    if (bHardAbortWasTriggered) fSuccess = false;
 
     if (ProgressThread) ProgressReporter->stop();
 
@@ -328,8 +338,61 @@ void APhotonSimulator::simulatePhotonBombs()
         fSuccess = false;
         break;
     }
+}
 
-    if (bHardAbortWasTriggered) fSuccess = false;
+void APhotonSimulator::setupFromDepo()
+{
+    SimSet.DepoSet.FileName = WorkingDir + '/' + SimSet.DepoSet.FileName;
+    DepoHandler = new ADepositionFileHandler(SimSet.DepoSet);
+    bool ok = DepoHandler->init();
+    if (!ok) terminate(AErrorHub::getQError());
+
+    S1Gen = new AS1Generator(*Tracer);
+
+}
+
+void APhotonSimulator::simulateFromDepo()
+{
+    bStopRequested = false;
+    bHardAbortWasTriggered = false;
+
+    for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
+    {
+        Event->clearHits();
+        saveEventMarker();
+
+
+        ADepoRecord depoRec;
+        while (DepoHandler->readNextRecordOfSameEvent(depoRec))
+        {
+            if (bStopRequested) break;
+
+            qDebug() << "aaaaaaaaaaaaaaaaaaaa" << CurrentEvent << depoRec.Particle << depoRec.Energy;
+            if (SimSet.DepoSet.Primary)
+            {
+                S1Gen->generate(depoRec);
+                //ErrorString = "Error executing S1 generation!";
+                //return false;
+            }
+
+            if (SimSet.DepoSet.Secondary) // !!!***
+            {
+                //S2Gen->generate(depoRecord);
+                //ErrorString = "Error executing S2 generation!";
+                //return false;
+            }
+        }
+
+        DepoHandler->acknowledgeNextEvent();  // !!!*** end of file reached when it should not yet?
+
+        Event->HitsToSignal();
+        if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
+
+        EventsDone++;
+    }
+    qDebug() << "Done!";
+
+    fSuccess = true; // !!!***
 }
 
 // ---
@@ -768,7 +831,6 @@ void APhotonSimulator::terminate(const QString & reason)
     exit(1);
 }
 
-
 // ---
 
 void AProgressReporter::start()
@@ -780,3 +842,6 @@ void AProgressReporter::start()
         QThread::msleep(Interval);
     }
 }
+
+// ---
+
