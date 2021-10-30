@@ -20,8 +20,6 @@
 #include <QTextStream>
 #include <QJsonObject>
 #include <QJsonDocument>
-#include <QThread>
-#include <QTimer>
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -39,13 +37,6 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
 
     Event = new AOneEvent();
     Tracer = new APhotonTracer(*Event, StreamTracks);
-
- // /*   !!!*** simplify, just report after event is ready
-    ProgressReporter = new AProgressReporter(EventsDone, 200);
-    ProgressThread = new QThread();
-    ProgressReporter->moveToThread(ProgressThread);
-    connect(ProgressThread, &QThread::started,  ProgressReporter,  &AProgressReporter::start);
- // */
 }
 
 APhotonSimulator::~APhotonSimulator()
@@ -64,14 +55,6 @@ APhotonSimulator::~APhotonSimulator()
     if (FileTracks) FileTracks->close();
     delete StreamTracks;
     delete FileTracks;
-
-    if (ProgressThread)
-    {
-        ProgressThread->quit();
-        ProgressThread->wait(500);
-        delete ProgressThread;
-    }
-    delete ProgressReporter;
 }
 
 void APhotonSimulator::start()
@@ -81,8 +64,6 @@ void APhotonSimulator::start()
     setupCommonProperties();
 
     openOutput();
-
-    if (ProgressThread) ProgressThread->start();
 
     switch (SimSet.SimType)
     {
@@ -100,8 +81,6 @@ void APhotonSimulator::start()
     }
 
     if (bHardAbortWasTriggered) fSuccess = false;
-
-    if (ProgressThread) ProgressReporter->stop();
 
     if (SimSet.RunSet.SaveStatistics)
     {
@@ -185,6 +164,12 @@ void APhotonSimulator::saveSensorSignals()
 void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
 {
     *StreamPhotonBombs << node->R[0] << ' ' << node->R[1] << ' ' << node->R[2] << ' ' << node->Time << ' ' << node->NumPhot << '\n';
+}
+
+void APhotonSimulator::reportProgress()
+{
+    std::cout << "$$>" << EventsDone << "<$$\n";
+    std::cout.flush();
 }
 
 void APhotonSimulator::setupPhotonBombs()
@@ -372,6 +357,7 @@ void APhotonSimulator::simulateFromDepo()
         if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
 
         EventsDone++;
+        reportProgress();
     }
     qDebug() << "Done!";
 
@@ -578,6 +564,7 @@ bool APhotonSimulator::simulateFlood()
         simulatePhotonBombCluster(*node);
 
         EventsDone++;
+        reportProgress();
     }
 
     return true;
@@ -811,18 +798,3 @@ void APhotonSimulator::terminate(const QString & reason)
     LOG << reason;
     exit(1);
 }
-
-// ---
-
-void AProgressReporter::start()
-{
-    while (bRun)
-    {
-        std::cout << "$$>" << EventsDone << "<$$\n";
-        std::cout.flush();
-        QThread::msleep(Interval);
-    }
-}
-
-// ---
-

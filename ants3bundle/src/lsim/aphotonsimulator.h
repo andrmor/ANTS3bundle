@@ -13,7 +13,6 @@ class APhotonTracer;
 class QFile;
 class QTextStream;
 class ARandomHub;
-class AProgressReporter;
 class ADepositionFileHandler;
 class AS1Generator;
 
@@ -39,14 +38,11 @@ protected:
     APhotonTracer * Tracer = nullptr;
     AOneEvent     * Event  = nullptr;
 
-    QThread           * ProgressThread   = nullptr;
-    AProgressReporter * ProgressReporter = nullptr;
-
     APhoton Photon;
 
     int CurrentEvent = 0;
     int  EventsToDo  = 0;
-    int  EventsDone  = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
+    int  EventsDone  = 0;
 
     bool bStopRequested = false;
     bool bHardAbortWasTriggered = false;
@@ -65,43 +61,32 @@ protected:
     AS1Generator           * S1Gen       = nullptr;
 
 private:
-    void loadConfig();
-    void setupCommonProperties();
+    void    loadConfig();
+    void    setupCommonProperties();
 
-    void setupPhotonBombs();
-    void simulatePhotonBombs();
+    void    setupPhotonBombs();
+    void    simulatePhotonBombs();
 
-    void setupFromDepo();
-    void simulateFromDepo();
+    void    setupFromDepo();
+    void    simulateFromDepo();
 
-    void terminate(const QString & reason);
-    void simulatePhotonBombCluster(ANodeRecord & node);
-    void generateAndTracePhotons(const ANodeRecord * node);
-    bool simulateSingle();
-    bool simulateGrid();
-    bool simulateFlood();
-    bool simulateCustomNodes();
-    bool simulateBombsFromFile();
-    int  getNumPhotonsThisBomb();
+    void    terminate(const QString & reason);
+
+    int     getNumPhotonsThisBomb();
+    void    simulatePhotonBombCluster(ANodeRecord & node);
+    void    generateAndTracePhotons(const ANodeRecord * node);
+
+    bool    simulateSingle();
+    bool    simulateGrid();
+    bool    simulateFlood();
+    bool    simulateCustomNodes();
+    bool    simulateBombsFromFile();
 
     QString openOutput();
     void    saveEventMarker();
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node);
-};
-
-class AProgressReporter : public QObject
-{
-    Q_OBJECT
-public:
-    AProgressReporter(int & eventsDone, double msInterval) : EventsDone(eventsDone), Interval(msInterval) {}
-
-    void start();
-    void stop() {bRun = false;}
-
-    int    & EventsDone;
-    double   Interval = 100;
-    bool     bRun     = true;
+    void    reportProgress();
 };
 
 #endif // APHOTONSIMULATOR_H
