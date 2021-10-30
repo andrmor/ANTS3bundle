@@ -10,7 +10,7 @@
 #include "a3farmnoderecord.h"
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
-#include "aerrorhub.h" // CONVERT to using it !!!***
+#include "aerrorhub.h"
 
 #include <QDir>
 
@@ -33,7 +33,7 @@ APhotonSimManager::APhotonSimManager() :
 bool APhotonSimManager::simulate(int numLocalProc)
 {
     qDebug() << "Photon sim triggered";
-    ErrorString.clear();
+    AErrorHub::clear();
 
     bool ok = checkDirectories();
     if (!ok) return false;
@@ -53,7 +53,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             numEvents = SimSet.BombSet.FloodSettings.Number;
             break;
         default:
-            ErrorString = "This bomb generation mode is not implemented yet!";
+            AErrorHub::addError("This bomb generation mode is not implemented yet!");
             return false;
         }
         break;
@@ -63,30 +63,27 @@ bool APhotonSimManager::simulate(int numLocalProc)
             {
                 ADepositionFileHandler fh(SimSet.DepoSet);
                 bool ok = fh.checkFile(false);
-                if (!ok)
-                {
-                    ErrorString = AErrorHub::getQError();
-                    return false;
-                }
+                if (!ok) return false;
             }
             numEvents = SimSet.DepoSet.NumEvents;
             // !!!*** add possibility to limit to a given number of events!
+            //qDebug() << "---From depo, num events:" << numEvents << AErrorHub::isError();
         }
         break;
     case EPhotSimType::FromLRFs :
         {
             // TODO direct calculation here! !!!***
-            ErrorString = "This simulation mode is not implemented yet!";
+            AErrorHub::addError("This simulation mode is not implemented yet!");
             return false;
         }
     default:
-        ErrorString = "This simulation mode is not implemented yet!";
+        AErrorHub::addError("This simulation mode is not implemented yet!");
         return false;
     }
 
     if (numEvents == 0)
     {
-        ErrorString = "Nothing to simulate!";
+        AErrorHub::addError("Nothing to simulate (no events)");
         return false;
     }
 
@@ -94,11 +91,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     std::vector<A3FarmNodeRecord> RunPlan;
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
-    if (!err.isEmpty())
-    {
-        ErrorString = err;
-        return false;
-    }
+    if (!err.isEmpty()) return false;
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
@@ -108,36 +101,48 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
 
+    qDebug() << "\n\n---------------------";
+    qDebug() << Reply;
+    qDebug() << "---------------------\n\n";
+
     processReply(Reply);
 
-    if (ErrorString.isEmpty()) mergeOutput();
-
     qDebug() << "Photon simulation finished";
-    return ErrorString.isEmpty();
+
+    if (AErrorHub::isError()) return false;
+
+    mergeOutput();
+    return !AErrorHub::isError();
 }
 
 bool APhotonSimManager::checkDirectories()
 {
-    if (SimSet.RunSet.OutputDirectory.isEmpty())       addErrorLine("Output directory is not set!");
-    if (!QDir(SimSet.RunSet.OutputDirectory).exists()) addErrorLine("Output directory does not exist!");
+    if (SimSet.RunSet.OutputDirectory.isEmpty())       AErrorHub::addError("Output directory is not set!");
+    if (!QDir(SimSet.RunSet.OutputDirectory).exists()) AErrorHub::addError("Output directory does not exist!");
 
-    addErrorLine(A3Global::getInstance().checkExchangeDir().data());
+    const std::string err = A3Global::getInstance().checkExchangeDir();
+    if (!err.empty()) AErrorHub::addError(err);
 
-    return ErrorString.isEmpty();
+    return !AErrorHub::isError();
 }
 
 void APhotonSimManager::processReply(const QJsonObject & json)
 {
-     qDebug() << "Reply message:" << json;
+    qDebug() << "Reply message:" << json;
 
-    jstools::parseJson(json, "Error", ErrorString);
-    if (!ErrorString.isEmpty()) return; // error
+    QString Err;
+    jstools::parseJson(json, "Error", Err);
+    if (!Err.isEmpty())
+    {
+        AErrorHub::addQError(Err);
+        return;
+    }
 
     bool bSuccess = false;
     jstools::parseJson(json, "Success", bSuccess);
     if (bSuccess) return; // success
 
-    ErrorString = "Unknown error";
+    AErrorHub::addError("Bad reply of the dispatcher: Fail status but no error text");
 }
 
 void APhotonSimManager::removeOutputFiles()
@@ -167,7 +172,6 @@ void APhotonSimManager::mergeOutput()
     if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveTracks)        TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
     if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
-    if (AErrorHub::isError()) ErrorString = AErrorHub::getError().data(); // temporary
 
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     Stat.clear();
@@ -193,14 +197,6 @@ void APhotonSimManager::mergeOutput()
     MonitorHub.clearData(AMonitorHub::Photon);
     if (SimSet.RunSet.SaveMonitors)
         MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
-}
-
-void APhotonSimManager::addErrorLine(const QString & error)
-{
-    if (error.isEmpty()) return;
-
-    if (ErrorString.isEmpty()) ErrorString = error;
-    else                       ErrorString += QString("\n%0").arg(error);
 }
 
 bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
@@ -263,7 +259,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     iEvent += num;
                     break;
                 default:
-                    ErrorString = "Not yet implemented!";
+                    AErrorHub::addError("Not yet implemented!");
                     return false;
                 }
                 break;
@@ -277,13 +273,14 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.DepoSet.NumEvents = num;
                     WorkSet.DepoSet.FileName = QString("inDepo-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.DepoSet.FileName;
-                    DF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName); // !!!*** error handling?
+                    bool ok = DF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    if (!ok) return false;
                     WorkSet.DepoSet.FileLastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
             default:
-                ErrorString = "Not yet implemented!";
+                AErrorHub::addError("Not yet implemented!");
                 return false;
             }
 
@@ -335,5 +332,5 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
         Request.Nodes.push_back(nc);
     }
 
-    return true;
+    return !AErrorHub::isError();
 }

@@ -10,6 +10,7 @@
 #include "guitools.h"
 #include "agraphbuilder.h"
 #include "adispatcherinterface.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -282,7 +283,7 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     if (!ok)
     {
         ui->progbSim->setValue(0);
-        guitools::message("Simulation error:\n" + SimMan.ErrorString, this);
+        guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
     }
     else
     {

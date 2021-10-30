@@ -1,5 +1,6 @@
 #include "aphotonsimsi.h"
 #include "aphotonsimmanager.h"
+#include "aerrorhub.h"
 
 APhotonSimSI::APhotonSimSI(QObject *parent) :
     QObject(parent), SimMan(APhotonSimManager::getInstance()) {}
@@ -14,6 +15,6 @@ QString APhotonSimSI::simulate(bool updateGui)
     }
     else
     {
-        return SimMan.ErrorString;
+        return AErrorHub::getQError();
     }
 }

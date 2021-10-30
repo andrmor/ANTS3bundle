@@ -30,8 +30,6 @@ private:
     APhotonSimManager& operator=(APhotonSimManager&&)      = delete;
 
 public:
-    QString ErrorString;
-
     bool simulate(int numLocalProc = -1);
 
 signals:
@@ -43,7 +41,6 @@ private:
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remov efiles in exchange
     void mergeOutput();
-    void addErrorLine(const QString & error);
 
     APhotonSimSettings & SimSet;
 
