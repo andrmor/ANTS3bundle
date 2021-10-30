@@ -38,7 +38,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Config file: " << ConfigFN   << "\n";
 
     Event = new AOneEvent();
-    Tracer = new APhotonTracer(*Event);
+    Tracer = new APhotonTracer(*Event, StreamTracks);
 
  // /*   !!!*** simplify, just report after event is ready
     ProgressReporter = new AProgressReporter(EventsDone, 200);
@@ -185,24 +185,6 @@ void APhotonSimulator::saveSensorSignals()
 void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
 {
     *StreamPhotonBombs << node->R[0] << ' ' << node->R[1] << ' ' << node->R[2] << ' ' << node->Time << ' ' << node->NumPhot << '\n';
-}
-
-void APhotonSimulator::saveTrack()
-{
-    QJsonObject json;
-    if (Tracer->Track.SecondaryScint) json["s"] = 1;
-    if (Tracer->Track.HitSensor)      json["h"] = 1;
-
-    QJsonArray ar;
-    for (AVector3 & pos : Tracer->Track.Positions)
-    {
-        QJsonArray el;
-        for (int i=0; i<3; i++) el.push_back( 1.0 / TrackOutputPrecision * round(TrackOutputPrecision * pos[i]));
-        ar.push_back(el);
-    }
-    json["P"] = ar;
-
-    *StreamTracks << jstools::jsonToString(json) << '\n';
 }
 
 void APhotonSimulator::setupPhotonBombs()
@@ -368,7 +350,7 @@ void APhotonSimulator::simulateFromDepo()
         {
             if (bStopRequested) break;
 
-            qDebug() << "aaaaaaaaaaaaaaaaaaaa" << CurrentEvent << depoRec.Particle << depoRec.Energy;
+            //qDebug() << "aaaaaaaaaaaaaaaaaaaa" << CurrentEvent << depoRec.Particle << depoRec.Energy;
             if (SimSet.DepoSet.Primary)
             {
                 S1Gen->generate(depoRec);
@@ -821,8 +803,6 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
 //        APhotonGenerator::generateTime(Photon, MatIndex);
 
         Tracer->tracePhoton(&Photon);
-
-        if (SimSet.RunSet.SaveTracks) saveTrack();
     }
 }
 

@@ -16,19 +16,21 @@
 #include "amonitorhub.h"
 
 #include <QDebug>
+#include <QTextStream>
 
 #include "TGeoManager.h"
 #include "TMath.h"
 #include "TH1I.h"
 
-APhotonTracer::APhotonTracer(AOneEvent & event) :
+APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
     SimStat(AStatisticsHub::getInstance().SimStat),
-    Event(event)
+    Event(event),
+    StreamTracks(streamTracks)
 {
 //    grids = Grids;
     p = new APhoton();
@@ -421,9 +423,30 @@ void APhotonTracer::tracePhoton(const APhoton * Photon)
     //here all tracing terminators end
 force_stop_tracing:
     if (SimSet.RunSet.SavePhotonLog) AppendHistoryRecord(); //Add tracks is also there, it has extra filtering   !!!*** not parallel!!!
-    if (SimSet.RunSet.SaveTracks)    AppendTrack();
+    if (SimSet.RunSet.SaveTracks)    saveTrack();
 
     //qDebug()<<"Finished with the photon";
+}
+
+#include "ajsontools.h"
+void APhotonTracer::saveTrack()
+{
+    AddedTracks++;
+
+    QJsonObject json;
+    if (Track.SecondaryScint) json["s"] = 1;
+    if (Track.HitSensor)      json["h"] = 1;
+
+    QJsonArray ar;
+    for (AVector3 & pos : Track.Positions)
+    {
+        QJsonArray el;
+            for (int i=0; i<3; i++) el.push_back(pos[i]);
+        ar.push_back(el);
+    }
+    json["P"] = ar;
+
+    *StreamTracks << jstools::jsonToString(json) << '\n';
 }
 
 void APhotonTracer::hardAbort()
@@ -497,17 +520,6 @@ void APhotonTracer::AppendHistoryRecord()
         }
 
         if (bFound) savePhotonLogRecord();
-    }
-}
-
-void APhotonTracer::AppendTrack()
-{
-//    if ( SimSet->TrackBuildOptions.bSkipPhotonsMissingPMs && fMissPM )
-//        delete track;  !!!*** TODO
-//    else
-    {
-        saveTrack();
-        AddedTracks++;
     }
 }
 

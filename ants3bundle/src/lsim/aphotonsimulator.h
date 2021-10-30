@@ -48,8 +48,6 @@ protected:
     int  EventsToDo  = 0;
     int  EventsDone  = 0; //  !!!*** update copy in reporter thread using a queued signal/slot
 
-    const int TrackOutputPrecision = 10000;
-
     bool bStopRequested = false;
     bool bHardAbortWasTriggered = false;
     bool fSuccess;
@@ -60,7 +58,7 @@ protected:
     QFile       * FilePhotonBombs     = nullptr;
     QTextStream * StreamPhotonBombs   = nullptr;
     QFile       * FileTracks          = nullptr;
-    QTextStream * StreamTracks        = nullptr;
+    QTextStream * StreamTracks        = nullptr;    // Tracer handles saving tracks to that stream
 
     //depo
     ADepositionFileHandler * DepoHandler = nullptr;
@@ -90,7 +88,6 @@ private:
     void    saveEventMarker();
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node);
-    void    saveTrack();
 };
 
 class AProgressReporter : public QObject

@@ -1,6 +1,7 @@
 #ifndef APHOTONTRACER_H
 #define APHOTONTRACER_H
 
+#include "aphotontrackrecord.h"
 #include "aphotonhistorylog.h"
 
 #include <QVector>
@@ -21,20 +22,19 @@ class AOneEvent;
 class TGeoNavigator;
 class TGeoVolume;
 class AGridElementRecord;
-
-#include "aphotontrackrecord.h"
+class QTextStream;
 
 class APhotonTracer
 {
 public:
-    explicit APhotonTracer(AOneEvent & event);
+    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks);
     ~APhotonTracer();
 
     void init();
 
     void tracePhoton(const APhoton * Photon);  // !!!*** to const reference
 
-    void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels
+    void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels   !!!***obsolete?
 
     APhotonTrackRecord         Track;
     QVector<APhotonHistoryLog> PhLog;
@@ -45,12 +45,13 @@ private:
     const ASensorHub         & SensorHub;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
-    APhotonStatistics    & SimStat;
+    APhotonStatistics        & SimStat;
 
-    AOneEvent     & Event;
-
-    TGeoManager   * GeoManager = nullptr;
-    TGeoNavigator * Navigator  = nullptr;
+    // external resources
+    AOneEvent                & Event;
+    QTextStream            * & StreamTracks;
+    TGeoManager              * GeoManager   = nullptr;
+    TGeoNavigator            * Navigator    = nullptr;
 
 //    const QVector<AGridElementRecord*>* grids;
 
@@ -91,10 +92,9 @@ private:
     void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
     void ReturnFromGridShift();      // !!!***
-    void AppendTrack();              // !!!***
     void AppendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
 
     void savePhotonLogRecord(){} // !!!***
-    void saveTrack() {}  //  !!!***
+    void saveTrack();
 };
 #endif // APHOTONTRACER_H
