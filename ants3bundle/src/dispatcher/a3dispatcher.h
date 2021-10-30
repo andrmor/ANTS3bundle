@@ -29,9 +29,6 @@ public slots:
 
     void executeLocalCommand(QJsonObject json);
 
-private slots:
-    void onReportProgressTimer();
-
 signals:
     void workFinished(QJsonObject result);
     void reportProgress(double eventsDone);
@@ -57,14 +54,16 @@ protected:
     bool    startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
     void    waitForWorkFinished();
     void    clearHandlers();
-
     void    checkFarmStatus(const A3WorkDistrConfig & wdc);
+
+private slots:
+    void onReportProgressTimer();
 
 #ifdef WEBSOCKETS
 protected:
     QString startWorkFarm(const A3WorkDistrConfig & wdc); //returns error, otherwise ""
 private slots:
-    void    onRemoteCommandReceived(QJsonObject json); // only server use
+    void    onRemoteCommandReceived(QJsonObject json);    // only server use
 #endif
 };
 

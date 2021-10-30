@@ -119,7 +119,6 @@ void A3Dispatcher::executeLocalCommand(QJsonObject json)
             clearHandlers();
             return;
         }
-        //wdc.Nodes.removeFirst();
         wdc.Nodes.erase(wdc.Nodes.begin());
     }
 
