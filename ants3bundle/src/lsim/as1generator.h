@@ -14,6 +14,7 @@ public:
     AS1Generator(APhotonTracer & photonTracer);
 
     bool generate(ADepoRecord & rec);
+    void clearRemainer() {Remainer = 0;}
 
 private:
     APhotonTracer            & PhotonTracer;
@@ -21,7 +22,7 @@ private:
     ARandomHub               & RandomHub;
     const AMaterialHub       & MatHub;
 
-    double Remainer = 0; // !!!*** make it reset at event end?
+    double Remainer = 0;
 };
 
 #endif // AS1GENERATOR_H

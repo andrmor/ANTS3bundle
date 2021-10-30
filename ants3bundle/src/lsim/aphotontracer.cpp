@@ -47,7 +47,7 @@ void APhotonTracer::init()
 
 void APhotonTracer::tracePhoton(const APhoton * Photon)
 {
-    //qDebug() << "Tracing photon";
+    qDebug() << "Tracing photon" << SimSet.RunSet.SavePhotonLog;
     if (bAbort) return;
 
     if (SimSet.OptSet.CheckQeBeforeTracking)

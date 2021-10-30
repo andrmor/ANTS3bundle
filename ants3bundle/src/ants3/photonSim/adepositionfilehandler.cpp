@@ -167,13 +167,20 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
     }
     else
     {
+        if (inTextStream->atEnd())
+        {
+            EventEndReached = true;
+            return false;
+        }
         LineText = inTextStream->readLine();
         if (LineText.startsWith('#'))
         {
             EventEndReached = true;
             return false;
         }
+
         const QStringList fields = LineText.split(' ', Qt::SkipEmptyParts);
+        //qDebug() << "------------>" << fields;
 //        if (fields.isEmpty()) break; //last event had no depo - end of file reached
         if (fields.size() < 7)
         {
@@ -238,7 +245,7 @@ bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QStrin
     bool ok = gotoEvent(fromEvent);
     if (!ok)
     {
-        AErrorHub::addQError( QString("Bad start event index in depo file copy").arg(fromEvent) );
+        AErrorHub::addQError( QString("Bad start event index in depo file copy procedure: ").arg(fromEvent) );
         return false;
     }
 

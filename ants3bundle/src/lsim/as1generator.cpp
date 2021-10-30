@@ -33,6 +33,7 @@ bool AS1Generator::generate(ADepoRecord & rec)
 
     int NumPhotons = (int)Photons;
     Remainer = Photons - NumPhotons;
+    qDebug() << "Photonsssssss" << NumPhotons;
 
     APhoton Photon;
     for (int i = 0; i < 3; i++) Photon.r[i] = rec.Pos[i];
