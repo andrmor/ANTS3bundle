@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "a3scriptmanager.h"
+#include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
 #include "a3config.h"
 #include "ageometryhub.h"
@@ -21,7 +21,7 @@
 
 #include "TObject.h"
 
-MainWindow::MainWindow(A3ScriptManager & SM) :
+MainWindow::MainWindow(AJScriptManager & SM) :
     Config(A3Config::getInstance()), ScriptManager(SM),
     ui(new Ui::MainWindow)
 {
@@ -31,7 +31,7 @@ MainWindow::MainWindow(A3ScriptManager & SM) :
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &MainWindow::onProgressReceived);
 
     ADemoManager & DemoMan = ADemoManager::getInstance();
-    connect(&SM, &A3ScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
+    connect(&SM, &AJScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
     connect(&DemoMan, &ADemoManager::finished, this, &MainWindow::onDemoFinsihed);
 
     ui->pteData->appendPlainText(Config.lines);

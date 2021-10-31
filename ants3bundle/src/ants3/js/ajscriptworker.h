@@ -1,5 +1,5 @@
-#ifndef A3SCRIPTWORKER_H
-#define A3SCRIPTWORKER_H
+#ifndef AJSCRIPTWORKER_H
+#define AJSCRIPTWORKER_H
 
 #include <QObject>
 #include <QJSValue>
@@ -11,12 +11,13 @@ class QJSEngine;
 class QString;
 class AScriptInterface;
 
-class A3ScriptWorker : public QObject
+class AJScriptWorker : public QObject
 {
     Q_OBJECT
+
 public:
-    A3ScriptWorker() {}
-    ~A3ScriptWorker();
+    AJScriptWorker(){}
+    ~AJScriptWorker();
 
     bool isBusy() const {return bBusy;}
     void abort();
@@ -44,4 +45,4 @@ protected:
 
 };
 
-#endif // A3SCRIPTWORKER_H
+#endif // AJSCRIPTWORKER_H

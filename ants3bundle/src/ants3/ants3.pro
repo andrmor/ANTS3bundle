@@ -105,6 +105,8 @@ SOURCES += \
     ademomanager.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
+    js/ajscriptmanager.cpp \
+    js/ajscriptworker.cpp \
     js/amath_si.cpp \
     js/aphotonsim_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
@@ -153,8 +155,6 @@ SOURCES += \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
-    js/a3scriptworker.cpp \
-    js/a3scriptmanager.cpp \
     materials/achemicalelement.cpp \
     materials/aisotope.cpp \
     materials/aisotopeabundancehandler.cpp \
@@ -236,6 +236,8 @@ HEADERS += \
     ademomanager.h \
     js/ademo_si.h \
     js/afarm_si.h \
+    js/ajscriptmanager.h \
+    js/ajscriptworker.h \
     js/amath_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
@@ -287,8 +289,6 @@ HEADERS += \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
-    js/a3scriptworker.h \
-    js/a3scriptmanager.h \
     materials/achemicalelement.h \
     materials/aisotope.h \
     materials/aisotopeabundancehandler.h \

@@ -1,21 +1,21 @@
-#ifndef A3SCRIPTMANAGER_H
-#define A3SCRIPTMANAGER_H
+#ifndef AJSCRIPTMANAGER_H
+#define AJSCRIPTMANAGER_H
 
 #include <QObject>
 #include <QString>
 #include <QJSValue>
 
 class QThread;
-class A3ScriptWorker;
+class AJScriptWorker;
 class AScriptInterface;
 
-class A3ScriptManager : public QObject
+class AJScriptManager : public QObject
 {
     Q_OBJECT
 
 public:
-    A3ScriptManager(QObject * parent = nullptr);
-    ~A3ScriptManager();
+    AJScriptManager(QObject * parent = nullptr);
+    ~AJScriptManager();
 
     void registerInterface(AScriptInterface * interface, QString name);
 
@@ -42,8 +42,8 @@ signals:
 
 protected:
     QThread        * Thread = nullptr;
-    A3ScriptWorker * Worker = nullptr;
+    AJScriptWorker * Worker = nullptr;
 
 };
 
-#endif // A3SCRIPTMANAGER_H
+#endif // AJSCRIPTMANAGER_H

@@ -1,10 +1,10 @@
-#include "a3scriptworker.h"
+#include "ajscriptworker.h"
 #include "ascriptinterface.h"
 
 #include <QJSEngine>
 #include <QDebug>
 
-A3ScriptWorker::~A3ScriptWorker()
+AJScriptWorker::~AJScriptWorker()
 {
     qDebug() << "Destr for ScriptWorker";
     delete Engine;
@@ -12,7 +12,7 @@ A3ScriptWorker::~A3ScriptWorker()
     // do not delete script interfaces, it is automatic!
 }
 
-void A3ScriptWorker::onRegisterInterface(AScriptInterface * interface, QString name)
+void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString name)
 {
     QJSValue sv = Engine->newQObject(interface);
     Engine->globalObject().setProperty(name, sv);
@@ -20,14 +20,14 @@ void A3ScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
     Interfaces.push_back(interface);
 }
 
-void A3ScriptWorker::abort()
+void AJScriptWorker::abort()
 {
     Engine->setInterrupted(true);
 
     // interrupt all script interfaces!
 }
 
-bool A3ScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)
+bool AJScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)
 {
     if (bBusy) return false;
 
@@ -41,7 +41,7 @@ bool A3ScriptWorker::getError(QString & errorString, int & lineNumber, QString &
     return true;
 }
 
-int A3ScriptWorker::getErrorLineNumber()
+int AJScriptWorker::getErrorLineNumber()
 {
     if (bBusy) return -1;
 
@@ -51,12 +51,12 @@ int A3ScriptWorker::getErrorLineNumber()
     return Result.property("lineNumber").toInt();
 }
 
-void A3ScriptWorker::initialize()
+void AJScriptWorker::initialize()
 {
     Engine = new QJSEngine();
 }
 
-void A3ScriptWorker::evaluate(const QString & script)
+void AJScriptWorker::evaluate(const QString & script)
 {
     if (bBusy) return;
 
@@ -75,7 +75,7 @@ void A3ScriptWorker::evaluate(const QString & script)
     emit evalFinished(ok);
 }
 
-void A3ScriptWorker::exit()
+void AJScriptWorker::exit()
 {
     Engine->setInterrupted(true);
     do {} while (!Engine->isInterrupted());

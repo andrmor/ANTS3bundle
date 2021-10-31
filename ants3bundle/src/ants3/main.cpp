@@ -1,4 +1,4 @@
-#include "a3scriptmanager.h"
+#include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
 #include "a3global.h"
 #include "ageometryhub.h"
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
-    A3ScriptManager * SM = new A3ScriptManager(&(*app));
+    AJScriptManager * SM = new AJScriptManager(&(*app));
     SM->registerInterface(new ADemo_SI(),      "demo");
     SM->registerInterface(new AMath_SI(),      "math");
     SM->registerInterface(new AFarm_SI(),      "farm");
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 #endif // GUI
     {
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
-        QObject::connect(SM, &A3ScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
+        QObject::connect(SM, &AJScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();
     }
 
