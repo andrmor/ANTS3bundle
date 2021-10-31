@@ -4,6 +4,10 @@
 #include "ageometryhub.h"
 #include "amaterialhub.h"
 
+#include "ademo_si.h"
+#include "afarm_si.h"
+#include "aphotonsim_si.h"
+
 #ifdef GUI
     #include <QApplication>
     #include "mainwindow.h"
@@ -21,6 +25,7 @@
 
 #include "TApplication.h"
 #include "TH1.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -54,6 +59,9 @@ int main(int argc, char *argv[])
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
     A3ScriptManager * SM = new A3ScriptManager(&(*app));
+    SM->registerInterface(new ADemo_SI(),      "demo");
+    SM->registerInterface(new AFarm_SI(),      "farm");
+    SM->registerInterface(new APhotonSim_SI(), "lsim");
 
     AMaterialHub::getInstance().addNewMaterial("Dummy", true);
 

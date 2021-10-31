@@ -3,10 +3,13 @@
 
 #include <QObject>
 #include <QJSValue>
+#include <QString>
+
+#include <vector>
 
 class QJSEngine;
 class QString;
-class ADispatcherInterface;
+class AScriptInterface;
 
 class A3ScriptWorker : public QObject
 {
@@ -19,11 +22,12 @@ public:
     void abort();
 
     QJSValue getResult() const {return Result;}
-    bool getError(QString & errorString, int & lineNumber, QString & errorFileName);
-    int getErrorLineNumber();
+    bool     getError(QString & errorString, int & lineNumber, QString & errorFileName);
+    int      getErrorLineNumber();
 
 public slots:
     void initialize();
+    void onRegisterInterface(AScriptInterface * interface, QString name);
     void evaluate(const QString & script);
     void exit();
 
@@ -32,11 +36,11 @@ signals:
     void stopped();
 
 protected:
-    ADispatcherInterface * Disp = nullptr;
+    QJSEngine            * Engine = nullptr;
+    bool                   bBusy  = false;
+    QJSValue               Result;
 
-    QJSEngine * Engine = nullptr;
-    bool bBusy = false;
-    QJSValue Result;
+    std::vector<AScriptInterface*> Interfaces;
 
 };
 

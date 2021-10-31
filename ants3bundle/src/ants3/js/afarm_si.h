@@ -1,20 +1,21 @@
-#ifndef A3FARMSI_H
-#define A3FARMSI_H
+#ifndef AFARM_SI_H
+#define AFARM_SI_H
+
+#include "ascriptinterface.h"
 
 #include <QObject>
 #include <QString>
 
 class AFarmHub;
 
-class A3FarmSI : public QObject
+class AFarm_SI : public AScriptInterface
 {
     Q_OBJECT
 
 public:
-    A3FarmSI(QObject * parent = nullptr);
+    AFarm_SI(QObject * parent = nullptr);
 
 public slots:
-
     void clearNodes();
     void addNode(QString Name, QString Address, int Port, int Cores, double SpeedFactor = 1.0);
 
@@ -22,4 +23,4 @@ private:
     AFarmHub & FarmHub;
 };
 
-#endif // A3FARMSI_H
+#endif // AFARM_SI_H

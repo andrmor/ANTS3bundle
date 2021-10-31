@@ -103,7 +103,9 @@ SOURCES += \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
-    js/aphotonsimsi.cpp \
+    js/ademo_si.cpp \
+    js/afarm_si.cpp \
+    js/aphotonsim_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -184,7 +186,6 @@ SOURCES += \
     tools/afiletools.cpp \
     gui/mainwindow.cpp \
     gui/guitools.cpp \
-    js/a3farmsi.cpp \
     tools/arandomhub.cpp \
     tools/ath.cpp \
     tools/avector.cpp
@@ -232,7 +233,10 @@ HEADERS += \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
-    js/aphotonsimsi.h \
+    js/ademo_si.h \
+    js/afarm_si.h \
+    js/aphotonsim_si.h \
+    js/ascriptinterface.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
@@ -317,7 +321,6 @@ HEADERS += \
     tools/afiletools.h \
     gui/mainwindow.h \
     gui/guitools.h \
-    js/a3farmsi.h \
     tools/arandomhub.h \
     tools/ath.h \
     tools/avector.h

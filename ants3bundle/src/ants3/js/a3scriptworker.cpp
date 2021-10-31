@@ -1,4 +1,5 @@
 #include "a3scriptworker.h"
+#include "ascriptinterface.h"
 
 #include <QJSEngine>
 #include <QDebug>
@@ -7,11 +8,23 @@ A3ScriptWorker::~A3ScriptWorker()
 {
     qDebug() << "Destr for ScriptWorker";
     delete Engine;
+
+    // do not delete script interfaces, it is automatic!
+}
+
+void A3ScriptWorker::onRegisterInterface(AScriptInterface * interface, QString name)
+{
+    QJSValue sv = Engine->newQObject(interface);
+    Engine->globalObject().setProperty(name, sv);
+    interface->Name = name;
+    Interfaces.push_back(interface);
 }
 
 void A3ScriptWorker::abort()
 {
     Engine->setInterrupted(true);
+
+    // interrupt all script interfaces!
 }
 
 bool A3ScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)
@@ -39,12 +52,13 @@ int A3ScriptWorker::getErrorLineNumber()
 }
 
 #include "ademomanager.h"
-#include "a3farmsi.h"
-#include "aphotonsimsi.h"
+#include "afarm_si.h"
+#include "aphotonsim_si.h"
 void A3ScriptWorker::initialize()
 {
     Engine = new QJSEngine();
 
+    /*
     // proper approach is to have a SI -> will be enforced later
     ADemoManager & DemoMan = ADemoManager::getInstance();
     QJSValue sv = Engine->newQObject(&DemoMan);
@@ -57,6 +71,7 @@ void A3ScriptWorker::initialize()
     APhotonSimSI * lsim = new APhotonSimSI(this);
     QJSValue svls = Engine->newQObject(lsim);
     Engine->globalObject().setProperty("lsim", svls);
+    */
 }
 
 void A3ScriptWorker::evaluate(const QString & script)
@@ -79,5 +94,6 @@ void A3ScriptWorker::exit()
 {
     Engine->setInterrupted(true);
     do {} while (!Engine->isInterrupted());
-    emit stopped();
+
+//    emit stopped();
 }

@@ -1,5 +1,6 @@
 #include "a3scriptmanager.h"
 #include "a3scriptworker.h"
+#include "ascriptinterface.h"
 
 #include <QThread>
 #include <QDebug>
@@ -15,7 +16,17 @@ A3ScriptManager::~A3ScriptManager()
 {
     qDebug() << "Destr for ScriptManager";
     Worker->abort();
-    emit doExit();
+    //emit doExit();
+    Worker->exit();
+    Thread->exit();
+    delete Worker;
+    delete Thread;
+}
+
+#include <QTimer>
+void A3ScriptManager::registerInterface(AScriptInterface * interface, QString name)
+{
+    emit doRegisterInterface(interface, name);
 }
 
 void A3ScriptManager::start()
@@ -33,6 +44,8 @@ void A3ScriptManager::start()
     connect(Worker, &A3ScriptWorker::stopped,     Thread, &QThread::quit);
     connect(Worker, &A3ScriptWorker::stopped,     Worker, &A3ScriptWorker::deleteLater);
     connect(Thread, &QThread::finished,           Thread, &QThread::deleteLater);
+
+    connect(this, &A3ScriptManager::doRegisterInterface, Worker, &A3ScriptWorker::onRegisterInterface);
 
     Thread->start();
 }
