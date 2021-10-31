@@ -51,40 +51,25 @@ int A3ScriptWorker::getErrorLineNumber()
     return Result.property("lineNumber").toInt();
 }
 
-#include "ademomanager.h"
-#include "afarm_si.h"
-#include "aphotonsim_si.h"
 void A3ScriptWorker::initialize()
 {
     Engine = new QJSEngine();
-
-    /*
-    // proper approach is to have a SI -> will be enforced later
-    ADemoManager & DemoMan = ADemoManager::getInstance();
-    QJSValue sv = Engine->newQObject(&DemoMan);
-    Engine->globalObject().setProperty("demo", sv);
-
-    A3FarmSI * farm = new A3FarmSI(this);
-    QJSValue svf = Engine->newQObject(farm);
-    Engine->globalObject().setProperty("farm", svf);
-
-    APhotonSimSI * lsim = new APhotonSimSI(this);
-    QJSValue svls = Engine->newQObject(lsim);
-    Engine->globalObject().setProperty("lsim", svls);
-    */
 }
 
 void A3ScriptWorker::evaluate(const QString & script)
 {
     if (bBusy) return;
 
-    Engine->setInterrupted(false);
+    for (AScriptInterface * inter : Interfaces) inter->beforeRun(); // !!!*** error control!
 
     bBusy = true;
+    Engine->setInterrupted(false);
     Result = Engine->evaluate(script);
     bBusy = false;
 
     qDebug() << "Script eval result:\n" << Result.toString();
+
+    for (AScriptInterface * inter : Interfaces) inter->afterRun(); // !!!*** error control!
 
     bool ok = !Result.isError();
     emit evalFinished(ok);
