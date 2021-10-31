@@ -105,6 +105,7 @@ SOURCES += \
     ademomanager.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
+    js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
@@ -236,6 +237,7 @@ HEADERS += \
     ademomanager.h \
     js/ademo_si.h \
     js/afarm_si.h \
+    js/ajscripthub.h \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/amath_si.h \

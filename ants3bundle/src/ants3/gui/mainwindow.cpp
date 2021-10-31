@@ -16,13 +16,14 @@
 #include "graphwindowclass.h"
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
+#include "ajscripthub.h"
 
 #include <QDebug>
 
 #include "TObject.h"
 
-MainWindow::MainWindow(AJScriptManager & SM) :
-    Config(A3Config::getInstance()), ScriptManager(SM),
+MainWindow::MainWindow() :
+    Config(A3Config::getInstance()),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -30,8 +31,9 @@ MainWindow::MainWindow(AJScriptManager & SM) :
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &MainWindow::onProgressReceived);
 
-    ADemoManager & DemoMan = ADemoManager::getInstance();
+    AJScriptManager & SM = AJScriptHub::manager();
     connect(&SM, &AJScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
+    ADemoManager & DemoMan = ADemoManager::getInstance();
     connect(&DemoMan, &ADemoManager::finished, this, &MainWindow::onDemoFinsihed);
 
     ui->pteData->appendPlainText(Config.lines);
@@ -100,7 +102,7 @@ void MainWindow::on_pbEvaluateScript_clicked()
     Config.lines = ui->pteData->document()->toPlainText();
 
     QString script = ui->pteScript->document()->toPlainText();
-    bool ok = ScriptManager.evaluate(script);
+    bool ok = AJScriptHub::manager().evaluate(script);
     if (!ok)
     {
         ui->pteScriptOut->clear();
@@ -118,10 +120,10 @@ void MainWindow::onScriptEvaluationFinished(bool bSuccess)
     ui->pteScriptOut->clear();
     if (!bSuccess)
     {
-        int ln = ScriptManager.getErrorLineNumber();
+        int ln = AJScriptHub::manager().getErrorLineNumber();
         ui->pteScriptOut->appendPlainText("Error in line " + QString::number(ln));
     }
-    ui->pteScriptOut->appendPlainText(ScriptManager.getResult().toString());
+    ui->pteScriptOut->appendPlainText(AJScriptHub::manager().getResult().toString());
 }
 
 #include "a3global.h"
@@ -175,7 +177,7 @@ void MainWindow::disableInterface(bool flag)
 
 void MainWindow::on_pbAbort_clicked()
 {
-    ScriptManager.abort();
+    AJScriptHub::manager().abort();
 }
 
 void MainWindow::on_pbGeometry_clicked()

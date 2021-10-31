@@ -1,13 +1,9 @@
-#include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
 #include "a3global.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
-
-#include "ademo_si.h"
-#include "amath_si.h"
-#include "afarm_si.h"
-#include "aphotonsim_si.h"
+#include "ajscripthub.h"
+#include "ajscriptmanager.h"
 
 #ifdef GUI
     #include <QApplication>
@@ -59,18 +55,14 @@ int main(int argc, char *argv[])
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
-    AJScriptManager * SM = new AJScriptManager(&(*app));
-    SM->registerInterface(new ADemo_SI(),      "demo");
-    SM->registerInterface(new AMath_SI(),      "math");
-    SM->registerInterface(new AFarm_SI(),      "farm");
-    SM->registerInterface(new APhotonSim_SI(), "lsim");
+    AJScriptHub::getInstance();
 
     AMaterialHub::getInstance().addNewMaterial("Dummy", true);
 
 #ifdef GUI
     if (argc == 1)
     {
-        MainWindow * w = new MainWindow(*SM);
+        MainWindow * w = new MainWindow();
         w->show();
         app->exec();
         delete w;
@@ -80,6 +72,7 @@ int main(int argc, char *argv[])
     if (argc > 1)  // later will be replaced with a proper line parser like in ants2
 #endif // GUI
     {
+        AJScriptManager * SM = &AJScriptHub::manager();
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
         QObject::connect(SM, &AJScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();

@@ -7,7 +7,6 @@ namespace Ui {
 class MainWindow;
 }
 class A3Config;
-class AJScriptManager;
 class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
@@ -22,7 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(AJScriptManager & SM);
+    explicit MainWindow();
     ~MainWindow();
 
 public slots:
@@ -30,7 +29,6 @@ public slots:
 
 private:
     A3Config          & Config;
-    AJScriptManager   & ScriptManager;
 
     Ui::MainWindow    * ui = nullptr;
 
