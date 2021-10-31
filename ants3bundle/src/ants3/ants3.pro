@@ -105,6 +105,7 @@ SOURCES += \
     ademomanager.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
+    js/amath_si.cpp \
     js/aphotonsim_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
@@ -235,6 +236,7 @@ HEADERS += \
     ademomanager.h \
     js/ademo_si.h \
     js/afarm_si.h \
+    js/amath_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
     particleSim/aeventtrackingrecord.h \

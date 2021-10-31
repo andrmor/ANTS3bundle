@@ -5,6 +5,7 @@
 #include "amaterialhub.h"
 
 #include "ademo_si.h"
+#include "amath_si.h"
 #include "afarm_si.h"
 #include "aphotonsim_si.h"
 
@@ -60,6 +61,7 @@ int main(int argc, char *argv[])
 
     A3ScriptManager * SM = new A3ScriptManager(&(*app));
     SM->registerInterface(new ADemo_SI(),      "demo");
+    SM->registerInterface(new AMath_SI(),      "math");
     SM->registerInterface(new AFarm_SI(),      "farm");
     SM->registerInterface(new APhotonSim_SI(), "lsim");
 
