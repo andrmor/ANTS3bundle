@@ -103,6 +103,7 @@ SOURCES += \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
+    js/acore_si.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
     js/ajscripthub.cpp \
@@ -235,6 +236,7 @@ HEADERS += \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
+    js/acore_si.h \
     js/ademo_si.h \
     js/afarm_si.h \
     js/ajscripthub.h \
