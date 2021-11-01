@@ -37,24 +37,13 @@
 #include <QHeaderView>
 
 AScriptWindow::AScriptWindow(QWidget *parent) :
-    //    AGuiWindow( (dynamic_cast<AJavaScriptManager*>(ScriptManager) ? "script" : "python" ), parent),
+    //    AGuiWindow("script"), parent),
     QMainWindow(parent),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AScriptWindow)
 {
     ui->setupUi(this);
     setWindowTitle("JavaScript");
-
-    /*
-    if (parent)
-    {
-        //not a standalone window
-        Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
-        windowFlags |= Qt::WindowCloseButtonHint;
-        //windowFlags |= Qt::Tool;
-        this->setWindowFlags( windowFlags );
-    }
-    */
 
     /*
     QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
@@ -67,11 +56,7 @@ AScriptWindow::AScriptWindow(QWidget *parent) :
     QObject::connect(ScriptManager, &AScriptManager::onFinish, this, &AScriptWindow::receivedOnSuccess);
 */
 
-    /*
-    ScriptManager->LibScripts  = &GlobSet.LibScripts;
-    ScriptManager->LastOpenDir = &GlobSet.LastOpenDir;
-    ScriptManager->ExamplesDir = &GlobSet.ExamplesDir;
-*/
+//    ScriptManager->ExamplesDir = &GlobSet.ExamplesDir;
 
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
@@ -609,39 +594,6 @@ void AScriptWindow::on_pbSaveAs_clicked()
 void AScriptWindow::on_pbExample_clicked()
 {
 /*
-    if (bLightMode)
-    {
-        if (!LightModeScript)
-        {
-            guitools::message("Error: script pointer is not set", this);
-            return;
-        }
-
-        if (!getTab()->TextEdit->document()->isEmpty())
-        {
-            QMessageBox b;
-            b.setText("Load / append example");
-            //msgBox.setInformativeText("Do you want to save your changes?");
-            QPushButton* append = b.addButton("Append", QMessageBox::AcceptRole);
-            b.addButton("Replace", QMessageBox::AcceptRole);
-            QPushButton* cancel = b.addButton("Cancel", QMessageBox::RejectRole);
-            b.setDefaultButton(cancel);
-
-            b.exec();
-
-            if (b.clickedButton() == cancel) return;
-            if (b.clickedButton() == append)
-                *LightModeScript += "\n" + LightModeExample;
-            else
-                *LightModeScript = LightModeExample;
-        }
-        else *LightModeScript = LightModeExample;
-
-        getTab()->TextEdit->clear();
-        getTab()->TextEdit->appendPlainText(*LightModeScript);
-        return;
-    }
-
     //reading example database
     QString target = (ScriptLanguage == AScriptLanguageEnum::JavaScript ? "ScriptExamples.cfg" : "PythonScriptExamples.cfg");
     QString RecordsFilename = GlobSet.ExamplesDir + "/" + target;
@@ -708,7 +660,6 @@ void AScriptWindow::updateJsonTree()
 {
     trwJson->clear();
 
-
     const QJsonObject & json = A3Config::getConstInstance().JSON;
     QJsonObject::const_iterator it;
     for (it = json.begin(); it != json.end(); ++it)
@@ -735,7 +686,6 @@ void AScriptWindow::updateJsonTree()
         foreach (QTreeWidgetItem* item, l)
             item->setExpanded(true);
     }
-    //qDebug() << "Expanded items:"<<ExpandedItemsInJsonTW.size();
 }
 
 void AScriptWindow::fillSubObject(QTreeWidgetItem *parent, const QJsonObject &obj)
@@ -1218,9 +1168,6 @@ void AScriptWindow::updateFileStatusIndication()
     else
     {
         ui->labWasModified->setVisible(bWasModified);
-#ifdef Q_OS_WIN32
-        fileName.replace("/", "\\");
-#endif
         s = fileName;
     }
     ui->pbFileName->setText(s);
@@ -1883,14 +1830,13 @@ void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
     else if (selectedItem == findVar)    emit requestFindVariable();
     else if (selectedItem == replaceSel) emit requestReplaceText();
 
-    else if (selectedItem == shiftBack) goBack();
+    else if (selectedItem == shiftBack)    goBack();
     else if (selectedItem == shiftForward) goForward();
 
-    else if (selectedItem == alignText) emit TextEdit->align();
-
-    else if (selectedItem == cut) TextEdit->cut();
-    else if (selectedItem == copy) TextEdit->copy();
-    else if (selectedItem == paste) TextEdit->paste();
+    else if (selectedItem == alignText) TextEdit->align();
+    else if (selectedItem == cut)       TextEdit->cut();
+    else if (selectedItem == copy)      TextEdit->copy();
+    else if (selectedItem == paste)     TextEdit->paste();
 }
 
 void ATabRecord::goBack()
