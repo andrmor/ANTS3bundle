@@ -110,7 +110,6 @@ private:
     QLineEdit *         leFindJ        = nullptr;
     QIcon *             RedIcon        = nullptr;
 
-    bool                bShowResult    = true;   //if false, window only reports "success", otherwise eval result is shown  !*! need it?
     bool                bShutDown      = false;
 
     QSet<QString>       ExpandedItemsInJsonTW;

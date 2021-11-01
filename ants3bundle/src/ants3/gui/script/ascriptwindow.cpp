@@ -231,7 +231,7 @@ void AScriptWindow::createGuiElements()
     splMain->addWidget(hor);
     //
     pteOut = new QPlainTextEdit();
-    pteOut->setMinimumHeight(25);
+    pteOut->setMinimumHeight(50);
     pteOut->setReadOnly(true);
     QPalette p = pteOut->palette();
     p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
@@ -478,11 +478,10 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         //success
-
         if (!ScriptManager.isAborted())
         {
-            //if (bShowResult && ResStr != "undefined" && !result.isEmpty())
-            outputText(resStr);
+            if (resStr != "undefined" && !resStr.isEmpty())
+                outputText(resStr);
         }
         else
         {
