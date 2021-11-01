@@ -80,7 +80,7 @@ public:
 
     void setAcceptRejectVisible();
     void updateJsonTree();
-    void ReportError(QString error, int line = 0);   //0 - no line is highligted
+    void reportError(QString error, int line = 0);   //0 - no line is highligted
     bool isAccepted() const {return bAccepted;}
 
 private:
@@ -172,9 +172,10 @@ private:
     void formatTab(ATabRecord *tab);
 
 public slots:
-    void clearOutputText();
-    void showHtmlText(QString text);
-    void showPlainText(QString text);
+    void clearOutput();
+    void outputHtml(QString text);
+    void outputText(QString text);
+
     void onLoadRequested(QString NewScript);
     void onProgressChanged(int percent);
 

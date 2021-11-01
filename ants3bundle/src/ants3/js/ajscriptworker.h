@@ -22,7 +22,11 @@ public:
     bool isBusy() const {return bBusy;}
     void abort();
 
+    void collectGarbage();
+
     QJSValue getResult() const {return Result;}
+
+    bool     isError() const;
     bool     getError(QString & errorString, int & lineNumber, QString & errorFileName);
     int      getErrorLineNumber();
 

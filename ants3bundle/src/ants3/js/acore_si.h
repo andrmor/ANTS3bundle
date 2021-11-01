@@ -32,9 +32,11 @@ public slots:
 
     //output part of the script window
     //void print(QString text);
-//    void print(QVariant message);
-//    void printHTML(QVariant message);
-//    void clearText();
+
+    void print(QVariant message);
+    void printHtml(QVariant message);
+    void clearText();
+
     bool strIncludes(QString str, QString pattern);
 
     //time stamps

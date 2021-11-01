@@ -21,13 +21,18 @@ public:
     const std::vector<AScriptInterface*> & getInterfaces() const;
 
     bool evaluate(const QString & script);
-    bool isRunning() const;
     void abort();
+
+    bool isRunning() const;
+    bool isAborted() const {return bAborted;}
 
     QJSValue getResult();
 
-    int getErrorLineNumber(); //-1 if not error state
-    bool getError(QString & errorString, int & lineNumber, QString & errorFileName); // false if busy or no error //***!!! handle interrupted
+    bool isError() const;
+    bool getError(QString & errorString, int & lineNumber); // false if busy or no error //***!!! handle interrupted
+    int  getErrorLineNumber(); //-1 if not error state
+
+    void collectGarbage();
 
 private:
     void start();
@@ -44,6 +49,8 @@ signals:
 protected:
     QThread        * Thread = nullptr;
     AJScriptWorker * Worker = nullptr;
+
+    bool bAborted = false;
 
 };
 

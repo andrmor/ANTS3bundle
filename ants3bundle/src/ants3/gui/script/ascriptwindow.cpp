@@ -297,17 +297,19 @@ void AScriptWindow::updateGui()
     updateFileStatusIndication();
 }
 
-void AScriptWindow::ReportError(QString error, int line)
+void AScriptWindow::reportError(QString error, int line)
 {
-    error = "<font color=\"red\">Error:</font><br>" + error;
-    pteOut->appendHtml( error );
+    //error = "<font color=\"red\">Error:</font><br>" + error;
+    error = "<font color=\"red\">" + error + "</font>";
+    pteOut->appendHtml(error);
+    qDebug() << "ln:" << line;
     highlightErrorLine(line);
 }
 
 void AScriptWindow::highlightErrorLine(int line)
 {
     if (line < 0) return;
-    if (line > 1) line--;
+    line--;
 
     ATextEdit * te = getTab()->TextEdit;
     if (!te) return;
@@ -335,12 +337,7 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    QJsonObject * ScriptWindowJsonPtr = nullptr;
-    //    if      (ScriptLanguage == AScriptLanguageEnum::JavaScript) ScriptWindowJsonPtr = &GlobSet.ScriptWindowJson;
-    //    else if (ScriptLanguage == AScriptLanguageEnum::Python)     ScriptWindowJsonPtr = &GlobSet.PythonScriptWindowJson;
-    if (!ScriptWindowJsonPtr) return;
-
-    writeToJson(*ScriptWindowJsonPtr);
+    writeToJson(GlobSet.ScriptWindowJson);
 }
 
 void AScriptWindow::writeToJson(QJsonObject & json)
@@ -364,12 +361,7 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 
 void AScriptWindow::ReadFromJson()
 {
-    QJsonObject * ScriptWindowJsonPtr = nullptr;
-    //    if      (ScriptLanguage == AScriptLanguageEnum::JavaScript) ScriptWindowJsonPtr = &GlobSet.ScriptWindowJson;
-    //    else if (ScriptLanguage == AScriptLanguageEnum::Python)     ScriptWindowJsonPtr = &GlobSet.PythonScriptWindowJson;
-    if (!ScriptWindowJsonPtr) return;
-
-    readFromJson(*ScriptWindowJsonPtr);
+    readFromJson(GlobSet.ScriptWindowJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -384,26 +376,18 @@ void AScriptWindow::readFromJson(QJsonObject & json)
 
     removeAllBooksExceptFirst();
 
-    if (json.contains("ScriptBooks")) //new system
+    QJsonArray ar = json["ScriptBooks"].toArray();
+    for (int iBook = 0; iBook < ar.size(); iBook++)
     {
-        QJsonArray ar = json["ScriptBooks"].toArray();
-        for (int iBook = 0; iBook < ar.size(); iBook++)
-        {
-            if (iBook != 0) addNewBook();
-            QJsonObject js = ar[iBook].toObject();
-            loadBook(iBook, js);
-        }
+        if (iBook != 0) addNewBook();
+        QJsonObject js = ar[iBook].toObject();
+        loadBook(iBook, js);
+    }
 
-        int iCur = 0;
-        jstools::parseJson(json, "CurrentBook", iCur);
-        if (iCur < 0 || iCur >= (int)ScriptBooks.size()) iCur = 0;
-        iCurrentBook = iCur;
-    }
-    else if (json.contains("ScriptTabs")) //old system, compatibility
-    {
-        loadBook(0, json);
-        iCurrentBook = 0;
-    }
+    int iCur = 0;
+    jstools::parseJson(json, "CurrentBook", iCur);
+    if (iCur < 0 || iCur >= (int)ScriptBooks.size()) iCur = 0;
+    iCurrentBook = iCur;
     twBooks->setCurrentIndex(iCurrentBook);
 
     updateFileStatusIndication();
@@ -440,19 +424,19 @@ void AScriptWindow::setAcceptRejectVisible()
     ui->pbRunScript->setFont(f);
 }
 
-void AScriptWindow::showHtmlText(QString text)
+void AScriptWindow::outputHtml(QString text)
 {
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
-void AScriptWindow::showPlainText(QString text)
+void AScriptWindow::outputText(QString text)
 {
     pteOut->appendPlainText(text);
     qApp->processEvents();
 }
 
-void AScriptWindow::clearOutputText()
+void AScriptWindow::clearOutput()
 {
     pteOut->clear();
     qApp->processEvents();
@@ -460,10 +444,9 @@ void AScriptWindow::clearOutputText()
 
 void AScriptWindow::on_pbRunScript_clicked()
 {
-/*
+    AJScriptManager & ScriptManager = AJScriptHub::manager();
     // save all tabs -> GlobSet
     WriteToJson();
-    //       GlobSet.saveANTSconfiguration();
     emit requestUpdateConfig();
 
     QString Script = getTab()->TextEdit->document()->toPlainText();
@@ -472,54 +455,43 @@ void AScriptWindow::on_pbRunScript_clicked()
     pteOut->clear();
     //AScriptWindow::ShowText("Processing script");
 
-    //syntax check
-    int errorLineNum = ScriptManager->FindSyntaxError(Script);
-    if (errorLineNum > -1)
-    {
-        AScriptWindow::ReportError("Syntax error!", errorLineNum);
-        return;
-    }
-
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
-    qApp->processEvents();
-    QString result = ScriptManager->Evaluate(Script);
+    ScriptManager.evaluate(Script);
+    do
+    {
+        QThread::msleep(50);
+        qApp->processEvents();
+    }
+    while (ScriptManager.isRunning());
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
 
-    if (!ScriptManager->getLastError().isEmpty())
-    {
-        ReportError("Script error: " + ScriptManager->getLastError(), ScriptManager->getLastErrorLineNumber());
-    }
-    else if (ScriptManager->isUncaughtException())
-    {
-        int lineNum = ScriptManager->getUncaughtExceptionLineNumber();
-        const QString guitools::message = ScriptManager->getUncaughtExceptionString();
-        //qDebug() << "Error guitools::message:" << guitools::message;
-        //QString backtrace = engine.uncaughtExceptionBacktrace().join('\n');
-        //qDebug() << "backtrace:" << backtrace;
-        ReportError("Script error: " + guitools::message, lineNum);
-    }
+    QJSValue resSV = ScriptManager.getResult();
+    QString  resStr = resSV.toString();
+    qDebug() << "Script returned:" << resStr;
+
+    if (ScriptManager.isError())
+        reportError(resStr, ScriptManager.getErrorLineNumber());
     else
     {
         //success
-        //qDebug() << "Script returned:" << result;
-        if (!ScriptManager->isEvalAborted())
+
+        if (!ScriptManager.isAborted())
         {
-            if (bShowResult && result != "undefined" && !result.isEmpty())
-                showPlainText("Script evaluation result:\n" + result);
+            //if (bShowResult && ResStr != "undefined" && !result.isEmpty())
+            outputText(resStr);
         }
         else
         {
-            //ShowText("Aborted!");
+//            ShowText("Aborted!");
         }
         ui->pbRunScript->setIcon(QIcon()); //clear red icon
     }
 
-    ScriptManager->collectGarbage();
-*/
+    ScriptManager.collectGarbage();
 }
 
 void AScriptWindow::onF1pressed(QString text)
@@ -715,12 +687,10 @@ void AScriptWindow::fillHelper(const AScriptInterface * io, QString module)
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
-        QString help = "Help not provided";
         QString methodName = Fshort.remove(QRegExp("\\((.*)\\)"));
         if (!module.isEmpty()) methodName.remove(0, module.length()+1); //remove module name and '.'
         const QString & str = io->getMethodHelp(methodName);
-        if (!str.isEmpty()) help = str;
-        fItem->setToolTip(0, help);
+        fItem->setToolTip(0, str);
     }
 }
 

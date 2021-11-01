@@ -1,5 +1,6 @@
 #include "acore_si.h"
 #include "ajscripthub.h"
+#include "ajscripthub.h"
 #include "ajscriptmanager.h"
 #include "afiletools.h"
 
@@ -135,27 +136,27 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
     }
 }
 
-/*
 void ACore_SI::print(QVariant message)
 {
     QString s;
     addQVariantToString(message, s);
     qDebug() << s;
-    emit ScriptManager->showPlainTextMessage(s);
+    emit AJScriptHub::getInstance().outputText(s);
 }
 
-void ACore_SI::printHTML(QVariant message)
+void ACore_SI::printHtml(QVariant message)
 {
     QString s;
     addQVariantToString(message, s);
     qDebug() << s;
-    emit ScriptManager->showMessage(s);
+    emit AJScriptHub::getInstance().outputHtml(s);
 }
+
 void ACore_SI::clearText()
 {
-    emit ScriptManager->clearText();
+    emit AJScriptHub::getInstance().clearOutput();
 }
-*/
+
 
 bool ACore_SI::strIncludes(QString str, QString pattern)
 {

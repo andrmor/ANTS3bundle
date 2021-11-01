@@ -8,13 +8,13 @@ ADemo_SI::ADemo_SI() :
 
 bool ADemo_SI::beforeRun()
 {
-    qDebug() << "Demo: before start evaluation";
+    //qDebug() << "Demo: before start evaluation";
     return true;
 }
 
 bool ADemo_SI::afterRun()
 {
-    qDebug() << "Demo: after end of evaluation";
+    //qDebug() << "Demo: after end of evaluation";
     return true;
 }
 

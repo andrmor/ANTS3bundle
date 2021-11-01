@@ -27,6 +27,16 @@ void AJScriptWorker::abort()
     // interrupt all script interfaces!
 }
 
+void AJScriptWorker::collectGarbage()
+{
+    Engine->collectGarbage();
+}
+
+bool AJScriptWorker::isError() const
+{
+    return Result.isError();
+}
+
 bool AJScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)
 {
     if (bBusy) return false;

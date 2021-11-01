@@ -79,6 +79,10 @@ MainWindow::MainWindow() :
 
     JScriptWin = new AScriptWindow(this);
     JScriptWin->registerInterfaces();
+    AJScriptHub * SH = &AJScriptHub::getInstance();
+    connect(SH, &AJScriptHub::clearOutput, JScriptWin, &AScriptWindow::clearOutput);
+    connect(SH, &AJScriptHub::outputText, JScriptWin, &AScriptWindow::outputText);
+    connect(SH, &AJScriptHub::outputHtml, JScriptWin, &AScriptWindow::outputHtml);
 }
 
 MainWindow::~MainWindow()

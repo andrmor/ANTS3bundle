@@ -29,6 +29,12 @@ private:
     AJScriptHub& operator=(const AJScriptHub&) = delete;
     AJScriptHub& operator=(AJScriptHub&&)      = delete;
 
+signals:
+    //for gui
+    void outputText(QString);
+    void outputHtml(QString);
+    void clearOutput();
+
 private:
     AJScriptManager * SM = nullptr;
 };

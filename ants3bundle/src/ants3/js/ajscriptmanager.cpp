@@ -65,6 +65,8 @@ bool AJScriptManager::evaluate(const QString &script)
     qDebug() << "Request to evaluate script:\n" << script;
     if (Worker->isBusy()) return false;
 
+    bAborted = false;
+
     emit doEval(script);
     return true;
 }
@@ -84,12 +86,23 @@ QJSValue AJScriptManager::getResult()
     return Worker->getResult();
 }
 
+bool AJScriptManager::isError() const
+{
+    return Worker->isError();
+}
+
 int AJScriptManager::getErrorLineNumber()
 {
     return Worker->getErrorLineNumber();
 }
 
-bool AJScriptManager::getError(QString & errorString, int & lineNumber, QString & errorFileName)
+bool AJScriptManager::getError(QString & errorString, int & lineNumber)
 {
-    return Worker->getError(errorString, lineNumber, errorFileName);
+    QString dummy;
+    return Worker->getError(errorString, lineNumber, dummy);
+}
+
+void AJScriptManager::collectGarbage()
+{
+    Worker->collectGarbage();
 }
