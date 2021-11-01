@@ -20,6 +20,8 @@ public:
 
 //    virtual bool isMultithreadCapable() const {return false;}
 
+    const QString & getMethodHelp(const QString & method) const;
+
     QString                    Name;
     QString                    Description;
     std::map<QString, QString> Help;
@@ -29,6 +31,9 @@ public:
 
 signals:
     void abort(QString);                      //abort request is automatically linked to abort slot of core unit
+
+private:
+    QString NoHelp = "Help not provided";
 };
 
 #endif // ASCRIPTINTERFACE_H

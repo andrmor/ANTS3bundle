@@ -3,7 +3,7 @@
 
 #include <QString>
 //#include <QStringList>
-//#include <QJsonObject>
+#include <QJsonObject>
 
 class A3Global final
 {
@@ -30,6 +30,13 @@ public:
 
     QString LastSaveDir;
     QString LastLoadDir;
+
+    // !!!*** rename
+    QJsonObject ScriptWindowJson;
+    int DefaultFontSize_ScriptWindow = 12;
+    QString DefaultFontFamily_ScriptWindow; //empty => Qt standard settings will be used
+    bool DefaultFontWeight_ScriptWindow = false;
+    bool DefaultFontItalic_ScriptWindow = false;
 
     void    configureDirectories();
     std::string checkExchangeDir();

@@ -29,6 +29,11 @@ void AJScriptManager::registerInterface(AScriptInterface * interface, QString na
     emit doRegisterInterface(interface, name);
 }
 
+const std::vector<AScriptInterface *> &AJScriptManager::getInterfaces() const
+{
+    return Worker->getInterfaces();
+}
+
 void AJScriptManager::start()
 {
     //qDebug() << "Starting script worlker"<< QThread::currentThreadId();

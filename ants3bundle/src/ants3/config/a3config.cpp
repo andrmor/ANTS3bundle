@@ -6,6 +6,7 @@
 #include "ainterfacerulehub.h"
 #include "asensorhub.h"
 #include "aparticlesimhub.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -15,10 +16,24 @@ A3Config & A3Config::getInstance()
     return instance;
 }
 
+const A3Config &A3Config::getConstInstance()
+{
+    return A3Config::getInstance();
+}
+
 A3Config::A3Config()
 {
     for (int i=0; i<25; i++)
         lines += QString("%0-abcdef\n").arg(i);
+}
+
+QString A3Config::load(const QString & fileName)
+{
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok) return "Cannot open config file: " + fileName;
+
+    return readFromJson(json);
 }
 
 void A3Config::writeToJson(QJsonObject & json) const
@@ -37,6 +52,8 @@ void A3Config::writeToJson(QJsonObject & json) const
 
 QString A3Config::readFromJson(const QJsonObject & json)
 {
+    // !!!*** restore from JSON if error
+
     QString ErrorString;
 
     ErrorString = AMaterialHub::getInstance().readFromJson(json);
@@ -62,6 +79,8 @@ QString A3Config::readFromJson(const QJsonObject & json)
 
     // Reconstruction
     // LRFs
+
+    JSON = json;
 
     return "";
 }

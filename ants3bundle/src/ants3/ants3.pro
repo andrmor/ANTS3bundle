@@ -47,6 +47,7 @@ INCLUDEPATH += gui/photsim
 INCLUDEPATH += gui/graph
 INCLUDEPATH += gui/farm
 INCLUDEPATH += gui/particleSim
+INCLUDEPATH += gui/script
 INCLUDEPATH += geo
 INCLUDEPATH += materials
 INCLUDEPATH += tools
@@ -103,6 +104,9 @@ SOURCES += \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
+    gui/script/ahighlighters.cpp \
+    gui/script/ascriptwindow.cpp \
+    gui/script/atextedit.cpp \
     js/acore_si.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
@@ -111,6 +115,7 @@ SOURCES += \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
     js/aphotonsim_si.cpp \
+    js/ascriptinterface.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -236,6 +241,9 @@ HEADERS += \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
+    gui/script/ahighlighters.h \
+    gui/script/ascriptwindow.h \
+    gui/script/atextedit.h \
     js/acore_si.h \
     js/ademo_si.h \
     js/afarm_si.h \
@@ -332,6 +340,7 @@ HEADERS += \
     tools/avector.h
 
 FORMS += \
+        gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \
         gui/farm/aremotewindow.ui \
         gui/graph/aaxesdialog.ui \

@@ -17,6 +17,7 @@
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
+#include "ascriptwindow.h"
 
 #include <QDebug>
 
@@ -75,6 +76,9 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
     connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, PartSimWin, &AParticleSimWin::updateGui);
     connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+
+    JScriptWin = new AScriptWindow(this);
+    JScriptWin->registerInterfaces();
 }
 
 MainWindow::~MainWindow()
@@ -215,10 +219,12 @@ void MainWindow::on_actionLoad_configuration_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, "Load configuration file");
     if (fileName.isEmpty()) return;
 
-    QJsonObject json;
-    jstools::loadJsonFromFile(json, fileName);
-
-    A3Config::getInstance().readFromJson(json);
+    QString err = A3Config::getInstance().load(fileName);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
 
     GeoConWin->updateGui();
     MatWin->initWindow();
@@ -261,3 +267,9 @@ void MainWindow::on_pbParticleSim_clicked()
     PartSimWin->updateGui();
 }
 
+void MainWindow::on_pbJavaScript_clicked()
+{
+    JScriptWin->showNormal();
+    JScriptWin->activateWindow();
+    JScriptWin->updateGui();
+}

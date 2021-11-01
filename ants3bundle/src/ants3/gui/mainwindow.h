@@ -15,6 +15,7 @@ class AInterfaceRuleWin;
 class GraphWindowClass;
 class ARemoteWindow;
 class AParticleSimWin;
+class AScriptWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -40,6 +41,7 @@ private:
     GraphWindowClass  * GraphWin   = nullptr;
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
+    AScriptWindow     * JScriptWin = nullptr;
 
 private slots:
     void onScriptEvaluationFinished(bool bSuccess);
@@ -65,6 +67,8 @@ private slots:
     void on_pbFarm_clicked();
 
     void on_pbParticleSim_clicked();
+
+    void on_pbJavaScript_clicked();
 
 private:
     void disableInterface(bool flag);

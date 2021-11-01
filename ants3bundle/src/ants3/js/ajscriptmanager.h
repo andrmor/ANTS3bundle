@@ -18,6 +18,7 @@ public:
     ~AJScriptManager();
 
     void registerInterface(AScriptInterface * interface, QString name);
+    const std::vector<AScriptInterface*> & getInterfaces() const;
 
     bool evaluate(const QString & script);
     bool isRunning() const;

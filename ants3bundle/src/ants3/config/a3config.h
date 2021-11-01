@@ -2,6 +2,7 @@
 #define A3CONFIG_H
 
 #include <QObject>
+#include <QJsonObject>
 #include <QString>
 #include <QStringList>
 
@@ -13,6 +14,7 @@ class A3Config final : public QObject
 
 public:
     static A3Config & getInstance();
+    static const A3Config & getConstInstance();
 
 private:
     A3Config();
@@ -35,15 +37,17 @@ public:
     // Reconstruction
     // AReconHub      -> TODO
 
-    QStringList ErrorList; // TODO: decide on the implementation!
+    QJsonObject JSON;
 
     // Temporary:
     QString     from = "b";
     QString     to   = "B";
     QString     lines;
 
+    QString load(const QString & fileName);
+
     void    writeToJson(QJsonObject & json) const;
-    QString readFromJson(const QJsonObject & json);
+    QString readFromJson(const QJsonObject & json);  // !!!***
 
 signals:
     void requestUpdateGeometryGui();

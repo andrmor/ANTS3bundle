@@ -26,6 +26,8 @@ public:
     bool     getError(QString & errorString, int & lineNumber, QString & errorFileName);
     int      getErrorLineNumber();
 
+    const std::vector<AScriptInterface*> & getInterfaces() const {return Interfaces;}
+
 public slots:
     void initialize();
     void onRegisterInterface(AScriptInterface * interface, QString name);
