@@ -21,21 +21,17 @@ public:
 //  ACore_SI(const ACore_SI& other);
 
 public slots:
-    //abort execution of the script
-    void abort(QString message = "Aborted!");
+    void abort(QString message);
+
+    void clearOutput();
+    void print(QVariant message);
+    void printHtml(QVariant message);
 
 //    QVariant evaluate(QString script);
 
     //time
     void          sleep(int ms);
 //    int           elapsedTimeInMilliseconds();
-
-    //output part of the script window
-    //void print(QString text);
-
-    void print(QVariant message);
-    void printHtml(QVariant message);
-    void clearText();
 
     bool strIncludes(QString str, QString pattern);
 
@@ -82,7 +78,7 @@ public slots:
     void processEvents();
 //  void reportProgress(int percents);
 
-    const QString StartExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
+    const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
 private:
     //file finder

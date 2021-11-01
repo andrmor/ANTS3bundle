@@ -29,9 +29,12 @@ ACore_SI::ACore_SI()
 {
     Description = "General-purpose opeartions: abort script, basic text output and file save/load";
 
-    Help["print"] = "Print the argument on the script output text field";
-    Help["clearText"] = "Clear the script output text field";
-    Help["abort"] = "Abort script execution.\nOptional string argument is a message to be shown on the script output text field";
+    Help["abort"] = "Abort script execution and show text (1st argument) in the output";
+
+    Help["clearOutput"] = "Clear the output text";
+    Help["print"] = "Appen the 1st argument to the output";
+    Help["printHtml"] = "Append the 1st argument, assuming it has HTML format, in the output";
+
     Help["save"] = "Add string (second argument) to the file with the name given by the first argument.\n"
               "Save is not performed (and false is returned) if the file does not exist\n"
               "It is a very slow method!\n"
@@ -152,7 +155,7 @@ void ACore_SI::printHtml(QVariant message)
     emit AJScriptHub::getInstance().outputHtml(s);
 }
 
-void ACore_SI::clearText()
+void ACore_SI::clearOutput()
 {
     emit AJScriptHub::getInstance().clearOutput();
 }
@@ -1091,7 +1094,7 @@ bool ACore_SI::setCirrentDir(QString path)
     return QDir::setCurrent(path);
 }
 
-const QString ACore_SI::StartExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
+const QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
 {
 #ifndef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
     abort("Launch of external process is not allowed.\nEnable \"_ALLOW_LAUNCH_EXTERNAL_PROCESS_\" in ants3.pro");
