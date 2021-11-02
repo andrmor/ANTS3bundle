@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>843</width>
-    <height>577</height>
+    <width>687</width>
+    <height>205</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -213,162 +213,50 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QPlainTextEdit" name="pteScript">
-          <property name="plainText">
-           <string>lsim.simulate(true)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pbEvaluateScript">
-          <property name="text">
-           <string>Evaluate</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="pteScriptOut"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QProgressBar" name="prBar">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>17</height>
-             </size>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbAbort">
-            <property name="text">
-             <string>Abort</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="minimumSize">
-         <size>
-          <width>10</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Demo:</string>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMinimumSize</enum>
+       <widget class="QPushButton" name="pbDemo">
+        <property name="text">
+         <string>Demo</string>
         </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="leFrom">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>transform to:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="leTo">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="pteData">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pbSimulate">
-          <property name="text">
-           <string>Run demo</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
@@ -377,7 +265,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>843</width>
+     <width>687</width>
      <height>22</height>
     </rect>
    </property>

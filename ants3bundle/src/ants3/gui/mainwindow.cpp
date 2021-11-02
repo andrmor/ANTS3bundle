@@ -1,12 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ajscriptmanager.h"
-#include "adispatcherinterface.h"
 #include "a3config.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
-#include "ademomanager.h"
 #include "a3geoconwin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
@@ -18,6 +15,7 @@
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
 #include "ascriptwindow.h"
+#include "ademowindow.h" // tmp
 
 #include <QDebug>
 
@@ -28,18 +26,6 @@ MainWindow::MainWindow() :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
-    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &MainWindow::onProgressReceived);
-
-    AJScriptManager & SM = AJScriptHub::manager();
-    connect(&SM, &AJScriptManager::finished, this, &MainWindow::onScriptEvaluationFinished);
-    ADemoManager & DemoMan = ADemoManager::getInstance();
-    connect(&DemoMan, &ADemoManager::finished, this, &MainWindow::onDemoFinsihed);
-
-    ui->pteData->appendPlainText(Config.lines);
-    ui->leFrom->setText(Config.from);
-    ui->leTo->setText(Config.to);
 
     AGeometryHub::getInstance().populateGeoManager();
 
@@ -83,6 +69,8 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::clearOutput, JScriptWin, &AScriptWindow::clearOutput);
     connect(SH, &AJScriptHub::outputText, JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml, JScriptWin, &AScriptWindow::outputHtml);
+
+    DemoWin = new ADemoWindow(this);
 }
 
 MainWindow::~MainWindow()
@@ -97,95 +85,6 @@ void MainWindow::onRebuildGeometryRequested()
     geom.populateGeoManager();
     GeoConWin->updateGui();
     GeoWin->ShowGeometry();
-}
-
-void MainWindow::onProgressReceived(double progress)
-{
-    ui->prBar->setValue(progress*100.0);
-}
-
-void MainWindow::on_pbEvaluateScript_clicked()
-{
-    ui->prBar->setValue(0);
-    Config.lines = ui->pteData->document()->toPlainText();
-
-    QString script = ui->pteScript->document()->toPlainText();
-    bool ok = AJScriptHub::manager().evaluate(script);
-    if (!ok)
-    {
-        ui->pteScriptOut->clear();
-        ui->pteScriptOut->appendPlainText("Script manager is busy!");
-    }
-
-    disableInterface(true);
-}
-
-#include <QJSValue>
-void MainWindow::onScriptEvaluationFinished(bool bSuccess)
-{
-    disableInterface(false);
-
-    ui->pteScriptOut->clear();
-    if (!bSuccess)
-    {
-        int ln = AJScriptHub::manager().getErrorLineNumber();
-        ui->pteScriptOut->appendPlainText("Error in line " + QString::number(ln));
-    }
-    ui->pteScriptOut->appendPlainText(AJScriptHub::manager().getResult().toString());
-}
-
-#include "a3global.h"
-void MainWindow::onDemoFinsihed()
-{
-    disableInterface(false);
-
-    ADemoManager & DemoMan = ADemoManager::getInstance();
-    if (!DemoMan.ErrorString.isEmpty())
-    {
-        guitools::message1(DemoMan.ErrorString, "Error!", this);
-        ui->prBar->setValue(0);
-    }
-    else
-    {
-        A3Global & GlobSet = A3Global::getInstance();
-        QString res;
-        ftools::loadTextFromFile(res, GlobSet.ExchangeDir + '/' + DemoMan.ResultsFileName);
-        ui->pteData->clear();
-        ui->pteData->appendPlainText(res);
-        ui->prBar->setValue(100.0);
-    }
-    qApp->processEvents();
-}
-
-void MainWindow::on_pbSimulate_clicked()
-{
-    ui->prBar->setValue(0);
-    disableInterface(true);
-    qApp->processEvents();
-
-    Config.lines = ui->pteData->document()->toPlainText();
-    ADemoManager & DemoMan = ADemoManager::getInstance();
-    DemoMan.run();
-}
-
-void MainWindow::on_leFrom_editingFinished()
-{
-    Config.from = ui->leFrom->text();
-}
-
-void MainWindow::on_leTo_editingFinished()
-{
-    Config.to = ui->leTo->text();
-}
-
-void MainWindow::disableInterface(bool flag)
-{
-    setDisabled(flag);
-}
-
-void MainWindow::on_pbAbort_clicked()
-{
-    AJScriptHub::manager().abort();
 }
 
 void MainWindow::on_pbGeometry_clicked()
@@ -277,3 +176,10 @@ void MainWindow::on_pbJavaScript_clicked()
     JScriptWin->activateWindow();
     JScriptWin->updateGui();
 }
+
+void MainWindow::on_pbDemo_clicked()
+{
+    DemoWin->showNormal();
+    DemoWin->activateWindow();
+}
+

@@ -16,6 +16,7 @@ class GraphWindowClass;
 class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
+class ADemoWindow; // tmp
 
 class MainWindow : public QMainWindow
 {
@@ -24,9 +25,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow();
     ~MainWindow();
-
-public slots:
-    void onProgressReceived(double progress);
 
 private:
     A3Config          & Config;
@@ -42,36 +40,25 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+    ADemoWindow       * DemoWin    = nullptr;
 
 private slots:
-    void onScriptEvaluationFinished(bool bSuccess);
-    void onDemoFinsihed();
     void onRebuildGeometryRequested();
 
-    void on_pbEvaluateScript_clicked();
-    void on_pbSimulate_clicked();
-    void on_leFrom_editingFinished();
-    void on_leTo_editingFinished();
-    void on_pbAbort_clicked();
+    void on_actionSave_configuration_triggered();
+    void on_actionLoad_configuration_triggered();
+
     void on_pbGeometry_clicked();
     void on_pbGeoWin_clicked();
     void on_pbMaterials_clicked();
-    void on_actionSave_configuration_triggered();
-    void on_actionLoad_configuration_triggered();
     void on_pbPhotSim_clicked();
-
     void on_pbInterfaceRules_clicked();
-
     void on_pbGraphWin_clicked();
-
     void on_pbFarm_clicked();
-
     void on_pbParticleSim_clicked();
-
     void on_pbJavaScript_clicked();
 
-private:
-    void disableInterface(bool flag);
+    void on_pbDemo_clicked();
 };
 
 #endif // MAINWINDOW_H
