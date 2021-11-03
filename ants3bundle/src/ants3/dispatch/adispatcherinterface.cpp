@@ -161,6 +161,7 @@ void ADispatcherInterface::waitForReply()
 void ADispatcherInterface::abortTask()
 {
     bAbortRequested = true;
+    Dispatcher->abortExecution();
 }
 
 void ADispatcherInterface::onProgressReceived(double progress)

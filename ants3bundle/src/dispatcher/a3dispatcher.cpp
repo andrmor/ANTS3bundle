@@ -90,6 +90,7 @@ void A3Dispatcher::onReportProgressTimer()
 
 void A3Dispatcher::executeLocalCommand(QJsonObject json)
 {
+    bAbortRequested = false;
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
 
@@ -137,7 +138,7 @@ void A3Dispatcher::executeLocalCommand(QJsonObject json)
 #endif
 
     waitForWorkFinished();
-    //qDebug() << "DEBUG:FINISHED";
+    qDebug() << "All processes are finished";
 
     //bool ok = checkExitStatusOfWorkers();
 
@@ -165,6 +166,7 @@ bool A3Dispatcher::startWorkHere(const QString & executable, const QString & exc
 #ifdef WEBSOCKETS
 void A3Dispatcher::onRemoteCommandReceived(QJsonObject json)
 {
+    bAbortRequested = false;
     A3WorkDistrConfig wdc;
     wdc.readFromJson(json);
 
@@ -215,13 +217,23 @@ void A3Dispatcher::waitForWorkFinished()
     bool bAllStopped;
     do
     {
-        qApp->processEvents();
         QThread::usleep(100);
+        qApp->processEvents();
+
+        if (bAbortRequested)
+        {
+            for (A3WorkerHandler * h : Handlers) h->abort();
+            break;
+        }
+
         bAllStopped = true;
         for (A3WorkerHandler * h : Handlers)
         {
-            if (h->isRunning()) bAllStopped = false;
-            //break;
+            if (h->isRunning())
+            {
+                bAllStopped = false;
+                break;
+            }
         }
     }
     while (!bAllStopped);

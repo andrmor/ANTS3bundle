@@ -28,6 +28,7 @@ public slots:
     void start();
 
     void executeLocalCommand(QJsonObject json);
+    void abortExecution() {bAbortRequested = true;}
 
 signals:
     void workFinished(QJsonObject result);
@@ -47,6 +48,8 @@ protected:
     std::vector<A3WorkerHandler*> Handlers;
 
     QString StandaloneDir;
+
+    bool    bAbortRequested = false;
 
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);

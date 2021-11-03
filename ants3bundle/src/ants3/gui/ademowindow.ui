@@ -96,11 +96,34 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pbRun">
-      <property name="text">
-       <string>Run demo</string>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
       </property>
-     </widget>
+      <item>
+       <widget class="QPushButton" name="pbRun">
+        <property name="text">
+         <string>Run demo</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbAbort">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Abort</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QProgressBar" name="prBar">

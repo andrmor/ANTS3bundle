@@ -17,6 +17,8 @@ class ADemoManager : public QObject
 public:
     static ADemoManager & getInstance();
 
+    void abort();
+
 private:
     ADemoManager();
     ~ADemoManager(){}
@@ -31,18 +33,17 @@ public:
 
     QString ErrorString;
 
-    bool bAbortRequested = false;
 
 public slots:
     bool run(int numLocalProc = -1);
 
 signals:
-    void finished();
+    void finished(bool bSuccess);
 
 protected:
     ADispatcherInterface & Dispatch;
-
     std::vector<QString>   OutputFiles;
+    bool                   bAborted = false;
 
     bool configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 };

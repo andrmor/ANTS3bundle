@@ -42,6 +42,7 @@ void ADemoWindow::on_pbRun_clicked()
 
     Config.lines = ui->pteData->document()->toPlainText();
     ADemoManager & DemoMan = ADemoManager::getInstance();
+    ui->pbAbort->setEnabled(true);
     DemoMan.run();
 }
 
@@ -51,9 +52,12 @@ void ADemoWindow::onProgressReceived(double progress)
 }
 
 #include "a3global.h"
-void ADemoWindow::onDemoFinsihed()
+void ADemoWindow::onDemoFinsihed(bool bSuccess)
 {
     setDisabled(false);
+    ui->pbAbort->setEnabled(false);
+
+    if (!bSuccess) return;
 
     ADemoManager & DemoMan = ADemoManager::getInstance();
     if (!DemoMan.ErrorString.isEmpty())
@@ -82,3 +86,9 @@ void ADemoWindow::on_leTo_editingFinished()
 {
     Config.to = ui->leTo->text();
 }
+
+void ADemoWindow::on_pbAbort_clicked()
+{
+    ADemoManager::getInstance().abort();
+}
+

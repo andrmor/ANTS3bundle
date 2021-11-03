@@ -56,7 +56,7 @@ protected:
     QJsonObject    Reply;
     std::mutex     ReplyMutex;
 
-    bool           bAbortRequested = false;
+    bool           bAbortRequested = false; // !!!*** need?
 
 private:
     void clearOutputFiles(const A3WorkDistrConfig & Request);

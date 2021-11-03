@@ -24,7 +24,7 @@ ADemoManager &ADemoManager::getInstance()
 bool ADemoManager::run(int numLocalProc)
 {
     qDebug() << "Mock work triggered";
-    bAbortRequested = false;
+    bAborted = false;
     ErrorString.clear();
 
     A3Config & Config = A3Config::getInstance();
@@ -54,13 +54,25 @@ bool ADemoManager::run(int numLocalProc)
     QJsonObject Reply = Dispatch.performTask(Request);
     qDebug() << "Reply:" << Reply;
 
+    if (bAborted)
+    {
+        emit finished(false);
+        return false;
+    }
+
     qDebug() << "Merging files...";
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     ftools::mergeTextFiles(OutputFiles, ExchangeDir + '/' + ResultsFileName);
 
     qDebug() << "Mock work finished";
-    emit finished();
+    emit finished(true);
     return true;
+}
+
+void ADemoManager::abort()
+{
+    Dispatch.abortTask();
+    bAborted = true;
 }
 
 bool ADemoManager::configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)

@@ -19,12 +19,14 @@ public:
 
 private slots:
     void onProgressReceived(double progress);
-    void onDemoFinsihed();
+    void onDemoFinsihed(bool bSuccess);
 
     void on_pbRun_clicked();
 
     void on_leFrom_editingFinished();
     void on_leTo_editingFinished();
+
+    void on_pbAbort_clicked();
 
 private:
     Ui::ADemoWindow *ui;

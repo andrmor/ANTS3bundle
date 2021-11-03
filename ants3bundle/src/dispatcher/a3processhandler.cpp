@@ -47,10 +47,10 @@ bool A3ProcessHandler::start()
 
 void A3ProcessHandler::abort()
 {
-
+    Process->kill();
 }
 
-#include <QDebug> // make sure to use "DEBUG:" on start of the message!!!
+#include <QDebug>
 void A3ProcessHandler::onReadReady()
 {
     QString in = Process->readAllStandardOutput();
