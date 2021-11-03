@@ -104,6 +104,16 @@ void MainWindow::on_pbMaterials_clicked()
     MatWin->showNormal();
 }
 
+void MainWindow::on_pbLoadConfig_clicked()
+{
+    on_actionLoad_configuration_triggered();
+}
+
+void MainWindow::on_pbSaveConfig_clicked()
+{
+    on_actionSave_configuration_triggered();
+}
+
 #include "ajsontools.h"
 #include <QFileDialog>
 void MainWindow::on_actionSave_configuration_triggered()
@@ -182,4 +192,3 @@ void MainWindow::on_pbDemo_clicked()
     DemoWin->showNormal();
     DemoWin->activateWindow();
 }
-

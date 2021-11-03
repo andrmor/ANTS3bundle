@@ -59,6 +59,8 @@ private slots:
     void on_pbJavaScript_clicked();
 
     void on_pbDemo_clicked();
+    void on_pbLoadConfig_clicked();
+    void on_pbSaveConfig_clicked();
 };
 
 #endif // MAINWINDOW_H
