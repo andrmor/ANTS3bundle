@@ -53,6 +53,7 @@ protected:
 
     void    localReplyFinished();
     void    localReplyError(const QString & ErrorMessage);
+    void    localReplyAborted();
     void    log(const QString & text);
     bool    startWorkHere(const QString & executable, const QString & exchangeDir, const A3WorkNodeConfig & localNode);
     void    waitForWorkFinished();

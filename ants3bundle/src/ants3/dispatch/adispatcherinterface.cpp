@@ -143,17 +143,12 @@ QJsonObject ADispatcherInterface::performTask(const A3WorkDistrConfig & Request)
 
 void ADispatcherInterface::waitForReply()
 {
-    // TODO: filter reply! need "status: finished" or error
+    // TODO: filter reply! error?
 
     while (Reply.isEmpty())
     {
         QThread::msleep(50);
         qApp->processEvents();
-
-        if (bAbortRequested)
-        {
-            // !!!***
-        }
     }
     return;
 }

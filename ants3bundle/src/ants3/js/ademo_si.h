@@ -12,6 +12,7 @@ public:
 
     bool beforeRun() override;  // just as an example
     bool afterRun()  override;  // just as an example
+    void abortRun()  override;
 
 public slots:
     bool run(int numLocalProc = -1);

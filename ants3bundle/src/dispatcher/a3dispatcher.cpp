@@ -144,7 +144,8 @@ void A3Dispatcher::executeLocalCommand(QJsonObject json)
 
     clearHandlers();
 
-    // TODO -> sim error processing
+    // TODO -> error processing
+    if (bAbortRequested) localReplyAborted(); // !!!*** more general?
 
     localReplyFinished();
 }
@@ -257,6 +258,14 @@ void A3Dispatcher::localReplyError(const QString & ErrorMessage)
     QJsonObject js;
     js["Success"] = false;
     js["Error"]   = ErrorMessage;
+    emit workFinished(js);
+}
+
+void A3Dispatcher::localReplyAborted()
+{
+    QJsonObject js;
+    js["Success"] = false;
+    js["Error"]   = "Aborted";
     emit workFinished(js);
 }
 

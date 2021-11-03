@@ -18,6 +18,7 @@ public:
     static ADemoManager & getInstance();
 
     void abort();
+    void abortedByScript() {bAborted = true;};
 
 private:
     ADemoManager();

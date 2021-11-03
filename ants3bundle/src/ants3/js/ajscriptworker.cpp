@@ -22,7 +22,7 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
 
 void AJScriptWorker::abort()
 {
-    for (AScriptInterface * inter : Interfaces) inter->bAbortRequested = true;
+    for (AScriptInterface * inter : Interfaces) inter->abortRun();
 
     Engine->setInterrupted(true);
 }
@@ -71,10 +71,7 @@ void AJScriptWorker::evaluate(const QString & script)
     if (bBusy) return;
 
     for (AScriptInterface * inter : Interfaces)
-    {
-        inter->bAbortRequested = false;
         inter->beforeRun(); // !!!*** error control!
-    }
 
     bBusy = true;
     Engine->setInterrupted(false);

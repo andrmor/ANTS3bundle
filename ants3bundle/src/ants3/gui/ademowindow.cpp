@@ -21,8 +21,8 @@ ADemoWindow::ADemoWindow(QWidget *parent) :
     ADemoManager & DemoMan = ADemoManager::getInstance();
     connect(&DemoMan, &ADemoManager::finished, this, &ADemoWindow::onDemoFinsihed);
 
-    AJScriptManager * SM = &AJScriptHub::manager();
-    connect(SM, &AJScriptManager::finished, this, &ADemoWindow::onDemoFinsihed);
+//    AJScriptManager * SM = &AJScriptHub::manager();
+//    connect(SM, &AJScriptManager::finished, this, &ADemoWindow::onDemoFinsihed);
 
     ui->pteData->appendPlainText(Config.lines);
     ui->leFrom->setText(Config.from);
@@ -37,7 +37,7 @@ ADemoWindow::~ADemoWindow()
 void ADemoWindow::on_pbRun_clicked()
 {
     ui->prBar->setValue(0);
-    setDisabled(true);
+    disableInterface(true);
     qApp->processEvents();
 
     Config.lines = ui->pteData->document()->toPlainText();
@@ -54,7 +54,9 @@ void ADemoWindow::onProgressReceived(double progress)
 #include "a3global.h"
 void ADemoWindow::onDemoFinsihed(bool bSuccess)
 {
-    setDisabled(false);
+    qDebug() << "finished, result:    " << bSuccess;
+
+    disableInterface(false);
     ui->pbAbort->setEnabled(false);
 
     if (!bSuccess) return;
@@ -90,5 +92,11 @@ void ADemoWindow::on_leTo_editingFinished()
 void ADemoWindow::on_pbAbort_clicked()
 {
     ADemoManager::getInstance().abort();
+}
+
+void ADemoWindow::disableInterface(bool flag)
+{
+    ui->frInput->setDisabled(flag);
+    ui->pbRun->setDisabled(flag);
 }
 

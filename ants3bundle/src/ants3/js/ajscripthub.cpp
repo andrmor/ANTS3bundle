@@ -22,10 +22,10 @@ AJScriptManager &AJScriptHub::manager()
 #include "adispatcherinterface.h"
 void AJScriptHub::abort(const QString & message)
 {
-    ADispatcherInterface::getInstance().abortTask();
-
     AJScriptHub & hub = getInstance();
     hub.SM->abort();
+
+    ADispatcherInterface::getInstance().abortTask();
 
     emit hub.showAbortMessage(message);
 }

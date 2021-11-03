@@ -29,9 +29,10 @@ private slots:
     void on_pbAbort_clicked();
 
 private:
-    Ui::ADemoWindow *ui;
+    Ui::ADemoWindow * ui;
+    A3Config        & Config;
 
-    A3Config & Config;
+    void disableInterface(bool flag);
 };
 
 #endif // ADEMOWINDOW_H

@@ -15,6 +15,7 @@ public:
 
     virtual bool beforeRun() {return true;}   // automatically called before script evaluation
     virtual bool afterRun()  {return true;}   // automatically called after  script evaluation
+    virtual void abortRun()  {}
 
 //    virtual bool isMultithreadCapable() const {return false;}
 
@@ -27,6 +28,8 @@ public:
     std::map<QString, QString> RemovedMethods;
 
     bool bGuiThread      = true;
+
+protected:
     bool bAbortRequested = false; // each unit have to be aaware of this flag! Dispatcher-based tasks are aborter automatically!
 
 signals:
