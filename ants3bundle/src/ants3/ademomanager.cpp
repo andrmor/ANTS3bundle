@@ -24,6 +24,7 @@ ADemoManager &ADemoManager::getInstance()
 bool ADemoManager::run(int numLocalProc)
 {
     qDebug() << "Mock work triggered";
+    bAbortRequested = false;
     ErrorString.clear();
 
     A3Config & Config = A3Config::getInstance();

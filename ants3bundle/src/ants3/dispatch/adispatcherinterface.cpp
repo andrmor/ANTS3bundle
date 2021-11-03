@@ -126,6 +126,7 @@ QJsonObject ADispatcherInterface::performTask(const A3WorkDistrConfig & Request)
 {
     clearOutputFiles(Request);
 
+    bAbortRequested = false;
     Reply = QJsonObject();
     NumEvents = Request.NumEvents;
 
@@ -148,8 +149,18 @@ void ADispatcherInterface::waitForReply()
     {
         QThread::msleep(50);
         qApp->processEvents();
+
+        if (bAbortRequested)
+        {
+            // !!!***
+        }
     }
     return;
+}
+
+void ADispatcherInterface::abortTask()
+{
+    bAbortRequested = true;
 }
 
 void ADispatcherInterface::onProgressReceived(double progress)

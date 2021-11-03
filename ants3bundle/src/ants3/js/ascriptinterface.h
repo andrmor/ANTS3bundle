@@ -16,8 +16,6 @@ public:
     virtual bool beforeRun() {return true;}   // automatically called before script evaluation
     virtual bool afterRun()  {return true;}   // automatically called after  script evaluation
 
-    virtual void forceStop() {}               // called when abort was triggered
-
 //    virtual bool isMultithreadCapable() const {return false;}
 
     const QString & getMethodHelp(const QString & method) const;
@@ -27,10 +25,12 @@ public:
     std::map<QString, QString> Help;
     std::map<QString, QString> DeprecatedMethods;
     std::map<QString, QString> RemovedMethods;
-//    bool GuiThread = true;
+
+    bool bGuiThread      = true;
+    bool bAbortRequested = false; // each unit have to be aaware of this flag! Dispatcher-based tasks are aborter automatically!
 
 signals:
-    void abort(QString);                      //abort request is automatically linked to abort slot of core unit
+    void abort(QString); // !!!*** make a method?
 
 private:
     QString NoHelp = "Help not provided";

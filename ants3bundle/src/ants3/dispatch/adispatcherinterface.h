@@ -35,6 +35,9 @@ public:
     QJsonObject performTask(const A3WorkDistrConfig & Request);
     void        waitForReply();
 
+    void        abortTask();
+
+
 public slots:
     void        aboutToQuit();
 
@@ -52,6 +55,8 @@ protected:
     int            NumEvents;
     QJsonObject    Reply;
     std::mutex     ReplyMutex;
+
+    bool           bAbortRequested = false;
 
 private:
     void clearOutputFiles(const A3WorkDistrConfig & Request);

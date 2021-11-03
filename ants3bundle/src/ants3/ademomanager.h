@@ -31,6 +31,8 @@ public:
 
     QString ErrorString;
 
+    bool bAbortRequested = false;
+
 public slots:
     bool run(int numLocalProc = -1);
 

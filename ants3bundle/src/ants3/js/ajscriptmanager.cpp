@@ -76,8 +76,9 @@ bool AJScriptManager::isRunning() const
     return Worker->isBusy();
 }
 
-void AJScriptManager::abort()
+void AJScriptManager::abort() // to abort script use AJScriptHub::abort(message)
 {
+    bAborted = true;
     Worker->abort();
 }
 

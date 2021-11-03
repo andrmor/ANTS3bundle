@@ -508,15 +508,13 @@ void AScriptWindow::onF1pressed(QString text)
 
 void AScriptWindow::on_pbStop_clicked()
 {
-/*
-    if (ScriptManager->isEngineRunning())
+    AJScriptManager & ScriptManager = AJScriptHub::manager();
+    if (ScriptManager.isRunning())
     {
         qDebug() << "Stop button pressed!";
-        showPlainText("Sending stop signal...");
-        ScriptManager->AbortEvaluation("Aborted by user!");
+        AJScriptHub::abort("<p style='color:red'>Aborting...</p>");
         qApp->processEvents();
     }
-*/
 }
 
 void AScriptWindow::on_pbLoad_clicked()

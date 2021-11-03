@@ -21,7 +21,7 @@ public:
     const std::vector<AScriptInterface*> & getInterfaces() const;
 
     bool evaluate(const QString & script);
-    void abort();
+    void abort();  // to abort script use AJScriptHub::abort(message)
 
     bool isRunning() const;
     bool isAborted() const {return bAborted;}
@@ -30,7 +30,7 @@ public:
 
     bool isError() const;
     bool getError(QString & errorString, int & lineNumber); // false if busy or no error //***!!! handle interrupted
-    int  getErrorLineNumber(); //-1 if not error state
+    int  getErrorLineNumber(); //-1 if no errors
 
     void collectGarbage();
 

@@ -269,14 +269,15 @@ signals:
     void RequestDraw(TObject* obj, QString options, bool fFocus);
     void onStart();
     void onAbort();
-//    void onFinish(bool bError); // !!!***
-    void success(QString eval); // !!!*** rename
-    void requestUpdateConfig();
+//    void onFinish(bool bError); // !!!*** signal of the manager is enough?
+    void success(QString eval);   // !!!*** signal of the manager is enough?
+    void requestUpdateConfig();   // !!!***
 
 private:
     void registerInterface(const AScriptInterface * interface); // !!!***
 };
 
+// !!!*** to a separate file
 class ATabRecord : public QObject
 {
     Q_OBJECT

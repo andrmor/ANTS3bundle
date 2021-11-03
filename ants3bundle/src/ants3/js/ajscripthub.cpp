@@ -19,10 +19,14 @@ AJScriptManager &AJScriptHub::manager()
     return getInstance().getJScriptManager();
 }
 
+#include "adispatcherinterface.h"
 void AJScriptHub::abort(const QString & message)
 {
+    ADispatcherInterface::getInstance().abortTask();
+
     AJScriptHub & hub = getInstance();
     hub.SM->abort();
+
     emit hub.showAbortMessage(message);
 }
 

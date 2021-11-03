@@ -10,8 +10,8 @@ class ADemo_SI : public AScriptInterface
 public:
     ADemo_SI();
 
-    bool beforeRun() override;
-    bool afterRun()  override;
+    bool beforeRun() override;  // just as an example
+    bool afterRun()  override;  // just as an example
 
 public slots:
     bool run(int numLocalProc = -1);
