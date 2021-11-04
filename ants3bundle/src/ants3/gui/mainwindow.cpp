@@ -126,25 +126,21 @@ void MainWindow::on_pbSaveConfig_clicked()
     on_actionSave_configuration_triggered();
 }
 
-#include "ajsontools.h"
-#include <QFileDialog>
 void MainWindow::on_actionSave_configuration_triggered()
 {
-    QJsonObject json;
-    AConfig::getInstance().writeToJson(json);
-
-    QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");  // !!!***
+    QString fileName = guitools::dialogSaveFile(this, "Save configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
 
-    jstools::saveJsonToFile(json, fileName);
+    QString err = Config.save(fileName);
+    if (!err.isEmpty()) guitools::message(err, this);
 }
 
 void MainWindow::on_actionLoad_configuration_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Load configuration file");
+    QString fileName = guitools::dialogLoadFile(this, "Load configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
 
-    QString err = AConfig::getInstance().load(fileName);
+    QString err = Config.load(fileName);
     if (!err.isEmpty())
     {
         guitools::message(err, this);

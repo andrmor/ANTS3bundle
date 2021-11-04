@@ -93,6 +93,7 @@ QIcon guitools::createColorCircleIcon(QSize size, Qt::GlobalColor color)
     return QIcon(pm);
 }
 
+// file pattern example:   "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
 QString guitools::dialogSaveFile(QWidget * parent, const QString & text, const QString & filePattern)
 {
     A3Global & GlobSet = A3Global::getInstance();

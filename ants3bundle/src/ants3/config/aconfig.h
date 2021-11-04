@@ -48,6 +48,7 @@ public:
     QString     lines;
 
     QString load(const QString & fileName);
+    QString save(const QString & fileName);
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);  // !!!***

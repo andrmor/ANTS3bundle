@@ -36,6 +36,15 @@ QString AConfig::load(const QString & fileName)
     return readFromJson(json);
 }
 
+QString AConfig::save(const QString & fileName)
+{
+    writeToJson(JSON);
+
+    bool ok = jstools::saveJsonToFile(JSON, fileName);
+    if (ok) return "";
+    else    return "Cannot open file to save config:\n" + fileName;
+}
+
 void AConfig::writeToJson(QJsonObject & json) const
 {
     json["ConfigName"]        = ConfigName;
