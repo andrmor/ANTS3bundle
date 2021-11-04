@@ -39,6 +39,9 @@ public:
 
     QJsonObject JSON;
 
+    QString     ConfigName = "--";
+    QString     ConfigDescription = "Description not provided";
+
     // Temporary:
     QString     from = "b";
     QString     to   = "B";
@@ -50,6 +53,7 @@ public:
     QString readFromJson(const QJsonObject & json);  // !!!***
 
 signals:
+    // !!!*** remove? The caller of loadConfig() will receive the result, if OK, then request update gui
     void requestUpdateGeometryGui();
     void requestUpdateInterfaceRuleGui();
     void requestUpdatePhotSimGui();

@@ -38,6 +38,9 @@ QString A3Config::load(const QString & fileName)
 
 void A3Config::writeToJson(QJsonObject & json) const
 {
+    json["ConfigName"]        = ConfigName;
+    json["ConfigDescription"] = ConfigDescription;
+
     AMaterialHub::getInstance().writeToJson(json);
     AGeometryHub::getInstance().writeToJson(json);
     AInterfaceRuleHub::getInstance().writeToJson(json);
@@ -53,6 +56,10 @@ void A3Config::writeToJson(QJsonObject & json) const
 QString A3Config::readFromJson(const QJsonObject & json)
 {
     // !!!*** restore from JSON if error
+
+
+    jstools::parseJson(json, "ConfigName",        ConfigName);
+    jstools::parseJson(json, "ConfigDescription", ConfigDescription);
 
     QString ErrorString;
 
@@ -81,6 +88,5 @@ QString A3Config::readFromJson(const QJsonObject & json)
     // LRFs
 
     JSON = json;
-
     return "";
 }

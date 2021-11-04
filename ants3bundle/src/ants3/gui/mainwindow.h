@@ -26,6 +26,8 @@ public:
     explicit MainWindow();
     ~MainWindow();
 
+    void updateGui();
+
 private:
     A3Config          & Config;
 
@@ -61,6 +63,8 @@ private slots:
     void on_pbDemo_clicked();
     void on_pbLoadConfig_clicked();
     void on_pbSaveConfig_clicked();
+    void on_leConfigName_editingFinished();
+    void on_pteConfigDescription_textChanged();
 };
 
 #endif // MAINWINDOW_H

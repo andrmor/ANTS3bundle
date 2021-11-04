@@ -71,12 +71,24 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputHtml, JScriptWin, &AScriptWindow::outputHtml);
 
     DemoWin = new ADemoWindow(this);
+
+    updateGui();
 }
 
 MainWindow::~MainWindow()
 {
     delete GeoConWin;
     delete ui;
+}
+
+void MainWindow::updateGui()
+{
+    ui->leConfigName->setText(Config.ConfigName);
+
+    ui->pteConfigDescription->blockSignals(true);
+    ui->pteConfigDescription->clear();
+    ui->pteConfigDescription->appendPlainText(Config.ConfigDescription);
+    ui->pteConfigDescription->blockSignals(false);
 }
 
 void MainWindow::onRebuildGeometryRequested()
@@ -139,6 +151,8 @@ void MainWindow::on_actionLoad_configuration_triggered()
         return;
     }
 
+    updateGui();
+
     GeoConWin->updateGui();
     MatWin->initWindow();
 
@@ -192,3 +206,15 @@ void MainWindow::on_pbDemo_clicked()
     DemoWin->showNormal();
     DemoWin->activateWindow();
 }
+
+void MainWindow::on_leConfigName_editingFinished()
+{
+    Config.ConfigName = ui->leConfigName->text();
+}
+
+void MainWindow::on_pteConfigDescription_textChanged()
+{
+    qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    Config.ConfigDescription = ui->pteConfigDescription->document()->toPlainText();
+}
+
