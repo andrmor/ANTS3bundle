@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "a3config.h"
+#include "aconfig.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
@@ -22,7 +22,7 @@
 #include "TObject.h"
 
 MainWindow::MainWindow() :
-    Config(A3Config::getInstance()),
+    Config(AConfig::getInstance()),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -60,7 +60,7 @@ MainWindow::MainWindow() :
     PartSimWin = new AParticleSimWin(this);
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, PartSimWin, &AParticleSimWin::updateGui);
+    connect(&AConfig::getInstance(), &AConfig::requestUpdatePhotSimGui, PartSimWin, &AParticleSimWin::updateGui);
     connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     JScriptWin = new AScriptWindow(this);
@@ -131,7 +131,7 @@ void MainWindow::on_pbSaveConfig_clicked()
 void MainWindow::on_actionSave_configuration_triggered()
 {
     QJsonObject json;
-    A3Config::getInstance().writeToJson(json);
+    AConfig::getInstance().writeToJson(json);
 
     QString fileName = QFileDialog::getSaveFileName(this, "Save configuration file");  // !!!***
     if (fileName.isEmpty()) return;
@@ -144,7 +144,7 @@ void MainWindow::on_actionLoad_configuration_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, "Load configuration file");
     if (fileName.isEmpty()) return;
 
-    QString err = A3Config::getInstance().load(fileName);
+    QString err = AConfig::getInstance().load(fileName);
     if (!err.isEmpty())
     {
         guitools::message(err, this);

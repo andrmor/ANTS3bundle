@@ -1,4 +1,4 @@
-#include "a3config.h"
+#include "aconfig.h"
 #include "ajsontools.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
@@ -10,24 +10,24 @@
 
 #include <QDebug>
 
-A3Config & A3Config::getInstance()
+AConfig & AConfig::getInstance()
 {
-    static A3Config instance;
+    static AConfig instance;
     return instance;
 }
 
-const A3Config &A3Config::getConstInstance()
+const AConfig &AConfig::getConstInstance()
 {
-    return A3Config::getInstance();
+    return AConfig::getInstance();
 }
 
-A3Config::A3Config()
+AConfig::AConfig()
 {
     for (int i=0; i<25; i++)
         lines += QString("%0-abcdef\n").arg(i);
 }
 
-QString A3Config::load(const QString & fileName)
+QString AConfig::load(const QString & fileName)
 {
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
@@ -36,7 +36,7 @@ QString A3Config::load(const QString & fileName)
     return readFromJson(json);
 }
 
-void A3Config::writeToJson(QJsonObject & json) const
+void AConfig::writeToJson(QJsonObject & json) const
 {
     json["ConfigName"]        = ConfigName;
     json["ConfigDescription"] = ConfigDescription;
@@ -53,7 +53,7 @@ void A3Config::writeToJson(QJsonObject & json) const
     // LRFs
 }
 
-QString A3Config::readFromJson(const QJsonObject & json)
+QString AConfig::readFromJson(const QJsonObject & json)
 {
     // !!!*** restore from JSON if error
 

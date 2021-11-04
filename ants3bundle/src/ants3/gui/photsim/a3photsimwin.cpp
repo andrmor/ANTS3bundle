@@ -6,7 +6,7 @@
 #include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
 #include "ui_a3photsimwin.h"
-#include "a3config.h"
+#include "aconfig.h"
 #include "guitools.h"
 #include "agraphbuilder.h"
 #include "adispatcherinterface.h"
@@ -29,7 +29,7 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
 
-    connect(&A3Config::getInstance(), &A3Config::requestUpdatePhotSimGui, this, &A3PhotSimWin::updateGui);
+    connect(&AConfig::getInstance(), &AConfig::requestUpdatePhotSimGui, this, &A3PhotSimWin::updateGui);
 
     APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // to class! !!!***
     connect(&SimMan, &APhotonSimManager::requestUpdateResultsGUI, this, &A3PhotSimWin::showSimulationResults);

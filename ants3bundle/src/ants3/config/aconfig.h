@@ -1,5 +1,5 @@
-#ifndef A3CONFIG_H
-#define A3CONFIG_H
+#ifndef ACONFIG_H
+#define ACONFIG_H
 
 #include <QObject>
 #include <QJsonObject>
@@ -8,22 +8,22 @@
 
 class QJsonObject;
 
-class A3Config final : public QObject
+class AConfig final : public QObject
 {
     Q_OBJECT
 
 public:
-    static A3Config & getInstance();
-    static const A3Config & getConstInstance();
+    static AConfig & getInstance();
+    static const AConfig & getConstInstance();
 
 private:
-    A3Config();
-    ~A3Config(){}
+    AConfig();
+    ~AConfig(){}
 
-    A3Config(const A3Config&)            = delete;
-    A3Config(A3Config&&)                 = delete;
-    A3Config& operator=(const A3Config&) = delete;
-    A3Config& operator=(A3Config&&)      = delete;
+    AConfig(const AConfig&)            = delete;
+    AConfig(AConfig&&)                 = delete;
+    AConfig& operator=(const AConfig&) = delete;
+    AConfig& operator=(AConfig&&)      = delete;
 
 public:
     // Geometry config is handled by AGeometryHub    singleton
@@ -61,4 +61,4 @@ signals:
 
 };
 
-#endif // A3CONFIG_H
+#endif // ACONFIG_H

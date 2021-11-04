@@ -3,7 +3,7 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3workdistrconfig.h"
-#include "a3config.h"
+#include "aconfig.h"
 #include "a3global.h"
 
 #include <QDebug>
@@ -27,7 +27,7 @@ bool ADemoManager::run(int numLocalProc)
     bAborted = false;
     ErrorString.clear();
 
-    A3Config & Config = A3Config::getInstance();
+    AConfig & Config = AConfig::getInstance();
     QStringList Events = Config.lines.split('\n', Qt::SkipEmptyParts);
     int numEvents = Events.size();
     if (numEvents == 0)
@@ -81,7 +81,7 @@ bool ADemoManager::configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDist
 
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
-    A3Config & Config = A3Config::getInstance();
+    AConfig & Config = AConfig::getInstance();
     QStringList Events = Config.lines.split('\n', Qt::SkipEmptyParts);
 
     int iEvent = 0;

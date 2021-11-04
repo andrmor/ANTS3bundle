@@ -6,7 +6,7 @@
 namespace Ui {
 class MainWindow;
 }
-class A3Config;
+class AConfig;
 class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
@@ -29,7 +29,7 @@ public:
     void updateGui();
 
 private:
-    A3Config          & Config;
+    AConfig          & Config;
 
     Ui::MainWindow    * ui = nullptr;
 

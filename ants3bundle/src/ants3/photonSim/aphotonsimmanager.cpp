@@ -2,7 +2,7 @@
 #include "aphotonsimhub.h"
 #include "aphotonsimsettings.h"
 #include "arandomhub.h"
-#include "a3config.h"
+#include "aconfig.h"
 #include "a3global.h"
 #include "adispatcherinterface.h"
 #include "a3workdistrconfig.h"
@@ -320,7 +320,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
             }
 
             QJsonObject json;
-            A3Config::getInstance().writeToJson(json);
+            AConfig::getInstance().writeToJson(json);
             WorkSet.writeToJson(json);
             QString ConfigFN = QString("config-%0.json").arg(iProcess);
             jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);

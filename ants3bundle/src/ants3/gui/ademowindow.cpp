@@ -3,7 +3,7 @@
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
-#include "a3config.h"
+#include "aconfig.h"
 #include "ademomanager.h"
 #include "guitools.h"
 #include "afiletools.h"
@@ -11,7 +11,7 @@
 ADemoWindow::ADemoWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ADemoWindow),
-    Config(A3Config::getInstance())
+    Config(AConfig::getInstance())
 {
     ui->setupUi(this);
 

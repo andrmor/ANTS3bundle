@@ -7,7 +7,7 @@ namespace Ui {
 class ADemoWindow;
 }
 
-class A3Config;
+class AConfig;
 
 class ADemoWindow : public QMainWindow
 {
@@ -30,7 +30,7 @@ private slots:
 
 private:
     Ui::ADemoWindow * ui;
-    A3Config        & Config;
+    AConfig        & Config;
 
     void disableInterface(bool flag);
 };

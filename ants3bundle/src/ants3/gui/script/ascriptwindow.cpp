@@ -653,12 +653,12 @@ void AScriptWindow::onJsonTWCollapsed(QTreeWidgetItem *item)
     ExpandedItemsInJsonTW.remove(item->text(0));
 }
 
-#include "a3config.h"
+#include "aconfig.h"
 void AScriptWindow::updateJsonTree()
 {
     trwJson->clear();
 
-    const QJsonObject & json = A3Config::getConstInstance().JSON;
+    const QJsonObject & json = AConfig::getConstInstance().JSON;
     QJsonObject::const_iterator it;
     for (it = json.begin(); it != json.end(); ++it)
     {

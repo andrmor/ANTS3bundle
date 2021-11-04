@@ -65,6 +65,7 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
     farm/afarmhub.cpp \
     geo/ageospecial.cpp \
@@ -168,7 +169,6 @@ SOURCES += \
     materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
     materials/amaterialcomposition.cpp \
-    config/a3config.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
     photonSim/acommonfunctions.cpp \
@@ -202,6 +202,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    config/aconfig.h \
     dispatch/adispatcherinterface.h \
     farm/afarmhub.h \
     geo/ageospecial.h \
@@ -308,7 +309,6 @@ HEADERS += \
     materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
     materials/amaterialcomposition.h \
-    config/a3config.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
