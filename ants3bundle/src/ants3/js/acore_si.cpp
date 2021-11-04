@@ -35,6 +35,8 @@ ACore_SI::ACore_SI()
     Help["print"] = "Appen the 1st argument to the output";
     Help["printHtml"] = "Append the 1st argument, assuming it has HTML format, in the output";
 
+    Help["getTimeMark"] = "Return the number of milliseconds since 1970-01-01T00:00:00 Universal Coordinated Time";
+
     Help["save"] = "Add string (second argument) to the file with the name given by the first argument.\n"
               "Save is not performed (and false is returned) if the file does not exist\n"
               "It is a very slow method!\n"
@@ -51,8 +53,8 @@ ACore_SI::ACore_SI()
     Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
     Help["evaluate"] = "Evaluate script during another script evaluation. See example ScriptInsideScript.txt";
 
-    Help["SetNewFileFinder"] = "Configurer for GetNewFiles() function. dir is the search directory, fileNamePattern: *.* for all files. Function return all filenames found.";
-    Help["GetNewFiles"] = "Get list (array) of names of new files appeared in the directory configured with SetNewFileFinder()";
+    Help["setNewFileFinder"] = "Configurer for GetNewFiles() function. dir is the search directory, fileNamePattern: *.* for all files. Function return all filenames found.";
+    Help["getNewFiles"] = "Get list (array) of names of new files appeared in the directory configured with SetNewFileFinder()";
 
     Help["loadArrayExtended"] = "Load array of arrays from file, with inner array read according to format options:\n"
           "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArrayExtended('fn.txt', ['d', 'd'])\n"
@@ -76,13 +78,6 @@ void ACore_SI::abort(QString message)
     AJScriptHub::getInstance().abort(message);
 }
 
-/*
-QVariant ACore_SI::evaluate(QString script)
-{
-    return ScriptManager->EvaluateScriptInScript(script);
-}
-*/
-
 #include <QElapsedTimer>
 void ACore_SI::sleep(int ms)
 {
@@ -98,12 +93,10 @@ void ACore_SI::sleep(int ms)
     while (t.elapsed()<ms);
 }
 
-/*
-int ACore_SI::elapsedTimeInMilliseconds()
+double ACore_SI::getTimeMark()
 {
-    return ScriptManager->getElapsedTime();
+    return QDateTime::currentMSecsSinceEpoch();
 }
-*/
 
 void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
 {
@@ -160,20 +153,9 @@ void ACore_SI::clearOutput()
     emit AJScriptHub::getInstance().clearOutput();
 }
 
-
-bool ACore_SI::strIncludes(QString str, QString pattern)
+QString ACore_SI::getDateTimeStamp()
 {
-    return (str.indexOf(pattern) >= 0);
-}
-
-QString ACore_SI::GetTimeStamp()
-{
-    return QDateTime::currentDateTime().toString("H:m:s");
-}
-
-QString ACore_SI::GetDateTimeStamp()
-{
-    return QDateTime::currentDateTime().toString("d/M/yyyy H:m:s");
+    return QDateTime::currentDateTime().toString("dd.MMM.yyyy H:m:s");
 }
 
 bool ACore_SI::save(QString fileName, QString str)
@@ -990,7 +972,7 @@ QString ACore_SI::GetExamplesDir()
 }
 */
 
-QVariant ACore_SI::SetNewFileFinder(const QString dir, const QString fileNamePattern)
+QVariant ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePattern)
 {
     Finder_Dir = dir;
     Finder_NamePattern = fileNamePattern;
@@ -1008,7 +990,7 @@ QVariant ACore_SI::SetNewFileFinder(const QString dir, const QString fileNamePat
     return res;
 }
 
-QVariant ACore_SI::GetNewFiles()
+QVariant ACore_SI::getNewFiles()
 {
     QVariantList newFiles;
     QDir d(Finder_Dir);
@@ -1022,7 +1004,7 @@ QVariant ACore_SI::GetNewFiles()
     return newFiles;
 }
 
-QVariantList ACore_SI::GetDirectories(const QString dir, const QString dirNamePattern)
+QVariantList ACore_SI::getDirectories(const QString dir, const QString dirNamePattern)
 {
     QDir d(dir);
     QStringList dl = d.entryList( QStringList(dirNamePattern), QDir::Dirs);

@@ -21,23 +21,17 @@ public:
 //  ACore_SI(const ACore_SI& other);
 
 public slots:
-    void abort(QString message);
+    void    abort(QString message);
 
-    void clearOutput();
-    void print(QVariant message);
-    void printHtml(QVariant message);
+    // Output
+    void    clearOutput();
+    void    print(QVariant message);
+    void    printHtml(QVariant message);
 
-//    QVariant evaluate(QString script);
-
-    //time
-    void          sleep(int ms);
-//    int           elapsedTimeInMilliseconds();
-
-    bool strIncludes(QString str, QString pattern);
-
-    //time stamps
-    QString GetTimeStamp();
-    QString GetDateTimeStamp();
+    // Time
+    void    sleep(int ms);
+    double  getTimeMark();
+    QString getDateTimeStamp();
 
     //save to file
     bool createFile(QString fileName, bool AbortIfExists = true);
@@ -69,10 +63,10 @@ public slots:
 //    QString GetExamplesDir();
 
     //file finder
-    QVariant SetNewFileFinder(const QString dir, const QString fileNamePattern);
-    QVariant GetNewFiles();
+    QVariant setNewFileFinder(const QString dir, const QString fileNamePattern);
+    QVariant getNewFiles();
 
-    QVariantList GetDirectories(const QString dir, const QString dirNamePattern);
+    QVariantList getDirectories(const QString dir, const QString dirNamePattern);
 
     //misc
     void processEvents();
