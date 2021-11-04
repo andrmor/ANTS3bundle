@@ -65,37 +65,48 @@ void AConfig::writeToJson(QJsonObject & json) const
 QString AConfig::readFromJson(const QJsonObject & json)
 {
     // !!!*** restore from JSON if error
+    QString err = tryReadFromJson(json);
+    if (err.isEmpty())
+    {
+        JSON = json;
+        emit configLoaded();
+        return "";
+    }
+    else
+    {
+        readFromJson(JSON);
+        return err;
+    }
+}
 
+QString AConfig::tryReadFromJson(const QJsonObject & json)
+{
+    bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
+    if (!ok) return "Not a configuration file!";
+    ok      = jstools::parseJson(json, "ConfigDescription", ConfigDescription);
+    if (!ok) return "Not a configuration file!";
 
-    jstools::parseJson(json, "ConfigName",        ConfigName);
-    jstools::parseJson(json, "ConfigDescription", ConfigDescription);
+    QString Error;
 
-    QString ErrorString;
+    Error = AMaterialHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return Error;
 
-    ErrorString = AMaterialHub::getInstance().readFromJson(json);
-    if (!ErrorString.isEmpty()) return ErrorString;
+    Error = AGeometryHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return Error;
 
-    ErrorString = AGeometryHub::getInstance().readFromJson(json);
-    if (!ErrorString.isEmpty()) return ErrorString;
-    emit requestUpdateGeometryGui();        // TODO: to the hub? !!!***
-
-    ErrorString = AInterfaceRuleHub::getInstance().readFromJson(json);
-    if (!ErrorString.isEmpty()) return ErrorString;
-    emit requestUpdateInterfaceRuleGui();   // TODO: to the hub? !!!***
+    Error = AInterfaceRuleHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return Error;
 
     // !!!*** SensorHub
 
-    ErrorString = APhotonSimHub::getInstance().readFromJson(json);
-    if (!ErrorString.isEmpty()) return ErrorString;
-    emit requestUpdatePhotSimGui();         // TODO: to the hub? !!!***
+    Error = APhotonSimHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return Error;
 
     AParticleSimHub::getInstance().readFromJson(json);
-    // error handling!
-    emit requestUpdateParticleSimGui();         // TODO: to the hub? !!!***
+    // error handling! !!!***
 
     // Reconstruction
     // LRFs
 
-    JSON = json;
     return "";
 }

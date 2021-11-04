@@ -40,7 +40,7 @@ public:
     QJsonObject JSON;
 
     QString     ConfigName = "--";
-    QString     ConfigDescription = "Description not provided";
+    QString     ConfigDescription = "Description is empty";
 
     // Temporary:
     QString     from = "b";
@@ -51,14 +51,13 @@ public:
     QString save(const QString & fileName);
 
     void    writeToJson(QJsonObject & json) const;
-    QString readFromJson(const QJsonObject & json);  // !!!***
+    QString readFromJson(const QJsonObject & json);
+
+private:
+    QString tryReadFromJson(const QJsonObject & json); // !!!***
 
 signals:
-    // !!!*** remove? The caller of loadConfig() will receive the result, if OK, then request update gui
-    void requestUpdateGeometryGui();
-    void requestUpdateInterfaceRuleGui();
-    void requestUpdatePhotSimGui();
-    void requestUpdateParticleSimGui();
+    void configLoaded();
 
 };
 

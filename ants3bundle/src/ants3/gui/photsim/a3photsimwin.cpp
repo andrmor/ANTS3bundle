@@ -29,9 +29,7 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
 
-    connect(&AConfig::getInstance(), &AConfig::requestUpdatePhotSimGui, this, &A3PhotSimWin::updateGui);
-
-    APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // to class! !!!***
+    APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // make a class ref here !!!***
     connect(&SimMan, &APhotonSimManager::requestUpdateResultsGUI, this, &A3PhotSimWin::showSimulationResults);
 
     QList<QPushButton*> listDummyButtons = this->findChildren<QPushButton*>();

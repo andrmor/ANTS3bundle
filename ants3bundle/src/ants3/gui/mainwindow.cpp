@@ -27,8 +27,13 @@ MainWindow::MainWindow() :
 {
     ui->setupUi(this);
 
+  // Start-up
     AGeometryHub::getInstance().populateGeoManager();
 
+  // Main signal->slot lines
+    connect(&Config, &AConfig::configLoaded, this, &MainWindow::updateAllGuiFromConfig);
+
+  // Create and configure windows
     GeoConWin = new A3GeoConWin(this);
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
@@ -60,7 +65,6 @@ MainWindow::MainWindow() :
     PartSimWin = new AParticleSimWin(this);
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(&AConfig::getInstance(), &AConfig::requestUpdatePhotSimGui, PartSimWin, &AParticleSimWin::updateGui);
     connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     JScriptWin = new AScriptWindow(this);
@@ -72,6 +76,7 @@ MainWindow::MainWindow() :
 
     DemoWin = new ADemoWindow(this);
 
+  // Finalizing
     updateGui();
 }
 
@@ -146,7 +151,11 @@ void MainWindow::on_actionLoad_configuration_triggered()
         guitools::message(err, this);
         return;
     }
+    // gui is updated in updateAllGuiFromConfig() slot triggered from Config hub, since script also can load config
+}
 
+void MainWindow::updateAllGuiFromConfig()
+{
     updateGui();
 
     GeoConWin->updateGui();
@@ -210,7 +219,6 @@ void MainWindow::on_leConfigName_editingFinished()
 
 void MainWindow::on_pteConfigDescription_textChanged()
 {
-    qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     Config.ConfigDescription = ui->pteConfigDescription->document()->toPlainText();
 }
 

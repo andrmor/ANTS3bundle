@@ -45,7 +45,8 @@ private:
     ADemoWindow       * DemoWin    = nullptr;
 
 private slots:
-    void onRebuildGeometryRequested();
+    void onRebuildGeometryRequested(); // !!!*** refactor?
+    void updateAllGuiFromConfig();
 
     void on_actionSave_configuration_triggered();
     void on_actionLoad_configuration_triggered();
