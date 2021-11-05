@@ -89,8 +89,8 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
       w->setValidator(dv);
 
-  ui->cbAutoCheck->setChecked( A3Global::getConstInstance().AutoCheckGeometry );
-  on_cbAutoCheck_stateChanged(111);
+  ui->cbAutoCheck->setChecked(A3Global::getConstInstance().AutoCheckGeometry);
+  on_cbAutoCheck_stateChanged(ui->cbAutoCheck->isChecked());
 
   //if (!MW->PythonScriptWindow) ui->actionTo_Python->setEnabled(false);
   ui->saPrototypes->setVisible(false);

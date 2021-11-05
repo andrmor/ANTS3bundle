@@ -21,28 +21,60 @@ private:
     A3Global& operator=(A3Global&&)      = delete;
 
 public:
+    // !!!*** need renaming
+
+    // Dirs
+    QString ExamplesDir;
+    QString ResourcesDir;
     QString ExecutableDir;
-    QString ExchangeDir;
-
-    int NumSegmentsTGeo = 20;
-
-    bool AutoCheckGeometry = true;
-
+    QString ExchangeDir;   // can be changed, therefore it is saved
+    QString ConfigDir;     // global settings are saved there
+    QString QuicksaveDir;
     QString LastSaveDir;
     QString LastLoadDir;
 
-    // !!!*** rename
-    QJsonObject ScriptWindowJson;
-    int DefaultFontSize_ScriptWindow = 12;
-    QString DefaultFontFamily_ScriptWindow; //empty => Qt standard settings will be used
-    bool DefaultFontWeight_ScriptWindow = false;
-    bool DefaultFontItalic_ScriptWindow = false;
+    // Misc controls
+    bool AutoCheckGeometry = true;
+    int  NumSegmentsTGeo = 20;
+    int  BinsX = 100;
+    int  BinsY = 100;
+    int  BinsZ = 100;
+    bool OpenImageExternalEditor = true;
 
-    void    configureDirectories();
+    // Script window
+    QJsonObject JavaScriptJson;
+    int SW_FontSize = 12;
+    QString SW_FontFamily; //empty => Qt standard settings will be used
+    bool SW_FontWeight = false;
+    bool SW_Italic = false;
+
+    /*
+    bool RecTreeSave_IncludePMsignals = true;
+    bool RecTreeSave_IncludeRho = true;
+    bool RecTreeSave_IncludeTrue = true;
+    bool SimTextSave_IncludeNumPhotons = true;
+    bool SimTextSave_IncludePositions = true;
+    */
+
+//    QString RootStyleScript;
+
+/*
+    //Network
+    int DefaultWebSocketPort = 1234;
+    QString DefaultWebSocketIP = "127.0.0.1";
+    int RootServerPort = 8080;
+    QString ExternalJSROOT = "https://root.cern/js/5.9.0/";     //QString ExternalJSROOT = "https://root.cern/js/latest/";
+    bool bRunRootServerOnStart = false;
+*/
+
+    void    init();
     std::string checkExchangeDir();
 
     void    saveConfig();
     void    loadConfig();
+
+private:
+    const QString ConfigFileName = "globalconfig.json";
 };
 
 #endif // A3GLOBAL_H

@@ -322,7 +322,7 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    writeToJson(GlobSet.ScriptWindowJson);
+    writeToJson(GlobSet.JavaScriptJson);
 }
 
 void AScriptWindow::writeToJson(QJsonObject & json)
@@ -346,7 +346,7 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 
 void AScriptWindow::ReadFromJson()
 {
-    readFromJson(GlobSet.ScriptWindowJson);
+    readFromJson(GlobSet.JavaScriptJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -959,7 +959,7 @@ void AScriptWindow::receivedOnSuccess(QString eval)
 
 void AScriptWindow::onDefaulFontSizeChanged(int size)
 {
-    GlobSet.DefaultFontSize_ScriptWindow = size;
+    GlobSet.SW_FontSize = size;
     for (ATabRecord* tab : getScriptTabs())
         tab->TextEdit->SetFontSize(size);
 }
@@ -1249,11 +1249,11 @@ void AScriptWindow::formatTab(ATabRecord * tab)
 {
     updateTab(tab);
 
-    if (GlobSet.DefaultFontFamily_ScriptWindow.isEmpty())
-        tab->TextEdit->SetFontSize(GlobSet.DefaultFontSize_ScriptWindow);
+    if (GlobSet.SW_FontFamily.isEmpty())
+        tab->TextEdit->SetFontSize(GlobSet.SW_FontSize);
     else
     {
-        QFont font(GlobSet.DefaultFontFamily_ScriptWindow, GlobSet.DefaultFontSize_ScriptWindow, GlobSet.DefaultFontWeight_ScriptWindow, GlobSet.DefaultFontItalic_ScriptWindow);
+        QFont font(GlobSet.SW_FontFamily, GlobSet.SW_FontSize, GlobSet.SW_FontWeight, GlobSet.SW_Italic);
         tab->TextEdit->setFont(font);
     }
 
@@ -1330,14 +1330,14 @@ void AScriptWindow::on_pbHelp_toggled(bool checked)
 
 void AScriptWindow::on_actionIncrease_font_size_triggered()
 {
-    onDefaulFontSizeChanged(++GlobSet.DefaultFontSize_ScriptWindow);
+    onDefaulFontSizeChanged(++GlobSet.SW_FontSize);
 }
 
 void AScriptWindow::on_actionDecrease_font_size_triggered()
 {
-    if (GlobSet.DefaultFontSize_ScriptWindow<1) return;
+    if (GlobSet.SW_FontSize < 1) return;
 
-    onDefaulFontSizeChanged(--GlobSet.DefaultFontSize_ScriptWindow);
+    onDefaulFontSizeChanged(--GlobSet.SW_FontSize);
     //qDebug() << "New font size:"<<GlobSet.DefaultFontSize_ScriptWindow;
 }
 
@@ -1347,17 +1347,17 @@ void AScriptWindow::on_actionSelect_font_triggered()
     bool ok;
     QFont font = QFontDialog::getFont(
                 &ok,
-                QFont(GlobSet.DefaultFontFamily_ScriptWindow,
-                      GlobSet.DefaultFontSize_ScriptWindow,
-                      GlobSet.DefaultFontWeight_ScriptWindow,
-                      GlobSet.DefaultFontItalic_ScriptWindow),
+                QFont(GlobSet.SW_FontFamily,
+                      GlobSet.SW_FontSize,
+                      GlobSet.SW_FontWeight,
+                      GlobSet.SW_Italic),
                 this);
     if (!ok) return;
 
-    GlobSet.DefaultFontFamily_ScriptWindow = font.family();
-    GlobSet.DefaultFontSize_ScriptWindow   = font.pointSize();
-    GlobSet.DefaultFontWeight_ScriptWindow = font.weight();
-    GlobSet.DefaultFontItalic_ScriptWindow = font.italic();
+    GlobSet.SW_FontFamily = font.family();
+    GlobSet.SW_FontSize   = font.pointSize();
+    GlobSet.SW_FontWeight = font.weight();
+    GlobSet.SW_Italic     = font.italic();
 
     for (ATabRecord* tab : getScriptTabs())
         tab->TextEdit->setFont(font);

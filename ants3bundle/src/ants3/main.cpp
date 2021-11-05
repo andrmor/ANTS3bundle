@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     //QLoggingCategory::setFilterRules(FilterRules);
 
     A3Global & GlobSet = A3Global::getInstance();
-    GlobSet.configureDirectories();
+    GlobSet.init();
 
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
@@ -80,5 +80,6 @@ int main(int argc, char *argv[])
 
     AGeometryHub::getInstance().aboutToQuit();
 
+    GlobSet.saveConfig();
     return 0;
 }
