@@ -56,14 +56,11 @@ AScriptWindow::AScriptWindow(QWidget *parent) :
     QObject::connect(ScriptManager, &AScriptManager::onFinish, this, &AScriptWindow::receivedOnSuccess);
 */
 
-//    ScriptManager->ExamplesDir = &GlobSet.ExamplesDir;
-
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
     ui->prbProgress->setVisible(false);
     ui->cbActivateTextReplace->setChecked(false);
     ui->frFindReplace->setVisible(false);
-    ui->frAccept->setVisible(false);
 
     QPixmap rm(16, 16);
     rm.fill(Qt::transparent);
@@ -100,7 +97,7 @@ AScriptWindow::AScriptWindow(QWidget *parent) :
     QShortcut* GoForward = new QShortcut(QKeySequence("Alt+Right"), this);
     connect(GoForward, &QShortcut::activated, this, &AScriptWindow::onForward);
     QShortcut* DoAlign = new QShortcut(QKeySequence("Ctrl+I"), this);
-    connect(DoAlign, &QShortcut::activated, [&](){getTab()->TextEdit->align();});
+    connect(DoAlign, &QShortcut::activated, this, [&](){getTab()->TextEdit->align();});
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
 
@@ -229,9 +226,6 @@ void AScriptWindow::createGuiElements()
     ui->centralwidget->layout()->removeItem(ui->horizontalLayout);
     ui->centralwidget->layout()->addWidget(splMain);
     ui->centralwidget->layout()->addItem(ui->horizontalLayout);
-
-    ui->centralwidget->layout()->removeWidget(ui->frAccept);
-    ui->centralwidget->layout()->addWidget(ui->frAccept);
 
     trwJson->header()->resizeSection(0, 200);
 
@@ -397,16 +391,6 @@ void AScriptWindow::onBusyOn()
 void AScriptWindow::onBusyOff()
 {
     ui->pbRunScript->setEnabled(true);
-}
-
-void AScriptWindow::setAcceptRejectVisible()
-{
-    ui->frAccept->setVisible(true);
-
-    ui->pbRunScript->setText("Test script");
-    QFont f = ui->pbRunScript->font();
-    f.setBold(false);
-    ui->pbRunScript->setFont(f);
 }
 
 void AScriptWindow::outputHtml(QString text)
@@ -1896,18 +1880,6 @@ void ATabRecord::onTextChanged()
 
     Variables.append(Functions);
     CompletitionModel->setStringList(Variables);
-}
-
-void AScriptWindow::on_pbAccept_clicked()
-{
-    bAccepted = true;
-    close();
-}
-
-void AScriptWindow::on_pbCancel_clicked()
-{
-    bAccepted = false;
-    close();
 }
 
 void AScriptWindow::on_actionShortcuts_triggered()

@@ -78,10 +78,8 @@ public:
     void onBusyOn();
     void onBusyOff();
 
-    void setAcceptRejectVisible();
     void updateJsonTree();
     void reportError(QString error, int line = 0);   //0 - no line is highligted
-    bool isAccepted() const {return bAccepted;}
 
 private:
     A3Global          & GlobSet;
@@ -95,8 +93,6 @@ private:
 
     int                 iMarkedBook    = -1;
     int                 iMarkedTab     = -1;
-
-    bool                bAccepted      = false;
 
     QSplitter *         splMain        = nullptr;
     QSplitter *         splHelp        = nullptr;
@@ -212,8 +208,6 @@ private slots:
     void on_leFind_textChanged(const QString &arg1);
     void on_pbReplaceOne_clicked();
     void on_pbReplaceAll_clicked();
-    void on_pbAccept_clicked();
-    void on_pbCancel_clicked();
 
     // main menu actions
     void on_actionSave_all_triggered();
