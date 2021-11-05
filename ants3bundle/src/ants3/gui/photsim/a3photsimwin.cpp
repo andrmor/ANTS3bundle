@@ -103,25 +103,53 @@ void A3PhotSimWin::updatePhotBombGui()
     }
 
     //Single
-    ui->ledSingleX->setText(QString::number(SimSet.BombSet.SingleSettings.Position[0]));
-    ui->ledSingleY->setText(QString::number(SimSet.BombSet.SingleSettings.Position[1]));
-    ui->ledSingleZ->setText(QString::number(SimSet.BombSet.SingleSettings.Position[2]));
+    const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
+    ui->ledSingleX->setText(QString::number(sset.Position[0]));
+    ui->ledSingleY->setText(QString::number(sset.Position[1]));
+    ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+
+    //Grid
+    const AGridSettings & g = SimSet.BombSet.GridSettings;
+    ui->ledOriginX->setText(QString::number(g.X0));
+    ui->ledOriginY->setText(QString::number(g.Y0));
+    ui->ledOriginZ->setText(QString::number(g.Z0));
+    ui->cbSecondAxis->setChecked(g.ScanRecords[1].bEnabled);
+    ui->cbThirdAxis-> setChecked(g.ScanRecords[2].bEnabled);
+    for (int i = 0; i < 3; i++)
+    {
+        QLineEdit *leDX, *leDY, *leDZ;
+        QSpinBox  *sbNodes;
+        QComboBox *cobBiDir;
+        switch (i)
+        {
+        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; break;
+        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; break;
+        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
+        }
+        const APhScanRecord & r = g.ScanRecords[i];
+        leDX->setText(QString::number(r.DX));
+        leDY->setText(QString::number(r.DY));
+        leDZ->setText(QString::number(r.DZ));
+        sbNodes->setValue(r.Nodes);
+        cobBiDir->setCurrentIndex(r.bBiDirect ? 1 : 0);
+    }
 
     //Flood
-    ui->sbFloodNumber->setValue(SimSet.BombSet.FloodSettings.Number);
-    ui->cobFloodShape->setCurrentIndex(SimSet.BombSet.FloodSettings.Shape == AFloodSettings::Rectangular ? 0 : 1);
-    ui->ledFloodXfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Xfrom));
-    ui->ledFloodXto->setText(QString::number(SimSet.BombSet.FloodSettings.Xto));
-    ui->ledFloodYfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Yfrom));
-    ui->ledFloodYto->setText(QString::number(SimSet.BombSet.FloodSettings.Yto));
-    ui->ledFloodCenterX->setText(QString::number(SimSet.BombSet.FloodSettings.X0));
-    ui->ledFloodCenterY->setText(QString::number(SimSet.BombSet.FloodSettings.Y0));
-    ui->ledFloodOuterDiameter->setText(QString::number(SimSet.BombSet.FloodSettings.OuterDiameter));
-    ui->ledFloodInnerDiameter->setText(QString::number(SimSet.BombSet.FloodSettings.InnerDiameter));
-    ui->cobFloodZmode->setCurrentIndex(SimSet.BombSet.FloodSettings.Zmode == AFloodSettings::Fixed ? 0 : 1);
-    ui->ledFloodZ->setText(QString::number(SimSet.BombSet.FloodSettings.Zfixed));
-    ui->ledFloodZfrom->setText(QString::number(SimSet.BombSet.FloodSettings.Zfrom));
-    ui->ledFloodZto->setText(QString::number(SimSet.BombSet.FloodSettings.Zto));
+    const AFloodSettings & fset = SimSet.BombSet.FloodSettings;
+    ui->sbFloodNumber->setValue(fset.Number);
+    ui->cobFloodShape->setCurrentIndex(fset.Shape == AFloodSettings::Rectangular ? 0 : 1);
+    ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
+    ui->ledFloodXto->setText(QString::number(fset.Xto));
+    ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
+    ui->ledFloodYto->setText(QString::number(fset.Yto));
+    ui->ledFloodCenterX->setText(QString::number(fset.X0));
+    ui->ledFloodCenterY->setText(QString::number(fset.Y0));
+    ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
+    ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
+    ui->cobFloodZmode->setCurrentIndex(fset.Zmode == AFloodSettings::Fixed ? 0 : 1);
+    ui->ledFloodZ->setText(QString::number(fset.Zfixed));
+    ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
+    ui->ledFloodZto->setText(QString::number(fset.Zto));
 }
 
 void A3PhotSimWin::updateDepoGui()
@@ -892,5 +920,39 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     fh.copyToFile(0, 2, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test0.dat");
     fh.copyToFile(2, 4, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test1.dat");
     fh.copyToFile(5, 8, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test2.dat");
+}
+
+
+void A3PhotSimWin::on_pbiUpdateScanSettings_clicked()
+{
+    AGridSettings & g = SimSet.BombSet.GridSettings;
+
+    g.X0 = ui->ledOriginX->text().toDouble();
+    g.Y0 = ui->ledOriginY->text().toDouble();
+    g.Z0 = ui->ledOriginZ->text().toDouble();
+
+    g.ScanRecords[1].bEnabled = ui->cbSecondAxis->isChecked();
+    g.ScanRecords[2].bEnabled = ui->cbThirdAxis->isChecked();
+
+    for (int i = 0; i < 3; i++)
+    {
+        QLineEdit *leDX, *leDY, *leDZ;
+        QSpinBox  *sbNodes;
+        QComboBox *cobBiDir;
+        switch (i)
+        {
+        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; break;
+        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; break;
+        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
+        }
+
+        APhScanRecord & r = g.ScanRecords[i];
+
+        r.DX        = leDX->text().toDouble();
+        r.DY        = leDY->text().toDouble();
+        r.DZ        = leDZ->text().toDouble();
+        r.Nodes     = sbNodes->value();
+        r.bBiDirect = (cobBiDir->currentIndex() == 1);
+    }
 }
 

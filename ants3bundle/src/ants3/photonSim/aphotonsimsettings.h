@@ -5,6 +5,10 @@
 #include <QVector> // TODO: std::vector !!!***
 #include <QSet>    // TODO: refactor
 
+#include <vector>
+
+// !!!*** implement usage of AErrorHub
+
 class QJsonObject;
 
 enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
@@ -74,6 +78,32 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
+struct APhScanRecord
+{
+    bool   bEnabled  = false;
+    bool   bBiDirect = false;
+    int    Nodes     = 10;
+    double DX        = 10.0;
+    double DY        = 0;
+    double DZ        = 0;
+};
+class AGridSettings
+{
+public:
+    AGridSettings();
+
+    double X0 = 0;
+    double Y0 = 0;
+    double Z0 = 0;
+    APhScanRecord ScanRecords[3];
+
+    int getNumEvents() const;
+
+    void    clearSettings();
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
+};
+
 class AFloodSettings
 {
 public:
@@ -105,15 +135,16 @@ class APhotonBombsSettings
 public:
     APhotonsPerBombSettings PhotonsPerBomb;
 
-    EBombGen            GenerationMode   = EBombGen::Single;
-    ASingleSettings     SingleSettings;
-    AFloodSettings      FloodSettings;
+    EBombGen         GenerationMode = EBombGen::Single;
+    ASingleSettings  SingleSettings;
+    AGridSettings    GridSettings;
+    AFloodSettings   FloodSettings;
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 };
 
-class APhotonLogSettings   // !!!*** remove?
+class APhotonLogSettings   // !!!*** to RunSettings?
 {
 public:
     bool Save        = true;

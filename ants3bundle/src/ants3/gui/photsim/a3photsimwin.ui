@@ -789,7 +789,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <enum>QFrame::Sunken</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="twSingleScan1Page1">
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -1070,6 +1070,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pbiUpdateScanSettings">
+                  <property name="text">
+                   <string>...UpdateScanSettings</string>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -3907,12 +3914,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>505</y>
+     <x>145</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>456</x>
-     <y>470</y>
+     <x>555</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -3923,12 +3930,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>263</x>
-     <y>505</y>
+     <x>259</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>462</y>
+     <x>555</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -3939,12 +3946,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>394</x>
-     <y>505</y>
+     <x>389</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>471</x>
-     <y>469</y>
+     <x>555</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -3955,12 +3962,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>471</y>
+     <x>256</x>
+     <y>518</y>
     </hint>
     <hint type="destinationlabel">
-     <x>468</x>
-     <y>461</y>
+     <x>555</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -3971,7 +3978,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>476</x>
+     <x>472</x>
      <y>82</y>
     </hint>
     <hint type="destinationlabel">
@@ -3987,11 +3994,11 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
+     <x>331</x>
      <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>583</x>
+     <x>575</x>
      <y>158</y>
     </hint>
    </hints>
@@ -4003,7 +4010,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>412</x>
+     <x>408</x>
      <y>191</y>
     </hint>
     <hint type="destinationlabel">
@@ -4019,12 +4026,12 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>115</x>
-     <y>228</y>
+     <x>105</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
-     <y>228</y>
+     <x>61</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -4035,12 +4042,332 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>115</x>
-     <y>228</y>
+     <x>105</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
+     <x>111</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledOriginX</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>211</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledOriginY</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledOriginZ</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>457</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led0X</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>312</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>184</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led0Y</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>312</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>242</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led0Z</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>226</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sb0nodes</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>368</x>
+     <y>309</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>369</x>
+     <y>225</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cob0dir</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>493</x>
+     <y>306</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>502</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSecondAxis</sender>
+   <signal>clicked()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>48</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbThirdAxis</sender>
+   <signal>clicked()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>69</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led1X</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led2X</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>168</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>168</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led1Y</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>229</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led2Y</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>258</x>
      <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led1Z</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>led2Z</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sb1nodes</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>390</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>216</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sb2nodes</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>421</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>225</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cob1dir</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>520</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>518</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cob2dir</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbiUpdateScanSettings</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>227</y>
     </hint>
    </hints>
   </connection>

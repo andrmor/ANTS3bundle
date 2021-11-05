@@ -49,6 +49,9 @@ bool APhotonSimManager::simulate(int numLocalProc)
         case EBombGen::Single :
             numEvents = 1;
             break;
+        case EBombGen::Grid :
+            numEvents = SimSet.BombSet.GridSettings.getNumEvents();
+            break;
         case EBombGen::Flood :
             numEvents = SimSet.BombSet.FloodSettings.Number;
             break;
@@ -251,6 +254,12 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.RunSet.EventFrom = iEvent;
                     WorkSet.RunSet.EventTo   = iEvent + 1;
                     iEvent++;
+                    break;
+                case EBombGen::Grid :
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + num;
+                    iEvent += num;
                     break;
                 case EBombGen::Flood :
                     WorkSet = SimSet;

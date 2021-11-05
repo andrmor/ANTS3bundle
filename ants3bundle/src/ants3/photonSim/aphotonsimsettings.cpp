@@ -333,7 +333,11 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
         json["Single"] = js;
     }
     // Grid
-
+    {
+        QJsonObject js;
+        GridSettings.writeToJson(js);
+        json["Grid"] = js;
+    }
     //Flood
     {
         QJsonObject js;
@@ -379,7 +383,12 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
         if (!ErrorString.isEmpty()) return ErrorString;
     }
     // Grid
-
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Grid", js);
+        QString ErrorString = GridSettings.readFromJson(js);
+        if (!ErrorString.isEmpty()) return ErrorString;
+    }
     //Flood
     {
         QJsonObject js;
@@ -632,3 +641,73 @@ QString APhotonDepoSettings::getFormatName() const
 }
 
 // ----
+
+AGridSettings::AGridSettings()
+{
+    clearSettings();
+}
+
+int AGridSettings::getNumEvents() const
+{
+    int num = ScanRecords[0].Nodes;
+    if (ScanRecords[1].bEnabled) num *= ScanRecords[1].Nodes;
+    if (ScanRecords[2].bEnabled) num *= ScanRecords[2].Nodes;
+    return num;
+}
+
+void AGridSettings::clearSettings()
+{
+    for (int i=0; i<3; i++)
+        ScanRecords[i] = APhScanRecord();
+    ScanRecords[0].bEnabled = true;
+}
+
+void AGridSettings::writeToJson(QJsonObject &json) const
+{
+    json["ScanX0"] = X0;
+    json["ScanY0"] = Y0;
+    json["ScanZ0"] = Z0;
+
+    QJsonArray ar;
+        for (int i = 0; i < 3; i++)
+        {
+            QJsonObject js;
+                const APhScanRecord & r = ScanRecords[i];
+                js["Enabled"]   = r.bEnabled;
+                js["BiDirect"] = r.bBiDirect;
+                js["Nodes"]     = r.Nodes;
+                js["dX"]        = r.DX;
+                js["dY"]        = r.DY;
+                js["dZ"]        = r.DZ;
+            ar.append(js);
+        }
+        json["AxesData"] = ar;
+}
+
+QString AGridSettings::readFromJson(const QJsonObject &json)
+{
+    clearSettings();
+
+    jstools::parseJson(json, "ScanX0", X0);
+    jstools::parseJson(json, "ScanY0", Y0);
+    jstools::parseJson(json, "ScanZ0", Z0);
+
+    QJsonArray ar;
+    bool bOK = jstools::parseJson(json, "AxesData", ar);
+    if (!bOK || ar.size() != 3) return "Bad format in photon sim grid settings";
+
+    for (int i = 0; i < 3; i++)
+    {
+        QJsonObject js = ar[i].toObject();
+        APhScanRecord & r = ScanRecords[i];
+        jstools::parseJson(js, "Enabled",  r.bEnabled);
+        jstools::parseJson(js, "BiDirect", r.bBiDirect);
+        jstools::parseJson(js, "Nodes",    r.Nodes);
+        jstools::parseJson(js, "dX",       r.DX);
+        jstools::parseJson(js, "dY",       r.DY);
+        jstools::parseJson(js, "dZ",       r.DZ);
+    }
+
+    ScanRecords[0].bEnabled = true;
+    return "";
+}

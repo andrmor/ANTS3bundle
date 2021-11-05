@@ -100,6 +100,8 @@ private slots:
 
     void on_pbAnalyzeDepositionFile_clicked();
 
+    void on_pbiUpdateScanSettings_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
