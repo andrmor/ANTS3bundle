@@ -1072,7 +1072,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pbiUpdateScanSettings">
+                 <widget class="QPushButton" name="pbdUpdateScanSettings">
                   <property name="text">
                    <string>...UpdateScanSettings</string>
                   </property>
@@ -2147,14 +2147,14 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="labAdvancedOn">
+               <widget class="QLabel" name="labAdvancedBombOn">
                 <property name="text">
                  <string>--</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pnShowHideAdvanced">
+               <widget class="QPushButton" name="pbAdvancedBombSettings">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -4054,7 +4054,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>ledOriginX</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4070,7 +4070,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>ledOriginY</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4086,7 +4086,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>ledOriginZ</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4102,7 +4102,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led0X</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4118,7 +4118,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led0Y</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4134,7 +4134,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led0Z</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4150,7 +4150,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>sb0nodes</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4166,7 +4166,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>cob0dir</sender>
    <signal>activated(int)</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4182,7 +4182,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>cbSecondAxis</sender>
    <signal>clicked()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4198,7 +4198,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>cbThirdAxis</sender>
    <signal>clicked()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4214,7 +4214,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led1X</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4230,7 +4230,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led2X</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4246,7 +4246,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led1Y</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4262,7 +4262,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led2Y</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4278,7 +4278,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led1Z</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4294,7 +4294,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>led2Z</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4310,7 +4310,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>sb1nodes</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4326,7 +4326,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>sb2nodes</sender>
    <signal>editingFinished()</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4342,7 +4342,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>cob1dir</sender>
    <signal>activated(int)</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4358,7 +4358,7 @@ Multi-vertex events can be simulated using AddSubNode(x,y,z)</string>
   <connection>
    <sender>cob2dir</sender>
    <signal>activated(int)</signal>
-   <receiver>pbiUpdateScanSettings</receiver>
+   <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">

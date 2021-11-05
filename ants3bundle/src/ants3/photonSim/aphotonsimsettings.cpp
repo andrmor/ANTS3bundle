@@ -345,6 +345,12 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
         json["Flood"] = js;
     }
 
+    //Advanced settings
+    {
+        QJsonObject js;
+        AdvancedSettings.writeToJson(js);
+        json["Advanced"] = js;
+    }
 }
 
 QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
@@ -395,6 +401,13 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
         jstools::parseJson(json, "Flood", js);
         QString ErrorString = FloodSettings.readFromJson(js);
         if (!ErrorString.isEmpty()) return ErrorString;
+    }
+
+    //Advanced settings
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Advanced", js);
+        AdvancedSettings.readFromJson(js);
     }
 
     return "";
@@ -710,4 +723,121 @@ QString AGridSettings::readFromJson(const QJsonObject &json)
 
     ScanRecords[0].bEnabled = true;
     return "";
+}
+
+// ----
+
+void APhotonAdvancedSettings::clear()
+{
+    DirectionMode = Isotropic;
+    DirDX         = 0;
+    DirDY         = 0;
+    DirDZ         = 1.0;
+    ConeAngle     = 10.0;
+
+    bFixWave      = false;
+    WaveIndex  = -1;
+
+    bFixDecay     = false;
+    DecayTime  = 5.0; // in ns
+
+    bOnlyVolume    = false;
+    Volume.clear();
+    bOnlyMaterial    = false;
+    Material.clear();
+}
+
+void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
+{
+    // Direction
+    {
+        QJsonObject js;
+            QString DirStr;
+            switch (DirectionMode)
+            {
+            case Isotropic : DirStr = "Isotropic"; break;
+            case Fixed     : DirStr = "Fixed";     break;
+            case Cone      : DirStr = "Cone";     break;
+            }
+            js["DirectionMode"] = DirStr;
+            js["DirDX"] = DirDX;
+            js["DirDY"] = DirDY;
+            js["DirDZ"] = DirDZ;
+            js["ConeAngle"] = ConeAngle;
+        json["Direction"] = js;
+    }
+
+    // Wave index
+    {
+        QJsonObject js;
+            js["Enabled"]   = bFixWave;
+            js["WaveIndex"] = WaveIndex;
+        json["Wave"] = js;
+    }
+
+    // Decay time
+    {
+        QJsonObject js;
+            js["Enabled"]   = bFixDecay;
+            js["DecayTime"] = DecayTime;
+        json["Time"] = js;
+    }
+
+    // Skip bombs
+    {
+        QJsonObject js;
+            js["EnableOnlyVol"] = bOnlyVolume;
+            js["Volume"] = Volume;
+            js["EnableOnlyMat"] = bOnlyMaterial;
+            js["Material"] = Material;
+        json["SkipBombs"] = js;
+    }
+}
+
+void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
+{
+    clear();
+
+    // Direction
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Direction", js);
+
+        QString DirStr;
+        jstools::parseJson(js, "DirectionMode", DirStr);
+        if      (DirStr == "Fixed") DirectionMode = Fixed;
+        else if (DirStr == "Cone")  DirectionMode = Cone;
+        else                        DirectionMode = Isotropic;
+
+        jstools::parseJson(js, "DirDX",     DirDX);
+        jstools::parseJson(js, "DirDY",     DirDY);
+        jstools::parseJson(js, "DirDZ",     DirDZ);
+        jstools::parseJson(js, "ConeAngle", ConeAngle);
+    }
+
+    // Wave index
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Wave", js);
+        jstools::parseJson(js, "Enabled",   bFixWave);
+        jstools::parseJson(js, "WaveIndex", WaveIndex);
+    }
+
+    // Decay time
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Time", js);
+        jstools::parseJson(js, "Enabled",   bFixDecay);
+        jstools::parseJson(js, "DecayTime", DecayTime);
+    }
+
+    // Skip bombs
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "SkipBombs", js);
+        jstools::parseJson(js, "EnableOnlyVol", bOnlyVolume);
+        jstools::parseJson(js, "Volume",        Volume);
+        jstools::parseJson(js, "EnableOnlyMat", bOnlyMaterial);
+        jstools::parseJson(js, "Material",      Material);
+    }
 }

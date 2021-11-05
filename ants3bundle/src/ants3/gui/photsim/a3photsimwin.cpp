@@ -13,6 +13,7 @@
 #include "aerrorhub.h"
 
 #include <QDebug>
+#include <QLabel>
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -36,6 +37,9 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     for (QPushButton * pb : qAsConst(listDummyButtons))
         if (pb->objectName().startsWith("pbd"))
             pb->setVisible(false);
+
+    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labAdvancedBombOn->setPixmap(pm);
 
     updateGui();
 }
@@ -150,6 +154,8 @@ void A3PhotSimWin::updatePhotBombGui()
     ui->ledFloodZ->setText(QString::number(fset.Zfixed));
     ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
     ui->ledFloodZto->setText(QString::number(fset.Zto));
+
+    updateAdvancedBombIndicator();
 }
 
 void A3PhotSimWin::updateDepoGui()
@@ -922,8 +928,7 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     fh.copyToFile(5, 8, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test2.dat");
 }
 
-
-void A3PhotSimWin::on_pbiUpdateScanSettings_clicked()
+void A3PhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
     AGridSettings & g = SimSet.BombSet.GridSettings;
 
@@ -956,3 +961,18 @@ void A3PhotSimWin::on_pbiUpdateScanSettings_clicked()
     }
 }
 
+#include "abombadvanceddialog.h"
+void A3PhotSimWin::on_pbAdvancedBombSettings_clicked()
+{
+    ABombAdvancedDialog dia(this);
+    dia.exec();
+    updateAdvancedBombIndicator();
+}
+
+void A3PhotSimWin::updateAdvancedBombIndicator()
+{
+    const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
+
+    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
+    ui->labAdvancedBombOn->setVisible(on);
+}

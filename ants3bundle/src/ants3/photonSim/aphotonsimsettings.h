@@ -130,15 +130,46 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
+class APhotonAdvancedSettings
+{
+public:
+    enum AModeEnum {Isotropic, Fixed, Cone};
+
+    AModeEnum DirectionMode = Isotropic;
+    double    DirDX         = 0;
+    double    DirDY         = 0;
+    double    DirDZ         = 1.0;
+    double    ConeAngle     = 10.0;
+
+    bool      bFixWave      = false;
+    int       WaveIndex     = -1;
+
+    bool      bFixDecay     = false;
+    double    DecayTime     = 5.0; // in ns
+
+    bool      bOnlyVolume   = false;
+    QString   Volume;
+    bool      bOnlyMaterial = false;
+    QString   Material;
+
+    void clear();
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+};
+
 class APhotonBombsSettings
 {
 public:
     APhotonsPerBombSettings PhotonsPerBomb;
 
     EBombGen         GenerationMode = EBombGen::Single;
+
     ASingleSettings  SingleSettings;
     AGridSettings    GridSettings;
     AFloodSettings   FloodSettings;
+
+    APhotonAdvancedSettings AdvancedSettings;
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
@@ -188,8 +219,8 @@ public:
 
     APhotonLogSettings LogSet;
 
-    void    writeToJson(QJsonObject & json) const;
-    void    readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 };
 
 #include <QDateTime>

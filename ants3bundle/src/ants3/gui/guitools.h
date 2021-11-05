@@ -17,7 +17,8 @@ namespace guitools
 
     bool AssureWidgetIsWithinVisibleArea(QWidget* w);
 
-    QIcon createColorCircleIcon(QSize size, Qt::GlobalColor color);
+    QIcon   createColorCircleIcon(QSize size, Qt::GlobalColor color);
+    QPixmap createColorCirclePixmap(QSize size, Qt::GlobalColor color);
 
     QString dialogSaveFile(QWidget * parent, const QString & text, const QString & filePattern);
     QString dialogLoadFile(QWidget * parent, const QString & text, const QString & filePattern);

@@ -100,7 +100,9 @@ private slots:
 
     void on_pbAnalyzeDepositionFile_clicked();
 
-    void on_pbiUpdateScanSettings_clicked();
+    void on_pbdUpdateScanSettings_clicked();
+
+    void on_pbAdvancedBombSettings_clicked();
 
 private:
     APhotonSimSettings & SimSet;
@@ -118,6 +120,7 @@ private:
 
     void updateMonitorGui();
 
+    void updateAdvancedBombIndicator();
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();
