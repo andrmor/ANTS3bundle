@@ -14,6 +14,8 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     foreach(QLineEdit *w, list)
         if (w->objectName().startsWith("led")) w->setValidator(dv);
 
+    ui->fPointSourceWave->setEnabled(false);
+
     const APhotonAdvancedSettings & s = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
 
     int index = 0;

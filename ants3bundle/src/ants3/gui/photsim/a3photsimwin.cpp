@@ -772,7 +772,7 @@ void A3PhotSimWin::on_pbMonitorShowWavelength_clicked()
             hnew->SetBinContent(i, y);
         }
         hnew->SetXTitle("Wavelength, nm");
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->wave, "hist", true, true);
+        emit requestDraw(hnew, "hist", true, true);
     }
 }
 
