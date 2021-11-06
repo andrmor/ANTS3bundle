@@ -15,6 +15,8 @@
 #include "adepositionfilehandler.h"
 #include "aerrorhub.h"
 #include "as1generator.h"
+#include "ageometryhub.h"
+#include "aphotongenerator.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -25,6 +27,9 @@
 
 #include <iostream>
 #include <cmath>
+
+#include "TGeoManager.h"
+#include "TGeoNavigator.h"
 
 APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
     WorkingDir(dir), ConfigFN(fileName), ID(id),
@@ -178,36 +183,25 @@ void APhotonSimulator::setupPhotonBombs()
 
     CurrentEvent = SimSet.RunSet.EventFrom;
 
-    const APhotonAdvancedSettings & ASet = SimSet.BombSet.AdvancedSettings;
+    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     // Direction inits
-    Photon.v[0] = ASet.DirDX;
-    Photon.v[1] = ASet.DirDY;
-    Photon.v[2] = ASet.DirDZ;
+    Photon.v[0] = AdvSet.DirDX;
+    Photon.v[1] = AdvSet.DirDY;
+    Photon.v[2] = AdvSet.DirDZ;
     Photon.ensureUnitaryLength();    // if fixed direction, it will be this always. otherwise override later
     ColDirUnitary = TVector3(Photon.v);
-    CosConeAngle = cos(ASet.ConeAngle * TMath::Pi() / 180.0);
+    CosConeAngle = cos(AdvSet.ConeAngle * TMath::Pi() / 180.0);
 
     // Wavelength
     Photon.waveIndex = -1;
-    if (SimSet.WaveSet.Enabled && ASet.bFixWave)
-        if (ASet.WaveIndex >= -1 && ASet.WaveIndex < SimSet.WaveSet.countNodes())
-            Photon.waveIndex = ASet.WaveIndex;
+    if (SimSet.WaveSet.Enabled && AdvSet.bFixWave)
+        if (AdvSet.WaveIndex >= -1 && AdvSet.WaveIndex < SimSet.WaveSet.countNodes())
+            Photon.waveIndex = AdvSet.WaveIndex;
 
-    // Time
-
-
-
-/*
-    bLimitToVolume = PhotSimSettings.bLimitToVol;
-    if (bLimitToVolume)
-    {
-        const QString & Vol = PhotSimSettings.LimitVolume;
-        if ( !Vol.isEmpty() && detector.Sandwich->World->findObjectByName(Vol) )
-            LimitToVolume = PhotSimSettings.LimitVolume.toLocal8Bit().data();
-        else bLimitToVolume = false;
-    }
-*/
+    // Limiters
+    if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
+    if (AdvSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(AdvSet.Material);
 
 /*
     if (PhotSimSettings.PerNodeSettings.Mode == APhotonSim_PerNodeSettings::Custom)
@@ -354,7 +348,6 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 
 bool APhotonSimulator::simulateSingle()
 {
-
     const double * Position = SimSet.BombSet.SingleSettings.Position;
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
 
@@ -430,7 +423,8 @@ bool APhotonSimulator::simulateGrid()
 
 bool APhotonSimulator::simulateFlood()
 {
-    const AFloodSettings & FloodSet = SimSet.BombSet.FloodSettings;
+    const AFloodSettings          & FloodSet = SimSet.BombSet.FloodSettings;
+    const APhotonAdvancedSettings & AdvSet   = SimSet.BombSet.AdvancedSettings;
 
     //extracting flood parameters
     double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
@@ -444,9 +438,9 @@ bool APhotonSimulator::simulateFlood()
     }
     else
     {
-        CenterX = FloodSet.X0;
-        CenterY = FloodSet.Y0;
-        RadiusIn = 0.5 * FloodSet.InnerDiameter;
+        CenterX   = FloodSet.X0;
+        CenterY   = FloodSet.Y0;
+        RadiusIn  = 0.5 * FloodSet.InnerDiameter;
         RadiusOut = 0.5 * FloodSet.OuterDiameter;
 
         Rad2in  = RadiusIn  * RadiusIn;
@@ -466,54 +460,62 @@ bool APhotonSimulator::simulateFlood()
     }
 
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
-//    int WatchdogThreshold = 100000;
-//    double UpdateFactor = 100.0 / EventsToDo;
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        qDebug() << "Simulating flood, Event#" << CurrentEvent;
+        //qDebug() << "Simulating flood, Event#" << CurrentEvent;
+        int Watchdog = AdvSet.MaxNodeAttempts;
         while (true)
         {
-            if (bStopRequested) return false;
-
             node->R[0] = Xfrom + (Xto - Xfrom) * RandomHub.uniform();
             node->R[1] = Yfrom + (Yto - Yfrom) * RandomHub.uniform();
-
             if (FloodSet.Shape == AFloodSettings::Ring)
             {
                 double r2  = (node->R[0] - CenterX)*(node->R[0] - CenterX) + (node->R[1] - CenterY)*(node->R[1] - CenterY);
                 if ( r2 > Rad2out || r2 < Rad2in )
                     continue;
             }
-            break;
-        }
 
-        if (FloodSet.Zmode == AFloodSettings::Fixed)
-            node->R[2] = Zfixed;
-        else
-            node->R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
+            if (FloodSet.Zmode == AFloodSettings::Fixed)
+                node->R[2] = Zfixed;
+            else
+                node->R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
 
-/*
-        if (bLimitToVolume && !isInsideLimitingObject(node->R))
-        {
-            WatchdogThreshold--;
-            if (WatchdogThreshold < 0 && inode == 0)
+            if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node->R)) ||
+                 (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node->R)) )
             {
-                ErrorString = "100000 attempts to generate a point inside the limiting object has failed!";
-                return false;
+                Watchdog--;
+                if (Watchdog < 0)
+                {
+                    AErrorHub::addError("Failed to generate a point inside the limiting volume/material!");
+                    return false;
+                }
+                continue;
             }
 
-            inode--;
-            continue;
+            // acceptable position!
+            break;
         }
-*/
 
         simulatePhotonBombCluster(*node);
 
         EventsDone++;
         reportProgress();
     }
-
     return true;
+}
+
+bool APhotonSimulator::isInsideLimitingVolume(const double * r)
+{
+    TGeoNode * node = AGeometryHub::getInstance().GeoManager->FindNode(r[0], r[1], r[2]);
+    if (!node) return false;
+    return (node->GetVolume() && node->GetVolume()->GetName() == LimitToVolume);
+}
+
+bool APhotonSimulator::isInsideLimitingMaterial(const double *r)
+{
+    TGeoNode * node = AGeometryHub::getInstance().GeoManager->FindNode(r[0], r[1], r[2]);
+    if (!node) return false;
+    return (node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitToMaterial);
 }
 
 bool APhotonSimulator::simulateCustomNodes()
@@ -664,16 +666,19 @@ void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
 
     saveEventMarker();
 
+    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     for (int iPoint = 0; iPoint < numBombs; iPoint++)
     {
-        const bool bInside = true; // TODO:    !(bLimitToVolume && !isInsideLimitingObject(thisNode->R));
-        if (bInside)
+        if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(thisNode->R)) ||
+             (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(thisNode->R)) )
+        {
+            thisNode->NumPhot = 0; // outside of the limiting volume/material
+        }
+        else
         {
             if (thisNode->NumPhot == -1)
                 thisNode->NumPhot = getNumPhotonsThisBomb();
         }
-        else
-            thisNode->NumPhot = 0;
 
         generateAndTracePhotons(thisNode);
 
@@ -689,10 +694,6 @@ void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
     if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
 }
 
-#include "ageometryhub.h"
-#include "aphotongenerator.h"
-#include "TGeoNavigator.h"
-#include "TGeoManager.h"
 void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
 {
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;

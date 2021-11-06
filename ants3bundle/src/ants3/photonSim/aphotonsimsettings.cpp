@@ -745,6 +745,7 @@ void APhotonAdvancedSettings::clear()
     Volume.clear();
     bOnlyMaterial    = false;
     Material.clear();
+    MaxNodeAttempts = 1000;
 }
 
 void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
@@ -786,10 +787,11 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
     // Skip bombs
     {
         QJsonObject js;
-            js["EnableOnlyVol"] = bOnlyVolume;
-            js["Volume"] = Volume;
-            js["EnableOnlyMat"] = bOnlyMaterial;
-            js["Material"] = Material;
+            js["EnableOnlyVol"]   = bOnlyVolume;
+            js["Volume"]          = Volume;
+            js["EnableOnlyMat"]   = bOnlyMaterial;
+            js["Material"]        = Material;
+            js["MaxNodeAttempts"] = MaxNodeAttempts;
         json["SkipBombs"] = js;
     }
 }
@@ -835,9 +837,10 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
     {
         QJsonObject js;
         jstools::parseJson(json, "SkipBombs", js);
-        jstools::parseJson(js, "EnableOnlyVol", bOnlyVolume);
-        jstools::parseJson(js, "Volume",        Volume);
-        jstools::parseJson(js, "EnableOnlyMat", bOnlyMaterial);
-        jstools::parseJson(js, "Material",      Material);
+        jstools::parseJson(js, "EnableOnlyVol",   bOnlyVolume);
+        jstools::parseJson(js, "Volume",          Volume);
+        jstools::parseJson(js, "EnableOnlyMat",   bOnlyMaterial);
+        jstools::parseJson(js, "Material",        Material);
+        jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
     }
 }

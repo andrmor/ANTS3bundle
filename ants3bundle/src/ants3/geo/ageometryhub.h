@@ -83,7 +83,7 @@ public:
     double       getWorldSizeZ() const;
     void         setWorldSizeZ(double size);
 
-    int          checkGeometryForConflicts();
+    int          checkGeometryForConflicts();  // !!!*** to geom hub
     QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
     QString      exportToGDML(const QString & fileName) const;

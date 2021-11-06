@@ -46,8 +46,8 @@ protected:
     int  EventsToDo  = 0;
     int  EventsDone  = 0;
 
-    bool bStopRequested = false;
-    bool bHardAbortWasTriggered = false;
+    bool bStopRequested = false;  // no need
+    bool bHardAbortWasTriggered = false; // no need
     bool fSuccess;
 
     //output
@@ -75,8 +75,10 @@ private:
     void    terminate(const QString & reason);
 
     int     getNumPhotonsThisBomb();  // !!!*** custom
-    void    simulatePhotonBombCluster(ANodeRecord & node);
+    void    simulatePhotonBombCluster(ANodeRecord & node); // !!!***
     void    generateAndTracePhotons(const ANodeRecord * node);
+    bool    isInsideLimitingVolume(const double * r);    // no optimization: assuming they will not be used together \|
+    bool    isInsideLimitingMaterial(const double * r);  // no optimization: assuming they will not be used together /|
 
     bool    simulateSingle();
     bool    simulateGrid();
@@ -93,6 +95,8 @@ private:
 private:
     TVector3 ColDirUnitary;
     double   CosConeAngle;
+    TString  LimitToVolume;  // !!!*** change to pointer?
+    int      LimitToMaterial;
 };
 
 #endif // APHOTONSIMULATOR_H

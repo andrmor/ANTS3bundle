@@ -62,6 +62,7 @@ private:
   bool    GDMLtoTGeo(const QString &fileName);
   void    updateGeoConstsIndication();
   QString createScript(QString &script, bool usePython);
+  void    reportGeometryConflicts();
 
 protected:
   void resizeEvent(QResizeEvent *event);

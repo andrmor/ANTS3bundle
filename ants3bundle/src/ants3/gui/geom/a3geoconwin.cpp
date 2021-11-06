@@ -121,7 +121,7 @@ void A3GeoConWin::onRebuildDetectorRequest()
     if (ui->cbAutoCheck->isChecked())
     {
         int nooverlaps = Geometry.checkGeometryForConflicts();
-        if (nooverlaps != 0) on_pbCheckGeometry_clicked();
+        if (nooverlaps != 0) reportGeometryConflicts();
     }
 }
 
@@ -682,8 +682,13 @@ void A3GeoConWin::on_pbCheckGeometry_clicked()
         guitools::message("No conflicts were detected", this);
         return;
     }
+    reportGeometryConflicts();
+}
 
+void A3GeoConWin::reportGeometryConflicts()
+{
     TObjArray * overlaps = Geometry.GeoManager->GetListOfOverlaps();
+    const int overlapCount = overlaps->GetEntries();
     QString text;
     for (int i = 0; i < overlapCount; i++)
         text += QString::fromLocal8Bit(((TNamed*)overlaps->At(i))->GetTitle()) + '\n';

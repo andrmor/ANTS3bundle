@@ -151,6 +151,7 @@ public:
     QString   Volume;
     bool      bOnlyMaterial = false;
     QString   Material;
+    int       MaxNodeAttempts = 1000;
 
     void clear();
 

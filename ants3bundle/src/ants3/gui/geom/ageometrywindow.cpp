@@ -480,7 +480,7 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
     const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
     const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
 
-    int numObj;
+    int numObj = 0;
     switch (onWhat)
     {
     case PMs      : numObj = SensorHub.countSensors();                        break;

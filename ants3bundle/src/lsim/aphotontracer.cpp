@@ -251,7 +251,6 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             const double* PhPos = Navigator->GetCurrentPoint();
             for (int i=0; i<3; i++) p.r[i] = PhPos[i];
             AInterfaceRule::OpticalOverrideResultEnum result = rule->calculate(&p, N);
-            if (bAbort) return;
 
             switch (result)
             {
@@ -440,11 +439,6 @@ void APhotonTracer::saveTrack()
     json["P"] = ar;
 
     *StreamTracks << jstools::jsonToString(json) << '\n';
-}
-
-void APhotonTracer::hardAbort()
-{
-    bAbort = true;
 }
 
 void APhotonTracer::AppendHistoryRecord()

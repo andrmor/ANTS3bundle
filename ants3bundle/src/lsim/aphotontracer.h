@@ -31,8 +31,6 @@ public:
 
     void tracePhoton(const APhoton & Photon);
 
-    void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels   !!!***obsolete?
-
     APhotonTrackRecord         Track;
     QVector<APhotonHistoryLog> PhLog;
 
@@ -74,8 +72,6 @@ private:
 
     QString nameFrom;  // !!!*** to TString
     QString nameTo;    // !!!*** to TString
-
-    bool bAbort = false;
 
     const double c_in_vac = 2.997925e2; //speed of light in mm/ns
 
