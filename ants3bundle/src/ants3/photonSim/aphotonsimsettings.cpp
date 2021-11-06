@@ -673,6 +673,9 @@ void AGridSettings::clearSettings()
     for (int i=0; i<3; i++)
         ScanRecords[i] = APhScanRecord();
     ScanRecords[0].bEnabled = true;
+
+    ScanRecords[1].DX = 0; ScanRecords[1].DY = 10.0;
+    ScanRecords[2].DX = 0; ScanRecords[2].DZ = 10.0;
 }
 
 void AGridSettings::writeToJson(QJsonObject &json) const

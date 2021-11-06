@@ -97,8 +97,7 @@ public:
     double Z0 = 0;
     APhScanRecord ScanRecords[3];
 
-    int getNumEvents() const;
-
+    int     getNumEvents() const;
     void    clearSettings();
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
