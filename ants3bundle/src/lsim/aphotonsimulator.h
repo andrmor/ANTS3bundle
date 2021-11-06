@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QString>
 
+#include "TVector3.h"
+
 class APhotonSimSettings;
 class ANodeRecord;
 class AOneEvent;
@@ -72,7 +74,7 @@ private:
 
     void    terminate(const QString & reason);
 
-    int     getNumPhotonsThisBomb();
+    int     getNumPhotonsThisBomb();  // !!!*** custom
     void    simulatePhotonBombCluster(ANodeRecord & node);
     void    generateAndTracePhotons(const ANodeRecord * node);
 
@@ -87,6 +89,10 @@ private:
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node);
     void    reportProgress();
+
+private:
+    TVector3 ColDirUnitary;
+    double   CosConeAngle;
 };
 
 #endif // APHOTONSIMULATOR_H

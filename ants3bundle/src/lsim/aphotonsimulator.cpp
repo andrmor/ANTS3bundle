@@ -177,6 +177,17 @@ void APhotonSimulator::setupPhotonBombs()
     Photon.SecondaryScint = false;
 
     CurrentEvent = SimSet.RunSet.EventFrom;
+
+    const APhotonAdvancedSettings & ASet = SimSet.BombSet.AdvancedSettings;
+
+    // Direction inits
+    Photon.v[0] = ASet.DirDX;
+    Photon.v[1] = ASet.DirDY;
+    Photon.v[2] = ASet.DirDZ;
+    Photon.ensureUnitaryLength();    // if fixed direction, it will be this always. otherwise override later
+    ColDirUnitary = TVector3(Photon.v);
+    CosConeAngle = cos(ASet.ConeAngle * TMath::Pi() / 180.0);
+
 /*
     bLimitToVolume = PhotSimSettings.bLimitToVol;
     if (bLimitToVolume)
@@ -216,31 +227,8 @@ void APhotonSimulator::setupPhotonBombs()
     if (!SimSet.WaveSet.Enabled) Photon.waveIndex = -1;
 */
 
-/*
-    bIsotropic = FS.bIsotropic;
-    if (!bIsotropic)
-    {
-        if (FS.DirectionMode == APhotonSim_FixedPhotSettings::Vector)
-        {
-            bCone = false;
-            Photon.v[0] = FS.FixDX;
-            Photon.v[1] = FS.FixDY;
-            Photon.v[2] = FS.FixDZ;
-            NormalizeVectorSilent(Photon.v);
-        }
-        else //Cone
-        {
-            bCone = true;
-            double v[3];
-            v[0] = FS.FixDX;
-            v[1] = FS.FixDY;
-            v[2] = FS.FixDZ;
-            NormalizeVectorSilent(v);
-            ConeDir = TVector3(v[0], v[1], v[2]);
-            CosConeAngle = cos(FS.FixConeAngle * TMath::Pi() / 180.0);
-        }
-    }
-*/
+
+
 
 /*
     EventsToDo = 0;
@@ -735,7 +723,6 @@ void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
 #include "aphotongenerator.h"
 #include "TGeoNavigator.h"
 #include "TGeoManager.h"
-#include "TVector3.h"
 void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
 {
     for (int i = 0; i < 3; i++) Photon.r[i] = node->R[i];
@@ -744,24 +731,19 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
     for (int i = 0; i < node->NumPhot; i++)
     {
-        //photon direction
-//        if (bIsotropic)
+        // Direction
+        if      (SimSet.BombSet.AdvancedSettings.DirectionMode == APhotonAdvancedSettings::Isotropic)
             Photon.generateRandomDir();
-/*
-        else if (bCone)
+        else if (SimSet.BombSet.AdvancedSettings.DirectionMode == APhotonAdvancedSettings::Cone)
         {
-            double z = CosConeAngle + RandGen->Rndm() * (1.0 - CosConeAngle);
-            double tmp = sqrt(1.0 - z*z);
-            double phi = RandGen->Rndm()*3.1415926535*2.0;
+            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
+            const double tmp = sqrt(1.0 - z*z);
+            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
             TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-            TVector3 Coll(ConeDir);
-            K1.RotateUz(Coll);
-            Photon.v[0] = K1[0];
-            Photon.v[1] = K1[1];
-            Photon.v[2] = K1[2];
+            K1.RotateUz(ColDirUnitary);
+            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
         }
         //else it is already set
-*/
 
         int MatIndex = 0;
         TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);

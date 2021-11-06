@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>281</height>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,256 +48,226 @@
         </spacer>
        </item>
        <item>
-        <widget class="QFrame" name="fFixedDir">
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cobDirectionMode">
+           <property name="minimumSize">
+            <size>
+             <width>250</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Isotropic emission</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Fixed direction</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cone</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QFrame" name="frNonIsotropic">
          <property name="enabled">
           <bool>true</bool>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="leftMargin">
-           <number>3</number>
-          </property>
-          <property name="topMargin">
-           <number>3</number>
-          </property>
-          <property name="rightMargin">
-           <number>3</number>
-          </property>
-          <property name="bottomMargin">
-           <number>3</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_11">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Direction vector:</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QComboBox" name="cobDirectionMode">
-              <property name="minimumSize">
-               <size>
-                <width>250</width>
-                <height>0</height>
-               </size>
-              </property>
-              <item>
-               <property name="text">
-                <string>Isotropic emission</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Fixed direction</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Cone</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+             <widget class="QLabel" name="label_222">
+              <property name="text">
+               <string>dX</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ledDX">
+              <property name="enabled">
+               <bool>true</bool>
               </property>
-             </spacer>
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_224">
+              <property name="text">
+               <string>dY</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ledDY">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_226">
+              <property name="text">
+               <string>dZ</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ledDZ">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QFrame" name="frNonIsotropic">
+           <widget class="QFrame" name="fConeForPhotonGen">
             <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
+             <bool>true</bool>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="leftMargin">
+              <number>3</number>
+             </property>
+             <property name="topMargin">
+              <number>3</number>
+             </property>
+             <property name="rightMargin">
+              <number>3</number>
+             </property>
+             <property name="bottomMargin">
+              <number>3</number>
+             </property>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
                <item>
-                <widget class="QLabel" name="label_2">
+                <widget class="QLabel" name="label_17">
                  <property name="text">
-                  <string>Direction vector:</string>
+                  <string>Half angle:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_222">
+                <widget class="QLineEdit" name="ledConeAngle">
+                 <property name="maximumSize">
+                  <size>
+                   <width>75</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="text">
-                  <string>dX</string>
+                  <string>45</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="ledDX">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
+                <widget class="QLabel" name="label_19">
                  <property name="text">
-                  <string>0</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_224">
-                 <property name="text">
-                  <string>dY</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="ledDY">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>0</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_226">
-                 <property name="text">
-                  <string>dZ</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="ledDZ">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>1</string>
+                  <string>degrees</string>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
              <item>
-              <widget class="QFrame" name="fConeForPhotonGen">
-               <property name="enabled">
-                <bool>false</bool>
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
                </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_8">
-                <property name="leftMargin">
-                 <number>3</number>
-                </property>
-                <property name="topMargin">
-                 <number>3</number>
-                </property>
-                <property name="rightMargin">
-                 <number>3</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>3</number>
-                </property>
-                <item>
-                 <spacer name="horizontalSpacer_5">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                  <item>
-                   <widget class="QLabel" name="label_17">
-                    <property name="text">
-                     <string>Half angle:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="ledConeAngle">
-                    <property name="maximumSize">
-                     <size>
-                      <width>75</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>45</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_19">
-                    <property name="text">
-                     <string>degrees</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_6">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -351,7 +321,7 @@
        <item>
         <widget class="QFrame" name="fPointSourceWave">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -386,7 +356,7 @@
           <item>
            <widget class="QSpinBox" name="sbFixedWave">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="maximumSize">
              <size>
@@ -1005,12 +975,12 @@ Changes</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>110</y>
+     <x>193</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
-     <x>221</x>
-     <y>134</y>
+     <x>232</x>
+     <y>201</y>
     </hint>
    </hints>
   </connection>
@@ -1021,12 +991,12 @@ Changes</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>121</y>
+     <x>171</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
-     <x>250</x>
-     <y>151</y>
+     <x>317</x>
+     <y>192</y>
     </hint>
    </hints>
   </connection>
@@ -1037,12 +1007,12 @@ Changes</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>142</x>
-     <y>124</y>
+     <x>154</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
-     <x>241</x>
-     <y>119</y>
+     <x>409</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -1053,12 +1023,12 @@ Changes</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>266</x>
-     <y>153</y>
+     <x>278</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
-     <x>401</x>
-     <y>154</y>
+     <x>536</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
