@@ -44,7 +44,7 @@ bool AS1Generator::generate(ADepoRecord & rec)
         APhotonGenerator::generateWave(Photon, rec.MatIndex);
         APhotonGenerator::generateTime(Photon, rec.MatIndex);
 
-        PhotonTracer.tracePhoton(&Photon);
+        PhotonTracer.tracePhoton(Photon);
     }
 
     return true;

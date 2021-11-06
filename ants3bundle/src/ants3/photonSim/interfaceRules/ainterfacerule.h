@@ -29,6 +29,7 @@ public:
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule() {}
 
+    // !!!*** to reference
     virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     virtual QString getType() const = 0;

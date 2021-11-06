@@ -15,17 +15,17 @@ APhoton::APhoton(double * pos, double * dir, int waveIndex, double time) :
     }
 }
 
-void APhoton::copyFrom(const APhoton *CopyFrom)
+void APhoton::copyFrom(const APhoton & CopyFrom)
 {
-    for (int i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        r[i] = CopyFrom->r[i];
-        v[i] = CopyFrom->v[i];
+        r[i] = CopyFrom.r[i];
+        v[i] = CopyFrom.v[i];
     }
 
-    time           = CopyFrom->time;
-    waveIndex      = CopyFrom->waveIndex;
-    SecondaryScint = CopyFrom->SecondaryScint;
+    time           = CopyFrom.time;
+    waveIndex      = CopyFrom.waveIndex;
+    SecondaryScint = CopyFrom.SecondaryScint;
 }
 
 void APhoton::ensureUnitaryLength()

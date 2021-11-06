@@ -1,13 +1,12 @@
 #ifndef APHOTONTRACER_H
 #define APHOTONTRACER_H
 
+#include "aphoton.h"
 #include "aphotontrackrecord.h"
 #include "aphotonhistorylog.h"
 
 #include <QVector>
 #include <vector>
-
-//#include "TMathBase.h"
 
 class APhotonSimSettings;
 class AMaterialHub;
@@ -15,7 +14,6 @@ class AInterfaceRuleHub;
 class ASensorHub;
 class ARandomHub;
 class APhotonStatistics;
-class APhoton;
 class TGeoManager;
 class AMaterial;
 class AOneEvent;
@@ -28,11 +26,10 @@ class APhotonTracer
 {
 public:
     APhotonTracer(AOneEvent & event, QTextStream* & streamTracks);
-    ~APhotonTracer();
 
     void init();
 
-    void tracePhoton(const APhoton * Photon);  // !!!*** to const reference
+    void tracePhoton(const APhoton & Photon);
 
     void hardAbort(); //before using it, give a chance to finish normally using abort at higher levels   !!!***obsolete?
 
@@ -55,10 +52,9 @@ private:
 
 //    const QVector<AGridElementRecord*>* grids;
 
+    APhoton p; //the photon which is traced
     int AddedTracks = 0;
-
     int Counter; //number of photon transitions - there is a limit on this set by user
-    APhoton * p; //the photon which is traced
     double rnd; //pre-generated random number for accelerated mode
     double Step;
     double * N; //normal vector to the surface

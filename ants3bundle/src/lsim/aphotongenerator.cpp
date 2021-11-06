@@ -13,7 +13,7 @@ void APhotonGenerator::generateWave(APhoton & Photon, int iMaterial)
     const AMaterialHub & MaterialHub = AMaterialHub::getConstInstance();
     const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
-    const AMaterial* Material = MaterialHub[iMaterial];
+    const AMaterial * Material = MaterialHub[iMaterial];
 
     if (!SimSet.WaveSet.Enabled)
         Photon.waveIndex = -1;

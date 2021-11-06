@@ -188,6 +188,16 @@ void APhotonSimulator::setupPhotonBombs()
     ColDirUnitary = TVector3(Photon.v);
     CosConeAngle = cos(ASet.ConeAngle * TMath::Pi() / 180.0);
 
+    // Wavelength
+    Photon.waveIndex = -1;
+    if (SimSet.WaveSet.Enabled && ASet.bFixWave)
+        if (ASet.WaveIndex >= -1 && ASet.WaveIndex < SimSet.WaveSet.countNodes())
+            Photon.waveIndex = ASet.WaveIndex;
+
+    // Time
+
+
+
 /*
     bLimitToVolume = PhotSimSettings.bLimitToVol;
     if (bLimitToVolume)
@@ -220,46 +230,6 @@ void APhotonSimulator::setupPhotonBombs()
         CustomHist->GetIntegral(); //will be thread safe after this
     }
 */
-
-/*
-    const APhotonSim_FixedPhotSettings & FS = PhotSimSettings.FixedPhotSettings;
-    Photon.waveIndex = FS.FixWaveIndex;
-    if (!SimSet.WaveSet.Enabled) Photon.waveIndex = -1;
-*/
-
-
-
-
-/*
-    EventsToDo = 0;
-    switch (SimSet.BombSet.GenerationMode)
-    {
-    case EBombGen::Single :
-        EventsToDo = 1; //the only case when we can split runs between threads
-        break;
-    case EBombGen::Grid :
-    {
-//        EventsToDo = PhotSimSettings.ScanSettings.countEvents();
-        break;
-    }
-    case EBombGen::Flood :
-        EventsToDo = SimSet.BombSet.FloodSettings.Number;
-        break;
-    case EBombGen::File :
-//        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
-//             EventsToDo = Nodes.size();
-//        else
-//               EventsToDo = PhotSimSettings.CustomNodeSettings.NumEventsInFile;
-        break;
-    case EBombGen::Script :
-//        EventsToDo = Nodes.size();
-        break;
-    default:
-//        ErrorString = "Unknown or not implemented photon simulation mode";
-        break;
-    }
-*/
-
 }
 
 void APhotonSimulator::simulatePhotonBombs()
@@ -725,16 +695,17 @@ void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
 #include "TGeoManager.h"
 void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
 {
+    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+
     for (int i = 0; i < 3; i++) Photon.r[i] = node->R[i];
-    Photon.time = node->Time;
 
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
     for (int i = 0; i < node->NumPhot; i++)
     {
         // Direction
-        if      (SimSet.BombSet.AdvancedSettings.DirectionMode == APhotonAdvancedSettings::Isotropic)
+        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
             Photon.generateRandomDir();
-        else if (SimSet.BombSet.AdvancedSettings.DirectionMode == APhotonAdvancedSettings::Cone)
+        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
         {
             const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
             const double tmp = sqrt(1.0 - z*z);
@@ -745,6 +716,7 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
         }
         //else it is already set
 
+        // Material at the emission position
         int MatIndex = 0;
         TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
         if (GeoNode) MatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
@@ -754,12 +726,18 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
             qWarning() << "Node not found when generating photons, using material of the world";
         }
 
-//        if (!PhotSimSettings.FixedPhotSettings.bFixWave)
-            APhotonGenerator::generateWave(Photon, MatIndex);//if directly given wavelength -> waveindex is already set in PhotonOnStart
+        // Wavelength
+        if (!AdvSet.bFixWave)
+            APhotonGenerator::generateWave(Photon, MatIndex); // else waveindex is already set
 
-//        APhotonGenerator::generateTime(Photon, MatIndex);
+        // Time
+        Photon.time = node->Time;
+        if (!AdvSet.bFixDecay)
+            APhotonGenerator::generateTime(Photon, MatIndex);
+        else
+            Photon.time += RandomHub.exp(AdvSet.DecayTime);
 
-        Tracer->tracePhoton(&Photon);
+        Tracer->tracePhoton(Photon);
     }
 }
 

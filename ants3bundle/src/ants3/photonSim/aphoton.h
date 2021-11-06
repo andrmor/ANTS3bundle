@@ -15,7 +15,7 @@ public:
     int    waveIndex      = -1;     //wavelength is always binned during simulations
     bool   SecondaryScint = false;
 
-    void copyFrom(const APhoton * CopyFrom);
+    void copyFrom(const APhoton & CopyFrom);
     void ensureUnitaryLength();
     void generateRandomDir(); // isotropic
 };
