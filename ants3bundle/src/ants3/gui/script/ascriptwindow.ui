@@ -557,6 +557,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionShortcuts"/>
+    <addaction name="aAlphabeticOrder"/>
    </widget>
    <widget class="QMenu" name="menuBooks">
     <property name="title">
@@ -688,6 +689,17 @@ Can also be used to load a tab session created before books were implemented</st
   <action name="actionClose_all_books">
    <property name="text">
     <string>Close all books</string>
+   </property>
+  </action>
+  <action name="aAlphabeticOrder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Unit methods: alphabetic order</string>
    </property>
   </action>
  </widget>

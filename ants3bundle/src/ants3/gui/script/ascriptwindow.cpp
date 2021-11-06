@@ -234,33 +234,45 @@ void AScriptWindow::createGuiElements()
     splMain->setSizes(sizes);
 }
 
-void AScriptWindow::registerInterface(const AScriptInterface * interface)
-{
-    const QString & name = interface->Name;
-
-    // populating help
-    fillHelper(interface, name);
-    QStringList newFunctions;
-    newFunctions << getListOfMethods(interface, name, false);
-    appendDeprecatedOrRemovedMethods(interface, name);
-
-    //filling autocompleter
-    for (int i=0; i<newFunctions.size(); i++) newFunctions[i] += "()";
-    Functions << newFunctions;
-
-    //special "needs" of particular interface objects
-    //    if ( dynamic_cast<AInterfaceToHist*>(interface) || dynamic_cast<AInterfaceToGraph*>(interface)) //"graph" or "hist"
-    //       QObject::connect(interface, SIGNAL(RequestDraw(TObject*,QString,bool)), this, SLOT(onRequestDraw(TObject*,QString,bool)));
-}
-
 void AScriptWindow::registerInterfaces()
 {
-    AJScriptManager & man = AJScriptHub::manager();
+    updateMethodHelp();
+    updateRemovedAndDeprecatedMethods();
+    updateAutocompleterAndHeighlighter();
+}
 
-    Functions.clear();
+void AScriptWindow::updateMethodHelp()
+{
+    functionList.clear();
+    trwHelp->clear();
+    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+        fillHelper(inter);
+}
 
-    for (const AScriptInterface * inter : man.getInterfaces())
-        registerInterface(inter);
+void AScriptWindow::on_aAlphabeticOrder_changed()
+{
+    updateMethodHelp();
+}
+
+void AScriptWindow::updateRemovedAndDeprecatedMethods()
+{
+    //DeprecatedOrRemovedMethods.clear();
+    //ListOfDeprecatedOrRemovedMethods.clear()
+    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+        appendDeprecatedAndRemovedMethods(inter);
+}
+
+void AScriptWindow::updateAutocompleterAndHeighlighter()
+{
+    Methods.clear();
+
+    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    {
+        const QString & name = inter->Name;
+        QStringList methodsions = getListOfMethods(inter, name, false);
+        for (int i = 0; i < methodsions.size(); i++) methodsions[i] += "()";
+        Methods << methodsions;
+    }
 }
 
 void AScriptWindow::updateGui()
@@ -597,17 +609,18 @@ void AScriptWindow::on_pbExample_clicked()
 */
 }
 
-void AScriptWindow::fillHelper(const AScriptInterface * io, QString module)
+void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
+    const QString module = io->Name;
+
     QStringList functions = getListOfMethods(io, module, true);
-    functions.sort();
+    if (ui->aAlphabeticOrder->isChecked()) functions.sort();
 
     QTreeWidgetItem *objItem = new QTreeWidgetItem(trwHelp);
     objItem->setText(0, module);
     QFont f = objItem->font(0);
     f.setBold(true);
     objItem->setFont(0, f);
-    //objItem->setBackgroundColor(QColor(0, 0, 255, 80));
     objItem->setToolTip(0, io->Description);
     for (int i=0; i<functions.size(); i++)
     {
@@ -616,12 +629,12 @@ void AScriptWindow::fillHelper(const AScriptInterface * io, QString module)
         QString Flong  = sl.last();
         functionList << Flong;
 
-        QTreeWidgetItem *fItem = new QTreeWidgetItem(objItem);
+        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
         QString methodName = Fshort.remove(QRegExp("\\((.*)\\)"));
-        if (!module.isEmpty()) methodName.remove(0, module.length()+1); //remove module name and '.'
+        methodName.remove(0, module.length()+1); //remove module name and '.'
         const QString & str = io->getMethodHelp(methodName);
         fItem->setToolTip(0, str);
     }
@@ -640,6 +653,9 @@ void AScriptWindow::onJsonTWCollapsed(QTreeWidgetItem *item)
 #include "aconfig.h"
 void AScriptWindow::updateJsonTree()
 {
+    AConfig & Config = AConfig::getInstance();
+    Config.updateJSONfromConfig();
+
     trwJson->clear();
 
     const QJsonObject & json = AConfig::getConstInstance().JSON;
@@ -891,14 +907,15 @@ void AScriptWindow::onContextMenuRequestedByHelp(QPoint pos)
 //  getTab()->TextEdit->insertPlainText(text);
 //}
 
+/*
 void AScriptWindow::closeEvent(QCloseEvent* e)
 {
     QString Script = getTab()->TextEdit->document()->toPlainText();
 
     QMainWindow::closeEvent(e);
 }
+*/
 
-/*
 bool AScriptWindow::event(QEvent *e)
 {
     switch(e->type())
@@ -911,6 +928,7 @@ bool AScriptWindow::event(QEvent *e)
     case QEvent::WindowDeactivate :
         // lost focus
         break;
+/*
     case QEvent::Hide :
         //qDebug() << "Script window: hide event";
         ScriptManager->hideMsgDialogs();
@@ -919,12 +937,12 @@ bool AScriptWindow::event(QEvent *e)
         //qDebug() << "Script window: show event";
         ScriptManager->restoreMsgDialogs();
         break;
+*/
     default:;
     };
 
     return QMainWindow::event(e);
 }
-*/
 
 void AScriptWindow::receivedOnAbort()
 {
@@ -969,7 +987,7 @@ QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName,
         if (fSlot && fPublic)
         {
             if (m.name() == "deleteLater") continue;
-            if (m.name() == "help") continue;
+            //if (m.name() == "help") continue;
             if (ObjName.isEmpty()) commCandidate = m.name();
             else commCandidate = ObjName + "." + m.name();
 
@@ -1004,11 +1022,10 @@ QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName,
     return commands;
 }
 
-void AScriptWindow::appendDeprecatedOrRemovedMethods(const AScriptInterface *obj, const QString &name)
+void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * obj)
 {
-    if (!obj) return;
-
 /*
+    const QString name = obj->Name;
     QHashIterator<QString, QString> iter(obj->getDeprecatedOrRemovedMethods());
     while (iter.hasNext())
     {
@@ -1202,7 +1219,7 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
 
 void AScriptWindow::updateTab(ATabRecord* tab)
 {
-    tab->Highlighter->setHighlighterRules(Functions, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
+    tab->Highlighter->setHighlighterRules(Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
     tab->UpdateHighlight();
     tab->TextEdit->functionList = functionList;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
@@ -1210,7 +1227,7 @@ void AScriptWindow::updateTab(ATabRecord* tab)
 
 ATabRecord & AScriptWindow::addNewTab(int iBook)
 {
-    ATabRecord * tab = new ATabRecord(Functions, ScriptLanguage);
+    ATabRecord * tab = new ATabRecord(Methods, ScriptLanguage);
     tab->TabName = createNewTabName(iBook);
 
     formatTab(tab);

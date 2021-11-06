@@ -47,11 +47,14 @@ public:
     QString     to   = "B";
     QString     lines;
 
+    void    updateJSONfromConfig();
+    void    updateConfigFromJSON();
+
     QString load(const QString & fileName);
     QString save(const QString & fileName);
 
-    void    writeToJson(QJsonObject & json) const;
-    QString readFromJson(const QJsonObject & json);
+    void    writeToJson(QJsonObject & json) const;  // !!!*** privat?
+    QString readFromJson(const QJsonObject & json); // !!!*** privat?
 
 private:
     QString tryReadFromJson(const QJsonObject & json); // !!!***

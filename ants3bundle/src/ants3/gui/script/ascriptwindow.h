@@ -85,7 +85,7 @@ private:
     A3Global          & GlobSet;
     AScriptLanguageEnum ScriptLanguage = AScriptLanguageEnum::JavaScript;
     Ui::AScriptWindow * ui             = nullptr;
-    QStringList         Functions;
+    QStringList         Methods;
 
     std::vector<AScriptBook> ScriptBooks;
     int                 iCurrentBook   = -1;
@@ -123,10 +123,10 @@ private:
     void fillSubObject(QTreeWidgetItem* parent, const QJsonObject& obj);
     void fillSubArray(QTreeWidgetItem* parent, const QJsonArray& arr);
     QString getDesc(const QJsonValue &ref);
-    void fillHelper(const AScriptInterface *io, QString module);  //fill help TreeWidget according to the data in the obj
+    void fillHelper(const AScriptInterface * io);
     QString getKeyPath(QTreeWidgetItem *item);
     QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, cponvert to AScriptInterface
-    void appendDeprecatedOrRemovedMethods(const AScriptInterface *obj, const QString& name);  // !!!***  no need name, cponvert to AScriptInterface
+    void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj);
 
     void addNewBook();
     void removeBook(int iBook, bool bConfirm = true);
@@ -253,9 +253,11 @@ private slots:
     void receivedOnAbort();
     void receivedOnSuccess(QString eval);
 
+    void on_aAlphabeticOrder_changed();
+
 protected:
-    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
-//    bool event(QEvent * e) override; // !!!***
+//    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
+    bool event(QEvent * e) override; // !!!***
 
 signals:
     void WindowShown(QString);
@@ -268,7 +270,9 @@ signals:
     void requestUpdateConfig();   // !!!***
 
 private:
-    void registerInterface(const AScriptInterface * interface); // !!!***
+    void updateMethodHelp();
+    void updateRemovedAndDeprecatedMethods();
+    void updateAutocompleterAndHeighlighter();
 };
 
 // !!!*** to a separate file

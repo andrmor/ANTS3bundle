@@ -27,6 +27,16 @@ AConfig::AConfig()
         lines += QString("%0-abcdef\n").arg(i);
 }
 
+void AConfig::updateJSONfromConfig()
+{
+    writeToJson(JSON);
+}
+
+void AConfig::updateConfigFromJSON()
+{
+    readFromJson(JSON);  // !!!*** add error control (paranoic)
+}
+
 QString AConfig::load(const QString & fileName)
 {
     QJsonObject json;
@@ -38,7 +48,7 @@ QString AConfig::load(const QString & fileName)
 
 QString AConfig::save(const QString & fileName)
 {
-    writeToJson(JSON);
+    updateJSONfromConfig();
 
     bool ok = jstools::saveJsonToFile(JSON, fileName);
     if (ok) return "";
