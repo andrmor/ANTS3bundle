@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector> // TODO: std::vector !!!***
 #include <QSet>    // TODO: refactor
+#include <QDateTime>
 
 #include <vector>
 
@@ -129,6 +130,26 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
+class ANodeFileSettings
+{
+public:
+    enum           FileFormatEnum {Undefined = 0, Invalid, Ascii, Binary};
+
+    QString        FileName;
+    FileFormatEnum FileFormat = Undefined;
+    int            NumEvents  = 0;
+    QDateTime      LastModified;
+
+    bool           isValidated() const;
+    QString        getFormatName() const;
+
+    void           writeToJson(QJsonObject & json) const;
+    void           readFromJson(const QJsonObject & json);
+
+    void           clear();
+    void           clearStatistics(){}
+};
+
 class APhotonAdvancedSettings
 {
 public:
@@ -165,9 +186,10 @@ public:
 
     EBombGen         GenerationMode = EBombGen::Single;
 
-    ASingleSettings  SingleSettings;
-    AGridSettings    GridSettings;
-    AFloodSettings   FloodSettings;
+    ASingleSettings   SingleSettings;
+    AGridSettings     GridSettings;
+    AFloodSettings    FloodSettings;
+    ANodeFileSettings NodeFileSettings;
 
     APhotonAdvancedSettings AdvancedSettings;
 
@@ -223,7 +245,6 @@ public:
     void readFromJson(const QJsonObject & json);
 };
 
-#include <QDateTime>
 class APhotonDepoSettings
 {
 public:

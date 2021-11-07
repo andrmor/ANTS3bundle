@@ -11,6 +11,7 @@
 #include "agraphbuilder.h"
 #include "adispatcherinterface.h"
 #include "aerrorhub.h"
+#include "adepositionfilehandler.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -64,6 +65,7 @@ void A3PhotSimWin::updateGui()
 
     updatePhotBombGui();
     updateDepoGui();
+    updateBombFileGui();
 
     updateGeneralSettingsGui();
 }
@@ -169,6 +171,18 @@ void A3PhotSimWin::updateDepoGui()
 
     ui->cbPrimaryScint->setChecked(SimSet.DepoSet.Primary);
     ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
+}
+
+void A3PhotSimWin::updateBombFileGui()
+{
+    const ANodeFileSettings & s = SimSet.BombSet.NodeFileSettings;
+
+    ui->leNodeFileName->setText(s.FileName);
+    ui->labNodeFileFormat->setText(s.getFormatName());
+
+    QString strEvents = "--";
+    if (s.isValidated()) strEvents = QString::number(s.NumEvents);
+    ui->labNodeFileEvents->setText(strEvents);
 }
 
 void A3PhotSimWin::updateGeneralSettingsGui()
@@ -858,7 +872,6 @@ void A3PhotSimWin::on_pbChangeDepositionFile_clicked()
     ui->leDepositionFile->setText(fileName);
     on_leDepositionFile_editingFinished();
 }
-
 void A3PhotSimWin::on_leDepositionFile_editingFinished()
 {
     QString NewFileName = ui->leDepositionFile->text();
@@ -878,8 +891,6 @@ void A3PhotSimWin::on_cbSecondaryScint_clicked(bool checked)
     SimSet.DepoSet.Secondary = checked;
 }
 
-#include "adepositionfilehandler.h"
-#include "aerrorhub.h"
 void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
@@ -922,10 +933,6 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
         SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
     }
     updateDepoGui();
-
-    fh.copyToFile(0, 2, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test0.dat");
-    fh.copyToFile(2, 4, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test1.dat");
-    fh.copyToFile(5, 8, "/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output/test2.dat");
 }
 
 void A3PhotSimWin::on_pbdUpdateScanSettings_clicked()
@@ -976,3 +983,80 @@ void A3PhotSimWin::updateAdvancedBombIndicator()
     bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
     ui->labAdvancedBombOn->setVisible(on);
 }
+
+// --- BombFile ---
+
+void A3PhotSimWin::on_leNodeFileName_editingFinished()
+{
+    ANodeFileSettings & s = SimSet.BombSet.NodeFileSettings;
+    QString NewFileName = ui->leNodeFileName->text();
+    if (NewFileName != s.FileName)
+    {
+        s.clear();
+        s.FileName = ui->leNodeFileName->text();
+        updateBombFileGui();
+    }
+}
+void A3PhotSimWin::on_pbNodeFileChange_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Select file with photon bombs", "");
+    if (fileName.isEmpty()) return;
+    ui->leNodeFileName->setText(fileName);
+    on_leNodeFileName_editingFinished();
+}
+#include "aphotonbombfilehandler.h"
+void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
+{
+    ANodeFileSettings & bset = SimSet.BombSet.NodeFileSettings;
+
+    APhotonBombFileHandler fh(bset);
+
+    const bool CollectStats = ui->cbNodeFileCollectStatistics->isChecked();
+    if (bset.isValidated() && !CollectStats) return; // already up to date
+
+    if (!bset.isValidated())
+    {
+        fh.determineFormat();
+
+        if (bset.FileFormat == ANodeFileSettings::Invalid)
+        {
+            guitools::message("Cannot open file!", this);
+            updateBombFileGui();
+            return;
+        }
+        if (bset.FileFormat == ANodeFileSettings::Undefined)
+        {
+            guitools::message("Unknown format of the file with photon bombs!", this);
+            updateBombFileGui();
+            return;
+        }
+    }
+
+    AErrorHub::clear();
+    bool ok = fh.init();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        bset.FileFormat = ANodeFileSettings::Invalid;
+        updateBombFileGui();
+        return;
+    }
+
+    fh.checkFile(true);
+    if (bset.NumEvents == -1)
+    {
+        guitools::message("Photon bomb file is invalid", this);
+        bset.FileFormat = ANodeFileSettings::Invalid;
+    }
+    updateBombFileGui();
+}
+void A3PhotSimWin::on_pbNodeFilePreview_clicked()
+{
+
+}
+void A3PhotSimWin::on_pbNodeFileHelp_clicked()
+{
+
+}
+
+// ---

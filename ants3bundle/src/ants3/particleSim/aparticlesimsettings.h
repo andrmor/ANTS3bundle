@@ -16,19 +16,6 @@
 class QJsonObject;
 #endif
 
-/*
-class AScriptGenSettings
-{
-public:
-    QString Script;
-
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
-
-    void clear();
-};
-*/
-
 class AParticleSimSettings
 {
 public:
@@ -48,7 +35,6 @@ public:
 
     ASourceGeneratorSettings SourceGenSettings;
     AFileGeneratorSettings   FileGenSettings;
-//    AScriptGenSettings       ScriptGenSettings;
 
     AG4SimulationSettings    G4Set;
     AParticleRunSettings     RunSet;

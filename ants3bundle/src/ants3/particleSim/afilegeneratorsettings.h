@@ -27,7 +27,7 @@ class AFileGeneratorSettings
 public:
     enum            FileFormatEnum {Undefined = 0, Invalid, G4Ascii, G4Binary};
 
-    std::string     FileName; // private so it is not possible to change the name without resetting the format
+    std::string     FileName;
 
     FileFormatEnum  FileFormat = Undefined;
     int             NumEvents  = 0;

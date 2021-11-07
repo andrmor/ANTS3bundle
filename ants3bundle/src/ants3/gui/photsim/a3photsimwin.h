@@ -104,6 +104,16 @@ private slots:
 
     void on_pbAdvancedBombSettings_clicked();
 
+    void on_leNodeFileName_editingFinished();
+
+    void on_pbNodeFileChange_clicked();
+
+    void on_pbNodeFileAnalyze_clicked();
+
+    void on_pbNodeFilePreview_clicked();
+
+    void on_pbNodeFileHelp_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -112,6 +122,7 @@ private:
 
     void updatePhotBombGui();
     void updateDepoGui();
+    void updateBombFileGui();
     void updateGeneralSettingsGui();
 
     void storeGeneralSettings();

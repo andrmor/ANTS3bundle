@@ -60,6 +60,7 @@ INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
 INCLUDEPATH += ../dispatcher
+INCLUDEPATH += ../lsim
 INCLUDEPATH += /usr/include
 
 DESTDIR = ../../bin
@@ -67,6 +68,7 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    ../lsim/anoderecord.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
     farm/afarmhub.cpp \
@@ -137,6 +139,7 @@ SOURCES += \
     particleSim/atrackingdataimporter.cpp \
     particleSim/atrackinghistorycrawler.cpp \
     photonSim/adepositionfilehandler.cpp \
+    photonSim/aphotonbombfilehandler.cpp \
     photonSim/aphotonsimhub.cpp \
     geo/ageometryhub.cpp \
     materials/amaterialhub.cpp \
@@ -204,6 +207,7 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    ../lsim/anoderecord.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
     farm/afarmhub.h \
@@ -277,6 +281,7 @@ HEADERS += \
     particleSim/atrackinghistorycrawler.h \
     photonSim/adeporecord.h \
     photonSim/adepositionfilehandler.h \
+    photonSim/aphotonbombfilehandler.h \
     photonSim/aphotonsimhub.h \
     geo/ageometryhub.h \
     materials/amaterialhub.h \
