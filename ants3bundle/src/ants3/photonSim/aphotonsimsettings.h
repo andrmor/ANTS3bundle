@@ -13,7 +13,7 @@
 class QJsonObject;
 
 enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
-enum class EBombGen      {Single, Grid, Flood, File, Script};
+enum class EBombGen      {Single, Grid, Flood, File};
 
 class AWaveResSettings
 {

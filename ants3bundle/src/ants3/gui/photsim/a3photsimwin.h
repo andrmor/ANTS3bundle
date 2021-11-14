@@ -114,6 +114,8 @@ private slots:
 
     void on_pbNodeFileHelp_clicked();
 
+    void on_cobNodeGenerationMode_currentIndexChanged(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

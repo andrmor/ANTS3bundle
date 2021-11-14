@@ -320,7 +320,6 @@ void APhotonBombsSettings::writeToJson(QJsonObject & json) const
         case EBombGen::Grid   : str = "grid";   break;
         case EBombGen::Flood  : str = "flood";  break;
         case EBombGen::File   : str = "file";   break;
-        case EBombGen::Script : str = "script"; break;
         }
         json["GenerationMode"] = str;
     }
@@ -378,7 +377,6 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
         else if (str == "grid")   GenerationMode = EBombGen::Grid;
         else if (str == "flood")  GenerationMode = EBombGen::Flood;
         else if (str == "file")   GenerationMode = EBombGen::File;
-        else if (str == "script") GenerationMode = EBombGen::Script;
         else
         {
             GenerationMode = EBombGen::Single;

@@ -75,7 +75,7 @@ private:
     void    terminate(const QString & reason);
 
     int     getNumPhotonsThisBomb();  // !!!*** custom
-    void    simulatePhotonBombCluster(ANodeRecord & node); // !!!***
+    void    simulatePhotonBombCluster(ANodeRecord & node); // !!!***  cluster is not needed anynore? just single node?
     void    generateAndTracePhotons(const ANodeRecord * node);
     bool    isInsideLimitingVolume(const double * r);    // no optimization: assuming they will not be used together \|
     bool    isInsideLimitingMaterial(const double * r);  // no optimization: assuming they will not be used together /|
@@ -83,13 +83,12 @@ private:
     bool    simulateSingle();
     bool    simulateGrid();
     bool    simulateFlood();
-    bool    simulateCustomNodes();
     bool    simulateBombsFromFile();
 
     QString openOutput();
-    void    saveEventMarker();
+    void    saveEventMarker(); // !!!*** kill space after '#' in photon tracks
     void    saveSensorSignals();
-    void    savePhotonBomb(ANodeRecord *node);
+    void    savePhotonBomb(ANodeRecord *node); // make a static method of the corresponding file handler !!!***
     void    reportProgress();
 
 private:

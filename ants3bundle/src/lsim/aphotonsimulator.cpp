@@ -150,7 +150,7 @@ void APhotonSimulator::saveEventMarker()
 
     if (SimSet.RunSet.SavePhotonBombs)
     {
-        *StreamPhotonBombs << '#' << ' ' << CurrentEvent << '\n';
+        *StreamPhotonBombs << '#' << CurrentEvent << '\n';
     }
 
     if (SimSet.RunSet.SaveTracks)
@@ -243,15 +243,7 @@ void APhotonSimulator::simulatePhotonBombs()
         fSuccess = simulateFlood();
         break;
     case EBombGen::File :
-    {
-//        if (PhotSimSettings.CustomNodeSettings.Mode == APhotonSim_CustomNodeSettings::CustomNodes)
-//             fSuccess = simulateCustomNodes();
-//        else
-//             fSuccess = simulatePhotonsFromFile();
-        break;
-    }
-    case EBombGen::Script :
-//        fSuccess = simulateCustomNodes();
+        fSuccess = simulateBombsFromFile();
         break;
     default:
         fSuccess = false;
@@ -518,33 +510,34 @@ bool APhotonSimulator::isInsideLimitingMaterial(const double *r)
     return (node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitToMaterial);
 }
 
-bool APhotonSimulator::simulateCustomNodes()
+#include "aphotonbombfilehandler.h"
+bool APhotonSimulator::simulateBombsFromFile()
 {
-/*
-    int nodeCount = (eventEnd - eventBegin);
-    int currentNode = eventBegin;
-    eventCurrent = 0;
-    double updateFactor = 100.0 / ( NumRuns * nodeCount );
+    ANodeFileSettings & nfs = SimSet.BombSet.NodeFileSettings;
+    nfs.FileName = WorkingDir + '/' + nfs.FileName;
 
-    for (int inode = 0; inode < nodeCount; inode++)
+    APhotonBombFileHandler fh(nfs);
+    bool ok = fh.init();
+    if (!ok) return false;
+    ok = fh.gotoEvent(SimSet.RunSet.EventFrom);
+    if (!ok) return false;
+
+    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    EventsDone = 0;
+    for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        ANodeRecord * thisNode = Nodes.at(currentNode);
+        while (fh.readNextBombOfSameEvent(*node))
+            simulatePhotonBombCluster(*node);
 
-        for (int irun = 0; irun<NumRuns; irun++)
-        {
-            simulateOneNode(*thisNode);
-            eventCurrent++;
-            progress = eventCurrent * updateFactor;
-            if(fStopRequested) return false;
-        }
-        currentNode++;
+        EventsDone++;
+        fh.acknowledgeNextEvent();
+
+        reportProgress();
     }
-*/
+
     return true;
 }
 
-bool APhotonSimulator::simulateBombsFromFile()
-{
 /*
     eventCurrent = 0;
     double updateFactor = 100.0 / (eventEnd - eventBegin);
@@ -619,8 +612,6 @@ bool APhotonSimulator::simulateBombsFromFile()
         eventCurrent++;
     }
 */
-    return true;
-}
 
 // ---
 

@@ -183,18 +183,18 @@ bool APhotonBombFileHandler::readNextBombOfSameEvent(ANodeRecord & record)
         const QStringList fields = LineText.split(' ', Qt::SkipEmptyParts);
         //qDebug() << "------------>" << fields;
 //        if (fields.isEmpty()) break; //last event had no depo - end of file reached
-        if (fields.size() < 3)
+        if (fields.size() < 5)
         {
             AErrorHub::addError("Format error in ascii depo file (deposition record)");
             return false;
         }
-        //X Y Z [Time] [Num]
-        //0 1 2   3      4
-        record.R[0] =  fields[0].toDouble();
-        record.R[1] =  fields[1].toDouble();
-        record.R[2] =  fields[2].toDouble();
-        if (fields.size() > 3) record.Time    =  fields[3].toDouble();
-        if (fields.size() > 4) record.NumPhot =  fields[4].toInt();
+        //X Y Z Time Num
+        //0 1 2  3    4
+        record.R[0]    =  fields[0].toDouble();
+        record.R[1]    =  fields[1].toDouble();
+        record.R[2]    =  fields[2].toDouble();
+        record.Time    =  fields[3].toDouble();
+        record.NumPhot =  fields[4].toInt();
     }
     return true;
 }
@@ -269,14 +269,13 @@ bool APhotonBombFileHandler::copyToFile(int fromEvent, int toEvent, const QStrin
             OutStream << '#' << CurrentEvent << '\n';
             while (readNextBombOfSameEvent(*Bomb))
             {
-                //X Y Z [Time] [Num]
-                //0 1 2   3      4
-                OutStream << Bomb->R[0] << ' '
-                          << Bomb->R[1] << ' '
-                          << Bomb->R[2] << ' '
-                          << Bomb->Time;
-                if (Bomb->NumPhot != -1) OutStream << ' ' << Bomb->NumPhot;
-                OutStream << '\n';
+                //X Y Z Time Num
+                //0 1 2  3    4
+                OutStream << Bomb->R[0]    << ' '
+                          << Bomb->R[1]    << ' '
+                          << Bomb->R[2]    << ' '
+                          << Bomb->Time    << ' '
+                          << Bomb->NumPhot << '\n';
             }
             CurrentEvent++;
             acknowledgeNextEvent();

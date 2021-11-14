@@ -811,7 +811,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>20</height>
+                    <height>40</height>
                    </size>
                   </property>
                  </spacer>
@@ -959,14 +959,14 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  </layout>
                 </item>
                 <item>
-                 <spacer name="verticalSpacer">
+                 <spacer name="verticalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>21</height>
+                    <height>40</height>
                    </size>
                   </property>
                  </spacer>
@@ -1018,23 +1018,19 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  </layout>
                 </item>
                 <item>
-                 <spacer name="verticalSpacer_4">
+                 <spacer name="verticalSpacer">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>20</height>
+                    <height>40</height>
                    </size>
                   </property>
                  </spacer>
                 </item>
                </layout>
-               <zorder>label_68</zorder>
-               <zorder>verticalSpacer_5</zorder>
-               <zorder>verticalSpacer_4</zorder>
-               <zorder>verticalSpacer</zorder>
               </widget>
               <widget class="QWidget" name="twSingleScan1Page2">
                <layout class="QVBoxLayout" name="verticalLayout_3">

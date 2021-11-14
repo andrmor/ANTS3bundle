@@ -10,6 +10,7 @@
 #include "a3farmnoderecord.h"
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
+#include "aphotonbombfilehandler.h"
 #include "aerrorhub.h"
 
 #include <QDir>
@@ -54,6 +55,10 @@ bool APhotonSimManager::simulate(int numLocalProc)
             break;
         case EBombGen::Flood :
             numEvents = SimSet.BombSet.FloodSettings.Number;
+            break;
+        case EBombGen::File :
+            numEvents = SimSet.BombSet.NodeFileSettings.NumEvents;
+            // !!!*** add possibility to limit to a given number of events!
             break;
         default:
             AErrorHub::addError("This bomb generation mode is not implemented yet!");
@@ -217,11 +222,17 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     StatisticsFiles.clear();
     MonitorFiles.clear();
 
-    std::unique_ptr<ADepositionFileHandler> DF_handler;
+    std::unique_ptr<APhotonBombFileHandler> BombF_handler;
+    if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
+    {
+        BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.NodeFileSettings));
+        if (!BombF_handler->checkFile(false)) return false;
+    }
+    std::unique_ptr<ADepositionFileHandler> DepoF_handler;
     if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
     {
-        DF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
-        if (!DF_handler->init()) return false;
+        DepoF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
+        if (!DepoF_handler->checkFile(false)) return false;
     }
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -267,6 +278,22 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.RunSet.EventTo   = iEvent + num;
                     iEvent += num;
                     break;
+                case EBombGen::File :
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + num;
+                    iEvent += num;
+                    // prepare bomb files
+                    {
+                        WorkSet.BombSet.NodeFileSettings.NumEvents = num;
+                        WorkSet.BombSet.NodeFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
+                        QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.NodeFileSettings.FileName;
+                        bool ok = BombF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                        if (!ok) return false;
+                        WorkSet.BombSet.NodeFileSettings.LastModified = QFileInfo(localFileName).lastModified();
+                        Worker.InputFiles.push_back(localFileName);
+                    }
+                    break;
                 default:
                     AErrorHub::addError("Not yet implemented!");
                     return false;
@@ -282,14 +309,14 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.DepoSet.NumEvents = num;
                     WorkSet.DepoSet.FileName = QString("inDepo-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.DepoSet.FileName;
-                    bool ok = DF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    bool ok = DepoF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
                     WorkSet.DepoSet.FileLastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
             default:
-                AErrorHub::addError("Not yet implemented!");
+                AErrorHub::addError("This sim mode is not implemented!");
                 return false;
             }
 

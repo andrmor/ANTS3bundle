@@ -103,7 +103,6 @@ void A3PhotSimWin::updatePhotBombGui()
         case EBombGen::Grid   : index = 1; break;
         case EBombGen::Flood  : index = 2; break;
         case EBombGen::File   : index = 3; break;
-        case EBombGen::Script : index = 4; break;
         }
         ui->cobNodeGenerationMode->setCurrentIndex(index);
     }
@@ -297,7 +296,6 @@ void A3PhotSimWin::on_cobNodeGenerationMode_activated(int index)
     case 1 : SimSet.BombSet.GenerationMode = EBombGen::Grid;   break;
     case 2 : SimSet.BombSet.GenerationMode = EBombGen::Flood;  break;
     case 3 : SimSet.BombSet.GenerationMode = EBombGen::File;   break;
-    case 4 : SimSet.BombSet.GenerationMode = EBombGen::Script; break;
     }
 }
 
@@ -1060,3 +1058,11 @@ void A3PhotSimWin::on_pbNodeFileHelp_clicked()
 }
 
 // ---
+
+void A3PhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
+{
+    bool bFromFile = (index == 3);
+    ui->cobNumPhotonsMode->setDisabled(bFromFile);
+    ui->swNumPhotons->setDisabled(bFromFile);
+}
+
