@@ -9,6 +9,8 @@ class ANodeRecord;
 class QFile;
 class QTextStream;
 
+// !!!*** reformat to AFileSettingsBase
+
 class APhotonBombFileHandler
 {
 public:

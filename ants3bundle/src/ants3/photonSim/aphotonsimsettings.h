@@ -130,6 +130,7 @@ public:
     QString readFromJson(const QJsonObject & json);
 };
 
+// !!!*** reformat to AFileSettingsBase
 class ANodeFileSettings
 {
 public:
@@ -245,6 +246,7 @@ public:
     void readFromJson(const QJsonObject & json);
 };
 
+// !!!*** reformat to AFileSettingsBase
 class APhotonDepoSettings
 {
 public:

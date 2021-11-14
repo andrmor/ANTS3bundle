@@ -9,8 +9,6 @@
 
 #include <fstream>
 
-// WORK IN PROGRESS
-
 APhotonBombFileHandler::APhotonBombFileHandler(ANodeFileSettings & settings) :
     Settings(settings) {}
 

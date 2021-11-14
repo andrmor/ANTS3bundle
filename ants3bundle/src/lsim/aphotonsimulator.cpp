@@ -13,6 +13,7 @@
 #include "arandomhub.h"
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
+#include "aphotonbombfilehandler.h"
 #include "aerrorhub.h"
 #include "as1generator.h"
 #include "ageometryhub.h"
@@ -295,7 +296,7 @@ void APhotonSimulator::simulateFromDepo()
             }
         }
 
-        DepoHandler->acknowledgeNextEvent();  // !!!*** end of file reached when it should not yet?
+        DepoHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
 
         Event->HitsToSignal();
         if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
@@ -303,7 +304,7 @@ void APhotonSimulator::simulateFromDepo()
         EventsDone++;
         reportProgress();
     }
-    qDebug() << "Done!";
+    //qDebug() << "Done!";
 
     fSuccess = true; // !!!***
 }
@@ -510,7 +511,6 @@ bool APhotonSimulator::isInsideLimitingMaterial(const double *r)
     return (node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitToMaterial);
 }
 
-#include "aphotonbombfilehandler.h"
 bool APhotonSimulator::simulateBombsFromFile()
 {
     ANodeFileSettings & nfs = SimSet.BombSet.NodeFileSettings;

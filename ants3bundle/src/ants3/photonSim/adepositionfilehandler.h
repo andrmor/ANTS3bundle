@@ -9,6 +9,7 @@
 class QFile;
 class QTextStream;
 
+// !!!*** reformat to AFileSettingsBase
 class ADepositionFileHandler
 {
 public:
