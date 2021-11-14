@@ -57,8 +57,16 @@ bool APhotonSimManager::simulate(int numLocalProc)
             numEvents = SimSet.BombSet.FloodSettings.Number;
             break;
         case EBombGen::File :
-            numEvents = SimSet.BombSet.NodeFileSettings.NumEvents;
-            // !!!*** add possibility to limit to a given number of events!
+            {
+                if (!SimSet.BombSet.NodeFileSettings.isValidated())
+                {
+                    APhotonBombFileHandler bh(SimSet.BombSet.NodeFileSettings);
+                    bool ok = bh.checkFile(false);
+                    if (!ok) return false;
+                }
+                numEvents = SimSet.BombSet.NodeFileSettings.NumEvents;
+                // !!!*** add possibility to limit to a given number of events!
+            }
             break;
         default:
             AErrorHub::addError("This bomb generation mode is not implemented yet!");
@@ -226,13 +234,13 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
     {
         BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.NodeFileSettings));
-        if (!BombF_handler->checkFile(false)) return false;
+        if (!BombF_handler->init()) return false;
     }
     std::unique_ptr<ADepositionFileHandler> DepoF_handler;
     if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
     {
         DepoF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
-        if (!DepoF_handler->checkFile(false)) return false;
+        if (!DepoF_handler->init()) return false;
     }
 
     ARandomHub & RandomHub = ARandomHub::getInstance();

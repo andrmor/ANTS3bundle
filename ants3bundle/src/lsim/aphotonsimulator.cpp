@@ -155,7 +155,7 @@ void APhotonSimulator::saveEventMarker()
 
     if (SimSet.RunSet.SaveTracks)
     {
-        *StreamTracks << '#' << ' ' << CurrentEvent << '\n';
+        *StreamTracks << '#' << CurrentEvent << '\n';
     }
 }
 

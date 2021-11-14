@@ -86,7 +86,7 @@ private:
     bool    simulateBombsFromFile();
 
     QString openOutput();
-    void    saveEventMarker(); // !!!*** kill space after '#' in photon tracks
+    void    saveEventMarker();
     void    saveSensorSignals();
     void    savePhotonBomb(ANodeRecord *node); // make a static method of the corresponding file handler !!!***
     void    reportProgress();
