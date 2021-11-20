@@ -25,8 +25,10 @@ DEFINES += QT
 SOURCES += \
         ../ants3/geo/amonitorhub.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
+        ../ants3/photonSim/afilehandlerbase.cpp \
         ../ants3/photonSim/afilesettingsbase.cpp \
         ../ants3/photonSim/aphotonbombfilehandler.cpp \
+        ../ants3/photonSim/aphotonfilehandler.cpp \
         ../ants3/tools/aerrorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
@@ -80,8 +82,10 @@ HEADERS += \
     ../ants3/geo/amonitorhub.h \
     ../ants3/photonSim/adeporecord.h \
     ../ants3/photonSim/adepositionfilehandler.h \
+    ../ants3/photonSim/afilehandlerbase.h \
     ../ants3/photonSim/afilesettingsbase.h \
     ../ants3/photonSim/aphotonbombfilehandler.h \
+    ../ants3/photonSim/aphotonfilehandler.h \
     ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \

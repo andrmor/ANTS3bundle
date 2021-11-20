@@ -16,6 +16,7 @@ class QFile;
 class QTextStream;
 class ARandomHub;
 class ADepositionFileHandler;
+class APhotonFileHandler;
 class AS1Generator;
 
 class APhotonSimulator : public QObject
@@ -46,8 +47,8 @@ protected:
     int  EventsToDo  = 0;
     int  EventsDone  = 0;
 
-    bool bStopRequested = false;  // no need
-    bool bHardAbortWasTriggered = false; // no need
+    bool bStopRequested = false;  // no need !!!***
+    bool bHardAbortWasTriggered = false; // no need !!!***
     bool fSuccess;
 
     //output
@@ -58,9 +59,10 @@ protected:
     QFile       * FileTracks          = nullptr;
     QTextStream * StreamTracks        = nullptr;    // Tracer handles saving tracks to that stream
 
-    //depo
-    ADepositionFileHandler * DepoHandler = nullptr;
-    AS1Generator           * S1Gen       = nullptr;
+    ADepositionFileHandler * DepoHandler     = nullptr;
+    APhotonFileHandler     * PhotFileHandler = nullptr;
+
+    AS1Generator           * S1Gen           = nullptr;
 
 private:
     void    loadConfig();
@@ -71,6 +73,9 @@ private:
 
     void    setupFromDepo();
     void    simulateFromDepo();
+
+    void    setupIndividualPhotons();
+    void    simulateIndividualPhotons();
 
     void    terminate(const QString & reason);
 

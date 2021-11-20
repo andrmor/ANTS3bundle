@@ -14,6 +14,7 @@
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
 #include "aphotonbombfilehandler.h"
+#include "aphotonfilehandler.h"
 #include "aerrorhub.h"
 #include "as1generator.h"
 #include "ageometryhub.h"
@@ -48,6 +49,8 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
 APhotonSimulator::~APhotonSimulator()
 {
     delete S1Gen;
+
+    delete PhotFileHandler;
     delete DepoHandler;
 
     if (FileSensorSignals) FileSensorSignals->close();
@@ -82,6 +85,8 @@ void APhotonSimulator::start()
         simulateFromDepo();
         break;
     case EPhotSimType::IndividualPhotons :
+        setupIndividualPhotons();
+        simulateIndividualPhotons();
         break;
     default:;
     }
@@ -260,7 +265,6 @@ void APhotonSimulator::setupFromDepo()
     if (!ok) terminate(AErrorHub::getQError());
 
     S1Gen = new AS1Generator(*Tracer);
-
 }
 
 void APhotonSimulator::simulateFromDepo()
@@ -297,6 +301,46 @@ void APhotonSimulator::simulateFromDepo()
         }
 
         DepoHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
+
+        Event->HitsToSignal();
+        if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
+
+        EventsDone++;
+        reportProgress();
+    }
+    //qDebug() << "Done!";
+
+    fSuccess = true; // !!!***
+}
+
+// ---
+
+void APhotonSimulator::setupIndividualPhotons()
+{
+    SimSet.PhotFileSet.FileName = WorkingDir + '/' + SimSet.PhotFileSet.FileName;
+    PhotFileHandler = new APhotonFileHandler(SimSet.PhotFileSet);
+    bool ok = PhotFileHandler->init();
+    if (!ok) terminate(AErrorHub::getQError());
+}
+
+void APhotonSimulator::simulateIndividualPhotons()
+{
+    bStopRequested = false;
+    bHardAbortWasTriggered = false;
+
+    for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
+    {
+        Event->clearHits();
+        saveEventMarker();
+
+        APhoton phot;
+        while (PhotFileHandler->readNextPhotonOfSameEvent(phot))
+        {
+            if (bStopRequested) break;
+            Tracer->tracePhoton(phot);
+        }
+
+        PhotFileHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
 
         Event->HitsToSignal();
         if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
