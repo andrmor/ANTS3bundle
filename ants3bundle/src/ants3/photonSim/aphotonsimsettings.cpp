@@ -525,6 +525,11 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
         DepoSet.writeToJson(js);
         jsSim["Deposition"] = js;
     }
+    {
+        QJsonObject js;
+        PhotFileSet.writeToJson(js);
+        jsSim["PhotonFile"] = js;
+    }
     //Run
     {
         QJsonObject js;
@@ -578,6 +583,11 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         QJsonObject js;
         jstools::parseJson(jsSim, "Deposition", js);
         DepoSet.readFromJson(js);
+    }
+    {
+        QJsonObject js;
+        jstools::parseJson(jsSim, "PhotonFile", js);
+        PhotFileSet.readFromJson(js);
     }
     //Run
     {

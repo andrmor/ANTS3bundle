@@ -1,6 +1,8 @@
 #ifndef APHOTONSIMSETTINGS_H
 #define APHOTONSIMSETTINGS_H
 
+#include "afilesettingsbase.h"
+
 #include <QString>
 #include <QVector> // TODO: std::vector !!!***
 #include <QSet>    // TODO: refactor
@@ -270,6 +272,12 @@ public:
     QString   getFormatName() const;
 };
 
+class APhotonFileSettings : public AFileSettingsBase
+{
+public:
+    // so far no specdific properties, so completely delegate to the base class!
+};
+
 // ===
 
 class APhotonSimSettings
@@ -279,6 +287,7 @@ public:
 
     APhotonBombsSettings BombSet;
     APhotonDepoSettings  DepoSet;
+    APhotonFileSettings  PhotFileSet;
 
     AWaveResSettings     WaveSet;
     APhotOptSettings     OptSet;

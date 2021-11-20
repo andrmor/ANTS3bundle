@@ -1,6 +1,8 @@
 #ifndef AFILEHANDLERBASE_H
 #define AFILEHANDLERBASE_H
 
+#include "afilesettingsbase.h"
+
 #include <QString>
 #include <QDateTime>
 
@@ -9,40 +11,14 @@ class QFile;
 class QTextStream;
 class QJsonObject;
 
-class AFileSettingsBase
-{
-public:
-    virtual ~AFileSettingsBase(){}
-
-    enum           FileFormatEnum {Undefined = 0, Invalid, Ascii, Binary};
-
-    QString        FileName;
-    FileFormatEnum FileFormat = Undefined;
-    int            NumEvents  = 0;
-    QDateTime      LastModified;
-
-    bool           isValidated() const;
-    QString        getFormatName() const;
-
-    void           writeToJson(QJsonObject & json) const;
-    void           readFromJson(const QJsonObject & json);
-
-    void           clear();
-    virtual void   clearStatistics(){}
-
-protected:
-    virtual void   doWriteToJson(QJsonObject & json) const {}
-    virtual void   doReadFromJson(const QJsonObject & json) {}
-};
-
 class AFileHandlerBase
 {
 public:
     AFileHandlerBase(AFileSettingsBase & settings);
     virtual ~AFileHandlerBase();
 
-    virtual void determineFormat();                 // very simplistic, better to make more strict
-    virtual bool checkFile(bool collectStatistics); // !!!*** add statistics!
+    virtual void determineFormat();                 // very simplistic in the generic case, feel free to override for the concrete classes
+    virtual bool checkFile(bool collectStatistics); // !!!*** how to handle statistics?
 
     bool init();
     bool gotoEvent(int iEvent);
@@ -52,8 +28,8 @@ public:
 
     bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
 
-private:
-    AFileSettingsBase & Settings;
+protected:
+    AFileSettingsBase & BaseSettings;
 
     int             CurrentEvent    = -1;
     bool            EventEndReached = false;
@@ -66,7 +42,7 @@ private:
     std::ifstream * inStream      = nullptr;
     char            Header        = 0x00;
 
-    QString         FileType; // file type description, e.g. "photon bomb"
+    QString         FileType; // file type description, e.g. "photon bomb", used in error reporting
 
     void clearResources();
     bool processEventHeader();

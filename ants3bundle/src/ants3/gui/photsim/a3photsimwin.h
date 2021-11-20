@@ -105,16 +105,16 @@ private slots:
     void on_pbAdvancedBombSettings_clicked();
 
     void on_leNodeFileName_editingFinished();
-
     void on_pbNodeFileChange_clicked();
-
     void on_pbNodeFileAnalyze_clicked();
-
     void on_pbNodeFilePreview_clicked();
-
     void on_pbNodeFileHelp_clicked();
-
     void on_cobNodeGenerationMode_currentIndexChanged(int index);
+
+    void on_leSinglePhotonsFile_editingFinished();
+    void on_pbChangeSinglePhotonsFile_clicked();
+    void on_pbAnalyzeSinglePhotonsFile_clicked();
+    void on_pbSinglePhotonsHelp_clicked(); // !!!***
 
 private:
     APhotonSimSettings & SimSet;
@@ -125,6 +125,7 @@ private:
     void updatePhotBombGui();
     void updateDepoGui();
     void updateBombFileGui();
+    void updatePhotonFileGui();
     void updateGeneralSettingsGui();
 
     void storeGeneralSettings();

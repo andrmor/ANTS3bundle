@@ -66,6 +66,7 @@ void A3PhotSimWin::updateGui()
     updatePhotBombGui();
     updateDepoGui();
     updateBombFileGui();
+    updatePhotonFileGui();
 
     updateGeneralSettingsGui();
 }
@@ -182,6 +183,18 @@ void A3PhotSimWin::updateBombFileGui()
     QString strEvents = "--";
     if (s.isValidated()) strEvents = QString::number(s.NumEvents);
     ui->labNodeFileEvents->setText(strEvents);
+}
+
+void A3PhotSimWin::updatePhotonFileGui()
+{
+    const APhotonFileSettings & s = SimSet.PhotFileSet;
+
+    ui->leSinglePhotonsFile->setText(s.FileName);
+    ui->labSinglePhotonsFileFormat->setText(s.getFormatName());
+
+    QString strEvents = "--";
+    if (s.isValidated()) strEvents = QString::number(s.NumEvents);
+    ui->labSinglePhotonsEvents->setText(strEvents);
 }
 
 void A3PhotSimWin::updateGeneralSettingsGui()
@@ -1064,5 +1077,75 @@ void A3PhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
     bool bFromFile = (index == 3);
     ui->cobNumPhotonsMode->setDisabled(bFromFile);
     ui->swNumPhotons->setDisabled(bFromFile);
+}
+
+// ---
+
+void A3PhotSimWin::on_leSinglePhotonsFile_editingFinished()
+{
+    APhotonFileSettings & s = SimSet.PhotFileSet;
+    const QString NewFileName = ui->leSinglePhotonsFile->text();
+    if (NewFileName != s.FileName)
+    {
+        s.clear();
+        s.FileName = NewFileName;
+        updatePhotonFileGui();
+    }
+}
+
+void A3PhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Select file with individual photon records", "");
+    if (fileName.isEmpty()) return;
+    ui->leSinglePhotonsFile->setText(fileName);
+    on_leSinglePhotonsFile_editingFinished();
+}
+
+#include "aphotonfilehandler.h"
+void A3PhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
+{
+    APhotonFileSettings & bset = SimSet.PhotFileSet;
+
+    APhotonFileHandler fh(bset);
+
+    if (bset.isValidated()) return; // already up to date
+
+    fh.determineFormat();
+
+    if (bset.FileFormat == AFileSettingsBase::Invalid)
+    {
+        guitools::message("Cannot open file!", this);
+        updatePhotonFileGui();
+        return;
+    }
+    if (bset.FileFormat == AFileSettingsBase::Undefined)
+    {
+        guitools::message("Unknown format of the file with individual photon records!", this);
+        updatePhotonFileGui();
+        return;
+    }
+
+    AErrorHub::clear();
+    bool ok = fh.init();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        bset.FileFormat = AFileSettingsBase::Invalid;
+        updatePhotonFileGui();
+        return;
+    }
+
+    ok = fh.checkFile(false);
+    if (!ok)
+    {
+        guitools::message("File with individual photon records: invalid format!", this);
+        bset.FileFormat = AFileSettingsBase::Invalid;
+    }
+    updatePhotonFileGui();
+}
+
+void A3PhotSimWin::on_pbSinglePhotonsHelp_clicked()
+{
+
 }
 

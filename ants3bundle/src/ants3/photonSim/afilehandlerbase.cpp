@@ -9,75 +9,7 @@
 
 #include <fstream>
 
-// --- settings
-
-bool AFileSettingsBase::isValidated() const
-{
-    if (FileFormat == Undefined || FileFormat == Invalid) return false;
-
-    QFileInfo fi(FileName);
-    if (!fi.exists()) return false;
-    if (LastModified != fi.lastModified()) return false;
-
-    return true;
-}
-
-QString AFileSettingsBase::getFormatName() const
-{
-    switch (FileFormat)
-    {
-    case Binary:  return "Binary";
-    case Ascii:   return "Ascii";
-    case Invalid: return "Invalid";
-    default:;
-    }
-    return "Undefined";
-}
-
-void AFileSettingsBase::writeToJson(QJsonObject & json) const
-{
-    json["FileName"]     = FileName;
-    json["NumEvents"]    = NumEvents;
-    json["FileFormat"]   = getFormatName();
-    json["LastModified"] = LastModified.toMSecsSinceEpoch();
-
-    doWriteToJson(json);
-}
-
-void AFileSettingsBase::readFromJson(const QJsonObject & json)
-{
-    clear();
-
-    jstools::parseJson(json, "FileName",  FileName);
-    jstools::parseJson(json, "NumEvents", NumEvents);
-
-    QString fstr;
-    jstools::parseJson(json, "FileFormat", fstr);
-    if      (fstr == "G4Binary") FileFormat = Binary;
-    else if (fstr == "G4Ascii")  FileFormat = Ascii;
-    else if (fstr == "Invalid")  FileFormat = Invalid;
-    else                         FileFormat = Undefined;
-
-    qint64 lastMod;
-    jstools::parseJson(json, "LastModified", lastMod);
-    LastModified = QDateTime::fromMSecsSinceEpoch(lastMod);
-
-    doReadFromJson(json);
-}
-
-void AFileSettingsBase::clear()
-{
-    FileName.clear();
-    FileFormat   = Undefined;
-    NumEvents    = 0;
-    LastModified = QDateTime();
-
-    clearStatistics();
-}
-
-// --- file handler
-
-AFileHandlerBase::AFileHandlerBase(AFileSettingsBase & settings) : Settings(settings) {}
+AFileHandlerBase::AFileHandlerBase(AFileSettingsBase & settings) : BaseSettings(settings) {}
 
 AFileHandlerBase::~AFileHandlerBase()
 {
@@ -86,10 +18,10 @@ AFileHandlerBase::~AFileHandlerBase()
 
 void AFileHandlerBase::determineFormat()
 {
-    QFile TextFile(Settings.FileName);
+    QFile TextFile(BaseSettings.FileName);
     if (!TextFile.open(QIODevice::ReadOnly | QFile::Text))
     {
-        Settings.FileFormat = AFileSettingsBase::Invalid;
+        BaseSettings.FileFormat = AFileSettingsBase::Invalid;
         return;
     }
     QTextStream TextStream(&TextFile);
@@ -102,44 +34,46 @@ void AFileHandlerBase::determineFormat()
         Line.toInt(&ok);
         if (ok)
         {
-            Settings.FileFormat = AFileSettingsBase::Ascii;
+            BaseSettings.FileFormat = AFileSettingsBase::Ascii;
             return;
         }
     }
 
-    std::ifstream inStream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+    std::ifstream inStream(BaseSettings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
     if (!inStream.is_open())
     {
-        Settings.FileFormat = AFileSettingsBase::Invalid;
+        BaseSettings.FileFormat = AFileSettingsBase::Invalid;
         return;
     }
     char header = 0x00;
     inStream >> header;
     if (inStream.good() && header == (char)0xEE)
     {
-        Settings.FileFormat = AFileSettingsBase::Binary;
+        BaseSettings.FileFormat = AFileSettingsBase::Binary;
         return;
     }
 
-    Settings.FileFormat = AFileSettingsBase::Undefined;
+    BaseSettings.FileFormat = AFileSettingsBase::Undefined;
 }
 
 bool AFileHandlerBase::checkFile(bool collectStatistics)
 {
+    AErrorHub::clear();
+
     bool ok = init();
     if (!ok) return false; // error already added
 
-    Settings.LastModified = QFileInfo(Settings.FileName).lastModified();
+    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 
-    Settings.NumEvents = 1;
+    BaseSettings.NumEvents = 1;
     while (gotoEvent(CurrentEvent + 1))
     {
         if (AErrorHub::isError())
         {
-            Settings.FileFormat = AFileSettingsBase::Invalid;
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
             return false;
         }
-        Settings.NumEvents++;
+        BaseSettings.NumEvents++;
     }
     return true;
 }
@@ -148,14 +82,14 @@ bool AFileHandlerBase::init()
 {
     clearResources();
 
-    if (Settings.FileFormat == AFileSettingsBase::Binary)
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        inStream = new std::ifstream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+        inStream = new std::ifstream(BaseSettings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
 
         if (!inStream->is_open())
         {
-            Settings.FileFormat = AFileSettingsBase::Undefined;
-            AErrorHub::addQError( QString("Cannot open %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Undefined;
+            AErrorHub::addQError( QString("Cannot open %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
 
@@ -163,18 +97,18 @@ bool AFileHandlerBase::init()
         *inStream >> header;
         if (inStream->bad() || header != (char)0xEE)
         {
-            Settings.FileFormat = AFileSettingsBase::Invalid;
-            AErrorHub::addQError( QString("Bad format of binary %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            AErrorHub::addQError( QString("Bad format of binary %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
     }
     else
     {
-        inTextFile = new QFile(Settings.FileName);
+        inTextFile = new QFile(BaseSettings.FileName);
         if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
         {
-            Settings.FileFormat = AFileSettingsBase::Undefined;
-            AErrorHub::addQError( QString("Cannot open %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Undefined;
+            AErrorHub::addQError( QString("Cannot open %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
         inTextStream = new QTextStream(inTextFile);
@@ -182,8 +116,8 @@ bool AFileHandlerBase::init()
         LineText = inTextStream->readLine();
         if (!LineText.startsWith('#'))
         {
-            Settings.FileFormat = AFileSettingsBase::Invalid;
-            AErrorHub::addQError( QString("Bad format of ascii %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            AErrorHub::addQError( QString("Bad format of ascii %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
     }
@@ -200,7 +134,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     }
 
     // iEvent is larger than CurrentEvent
-    if (Settings.FileFormat == AFileSettingsBase::Binary)
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
         AErrorHub::addError("Binary format not yet implemented");
         return false;
@@ -237,13 +171,13 @@ void AFileHandlerBase::clearResources()
 
 bool AFileHandlerBase::processEventHeader()
 {
-    if (Settings.FileFormat == AFileSettingsBase::Binary)
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
         inStream->read((char*)&CurrentEvent, sizeof(int));
         if (inStream->bad())
         {
-            Settings.FileFormat = AFileSettingsBase::Invalid;
-            AErrorHub::addQError( QString("Bad format of binary %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            AErrorHub::addQError( QString("Bad format of binary %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
     }
@@ -254,8 +188,8 @@ bool AFileHandlerBase::processEventHeader()
         CurrentEvent = LineText.toInt(&ok);
         if (!ok)
         {
-            Settings.FileFormat = AFileSettingsBase::Invalid;
-            AErrorHub::addQError( QString("Bad format of ascii %0 input file: %1").arg(FileType, Settings.FileName) );
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            AErrorHub::addQError( QString("Bad format of ascii %0 input file: %1").arg(FileType, BaseSettings.FileName) );
             return false;
         }
     }
