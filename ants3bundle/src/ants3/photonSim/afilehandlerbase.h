@@ -26,7 +26,7 @@ public:
     //bool readNext(??? & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
-    bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
+    //bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
 
 protected:
     AFileSettingsBase & BaseSettings;

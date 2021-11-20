@@ -36,6 +36,7 @@ signals:
     void requestUpdateResultsGUI();
 
 private:
+    // !!!*** refactor to create base virtual class SimulationModeBase ?
     bool configureSimulation(const std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
     void processReply(const QJsonObject & json);

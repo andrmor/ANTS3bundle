@@ -11,6 +11,7 @@
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
 #include "aphotonbombfilehandler.h"
+#include "aphotonfilehandler.h"
 #include "aerrorhub.h"
 
 #include <QDir>
@@ -86,12 +87,25 @@ bool APhotonSimManager::simulate(int numLocalProc)
             //qDebug() << "---From depo, num events:" << numEvents << AErrorHub::isError();
         }
         break;
+    case EPhotSimType::IndividualPhotons :
+        {
+            if (!SimSet.PhotFileSet.isValidated())
+            {
+                APhotonFileHandler fh(SimSet.PhotFileSet);
+                bool ok = fh.checkFile(false);
+                if (!ok) return false;
+            }
+            numEvents = SimSet.PhotFileSet.NumEvents;
+            // !!!*** add possibility to limit to a given number of events!
+        }
+        break;
     case EPhotSimType::FromLRFs :
         {
             // TODO direct calculation here! !!!***
             AErrorHub::addError("This simulation mode is not implemented yet!");
             return false;
         }
+        break;
     default:
         AErrorHub::addError("This simulation mode is not implemented yet!");
         return false;
@@ -230,17 +244,25 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     StatisticsFiles.clear();
     MonitorFiles.clear();
 
+    // !!!*** refactor to AFileHandlerBase
     std::unique_ptr<APhotonBombFileHandler> BombF_handler;
     if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
     {
         BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.NodeFileSettings));
         if (!BombF_handler->init()) return false;
     }
+    // !!!*** refactor to AFileHandlerBase
     std::unique_ptr<ADepositionFileHandler> DepoF_handler;
     if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
     {
         DepoF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
         if (!DepoF_handler->init()) return false;
+    }
+    std::unique_ptr<APhotonFileHandler> PhotF_handler;
+    if (SimSet.SimType == EPhotSimType::IndividualPhotons)
+    {
+        PhotF_handler = std::unique_ptr<APhotonFileHandler>(new APhotonFileHandler(SimSet.PhotFileSet));
+        if (!PhotF_handler->init()) return false;
     }
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -320,6 +342,22 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     bool ok = DepoF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
                     WorkSet.DepoSet.FileLastModified = QFileInfo(localFileName).lastModified();
+                    Worker.InputFiles.push_back(localFileName);
+                }
+                break;
+            case EPhotSimType::IndividualPhotons :
+                {
+                    WorkSet = SimSet;
+                    WorkSet.RunSet.EventFrom = iEvent;
+                    WorkSet.RunSet.EventTo   = iEvent + num;
+                    iEvent += num;
+
+                    WorkSet.PhotFileSet.NumEvents = num;
+                    WorkSet.PhotFileSet.FileName = QString("inPhotons-%0").arg(iProcess);
+                    QString localFileName = ExchangeDir + '/' + WorkSet.PhotFileSet.FileName;
+                    bool ok = PhotF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    if (!ok) return false;
+                    WorkSet.PhotFileSet.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
