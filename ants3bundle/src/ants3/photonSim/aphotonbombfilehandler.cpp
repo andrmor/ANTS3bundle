@@ -9,158 +9,17 @@
 
 #include <fstream>
 
-APhotonBombFileHandler::APhotonBombFileHandler(ANodeFileSettings & settings) :
-    Settings(settings) {}
-
-APhotonBombFileHandler::~APhotonBombFileHandler()
+APhotonBombFileHandler::APhotonBombFileHandler(ABombFileSettings & settings) :
+    AFileHandlerBase(settings), Settings(settings)
 {
-    clearResources();
-}
-
-bool APhotonBombFileHandler::checkFile(bool collectStatistics)
-{
-    bool ok = init();
-    if (!ok) return false; // error already added
-
-    Settings.LastModified = QFileInfo(Settings.FileName).lastModified();
-
-    Settings.NumEvents = 1;
-    while (gotoEvent(CurrentEvent + 1))
-    {
-        if (AErrorHub::isError())
-        {
-            Settings.FileFormat = ANodeFileSettings::Invalid;
-            return false;
-        }
-        Settings.NumEvents++;
-    }
-    return true;
-}
-
-void APhotonBombFileHandler::clearResources()
-{
-    delete inStream;     inStream     = nullptr;
-
-    delete inTextStream; inTextStream = nullptr;
-
-    if (inTextFile) inTextFile->close();
-    delete inTextFile;   inTextFile   = nullptr;
-
-    CurrentEvent = -1;
-    EventEndReached = false;
-}
-
-bool APhotonBombFileHandler::init()
-{
-    clearResources();
-
-    if (Settings.FileFormat == ANodeFileSettings::Binary)
-    {
-        inStream = new std::ifstream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
-
-        if (!inStream->is_open())
-        {
-            Settings.FileFormat = ANodeFileSettings::Undefined;
-            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
-            return false;
-        }
-
-        char header;
-        *inStream >> header;
-        if (inStream->bad() || header != (char)0xEE)
-        {
-            Settings.FileFormat = ANodeFileSettings::Invalid;
-            AErrorHub::addError("Bad format in binary photon bomb file");
-            return false;
-        }
-    }
-    else
-    {
-        inTextFile = new QFile(Settings.FileName);
-        if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
-        {
-            Settings.FileFormat = ANodeFileSettings::Undefined;
-            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
-            return false;
-        }
-        inTextStream = new QTextStream(inTextFile);
-
-        LineText = inTextStream->readLine();
-        if (!LineText.startsWith('#'))
-        {
-            Settings.FileFormat = ANodeFileSettings::Invalid;
-            AErrorHub::addError("Format error for #event field in ascii photon bomb file");
-            return false;
-        }
-    }
-    return processEventHeader();
-}
-
-bool APhotonBombFileHandler::processEventHeader()
-{
-    if (Settings.FileFormat == ANodeFileSettings::Binary)
-    {
-        inStream->read((char*)&CurrentEvent, sizeof(int));
-        if (inStream->bad())
-        {
-            Settings.FileFormat = ANodeFileSettings::Invalid;
-            AErrorHub::addError("Bad format in binary photon bomb file (event record)");
-            return false;
-        }
-    }
-    else
-    {
-        qDebug() << "--------------->" << LineText;
-        LineText.remove(0, 1);
-        bool ok;
-        CurrentEvent = LineText.toInt(&ok);
-        if (!ok)
-        {
-            Settings.FileFormat = ANodeFileSettings::Invalid;
-            AErrorHub::addError("Bad format in ascii photon bomb file (event record)");
-            return false;
-        }
-    }
-    return true;
-}
-
-bool APhotonBombFileHandler::gotoEvent(int iEvent)
-{
-    if (CurrentEvent == iEvent) return true;
-    if (CurrentEvent > iEvent)
-    {
-        init();
-        if (CurrentEvent == iEvent) return true;
-    }
-
-    // iEvent is larger than CurrentEvent
-    if (Settings.FileFormat == ANodeFileSettings::Binary)
-    {
-        AErrorHub::addError("Binary depo not yet implemented");
-        return false;
-    }
-    else
-    {
-        do
-        {
-            LineText = inTextStream->readLine();
-            if (!LineText.startsWith('#')) continue;
-            bool ok = processEventHeader();
-            if (!ok) return false;
-
-            if (CurrentEvent == iEvent) return true;
-        }
-        while (!inTextStream->atEnd());
-    }
-
-    return false;
+    FileType = "photon bomb";
 }
 
 bool APhotonBombFileHandler::readNextBombOfSameEvent(ANodeRecord & record)
 {
     if (EventEndReached) return false;
 
-    if (Settings.FileFormat == ANodeFileSettings::Binary)
+    if (Settings.FileFormat == ABombFileSettings::Binary)
     {
         AErrorHub::addError("Binary photon bomb format not yet implemented");
         return false;
@@ -198,46 +57,6 @@ bool APhotonBombFileHandler::readNextBombOfSameEvent(ANodeRecord & record)
     return true;
 }
 
-void APhotonBombFileHandler::determineFormat()
-{
-    QFile TextFile(Settings.FileName);
-    if (!TextFile.open(QIODevice::ReadOnly | QFile::Text))
-    {
-        Settings.FileFormat = ANodeFileSettings::Invalid;
-        return;
-    }
-    QTextStream TextStream(&TextFile);
-
-    QString Line = TextStream.readLine();
-    if (Line.startsWith('#'))
-    {
-        Line.remove(0, 1);
-        bool ok;
-        Line.toInt(&ok);
-        if (ok)
-        {
-            Settings.FileFormat = ANodeFileSettings::Ascii;
-            return;
-        }
-    }
-
-    std::ifstream inStream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
-    if (!inStream.is_open())
-    {
-        Settings.FileFormat = ANodeFileSettings::Invalid;
-        return;
-    }
-    char header = 0x00;
-    inStream >> header;
-    if (inStream.good() && header == (char)0xEE)
-    {
-        Settings.FileFormat = ANodeFileSettings::Binary;
-        return;
-    }
-
-    Settings.FileFormat = ANodeFileSettings::Undefined;
-}
-
 bool APhotonBombFileHandler::copyToFile(int fromEvent, int toEvent, const QString & fileName)
 {
     bool ok = gotoEvent(fromEvent);
@@ -247,7 +66,7 @@ bool APhotonBombFileHandler::copyToFile(int fromEvent, int toEvent, const QStrin
         return false;
     }
 
-    if (Settings.FileFormat == ANodeFileSettings::Binary)
+    if (Settings.FileFormat == ABombFileSettings::Binary)
     {
         AErrorHub::addError("Binary photon bomb format not yet implemented");
         return false;

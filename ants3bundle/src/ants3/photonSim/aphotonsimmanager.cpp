@@ -59,13 +59,13 @@ bool APhotonSimManager::simulate(int numLocalProc)
             break;
         case EBombGen::File :
             {
-                if (!SimSet.BombSet.NodeFileSettings.isValidated())
+                if (!SimSet.BombSet.BombFileSettings.isValidated())
                 {
-                    APhotonBombFileHandler bh(SimSet.BombSet.NodeFileSettings);
+                    APhotonBombFileHandler bh(SimSet.BombSet.BombFileSettings);
                     bool ok = bh.checkFile(false);
                     if (!ok) return false;
                 }
-                numEvents = SimSet.BombSet.NodeFileSettings.NumEvents;
+                numEvents = SimSet.BombSet.BombFileSettings.NumEvents;
                 // !!!*** add possibility to limit to a given number of events!
             }
             break;
@@ -248,7 +248,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     std::unique_ptr<APhotonBombFileHandler> BombF_handler;
     if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
     {
-        BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.NodeFileSettings));
+        BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.BombFileSettings));
         if (!BombF_handler->init()) return false;
     }
     // !!!*** refactor to AFileHandlerBase
@@ -315,12 +315,12 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     iEvent += num;
                     // prepare bomb files
                     {
-                        WorkSet.BombSet.NodeFileSettings.NumEvents = num;
-                        WorkSet.BombSet.NodeFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
-                        QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.NodeFileSettings.FileName;
+                        WorkSet.BombSet.BombFileSettings.NumEvents = num;
+                        WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
+                        QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;
                         bool ok = BombF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                         if (!ok) return false;
-                        WorkSet.BombSet.NodeFileSettings.LastModified = QFileInfo(localFileName).lastModified();
+                        WorkSet.BombSet.BombFileSettings.LastModified = QFileInfo(localFileName).lastModified();
                         Worker.InputFiles.push_back(localFileName);
                     }
                     break;

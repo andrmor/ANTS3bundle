@@ -557,7 +557,7 @@ bool APhotonSimulator::isInsideLimitingMaterial(const double *r)
 
 bool APhotonSimulator::simulateBombsFromFile()
 {
-    ANodeFileSettings & nfs = SimSet.BombSet.NodeFileSettings;
+    ABombFileSettings & nfs = SimSet.BombSet.BombFileSettings;
     nfs.FileName = WorkingDir + '/' + nfs.FileName;
 
     APhotonBombFileHandler fh(nfs);

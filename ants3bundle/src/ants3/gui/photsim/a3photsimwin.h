@@ -136,7 +136,7 @@ private:
 
     Ui::A3PhotSimWin * ui = nullptr;
 
-    ANodeFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
+    ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
 
     void updatePhotBombGui();

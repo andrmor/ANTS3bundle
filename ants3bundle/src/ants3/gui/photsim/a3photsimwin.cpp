@@ -175,7 +175,7 @@ void A3PhotSimWin::updateDepoGui()
 
 void A3PhotSimWin::updateBombFileGui()
 {
-    const ANodeFileSettings & s = SimSet.BombSet.NodeFileSettings;
+    const ABombFileSettings & s = SimSet.BombSet.BombFileSettings;
 
     ui->leNodeFileName->setText(s.FileName);
     ui->labNodeFileFormat->setText(s.getFormatName());
@@ -1004,7 +1004,7 @@ void A3PhotSimWin::updateAdvancedBombIndicator()
 
 void A3PhotSimWin::on_leNodeFileName_editingFinished()
 {
-    ANodeFileSettings & s = SimSet.BombSet.NodeFileSettings;
+    ABombFileSettings & s = SimSet.BombSet.BombFileSettings;
     QString NewFileName = ui->leNodeFileName->text();
     if (NewFileName != s.FileName)
     {
@@ -1023,7 +1023,7 @@ void A3PhotSimWin::on_pbNodeFileChange_clicked()
 #include "aphotonbombfilehandler.h"
 void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
 {
-    ANodeFileSettings & bset = SimSet.BombSet.NodeFileSettings;
+    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
 
     APhotonBombFileHandler fh(bset);
 
@@ -1034,13 +1034,13 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
     {
         fh.determineFormat();
 
-        if (bset.FileFormat == ANodeFileSettings::Invalid)
+        if (bset.FileFormat == ABombFileSettings::Invalid)
         {
             guitools::message("Cannot open file!", this);
             updateBombFileGui();
             return;
         }
-        if (bset.FileFormat == ANodeFileSettings::Undefined)
+        if (bset.FileFormat == ABombFileSettings::Undefined)
         {
             guitools::message("Unknown format of the file with photon bombs!", this);
             updateBombFileGui();
@@ -1053,7 +1053,7 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
     if (!ok)
     {
         guitools::message(AErrorHub::getQError(), this);
-        bset.FileFormat = ANodeFileSettings::Invalid;
+        bset.FileFormat = ABombFileSettings::Invalid;
         updateBombFileGui();
         return;
     }
@@ -1062,7 +1062,7 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
     if (bset.NumEvents == -1)
     {
         guitools::message("Photon bomb file is invalid", this);
-        bset.FileFormat = ANodeFileSettings::Invalid;
+        bset.FileFormat = ABombFileSettings::Invalid;
     }
     updateBombFileGui();
 }
@@ -1167,7 +1167,7 @@ void A3PhotSimWin::on_pbLoadAndShowBombs_clicked()
     delete BombFileHandler;  BombFileHandler  = nullptr;
     delete BombFileSettings; BombFileSettings = nullptr;
 
-    BombFileSettings = new ANodeFileSettings();
+    BombFileSettings = new ABombFileSettings();
     BombFileSettings->FileName = ui->leBombsFile->text();
     BombFileHandler = new APhotonBombFileHandler(*BombFileSettings);
 
