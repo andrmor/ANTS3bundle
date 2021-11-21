@@ -233,34 +233,23 @@ public:
     void readFromJson(const QJsonObject & json);
 };
 
-// !!!*** reformat to AFileSettingsBase
-class APhotonDepoSettings
+class APhotonDepoSettings : public AFileSettingsBase
 {
 public:
-    enum    EFormat {Undefined = 0, Invalid, G4Ascii, G4Binary};
+    bool   Primary   = true;
+    bool   Secondary = false;
 
-    QString   FileName;
-    EFormat   FileFormat = Undefined;
-    int       NumEvents  = -1;
-    QDateTime FileLastModified;
+    void   clear() override;
 
-    bool      Primary   = true;
-    bool      Secondary = false;
-
-    void      writeToJson(QJsonObject & json) const;
-    void      readFromJson(const QJsonObject & json);
-
-    void      clear();
-
-    bool      isValidated() const;
-
-    QString   getFormatName() const;
+protected:
+    void   doWriteToJson(QJsonObject & json) const override;
+    void   doReadFromJson(const QJsonObject & json) override;
 };
 
 class APhotonFileSettings : public AFileSettingsBase
 {
 public:
-    // so far no specdific properties, so completely delegate to the base class!
+    // so far no specific properties, so completely delegate to the base class!
 };
 
 // ===

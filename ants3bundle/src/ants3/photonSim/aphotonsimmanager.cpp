@@ -229,29 +229,31 @@ void APhotonSimManager::mergeOutput()
         MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
 }
 
-bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+void  APhotonSimManager::clearFileMergers()
 {
-    qDebug() << "Configuring simulation...";
-
-    Request.Command = "lsim"; // name of the corresponding executable
-
-    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
-    Request.ExchangeDir = ExchangeDir;
-
     SignalFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
     StatisticsFiles.clear();
     MonitorFiles.clear();
+}
 
-    // !!!*** refactor to AFileHandlerBase
+bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+{
+    qDebug() << "Configuring simulation...";
+    Request.Command = "lsim"; // name of the corresponding executable
+
+    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
+    Request.ExchangeDir = ExchangeDir;
+
+    clearFileMergers();
+
     std::unique_ptr<APhotonBombFileHandler> BombF_handler;
     if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
     {
         BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.BombFileSettings));
         if (!BombF_handler->init()) return false;
     }
-    // !!!*** refactor to AFileHandlerBase
     std::unique_ptr<ADepositionFileHandler> DepoF_handler;
     if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
     {
@@ -313,20 +315,15 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.RunSet.EventFrom = iEvent;
                     WorkSet.RunSet.EventTo   = iEvent + num;
                     iEvent += num;
-                    // prepare bomb files
-                    {
-                        WorkSet.BombSet.BombFileSettings.NumEvents = num;
-                        WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
-                        QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;
-                        bool ok = BombF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
-                        if (!ok) return false;
-                        WorkSet.BombSet.BombFileSettings.LastModified = QFileInfo(localFileName).lastModified();
-                        Worker.InputFiles.push_back(localFileName);
-                    }
+
+                    WorkSet.BombSet.BombFileSettings.NumEvents = num;
+                    WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
+                    QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;
+                    bool ok = BombF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    if (!ok) return false;
+                    WorkSet.BombSet.BombFileSettings.LastModified = QFileInfo(localFileName).lastModified();
+                    Worker.InputFiles.push_back(localFileName);
                     break;
-                default:
-                    AErrorHub::addError("Not yet implemented!");
-                    return false;
                 }
                 break;
             case EPhotSimType::FromEnergyDepo :
@@ -341,7 +338,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     QString localFileName = ExchangeDir + '/' + WorkSet.DepoSet.FileName;
                     bool ok = DepoF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
-                    WorkSet.DepoSet.FileLastModified = QFileInfo(localFileName).lastModified();
+                    WorkSet.DepoSet.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
@@ -361,8 +358,8 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
-            default:
-                AErrorHub::addError("This sim mode is not implemented!");
+            case EPhotSimType::FromLRFs :
+                AErrorHub::addError("\"From LRFs\" sim mode is not handled this way!");
                 return false;
             }
 

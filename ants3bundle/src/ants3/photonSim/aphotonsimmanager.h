@@ -41,6 +41,7 @@ private:
     bool checkDirectories();
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remov efiles in exchange
+    void clearFileMergers();
     void mergeOutput();
 
     APhotonSimSettings & SimSet;

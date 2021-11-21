@@ -11,156 +11,13 @@
 // WORK IN PROGRESS
 
 ADepositionFileHandler::ADepositionFileHandler(APhotonDepoSettings & depoSettings) :
-    Settings(depoSettings) {}
-
-ADepositionFileHandler::~ADepositionFileHandler()
-{
-    clearResources();
-}
-
-bool ADepositionFileHandler::checkFile(bool collectStatistics)
-{
-    bool ok = init();
-    if (!ok) return false; // error already added
-
-    Settings.FileLastModified = QFileInfo(Settings.FileName).lastModified();
-
-    Settings.NumEvents = 1;
-    while (gotoEvent(CurrentEvent + 1))
-    {
-        if (AErrorHub::isError())
-        {
-            Settings.FileFormat = APhotonDepoSettings::Invalid;
-            return false;
-        }
-        Settings.NumEvents++;
-    }
-    return true;
-}
-
-void ADepositionFileHandler::clearResources()
-{
-    delete inStream;     inStream     = nullptr;
-
-    delete inTextStream; inTextStream = nullptr;
-
-    if (inTextFile) inTextFile->close();
-    delete inTextFile;   inTextFile   = nullptr;
-
-    CurrentEvent = -1;
-    EventEndReached = false;
-}
-
-bool ADepositionFileHandler::init()
-{
-    clearResources();
-
-    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
-    {
-        inStream = new std::ifstream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
-
-        if (!inStream->is_open())
-        {
-            Settings.FileFormat = APhotonDepoSettings::Undefined;
-            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
-            return false;
-        }
-
-        char header;
-        *inStream >> header;
-        if (inStream->bad() || header != (char)0xEE)
-        {
-            Settings.FileFormat = APhotonDepoSettings::Invalid;
-            AErrorHub::addError("Bad format in binary energy depo file");
-            return false;
-        }
-    }
-    else
-    {
-        inTextFile = new QFile(Settings.FileName);
-        if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
-        {
-            Settings.FileFormat = APhotonDepoSettings::Undefined;
-            AErrorHub::addQError( QString("Cannot open input file: " + Settings.FileName) );
-            return false;
-        }
-        inTextStream = new QTextStream(inTextFile);
-
-        LineText = inTextStream->readLine();
-        if (!LineText.startsWith('#'))
-        {
-            Settings.FileFormat = APhotonDepoSettings::Invalid;
-            AErrorHub::addError("Format error for #event field in ascii energy deposition file");
-            return false;
-        }
-    }
-    return processEventHeader();
-}
-
-bool ADepositionFileHandler::processEventHeader()
-{
-    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
-    {
-        inStream->read((char*)&CurrentEvent, sizeof(int));
-        if (inStream->bad())
-        {
-            Settings.FileFormat = APhotonDepoSettings::Invalid;
-            AErrorHub::addError("Bad format in binary energy depo file (event record)");
-            return false;
-        }
-    }
-    else
-    {
-        LineText.remove(0, 1);
-        bool ok;
-        CurrentEvent = LineText.toInt(&ok);
-        if (!ok)
-        {
-            Settings.FileFormat = APhotonDepoSettings::Invalid;
-            AErrorHub::addError("Bad format in ascii energy depo file (event record)");
-            return false;
-        }
-    }
-    return true;
-}
-
-bool ADepositionFileHandler::gotoEvent(int iEvent)
-{
-    if (CurrentEvent == iEvent) return true;
-    if (CurrentEvent > iEvent)
-    {
-        init();
-        if (CurrentEvent == iEvent) return true;
-    }
-
-    // iEvent is larger than CurrentEvent
-    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
-    {
-        AErrorHub::addError("Binary depo not yet implemented");
-        return false;
-    }
-    else
-    {
-        do
-        {
-            LineText = inTextStream->readLine();
-            if (!LineText.startsWith('#')) continue;
-            bool ok = processEventHeader();
-            if (!ok) return false;
-
-            if (CurrentEvent == iEvent) return true;
-        }
-        while (!inTextStream->atEnd());
-    }
-
-    return false;
-}
+    AFileHandlerBase(depoSettings), Settings(depoSettings) {}
 
 bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
 {
     if (EventEndReached) return false;
 
-    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
+    if (Settings.FileFormat == AFileSettingsBase::Binary)
     {
         AErrorHub::addError("Binary depo not yet implemented");
         return false;
@@ -200,46 +57,6 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
     return true;
 }
 
-void ADepositionFileHandler::determineFormat()
-{
-    QFile TextFile(Settings.FileName);
-    if (!TextFile.open(QIODevice::ReadOnly | QFile::Text))
-    {
-        Settings.FileFormat = APhotonDepoSettings::Invalid;
-        return;
-    }
-    QTextStream TextStream(&TextFile);
-
-    QString Line = TextStream.readLine();
-    if (Line.startsWith('#'))
-    {
-        Line.remove(0, 1);
-        bool ok;
-        Line.toInt(&ok);
-        if (ok)
-        {
-            Settings.FileFormat = APhotonDepoSettings::G4Ascii;
-            return;
-        }
-    }
-
-    std::ifstream inStream(Settings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
-    if (!inStream.is_open())
-    {
-        Settings.FileFormat = APhotonDepoSettings::Invalid;
-        return;
-    }
-    char header = 0x00;
-    inStream >> header;
-    if (inStream.good() && header == (char)0xEE)
-    {
-        Settings.FileFormat = APhotonDepoSettings::G4Binary;
-        return;
-    }
-
-    Settings.FileFormat = APhotonDepoSettings::Undefined;
-}
-
 bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QString & fileName)
 {
     bool ok = gotoEvent(fromEvent);
@@ -249,7 +66,7 @@ bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QStrin
         return false;
     }
 
-    if (Settings.FileFormat == APhotonDepoSettings::G4Binary)
+    if (Settings.FileFormat == AFileSettingsBase::Binary)
     {
         AErrorHub::addError("Binary depo not yet implemented");
         return false;

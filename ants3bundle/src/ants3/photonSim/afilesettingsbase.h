@@ -24,7 +24,7 @@ public:
     void           writeToJson(QJsonObject & json) const;   // all specifics are handled by doWriteToJson
     void           readFromJson(const QJsonObject & json);  // all specifics are handled by doReadFromJson
 
-    void           clear();
+    virtual void   clear();
     virtual void   clearStatistics(){}
 
 protected:

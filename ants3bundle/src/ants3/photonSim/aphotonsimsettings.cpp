@@ -601,76 +601,24 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 
 // ---- Depo ----
 
-void APhotonDepoSettings::writeToJson(QJsonObject &json) const
-{
-    json["FileName"]   = FileName;
-    json["FileFormat"] = getFormatName();
-    json["NumEvents"]  = NumEvents;
-    json["FileLastModified"] = FileLastModified.toMSecsSinceEpoch();
-
-    json["Primary"]    = Primary;
-    json["Secondary"]  = Secondary;
-}
-
-void APhotonDepoSettings::readFromJson(const QJsonObject &json)
-{
-    clear();
-
-    jstools::parseJson(json, "FileName", FileName);
-
-    QString format;
-    jstools::parseJson(json, "FileFormat", format);
-    if      (format == "Invalid")  FileFormat = Invalid;
-    else if (format == "G4Ascii")  FileFormat = G4Ascii;
-    else if (format == "G4Binary") FileFormat = G4Binary;
-    else                           FileFormat = Undefined;
-
-    jstools::parseJson(json, "NumEvents", NumEvents);
-
-    qint64 lastMod;
-    jstools::parseJson(json, "FileLastModified", lastMod);
-    FileLastModified = QDateTime::fromMSecsSinceEpoch(lastMod);
-
-    jstools::parseJson(json, "Primary",   Primary);
-    jstools::parseJson(json, "Secondary", Secondary);
-}
-
 void APhotonDepoSettings::clear()
 {
-    FileName.clear();
-
-    FileFormat       = Undefined;
-    NumEvents        = -1;
-    FileLastModified = QDateTime();
+    AFileSettingsBase::clear();
 
     Primary          = true;
     Secondary        = false;
 }
 
-#include <QFileInfo>
-bool APhotonDepoSettings::isValidated() const
+void APhotonDepoSettings::doWriteToJson(QJsonObject &json) const
 {
-    if (FileName.isEmpty()) return false;
-
-    if (FileFormat == Undefined || FileFormat == Invalid) return false;
-
-    QFileInfo fi(FileName);
-    if (!fi.exists()) return false;
-    if (FileLastModified != fi.lastModified()) return false;
-
-    return true;
+    json["Primary"]    = Primary;
+    json["Secondary"]  = Secondary;
 }
 
-QString APhotonDepoSettings::getFormatName() const
+void APhotonDepoSettings::doReadFromJson(const QJsonObject &json)
 {
-    switch (FileFormat)
-    {
-    case Invalid  : return "Invalid";
-    case G4Ascii  : return "G4Ascii";
-    case G4Binary : return "G4Binary";
-    default:;
-    }
-    return "Undefined";
+    jstools::parseJson(json, "Primary",   Primary);
+    jstools::parseJson(json, "Secondary", Secondary);
 }
 
 // ----
