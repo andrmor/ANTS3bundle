@@ -428,15 +428,16 @@ bool APhotonSimulator::simulateGrid()
     }
 
     std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
-    int currentNode = -1;
+    CurrentEvent = -1;
     EventsDone = 0;
     int iAxis[3];
     for (iAxis[0]=0; iAxis[0]<RegGridNodes[0]; iAxis[0]++)
         for (iAxis[1]=0; iAxis[1]<RegGridNodes[1]; iAxis[1]++)
             for (iAxis[2]=0; iAxis[2]<RegGridNodes[2]; iAxis[2]++)  //iAxis - counters along the axes!!!
             {
-                currentNode++;
-                if (currentNode < SimSet.RunSet.EventFrom) continue;
+                CurrentEvent++;
+                if (CurrentEvent < SimSet.RunSet.EventFrom) continue;
+                if (CurrentEvent >= SimSet.RunSet.EventTo) return true;
 
                 for (int i = 0; i < 3; i++) node->R[i] = RegGridOrigin[i];
                 //shift from the origin
@@ -451,8 +452,6 @@ bool APhotonSimulator::simulateGrid()
 
                 EventsDone++;
                 reportProgress();
-
-                if (currentNode >= SimSet.RunSet.EventTo) return true;
             }
 
     return true;
