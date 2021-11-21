@@ -3,6 +3,8 @@
 
 // The chain of linked nodes represents nodes of the same event
 
+// !!!*** no need for forbidding direct constructor, there will be no more linked nodes!
+
 class ANodeRecord
 {
 public:

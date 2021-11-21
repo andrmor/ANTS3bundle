@@ -11,6 +11,8 @@ class A3PhotSimWin;
 
 class TObject;
 class AMonitorHub;
+class APhotonBombFileHandler; // tmp ?
+class ANodeRecord; // tmp ?
 
 class A3PhotSimWin : public QMainWindow
 {
@@ -116,11 +118,26 @@ private slots:
     void on_pbAnalyzeSinglePhotonsFile_clicked();
     void on_pbSinglePhotonsHelp_clicked(); // !!!***
 
+    void on_pbSelectBombsFile_clicked();
+
+    void on_pbLoadAndShowBombs_clicked(); // !!!*** temporary!    !!!*** synchronize if both tracks and markers are shown to avoid double draw
+
+    void on_sbShowBombsEvent_editingFinished();
+
+    void on_pbShowBombsPrevious_clicked();
+
+    void on_pbShowBombsNext_clicked();
+
+    void on_cobShowBombsMode_activated(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
 
     Ui::A3PhotSimWin * ui = nullptr;
+
+    ANodeFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
+    APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
 
     void updatePhotBombGui();
     void updateDepoGui();
@@ -135,10 +152,17 @@ private:
     void updateMonitorGui();
 
     void updateAdvancedBombIndicator();
+
+    void showBombs();
+
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+
+    void requestClearGeoMarkers(int All_Rec_True);
+    void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
+    void requestShowGeoMarkers();
 };
 
 #endif // A3PHOTSIMWIN_H

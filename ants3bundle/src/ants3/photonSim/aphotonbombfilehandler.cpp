@@ -110,6 +110,7 @@ bool APhotonBombFileHandler::processEventHeader()
     }
     else
     {
+        qDebug() << "--------------->" << LineText;
         LineText.remove(0, 1);
         bool ok;
         CurrentEvent = LineText.toInt(&ok);

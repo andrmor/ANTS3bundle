@@ -89,7 +89,7 @@ AGeometryWindow::AGeometryWindow(QWidget *parent) :
 AGeometryWindow::~AGeometryWindow()
 {
     delete ui;
-    ClearGeoMarkers(0);
+    clearGeoMarkers(0);
 }
 
 void AGeometryWindow::adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel)
@@ -181,7 +181,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         PostDraw();
 
         //drawing dots
-        ShowGeoMarkers();
+        showGeoMarkers();
 
         //ResetView();  // angles are resetted, by rotation (with mouse) starts with a wrong angles
         UpdateRootCanvas();
@@ -626,30 +626,39 @@ void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycl
     ShowText(tmp, kBlack, PMs, bFullCycle);
 }
 
-void AGeometryWindow::ShowGeoMarkers()
+void AGeometryWindow::showGeoMarkers()
 {
-    if (!GeoMarkers.isEmpty())
+    if (GeoMarkers.isEmpty()) return;
+
+    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
+    if (Mode == 0)
     {
-        int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
-        if (Mode == 0)
+        SetAsActiveRootWindow();
+        for (int i = 0; i < GeoMarkers.size(); i++)
         {
-            SetAsActiveRootWindow();
-            for (int i = 0; i < GeoMarkers.size(); i++)
+            GeoMarkerClass * gm = GeoMarkers[i];
+            if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::True) // Source has its own styling
             {
-                GeoMarkerClass* gm = GeoMarkers[i];
-                //overrides
-                if (gm->Type == "Recon" || gm->Type == "Scan" || gm->Type == "Nodes")
-                {
-                    gm->SetMarkerStyle(GeoMarkerStyle);
-                    gm->SetMarkerSize(GeoMarkerSize);
-                }
-                gm->Draw("same");
+                gm->SetMarkerStyle(GeoMarkerStyle);
+                gm->SetMarkerSize(GeoMarkerSize);
             }
-            UpdateRootCanvas();
+            gm->Draw("same");
         }
-        else
-            ShowGeometry(false);
+        UpdateRootCanvas();
     }
+    else
+        ShowGeometry(false);
+}
+
+#include "anoderecord.h"
+void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
+{
+    if (GeoMarkers.isEmpty() || GeoMarkers.last()->Type != GeoMarkerClass::True)
+    {
+        GeoMarkerClass * gm = new GeoMarkerClass(GeoMarkerClass::True, 21, 10, kBlue);
+        GeoMarkers.append(gm);
+    }
+    GeoMarkers.last()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
 }
 
 void AGeometryWindow::ShowTracksAndMarkers()
@@ -658,7 +667,7 @@ void AGeometryWindow::ShowTracksAndMarkers()
     if (Mode == 0)
     {
         ShowTracks();
-        ShowGeoMarkers();
+        showGeoMarkers();
     }
     else
     {
@@ -710,21 +719,21 @@ void AGeometryWindow::ClearTracks(bool bRefreshWindow)
     }
 }
 
-void AGeometryWindow::ClearGeoMarkers(int All_Rec_True)
+void AGeometryWindow::clearGeoMarkers(int All_Rec_True)
 {
     for (int i = GeoMarkers.size()-1; i>-1; i--)
     {
         switch (All_Rec_True)
         {
         case 1:
-            if (GeoMarkers.at(i)->Type == "Recon")
+            if (GeoMarkers[i]->Type == GeoMarkerClass::Recon)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.remove(i);
             }
             break;
         case 2:
-            if (GeoMarkers.at(i)->Type == "Scan")
+            if (GeoMarkers[i]->Type == GeoMarkerClass::True)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.remove(i);
@@ -777,12 +786,12 @@ void AGeometryWindow::ShowTracks()
 
 void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 {
-    ClearGeoMarkers();
+    clearGeoMarkers();
 
-    GeoMarkerClass* marks = new GeoMarkerClass("Source", 3, 10, kBlack);
+    GeoMarkerClass * marks = new GeoMarkerClass(GeoMarkerClass::Source, 3, 10, kBlack);
     marks->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.append(marks);
-    GeoMarkerClass* marks1 = new GeoMarkerClass("Source", 4, 3, kRed);
+    GeoMarkerClass* marks1 = new GeoMarkerClass(GeoMarkerClass::Source, 4, 3, kRed);
     marks1->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.append(marks1);
 
@@ -817,12 +826,6 @@ void AGeometryWindow::CenterView(double *r)
 void AGeometryWindow::on_pbClearTracks_clicked()
 {
     Geometry.GeoManager->ClearTracks();
-    ShowGeometry(true, false);
-}
-
-void AGeometryWindow::on_pbClearDots_clicked()
-{ 
-    ClearGeoMarkers();
     ShowGeometry(true, false);
 }
 

@@ -15,6 +15,7 @@ class QWebEngineDownloadItem;
 class TGeoVolume;
 class ACameraControlDialog;
 class GeoMarkerClass;
+class ANodeRecord;
 
 namespace Ui {
 class AGeometryWindow;
@@ -67,12 +68,10 @@ public:
 
 //    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
-    void ShowGeoMarkers();
     void ShowTracksAndMarkers();
 //    void ShowCustomNodes(int firstN); // !!!***
 
     void ClearTracks(bool bRefreshWindow = true);
-    void ClearGeoMarkers(int All_Rec_True = 0);
 
 protected:
     bool event(QEvent *event) override;
@@ -97,7 +96,10 @@ public slots:
     void on_pbShowPMnumbers_clicked();
     void on_pbShowTracks_clicked();
     void on_pbClearTracks_clicked();
-    void on_pbClearDots_clicked();
+
+    void clearGeoMarkers(int All_Rec_True = 0);
+    void showGeoMarkers();
+    void addPhotonNodeGeoMarker(const ANodeRecord & record);
 
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item);

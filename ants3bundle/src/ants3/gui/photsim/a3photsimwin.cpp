@@ -374,6 +374,11 @@ void A3PhotSimWin::showSimulationResults()
             on_pbLoadAndShowStatistics_clicked();
         }
 
+        if (SimSet.RunSet.SavePhotonBombs)
+        {
+            ui->leBombsFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNamePhotonBombs);
+            on_pbLoadAndShowBombs_clicked();
+        }
     }
 }
 
@@ -1147,5 +1152,122 @@ void A3PhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
 void A3PhotSimWin::on_pbSinglePhotonsHelp_clicked()
 {
 
+}
+
+// --- Show Photon bombs ---
+
+void A3PhotSimWin::on_pbSelectBombsFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon bombs", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leBombsFile->setText(fileName);
+}
+
+void A3PhotSimWin::on_pbLoadAndShowBombs_clicked()
+{
+    delete BombFileHandler;  BombFileHandler  = nullptr;
+    delete BombFileSettings; BombFileSettings = nullptr;
+
+    BombFileSettings = new ANodeFileSettings();
+    BombFileSettings->FileName = ui->leBombsFile->text();
+    BombFileHandler = new APhotonBombFileHandler(*BombFileSettings);
+
+    AErrorHub::clear();
+    BombFileHandler->determineFormat();
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+    BombFileHandler->checkFile(false);
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    ui->sbShowBombsEvent->setValue(0);
+    ui->labShowBombsNumEvents->setText( QString::number(BombFileSettings->NumEvents) );
+
+    emit requestShowGeometry(true);
+    showBombs();
+}
+
+#include "anoderecord.h"
+void A3PhotSimWin::showBombs()
+{
+    emit requestClearGeoMarkers(0);
+
+    if (!BombFileHandler) return;
+
+    if (ui->cobShowBombsMode->currentIndex() == 0)
+    {
+        // all events
+        bool ok = BombFileHandler->init();
+        if (!ok) return;
+        ANodeRecord * node = ANodeRecord::createS(0,0,0);  // !!!*** will be refactored
+        for (int iEvent = 0; iEvent < BombFileSettings->NumEvents; iEvent++)
+        {
+            while (BombFileHandler->readNextBombOfSameEvent(*node))
+                emit requestAddPhotonNodeGeoMarker(*node);
+            BombFileHandler->acknowledgeNextEvent();
+        }
+    }
+    else
+    {
+        // single event
+        int iEvent = ui->sbShowBombsEvent->value();
+        if (iEvent < 0)
+        {
+            //paranoic
+            ui->sbShowBombsEvent->setValue(0);
+            iEvent = 0;
+        }
+
+        if (iEvent >= BombFileSettings->NumEvents)
+        {
+            iEvent = BombFileSettings->NumEvents - 1;
+            if (iEvent < 0) iEvent = 0; // paranoic
+            ui->sbShowBombsEvent->setValue(iEvent);
+        }
+
+        qDebug() << "Ev #" << iEvent;
+        bool ok = BombFileHandler->gotoEvent(iEvent);
+        qDebug() << "--->" << ok;
+        if (!ok)
+        {
+            guitools::message("Cannot go to this event!", this);
+            return;
+        }
+
+        ANodeRecord * node = ANodeRecord::createS(0,0,0);  // !!!*** will be refactored
+        while (BombFileHandler->readNextBombOfSameEvent(*node))
+            emit requestAddPhotonNodeGeoMarker(*node);
+    }
+    emit requestShowGeoMarkers();
+}
+
+void A3PhotSimWin::on_sbShowBombsEvent_editingFinished()
+{
+    showBombs();
+}
+
+void A3PhotSimWin::on_pbShowBombsPrevious_clicked()
+{
+    int iEvent = ui->sbShowBombsEvent->value();
+    if (iEvent == 0) return;
+    ui->sbShowBombsEvent->setValue(iEvent - 1);
+    showBombs();
+}
+
+void A3PhotSimWin::on_pbShowBombsNext_clicked()
+{
+    int iEvent = ui->sbShowBombsEvent->value();
+    ui->sbShowBombsEvent->setValue(iEvent + 1);
+    showBombs();
+}
+
+void A3PhotSimWin::on_cobShowBombsMode_activated(int)
+{
+    showBombs();
 }
 
