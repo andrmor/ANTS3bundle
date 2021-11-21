@@ -1,4 +1,5 @@
 #include "a3photsimwin.h"
+#include "ageometryhub.h"
 #include "aphotonsimhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
@@ -7,6 +8,7 @@
 #include "aphotonsimsettings.h"
 #include "ui_a3photsimwin.h"
 #include "aconfig.h"
+#include "ajsontools.h"
 #include "guitools.h"
 #include "agraphbuilder.h"
 #include "adispatcherinterface.h"
@@ -15,10 +17,16 @@
 
 #include <QDebug>
 #include <QLabel>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TObject.h"
+#include "TGeoManager.h"
+#include "TVirtualGeoTrack.h"
+#include "TGeoTrack.h"
 
 A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QMainWindow(parent),
@@ -349,6 +357,11 @@ void A3PhotSimWin::on_pbSimulate_clicked()
 
     disableInterface(false);
 
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+    emit requestClearGeoMarkers(0);
+    emit requestShowGeometry(false);
+
     if (ok) showSimulationResults();
 }
 
@@ -484,16 +497,7 @@ void A3PhotSimWin::on_pbConfigureOutput_clicked()
     dialog.exec();
 }
 
-
 // ========================= RESULTS ========================
-#include "ajsontools.h"
-#include "ageometryhub.h"
-#include <QFileDialog>
-#include <QFile>
-#include <QTextStream>
-#include "TGeoManager.h"
-#include "TVirtualGeoTrack.h"
-#include "TGeoTrack.h"
 
 void A3PhotSimWin::on_pbSelectTracksFile_clicked()
 {
@@ -1189,6 +1193,7 @@ void A3PhotSimWin::on_pbLoadAndShowBombs_clicked()
     ui->labShowBombsNumEvents->setText( QString::number(BombFileSettings->NumEvents) );
 
     emit requestShowGeometry(true);
+    emit requestShowTracks(); // !!!***
     showBombs();
 }
 

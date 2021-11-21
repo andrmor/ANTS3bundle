@@ -242,29 +242,17 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
 {
     qDebug() << "Configuring simulation...";
     Request.Command = "lsim"; // name of the corresponding executable
-
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
     Request.ExchangeDir = ExchangeDir;
 
     clearFileMergers();
 
-    std::unique_ptr<APhotonBombFileHandler> BombF_handler;
-    if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
+    std::unique_ptr<AFileHandlerBase> InFileHandler;
+    AFileHandlerBase * ptr = makeInputFileHandler();
+    if (ptr)
     {
-        BombF_handler = std::unique_ptr<APhotonBombFileHandler>(new APhotonBombFileHandler(SimSet.BombSet.BombFileSettings));
-        if (!BombF_handler->init()) return false;
-    }
-    std::unique_ptr<ADepositionFileHandler> DepoF_handler;
-    if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
-    {
-        DepoF_handler = std::unique_ptr<ADepositionFileHandler>(new ADepositionFileHandler(SimSet.DepoSet));
-        if (!DepoF_handler->init()) return false;
-    }
-    std::unique_ptr<APhotonFileHandler> PhotF_handler;
-    if (SimSet.SimType == EPhotSimType::IndividualPhotons)
-    {
-        PhotF_handler = std::unique_ptr<APhotonFileHandler>(new APhotonFileHandler(SimSet.PhotFileSet));
-        if (!PhotF_handler->init()) return false;
+        InFileHandler = std::unique_ptr<AFileHandlerBase>(ptr);
+        if (!InFileHandler->init()) return false;
     }
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -284,7 +272,11 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
             if (num == 0) break;
 
             A3NodeWorkerConfig Worker;
-            APhotonSimSettings WorkSet;
+            APhotonSimSettings WorkSet = SimSet;
+            WorkSet.RunSet.Seed      = INT_MAX * RandomHub.uniform();
+            WorkSet.RunSet.EventFrom = iEvent;
+            WorkSet.RunSet.EventTo   = iEvent + num;
+            iEvent += num;
 
             switch (SimSet.SimType)
             {
@@ -292,34 +284,17 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                 switch (SimSet.BombSet.GenerationMode)
                 {
                 case EBombGen::Single :
-                    // TODO: for single bomb, can split between processes by photons to! Try to implement after making file merge, since should be single event in this case
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + 1;
-                    iEvent++;
+                    // TODO: for single bomb, try to split between processes by photons to! But needs custom merger!
                     break;
                 case EBombGen::Grid :
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + num;
-                    iEvent += num;
                     break;
                 case EBombGen::Flood :
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + num;
-                    iEvent += num;
                     break;
                 case EBombGen::File :
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + num;
-                    iEvent += num;
-
                     WorkSet.BombSet.BombFileSettings.NumEvents = num;
                     WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;
-                    bool ok = BombF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    bool ok = InFileHandler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
                     WorkSet.BombSet.BombFileSettings.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
@@ -328,15 +303,10 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                 break;
             case EPhotSimType::FromEnergyDepo :
                 {
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + num;
-                    iEvent += num;
-
                     WorkSet.DepoSet.NumEvents = num;
                     WorkSet.DepoSet.FileName = QString("inDepo-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.DepoSet.FileName;
-                    bool ok = DepoF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    bool ok = InFileHandler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
                     WorkSet.DepoSet.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
@@ -344,15 +314,10 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                 break;
             case EPhotSimType::IndividualPhotons :
                 {
-                    WorkSet = SimSet;
-                    WorkSet.RunSet.EventFrom = iEvent;
-                    WorkSet.RunSet.EventTo   = iEvent + num;
-                    iEvent += num;
-
                     WorkSet.PhotFileSet.NumEvents = num;
                     WorkSet.PhotFileSet.FileName = QString("inPhotons-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.PhotFileSet.FileName;
-                    bool ok = PhotF_handler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    bool ok = InFileHandler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
                     if (!ok) return false;
                     WorkSet.PhotFileSet.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);
@@ -363,48 +328,8 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                 return false;
             }
 
-            WorkSet.RunSet.Seed = INT_MAX * RandomHub.uniform();
-
-            // !!!*** refactor to a method
-            if (SimSet.RunSet.SaveSensorSignals)
-            {
-                WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
-                SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
-            }
-            if (SimSet.RunSet.SaveTracks)
-            {
-                WorkSet.RunSet.FileNameTracks       = QString("tracks-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
-                TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
-            }
-            if (SimSet.RunSet.SavePhotonBombs)
-            {
-                WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
-                BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
-            }
-
-            if (SimSet.RunSet.SaveStatistics)
-            {
-                WorkSet.RunSet.FileNameStatistics   = QString("stats-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameStatistics);
-                StatisticsFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
-            }
-            if (SimSet.RunSet.SaveMonitors)
-            {
-                WorkSet.RunSet.FileNameMonitors     = QString("monitors-%0").arg(iProcess);
-                Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitors);
-                MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
-            }
-
-            QJsonObject json;
-            AConfig::getInstance().writeToJson(json);
-            WorkSet.writeToJson(json);
-            QString ConfigFN = QString("config-%0.json").arg(iProcess);
-            jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
-            Worker.ConfigFile = ConfigFN;
-
+            configureOutputFiles(Worker, WorkSet, iProcess);
+            makeWorkerConfigFile(Worker, WorkSet, iProcess);
             nc.Workers.push_back(Worker);
             iProcess++;
         }
@@ -412,4 +337,66 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     }
 
     return !AErrorHub::isError();
+}
+
+AFileHandlerBase * APhotonSimManager::makeInputFileHandler()
+{
+    if (SimSet.SimType == EPhotSimType::PhotonBombs && SimSet.BombSet.GenerationMode == EBombGen::File)
+        return new APhotonBombFileHandler(SimSet.BombSet.BombFileSettings);
+
+    if (SimSet.SimType == EPhotSimType::FromEnergyDepo)
+        return new ADepositionFileHandler(SimSet.DepoSet);
+
+    if (SimSet.SimType == EPhotSimType::IndividualPhotons)
+        return new APhotonFileHandler(SimSet.PhotFileSet);
+
+    return nullptr;
+}
+
+void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhotonSimSettings & WorkSet, int iProcess)
+{
+    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
+
+    if (SimSet.RunSet.SaveSensorSignals)
+    {
+        WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
+        SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
+    }
+    if (SimSet.RunSet.SaveTracks)
+    {
+        WorkSet.RunSet.FileNameTracks       = QString("tracks-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameTracks);
+        TrackFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameTracks);
+    }
+    if (SimSet.RunSet.SavePhotonBombs)
+    {
+        WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
+        BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
+    }
+    if (SimSet.RunSet.SaveStatistics)
+    {
+        WorkSet.RunSet.FileNameStatistics   = QString("stats-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameStatistics);
+        StatisticsFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameStatistics);
+    }
+    if (SimSet.RunSet.SaveMonitors)
+    {
+        WorkSet.RunSet.FileNameMonitors     = QString("monitors-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitors);
+        MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
+    }
+}
+
+void APhotonSimManager::makeWorkerConfigFile(A3NodeWorkerConfig & Worker, APhotonSimSettings & WorkSet, int iProcess)
+{
+    const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
+
+    QJsonObject json;
+    AConfig::getInstance().writeToJson(json);
+    WorkSet.writeToJson(json);
+    QString ConfigFN = QString("config-%0.json").arg(iProcess);
+    jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
+    Worker.ConfigFile = ConfigFN;
 }

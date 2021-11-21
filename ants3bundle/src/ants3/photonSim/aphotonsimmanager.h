@@ -11,6 +11,8 @@
 
 class A3WorkDistrConfig;
 class APhotonSimSettings;
+class AFileHandlerBase;
+class A3NodeWorkerConfig;
 
 class APhotonSimManager final : public QObject
 {
@@ -43,6 +45,10 @@ private:
     void removeOutputFiles();  // !!!*** also remov efiles in exchange
     void clearFileMergers();
     void mergeOutput();
+
+    AFileHandlerBase * makeInputFileHandler();
+    void configureOutputFiles(A3NodeWorkerConfig & Worker, APhotonSimSettings & WorkSet, int iProcess);
+    void makeWorkerConfigFile(A3NodeWorkerConfig & Worker, APhotonSimSettings & WorkSet, int iProcess);
 
     APhotonSimSettings & SimSet;
 
