@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>695</width>
-    <height>401</height>
+    <width>685</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -132,14 +132,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leTracks"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeTracks">
+      <widget class="QLabel" name="labTracks">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -172,14 +182,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leSaveParticles"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeParticles">
+      <widget class="QLabel" name="labSaveParticles">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -261,6 +281,12 @@
         </item>
         <item>
          <widget class="QLineEdit" name="ledTimeFrom">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>0</string>
           </property>
@@ -275,6 +301,12 @@
         </item>
         <item>
          <widget class="QLineEdit" name="ledTimeTo">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>1e10</string>
           </property>
@@ -286,6 +318,19 @@
            <string>ns</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -318,14 +363,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leDeposition"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeDeposition">
+      <widget class="QLabel" name="labDeposition">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -355,14 +410,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leMonitors"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeMonitors">
+      <widget class="QLabel" name="labMonitors">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

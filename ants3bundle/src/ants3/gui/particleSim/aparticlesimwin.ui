@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1328,6 +1328,46 @@ Format: Volume_name  Step_in_mm</string>
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_48">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbLoadAllResults">
+            <property name="text">
+             <string>Load all particle data assuming standard names</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QTabWidget" name="twResults">
           <property name="currentIndex">
            <number>0</number>
@@ -1361,7 +1401,7 @@ Format: Volume_name  Step_in_mm</string>
               <item>
                <widget class="QLineEdit" name="leTrackingDataFile">
                 <property name="text">
-                 <string>TrackingData.txt</string>
+                 <string>TrackingHistory.dat</string>
                 </property>
                </widget>
               </item>
@@ -1377,7 +1417,7 @@ Format: Volume_name  Step_in_mm</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">
@@ -3449,7 +3489,11 @@ If checked, only &quot;creation&quot; is considered!</string>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="leMonitorsFileName"/>
+               <widget class="QLineEdit" name="leMonitorsFileName">
+                <property name="text">
+                 <string>ParticleMonitors.json</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pbChooseMonitorsFile">

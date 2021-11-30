@@ -17,10 +17,10 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
     ui->sbAsciiPrecision->setValue(RunSet.AsciiPrecision);
 
     ui->cbTrackingData->setChecked(RunSet.SaveTrackingHistory);
-    ui->leTracks->setText(RunSet.FileNameTrackingHistory.data());
+    ui->labTracks->setText(RunSet.FileNameTrackingHistory.data());
 
     ui->cbSaveParticles->setChecked(RunSet.SaveSettings.Enabled);
-    ui->leSaveParticles->setText( QString(RunSet.SaveSettings.FileName.data()) );
+    ui->labSaveParticles->setText( QString(RunSet.SaveSettings.FileName.data()) );
     ui->leVolume->setText( QString(RunSet.SaveSettings.VolumeName.data()) );
     ui->cbStopTracking->setChecked(RunSet.SaveSettings.StopTrack);
     ui->cbUseTimeWindow->setChecked(RunSet.SaveSettings.TimeWindow);
@@ -28,10 +28,10 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
     ui->ledTimeTo->setText(QString::number(RunSet.SaveSettings.TimeTo));
 
     ui->cbDeposition->setChecked(RunSet.SaveDeposition);
-    ui->leDeposition->setText(RunSet.FileNameDeposition.data());
+    ui->labDeposition->setText(RunSet.FileNameDeposition.data());
 
     ui->cbMonitors->setChecked(RunSet.MonitorSettings.Enabled);
-    ui->leMonitors->setText(RunSet.MonitorSettings.FileName.data());
+    ui->labMonitors->setText(RunSet.MonitorSettings.FileName.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -47,10 +47,10 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
 
     RunSet.SaveTrackingHistory = ui->cbTrackingData->isChecked();
-    RunSet.FileNameTrackingHistory = ui->leTracks->text().toLatin1().data();
+    //RunSet.FileNameTrackingHistory = ui->leTracks->text().toLatin1().data();
 
     RunSet.SaveSettings.Enabled = ui->cbSaveParticles->isChecked();
-    RunSet.SaveSettings.FileName = ui->leSaveParticles->text().toLatin1().data();
+    //RunSet.SaveSettings.FileName = ui->leSaveParticles->text().toLatin1().data();
     RunSet.SaveSettings.VolumeName = ui->leVolume->text().toLatin1().data();
     RunSet.SaveSettings.StopTrack = ui->cbStopTracking->isChecked();
     RunSet.SaveSettings.TimeWindow = ui->cbUseTimeWindow->isChecked();
@@ -58,10 +58,10 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
     RunSet.SaveSettings.TimeTo = ui->ledTimeTo->text().toDouble();
 
     RunSet.SaveDeposition = ui->cbDeposition->isChecked();
-    RunSet.FileNameDeposition = ui->leDeposition->text().toLatin1().data();
+    //RunSet.FileNameDeposition = ui->leDeposition->text().toLatin1().data();
 
     RunSet.MonitorSettings.Enabled = ui->cbMonitors->isChecked();
-    RunSet.MonitorSettings.FileName = ui->leMonitors->text().toLatin1().data();
+    //RunSet.MonitorSettings.FileName = ui->leMonitors->text().toLatin1().data();
 
     accept();
 }
@@ -79,28 +79,4 @@ void AParticleSimOutputDialog::on_cobAsciiBinary_currentIndexChanged(int index)
 {
     ui->labAsciiPrecision->setVisible(index == 0);
     ui->sbAsciiPrecision->setVisible(index == 0);
-}
-
-void AParticleSimOutputDialog::on_pbChangeTracks_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save tracking data", ui->leOutputDirectory->text());
-    if (!fileName.isEmpty()) ui->leTracks->setText(fileName);
-}
-
-void AParticleSimOutputDialog::on_pbChangeParticles_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save particles", ui->leOutputDirectory->text());
-    if (!fileName.isEmpty()) ui->leSaveParticles->setText(fileName);
-}
-
-void AParticleSimOutputDialog::on_pbChangeDeposition_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save deposition data", ui->leOutputDirectory->text());
-    if (!fileName.isEmpty()) ui->leDeposition->setText(fileName);
-}
-
-void AParticleSimOutputDialog::on_pbChangeMonitors_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "Select file to save monitor data", ui->leOutputDirectory->text());
-    if (!fileName.isEmpty()) ui->leMonitors->setText(fileName);
 }

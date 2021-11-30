@@ -36,7 +36,7 @@ class AMonitorSettings
 {
 public:
     bool Enabled         = false;
-    std::string FileName = "Monitors.dat";
+    std::string FileName = "ParticleMonitors.json";
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);

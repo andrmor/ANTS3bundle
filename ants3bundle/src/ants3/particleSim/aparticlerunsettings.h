@@ -16,7 +16,7 @@ class ASaveParticlesSettings
 {
 public:
     bool        Enabled    = false;
-    std::string FileName   = "SavedParticles.dat";
+    std::string FileName   = "OutputParticles.dat";
     std::string VolumeName;
     bool        StopTrack = true;
 
@@ -40,14 +40,13 @@ public:
     // ants3 only
     std::string OutputDirectory;
 
-
     // ants3 and g4ants3
     int         Seed = 0;
 
-    bool        SaveTrackingHistory = true;
-    std::string FileNameTrackingHistory = "TrackingHistory.txt";
+    bool        SaveTrackingHistory = false;
+    std::string FileNameTrackingHistory = "TrackingHistory.dat";
 
-    bool        SaveDeposition = true;
+    bool        SaveDeposition = false;
     std::string FileNameDeposition = "Deposition.dat";
 
     ASaveParticlesSettings SaveSettings;

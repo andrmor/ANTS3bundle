@@ -19,18 +19,8 @@ public:
 
 private slots:
     void on_pbAccept_clicked();
-
     void on_pbChangeDir_clicked();
-
     void on_cobAsciiBinary_currentIndexChanged(int index);
-
-    void on_pbChangeTracks_clicked();
-
-    void on_pbChangeParticles_clicked();
-
-    void on_pbChangeDeposition_clicked();
-
-    void on_pbChangeMonitors_clicked();
 
 private:
     AParticleRunSettings & RunSet;

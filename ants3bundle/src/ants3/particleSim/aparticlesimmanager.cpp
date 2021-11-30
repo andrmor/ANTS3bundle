@@ -77,16 +77,24 @@ void AParticleSimManager::simulate(int numLocalProc)
     if (!AErrorHub::isError()) mergeOutput();
 }
 
+void addNames(std::vector<QString> & fileNames, const AParticleRunSettings & settings)
+{
+    const QString OutputDir(settings.OutputDirectory.data());
+
+    fileNames.push_back(OutputDir + '/' + settings.FileNameTrackingHistory.data());
+    fileNames.push_back(OutputDir + '/' + settings.FileNameDeposition.data());
+    fileNames.push_back(OutputDir + '/' + settings.SaveSettings.FileName.data());
+    fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
+}
+
 #include <QFile>
 void AParticleSimManager::removeOutputFiles()
 {
-    qDebug() << "Removing (if exist) files with the names listed in output files";
+    qDebug() << "Removing (if exist) output files with the same names";
 
-    const QString OutputDir(SimSet.RunSet.OutputDirectory.data());
     std::vector<QString> fileNames;
-
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
+    addNames(fileNames, SimSet.RunSet);
+    addNames(fileNames, AParticleRunSettings()); // to make sure the default names are removed, in case some customization was done
 
     for (const QString & fn : fileNames)
         QFile::remove(fn);
@@ -387,6 +395,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     gGeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+    if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
 
     AEventTrackingRecord * record = AEventTrackingRecord::create();
     int iEvent = 0;

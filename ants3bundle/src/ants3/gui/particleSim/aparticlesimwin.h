@@ -29,6 +29,8 @@ public slots:
     void updateGui();
 
 private slots:
+    void on_pbSimulate_clicked();
+
     void on_lePhysicsList_editingFinished();
     void on_cobRefPhysLists_activated(int index);
     void on_cbUseTSphys_clicked(bool checked);
@@ -49,13 +51,13 @@ private slots:
     void on_pbGunShowSource_toggled(bool checked);
     void on_pbConfigureOutput_clicked();
 
-    void on_pbSimulate_clicked();
-
     void on_cobParticleGenerationMode_activated(int index);
 
     void on_sbEvents_editingFinished();
 
     void on_pbChooseWorkingDirectory_clicked();
+
+    // tracks
     void on_pbChooseFileTrackingData_clicked();
     void on_pbShowTracks_clicked();
 
@@ -100,6 +102,8 @@ private slots:
     void on_pbMonitorShowEnergy_clicked();
     void on_pbShowMonitorHitDistribution_clicked();
     void on_pbShowMonitorTimeOverall_clicked();
+
+    void on_pbLoadAllResults_clicked();
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);

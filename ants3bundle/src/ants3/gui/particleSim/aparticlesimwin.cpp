@@ -795,20 +795,45 @@ void AParticleSimWin::on_pbSimulate_clicked()
 
         if (SimSet.RunSet.SaveTrackingHistory)
         {
-            on_pbShowTracks_clicked();
-
             ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+
+            on_pbShowTracks_clicked();
             EV_showTree();
         }
 
         if (SimSet.RunSet.MonitorSettings.Enabled)
+        {
+            ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
             updateMonitorGui(); // data will be already loaded for merging
+        }
     }
+}
+
+void AParticleSimWin::on_pbLoadAllResults_clicked()
+{
+    QString dir = ui->leWorkingDirectory->text();
+    AParticleRunSettings defaultSettings;
+
+    //tracking data
+    QString fileName(defaultSettings.FileNameTrackingHistory.data());
+    ui->leTrackingDataFile->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+    {
+        on_pbShowTracks_clicked();
+        EV_showTree();
+    }
+
+    //monitors
+    fileName = QString(defaultSettings.MonitorSettings.FileName.data());
+    ui->leMonitorsFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadMonitorsData_clicked();
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
-    const QString fileName = ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text();
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     const QStringList LimitTo;
     const QStringList Exclude;
@@ -822,6 +847,7 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
                                          SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
                                          MaxTracks, -1);
+
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -1020,7 +1046,9 @@ void AParticleSimWin::EV_showTree()
 {
     ui->trwEventView->clear();
 
-    const QString fileName = ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text();
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
     AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
     QString err = SimManager.fillTrackingRecord(fileName, ui->sbEvent->value(), record);
     if (!err.isEmpty())
@@ -1835,10 +1863,13 @@ void AParticleSimWin::on_pbChooseMonitorsFile_clicked()
 
 void AParticleSimWin::on_pbLoadMonitorsData_clicked()
 {
+    QString FileName = ui->leMonitorsFileName->text();
+    if (!FileName.contains('/'))
+        FileName = ui->leWorkingDirectory->text() + '/' + FileName;
+
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Particle);
 
-    const QString FileName = ui->leMonitorsFileName->text();
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, FileName);
     if(!ok)
