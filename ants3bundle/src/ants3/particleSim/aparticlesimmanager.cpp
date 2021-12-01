@@ -77,27 +77,28 @@ void AParticleSimManager::simulate(int numLocalProc)
     if (!AErrorHub::isError()) mergeOutput();
 }
 
-void addNames(std::vector<QString> & fileNames, const AParticleRunSettings & settings)
+#include <QFile>
+void addNames(const AParticleRunSettings & settings)
 {
     const QString OutputDir(settings.OutputDirectory.data());
 
+    std::vector<QString> fileNames;
     fileNames.push_back(OutputDir + '/' + settings.FileNameTrackingHistory.data());
     fileNames.push_back(OutputDir + '/' + settings.FileNameDeposition.data());
     fileNames.push_back(OutputDir + '/' + settings.SaveSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
+
+    for (const QString & fn : fileNames) QFile::remove(fn);
 }
 
-#include <QFile>
 void AParticleSimManager::removeOutputFiles()
 {
-    qDebug() << "Removing (if exist) output files with the same names";
+    qDebug() << "Removing (if exist) output files with conflicting names";
+    AParticleRunSettings defaultSettings;
+    defaultSettings.OutputDirectory = SimSet.RunSet.OutputDirectory;
 
-    std::vector<QString> fileNames;
-    addNames(fileNames, SimSet.RunSet);
-    addNames(fileNames, AParticleRunSettings()); // to make sure the default names are removed, in case some customization was done
-
-    for (const QString & fn : fileNames)
-        QFile::remove(fn);
+    addNames(SimSet.RunSet);
+    addNames(defaultSettings); // to make sure the files with the default names are removed, in case some customization was done
 }
 
 void AParticleSimManager::doPreSimChecks()

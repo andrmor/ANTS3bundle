@@ -175,21 +175,28 @@ void APhotonSimManager::processReply(const QJsonObject & json)
     AErrorHub::addError("Bad reply of the dispatcher: Fail status but no error text");
 }
 
+void removePhotonOutputFiles(const APhotSimRunSettings & settings)
+{
+    const QString & OutputDir = settings.OutputDirectory;
+
+    std::vector<QString> fileNames;
+    fileNames.push_back(OutputDir + '/' + settings.FileNameSensorSignals);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameTracks);
+    fileNames.push_back(OutputDir + '/' + settings.FileNamePhotonBombs);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameStatistics);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
+
+    for (const QString & fn : fileNames) QFile::remove(fn);
+}
+
 void APhotonSimManager::removeOutputFiles()
 {
-    qDebug() << "Removing (if exist) files with the names listed in output files";
+    qDebug() << "Removing (if exist) output files with conflicting names";
+    APhotSimRunSettings defaultSettings;
+    defaultSettings.OutputDirectory = SimSet.RunSet.OutputDirectory;
 
-    const QString & OutputDir = SimSet.RunSet.OutputDirectory;
-    std::vector<QString> fileNames;
-
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameStatistics);
-    fileNames.push_back(OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
-
-    for (const QString & fn : fileNames)
-        QFile::remove(fn);
+    removePhotonOutputFiles(SimSet.RunSet);
+    removePhotonOutputFiles(defaultSettings); // to make sure the files with the default names are removed, in case some customization was done
 }
 
 #include "amonitorhub.h"
