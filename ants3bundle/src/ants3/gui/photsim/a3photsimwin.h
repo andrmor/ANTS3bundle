@@ -132,6 +132,8 @@ private slots:
 
     void on_pbChangeWorkingDir_clicked();
 
+    void on_pbLoadAllResults_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

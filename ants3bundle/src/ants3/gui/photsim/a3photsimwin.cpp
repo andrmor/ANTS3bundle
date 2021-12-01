@@ -397,6 +397,23 @@ void A3PhotSimWin::showSimulationResults()
     }
 }
 
+void A3PhotSimWin::on_pbLoadAllResults_clicked()
+{
+    APhotSimRunSettings Set;
+
+    ui->leTracksFile->setText(Set.FileNameTracks);
+    on_pbLoadAndShowTracks_clicked();
+
+    ui->leMonitorsFileName->setText(Set.FileNameMonitors);
+    on_pbLoadMonitorsData_clicked();
+
+    ui->leStatisticsFile->setText(Set.FileNameStatistics);
+    on_pbLoadAndShowStatistics_clicked();
+
+    ui->leBombsFile->setText(Set.FileNamePhotonBombs);
+    on_pbLoadAndShowBombs_clicked();
+}
+
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();

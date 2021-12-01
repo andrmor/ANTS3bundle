@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3474,7 +3474,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -3511,7 +3511,11 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="leMonitorsFileName"/>
+               <widget class="QLineEdit" name="leMonitorsFileName">
+                <property name="text">
+                 <string>PhotonMonitors.txt</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pbChooseMonitorsFile">
@@ -3910,7 +3914,11 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item>
-               <widget class="QLineEdit" name="leTracksFile"/>
+               <widget class="QLineEdit" name="leTracksFile">
+                <property name="text">
+                 <string>PhotonTracks.txt</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pbSelectTracksFile">
@@ -4293,7 +4301,11 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
-               <widget class="QLineEdit" name="leStatisticsFile"/>
+               <widget class="QLineEdit" name="leStatisticsFile">
+                <property name="text">
+                 <string>PhotonStatistics.json</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pbSelectStatisticsFile">
