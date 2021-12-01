@@ -124,3 +124,15 @@ QString guitools::dialogLoadFile(QWidget *parent, const QString &text, const QSt
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
     return fileName;
 }
+
+QString guitools::dialogDirectory(QWidget * parent, const QString & text, const QString & initialDir, bool DefaultRead, bool DefaultWrite)
+{
+    QString dir = QFileDialog::getExistingDirectory(parent, text, initialDir,
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (dir.isEmpty()) return "";
+    A3Global & GlobSet = A3Global::getInstance();
+    if (DefaultRead)  GlobSet.LastLoadDir = dir;
+    if (DefaultWrite) GlobSet.LastSaveDir = dir;
+    return dir;
+}
+

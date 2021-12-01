@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>688</width>
-    <height>372</height>
+    <width>636</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,14 +64,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leSensorSignals"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeSignals">
+      <widget class="QLabel" name="labSensorSignals">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -101,14 +111,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leMonitors"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeMonitors">
+      <widget class="QLabel" name="labMonitors">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -135,14 +155,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lePhotonTracks"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeTracks">
+      <widget class="QLabel" name="labPhotonTracks">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -206,14 +236,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leBombs"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeBombs">
+      <widget class="QLabel" name="labBombs">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -243,14 +283,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leStatistics"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbChangeStatistics">
+      <widget class="QLabel" name="labStatistics">
        <property name="text">
-        <string>Change</string>
+        <string>--</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -308,17 +358,11 @@
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer_2">
+    <widget class="Line" name="line_6">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>667</width>
-       <height>5</height>
-      </size>
-     </property>
-    </spacer>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">

@@ -215,17 +215,17 @@ public:
 
     bool    SaveTracks            = true;
     int     MaxTracks             = 1000;
-    QString FileNameTracks        = "Tracks.txt";
+    QString FileNameTracks        = "PhotonTracks.txt";
 
     bool    SaveStatistics        = true;
-    QString FileNameStatistics    = "Stats.txt";
+    QString FileNameStatistics    = "PhotonStatistics.json";
     double  UpperTimeLimit        = 100;
 
     bool    SavePhotonLog         = true;
     QString FileNamePhotonLog     = "PhotonLog.txt";
 
     bool    SaveMonitors          = true;
-    QString FileNameMonitors      = "Monitors.txt";
+    QString FileNameMonitors      = "PhotonMonitors.txt";
 
     APhotonLogSettings LogSet;
 

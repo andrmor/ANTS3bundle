@@ -17,14 +17,7 @@ public:
 
 private slots:
     void on_pbAccept_clicked();
-    void on_pbChangeDir_clicked();  // !!!*** refactor needed!
-    void on_pbChangeSignals_clicked();
-    void on_pbChangeTracks_clicked();
-    void on_pbChangeBombs_clicked();
-
-    void on_pbChangeStatistics_clicked();
-
-    void on_pbChangeMonitors_clicked();
+    void on_pbChangeDir_clicked();
 
 private:
     Ui::APhotonSimOutputDialog *ui;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>639</width>
-    <height>734</height>
+    <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1347,8 +1347,17 @@ Format: Volume_name  Step_in_mm</string>
           </item>
           <item>
            <widget class="QPushButton" name="pbLoadAllResults">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Assuming standard filenames</string>
+            </property>
             <property name="text">
-             <string>Load all particle data assuming standard names</string>
+             <string>Load all particle data</string>
             </property>
            </widget>
           </item>

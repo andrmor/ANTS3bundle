@@ -369,27 +369,29 @@ void A3PhotSimWin::showSimulationResults()
 {
     if (ui->cbAutoLoadResults->isChecked())
     {
+        ui->leResultsWorkingDir->setText(SimSet.RunSet.OutputDirectory);
+
         if (SimSet.RunSet.SaveTracks)
         {
-            ui->leTracksFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameTracks);
+            ui->leTracksFile->setText(SimSet.RunSet.FileNameTracks);
             on_pbLoadAndShowTracks_clicked();
         }
 
         if (SimSet.RunSet.SaveMonitors)
         {
-            ui->leMonitorsFileName->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameMonitors);
+            ui->leMonitorsFileName->setText(SimSet.RunSet.FileNameMonitors);
             on_pbLoadMonitorsData_clicked();
         }
 
         if (SimSet.RunSet.SaveStatistics)
         {
-            ui->leStatisticsFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNameStatistics);
+            ui->leStatisticsFile->setText(SimSet.RunSet.FileNameStatistics);
             on_pbLoadAndShowStatistics_clicked();
         }
 
         if (SimSet.RunSet.SavePhotonBombs)
         {
-            ui->leBombsFile->setText(SimSet.RunSet.OutputDirectory + '/' + SimSet.RunSet.FileNamePhotonBombs);
+            ui->leBombsFile->setText(SimSet.RunSet.FileNamePhotonBombs);
             on_pbLoadAndShowBombs_clicked();
         }
     }
@@ -507,7 +509,9 @@ void A3PhotSimWin::on_pbSelectTracksFile_clicked()
 
 void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
 {
-    const QString FileName = ui->leTracksFile->text();
+    QString FileName = ui->leTracksFile->text();
+    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+
     QFile file(FileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text))
     {
@@ -565,7 +569,9 @@ void A3PhotSimWin::on_pbSelectStatisticsFile_clicked()
 }
 void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
 {
-    const QString FileName = ui->leStatisticsFile->text();
+    QString FileName = ui->leStatisticsFile->text();
+    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, FileName);
     if(!ok)
@@ -649,7 +655,9 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Photon);
 
-    const QString FileName = ui->leMonitorsFileName->text();
+    QString FileName = ui->leMonitorsFileName->text();
+    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, FileName);
     if(!ok)
@@ -1173,6 +1181,8 @@ void A3PhotSimWin::on_pbLoadAndShowBombs_clicked()
 
     BombFileSettings = new ABombFileSettings();
     BombFileSettings->FileName = ui->leBombsFile->text();
+    if (!BombFileSettings->FileName.contains('/'))
+        BombFileSettings->FileName = ui->leResultsWorkingDir->text() + '/' + BombFileSettings->FileName;
     BombFileHandler = new APhotonBombFileHandler(*BombFileSettings);
 
     AErrorHub::clear();
@@ -1276,3 +1286,8 @@ void A3PhotSimWin::on_cobShowBombsMode_activated(int)
     showBombs();
 }
 
+void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
+{
+    QString dir = guitools::dialogDirectory(this, "Select directory with photon data", SimSet.RunSet.OutputDirectory, true, false);
+    if (!dir.isEmpty()) ui->leResultsWorkingDir->setText(dir);
+}

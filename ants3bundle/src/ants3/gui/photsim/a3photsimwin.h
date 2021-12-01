@@ -130,6 +130,8 @@ private slots:
 
     void on_cobShowBombsMode_activated(int index);
 
+    void on_pbChangeWorkingDir_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

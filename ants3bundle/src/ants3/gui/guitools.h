@@ -22,6 +22,8 @@ namespace guitools
 
     QString dialogSaveFile(QWidget * parent, const QString & text, const QString & filePattern);
     QString dialogLoadFile(QWidget * parent, const QString & text, const QString & filePattern);
+
+    QString dialogDirectory(QWidget * parent, const QString & text, const QString & initialDir, bool DefaultRead = false, bool DefaultWrite = false);
 }
 
 #endif // GUITOOLS_H
