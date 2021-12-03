@@ -315,7 +315,7 @@ void APhotonSimulator::simulateIndividualPhotons()
         doBeforeEvent();
 
         APhoton phot;
-        while (PhotFileHandler->readNextPhotonOfSameEvent(phot))
+        while (PhotFileHandler->readNextRecordSameEvent(phot))
             Tracer->tracePhoton(phot);
         PhotFileHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
 

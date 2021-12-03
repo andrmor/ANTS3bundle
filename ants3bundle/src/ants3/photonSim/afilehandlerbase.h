@@ -27,7 +27,6 @@ public:
     bool readNextRecordSameEvent(ADataIOBase & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
-    virtual bool copyToFile(int fromEvent, int toEvent, const QString & fileName) = 0;
     bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
 
 protected:

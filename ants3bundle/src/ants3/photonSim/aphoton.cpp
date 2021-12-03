@@ -1,5 +1,9 @@
 #include "aphoton.h"
 #include "arandomhub.h"
+#include "aerrorhub.h"
+
+#include <QStringList>
+#include <QTextStream>
 
 #include "TMath.h"   // !!!*** remove?
 
@@ -63,4 +67,40 @@ void APhoton::generateRandomDir()
     v[0] = a * scale;
     v[1] = b * scale;
     v[2] = ( -1.0 + 8.0 * r2 );
+}
+
+void APhoton::writeAscii(QTextStream & stream) const
+{
+    //X Y Z dX dY dZ Time iWave
+    //0 1 2 3  4  5    6    7
+    stream << r[0]      << ' '
+           << r[1]      << ' '
+           << r[2]      << ' '
+           << v[0]      << ' '
+           << v[1]      << ' '
+           << v[2]      << ' '
+           << time      << ' '
+           << waveIndex
+           << '\n';
+}
+
+bool APhoton::readAscii(QString & line)
+{
+    const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
+    if (fields.size() < 8)
+    {
+        AErrorHub::addError("Format error in ascii photon record file (photon record)");
+        return false;
+    }
+    //X Y Z dX dY dZ Time iWave
+    //0 1 2 3  4  5    6    7
+    r[0]      =  fields[0].toDouble();
+    r[1]      =  fields[1].toDouble();
+    r[2]      =  fields[2].toDouble();
+    v[0]      =  fields[3].toDouble();
+    v[1]      =  fields[4].toDouble();
+    v[2]      =  fields[5].toDouble();
+    time      =  fields[6].toDouble();
+    waveIndex =  fields[7].toInt();
+    return true;
 }

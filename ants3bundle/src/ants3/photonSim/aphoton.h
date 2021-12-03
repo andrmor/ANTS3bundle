@@ -1,9 +1,11 @@
 #ifndef APHOTON
 #define APHOTON
 
+#include "adataiobase.h"
+
 class APhotonStatistics;
 
-class APhoton
+class APhoton : public ADataIOBase
 {
 public:
     APhoton();
@@ -18,6 +20,9 @@ public:
     void copyFrom(const APhoton & CopyFrom);
     void ensureUnitaryLength();
     void generateRandomDir(); // isotropic
+
+    void writeAscii(QTextStream & stream) const override;
+    bool readAscii(QString & line) override;
 };
 
 #endif // APHOTON
