@@ -3,6 +3,8 @@
 
 #include "adataiobase.h"
 
+class QString;
+
 class ANodeRecord : public ADataIOBase
 {
 public:
@@ -15,5 +17,7 @@ public:
 
     void writeAscii(QTextStream & stream) const override;
     bool readAscii(QString & line) override;
+
+    void print(QString & text) override;
 };
 #endif // ANODERECORD_H

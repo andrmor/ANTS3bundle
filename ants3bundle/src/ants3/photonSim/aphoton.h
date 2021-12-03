@@ -4,6 +4,7 @@
 #include "adataiobase.h"
 
 class APhotonStatistics;
+class QString;
 
 class APhoton : public ADataIOBase
 {
@@ -23,6 +24,8 @@ public:
 
     void writeAscii(QTextStream & stream) const override;
     bool readAscii(QString & line) override;
+
+    void print(QString & text) override;
 };
 
 #endif // APHOTON

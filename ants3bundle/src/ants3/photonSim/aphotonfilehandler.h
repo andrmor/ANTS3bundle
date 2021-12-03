@@ -2,7 +2,7 @@
 #define APHOTONFILEHANDLER_H
 
 #include "afilehandlerbase.h"
-#include "aphotonsimsettings.h" // !!!*** to cpp?
+#include "aphotonsimsettings.h"
 
 class APhoton;
 
@@ -12,7 +12,7 @@ public:
     APhotonFileHandler(APhotonFileSettings & settings);
 
 protected:
-    APhotonFileSettings & Settings; // !!!*** maybe base is enough? just for the future
+    APhotonFileSettings & Settings; // !!!*** maybe base is enough?
 };
 
 #endif // APHOTONFILEHANDLER_H

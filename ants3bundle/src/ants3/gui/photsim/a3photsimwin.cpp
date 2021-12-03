@@ -1095,9 +1095,16 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
     }
     updateBombFileGui();
 }
+#include "anoderecord.h"
 void A3PhotSimWin::on_pbNodeFilePreview_clicked()
 {
+    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
+    APhotonBombFileHandler fh(bset);
 
+    ANodeRecord rec;
+    QString text = fh.preview(rec, 100);
+
+    guitools::message1(text, "", this);
 }
 void A3PhotSimWin::on_pbNodeFileHelp_clicked()
 {

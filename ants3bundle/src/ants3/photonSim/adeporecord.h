@@ -3,6 +3,7 @@
 
 #include "adataiobase.h"
 #include "avector.h"
+
 #include <QString>
 
 class ADepoRecord : public ADataIOBase
@@ -23,6 +24,8 @@ public:
 
     //void writeBinary() const override;
     //bool readBinary() override;
+
+    void print(QString & text) override;
 };
 
 #endif // ADEPORECORD_H

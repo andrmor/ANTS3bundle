@@ -13,8 +13,6 @@ public:
 
     //bool checkFile(bool collectStatistics); // !!!*** add statistics!
 
-    bool copyToFile(int fromEvent, int toEvent, const QString & fileName) {}
-
 private:
     ABombFileSettings & Settings;
 };

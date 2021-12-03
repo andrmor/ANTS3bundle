@@ -14,6 +14,8 @@ public:
 
     //virtual void writeBinary() const;
     //virtual bool readBinary();
+
+    virtual void print(QString & text) = 0;
 };
 
 #endif // ARECORDBASE_H

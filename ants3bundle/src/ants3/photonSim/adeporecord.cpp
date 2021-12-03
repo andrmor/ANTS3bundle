@@ -33,3 +33,13 @@ bool ADepoRecord::readAscii(QString & line)
     Time     =  fields[6].toDouble();
     return true;
 }
+
+void ADepoRecord::print(QString & text)
+{
+    text += Particle + "  " +
+            QString("iMat:%0  ").arg(MatIndex) +
+            QString("Energy:%0keV  ").arg(Energy) +
+            QString("Pos:(%0,%1,%2)mm  ").arg(Pos[0]).arg(Pos[1]).arg(Pos[2]) +
+            QString("Time:%0ns\n").arg(Time);
+
+}

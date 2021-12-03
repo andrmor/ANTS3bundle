@@ -83,6 +83,22 @@ bool AFileHandlerBase::init()
 {
     clearResources();
 
+    if (!BaseSettings.isValidated())
+    {
+        determineFormat();
+
+        if (BaseSettings.FileFormat == AFileSettingsBase::Invalid)
+        {
+            AErrorHub::addQError("Cannot open file!");
+            return false;
+        }
+        if (BaseSettings.FileFormat == AFileSettingsBase::Undefined)
+        {
+            AErrorHub::addError("Invalid format of the file!");
+            return false;
+        }
+    }
+
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
         inStream = new std::ifstream(BaseSettings.FileName.toLatin1().data(), std::ios::in | std::ios::binary);
@@ -157,6 +173,15 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     return false;
 }
 
+bool AFileHandlerBase::atEnd() const
+{
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+        return true; // !!!***
+    else if (BaseSettings.FileFormat == AFileSettingsBase::Ascii)
+        return inTextStream->atEnd();
+    return true;
+}
+
 bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
 {
     if (EventEndReached) return false;
@@ -221,6 +246,33 @@ bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QStr
     }
 
     return true;
+}
+
+QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
+{
+    bool ok = init();
+    if (!ok) return AErrorHub::getQError();
+
+    QString text;
+
+    while (numLines > 0)
+    {
+        text += "#" + QString::number(CurrentEvent) + "\n";
+        numLines--;
+
+        while (readNextRecordSameEvent(buffer))
+        {
+            buffer.print(text);
+            numLines--;
+            if (numLines < 0) break;
+        }
+        acknowledgeNextEvent();
+        CurrentEvent++;
+
+        if (atEnd()) break;
+    }
+
+    return text;
 }
 
 void AFileHandlerBase::clearResources()

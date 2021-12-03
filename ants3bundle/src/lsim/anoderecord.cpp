@@ -39,3 +39,10 @@ bool ANodeRecord::readAscii(QString & line)
     NumPhot =  fields[4].toInt();
     return true;
 }
+
+void ANodeRecord::print(QString & text)
+{
+    text += QString("Pos:(%0,%1,%2)mm  ").arg(R[0]).arg(R[1]).arg(R[2]) +
+            QString("Time:%0ns  ").arg(Time) +
+            QString("Num:%0\n").arg(NumPhot);
+}

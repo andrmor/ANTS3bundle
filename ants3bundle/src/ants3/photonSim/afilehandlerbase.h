@@ -23,11 +23,14 @@ public:
 
     bool init();
     bool gotoEvent(int iEvent);
+    bool atEnd() const;
 
     bool readNextRecordSameEvent(ADataIOBase & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
     bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
+
+    QString preview(ADataIOBase & buffer, int numLines = 100);
 
 protected:
     AFileSettingsBase & BaseSettings;

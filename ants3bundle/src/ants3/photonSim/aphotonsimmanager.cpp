@@ -14,6 +14,7 @@
 #include "aphotonfilehandler.h"
 #include "aerrorhub.h"
 #include "anoderecord.h"
+#include "adeporecord.h"
 #include "aphoton.h"
 
 #include <QDir>
@@ -299,7 +300,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     break;
                 case EBombGen::Flood :
                     break;
-                case EBombGen::File :
+                case EBombGen::File : // refactor repeating code below to a method !!!***
                     WorkSet.BombSet.BombFileSettings.NumEvents = num;
                     WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;

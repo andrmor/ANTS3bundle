@@ -104,3 +104,11 @@ bool APhoton::readAscii(QString & line)
     waveIndex =  fields[7].toInt();
     return true;
 }
+
+void APhoton::print(QString & text)
+{
+    text += QString("Pos:(%0,%1,%2)mm  ").arg(r[0]).arg(r[1]).arg(r[2]) +
+            QString("Dir:(%0,%1,%2)  ").arg(v[0]).arg(v[1]).arg(v[2]) +
+            QString("Time:%0}ns  ").arg(time) +
+            QString("iWave:%0}\n").arg(waveIndex);
+}
