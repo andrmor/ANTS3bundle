@@ -13,6 +13,7 @@
 ADepositionFileHandler::ADepositionFileHandler(APhotonDepoSettings & depoSettings) :
     AFileHandlerBase(depoSettings), Settings(depoSettings) {}
 
+/*
 bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
 {
     if (EventEndReached) return false;
@@ -56,7 +57,9 @@ bool ADepositionFileHandler::readNextRecordOfSameEvent(ADepoRecord & record)
     }
     return true;
 }
+*/
 
+/*
 bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QString & fileName)
 {
     bool ok = gotoEvent(fromEvent);
@@ -105,7 +108,7 @@ bool ADepositionFileHandler::copyToFile(int fromEvent, int toEvent, const QStrin
 
     return true;
 }
-
+*/
 
 //while (!inTextStream->atEnd());
 /*

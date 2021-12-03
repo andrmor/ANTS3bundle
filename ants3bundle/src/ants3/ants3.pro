@@ -138,6 +138,7 @@ SOURCES += \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
     particleSim/atrackinghistorycrawler.cpp \
+    photonSim/adeporecord.cpp \
     photonSim/adepositionfilehandler.cpp \
     photonSim/afilehandlerbase.cpp \
     photonSim/afilesettingsbase.cpp \
@@ -282,6 +283,7 @@ HEADERS += \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
     particleSim/atrackinghistorycrawler.h \
+    photonSim/adataiobase.h \
     photonSim/adeporecord.h \
     photonSim/adepositionfilehandler.h \
     photonSim/afilehandlerbase.h \

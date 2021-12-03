@@ -1,5 +1,6 @@
 #include "afilehandlerbase.h"
 #include "aerrorhub.h"
+#include "adataiobase.h"
 #include "ajsontools.h"
 
 #include <QFile>
@@ -154,6 +155,72 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     }
 
     return false;
+}
+
+bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
+{
+    if (EventEndReached) return false;
+
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+    {
+        AErrorHub::addError("Binary depo not yet implemented");
+        return false;
+    }
+    else
+    {
+        if (inTextStream->atEnd())
+        {
+            EventEndReached = true;
+            return false;
+        }
+
+        LineText = inTextStream->readLine();
+        if (LineText.startsWith('#'))
+        {
+            EventEndReached = true;
+            return false;
+        }
+
+        return record.readAscii(LineText);
+    }
+}
+
+bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer)
+{
+    bool ok = gotoEvent(fromEvent);
+    if (!ok)
+    {
+        AErrorHub::addQError( QString("Bad start event index in depo file copy procedure: ").arg(fromEvent) );
+        return false;
+    }
+
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+    {
+        AErrorHub::addError("Binary depo not yet implemented");
+        return false;
+    }
+    else
+    {
+        QFile OutFile(fileName);
+        if (!OutFile.open(QIODevice::WriteOnly | QFile::Text))
+        {
+            AErrorHub::addQError( QString("Cannot open depo output file: " + fileName) );
+            return false;
+        }
+        QTextStream OutStream(&OutFile);
+
+        do
+        {
+            OutStream << '#' << CurrentEvent << '\n';
+            while (readNextRecordSameEvent(buffer))
+                buffer.writeAscii(OutStream);
+            CurrentEvent++;
+            acknowledgeNextEvent();
+        }
+        while (CurrentEvent != toEvent);
+    }
+
+    return true;
 }
 
 void AFileHandlerBase::clearResources()

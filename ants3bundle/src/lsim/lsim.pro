@@ -24,6 +24,7 @@ DEFINES += QT
 
 SOURCES += \
         ../ants3/geo/amonitorhub.cpp \
+        ../ants3/photonSim/adeporecord.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
         ../ants3/photonSim/afilehandlerbase.cpp \
         ../ants3/photonSim/afilesettingsbase.cpp \

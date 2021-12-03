@@ -12,9 +12,9 @@ public:
 
     //bool checkFile(bool collectStatistics); // !!!*** add statistics!
 
-    bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
+    //bool readNextRecordOfSameEvent(ADepoRecord & record); // returns false if event ended
 
-    bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
+    bool copyToFile(int fromEvent, int toEvent, const QString & fileName) {};
 
 private:
     APhotonDepoSettings & Settings;

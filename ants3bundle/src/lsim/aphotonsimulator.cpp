@@ -280,7 +280,7 @@ void APhotonSimulator::simulateFromDepo()
         if (SimSet.DepoSet.Primary) S1Gen->clearRemainer();
 
         ADepoRecord depoRec;
-        while (DepoHandler->readNextRecordOfSameEvent(depoRec))
+        while (DepoHandler->readNextRecordSameEvent(depoRec))
         {
             if (bStopRequested) break;
 

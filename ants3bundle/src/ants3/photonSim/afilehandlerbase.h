@@ -10,6 +10,7 @@ class ANodeRecord;
 class QFile;
 class QTextStream;
 class QJsonObject;
+class ADataIOBase;
 
 class AFileHandlerBase
 {
@@ -23,10 +24,11 @@ public:
     bool init();
     bool gotoEvent(int iEvent);
 
-    //bool readNext(??? & record); // returns false if event ended
+    bool readNextRecordSameEvent(ADataIOBase & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
     virtual bool copyToFile(int fromEvent, int toEvent, const QString & fileName) = 0;
+    bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
 
 protected:
     AFileSettingsBase & BaseSettings;

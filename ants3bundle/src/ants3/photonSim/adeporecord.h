@@ -1,10 +1,11 @@
 #ifndef ADEPORECORD_H
 #define ADEPORECORD_H
 
+#include "adataiobase.h"
 #include "avector.h"
 #include <QString>
 
-class ADepoRecord
+class ADepoRecord : public ADataIOBase
 {
 public:
     ADepoRecord(double energy, const AVector3 & pos, double time, const QString & particle, int matIndex) :
@@ -12,10 +13,16 @@ public:
     ADepoRecord(){}
 
     double   Energy; // in keV
-    AVector3 Pos;    // in mmm
+    AVector3 Pos;    // in mm
     double   Time;
     QString  Particle;
     int      MatIndex;
+
+    void writeAscii(QTextStream & stream) const override;
+    bool readAscii(QString & line) override;
+
+    //void writeBinary() const override;
+    //bool readBinary() override;
 };
 
 #endif // ADEPORECORD_H
