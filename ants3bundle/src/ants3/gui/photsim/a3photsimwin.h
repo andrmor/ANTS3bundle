@@ -116,6 +116,7 @@ private slots:
     void on_leSinglePhotonsFile_editingFinished();
     void on_pbChangeSinglePhotonsFile_clicked();
     void on_pbAnalyzeSinglePhotonsFile_clicked();
+    void on_pbViewSinglePhotFile_clicked();
     void on_pbSinglePhotonsHelp_clicked(); // !!!***
 
     void on_pbSelectBombsFile_clicked();
@@ -133,6 +134,10 @@ private slots:
     void on_pbChangeWorkingDir_clicked();
 
     void on_pbLoadAllResults_clicked();
+
+    void on_pbViewDepositionFile_clicked();
+
+    void on_pbHelpDepositionFile_clicked();
 
 private:
     APhotonSimSettings & SimSet;

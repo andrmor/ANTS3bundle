@@ -979,6 +979,18 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     }
     updateDepoGui();
 }
+#include "adeporecord.h"
+void A3PhotSimWin::on_pbViewDepositionFile_clicked()
+{
+    ADepositionFileHandler fh(SimSet.DepoSet);
+    ADepoRecord record;
+    QString text = fh.preview(record, 100);
+    guitools::message1(text, "", this);
+}
+void A3PhotSimWin::on_pbHelpDepositionFile_clicked()
+{
+
+}
 
 void A3PhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
@@ -1098,12 +1110,9 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
 #include "anoderecord.h"
 void A3PhotSimWin::on_pbNodeFilePreview_clicked()
 {
-    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
-    APhotonBombFileHandler fh(bset);
-
+    APhotonBombFileHandler fh(SimSet.BombSet.BombFileSettings);
     ANodeRecord rec;
     QString text = fh.preview(rec, 100);
-
     guitools::message1(text, "", this);
 }
 void A3PhotSimWin::on_pbNodeFileHelp_clicked()
@@ -1184,7 +1193,14 @@ void A3PhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
     }
     updatePhotonFileGui();
 }
-
+#include "aphoton.h"
+void A3PhotSimWin::on_pbViewSinglePhotFile_clicked()
+{
+    APhotonFileHandler fh(SimSet.PhotFileSet);
+    APhoton phot;
+    QString text = fh.preview(phot, 100);
+    guitools::message1(text, "", this);
+}
 void A3PhotSimWin::on_pbSinglePhotonsHelp_clicked()
 {
 

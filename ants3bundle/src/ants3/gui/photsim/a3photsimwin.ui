@@ -784,7 +784,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <enum>QFrame::Sunken</enum>
               </property>
               <property name="currentIndex">
-               <number>3</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="twSingleScan1Page1">
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -2308,7 +2308,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_43">
+             <layout class="QHBoxLayout" name="horizontalLayout_57">
               <property name="topMargin">
                <number>0</number>
               </property>
@@ -2326,6 +2326,53 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                 </property>
                </widget>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_65">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Number of events:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labDepositionEvents">
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_66">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_43">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
               <item>
                <spacer name="horizontalSpacer_50">
                 <property name="orientation">
@@ -2367,31 +2414,24 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="label_24">
+               <widget class="QPushButton" name="pbViewDepositionFile">
                 <property name="text">
-                 <string>Events:</string>
+                 <string>View</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="labDepositionEvents">
-                <property name="text">
-                 <string>--</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_49">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
+               <widget class="QPushButton" name="pbHelpDepositionFile">
+                <property name="maximumSize">
                  <size>
-                  <width>40</width>
-                  <height>20</height>
+                  <width>50</width>
+                  <height>16777215</height>
                  </size>
                 </property>
-               </spacer>
+                <property name="text">
+                 <string>?</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -2540,7 +2580,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_45">
+             <layout class="QHBoxLayout" name="horizontalLayout_58">
               <property name="topMargin">
                <number>0</number>
               </property>
@@ -2558,6 +2598,53 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                 </property>
                </widget>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_49">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_30">
+                <property name="text">
+                 <string>Number of events:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labSinglePhotonsEvents">
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_67">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_45">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
               <item>
                <spacer name="horizontalSpacer_51">
                 <property name="orientation">
@@ -2592,37 +2679,17 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="label_30">
+               <widget class="QPushButton" name="pbViewSinglePhotFile">
                 <property name="text">
-                 <string>Events:</string>
+                 <string>View</string>
                 </property>
                </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labSinglePhotonsEvents">
-                <property name="text">
-                 <string>--</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_53">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="pbSinglePhotonsHelp">
                 <property name="maximumSize">
                  <size>
-                  <width>25</width>
+                  <width>50</width>
                   <height>16777215</height>
                  </size>
                 </property>
