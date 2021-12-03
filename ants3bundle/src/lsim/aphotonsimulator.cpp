@@ -91,8 +91,6 @@ void APhotonSimulator::start()
     default:;
     }
 
-    if (bHardAbortWasTriggered) fSuccess = false;
-
     if (SimSet.RunSet.SaveStatistics)
     {
         QJsonObject json;
@@ -172,9 +170,10 @@ void APhotonSimulator::saveSensorSignals()
     *StreamSensorSignals << '\n';
 }
 
-void APhotonSimulator::savePhotonBomb(ANodeRecord * node)
+void APhotonSimulator::savePhotonBomb(ANodeRecord & node)
 {
-    *StreamPhotonBombs << node->R[0] << ' ' << node->R[1] << ' ' << node->R[2] << ' ' << node->Time << ' ' << node->NumPhot << '\n';
+    //*StreamPhotonBombs << node.R[0] << ' ' << node.R[1] << ' ' << node.R[2] << ' ' << node.Time << ' ' << node.NumPhot << '\n';
+    node.writeAscii(*StreamPhotonBombs);
 }
 
 void APhotonSimulator::reportProgress()
@@ -234,9 +233,6 @@ void APhotonSimulator::setupPhotonBombs()
 
 void APhotonSimulator::simulatePhotonBombs()
 {
-    bStopRequested = false;
-    bHardAbortWasTriggered = false;
-
     switch (SimSet.BombSet.GenerationMode)
     {
     case EBombGen::Single :
@@ -269,21 +265,15 @@ void APhotonSimulator::setupFromDepo()
 
 void APhotonSimulator::simulateFromDepo()
 {
-    bStopRequested = false;
-    bHardAbortWasTriggered = false;
-
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        Event->clearHits();
-        saveEventMarker();
+        doBeforeEvent();
 
         if (SimSet.DepoSet.Primary) S1Gen->clearRemainer();
 
         ADepoRecord depoRec;
         while (DepoHandler->readNextRecordSameEvent(depoRec))
         {
-            if (bStopRequested) break;
-
             //qDebug() << "aaaaaaaaaaaaaaaaaaaa" << CurrentEvent << depoRec.Particle << depoRec.Energy;
             if (SimSet.DepoSet.Primary)
             {
@@ -302,15 +292,10 @@ void APhotonSimulator::simulateFromDepo()
 
         DepoHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
 
-        Event->HitsToSignal();
-        if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
-
-        EventsDone++;
-        reportProgress();
+        doAfterEvent();
     }
-    //qDebug() << "Done!";
 
-    fSuccess = true; // !!!***
+    fSuccess = true;
 }
 
 // ---
@@ -325,32 +310,19 @@ void APhotonSimulator::setupIndividualPhotons()
 
 void APhotonSimulator::simulateIndividualPhotons()
 {
-    bStopRequested = false;
-    bHardAbortWasTriggered = false;
-
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        Event->clearHits();
-        saveEventMarker();
+        doBeforeEvent();
 
         APhoton phot;
         while (PhotFileHandler->readNextPhotonOfSameEvent(phot))
-        {
-            if (bStopRequested) break;
             Tracer->tracePhoton(phot);
-        }
-
         PhotFileHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
 
-        Event->HitsToSignal();
-        if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
-
-        EventsDone++;
-        reportProgress();
+        doAfterEvent();
     }
-    //qDebug() << "Done!";
 
-    fSuccess = true; // !!!***
+    fSuccess = true;
 }
 
 // ---
@@ -385,11 +357,11 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 
 bool APhotonSimulator::simulateSingle()
 {
-    const double * Position = SimSet.BombSet.SingleSettings.Position;
-    std::unique_ptr<ANodeRecord> node(ANodeRecord::createV(Position, 0, -1));
-
-    simulatePhotonBombCluster(*node);
-    if (bStopRequested) return false;
+    const double * r = SimSet.BombSet.SingleSettings.Position;
+    ANodeRecord node(r[0], r[1], r[2], 0, -1);
+    doBeforeEvent();
+    simulatePhotonBomb(node);
+    doAfterEvent();
     return true;
 }
 
@@ -427,7 +399,7 @@ bool APhotonSimulator::simulateGrid()
         }
     }
 
-    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    ANodeRecord node(0, 0, 0);
     CurrentEvent = -1;
     EventsDone = 0;
     int iAxis[3];
@@ -439,19 +411,18 @@ bool APhotonSimulator::simulateGrid()
                 if (CurrentEvent < SimSet.RunSet.EventFrom) continue;
                 if (CurrentEvent >= SimSet.RunSet.EventTo) return true;
 
-                for (int i = 0; i < 3; i++) node->R[i] = RegGridOrigin[i];
+                for (int i = 0; i < 3; i++) node.R[i] = RegGridOrigin[i];
                 //shift from the origin
                 for (int axis = 0; axis < 3; axis++)
                 {
                     double ioffset = 0;
                     if (!RegGridFlagPositive[axis]) ioffset = -0.5*( RegGridNodes[axis] - 1 );
-                    for (int i = 0; i < 3; i++) node->R[i] += (ioffset + iAxis[axis]) * RegGridStep[axis][i];
+                    for (int i = 0; i < 3; i++) node.R[i] += (ioffset + iAxis[axis]) * RegGridStep[axis][i];
                 }
 
-                simulatePhotonBombCluster(*node);
-
-                EventsDone++;
-                reportProgress();
+                doBeforeEvent();
+                simulatePhotonBomb(node);
+                doAfterEvent();
             }
 
     return true;
@@ -495,29 +466,29 @@ bool APhotonSimulator::simulateFlood()
         Zto =   FloodSet.Zto;
     }
 
-    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    ANodeRecord node(0, 0, 0);
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
         //qDebug() << "Simulating flood, Event#" << CurrentEvent;
         int Watchdog = AdvSet.MaxNodeAttempts;
         while (true)
         {
-            node->R[0] = Xfrom + (Xto - Xfrom) * RandomHub.uniform();
-            node->R[1] = Yfrom + (Yto - Yfrom) * RandomHub.uniform();
+            node.R[0] = Xfrom + (Xto - Xfrom) * RandomHub.uniform();
+            node.R[1] = Yfrom + (Yto - Yfrom) * RandomHub.uniform();
             if (FloodSet.Shape == AFloodSettings::Ring)
             {
-                double r2  = (node->R[0] - CenterX)*(node->R[0] - CenterX) + (node->R[1] - CenterY)*(node->R[1] - CenterY);
+                double r2  = (node.R[0] - CenterX)*(node.R[0] - CenterX) + (node.R[1] - CenterY)*(node.R[1] - CenterY);
                 if ( r2 > Rad2out || r2 < Rad2in )
                     continue;
             }
 
             if (FloodSet.Zmode == AFloodSettings::Fixed)
-                node->R[2] = Zfixed;
+                node.R[2] = Zfixed;
             else
-                node->R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
+                node.R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
 
-            if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node->R)) ||
-                 (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node->R)) )
+            if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
+                 (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node.R)) )
             {
                 Watchdog--;
                 if (Watchdog < 0)
@@ -532,10 +503,9 @@ bool APhotonSimulator::simulateFlood()
             break;
         }
 
-        simulatePhotonBombCluster(*node);
-
-        EventsDone++;
-        reportProgress();
+        doBeforeEvent();
+        simulatePhotonBomb(node);
+        doAfterEvent();
     }
     return true;
 }
@@ -565,17 +535,16 @@ bool APhotonSimulator::simulateBombsFromFile()
     ok = fh.gotoEvent(SimSet.RunSet.EventFrom);
     if (!ok) return false;
 
-    std::unique_ptr<ANodeRecord> node(ANodeRecord::createS(0, 0, 0));
+    ANodeRecord node;
     EventsDone = 0;
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        while (fh.readNextBombOfSameEvent(*node))
-            simulatePhotonBombCluster(*node);
+        doBeforeEvent();
+        while (fh.readNextRecordSameEvent(node))
+            simulatePhotonBomb(node);
+        doAfterEvent();
 
-        EventsDone++;
         fh.acknowledgeNextEvent();
-
-        reportProgress();
     }
 
     return true;
@@ -691,51 +660,46 @@ void APhotonSimulator::loadConfig()
     LOG.flush();
 }
 
-void APhotonSimulator::simulatePhotonBombCluster(ANodeRecord & node)
+void APhotonSimulator::doBeforeEvent()
 {
-    ANodeRecord * thisNode = &node;
-
-    const int numBombs = 1 + thisNode->getNumberOfLinkedNodes();
     Event->clearHits();
-
     saveEventMarker();
-
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
-    for (int iPoint = 0; iPoint < numBombs; iPoint++)
-    {
-        if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(thisNode->R)) ||
-             (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(thisNode->R)) )
-        {
-            thisNode->NumPhot = 0; // outside of the limiting volume/material
-        }
-        else
-        {
-            if (thisNode->NumPhot == -1)
-                thisNode->NumPhot = getNumPhotonsThisBomb();
-        }
-
-        generateAndTracePhotons(thisNode);
-
-        if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(thisNode);
-
-        //if exists, continue to work with the linked node(s)
-        thisNode = thisNode->getLinkedNode();
-        if (!thisNode) break; //paranoic
-    }
-
-    Event->HitsToSignal();
-
-    if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
 }
 
-void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
+void APhotonSimulator::doAfterEvent()
+{
+    Event->HitsToSignal();
+    if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
+    EventsDone++;
+    reportProgress();
+}
+
+void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
+{
+    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
+         (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node.R)) )
+    {
+        node.NumPhot = 0; // outside of the limiting volume/material
+    }
+    else
+    {
+        if (node.NumPhot == -1)
+            node.NumPhot = getNumPhotonsThisBomb();
+    }
+
+    generateAndTracePhotons(node);
+    if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
+}
+
+void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
 {
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
-    for (int i = 0; i < 3; i++) Photon.r[i] = node->R[i];
+    for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
 
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
-    for (int i = 0; i < node->NumPhot; i++)
+    for (int i = 0; i < node.NumPhot; i++)
     {
         // Direction
         if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
@@ -766,7 +730,7 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord * node)
             APhotonGenerator::generateWave(Photon, MatIndex); // else waveindex is already set
 
         // Time
-        Photon.time = node->Time;
+        Photon.time = node.Time;
         if (!AdvSet.bFixDecay)
             APhotonGenerator::generateTime(Photon, MatIndex);
         else

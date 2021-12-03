@@ -47,9 +47,7 @@ protected:
     int  EventsToDo  = 0;
     int  EventsDone  = 0;
 
-    bool bStopRequested = false;  // no need !!!***
-    bool bHardAbortWasTriggered = false; // no need !!!***
-    bool fSuccess;
+    bool fSuccess;  // need refactor? !!!***
 
     //output
     QFile       * FileSensorSignals   = nullptr;
@@ -80,8 +78,10 @@ private:
     void    terminate(const QString & reason);
 
     int     getNumPhotonsThisBomb();  // !!!*** custom
-    void    simulatePhotonBombCluster(ANodeRecord & node); // !!!***  cluster is not needed anynore? just single node?
-    void    generateAndTracePhotons(const ANodeRecord * node);
+    void    doBeforeEvent();
+    void    simulatePhotonBomb(ANodeRecord & node);
+    void    doAfterEvent();
+    void    generateAndTracePhotons(const ANodeRecord & node);
     bool    isInsideLimitingVolume(const double * r);    // no optimization: assuming they will not be used together \|
     bool    isInsideLimitingMaterial(const double * r);  // no optimization: assuming they will not be used together /|
 
@@ -93,8 +93,9 @@ private:
     QString openOutput();
     void    saveEventMarker();
     void    saveSensorSignals();
-    void    savePhotonBomb(ANodeRecord *node); // make a static method of the corresponding file handler !!!***
+    void    savePhotonBomb(ANodeRecord & node); // binary! !!!***
     void    reportProgress();
+
 
 private:
     TVector3 ColDirUnitary;

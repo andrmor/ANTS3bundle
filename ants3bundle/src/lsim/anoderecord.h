@@ -1,39 +1,19 @@
 #ifndef ANODERECORD_H
 #define ANODERECORD_H
 
-// The chain of linked nodes represents nodes of the same event
+#include "adataiobase.h"
 
-// !!!*** no need for forbidding direct constructor, there will be no more linked nodes!
-
-class ANodeRecord
+class ANodeRecord : public ADataIOBase
 {
 public:
-    static ANodeRecord* createS(double x, double y, double z, double time = 0, int numPhot = -1, ANodeRecord * rec= nullptr);
-    static ANodeRecord* createV(const double *r, double time = 0, int numPhot = -1, ANodeRecord * rec= nullptr);
-
-    void addLinkedNode(ANodeRecord * node); // ownership is transferred to the chain of linked node of this node
-
-    int    getNumberOfLinkedNodes() const;
-    ANodeRecord * getLinkedNode() const {return LinkedNode;}
-    double getX() const {return R[0];}
-    double getY() const {return R[1];}
-    double getZ() const {return R[2];}
-
-    ~ANodeRecord(); //deletes linked node
+    ANodeRecord(double x, double y, double z, double time = 0, int numPhot = -1);
+    ANodeRecord(){}
 
     double R[3];
     double Time = 0;
-    int    NumPhot = -1; // -1 means no override
+    int    NumPhot = -1; // -1 means use standard numPhotons according to simulation settings
 
-private:  // prevent creation on the stack and copy/move
-    ANodeRecord(double x, double y, double z, double time = 0, int numPhot = -1, ANodeRecord * rec = nullptr);
-    ANodeRecord(const double *r, double time = 0, int numPhot = -1, ANodeRecord * rec = nullptr);
-
-    ANodeRecord(const ANodeRecord &) = delete;
-    ANodeRecord & operator=(const ANodeRecord &) = delete;
-    ANodeRecord(ANodeRecord &&) = delete;
-    ANodeRecord & operator=(ANodeRecord &&) = delete;
-
-    ANodeRecord * LinkedNode = nullptr;
+    void writeAscii(QTextStream & stream) const override;
+    bool readAscii(QString & line) override;
 };
 #endif // ANODERECORD_H

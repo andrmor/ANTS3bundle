@@ -1,67 +1,41 @@
 #include "anoderecord.h"
+#include "aerrorhub.h"
 
-#include <QDebug>
+#include <QTextStream>
 
-ANodeRecord::ANodeRecord(double x, double y, double z, double time, int numPhot, ANodeRecord * rec) :
-    Time(time), NumPhot(numPhot), LinkedNode(rec)
+ANodeRecord::ANodeRecord(double x, double y, double z, double time, int numPhot) :
+    Time(time), NumPhot(numPhot)
 {
     R[0] = x;
     R[1] = y;
     R[2] = z;
 }
 
-ANodeRecord::ANodeRecord(const double * r, double time, int numPhot, ANodeRecord *rec) :
-    Time(time), NumPhot(numPhot), LinkedNode(rec)
+void ANodeRecord::writeAscii(QTextStream & stream) const
 {
-    for (int i=0; i<3; i++) R[i] = r[i];
+    //X Y Z Time Num
+    //0 1 2  3    4
+    stream << R[0]    << ' '
+           << R[1]    << ' '
+           << R[2]    << ' '
+           << Time    << ' '
+           << NumPhot << '\n';
 }
 
-ANodeRecord::~ANodeRecord()
+bool ANodeRecord::readAscii(QString & line)
 {
-    //delete LinkedNode;  // recursive call of the destructor kills the stack if too many
-
-    const int numNodes = getNumberOfLinkedNodes();
-    QVector<ANodeRecord*> allLinkedNodes;
-    allLinkedNodes.reserve(numNodes);
-
-    ANodeRecord * node = this;
-    while (node->LinkedNode)
+    const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
+    if (fields.size() < 5)
     {
-        ANodeRecord * ln = node->LinkedNode;
-        allLinkedNodes << ln;
-        node->LinkedNode = nullptr;
-        node = ln;
+        AErrorHub::addError("Format error in ascii depo file (deposition record)");
+        return false;
     }
-
-    for (ANodeRecord * node : allLinkedNodes)
-        delete node;
-}
-
-ANodeRecord *ANodeRecord::createS(double x, double y, double z, double time, int numPhot, ANodeRecord * rec)
-{
-    return new ANodeRecord(x, y, z, time, numPhot, rec);
-}
-
-ANodeRecord *ANodeRecord::createV(const double *r, double time, int numPhot, ANodeRecord *rec)
-{
-    return new ANodeRecord(r, time, numPhot, rec);
-}
-
-void ANodeRecord::addLinkedNode(ANodeRecord * node)
-{
-    ANodeRecord * n = this;
-    while (n->LinkedNode) n = n->LinkedNode;
-    n->LinkedNode = node;
-}
-
-int ANodeRecord::getNumberOfLinkedNodes() const
-{
-    int counter = 0;
-    const ANodeRecord * node = this;
-    while (node->LinkedNode)
-    {
-        counter++;
-        node = node->LinkedNode;
-    }
-    return counter;
+    //X Y Z Time Num
+    //0 1 2  3    4
+    R[0]    =  fields[0].toDouble();
+    R[1]    =  fields[1].toDouble();
+    R[2]    =  fields[2].toDouble();
+    Time    =  fields[3].toDouble();
+    NumPhot =  fields[4].toInt();
+    return true;
 }

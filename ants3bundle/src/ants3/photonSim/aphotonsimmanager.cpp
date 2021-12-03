@@ -13,6 +13,7 @@
 #include "aphotonbombfilehandler.h"
 #include "aphotonfilehandler.h"
 #include "aerrorhub.h"
+#include "anoderecord.h"
 
 #include <QDir>
 
@@ -301,7 +302,8 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     WorkSet.BombSet.BombFileSettings.NumEvents = num;
                     WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;
-                    bool ok = InFileHandler->copyToFile(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName);
+                    ANodeRecord buffer;
+                    bool ok = InFileHandler->copyToFileBuffered(WorkSet.RunSet.EventFrom, WorkSet.RunSet.EventTo, localFileName, buffer);
                     if (!ok) return false;
                     WorkSet.BombSet.BombFileSettings.LastModified = QFileInfo(localFileName).lastModified();
                     Worker.InputFiles.push_back(localFileName);

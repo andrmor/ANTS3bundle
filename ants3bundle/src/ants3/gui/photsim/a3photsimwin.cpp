@@ -1236,11 +1236,11 @@ void A3PhotSimWin::showBombs()
         // all events
         bool ok = BombFileHandler->init();
         if (!ok) return;
-        ANodeRecord * node = ANodeRecord::createS(0,0,0);  // !!!*** will be refactored
+        ANodeRecord node(0,0,0);
         for (int iEvent = 0; iEvent < BombFileSettings->NumEvents; iEvent++)
         {
-            while (BombFileHandler->readNextBombOfSameEvent(*node))
-                emit requestAddPhotonNodeGeoMarker(*node);
+            while (BombFileHandler->readNextRecordSameEvent(node))
+                emit requestAddPhotonNodeGeoMarker(node);
             BombFileHandler->acknowledgeNextEvent();
         }
     }
@@ -1271,9 +1271,9 @@ void A3PhotSimWin::showBombs()
             return;
         }
 
-        ANodeRecord * node = ANodeRecord::createS(0,0,0);  // !!!*** will be refactored
-        while (BombFileHandler->readNextBombOfSameEvent(*node))
-            emit requestAddPhotonNodeGeoMarker(*node);
+        ANodeRecord node(0,0,0);
+        while (BombFileHandler->readNextRecordSameEvent(node))
+            emit requestAddPhotonNodeGeoMarker(node);
     }
     emit requestShowGeoMarkers();
 }

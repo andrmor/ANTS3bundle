@@ -13,9 +13,7 @@ public:
 
     //bool checkFile(bool collectStatistics); // !!!*** add statistics!
 
-    bool readNextBombOfSameEvent(ANodeRecord & record); // returns false if event ended
-
-    bool copyToFile(int fromEvent, int toEvent, const QString & fileName);
+    bool copyToFile(int fromEvent, int toEvent, const QString & fileName) {}
 
 private:
     ABombFileSettings & Settings;
