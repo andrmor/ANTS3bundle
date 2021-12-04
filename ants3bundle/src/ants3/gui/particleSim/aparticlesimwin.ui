@@ -37,7 +37,7 @@
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
-        <string>Geant4 settings</string>
+        <string>Settings</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">

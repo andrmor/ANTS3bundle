@@ -1211,7 +1211,7 @@ void AScriptWindow::onRequestTabWidgetContextMenu(QPoint pos)
 void AScriptWindow::onScriptTabMoved(int from, int to)
 {
     //qDebug() << "Form->to:"<<from<<to;
-    std::vector<ATabRecord*> vec = getScriptTabs();
+    std::vector<ATabRecord*> & vec = getScriptTabs();
     std::swap(vec[from], vec[to]);
 
     iMarkedTab = -1;
