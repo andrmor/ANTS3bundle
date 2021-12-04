@@ -33,26 +33,29 @@ public slots:
     double  getTimeMark();
     QString getDateTimeStamp();
 
-    //save to file
-    bool createFile(QString fileName, bool AbortIfExists = true);
-    bool isFileExists(QString fileName);
+    // Basic io
+    void createFile(QString fileName);
+    bool isFileExist(QString fileName);
     bool deleteFile(QString fileName);
     bool createDir(QString path);
     QString getCurrentDir();
-    bool setCirrentDir(QString path);
-    bool save(QString fileName, QString str);
+    bool setCirrentDir(QString path); // !!!*** does it affect exec dir for worker processes?
+
+    // Text file
+    void    saveText(QString text, QString fileName, bool append);
+    QString loadText(QString fileName);
+
     bool saveArray(QString fileName, QVariantList array);
     void saveArrayBinary(const QString & fileName, const QVariantList & array, const QVariantList & format, bool append = false);
     bool saveObject(QString FileName, QVariant Object, bool CanOverride);
 
-    //load from file
+    // Load from file
     QVariant loadArray(QString fileName, int columns);
     QVariant loadArray(QString fileName);
     QVariantList loadArrayExtended(const QString & fileName, const QVariantList & format, int fromLine = 0, int untilLine = 1e6, bool bSkipComments = true);
     QVariantList loadArrayExtended3D(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom = 0, int recordsUntil = 1e6, bool bSkipComments = true);
     QVariantList loadArrayBinary(const QString & fileName, const QVariantList & format);
     QVariantList loadArrayExtended3Dbinary(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6);
-    QString  loadText(QString fileName);
     QVariant loadObject(QString fileName);
 
 //    QVariant loadArrayFromWeb(QString url, int msTimeout = 3000);

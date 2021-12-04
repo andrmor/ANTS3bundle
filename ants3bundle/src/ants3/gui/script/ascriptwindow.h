@@ -72,8 +72,8 @@ public:
     void registerInterfaces();
     void updateGui(); //highlighter, helper etc - call it to take into account all changes introduced by introduction of new interface units!
 
-    void WriteToJson(); // !!!***
-    void ReadFromJson(); // !!!***
+    void WriteToJson();
+    void ReadFromJson();
 
     void onBusyOn();
     void onBusyOff();
@@ -170,6 +170,7 @@ public slots:
     void clearOutput();
     void outputHtml(QString text);
     void outputText(QString text);
+    void outputAbortMessage(QString text);
 
     void onLoadRequested(QString NewScript);
     void onProgressChanged(int percent);

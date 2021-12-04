@@ -38,11 +38,10 @@ signals:
     void requestUpdateResultsGUI();
 
 private:
-    // !!!*** refactor to create base virtual class SimulationModeBase ?
     bool configureSimulation(const std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
     void processReply(const QJsonObject & json);
-    void removeOutputFiles();  // !!!*** also remov efiles in exchange
+    void removeOutputFiles();  // !!!*** also remove files in exchange
     void clearFileMergers();
     void mergeOutput();
 

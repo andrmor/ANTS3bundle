@@ -158,29 +158,39 @@ QString ACore_SI::getDateTimeStamp()
     return QDateTime::currentDateTime().toString("dd.MMM.yyyy H:m:s");
 }
 
-bool ACore_SI::save(QString fileName, QString str)
+void ACore_SI::saveText(QString text, QString fileName, bool append)
 {
-    if (!QFileInfo(fileName).exists())
+    if (append && !QFileInfo::exists(fileName))
     {
-        //abort("File does not exist: " + fileName);
-        qDebug() << "File does not exist: " << fileName;
-        return false;
+        abort("File does not exist: " + fileName);
+        return;
     }
 
     QFile file(fileName);
-    if ( !file.open(QIODevice::Append ) )
+    if ( !file.open(append ? QIODevice::Append : QIODevice::WriteOnly) )
     {
-        //abort("Cannot open file for appending:" + fileName);
-        qDebug() << "Cannot open file for appending:" << fileName;
-        return false;
+        abort("Cannot open file: " + fileName);
+        return;
     }
 
-    //qDebug() << str;
-    str.replace("<br>", "\n");
     QTextStream outstream(&file);
-    outstream << str;
-    return true;
+    outstream << text;
 }
+
+QString ACore_SI::loadText(QString fileName)
+{
+    if (!QFileInfo::exists(fileName))
+    {
+        abort("File does not exist: " + fileName);
+        return "";
+    }
+
+    QString str;
+    bool bOK = ftools::loadTextFromFile(str, fileName);
+    if (!bOK) abort("Error reading file: " + fileName);
+    return str;
+}
+
 
 bool ACore_SI::saveArray(QString fileName, QVariantList array)
 {
@@ -867,25 +877,6 @@ QVariantList ACore_SI::loadArrayExtended3Dbinary(const QString &fileName, char d
     return vl1;
 }
 
-QString ACore_SI::loadText(QString fileName)
-{
-    if (!QFileInfo(fileName).exists())
-    {
-        //abort("File does not exist: " + fileName);
-        qWarning() << "File does not exist: " << fileName;
-        return "";
-    }
-
-    QString str;
-    bool bOK = ftools::loadTextFromFile(str, fileName);
-    if (!bOK)
-    {
-        qWarning() << "Error reading file: " << fileName;
-        return "";
-    }
-    return str;
-}
-
 QVariant ACore_SI::loadObject(QString fileName)
 {
     QFile loadFile(fileName);
@@ -1027,30 +1018,14 @@ void ACore_SI::reportProgress(int percents)
 }
 */
 
-bool ACore_SI::createFile(QString fileName, bool AbortIfExists)
+void ACore_SI::createFile(QString fileName)
 {
-    if (QFileInfo(fileName).exists())
-    {
-        if (AbortIfExists)
-        {
-            //abort("File already exists: " + fileName);
-            qDebug() << "File already exists: " << fileName;
-            return false;
-        }
-    }
-
-    //create or clear content of the file
     QFile file(fileName);
     if ( !file.open(QIODevice::WriteOnly) )
-    {
-        //abort("Cannot open file: "+fileName);
-        qDebug() << "Cannot open file: " << fileName;
-        return false;
-    }
-    return true;
+        abort("Cannot open file: " + fileName);
 }
 
-bool ACore_SI::isFileExists(QString fileName)
+bool ACore_SI::isFileExist(QString fileName)
 {
     return QFileInfo(fileName).exists();
 }

@@ -17,9 +17,6 @@ public:
 
     AJScriptManager & getJScriptManager() {return *SM;}
 
-signals:
-    void showAbortMessage(QString message);
-
 private:
     AJScriptHub();
     ~AJScriptHub();
@@ -33,6 +30,7 @@ signals:
     //for gui
     void outputText(QString);
     void outputHtml(QString);
+    void showAbortMessage(QString message);
     void clearOutput();
 
 private:

@@ -300,7 +300,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
                     break;
                 case EBombGen::Flood :
                     break;
-                case EBombGen::File : // refactor repeating code below to a method !!!***
+                case EBombGen::File :
                     WorkSet.BombSet.BombFileSettings.NumEvents = num;
                     WorkSet.BombSet.BombFileSettings.FileName = QString("inBombs-%0").arg(iProcess);
                     QString localFileName = ExchangeDir + '/' + WorkSet.BombSet.BombFileSettings.FileName;

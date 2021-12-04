@@ -417,6 +417,12 @@ void AScriptWindow::outputText(QString text)
     qApp->processEvents();
 }
 
+void AScriptWindow::outputAbortMessage(QString text)
+{
+    pteOut->appendHtml("<p style='color:red;'>Aborted: " + text + "</p>");
+    qApp->processEvents();
+}
+
 void AScriptWindow::clearOutput()
 {
     pteOut->clear();
@@ -452,23 +458,17 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     QJSValue resSV = ScriptManager.getResult();
     QString  resStr = resSV.toString();
-    qDebug() << "Script returned:" << resStr;
+    //qDebug() << "Script returned:" << resStr;
 
     if (ScriptManager.isError())
-        reportError(resStr, ScriptManager.getErrorLineNumber());
+    {
+        if (!ScriptManager.isAborted())
+            reportError(resStr, ScriptManager.getErrorLineNumber());
+    }
     else
     {
-        //success
-        if (!ScriptManager.isAborted())
-        {
-            if (resStr != "undefined" && !resStr.isEmpty())
-                outputText(resStr);
-        }
-        else
-        {
-//            ShowText("Aborted!");
-        }
-        ui->pbRunScript->setIcon(QIcon()); //clear red icon
+        if (resStr != "undefined" && !resStr.isEmpty())
+            outputText(resStr);
     }
 
     ScriptManager.collectGarbage();
