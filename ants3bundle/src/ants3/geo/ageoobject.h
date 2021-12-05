@@ -30,7 +30,7 @@ public:
 
   AGeoType    * Type  = nullptr;  // always created in the constructor!
   AGeoShape   * Shape = nullptr;  // allowed to remain nullptr after construction!
-  AGeoSpecial * Role  = nullptr;   // mainly remains nullptr after construction!
+  AGeoSpecial * Role  = nullptr;  // mainly remains nullptr after construction!
 
   QString Name;
   int     Material = 0;

@@ -349,6 +349,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             case 1:
                 obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
                 break;
+            case 2:
+                obj->Role = new AGeoCalorimeter();
+                break;
+            case 3:
+                obj->Role = new AGeoSecScint();
+                break;
             default:;
             }
         }
@@ -642,6 +648,20 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
         {
             cobRole->setCurrentIndex(1);
             cobSensorModel->setCurrentIndex(sens->SensorModel);
+        }
+        else
+        {
+            AGeoCalorimeter * cal = dynamic_cast<AGeoCalorimeter*>(obj->Role);
+            if (cal)
+            {
+                cobRole->setCurrentIndex(2);
+                // ...
+            }
+            else
+            {
+                AGeoSecScint * sec = dynamic_cast<AGeoSecScint*>(obj->Role);
+                if (sec) cobRole->setCurrentIndex(3);
+            }
         }
     }
 }
