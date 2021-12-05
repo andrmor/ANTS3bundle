@@ -6,6 +6,7 @@
 #include "aphoton.h"
 #include "aphotongenerator.h"
 #include "amaterialhub.h"
+#include "adeporecord.h"
 
 #include <QDebug>
 
@@ -15,7 +16,7 @@ AS1Generator::AS1Generator(APhotonTracer & photonTracer) :
     RandomHub(ARandomHub::getInstance()),
     MatHub(AMaterialHub::getConstInstance()) {}
 
-bool AS1Generator::generate(ADepoRecord & rec)
+void AS1Generator::generate(ADepoRecord & rec)
 {
     const double PhotonYield = MatHub.getS1PhotonYield(rec.MatIndex, rec.Particle);
     const double EnergyRes   = MatHub.getS1IntrEnRes  (rec.MatIndex, rec.Particle);
@@ -46,6 +47,4 @@ bool AS1Generator::generate(ADepoRecord & rec)
 
         PhotonTracer.tracePhoton(Photon);
     }
-
-    return true;
 }

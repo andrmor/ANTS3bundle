@@ -72,6 +72,7 @@ SOURCES += \
         aphotonhistorylog.cpp \
         alogger.cpp \
         as1generator.cpp \
+        as2generator.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -129,4 +130,5 @@ HEADERS += \
     anoderecord.h \
     aphotongenerator.h \
     alogger.h \
-    as1generator.h
+    as1generator.h \
+    as2generator.h

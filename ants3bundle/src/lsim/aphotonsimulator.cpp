@@ -17,6 +17,7 @@
 #include "aphotonfilehandler.h"
 #include "aerrorhub.h"
 #include "as1generator.h"
+#include "as2generator.h"
 #include "ageometryhub.h"
 #include "aphotongenerator.h"
 
@@ -48,6 +49,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
 
 APhotonSimulator::~APhotonSimulator()
 {
+    delete S2Gen;
     delete S1Gen;
 
     delete PhotFileHandler;
@@ -261,20 +263,23 @@ void APhotonSimulator::setupFromDepo()
     if (!ok) terminate(AErrorHub::getQError());
 
     S1Gen = new AS1Generator(*Tracer);
+    S2Gen = new AS2Generator(*Tracer);
 }
 
+#include "adeporecord.h"
 void APhotonSimulator::simulateFromDepo()
 {
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
         doBeforeEvent();
 
-        if (SimSet.DepoSet.Primary) S1Gen->clearRemainer();
+        if (SimSet.DepoSet.Primary)   S1Gen->clearRemainer();
+        if (SimSet.DepoSet.Secondary) S2Gen->clearRemainer();
 
         ADepoRecord depoRec;
         while (DepoHandler->readNextRecordSameEvent(depoRec))
         {
-            //qDebug() << "aaaaaaaaaaaaaaaaaaaa" << CurrentEvent << depoRec.Particle << depoRec.Energy;
+            // error control in generators? !!!***
             if (SimSet.DepoSet.Primary)
             {
                 S1Gen->generate(depoRec);
@@ -282,9 +287,9 @@ void APhotonSimulator::simulateFromDepo()
                 //return false;
             }
 
-            if (SimSet.DepoSet.Secondary) // !!!***
+            if (SimSet.DepoSet.Secondary)
             {
-                //S2Gen->generate(depoRecord);
+                S2Gen->generate(depoRec);
                 //ErrorString = "Error executing S2 generation!";
                 //return false;
             }

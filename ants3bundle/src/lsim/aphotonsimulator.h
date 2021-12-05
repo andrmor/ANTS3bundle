@@ -18,6 +18,7 @@ class ARandomHub;
 class ADepositionFileHandler;
 class APhotonFileHandler;
 class AS1Generator;
+class AS2Generator;
 
 class APhotonSimulator : public QObject
 {
@@ -61,6 +62,7 @@ protected:
     APhotonFileHandler     * PhotFileHandler = nullptr;
 
     AS1Generator           * S1Gen           = nullptr;
+    AS2Generator           * S2Gen           = nullptr;
 
 private:
     void    loadConfig();
@@ -70,7 +72,7 @@ private:
     void    simulatePhotonBombs();
 
     void    setupFromDepo();
-    void    simulateFromDepo();
+    void    simulateFromDepo(); // !!!***
 
     void    setupIndividualPhotons();
     void    simulateIndividualPhotons();

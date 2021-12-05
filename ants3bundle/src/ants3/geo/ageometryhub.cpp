@@ -729,14 +729,15 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 {
     //  Photon tracer uses volume title for identification of special volumes
-    //  First character can be 'M' for monitor, 'S' for light sensor, 'G' for optical grid
+    //  First character can be 'M' for monitor, 'S' for light sensor, '2' for secondary scintillator, 'G' for optical grid
     //  * in the second (or third) places indicate that this volume has a defined optical interface rule from (or to)
 
     TString title = "---";
 
     if      (obj->Role)
     {
-         if (obj->Role->getType() == "Sensor")     title[0] = 'S';
+         if      (obj->Role->getType() == "Sensor")   title[0] = 'S';
+         else if (obj->Role->getType() == "SecScint") title[0] = '2';
     }
     else if (obj->Type->isMonitor())
     {

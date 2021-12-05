@@ -1,19 +1,18 @@
 #ifndef AS1GENERATOR_H
 #define AS1GENERATOR_H
 
-#include "adeporecord.h"
-
 class APhotonTracer;
 class APhotonSimSettings;
 class ARandomHub;
 class AMaterialHub;
+class ADepoRecord;
 
 class AS1Generator
 {
 public:
     AS1Generator(APhotonTracer & photonTracer);
 
-    bool generate(ADepoRecord & rec);
+    void generate(ADepoRecord & rec);
     void clearRemainer() {Remainer = 0;}
 
 private:
@@ -22,7 +21,7 @@ private:
     ARandomHub               & RandomHub;
     const AMaterialHub       & MatHub;
 
-    double Remainer = 0;
+    double Remainer = 0;  // is it still a good concept? !!!***
 };
 
 #endif // AS1GENERATOR_H
