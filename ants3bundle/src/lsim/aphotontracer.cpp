@@ -703,14 +703,14 @@ double APhotonTracer::CalculateReflectionCoefficient()
     }
 }
 
-void APhotonTracer::processSensorHit(int PMnumber)
+void APhotonTracer::processSensorHit(int iSensor)
 {
-    const bool fSiPM = SensorHub.isSiPM(PMnumber);
+    const ASensorModel * model = SensorHub.sensorModel(iSensor);
 
     double local[3];//if no area dep or not SiPM - local[0] and [1] are undefined!
-    if (SensorHub.isAreaResolvedPDE(PMnumber) || fSiPM)
+    if (model->XYSensitive || model->SiPM)
     {
-        const Double_t *global = Navigator->GetCurrentPoint();
+        const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);
         //qDebug()<<local[0]<<local[1];
     }
@@ -727,13 +727,13 @@ void APhotonTracer::processSensorHit(int PMnumber)
     if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandomHub.uniform(); //else already calculated
 
     bool bDetected;
-    if (fSiPM)
-        bDetected = Event.CheckSiPMhit(PMnumber, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
+    if (model->SiPM)
+        bDetected = Event.CheckSiPMhit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
     else
-        bDetected = Event.CheckPMThit(PMnumber, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
+        bDetected = Event.CheckPMThit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
 
     if (SimSet.RunSet.SavePhotonLog)
-        PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, PMnumber) );
+        PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
 }
 
 bool APhotonTracer::PerformRefraction(double nn) // nn = nFrom / nTo

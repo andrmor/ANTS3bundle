@@ -5,22 +5,30 @@
 
 void ASensorModel::clear()
 {
-    PDE.clear();
-    PDEbinned.clear();
-    EffectivePDE = 1.0;
+    Name = "_Undefined_";
 
-    EnableAngularSensitivity = false;
+    SiPM = false;
+    PixelsX = 50;
+    PixelsY = 50;
+
+    PDE_effective = 1.0;
+    PDE_spectral.clear();
+    PDEbinned.clear();
+
+    AngleSensitive = false;
     AngularFactors.clear();
     AngularSensitivityCosRefracted.clear();
-    AngularN1 = 1.0;
+    InterfaceN = 1.0;
 
-    EnableSpatialSensitivity = false;
-    SpatialFactors.clear();
+    XYSensitive = false;
+    XYFactors.clear();
     StepX = 1.0;
     StepY = 1.0;
+
+    DarkCountRate = 0;
 }
 
-void ASensorModel::writeToJson(QJsonObject &json) const
+void ASensorModel::writeToJson(QJsonObject & json) const
 {
     QJsonObject genj;
         genj["Name"] = Name;
@@ -34,26 +42,28 @@ void ASensorModel::writeToJson(QJsonObject &json) const
     json["SiPMproperties"] = sij;
 
     QJsonObject pdej;
-        pdej["PDE"] = EffectivePDE;
+        pdej["Effective"] = PDE_effective;
+        pdej["WaveSensitive"] = WaveSensitive;
         QJsonArray ar;
 //            writeTwoQVectorsToJArray(PDE_lambda, PDE, ar);
-        pdej["PDEwave"] = ar;
-    json["PDEproperties"] = pdej;
+        pdej["Spectral"] = ar;
+    json["PDE"] = pdej;
 
     QJsonObject angj;
-        angj["RefrIndexMeasure"] = AngularN1;
+        angj["AngleSensitive"] = AngleSensitive;
+        angj["InterfaceN"] = InterfaceN;
         QJsonArray ar1;
 //        writeTwoQVectorsToJArray(AngularSensitivity_lambda, AngularSensitivity, ar1);
-        angj["ResponseVsAngle"] = ar1;
+        angj["Data"] = ar1;
     json["AngularResponse"] = angj;
 
     QJsonObject areaj;
-        areaj["Enable"] = EnableSpatialSensitivity;
+        areaj["XYSensitive"] = XYSensitive;
         areaj["StepX"] = StepX;
         areaj["StepY"] = StepY;
         QJsonArray arar;
 //        write2DQVectorToJArray(AreaSensitivity, arar);
-        areaj["ResponseVsXY"] = arar;
+        areaj["Data"] = arar;
     json["AreaResponse"] = areaj;
 }
 
@@ -70,28 +80,31 @@ void ASensorModel::readFromJson(const QJsonObject &json)
     jstools::parseJson(sij, "PixelsY", PixelsY);
     jstools::parseJson(sij, "DarkCountRate", DarkCountRate);
 
-    QJsonObject pdej = json["PDEproperties"].toObject();
-    jstools::parseJson(pdej, "PDE", EffectivePDE);
-    if (pdej.contains("PDEwave"))
+    QJsonObject pdej = json["PDE"].toObject();
+    jstools::parseJson(pdej, "Effective", PDE_effective);
+    jstools::parseJson(pdej, "WaveSensitive", WaveSensitive);
+    if (pdej.contains("Spectral"))
     {
-        QJsonArray ar = pdej["PDEwave"].toArray();
+        QJsonArray ar = pdej["Data"].toArray();
 //        readTwoQVectorsFromJArray(ar, PDE_lambda, PDE);
     }
 
     if (json.contains("AngularResponse"))
     {
         QJsonObject angj = json["AngularResponse"].toObject();
-        jstools::parseJson(angj, "RefrIndexMeasure", AngularN1);
-        QJsonArray ar =  angj["ResponseVsAngle"].toArray();
+        jstools::parseJson(angj, "AngleSensitive", AngleSensitive);
+        jstools::parseJson(angj, "InterfaceN", InterfaceN);
+        QJsonArray ar =  angj["Data"].toArray();
 //        readTwoQVectorsFromJArray(ar, AngularSensitivity_lambda, AngularSensitivity);
     }
 
     if (json.contains("AreaResponse"))
     {
         QJsonObject areaj = json["AreaResponse"].toObject();
+        jstools::parseJson(areaj, "XYSensitive", XYSensitive);
         jstools::parseJson(areaj, "AreaStepX", StepX);
         jstools::parseJson(areaj, "AreaStepY", StepY);
-        QJsonArray ar = areaj["ResponseVsXY"].toArray();
+        QJsonArray ar = areaj["Data"].toArray();
 //        read2DQVectorFromJArray(ar, AreaSensitivity);
     }
 }

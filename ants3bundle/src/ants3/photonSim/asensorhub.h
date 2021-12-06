@@ -28,13 +28,11 @@ public:
     int countSensors() const {return SensorData.size();}
     int countSensorModels() const {return Models.size();}
 
-    const QStringList getListOfModelNames() const;
+    ASensorModel       * model(int iModel);               // can return nullptr
+    const ASensorModel * model(int iModel) const;         // can return nullptr
+    QStringList getListOfModelNames() const;
 
-    //temporary stubs
-    const ASensorModel & getModelFast(int iModel) const {return Models.front();}
-    bool isSiPM(int index) const {return false;}// !!!***
-    bool isAngularResolvedPDE(int index) const {return false;}// !!!***
-    bool isAreaResolvedPDE(int index) const {return false;}// !!!***
+    const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
 
     double getMaxQE() const;                // !!!***
     double getMaxQEvsWave(int iWave) const; // !!!***

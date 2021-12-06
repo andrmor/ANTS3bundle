@@ -78,7 +78,7 @@ private:
     enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
     AbsRayEnum AbsorptionAndRayleigh();   // !!!*** TOD: fix Rayleigh
     double CalculateReflectionCoefficient();
-    void processSensorHit(int PMnumber);
+    void processSensorHit(int iSensor);
     bool PerformRefraction(double nn);
     void PerformReflection();
     void RandomDir();   // !!!*** APhoton already has this method!
