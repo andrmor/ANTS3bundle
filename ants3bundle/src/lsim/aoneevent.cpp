@@ -143,14 +143,14 @@ bool AOneEvent::isHitsEmpty() const
 
 void AOneEvent::HitsToSignal()
 {
-    //PMsignals.resize(numPMs);
+    PMsignals.resize(numPMs);
 
 //    if (PMs->fDoDarkCounts) AddDarkCounts(); //add dark counts for all SiPMs
 
     convertHitsToSignal(PMhits, PMsignals);
 }
 
-void AOneEvent::convertHitsToSignal(const QVector<float> & pmHits, QVector<float> & pmSignals)
+void AOneEvent::convertHitsToSignal(const std::vector<float> & pmHits, std::vector<float> & pmSignals)
 {
 /*
     for (int ipm = 0; ipm < numPMs; ipm++)
@@ -220,7 +220,7 @@ void AOneEvent::convertHitsToSignal(const QVector<float> & pmHits, QVector<float
 */
 }
 
-void AOneEvent::AddDarkCounts() //currently applicable only for SiPMs!
+void AOneEvent::addDarkCounts() //currently applicable only for SiPMs!
 {
 /*
     for (int ipm = 0; ipm < numPMs; ipm++)

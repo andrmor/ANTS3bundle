@@ -56,7 +56,7 @@ APhotonSimulator::~APhotonSimulator()
     delete DepoHandler;
 
     if (FileSensorSignals) FileSensorSignals->close();
-    delete StreamSensorSignals;
+    delete StreamSensorHits;
     delete FileSensorSignals;
 
     if (FilePhotonBombs) FilePhotonBombs->close();
@@ -128,7 +128,7 @@ QString APhotonSimulator::openOutput()
     {
         FileSensorSignals = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameSensorSignals, this);
         if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + SimSet.RunSet.FileNameSensorSignals;
-        StreamSensorSignals = new QTextStream(FileSensorSignals);
+        StreamSensorHits = new QTextStream(FileSensorSignals);
     }
 
     if (SimSet.RunSet.SavePhotonBombs)
@@ -165,11 +165,10 @@ void APhotonSimulator::saveEventMarker()
     }
 }
 
-void APhotonSimulator::saveSensorSignals()
+void APhotonSimulator::saveSensorHits()
 {
-    for (auto sig : qAsConst(Event->PMhits))
-        *StreamSensorSignals << sig << ' ';
-    *StreamSensorSignals << '\n';
+    for (float sig : Event->PMhits) *StreamSensorHits << sig << ' ';
+    *StreamSensorHits << '\n';
 }
 
 void APhotonSimulator::savePhotonBomb(ANodeRecord & node)
@@ -673,8 +672,7 @@ void APhotonSimulator::doBeforeEvent()
 
 void APhotonSimulator::doAfterEvent()
 {
-    Event->HitsToSignal();
-    if (SimSet.RunSet.SaveSensorSignals) saveSensorSignals();
+    if (SimSet.RunSet.SaveSensorSignals) saveSensorHits();
     EventsDone++;
     reportProgress();
 }

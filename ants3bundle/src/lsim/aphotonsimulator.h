@@ -52,7 +52,7 @@ protected:
 
     //output
     QFile       * FileSensorSignals   = nullptr;
-    QTextStream * StreamSensorSignals = nullptr;
+    QTextStream * StreamSensorHits = nullptr;
     QFile       * FilePhotonBombs     = nullptr;
     QTextStream * StreamPhotonBombs   = nullptr;
     QFile       * FileTracks          = nullptr;
@@ -94,10 +94,9 @@ private:
 
     QString openOutput();
     void    saveEventMarker();
-    void    saveSensorSignals();
+    void    saveSensorHits();
     void    savePhotonBomb(ANodeRecord & node); // binary! !!!***
     void    reportProgress();
-
 
 private:
     TVector3 ColDirUnitary;
