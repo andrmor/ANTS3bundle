@@ -7,10 +7,11 @@
 #include <QSet>
 #include <QString>
 
+#include <vector>
+
 class AScriptManager;
 class CurveFit;
 
-enum class AArrayFormatEnum {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
 
 class ACore_SI : public AScriptInterface
 {
@@ -41,53 +42,56 @@ public slots:
     QString getCurrentDir();
     bool setCirrentDir(QString path); // !!!*** does it affect exec dir for worker processes?
 
-    // Text file
+    // Text
     void    saveText(QString text, QString fileName, bool append);
     QString loadText(QString fileName);
+    // !!!*** read line from file
 
-    bool saveArray(QString fileName, QVariantList array);
-    void saveArrayBinary(const QString & fileName, const QVariantList & array, const QVariantList & format, bool append = false);
-    bool saveObject(QString FileName, QVariant Object, bool CanOverride);
+    // Ascii array
+    void         saveArray(QVariantList array, QString fileName, bool append);
+    QVariantList loadNumericArray(QString fileName);
+    QVariantList loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine);
 
-    // Load from file
-    QVariant loadArray(QString fileName, int columns);
-    QVariant loadArray(QString fileName);
-    QVariantList loadArrayExtended(const QString & fileName, const QVariantList & format, int fromLine = 0, int untilLine = 1e6, bool bSkipComments = true);
-    QVariantList loadArrayExtended3D(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom = 0, int recordsUntil = 1e6, bool bSkipComments = true);
+    // Binary array
+    void         saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append);
     QVariantList loadArrayBinary(const QString & fileName, const QVariantList & format);
-    QVariantList loadArrayExtended3Dbinary(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6);
-    QVariant loadObject(QString fileName);
+
+    // 3D arrays
+    void         save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append);
+    QVariantList load3DArray(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom, int recordsUntil);
+    QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6);
+
+    // Object
+    void        saveObject(QVariantMap Object, QString FileName);
+    QVariantMap loadObject(QString fileName);
 
 //    QVariant loadArrayFromWeb(QString url, int msTimeout = 3000);
 
-    //dirs
-//    QString GetWorkDir();
-//    QString GetScriptDir();
-//    QString GetExamplesDir();
-
     //file finder
-    QVariant setNewFileFinder(const QString dir, const QString fileNamePattern);
-    QVariant getNewFiles();
+    QVariantList setNewFileFinder(const QString dir, const QString fileNamePattern);
+    QVariantList getNewFiles();
 
     QVariantList getDirectories(const QString dir, const QString dirNamePattern);
 
     //misc
-    void processEvents();
-//  void reportProgress(int percents);
+    QString getExamplesDir();
+    void    processEvents();
+//  void    reportProgress(int percents);
 
     const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
 private:
+    enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
     //file finder
     QSet<QString>   Finder_FileNames;
     QString         Finder_Dir;
     QString         Finder_NamePattern = "*.*";
 
     void addQVariantToString(const QVariant & var, QString & string) const;
-    void readFormattedLine(const QStringList &fields, const QVector<AArrayFormatEnum> &FormatSelector, QVariantList &el);
-    bool readFormat(const QVariantList &format, QVector<AArrayFormatEnum> &FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);
-    bool readFormattedBinaryLine(std::ifstream &inStream, const QVector<AArrayFormatEnum> &FormatSelector, QVariantList &el);
-    QString writeFormattedBinaryLine(std::ofstream &outStream, const QVector<AArrayFormatEnum> &FormatSelector, QVariantList &el);
+    void readFormattedLine(const QStringList &fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
+    bool readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);
+    bool readFormattedBinaryLine(std::ifstream &inStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
+    bool writeFormattedBinaryLine(std::ofstream &outStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el, QString &err);
 };
 
 #endif // ACORESCRIPTINTERFACE_H

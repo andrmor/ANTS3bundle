@@ -50,7 +50,7 @@ ACore_SI::ACore_SI()
                     "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
     Help["isFileExists"] = "Return true if file exists";
     Help["loadColumn"] = "Load a column with ascii numeric data from the file.\nSecond argument is the column number starting from 0.";
-    Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
+//    Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
     Help["evaluate"] = "Evaluate script during another script evaluation. See example ScriptInsideScript.txt";
 
     Help["setNewFileFinder"] = "Configurer for GetNewFiles() function. dir is the search directory, fileNamePattern: *.* for all files. Function return all filenames found.";
@@ -192,18 +192,18 @@ QString ACore_SI::loadText(QString fileName)
 }
 
 
-bool ACore_SI::saveArray(QString fileName, QVariantList array)
+void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
 {
-    if (!QFileInfo(fileName).exists())
+    if (append && !QFileInfo::exists(fileName))
     {
-        qDebug() << "File does not exist: " << fileName;
-        return false;
+        abort("File does not exist: " + fileName);
+        return;
     }
     QFile file(fileName);
-    if (!file.open(QIODevice::Append))
+    if ( !file.open(append ? QIODevice::Append : QIODevice::WriteOnly) )
     {
-        qDebug() << "Cannot open file for appending:" << fileName;
-        return false;
+        abort("Cannot open file: " + fileName);
+        return;
     }
 
     QTextStream s(&file);
@@ -213,27 +213,26 @@ bool ACore_SI::saveArray(QString fileName, QVariantList array)
         if (var.type() == QVariant::List)
         {
             QStringList sl = var.toStringList();
-            s << sl.join(" ");
+            s << sl.join(' ');
         }
         else s << var.toString();
-        s << "\n";
+        s << '\n';
     }
-    return true;
 }
 
-void ACore_SI::saveArrayBinary(const QString &fileName, const QVariantList &array, const QVariantList &format, bool append)
+void ACore_SI::saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append)
 {
-    QVector<AArrayFormatEnum> FormatSelector;
+    std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector, true);
     if (!bFormatOK)
     {
-        abort("'format' parameter should be an array of 's', 'i', 'd', 'f', 'c' or '' markers (string, int, double, float, char or skip, respectively)");
+        abort("Parameter 'format' should be an array of 's', 'i', 'd', 'f', 'c' or '' markers (string, int, double, float, char or skip, respectively)");
         return;
     }
 
     if (append)
     {
-        if (!QFileInfo(fileName).exists())
+        if ( !QFileInfo::exists(fileName) )
         {
             abort("File does not exist: " + fileName);
             return;
@@ -249,12 +248,13 @@ void ACore_SI::saveArrayBinary(const QString &fileName, const QVariantList &arra
         return;
     }
 
+    QString err;
     if (FormatSelector.size() == 1)
     {
         //array
-        if (FormatSelector.size() > array.size())
+        if ((int)FormatSelector.size() > array.size())
         {
-            abort("Format array is longer than the data array!");
+            abort("Format array is longer than the data array element!");
             return;
         }
 
@@ -262,8 +262,8 @@ void ACore_SI::saveArrayBinary(const QString &fileName, const QVariantList &arra
         {
             QVariantList vl;
             vl << array[iar];
-            QString err = writeFormattedBinaryLine(outStream, FormatSelector, vl);
-            if (!err.isEmpty())
+            bool ok = writeFormattedBinaryLine(outStream, FormatSelector, vl, err);
+            if (!ok)
             {
                 abort(err);
                 return;
@@ -276,13 +276,13 @@ void ACore_SI::saveArrayBinary(const QString &fileName, const QVariantList &arra
         for (int iar = 0; iar < array.size(); iar++)
         {
             QVariantList vl = array[iar].toList();
-            if (FormatSelector.size() > vl.size())
+            if ((int)FormatSelector.size() > vl.size())
             {
                 abort("Format array is longer than the data array!");
                 return;
             }
-            QString err = writeFormattedBinaryLine(outStream, FormatSelector, vl);
-            if (!err.isEmpty())
+            bool ok = writeFormattedBinaryLine(outStream, FormatSelector, vl, err);
+            if (!ok)
             {
                 abort(err);
                 return;
@@ -292,24 +292,9 @@ void ACore_SI::saveArrayBinary(const QString &fileName, const QVariantList &arra
     outStream.close();
 }
 
-bool ACore_SI::saveObject(QString FileName, QVariant Object, bool CanOverride)
+void ACore_SI::saveObject(QVariantMap Object, QString FileName)
 {
-    QString type = Object.typeName();
-    if (type != "QVariantMap")
-    {
-        qDebug() << "Not an object - cannot use saveObject function";
-        return false;
-    }
-
-    if (QFileInfo(FileName).exists() && !CanOverride)
-    {
-        //abort("File already exists: " + fileName);
-        qDebug() << "File already exists: " << FileName << " Skipping!";
-        return false;
-    }
-
-    QVariantMap mp = Object.toMap();
-    QJsonObject json = QJsonObject::fromVariantMap(mp);
+    QJsonObject json = QJsonObject::fromVariantMap(Object);
     QJsonDocument saveDoc(json);
 
     QFile saveFile(FileName);
@@ -318,113 +303,39 @@ bool ACore_SI::saveObject(QString FileName, QVariant Object, bool CanOverride)
         saveFile.write(saveDoc.toJson());
         saveFile.close();
     }
-    else
-    {
-        qDebug() << "Cannot open file for writing: " << FileName;
-        return false;
-    }
-    return true;
+    else abort("Cannot open file for writing: " + FileName);
 }
 
-QVariant ACore_SI::loadArray(QString fileName, int columns)
+QVariantList ACore_SI::loadNumericArray(QString fileName)
 {
-    QVariantList l;
-    if (columns == 0) return l;
+    QVariantList vl;
 
-    QVector< QVector<double>* > vec;
-    for (int i=0; i<columns; i++)
-        vec << new QVector<double>();
-
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, vec);
-    if (err.isEmpty())
-    {
-        for (int irow = 0; irow < vec.at(0)->size(); irow++)
-        {
-            QVariantList el;
-            for (int icol = 0; icol < columns; icol++)
-                el << vec.at(icol)->at(irow);
-            l.push_back(el);
-        }
-    }
-
-    for (QVector<double>* v : vec) delete v;
-
-    if (!err.isEmpty()) abort(err);
-
-    return l;
-
-    /*
-  if (columns<0 || columns>2)
-    {
-      abort ("Supported 1, 2 and 3 columns");
-      return QVariant();
-    }
-
-  if (!QFileInfo(fileName).exists())
-  {
-    abort("File does not exist: " + fileName);
-    return QVariant();
-  }
-
-  QVector<double> v1, v2, v3;
-  int res;
-  if (columns == 1)
-     res = LoadDoubleVectorsFromFile(fileName, &v1);
-  else if (columns == 2)
-     res = LoadDoubleVectorsFromFile(fileName, &v1, &v2);
-  else if (columns == 3)
-     res = LoadDoubleVectorsFromFile(fileName, &v1, &v2, &v3);
-
-  if (res != 0)
-      {
-        abort("Error reading from file: "+fileName);
-        return QVariant();
-      }
-
-  QList< QVariant > l;
-  for (int i=0; i<v1.size(); i++)
-    {
-      QList<QVariant> ll;
-      ll.append(v1[i]);
-      if (columns > 1) ll.append(v2[i]);
-      if (columns == 3) ll.append(v3[i]);
-
-      QVariant r = ll;
-      l << r;
-    }
-  return l;
-  */
-}
-
-QVariant ACore_SI::loadArray(QString fileName)
-{
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
-        return QVariant();
+        return vl;
     }
 
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text))
     {
         abort("Cannot open file: "+fileName);
-        return QVariant();
+        return vl;
     }
 
     QTextStream in(&file);
     QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
-    QVariantList vl;
-
-    while(!in.atEnd())
+    while (!in.atEnd())
     {
-        QString line = in.readLine();
+        const QString line = in.readLine();
+        if (line.startsWith('#') || line.startsWith("//")) continue; // it is a comment
 
-        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
-
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
         if (fields.isEmpty()) continue;
+
         bool bOK;
-        double first = fields.at(0).toDouble(&bOK);
+        double first = fields.at(0).toDouble(&bOK); // non-regular comments? !!!*** keep it?
         if (!bOK) continue;
 
         if (fields.size() == 1)
@@ -443,7 +354,7 @@ QVariant ACore_SI::loadArray(QString fileName)
     return vl;
 }
 
-bool ACore_SI::readFormat(const QVariantList & format, QVector<AArrayFormatEnum> & FormatSelector, bool AllowSkip, bool AllowEmptyFormatArray)
+bool ACore_SI::readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip, bool AllowEmptyFormatArray)
 {
     const int numEl = format.size();
     if (numEl == 0 && !AllowEmptyFormatArray) return false;
@@ -451,24 +362,24 @@ bool ACore_SI::readFormat(const QVariantList & format, QVector<AArrayFormatEnum>
     for (int i=0; i<format.size(); i++)
     {
         const QString f = format.at(i).toString();
-        AArrayFormatEnum   Option;
-        if      (f == "s") Option = AArrayFormatEnum::StringFormat;
-        else if (f == "i") Option = AArrayFormatEnum::IntFormat;
-        else if (f == "d") Option = AArrayFormatEnum::DoubleFormat;
-        else if (f == "f") Option = AArrayFormatEnum::FloatFormat;
-        else if (f == "c") Option = AArrayFormatEnum::CharFormat;
+        EArrayFormat   Option;
+        if      (f == "s") Option = StringFormat;
+        else if (f == "i") Option = IntFormat;
+        else if (f == "d") Option = DoubleFormat;
+        else if (f == "f") Option = FloatFormat;
+        else if (f == "c") Option = CharFormat;
         else if (f == "")
         {
-            if (AllowSkip) Option = AArrayFormatEnum::SkipFormat;
+            if (AllowSkip) Option = SkipFormat;
             else return false;
         }
         else return false;
-        FormatSelector << Option;
+        FormatSelector.push_back(Option);
     }
     return true;
 }
 
-void ACore_SI::readFormattedLine(const QStringList & fields, const QVector<AArrayFormatEnum> & FormatSelector, QVariantList & el)
+void ACore_SI::readFormattedLine(const QStringList & fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList & el)
 {
     for (int i=0; i<FormatSelector.size(); i++)
     {
@@ -476,40 +387,40 @@ void ACore_SI::readFormattedLine(const QStringList & fields, const QVector<AArra
 
         switch (FormatSelector.at(i))
         {
-        case AArrayFormatEnum::StringFormat:
+        case EArrayFormat::StringFormat:
             el.push_back(txt);
             break;
-        case AArrayFormatEnum::IntFormat:
+        case EArrayFormat::IntFormat:
             el.push_back(txt.toInt());
             break;
-        case AArrayFormatEnum::DoubleFormat:
+        case EArrayFormat::DoubleFormat:
             el.push_back(txt.toDouble());
             break;
-        case AArrayFormatEnum::FloatFormat:
+        case EArrayFormat::FloatFormat:
             el.push_back(txt.toFloat());
             break;
-        case AArrayFormatEnum::CharFormat:
+        case EArrayFormat::CharFormat:
             el.push_back(txt.toLatin1().at(0));
             break;
-        case AArrayFormatEnum::SkipFormat:
+        case EArrayFormat::SkipFormat:
             continue;
         }
     }
 }
 
-QVariantList ACore_SI::loadArrayExtended(const QString & fileName, const QVariantList & format, int fromLine, int untilLine, bool bSkipComments)
+QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine)
 {
     QVariantList vl;
 
-    QVector<AArrayFormatEnum> FormatSelector;
+    std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector);
     if (!bFormatOK)
     {
-        abort("'format' parameter should be an array of 's', 'i', 'd' or '' markers (string, int, double and skip_field, respectively)");
+        abort("Parameter 'format' should be an array of 's', 'i', 'd' or '' markers (string, int, double and skip_field, respectively)");
         return vl;
     }
 
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
         return vl;
@@ -518,7 +429,7 @@ QVariantList ACore_SI::loadArrayExtended(const QString & fileName, const QVarian
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-        abort("Cannot open file: "+fileName);
+        abort("Cannot open file: " + fileName);
         return vl;
     }
 
@@ -527,22 +438,17 @@ QVariantList ACore_SI::loadArrayExtended(const QString & fileName, const QVarian
 
     const int numEl = FormatSelector.size();
     int iLine = -1;
-    while(!in.atEnd())
+    while (!in.atEnd())
     {
         iLine++;
         if (iLine >= untilLine) break;
 
-        QString line = in.readLine();
+        const QString line = in.readLine();
         if (iLine < fromLine) continue;
 
-        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
         if (fields.isEmpty()) continue;
-        if (bSkipComments)
-        {
-            const QString & first = fields.first();
-            if (first.startsWith('#') || first.startsWith("//")) continue;
-        }
-
+        if (line.startsWith('#') || line.startsWith("//")) continue;  // comment  !!!*** keep?
         if (fields.size() < numEl) continue;
 
         QVariantList el;
@@ -554,19 +460,19 @@ QVariantList ACore_SI::loadArrayExtended(const QString & fileName, const QVarian
     return vl;
 }
 
-QVariantList ACore_SI::loadArrayExtended3D(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool bSkipComments)
+QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil)
 {
     QVariantList vl1;
 
-    QVector<AArrayFormatEnum> FormatSelector;
+    std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector);
     if (!bFormatOK)
     {
-        abort("'format' parameter should be an array of 's', 'i', 'd' or '' markers (string, int, double and skip_field, respectively)");
+        abort("Parameter 'format' should be an array of 's', 'i', 'd' or '' markers (string, int, double and skip_field, respectively)");
         return vl1;
     }
 
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
         return vl1;
@@ -620,11 +526,6 @@ QVariantList ACore_SI::loadArrayExtended3D(const QString &fileName, const QStrin
 
         if (bSkippingRecords) continue;
 
-        if (bSkipComments)
-        {
-            if (first.startsWith('#') || first.startsWith("//")) continue;
-        }
-
         if (fields.size() < numEl) continue;
 
         QVariantList el3;
@@ -637,13 +538,13 @@ QVariantList ACore_SI::loadArrayExtended3D(const QString &fileName, const QStrin
     return vl1;
 }
 
-bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<AArrayFormatEnum> & FormatSelector, QVariantList & el)
+bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList & el)
 {
     for (int i=0; i<FormatSelector.size(); i++)
     {
         switch (FormatSelector.at(i))
         {
-        case AArrayFormatEnum::StringFormat:
+        case EArrayFormat::StringFormat:
         {
             QString str;
             char ch;
@@ -656,7 +557,7 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
             el.push_back(str);
             break;
         }
-        case AArrayFormatEnum::IntFormat:
+        case EArrayFormat::IntFormat:
         {
             int v;
             inStream.read((char*)&v, sizeof(int));
@@ -664,7 +565,7 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
             el.push_back(v);
             break;
         }
-        case AArrayFormatEnum::DoubleFormat:
+        case EArrayFormat::DoubleFormat:
         {
             double v;
             inStream.read((char*)&v, sizeof(double));
@@ -672,7 +573,7 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
             el.push_back(v);
             break;
         }
-        case AArrayFormatEnum::FloatFormat:
+        case EArrayFormat::FloatFormat:
         {
             float v;
             inStream.read((char*)&v, sizeof(float));
@@ -680,7 +581,7 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
             el.push_back(v);
             break;
         }
-        case AArrayFormatEnum::CharFormat:
+        case EArrayFormat::CharFormat:
         {
             char v;
             inStream >> v;
@@ -688,7 +589,7 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
             el.push_back(v);
             break;
         }
-        case AArrayFormatEnum::SkipFormat:
+        case EArrayFormat::SkipFormat:
             continue;
         }
     }
@@ -696,70 +597,81 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const QVector<A
     return !inStream.fail();
 }
 
-QString ACore_SI::writeFormattedBinaryLine(std::ofstream & outStream, const QVector<AArrayFormatEnum> & FormatSelector, QVariantList & el)
+bool ACore_SI::writeFormattedBinaryLine(std::ofstream & outStream, const std::vector<EArrayFormat> & FormatSelector, QVariantList & el, QString & err)
 {
     bool ok;
-    for (int i=0; i<FormatSelector.size(); i++)
+    for (size_t i = 0; i < FormatSelector.size(); i++)
     {
         switch (FormatSelector.at(i))
         {
-        case AArrayFormatEnum::StringFormat:
+        case StringFormat:
         {
-            QString str = el[i].toString();
-
+            const QString str = el[i].toString();
             for (int iStr = 0; iStr < str.length(); iStr++)
                 outStream << str[iStr].toLatin1();
             outStream << '\0';
             break;
         }
-        case AArrayFormatEnum::IntFormat:
+        case IntFormat:
         {
-            int v = el[i].toInt(&ok);
-            if (!ok) return "Write binary line to file: error in convesion to int";
+            const int v = el[i].toInt(&ok);
+            if (!ok)
+            {
+                err = "Write binary line to file: error in convesion to int";
+                return false;
+            }
             outStream.write((char*)&v, sizeof(int));
             break;
         }
-        case AArrayFormatEnum::DoubleFormat:
+        case DoubleFormat:
         {
-            double v = el[i].toDouble(&ok);
-            if (!ok) return "Write binary line to file: error in convesion to double";
+            const double v = el[i].toDouble(&ok);
+            if (!ok)
+            {
+                err = "Write binary line to file: error in convesion to double";
+                return false;
+            }
             outStream.write((char*)&v, sizeof(double));
             break;
         }
-        case AArrayFormatEnum::FloatFormat:
+        case FloatFormat:
         {
-            float v = el[i].toFloat(&ok);
-            if (!ok) return "Write binary line to file: error in convesion to float";
+            const float v = el[i].toFloat(&ok);
+            if (!ok)
+            {
+                err = "Write binary line to file: error in convesion to float";
+                return false;
+            }
             outStream.write((char*)&v, sizeof(float));
             break;
         }
-        case AArrayFormatEnum::CharFormat:
+        case CharFormat:
         {
-            char v = el[i].toChar().toLatin1();
+            const char v = el[i].toChar().toLatin1();
             outStream << v;
             break;
         }
-        case AArrayFormatEnum::SkipFormat:
+        case SkipFormat:
             continue;
         }
     }
 
-    return "";
+    return true;
 }
 
 QVariantList ACore_SI::loadArrayBinary(const QString &fileName, const QVariantList &format)
 {
     QVariantList vl1;
 
-    QVector<AArrayFormatEnum> FormatSelector;
+    std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector, false);
     if (!bFormatOK)
     {
-        abort("'format' parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
+        abort("Parameter 'format' should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
         return vl1;
     }
 
-    if (!QFileInfo(fileName).exists())
+    if ( !QFileInfo::exists(fileName) )
     {
         abort("File does not exist: " + fileName);
         return vl1;
@@ -793,26 +705,76 @@ QVariantList ACore_SI::loadArrayBinary(const QString &fileName, const QVariantLi
     return vl1;
 }
 
-QVariantList ACore_SI::loadArrayExtended3Dbinary(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom, int recordsUntil)
+void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append)
+{
+    if (array.size() != topLevelLabels.size())
+    {
+        abort("Mismatch in the sizes of the array and topLevelLabels");
+        return;
+    }
+
+    if (append && !QFileInfo::exists(fileName))
+    {
+        abort("File does not exist: " + fileName);
+        return;
+    }
+    QFile file(fileName);
+    if ( !file.open(append ? QIODevice::Append : QIODevice::WriteOnly) )
+    {
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    QTextStream stream(&file);
+    for (int i1 = 0; i1 < array.size(); i1++)
+    {
+        //header of the event
+        stream << topLevelSeparator;
+        const QVariant & var = topLevelLabels[i1];
+        if (var.type() == QVariant::List)
+        {
+            const QStringList sl = var.toStringList();
+            stream << sl.join(' ');
+        }
+        else stream << var.toString();
+        stream << '\n';
+
+        //data
+        QVariantList second = array[i1].toList();
+        for (int i2 = 0; i2 < second.size(); i2++)
+        {
+            const QVariant & var = second[i2];
+            if (var.type() == QVariant::List)
+            {
+                const QStringList sl = var.toStringList();
+                stream << sl.join(' ');
+            }
+            else stream << var.toString();
+            stream << '\n';
+        }
+    }
+}
+
+QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom, int recordsUntil)
 {
     QVariantList vl1;
 
-    QVector<AArrayFormatEnum> DataFormatSelector;
+    std::vector<EArrayFormat> DataFormatSelector;
     bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false);
     if (!bFormatOK)
     {
-        abort("'dataFormat' parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
+        abort("Parameter 'dataFormat' should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
         return vl1;
     }
-    QVector<AArrayFormatEnum> SeparatorFormatSelector;
+    std::vector<EArrayFormat> SeparatorFormatSelector;
     bFormatOK = readFormat(separatorFormat, SeparatorFormatSelector, false, true);
     if (!bFormatOK)
     {
-        abort("'separatorFormat' parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
+        abort("Parameter 'separatorFormat' should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
         return vl1;
     }
 
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
         return vl1;
@@ -877,13 +839,13 @@ QVariantList ACore_SI::loadArrayExtended3Dbinary(const QString &fileName, char d
     return vl1;
 }
 
-QVariant ACore_SI::loadObject(QString fileName)
+QVariantMap ACore_SI::loadObject(QString fileName)
 {
     QFile loadFile(fileName);
     if (!loadFile.open(QIODevice::ReadOnly))
     {
         qWarning() << "Cannot open file " + fileName;
-        return QVariant();
+        return QVariantMap();
     }
 
     QByteArray saveData = loadFile.readAll();
@@ -939,31 +901,13 @@ QVariant ACore_SI::loadArrayFromWeb(QString url, int msTimeout)
 }
 */
 
-/*
-QString ACore_SI::GetWorkDir()
+#include "a3global.h"
+QString ACore_SI::getExamplesDir()
 {
-    if (!ScriptManager->LastOpenDir) return QString();
-    else return *ScriptManager->LastOpenDir;
+    return A3Global::getConstInstance().ExamplesDir;
 }
-*/
 
-/*
-QString ACore_SI::GetScriptDir()
-{
-    if (!ScriptManager->LibScripts) return QString();
-    else return *ScriptManager->LibScripts;
-}
-*/
-
-/*
-QString ACore_SI::GetExamplesDir()
-{
-    if (!ScriptManager->ExamplesDir) return QString();
-    else return *ScriptManager->ExamplesDir;
-}
-*/
-
-QVariant ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePattern)
+QVariantList ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePattern)
 {
     Finder_Dir = dir;
     Finder_NamePattern = fileNamePattern;
@@ -981,7 +925,7 @@ QVariant ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePat
     return res;
 }
 
-QVariant ACore_SI::getNewFiles()
+QVariantList ACore_SI::getNewFiles()
 {
     QVariantList newFiles;
     QDir d(Finder_Dir);
