@@ -8,6 +8,7 @@
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
 #include "a3matwin.h"
+#include "asensorwindow.h"
 #include "a3photsimwin.h"
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
@@ -51,7 +52,8 @@ MainWindow::MainWindow() :
     MatWin->initWindow();
 
     RuleWin = new AInterfaceRuleWin(this);
-    RuleWin->updateGui();
+
+    SensWin = new ASensorWindow(this);
 
     PhotSimWin = new A3PhotSimWin(this);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin, &AGeometryWindow::ShowGeometry);
@@ -224,5 +226,12 @@ void MainWindow::on_leConfigName_editingFinished()
 void MainWindow::on_pteConfigDescription_textChanged()
 {
     Config.ConfigDescription = ui->pteConfigDescription->document()->toPlainText();
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    SensWin->showNormal();
+    SensWin->activateWindow();
+    SensWin->updateGui();
 }
 

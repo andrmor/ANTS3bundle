@@ -12,6 +12,14 @@ const ASensorHub &ASensorHub::getConstInstance()
     return getInstance();
 }
 
+int ASensorHub::countSensorsOfModel(int iModel) const
+{
+    int num = 0;
+    for (const ASensorData & dat : SensorData)
+        if (dat.ModelIndex == iModel) num++;
+    return num;
+}
+
 QStringList ASensorHub::getListOfModelNames() const
 {
     QStringList list;
@@ -38,6 +46,32 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     const int & iModel = SensorData[iSensor].ModelIndex;
     if (iModel < 0 || iModel >= (int)Models.size()) return nullptr;
     return &Models[iModel];
+}
+
+void ASensorHub::addNewModel()
+{
+    Models.push_back(ASensorModel());
+}
+
+void ASensorHub::cloneModel(int iModel)
+{
+    if (iModel < 0 || iModel >= (int)Models.size()) return;
+    ASensorModel newModel = Models[iModel];
+    newModel.Name += "_Clone";
+    Models.push_back(newModel);
+}
+
+QString ASensorHub::removeModel(int iModel)
+{
+    if (iModel < 0 || iModel >= (int)Models.size())
+        return "Invalid model index";
+    if (Models.size() < 2)
+        return "Cannot remove the last model";
+    if (countSensorsOfModel(iModel) > 0)
+        return "Cannot remove: there are sensors of this model";
+
+    Models.erase(Models.begin() + iModel);
+    return "";
 }
 
 double ASensorHub::getMaxQEvsWave(int iWave) const

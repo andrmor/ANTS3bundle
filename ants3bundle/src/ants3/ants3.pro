@@ -110,6 +110,7 @@ SOURCES += \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
+    gui/photsim/asensorwindow.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptwindow.cpp \
     gui/script/atextedit.cpp \
@@ -254,6 +255,7 @@ HEADERS += \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
+    gui/photsim/asensorwindow.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptwindow.h \
     gui/script/atextedit.h \
@@ -358,6 +360,7 @@ HEADERS += \
 
 FORMS += \
         gui/ademowindow.ui \
+        gui/photsim/asensorwindow.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \
         gui/farm/aremotewindow.ui \

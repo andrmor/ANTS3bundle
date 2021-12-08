@@ -9,7 +9,7 @@ class QJsonObject;
 class ASensorModel
 {
 public:
-    ASensorModel(const QString & Name = "") : Name(Name) {}
+    ASensorModel(const QString & Name = "NoName") : Name(Name) {}
 
     QString Name;
 

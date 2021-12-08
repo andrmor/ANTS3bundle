@@ -10,6 +10,7 @@ class AConfig;
 class A3GeoConWin;
 class AGeometryWindow;
 class A3MatWin;
+class ASensorWindow;
 class A3PhotSimWin;
 class AInterfaceRuleWin;
 class GraphWindowClass;
@@ -36,6 +37,7 @@ private:
     A3GeoConWin       * GeoConWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
     A3MatWin          * MatWin     = nullptr;
+    ASensorWindow     * SensWin    = nullptr;
     A3PhotSimWin      * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     GraphWindowClass  * GraphWin   = nullptr;
@@ -66,6 +68,7 @@ private slots:
     void on_pbSaveConfig_clicked();
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

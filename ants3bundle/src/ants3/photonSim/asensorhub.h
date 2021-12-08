@@ -25,14 +25,20 @@ public:
     static ASensorHub & getInstance();
     static const ASensorHub & getConstInstance();
 
-    int countSensors() const {return SensorData.size();}
     int countSensorModels() const {return Models.size();}
+    int countSensors() const {return SensorData.size();}
+    int countSensorsOfModel(int iModel) const;
 
     ASensorModel       * model(int iModel);               // can return nullptr
     const ASensorModel * model(int iModel) const;         // can return nullptr
     QStringList getListOfModelNames() const;
 
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
+
+    void addNewModel();
+    void cloneModel(int iModel);
+
+    QString removeModel(int iModel);
 
     double getMaxQE() const;                // !!!***
     double getMaxQEvsWave(int iWave) const; // !!!***
