@@ -48,6 +48,8 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     return &Models[iModel];
 }
 
+
+
 void ASensorHub::addNewModel()
 {
     Models.push_back(ASensorModel());

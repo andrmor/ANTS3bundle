@@ -25,8 +25,7 @@ public:
     //hits processing
     void clearHits();
     bool isHitsEmpty() const;
-    bool CheckPMThit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd);
-    bool CheckSiPMhit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd);
+    bool checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd);
     void HitsToSignal();  //convert hits of PMs to signal using electronics settings
 
     //  void addHits(int ipm, float hits) {PMhits[ipm] += hits;}

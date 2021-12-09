@@ -108,3 +108,9 @@ void ASensorModel::readFromJson(const QJsonObject &json)
 //        read2DQVectorFromJArray(ar, AreaSensitivity);
     }
 }
+
+double ASensorModel::getPDE(int iWave) const
+{
+    if (iWave == -1 || PDEbinned.empty()) return PDE_effective;
+    return PDEbinned[iWave];
+}

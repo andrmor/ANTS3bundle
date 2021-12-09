@@ -20,6 +20,7 @@ public:
     double  PDE_effective = 1.0;
     bool    WaveSensitive = false;
     std::vector<std::pair<double,double>> PDE_spectral;
+    double  getPDE(int iWave) const;
 
     bool    AngleSensitive = false;
     std::vector<std::pair<double,double>> AngularFactors;
@@ -31,6 +32,7 @@ public:
     double  StepY = 1.0;
 
     double  DarkCountRate = 0; //per ns
+
 
     void    clear();
 

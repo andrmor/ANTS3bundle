@@ -706,6 +706,12 @@ double APhotonTracer::CalculateReflectionCoefficient()
 void APhotonTracer::processSensorHit(int iSensor)
 {
     const ASensorModel * model = SensorHub.sensorModel(iSensor);
+    if (!model)
+    {
+        // !!!*** report error!
+        qWarning() << "Unknown server index or non existent sensor model" << iSensor;
+        exit(222);
+    }
 
     double local[3];//if no area dep or not SiPM - local[0] and [1] are undefined!
     if (model->XYSensitive || model->SiPM)
@@ -726,11 +732,7 @@ void APhotonTracer::processSensorHit(int iSensor)
 
     if (!SimSet.OptSet.CheckQeBeforeTracking) rnd = RandomHub.uniform(); //else already calculated
 
-    bool bDetected;
-    if (model->SiPM)
-        bDetected = Event.CheckSiPMhit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
-    else
-        bDetected = Event.CheckPMThit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
+    const bool bDetected = Event.checkSensorHit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
 
     if (SimSet.RunSet.SavePhotonLog)
         PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
