@@ -40,6 +40,7 @@ void ASensorWindow::updateGui()
 
 void ASensorWindow::on_cobModel_activated(int index)
 {
+    if (index == -1) return;
     ASensorModel * mod = SensHub.model(index);
     if (!mod)
     {

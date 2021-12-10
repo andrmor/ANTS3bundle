@@ -29,10 +29,10 @@ public:
     // Geometry config is handled by AGeometryHub    singleton
     // Material config is handled by AMaterialHub    singleton
     // Optical interface rules    -> AOpticalRileHub singleton
-    // SensorHub      -> TODO
+    // SensorHub   config is handled by ASensorHub   singleton
 
-    // ParticleSim    -> TODO
-    // PhotonSim config is handled by APhotonSimHub singleton
+    // ParticleSim config is handled by AParticleSimHub singleton
+    // PhotonSim   config is handled by APhotonSimHub   singleton
 
     // Reconstruction
     // AReconHub      -> TODO

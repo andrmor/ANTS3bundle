@@ -516,9 +516,15 @@ void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, 
         switch (onWhat)
         {
         case PMs :
-            centerPos = SensorHub.SensorData[iObj].Position;
-            size      = SensorHub.SensorData[iObj].GeoObj->Shape->minSize();    // !!!*** expand minSize for other shapes!!!
+          {
+            const ASensorModel * sensorModel = SensorHub.sensorModel(iObj);
+            if (sensorModel)
+            {
+                centerPos = SensorHub.SensorData[iObj].Position;
+                size      = SensorHub.SensorData[iObj].GeoObj->Shape->minSize();    // !!!*** expand minSize for other shapes!!!
+            }
             break;
+          }
         case PhotMons :
             centerPos = MonitorHub.PhotonMonitors[iObj].Position;
             size      = MonitorHub.PhotonMonitors[iObj].GeoObj->Shape->minSize();

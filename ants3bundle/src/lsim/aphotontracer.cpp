@@ -714,7 +714,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     }
 
     double local[3];//if no area dep or not SiPM - local[0] and [1] are undefined!
-    if (model->XYSensitive || model->SiPM)
+    if (model->isXYSensitive() || model->SiPM)
     {
         const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);

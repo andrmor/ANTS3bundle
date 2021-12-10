@@ -18,26 +18,25 @@ public:
     int     PixelsY = 50;
 
     double  PDE_effective = 1.0;
-    bool    WaveSensitive = false;
     std::vector<std::pair<double,double>> PDE_spectral;
     double  getPDE(int iWave) const;
 
-    bool    AngleSensitive = false;
     std::vector<std::pair<double,double>> AngularFactors;
     double  InterfaceN = 1.0; // refractive index of the interfacing medium where sensor object was positioned to measure the angular response
 
-    bool    XYSensitive = false;
     std::vector<std::vector<double>> XYFactors;
-    double  StepX = 1.0;   // in mm
-    double  StepY = 1.0;
+    double  StepX = 1.0;       // in mm
+    double  StepY = 1.0;       // in mm
+    bool    isXYSensitive() const {return !XYFactors.empty();}
 
     double  DarkCountRate = 0; //per ns
 
+    void    updateRuntimeProperties();
 
     void    clear();
 
     void    writeToJson(QJsonObject & json) const;  // !!! ***
-    void    readFromJson(const QJsonObject & json); // !!!***
+    bool    readFromJson(const QJsonObject & json); // !!!***
 
     //runtime
     std::vector<double> PDEbinned;

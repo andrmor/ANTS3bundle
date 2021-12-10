@@ -63,7 +63,7 @@ void AConfig::writeToJson(QJsonObject & json) const
     AMaterialHub::getInstance().writeToJson(json);
     AGeometryHub::getInstance().writeToJson(json);
     AInterfaceRuleHub::getInstance().writeToJson(json);
-    ASensorHub::getConstInstance().writeToJson(json); // !!!***
+    ASensorHub::getConstInstance().writeToJson(json);
 
     APhotonSimHub::getConstInstance().writeToJson(json);
     AParticleSimHub::getConstInstance().writeToJson(json);
@@ -107,7 +107,8 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     Error = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
 
-    // !!!*** SensorHub
+    Error = ASensorHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return Error;
 
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;

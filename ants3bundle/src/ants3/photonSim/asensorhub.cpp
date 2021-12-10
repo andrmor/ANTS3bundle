@@ -48,8 +48,6 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     return &Models[iModel];
 }
 
-
-
 void ASensorHub::addNewModel()
 {
     Models.push_back(ASensorModel());
@@ -76,6 +74,22 @@ QString ASensorHub::removeModel(int iModel)
     return "";
 }
 
+bool ASensorHub::updateRuntimeProperties()
+{
+    for (ASensorData & sd : SensorData)
+    {
+        const int & index = sd.ModelIndex;
+        if (index < 0 || index >= Models.size())
+        {
+            // !!!*** error reporting
+            qCritical() << "Bad sensor model index:" << index;
+            exit(222);
+        }
+        ASensorModel & model = Models[index];
+        model.updateRuntimeProperties();
+    }
+}
+
 double ASensorHub::getMaxQEvsWave(int iWave) const
 {
     return 1.0;
@@ -88,12 +102,45 @@ double ASensorHub::getMaxQE() const
 
 void ASensorHub::writeToJson(QJsonObject & json) const
 {
-
+    QJsonObject mainJs;
+        QJsonArray ar;
+        for (const ASensorModel & m : Models)
+        {
+            QJsonObject js;
+            m.writeToJson(js);
+            ar.push_back(js);
+        }
+        mainJs["Models"] = ar;
+    json["Sensors"] = mainJs;
 }
 
 QString ASensorHub::readFromJson(const QJsonObject & json)
 {
-    return "";
+    Models.clear();
+
+    QJsonObject mainJs;
+    bool ok = jstools::parseJson(json, "Sensors", mainJs);
+    if (!ok)
+    {
+        qWarning() << "No sensor data, adding a dummy sensor";
+        Models.push_back(ASensorModel());
+        return "";
+    }
+
+    QJsonArray ar;
+    jstools::parseJson(mainJs, "Models", ar);
+    Models.reserve(ar.size());
+
+    QString err;
+    for (int i = 0; i < ar.size(); i++)
+    {
+        const QJsonObject js = ar[i].toObject();
+        ASensorModel model;
+        bool ok = model.readFromJson(js);
+        if (!ok) err = "Bad format of sensor model json";
+        Models.push_back(model);
+    }
+    return err;
 }
 
 ASensorHub::ASensorHub()

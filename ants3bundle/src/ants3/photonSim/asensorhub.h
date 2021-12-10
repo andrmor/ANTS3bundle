@@ -31,18 +31,21 @@ public:
 
     ASensorModel       * model(int iModel);               // can return nullptr
     const ASensorModel * model(int iModel) const;         // can return nullptr
+
     QStringList getListOfModelNames() const;
 
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
     const ASensorModel * sensorModelFast(int iSensor) const {return &Models[SensorData[iSensor].ModelIndex];}
 
-    void addNewModel();
-    void cloneModel(int iModel);
+    void    addNewModel();
+    void    cloneModel(int iModel);
 
     QString removeModel(int iModel);
 
-    double getMaxQE() const;                // !!!***
-    double getMaxQEvsWave(int iWave) const; // !!!***
+    double  getMaxQE() const;                // !!!***
+    double  getMaxQEvsWave(int iWave) const; // !!!***
+
+    bool    updateRuntimeProperties();
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
@@ -60,7 +63,7 @@ private:
     std::vector<ASensorModel> Models;
 
 public:
-    // runtime - populated together with GeoManager
+    // runtime - populated together with GeoManager, updated by updateRuntimeProperties()
     std::vector<ASensorData> SensorData;
 
 };
