@@ -146,76 +146,61 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, QJsonObject
     else return false;
 }
 
-/*
-bool jstools::writeTwoQVectorsToJArray(const QVector<double> &x, const QVector<double> &y, QJsonArray &ar)
+void jstools::writeDPairVectorToArray(const std::vector<std::pair<double,double> > & vec, QJsonArray & ar)
 {
-    if (x.size() != y.size())
-    {
-        qWarning() << "Vectors mismatch!";
-        return false;
-    }
-
-    for (int i=0; i<x.size(); i++)
+    for (auto const & pair : vec)
     {
         QJsonArray el;
-        el.append(x[i]);
-        el.append(y[i]);
-        ar.append(el);
+            el.append(pair.first);
+            el.append(pair.second);
+        ar.push_back(el);
     }
-    return true;
 }
 
-bool jstools::readTwoQVectorsFromJArray(QJsonArray &ar, QVector<double> &x, QVector<double> &y)
+bool jstools::readDPairVectorFromArray(const QJsonArray & ar, std::vector<std::pair<double, double>> & vec)
 {
-    x.clear();
-    y.clear();
+    vec.clear();
 
-    for (int i=0; i<ar.size(); i++)
+    const int size = ar.size();
+    for (int i = 0; i < size; i++)
     {
-        if ( !ar.at(i).isArray() ) return false;
+        if ( !ar[i].isArray() ) return false;
 
-        QJsonArray jar = ar.at(i).toArray();
+        const QJsonArray jar = ar.at(i).toArray();
         if (jar.size() < 2) return false;
 
-        double X = jar.at(0).toDouble();
-        x.append(X);
-        double Y = jar.at(1).toDouble();
-        y.append(Y);
+        vec.emplace_back(jar[0].toDouble(), jar[1].toDouble());
     }
     return true;
 }
 
-bool jstools::write2DQVectorToJArray(const QVector<QVector<double> > &xy, QJsonArray &ar)
+void jstools::writeDVectorOfVectorsToArray(const std::vector<std::vector<double> > & vec, QJsonArray & ar)
 {
-    for (int i1=0; i1<xy.size(); i1++)
+    for (auto const & v1 : vec)
     {
         QJsonArray el;
-        for (int i2=0; i2<xy[i1].size(); i2++) el.append(xy[i1][i2]);
-        ar.append(el);
+            for (auto const & v : v1) el.append(v);
+        ar.push_back(el);
     }
-    return true;
 }
 
-void jstools::read2DQVectorFromJArray(QJsonArray &ar, QVector<QVector<double> > &xy)
+bool jstools::readDVectorOfVectorsFromArray(const QJsonArray & ar, std::vector<std::vector<double> > & vec)
 {
-    xy.resize(ar.size());
-    for (int i1=0; i1<xy.size(); i1++)
+    vec.clear();
+
+    const int size1 = ar.size();
+    vec.reserve(size1);
+    for (int i1 = 0; i1 < size1; i1++)
     {
-        QJsonArray el = ar[i1].toArray();
-        for (int i2=0; i2<el.size(); i2++)
-            xy[i1].append( el[i2].toDouble());
-    }
-}
-*/
+        if ( !ar[i1].isArray() ) return false;
+        const QJsonArray jar = ar[i1].toArray();
 
-/*
-bool jstools::isContainAllKeys(QJsonObject json, QStringList keys)
-{
-    for (QString key : keys)
-        if (!json.contains(key)) return false;
+        std::vector<double> el(jar.size());
+            for (int i2 = 0; i2 < jar.size(); i2++) el[i2] = jar[i2].toDouble();
+        vec.push_back(el);
+    }
     return true;
 }
-*/
 
 QJsonObject jstools::strToJson(const QString &s)
 {

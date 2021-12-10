@@ -41,17 +41,15 @@ QJsonObject regularTh2dToJson(TH2D * hist);
 bool        parseJson(const QJsonObject & json, const QString & name, TH1D* & distr);
 bool        parseJson(const QJsonObject & json, const QString & name, TH2D* & distr);
 
-TH1D *      jsonToRegularTh1D(const QJsonObject & json);
-TH2D *      jsonToRegularTh2D(const QJsonObject & json);
+TH1D      * jsonToRegularTh1D(const QJsonObject & json);
+TH2D      * jsonToRegularTh2D(const QJsonObject & json);
 
-/*
-bool writeTwoQVectorsToJArray(const QVector<double> &x, const QVector<double> &y, QJsonArray &ar);
-bool readTwoQVectorsFromJArray(QJsonArray &ar, QVector<double> &x, QVector<double> &y);
-bool write2DQVectorToJArray(const QVector<QVector<double> > &xy, QJsonArray &ar);
-void read2DQVectorFromJArray(QJsonArray &ar, QVector<QVector<double> > &xy);
-*/
+void        writeDPairVectorToArray(const std::vector<std::pair<double, double>> & vec, QJsonArray & ar);
+bool        readDPairVectorFromArray(const QJsonArray & ar, std::vector<std::pair<double, double>> & vec);
 
-//bool isContainAllKeys(QJsonObject json, QStringList keys);
+void        writeDVectorOfVectorsToArray(const std::vector<std::vector<double>> & vec, QJsonArray & ar);
+bool        readDVectorOfVectorsFromArray(const QJsonArray & ar, std::vector<std::vector<double>> & vec);
+
 }
 
 #endif // AJSONTOOLS_H
