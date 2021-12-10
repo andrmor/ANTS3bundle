@@ -60,6 +60,9 @@ void ASensorWindow::on_cobModel_activated(int index)
     ui->pbShowBinnedPDE->setEnabled(bHaveSpectral);
 
     ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
+    ui->sbPixelsX->setValue(mod->PixelsX);
+    ui->sbPixelsY->setValue(mod->PixelsY);
+    updateNumPixels();
 }
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
@@ -129,5 +132,34 @@ void ASensorWindow::on_cobSensorType_activated(int index)
     if (!mod) return;
 
     mod->SiPM = (index == 1);
+}
+
+void ASensorWindow::on_sbPixelsX_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PixelsX = ui->sbPixelsX->value();
+    updateNumPixels();
+}
+void ASensorWindow::on_sbPixelsY_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PixelsY = ui->sbPixelsY->value();
+    updateNumPixels();
+}
+
+void ASensorWindow::updateNumPixels()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    int num = mod->PixelsX * mod->PixelsY;
+    ui->labNumPixels->setText(QString::number(num));
 }
 

@@ -30,13 +30,15 @@ private slots:
     void on_pbRemoveModel_clicked();
     void on_leModelName_editingFinished();
     void on_ledEffectivePDE_editingFinished();
-
-
     void on_cobSensorType_activated(int index);
+    void on_sbPixelsX_editingFinished();
+    void on_sbPixelsY_editingFinished();
 
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
+
+    void updateNumPixels();
 };
 
 #endif // ASENSORWINDOW_H
