@@ -2,7 +2,7 @@
 #define APHOTONHISTORYLOG_H
 
 #include <QString>
-
+#include "TString.h"
 
 class APhotonHistoryLog
 {
@@ -18,12 +18,12 @@ public:
                   };
 
 public:
-    APhotonHistoryLog(const double * Position, const QString & volumeName, double Time, int iWave, NodeType process, int MatIndex = -1, int MatIndexAfter = -1, int number = -1);
+    APhotonHistoryLog(const double * Position, const TString & volumeName, double Time, int iWave, NodeType process, int MatIndex = -1, int MatIndexAfter = -1, int number = -1);
     APhotonHistoryLog() : process(Undefined), iWave(-1) {}
 
     NodeType process;
     double r[3];        //position xyz
-    QString volumeName;
+    TString volumeName;
     double time;
     int matIndex;       //material index of the medium
     int matIndexAfter;  //material index of the medium after interface (if applicable)
@@ -32,8 +32,8 @@ public:
 
     QString print() const;
 
-    static const QString GetProcessName(int nodeType);
-    static const QString PrintAllProcessTypes();
+    static QString GetProcessName(int nodeType);
+    static QString PrintAllProcessTypes();
 };
 
 #endif // APHOTONHISTORYLOG_H

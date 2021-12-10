@@ -413,7 +413,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
     if (Counter == SimSet.OptSet.MaxPhotonTransitions) SimStat.MaxTransitions++;
 
     //here all tracing terminators end
-force_stop_tracing:
+force_stop_tracing: // !!!*** make it onStopTracking() method
     if (SimSet.RunSet.SavePhotonLog) AppendHistoryRecord(); //Add tracks is also there, it has extra filtering   !!!*** not parallel!!!
     if (SimSet.RunSet.SaveTracks)    saveTrack();
 
@@ -446,20 +446,22 @@ void APhotonTracer::AppendHistoryRecord()
     const APhotonLogSettings & LogSet = SimSet.RunSet.LogSet;
     bool bVeto = false;
     //by process
-    if (!LogSet.MustNotInclude_Processes.isEmpty())
+    if (!LogSet.MustNotInclude_Processes.empty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( LogSet.MustNotInclude_Processes.contains(PhLog[i].process) )
+            //if ( LogSet.MustNotInclude_Processes.contains(PhLog[i].process) )
+            if ( LogSet.MustNotInclude_Processes.find(PhLog[i].process) != LogSet.MustNotInclude_Processes.end() )
             {
                 bVeto = true;
                 break;
             }
     }
     //by Volume
-    if (!bVeto && !LogSet.MustNotInclude_Volumes.isEmpty())
+    if (!bVeto && !LogSet.MustNotInclude_Volumes.empty())
     {
         for (int i=0; i<PhLog.size(); i++)
-            if ( LogSet.MustNotInclude_Volumes.contains(PhLog[i].volumeName) )
+            //if ( LogSet.MustNotInclude_Volumes.contains(PhLog[i].volumeName) )
+            if ( LogSet.MustNotInclude_Volumes.find(PhLog[i].volumeName) != LogSet.MustNotInclude_Volumes.end() )
             {
                 bVeto = true;
                 break;
@@ -470,7 +472,7 @@ void APhotonTracer::AppendHistoryRecord()
     {
         bool bFound = true;
         //in processes
-        for (int im = 0; im < LogSet.MustInclude_Processes.size(); im++)
+        for (size_t im = 0; im < LogSet.MustInclude_Processes.size(); im++)
         {
             bool bFoundThis = false;
             for (int i=PhLog.size()-1; i>-1; i--)
@@ -489,7 +491,7 @@ void APhotonTracer::AppendHistoryRecord()
         //in volumes
         if (bFound)
         {
-            for (int im = 0; im < LogSet.MustInclude_Volumes.size(); im++)
+            for (size_t im = 0; im < LogSet.MustInclude_Volumes.size(); im++)
             {
                 bool bFoundThis = false;
                 for (int i=PhLog.size()-1; i>-1; i--)
@@ -722,7 +724,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     }
 
     //since we check vs cos of _refracted_:
-    if (fDoFresnel) PerformRefraction( RefrIndexFrom / RefrIndexTo); // true - successful
+    if (fDoFresnel) PerformRefraction(RefrIndexFrom / RefrIndexTo); // true - successful
     if (!fHaveNormal) N = Navigator->FindNormal(kFALSE);
     //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
     //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);

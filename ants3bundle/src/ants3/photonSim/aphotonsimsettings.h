@@ -4,11 +4,12 @@
 #include "afilesettingsbase.h"
 
 #include <QString>
-#include <QVector> // TODO: std::vector !!!***
-#include <QSet>    // TODO: refactor
 #include <QDateTime>
 
 #include <vector>
+#include <set>
+
+#include "TString.h"
 
 // !!!*** implement usage of AErrorHub
 
@@ -191,10 +192,10 @@ public:
     bool Save        = true;
     QString FileName = "PhotonLog.txt";
 
-    QSet<int>        MustNotInclude_Processes; // v.fast
-    QVector<int>     MustInclude_Processes;    // slow
-    QSet<QString>    MustNotInclude_Volumes;   // fast
-    QVector<QString> MustInclude_Volumes;      // v.slow
+    std::set<int>        MustNotInclude_Processes; // v.fast
+    std::vector<int>     MustInclude_Processes;    // slow
+    std::set<TString>    MustNotInclude_Volumes;   // fast
+    std::vector<TString> MustInclude_Volumes;      // v.slow
 };
 
 class APhotSimRunSettings

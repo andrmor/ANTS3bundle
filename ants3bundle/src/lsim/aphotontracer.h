@@ -5,6 +5,8 @@
 #include "aphotontrackrecord.h"
 #include "aphotonhistorylog.h"
 
+#include "TString.h"
+
 #include <QVector>
 #include <vector>
 
@@ -50,30 +52,32 @@ private:
 
 //    const QVector<AGridElementRecord*>* grids;
 
-    APhoton p; //the photon which is traced
-    int AddedTracks = 0;
-    int Counter; //number of photon transitions - there is a limit on this set by user
-    double rnd; //pre-generated random number for accelerated mode
-    double Step;
-    double * N; //normal vector to the surface
-    bool fHaveNormal;
-    int MatIndexFrom; //material index of the current medium or medium before the interface
-    int MatIndexTo;   //material index of the medium after interface
-    const TGeoVolume * VolumeFrom;
-    const TGeoVolume * VolumeTo;
-    const AMaterial * MaterialFrom; //material before the interface
-    const AMaterial * MaterialTo;   //material after the interface
-    double RefrIndexFrom, RefrIndexTo; //refractive indexes n1 and n2
-    bool fDoFresnel; //flag - to perform or not the fresnel calculation on the interface
-    bool fGridShiftOn = false;
-    double FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
-    double FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
-    TGeoVolume* GridVolume; // the grid bulk
+    APhoton  p; //the photon which is traced
+    int      AddedTracks = 0;
+    int      Counter = 0; //number of photon transitions
+    double   rnd; //pre-generated random number for accelerated mode
+    double   Step;
+    double * N = nullptr; //normal vector to the surface
+    bool     fHaveNormal = false;
+    int      MatIndexFrom; //material index of the current medium or medium before the interface
+    int      MatIndexTo;   //material index of the medium after interface
+    double   RefrIndexFrom;
+    double   RefrIndexTo;
+    bool     fDoFresnel; //flag - to perform or not the fresnel calculation on the interface
+    TString  nameFrom;
+    TString  nameTo;
 
-    QString nameFrom;  // !!!*** to TString
-    QString nameTo;    // !!!*** to TString
+    const TGeoVolume * VolumeFrom   = nullptr;
+    const TGeoVolume * VolumeTo     = nullptr;
+    const AMaterial  * MaterialFrom = nullptr; //material before the interface
+    const AMaterial  * MaterialTo   = nullptr; //material after the interface
 
-    const double c_in_vac = 2.997925e2; //speed of light in mm/ns
+    bool         fGridShiftOn = false;
+    double       FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
+    double       FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
+    TGeoVolume * GridVolume = nullptr; // the grid bulk
+
+    static constexpr double c_in_vac = 299.7925; //speed of light in mm/ns
 
     enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
     AbsRayEnum AbsorptionAndRayleigh();   // !!!*** TOD: fix Rayleigh

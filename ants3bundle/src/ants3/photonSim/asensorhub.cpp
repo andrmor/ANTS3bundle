@@ -79,7 +79,8 @@ bool ASensorHub::updateRuntimeProperties()
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
-        if (index < 0 || index >= Models.size())
+        qDebug() << "bbbbb" << index;
+        if (index < 0 || index >= (int)Models.size())
         {
             // !!!*** error reporting
             qCritical() << "Bad sensor model index:" << index;
@@ -88,6 +89,7 @@ bool ASensorHub::updateRuntimeProperties()
         ASensorModel & model = Models[index];
         model.updateRuntimeProperties();
     }
+    return true;
 }
 
 double ASensorHub::getMaxQEvsWave(int iWave) const

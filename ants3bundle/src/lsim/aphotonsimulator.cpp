@@ -73,7 +73,6 @@ void APhotonSimulator::start()
     loadConfig();
 
     setupCommonProperties();
-
     openOutput();
 
     switch (SimSet.SimType)

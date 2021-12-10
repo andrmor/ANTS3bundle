@@ -1,7 +1,7 @@
 #include "aphotonhistorylog.h"
 #include "amaterialhub.h"
 
-APhotonHistoryLog::APhotonHistoryLog(const double * Position, const QString & volumeName,
+APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString &volumeName,
                                      double Time,
                                      int iWave,
                                      APhotonHistoryLog::NodeType node,
@@ -29,14 +29,14 @@ QString APhotonHistoryLog::print() const
     }
 
     s += QString(" at ( ") + QString::number(r[0])+", "+ QString::number(r[1]) + ", "+QString::number(r[2])+" )";
-    if (!volumeName.isEmpty()) s += " in " + volumeName;
+    if (volumeName.Length() != 0) s += " in " + QString(volumeName);
     if (iWave != -1) s += " iWave="+QString::number(iWave);
     s += ", " + QString::number(time)+" ns";
 
     return s;
 }
 
-const QString APhotonHistoryLog::GetProcessName(int nodeType)
+QString APhotonHistoryLog::GetProcessName(int nodeType)
 {
     switch (nodeType)
     {
@@ -65,7 +65,7 @@ const QString APhotonHistoryLog::GetProcessName(int nodeType)
     }
 }
 
-const QString APhotonHistoryLog::PrintAllProcessTypes()
+QString APhotonHistoryLog::PrintAllProcessTypes()
 {
     QString s = "<br>Defined types:<br>";
     for (int i=0; i<__SizeOfNodeTypes__; i++)
