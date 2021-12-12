@@ -48,7 +48,7 @@ public:
     QString     lines;
 
     void    updateJSONfromConfig();
-    void    updateConfigFromJSON();
+    QString updateConfigFromJSON();
 
     QString load(const QString & fileName);
     QString save(const QString & fileName);

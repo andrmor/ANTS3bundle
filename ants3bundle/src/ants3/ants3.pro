@@ -114,6 +114,7 @@ SOURCES += \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptwindow.cpp \
     gui/script/atextedit.cpp \
+    js/aconfig_si.cpp \
     js/acore_si.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
@@ -259,6 +260,7 @@ HEADERS += \
     gui/script/ahighlighters.h \
     gui/script/ascriptwindow.h \
     gui/script/atextedit.h \
+    js/aconfig_si.h \
     js/acore_si.h \
     js/ademo_si.h \
     js/afarm_si.h \

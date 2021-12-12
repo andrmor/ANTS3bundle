@@ -32,9 +32,9 @@ void AConfig::updateJSONfromConfig()
     writeToJson(JSON);
 }
 
-void AConfig::updateConfigFromJSON()
+QString AConfig::updateConfigFromJSON()
 {
-    readFromJson(JSON);  // !!!*** add error control (paranoic)
+    return readFromJson(JSON);  // !!!*** add error control (paranoic)
 }
 
 QString AConfig::load(const QString & fileName)
