@@ -34,7 +34,7 @@ void AConfig::updateJSONfromConfig()
 
 QString AConfig::updateConfigFromJSON()
 {
-    return readFromJson(JSON);  // !!!*** add error control (paranoic)
+    return readFromJson(JSON);
 }
 
 QString AConfig::load(const QString & fileName)
@@ -74,7 +74,6 @@ void AConfig::writeToJson(QJsonObject & json) const
 
 QString AConfig::readFromJson(const QJsonObject & json)
 {
-    // !!!*** restore from JSON if error
     QString err = tryReadFromJson(json);
     if (err.isEmpty())
     {

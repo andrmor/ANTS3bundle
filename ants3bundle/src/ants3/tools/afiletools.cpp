@@ -126,7 +126,7 @@ QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<QVec
     for (QVector<double>* v : V) v->clear();
 
     QTextStream in(&file);
-    QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
     while (!in.atEnd())
     {
         const QString line = in.readLine();

@@ -271,6 +271,7 @@ std::string AParticleSourceRecord::getShapeString() const
     case Box       : return "Box";
     case Cylinder  : return "Cylinder";
     }
+    return "UnknownShape";
 }
 
 std::string AParticleSourceRecord::check() const

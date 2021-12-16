@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>553</width>
-    <height>778</height>
+    <width>552</width>
+    <height>747</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -19,21 +19,21 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_6">
    <property name="spacing">
     <number>2</number>
    </property>
    <property name="leftMargin">
-    <number>5</number>
+    <number>2</number>
    </property>
    <property name="topMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>2</number>
    </property>
    <property name="bottomMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -52,7 +52,6 @@
         <widget class="QLabel" name="label">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -65,7 +64,6 @@
         <widget class="QLabel" name="label_160">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -100,7 +98,6 @@
          </property>
          <property name="font">
           <font>
-           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -184,7 +181,6 @@
     <widget class="QLabel" name="labDimensions">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -341,7 +337,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <widget class="QLabel" name="label_156">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -444,7 +439,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <widget class="QLabel" name="label_166">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -556,7 +550,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <widget class="QLabel" name="label_175">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -665,7 +658,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <widget class="QLabel" name="label_161">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -676,14 +668,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>1</number>
-     </property>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QListWidget" name="lwGunParticles">
          <property name="sizePolicy">
@@ -712,7 +698,6 @@ If material with this name does not exist, this limitation is not applied.</stri
           <widget class="QPushButton" name="pbGunAddNew">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -967,7 +952,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <widget class="QCheckBox" name="cbLinkedParticle">
           <property name="text">
-           <string>It is linked particle</string>
+           <string>Linked particle</string>
           </property>
           <property name="checked">
            <bool>false</bool>
@@ -1051,7 +1036,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <item>
             <widget class="QCheckBox" name="cbLinkingOpposite">
              <property name="text">
-              <string>Generated in opposite direction</string>
+              <string>Generate in opposite direction</string>
              </property>
             </widget>
            </item>
@@ -1101,9 +1086,9 @@ If material with this name does not exist, this limitation is not applied.</stri
        </layout>
        <zorder>cbLinkedParticle</zorder>
        <zorder>fLinkedParticle</zorder>
-       <zorder>verticalSpacer</zorder>
        <zorder>frSecondary</zorder>
        <zorder>label_11</zorder>
+       <zorder>verticalSpacer</zorder>
       </widget>
      </item>
     </layout>
@@ -1119,7 +1104,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <widget class="QLabel" name="label_9">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -1602,7 +1586,6 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -1634,7 +1617,6 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>

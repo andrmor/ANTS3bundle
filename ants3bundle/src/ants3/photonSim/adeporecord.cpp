@@ -2,6 +2,7 @@
 #include "aerrorhub.h"
 
 #include <QTextStream>
+#include <QStringList>
 
 void ADepoRecord::writeAscii(QTextStream & stream) const
 {

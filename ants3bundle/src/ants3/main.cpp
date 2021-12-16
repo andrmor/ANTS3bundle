@@ -1,5 +1,6 @@
 #include "adispatcherinterface.h"
 #include "a3global.h"
+#include "aconfig.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
 #include "ajscripthub.h"
@@ -58,6 +59,9 @@ int main(int argc, char *argv[])
     AJScriptHub::getInstance();
 
     AMaterialHub::getInstance().addNewMaterial("Dummy", true);
+
+    // should be last line in initialization!
+    AConfig::getInstance().updateJSONfromConfig();
 
 #ifdef GUI
     if (argc == 1)
