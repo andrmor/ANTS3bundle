@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QString>
-#include <QStringList>  //QProcess starter needes it
+#include <QStringList>
 
 class QProcess;
 
@@ -14,10 +14,10 @@ public:
     virtual bool start() = 0;
     virtual void abort() = 0;
     virtual bool isRunning() = 0;
-    virtual void sendMessage(QString txt) = 0;
+    virtual void sendMessage(QString txt) = 0; // !!!*** no need anymore!
 
 signals:
-    void receivedMessage(QString text);
+    void receivedMessage(QString text);  // !!!*** no need anymore!
 
 public:
     QString ErrorString;

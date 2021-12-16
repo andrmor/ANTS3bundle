@@ -3,7 +3,6 @@
 
 #include <QProcess>
 #include <QDebug>
-//Use "DEBUG:" on start of QDebug!
 
 A3ProcessHandler::A3ProcessHandler(const QString & program, const QStringList & args) :
     A3WorkerHandler(), Program(program), Args(args) {}
@@ -54,18 +53,11 @@ void A3ProcessHandler::abort()
 void A3ProcessHandler::onReadReady()
 {
     QString in = Process->readAllStandardOutput();
-    //qDebug() << "DEBUG:PH->received message:\n" << in;
 
     const QStringList input = in.split('\n', Qt::SkipEmptyParts);
     for (const QString & message : input)
     {
-        //qDebug() << "DEBUG:PH->Processing message:" << in;
-        if (message.startsWith("DEBUG:"))
-        {
-            qDebug() << message;
-            continue;
-        }
-        else if ( message.startsWith("$$>") && message.endsWith("<$$") )
+        if ( message.startsWith("$$>") && message.endsWith("<$$") )
         {
             QString str = message;
             str.remove("$$>");
