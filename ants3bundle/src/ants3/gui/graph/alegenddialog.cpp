@@ -121,7 +121,7 @@ void ALegendDialog::updateMainGui()
         const ALegendEntryRecord & rec = CurrentModel.Model.at(iModel);
 
         QListWidgetItem * item = new QListWidgetItem();
-        item->setBackgroundColor(QColor(230,230,230));
+        item->setBackground(QColor(230,230,230));
         lwList->addItem(item);
         ALegendEntryDelegate * ed = new ALegendEntryDelegate(rec, iModel);
         item->setSizeHint(ed->sizeHint());
