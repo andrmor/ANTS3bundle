@@ -35,6 +35,7 @@
 #include <QDesktopServices>
 #include <QInputDialog>
 #include <QHeaderView>
+#include <QRegularExpression>
 
 AScriptWindow::AScriptWindow(QWidget *parent) :
     //    AGuiWindow("script"), parent),
@@ -633,7 +634,7 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
-        QString methodName = Fshort.remove(QRegExp("\\((.*)\\)"));
+        QString methodName = Fshort.remove(QRegularExpression("\\((.*)\\)"));
         methodName.remove(0, module.length()+1); //remove module name and '.'
         const QString & str = io->getMethodHelp(methodName);
         fItem->setToolTip(0, str);
@@ -1581,7 +1582,7 @@ void AScriptWindow::onFindFunction()
 
     QStringList sl = name.split("(");
     if (sl.size() > 0) name = sl.first();
-    QRegExp sp("\\bfunction\\s+" + name + "\\s*" + "\\(");
+    QRegularExpression sp("\\bfunction\\s+" + name + "\\s*" + "\\(");
     //qDebug() << "Looking for:"<<sp;
 
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
@@ -1627,7 +1628,7 @@ void AScriptWindow::onFindVariable()
 
     QStringList sl = name.split("(");
     if (sl.size() > 0) name = sl.first();
-    QRegExp sp("\\bvar\\s+" + name + "\\b");
+    QRegularExpression sp("\\bvar\\s+" + name + "\\b");
     //qDebug() << "Looking for:"<<sp;
 
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
@@ -1805,20 +1806,20 @@ void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
-    QAction* paste = menu.addAction("Paste"); paste->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
-    QAction* copy  = menu.addAction("Copy");   copy->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
-    QAction* cut   = menu.addAction("Cut");     cut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+    QAction* paste = menu.addAction("Paste"); paste->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
+    QAction* copy  = menu.addAction("Copy");   copy->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
+    QAction* cut   = menu.addAction("Cut");     cut->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
     menu.addSeparator();
-    QAction* findSel =    menu.addAction("Find selected text");      findSel->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-    QAction* replaceSel = menu.addAction("Replace selected text");replaceSel->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    QAction* findSel =    menu.addAction("Find selected text");      findSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
+    QAction* replaceSel = menu.addAction("Replace selected text");replaceSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     menu.addSeparator();
     QAction* findFunct = menu.addAction("Find function definition");      findFunct->setShortcut(QKeySequence(Qt::Key_F2));
     QAction* findVar =   menu.addAction("Find variable definition (F3)");   findVar->setShortcut(QKeySequence(Qt::Key_F3));
     menu.addSeparator();
-    QAction* shiftBack = menu.addAction("Go back");          shiftBack->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
-    QAction* shiftForward = menu.addAction("Go forward"); shiftForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
+    QAction* shiftBack = menu.addAction("Go back");          shiftBack->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Left));
+    QAction* shiftForward = menu.addAction("Go forward"); shiftForward->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Right));
     menu.addSeparator();
-    QAction* alignText = menu.addAction("Align selected text"); alignText->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
+    QAction* alignText = menu.addAction("Align selected text"); alignText->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
 
     QAction* selectedItem = menu.exec(TextEdit->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected

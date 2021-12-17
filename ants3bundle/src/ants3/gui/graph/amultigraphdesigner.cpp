@@ -14,6 +14,8 @@
 #include <QFileInfo>
 #include <QInputDialog>
 
+#include <algorithm>
+
 #include "TObject.h"
 #include "TCanvas.h"
 
@@ -219,7 +221,7 @@ void AMultiGraphDesigner::updateNumbers()
     const int numX = ui->sbNumX->value();
     const int numY = ui->sbNumY->value();
 
-    int max = std::min(DrawOrder.size(), numX * numY);
+    int max = std::min((int)DrawOrder.size(), numX * numY);
     max     = std::min(max, Basket.size());  // paranoic
 
     for (int iItem = 0; iItem < Basket.size(); iItem++)

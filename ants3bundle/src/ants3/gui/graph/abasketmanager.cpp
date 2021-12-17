@@ -2,7 +2,6 @@
 #include "afiletools.h"
 #include "ajsontools.h"
 
-#include <QStringList>
 #include <QJsonDocument>
 #include <QDebug>
 
@@ -233,7 +232,7 @@ void ABasketManager::remove(int index)
     Basket.remove(index);
 }
 
-const QString ABasketManager::getType(int index) const
+QString ABasketManager::getType(int index) const
 {
     if (index < 0 || index >= Basket.size()) return "";
     return Basket[index].Type;
@@ -244,7 +243,7 @@ int ABasketManager::size() const
     return Basket.size();
 }
 
-const QString ABasketManager::getName(int index) const
+QString ABasketManager::getName(int index) const
 {
     if (index < 0 || index >= Basket.size()) return "";
     return Basket.at(index).Name;
@@ -393,7 +392,7 @@ void ABasketManager::saveAll(const QString & fileName)
     */
 }
 
-const QString ABasketManager::appendBasket(const QString & fileName)
+QString ABasketManager::appendBasket(const QString & fileName)
 {
     TFile f(fileName.toLocal8Bit().data());
 
@@ -603,7 +602,7 @@ const QString ABasketManager::appendBasket(const QString & fileName)
     return "";
 }
 
-const QString ABasketManager::appendTxtAsGraph(const QString & fileName)
+QString ABasketManager::appendTxtAsGraph(const QString & fileName)
 {
     QVector<double> x, y;
     QVector<QVector<double> *> V = {&x, &y};
@@ -621,7 +620,7 @@ const QString ABasketManager::appendTxtAsGraph(const QString & fileName)
     return "";
 }
 
-const QString ABasketManager::appendTxtAsGraphErrors(const QString &fileName)
+QString ABasketManager::appendTxtAsGraphErrors(const QString &fileName)
 {
     QVector<double> x, y, err;
     QVector<QVector<double> *> V = {&x, &y, &err};

@@ -67,10 +67,16 @@ void ARootTextConfigurator::paintEvent(QPaintEvent *)
     p.end();
 }
 
+#include <QtGlobal>
 void ARootTextConfigurator::mousePressEvent(QMouseEvent *e)
 {
-    int row = e->y() / SquareSize;
-    int num = e->x() / SquareSize;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    int row = e->pos().y() / SquareSize;
+    int num = e->pos().x() / SquareSize;
+#else
+    int row = e->position().y() / SquareSize; // !!!*** Round()?
+    int num = e->position().x() / SquareSize;
+#endif
 
     if (row >= BaseColors.size()) return;
 

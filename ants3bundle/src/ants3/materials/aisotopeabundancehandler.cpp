@@ -4,6 +4,7 @@
 #include "afiletools.h"
 
 #include <QDebug>
+#include <QRegularExpression>
 
 #include "TGeoElement.h"
 
@@ -50,20 +51,20 @@ void AIsotopeAbundanceHandler::loadNaturalAbunances()
     }
     else
     {
-        const QStringList SL = NaturalAbundances.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+        const QStringList SL = NaturalAbundances.split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
         for (const QString & s : SL)
         {
-            QStringList f = s.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QStringList f = s.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             if (f.size() != 2) continue;
             bool bOK = true;
             double Abundancy = (f.last()).toDouble(&bOK);
             if (!bOK) continue;
             QString mass = f.first();
-            mass.remove(QRegExp("[a-zA-Z]"));
+            mass.remove(QRegularExpression("[a-zA-Z]"));
             int Mass = mass.toInt(&bOK);
             if (!bOK) continue;
             QString Element = f.first();
-            Element.remove(QRegExp("[0-9]"));
+            Element.remove(QRegularExpression("[0-9]"));
             //qDebug() << Element << Mass << Abundancy;
             QVector<QPair<int, double> > tmp;
             tmp << QPair<int, double>(Mass, Abundancy);

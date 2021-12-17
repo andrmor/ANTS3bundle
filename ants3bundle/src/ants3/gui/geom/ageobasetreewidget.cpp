@@ -7,6 +7,7 @@
 #include <QList>
 #include <QDebug>
 #include <QTreeView>
+#include <QtGlobal>
 
 AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     QTreeWidget(), World(World)
@@ -61,7 +62,11 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
 
     QList<QTreeWidgetItem*> selected = selectedItems();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QTreeWidgetItem * itemTo = this->itemAt(event->pos());
+#else
+    QTreeWidgetItem * itemTo = this->itemAt(event->position().toPoint());
+#endif
     if (!itemTo)
     {
         qDebug() << "No item on drop position - rejected!";
@@ -260,7 +265,11 @@ void AGeoBaseTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 
     QTreeWidget::dragMoveEvent(event);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const Qt::KeyboardModifiers mod = event->keyboardModifiers();
+#else
+    const Qt::KeyboardModifiers mod = event->modifiers();
+#endif
     bool bRearrange = (mod == Qt::ALT || mod == Qt::CTRL || mod == Qt::SHIFT);
 
     setDropIndicatorShown(bRearrange);
@@ -272,7 +281,11 @@ void AGeoBaseTreeWidget::dragMoveEvent(QDragMoveEvent *event)
     }
     if (!bRearrange)
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QTreeWidgetItem * itemOver = this->itemAt(event->pos());
+#else
+        QTreeWidgetItem * itemOver = this->itemAt(event->position().toPoint());
+#endif
         if (itemOver && itemOver != movingItem)
         {
             itemOver->setBackground(0, Qt::cyan);

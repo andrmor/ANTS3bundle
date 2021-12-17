@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QColor>
 #include <QList>
+#include <QStringList>
 
 class AGeoBaseTreeWidget;
 class AGeoObject;
@@ -15,7 +16,6 @@ class AGeoDelegateWidget;
 class AGeometryHub;
 class QPoint;
 class QTreeWidgetItem;
-class QStringList;
 
 class AGeoTree : public QObject
 {

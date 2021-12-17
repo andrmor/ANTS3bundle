@@ -9,9 +9,9 @@
 #include <QListWidgetItem>
 #include <QProgressBar>
 #include <QCheckBox>
-
 #include <QPixmap>
 #include <QPainter>
+#include <QRegularExpression>
 
 #include <QDebug>
 
@@ -48,11 +48,11 @@ AServerDelegate::AServerDelegate(A3FarmNodeRecord * modelRecord) : QFrame(), mod
             leIP->setMinimumWidth(100);
             QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
             // !!!*** convert to QRegularExpression
-            QRegExp ipRegex ("^" + ipRange
+            QRegularExpression ipRegex ("^" + ipRange
                          + "\\." + ipRange
                          + "\\." + ipRange
                          + "\\." + ipRange + "$");
-            QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+            QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
             leIP->setValidator(ipValidator);
             QObject::connect(leIP, &QLineEdit::editingFinished, this, &AServerDelegate::updateModel);
             leIP->setToolTip("IP address of the farm node.");

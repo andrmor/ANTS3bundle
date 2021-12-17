@@ -22,6 +22,8 @@
 #include "TGeoMatrix.h"
 #include "TGeoTorus.h"
 
+#include <math.h>
+
 AGeoShape * AGeoShape::clone() const
 {
     AGeoShape * sh = AGeoShape::GeoShapeFactory(getShapeType());
@@ -3571,7 +3573,7 @@ const QString AGeoShape::getPythonGenerationString(const QString &javaGenString)
     bool first = true;
     for (int i = 0; i < PythonGenString.size(); i++)
     {
-        if (PythonGenString.at(i) == "'")
+        if (PythonGenString.at(i) == '\'')
         {
             if (!first)
             {

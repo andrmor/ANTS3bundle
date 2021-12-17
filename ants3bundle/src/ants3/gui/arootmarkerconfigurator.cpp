@@ -158,12 +158,18 @@ void ARootMarkerConfigurator::onAccept()
   done(1);
 }
 
+#include <QtGlobal>
 void ARootMarkerConfigurator::mousePressEvent(QMouseEvent *e)
 {
   //qDebug() << "Selected at:"<<e->x() << e->y();
 
-  int row = e->y() / SquareSize;
-  int num = e->x() / SquareSize;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    int row = e->pos().y() / SquareSize;
+    int num = e->pos().x() / SquareSize;
+#else
+    int row = e->position().y() / SquareSize; // !!!*** use Round?
+    int num = e->position().x() / SquareSize;
+#endif
 
   if (row > BaseColors.size()-1) return;
 

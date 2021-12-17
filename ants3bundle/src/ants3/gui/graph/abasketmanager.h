@@ -5,8 +5,7 @@
 
 #include <QString>
 #include <QVector>
-
-class QStringList;
+#include <QStringList>
 
 class ABasketManager
 {
@@ -22,20 +21,20 @@ public:
     void                clear();
     void                remove(int index);
 
-    const QString       getType(int index) const;
+    QString             getType(int index) const;
 
     int                 size() const;
 
-    const QString       getName(int index) const;
+    QString             getName(int index) const;
     void                rename(int index, const QString & newName);
     const QStringList   getItemNames() const;
 
     void                saveAll(const QString & fileName);
 
-    const QString       appendBasket(const QString & fileName);
+    QString             appendBasket(const QString & fileName);
 
-    const QString       appendTxtAsGraph(const QString & fileName);
-    const QString       appendTxtAsGraphErrors(const QString & fileName);
+    QString             appendTxtAsGraph(const QString & fileName);
+    QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
     void                reorder(const QVector<int> &indexes, int to);

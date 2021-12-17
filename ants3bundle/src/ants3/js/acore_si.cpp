@@ -98,8 +98,10 @@ double ACore_SI::getTimeMark()
     return QDateTime::currentMSecsSinceEpoch();
 }
 
+#include <QtGlobal>
 void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     switch (var.type())
     {
     case QVariant::Map:
@@ -130,6 +132,38 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
         // implicit convertion to string
         string += var.toString();
     }
+#else
+    switch (var.userType())
+    {
+    case QMetaType::QVariantMap :
+    {
+        string += '{';
+        const QMap<QString, QVariant> map = var.toMap();
+        for (const QString & k : map.keys())
+        {
+            string += QString("\"%1\":").arg(k);
+            addQVariantToString(map.value(k), string);
+            string += ", ";
+        }
+        if (string.endsWith(", ")) string.chop(2);
+        string += '}';
+        break;
+    }
+    case QMetaType::QVariantList :
+        string += '[';
+        for (const QVariant & v : var.toList())
+        {
+            addQVariantToString(v, string);
+            string += ", ";
+        }
+        if (string.endsWith(", ")) string.chop(2);
+        string += ']';
+        break;
+    default:
+        // implicit convertion to string
+        string += var.toString();
+    }
+#endif
 }
 
 void ACore_SI::print(QVariant message)
@@ -210,7 +244,11 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
     for (int i = 0; i < array.size(); i++)
     {
         const QVariant & var = array[i];
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         if (var.type() == QVariant::List)
+#else
+        if (var.userType() == QMetaType::QVariantList)
+#endif
         {
             QStringList sl = var.toStringList();
             s << sl.join(' ');
@@ -731,7 +769,11 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
         //header of the event
         stream << topLevelSeparator;
         const QVariant & var = topLevelLabels[i1];
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         if (var.type() == QVariant::List)
+#else
+        if (var.userType() == QMetaType::QVariantList)
+#endif
         {
             const QStringList sl = var.toStringList();
             stream << sl.join(' ');
@@ -744,7 +786,11 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
         for (int i2 = 0; i2 < second.size(); i2++)
         {
             const QVariant & var = second[i2];
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             if (var.type() == QVariant::List)
+#else
+            if (var.userType() == QMetaType::QVariantList)
+#endif
             {
                 const QStringList sl = var.toStringList();
                 stream << sl.join(' ');

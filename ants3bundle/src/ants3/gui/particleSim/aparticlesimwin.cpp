@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QFile>
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     QMainWindow(parent),

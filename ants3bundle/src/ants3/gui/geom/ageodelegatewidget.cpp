@@ -20,6 +20,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QDebug>
+#include <QRegularExpression>
 
 #include <vector>
 
@@ -359,7 +360,7 @@ void AGeoDelegateWidget::onConfirmPressed()
     QString errorStr;
     if (newName != CurrentObject->Name && Geometry.World->isNameExists(newName)) errorStr = QString("%1 name already exists").arg(newName);
     else if (newName.isEmpty()) errorStr = "Name cannot be empty";
-    else if (newName.contains(QRegExp("\\s"))) errorStr = "Name cannot contain spaces";
+    else if (newName.contains(QRegularExpression("\\s"))) errorStr = "Name cannot contain spaces";
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this, "", errorStr);

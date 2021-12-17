@@ -14,6 +14,7 @@ ABasketListWidget::ABasketListWidget(QWidget * parent) :
     setDropIndicatorShown(true);
 }
 
+#include <QtGlobal>
 void ABasketListWidget::dropEvent(QDropEvent * event)
 {
     //qDebug() << "Basket: Drop detected";
@@ -24,7 +25,12 @@ void ABasketListWidget::dropEvent(QDropEvent * event)
         indexes << row(item);
     //qDebug() << "   Indexes to be moved:" << indexes;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QListWidgetItem * itemTo = itemAt(event->pos());
+#else
+    QListWidgetItem * itemTo = itemAt(event->position().toPoint());
+#endif
+
     int rowTo = count();
     if (itemTo)
     {

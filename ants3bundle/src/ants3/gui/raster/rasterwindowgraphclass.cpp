@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QMainWindow>
+#include <QtGlobal>
 
 #include "TMath.h"
 #include "TView.h"
@@ -21,10 +22,10 @@ RasterWindowGraphClass::~RasterWindowGraphClass()
   //qDebug()<< "     <--Starting cleanup for graph raster window...";
 
   if (VertLine1) delete VertLine1;
-  if (Line2D) delete Line2D;
-  if (Ellipse) delete Ellipse;
-  if (Box2D) delete Box2D;
-  if (Polygon) delete Polygon;
+  if (Line2D)    delete Line2D;
+  if (Ellipse)   delete Ellipse;
+  if (Box2D)     delete Box2D;
+  if (Polygon)   delete Polygon;
 
   //qDebug()<<"    ...delegating delete to base class";
 }
@@ -79,8 +80,14 @@ void RasterWindowGraphClass::mousePressEvent(QMouseEvent *event)
   if (!fCanvas) return;
   fCanvas->cd();
 
-  double x = fCanvas->AbsPixeltoX(event->x());
-  double y = fCanvas->AbsPixeltoY(event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  double x = fCanvas->AbsPixeltoX(event->pos().x());
+  double y = fCanvas->AbsPixeltoY(event->pos().y());
+#else
+  double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+  double y = fCanvas->AbsPixeltoY(event->position().y());
+#endif
+
   if (fCanvas->GetLogx()) x = TMath::Power(10.0, x);
   if (fCanvas->GetLogy()) y = TMath::Power(10.0, y);
 
@@ -216,8 +223,13 @@ void RasterWindowGraphClass::mouseMoveEvent(QMouseEvent *event)
   if (!fCanvas) return;
   fCanvas->cd();
 
-  double x = fCanvas->AbsPixeltoX(event->x());
-  double y = fCanvas->AbsPixeltoY(event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  double x = fCanvas->AbsPixeltoX(event->pos().x());
+  double y = fCanvas->AbsPixeltoY(event->pos().y());
+#else
+  double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+  double y = fCanvas->AbsPixeltoY(event->position().y());
+#endif
   if (fCanvas->GetLogx()) x = TMath::Power(10.0, x);
   if (fCanvas->GetLogy()) y = TMath::Power(10.0, y);
 
@@ -335,8 +347,14 @@ void RasterWindowGraphClass::mouseReleaseEvent(QMouseEvent *event)
   if (!fCanvas) return;
   fCanvas->cd();
 
-  double x = fCanvas->AbsPixeltoX(event->x());
-  double y = fCanvas->AbsPixeltoY(event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  double x = fCanvas->AbsPixeltoX(event->pos().x());
+  double y = fCanvas->AbsPixeltoY(event->pos().y());
+#elif
+  double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+  double y = fCanvas->AbsPixeltoY(event->position().y());
+#endif
+
   if (fCanvas->GetLogx()) x = TMath::Power(10.0, x);
   if (fCanvas->GetLogy()) y = TMath::Power(10.0, y);
 

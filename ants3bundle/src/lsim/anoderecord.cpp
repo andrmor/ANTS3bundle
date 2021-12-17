@@ -2,6 +2,7 @@
 #include "aerrorhub.h"
 
 #include <QTextStream>
+#include <QStringList>
 
 ANodeRecord::ANodeRecord(double x, double y, double z, double time, int numPhot) :
     Time(time), NumPhot(numPhot)

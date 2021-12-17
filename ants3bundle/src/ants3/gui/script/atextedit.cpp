@@ -15,6 +15,7 @@
 #include <QTextBlock>
 #include <QTextDocumentFragment>
 #include <QClipboard>
+#include <QRegularExpression>
 
 ATextEdit::ATextEdit(QWidget *parent) : QPlainTextEdit(parent), c(0)
 {
@@ -563,7 +564,7 @@ void ATextEdit::insertCompletion(const QString &completion)
        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
        QString selected = tc.selectedText();
        //qDebug() << "<-" <<selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
-       if ( !selected.left(1).contains(QRegExp("[A-Za-z0-9._]")) )
+       if ( !selected.left(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
          {
            tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
            break;
@@ -676,7 +677,7 @@ void ATextEdit::onCursorPositionChanged()
       QString selection = tc.selectedText();
       //    qDebug() << "-->"<<selection;
       QColor color = QColor(Qt::green).lighter(170);
-      QRegExp exl("[0-9 (){}\\[\\]=+\\-*/\\|~^.,:;\"'<>\\#\\$\\&\\?]");
+      QRegularExpression exl("[0-9 (){}\\[\\]=+\\-*/\\|~^.,:;\"'<>\\#\\$\\&\\?]");
       QString test = selection.simplified();
       test.remove(exl);
       //    qDebug() << "rem-->"<<test;
@@ -694,7 +695,7 @@ void ATextEdit::onCursorPositionChanged()
 
       if (!test.isEmpty())
         {
-          QRegExp pat("\\b"+selection+"\\b");
+          QRegularExpression pat("\\b"+selection+"\\b");
           QTextCursor cursor = document()->find(pat, 0, QTextDocument::FindCaseSensitively);
           while(cursor.hasSelection())
             {
@@ -706,7 +707,7 @@ void ATextEdit::onCursorPositionChanged()
             }
 
           //variable highlight test
-          QRegExp patvar("\\bvar\\s+"+selection+"\\b");
+          QRegularExpression patvar("\\bvar\\s+"+selection+"\\b");
           QTextCursor cursor1 = document()->find(patvar, tc, QTextDocument::FindCaseSensitively | QTextDocument::FindBackward);
           if (cursor1.hasSelection())// && cursor1 != tc)
             {
@@ -986,7 +987,7 @@ int ATextEdit::getSectionCounterChange(const QString& line) const
         // ***!!! add ignore commented inside /* */
         if      (ch == '{' ) counter++;
         else if (ch == '}' ) counter--;
-        else if (ch == "/")
+        else if (ch == '/')
         {
             if (bComment) break;
             else bComment = true;
@@ -1093,7 +1094,7 @@ QString ATextEdit::textUnderCursor() const
        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
        selected = tc.selectedText();
        //qDebug() << selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
-       if ( !selected.left(1).contains(QRegExp("[A-Za-z0-9._]")) ) return selected.remove(0,1);
+       if ( !selected.left(1).contains(QRegularExpression("[A-Za-z0-9._]")) ) return selected.remove(0,1);
       }
     while (tc.position() != 0);
 
@@ -1109,7 +1110,7 @@ QString ATextEdit::SelectObjFunctUnderCursor(QTextCursor *cursor) const
      tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
      QString selected = tc.selectedText();
      //qDebug() << "<-" <<selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
-     if ( !selected.left(1).contains(QRegExp("[A-Za-z0-9._]")) )
+     if ( !selected.left(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
        {
          tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
          break;
@@ -1123,7 +1124,7 @@ QString ATextEdit::SelectObjFunctUnderCursor(QTextCursor *cursor) const
       QString selected = tc.selectedText();
       if (selected.isEmpty()) continue;
       //qDebug() << "->"<< selected << selected.right(1).contains(QRegExp("[A-Za-z0-9.]"));
-      if ( !selected.right(1).contains(QRegExp("[A-Za-z0-9._]")) )
+      if ( !selected.right(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
         {
           tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
           break;

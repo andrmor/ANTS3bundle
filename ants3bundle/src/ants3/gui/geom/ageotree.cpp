@@ -29,7 +29,6 @@
 #include <QPainter>
 #include <QClipboard>
 #include <QShortcut>
-#include <QStringList>
 
 #include <vector>
 

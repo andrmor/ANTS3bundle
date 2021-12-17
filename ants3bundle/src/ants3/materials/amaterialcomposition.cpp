@@ -9,6 +9,7 @@
 #include <QList>
 #include <QDebug>
 #include <QVector>
+#include <QRegularExpression>
 
 #include "TString.h"
 #include "TGeoMaterial.h"
@@ -20,7 +21,7 @@ QString AMaterialComposition::compositionToRecords(const QString & Composition, 
 
     str.replace(" ","+");
 
-    QStringList elList = str.split(QRegExp("\\+"), Qt::SkipEmptyParts ); //split to fields of formula:fraction
+    QStringList elList = str.split(QRegularExpression("\\+"), Qt::SkipEmptyParts ); //split to fields of formula:fraction
     for (const QString & el : qAsConst(elList))
     {
         QStringList wList = el.split(":");

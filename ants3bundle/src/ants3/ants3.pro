@@ -24,7 +24,12 @@ QT += qml   #this is for qjsengine
 
 #QT += core5compat
 
-CONFIG += c++11
+lessThan(QT_MAJOR_VERSION, 6) {
+    CONFIG += c++11
+} else {
+    CONFIG += c++17
+    # ROOT has to be compiled with c++17 too!!!!
+}
 
 QMAKE_CXXFLAGS += -march=native
 

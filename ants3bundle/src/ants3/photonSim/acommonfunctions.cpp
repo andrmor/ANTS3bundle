@@ -3,6 +3,7 @@
 #include "arandomhub.h"
 
 #include <QDebug>
+#include <QRegularExpression>
 
 #include "TMath.h"
 #include "TH1.h"
@@ -292,7 +293,7 @@ bool ExtractNumbersFromQString(QString input, QList<int> *ToAdd)
 {
   ToAdd->clear();
 
-  QRegExp rx("(\\,|\\-)"); //RegEx for ' ' and '-'
+  QRegularExpression rx("(\\,|\\-)"); //RegEx for ' ' and '-'
 
   QStringList fields = input.split(rx, Qt::SkipEmptyParts);
 

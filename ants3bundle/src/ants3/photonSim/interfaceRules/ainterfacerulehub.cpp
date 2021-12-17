@@ -182,7 +182,7 @@ QString AInterfaceRuleHub::readMaterialRulesFromJson(const QJsonObject & json)
         if (!ok)
         {
             delete rule;
-            return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
+            return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model).arg(MatFrom).arg(MatTo);
         }
 
         MaterialRules[MatFrom][MatTo] = rule;
@@ -217,7 +217,7 @@ QString AInterfaceRuleHub::readVolumeRulesFromJson(const QJsonObject & json)
             if (!ok)
             {
                 delete rule;
-                return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model, MatFrom, MatTo);
+                return QString("Failed to read rule (%0 %1 -> %2)\n").arg(Model).arg(MatFrom).arg(MatTo);
             }
             setVolumeRule(From.toLatin1().data(), To.toLatin1().data(), rule);
         }

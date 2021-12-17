@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QMainWindow>
+#include <QtGlobal>
 
 #include "TCanvas.h"
 #include "TView.h"
@@ -87,8 +88,13 @@ void RasterWindowBaseClass::mouseMoveEvent(QMouseEvent *event)
         //qDebug() << "-->Mouse left-pressed move event";
         if (!PressEventRegistered) return;
 
-        if (fInvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->y(), event->x());
-        else                    fCanvas->HandleInput(kButton1Motion, event->x(), event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        if (fInvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->pos().y(), event->pos().x());
+        else                    fCanvas->HandleInput(kButton1Motion, event->pos().x(), event->pos().y());
+#else
+        if (fInvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->position().y(), event->position().x()); // !!!*** Round()?
+        else                    fCanvas->HandleInput(kButton1Motion, event->position().x(), event->position().y());
+#endif
 
         onViewChanged();
     }
@@ -105,8 +111,15 @@ void RasterWindowBaseClass::mouseMoveEvent(QMouseEvent *event)
         //fCanvas->HandleInput(kButton2Motion, event->x(), event->y());
         if (!PressEventRegistered) return;
         if (!fCanvas->HasViewer3D()) return;
-        int x = event->x();
-        int y = event->y();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        int x = event->pos().x();
+        int y = event->pos().y();
+#else
+        int x = event->position().x(); // !!!*** Round()?
+        int y = event->position().y();
+#endif
+
         int dx = x - lastX;
         int dy = y - lastY;
         if (fCanvas->GetView())
@@ -123,7 +136,11 @@ void RasterWindowBaseClass::mouseMoveEvent(QMouseEvent *event)
       {
         //move
         //qDebug() << "mouse plain move event"<<event->x() << event->y();
-        fCanvas->HandleInput(kMouseMotion, event->x(), event->y());        
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        fCanvas->HandleInput(kMouseMotion, event->pos().x(), event->pos().y());
+#else
+        fCanvas->HandleInput(kMouseMotion, event->position().x(), event->position().y()); // !!!*** Round()?
+#endif
       }
     //qDebug() << "done";
 }
@@ -135,15 +152,26 @@ void RasterWindowBaseClass::mousePressEvent(QMouseEvent *event)
   if (fBlockEvents) return;
   //qDebug() << "Mouse press event";
   PressEventRegistered = true;
-  if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->x(), event->y());
-  if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Down, event->x(), event->y());
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->pos().x(), event->pos().y());
+  if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Down, event->pos().x(), event->pos().y());
+#else
+  if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->position().x(), event->position().y()); // !!!*** Round()?
+  if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Down, event->position().x(), event->position().y());
+#endif
 
   if (!fCanvas->HasViewer3D() || !fCanvas->GetView()) return;
   if (event->button() == Qt::MiddleButton)
     {
       //fCanvas->HandleInput(kButton2Down, event->x(), event->y());
-      lastX = event->x();
-      lastY = event->y();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+      lastX = event->pos().x();
+      lastY = event->pos().y();
+#else
+      lastX = event->position().x(); // !!!***
+      lastY = event->position().y();
+#endif
       Double_t viewSizeX, viewSizeY;
       fCanvas->cd();
       fCanvas->GetView()->GetWindow(lastCenterX, lastCenterY, viewSizeX, viewSizeY);
@@ -165,10 +193,18 @@ void RasterWindowBaseClass::mouseReleaseEvent(QMouseEvent *event)
   PressEventRegistered = false;
   if (event->button() == Qt::LeftButton)
   {
-      fCanvas->HandleInput(kButton1Up, event->x(), event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+      fCanvas->HandleInput(kButton1Up, event->pos().x(), event->pos().y());
+#else
+      fCanvas->HandleInput(kButton1Up, event->position().x(), event->position().y()); // !!!***
+#endif
       emit LeftMouseButtonReleased();
   }
-  else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->x(), event->y());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->pos().x(), event->pos().y());
+#else
+  else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->position().x(), event->position().y()); // !!!***
+#endif
   else if (event->button() == Qt::MiddleButton) QTimer::singleShot(300, this, &RasterWindowBaseClass::releaseZoomBlock);
 }
 

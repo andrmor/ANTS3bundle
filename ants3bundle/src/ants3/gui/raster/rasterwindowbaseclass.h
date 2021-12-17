@@ -70,7 +70,7 @@ protected:
     double lastCenterX, lastCenterY;
     bool fBlockEvents = false;
 
-    bool fInvertedXYforDrag = false;
+    bool fInvertedXYforDrag = false; // !!!*** still need?
     bool bBlockZoom = false;
 
     void releaseZoomBlock() {bBlockZoom = false;}
