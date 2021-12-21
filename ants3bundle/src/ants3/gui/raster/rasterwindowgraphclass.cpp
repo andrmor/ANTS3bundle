@@ -350,7 +350,7 @@ void RasterWindowGraphClass::mouseReleaseEvent(QMouseEvent *event)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   double x = fCanvas->AbsPixeltoX(event->pos().x());
   double y = fCanvas->AbsPixeltoY(event->pos().y());
-#elif
+#else
   double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
   double y = fCanvas->AbsPixeltoY(event->position().y());
 #endif
