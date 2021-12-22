@@ -152,8 +152,6 @@ QString APhotonSimulator::openOutput()
 
 void APhotonSimulator::saveEventMarker()
 {
-    // no need to make marker for SensorSignals?
-
     if (SimSet.RunSet.SavePhotonBombs)
     {
         *StreamPhotonBombs << '#' << CurrentEvent << '\n';
@@ -162,6 +160,11 @@ void APhotonSimulator::saveEventMarker()
     if (SimSet.RunSet.SaveTracks)
     {
         *StreamTracks << '#' << CurrentEvent << '\n';
+    }
+
+    if (SimSet.RunSet.SaveSensorSignals)
+    {
+        *StreamSensorHits << '#' << CurrentEvent << '\n';
     }
 }
 
