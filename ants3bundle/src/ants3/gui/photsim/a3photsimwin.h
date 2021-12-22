@@ -5,6 +5,8 @@
 
 #include <QMainWindow>
 
+#include <vector>
+
 namespace Ui {
 class A3PhotSimWin;
 }
@@ -139,6 +141,8 @@ private slots:
 
     void on_pbHelpDepositionFile_clicked();
 
+    void on_pbTest_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -147,6 +151,8 @@ private:
 
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
+
+    std::vector<float> data; // !!!*** tmp
 
     void updatePhotBombGui();
     void updateDepoGui();

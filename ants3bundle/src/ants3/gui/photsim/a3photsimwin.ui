@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -68,7 +68,6 @@
            <widget class="QLabel" name="label">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -81,7 +80,6 @@
            <widget class="QComboBox" name="cobSimType">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -154,7 +152,6 @@
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -177,7 +174,6 @@
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -219,7 +215,6 @@
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -254,7 +249,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -610,7 +604,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -633,7 +626,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -701,7 +693,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_20">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -718,7 +709,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QComboBox" name="cobNodeGenerationMode">
                 <property name="font">
                  <font>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -772,7 +762,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                 <kerning>true</kerning>
                </font>
@@ -845,7 +834,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_15">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -879,7 +867,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_14">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -913,7 +900,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_16">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1088,7 +1074,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_69">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1118,7 +1103,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_72">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1152,7 +1136,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_38">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1186,7 +1169,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_74">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -2239,7 +2221,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -2756,7 +2737,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_206">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2782,7 +2762,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_207">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2886,7 +2865,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              <widget class="QLabel" name="label_7">
               <property name="font">
                <font>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -3343,7 +3321,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -3541,12 +3518,62 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
             <string>Signals</string>
            </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_59">
+              <item>
+               <widget class="QLabel" name="label_37">
+                <property name="text">
+                 <string>File:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leSensorSigFileName">
+                <property name="text">
+                 <string>SensorSignals.txt</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbChooseSensorSigFile">
+                <property name="text">
+                 <string>Choose</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbTest">
+              <property name="text">
+               <string>Test</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="frTest">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_7">
            <attribute name="title">

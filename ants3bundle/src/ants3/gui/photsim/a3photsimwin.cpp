@@ -1331,3 +1331,19 @@ void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
     QString dir = guitools::dialogDirectory(this, "Select directory with photon data", SimSet.RunSet.OutputDirectory, true, false);
     if (!dir.isEmpty()) ui->leResultsWorkingDir->setText(dir);
 }
+
+#include "asensorviewer.h"
+#include <asensorhub.h>
+#include <QVBoxLayout>
+void A3PhotSimWin::on_pbTest_clicked()
+{
+    data.resize(ASensorHub::getConstInstance().countSensors());
+
+    for (float & val : data) val = 10.0 * ARandomHub::getInstance().uniform();
+
+    ASensorViewer * gv = new ASensorViewer(data, this);
+    QVBoxLayout * l = new QVBoxLayout();
+    l->addWidget(gv);
+    ui->frTest->setLayout(l);
+}
+

@@ -3,9 +3,9 @@
 
 #include <QFrame>
 #include <QGraphicsScene>
-#include <QList>
 
-class AOneEvent;
+#include <vector>
+
 class ASensorGView;
 class QLabel;
 class QPushButton;
@@ -16,10 +16,10 @@ class ASensorViewer : public QFrame
     Q_OBJECT
 
 public:
-    ASensorViewer(const AOneEvent & event, QWidget * parent);
+    ASensorViewer(const std::vector<float> & sensorSignals, QWidget * parent);
 
 protected:
-    const AOneEvent & Event;
+    const std::vector<float> & SensorSignals;
 
     QGraphicsScene * scene = nullptr;
     ASensorGView   * gvScale = nullptr;
@@ -50,7 +50,6 @@ private:
     void resetViewport();
     void addSensorItems(float MaxSignal);
     void addTextItems(float MaxSignal);
-
 
 };
 

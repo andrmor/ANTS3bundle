@@ -1,6 +1,5 @@
 #include "asensorviewer.h"
 #include "asensorgview.h"
-#include "aoneevent.h"
 #include "asensorhub.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
@@ -17,8 +16,8 @@
 
 #include <math.h>
 
-ASensorViewer::ASensorViewer(const AOneEvent & event, QWidget * parent) :
-   QFrame(parent), Event(event)
+ASensorViewer::ASensorViewer(const std::vector<float> & sensorSignals, QWidget * parent) :
+   QFrame(parent), SensorSignals(sensorSignals)
 {
     scene = new QGraphicsScene(this);
     gvOut = new ASensorGView(this);
@@ -103,13 +102,13 @@ void ASensorViewer::clearGrItems()
 
 void ASensorViewer::updateGraphScene()
 {
-    const int numSensors = Event.PMsignals.size();
+    const int numSensors = SensorSignals.size();
 
     scene->clear();
 
     float MaxSignal = 0;
     for (int i = 0; i < numSensors; i++)
-        if (Event.PMsignals[i] > MaxSignal) MaxSignal = Event.PMsignals[i];
+        if (SensorSignals[i] > MaxSignal) MaxSignal = SensorSignals[i];
     if (MaxSignal < 1.0e-25) MaxSignal = 1.0;
 
     updateSignalLabels(MaxSignal);
@@ -213,7 +212,7 @@ void ASensorViewer::addSensorItems(float MaxSignal)
         //brush
         QBrush brush(Qt::white);
 
-        const float sig = Event.PMsignals[iSens];
+        const float sig = SensorSignals[iSens];
 
         if (sig > 0)
         {
@@ -242,13 +241,13 @@ void ASensorViewer::addSensorItems(float MaxSignal)
             AGeoBox * box = static_cast<AGeoBox*>(obj->Shape);
             double sizex = box->dx * GVscale;
             double sizey = box->dy * GVscale;
-            item = scene->addRect(-sizex, -sizey, sizex, sizey, pen, brush);
+            item = scene->addRect(-sizex, -sizey, 2.0*sizex, 2.0*sizey, pen, brush);
         }
         else if (shapeType == "AGeoTube")
         {
             AGeoTube * tube = static_cast<AGeoTube*>(obj->Shape);
             double radius = tube->rmax * GVscale;
-            item = scene->addEllipse( -radius, -radius, radius, radius, pen, brush);
+            item = scene->addEllipse( -radius, -radius, 2.0*radius, 2.0*radius, pen, brush);
         }
         /*
         else if !!!***polygon!
@@ -269,7 +268,7 @@ void ASensorViewer::addSensorItems(float MaxSignal)
         {
             qDebug() << "Representing" << shapeType << "shaped sensor with a square of size 20 mm";
             double size = 10.0;
-            item = scene->addRect(-size, -size, size, size, pen, brush);
+            item = scene->addRect(-size, -size, 2.0*size, 2.0*size, pen, brush);
         }
 
         const AVector3 & Pos = SensorHub.SensorData[iSens].Position;
@@ -300,7 +299,7 @@ void ASensorViewer::addTextItems(float MaxSignal)
 
         const double size = obj->Shape->minSize();
 
-        const float sig = Event.PMsignals[iSens];
+        const float sig = SensorSignals[iSens];
         QString text = QString::number(sig, 'g', prec);
 
         //color correction for dark blue
