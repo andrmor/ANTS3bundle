@@ -14,7 +14,7 @@
 #include "adispatcherinterface.h"
 #include "aerrorhub.h"
 #include "adepositionfilehandler.h"
-#include "asensorviewer.h"
+#include "asensordrawwidget.h"
 #include "asensorhub.h"
 
 #include <QDebug>
@@ -54,7 +54,7 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(pm);
 
-    gvSensors = new ASensorViewer(data, this);
+    gvSensors = new ASensorDrawWidget(data, this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
     lV->addWidget(gvSensors);
 

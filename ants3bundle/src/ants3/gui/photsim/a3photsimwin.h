@@ -15,7 +15,7 @@ class TObject;
 class AMonitorHub;
 class APhotonBombFileHandler; // tmp ?
 class ANodeRecord; // tmp ?
-class ASensorViewer;
+class ASensorDrawWidget;
 
 class A3PhotSimWin : public QMainWindow
 {
@@ -150,8 +150,8 @@ private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
 
-    Ui::A3PhotSimWin * ui        = nullptr;
-    ASensorViewer    * gvSensors = nullptr;
+    Ui::A3PhotSimWin   * ui        = nullptr;
+    ASensorDrawWidget  * gvSensors = nullptr;
 
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
