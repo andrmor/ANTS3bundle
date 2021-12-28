@@ -1343,7 +1343,7 @@ void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
 void A3PhotSimWin::on_pbTest_clicked()
 {
     data.resize(ASensorHub::getConstInstance().countSensors());
-    for (float & val : data) val = 10.0 * ARandomHub::getInstance().uniform();
+    for (float & val : data) val = 10000.0 * ARandomHub::getInstance().uniform();
     gvSensors->updateGui();
 }
 

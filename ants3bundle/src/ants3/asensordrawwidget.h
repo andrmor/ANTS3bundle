@@ -16,7 +16,7 @@ namespace Ui {
 class ASensorDrawWidget;
 }
 
-class ASensorDrawWidget : public QFrame
+class ASensorDrawWidget : public QWidget
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ private:
     QGraphicsScene * scene = nullptr;
 
     double GVscale = 10.0;
-    QList<QGraphicsItem*> grItems;
+    std::vector<QGraphicsItem*> grItems;
     bool bForbidUpdate = false;
 
     std::vector<QLabel*> Labels;

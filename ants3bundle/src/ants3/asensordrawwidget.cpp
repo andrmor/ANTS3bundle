@@ -18,7 +18,7 @@
 #include <math.h>
 
 ASensorDrawWidget::ASensorDrawWidget(const std::vector<float> & sensorSignals, QWidget *parent) :
-    QFrame(parent), SensorSignals(sensorSignals),
+    QWidget(parent), SensorSignals(sensorSignals),
     ui(new Ui::ASensorDrawWidget)
 {
     ui->setupUi(this);
@@ -33,11 +33,20 @@ ASensorDrawWidget::ASensorDrawWidget(const std::vector<float> & sensorSignals, Q
     gvOut->setRenderHints(QPainter::Antialiasing);
     ui->mainLayout->insertWidget(0, gvOut);
 
+    QVBoxLayout * lL = new QVBoxLayout(ui->frLegend);
+    lL->setSpacing(1);
     for (int i = 0; i < 16; i++)
     {
         QLabel * l = new QLabel();
+        l->setAlignment(Qt::AlignCenter);
         Labels.push_back(l);
+        lL->insertWidget(0, l);
     }
+
+    QLabel * l0 = new QLabel("0");
+    l0->setAlignment(Qt::AlignCenter);
+    Labels.push_back(l0);
+    lL->addWidget(l0);
 }
 
 ASensorDrawWidget::~ASensorDrawWidget()
@@ -47,7 +56,7 @@ ASensorDrawWidget::~ASensorDrawWidget()
 
 void ASensorDrawWidget::clearGrItems()
 {
-    for (int i=0; i<grItems.size(); i++)
+    for (size_t i = 0; i < grItems.size(); i++)
     {
         scene->removeItem(grItems[i]);
         delete grItems[i];
@@ -76,34 +85,52 @@ void ASensorDrawWidget::updateLegend(float MaxSignal)
 {
     for (int i = 0; i < 16; i++)
     {
-        QColor color;
         int level = 8 + i * 16;
-        if      (level < 64)  color.setRgb(0,             level*4,           255);
-        else if (level < 128) color.setRgb(0,             255,               255-(level-64)*4);
-        else if (level < 192) color.setRgb((level-128)*4, 255,               0);
-        else                  color.setRgb(255,           255-(level-192)*4, 0);
-
-        QBrush brush(Qt::white);
-        brush.setColor(color);
+        int r, g, b;
+        if      (level < 64)
+        {
+            r = 0;
+            g = level*4;
+            b = 255;
+        }
+        else if (level < 128)
+        {
+            r = 0;
+            g = 255;
+            b = 255-(level-64)*4;
+        }
+        else if (level < 192)
+        {
+            r = (level-128)*4;
+            g = 255;
+            b = 0;
+        }
+        else
+        {
+            r = 255;
+            g = 255-(level-192)*4;
+            b = 0;
+        }
 
         QLabel * l = Labels[i];
-        QPalette palette = l->palette();
-        palette.setColor(l->backgroundRole(), color);
-        //palette.setColor(l->foregroundRole(), Qt::yellow);
-        l->setPalette(palette);
+        QString fore = (level < 0.15*255 ? "white" : "black");
+        QString styl = QString("QLabel { background-color : rgb(%0, %1, %2); color : %3; }").arg(r).arg(g).arg(b).arg(fore);
+        l->setStyleSheet(styl);
 
-        QString txt = "";
         if (MaxSignal > 0)
         {
+            double factor;
             switch (i)
             {
-                case 0  : txt = "0";                            break;
-                case 8  : txt = QString::number(0.5*MaxSignal); break;
-                case 15 : txt = QString::number(MaxSignal);     break;
-                default :;
+                case 3  : factor = 0.25; break;
+                case 7  : factor = 0.5;  break;
+                case 11 : factor = 0.75; break;
+                case 15 : factor = 1.0;  break;
+                default : continue;
             }
+            QString txt = QString::number(factor * MaxSignal, 'g', 3);
+            l->setText(txt);
         }
-        if (!txt.isEmpty()) l->setText(txt);
     }
 }
 
