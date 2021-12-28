@@ -1,6 +1,5 @@
 #include "asensordrawwidget.h"
 #include "ui_asensordrawwidget.h"
-#include "asensorviewer.h"
 #include "asensorgview.h"
 #include "asensorhub.h"
 #include "ageoobject.h"
@@ -19,18 +18,20 @@
 #include <math.h>
 
 ASensorDrawWidget::ASensorDrawWidget(const std::vector<float> & sensorSignals, QWidget *parent) :
-    QWidget(parent), SensorSignals(sensorSignals),
+    QFrame(parent), SensorSignals(sensorSignals),
     ui(new Ui::ASensorDrawWidget)
 {
     ui->setupUi(this);
 
+    gvOut = new ASensorGView(this);
     scene = new QGraphicsScene(this);
-    ui->gvOut->setScene(scene);
-    ui->gvOut->setDragMode(QGraphicsView::ScrollHandDrag); //if zoomed, can use hand to center needed area
-    ui->gvOut->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    ui->gvOut->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->gvOut->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->gvOut->setRenderHints(QPainter::Antialiasing);
+    gvOut->setScene(scene);
+    gvOut->setDragMode(QGraphicsView::ScrollHandDrag); //if zoomed, can use hand to center needed area
+    gvOut->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    gvOut->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gvOut->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gvOut->setRenderHints(QPainter::Antialiasing);
+    ui->mainLayout->insertWidget(0, gvOut);
 
     for (int i = 0; i < 16; i++)
     {
@@ -138,7 +139,7 @@ void ASensorDrawWidget::resetViewport()
                          ( (2.0*frac + 1.0) * Xdelta)*GVscale,
                          ( (2.0*frac + 1.0) * Ydelta)*GVscale );
 
-    ui->gvOut->fitInView( (Xmin - 0.01*Xdelta)*GVscale,
+    gvOut->fitInView( (Xmin - 0.01*Xdelta)*GVscale,
                       (Ymin - 0.01*Ydelta)*GVscale,
                       (1.02*Xdelta)*GVscale,
                       (1.02*Ydelta)*GVscale,

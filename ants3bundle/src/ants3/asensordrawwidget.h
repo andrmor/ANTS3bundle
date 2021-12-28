@@ -16,7 +16,7 @@ namespace Ui {
 class ASensorDrawWidget;
 }
 
-class ASensorDrawWidget : public QWidget
+class ASensorDrawWidget : public QFrame
 {
     Q_OBJECT
 
@@ -31,6 +31,7 @@ private:
 
     Ui::ASensorDrawWidget    * ui = nullptr;
 
+    ASensorGView   * gvOut = nullptr;
     QGraphicsScene * scene = nullptr;
 
     double GVscale = 10.0;
