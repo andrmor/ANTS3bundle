@@ -117,7 +117,6 @@ SOURCES += \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
-    gui/photsim/asensorviewer.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptwindow.cpp \
@@ -266,7 +265,6 @@ HEADERS += \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
     gui/photsim/asensorgview.h \
-    gui/photsim/asensorviewer.h \
     gui/photsim/asensorwindow.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptwindow.h \
