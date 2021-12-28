@@ -18,6 +18,8 @@ class ASensorViewer : public QFrame
 public:
     ASensorViewer(const std::vector<float> & sensorSignals, QWidget * parent);
 
+    void updateGui();
+
 protected:
     const std::vector<float> & SensorSignals;
 
@@ -44,7 +46,6 @@ private slots:
 
 private:
     void clearGrItems();
-    void updateGraphScene();
     void updateSignalLabels(float MaxSignal);
     void updateSignalScale();
     void resetViewport();

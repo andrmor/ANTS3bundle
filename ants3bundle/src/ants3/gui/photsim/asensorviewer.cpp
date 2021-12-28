@@ -66,7 +66,7 @@ ASensorViewer::ASensorViewer(const std::vector<float> & sensorSignals, QWidget *
     layMain->addLayout(layRight);
 
     // update indication
-    updateGraphScene();
+    updateGui();
 }
 
 void ASensorViewer::updateSignalScale()
@@ -100,7 +100,7 @@ void ASensorViewer::clearGrItems()
     grItems.clear();
 }
 
-void ASensorViewer::updateGraphScene()
+void ASensorViewer::updateGui()
 {
     const int numSensors = SensorSignals.size();
 
@@ -322,7 +322,7 @@ void ASensorViewer::addTextItems(float MaxSignal)
 
 void ASensorViewer::onResetViewportClicked()
 {
-    updateGraphScene();
+    updateGui();
     resetViewport();
 }
 

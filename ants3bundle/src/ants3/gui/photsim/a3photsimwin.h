@@ -15,6 +15,7 @@ class TObject;
 class AMonitorHub;
 class APhotonBombFileHandler; // tmp ?
 class ANodeRecord; // tmp ?
+class ASensorViewer;
 
 class A3PhotSimWin : public QMainWindow
 {
@@ -143,11 +144,14 @@ private slots:
 
     void on_pbTest_clicked();
 
+    void on_tbwResults_currentChanged(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
 
-    Ui::A3PhotSimWin * ui = nullptr;
+    Ui::A3PhotSimWin * ui        = nullptr;
+    ASensorViewer    * gvSensors = nullptr;
 
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?

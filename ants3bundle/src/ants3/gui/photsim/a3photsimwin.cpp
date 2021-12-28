@@ -14,12 +14,16 @@
 #include "adispatcherinterface.h"
 #include "aerrorhub.h"
 #include "adepositionfilehandler.h"
+#include "asensorviewer.h"
+#include "asensorhub.h"
 
 #include <QDebug>
 #include <QLabel>
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QVBoxLayout>
+#include <QTabWidget>
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -49,6 +53,10 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
 
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(pm);
+
+    gvSensors = new ASensorViewer(data, this);
+    QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
+    lV->addWidget(gvSensors);
 
     updateGui();
 }
@@ -1332,18 +1340,15 @@ void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
     if (!dir.isEmpty()) ui->leResultsWorkingDir->setText(dir);
 }
 
-#include "asensorviewer.h"
-#include <asensorhub.h>
-#include <QVBoxLayout>
 void A3PhotSimWin::on_pbTest_clicked()
 {
     data.resize(ASensorHub::getConstInstance().countSensors());
-
     for (float & val : data) val = 10.0 * ARandomHub::getInstance().uniform();
+    gvSensors->updateGui();
+}
 
-    ASensorViewer * gv = new ASensorViewer(data, this);
-    QVBoxLayout * l = new QVBoxLayout();
-    l->addWidget(gv);
-    ui->frTest->setLayout(l);
+void A3PhotSimWin::on_tbwResults_currentChanged(int index)
+{
+    ui->frEventNumber->setVisible(index == 0 || index == 2 || index == 3);
 }
 
