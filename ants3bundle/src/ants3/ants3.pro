@@ -74,7 +74,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
-    asensordrawwidget.cpp \
+    gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
     farm/afarmhub.cpp \
@@ -221,7 +221,7 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
-    asensordrawwidget.h \
+    gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
     farm/afarmhub.h \
@@ -370,7 +370,7 @@ HEADERS += \
     tools/avector.h
 
 FORMS += \
-        asensordrawwidget.ui \
+        gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
         gui/script/ascriptwindow.ui \
