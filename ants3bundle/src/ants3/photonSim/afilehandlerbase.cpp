@@ -141,6 +141,22 @@ bool AFileHandlerBase::init()
     return processEventHeader();
 }
 
+bool AFileHandlerBase::isInitialized() const
+{
+    if (!BaseSettings.isValidated()) return false;
+
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+    {
+        if (!inStream) return false;
+        return inStream->is_open();
+    }
+    else
+    {
+        if (!inTextFile || !inTextStream) return false;
+        return true;
+    }
+}
+
 bool AFileHandlerBase::gotoEvent(int iEvent)
 {
     if (CurrentEvent == iEvent) return true;

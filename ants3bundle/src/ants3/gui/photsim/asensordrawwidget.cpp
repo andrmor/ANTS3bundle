@@ -17,8 +17,8 @@
 
 #include <math.h>
 
-ASensorDrawWidget::ASensorDrawWidget(const std::vector<float> & sensorSignals, QWidget *parent) :
-    QWidget(parent), SensorSignals(sensorSignals),
+ASensorDrawWidget::ASensorDrawWidget(QWidget * parent) :
+    QWidget(parent),
     ui(new Ui::ASensorDrawWidget)
 {
     ui->setupUi(this);
@@ -64,8 +64,9 @@ void ASensorDrawWidget::clearGrItems()
     grItems.clear();
 }
 
-void ASensorDrawWidget::updateGui()
+void ASensorDrawWidget::updateGui(const std::vector<float> & sensorSignals)
 {
+    SensorSignals = sensorSignals;
     const int numSensors = SensorSignals.size();
 
     scene->clear();
@@ -128,7 +129,7 @@ void ASensorDrawWidget::updateLegend(float MaxSignal)
                 case 15 : factor = 1.0;  break;
                 default : continue;
             }
-            QString txt = QString::number(factor * MaxSignal, 'g', 3);
+            QString txt = QString::number(factor * MaxSignal, 'g', ui->sbDecimals->value());
             l->setText(txt);
         }
     }
@@ -228,7 +229,7 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
             double sizey = box->dy * GVscale;
             item = scene->addRect(-sizex, -sizey, 2.0*sizex, 2.0*sizey, pen, brush);
         }
-        else if (shapeType == "AGeoTube")
+        else if (shapeType == "TGeoTube")
         {
             AGeoTube * tube = static_cast<AGeoTube*>(obj->Shape);
             double radius = tube->rmax * GVscale;
@@ -272,7 +273,6 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
     const int numSensors = SensorHub.countSensors();
 
-    const int prec = ui->sbDecimals->value();
     for (int iSens = 0; iSens < numSensors; iSens++)
     {
         AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
@@ -285,7 +285,7 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
         const double size = obj->Shape->minSize();
 
         const float sig = SensorSignals[iSens];
-        QString text = QString::number(sig, 'g', prec);
+        QString text = QString::number(sig, 'g', ui->sbDecimals->value());
 
         //color correction for dark blue
         QGraphicsSimpleTextItem *io = scene->addSimpleText(text);
@@ -307,7 +307,7 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
 
 void ASensorDrawWidget::on_pbResetView_clicked()
 {
-    updateGui();
+    //updateGui();
     resetViewport();
 }
 

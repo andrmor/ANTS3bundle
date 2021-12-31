@@ -3581,13 +3581,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="pbTest">
-              <property name="text">
-               <string>Test</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QTabWidget" name="twSensors">
               <property name="currentIndex">
                <number>0</number>
@@ -4604,7 +4597,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_2">
+            <widget class="QSpinBox" name="sbEvent">
              <property name="maximum">
               <number>99999999</number>
              </property>

@@ -22,6 +22,8 @@ public:
     virtual bool checkFile(bool collectStatistics); // !!!*** how to handle statistics?
 
     bool init();
+    bool isInitialized() const;
+
     bool gotoEvent(int iEvent);
     bool atEnd() const;
 

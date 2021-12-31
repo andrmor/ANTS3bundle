@@ -16,6 +16,7 @@ class AMonitorHub;
 class APhotonBombFileHandler; // tmp ?
 class ANodeRecord; // tmp ?
 class ASensorDrawWidget;
+class AFileHandlerBase;
 
 class A3PhotSimWin : public QMainWindow
 {
@@ -123,15 +124,10 @@ private slots:
     void on_pbSinglePhotonsHelp_clicked(); // !!!***
 
     void on_pbSelectBombsFile_clicked();
-
     void on_pbLoadAndShowBombs_clicked(); // !!!*** temporary!    !!!*** synchronize if both tracks and markers are shown to avoid double draw
-
     void on_sbShowBombsEvent_editingFinished();
-
     void on_pbShowBombsPrevious_clicked();
-
     void on_pbShowBombsNext_clicked();
-
     void on_cobShowBombsMode_activated(int index);
 
     void on_pbChangeWorkingDir_clicked();
@@ -139,12 +135,15 @@ private slots:
     void on_pbLoadAllResults_clicked();
 
     void on_pbViewDepositionFile_clicked();
-
     void on_pbHelpDepositionFile_clicked();
 
-    void on_pbTest_clicked();
-
     void on_tbwResults_currentChanged(int index);
+
+    void on_pbShowEvent_clicked();
+
+    void on_pbEventNumberLess_clicked();
+
+    void on_pbEventNumberMore_clicked();
 
 private:
     APhotonSimSettings & SimSet;
@@ -156,7 +155,8 @@ private:
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
 
-    std::vector<float> data; // !!!*** tmp
+    AFileSettingsBase * SignalsFileSettings = nullptr;
+    AFileHandlerBase  * SignalsFileHandler  = nullptr;
 
     void updatePhotBombGui();
     void updateDepoGui();
@@ -174,6 +174,12 @@ private:
 
     void showBombs();
 
+    void showSensorSignalDraw();
+    void showSensorSignalTable();
+
+    void disableGui(bool flag); // !!!*** make it for global interface
+
+    void doShowEvent();
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();

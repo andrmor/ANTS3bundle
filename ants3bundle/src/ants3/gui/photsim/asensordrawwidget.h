@@ -21,15 +21,13 @@ class ASensorDrawWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ASensorDrawWidget(const std::vector<float> & sensorSignals, QWidget *parent = nullptr);
+    explicit ASensorDrawWidget(QWidget * parent = nullptr);
     ~ASensorDrawWidget();
 
-    void updateGui();
+    void updateGui(const std::vector<float> & sensorSignals);
 
 private:
-    const std::vector<float> & SensorSignals;
-
-    Ui::ASensorDrawWidget    * ui = nullptr;
+    Ui::ASensorDrawWidget * ui = nullptr;
 
     ASensorGView   * gvOut = nullptr;
     QGraphicsScene * scene = nullptr;
@@ -39,6 +37,8 @@ private:
     bool bForbidUpdate = false;
 
     std::vector<QLabel*> Labels;
+
+    std::vector<float> SensorSignals;
 
 private slots:
     void on_pbResetView_clicked();

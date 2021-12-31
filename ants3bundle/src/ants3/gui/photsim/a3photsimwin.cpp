@@ -40,6 +40,9 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    SignalsFileSettings = new AFileSettingsBase();
+    SignalsFileHandler  = new AFileHandlerBase(*SignalsFileSettings);
+
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
 
@@ -54,7 +57,7 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(pm);
 
-    gvSensors = new ASensorDrawWidget(data, this);
+    gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
     lV->addWidget(gvSensors);
 
@@ -64,6 +67,8 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
 A3PhotSimWin::~A3PhotSimWin()
 {
     delete ui;
+
+    // !!!*** delete dynamic members!
 }
 
 void A3PhotSimWin::updateGui()
@@ -1340,15 +1345,95 @@ void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
     if (!dir.isEmpty()) ui->leResultsWorkingDir->setText(dir);
 }
 
-void A3PhotSimWin::on_pbTest_clicked()
-{
-    data.resize(ASensorHub::getConstInstance().countSensors());
-    for (float & val : data) val = 10000.0 * ARandomHub::getInstance().uniform();
-    gvSensors->updateGui();
-}
-
 void A3PhotSimWin::on_tbwResults_currentChanged(int index)
 {
     ui->frEventNumber->setVisible(index == 0 || index == 2 || index == 3);
+}
+
+void A3PhotSimWin::on_pbShowEvent_clicked()
+{
+    disableGui(true);
+
+    doShowEvent();
+
+    disableGui(false);
+}
+
+void A3PhotSimWin::doShowEvent()
+{
+    switch (ui->tbwResults->currentIndex())
+    {
+    case 0 :
+        {
+            QString name = ui->leSensorSigFileName->text();
+            if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+
+            if (name.isEmpty())
+            {
+                guitools::message("File name is empty!", this);
+                return;
+            }
+
+            if (SignalsFileSettings->FileName != name)
+            {
+                SignalsFileSettings->clear();
+
+                SignalsFileSettings->FileName = name;
+                AErrorHub::clear();
+                bool ok = SignalsFileHandler->init();
+                if (!ok)
+                {
+                    guitools::message(AErrorHub::getQError(), this);
+                    return;
+                }
+            }
+
+            if (ui->twSensors->currentIndex() == 0) showSensorSignalDraw();
+            else showSensorSignalTable();
+        }
+    }
+}
+
+#include "asensorsignalarray.h"
+void A3PhotSimWin::showSensorSignalDraw()
+{
+    ASensorSignalArray ar;
+    ar.Signals.resize(ASensorHub::getConstInstance().countSensors());
+
+    AErrorHub::clear();
+    bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    SignalsFileHandler->readNextRecordSameEvent(ar);
+    gvSensors->updateGui(ar.Signals);
+}
+
+void A3PhotSimWin::showSensorSignalTable()
+{
+
+}
+
+void A3PhotSimWin::disableGui(bool flag)
+{
+    setDisabled(flag);
+}
+
+void A3PhotSimWin::on_pbEventNumberLess_clicked()
+{
+    int iEvent = ui->sbEvent->value();
+    if (iEvent == 0) return;
+
+    ui->sbEvent->setValue(iEvent - 1);
+    on_pbShowEvent_clicked();
+}
+
+void A3PhotSimWin::on_pbEventNumberMore_clicked()
+{
+    ui->sbEvent->setValue(ui->sbEvent->value() + 1);
+    on_pbShowEvent_clicked();
 }
 
