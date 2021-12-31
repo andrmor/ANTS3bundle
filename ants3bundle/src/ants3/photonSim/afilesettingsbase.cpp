@@ -5,6 +5,7 @@
 
 bool AFileSettingsBase::isValidated() const
 {
+    if (FileName.isEmpty()) return false;
     if (FileFormat == Undefined || FileFormat == Invalid) return false;
 
     QFileInfo fi(FileName);

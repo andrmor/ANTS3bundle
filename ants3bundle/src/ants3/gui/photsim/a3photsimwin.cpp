@@ -1353,9 +1353,7 @@ void A3PhotSimWin::on_tbwResults_currentChanged(int index)
 void A3PhotSimWin::on_pbShowEvent_clicked()
 {
     disableGui(true);
-
-    doShowEvent();
-
+        doShowEvent();
     disableGui(false);
 }
 
@@ -1374,7 +1372,7 @@ void A3PhotSimWin::doShowEvent()
                 return;
             }
 
-            if (SignalsFileSettings->FileName != name)
+            if (SignalsFileSettings->FileName != name || !SignalsFileHandler->isInitialized())
             {
                 SignalsFileSettings->clear();
 

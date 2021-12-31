@@ -83,13 +83,19 @@ bool AFileHandlerBase::init()
 {
     clearResources();
 
+    if (BaseSettings.FileName.isEmpty())
+    {
+        AErrorHub::addQError("File name is empty!");
+        return false;
+    }
+
     if (!BaseSettings.isValidated())
     {
         determineFormat();
 
         if (BaseSettings.FileFormat == AFileSettingsBase::Invalid)
         {
-            AErrorHub::addQError("Cannot open file!");
+            AErrorHub::addQError("Cannot open file: " + BaseSettings.FileName);
             return false;
         }
         if (BaseSettings.FileFormat == AFileSettingsBase::Undefined)
