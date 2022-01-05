@@ -145,6 +145,8 @@ private slots:
 
     void on_pbEventNumberMore_clicked();
 
+    void on_pbChooseSensorSigFile_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

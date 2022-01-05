@@ -1435,3 +1435,9 @@ void A3PhotSimWin::on_pbEventNumberMore_clicked()
     on_pbShowEvent_clicked();
 }
 
+void A3PhotSimWin::on_pbChooseSensorSigFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with sensor data", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leSensorSigFileName->setText(fileName);
+}
+
