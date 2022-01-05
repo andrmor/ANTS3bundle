@@ -3533,96 +3533,131 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
-          <widget class="QWidget" name="tab_2">
+          <widget class="QWidget" name="tab_6">
            <attribute name="title">
-            <string>Sensors</string>
+            <string>Statistics</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_28">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="leftMargin">
-             <number>3</number>
-            </property>
-            <property name="topMargin">
-             <number>3</number>
-            </property>
-            <property name="rightMargin">
-             <number>3</number>
-            </property>
-            <property name="bottomMargin">
-             <number>3</number>
-            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_59">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Load from file:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
-               <widget class="QLabel" name="label_37">
+               <widget class="QLineEdit" name="leStatisticsFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>PhotonStatistics.json</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="leSensorSigFileName">
+               <widget class="QPushButton" name="pbSelectStatisticsFile">
                 <property name="text">
-                 <string>SensorSignals.txt</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbChooseSensorSigFile">
-                <property name="text">
-                 <string>Choose</string>
+                 <string>Select</string>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QTabWidget" name="twSensors">
-              <property name="currentIndex">
+             <widget class="QPushButton" name="pbLoadAndShowStatistics">
+              <property name="text">
+               <string>Load and show</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_32">
+              <property name="topMargin">
                <number>0</number>
               </property>
-              <widget class="QWidget" name="tab_8">
-               <attribute name="title">
-                <string>Draw</string>
-               </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_29">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
-                <property name="leftMargin">
-                 <number>3</number>
-                </property>
-                <property name="topMargin">
-                 <number>3</number>
-                </property>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_19">
                 <property name="rightMargin">
-                 <number>3</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <item>
-                 <widget class="QFrame" name="frSensorDraw">
-                  <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Processes:</string>
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="ptePhotonProcesses"/>
+                </item>
                </layout>
-              </widget>
-              <widget class="QWidget" name="tab_9">
-               <attribute name="title">
-                <string>Table</string>
-               </attribute>
-              </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_16">
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_9">
+                  <property name="text">
+                   <string>Photon end of life:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="pteEndOfLife"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Sensor statistics:</string>
+              </property>
              </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_26">
+              <item>
+               <widget class="QPushButton" name="pbShowTransitionDistr">
+                <property name="text">
+                 <string>Transitions</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowWaveDistr">
+                <property name="text">
+                 <string>Wavelength</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowTimeDistr">
+                <property name="text">
+                 <string>Time</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowAngleDistr">
+                <property name="text">
+                 <string>Angle</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -4044,55 +4079,94 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_3">
+          <widget class="QWidget" name="tab_2">
            <attribute name="title">
-            <string>Tracks</string>
+            <string>Sensors</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_13">
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <property name="spacing">
+             <number>3</number>
+            </property>
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
+             <number>3</number>
+            </property>
             <item>
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <layout class="QHBoxLayout" name="horizontalLayout_59">
               <item>
-               <widget class="QLineEdit" name="leTracksFile">
+               <widget class="QLabel" name="label_37">
                 <property name="text">
-                 <string>PhotonTracks.txt</string>
+                 <string>File:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectTracksFile">
+               <widget class="QLineEdit" name="leSensorSigFileName">
                 <property name="text">
-                 <string>Select</string>
+                 <string>SensorSignals.txt</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbChooseSensorSigFile">
+                <property name="text">
+                 <string>Choose</string>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="pbLoadAndShowTracks">
-              <property name="text">
-               <string>Load and show</string>
+             <widget class="QTabWidget" name="twSensors">
+              <property name="currentIndex">
+               <number>0</number>
               </property>
+              <widget class="QWidget" name="tab_8">
+               <attribute name="title">
+                <string>Draw</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_29">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <property name="leftMargin">
+                 <number>3</number>
+                </property>
+                <property name="topMargin">
+                 <number>3</number>
+                </property>
+                <property name="rightMargin">
+                 <number>3</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>3</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="frSensorDraw">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tab_9">
+               <attribute name="title">
+                <string>Table</string>
+               </attribute>
+              </widget>
              </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_14">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -4258,29 +4332,29 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_6">
+          <widget class="QWidget" name="tab_3">
            <attribute name="title">
-            <string>Statistics</string>
+            <string>Tracks</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_15">
+           <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
-             <widget class="QLabel" name="label_5">
+             <widget class="QLabel" name="label_3">
               <property name="text">
                <string>Load from file:</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item>
-               <widget class="QLineEdit" name="leStatisticsFile">
+               <widget class="QLineEdit" name="leTracksFile">
                 <property name="text">
-                 <string>PhotonStatistics.json</string>
+                 <string>PhotonTracks.txt</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectStatisticsFile">
+               <widget class="QPushButton" name="pbSelectTracksFile">
                 <property name="text">
                  <string>Select</string>
                 </property>
@@ -4289,98 +4363,24 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="pbLoadAndShowStatistics">
+             <widget class="QPushButton" name="pbLoadAndShowTracks">
               <property name="text">
                <string>Load and show</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="Line" name="line">
+             <spacer name="verticalSpacer_14">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Vertical</enum>
               </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_32">
-              <property name="topMargin">
-               <number>0</number>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
               </property>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_19">
-                <property name="rightMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_10">
-                  <property name="text">
-                   <string>Processes:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPlainTextEdit" name="ptePhotonProcesses"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_16">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_9">
-                  <property name="text">
-                   <string>Photon end of life:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPlainTextEdit" name="pteEndOfLife"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Sensor statistics:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_26">
-              <item>
-               <widget class="QPushButton" name="pbShowTransitionDistr">
-                <property name="text">
-                 <string>Transitions</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowWaveDistr">
-                <property name="text">
-                 <string>Wavelength</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowTimeDistr">
-                <property name="text">
-                 <string>Time</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowAngleDistr">
-                <property name="text">
-                 <string>Angle</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             </spacer>
             </item>
            </layout>
           </widget>

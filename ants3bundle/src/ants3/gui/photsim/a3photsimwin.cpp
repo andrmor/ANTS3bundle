@@ -417,19 +417,24 @@ void A3PhotSimWin::showSimulationResults()
 
 void A3PhotSimWin::on_pbLoadAllResults_clicked()
 {
+    ui->sbEvent->setValue(0);
+
     APhotSimRunSettings Set;
 
-    ui->leTracksFile->setText(Set.FileNameTracks);
-    on_pbLoadAndShowTracks_clicked();
+    ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
+    showSensorSignal();
 
     ui->leMonitorsFileName->setText(Set.FileNameMonitors);
     on_pbLoadMonitorsData_clicked();
 
-    ui->leStatisticsFile->setText(Set.FileNameStatistics);
-    on_pbLoadAndShowStatistics_clicked();
+    ui->leTracksFile->setText(Set.FileNameTracks);
+    on_pbLoadAndShowTracks_clicked();
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
+
+    ui->leStatisticsFile->setText(Set.FileNameStatistics);
+    on_pbLoadAndShowStatistics_clicked();
 }
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
@@ -1240,7 +1245,7 @@ void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
 
 void A3PhotSimWin::on_tbwResults_currentChanged(int index)
 {
-    ui->frEventNumber->setVisible(index == 0 || index == 2 || index == 3);
+    ui->frEventNumber->setVisible(index > 1);
 }
 
 void A3PhotSimWin::on_pbShowEvent_clicked()
@@ -1254,8 +1259,9 @@ void A3PhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 0 : showSensorSignal();    break;
+    case 2 : showSensorSignal();    break;
     case 3 : showBombSingleEvent(); break;
+    case 4 : break;
 
     default :;
     }
@@ -1286,8 +1292,10 @@ void A3PhotSimWin::showSensorSignal()
         }
     }
 
-    if (ui->twSensors->currentIndex() == 0) showSensorSignalDraw();
-    else showSensorSignalTable();
+    //if (ui->twSensors->currentIndex() == 0)
+        showSensorSignalDraw();
+    //else
+        showSensorSignalTable();
 }
 
 #include "asensorsignalarray.h"
