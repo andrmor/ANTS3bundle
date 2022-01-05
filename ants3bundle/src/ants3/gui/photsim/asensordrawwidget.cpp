@@ -64,16 +64,20 @@ void ASensorDrawWidget::clearGrItems()
     grItems.clear();
 }
 
-void ASensorDrawWidget::updateGui(const std::vector<float> & sensorSignals)
+void ASensorDrawWidget::updateGui(const std::vector<float> & sensorSignals, const std::vector<int> & enabledSensors)
 {
-    SensorSignals = sensorSignals;
-    const int numSensors = SensorSignals.size();
+    SensorSignals  = sensorSignals;
+    EnabledSensors = enabledSensors;
 
     scene->clear();
 
     float MaxSignal = 0;
-    for (int i = 0; i < numSensors; i++)
-        if (SensorSignals[i] > MaxSignal) MaxSignal = SensorSignals[i];
+    //for (int i = 0; i < SensorSignals.size(); i++)
+    for (size_t i = 0; i < enabledSensors.size(); i++)
+    {
+        const int iSens = enabledSensors[i];
+        if (SensorSignals[iSens] > MaxSignal) MaxSignal = SensorSignals[iSens];
+    }
     if (MaxSignal < 1.0e-25) MaxSignal = 1.0;
 
     updateLegend(MaxSignal);
@@ -177,10 +181,13 @@ void ASensorDrawWidget::resetViewport()
 void ASensorDrawWidget::addSensorItems(float MaxSignal)
 {
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
-    const int numSensors = SensorHub.countSensors();
 
-    for (int iSens = 0; iSens < numSensors; iSens++)
+    //const int numSensors = SensorHub.countSensors();
+    //for (int iSens = 0; iSens < numSensors; iSens++)
+    for (size_t i = 0; i < EnabledSensors.size(); i++)
     {
+        const int iSens = EnabledSensors[i];
+
         AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
         if (!obj->Shape)
         {
@@ -271,10 +278,12 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
 void ASensorDrawWidget::addTextItems(float MaxSignal)
 {
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
-    const int numSensors = SensorHub.countSensors();
 
-    for (int iSens = 0; iSens < numSensors; iSens++)
+    //const int numSensors = SensorHub.countSensors();
+    //for (int iSens = 0; iSens < numSensors; iSens++)
+    for (size_t i = 0; i < EnabledSensors.size(); i++)
     {
+        const int iSens = EnabledSensors[i];
         AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
         if (!obj->Shape)
         {
@@ -310,4 +319,3 @@ void ASensorDrawWidget::on_pbResetView_clicked()
     //updateGui();
     resetViewport();
 }
-

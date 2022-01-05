@@ -4,6 +4,8 @@
 #include <QString>
 #include <QIcon>
 
+#include <vector>
+
 class QWidget;
 
 namespace guitools
@@ -24,6 +26,8 @@ namespace guitools
     QString dialogLoadFile(QWidget * parent, const QString & text, const QString & filePattern);
 
     QString dialogDirectory(QWidget * parent, const QString & text, const QString & initialDir, bool DefaultRead = false, bool DefaultWrite = false);
+
+    bool    extractNumbersFromQString(const QString & input, std::vector<int> & extracted);
 }
 
 #endif // GUITOOLS_H

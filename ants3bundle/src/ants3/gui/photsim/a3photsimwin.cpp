@@ -54,16 +54,19 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
     APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // make a class ref here !!!***
     connect(&SimMan, &APhotonSimManager::requestUpdateResultsGUI, this, &A3PhotSimWin::showSimulationResults);
 
-    QList<QPushButton*> listDummyButtons = this->findChildren<QPushButton*>();
+    QList<QPushButton*> listDummyButtons = findChildren<QPushButton*>();
     for (QPushButton * pb : qAsConst(listDummyButtons))
         if (pb->objectName().startsWith("pbd"))
             pb->setVisible(false);
+
+    ui->cbSensorsAll->setChecked(true);
 
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(pm);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
+    lV->setContentsMargins(2,2,2,2);
     lV->addWidget(gvSensors);
 
     updateGui();
@@ -421,20 +424,20 @@ void A3PhotSimWin::on_pbLoadAllResults_clicked()
 
     APhotSimRunSettings Set;
 
-    ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
-    showSensorSignal();
+    ui->leStatisticsFile->setText(Set.FileNameStatistics);
+    on_pbLoadAndShowStatistics_clicked();
 
     ui->leMonitorsFileName->setText(Set.FileNameMonitors);
     on_pbLoadMonitorsData_clicked();
 
-    ui->leTracksFile->setText(Set.FileNameTracks);
-    on_pbLoadAndShowTracks_clicked();
+    ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
+    showSensorSignal();
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
-    ui->leStatisticsFile->setText(Set.FileNameStatistics);
-    on_pbLoadAndShowStatistics_clicked();
+    ui->leTracksFile->setText(Set.FileNameTracks);
+    on_pbLoadAndShowTracks_clicked();
 }
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
@@ -933,6 +936,8 @@ void A3PhotSimWin::on_pbShowMonitorTimeOverall_clicked()
     emit requestDraw(time, "hist", true, true);
 }
 
+// ---
+
 void A3PhotSimWin::on_pbChangeDepositionFile_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with energy deposition data", "");
@@ -1302,7 +1307,8 @@ void A3PhotSimWin::showSensorSignal()
 void A3PhotSimWin::showSensorSignalDraw()
 {
     ASensorSignalArray ar;
-    ar.Signals.resize(ASensorHub::getConstInstance().countSensors());
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
+    ar.Signals.resize(numSensors);
 
     AErrorHub::clear();
     bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
@@ -1313,7 +1319,21 @@ void A3PhotSimWin::showSensorSignalDraw()
     }
 
     SignalsFileHandler->readNextRecordSameEvent(ar);
-    gvSensors->updateGui(ar.Signals);
+
+    std::vector<int> enabledSensors;
+    if (ui->cbSensorsAll->isChecked())
+    {
+        for (int i = 0; i < numSensors; i++)
+            enabledSensors.push_back(i);
+    }
+    else
+    {
+        if (ui->cbSensorsG1->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG1->text(), enabledSensors);
+        if (ui->cbSensorsG2->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG2->text(), enabledSensors);
+        if (ui->cbSensorsG3->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG3->text(), enabledSensors);
+    }
+
+    gvSensors->updateGui(ar.Signals, enabledSensors);
 }
 
 void A3PhotSimWin::showSensorSignalTable()

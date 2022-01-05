@@ -24,7 +24,7 @@ public:
     explicit ASensorDrawWidget(QWidget * parent = nullptr);
     ~ASensorDrawWidget();
 
-    void updateGui(const std::vector<float> & sensorSignals);
+    void updateGui(const std::vector<float> & sensorSignals, const std::vector<int> & enabledSensors);
 
 private:
     Ui::ASensorDrawWidget * ui = nullptr;
@@ -39,6 +39,7 @@ private:
     std::vector<QLabel*> Labels;
 
     std::vector<float> SensorSignals;
+    std::vector<int>   EnabledSensors;
 
 private slots:
     void on_pbResetView_clicked();
