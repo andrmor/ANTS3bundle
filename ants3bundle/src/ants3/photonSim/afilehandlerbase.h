@@ -19,7 +19,7 @@ public:
     virtual ~AFileHandlerBase();
 
     virtual void determineFormat();                 // very simplistic in the generic case, feel free to override for the concrete classes
-    virtual bool checkFile(bool collectStatistics); // !!!*** how to handle statistics?
+    virtual bool checkFile(bool collectStatistics); // !!!*** how to handle statistics? --> separate (non-virtual?) method?
 
     bool init();
     bool isInitialized() const;
@@ -39,6 +39,7 @@ protected:
 
     int             CurrentEvent    = -1;
     bool            EventEndReached = false;
+    bool            ReadingEvent    = false; // set to true when at least one record was read
 
     //resources for ascii input
     QFile         * inTextFile    = nullptr;
