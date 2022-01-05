@@ -124,11 +124,6 @@ private slots:
     void on_pbSinglePhotonsHelp_clicked(); // !!!***
 
     void on_pbSelectBombsFile_clicked();
-    void on_pbLoadAndShowBombs_clicked(); // !!!*** temporary!    !!!*** synchronize if both tracks and markers are shown to avoid double draw
-    void on_sbShowBombsEvent_editingFinished();
-    void on_pbShowBombsPrevious_clicked();
-    void on_pbShowBombsNext_clicked();
-    void on_cobShowBombsMode_activated(int index);
 
     void on_pbChangeWorkingDir_clicked();
 
@@ -146,6 +141,8 @@ private slots:
     void on_pbEventNumberMore_clicked();
 
     void on_pbChooseSensorSigFile_clicked();
+
+    void on_pbShowBombsMultiple_clicked();
 
 private:
     APhotonSimSettings & SimSet;
@@ -174,14 +171,19 @@ private:
 
     void updateAdvancedBombIndicator();
 
-    void showBombs();
-
-    void showSensorSignalDraw();
-    void showSensorSignalTable();
 
     void disableGui(bool flag); // !!!*** make it for global interface
 
+
     void doShowEvent();
+
+    void showSensorSignal();
+    void showSensorSignalDraw();
+    void showSensorSignalTable();
+
+    void showBombSingleEvent();
+    bool updateBombHandler();
+
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();

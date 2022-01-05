@@ -16,6 +16,8 @@
 #include "adepositionfilehandler.h"
 #include "asensordrawwidget.h"
 #include "asensorhub.h"
+#include "aphotonbombfilehandler.h"
+#include "anoderecord.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -42,6 +44,9 @@ A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
 
     SignalsFileSettings = new AFileSettingsBase();
     SignalsFileHandler  = new AFileHandlerBase(*SignalsFileSettings);
+
+    BombFileSettings = new ABombFileSettings();
+    BombFileHandler  = new APhotonBombFileHandler(*BombFileSettings);
 
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
@@ -405,7 +410,7 @@ void A3PhotSimWin::showSimulationResults()
         if (SimSet.RunSet.SavePhotonBombs)
         {
             ui->leBombsFile->setText(SimSet.RunSet.FileNamePhotonBombs);
-            on_pbLoadAndShowBombs_clicked();
+            on_pbShowBombsMultiple_clicked();
         }
     }
 }
@@ -424,7 +429,7 @@ void A3PhotSimWin::on_pbLoadAllResults_clicked()
     on_pbLoadAndShowStatistics_clicked();
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
-    on_pbLoadAndShowBombs_clicked();
+    on_pbShowBombsMultiple_clicked();
 }
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
@@ -1227,118 +1232,6 @@ void A3PhotSimWin::on_pbSelectBombsFile_clicked()
     if (!fileName.isEmpty()) ui->leBombsFile->setText(fileName);
 }
 
-void A3PhotSimWin::on_pbLoadAndShowBombs_clicked()
-{
-    delete BombFileHandler;  BombFileHandler  = nullptr;
-    delete BombFileSettings; BombFileSettings = nullptr;
-
-    BombFileSettings = new ABombFileSettings();
-    BombFileSettings->FileName = ui->leBombsFile->text();
-    if (!BombFileSettings->FileName.contains('/'))
-        BombFileSettings->FileName = ui->leResultsWorkingDir->text() + '/' + BombFileSettings->FileName;
-    BombFileHandler = new APhotonBombFileHandler(*BombFileSettings);
-
-    AErrorHub::clear();
-    BombFileHandler->determineFormat();
-    if (AErrorHub::isError())
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        return;
-    }
-    BombFileHandler->checkFile(false);
-    if (AErrorHub::isError())
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        return;
-    }
-
-    ui->sbShowBombsEvent->setValue(0);
-    ui->labShowBombsNumEvents->setText( QString::number(BombFileSettings->NumEvents) );
-
-    emit requestShowGeometry(true);
-    emit requestShowTracks(); // !!!***
-    showBombs();
-}
-
-#include "anoderecord.h"
-void A3PhotSimWin::showBombs()
-{
-    emit requestClearGeoMarkers(0);
-
-    if (!BombFileHandler) return;
-
-    if (ui->cobShowBombsMode->currentIndex() == 0)
-    {
-        // all events
-        bool ok = BombFileHandler->init();
-        if (!ok) return;
-        ANodeRecord node(0,0,0);
-        for (int iEvent = 0; iEvent < BombFileSettings->NumEvents; iEvent++)
-        {
-            while (BombFileHandler->readNextRecordSameEvent(node))
-                emit requestAddPhotonNodeGeoMarker(node);
-            BombFileHandler->acknowledgeNextEvent();
-        }
-    }
-    else
-    {
-        // single event
-        int iEvent = ui->sbShowBombsEvent->value();
-        if (iEvent < 0)
-        {
-            //paranoic
-            ui->sbShowBombsEvent->setValue(0);
-            iEvent = 0;
-        }
-
-        if (iEvent >= BombFileSettings->NumEvents)
-        {
-            iEvent = BombFileSettings->NumEvents - 1;
-            if (iEvent < 0) iEvent = 0; // paranoic
-            ui->sbShowBombsEvent->setValue(iEvent);
-        }
-
-        qDebug() << "Ev #" << iEvent;
-        bool ok = BombFileHandler->gotoEvent(iEvent);
-        qDebug() << "--->" << ok;
-        if (!ok)
-        {
-            guitools::message("Cannot go to this event!", this);
-            return;
-        }
-
-        ANodeRecord node(0,0,0);
-        while (BombFileHandler->readNextRecordSameEvent(node))
-            emit requestAddPhotonNodeGeoMarker(node);
-    }
-    emit requestShowGeoMarkers();
-}
-
-void A3PhotSimWin::on_sbShowBombsEvent_editingFinished()
-{
-    showBombs();
-}
-
-void A3PhotSimWin::on_pbShowBombsPrevious_clicked()
-{
-    int iEvent = ui->sbShowBombsEvent->value();
-    if (iEvent == 0) return;
-    ui->sbShowBombsEvent->setValue(iEvent - 1);
-    showBombs();
-}
-
-void A3PhotSimWin::on_pbShowBombsNext_clicked()
-{
-    int iEvent = ui->sbShowBombsEvent->value();
-    ui->sbShowBombsEvent->setValue(iEvent + 1);
-    showBombs();
-}
-
-void A3PhotSimWin::on_cobShowBombsMode_activated(int)
-{
-    showBombs();
-}
-
 void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
 {
     QString dir = guitools::dialogDirectory(this, "Select directory with photon data", SimSet.RunSet.OutputDirectory, true, false);
@@ -1361,35 +1254,40 @@ void A3PhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 0 :
+    case 0 : showSensorSignal();    break;
+    case 3 : showBombSingleEvent(); break;
+
+    default :;
+    }
+}
+
+void A3PhotSimWin::showSensorSignal()
+{
+    QString name = ui->leSensorSigFileName->text();
+    if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+
+    if (name.isEmpty())
+    {
+        guitools::message("File name is empty!", this);
+        return;
+    }
+
+    if (SignalsFileSettings->FileName != name || !SignalsFileHandler->isInitialized())
+    {
+        SignalsFileSettings->clear();
+
+        SignalsFileSettings->FileName = name;
+        AErrorHub::clear();
+        bool ok = SignalsFileHandler->init();
+        if (!ok)
         {
-            QString name = ui->leSensorSigFileName->text();
-            if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
-
-            if (name.isEmpty())
-            {
-                guitools::message("File name is empty!", this);
-                return;
-            }
-
-            if (SignalsFileSettings->FileName != name || !SignalsFileHandler->isInitialized())
-            {
-                SignalsFileSettings->clear();
-
-                SignalsFileSettings->FileName = name;
-                AErrorHub::clear();
-                bool ok = SignalsFileHandler->init();
-                if (!ok)
-                {
-                    guitools::message(AErrorHub::getQError(), this);
-                    return;
-                }
-            }
-
-            if (ui->twSensors->currentIndex() == 0) showSensorSignalDraw();
-            else showSensorSignalTable();
+            guitools::message(AErrorHub::getQError(), this);
+            return;
         }
     }
+
+    if (ui->twSensors->currentIndex() == 0) showSensorSignalDraw();
+    else showSensorSignalTable();
 }
 
 #include "asensorsignalarray.h"
@@ -1413,6 +1311,71 @@ void A3PhotSimWin::showSensorSignalDraw()
 void A3PhotSimWin::showSensorSignalTable()
 {
 
+}
+
+void A3PhotSimWin::showBombSingleEvent()
+{
+    emit requestClearGeoMarkers(0);
+
+    bool ok = updateBombHandler();
+    if (!ok) return;
+
+    int iEvent = ui->sbEvent->value();
+    if (iEvent < 0)
+    {
+        ui->sbEvent->setValue(0);
+        iEvent = 0;
+    }
+
+    /*
+    if (iEvent >= BombFileSettings->NumEvents)
+    {
+        iEvent = BombFileSettings->NumEvents - 1;
+        if (iEvent < 0) iEvent = 0;
+        ui->sbEvent->setValue(iEvent);
+    }
+    */
+
+    ok = BombFileHandler->gotoEvent(iEvent);
+    if (!ok)
+    {
+        guitools::message("Cannot go to this event!", this);
+        return;
+    }
+
+    ANodeRecord node(0,0,0);
+    while (BombFileHandler->readNextRecordSameEvent(node))
+        emit requestAddPhotonNodeGeoMarker(node);
+
+    emit requestShowGeoMarkers();
+}
+
+bool A3PhotSimWin::updateBombHandler()
+{
+    QString name = ui->leBombsFile->text();
+    if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+
+    if (name.isEmpty())
+    {
+        guitools::message("File name is empty!", this);
+        return false;
+    }
+
+    if (BombFileSettings->FileName != name || !BombFileHandler->isInitialized())
+    {
+        BombFileSettings->clear();
+
+        BombFileSettings->FileName = name;
+        AErrorHub::clear();
+        bool ok = BombFileHandler->init();
+        if (!ok)
+        {
+            guitools::message(AErrorHub::getQError(), this);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void A3PhotSimWin::disableGui(bool flag)
@@ -1439,5 +1402,27 @@ void A3PhotSimWin::on_pbChooseSensorSigFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with sensor data", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leSensorSigFileName->setText(fileName);
+}
+
+void A3PhotSimWin::on_pbShowBombsMultiple_clicked()
+{
+    emit requestShowGeometry(true);
+//    emit requestShowTracks(); // !!!***
+
+    emit requestClearGeoMarkers(0);
+
+    bool ok = updateBombHandler();
+    if (!ok) return;
+
+    BombFileHandler->init();
+
+    ANodeRecord node(0,0,0);
+    while (!BombFileHandler->atEnd())
+    {
+        while (BombFileHandler->readNextRecordSameEvent(node))
+            emit requestAddPhotonNodeGeoMarker(node);
+        BombFileHandler->acknowledgeNextEvent();
+    }
+    emit requestShowGeoMarkers();
 }
 
