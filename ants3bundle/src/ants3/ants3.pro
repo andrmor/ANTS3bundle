@@ -131,6 +131,7 @@ SOURCES += \
     js/amath_si.cpp \
     js/aphotonsim_si.cpp \
     js/ascriptinterface.cpp \
+    js/atrack_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -280,6 +281,7 @@ HEADERS += \
     js/amath_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
+    js/atrack_si.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
