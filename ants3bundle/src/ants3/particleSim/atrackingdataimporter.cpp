@@ -492,6 +492,8 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
                                      inputSL.at(0));          // pr
     }
 
+    step->extractTargetIsotope();
+
     return step;
 }
 

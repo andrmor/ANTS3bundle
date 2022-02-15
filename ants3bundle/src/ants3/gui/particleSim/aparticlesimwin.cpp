@@ -992,6 +992,7 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
                                                           .arg(MatHub.getMaterialName(trStep->iMaterial));
             //cannot set currents yet - the indication should still show the "from" values - remember about energy deposition during "T" step!
         }
+        else if (!step->TargetIsotope.isEmpty()) s += QString(" (%0)").arg(step->TargetIsotope);
 
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
