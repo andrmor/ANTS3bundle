@@ -33,7 +33,6 @@ public:
     int  getErrorLineNumber(); //-1 if no errors
 
     void collectGarbage();
-
 private:
     void start();
 

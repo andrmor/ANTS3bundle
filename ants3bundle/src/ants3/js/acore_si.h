@@ -81,6 +81,8 @@ public slots:
 
     const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
+    static void addQVariantToString(const QVariant & var, QString & string);
+
 private:
     enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
     //file finder
@@ -88,7 +90,6 @@ private:
     QString         Finder_Dir;
     QString         Finder_NamePattern = "*.*";
 
-    void addQVariantToString(const QVariant & var, QString & string) const;
     void readFormattedLine(const QStringList &fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
     bool readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);
     bool readFormattedBinaryLine(std::ifstream &inStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);

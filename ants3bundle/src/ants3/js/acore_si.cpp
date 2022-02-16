@@ -99,7 +99,7 @@ double ACore_SI::getTimeMark()
 }
 
 #include <QtGlobal>
-void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
+void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     switch (var.type())

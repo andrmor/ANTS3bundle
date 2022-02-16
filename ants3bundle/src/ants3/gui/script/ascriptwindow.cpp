@@ -430,6 +430,7 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
+#include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     AJScriptManager & ScriptManager = AJScriptHub::manager();
@@ -469,7 +470,11 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         if (resStr != "undefined" && !resStr.isEmpty())
-            outputText(resStr);
+        {
+            QString s;
+            ACore_SI::addQVariantToString(resSV.toVariant(), s);
+            outputText(s);
+        }
     }
 
     ScriptManager.collectGarbage();
