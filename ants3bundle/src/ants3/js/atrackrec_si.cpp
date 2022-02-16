@@ -21,7 +21,7 @@ void ATrackRec_SI::clearData()
 {
     delete EventRecord; EventRecord = nullptr;
     ParticleRecord = nullptr;
-    CurrentEvent = -1;
+    CurrentEvent = 0;
     CurrentStep = 0;
 }
 
@@ -34,6 +34,8 @@ void ATrackRec_SI::configure(QString fileName, bool binary)
 void ATrackRec_SI::setEvent(int iEvent)
 {
     clearData();
+
+    EventRecord = AEventTrackingRecord::create();
 
     ATrackingDataImporter TDI(FileName, bBinaryFile);
     bool ok = TDI.extractEvent(iEvent, EventRecord);
@@ -209,7 +211,9 @@ bool ATrackRec_SI::gotoNextNonTransportationStep()
     {
         while ( makeStep() )
         {
-            if (ParticleRecord->getSteps().at(CurrentStep)->Process != "T") return true;
+            const QString & pr = ParticleRecord->getSteps().at(CurrentStep)->Process;
+            if (pr == "T" || pr == "C" || pr == "O") continue;
+            return true;
         }
         return false;
     }

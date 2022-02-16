@@ -57,7 +57,7 @@ private:
     QString FileName;
     bool    bBinaryFile;
 
-    AEventTrackingRecord    * EventRecord = nullptr;
+    AEventTrackingRecord          * EventRecord = nullptr;
     const AParticleTrackingRecord * ParticleRecord = nullptr;
 
     int CurrentEvent = 0;
