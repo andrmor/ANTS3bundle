@@ -35,7 +35,7 @@ A3Global::A3Global()
     QuicksaveDir = AntsBaseDir + "/Quicksave";
     if (!QDir(QuicksaveDir).exists()) QDir().mkdir(QuicksaveDir);
 
-    ConfigDir = ExecutableDir + "/Config";
+    ConfigDir = AntsBaseDir + "/Config";
     if (QDir(ConfigDir).exists()) loadConfig();
     else
     {

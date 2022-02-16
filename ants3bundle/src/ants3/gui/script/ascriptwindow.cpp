@@ -436,6 +436,7 @@ void AScriptWindow::on_pbRunScript_clicked()
     AJScriptManager & ScriptManager = AJScriptHub::manager();
     // save all tabs -> GlobSet
     WriteToJson();
+    A3Global::getInstance().saveConfig();
     emit requestUpdateConfig();
 
     QString Script = getTab()->TextEdit->document()->toPlainText();
