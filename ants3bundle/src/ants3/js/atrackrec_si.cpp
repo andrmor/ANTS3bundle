@@ -5,24 +5,16 @@
 #include <cmath>
 
 ATrackRec_SI::ATrackRec_SI() :
-    AScriptInterface()
+    AScriptInterface(), EventRecord(AEventTrackingRecord::create())
 {
     Help["getTrackRecord"] = "returns [string_ParticleName, bool_IsSecondary, int_NumberOfSecondaries, int_NumberOfTrackingSteps]";
-    Help["getStepRecord"]  = "returns [ [X,Y,Z], Time, [MatIndex, VolumeName, VolumeIndex], Energy, DepositedEnergy, ProcessName, indexesOfSecondaries[] ]\n"
+    Help["getStepRecord"]  = "returns [ [X,Y,Z], Time, [MatIndex, VolumeName, VolumeIndex], Energy, DepositedEnergy, ProcessName, TragetIsotope(for hadronic), indexesOfSecondaries[] ]\n"
                              "XYZ in mm, Time in ns, Energies in keV, [MatVolIndex] array is empty if node does not exist, indexesOfSec is array with ints";
 }
 
 ATrackRec_SI::~ATrackRec_SI()
 {
-    clearData();
-}
-
-void ATrackRec_SI::clearData()
-{
     delete EventRecord; EventRecord = nullptr;
-    ParticleRecord = nullptr;
-    CurrentEvent = 0;
-    CurrentStep = 0;
 }
 
 void ATrackRec_SI::configure(QString fileName, bool binary)
@@ -55,17 +47,15 @@ void ATrackRec_SI::setEvent(int iEvent)
         return;
     }
 
-    clearData();
-
-    EventRecord = AEventTrackingRecord::create();
-
     ATrackingDataImporter TDI(FileName, bBinaryFile);
     bool ok = TDI.extractEvent(iEvent, EventRecord);
     if (!ok) abort(TDI.ErrorString);
 
     CurrentEvent = iEvent;
 
-    if (countPrimaries() > 0) setPrimary(0);
+    if (countPrimaries() > 0)
+        setPrimary(0);
+    else ParticleRecord = nullptr;
 }
 
 int ATrackRec_SI::countPrimaries()
@@ -81,7 +71,7 @@ void ATrackRec_SI::setPrimary(int iPrimary)
         return;
     }
     ParticleRecord = EventRecord->getPrimaryParticleRecords().at(iPrimary);
-    CurrentStep = -1;
+    firstStep();
 }
 
 QString ATrackRec_SI::recordToString(bool includeSecondaries)
@@ -282,6 +272,7 @@ QVariantList ATrackRec_SI::getStepRecord()
             vl << s->Energy;
             vl << s->DepositedEnergy;
             vl << s->Process;
+            vl << s->TargetIsotope;
             QVariantList svl;
             for (int & iSec : s->Secondaries) svl << iSec;
             vl.push_back(svl);

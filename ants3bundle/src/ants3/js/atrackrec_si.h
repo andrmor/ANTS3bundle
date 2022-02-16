@@ -67,8 +67,6 @@ private:
 
     static constexpr auto RecordNotSet = "Track unit not configured: select file, event and (optionally, if !=0) primary";
 
-private:
-    void clearData();
 };
 
 #endif // APTHISTORY_SI_H
