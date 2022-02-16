@@ -6,6 +6,7 @@
 #include <QVariant>
 #include <QSet>
 #include <QString>
+#include <QJSValue>
 
 #include <vector>
 
@@ -26,8 +27,8 @@ public slots:
 
     // Output
     void    clearOutput();
-    void    print(QVariant message);
-    void    printHtml(QVariant message);
+    void    print(QJSValue message);
+    void    printHtml(QJSValue message);
 
     // Time
     void    sleep(int ms);
