@@ -24,7 +24,7 @@ public:
 public slots:
     void configure(QString fileName, bool binary);
 
-    //void countEvents(){}
+    int  countEvents();
     void setEvent(int iEvent);
 
     int  countPrimaries();
@@ -42,7 +42,7 @@ public slots:
 
     bool makeStep();
     void gotoStep(int iStep);
-    bool stepToProcess(QString processName);
+    bool gotoNextProcessStep(QString processName);
     bool gotoNextNonTransportationStep();
     int  getCurrentStep();
 

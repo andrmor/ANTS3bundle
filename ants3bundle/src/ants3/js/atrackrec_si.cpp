@@ -31,8 +31,30 @@ void ATrackRec_SI::configure(QString fileName, bool binary)
     bBinaryFile = binary;
 }
 
+int ATrackRec_SI::countEvents()
+{
+    if (FileName.isEmpty())
+    {
+        abort(RecordNotSet);
+        return 0;
+    }
+    ATrackingDataImporter TDI(FileName, bBinaryFile);
+    if (!TDI.ErrorString.isEmpty())
+    {
+        abort("Error accessing the tracking history file:\n" + TDI.ErrorString);
+        return 0;
+    }
+    return TDI.countEvents();
+}
+
 void ATrackRec_SI::setEvent(int iEvent)
 {
+    if (FileName.isEmpty())
+    {
+        abort(RecordNotSet);
+        return;
+    }
+
     clearData();
 
     EventRecord = AEventTrackingRecord::create();
@@ -190,7 +212,7 @@ void ATrackRec_SI::gotoStep(int iStep)
     else abort(RecordNotSet);
 }
 
-bool ATrackRec_SI::stepToProcess(QString processName)
+bool ATrackRec_SI::gotoNextProcessStep(QString processName)
 {
     if (ParticleRecord)
     {

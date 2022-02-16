@@ -22,6 +22,8 @@ public:
     bool extractEvent(int iEvent, AEventTrackingRecord * EventRecord);
     bool isEndReached() const;
 
+    int countEvents();
+
     QString ErrorString;
 
 private:
