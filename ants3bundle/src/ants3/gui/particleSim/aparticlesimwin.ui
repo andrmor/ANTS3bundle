@@ -1408,7 +1408,7 @@ Format: Volume_name  Step_in_mm</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>2</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">
@@ -1702,7 +1702,7 @@ Format: Volume_name  Step_in_mm</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="sbEvent">
+                   <widget class="QSpinBox" name="sbShowEvent">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -2604,7 +2604,7 @@ Format: Volume_name  Step_in_mm</string>
                    </size>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_3">
                    <attribute name="title">

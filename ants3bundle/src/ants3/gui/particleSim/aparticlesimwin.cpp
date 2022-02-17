@@ -1066,7 +1066,7 @@ void AParticleSimWin::EV_showTree()
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
-    QString err = SimManager.fillTrackingRecord(fileName, ui->sbEvent->value(), record);
+    QString err = SimManager.fillTrackingRecord(fileName, ui->sbShowEvent->value(), record);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -2067,4 +2067,24 @@ void AParticleSimWin::on_pbShowMonitorTimeOverall_clicked()
     time->GetXaxis()->SetTitle("Time, ns");
     time->GetYaxis()->SetTitle("Hits");
     emit requestDraw(time, "hist", true, true);
+}
+
+void AParticleSimWin::on_sbShowEvent_editingFinished()
+{
+    on_pbEventView_clicked();
+}
+
+void AParticleSimWin::on_pbPreviousEvent_clicked()
+{
+    int curEv = ui->sbShowEvent->value();
+    if (curEv == 0) return;
+
+    ui->sbShowEvent->setValue(curEv - 1);
+    on_pbEventView_clicked();
+}
+
+void AParticleSimWin::on_pbNextEvent_clicked()
+{
+    ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
+    on_pbEventView_clicked();
 }

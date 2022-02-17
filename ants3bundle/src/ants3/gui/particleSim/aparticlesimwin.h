@@ -108,6 +108,12 @@ private slots:
 private slots:
     void onMaterialsChanged();
 
+    void on_sbShowEvent_editingFinished();
+
+    void on_pbPreviousEvent_clicked();
+
+    void on_pbNextEvent_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
