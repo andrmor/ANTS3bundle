@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -74,7 +74,6 @@
            <widget class="QLineEdit" name="lePhysicsList">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -430,7 +429,6 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QLabel" name="label_45">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -450,7 +448,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -489,7 +486,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -518,7 +514,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -540,7 +535,6 @@ Format: Volume_name  Step_in_mm</string>
          <widget class="QStackedWidget" name="swParticleGenerationMode">
           <property name="font">
            <font>
-            <weight>50</weight>
             <bold>false</bold>
             <kerning>true</kerning>
            </font>
@@ -577,7 +571,6 @@ Format: Volume_name  Step_in_mm</string>
                <widget class="QLabel" name="label_76">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -617,7 +610,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbAddSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -644,7 +636,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbRemoveSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -671,7 +662,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbSaveParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -685,7 +675,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbLoadParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -712,7 +701,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbGunShowSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -751,7 +739,6 @@ Format: Volume_name  Step_in_mm</string>
                <widget class="QCheckBox" name="cbGunAllowMultipleEvents">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -807,7 +794,6 @@ Format: Volume_name  Step_in_mm</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -828,7 +814,6 @@ Format: Volume_name  Step_in_mm</string>
                   <widget class="QLabel" name="labPartPerEvent">
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -851,7 +836,6 @@ Format: Volume_name  Step_in_mm</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -1111,7 +1095,6 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QLabel" name="labEventsPS">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -1181,7 +1164,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -1426,7 +1408,7 @@ Format: Volume_name  Step_in_mm</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>1</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">
@@ -1634,7 +1616,6 @@ Format: Volume_name  Step_in_mm</string>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -1709,7 +1690,6 @@ Format: Volume_name  Step_in_mm</string>
                    <widget class="QLabel" name="label_14">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -1761,7 +1741,6 @@ Format: Volume_name  Step_in_mm</string>
                    <widget class="QPushButton" name="pbEventView">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -2625,7 +2604,7 @@ Format: Volume_name  Step_in_mm</string>
                    </size>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="tab_3">
                    <attribute name="title">
@@ -2673,7 +2652,6 @@ Format: Volume_name  Step_in_mm</string>
                        <widget class="QComboBox" name="cobPTHistVolRequestWhat">
                         <property name="font">
                          <font>
-                          <weight>75</weight>
                           <bold>true</bold>
                          </font>
                         </property>
@@ -3450,7 +3428,6 @@ If checked, only &quot;creation&quot; is considered!</string>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>

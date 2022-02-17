@@ -105,6 +105,9 @@ private slots:
 
     void on_pbLoadAllResults_clicked();
 
+private slots:
+    void onMaterialsChanged();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();

@@ -6,6 +6,7 @@
 #include "aparticlesimmanager.h"
 #include "guitools.h"
 #include "aerrorhub.h"
+#include "amaterialhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
 #include "ajsontools.h"
@@ -31,6 +32,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
 
     updateGui();
+
+    connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -829,6 +832,17 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leMonitorsFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadMonitorsData_clicked();
+}
+
+void AParticleSimWin::onMaterialsChanged()
+{
+    QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
+
+    ui->cobPTHistVolMatFrom->clear();
+    ui->cobPTHistVolMatFrom->addItems(mats);
+
+    ui->cobPTHistVolMatTo->clear();
+    ui->cobPTHistVolMatTo->addItems(mats);
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()
