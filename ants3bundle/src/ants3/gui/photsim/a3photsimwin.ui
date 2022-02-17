@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -4145,7 +4145,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               <item>
                <widget class="QLabel" name="label_33">
                 <property name="text">
-                 <string>   </string>
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -4199,7 +4199,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <item>
                   <widget class="QLabel" name="label_35">
                    <property name="text">
-                    <string>   </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
@@ -4220,7 +4220,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <item>
                   <widget class="QLabel" name="label_36">
                    <property name="text">
-                    <string>   </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>

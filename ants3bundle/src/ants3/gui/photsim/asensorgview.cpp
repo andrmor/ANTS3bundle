@@ -8,13 +8,16 @@ void ASensorGView::wheelEvent(QWheelEvent * event)
     else                             scale(1.0/1.1, 1.0/1.1);
 }
 
+/*
 void ASensorGView::mouseMoveEvent(QMouseEvent *event)
 {
     MousePosition = this->mapToScene(event->pos());
     emit mouseMoved(&MousePosition);
     QGraphicsView::mouseMoveEvent(event);
 }
+*/
 
+/*
 void ASensorGView::enterEvent(QEvent *event)
 {
     QGraphicsView::enterEvent(event);
@@ -35,3 +38,4 @@ void ASensorGView::mouseReleaseEvent(QMouseEvent *event)
     if (CursorMode == 1)
         viewport()->setCursor(Qt::CrossCursor);
 }
+*/

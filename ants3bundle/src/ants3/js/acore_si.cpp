@@ -164,7 +164,7 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
         if (string.endsWith(", ")) string.chop(2);
         string += ']';
         break;
-    case QVariant::String:
+    case QMetaType::QString:
         string += "\"";
         string += var.toString();
         string += "\"";

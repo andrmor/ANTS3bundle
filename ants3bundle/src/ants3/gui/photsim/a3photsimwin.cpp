@@ -392,6 +392,9 @@ void A3PhotSimWin::showSimulationResults()
     {
         ui->leResultsWorkingDir->setText(SimSet.RunSet.OutputDirectory);
 
+        on_pbLoadAllResults_clicked();
+
+        /*
         if (SimSet.RunSet.SaveTracks)
         {
             ui->leTracksFile->setText(SimSet.RunSet.FileNameTracks);
@@ -415,6 +418,7 @@ void A3PhotSimWin::showSimulationResults()
             ui->leBombsFile->setText(SimSet.RunSet.FileNamePhotonBombs);
             on_pbShowBombsMultiple_clicked();
         }
+        */
     }
 }
 
