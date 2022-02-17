@@ -1349,6 +1349,34 @@ void AParticleSimWin::on_cbEVhideTransPrim_clicked()
 void AParticleSimWin::on_pbEventView_clicked()
 {
     EV_showTree();
+
+    if (ui->cbEVtracks->isChecked())
+    {
+        QString fileName = ui->leTrackingDataFile->text();
+        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+        const QStringList LimitTo;
+        const QStringList Exclude;
+
+        const int MaxTracks = 1000;//ui->sbMaxTracks->value(); // !!!***
+
+        const bool SkipPrimaries   = false;
+        const bool SkipPrimNoInter = false;
+        const bool SkipSecondaries = ui->cbEVsupressSec->isChecked();
+
+        QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
+                                             SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                                             MaxTracks, ui->sbShowEvent->value());
+
+        if (!err.isEmpty())
+        {
+            //guitools::message(err, this);
+            return;
+        }
+
+        emit requestShowGeometry(true, true, true);
+        emit requestShowTracks();
+    }
 }
 
 // --- Statistics ---

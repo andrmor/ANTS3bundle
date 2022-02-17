@@ -403,6 +403,17 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     int iTrack = 0;
     while (iTrack < MaxTracks)
     {
+        if (LimitToEvent >= 0)
+        {
+            if (iEvent < LimitToEvent)
+            {
+                iEvent++;
+                continue;
+            }
+
+            if (iEvent > LimitToEvent) break;
+        }
+
         bool ok = tdi.extractEvent(iEvent, record);
         iEvent++;
 
