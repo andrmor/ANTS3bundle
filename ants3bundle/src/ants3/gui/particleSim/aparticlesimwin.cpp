@@ -18,7 +18,7 @@
 #include <QFile>
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
-    QMainWindow(parent),
+    AGuiWindow("PartSim", parent),
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
     SimManager(AParticleSimManager::getInstance()),

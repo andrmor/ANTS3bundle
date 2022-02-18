@@ -10,8 +10,7 @@
 #include <QDebug>
 
 ARemoteWindow::ARemoteWindow(QWidget * parent) :
-    //AGuiWindow("remote", parent),
-    QMainWindow(parent),
+    AGuiWindow("Farm", parent),
     FarmHub(AFarmHub::getInstance()),
     ui(new Ui::ARemoteWindow)
 {

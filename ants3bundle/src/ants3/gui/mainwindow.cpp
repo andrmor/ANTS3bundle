@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "a3global.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "guitools.h"
@@ -16,13 +17,14 @@
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
 #include "ascriptwindow.h"
-#include "ademowindow.h" // tmp
+#include "ademowindow.h"
 
 #include <QDebug>
 
 #include "TObject.h"
 
 MainWindow::MainWindow() :
+    AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
     ui(new Ui::MainWindow)
 {
@@ -82,13 +84,14 @@ MainWindow::MainWindow() :
 
     DemoWin = new ADemoWindow(this);
 
+    loadWindowGeometries();
+
   // Finalizing
     updateGui();
 }
 
 MainWindow::~MainWindow()
 {
-    delete GeoConWin;
     delete ui;
 }
 
@@ -235,3 +238,54 @@ void MainWindow::on_pushButton_clicked()
     SensWin->updateGui();
 }
 
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    qDebug() << "\n<MainWindow shutdown initiated";
+    clearFocus();
+
+    qDebug()<<"<Saving position/status of all windows";
+    saveWindowGeometries();
+
+    qDebug() << "<Preparing graph window for shutdown";
+    GraphWin->close();
+    GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
+
+    //saving ANTS master-configuration file
+    JScriptWin->WriteToJson();
+    A3Global::getInstance().saveConfig();
+
+    qDebug()<<"<Saving ANTS configuration";
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+
+            /*
+    qDebug() << "<Stopping Root update timer-based cycle";
+    RootUpdateTimer->stop();
+    disconnect(RootUpdateTimer, SIGNAL(timeout()), this, SLOT(timerTimeout()));
+    QThread::msleep(110);
+    delete RootUpdateTimer;
+    //qDebug()<<"        timer stopped and deleted";
+            */
+
+    std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
+                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * win : wins) delete win;
+
+    qDebug() << "<MainWindow close event processing finished";
+}
+
+void MainWindow::saveWindowGeometries()
+{
+    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * w : wins) w->storeGeomStatus();
+}
+
+void MainWindow::loadWindowGeometries()
+{
+    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * w : wins) w->restoreGeomStatus();
+}

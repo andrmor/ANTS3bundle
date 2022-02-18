@@ -1,8 +1,7 @@
 #ifndef ASCRIPTWINDOW_H
 #define ASCRIPTWINDOW_H
 
-//#include "aguiwindow.h"
-#include <QMainWindow>
+#include "aguiwindow.h"
 #include <QSet>
 #include <QHash>
 #include <QString>
@@ -61,7 +60,7 @@ public:
     void                removeAllTabs();
 };
 
-class AScriptWindow : public QMainWindow
+class AScriptWindow : public AGuiWindow
 {
     Q_OBJECT
 

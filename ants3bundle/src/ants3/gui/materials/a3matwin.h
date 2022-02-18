@@ -1,10 +1,8 @@
 #ifndef A3MATWIN_H
 #define A3MATWIN_H
 
+#include "aguiwindow.h"
 #include "amaterial.h"
-
-//#include "aguiwindow.h"
-#include <QMainWindow>
 
 class AGeometryHub;
 class AMaterialHub;
@@ -16,12 +14,12 @@ namespace Ui {
 class A3MatWin;
 }
 
-class A3MatWin : public QMainWindow // AGuiWindow
+class A3MatWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit A3MatWin(QWidget* parent);
+    explicit A3MatWin(QWidget * parent);
     ~A3MatWin();
 
     void initWindow();

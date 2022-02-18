@@ -37,9 +37,8 @@
 #include <QHeaderView>
 #include <QRegularExpression>
 
-AScriptWindow::AScriptWindow(QWidget *parent) :
-    //    AGuiWindow("script"), parent),
-    QMainWindow(parent),
+AScriptWindow::AScriptWindow(QWidget * parent) :
+    AGuiWindow("JScript", parent),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AScriptWindow)
 {

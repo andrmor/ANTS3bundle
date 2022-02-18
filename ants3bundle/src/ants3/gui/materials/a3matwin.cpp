@@ -2,8 +2,6 @@
 #include "ui_a3matwin.h"
 #include "mainwindow.h"
 #include "amaterialhub.h"
-//#include "graphwindowclass.h"
-//#include "windownavigatorclass.h"
 #include "ageometryhub.h"
 #include "a3global.h"
 #include "ajsontools.h"
@@ -32,7 +30,6 @@
 #include <QThread>
 #include <QPainter>
 
-//Root
 #include "TGraph.h"
 #include "TH1.h"
 #include "TAxis.h"
@@ -41,7 +38,7 @@
 #include "TAttMarker.h"
 
 A3MatWin::A3MatWin(QWidget * parent) :
-    QMainWindow(parent), //AGuiWindow("mat", parent),
+    AGuiWindow("Mat", parent),
     Geometry(AGeometryHub::getInstance()),
     MatHub(AMaterialHub::getInstance()),
     GlobSet(A3Global::getInstance()),

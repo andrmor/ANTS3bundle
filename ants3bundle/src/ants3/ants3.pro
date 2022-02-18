@@ -74,6 +74,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    gui/aguiwindow.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
@@ -223,6 +224,7 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
+    gui/aguiwindow.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \

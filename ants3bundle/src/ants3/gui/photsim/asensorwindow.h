@@ -1,7 +1,7 @@
 #ifndef ASENSORWINDOW_H
 #define ASENSORWINDOW_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 namespace Ui {
 class ASensorWindow;
@@ -9,7 +9,7 @@ class ASensorWindow;
 
 class ASensorHub;
 
-class ASensorWindow : public QMainWindow
+class ASensorWindow : public AGuiWindow
 {
     Q_OBJECT
 

@@ -17,7 +17,7 @@ namespace guitools
     void inputInteger(const QString & text, int & input, int min, int max, QWidget * parent = nullptr);
     void inputString(const QString & label, QString & input, QWidget * parent = nullptr);
 
-    bool AssureWidgetIsWithinVisibleArea(QWidget* w);
+    bool assureWidgetIsWithinVisibleArea(QWidget* w);
 
     QIcon   createColorCircleIcon(QSize size, Qt::GlobalColor color);
     QPixmap createColorCirclePixmap(QSize size, Qt::GlobalColor color);

@@ -34,8 +34,8 @@
 #include "TVirtualGeoTrack.h"
 #include "TGeoTrack.h"
 
-A3PhotSimWin::A3PhotSimWin(QWidget *parent) :
-    QMainWindow(parent),
+A3PhotSimWin::A3PhotSimWin(QWidget * parent) :
+    AGuiWindow("PhotSim", parent),
     SimSet(APhotonSimHub::getInstance().Settings),
     MonitorHub(AMonitorHub::getConstInstance()),
     ui(new Ui::A3PhotSimWin)

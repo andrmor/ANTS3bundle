@@ -72,8 +72,7 @@
 #include "TFrame.h"
 
 GraphWindowClass::GraphWindowClass(QWidget * parent) :
-    QMainWindow(parent),
-    //  AGuiWindow("graph", parent), MW(mw),
+    AGuiWindow("Graph", parent),
     ui(new Ui::GraphWindowClass)
 {
     Basket = new ABasketManager();

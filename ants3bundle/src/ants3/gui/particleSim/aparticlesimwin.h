@@ -1,7 +1,7 @@
 #ifndef APARTICLESIMWIN_H
 #define APARTICLESIMWIN_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 class AParticleSimSettings;
 class AG4SimulationSettings;
@@ -17,12 +17,12 @@ namespace Ui {
 class AParticleSimWin;
 }
 
-class AParticleSimWin : public QMainWindow
+class AParticleSimWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit AParticleSimWin(QWidget *parent = nullptr);  // !!!*** add validators
+    explicit AParticleSimWin(QWidget * parent = nullptr);  // !!!*** add validators
     ~AParticleSimWin();
 
 public slots:

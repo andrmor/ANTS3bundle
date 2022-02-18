@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +19,7 @@ class AParticleSimWin;
 class AScriptWindow;
 class ADemoWindow; // tmp
 
-class MainWindow : public QMainWindow
+class MainWindow : public AGuiWindow
 {
     Q_OBJECT
 
@@ -69,6 +69,13 @@ private slots:
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
     void on_pushButton_clicked();
+
+protected:
+    void closeEvent(QCloseEvent * event);
+
+private:
+    void saveWindowGeometries();
+    void loadWindowGeometries();
 };
 
 #endif // MAINWINDOW_H

@@ -63,7 +63,7 @@ void guitools::inputString(const QString & label, QString & input, QWidget *pare
     if (ok) input = res;
 }
 
-bool guitools::AssureWidgetIsWithinVisibleArea(QWidget * w)
+bool guitools::assureWidgetIsWithinVisibleArea(QWidget * w)
 {
     QList<QScreen *> listScr = qApp->screens();
 

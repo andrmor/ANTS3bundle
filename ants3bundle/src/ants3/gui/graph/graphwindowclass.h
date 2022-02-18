@@ -1,12 +1,11 @@
 #ifndef GRAPHWINDOWCLASS_H
 #define GRAPHWINDOWCLASS_H
 
-//#include "aguiwindow.h"
+#include "aguiwindow.h"
 #include "adrawobject.h"
 #include "abasketitem.h"
 #include "adrawtemplate.h"
 
-#include <QMainWindow>
 #include <QVector>
 #include <QVariantList>
 #include <QMouseEvent>
@@ -35,7 +34,7 @@ namespace Ui {
 class GraphWindowClass;
 }
 
-class GraphWindowClass : public QMainWindow //AGuiWindow
+class GraphWindowClass : public AGuiWindow
 {
     Q_OBJECT
 

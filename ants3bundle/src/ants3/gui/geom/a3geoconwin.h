@@ -1,9 +1,7 @@
 #ifndef A3GEOCONWIN_H
 #define A3GEOCONWIN_H
 
-//#include "aguiwindow.h"
-
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 class AGeometryHub;
 class AMaterialHub;
@@ -14,7 +12,7 @@ namespace Ui {
   class A3GeoConWin;
 }
 
-class A3GeoConWin : public QMainWindow
+class A3GeoConWin : public AGuiWindow
 {
   Q_OBJECT
   

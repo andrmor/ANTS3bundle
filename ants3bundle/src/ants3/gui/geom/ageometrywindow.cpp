@@ -36,9 +36,9 @@
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 
-AGeometryWindow::AGeometryWindow(QWidget *parent) :
-    //AGuiWindow("geometry", parent)
-    QMainWindow(parent), Geometry(AGeometryHub::getInstance()),
+AGeometryWindow::AGeometryWindow(QWidget * parent) :
+    AGuiWindow("Geo", parent),
+    Geometry(AGeometryHub::getInstance()),
     ui(new Ui::AGeometryWindow)
 {    
     ui->setupUi(this);
@@ -1389,7 +1389,7 @@ void AGeometryWindow::on_pbCameraDialog_clicked()
         CameraControl->yPos = y() + 0.5*height() - 0.5*CameraControl->height();
 
         CameraControl->move(CameraControl->xPos, CameraControl->yPos);
-        bool bVis = guitools::AssureWidgetIsWithinVisibleArea(CameraControl);
+        bool bVis = guitools::assureWidgetIsWithinVisibleArea(CameraControl);
         if (!bVis)
         {
             CameraControl->xPos = x() + 0.5*width()  - 0.5*CameraControl->width();

@@ -39,7 +39,7 @@
 #include "TGeoCompositeShape.h"
 
 A3GeoConWin::A3GeoConWin(QWidget * parent) :
-  QMainWindow(parent),
+  AGuiWindow("GeoCon", parent),
   Geometry(AGeometryHub::getInstance()),
   MaterialHub(AMaterialHub::getConstInstance()),
   ui(new Ui::A3GeoConWin)

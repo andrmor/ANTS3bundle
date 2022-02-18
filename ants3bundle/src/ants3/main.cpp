@@ -69,6 +69,9 @@ int main(int argc, char *argv[])
 #ifdef GUI
     if (argc == 1)
     {
+        QCoreApplication::setOrganizationName("ants3");
+        QCoreApplication::setApplicationName("winpos");
+
         MainWindow * w = new MainWindow();
         w->show();
         app->exec();

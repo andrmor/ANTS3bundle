@@ -2,8 +2,7 @@
 #define A3PHOTSIMWIN_H
 
 #include "aphotonsimsettings.h"
-
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 #include <vector>
 
@@ -18,7 +17,7 @@ class ANodeRecord; // tmp ?
 class ASensorDrawWidget;
 class AFileHandlerBase;
 
-class A3PhotSimWin : public QMainWindow
+class A3PhotSimWin : public AGuiWindow
 {
     Q_OBJECT
 

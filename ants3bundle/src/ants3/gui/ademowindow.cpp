@@ -9,7 +9,7 @@
 #include "afiletools.h"
 
 ADemoWindow::ADemoWindow(QWidget *parent) :
-    QMainWindow(parent),
+    AGuiWindow("Demo", parent),
     ui(new Ui::ADemoWindow),
     Config(AConfig::getInstance())
 {
