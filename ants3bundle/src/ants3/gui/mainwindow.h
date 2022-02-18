@@ -18,6 +18,7 @@ class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
 class ADemoWindow; // tmp
+class QTimer;
 
 class MainWindow : public AGuiWindow
 {
@@ -46,6 +47,8 @@ private:
     AScriptWindow     * JScriptWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
+    QTimer * RootUpdateTimer = nullptr;
+
 private slots:
     void onRebuildGeometryRequested(); // !!!*** refactor?
     void updateAllGuiFromConfig();
@@ -69,6 +72,8 @@ private slots:
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
     void on_pushButton_clicked();
+
+    void rootTimerTimeout();
 
 protected:
     void closeEvent(QCloseEvent * event);

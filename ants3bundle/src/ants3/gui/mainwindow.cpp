@@ -20,6 +20,7 @@
 #include "ademowindow.h"
 
 #include <QDebug>
+#include <QTimer>
 
 #include "TObject.h"
 
@@ -86,6 +87,13 @@ MainWindow::MainWindow() :
 
     loadWindowGeometries();
 
+    //root update cycle
+    RootUpdateTimer = new QTimer(this);
+    RootUpdateTimer->setInterval(100);
+    QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
+    RootUpdateTimer->start();
+    qDebug()<<">Timer to refresh Root events started";
+
   // Finalizing
     updateGui();
 }
@@ -93,6 +101,12 @@ MainWindow::MainWindow() :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+#include "TSystem.h"
+void MainWindow::rootTimerTimeout()
+{
+    gSystem->ProcessEvents();
 }
 
 void MainWindow::updateGui()
@@ -238,6 +252,7 @@ void MainWindow::on_pushButton_clicked()
     SensWin->updateGui();
 }
 
+#include <QThread>
 void MainWindow::closeEvent(QCloseEvent *)
 {
     qDebug() << "\n<MainWindow shutdown initiated";
@@ -257,14 +272,12 @@ void MainWindow::closeEvent(QCloseEvent *)
     qDebug()<<"<Saving ANTS configuration";
     AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
-            /*
     qDebug() << "<Stopping Root update timer-based cycle";
     RootUpdateTimer->stop();
-    disconnect(RootUpdateTimer, SIGNAL(timeout()), this, SLOT(timerTimeout()));
+    disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     QThread::msleep(110);
-    delete RootUpdateTimer;
+    //delete RootUpdateTimer;
     //qDebug()<<"        timer stopped and deleted";
-            */
 
     std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
