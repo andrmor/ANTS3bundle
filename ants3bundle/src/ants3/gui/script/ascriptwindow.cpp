@@ -264,11 +264,13 @@ void AScriptWindow::updateRemovedAndDeprecatedMethods()
 
 void AScriptWindow::updateAutocompleterAndHeighlighter()
 {
+    UnitNames.clear();
     Methods.clear();
 
     for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
     {
         const QString & name = inter->Name;
+        UnitNames << name;
         QStringList methodsions = getListOfMethods(inter, name, false);
         for (int i = 0; i < methodsions.size(); i++) methodsions[i] += "()";
         Methods << methodsions;
@@ -1225,7 +1227,7 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
 
 void AScriptWindow::updateTab(ATabRecord* tab)
 {
-    tab->Highlighter->setHighlighterRules(Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
+    tab->Highlighter->setHighlighterRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
     tab->UpdateHighlight();
     tab->TextEdit->functionList = functionList;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;

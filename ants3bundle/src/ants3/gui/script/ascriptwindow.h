@@ -110,6 +110,7 @@ private:
     QSet<QString>       ExpandedItemsInJsonTW;
     QStringList         functionList; //functions to populate tooltip helper
     QHash<QString, QString> DeprecatedOrRemovedMethods;
+    QStringList         UnitNames;
     QStringList         ListOfDeprecatedOrRemovedMethods;
     QStringList         ListOfConstants;
 

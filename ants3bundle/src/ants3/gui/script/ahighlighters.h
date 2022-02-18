@@ -11,7 +11,7 @@ public:
     AHighlighterScriptWindow(QTextDocument *parent = 0);
     virtual ~AHighlighterScriptWindow() {}
 
-    void setHighlighterRules(const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
+    void setHighlighterRules(const QStringList & units, const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
 
 protected:
     void highlightBlock(const QString &text);

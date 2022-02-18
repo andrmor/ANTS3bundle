@@ -35,6 +35,7 @@ void AJScriptHub::abort(const QString & message)
 #include "apartanalysis_si.h"
 AJScriptHub::AJScriptHub()
 {
+    //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     SM = new AJScriptManager();
 
     SM->registerInterface(new ADemo_SI(),         "demo");

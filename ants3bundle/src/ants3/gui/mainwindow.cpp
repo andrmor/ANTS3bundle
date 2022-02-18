@@ -75,13 +75,15 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
     connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
+    //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
-    JScriptWin->registerInterfaces();
     AJScriptHub * SH = &AJScriptHub::getInstance();
+    JScriptWin->registerInterfaces();
     connect(SH, &AJScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
     connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
+    JScriptWin->updateGui();
 
     DemoWin = new ADemoWindow(this);
 
