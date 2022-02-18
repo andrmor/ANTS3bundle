@@ -99,7 +99,7 @@ double ACore_SI::getTimeMark()
 }
 
 #include <QtGlobal>
-void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
+void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     switch (var.type())
@@ -127,6 +127,11 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
         }
         if (string.endsWith(", ")) string.chop(2);
         string += ']';
+        break;
+    case QVariant::String:
+        string += "\"";
+        string += var.toString();
+        string += "\"";
         break;
     default:
         // implicit convertion to string
@@ -159,6 +164,11 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
         if (string.endsWith(", ")) string.chop(2);
         string += ']';
         break;
+    case QMetaType::QString:
+        string += "\"";
+        string += var.toString();
+        string += "\"";
+        break;
     default:
         // implicit convertion to string
         string += var.toString();
@@ -166,19 +176,17 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string) const
 #endif
 }
 
-void ACore_SI::print(QVariant message)
+void ACore_SI::print(QJSValue message)
 {
     QString s;
-    addQVariantToString(message, s);
-    qDebug() << s;
+    addQVariantToString(message.toVariant(), s);
     emit AJScriptHub::getInstance().outputText(s);
 }
 
-void ACore_SI::printHtml(QVariant message)
+void ACore_SI::printHtml(QJSValue message)
 {
     QString s;
-    addQVariantToString(message, s);
-    qDebug() << s;
+    addQVariantToString(message.toVariant(), s);
     emit AJScriptHub::getInstance().outputHtml(s);
 }
 

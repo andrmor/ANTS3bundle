@@ -4,6 +4,8 @@
 #include <QString>
 #include <QIcon>
 
+#include <vector>
+
 class QWidget;
 
 namespace guitools
@@ -15,7 +17,7 @@ namespace guitools
     void inputInteger(const QString & text, int & input, int min, int max, QWidget * parent = nullptr);
     void inputString(const QString & label, QString & input, QWidget * parent = nullptr);
 
-    bool AssureWidgetIsWithinVisibleArea(QWidget* w);
+    bool assureWidgetIsWithinVisibleArea(QWidget* w);
 
     QIcon   createColorCircleIcon(QSize size, Qt::GlobalColor color);
     QPixmap createColorCirclePixmap(QSize size, Qt::GlobalColor color);
@@ -24,6 +26,8 @@ namespace guitools
     QString dialogLoadFile(QWidget * parent, const QString & text, const QString & filePattern);
 
     QString dialogDirectory(QWidget * parent, const QString & text, const QString & initialDir, bool DefaultRead = false, bool DefaultWrite = false);
+
+    bool    extractNumbersFromQString(const QString & input, std::vector<int> & extracted);
 }
 
 #endif // GUITOOLS_H

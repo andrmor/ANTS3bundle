@@ -74,7 +74,6 @@
            <widget class="QLineEdit" name="lePhysicsList">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -430,7 +429,6 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QLabel" name="label_45">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -450,7 +448,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -489,7 +486,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -518,7 +514,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -540,7 +535,6 @@ Format: Volume_name  Step_in_mm</string>
          <widget class="QStackedWidget" name="swParticleGenerationMode">
           <property name="font">
            <font>
-            <weight>50</weight>
             <bold>false</bold>
             <kerning>true</kerning>
            </font>
@@ -577,7 +571,6 @@ Format: Volume_name  Step_in_mm</string>
                <widget class="QLabel" name="label_76">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -617,7 +610,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbAddSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -644,7 +636,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbRemoveSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -671,7 +662,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbSaveParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -685,7 +675,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbLoadParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -712,7 +701,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbGunShowSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -751,7 +739,6 @@ Format: Volume_name  Step_in_mm</string>
                <widget class="QCheckBox" name="cbGunAllowMultipleEvents">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -807,7 +794,6 @@ Format: Volume_name  Step_in_mm</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -828,7 +814,6 @@ Format: Volume_name  Step_in_mm</string>
                   <widget class="QLabel" name="labPartPerEvent">
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -851,7 +836,6 @@ Format: Volume_name  Step_in_mm</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -1111,7 +1095,6 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QLabel" name="labEventsPS">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -1181,7 +1164,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -1314,7 +1296,7 @@ Format: Volume_name  Step_in_mm</string>
           <item>
            <widget class="QLineEdit" name="leWorkingDirectory">
             <property name="text">
-             <string>/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -1322,6 +1304,22 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QPushButton" name="pbChooseWorkingDirectory">
             <property name="text">
              <string>Choose</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbLoadAllResults">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Assuming standard filenames</string>
+            </property>
+            <property name="text">
+             <string>Load all</string>
             </property>
            </widget>
           </item>
@@ -1344,22 +1342,6 @@ Format: Volume_name  Step_in_mm</string>
              </size>
             </property>
            </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbLoadAllResults">
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Assuming standard filenames</string>
-            </property>
-            <property name="text">
-             <string>Load all particle data</string>
-            </property>
-           </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer_5">
@@ -1448,6 +1430,19 @@ Format: Volume_name  Step_in_mm</string>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_19">
                   <item>
+                   <spacer name="horizontalSpacer_60">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
                    <widget class="QLabel" name="label_8">
                     <property name="text">
                      <string>Maximum number of tracks:</string>
@@ -1480,26 +1475,6 @@ Format: Volume_name  Step_in_mm</string>
                     </property>
                    </spacer>
                   </item>
-                  <item>
-                   <widget class="QPushButton" name="pbConfigureTrackStyles">
-                    <property name="text">
-                     <string>Configure track attributes</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_60">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </item>
                 <item>
@@ -1516,6 +1491,26 @@ Format: Volume_name  Step_in_mm</string>
                   </property>
                   <item>
                    <spacer name="horizontalSpacer_20">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbConfigureTrackStyles">
+                    <property name="text">
+                     <string>  Configure track attributes  </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_61">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -1569,6 +1564,13 @@ Format: Volume_name  Step_in_mm</string>
                    </spacer>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_37">
+                  <property name="text">
+                   <string>  </string>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QFormLayout" name="formLayout">
@@ -1634,7 +1636,6 @@ Format: Volume_name  Step_in_mm</string>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -1709,7 +1710,6 @@ Format: Volume_name  Step_in_mm</string>
                    <widget class="QLabel" name="label_14">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -1722,7 +1722,7 @@ Format: Volume_name  Step_in_mm</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="sbEvent">
+                   <widget class="QSpinBox" name="sbShowEvent">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -1761,7 +1761,6 @@ Format: Volume_name  Step_in_mm</string>
                    <widget class="QPushButton" name="pbEventView">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -2673,7 +2672,6 @@ Format: Volume_name  Step_in_mm</string>
                        <widget class="QComboBox" name="cobPTHistVolRequestWhat">
                         <property name="font">
                          <font>
-                          <weight>75</weight>
                           <bold>true</bold>
                          </font>
                         </property>
@@ -3450,7 +3448,6 @@ If checked, only &quot;creation&quot; is considered!</string>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>

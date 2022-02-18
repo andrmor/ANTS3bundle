@@ -8,11 +8,13 @@
 #include "G4ProcessType.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VUserTrackInformation.hh"
+#include "G4HadronicProcess.hh"
 
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <QDebug>
+
 SteppingAction::SteppingAction(){}
 
 SteppingAction::~SteppingAction(){}
@@ -96,7 +98,24 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
             }
             else procName = 'O';
         }
-        else procName = proc->GetProcessName();
+        else
+        {
+            procName = proc->GetProcessName();
+
+            // if hadronic, add #TargetIsotopeName# to the process name
+            G4VProcess        * process = const_cast<G4VProcess*>(step->GetPostStepPoint()->GetProcessDefinedStep());
+            G4HadronicProcess * hproc   = dynamic_cast<G4HadronicProcess*>(process);
+            if (hproc)
+            {
+                const G4Isotope * target = hproc->GetTargetIsotope();
+                if (target)
+                {
+                    procName += '#';
+                    procName += target->GetName();
+                    procName += '#';
+                }
+            }
+        }
     }
     else procName = '?';
 

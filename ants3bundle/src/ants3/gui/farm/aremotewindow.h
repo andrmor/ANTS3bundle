@@ -1,8 +1,8 @@
 #ifndef AREMOTEWINDOW_H
 #define AREMOTEWINDOW_H
 
-//#include "aguiwindow.h"
-#include <QMainWindow>
+#include "aguiwindow.h"
+
 #include <QWidget>
 #include <QFrame>
 
@@ -16,7 +16,7 @@ namespace Ui {
 class ARemoteWindow;
 }
 
-class ARemoteWindow : public QMainWindow //AGuiWindow
+class ARemoteWindow : public AGuiWindow
 {
     Q_OBJECT
 

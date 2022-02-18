@@ -1,7 +1,7 @@
 #ifndef AINTERFACERULEWIN_H
 #define AINTERFACERULEWIN_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 namespace Ui {
 class AInterfaceRuleWin;
@@ -10,12 +10,12 @@ class AInterfaceRuleWin;
 class AMaterialHub;
 class AInterfaceRuleHub;
 
-class AInterfaceRuleWin : public QMainWindow
+class AInterfaceRuleWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleWin(QWidget *parent = nullptr);
+    explicit AInterfaceRuleWin(QWidget * parent = nullptr);
     ~AInterfaceRuleWin();
 
     void updateGui();

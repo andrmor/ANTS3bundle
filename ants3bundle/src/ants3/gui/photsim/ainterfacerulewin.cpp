@@ -8,7 +8,7 @@
 #include <QDebug>
 
 AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
-    QMainWindow(parent),
+    AGuiWindow("Rule", parent),
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getInstance()),
     ui(new Ui::AInterfaceRuleWin)

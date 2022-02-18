@@ -63,7 +63,7 @@ void guitools::inputString(const QString & label, QString & input, QWidget *pare
     if (ok) input = res;
 }
 
-bool guitools::AssureWidgetIsWithinVisibleArea(QWidget * w)
+bool guitools::assureWidgetIsWithinVisibleArea(QWidget * w)
 {
     QList<QScreen *> listScr = qApp->screens();
 
@@ -136,3 +136,47 @@ QString guitools::dialogDirectory(QWidget * parent, const QString & text, const 
     return dir;
 }
 
+#include <QRegularExpression>
+bool guitools::extractNumbersFromQString(const QString & input, std::vector<int> & extracted)
+{
+    const QRegularExpression rx("(\\,|\\-)");
+    QStringList fields = input.split(rx, Qt::SkipEmptyParts);
+    if (fields.size() == 0) return false;
+
+    fields = input.split(',', Qt::SkipEmptyParts);
+
+    for (int i=0; i<fields.size(); i++)
+    {
+        const QString & thisField = fields[i];
+
+        //are there "-" separated fields?
+        QStringList subFields = thisField.split("-", Qt::SkipEmptyParts);
+
+        if (subFields.size() > 2 || subFields.size() == 0) return false;
+        else if (subFields.size() == 1)
+        {
+
+            bool ok;
+            int iVal = subFields[0].toInt(&ok);
+            if (ok) extracted.push_back(iVal);
+            else return false;
+        }
+        else
+        {
+            bool ok1, ok2;
+            int iVal1 = subFields[0].toInt(&ok1);
+            int iVal2 = subFields[1].toInt(&ok2);
+            if (ok1 && ok2)
+            {
+                if (iVal2 < iVal1) return false;
+                else
+                {
+                    for (int j = iVal1; j <= iVal2; j++)
+                        extracted.push_back(j);
+                }
+            }
+            else return false;
+        }
+    }
+    return true;
+}

@@ -7,7 +7,7 @@
 #include <QDoubleValidator>
 
 ASensorWindow::ASensorWindow(QWidget *parent) :
-    QMainWindow(parent),
+    AGuiWindow("Sens", parent),
     SensHub(ASensorHub::getInstance()),
     ui(new Ui::ASensorWindow)
 {

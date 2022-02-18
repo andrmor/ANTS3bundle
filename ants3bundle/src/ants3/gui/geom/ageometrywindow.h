@@ -1,10 +1,10 @@
 #ifndef GEOMETRYWINDOWCLASS_H
 #define GEOMETRYWINDOWCLASS_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
+
 #include <QVector>
 
-//#include "aguiwindow.h"
 #include "TMathBase.h"
 
 class AGeometryHub;
@@ -21,12 +21,12 @@ namespace Ui {
 class AGeometryWindow;
 }
 
-class AGeometryWindow : public QMainWindow //AGuiWindow
+class AGeometryWindow : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit AGeometryWindow(QWidget *parent);
+    explicit AGeometryWindow(QWidget * parent);
     ~AGeometryWindow();
 
     bool ModePerspective = true;
@@ -34,7 +34,7 @@ public:
     bool fRecallWindow   = false;
     bool bDisableDraw    = false;
 
-    QVector<GeoMarkerClass*> GeoMarkers;
+    QVector<GeoMarkerClass*> GeoMarkers; // !!!*** to std::vector
 
     enum EDraw {PMs, PhotMons, PartMons};
 

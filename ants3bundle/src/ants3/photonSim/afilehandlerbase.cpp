@@ -83,13 +83,19 @@ bool AFileHandlerBase::init()
 {
     clearResources();
 
+    if (BaseSettings.FileName.isEmpty())
+    {
+        AErrorHub::addQError("File name is empty!");
+        return false;
+    }
+
     if (!BaseSettings.isValidated())
     {
         determineFormat();
 
         if (BaseSettings.FileFormat == AFileSettingsBase::Invalid)
         {
-            AErrorHub::addQError("Cannot open file!");
+            AErrorHub::addQError("Cannot open file: " + BaseSettings.FileName);
             return false;
         }
         if (BaseSettings.FileFormat == AFileSettingsBase::Undefined)
@@ -141,10 +147,27 @@ bool AFileHandlerBase::init()
     return processEventHeader();
 }
 
+bool AFileHandlerBase::isInitialized() const
+{
+    if (!BaseSettings.isValidated()) return false;
+
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+    {
+        if (!inStream) return false;
+        return inStream->is_open();
+    }
+    else
+    {
+        if (!inTextFile || !inTextStream) return false;
+        return true;
+    }
+}
+
 bool AFileHandlerBase::gotoEvent(int iEvent)
 {
-    if (CurrentEvent == iEvent) return true;
-    if (CurrentEvent > iEvent)
+    if (CurrentEvent == iEvent && !ReadingEvent) return true;
+
+    if (CurrentEvent >= iEvent)
     {
         init();
         if (CurrentEvent == iEvent) return true;
@@ -153,7 +176,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     // iEvent is larger than CurrentEvent
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary format not yet implemented");
+        AErrorHub::addError("Binary format not yet implemented"); // !!!***
         return false;
     }
     else
@@ -163,13 +186,18 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
             LineText = inTextStream->readLine();
             if (!LineText.startsWith('#')) continue;
             bool ok = processEventHeader();
-            if (!ok) return false;
+            if (!ok)
+            {
+                AErrorHub::addError("Error processing event header in gotoEvent method");
+                return false;
+            }
 
             if (CurrentEvent == iEvent) return true;
         }
         while (!inTextStream->atEnd());
     }
 
+    AErrorHub::addError("Cannot reach requested event number in the file");
     return false;
 }
 
@@ -205,6 +233,7 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
             EventEndReached = true;
             return false;
         }
+        else ReadingEvent = true;
 
         return record.readAscii(LineText);
     }
@@ -284,8 +313,9 @@ void AFileHandlerBase::clearResources()
     if (inTextFile) inTextFile->close();
     delete inTextFile;   inTextFile   = nullptr;
 
-    CurrentEvent = -1;
+    CurrentEvent    = -1;
     EventEndReached = false;
+    ReadingEvent    = false;
 }
 
 bool AFileHandlerBase::processEventHeader()
@@ -312,5 +342,7 @@ bool AFileHandlerBase::processEventHeader()
             return false;
         }
     }
+
+    ReadingEvent = false;
     return true;
 }

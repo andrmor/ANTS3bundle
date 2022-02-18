@@ -1,7 +1,7 @@
 #ifndef ADEMOWINDOW_H
 #define ADEMOWINDOW_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 namespace Ui {
 class ADemoWindow;
@@ -9,12 +9,12 @@ class ADemoWindow;
 
 class AConfig;
 
-class ADemoWindow : public QMainWindow
+class ADemoWindow : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit ADemoWindow(QWidget *parent = nullptr);
+    explicit ADemoWindow(QWidget * parent = nullptr);
     ~ADemoWindow();
 
 private slots:

@@ -8,6 +8,7 @@
 #include "afarm_si.h"
 #include "aconfig_si.h"
 #include "aphotonsim_si.h"
+#include "atrackrec_si.h"
 
 AJScriptHub &AJScriptHub::getInstance()
 {
@@ -41,6 +42,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new AConfig_SI(),    "config");
     SM->registerInterface(new AFarm_SI(),      "farm");
     SM->registerInterface(new APhotonSim_SI(), "lsim");
+    SM->registerInterface(new ATrackRec_SI(),  "trackrec");
 }
 
 AJScriptHub::~AJScriptHub()

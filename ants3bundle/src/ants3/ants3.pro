@@ -74,6 +74,9 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    gui/aguiwindow.cpp \
+    gui/particleSim/atrackdrawdialog.cpp \
+    gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
     farm/afarmhub.cpp \
@@ -115,6 +118,7 @@ SOURCES += \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
     ademomanager.cpp \
+    gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptwindow.cpp \
@@ -129,6 +133,7 @@ SOURCES += \
     js/amath_si.cpp \
     js/aphotonsim_si.cpp \
     js/ascriptinterface.cpp \
+    js/atrackrec_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -192,6 +197,7 @@ SOURCES += \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
     photonSim/aphotonstatistics.cpp \
+    photonSim/asensorsignalarray.cpp \
     tools/aerrorhub.cpp \
     tools/ahistogram.cpp \
     tools/aroothistappenders.cpp \
@@ -219,6 +225,9 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
+    gui/aguiwindow.h \
+    gui/particleSim/atrackdrawdialog.h \
+    gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
     farm/afarmhub.h \
@@ -261,6 +270,7 @@ HEADERS += \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
     ademomanager.h \
+    gui/photsim/asensorgview.h \
     gui/photsim/asensorwindow.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptwindow.h \
@@ -275,6 +285,7 @@ HEADERS += \
     js/amath_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
+    js/atrackrec_si.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
@@ -342,6 +353,7 @@ HEADERS += \
     photonSim/aphotonsimsettings.h \
     photonSim/aphotonstatistics.h \
     photonSim/aphotontrackrecord.h \
+    photonSim/asensorsignalarray.h \
     tools/aerrorhub.h \
     tools/ahistogram.h \
     tools/aroothistappenders.h \
@@ -366,6 +378,8 @@ HEADERS += \
     tools/avector.h
 
 FORMS += \
+        gui/particleSim/atrackdrawdialog.ui \
+        gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
         gui/script/ascriptwindow.ui \

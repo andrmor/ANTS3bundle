@@ -14,7 +14,9 @@ public:
 
     virtual ~ATrackingStepData();
 
-    virtual void logToString(QString & str, int offset) const;
+    void extractTargetIsotope();
+
+    virtual void logToString(QString & str, int offset) const; // !!!*** obsolete?
 
 public:
     float   Position[3];
@@ -22,8 +24,11 @@ public:
     float   Energy;
     float   DepositedEnergy;
     QString Process;              //step defining process
+    QString TargetIsotope;        //defined only for hadronic procresses, otherwise empty
     std::vector<int> Secondaries; //secondaries created in this step - indexes in the parent record
 };
+
+// TODO consider adding "normal step" or even "hadronic step" to save memory? !!!***
 
 class ATransportationStepData : public ATrackingStepData
 {

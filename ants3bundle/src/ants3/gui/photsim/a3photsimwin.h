@@ -2,8 +2,9 @@
 #define A3PHOTSIMWIN_H
 
 #include "aphotonsimsettings.h"
+#include "aguiwindow.h"
 
-#include <QMainWindow>
+#include <vector>
 
 namespace Ui {
 class A3PhotSimWin;
@@ -13,8 +14,10 @@ class TObject;
 class AMonitorHub;
 class APhotonBombFileHandler; // tmp ?
 class ANodeRecord; // tmp ?
+class ASensorDrawWidget;
+class AFileHandlerBase;
 
-class A3PhotSimWin : public QMainWindow
+class A3PhotSimWin : public AGuiWindow
 {
     Q_OBJECT
 
@@ -121,32 +124,37 @@ private slots:
 
     void on_pbSelectBombsFile_clicked();
 
-    void on_pbLoadAndShowBombs_clicked(); // !!!*** temporary!    !!!*** synchronize if both tracks and markers are shown to avoid double draw
-
-    void on_sbShowBombsEvent_editingFinished();
-
-    void on_pbShowBombsPrevious_clicked();
-
-    void on_pbShowBombsNext_clicked();
-
-    void on_cobShowBombsMode_activated(int index);
-
     void on_pbChangeWorkingDir_clicked();
 
     void on_pbLoadAllResults_clicked();
 
     void on_pbViewDepositionFile_clicked();
-
     void on_pbHelpDepositionFile_clicked();
+
+    void on_tbwResults_currentChanged(int index);
+
+    void on_pbShowEvent_clicked();
+
+    void on_pbEventNumberLess_clicked();
+
+    void on_pbEventNumberMore_clicked();
+
+    void on_pbChooseSensorSigFile_clicked();
+
+    void on_pbShowBombsMultiple_clicked();
 
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
 
-    Ui::A3PhotSimWin * ui = nullptr;
+    Ui::A3PhotSimWin   * ui        = nullptr;
+    ASensorDrawWidget  * gvSensors = nullptr;
 
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
     APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
+
+    AFileSettingsBase * SignalsFileSettings = nullptr;
+    AFileHandlerBase  * SignalsFileHandler  = nullptr;
 
     void updatePhotBombGui();
     void updateDepoGui();
@@ -162,7 +170,18 @@ private:
 
     void updateAdvancedBombIndicator();
 
-    void showBombs();
+
+    void disableGui(bool flag); // !!!*** make it for global interface
+
+
+    void doShowEvent();
+
+    void showSensorSignal();
+    void showSensorSignalDraw();
+    void showSensorSignalTable();
+
+    void showBombSingleEvent();
+    bool updateBombHandler();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "a3global.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "guitools.h"
@@ -16,13 +17,15 @@
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
 #include "ascriptwindow.h"
-#include "ademowindow.h" // tmp
+#include "ademowindow.h"
 
 #include <QDebug>
+#include <QTimer>
 
 #include "TObject.h"
 
 MainWindow::MainWindow() :
+    AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
     ui(new Ui::MainWindow)
 {
@@ -82,14 +85,28 @@ MainWindow::MainWindow() :
 
     DemoWin = new ADemoWindow(this);
 
+    loadWindowGeometries();
+
+    //root update cycle
+    RootUpdateTimer = new QTimer(this);
+    RootUpdateTimer->setInterval(100);
+    QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
+    RootUpdateTimer->start();
+    qDebug()<<">Timer to refresh Root events started";
+
   // Finalizing
     updateGui();
 }
 
 MainWindow::~MainWindow()
 {
-    delete GeoConWin;
     delete ui;
+}
+
+#include "TSystem.h"
+void MainWindow::rootTimerTimeout()
+{
+    gSystem->ProcessEvents();
 }
 
 void MainWindow::updateGui()
@@ -160,6 +177,60 @@ void MainWindow::on_actionLoad_configuration_triggered()
     // gui is updated in updateAllGuiFromConfig() slot triggered from Config hub, since script also can load config
 }
 
+void MainWindow::on_actionLoad_last_config_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave0.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickSave_slot_1_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave1.json");
+}
+
+void MainWindow::on_actionQuickSave_slot_2_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave2.json");
+}
+
+void MainWindow::on_actionQuickSave_slot_3_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave3.json");
+}
+
+void MainWindow::on_actionQuickLoad_slot_1_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave1.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickLoad_slot_2_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave2.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickLoad_slot_3_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave3.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    close();
+}
+
+// ---
+
 void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
@@ -169,6 +240,8 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
+
+    GeoWin->ShowGeometry(false, false, true);
 }
 
 void MainWindow::on_pbPhotSim_clicked()
@@ -235,3 +308,51 @@ void MainWindow::on_pushButton_clicked()
     SensWin->updateGui();
 }
 
+#include <QThread>
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    qDebug() << "\n<MainWindow shutdown initiated";
+    clearFocus();
+
+    qDebug()<<"<Saving position/status of all windows";
+    saveWindowGeometries();
+
+    qDebug() << "<Preparing graph window for shutdown";
+    GraphWin->close();
+    GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
+
+    //saving ANTS master-configuration file
+    JScriptWin->WriteToJson();
+    A3Global::getInstance().saveConfig();
+
+    qDebug()<<"<Saving ANTS configuration";
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+
+    qDebug() << "<Stopping Root update timer-based cycle";
+    RootUpdateTimer->stop();
+    disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
+    QThread::msleep(110);
+
+    std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
+                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * win : wins) delete win;
+
+    qDebug() << "<MainWindow close event processing finished";
+}
+
+void MainWindow::saveWindowGeometries()
+{
+    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * w : wins) w->storeGeomStatus();
+}
+
+void MainWindow::loadWindowGeometries()
+{
+    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+
+    for (auto * w : wins) w->restoreGeomStatus();
+}

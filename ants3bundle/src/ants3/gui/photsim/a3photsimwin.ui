@@ -68,7 +68,6 @@
            <widget class="QLabel" name="label">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -81,7 +80,6 @@
            <widget class="QComboBox" name="cobSimType">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -154,7 +152,6 @@
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -177,7 +174,6 @@
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -219,7 +215,6 @@
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -254,7 +249,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -610,7 +604,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -633,7 +626,6 @@
                     </property>
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -701,7 +693,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_20">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -718,7 +709,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QComboBox" name="cobNodeGenerationMode">
                 <property name="font">
                  <font>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -772,7 +762,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                 <kerning>true</kerning>
                </font>
@@ -845,7 +834,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_15">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -879,7 +867,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_14">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -913,7 +900,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_16">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1088,7 +1074,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_69">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1118,7 +1103,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_72">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1152,7 +1136,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_38">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -1186,7 +1169,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    <widget class="QLabel" name="label_74">
                     <property name="font">
                      <font>
-                      <weight>50</weight>
                       <bold>false</bold>
                       <kerning>true</kerning>
                      </font>
@@ -2239,7 +2221,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -2756,7 +2737,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_206">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2782,7 +2762,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QLabel" name="label_207">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2886,7 +2865,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
              <widget class="QLabel" name="label_7">
               <property name="font">
                <font>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -3343,7 +3321,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -3465,6 +3442,21 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <string>Results</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_12">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_55">
           <property name="topMargin">
@@ -3539,14 +3531,135 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          </layout>
         </item>
         <item>
-         <widget class="QTabWidget" name="tabWidget">
+         <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>4</number>
+           <number>2</number>
           </property>
-          <widget class="QWidget" name="tab_2">
+          <widget class="QWidget" name="tab_6">
            <attribute name="title">
-            <string>Signals</string>
+            <string>Statistics</string>
            </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Load from file:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLineEdit" name="leStatisticsFile">
+                <property name="text">
+                 <string>PhotonStatistics.json</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbSelectStatisticsFile">
+                <property name="text">
+                 <string>Select</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbLoadAndShowStatistics">
+              <property name="text">
+               <string>Load and show</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_32">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_19">
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Processes:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="ptePhotonProcesses"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_16">
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_9">
+                  <property name="text">
+                   <string>Photon end of life:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="pteEndOfLife"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Sensor statistics:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_26">
+              <item>
+               <widget class="QPushButton" name="pbShowTransitionDistr">
+                <property name="text">
+                 <string>Transitions</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowWaveDistr">
+                <property name="text">
+                 <string>Wavelength</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowTimeDistr">
+                <property name="text">
+                 <string>Time</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbShowAngleDistr">
+                <property name="text">
+                 <string>Angle</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_7">
            <attribute name="title">
@@ -3966,6 +4079,378 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Sensors</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <property name="spacing">
+             <number>3</number>
+            </property>
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
+             <number>3</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_59">
+              <item>
+               <widget class="QLabel" name="label_37">
+                <property name="text">
+                 <string>File:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leSensorSigFileName">
+                <property name="text">
+                 <string>SensorSignals.txt</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbChooseSensorSigFile">
+                <property name="text">
+                 <string>Choose</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_52">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="cbSensorsAll">
+                <property name="text">
+                 <string>All sensors</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frSensorGroups">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_53">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QCheckBox" name="cbSensorsG1">
+                   <property name="text">
+                    <string>G1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leSensorsG1">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>0-5,7</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_35">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbSensorsG2">
+                   <property name="text">
+                    <string>G2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leSensorsG2">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_36">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbSensorsG3">
+                   <property name="text">
+                    <string>G3</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leSensorsG3">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTabWidget" name="twSensors">
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <widget class="QWidget" name="tab_8">
+               <attribute name="title">
+                <string>Draw</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_29">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <property name="leftMargin">
+                 <number>3</number>
+                </property>
+                <property name="topMargin">
+                 <number>3</number>
+                </property>
+                <property name="rightMargin">
+                 <number>3</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>3</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="frSensorDraw">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tab_9">
+               <attribute name="title">
+                <string>Table</string>
+               </attribute>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_5">
+           <attribute name="title">
+            <string>Bombs</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_27">
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Load from file:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_49">
+              <item>
+               <widget class="QLineEdit" name="leBombsFile">
+                <property name="text">
+                 <string>PhotonBombs.txt</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbSelectBombsFile">
+                <property name="text">
+                 <string>Select</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_34">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbShowBombsMultiple">
+              <property name="text">
+               <string>Show considering all events</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_50">
+              <item>
+               <widget class="QCheckBox" name="cbShowBombsLimited">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>First</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="sbShowBombsMax">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>999999</number>
+                </property>
+                <property name="value">
+                 <number>1000</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>events</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_58">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_51">
+              <item>
+               <widget class="QCheckBox" name="cbShowBombsOnePer">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>One per </string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="sbShowBombsOnePer">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>999999</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_32">
+                <property name="text">
+                 <string>events</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_59">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>173</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
             <string>Tracks</string>
@@ -4018,467 +4503,100 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_5">
-           <attribute name="title">
-            <string>Bombs</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_27">
-            <item>
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_49">
-              <item>
-               <widget class="QLineEdit" name="leBombsFile">
-                <property name="text">
-                 <string>PhotonBombs.txt</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbSelectBombsFile">
-                <property name="text">
-                 <string>Select</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadAndShowBombs">
-              <property name="text">
-               <string>Load and show</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_34">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_54">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <spacer name="horizontalSpacer_61">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_36">
-                <property name="text">
-                 <string>Events:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labShowBombsNumEvents">
-                <property name="text">
-                 <string>--</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_62">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_53">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_35">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Visualization mode:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="cobShowBombsMode">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Multiple events</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Single event at a time</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QStackedWidget" name="stackedWidget">
-              <property name="currentIndex">
-               <number>0</number>
-              </property>
-              <widget class="QWidget" name="page">
-               <layout class="QVBoxLayout" name="verticalLayout_25">
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_50">
-                  <item>
-                   <widget class="QCheckBox" name="cbShowBombsLimited">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>First</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="sbShowBombsMax">
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>999999</number>
-                    </property>
-                    <property name="value">
-                     <number>1000</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_2">
-                    <property name="text">
-                     <string>events</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_58">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_51">
-                  <item>
-                   <widget class="QCheckBox" name="cbShowBombsOnePer">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>One per </string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="sbShowBombsOnePer">
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>999999</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_32">
-                    <property name="text">
-                     <string>events</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_59">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_19">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>87</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QWidget" name="page_2">
-               <layout class="QVBoxLayout" name="verticalLayout_26">
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_52">
-                  <item>
-                   <widget class="QLabel" name="label_33">
-                    <property name="text">
-                     <string>Event #</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="sbShowBombsEvent">
-                    <property name="maximum">
-                     <number>999999999</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_60">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbShowBombsPrevious">
-                    <property name="text">
-                     <string>&lt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbShowBombsNext">
-                    <property name="text">
-                     <string>&gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_24">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>121</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>173</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_6">
-           <attribute name="title">
-            <string>Statistics</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_15">
-            <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QLineEdit" name="leStatisticsFile">
-                <property name="text">
-                 <string>PhotonStatistics.json</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbSelectStatisticsFile">
-                <property name="text">
-                 <string>Select</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadAndShowStatistics">
-              <property name="text">
-               <string>Load and show</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_32">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_19">
-                <property name="rightMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_10">
-                  <property name="text">
-                   <string>Processes:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPlainTextEdit" name="ptePhotonProcesses"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_16">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_9">
-                  <property name="text">
-                   <string>Photon end of life:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPlainTextEdit" name="pteEndOfLife"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Sensor statistics:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_26">
-              <item>
-               <widget class="QPushButton" name="pbShowTransitionDistr">
-                <property name="text">
-                 <string>Transitions</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowWaveDistr">
-                <property name="text">
-                 <string>Wavelength</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowTimeDistr">
-                <property name="text">
-                 <string>Time</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbShowAngleDistr">
-                <property name="text">
-                 <string>Angle</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frEventNumber">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_60">
+           <property name="spacing">
+            <number>3</number>
+           </property>
+           <property name="leftMargin">
+            <number>3</number>
+           </property>
+           <property name="topMargin">
+            <number>3</number>
+           </property>
+           <property name="rightMargin">
+            <number>3</number>
+           </property>
+           <property name="bottomMargin">
+            <number>3</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_40">
+             <property name="text">
+              <string>Event #:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbEvent">
+             <property name="maximum">
+              <number>99999999</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_53">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>77</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pbEventNumberLess">
+             <property name="text">
+              <string>&lt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pbShowEvent">
+             <property name="text">
+              <string>Show</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pbEventNumberMore">
+             <property name="text">
+              <string>&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_68">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>77</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -4513,12 +4631,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>513</y>
+     <x>128</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>502</y>
+     <x>427</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -4529,12 +4647,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>513</y>
+     <x>259</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>502</y>
+     <x>427</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -4545,12 +4663,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>513</y>
+     <x>389</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>502</y>
+     <x>427</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -4565,8 +4683,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <y>502</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>502</y>
+     <x>427</x>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -4971,18 +5089,66 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    </hints>
   </connection>
   <connection>
-   <sender>cobShowBombsMode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(int)</slot>
+   <sender>cbSensorsG1</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSensorsG1</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>253</y>
+     <x>97</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>280</x>
-     <y>280</y>
+     <x>182</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsG2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSensorsG2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>264</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsG3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSensorsG3</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>435</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>516</x>
+     <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsAll</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frSensorGroups</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>204</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>91</x>
+     <y>206</y>
     </hint>
    </hints>
   </connection>

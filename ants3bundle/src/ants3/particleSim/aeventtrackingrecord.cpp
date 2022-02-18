@@ -28,6 +28,19 @@ ATrackingStepData::ATrackingStepData(float x, float y, float z, float time, floa
 
 ATrackingStepData::~ATrackingStepData(){}
 
+void ATrackingStepData::extractTargetIsotope()
+{
+    if (Process.endsWith('#'))
+    {
+        Process.chop(1);
+        const int pos = Process.indexOf('#');
+
+        TargetIsotope = Process.mid(pos + 1);
+        Process       = Process.left(pos);
+    }
+    else TargetIsotope.clear();
+}
+
 void ATrackingStepData::logToString(QString & str, int offset) const
 {
     str += QString(' ').repeated(offset);

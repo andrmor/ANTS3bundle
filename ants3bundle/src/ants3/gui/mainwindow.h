@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,8 +18,9 @@ class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
 class ADemoWindow; // tmp
+class QTimer;
 
-class MainWindow : public QMainWindow
+class MainWindow : public AGuiWindow
 {
     Q_OBJECT
 
@@ -46,12 +47,23 @@ private:
     AScriptWindow     * JScriptWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
+    QTimer * RootUpdateTimer = nullptr;
+
 private slots:
     void onRebuildGeometryRequested(); // !!!*** refactor?
     void updateAllGuiFromConfig();
 
+    // Main menu
     void on_actionSave_configuration_triggered();
     void on_actionLoad_configuration_triggered();
+    void on_actionLoad_last_config_triggered();
+    void on_actionQuickSave_slot_1_triggered();
+    void on_actionQuickSave_slot_2_triggered();
+    void on_actionQuickSave_slot_3_triggered();
+    void on_actionQuickLoad_slot_1_triggered();
+    void on_actionQuickLoad_slot_2_triggered();
+    void on_actionQuickLoad_slot_3_triggered();
+    void on_actionExit_triggered();
 
     void on_pbGeometry_clicked();
     void on_pbGeoWin_clicked();
@@ -69,6 +81,15 @@ private slots:
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
     void on_pushButton_clicked();
+
+    void rootTimerTimeout();
+
+protected:
+    void closeEvent(QCloseEvent * event);
+
+private:
+    void saveWindowGeometries();
+    void loadWindowGeometries();
 };
 
 #endif // MAINWINDOW_H

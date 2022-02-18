@@ -37,9 +37,8 @@
 #include <QHeaderView>
 #include <QRegularExpression>
 
-AScriptWindow::AScriptWindow(QWidget *parent) :
-    //    AGuiWindow("script"), parent),
-    QMainWindow(parent),
+AScriptWindow::AScriptWindow(QWidget * parent) :
+    AGuiWindow("JScript", parent),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AScriptWindow)
 {
@@ -430,11 +429,13 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
+#include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     AJScriptManager & ScriptManager = AJScriptHub::manager();
     // save all tabs -> GlobSet
     WriteToJson();
+    A3Global::getInstance().saveConfig();
     emit requestUpdateConfig();
 
     QString Script = getTab()->TextEdit->document()->toPlainText();
@@ -469,7 +470,11 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         if (resStr != "undefined" && !resStr.isEmpty())
-            outputText(resStr);
+        {
+            QString s;
+            ACore_SI::addQVariantToString(resSV.toVariant(), s);
+            outputText(s);
+        }
     }
 
     ScriptManager.collectGarbage();

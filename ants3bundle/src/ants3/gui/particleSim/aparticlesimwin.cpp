@@ -6,6 +6,7 @@
 #include "aparticlesimmanager.h"
 #include "guitools.h"
 #include "aerrorhub.h"
+#include "amaterialhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
 #include "ajsontools.h"
@@ -17,7 +18,7 @@
 #include <QFile>
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
-    QMainWindow(parent),
+    AGuiWindow("PartSim", parent),
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
     SimManager(AParticleSimManager::getInstance()),
@@ -31,6 +32,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
 
     updateGui();
+
+    connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -831,6 +834,20 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
         on_pbLoadMonitorsData_clicked();
 }
 
+void AParticleSimWin::onMaterialsChanged()
+{
+    QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
+
+    ui->cobPTHistVolMatFrom->clear();
+    ui->cobPTHistVolMatFrom->addItems(mats);
+
+    ui->cobPTHistVolMatTo->clear();
+    ui->cobPTHistVolMatTo->addItems(mats);
+
+    ui->cobPTHistVolMat->clear();
+    ui->cobPTHistVolMat->addItems(mats);
+}
+
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
@@ -992,6 +1009,7 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
                                                           .arg(MatHub.getMaterialName(trStep->iMaterial));
             //cannot set currents yet - the indication should still show the "from" values - remember about energy deposition during "T" step!
         }
+        else if (!step->TargetIsotope.isEmpty()) s += QString(" (%0)").arg(step->TargetIsotope);
 
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
@@ -1051,7 +1069,7 @@ void AParticleSimWin::EV_showTree()
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
-    QString err = SimManager.fillTrackingRecord(fileName, ui->sbEvent->value(), record);
+    QString err = SimManager.fillTrackingRecord(fileName, ui->sbShowEvent->value(), record);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -1334,6 +1352,34 @@ void AParticleSimWin::on_cbEVhideTransPrim_clicked()
 void AParticleSimWin::on_pbEventView_clicked()
 {
     EV_showTree();
+
+    if (ui->cbEVtracks->isChecked())
+    {
+        QString fileName = ui->leTrackingDataFile->text();
+        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+        const QStringList LimitTo;
+        const QStringList Exclude;
+
+        const int MaxTracks = 1000;//ui->sbMaxTracks->value(); // !!!***
+
+        const bool SkipPrimaries   = false;
+        const bool SkipPrimNoInter = false;
+        const bool SkipSecondaries = ui->cbEVsupressSec->isChecked();
+
+        QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
+                                             SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                                             MaxTracks, ui->sbShowEvent->value());
+
+        if (!err.isEmpty())
+        {
+            //guitools::message(err, this);
+            return;
+        }
+
+        emit requestShowGeometry(true, true, true);
+        emit requestShowTracks();
+    }
 }
 
 // --- Statistics ---
@@ -2053,3 +2099,31 @@ void AParticleSimWin::on_pbShowMonitorTimeOverall_clicked()
     time->GetYaxis()->SetTitle("Hits");
     emit requestDraw(time, "hist", true, true);
 }
+
+void AParticleSimWin::on_sbShowEvent_editingFinished()
+{
+    on_pbEventView_clicked();
+}
+
+void AParticleSimWin::on_pbPreviousEvent_clicked()
+{
+    int curEv = ui->sbShowEvent->value();
+    if (curEv == 0) return;
+
+    ui->sbShowEvent->setValue(curEv - 1);
+    on_pbEventView_clicked();
+}
+
+void AParticleSimWin::on_pbNextEvent_clicked()
+{
+    ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
+    on_pbEventView_clicked();
+}
+
+#include "atrackdrawdialog.h"
+void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
+{
+    ATrackDrawDialog D(this);
+    D.exec();
+}
+

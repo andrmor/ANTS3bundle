@@ -127,6 +127,16 @@ bool ATrackingDataImporter::isEndReached() const
         return inTextStream->atEnd();
 }
 
+int ATrackingDataImporter::countEvents()
+{
+    bool ok = gotoEvent(0);
+    if (!ok) return 0;
+
+    int numEvents = 1;
+    while (gotoEvent(numEvents)) numEvents++;
+    return numEvents;
+}
+
 void ATrackingDataImporter::readBuffer()
 {
     if (bBinaryInput)
@@ -491,6 +501,8 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
                                      inputSL.at(6).toFloat(), // depoE
                                      inputSL.at(0));          // pr
     }
+
+    step->extractTargetIsotope();
 
     return step;
 }

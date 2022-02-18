@@ -1,7 +1,7 @@
 #ifndef APARTICLESIMWIN_H
 #define APARTICLESIMWIN_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 class AParticleSimSettings;
 class AG4SimulationSettings;
@@ -17,12 +17,12 @@ namespace Ui {
 class AParticleSimWin;
 }
 
-class AParticleSimWin : public QMainWindow
+class AParticleSimWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit AParticleSimWin(QWidget *parent = nullptr);  // !!!*** add validators
+    explicit AParticleSimWin(QWidget * parent = nullptr);  // !!!*** add validators
     ~AParticleSimWin();
 
 public slots:
@@ -104,6 +104,17 @@ private slots:
     void on_pbShowMonitorTimeOverall_clicked();
 
     void on_pbLoadAllResults_clicked();
+
+private slots:
+    void onMaterialsChanged();
+
+    void on_sbShowEvent_editingFinished();
+
+    void on_pbPreviousEvent_clicked();
+
+    void on_pbNextEvent_clicked();
+
+    void on_pbConfigureTrackStyles_clicked();
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);

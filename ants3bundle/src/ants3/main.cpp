@@ -24,6 +24,7 @@
 #include "TApplication.h"
 #include "TH1.h"
 
+#include "ascriptinterface.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,6 +32,8 @@ int main(int argc, char *argv[])
     char *rootargv[] = {(char*)"qqq"};
     TApplication RootApp("My ROOT", &rootargc, rootargv);
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
+
+    qRegisterMetaType<AScriptInterface*>();
 
     std::unique_ptr<QCoreApplication> app;
 #ifdef GUI
@@ -66,6 +69,9 @@ int main(int argc, char *argv[])
 #ifdef GUI
     if (argc == 1)
     {
+        QCoreApplication::setOrganizationName("ants3");
+        QCoreApplication::setApplicationName("winpos");
+
         MainWindow * w = new MainWindow();
         w->show();
         app->exec();
