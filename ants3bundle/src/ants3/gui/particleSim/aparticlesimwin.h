@@ -114,6 +114,8 @@ private slots:
 
     void on_pbNextEvent_clicked();
 
+    void on_pbConfigureTrackStyles_clicked();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();

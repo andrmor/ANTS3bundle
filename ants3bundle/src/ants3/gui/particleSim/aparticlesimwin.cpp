@@ -2116,3 +2116,11 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
     on_pbEventView_clicked();
 }
+
+#include "atrackdrawdialog.h"
+void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
+{
+    ATrackDrawDialog D(this);
+    D.exec();
+}
+

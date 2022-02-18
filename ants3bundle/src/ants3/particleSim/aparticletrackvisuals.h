@@ -12,9 +12,11 @@ class TVirtualGeoTrack;
 class ATrackAttributes
 {
 public:
-    int color = 7;
-    int width = 1;
-    int style = 1;
+    int Color = 7;
+    int Width = 1;
+    int Style = 1;
+
+    ATrackAttributes(int color = 7, int width = 1, int style = 1) : Color(color), Width(width), Style(style) {}
 
     void setTrackAttributes(TVirtualGeoTrack * track) const;
 
@@ -32,7 +34,6 @@ public:
 
 private:
     AParticleTrackVisuals();
-    ~AParticleTrackVisuals(){}
 
     AParticleTrackVisuals(const AParticleTrackVisuals&)            = delete;
     AParticleTrackVisuals(AParticleTrackVisuals&&)                 = delete;
@@ -40,12 +41,18 @@ private:
     AParticleTrackVisuals& operator=(AParticleTrackVisuals&&)      = delete;
 
 public:
-    ATrackAttributes DefaultAttributes;  //default width/style and color for particle # beyound covered in DefaultParticle_Colors
-    std::vector<int> DefaultColors;  // !!!*** change to default for gamma neutron electron positron etc
-    std::map<QString, ATrackAttributes> CustomAttributes;
+    ATrackAttributes DefaultAttributes;
+    std::map<QString, ATrackAttributes> DefinedAttributes;
 
-    void writeToJson(QJsonObject& json) const;
-    void readFromJson(const QJsonObject& json);
+    ATrackAttributes * getAttributesForParticle(const QString & name); // nullptr if not yet defined
+    const QStringList getDefinedParticles() const;
+
+    void defineAttributesForParticle(const QString & name, const ATrackAttributes & att);
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
+    void removeCustom(const QString & name);
 
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
 
