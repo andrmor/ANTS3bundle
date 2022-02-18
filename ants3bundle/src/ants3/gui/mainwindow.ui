@@ -465,6 +465,18 @@
     </property>
     <addaction name="actionSave_configuration"/>
     <addaction name="actionLoad_configuration"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuickSave_slot_1"/>
+    <addaction name="actionQuickSave_slot_2"/>
+    <addaction name="actionQuickSave_slot_3"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuickLoad_slot_1"/>
+    <addaction name="actionQuickLoad_slot_2"/>
+    <addaction name="actionQuickLoad_slot_3"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_last_config"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -476,6 +488,46 @@
   <action name="actionLoad_configuration">
    <property name="text">
     <string>Load configuration</string>
+   </property>
+  </action>
+  <action name="actionLoad_last_config">
+   <property name="text">
+    <string>Load last config</string>
+   </property>
+  </action>
+  <action name="actionQuickSave_slot_1">
+   <property name="text">
+    <string>QuickSave slot 1</string>
+   </property>
+  </action>
+  <action name="actionQuickSave_slot_2">
+   <property name="text">
+    <string>QuickSave slot 2</string>
+   </property>
+  </action>
+  <action name="actionQuickSave_slot_3">
+   <property name="text">
+    <string>QuickSave slot 3</string>
+   </property>
+  </action>
+  <action name="actionQuickLoad_slot_1">
+   <property name="text">
+    <string>QuickLoad slot 1</string>
+   </property>
+  </action>
+  <action name="actionQuickLoad_slot_2">
+   <property name="text">
+    <string>QuickLoad slot 2</string>
+   </property>
+  </action>
+  <action name="actionQuickLoad_slot_3">
+   <property name="text">
+    <string>QuickLoad slot 3</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>

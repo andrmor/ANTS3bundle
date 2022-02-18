@@ -177,6 +177,60 @@ void MainWindow::on_actionLoad_configuration_triggered()
     // gui is updated in updateAllGuiFromConfig() slot triggered from Config hub, since script also can load config
 }
 
+void MainWindow::on_actionLoad_last_config_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave0.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickSave_slot_1_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave1.json");
+}
+
+void MainWindow::on_actionQuickSave_slot_2_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave2.json");
+}
+
+void MainWindow::on_actionQuickSave_slot_3_triggered()
+{
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave3.json");
+}
+
+void MainWindow::on_actionQuickLoad_slot_1_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave1.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickLoad_slot_2_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave2.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionQuickLoad_slot_3_triggered()
+{
+    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave3.json";
+    if (!QFile::exists(fileName)) return;
+
+    AConfig::getInstance().load(fileName);
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    close();
+}
+
+// ---
+
 void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
@@ -186,6 +240,8 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
+
+    GeoWin->ShowGeometry(false, false, true);
 }
 
 void MainWindow::on_pbPhotSim_clicked()
@@ -276,8 +332,6 @@ void MainWindow::closeEvent(QCloseEvent *)
     RootUpdateTimer->stop();
     disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     QThread::msleep(110);
-    //delete RootUpdateTimer;
-    //qDebug()<<"        timer stopped and deleted";
 
     std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
