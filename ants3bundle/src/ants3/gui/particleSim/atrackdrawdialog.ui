@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Track building options</string>
+   <string>Track attributes</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -90,7 +90,7 @@ The selected color is used for particles with index &gt; max in defaultColors an
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>  </string>
+        <string/>
        </property>
       </widget>
      </item>

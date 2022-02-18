@@ -361,10 +361,7 @@ namespace
         {
             TGeoTrack * track = new TGeoTrack(1, 22);
 
-            track->SetLineColor(7);
-            track->SetLineWidth(2);
-            track->SetLineStyle(1);
-        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
+            AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
 
             const std::vector<ATrackingStepData *> & Steps = r->getSteps();
             for (const ATrackingStepData * step : Steps)

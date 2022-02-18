@@ -843,6 +843,9 @@ void AParticleSimWin::onMaterialsChanged()
 
     ui->cobPTHistVolMatTo->clear();
     ui->cobPTHistVolMatTo->addItems(mats);
+
+    ui->cobPTHistVolMat->clear();
+    ui->cobPTHistVolMat->addItems(mats);
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()

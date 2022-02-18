@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1296,7 +1296,7 @@ Format: Volume_name  Step_in_mm</string>
           <item>
            <widget class="QLineEdit" name="leWorkingDirectory">
             <property name="text">
-             <string>/media/andr/CCFC9347FC932B2A/LINUX/QtProjects/ANTS3/ANTS3bundle/build-meta-Desktop_Qt_5_15_2_GCC_64bit-Release/bin/Output</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -1408,7 +1408,7 @@ Format: Volume_name  Step_in_mm</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">

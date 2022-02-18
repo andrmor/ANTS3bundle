@@ -19,19 +19,14 @@ public:
 
 private slots:
     void on_pbClose_clicked();
-
     void on_pbDefaultParticleAtt_clicked();
-
     void on_pbEditCustom_clicked();
-
-    void on_pbSave_clicked();
-    void on_pbLoad_clicked();
-
     void on_cobParticle_activated(int index);
-
     void on_pbNew_clicked();
-
     void on_pbRemove_clicked();
+
+    void save();
+    void load();
 
 private:
     AParticleTrackVisuals & settings;

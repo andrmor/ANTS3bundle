@@ -5,6 +5,8 @@
 #include "aparticletrackvisuals.h"
 #include "guitools.h"
 
+#include <QMenuBar>
+
 #include "TColor.h"
 #include "TROOT.h"
 
@@ -15,6 +17,12 @@ ATrackDrawDialog::ATrackDrawDialog(QWidget *parent) :
     setWindowTitle("Track visuals");
     ui->setupUi(this);
     ui->pbClose->setDefault(true);
+
+    QMenuBar* mb = new QMenuBar(this);
+    QMenu* fileMenu = mb->addMenu("&File");
+    fileMenu->addAction("Save", this, &ATrackDrawDialog::save);
+    fileMenu->addAction("Load", this, &ATrackDrawDialog::load);
+    layout()->setMenuBar(mb);
 
     updateParticles(0);
     updateParticleAttributes();
@@ -88,16 +96,17 @@ void ATrackDrawDialog::on_pbEditCustom_clicked()
 
 #include <QFileDialog>
 #include "ajsontools.h"
-void ATrackDrawDialog::on_pbSave_clicked()
+void ATrackDrawDialog::save()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Save track drawing settings", "", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
+    if (!fileName.endsWith(".json")) fileName += ".json";
     QJsonObject json;
     settings.writeToJson(json);
     jstools::saveJsonToFile(json, fileName);
 }
 
-void ATrackDrawDialog::on_pbLoad_clicked()
+void ATrackDrawDialog::load()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load track drawing settings", "", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -105,6 +114,7 @@ void ATrackDrawDialog::on_pbLoad_clicked()
     jstools::loadJsonFromFile(json, fileName);
     settings.readFromJson(json);
 
+    updateParticles(0);
     updateParticleAttributes();
 }
 
