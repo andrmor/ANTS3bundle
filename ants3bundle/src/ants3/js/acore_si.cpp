@@ -74,8 +74,9 @@ ACore_SI::ACore_SI(const ACore_SI &other) :
 
 void ACore_SI::abort(QString message)
 {
-    qDebug() << ">Core module: abort triggered!";
-    AJScriptHub::getInstance().abort(message);
+    //qDebug() << ">Core module: abort triggered!";
+    //AJScriptHub::getInstance().abort(message);
+    AScriptInterface::abort(message);
 }
 
 #include <QElapsedTimer>

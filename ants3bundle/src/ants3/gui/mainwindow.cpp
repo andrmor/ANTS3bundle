@@ -87,12 +87,24 @@ MainWindow::MainWindow() :
 
     loadWindowGeometries();
 
-    //root update cycle
+  // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
     RootUpdateTimer->setInterval(100);
     QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     RootUpdateTimer->start();
     qDebug()<<">Timer to refresh Root events started";
+
+  // Config load explorer -> tips
+    // TODO !!!***
+    /*
+    QString mss = ui->menuFile->styleSheet();
+    mss += "; QMenu::tooltip {wakeDelay: 1;}";
+    ui->menuFile->setStyleSheet(mss);
+    ui->menuFile->setToolTipsVisible(true);
+    ui->menuFile->setToolTipDuration(1000);
+    void MainWindow::on_actionQuick_save_1_hovered()
+    {ui->actionQuick_save_1->setToolTip(ELwindow->getQuickSlotMessage(1));}
+    */
 
   // Finalizing
     updateGui();
@@ -240,6 +252,8 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
+
+    //rules !!!***
 
     GeoWin->ShowGeometry(false, false, true);
 }

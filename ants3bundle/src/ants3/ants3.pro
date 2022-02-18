@@ -131,6 +131,7 @@ SOURCES += \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
+    js/apartanalysis_si.cpp \
     js/aphotonsim_si.cpp \
     js/ascriptinterface.cpp \
     js/atrackrec_si.cpp \
@@ -283,6 +284,7 @@ HEADERS += \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/amath_si.h \
+    js/apartanalysis_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
     js/atrackrec_si.h \
