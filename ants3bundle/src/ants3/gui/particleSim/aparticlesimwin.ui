@@ -1326,39 +1326,6 @@ Format: Volume_name  Step_in_mm</string>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_48">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
          <widget class="QTabWidget" name="twResults">
           <property name="currentIndex">
            <number>0</number>
@@ -2437,7 +2404,7 @@ Format: Volume_name  Step_in_mm</string>
                    <item>
                     <widget class="QLabel" name="label_32">
                      <property name="text">
-                      <string>Limit events by volumes (use '*' at the end to indicate 'starts from'):</string>
+                      <string>Limit events by volumes (* at the end is 'name starts from'):</string>
                      </property>
                     </widget>
                    </item>
@@ -2461,7 +2428,7 @@ Format: Volume_name  Step_in_mm</string>
                    <item>
                     <widget class="QLabel" name="label_33">
                      <property name="text">
-                      <string>Event events by particles (use '*' at the end to indicate 'starts from'):</string>
+                      <string>Limit events by particles (* at the end is 'name starts from'):</string>
                      </property>
                     </widget>
                    </item>

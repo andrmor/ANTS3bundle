@@ -185,7 +185,7 @@ The selected color is used for particles with index &gt; max in defaultColors an
    <item>
     <widget class="QPushButton" name="pbClose">
      <property name="text">
-      <string>Close</string>
+      <string>Accept and close</string>
      </property>
     </widget>
    </item>

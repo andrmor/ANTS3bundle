@@ -58,6 +58,8 @@ public:
 
 //    QString RootStyleScript;
 
+    QJsonObject TrackVisAttributes;
+
 /*
     //Network
     int DefaultWebSocketPort = 1234;

@@ -1,5 +1,6 @@
 #include "aparticletrackvisuals.h"
 #include "ajsontools.h"
+#include "a3global.h"
 
 #include "TVirtualGeoTrack.h"
 
@@ -40,7 +41,7 @@ void ATrackAttributes::reset()
 
 // ---
 
-AParticleTrackVisuals &AParticleTrackVisuals::getInstance()
+AParticleTrackVisuals & AParticleTrackVisuals::getInstance()
 {
     static AParticleTrackVisuals instance;
     return instance;
@@ -50,11 +51,17 @@ AParticleTrackVisuals::AParticleTrackVisuals()
 {
     clear();
 
-    DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
-    DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
-    DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
-    DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
-    DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
+    const A3Global & GlobSet = A3Global::getConstInstance();
+    if (GlobSet.TrackVisAttributes.isEmpty())
+    {
+        DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
+        DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
+        DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
+        DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
+        DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
+        writeToJson(A3Global::getInstance().TrackVisAttributes);
+    }
+    else readFromJson(GlobSet.TrackVisAttributes);
 }
 
 ATrackAttributes * AParticleTrackVisuals::getAttributesForParticle(const QString & name)

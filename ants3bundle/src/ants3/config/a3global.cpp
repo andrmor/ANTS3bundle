@@ -102,6 +102,8 @@ void A3Global::saveConfig()
     js["SW_FontWeight"]  = SW_FontWeight;
     js["SW_Italic"]      = SW_Italic;
 
+    js["TrackVisAttributes"] = TrackVisAttributes;
+
 /*
     js["DefaultWebSocketPort"] = DefaultWebSocketPort;
     js["DefaultWebSocketIP"] = DefaultWebSocketIP;
@@ -150,4 +152,6 @@ void A3Global::loadConfig()
     jstools::parseJson(js, "SW_FontFamily", SW_FontFamily);
     jstools::parseJson(js, "SW_FontWeight", SW_FontWeight);
     jstools::parseJson(js, "SW_Italic", SW_Italic);
+
+    jstools::parseJson(js, "TrackVisAttributes", TrackVisAttributes);
 }

@@ -31,6 +31,11 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
 
     on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
 
+    ui->cobEVkin->setCurrentIndex(1);
+    ui->cobEVdepo->setCurrentIndex(1);
+    ui->pbShowEventTree->setVisible(false);
+    ui->pbShowGeometry->setVisible(false);
+
     updateGui();
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
@@ -2126,10 +2131,25 @@ void AParticleSimWin::on_pbNextEvent_clicked()
 }
 
 #include "atrackdrawdialog.h"
+#include "a3global.h"
+#include "aparticletrackvisuals.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
     ATrackDrawDialog D(this);
-    D.exec();
+    int res = D.exec();
+
+    A3Global & GlobSet = A3Global::getInstance();
+    AParticleTrackVisuals & vis = AParticleTrackVisuals::getInstance();
+
+    if (res == QDialog::Accepted)
+    {
+        vis.writeToJson(GlobSet.TrackVisAttributes);
+        GlobSet.saveConfig();
+    }
+    else
+    {
+        vis.readFromJson(GlobSet.TrackVisAttributes);
+    }
 }
 
 void AParticleSimWin::on_cbLimitToParticleTracks_toggled(bool checked)
