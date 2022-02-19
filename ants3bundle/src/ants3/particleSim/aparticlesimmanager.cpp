@@ -350,12 +350,23 @@ void AParticleSimManager::mergeOutput()
 namespace
 {
     void addTrack(const AParticleTrackingRecord * r,
+                  const QSet<QString> & LimitTo, bool bCheckLimitTo, const QSet<QString> & Exclude, bool bCheckExclude,
                   bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
                   int & iTrack, int MaxTracks)
     {
         if (iTrack >= MaxTracks) return;
 
-        const bool DoSkipPrim = SkipPrimaries || (SkipPrimNoInter && r->isNoInteractions());
+        bool DoSkipPrim = SkipPrimaries || (SkipPrimNoInter && r->isNoInteractions());
+
+        if (!DoSkipPrim && bCheckLimitTo)
+        {
+            if (!LimitTo.contains(r->ParticleName)) DoSkipPrim = true;
+        }
+
+        if (!DoSkipPrim && bCheckExclude)
+        {
+            if (Exclude.contains(r->ParticleName)) DoSkipPrim = true;
+        }
 
         if (!DoSkipPrim)
         {
@@ -377,7 +388,9 @@ namespace
         {
             const std::vector<AParticleTrackingRecord *> & Secondaries = r->getSecondaries();
             for (AParticleTrackingRecord * sec : Secondaries)
-                addTrack(sec, false, false, SkipSecondaries,  // already no primaries from this level down
+                addTrack(sec,
+                         LimitTo, bCheckLimitTo, Exclude, bCheckExclude,
+                         false, false, SkipSecondaries,  // already no primaries from this level down
                          iTrack, MaxTracks);
         }
     }
@@ -394,6 +407,11 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
     ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
+
+    const QSet<QString> LimitTo(LimitToParticles.begin(), LimitToParticles.end());
+    const bool bCheckLimitTo = !LimitTo.isEmpty();
+    const QSet<QString> Exclude(ExcludeParticles.begin(), ExcludeParticles.end());
+    const bool bCheckExclude = !Exclude.isEmpty();
 
     AEventTrackingRecord * record = AEventTrackingRecord::create();
     int iEvent = 0;
@@ -423,6 +441,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
         const std::vector<AParticleTrackingRecord *> Prims = record->getPrimaryParticleRecords();
         for (const AParticleTrackingRecord * r : Prims)
             addTrack(r,
+                     LimitTo, bCheckLimitTo, Exclude, bCheckExclude,
                      SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
                      iTrack, MaxTracks);
     }

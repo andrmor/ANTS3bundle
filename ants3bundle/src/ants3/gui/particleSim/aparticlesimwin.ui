@@ -1408,25 +1408,13 @@ Format: Volume_name  Step_in_mm</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">
                 <string>Tracks</string>
                </attribute>
                <layout class="QVBoxLayout" name="verticalLayout_4">
-                <property name="leftMargin">
-                 <number>6</number>
-                </property>
-                <property name="topMargin">
-                 <number>6</number>
-                </property>
-                <property name="rightMargin">
-                 <number>6</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>6</number>
-                </property>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_19">
                   <item>
@@ -1568,14 +1556,14 @@ Format: Volume_name  Step_in_mm</string>
                 <item>
                  <widget class="QLabel" name="label_37">
                   <property name="text">
-                   <string>  </string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <layout class="QFormLayout" name="formLayout">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="label_9">
+                   <widget class="QCheckBox" name="cbLimitToParticleTracks">
                     <property name="text">
                      <string>Limit to particles:</string>
                     </property>
@@ -1583,13 +1571,19 @@ Format: Volume_name  Step_in_mm</string>
                   </item>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="leLimitToParticleTracks">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="toolTip">
+                     <string>Comma-separated list of particle names</string>
+                    </property>
                     <property name="text">
-                     <string>not implemented</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="label_10">
+                   <widget class="QCheckBox" name="cbExcludeParticleTracks">
                     <property name="text">
                      <string>Exclude particles:</string>
                     </property>
@@ -1597,8 +1591,14 @@ Format: Volume_name  Step_in_mm</string>
                   </item>
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="leExcludeParticleTracks">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="toolTip">
+                     <string>Comma-separated list of particle names</string>
+                    </property>
                     <property name="text">
-                     <string>not implemented</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -1680,146 +1680,17 @@ Format: Volume_name  Step_in_mm</string>
                </attribute>
                <layout class="QVBoxLayout" name="verticalLayout_19">
                 <property name="leftMargin">
-                 <number>6</number>
+                 <number>3</number>
                 </property>
                 <property name="topMargin">
-                 <number>6</number>
+                 <number>3</number>
                 </property>
                 <property name="rightMargin">
-                 <number>6</number>
+                 <number>3</number>
                 </property>
                 <property name="bottomMargin">
-                 <number>6</number>
+                 <number>3</number>
                 </property>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_27">
-                  <item>
-                   <spacer name="horizontalSpacer_40">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_14">
-                    <property name="font">
-                     <font>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Event #</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="sbShowEvent">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>23</height>
-                     </size>
-                    </property>
-                    <property name="keyboardTracking">
-                     <bool>false</bool>
-                    </property>
-                    <property name="maximum">
-                     <number>10000000</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labNumEvents">
-                    <property name="text">
-                     <string>0</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbPreviousEvent">
-                    <property name="maximumSize">
-                     <size>
-                      <width>50</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>&lt;-</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbEventView">
-                    <property name="font">
-                     <font>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Show</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbNextEvent">
-                    <property name="maximumSize">
-                     <size>
-                      <width>50</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>-&gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_39">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="cbEVshowFilters">
-                    <property name="toolTip">
-                     <string>Affect 'Next' and 'Previous' navigation buttons at the bottom</string>
-                    </property>
-                    <property name="text">
-                     <string>Show filters</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_41">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
                 <item>
                  <widget class="QFrame" name="frEventViewer">
                   <property name="frameShape">
@@ -1844,171 +1715,6 @@ Format: Volume_name  Step_in_mm</string>
                    <property name="bottomMargin">
                     <number>3</number>
                    </property>
-                   <item>
-                    <widget class="QFrame" name="frEventFilters">
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::Panel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_38">
-                      <property name="spacing">
-                       <number>3</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>3</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="label_28">
-                        <property name="text">
-                         <string>Limit events by processes:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_22">
-                        <item>
-                         <layout class="QVBoxLayout" name="verticalLayout_35">
-                          <property name="spacing">
-                           <number>1</number>
-                          </property>
-                          <item>
-                           <widget class="QCheckBox" name="cbEVlimToProc">
-                            <property name="text">
-                             <string>Limit to:</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QCheckBox" name="cbEVexcludeProc">
-                            <property name="text">
-                             <string>Exclude:</string>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
-                        </item>
-                        <item>
-                         <layout class="QVBoxLayout" name="verticalLayout_37">
-                          <property name="spacing">
-                           <number>1</number>
-                          </property>
-                          <item>
-                           <widget class="QLineEdit" name="leEVlimitToProc"/>
-                          </item>
-                          <item>
-                           <widget class="QLineEdit" name="leEVexcludeProc"/>
-                          </item>
-                         </layout>
-                        </item>
-                        <item>
-                         <layout class="QVBoxLayout" name="verticalLayout_36">
-                          <property name="spacing">
-                           <number>1</number>
-                          </property>
-                          <item>
-                           <widget class="QCheckBox" name="cbEVlimitToProcPrim">
-                            <property name="text">
-                             <string>for primaries</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QCheckBox" name="cbEVexcludeProcPrim">
-                            <property name="text">
-                             <string>for primaries</string>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_32">
-                        <property name="text">
-                         <string>Limit events by volumes (use '*' at the end to indicate 'starts from'):</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_30">
-                        <property name="topMargin">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="QCheckBox" name="cbLimitToVolumes">
-                          <property name="text">
-                           <string>Limit to:</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="leLimitToVolumes"/>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_33">
-                        <property name="text">
-                         <string>Event events by particles (use '*' at the end to indicate 'starts from'):</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_32">
-                        <property name="topMargin">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="QCheckBox" name="cbLimitToParticles">
-                          <property name="text">
-                           <string>Limit to:</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="leLimitToParticles">
-                          <property name="enabled">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QCheckBox" name="cbExcludeParticles">
-                          <property name="text">
-                           <string>Exclude:</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="leExcludeParticles">
-                          <property name="enabled">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
                    <item>
                     <widget class="QTreeWidget" name="trwEventView">
                      <property name="contextMenuPolicy">
@@ -2490,6 +2196,307 @@ Format: Volume_name  Step_in_mm</string>
                         </size>
                        </property>
                       </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line_9">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_27">
+                  <item>
+                   <spacer name="horizontalSpacer_40">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_14">
+                    <property name="font">
+                     <font>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Event #</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="sbShowEvent">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="keyboardTracking">
+                     <bool>false</bool>
+                    </property>
+                    <property name="maximum">
+                     <number>10000000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="labNumEvents">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbPreviousEvent">
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>&lt;-</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbEventView">
+                    <property name="font">
+                     <font>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Show</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbNextEvent">
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>-&gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_39">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="cbEVshowFilters">
+                    <property name="toolTip">
+                     <string>Affect 'Next' and 'Previous' navigation buttons at the bottom</string>
+                    </property>
+                    <property name="text">
+                     <string>Show filters</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_41">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QFrame" name="frEventFilters">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Panel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_38">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>3</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>3</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_28">
+                     <property name="text">
+                      <string>Limit events by processes:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_22">
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_35">
+                       <property name="spacing">
+                        <number>1</number>
+                       </property>
+                       <item>
+                        <widget class="QCheckBox" name="cbEVlimToProc">
+                         <property name="text">
+                          <string>Limit to:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="cbEVexcludeProc">
+                         <property name="text">
+                          <string>Exclude:</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_37">
+                       <property name="spacing">
+                        <number>1</number>
+                       </property>
+                       <item>
+                        <widget class="QLineEdit" name="leEVlimitToProc"/>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="leEVexcludeProc"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_36">
+                       <property name="spacing">
+                        <number>1</number>
+                       </property>
+                       <item>
+                        <widget class="QCheckBox" name="cbEVlimitToProcPrim">
+                         <property name="text">
+                          <string>for primaries</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="cbEVexcludeProcPrim">
+                         <property name="text">
+                          <string>for primaries</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_32">
+                     <property name="text">
+                      <string>Limit events by volumes (use '*' at the end to indicate 'starts from'):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_30">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QCheckBox" name="cbLimitToVolumes">
+                       <property name="text">
+                        <string>Limit to:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="leLimitToVolumes"/>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_33">
+                     <property name="text">
+                      <string>Event events by particles (use '*' at the end to indicate 'starts from'):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_32">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QCheckBox" name="cbLimitToParticles">
+                       <property name="text">
+                        <string>Limit to:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="leLimitToParticles">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="cbExcludeParticles">
+                       <property name="text">
+                        <string>Exclude:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="leExcludeParticles">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>

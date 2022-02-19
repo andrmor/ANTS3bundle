@@ -834,6 +834,7 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
         on_pbLoadMonitorsData_clicked();
 }
 
+#include <QRegularExpression>
 void AParticleSimWin::onMaterialsChanged()
 {
     QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
@@ -853,8 +854,12 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     QString fileName = ui->leTrackingDataFile->text();
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-    const QStringList LimitTo;
-    const QStringList Exclude;
+    QStringList LimitTo;
+    if (ui->cbLimitToParticleTracks->isChecked())
+        LimitTo = ui->leLimitToParticleTracks->text().split(QRegularExpression("\\s|,"), Qt::SkipEmptyParts);
+    QStringList Exclude;
+    if (ui->cbExcludeParticleTracks->isChecked() && ui->leExcludeParticleTracks->isEnabled())
+        Exclude = ui->leExcludeParticleTracks->text().split(QRegularExpression("\\s|,"), Qt::SkipEmptyParts);
 
     const int MaxTracks = ui->sbMaxTracks->value();
 
@@ -2125,5 +2130,18 @@ void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
     ATrackDrawDialog D(this);
     D.exec();
+}
+
+void AParticleSimWin::on_cbLimitToParticleTracks_toggled(bool checked)
+{
+    ui->leLimitToParticleTracks->setEnabled(checked);
+
+    ui->cbExcludeParticleTracks->setEnabled(!checked);
+    ui->leExcludeParticleTracks->setEnabled(!checked && ui->cbExcludeParticleTracks->isChecked());
+}
+
+void AParticleSimWin::on_cbExcludeParticleTracks_toggled(bool checked)
+{
+    ui->leExcludeParticleTracks->setEnabled(checked && !ui->cbLimitToParticleTracks->isChecked());
 }
 

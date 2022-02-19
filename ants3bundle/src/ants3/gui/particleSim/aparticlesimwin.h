@@ -116,6 +116,10 @@ private slots:
 
     void on_pbConfigureTrackStyles_clicked();
 
+    void on_cbLimitToParticleTracks_toggled(bool checked);
+
+    void on_cbExcludeParticleTracks_toggled(bool checked);
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
