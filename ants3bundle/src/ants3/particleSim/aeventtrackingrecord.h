@@ -73,7 +73,8 @@ public:
 
     void logToString(QString & str, int offset, bool bExpandSecondaries) const;
 
-    void fillELDD(ATrackingStepData * IdByStep, std::vector<float> & dist, std::vector<float> & ELDD) const;
+    void fillDepositionData(std::vector<std::pair<double, double>> & data) const;
+    void fillDepositionDensityData(std::vector<std::pair<double, double>> & data) const;
 
     virtual ~AParticleTrackingRecord();
 

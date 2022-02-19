@@ -16,6 +16,7 @@ class QString;
 namespace AGraphBuilder
 {
     TGraph * graph(const QVector<double>& x, const QVector<double>& y);
+    TGraph * graph(const std::vector<std::pair<double, double>> & data);
 
     TGraph * graph(const std::vector<float>& x, const std::vector<float>& y);
 

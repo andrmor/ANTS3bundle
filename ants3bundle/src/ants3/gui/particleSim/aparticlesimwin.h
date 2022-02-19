@@ -29,6 +29,9 @@ public slots:
     void updateGui();
 
 private slots:
+    // auto-updates
+    void onMaterialsChanged();
+
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
@@ -60,6 +63,9 @@ private slots:
     // tracks
     void on_pbChooseFileTrackingData_clicked();
     void on_pbShowTracks_clicked();
+    void on_pbConfigureTrackStyles_clicked();
+    void on_cbLimitToParticleTracks_toggled(bool checked);
+    void on_cbExcludeParticleTracks_toggled(bool checked);
 
     void on_cbGunAllowMultipleEvents_clicked(bool checked);
     void on_cobPartPerEvent_activated(int index);
@@ -73,6 +79,9 @@ private slots:
     void on_sbEVexpansionLevel_valueChanged(int);
     void on_cbEVhideTrans_clicked();
     void on_cbEVhideTransPrim_clicked();
+    void on_sbShowEvent_editingFinished();
+    void on_pbPreviousEvent_clicked();
+    void on_pbNextEvent_clicked();
 
     // statistics
     void on_pbPTHistRequest_clicked();
@@ -105,25 +114,15 @@ private slots:
 
     void on_pbLoadAllResults_clicked();
 
-private slots:
-    void onMaterialsChanged();
-
-    void on_sbShowEvent_editingFinished();
-
-    void on_pbPreviousEvent_clicked();
-
-    void on_pbNextEvent_clicked();
-
-    void on_pbConfigureTrackStyles_clicked();
-
-    void on_cbLimitToParticleTracks_toggled(bool checked);
-
-    void on_cbExcludeParticleTracks_toggled(bool checked);
+    void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestShowPosition(double * pos, bool keepTracks);
+    void requestCenterView(double * pos);
+    void requestPlotELDD(std::vector<std::pair<double,double>> dist);
 
 private:
     AParticleSimSettings  & SimSet;

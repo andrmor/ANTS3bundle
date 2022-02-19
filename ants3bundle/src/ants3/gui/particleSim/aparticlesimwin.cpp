@@ -12,10 +12,12 @@
 #include "ajsontools.h"
 
 #include <QListWidget>
+#include <QDialog>
 #include <QDebug>
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QFile>
+#include <QRegularExpression>
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     AGuiWindow("PartSim", parent),
@@ -132,7 +134,7 @@ void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
     G4SimSet.SensitiveVolumes.clear();
     for (auto & s : sl) G4SimSet.SensitiveVolumes.push_back(s.toLatin1().data());
 }
-#include <QDialog>
+
 void AParticleSimWin::on_pbAddNewStepLimit_clicked()
 {
     showStepLimitDialog("", 0);
@@ -839,7 +841,6 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
         on_pbLoadMonitorsData_clicked();
 }
 
-#include <QRegularExpression>
 void AParticleSimWin::onMaterialsChanged()
 {
     QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
@@ -2165,3 +2166,74 @@ void AParticleSimWin::on_cbExcludeParticleTracks_toggled(bool checked)
     ui->leExcludeParticleTracks->setEnabled(checked && !ui->cbLimitToParticleTracks->isChecked());
 }
 
+
+#include <QMenu>
+#include "TGraph.h"
+#include "agraphbuilder.h"
+void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &pos)
+{
+    QTreeWidgetItem * item = ui->trwEventView->currentItem();
+    if (!item) return;
+
+    AParticleTrackingRecord * pr = nullptr;
+    QString s = item->text(1);
+    if (!s.isEmpty())
+    {
+        qlonglong sp = s.toLongLong();
+        pr = reinterpret_cast<AParticleTrackingRecord*>(sp);
+    }
+    ATrackingStepData * st = nullptr;
+    s = item->text(2);
+    if (!s.isEmpty())
+    {
+        qlonglong sp = s.toLongLong();
+        st = reinterpret_cast<ATrackingStepData*>(sp);
+    }
+
+    if (!pr) return;
+
+    QMenu Menu;
+    QAction * showPosition = nullptr; if (st) showPosition = Menu.addAction("Show position");
+    QAction * centerA      = nullptr; if (st) centerA = Menu.addAction("Center view at this position");
+    Menu.addSeparator();
+    QAction * showDepo     = Menu.addAction("Show energy deposition graph");
+    QAction * showDepoDens = Menu.addAction("Show energy deposition density graph");
+
+    QAction* selectedItem = Menu.exec(ui->trwEventView->mapToGlobal(pos));
+    if (!selectedItem) return; //nothing was selected
+
+    if (selectedItem == showDepo)
+    {
+        std::vector<std::pair<double,double>> dist;
+        pr->fillDepositionData(dist);
+        if (!dist.empty())
+        {
+            TGraph * g = AGraphBuilder::graph(dist);
+            AGraphBuilder::configure(g, "Deposited energy by step", "Travelled distance, mm", "Deposited energy over step, keV", 4, 20, 1, 4);
+            emit requestDraw(g, "APL", true, true);
+        }
+    }
+    if (selectedItem == showDepoDens)
+    {
+        std::vector<std::pair<double,double>> dist;
+        pr->fillDepositionDensityData(dist);
+        if (!dist.empty())
+        {
+            TGraph * g = AGraphBuilder::graph(dist);
+            AGraphBuilder::configure(g, "Deposition energy linear density", "Travelled distance, mm", "Deposition energy density, keV/mm", 2, 20, 1, 2);
+            emit requestDraw(g, "APL", true, true);
+        }
+    }
+    else if (selectedItem == showPosition)
+    {
+        double pos[3];
+        for (int i=0; i<3; i++) pos[i] = st->Position[i];
+        emit requestShowPosition(pos, true);
+    }
+    else if (selectedItem == centerA)
+    {
+        double pos[3];
+        for (int i=0; i<3; i++) pos[i] = st->Position[i];
+        emit requestCenterView(pos);
+    }
+}
