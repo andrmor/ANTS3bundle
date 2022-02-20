@@ -51,7 +51,7 @@ private slots:
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
-    void on_pbGunShowSource_toggled(bool checked);
+    void on_pbGunShowSource_toggled(bool checked); // !!!***
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
@@ -157,7 +157,6 @@ private:
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
-    void drawSource(int iSource);  // !!!***
 
     void clearResultsGui();
 

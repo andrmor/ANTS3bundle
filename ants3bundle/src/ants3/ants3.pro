@@ -75,6 +75,7 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
     gui/aguiwindow.cpp \
+    gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -227,6 +228,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     gui/aguiwindow.h \
+    gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \

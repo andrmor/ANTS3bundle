@@ -131,11 +131,15 @@ void AParticleSourceDialog::on_pbReject_clicked()
 }
 
 #include "aparticlesimsettings.h"
+#include "aparticlesourceplotter.h"
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
     ui->pbGunTest->setEnabled(false); //-->
 
-    //if (ui->pbShowSource->isChecked()) drawSource(i);
+    gGeoManager->ClearTracks();
+
+    if (ui->pbShowSource->isChecked())
+        AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(LocalRec);
