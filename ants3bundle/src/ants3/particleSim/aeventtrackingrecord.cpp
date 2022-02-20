@@ -232,29 +232,6 @@ void AParticleTrackingRecord::fillDepositionData(std::vector<std::pair<double,do
     }
 }
 
-void AParticleTrackingRecord::fillDepositionDensityData(std::vector<std::pair<double, double> > & data) const
-{
-    data.clear();
-    if (Steps.size() < 2) return;
-
-    const float * start = Steps[0]->Position;
-    double previous = 0;
-    for (const ATrackingStepData * ts : Steps)
-    {
-        double delta = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            const double dd = ts->Position[i] - start[i];
-            delta += dd * dd;
-        }
-        const double distance = sqrt(delta);
-        const double step = distance - previous;
-        const double val = (ts == Steps.front() || step <= 0 ? 0 : ts->DepositedEnergy/step);
-        data.push_back( {distance, val} );
-        previous = distance;
-    }
-}
-
 // ============= Event ==============
 
 AEventTrackingRecord * AEventTrackingRecord::create()

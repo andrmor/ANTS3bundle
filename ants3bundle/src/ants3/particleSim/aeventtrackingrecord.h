@@ -74,7 +74,6 @@ public:
     void logToString(QString & str, int offset, bool bExpandSecondaries) const;
 
     void fillDepositionData(std::vector<std::pair<double, double>> & data) const;
-    void fillDepositionDensityData(std::vector<std::pair<double, double>> & data) const;
 
     virtual ~AParticleTrackingRecord();
 

@@ -1,5 +1,6 @@
 #include "aparticlesimwin.h"
 #include "ui_aparticlesimwin.h"
+#include "a3global.h"
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
 #include "ag4simulationsettings.h"
@@ -10,6 +11,7 @@
 #include "amonitorhub.h"
 #include "amonitor.h"
 #include "ajsontools.h"
+#include "aparticletrackvisuals.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -18,6 +20,8 @@
 #include <QLineEdit>
 #include <QFile>
 #include <QRegularExpression>
+
+#include <string>
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     AGuiWindow("PartSim", parent),
@@ -693,7 +697,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     {
         if (numTracks > 10000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
@@ -1097,149 +1102,6 @@ void AParticleSimWin::EV_showTree()
     }
 }
 
-/*
-#include "geometrywindowclass.h"
-void AParticleSimWin::EV_showGeo()
-{
-    MW->SimulationManager->clearTracks();
-    MW->GeometryWindow->ClearTracks(false);
-
-    const int iEv = ui->sbEvent->value();
-    if (iEv < 0 || iEv >= MW->EventsDataHub->countEvents()) return;
-
-    if (ui->cbEVtracks->isChecked()) MW->GeometryWindow->ShowEvent_Particles(iEv, !ui->cbEVsupressSec->isChecked());
-    if (ui->cbEVpmSig->isChecked())  MW->GeometryWindow->ShowPMsignals(MW->EventsDataHub->Events.at(iEv), false);
-
-    MW->GeometryWindow->DrawTracks();
-}
-*/
-
-/*
-int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
-{
-    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
-    if (TH.empty()) return -1;
-    if (currentEv == 0 && !bUp) return -1;
-    if (currentEv >= (int)TH.size() && bUp) return -1;
-
-    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-
-    bool bLimProc = ui->cbEVlimToProc->isChecked();
-    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
-
-    bool bExclProc = ui->cbEVexcludeProc->isChecked();
-    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
-
-    bool bLimVols = ui->cbLimitToVolumes->isChecked();
-
-    bool bLimParticles = ui->cbLimitToParticles->isChecked();
-    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
-
-    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
-
-    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
-
-    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
-
-    bUp ? currentEv++ : currentEv--;
-    while (currentEv >= 0 && currentEv < (int)TH.size())
-    {
-        const AEventTrackingRecord * er = TH.at(currentEv);
-
-        bool bGood = true;
-        if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
-        if (bGood && bExclProc) bGood = !er->isHaveProcesses(ExclProc, bExclProc_prim);
-        if (bGood && bLimVols)
-        {
-            QStringList LimVolStartWith;
-            for (int i=LimVols.size()-1; i >= 0; i--)
-            {
-                const QString & s = LimVols.at(i);
-                if (s.endsWith('*'))
-                {
-                    LimVolStartWith << s.mid(0, s.size()-1);
-                    LimVols.removeAt(i);
-                }
-            }
-            bGood = er->isTouchedVolumes(LimVols, LimVolStartWith);
-        }
-        if (bGood && bLimParticles)     bGood = er->isContainParticle(MustContainParticles);
-        if (bGood && bExcludeParticles) bGood = !er->isContainParticle(ExcludeParticles);
-
-        if (bGood) return currentEv;
-
-        bUp ? currentEv++ : currentEv--;
-    };
-    return -1;
-}
-*/
-
-/*
-void AParticleSimWin::on_pbNextEvent_clicked()
-{
-    QWidget * cw = ui->tabwinDiagnose->currentWidget();
-    int i = ui->sbEvent->value();
-    if (cw == ui->tabEventViewer)
-    {
-        if (MW->SimulationManager->TrackingHistory.empty())
-        {
-            guitools::message("Tracking history is empty!", this);
-            return;
-        }
-        int newi = findEventWithFilters(i, true);
-        if (newi == -1 && i != MW->EventsDataHub->countEvents()-1)
-            guitools::message("There are no events according to the selected criteria", this);
-        else i = newi;
-    }
-    else i++;
-
-    if (i >= 0 && i < MW->EventsDataHub->countEvents()) ui->sbEvent->setValue(i);
-}
-*/
-
-/*
-void AParticleSimWin::on_pbPreviousEvent_clicked()
-{
-    QWidget * cw = ui->tabwinDiagnose->currentWidget();
-    int i = ui->sbEvent->value();
-    if (cw == ui->tabEventViewer)
-    {
-        if (MW->SimulationManager->TrackingHistory.empty())
-        {
-            guitools::message("Tracking history is empty!", this);
-            return;
-        }
-        int newi = findEventWithFilters(i, false);
-        if (newi == -1 && i != 0)
-            guitools::message("There are no events according to the selected criteria", this);
-        else i = newi;
-    }
-    else i--;
-    if (i >= 0) ui->sbEvent->setValue(i);
-}
-*/
-
-/*
-void AParticleSimWin::on_sbEvent_valueChanged(int i)
-{
-    if (EventsDataHub->Events.isEmpty())
-        ui->sbEvent->setValue(0);
-    else if (i >= EventsDataHub->Events.size())
-        ui->sbEvent->setValue(EventsDataHub->Events.size()-1); //will retrigger this method
-    else
-    {
-        QWidget * cw = ui->tabwinDiagnose->currentWidget();
-
-        if (cw == ui->tabText && !bForbidUpdate) ShowOneEventLog(i);
-        else if (cw == ui->tabPMhits || cw == ui->tabPmHitViz) on_pbRefreshViz_clicked();
-        else if (cw == ui->tabEventViewer) EV_show();
-    }
-}
-*/
-
 void AParticleSimWin::on_pbShowEventTree_clicked()
 {
     ExpandedItems.clear();
@@ -1277,73 +1139,6 @@ void AParticleSimWin::doProcessExpandedStatus(QTreeWidgetItem * item, int & coun
             doProcessExpandedStatus(item->child(i), counter, bStore);
     }
 }
-
-/*
-void AParticleSimWin::on_pbEVgeo_clicked()
-{
-    EV_showGeo();
-}
-*/
-
-/*
-#include <QMenu>
-#include "TGraph.h"
-void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &pos)
-{
-    QTreeWidgetItem * item = ui->trwEventView->currentItem();
-    if (!item) return;
-
-    AParticleTrackingRecord * pr = nullptr;
-    QString s = item->text(1);
-    if (!s.isEmpty())
-    {
-        qlonglong sp = s.toLongLong();
-        pr = reinterpret_cast<AParticleTrackingRecord*>(sp);
-    }
-    ATrackingStepData * st = nullptr;
-    s = item->text(2);
-    if (!s.isEmpty())
-    {
-        qlonglong sp = s.toLongLong();
-        st = reinterpret_cast<ATrackingStepData*>(sp);
-    }
-
-    if (!pr) return;
-
-    QMenu Menu;
-    QAction * showPosition = nullptr;  if (st) showPosition = Menu.addAction("Show position");
-    QAction * centerA       = nullptr; if (st) centerA = Menu.addAction("Center view at this position");
-    Menu.addSeparator();
-    QAction * showELDD = Menu.addAction("Show energy linear deposition density");
-    QAction* selectedItem = Menu.exec(ui->trwEventView->mapToGlobal(pos));
-    if (!selectedItem) return; //nothing was selected
-    if (selectedItem == showELDD)
-    {
-        std::vector<float> dist;
-        std::vector<float> ELDD;
-        pr->fillELDD(st, dist, ELDD);
-
-        if (!dist.empty())
-        {
-            TGraph * g = MW->GraphWindow->ConstructTGraph(dist, ELDD, "Deposited energy: linear density", "Distance, mm", "Linear density, keV/mm", 4, 20, 1, 4);
-            MW->GraphWindow->Draw(g, "APL");
-            //MW->GraphWindow->UpdateRootCanvas();
-        }
-    }
-    else if (selectedItem == showPosition)
-    {
-        double pos[3];
-        for (int i=0; i<3; i++) pos[i] = st->Position[i];
-        MW->GeometryWindow->ShowPoint(pos, true);
-    }
-    else if (selectedItem == centerA)
-    {
-        double pos[3];
-        for (int i=0; i<3; i++) pos[i] = st->Position[i];
-        MW->GeometryWindow->CenterView(pos);
-    }
-}
-*/
 
 void AParticleSimWin::on_sbEVexpansionLevel_valueChanged(int)
 {
@@ -1403,7 +1198,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
     // !!!***
     //add multithread
-    // move to SimManager?
+    // move to a separate class, also to be used by the script?
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
@@ -2132,8 +1927,6 @@ void AParticleSimWin::on_pbNextEvent_clicked()
 }
 
 #include "atrackdrawdialog.h"
-#include "a3global.h"
-#include "aparticletrackvisuals.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
     ATrackDrawDialog D(this);
@@ -2166,7 +1959,6 @@ void AParticleSimWin::on_cbExcludeParticleTracks_toggled(bool checked)
     ui->leExcludeParticleTracks->setEnabled(checked && !ui->cbLimitToParticleTracks->isChecked());
 }
 
-
 #include <QMenu>
 #include "TGraph.h"
 #include "agraphbuilder.h"
@@ -2197,7 +1989,6 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
     QAction * centerA      = nullptr; if (st) centerA = Menu.addAction("Center view at this position");
     Menu.addSeparator();
     QAction * showDepo     = Menu.addAction("Show energy deposition graph");
-    QAction * showDepoDens = Menu.addAction("Show energy deposition density graph");
 
     QAction* selectedItem = Menu.exec(ui->trwEventView->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected
@@ -2210,17 +2001,6 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
         {
             TGraph * g = AGraphBuilder::graph(dist);
             AGraphBuilder::configure(g, "Deposited energy by step", "Travelled distance, mm", "Deposited energy over step, keV", 4, 20, 1, 4);
-            emit requestDraw(g, "APL", true, true);
-        }
-    }
-    if (selectedItem == showDepoDens)
-    {
-        std::vector<std::pair<double,double>> dist;
-        pr->fillDepositionDensityData(dist);
-        if (!dist.empty())
-        {
-            TGraph * g = AGraphBuilder::graph(dist);
-            AGraphBuilder::configure(g, "Deposition energy linear density", "Travelled distance, mm", "Deposition energy density, keV/mm", 2, 20, 1, 2);
             emit requestDraw(g, "APL", true, true);
         }
     }
@@ -2237,3 +2017,66 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
         emit requestCenterView(pos);
     }
 }
+
+/*
+int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
+{
+    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
+    if (TH.empty()) return -1;
+    if (currentEv == 0 && !bUp) return -1;
+    if (currentEv >= (int)TH.size() && bUp) return -1;
+
+    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    bool bLimProc = ui->cbEVlimToProc->isChecked();
+    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
+
+    bool bExclProc = ui->cbEVexcludeProc->isChecked();
+    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
+
+    bool bLimVols = ui->cbLimitToVolumes->isChecked();
+
+    bool bLimParticles = ui->cbLimitToParticles->isChecked();
+    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
+
+    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
+    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
+    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
+
+    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
+    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
+
+    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
+
+    bUp ? currentEv++ : currentEv--;
+    while (currentEv >= 0 && currentEv < (int)TH.size())
+    {
+        const AEventTrackingRecord * er = TH.at(currentEv);
+
+        bool bGood = true;
+        if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
+        if (bGood && bExclProc) bGood = !er->isHaveProcesses(ExclProc, bExclProc_prim);
+        if (bGood && bLimVols)
+        {
+            QStringList LimVolStartWith;
+            for (int i=LimVols.size()-1; i >= 0; i--)
+            {
+                const QString & s = LimVols.at(i);
+                if (s.endsWith('*'))
+                {
+                    LimVolStartWith << s.mid(0, s.size()-1);
+                    LimVols.removeAt(i);
+                }
+            }
+            bGood = er->isTouchedVolumes(LimVols, LimVolStartWith);
+        }
+        if (bGood && bLimParticles)     bGood = er->isContainParticle(MustContainParticles);
+        if (bGood && bExcludeParticles) bGood = !er->isContainParticle(ExcludeParticles);
+
+        if (bGood) return currentEv;
+
+        bUp ? currentEv++ : currentEv--;
+    };
+    return -1;
+}
+*/
