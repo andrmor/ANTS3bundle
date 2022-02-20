@@ -34,7 +34,6 @@ private slots:
     void on_pbGunRemove_clicked();
     void on_lwGunParticles_currentRowChanged(int currentRow);
     void on_cobUnits_activated(int index);
-    void on_pbShowSource_toggled(bool checked); // !!!***
     void on_cbLinkedParticle_toggled(bool checked);
     void on_pbUpdateRecord_clicked(); // !!!***
     void on_cbLinkedParticle_clicked(bool checked);
@@ -46,9 +45,12 @@ private slots:
 
     void on_leGunParticle_editingFinished();
 
+    void on_pbShowSource_clicked(bool checked);
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num);
+    void requestShowSource();
 
 private:
     AParticleSourceRecord         LocalRec;

@@ -31,6 +31,7 @@ public slots:
 private slots:
     // auto-updates
     void onMaterialsChanged();
+    void onRequestShowSource();
 
     void on_pbSimulate_clicked();
 

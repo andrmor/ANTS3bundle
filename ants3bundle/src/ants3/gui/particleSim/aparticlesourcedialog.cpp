@@ -5,6 +5,8 @@
 #include "ajsontools.h"
 #include "guitools.h"
 #include "asourceparticlegenerator.h"
+#include "aparticlesimsettings.h"
+#include "aparticlesourceplotter.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -130,8 +132,6 @@ void AParticleSourceDialog::on_pbReject_clicked()
     reject();
 }
 
-#include "aparticlesimsettings.h"
-#include "aparticlesourceplotter.h"
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
     ui->pbGunTest->setEnabled(false); //-->
@@ -350,20 +350,6 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
     UpdateParticleInfo();
 }
 
-void AParticleSourceDialog::on_pbShowSource_toggled(bool checked)
-{
-//    if (checked)
-//    {
-//        MW.GeometryWindow->ShowAndFocus();
-//        MW.ShowSource(Rec, true);
-//    }
-//    else
-//    {
-//        gGeoManager->ClearTracks();
-//        MW.GeometryWindow->ShowGeometry();
-//    }
-}
-
 void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 {
     ui->fLinkedParticle->setVisible(checked);
@@ -438,7 +424,13 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     ui->lwGunParticles->setCurrentRow(curRow);
     UpdateParticleInfo();
     updateColorLimitingMat();
-//    if (ui->pbShowSource->isChecked()) MW.ShowSource(Rec, true);
+
+    if (ui->pbShowSource->isChecked())
+    {
+        gGeoManager->ClearTracks();
+        AParticleSourcePlotter::plotSource(LocalRec);
+        emit requestShowSource();
+    }
 }
 
 void AParticleSourceDialog::on_cbLinkedParticle_clicked(bool checked)
@@ -532,5 +524,12 @@ void AParticleSourceDialog::updateColorLimitingMat()
 void AParticleSourceDialog::on_leGunParticle_editingFinished()
 {
     on_pbUpdateRecord_clicked();
+}
+
+void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
+{
+    gGeoManager->ClearTracks();
+    if (checked) AParticleSourcePlotter::plotSource(LocalRec);
+    emit requestShowSource();
 }
 

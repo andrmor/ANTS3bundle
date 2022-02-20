@@ -256,6 +256,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
 
     int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
     if (res == QDialog::Rejected) return;
@@ -671,6 +672,12 @@ void AParticleSimWin::onMaterialsChanged()
 
     ui->cobPTHistVolMat->clear();
     ui->cobPTHistVolMat->addItems(mats);
+}
+
+void AParticleSimWin::onRequestShowSource()
+{
+    emit requestShowGeometry(false, true, true);
+    emit requestShowTracks();
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()
