@@ -576,6 +576,8 @@ void AParticleSimWin::disableGui(bool flag)
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
+    gGeoManager->ClearTracks();
+
     if (checked)
     {
         emit requestShowGeometry(true, true, true);
@@ -586,7 +588,6 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     else
     {
 //        GeometryWindow->ClearGeoMarkers();
-        gGeoManager->ClearTracks();
         emit requestShowGeometry(false, true, true);
     }
 }
