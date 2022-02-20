@@ -1458,3 +1458,11 @@ void A3PhotSimWin::on_pbShowBombsMultiple_clicked()
     emit requestShowGeoMarkers();
 }
 
+void A3PhotSimWin::on_pbSingleSourceShow_clicked()
+{
+    double pos[3];
+    pos[0] = ui->ledSingleX->text().toDouble();
+    pos[1] = ui->ledSingleY->text().toDouble();
+    pos[2] = ui->ledSingleZ->text().toDouble();
+    emit requestShowPosition(pos, false);
+}

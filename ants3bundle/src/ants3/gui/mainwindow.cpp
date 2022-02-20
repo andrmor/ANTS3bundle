@@ -64,6 +64,7 @@ MainWindow::MainWindow() :
     connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin, &AGeometryWindow::clearGeoMarkers);
     connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin, &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin, &AGeometryWindow::ShowPoint);
 
     GraphWin = new GraphWindowClass(this);
     connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
