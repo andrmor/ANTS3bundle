@@ -33,14 +33,14 @@ bool AConfig_SI::load(QString FileName)
 {
     if (!bGuiThread)
     {
-        emit abort("Script in threads: cannot modify detector configuration!");
+        abort("Script in threads: cannot modify detector configuration!");
         return false;
     }
 
     QString err = Config.load(FileName);
     if (err.isEmpty()) return true;
 
-    emit abort("Failed to load config from file " + FileName + " -->\n" + err);
+    abort("Failed to load config from file " + FileName + " -->\n" + err);
     return false;
 }
 
@@ -48,7 +48,7 @@ bool AConfig_SI::save(QString FileName)
 {
     QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
-    emit abort("Failed to save config to file " + FileName + " -->\n" + err);
+    abort("Failed to save config to file " + FileName + " -->\n" + err);
     return false;
 }
 
@@ -61,7 +61,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
 {
     if (!bGuiThread)
     {
-        emit abort("Script in threads: cannot modify detector configuration!");
+        abort("Script in threads: cannot modify detector configuration!");
         return false;
     }
 
@@ -70,7 +70,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     QString err = Config.readFromJson(json);
     if (err.isEmpty()) return true;
 
-    emit abort("Failed to set config from object:\n" + err);
+    abort("Failed to set config from object:\n" + err);
     return false;
 }
 
@@ -78,21 +78,21 @@ void AConfig_SI::exportToGDML(QString FileName)
 {
     QString err = AGeometryHub::getInstance().exportToGDML(FileName);
     if (err.isEmpty()) return;
-    emit abort(err);
+    abort(err);
 }
 
 void AConfig_SI::exportToROOT(QString FileName)
 {
     QString err = AGeometryHub::getInstance().exportToROOT(FileName);
     if (err.isEmpty()) return;
-    emit abort(err);
+    abort(err);
 }
 
 bool AConfig_SI::replace(QString Key, QVariant Value)
 {
     if (!bGuiThread)
     {
-        emit abort("Only GUI thread can modify detector configuration!");
+        abort("Only GUI thread can modify detector configuration!");
         return false;
     }
 
@@ -138,7 +138,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     }
     else
     {
-        emit abort("Wrong argument type (" + type + ") in Replace with the key line:\n" + Key);
+        abort("Wrong argument type (" + type + ") in Replace with the key line:\n" + Key);
         return false;
     }
 
@@ -164,7 +164,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
         return true;
     }
 
-    emit abort("core.replace(" + Key + ", " + rep + ") format error:\n" + LastError);
+    abort("core.replace(" + Key + ", " + rep + ") format error:\n" + LastError);
     return false;
 }
 
@@ -193,7 +193,7 @@ QVariant AConfig_SI::getKeyValue(QString Key)
         bool ok = keyToNameAndIndex(propertyName, name, indexes);
         if (!ok)
         {
-            emit abort("Get key value for "+Key+" format error");
+            abort("Get key value for "+Key+" format error");
             return false;
         }
         propertyName = name;
@@ -256,7 +256,7 @@ QVariant AConfig_SI::getKeyValue(QString Key)
     }
     while (indexOfDot > 0);
 
-    emit abort("Get key value for " + Key + " error");
+    abort("Get key value for " + Key + " error");
     return 0;
 }
 
@@ -264,7 +264,7 @@ void AConfig_SI::rebuildDetector()
 {
     if (!bGuiThread)
     {
-        emit abort("Only GUI thread can modify detector configuration!");
+        abort("Only GUI thread can modify detector configuration!");
         return;
     }
 
@@ -486,18 +486,18 @@ bool AConfig_SI::expandKey(QString &Key)
 
         if (!LastError.isEmpty())
         {
-            emit abort("Search error for config key "+Key+":" + LastError);
+            abort("Search error for config key "+Key+":" + LastError);
             return false;
         }
         if (res.isEmpty())
         {
-            emit abort("Search error for config key "+Key+":" +
+            abort("Search error for config key "+Key+":" +
                        "Not found config object according to this key");
             return false;
         }
         if (res.size()>1)
         {
-            emit abort("Search error for config key "+Key+":" +
+            abort("Search error for config key "+Key+":" +
                        "Match is not unique!");
             return false;
         }

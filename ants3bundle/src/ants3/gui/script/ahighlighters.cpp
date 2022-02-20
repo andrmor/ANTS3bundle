@@ -73,12 +73,11 @@ AHighlighterScriptWindow::AHighlighterScriptWindow(QTextDocument *parent)
     commentEndExpression = QRegularExpression("\\*/");
 }
 
-void AHighlighterScriptWindow::setHighlighterRules(const QStringList& functions, const QStringList& deprecatedOrRemoved, const QStringList& constants)
+void AHighlighterScriptWindow::setHighlighterRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants)
 {
     QVector<HighlightingRule> hr;
 
     HighlightingRule rule;
-    QSet<QString> units;
 
     QColor color = Qt::darkCyan;
     customKeywordFormat.setForeground(color.darker(110));
@@ -90,8 +89,8 @@ void AHighlighterScriptWindow::setHighlighterRules(const QStringList& functions,
         rule.format = customKeywordFormat;
         hr.append(rule);
 
-        QStringList f = pattern.split(".", Qt::SkipEmptyParts);
-        if (f.size() > 1 && !f.first().isEmpty()) units << f.first();
+        //QStringList f = pattern.split(".", Qt::SkipEmptyParts);
+        //if (f.size() > 1 && !f.first().isEmpty()) units << f.first();
     }    
 
     color = Qt::red;

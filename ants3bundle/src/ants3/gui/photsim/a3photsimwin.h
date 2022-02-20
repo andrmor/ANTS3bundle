@@ -46,6 +46,7 @@ private slots:
     void on_ledSingleX_editingFinished();
     void on_ledSingleY_editingFinished();
     void on_ledSingleZ_editingFinished();
+    void on_pbSingleSourceShow_clicked();
 
     void on_sbFloodNumber_editingFinished();
     void on_cobFloodShape_activated(int index);
@@ -191,6 +192,7 @@ signals:
     void requestClearGeoMarkers(int All_Rec_True);
     void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
     void requestShowGeoMarkers();
+    void requestShowPosition(double * pos, bool keepTracks);
 };
 
 #endif // A3PHOTSIMWIN_H

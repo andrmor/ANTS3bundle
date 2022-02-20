@@ -64,6 +64,7 @@ MainWindow::MainWindow() :
     connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin, &AGeometryWindow::clearGeoMarkers);
     connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin, &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin, &AGeometryWindow::ShowPoint);
 
     GraphWin = new GraphWindowClass(this);
     connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
@@ -71,28 +72,44 @@ MainWindow::MainWindow() :
     FarmWin = new ARemoteWindow(this);
 
     PartSimWin = new AParticleSimWin(this);
-    connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(PartSimWin, &AParticleSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(PartSimWin, &AParticleSimWin::requestShowPosition, GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
+    connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
+    //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
-    JScriptWin->registerInterfaces();
     AJScriptHub * SH = &AJScriptHub::getInstance();
+    JScriptWin->registerInterfaces();
     connect(SH, &AJScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
     connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
+    JScriptWin->updateGui();
 
     DemoWin = new ADemoWindow(this);
 
     loadWindowGeometries();
 
-    //root update cycle
+  // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
     RootUpdateTimer->setInterval(100);
     QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     RootUpdateTimer->start();
     qDebug()<<">Timer to refresh Root events started";
+
+  // Config load explorer -> tips
+    // TODO !!!***
+    /*
+    QString mss = ui->menuFile->styleSheet();
+    mss += "; QMenu::tooltip {wakeDelay: 1;}";
+    ui->menuFile->setStyleSheet(mss);
+    ui->menuFile->setToolTipsVisible(true);
+    ui->menuFile->setToolTipDuration(1000);
+    void MainWindow::on_actionQuick_save_1_hovered()
+    {ui->actionQuick_save_1->setToolTip(ELwindow->getQuickSlotMessage(1));}
+    */
 
   // Finalizing
     updateGui();
@@ -240,6 +257,8 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
+
+    //rules !!!***
 
     GeoWin->ShowGeometry(false, false, true);
 }

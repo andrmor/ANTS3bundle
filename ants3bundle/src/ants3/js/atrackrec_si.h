@@ -65,7 +65,7 @@ private:
 
     std::vector<int> ReturnStepIndex;
 
-    static constexpr auto RecordNotSet = "Track unit not configured: select file, event and (optionally, if !=0) primary";
+    static constexpr auto RecordNotSet = "'tracks' unit not configured: select file, event and (optionally, if !=0) primary";
 
 };
 

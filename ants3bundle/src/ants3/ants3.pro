@@ -75,6 +75,7 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
     gui/aguiwindow.cpp \
+    gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -131,6 +132,7 @@ SOURCES += \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
+    js/apartanalysis_si.cpp \
     js/aphotonsim_si.cpp \
     js/ascriptinterface.cpp \
     js/atrackrec_si.cpp \
@@ -226,6 +228,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     gui/aguiwindow.h \
+    gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
@@ -283,6 +286,7 @@ HEADERS += \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/amath_si.h \
+    js/apartanalysis_si.h \
     js/aphotonsim_si.h \
     js/ascriptinterface.h \
     js/atrackrec_si.h \

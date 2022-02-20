@@ -1,5 +1,7 @@
 #include "aparticlesimwin.h"
 #include "ui_aparticlesimwin.h"
+#include "a3global.h"
+#include "ageometryhub.h"
 #include "aparticlesimhub.h"
 #include "aparticlesimsettings.h"
 #include "ag4simulationsettings.h"
@@ -10,12 +12,20 @@
 #include "amonitorhub.h"
 #include "amonitor.h"
 #include "ajsontools.h"
+#include "aparticletrackvisuals.h"
+#include "aparticlesourceplotter.h"
 
 #include <QListWidget>
+#include <QDialog>
 #include <QDebug>
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QFile>
+#include <QRegularExpression>
+
+#include <string>
+
+#include "TVirtualGeoTrack.h"
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     AGuiWindow("PartSim", parent),
@@ -30,6 +40,11 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->frEventFilters->setVisible(false);
 
     on_cobPTHistVolRequestWhat_currentIndexChanged(ui->cobPTHistVolRequestWhat->currentIndex());
+
+    ui->cobEVkin->setCurrentIndex(1);
+    ui->cobEVdepo->setCurrentIndex(1);
+    ui->pbShowEventTree->setVisible(false);
+    ui->pbShowGeometry->setVisible(false);
 
     updateGui();
 
@@ -127,7 +142,7 @@ void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
     G4SimSet.SensitiveVolumes.clear();
     for (auto & s : sl) G4SimSet.SensitiveVolumes.push_back(s.toLatin1().data());
 }
-#include <QDialog>
+
 void AParticleSimWin::on_pbAddNewStepLimit_clicked()
 {
     showStepLimitDialog("", 0);
@@ -240,6 +255,8 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     }
 
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
 
     int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
     if (res == QDialog::Rejected) return;
@@ -285,7 +302,6 @@ void AParticleSimWin::on_pbAddSource_clicked()
     s.Particles.push_back(AGunParticle());
     SimSet.SourceGenSettings.SourceData.push_back(s);
 
-//    on_pbUpdateSimConfig_clicked();
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 }
@@ -302,7 +318,6 @@ void AParticleSimWin::on_pbCloneSource_clicked()
     bool ok = SimSet.SourceGenSettings.clone(index);
     if (!ok) return;
 
-//    on_pbUpdateSimConfig_clicked();
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(index+1);
 }
@@ -422,13 +437,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
 //    WindowNavigator->BusyOn();   // -->
 
     gGeoManager->ClearTracks();
-    emit requestShowGeometry(true, true, false);
 
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
         if (ui->pbGunShowSource->isChecked())
-            for (int i = 0; i < SimSet.SourceGenSettings.getNumSources(); i++)
-                drawSource(i);
+            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
+                AParticleSourcePlotter::plotSource(s);
     }
 
     AParticleGun * pg = nullptr;
@@ -440,9 +454,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
     case 1:
         pg = SimManager.Generator_File;
         SimManager.Generator_File->checkFile(false);
-        break;
-    case 2:
-//        pg = SimManager->ScriptParticleGenerator;
         break;
     default:
         guitools::message("This generation mode is not implemented!", this);
@@ -457,204 +468,14 @@ void AParticleSimWin::on_pbGunTest_clicked()
 
     testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
 
+    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
+
     ui->pbAbort->setEnabled(false);
     ui->pbAbort->setText("stop");
     font.setBold(false);
     ui->pbAbort->setFont(font);
 
-
-    emit requestShowTracks();
-//    emit requestShowMarkers();
-
 //    WindowNavigator->BusyOff();  // <--
-}
-
-#include "TVirtualGeoTrack.h"
-#include "ageometryhub.h"
-#include "aparticlerecord.h"
-#include "TVector3.h"
-void AParticleSimWin::drawSource(int iSource)
-{
-    //check iSource is correct  !!!***
-    const AParticleSourceRecord & p = SimSet.SourceGenSettings.SourceData.at(iSource);
-
-    int index = p.Shape;
-    double X0 = p.X0;
-    double Y0 = p.Y0;
-    double Z0 = p.Z0;
-    double Phi = p.Phi*3.1415926535/180.0;
-    double Theta = p.Theta*3.1415926535/180.0;
-    double Psi = p.Psi*3.1415926535/180.0;
-    double size1 = p.Size1;
-    double size2 = p.Size2;
-    double size3 = p.Size3;
-    double CollPhi = p.CollPhi*3.1415926535/180.0;
-    double CollTheta = p.CollTheta*3.1415926535/180.0;
-    double Spread = p.Spread*3.1415926535/180.0;
-
-    //calculating unit vector along 1D direction
-    TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
-    //qDebug()<<VV[0]<<VV[1]<<VV[2];
-
-    TVector3 V[3];
-    V[0].SetXYZ(size1, 0, 0);
-    V[1].SetXYZ(0, size2, 0);
-    V[2].SetXYZ(0, 0, size3);
-    for (int i=0; i<3; i++)
-    {
-        V[i].RotateX(Phi);
-        V[i].RotateY(Theta);
-        V[i].RotateZ(Psi);
-    }
-    switch (index)
-    {
-    case 0:
-    {
-        gGeoManager->SetCurrentPoint(X0,Y0,Z0);
-        gGeoManager->DrawCurrentPoint(9);
-//        GeometryWindow->ClearGeoMarkers();
-//        GeoMarkerClass* marks = new GeoMarkerClass("Source", 3, 10, kBlack);
-//        marks->SetNextPoint(X0, Y0, Z0);
-//        GeometryWindow->GeoMarkers.append(marks);
-//        GeoMarkerClass* marks1 = new GeoMarkerClass("Source", 4, 3, kBlack);
-//        marks1->SetNextPoint(X0, Y0, Z0);
-//        GeometryWindow->GeoMarkers.append(marks1);
-//        GeometryWindow->ShowGeometry(false);
-        break;
-    }
-    case (1):
-    { //linear source
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-        track->AddPoint(X0+VV[0]*size1, Y0+VV[1]*size1, Z0+VV[2]*size1, 0);
-        track->AddPoint(X0-VV[0]*size1, Y0-VV[1]*size1, Z0-VV[2]*size1, 0);
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        break;
-    }
-    case (2):
-    { //area source - square
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-        track->AddPoint(X0-V[0][0]-V[1][0], Y0-V[0][1]-V[1][1], Z0-V[0][2]-V[1][2], 0);
-        track->AddPoint(X0+V[0][0]-V[1][0], Y0+V[0][1]-V[1][1], Z0+V[0][2]-V[1][2], 0);
-        track->AddPoint(X0+V[0][0]+V[1][0], Y0+V[0][1]+V[1][1], Z0+V[0][2]+V[1][2], 0);
-        track->AddPoint(X0-V[0][0]+V[1][0], Y0-V[0][1]+V[1][1], Z0-V[0][2]+V[1][2], 0);
-        track->AddPoint(X0-V[0][0]-V[1][0], Y0-V[0][1]-V[1][1], Z0-V[0][2]-V[1][2], 0);
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        break;
-    }
-    case (3):
-    { //area source - round
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-        TVector3 Circ;
-        for (int i=0; i<51; i++)
-        {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
-            Circ.SetXYZ(x,y,0);
-            Circ.RotateX(Phi);
-            Circ.RotateY(Theta);
-            Circ.RotateZ(Psi);
-            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
-        }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        break;
-    }
-
-    case (4):
-    { //volume source - box
-        for (int i=0; i<3; i++)
-            for (int j=0; j<3; j++)
-            {
-                if (j==i) continue;
-                //third k
-                int k = 0;
-                for (; k<2; k++)
-                    if (k!=i && k!=j) break;
-                for (int s=-1; s<2; s+=2)
-                {
-                    //  qDebug()<<"i j k shift"<<i<<j<<k<<s;
-                    Int_t track_index = gGeoManager->AddTrack(1,22);
-                    TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-                    track->AddPoint(X0-V[i][0]-V[j][0]+V[k][0]*s, Y0-V[i][1]-V[j][1]+V[k][1]*s, Z0-V[i][2]-V[j][2]+V[k][2]*s, 0);
-                    track->AddPoint(X0+V[i][0]-V[j][0]+V[k][0]*s, Y0+V[i][1]-V[j][1]+V[k][1]*s, Z0+V[i][2]-V[j][2]+V[k][2]*s, 0);
-                    track->AddPoint(X0+V[i][0]+V[j][0]+V[k][0]*s, Y0+V[i][1]+V[j][1]+V[k][1]*s, Z0+V[i][2]+V[j][2]+V[k][2]*s, 0);
-                    track->AddPoint(X0-V[i][0]+V[j][0]+V[k][0]*s, Y0-V[i][1]+V[j][1]+V[k][1]*s, Z0-V[i][2]+V[j][2]+V[k][2]*s, 0);
-                    track->AddPoint(X0-V[i][0]-V[j][0]+V[k][0]*s, Y0-V[i][1]-V[j][1]+V[k][1]*s, Z0-V[i][2]-V[j][2]+V[k][2]*s, 0);
-                    track->SetLineWidth(3);
-                    track->SetLineColor(9);
-                }
-            }
-        break;
-    }
-    case(5):
-    { //volume source - cylinder
-        TVector3 Circ;
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-        double z = size3;
-        for (int i=0; i<51; i++)
-        {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
-            Circ.SetXYZ(x,y,z);
-            Circ.RotateX(Phi);
-            Circ.RotateY(Theta);
-            Circ.RotateZ(Psi);
-            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
-        }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        track_index = gGeoManager->AddTrack(1,22);
-        track = gGeoManager->GetTrack(track_index);
-        z = -z;
-        for (int i=0; i<51; i++)
-        {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
-            Circ.SetXYZ(x,y,z);
-            Circ.RotateX(Phi);
-            Circ.RotateY(Theta);
-            Circ.RotateZ(Psi);
-            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
-        }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        break;
-    }
-    }
-
-    TVector3 K(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta)); //collimation direction
-    Int_t track_index = gGeoManager->AddTrack(1,22);
-    TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-    const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
-    const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
-    double Klength = std::max(WorldSizeXY, WorldSizeZ)*0.5;
-
-    track->AddPoint(X0, Y0, Z0, 0);
-    track->AddPoint(X0+K[0]*Klength, Y0+K[1]*Klength, Z0+K[2]*Klength, 0);
-    track->SetLineWidth(2);
-    track->SetLineColor(9);
-
-    TVector3 Knorm = K.Orthogonal();
-    TVector3 K1(K);
-    K1.Rotate(Spread, Knorm);
-    for (int i=0; i<8; i++)  //drawing spread
-    {
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-
-        track->AddPoint(X0, Y0, Z0, 0);
-        track->AddPoint(X0+K1[0]*Klength, Y0+K1[1]*Klength, Z0+K1[2]*Klength, 0);
-        K1.Rotate(3.1415926535/4.0, K);
-
-        track->SetLineWidth(1);
-        track->SetLineColor(9);
-    }
 }
 
 void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
@@ -674,7 +495,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         return;
     }
     Gun->setStartEvent(0);
-    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
@@ -686,17 +506,23 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     {
         if (numTracks > 10000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
     };
 
-    for (int iRun=0; iRun<numParticles; iRun++)
+    for (int iRun = 0; iRun < numParticles; iRun++)
     {
         bool bOK = Gun->generateEvent(handler, iRun);
         if (!bOK || numTracks > 10000) break;
     }
+
+    emit requestShowGeometry(true, true, false);
+    emit requestShowTracks();
+    // add geo markers for emission position !!!***
+
 
     /*
     double R[3], K[3];
@@ -750,17 +576,18 @@ void AParticleSimWin::disableGui(bool flag)
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
+    gGeoManager->ClearTracks();
+
     if (checked)
     {
         emit requestShowGeometry(true, true, true);
-        for (int i = 0; i < SimSet.SourceGenSettings.getNumSources(); i++)
-            drawSource(i);
+        for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
+            AParticleSourcePlotter::plotSource(s);
         emit requestShowTracks();
     }
     else
     {
 //        GeometryWindow->ClearGeoMarkers();
-        gGeoManager->ClearTracks();
         emit requestShowGeometry(false, true, true);
     }
 }
@@ -848,13 +675,23 @@ void AParticleSimWin::onMaterialsChanged()
     ui->cobPTHistVolMat->addItems(mats);
 }
 
+void AParticleSimWin::onRequestShowSource()
+{
+    emit requestShowGeometry(false, true, true);
+    emit requestShowTracks();
+}
+
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-    const QStringList LimitTo;
-    const QStringList Exclude;
+    QStringList LimitTo;
+    if (ui->cbLimitToParticleTracks->isChecked())
+        LimitTo = ui->leLimitToParticleTracks->text().split(QRegularExpression("\\s|,"), Qt::SkipEmptyParts);
+    QStringList Exclude;
+    if (ui->cbExcludeParticleTracks->isChecked() && ui->leExcludeParticleTracks->isEnabled())
+        Exclude = ui->leExcludeParticleTracks->text().split(QRegularExpression("\\s|,"), Qt::SkipEmptyParts);
 
     const int MaxTracks = ui->sbMaxTracks->value();
 
@@ -1086,149 +923,6 @@ void AParticleSimWin::EV_showTree()
     }
 }
 
-/*
-#include "geometrywindowclass.h"
-void AParticleSimWin::EV_showGeo()
-{
-    MW->SimulationManager->clearTracks();
-    MW->GeometryWindow->ClearTracks(false);
-
-    const int iEv = ui->sbEvent->value();
-    if (iEv < 0 || iEv >= MW->EventsDataHub->countEvents()) return;
-
-    if (ui->cbEVtracks->isChecked()) MW->GeometryWindow->ShowEvent_Particles(iEv, !ui->cbEVsupressSec->isChecked());
-    if (ui->cbEVpmSig->isChecked())  MW->GeometryWindow->ShowPMsignals(MW->EventsDataHub->Events.at(iEv), false);
-
-    MW->GeometryWindow->DrawTracks();
-}
-*/
-
-/*
-int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
-{
-    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
-    if (TH.empty()) return -1;
-    if (currentEv == 0 && !bUp) return -1;
-    if (currentEv >= (int)TH.size() && bUp) return -1;
-
-    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-
-    bool bLimProc = ui->cbEVlimToProc->isChecked();
-    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
-
-    bool bExclProc = ui->cbEVexcludeProc->isChecked();
-    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
-
-    bool bLimVols = ui->cbLimitToVolumes->isChecked();
-
-    bool bLimParticles = ui->cbLimitToParticles->isChecked();
-    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
-
-    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
-
-    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
-
-    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
-
-    bUp ? currentEv++ : currentEv--;
-    while (currentEv >= 0 && currentEv < (int)TH.size())
-    {
-        const AEventTrackingRecord * er = TH.at(currentEv);
-
-        bool bGood = true;
-        if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
-        if (bGood && bExclProc) bGood = !er->isHaveProcesses(ExclProc, bExclProc_prim);
-        if (bGood && bLimVols)
-        {
-            QStringList LimVolStartWith;
-            for (int i=LimVols.size()-1; i >= 0; i--)
-            {
-                const QString & s = LimVols.at(i);
-                if (s.endsWith('*'))
-                {
-                    LimVolStartWith << s.mid(0, s.size()-1);
-                    LimVols.removeAt(i);
-                }
-            }
-            bGood = er->isTouchedVolumes(LimVols, LimVolStartWith);
-        }
-        if (bGood && bLimParticles)     bGood = er->isContainParticle(MustContainParticles);
-        if (bGood && bExcludeParticles) bGood = !er->isContainParticle(ExcludeParticles);
-
-        if (bGood) return currentEv;
-
-        bUp ? currentEv++ : currentEv--;
-    };
-    return -1;
-}
-*/
-
-/*
-void AParticleSimWin::on_pbNextEvent_clicked()
-{
-    QWidget * cw = ui->tabwinDiagnose->currentWidget();
-    int i = ui->sbEvent->value();
-    if (cw == ui->tabEventViewer)
-    {
-        if (MW->SimulationManager->TrackingHistory.empty())
-        {
-            guitools::message("Tracking history is empty!", this);
-            return;
-        }
-        int newi = findEventWithFilters(i, true);
-        if (newi == -1 && i != MW->EventsDataHub->countEvents()-1)
-            guitools::message("There are no events according to the selected criteria", this);
-        else i = newi;
-    }
-    else i++;
-
-    if (i >= 0 && i < MW->EventsDataHub->countEvents()) ui->sbEvent->setValue(i);
-}
-*/
-
-/*
-void AParticleSimWin::on_pbPreviousEvent_clicked()
-{
-    QWidget * cw = ui->tabwinDiagnose->currentWidget();
-    int i = ui->sbEvent->value();
-    if (cw == ui->tabEventViewer)
-    {
-        if (MW->SimulationManager->TrackingHistory.empty())
-        {
-            guitools::message("Tracking history is empty!", this);
-            return;
-        }
-        int newi = findEventWithFilters(i, false);
-        if (newi == -1 && i != 0)
-            guitools::message("There are no events according to the selected criteria", this);
-        else i = newi;
-    }
-    else i--;
-    if (i >= 0) ui->sbEvent->setValue(i);
-}
-*/
-
-/*
-void AParticleSimWin::on_sbEvent_valueChanged(int i)
-{
-    if (EventsDataHub->Events.isEmpty())
-        ui->sbEvent->setValue(0);
-    else if (i >= EventsDataHub->Events.size())
-        ui->sbEvent->setValue(EventsDataHub->Events.size()-1); //will retrigger this method
-    else
-    {
-        QWidget * cw = ui->tabwinDiagnose->currentWidget();
-
-        if (cw == ui->tabText && !bForbidUpdate) ShowOneEventLog(i);
-        else if (cw == ui->tabPMhits || cw == ui->tabPmHitViz) on_pbRefreshViz_clicked();
-        else if (cw == ui->tabEventViewer) EV_show();
-    }
-}
-*/
-
 void AParticleSimWin::on_pbShowEventTree_clicked()
 {
     ExpandedItems.clear();
@@ -1266,73 +960,6 @@ void AParticleSimWin::doProcessExpandedStatus(QTreeWidgetItem * item, int & coun
             doProcessExpandedStatus(item->child(i), counter, bStore);
     }
 }
-
-/*
-void AParticleSimWin::on_pbEVgeo_clicked()
-{
-    EV_showGeo();
-}
-*/
-
-/*
-#include <QMenu>
-#include "TGraph.h"
-void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &pos)
-{
-    QTreeWidgetItem * item = ui->trwEventView->currentItem();
-    if (!item) return;
-
-    AParticleTrackingRecord * pr = nullptr;
-    QString s = item->text(1);
-    if (!s.isEmpty())
-    {
-        qlonglong sp = s.toLongLong();
-        pr = reinterpret_cast<AParticleTrackingRecord*>(sp);
-    }
-    ATrackingStepData * st = nullptr;
-    s = item->text(2);
-    if (!s.isEmpty())
-    {
-        qlonglong sp = s.toLongLong();
-        st = reinterpret_cast<ATrackingStepData*>(sp);
-    }
-
-    if (!pr) return;
-
-    QMenu Menu;
-    QAction * showPosition = nullptr;  if (st) showPosition = Menu.addAction("Show position");
-    QAction * centerA       = nullptr; if (st) centerA = Menu.addAction("Center view at this position");
-    Menu.addSeparator();
-    QAction * showELDD = Menu.addAction("Show energy linear deposition density");
-    QAction* selectedItem = Menu.exec(ui->trwEventView->mapToGlobal(pos));
-    if (!selectedItem) return; //nothing was selected
-    if (selectedItem == showELDD)
-    {
-        std::vector<float> dist;
-        std::vector<float> ELDD;
-        pr->fillELDD(st, dist, ELDD);
-
-        if (!dist.empty())
-        {
-            TGraph * g = MW->GraphWindow->ConstructTGraph(dist, ELDD, "Deposited energy: linear density", "Distance, mm", "Linear density, keV/mm", 4, 20, 1, 4);
-            MW->GraphWindow->Draw(g, "APL");
-            //MW->GraphWindow->UpdateRootCanvas();
-        }
-    }
-    else if (selectedItem == showPosition)
-    {
-        double pos[3];
-        for (int i=0; i<3; i++) pos[i] = st->Position[i];
-        MW->GeometryWindow->ShowPoint(pos, true);
-    }
-    else if (selectedItem == centerA)
-    {
-        double pos[3];
-        for (int i=0; i<3; i++) pos[i] = st->Position[i];
-        MW->GeometryWindow->CenterView(pos);
-    }
-}
-*/
 
 void AParticleSimWin::on_sbEVexpansionLevel_valueChanged(int)
 {
@@ -1391,8 +1018,7 @@ void AParticleSimWin::on_pbEventView_clicked()
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
     // !!!***
-    //add multithread
-    // move to SimManager?
+    // add multithread to crawler
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
@@ -2124,6 +1750,153 @@ void AParticleSimWin::on_pbNextEvent_clicked()
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
     ATrackDrawDialog D(this);
-    D.exec();
+    int res = D.exec();
+
+    A3Global & GlobSet = A3Global::getInstance();
+    AParticleTrackVisuals & vis = AParticleTrackVisuals::getInstance();
+
+    if (res == QDialog::Accepted)
+    {
+        vis.writeToJson(GlobSet.TrackVisAttributes);
+        GlobSet.saveConfig();
+    }
+    else
+    {
+        vis.readFromJson(GlobSet.TrackVisAttributes);
+    }
 }
 
+void AParticleSimWin::on_cbLimitToParticleTracks_toggled(bool checked)
+{
+    ui->leLimitToParticleTracks->setEnabled(checked);
+
+    ui->cbExcludeParticleTracks->setEnabled(!checked);
+    ui->leExcludeParticleTracks->setEnabled(!checked && ui->cbExcludeParticleTracks->isChecked());
+}
+
+void AParticleSimWin::on_cbExcludeParticleTracks_toggled(bool checked)
+{
+    ui->leExcludeParticleTracks->setEnabled(checked && !ui->cbLimitToParticleTracks->isChecked());
+}
+
+#include <QMenu>
+#include "TGraph.h"
+#include "agraphbuilder.h"
+void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &pos)
+{
+    QTreeWidgetItem * item = ui->trwEventView->currentItem();
+    if (!item) return;
+
+    AParticleTrackingRecord * pr = nullptr;
+    QString s = item->text(1);
+    if (!s.isEmpty())
+    {
+        qlonglong sp = s.toLongLong();
+        pr = reinterpret_cast<AParticleTrackingRecord*>(sp);
+    }
+    ATrackingStepData * st = nullptr;
+    s = item->text(2);
+    if (!s.isEmpty())
+    {
+        qlonglong sp = s.toLongLong();
+        st = reinterpret_cast<ATrackingStepData*>(sp);
+    }
+
+    if (!pr) return;
+
+    QMenu Menu;
+    QAction * showPosition = nullptr; if (st) showPosition = Menu.addAction("Show position");
+    QAction * centerA      = nullptr; if (st) centerA = Menu.addAction("Center view at this position");
+    Menu.addSeparator();
+    QAction * showDepo     = Menu.addAction("Show energy deposition graph");
+
+    QAction* selectedItem = Menu.exec(ui->trwEventView->mapToGlobal(pos));
+    if (!selectedItem) return; //nothing was selected
+
+    if (selectedItem == showDepo)
+    {
+        std::vector<std::pair<double,double>> dist;
+        pr->fillDepositionData(dist);
+        if (!dist.empty())
+        {
+            TGraph * g = AGraphBuilder::graph(dist);
+            AGraphBuilder::configure(g, "Deposited energy by step", "Travelled distance, mm", "Deposited energy over step, keV", 4, 20, 1, 4);
+            emit requestDraw(g, "APL", true, true);
+        }
+    }
+    else if (selectedItem == showPosition)
+    {
+        double pos[3];
+        for (int i=0; i<3; i++) pos[i] = st->Position[i];
+        emit requestShowPosition(pos, true);
+    }
+    else if (selectedItem == centerA)
+    {
+        double pos[3];
+        for (int i=0; i<3; i++) pos[i] = st->Position[i];
+        emit requestCenterView(pos);
+    }
+}
+
+/*
+int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
+{
+    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
+    if (TH.empty()) return -1;
+    if (currentEv == 0 && !bUp) return -1;
+    if (currentEv >= (int)TH.size() && bUp) return -1;
+
+    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    bool bLimProc = ui->cbEVlimToProc->isChecked();
+    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
+
+    bool bExclProc = ui->cbEVexcludeProc->isChecked();
+    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
+
+    bool bLimVols = ui->cbLimitToVolumes->isChecked();
+
+    bool bLimParticles = ui->cbLimitToParticles->isChecked();
+    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
+
+    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
+    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
+    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
+
+    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
+    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
+
+    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
+
+    bUp ? currentEv++ : currentEv--;
+    while (currentEv >= 0 && currentEv < (int)TH.size())
+    {
+        const AEventTrackingRecord * er = TH.at(currentEv);
+
+        bool bGood = true;
+        if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
+        if (bGood && bExclProc) bGood = !er->isHaveProcesses(ExclProc, bExclProc_prim);
+        if (bGood && bLimVols)
+        {
+            QStringList LimVolStartWith;
+            for (int i=LimVols.size()-1; i >= 0; i--)
+            {
+                const QString & s = LimVols.at(i);
+                if (s.endsWith('*'))
+                {
+                    LimVolStartWith << s.mid(0, s.size()-1);
+                    LimVols.removeAt(i);
+                }
+            }
+            bGood = er->isTouchedVolumes(LimVols, LimVolStartWith);
+        }
+        if (bGood && bLimParticles)     bGood = er->isContainParticle(MustContainParticles);
+        if (bGood && bExcludeParticles) bGood = !er->isContainParticle(ExcludeParticles);
+
+        if (bGood) return currentEv;
+
+        bUp ? currentEv++ : currentEv--;
+    };
+    return -1;
+}
+*/

@@ -70,7 +70,6 @@
         </property>
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -696,7 +695,7 @@ Can also be used to load a tab session created before books were implemented</st
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Unit methods: alphabetic order</string>

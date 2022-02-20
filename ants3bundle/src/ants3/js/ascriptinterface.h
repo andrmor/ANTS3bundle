@@ -32,8 +32,7 @@ public:
 protected:
     bool bAbortRequested = false; // each unit have to be aaware of this flag! Dispatcher-based tasks are aborter automatically!
 
-signals:
-    void abort(QString); // !!!*** make a method?
+    void abort(const QString & message);
 
 private:
     QString NoHelp = "Help not provided";

@@ -32,17 +32,20 @@ void AJScriptHub::abort(const QString & message)
     emit hub.showAbortMessage(message);
 }
 
+#include "apartanalysis_si.h"
 AJScriptHub::AJScriptHub()
 {
+    //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     SM = new AJScriptManager();
 
-    SM->registerInterface(new ADemo_SI(),      "demo");
-    SM->registerInterface(new ACore_SI(),      "core");
-    SM->registerInterface(new AMath_SI(),      "math");
-    SM->registerInterface(new AConfig_SI(),    "config");
-    SM->registerInterface(new AFarm_SI(),      "farm");
-    SM->registerInterface(new APhotonSim_SI(), "lsim");
-    SM->registerInterface(new ATrackRec_SI(),  "trackrec");
+    SM->registerInterface(new ADemo_SI(),         "demo");
+    SM->registerInterface(new ACore_SI(),         "core");
+    SM->registerInterface(new AMath_SI(),         "math");
+    SM->registerInterface(new AConfig_SI(),       "config");
+    SM->registerInterface(new AFarm_SI(),         "farm");
+    SM->registerInterface(new APhotonSim_SI(),    "lsim");
+    SM->registerInterface(new ATrackRec_SI(),     "tracks");
+    SM->registerInterface(new APartAnalysis_SI(), "partan");
 }
 
 AJScriptHub::~AJScriptHub()

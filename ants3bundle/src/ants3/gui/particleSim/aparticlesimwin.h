@@ -29,6 +29,10 @@ public slots:
     void updateGui();
 
 private slots:
+    // auto-updates
+    void onMaterialsChanged();
+    void onRequestShowSource();
+
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
@@ -48,7 +52,7 @@ private slots:
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
-    void on_pbGunShowSource_toggled(bool checked);
+    void on_pbGunShowSource_toggled(bool checked); // !!!***
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
@@ -60,6 +64,9 @@ private slots:
     // tracks
     void on_pbChooseFileTrackingData_clicked();
     void on_pbShowTracks_clicked();
+    void on_pbConfigureTrackStyles_clicked();
+    void on_cbLimitToParticleTracks_toggled(bool checked);
+    void on_cbExcludeParticleTracks_toggled(bool checked);
 
     void on_cbGunAllowMultipleEvents_clicked(bool checked);
     void on_cobPartPerEvent_activated(int index);
@@ -73,6 +80,9 @@ private slots:
     void on_sbEVexpansionLevel_valueChanged(int);
     void on_cbEVhideTrans_clicked();
     void on_cbEVhideTransPrim_clicked();
+    void on_sbShowEvent_editingFinished();
+    void on_pbPreviousEvent_clicked();
+    void on_pbNextEvent_clicked();
 
     // statistics
     void on_pbPTHistRequest_clicked();
@@ -105,21 +115,15 @@ private slots:
 
     void on_pbLoadAllResults_clicked();
 
-private slots:
-    void onMaterialsChanged();
-
-    void on_sbShowEvent_editingFinished();
-
-    void on_pbPreviousEvent_clicked();
-
-    void on_pbNextEvent_clicked();
-
-    void on_pbConfigureTrackStyles_clicked();
+    void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestShowPosition(double * pos, bool keepTracks);
+    void requestCenterView(double * pos);
+    void requestPlotELDD(std::vector<std::pair<double,double>> dist);
 
 private:
     AParticleSimSettings  & SimSet;
@@ -154,8 +158,6 @@ private:
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
-    void drawSource(int iSource);  // !!!***
-    void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
 
     void clearResultsGui();
 
@@ -170,6 +172,10 @@ private:
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
+
+private slots:
+    void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
+
 };
 
 #endif // APARTICLESIMWIN_H

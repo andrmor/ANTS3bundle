@@ -117,3 +117,20 @@ void AGraphBuilder::configure(TGraph * graph, const QString & GraphTitle,
     graph->GetYaxis()->SetTitleOffset(1.30f);
 }
 
+
+TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, double>> & data)
+{
+    int numEl = (int)data.size();
+    TVectorD xx(numEl);
+    TVectorD yy(numEl);
+    for (int i=0; i < numEl; i++)
+    {
+        xx[i] = data[i].first;
+        yy[i] = data[i].second;
+    }
+
+    TGraph * gr = new TGraph(xx,yy);
+    gr->SetFillStyle(0);
+    gr->SetFillColor(0);
+    return gr;
+}

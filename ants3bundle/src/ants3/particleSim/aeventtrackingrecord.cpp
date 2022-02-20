@@ -214,48 +214,22 @@ void AParticleTrackingRecord::logToString(QString & str, int offset, bool bExpan
     }
 }
 
-void AParticleTrackingRecord::fillELDD(ATrackingStepData *IdByStep, std::vector<float> &dist, std::vector<float> &ELDD) const
+void AParticleTrackingRecord::fillDepositionData(std::vector<std::pair<double,double>> & data) const
 {
-    dist.clear();
-    ELDD.clear();
+    data.clear();
+    if (Steps.size() < 2) return;
 
-    int iStep = 0;
-    int iMatStart = -1;
-    bool bFound = false;
-    for (; iStep<Steps.size(); iStep++)
+    const float * start = Steps[0]->Position;
+    for (const ATrackingStepData * ts : Steps)
     {
-        QString Proc = Steps.at(iStep)->Process;
-        if (Proc == "C" || Proc == "T") iMatStart = iStep;
-
-        if (Steps.at(iStep) == IdByStep)
+        double delta = 0;
+        for (int i = 0; i < 3; i++)
         {
-            bFound = true;
-            break;
+            const double dd = ts->Position[i] - start[i];
+            delta += dd * dd;
         }
+        data.push_back( {sqrt(delta), ts->DepositedEnergy} );
     }
-    if (!bFound) return;
-
-    float totDist = 0;
-    iStep = iMatStart;
-    do
-    {
-        ATrackingStepData * ps = Steps.at(iStep);
-        iStep++;
-        if (iStep >= (int)Steps.size()) break;
-        ATrackingStepData * ts = Steps.at(iStep);
-        if (ts->Process == "T" || ts->Process == "O") break;
-
-        float Delta = 0;
-        for (int i=0; i<3; i++)
-            Delta += (ts->Position[i] - ps->Position[i]) * (ts->Position[i] - ps->Position[i]);
-        Delta = sqrt(Delta);
-
-        totDist += Delta;
-
-        dist.push_back(totDist - 0.5*Delta);
-        ELDD.push_back( Delta == 0 ? ts->DepositedEnergy : ts->DepositedEnergy/Delta);
-    }
-    while(true);
 }
 
 // ============= Event ==============
