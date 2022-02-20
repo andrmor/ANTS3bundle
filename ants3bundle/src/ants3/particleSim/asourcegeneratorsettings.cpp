@@ -43,6 +43,7 @@ bool ASourceGeneratorSettings::clone(int iSource)
 
     AParticleSourceRecord r = SourceData[iSource];
     r.Name += "_c";
+
     SourceData.insert(SourceData.begin() + iSource + 1, r);
     return true;
 }

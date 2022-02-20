@@ -158,7 +158,6 @@ private:
     void updateSimGui();
     void updateSourceList();
     void drawSource(int iSource);  // !!!***
-    void testParticleGun(AParticleGun * Gun, int numParticles); // !!!***
 
     void clearResultsGui();
 
@@ -173,6 +172,10 @@ private:
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
+
+private slots:
+    void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
+
 };
 
 #endif // APARTICLESIMWIN_H

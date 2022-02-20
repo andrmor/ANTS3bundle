@@ -77,6 +77,8 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     on_cobGunSourceType_currentIndexChanged(ui->cobGunSourceType->currentIndex());
 
+    ui->pbAbort->setVisible(false);
+
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
 //    fileMenu->addAction("Load source", this, &AParticleSourceDialog::loadSource);
@@ -131,15 +133,21 @@ void AParticleSourceDialog::on_pbReject_clicked()
 #include "aparticlesimsettings.h"
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
-//    ASourceGenSettings SourceGenSettings;
-//    SourceGenSettings.append(Rec);
-//    ASourceParticleGenerator ps(SourceGenSettings, *MW.Detector, *MW.Detector->RandGen);
+    ui->pbGunTest->setEnabled(false); //-->
 
-//    MW.GeometryWindow->ShowAndFocus();
-//    MW.ShowSource(Rec, true);
-//    MW.TestParticleGun(&ps, ui->sbGunTestEvents->value());
+    //if (ui->pbShowSource->isChecked()) drawSource(i);
 
-//    SourceGenSettings.forget(Rec); //so Rec is not deleted
+    ASourceGeneratorSettings settings;
+    settings.SourceData.push_back(LocalRec);
+    ASourceParticleGenerator gun(settings);
+
+    ui->pbAbort->setVisible(true);
+
+    emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value());
+
+    ui->pbAbort->setVisible(false);
+
+    ui->pbGunTest->setEnabled(true);  // <--
 }
 
 void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)

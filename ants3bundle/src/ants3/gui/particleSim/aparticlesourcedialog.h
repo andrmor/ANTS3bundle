@@ -48,6 +48,7 @@ private slots:
 
 signals:
     void delayClose();
+    void requestTestParticleGun(AParticleGun * gun, int num);
 
 private:
     AParticleSourceRecord         LocalRec;

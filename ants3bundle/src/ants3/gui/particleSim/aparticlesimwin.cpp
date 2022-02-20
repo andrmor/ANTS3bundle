@@ -251,6 +251,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     }
 
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
 
     int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
     if (res == QDialog::Rejected) return;
@@ -296,7 +297,6 @@ void AParticleSimWin::on_pbAddSource_clicked()
     s.Particles.push_back(AGunParticle());
     SimSet.SourceGenSettings.SourceData.push_back(s);
 
-//    on_pbUpdateSimConfig_clicked();
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 }
@@ -313,7 +313,6 @@ void AParticleSimWin::on_pbCloneSource_clicked()
     bool ok = SimSet.SourceGenSettings.clone(index);
     if (!ok) return;
 
-//    on_pbUpdateSimConfig_clicked();
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(index+1);
 }
@@ -432,9 +431,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
 {
 //    WindowNavigator->BusyOn();   // -->
 
-    gGeoManager->ClearTracks();
-    emit requestShowGeometry(true, true, false);
-
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
         if (ui->pbGunShowSource->isChecked())
@@ -452,9 +448,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
         pg = SimManager.Generator_File;
         SimManager.Generator_File->checkFile(false);
         break;
-    case 2:
-//        pg = SimManager->ScriptParticleGenerator;
-        break;
     default:
         guitools::message("This generation mode is not implemented!", this);
 //        WindowNavigator->BusyOff(); // <--
@@ -468,14 +461,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
 
     testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
 
+    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
+
     ui->pbAbort->setEnabled(false);
     ui->pbAbort->setText("stop");
     font.setBold(false);
     ui->pbAbort->setFont(font);
-
-
-    emit requestShowTracks();
-//    emit requestShowMarkers();
 
 //    WindowNavigator->BusyOff();  // <--
 }
@@ -670,6 +661,9 @@ void AParticleSimWin::drawSource(int iSource)
 
 void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 {
+    gGeoManager->ClearTracks();
+    emit requestShowGeometry(true, true, false);
+
     AErrorHub::clear();
 
     if (!Gun)
@@ -685,7 +679,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         return;
     }
     Gun->setStartEvent(0);
-    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
@@ -704,11 +697,15 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         numTracks++;
     };
 
-    for (int iRun=0; iRun<numParticles; iRun++)
+    for (int iRun = 0; iRun < numParticles; iRun++)
     {
         bool bOK = Gun->generateEvent(handler, iRun);
         if (!bOK || numTracks > 10000) break;
     }
+
+    // add geo markers for emission position !!!***
+
+    emit requestShowTracks();
 
     /*
     double R[3], K[3];
