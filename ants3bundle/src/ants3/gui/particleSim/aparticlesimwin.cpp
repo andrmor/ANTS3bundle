@@ -1018,8 +1018,7 @@ void AParticleSimWin::on_pbEventView_clicked()
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
     // !!!***
-    //add multithread
-    // move to a separate class, also to be used by the script?
+    // add multithread to crawler
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
