@@ -1731,21 +1731,6 @@ void AParticleSimWin::on_sbShowEvent_editingFinished()
     on_pbEventView_clicked();
 }
 
-void AParticleSimWin::on_pbPreviousEvent_clicked()
-{
-    int curEv = ui->sbShowEvent->value();
-    if (curEv == 0) return;
-
-    ui->sbShowEvent->setValue(curEv - 1);
-    on_pbEventView_clicked();
-}
-
-void AParticleSimWin::on_pbNextEvent_clicked()
-{
-    ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
-    on_pbEventView_clicked();
-}
-
 #include "atrackdrawdialog.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
@@ -1838,40 +1823,77 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
     }
 }
 
-/*
+void AParticleSimWin::on_pbPreviousEvent_clicked()
+{
+    int curEv = ui->sbShowEvent->value();
+    if (curEv == 0) return;
+//    ui->sbShowEvent->setValue(curEv - 1);
+//    on_pbEventView_clicked();
+    int ev = findEventWithFilters(curEv, false);
+    if (ev == -1)
+        guitools::message("Cannot find events according to the selected criteria", this);
+    else
+    {
+        ui->sbShowEvent->setValue(ev);
+        on_pbEventView_clicked();
+    }
+}
+
+void AParticleSimWin::on_pbNextEvent_clicked()
+{
+    //ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
+    //on_pbEventView_clicked();
+
+    int curEv = ui->sbShowEvent->value();
+    int ev = findEventWithFilters(curEv, true);
+    if (ev == -1)
+        guitools::message("Cannot find events according to the selected criteria", this);
+    else
+    {
+        ui->sbShowEvent->setValue(ev);
+        on_pbEventView_clicked();
+    }
+}
+
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
-    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
-    if (TH.empty()) return -1;
-    if (currentEv == 0 && !bUp) return -1;
-    if (currentEv >= (int)TH.size() && bUp) return -1;
-
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
-    bool bLimProc = ui->cbEVlimToProc->isChecked();
-    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
+    const bool bLimProc = ui->cbEVlimToProc->isChecked();
+    const bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
 
-    bool bExclProc = ui->cbEVexcludeProc->isChecked();
-    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
+    const bool bExclProc = ui->cbEVexcludeProc->isChecked();
+    const bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
 
-    bool bLimVols = ui->cbLimitToVolumes->isChecked();
+    const bool bLimVols = ui->cbLimitToVolumes->isChecked();
 
-    bool bLimParticles = ui->cbLimitToParticles->isChecked();
-    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
+    const bool bLimParticles = ui->cbLimitToParticles->isChecked();
+    const bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
 
-    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
+    const QStringList LimProc = ui->leEVlimitToProc->text().split(rx, Qt::SkipEmptyParts);
+    const QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, Qt::SkipEmptyParts);
+    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, Qt::SkipEmptyParts);
 
-    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
-
-    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
+    const QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, Qt::SkipEmptyParts);
+    const QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, Qt::SkipEmptyParts);
 
     bUp ? currentEv++ : currentEv--;
-    while (currentEv >= 0 && currentEv < (int)TH.size())
+    while (currentEv >= 0)
     {
-        const AEventTrackingRecord * er = TH.at(currentEv);
+        // !!!*** code duplication: see EV_showTree() method
+        //-->
+        QString fileName = ui->leTrackingDataFile->text();
+        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+        AEventTrackingRecord * er = AEventTrackingRecord::create();
+        QString err = SimManager.fillTrackingRecord(fileName, currentEv, er);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return -1;
+        }
+        // !!!*** add error processing, separetely process bad event index
+        // <--
 
         bool bGood = true;
         if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
@@ -1899,4 +1921,3 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
     };
     return -1;
 }
-*/
