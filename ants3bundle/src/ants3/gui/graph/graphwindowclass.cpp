@@ -112,6 +112,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &GraphWindowClass::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &GraphWindowClass::BasketReorderRequested);
 
+    connectScriptUnitDrawRequests();
+
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
@@ -170,6 +172,23 @@ GraphWindowClass::~GraphWindowClass()
     delete gvOver; gvOver = nullptr;
 
     delete Basket; Basket = nullptr;
+}
+
+#include "ajscripthub.h"
+#include "ajscriptmanager.h"
+#include "agraph_si.h"
+void GraphWindowClass::connectScriptUnitDrawRequests()
+{
+    const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
+    for (const AScriptInterface * inter : interfaces)
+    {
+        const AGraph_SI * gi = dynamic_cast<const AGraph_SI*>(inter);
+        if (gi)
+        {
+            connect(gi, &AGraph_SI::RequestDraw, this, &GraphWindowClass::onScriptDrawRequest);
+            break;
+        }
+    }
 }
 
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)
@@ -1261,6 +1280,14 @@ void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool t
         Draw(obj, options.toLatin1().data(), true, transferOwnership);
     else
         DrawWithoutFocus(obj, options.toLatin1().data(), true, transferOwnership);
+}
+
+void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
+{
+    if (fFocus)
+        Draw(obj, options.toLatin1().data(), true, false);
+    else
+        DrawWithoutFocus(obj, options.toLatin1().data(), true, false);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)

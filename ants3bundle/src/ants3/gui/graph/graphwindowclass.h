@@ -158,6 +158,7 @@ public slots:
                   QString *result = 0);   // !!!*** ugly
 
 private slots:
+    void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
     void Reshape();
     void BasketCustomContextMenuRequested(const QPoint &pos);
     void onBasketItemDoubleClicked(QListWidgetItem *item);
@@ -292,6 +293,7 @@ private:
     void fixGraphFrame();
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
+    void connectScriptUnitDrawRequests();
 };
 
 #endif // GRAPHWINDOWCLASS_H
