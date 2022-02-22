@@ -23,11 +23,11 @@ public:
     //bool IsMultithreadCapable() const override {return true;}
 
 public slots:
-    void SetAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+    void create1D(QString GraphName);
+    void create1DErr(QString GraphName);
+    void create2D(QString GraphName);
 
-    void NewGraph(const QString& GraphName);
-    void NewGraphErrors(const QString& GraphName);
-    void NewGraph2D(const QString& GraphName);
+    void configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
     void SetMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize);
     void SetLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth);

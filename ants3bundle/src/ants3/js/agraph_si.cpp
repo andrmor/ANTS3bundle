@@ -36,7 +36,7 @@ AGraph_SI::AGraph_SI()
 //    AScriptInterface(other),
 //    TmpHub(other.TmpHub) {}
 
-void AGraph_SI::NewGraph(const QString &GraphName)
+void AGraph_SI::create1D(QString GraphName)
 {
     if (!bGuiThread)
     {
@@ -60,7 +60,7 @@ void AGraph_SI::NewGraph(const QString &GraphName)
     }
 }
 
-void AGraph_SI::NewGraphErrors(const QString &GraphName)
+void AGraph_SI::create1DErr(QString GraphName)
 {
     if (!bGuiThread)
     {
@@ -84,7 +84,7 @@ void AGraph_SI::NewGraphErrors(const QString &GraphName)
     }
 }
 
-void AGraph_SI::NewGraph2D(const QString &GraphName)
+void AGraph_SI::create2D(QString GraphName)
 {
     if (!bGuiThread)
     {

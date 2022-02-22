@@ -23,14 +23,23 @@ public:
     //bool           IsMultithreadCapable() const override {return true;}
 
 public slots:
-    void           SetAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
-
-    void           NewHist(const QString& HistName, int bins, double start, double stop);
-    void           NewHist2D(const QString &HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY); //deprecate!
-    void           NewHist(const QString& HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY);
-    void           NewHist(const QString &HistName, int binsX, double startX, double stopX,
+    void           create(QString HistName, int bins, double start, double stop);
+    void           create(QString HistName, int binsX, double startX, double stopX,   int binsY, double startY, double stopY);
+    void           create(QString HistName, int binsX, double startX, double stopX,
                            int binsY, double startY, double stopY,
                            int binsZ, double startZ, double stopZ);
+
+    void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+
+    void           fill(QString HistName, double val, double weight);
+    void           fill(QString HistName, double x, double y, double weight);
+    void           fill(QString HistName, double x, double y, double z, double weight);
+
+    void           FillArr(const QString& HistName, const QVariant XY_Array);
+    void           FillArr(const QString& HistName, const QVariantList X_Array, const QVariantList Y_Array);
+    void           Fill2DArr(const QString& HistName, const QVariant Array);
+
+    void           draw(QString HistName, QString options = "");
 
     void           SetXCustomLabels(const QString &HistName, QVariantList Labels);
 
@@ -47,18 +56,11 @@ public slots:
     void           SetXLabelProperties(const QString& HistName, double size, double offset);
     void           SetYLabelProperties(const QString& HistName, double size, double offset);
 
-    void           Fill(const QString& HistName, double val, double weight);
-    void           Fill2D(const QString& HistName, double x, double y, double weight);  // to deprecate
-    void           Fill(const QString& HistName, double x, double y, double weight);
-    void           Fill(const QString& HistName, double x, double y, double z, double weight);
 
-    void           FillArr(const QString& HistName, const QVariant XY_Array);
-    void           FillArr(const QString& HistName, const QVariantList X_Array, const QVariantList Y_Array);
-    void           Fill2DArr(const QString& HistName, const QVariant Array);
 
     void           Divide(const QString& HistName, const QString& HistToDivideWith);
 
-    void           Draw(const QString& HistName, const QString options = "");
+
 
     int            GetNumberOfEntries(const QString& HistName);
     QVariantList   GetContent(const QString& HistName);
@@ -95,7 +97,5 @@ private:
     bool           bAbortIfExists = false;
 
 };
-
-
 
 #endif // AHIST_SI_H

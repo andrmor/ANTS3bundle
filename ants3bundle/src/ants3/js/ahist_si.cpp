@@ -39,7 +39,7 @@ AHist_SI::AHist_SI()
 //    AScriptInterface(other),
 //    TmpHub(other.TmpHub) {}
 
-void AHist_SI::NewHist(const QString& HistName, int bins, double start, double stop)
+void AHist_SI::create(QString HistName, int bins, double start, double stop)
 {
     if (!bGuiThread)
     {
@@ -62,7 +62,7 @@ void AHist_SI::NewHist(const QString& HistName, int bins, double start, double s
     }
 }
 
-void AHist_SI::NewHist2D(const QString& HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY)
+void AHist_SI::create(QString HistName, int binsX, double startX, double stopX,  int binsY, double startY, double stopY)
 {
     if (!bGuiThread)
     {
@@ -85,12 +85,7 @@ void AHist_SI::NewHist2D(const QString& HistName, int binsX, double startX, doub
     }
 }
 
-void AHist_SI::NewHist(const QString &HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY)
-{
-    NewHist2D(HistName, binsX, startX, stopX, binsY, startY, stopY);
-}
-
-void AHist_SI::NewHist(const QString &HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY, int binsZ, double startZ, double stopZ)
+void AHist_SI::create(QString HistName, int binsX,double startX,double stopX, int binsY,double startY,double stopY, int binsZ,double startZ,double stopZ)
 {
     if (!bGuiThread)
     {
@@ -217,30 +212,25 @@ void AHist_SI::SetYLabelProperties(const QString &HistName, double size, double 
     else    r->SetYLabelProperties(size, offset);
 }
 
-void AHist_SI::Fill(const QString &HistName, double val, double weight)
+void AHist_SI::fill(QString HistName, double val, double weight)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r || r->getType() != "TH1D")
         abort("1D histogram " + HistName + " not found!");
     else
         r->Fill(val, weight);
 }
 
-void AHist_SI::Fill2D(const QString &HistName, double x, double y, double weight)
+void AHist_SI::fill(QString HistName, double x, double y, double weight)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r || r->getType() != "TH2D")
         abort("2D histogram " + HistName + " not found!");
     else
         r->Fill2D(x, y, weight);
 }
 
-void AHist_SI::Fill(const QString &HistName, double x, double y, double weight)
-{
-    Fill2D(HistName, x, y, weight);
-}
-
-void AHist_SI::Fill(const QString &HistName, double x, double y, double z, double weight)
+void AHist_SI::fill(QString HistName, double x, double y, double z, double weight)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r || r->getType() != "TH3D")
@@ -781,7 +771,7 @@ void AHist_SI::DeleteAllHist()
         TmpHub.Hists.clear();
 }
 
-void AHist_SI::Draw(const QString &HistName, const QString options)
+void AHist_SI::draw(QString HistName, QString options)
 {
     if (!bGuiThread)
     {
@@ -789,11 +779,18 @@ void AHist_SI::Draw(const QString &HistName, const QString options)
         return;
     }
 
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
         abort("Histogram " + HistName + " not found!");
     else
     {
+        if (options.isEmpty())
+        {
+            if      (r->getType() == "TH1D") options = "hist";
+            else if (r->getType() == "TH2D") options = "colz";
+            else                             options = ""; // !!!*** can be better?
+        }
+
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
         emit RequestDraw(copy, options, true);
     }

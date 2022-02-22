@@ -1295,10 +1295,10 @@ void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool t
 
 void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    if (fFocus)
-        Draw(obj, options.toLatin1().data(), true, false);
-    else
-        DrawWithoutFocus(obj, options.toLatin1().data(), true, false);
+    //always drawing a copy, so always need to register the object
+
+    if (fFocus) Draw(obj, options.toLatin1().data(), true, true);
+    else        DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
