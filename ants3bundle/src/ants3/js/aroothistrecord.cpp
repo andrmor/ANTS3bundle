@@ -555,7 +555,7 @@ QVector<double> ARootHistRecord::FitGaussWithInit(const QVector<double> &Initial
     return res;
 }
 
-std::vector<double> ARootHistRecord::FindPeaks(double sigma, double threshold)
+std::vector<double> ARootHistRecord::findPeaks(double sigma, double threshold)
 {
     QMutexLocker locker(&Mutex);
 

@@ -128,6 +128,7 @@ SOURCES += \
     js/acore_si.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
+    js/ahist_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
@@ -290,6 +291,7 @@ HEADERS += \
     js/acore_si.h \
     js/ademo_si.h \
     js/afarm_si.h \
+    js/ahist_si.h \
     js/ajscripthub.h \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \

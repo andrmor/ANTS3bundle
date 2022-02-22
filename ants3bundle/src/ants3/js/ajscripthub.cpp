@@ -6,6 +6,7 @@
 #include "acore_si.h"
 #include "amath_si.h"
 #include "agraph_si.h"
+#include "ahist_si.h"
 #include "afarm_si.h"
 #include "aconfig_si.h"
 #include "aphotonsim_si.h"
@@ -43,6 +44,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new ACore_SI(),         "core");
     SM->registerInterface(new AMath_SI(),         "math");
     SM->registerInterface(new AGraph_SI(),        "graph");
+    SM->registerInterface(new AHist_SI(),         "hist");
     SM->registerInterface(new AConfig_SI(),       "config");
     SM->registerInterface(new AFarm_SI(),         "farm");
     SM->registerInterface(new APhotonSim_SI(),    "lsim");

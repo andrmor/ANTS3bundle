@@ -1,0 +1,101 @@
+#ifndef AHIST_SI_H
+#define AHIST_SI_H
+
+#include "ascriptinterface.h"
+
+#include <QString>
+#include <QVariant>
+#include <QVariantList>
+
+class AScriptObjStore;
+class TObject;
+
+class AHist_SI : public AScriptInterface
+{
+    Q_OBJECT
+
+public:
+    AHist_SI();
+    //AHist_SI(const AHist_SI& other);
+    //~AHist_SI(){}
+
+    //bool           InitOnRun() override {}
+    //bool           IsMultithreadCapable() const override {return true;}
+
+public slots:
+    void           SetAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+
+    void           NewHist(const QString& HistName, int bins, double start, double stop);
+    void           NewHist2D(const QString &HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY); //deprecate!
+    void           NewHist(const QString& HistName, int binsX, double startX, double stopX, int binsY, double startY, double stopY);
+    void           NewHist(const QString &HistName, int binsX, double startX, double stopX,
+                           int binsY, double startY, double stopY,
+                           int binsZ, double startZ, double stopZ);
+
+    void           SetXCustomLabels(const QString &HistName, QVariantList Labels);
+
+    void           SetTitle(const QString& HistName, const QString& Title);
+    void           SetTitles(const QString& HistName, QString X_Title, QString Y_Title, QString Z_Title = "");
+    void           SetNumberOfEntries(const QString& HistName, int numEntries);
+    void           SetLineProperties(const QString& HistName, int LineColor, int LineStyle, int LineWidth);
+    void           SetMarkerProperties(const QString& HistName, int MarkerColor, int MarkerStyle, double MarkerSize);
+    void           SetFillColor(const QString& HistName, int Color);
+    void           SetMaximum(const QString& HistName, double max);
+    void           SetMinimum(const QString& HistName, double min);
+    void           SetXDivisions(const QString& HistName, int primary, int secondary, int tertiary, bool canOptimize);
+    void           SetYDivisions(const QString& HistName, int primary, int secondary, int tertiary, bool canOptimize);
+    void           SetXLabelProperties(const QString& HistName, double size, double offset);
+    void           SetYLabelProperties(const QString& HistName, double size, double offset);
+
+    void           Fill(const QString& HistName, double val, double weight);
+    void           Fill2D(const QString& HistName, double x, double y, double weight);  // to deprecate
+    void           Fill(const QString& HistName, double x, double y, double weight);
+    void           Fill(const QString& HistName, double x, double y, double z, double weight);
+
+    void           FillArr(const QString& HistName, const QVariant XY_Array);
+    void           FillArr(const QString& HistName, const QVariantList X_Array, const QVariantList Y_Array);
+    void           Fill2DArr(const QString& HistName, const QVariant Array);
+
+    void           Divide(const QString& HistName, const QString& HistToDivideWith);
+
+    void           Draw(const QString& HistName, const QString options = "");
+
+    int            GetNumberOfEntries(const QString& HistName);
+    QVariantList   GetContent(const QString& HistName);
+    double         GetUnderflowBin(const QString& HistName);
+    double         GetOverflowBin(const QString& HistName);
+    double         GetIntegral(const QString& HistName, bool MultiplyByBinWidth = false);
+    double         GetMaximum(const QString& HistName);
+    double         GetRandom(const QString& HistName);
+    QVariantList   GetRandomMultiple(const QString& HistName, int numRandoms);
+    QVariantList   GetStatistics(const QString & HistName); // num mean std, for 2D mean and std are vectors of [x,y]
+
+    void           Smooth(const QString& HistName, int times);
+    void           Smear(const QString& HistName, double sigma);
+    void           ApplyMedianFilter(const QString& HistName, int span);
+    void           ApplyMedianFilter(const QString& HistName, int spanLeft, int spanRight);
+    const QVariant FitGauss(const QString& HistName, const QString options = "");
+    const QVariant FitGaussWithInit(const QString& HistName, const QVariant InitialParValues, const QString options = "");
+    QVariantList   findPeaks(const QString& HistName, double sigma, double threshold);
+
+    void           Scale(const QString& HistName, double ScaleIntegralTo, bool DividedByBinWidth = false);
+
+    void           Save(const QString& HistName, const QString &fileName);
+    void           Load(const QString& HistName, const QString &fileName, const QString histNameInFile = "");
+
+    bool           Delete(const QString& HistName);
+    void           DeleteAllHist();
+
+signals:
+    void           RequestDraw(TObject* obj, QString options, bool fFocus);
+
+private:
+    AScriptObjStore & TmpHub;
+
+    bool           bAbortIfExists = false;
+
+};
+
+
+
+#endif // AHIST_SI_H

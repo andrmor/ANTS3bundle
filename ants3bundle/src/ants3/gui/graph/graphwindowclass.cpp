@@ -177,18 +177,29 @@ GraphWindowClass::~GraphWindowClass()
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
 #include "agraph_si.h"
+#include "ahist_si.h"
 void GraphWindowClass::connectScriptUnitDrawRequests()
 {
+    const AGraph_SI * graphInter = nullptr;
+    const AHist_SI  * histInter  = nullptr;
+
     const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
     {
-        const AGraph_SI * gi = dynamic_cast<const AGraph_SI*>(inter);
-        if (gi)
+        if (!graphInter)
         {
-            connect(gi, &AGraph_SI::RequestDraw, this, &GraphWindowClass::onScriptDrawRequest);
-            break;
+            const AGraph_SI * test = dynamic_cast<const AGraph_SI*>(inter);
+            if (test) graphInter = test;
+        }
+        if (!histInter)
+        {
+            const AHist_SI * test = dynamic_cast<const AHist_SI*>(inter);
+            if (test) histInter = test;
         }
     }
+
+    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw, this, &GraphWindowClass::onScriptDrawRequest);
+    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,  this, &GraphWindowClass::onScriptDrawRequest);
 }
 
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)

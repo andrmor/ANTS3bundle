@@ -67,7 +67,7 @@ public:
 
     QVector<double> FitGauss(const QString& options = "");
     QVector<double> FitGaussWithInit(const QVector<double>& InitialParValues, const QString options = "");
-    std::vector<double> FindPeaks(double sigma, double threshold);
+    std::vector<double> findPeaks(double sigma, double threshold);
 
 };
 
