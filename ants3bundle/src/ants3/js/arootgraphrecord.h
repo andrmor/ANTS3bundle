@@ -7,8 +7,9 @@
 #include <QPair>
 #include <QString>
 #include <QMutex>
-
 #include <TObject.h>
+
+#include <vector>
 
 class ARootGraphRecord : public ARootObjBase
 {
@@ -35,8 +36,9 @@ public:
 
     void     AddPoint2D(double x, double y, double z);
 
-    const QVector<QPair<double, double> > GetPoints();
-    void     Save(const QString& fileName);
+    const std::vector<std::pair<double, double>> GetPoints(); // !!!*** make more general
+
+    void     ExportRoot(const QString & fileName);
 
     QString  LastDrawOption;
 

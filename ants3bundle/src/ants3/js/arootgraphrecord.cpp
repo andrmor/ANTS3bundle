@@ -264,33 +264,34 @@ void ARootGraphRecord::AddPoint2D(double x, double y, double z)
     }
 }
 
-const QVector<QPair<double, double> > ARootGraphRecord::GetPoints()
+const std::vector<std::pair<double, double>> ARootGraphRecord::GetPoints()
 {
     QMutexLocker locker(&Mutex);
 
-    QVector<QPair<double, double>> res;
-
-    if (Type == "TGraph")
+    std::vector<std::pair<double, double>> res;
+    if (Type == "TGraph" || Type == "TGraphErrors")
     {
         TGraph* g = dynamic_cast<TGraph*>(Object);
         if (g)
         {
             const int numPoints = g->GetN();
             res.resize(numPoints);
-            for (int ip=0; ip<numPoints; ip++)
+            for (int ip = 0; ip < numPoints; ip++)
                 g->GetPoint(ip, res[ip].first, res[ip].second);
         }
     }
     return res;
 }
 
-void ARootGraphRecord::Save(const QString &fileName)
+void ARootGraphRecord::ExportRoot(const QString &fileName)
 {
     QMutexLocker locker(&Mutex);
 
-    if (Type == "TGraph")
-    {
-        TGraph* g = dynamic_cast<TGraph*>(Object);
-        if (g) g->SaveAs(fileName.toLatin1().data(), LastDrawOption.toLatin1().data());
-    }
+//    if (Type == "TGraph")
+//    {
+//        TGraph* g = dynamic_cast<TGraph*>(Object);
+//        if (g) g->SaveAs(fileName.toLatin1().data(), LastDrawOption.toLatin1().data());
+//    }
+
+    Object->SaveAs(fileName.toLatin1().data(), LastDrawOption.toLatin1().data());
 }

@@ -23,53 +23,54 @@ public:
     //bool IsMultithreadCapable() const override {return true;}
 
 public slots:
-    void create1D(QString GraphName);
-    void create1DErr(QString GraphName);
-    void create2D(QString GraphName);
+    void new1D(QString GraphName);
+    void new1DErr(QString GraphName);
+    void new2D(QString GraphName);
 
     void configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
-    void SetMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize);
-    void SetLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth);
-    void SetTitles(QString GraphName, QString X_Title, QString Y_Title, QString GraphTitle = "");
+    void addPoint(QString GraphName, double x, double y);
+    void addPoint(QString GraphName, double x, double y, double errorY);
+    void addPoint(QString GraphName, double x, double y, double errorX, double errorY);
 
-    void AddPoint(QString GraphName, double x, double y);
-    void AddPoint(QString GraphName, double x, double y, double errorY);
-    void AddPoint(QString GraphName, double x, double y, double errorX, double errorY);
-    void AddPoints(QString GraphName, QVariantList xArray, QVariantList yArray);
-    void AddPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList yErrArray);
-    void AddPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
-    void AddPoints(QString GraphName, QVariantList xyArray);
+    void addPoint2D(QString GraphName, double x, double y, double z);
 
-    void AddPoint2D(QString GraphName, double x, double y, double z);
+    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray);
+    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList yErrArray);
+    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
+    void addPoints(QString GraphName, QVariantList xyArray);
 
-    void SetYRange(const QString& GraphName, double min, double max);
-    void SetMinimum(const QString& GraphName, double min);
-    void SetMaximum(const QString& GraphName, double max);
-    void SetXRange(const QString& GraphName, double min, double max);
-    void SetXDivisions(const QString& GraphName, int numDiv);
-    void SetYDivisions(const QString& GraphName, int numDiv);
+    void draw(QString GraphName, QString options = "APL");
 
-    void Sort(const QString& GraphName);
+    void setMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize);
+    void setLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth);
+    void setTitles(QString GraphName, QString X_Title, QString Y_Title, QString GraphTitle = "");
 
-    void Draw(QString GraphName, QString options = "APL");
+    void setYRange(QString GraphName, double min, double max);
+    void setMinimum(QString GraphName, double min);
+    void setMaximum(QString GraphName, double max);
+    void setXRange(QString GraphName, double min, double max);
+    void setXDivisions(QString GraphName, int numDiv);
+    void setYDivisions(QString GraphName, int numDiv);
 
-    void LoadTGraph(const QString& NewGraphName, const QString& FileName);
-    void Save(const QString& GraphName, const QString& FileName);
-    const QVariant GetPoints(const QString& GraphName);
+    void sort(QString GraphName);
+
+    QVariantList getPoints(QString GraphName);  // !!!*** make more general: for TGraphErrors and TGraph2D
+
+    void loadTGraph(QString NewGraphName, QString FileName); // !!!*** add for TGraphErrors and TGraph2D
+    void saveRoot(QString GraphName, QString FileName);
 
     //void ImportFromBasket(const QString& NewGraphName, const QString& BasketName, int index = 0);
 
-    bool Delete(QString GraphName);
-    void DeleteAllGraph();
+    bool remove(QString GraphName);
+    void removeAllGraph();
 
 signals:
-    void RequestDraw(TObject* obj, QString options, bool fFocus);
+    void RequestDraw(TObject * obj, QString options, bool fFocus);
 
 private:
-    AScriptObjStore & TmpHub;
-
-    bool           bAbortIfExists = false;
+    AScriptObjStore & ObjectStore;
+    bool              bAbortIfExists = false;
 
 };
 
