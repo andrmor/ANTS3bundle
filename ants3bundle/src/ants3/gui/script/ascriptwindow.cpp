@@ -983,51 +983,54 @@ void AScriptWindow::onProgressChanged(int percent)
 
 QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments)
 {
-    QStringList commands;
-    if (!obj) return commands;
-    int methods = obj->metaObject()->methodCount();
-    for (int i=0; i<methods; i++)
+    QStringList methods;
+    if (!obj) return methods;
+
+    const int numMethods = obj->metaObject()->methodCount();
+    for (int iMet = 0; iMet < numMethods; iMet++)
     {
-        const QMetaMethod &m = obj->metaObject()->method(i);
-        bool fSlot   = (m.methodType() == QMetaMethod::Slot);
-        bool fPublic = (m.access() == QMetaMethod::Public);
-        QString commCandidate, extra;
-        if (fSlot && fPublic)
+        const QMetaMethod & m = obj->metaObject()->method(iMet);
+        bool bSlot   = (m.methodType() == QMetaMethod::Slot);
+        bool bPublic = (m.access() == QMetaMethod::Public);
+        QString candidate, extra;
+        if (bSlot && bPublic)
         {
             if (m.name() == "deleteLater") continue;
-            //if (m.name() == "help") continue;
-            if (ObjName.isEmpty()) commCandidate = m.name();
-            else commCandidate = ObjName + "." + m.name();
+            if (m.name() == "help") continue;
+
+            if (ObjName.isEmpty()) candidate = m.name();
+            else                   candidate = ObjName + "." + m.name();
 
             if (fWithArguments)
             {
-                commCandidate += "(";
-                extra = commCandidate;
+                candidate += "(";
+                extra = candidate;
 
                 int args = m.parameterCount();
-                for (int i=0; i<args; i++)
+                for (int i = 0; i < args; i++)
                 {
                     QString typ = m.parameterTypes().at(i);
                     if (typ == "QString") typ = "string";
                     extra += " " + typ + " " + m.parameterNames().at(i);
-                    commCandidate     += " " + m.parameterNames().at(i);
+                    candidate     += " " + m.parameterNames().at(i);
                     if (i != args-1)
                     {
-                        commCandidate += ", ";
+                        candidate += ", ";
                         extra += ", ";
                     }
                 }
-                commCandidate += " )";
+                candidate += " )";
                 extra += " )";
                 extra = QString() + m.typeName() + " " + extra;
 
-                commCandidate += "_:_" + extra;
+                candidate += "_:_" + extra;
             }
-            if (commands.isEmpty() || commands.last() != commCandidate)
-                commands << commCandidate;
+
+            if (methods.isEmpty() || methods.last() != candidate)
+                methods << candidate;
         }
     }
-    return commands;
+    return methods;
 }
 
 void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * obj)
