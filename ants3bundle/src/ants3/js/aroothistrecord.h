@@ -59,7 +59,7 @@ public:
     bool   GetUnderflow(double & undeflow) const;
     bool   GetOverflow (double & overflow) const;
     double GetRandom();
-    QVector<double> GetRandomMultiple(int numRandoms);
+    std::vector<double> GetRandomMultiple(int numRandoms);
 
     bool   is1D() const;
     bool   is2D() const;

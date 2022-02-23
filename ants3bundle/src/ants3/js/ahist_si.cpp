@@ -39,7 +39,7 @@ AHist_SI::AHist_SI()
 //    AScriptInterface(other),
 //    TmpHub(other.TmpHub) {}
 
-void AHist_SI::create(QString HistName, int bins, double start, double stop)
+void AHist_SI::new1D(QString HistName, int bins, double start, double stop)
 {
     if (!bGuiThread)
     {
@@ -62,7 +62,7 @@ void AHist_SI::create(QString HistName, int bins, double start, double stop)
     }
 }
 
-void AHist_SI::create(QString HistName, int binsX, double startX, double stopX,  int binsY, double startY, double stopY)
+void AHist_SI::new2D(QString HistName, int binsX, double startX, double stopX,  int binsY, double startY, double stopY)
 {
     if (!bGuiThread)
     {
@@ -85,7 +85,7 @@ void AHist_SI::create(QString HistName, int binsX, double startX, double stopX, 
     }
 }
 
-void AHist_SI::create(QString HistName, int binsX,double startX,double stopX, int binsY,double startY,double stopY, int binsZ,double startZ,double stopZ)
+void AHist_SI::new3D(QString HistName, int binsX,double startX,double stopX, int binsY,double startY,double stopY, int binsZ,double startZ,double stopZ)
 {
     if (!bGuiThread)
     {
@@ -170,14 +170,14 @@ void AHist_SI::SetFillColor(const QString &HistName, int Color)
     else    r->SetFillColor(Color);
 }
 
-void AHist_SI::SetMaximum(const QString &HistName, double max)
+void AHist_SI::setMaximum(QString HistName, double max)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r) abort("Histogram " + HistName + " not found!");
     else    r->SetMax(max);
 }
 
-void AHist_SI::SetMinimum(const QString &HistName, double min)
+void AHist_SI::setMinimum(QString HistName, double min)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r) abort("Histogram " + HistName + " not found!");
@@ -285,25 +285,18 @@ void AHist_SI::ApplyMedianFilter(const QString &HistName, int spanLeft, int span
     }
 }
 
-void AHist_SI::FillArr(const QString &HistName, const QVariant XY_Array)
+void AHist_SI::FillArr(QString HistName, QVariantList XY_Array)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
         abort("Histogram " + HistName + " not found!");
     else
     {
-        QVariantList VarList = XY_Array.toList();
-        if (VarList.isEmpty())
-        {
-            abort("Array (or array of arrays) is expected as the second argument in hist.FillArr()");
-            return;
-        }
-
-        QVector<double> val(VarList.size()), weight(VarList.size());
+        QVector<double> val(XY_Array.size()), weight(XY_Array.size());
         bool bOK1, bOK2;
-        for (int i=0; i<VarList.size(); i++)
+        for (int i=0; i<XY_Array.size(); i++)
         {
-            QVariantList element = VarList.at(i).toList();
+            QVariantList element = XY_Array.at(i).toList();
             switch (element.size())
             {
             case 2:
@@ -320,7 +313,7 @@ void AHist_SI::FillArr(const QString &HistName, const QVariant XY_Array)
                 }
             case 0:
                 {
-                    double v = VarList.at(i).toDouble(&bOK1);
+                    double v = XY_Array.at(i).toDouble(&bOK1);
                     if (bOK1)
                     {
                         val[i] = v;
@@ -341,7 +334,7 @@ void AHist_SI::FillArr(const QString &HistName, const QVariant XY_Array)
     }
 }
 
-void AHist_SI::FillArr(const QString &HistName, const QVariantList X_Array, const QVariantList Y_Array)
+void AHist_SI::FillArr(QString HistName, const QVariantList X_Array, const QVariantList Y_Array)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
 
@@ -379,7 +372,7 @@ void AHist_SI::FillArr(const QString &HistName, const QVariantList X_Array, cons
     r->FillArr(val, weight);
 }
 
-void AHist_SI::Fill2DArr(const QString &HistName, const QVariant Array)
+void AHist_SI::Fill2DArr(QString HistName, const QVariant Array)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
@@ -598,7 +591,7 @@ double AHist_SI::GetIntegral(const QString &HistName, bool MultiplyByBinWidth)
         return r->GetIntegral(MultiplyByBinWidth);
 }
 
-double AHist_SI::GetMaximum(const QString &HistName)
+double AHist_SI::getMaximum(QString HistName)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
@@ -610,7 +603,7 @@ double AHist_SI::GetMaximum(const QString &HistName)
     return r->GetMaximum();
 }
 
-double AHist_SI::GetRandom(const QString &HistName)
+double AHist_SI::getRandom(QString HistName)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
@@ -622,9 +615,10 @@ double AHist_SI::GetRandom(const QString &HistName)
     return r->GetRandom();
 }
 
-QVariantList AHist_SI::GetRandomMultiple(const QString &HistName, int numRandoms)
+QVariantList AHist_SI::getRandomMultiple(QString HistName, int numRandoms)
 {
     QVariantList vl;
+
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
     {
@@ -632,12 +626,12 @@ QVariantList AHist_SI::GetRandomMultiple(const QString &HistName, int numRandoms
         return vl;
     }
 
-    QVector<double> vec = r->GetRandomMultiple(numRandoms);
+    std::vector<double> vec = r->GetRandomMultiple(numRandoms);
     for (const double & d : vec) vl.append(d);
     return vl;
 }
 
-QVariantList AHist_SI::GetStatistics(const QString & HistName)
+QVariantList AHist_SI::getStatistics(QString HistName)
 {
     QVariantList vl;
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));

@@ -503,16 +503,16 @@ double ARootHistRecord::GetRandom()
     return h->GetRandom();
 }
 
-QVector<double> ARootHistRecord::GetRandomMultiple(int numRandoms)
+std::vector<double> ARootHistRecord::GetRandomMultiple(int numRandoms)
 {
-    QVector<double> res;
+    std::vector<double> res;
     TH1 * h = dynamic_cast<TH1*>(Object);
-    if (!h) return res;
-
-    res.reserve(numRandoms);
-    for (int i=0; i<numRandoms; i++)
-        res << h->GetRandom();
-
+    if (h)
+    {
+        res.reserve(numRandoms);
+        for (int i=0; i<numRandoms; i++)
+            res.push_back( h->GetRandom() );
+    }
     return res;
 }
 
