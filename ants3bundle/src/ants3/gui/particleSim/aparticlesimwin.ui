@@ -2448,7 +2448,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leLimitToParticles">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2462,7 +2462,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leExcludeParticles">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>

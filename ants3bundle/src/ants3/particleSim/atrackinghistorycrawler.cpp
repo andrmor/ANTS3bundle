@@ -512,12 +512,12 @@ bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData
 
 AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
 {
-    Aliases.push_back( {"gamma",   "g"} );
-    Aliases.push_back( {"proton",  "p"} );
-    Aliases.push_back( {"neutron", "n"} );
-    Aliases.push_back( {"alpha",   "a"} );
-    Aliases.push_back( {"deutron", "d"} );
-    Aliases.push_back( {"triton",  "t"} );
+    Aliases.push_back( {"gamma",    "g"} );
+    Aliases.push_back( {"proton",   "p"} );
+    Aliases.push_back( {"neutron",  "n"} );
+    Aliases.push_back( {"alpha",    "a"} );
+    Aliases.push_back( {"deuteron", "d"} );
+    Aliases.push_back( {"triton",   "t"} );
 }
 const QString & AHistorySearchProcessor_findChannels::getAlias(const QString & name)
 {
@@ -546,19 +546,58 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
         return;
     }
 
-    QString products;
-    QString end;
-    for (size_t indexSec = 0; indexSec < tr.Secondaries.size(); indexSec++)
-    {
-        int iSec = tr.Secondaries[indexSec];
-        const AParticleTrackingRecord * sec = TrackRecord->getSecondaries()[iSec];
-        QString secname = getAlias(sec->ParticleName);
+    const QString & Result = TrackRecord->getSecondaries()[tr.Secondaries.back()]->ParticleName;
+    if (Result == tr.TargetIsotope) return;
 
-        if (indexSec == tr.Secondaries.size() - 1) end = secname;
-        else products += secname + "+";
+    std::vector<QString> ProductVec;
+    for (size_t indexSec = 0; indexSec < tr.Secondaries.size() - 1; indexSec++)
+    {
+        const int iSec = tr.Secondaries[indexSec];
+        const AParticleTrackingRecord * sec = TrackRecord->getSecondaries()[iSec];
+        ProductVec.push_back( getAlias(sec->ParticleName) );
     }
 
-    const QString channel = QString("%0(%1,%2)%3").arg(Particle, tr.TargetIsotope, products, end);
+    std::sort(ProductVec.begin(), ProductVec.end());
+
+    QString products;
+    QString previous = "g"; // not saving gammas
+    int counter = 0;
+    for (size_t iP = 0; iP < ProductVec.size(); iP++)
+    {
+        const QString & n = ProductVec[iP];
+
+        if (n == previous)
+        {
+            counter++;
+            continue;
+        }
+
+        if (previous != "g")
+        {
+            // save previous product
+            if (!products.isEmpty()) products += "+";
+            if (counter != 1) products += QString::number(counter);
+            products += previous;
+
+            previous.clear();
+            counter = 0;
+        }
+
+        previous = n;
+        counter = 1;
+    }
+
+    //saving the last record
+    if (previous != "g")
+    {
+        if (!products.isEmpty()) products += "+";
+        if (counter != 1) products += QString::number(counter);
+        products += previous;
+    }
+
+    if (products.isEmpty()) products = "g";
+
+    const QString channel = QString("%0(%1,%2)%3").arg(tr.TargetIsotope, Particle, products, Result);
 
     QMap<QString, int>::iterator it = Channels.find(channel);
     if (it == Channels.end())
