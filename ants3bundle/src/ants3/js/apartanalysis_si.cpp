@@ -295,6 +295,27 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
     return vl;
 }
 
+QVariantList APartAnalysis_SI::findChannels()
+{
+    QVariantList vl;
+
+    bool ok = initCrawler();
+    if (!ok) return vl;
+
+    AHistorySearchProcessor_findChannels p;
+    Crawler->find(*Criteria, p);
+
+    QMap<QString, int>::const_iterator it = p.Channels.constBegin();
+    while (it != p.Channels.constEnd())
+    {
+        QVariantList el;
+        el << it.key() << it.value();
+        vl.push_back(el);
+        ++it;
+    }
+    return vl;
+}
+
 const QVariantList APartAnalysis_SI::findOB_1D(AHistorySearchProcessor_Border & p)
 {
     QVariantList vl;

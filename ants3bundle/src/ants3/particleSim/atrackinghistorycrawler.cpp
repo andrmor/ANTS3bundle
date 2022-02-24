@@ -510,6 +510,62 @@ bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData
     return false; // just to avoid warning
 }
 
+AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
+{
+    Aliases.push_back( {"gamma",   "g"} );
+    Aliases.push_back( {"proton",  "p"} );
+    Aliases.push_back( {"neutron", "n"} );
+    Aliases.push_back( {"alpha",   "a"} );
+    Aliases.push_back( {"deutron", "d"} );
+    Aliases.push_back( {"triton",  "t"} );
+}
+const QString & AHistorySearchProcessor_findChannels::getAlias(const QString & name)
+{
+    for (const auto & pair : Aliases)
+        if (pair.first == name) return pair.second;
+    return name;
+}
+
+bool AHistorySearchProcessor_findChannels::onNewTrack(const AParticleTrackingRecord & pr)
+{
+    Particle = getAlias(pr.ParticleName);
+    TrackRecord = &pr;
+    return false;
+}
+
+void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData & tr)
+{
+    const QString & Proc = tr.Process;
+    if (Proc == "hadElastic") return;
+
+    if (tr.TargetIsotope.isEmpty()) return;
+    if (tr.Secondaries.empty())
+    {
+        // unexpected!
+        qWarning() << "No secondaries for hadronic reacion detected!";
+        return;
+    }
+
+    QString products;
+    QString end;
+    for (size_t indexSec = 0; indexSec < tr.Secondaries.size(); indexSec++)
+    {
+        int iSec = tr.Secondaries[indexSec];
+        const AParticleTrackingRecord * sec = TrackRecord->getSecondaries()[iSec];
+        QString secname = getAlias(sec->ParticleName);
+
+        if (indexSec == tr.Secondaries.size() - 1) end = secname;
+        else products += secname + "+";
+    }
+
+    const QString channel = QString("%0(%1,%2)%3").arg(Particle, tr.TargetIsotope, products, end);
+
+    QMap<QString, int>::iterator it = Channels.find(channel);
+    if (it == Channels.end())
+        Channels.insert(channel, 1);
+    else it.value()++;
+}
+
 AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &what,
                                                                const QString &cuts,
                                                                int bins, double from, double to)

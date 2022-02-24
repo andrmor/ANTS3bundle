@@ -77,6 +77,25 @@ public:
     bool validateStep(const ATrackingStepData & tr) const;
 };
 
+class AHistorySearchProcessor_findChannels : public AHistorySearchProcessor
+{
+public:
+    AHistorySearchProcessor_findChannels();
+
+    bool onNewTrack(const AParticleTrackingRecord & pr) override;
+    void onLocalStep(const ATrackingStepData & tr) override;
+
+    QMap<QString, int> Channels;
+
+private:
+    std::vector<std::pair<QString,QString>> Aliases;
+
+    QString Particle;
+    const AParticleTrackingRecord * TrackRecord = nullptr;
+
+    const QString & getAlias(const QString & name);
+};
+
 class AHistorySearchProcessor_findDepositedEnergy : public AHistorySearchProcessor
 {
 public:
