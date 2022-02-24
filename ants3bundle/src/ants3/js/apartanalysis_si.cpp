@@ -161,7 +161,7 @@ QVariantList APartAnalysis_SI::findParticles()
     return vl;
 }
 
-QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2)
+QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2, bool onlyHadronic, QString targetIsotopeStartsFrom)
 {
     QVariantList vl;
 
@@ -176,7 +176,7 @@ QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2)
 
     AHistorySearchProcessor_findProcesses::SelectionMode mode = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(All0_WithDepo1_TrackEnd2);
 
-    AHistorySearchProcessor_findProcesses p(mode);
+    AHistorySearchProcessor_findProcesses p(mode, onlyHadronic, targetIsotopeStartsFrom);
     Crawler->find(*Criteria, p);
 
     QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();

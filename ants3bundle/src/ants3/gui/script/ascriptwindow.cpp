@@ -4,7 +4,7 @@
 #include "atextedit.h"
 #include "ascriptinterface.h"
 #include "acore_si.h"
-#include "amath_si.h"
+//#include "amath_si.h"
 #include "guitools.h"
 //#include "ascriptexampleexplorer.h"
 #include "ajsontools.h"

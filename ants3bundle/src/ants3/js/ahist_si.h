@@ -29,7 +29,7 @@ public slots:
                            int binsY, double startY, double stopY,
                            int binsZ, double startZ, double stopZ);
 
-    void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+    //void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
     void           fill(QString HistName, double val, double weight);
     void           fill(QString HistName, double x, double y, double weight);

@@ -27,13 +27,13 @@ public slots:
     void new1DErr(QString GraphName);
     void new2D(QString GraphName);
 
-    void configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+    //void configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
     void addPoint(QString GraphName, double x, double y);
     void addPoint(QString GraphName, double x, double y, double errorY);
     void addPoint(QString GraphName, double x, double y, double errorX, double errorY);
 
-    void addPoint2D(QString GraphName, double x, double y, double z);
+    void addPoint2D(QString GraphName, double x, double y, double z); // refactor addPoint(QString GraphName, double x, double y, double errorY_or_z);
 
     void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray);
     void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList yErrArray);

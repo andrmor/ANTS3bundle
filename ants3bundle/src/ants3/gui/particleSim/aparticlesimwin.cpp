@@ -1073,7 +1073,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             }
 
             AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
-            AHistorySearchProcessor_findProcesses p(sm);
+            AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
             Crawler.find(Opt, p);
 
             QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
@@ -1353,6 +1353,7 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     }
     ui->cobPTHistVolPlus->setVisible(index == 1 || index == 3);
 
+    ui->frLimitHadronicTarget->setVisible(index == 1);
     ui->frTimeAware->setVisible(index == 4);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);

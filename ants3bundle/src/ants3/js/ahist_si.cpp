@@ -26,7 +26,7 @@
 AHist_SI::AHist_SI()
     : TmpHub(AScriptObjStore::getInstance())
 {
-    Description = "CERN ROOT histograms - TH1D and TH2D";
+    Description = "CERN ROOT histograms";
 
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                     "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";

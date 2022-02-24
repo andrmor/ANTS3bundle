@@ -21,7 +21,7 @@ AGraph_SI::AGraph_SI()
     Help["new1DErr"] = "Creates a new 1D graph with errors (Root TGraphErrors object)";
     Help["new2D"] = "Creates a new 2D graph (Root TGraph2D object)";
 
-    Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will casuse abort. Default is false";
+    //Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will casuse abort. Default is false";
 
     Help["setMarkerProperties"] = "Default marker properties are 1, 20, 1";
     Help["setLineProperties"] = "Default line properties are 1, 1, 2";

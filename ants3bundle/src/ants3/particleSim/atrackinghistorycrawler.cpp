@@ -456,6 +456,9 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
     Distance = 0;
 }
 
+AHistorySearchProcessor_findProcesses::AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom) :
+    Mode(Mode), OnlyHadronic(onlyHadronic), TargetIsotopeStartsFrom(targetIsotopeStartsFrom.simplified()) {}
+
 void AHistorySearchProcessor_findProcesses::onLocalStep(const ATrackingStepData & tr)
 {
     if (validateStep(tr))
@@ -492,6 +495,12 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const
 {
+    if (OnlyHadronic)
+    {
+        if (tr.TargetIsotope.isEmpty()) return false;
+        if (!TargetIsotopeStartsFrom.isEmpty() && !tr.TargetIsotope.startsWith(TargetIsotopeStartsFrom)) return false;
+    }
+
     switch (Mode)
     {
     case All :                  return true;
