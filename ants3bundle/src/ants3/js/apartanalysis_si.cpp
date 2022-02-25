@@ -305,14 +305,26 @@ QVariantList APartAnalysis_SI::findChannels()
     AHistorySearchProcessor_findChannels p;
     Crawler->find(*Criteria, p);
 
+    std::vector<std::pair<QString,int>> vec;
     QMap<QString, int>::const_iterator it = p.Channels.constBegin();
     while (it != p.Channels.constEnd())
     {
-        QVariantList el;
-        el << it.key() << it.value();
-        vl.push_back(el);
+        vec.push_back( {it.key(), it.value()} );
         ++it;
     }
+
+    std::sort(vec.begin(), vec.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
+
+    for (const auto & p : vec)
+    {
+        QVariantList el;
+        el << p.first << p.second;
+        vl.push_back(el);
+    }
+
     return vl;
 }
 

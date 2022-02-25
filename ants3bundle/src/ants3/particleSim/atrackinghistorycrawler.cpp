@@ -546,16 +546,95 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
         return;
     }
 
-    const QString & Result = TrackRecord->getSecondaries()[tr.Secondaries.back()]->ParticleName;
-    if (Result == tr.TargetIsotope) return;
-
     std::vector<QString> ProductVec;
-    for (size_t indexSec = 0; indexSec < tr.Secondaries.size() - 1; indexSec++)
+    std::vector<QString> IsotopeVec;
+    for (int iSec : tr.Secondaries)
     {
-        const int iSec = tr.Secondaries[indexSec];
         const AParticleTrackingRecord * sec = TrackRecord->getSecondaries()[iSec];
-        ProductVec.push_back( getAlias(sec->ParticleName) );
+        const QString & pn = sec->ParticleName;
+        if (pn[0] == pn[0].toUpper()) IsotopeVec.push_back(pn);
+        else                          ProductVec.push_back( getAlias(pn) );
     }
+
+    QString Result;
+    if (IsotopeVec.empty())
+    {
+        auto it = std::find(ProductVec.begin(), ProductVec.end(), "a");
+        if (it != ProductVec.end())
+        {
+            Result = "He4";
+            ProductVec.erase(it);
+        }
+        else
+        {
+            auto it = std::find(ProductVec.begin(), ProductVec.end(), "t");
+            if (it != ProductVec.end())
+            {
+                Result = "H3";
+                ProductVec.erase(it);
+            }
+            else
+            {
+                auto it = std::find(ProductVec.begin(), ProductVec.end(), "d");
+                if (it != ProductVec.end())
+                {
+                    Result = "H2";
+                    ProductVec.erase(it);
+                }
+                else
+                {
+                    auto it = std::find(ProductVec.begin(), ProductVec.end(), "p");
+                    if (it != ProductVec.end())
+                    {
+                        Result = "H1";
+                        ProductVec.erase(it);
+                    }
+                    else
+                    {
+                        if (ProductVec.empty())
+                        {
+                            qWarning() << "Unexpected empty list of products of an inelastic hadron reaction";
+                            exit(222);
+                        }
+                        else
+                        {
+                            Result = ProductVec.front();
+                            ProductVec.erase(ProductVec.begin());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (IsotopeVec.size() == 1)
+    {
+        Result = IsotopeVec.front();
+    }
+    else // size > 1
+    {
+        //qDebug() << IsotopeVec << ProductVec;
+        std::vector<QString>::iterator itMax = IsotopeVec.begin();
+        int maxA = -1;
+        for (auto it = IsotopeVec.begin(); it < IsotopeVec.end(); ++it)
+        {
+            QString n = *it;
+            while (n[0].isLetter()) n = n.remove(0, 1);
+            bool ok;
+            int A = n.toInt(&ok);
+            if (ok && A > maxA)
+            {
+                itMax = it;
+                maxA = A;
+            }
+        }
+
+        Result = *itMax;
+        IsotopeVec.erase(itMax);
+        std::copy(IsotopeVec.begin(), IsotopeVec.end(), std::back_inserter(ProductVec));
+        //qDebug() << "-->" << Result << ProductVec;
+    }
+
+    //if (Result == tr.TargetIsotope) return;
 
     std::sort(ProductVec.begin(), ProductVec.end());
 
