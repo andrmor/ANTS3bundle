@@ -2630,7 +2630,7 @@ Format: Volume_name  Step_in_mm</string>
                     <item>
                      <widget class="QLabel" name="label_9">
                       <property name="text">
-                       <string>  </string>
+                       <string/>
                       </property>
                      </widget>
                     </item>

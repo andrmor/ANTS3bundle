@@ -56,9 +56,7 @@ private slots:
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
-
     void on_sbEvents_editingFinished();
-
     void on_pbChooseWorkingDirectory_clicked();
 
     // tracks
@@ -176,7 +174,7 @@ private:
 
 private slots:
     void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
-
+    void onProgressReceived(double progress);
 };
 
 #endif // APARTICLESIMWIN_H

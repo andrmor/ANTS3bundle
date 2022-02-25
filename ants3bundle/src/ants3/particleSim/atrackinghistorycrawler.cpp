@@ -20,10 +20,9 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 
     AEventTrackingRecord * event = AEventTrackingRecord::create();
     int iEv = 0;
-//    for (const AEventTrackingRecord * eventRecord : History)
     while (imp.extractEvent(iEv, event))
     {
-        qDebug() << "-------------Event #" << iEv;
+        //qDebug() << "-------------Event #" << iEv;
         processor.onNewEvent();
 
         const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();

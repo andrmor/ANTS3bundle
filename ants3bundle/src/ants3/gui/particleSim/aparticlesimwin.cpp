@@ -14,6 +14,7 @@
 #include "ajsontools.h"
 #include "aparticletrackvisuals.h"
 #include "aparticlesourceplotter.h"
+#include "adispatcherinterface.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -47,6 +48,9 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->pbShowGeometry->setVisible(false);
 
     updateGui();
+
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
 }
@@ -571,7 +575,14 @@ void AParticleSimWin::clearResultsGui()
 
 void AParticleSimWin::disableGui(bool flag)
 {
-    setDisabled(flag);
+    //setDisabled(flag);
+    ui->sbEvents->setDisabled(flag);
+    ui->pbConfigureOutput->setDisabled(flag);
+    ui->pbSimulate->setDisabled(flag);
+
+    ui->progbSim->setEnabled(flag);
+    ui->pbAbort->setEnabled(flag);
+    qApp->processEvents();
 }
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
@@ -620,24 +631,29 @@ void AParticleSimWin::on_pbSimulate_clicked()
     disableGui(false);
 
     if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
-    else if (ui->cbAutoLoadResults->isChecked())
+    else
     {
-        ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
-
-        if (SimSet.RunSet.SaveTrackingHistory)
+        ui->progbSim->setValue(100);
+        if (ui->cbAutoLoadResults->isChecked())
         {
-            ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
 
-            on_pbShowTracks_clicked();
-            EV_showTree();
-        }
+            if (SimSet.RunSet.SaveTrackingHistory)
+            {
+                ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
 
-        if (SimSet.RunSet.MonitorSettings.Enabled)
-        {
-            ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
-            updateMonitorGui(); // data will be already loaded for merging
+                on_pbShowTracks_clicked();
+                EV_showTree();
+            }
+
+            if (SimSet.RunSet.MonitorSettings.Enabled)
+            {
+                ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
+                updateMonitorGui(); // data will be already loaded for merging
+            }
         }
     }
+
 }
 
 void AParticleSimWin::on_pbLoadAllResults_clicked()
@@ -1921,4 +1937,11 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
         bUp ? currentEv++ : currentEv--;
     };
     return -1;
+}
+
+void AParticleSimWin::onProgressReceived(double progress)
+{
+    if (!ui->progbSim->isEnabled()) return; // simulation is not running
+
+    ui->progbSim->setValue(progress * 100.0);
 }
