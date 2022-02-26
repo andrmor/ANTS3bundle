@@ -353,6 +353,9 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 {
     ui->fLinkedParticle->setVisible(checked);
+
+    ui->labStatWeight->setVisible(!checked);
+    ui->ledGunParticleWeight->setVisible(!checked);
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
