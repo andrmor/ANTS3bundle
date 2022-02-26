@@ -22,6 +22,9 @@ public:
 
     ALinkedParticle() {}
     ALinkedParticle(int iparticle, int linkedto = -1) {iParticle = iparticle; LinkedTo = linkedto;}
+
+    // Run-time
+    bool bWasGenerated = false;
 };
 
 class ASourceParticleGenerator : public AParticleGun
@@ -62,7 +65,7 @@ private:
     bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addParticleInCone(int iSource, int iParticle, double * position, double time);
+    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex = -1);
 
 };
 
