@@ -240,9 +240,9 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 }
 
 #include "G4NistManager.hh"
-void SessionManager::updateMaterials(G4VPhysicalVolume * worldPV)
+void SessionManager::updateMaterials()
 {
-    G4LogicalVolume * worldLV = worldPV->GetLogicalVolume();
+    G4LogicalVolume * worldLV = WorldPV->GetLogicalVolume();
 
     G4NistManager * man = G4NistManager::Instance();
     for (auto & pair : Settings.RunSet.MaterialsFromNist)
@@ -711,6 +711,8 @@ void SessionManager::storeMonitorsData()
 #include "G4SystemOfUnits.hh"
 G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & particleName)
 {
+    if (particleName == "-") return nullptr;
+
     G4ParticleDefinition * Particle = G4ParticleTable::GetParticleTable()->FindParticle(particleName);
 
     if (!Particle)

@@ -13,6 +13,8 @@
     #include "G4Navigator.hh"
     #include "arandomg4hub.h"
     //#include "G4ParticleDefinition.hh"
+    #include "SessionManager.hh"
+    #include "G4Material.hh"
 #else
     #include "TGeoManager.h"
     #include "amaterialhub.h"
@@ -235,10 +237,12 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
         GeneratedParticles.clear();
 
         if (LinkedPartiles[iSource][iParticle].size() == 1)
-            addGeneratedParticle(iSource, iParticle, position, time); // there are no linked particles and the first is the particle itself
+        {
+            // there are no linked particles (the first record is the particle itself)
+            addGeneratedParticle(iSource, iParticle, position, time);
+        }
         else
         {
-            //std::vector<bool> WasGenerated(LinkedPartiles[iSource][iParticle].size(), false);
             std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
 
             for (size_t ip = 0; ip < ThisLP.size(); ip++)  //ip - index in the list of linked particles
@@ -276,7 +280,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             }
         }
 
-        // reporting back to do the actual work with the particles
+        // using casll-back to do the actual work with the particles
         for (const AParticleRecord & particle : GeneratedParticles)
             handler(particle);
     }
@@ -402,34 +406,59 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
 {
     const AGunParticle & gp = Settings.SourceData[iSource].Particles[iParticle];
 
-    AParticleRecord particle(
-            #ifdef GEANT4
-               gp.particleDefinition,
-            #else
-                gp.Particle,
-            #endif
-                position, time, gp.generateEnergy());
+    const double energy = gp.generateEnergy();
 
-    if (oppositeToIndex == -1)
+#ifdef GEANT4
+    if (gp.particleDefinition)
+#else
+    if (gp.Particle != "-")
+#endif
     {
-        //generating random direction inside the collimation cone
-        const double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
-        const double cosTheta = cos(spread);
-        const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
-        const double tmp = sqrt(1.0 - z * z);
-        const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+        AParticleRecord particle(
+#ifdef GEANT4
+                                 gp.particleDefinition,
+#else
+                                 gp.Particle,
+#endif
+                                 position, time, energy);
 
-        AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
-        AVector3 Coll( CollimationDirection[iSource] );
-        K1.rotateUz(Coll);
-        for (int i = 0; i < 3; i++)  particle.v[i] = K1[i];
+        if (oppositeToIndex == -1)
+        {
+            //generating random direction inside the collimation cone
+            const double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
+            const double cosTheta = cos(spread);
+            const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
+            const double tmp = sqrt(1.0 - z * z);
+            const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+
+            AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+            AVector3 Coll( CollimationDirection[iSource] );
+            K1.rotateUz(Coll);
+            for (int i = 0; i < 3; i++)  particle.v[i] = K1[i];
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++) particle.v[i] = -GeneratedParticles[oppositeToIndex].v[i];
+        }
+
+        GeneratedParticles.push_back(particle);
     }
     else
     {
-        for (int i = 0; i < 3; i++) particle.v[i] = -GeneratedParticles[oppositeToIndex].v[i];
-    }
+#ifdef GEANT4
+        // direct deposition
+        SessionManager & SM = SessionManager::getInstance();
 
-    GeneratedParticles.push_back(particle);
+        if (!Navigator) Navigator = new G4Navigator();
+        Navigator->SetWorldVolume(SM.WorldPV);
+        G4VPhysicalVolume * vol = Navigator->LocateGlobalPointAndSetup({position[0], position[1], position[2]});
+        if (vol && vol->GetLogicalVolume())
+        {
+            const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
+            SM.saveDepoRecord("-", iMat, energy, position, time);
+        }
+#endif
+    }
 }
 
 void ASourceParticleGenerator::updateLimitedToMat()
@@ -438,8 +467,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
 #ifdef GEANT4
     Navigator = new G4Navigator();
-//    SessionManager & SM = SessionManager::getInstance();
-//    Navigator->SetWorldVolume(SM.physWorld);
+    SessionManager & SM = SessionManager::getInstance();
+    Navigator->SetWorldVolume(SM.WorldPV);
 
     for (const AParticleSourceRecord & source : Settings.SourceData)
     {

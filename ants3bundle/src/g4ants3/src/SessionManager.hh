@@ -54,7 +54,7 @@ class SessionManager
         int findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
-        void updateMaterials(G4VPhysicalVolume * worldPV);
+        void updateMaterials();
 
         void writeNewEventMarker();
 
@@ -89,6 +89,8 @@ public:
         PrimaryGeneratorAction * PrimGenAction     = nullptr;
         G4LogicalVolume        * ExitVolume        = nullptr;
         AParticleGun           * ParticleGenerator = nullptr;
+
+        G4VPhysicalVolume * WorldPV = nullptr;
 
         int CurrentEvent = 0;
 
