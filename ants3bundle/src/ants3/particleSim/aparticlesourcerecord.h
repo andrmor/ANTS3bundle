@@ -100,6 +100,7 @@ struct AParticleSourceRecord
     std::string getShapeString() const;
 
     std::string check() const;
+
 };
 
 #endif // APARTICLESOURCERECORD_H

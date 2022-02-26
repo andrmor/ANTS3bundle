@@ -2,6 +2,7 @@
 #define ASOURCEPARTICLEGENERATOR_H
 
 #include "aparticlegun.h"
+#include "aparticlerecord.h"
 
 #include "avector.h"
 
@@ -51,6 +52,8 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
+    std::vector<AParticleRecord> GeneratedParticles;
+
     void   updateLimitedToMat();  // !!!*** implementation for Geant4
 
     int    selectNumberOfPrimaries() const;
@@ -59,7 +62,7 @@ private:
     bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles);
+    void   addParticleInCone(int iSource, int iParticle, double * position, double time);
 
 };
 
