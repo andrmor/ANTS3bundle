@@ -536,3 +536,13 @@ void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
     emit requestShowSource();
 }
 
+void AParticleSourceDialog::on_pbHelpParticle_clicked()
+{
+    guitools::message1("For particle simulations, the particle name should be one of those defined in Geant4, e.g.\n"
+                       "  e-, proton, neutron, gamma, He3, etc.\n\n"
+                       "For combined particle/optical simulations, the name can also be \"-\", \n"
+                       "  which indicates direct energy deposition (a particle is NOT generated).\n"
+                       "  Note that the direct energy deposition is only saved if the position is inside\n"
+                       "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
+}
+

@@ -768,6 +768,19 @@ If material with this name does not exist, this limitation is not applied.</stri
           <item>
            <widget class="QLineEdit" name="leGunParticle"/>
           </item>
+          <item>
+           <widget class="QPushButton" name="pbHelpParticle">
+            <property name="maximumSize">
+             <size>
+              <width>25</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>?</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
