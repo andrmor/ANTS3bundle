@@ -452,10 +452,14 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
         if (!Navigator) Navigator = new G4Navigator();
         Navigator->SetWorldVolume(SM.WorldPV);
         G4VPhysicalVolume * vol = Navigator->LocateGlobalPointAndSetup({position[0], position[1], position[2]});
-        if (vol && vol->GetLogicalVolume())
+        if (vol)
         {
-            const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
-            SM.saveDepoRecord("-", iMat, energy, position, time);
+            G4LogicalVolume * logic = vol->GetLogicalVolume();
+            if (logic && SM.isEnergyDepoLogger(logic))
+            {
+                const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
+                SM.saveDepoRecord("-", iMat, energy, position, time);
+            }
         }
 #endif
     }

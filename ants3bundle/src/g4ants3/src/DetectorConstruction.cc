@@ -21,12 +21,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 void DetectorConstruction::ConstructSDandField()
 {
     // ---- Energy depositions in sensitive volumes -----
+    SessionManager & SM = SessionManager::getInstance();
 
-    G4String SensitiveDetectorName = "SD";
-    SensitiveDetector* pSD = new SensitiveDetector(SensitiveDetectorName);
+    SensitiveDetector* pSD = new SensitiveDetector(SM.DepoLoggerSDName);
     G4SDManager::GetSDMpointer()->AddNewDetector(pSD);
 
-    SessionManager & SM = SessionManager::getInstance();
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
 
     const std::vector<std::string> & SVlist = SM.Settings.G4Set.SensitiveVolumes;

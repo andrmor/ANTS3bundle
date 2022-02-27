@@ -542,6 +542,13 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
     }
 }
 
+#include "G4VSensitiveDetector.hh"
+bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
+{
+    G4VSensitiveDetector * sd = vol->GetSensitiveDetector();
+    return (sd && sd->GetName() == DepoLoggerSDName);
+}
+
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
@@ -553,7 +560,7 @@ void SessionManager::prepareMonitors()
 }
 
 #include "amonitorsettings.h"
-void SessionManager::ReadConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
+void SessionManager::readConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
 {
     WorkingDir = workingDir;
 

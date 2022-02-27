@@ -268,6 +268,8 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
     SourceGenSettings.replace(isource, ps);
 
+    updateSourceList();
+
 //    on_pbUpdateSimConfig_clicked();
 
 //    if (Detector->isGDMLempty())   !!!*** no need?
@@ -404,7 +406,7 @@ void AParticleSimWin::updateSourceList()
                 if (pr.Activity == newVal) return;
                 pr.Activity = newVal;
                 e->clearFocus();
-//                emit this->RequestUpdateSimConfig();  // !!!*** update gui!
+                updateSourceList();
             });
         l->addWidget(e);
 
