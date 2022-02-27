@@ -15,6 +15,7 @@
     //#include "G4ParticleDefinition.hh"
     #include "SessionManager.hh"
     #include "G4Material.hh"
+    #include "G4NistManager.hh"
 #else
     #include "TGeoManager.h"
     #include "amaterialhub.h"
@@ -480,8 +481,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
         if (source.MaterialLimited)
         {
-//            G4NistManager * man = G4NistManager::Instance();
-//            SourceMat = man->FindMaterial(source.LimtedToMatName);
+            G4NistManager * man = G4NistManager::Instance();
+            mat = man->FindMaterial(source.LimtedToMatName);
         }
 
         LimitedToMat.push_back(mat);
