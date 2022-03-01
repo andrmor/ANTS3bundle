@@ -299,6 +299,12 @@ std::string AParticleSourceRecord::check() const
             if (ip <  gp.LinkedTo) return "Invalid linking for particle #" + std::to_string(ip);
         }
 
+        if (gp.LinkedOpposite)
+        {
+            if (ip == 0) return "The first particle cannot be set as \"opposite\"!"; // not needed?
+            if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + ") cannot be set \"opposite\" to one representing direct deposition (\"-\")";
+        }
+
         if (gp.Energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
     }
 

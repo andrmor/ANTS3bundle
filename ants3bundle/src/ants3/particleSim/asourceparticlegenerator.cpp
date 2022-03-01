@@ -60,37 +60,30 @@ bool ASourceParticleGenerator::init()
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
-    for (int isource=0; isource<NumSources; isource++)
+    for (int iSource = 0; iSource < NumSources; iSource++)
     {
-        int numParts = Settings.SourceData[isource].Particles.size();
-        LinkedPartiles[isource].resize(numParts);
-        for (int iparticle=0; iparticle<numParts; iparticle++)
+        const int numParts = Settings.SourceData[iSource].Particles.size();
+        LinkedPartiles[iSource].resize(numParts);
+        for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
-            LinkedPartiles[isource][iparticle].resize(0);
-            if (!Settings.SourceData[isource].Particles[iparticle].Individual)
-            {
-                if (iparticle == 0)
-                {
-                    AErrorHub::addError("The first particle of the source is marked as linked!");
-                    return false;
-                }
+            LinkedPartiles[iSource][iParticle].clear();
+            if (!Settings.SourceData[iSource].Particles[iParticle].Individual)
                 continue; //nothing to do for non-individual particles
-            }
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
-            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
+            LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
-            for (int ip=iparticle+1; ip<numParts; ip++)
-                if (!Settings.SourceData[isource].Particles[ip].Individual) //only looking for non-individuals
+            for (int ip = iParticle + 1; ip < numParts; ip++)
+                if (!Settings.SourceData[iSource].Particles[ip].Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
-                    for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
+                    for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
                     {
-                        int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
-                        int linkedTo = Settings.SourceData[isource].Particles[ip].LinkedTo;
+                        int compareWith = LinkedPartiles[iSource][iParticle][idef].iParticle;
+                        int linkedTo = Settings.SourceData[iSource].Particles[ip].LinkedTo;
                         if ( linkedTo == compareWith)
                         {
-                            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
+                            LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(ip, linkedTo));
                             break;
                         }
                     }
@@ -261,12 +254,14 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                     const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
                     if (ARandomHub::getInstance().uniform() > LinkingProbability) continue;
 
-                    if (!bOpposite)
+                    if (!bOpposite && Source.Particles[thisParticle].Particle != "-")
                     {
                         if (ARandomHub::getInstance().uniform() > CollimationProbability[iSource])
                             continue; // cone test fail
                     }
-                    // else it will be generated in opposite direction and ignore collimation cone
+                    // else
+                    //opposite: it will be generated in opposite direction and ignore collimation cone
+                    //direct:   ignore direction and so the cone
                 }
 
                 ThisLP[ip].bWasGenerated = true;
@@ -275,7 +270,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                 if (bOpposite)
                 {
                     for (int i = 0; i < linkedTo + 1; i++)
-                        if (ThisLP[i].bWasGenerated) index++;
+                        if (ThisLP[i].bWasGenerated && Source.Particles[ThisLP[i].iParticle].Particle != "-") index++;
                 }
                 addGeneratedParticle(iSource, thisParticle, position, time, index);
             }

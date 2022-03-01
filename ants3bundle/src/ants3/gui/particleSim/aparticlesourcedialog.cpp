@@ -124,7 +124,9 @@ void AParticleSourceDialog::closeEvent(QCloseEvent *e)
 
 void AParticleSourceDialog::on_pbAccept_clicked()
 {
-    accept();
+    std::string err = LocalRec.check();
+    if (err.empty()) accept();
+    else guitools::message(QString(err.data()), this);
 }
 
 void AParticleSourceDialog::on_pbReject_clicked()
