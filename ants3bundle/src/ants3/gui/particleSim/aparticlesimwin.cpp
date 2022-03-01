@@ -508,7 +508,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     int numTracks = 0;
 
-    auto handler = [&numTracks, Length](const AParticleRecord & particle)
+    auto handler = [&numTracks, Length, this](const AParticleRecord & particle)
     {
         if (numTracks > 10000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
@@ -517,7 +517,11 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
+
+        emit requestAddMarker(particle.r);
     };
+
+    emit requestClearMarkers(0);
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {

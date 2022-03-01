@@ -122,6 +122,8 @@ signals:
     void requestShowPosition(double * pos, bool keepTracks);
     void requestCenterView(double * pos);
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
+    void requestClearMarkers(int selector);
+    void requestAddMarker(const double *);
 
 private:
     AParticleSimSettings  & SimSet;

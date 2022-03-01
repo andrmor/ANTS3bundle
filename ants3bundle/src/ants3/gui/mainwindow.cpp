@@ -75,6 +75,8 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin,   &AGeometryWindow::ShowTracks);
     connect(PartSimWin, &AParticleSimWin::requestShowPosition, GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PartSimWin, &AParticleSimWin::requestAddMarker,    GeoWin,   &AGeometryWindow::addGenerationMarker);
+    connect(PartSimWin, &AParticleSimWin::requestClearMarkers, GeoWin,   &AGeometryWindow::clearGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 

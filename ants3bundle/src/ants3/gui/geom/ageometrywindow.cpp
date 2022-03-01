@@ -805,6 +805,19 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
     if (keepTracks) ShowTracks();
 }
 
+void AGeometryWindow::addGenerationMarker(const double * Pos)
+{
+    GeoMarkerClass * marks = nullptr;
+    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == GeoMarkerClass::Source) marks = GeoMarkers.back();
+    else
+    {
+        marks = new GeoMarkerClass(GeoMarkerClass::Source, 7, 1, 1);
+        GeoMarkers.append(marks);
+    }
+
+    marks->SetNextPoint(Pos[0], Pos[1], Pos[2]);
+}
+
 void AGeometryWindow::CenterView(double *r)
 {
     if (!RasterWindow->fCanvas->HasViewer3D()) return;

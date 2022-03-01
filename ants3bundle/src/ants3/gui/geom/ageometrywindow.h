@@ -81,6 +81,7 @@ public slots:
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void ShowTracks();
     void ShowPoint(double * r, bool keepTracks = false);
+    void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
     void ShowPMnumbers();  // !!!***
