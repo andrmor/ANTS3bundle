@@ -531,47 +531,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
-    // add geo markers for emission position !!!***
-
-
-    /*
-    double R[3], K[3];
-    std::vector<AParticleRecord> GP;
-    for (int iRun=0; iRun<numParticles; iRun++)
-    {
-        bool bOK = Gun->generateEvent(GP, iRun);
-        if (bOK && numTracks < 1000)
-        {
-            for (const AParticleRecord & p : GP)
-            {
-                R[0] = p.r[0];
-                R[1] = p.r[1];
-                R[2] = p.r[2];
-
-                K[0] = p.v[0];
-                K[1] = p.v[1];
-                K[2] = p.v[2];
-
-                int track_index = gGeoManager->AddTrack(1, 22);
-                TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-                track->AddPoint(R[0], R[1], R[2], 0);
-                track->AddPoint(R[0] + K[0]*Length, R[1] + K[1]*Length, R[2] + K[2]*Length, 0);
-//                SimulationManager->TrackBuildOptions.applyToParticleTrack(track, p->Id);
-
-//                GeoMarkerClass* marks = new GeoMarkerClass("t", 7, 1, SimulationManager->TrackBuildOptions.getParticleColor(p->Id));
-//                marks->SetNextPoint(R[0], R[1], R[2]);
-//                GeometryWindow->GeoMarkers.append(marks);
-
-                ++numTracks;
-                if (numTracks > 1000) break;
-            }
-        }
-
-        GP.clear();
-
-        if (!bOK) break;
-    }
-    */
 }
 
 void AParticleSimWin::clearResultsGui()
@@ -594,6 +553,7 @@ void AParticleSimWin::disableGui(bool flag)
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
     gGeoManager->ClearTracks();
+    emit requestClearMarkers(0);
 
     if (checked)
     {
@@ -604,7 +564,6 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     }
     else
     {
-//        GeometryWindow->ClearGeoMarkers();
         emit requestShowGeometry(false, true, true);
     }
 }
