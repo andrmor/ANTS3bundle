@@ -13,6 +13,9 @@
     #include "G4Navigator.hh"
     #include "arandomg4hub.h"
     //#include "G4ParticleDefinition.hh"
+    #include "SessionManager.hh"
+    #include "G4Material.hh"
+    #include "G4NistManager.hh"
 #else
     #include "TGeoManager.h"
     #include "amaterialhub.h"
@@ -57,29 +60,30 @@ bool ASourceParticleGenerator::init()
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
-    for (int isource=0; isource<NumSources; isource++)
+    for (int iSource = 0; iSource < NumSources; iSource++)
     {
-        int numParts = Settings.SourceData[isource].Particles.size();
-        LinkedPartiles[isource].resize(numParts);
-        for (int iparticle=0; iparticle<numParts; iparticle++)
+        const int numParts = Settings.SourceData[iSource].Particles.size();
+        LinkedPartiles[iSource].resize(numParts);
+        for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
-            LinkedPartiles[isource][iparticle].resize(0);
-            if (!Settings.SourceData[isource].Particles[iparticle].Individual) continue; //nothing to do for non-individual particles
+            LinkedPartiles[iSource][iParticle].clear();
+            if (!Settings.SourceData[iSource].Particles[iParticle].Individual)
+                continue; //nothing to do for non-individual particles
 
             //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
-            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(iparticle)); //list always contains the particle itself - simplifies the generation algorithm
+            LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
-            for (int ip=iparticle+1; ip<numParts; ip++)
-                if (!Settings.SourceData[isource].Particles[ip].Individual) //only looking for non-individuals
+            for (int ip = iParticle + 1; ip < numParts; ip++)
+                if (!Settings.SourceData[iSource].Particles[ip].Individual) //only looking for non-individuals
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
-                    for (size_t idef=0; idef<LinkedPartiles[isource][iparticle].size(); idef++)
+                    for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
                     {
-                        int compareWith = LinkedPartiles[isource][iparticle][idef].iParticle;
-                        int linkedTo = Settings.SourceData[isource].Particles[ip].LinkedTo;
+                        int compareWith = LinkedPartiles[iSource][iParticle][idef].iParticle;
+                        int linkedTo = Settings.SourceData[iSource].Particles[ip].LinkedTo;
                         if ( linkedTo == compareWith)
                         {
-                            LinkedPartiles[isource][iparticle].push_back(ALinkedParticle(ip, linkedTo));
+                            LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(ip, linkedTo));
                             break;
                         }
                     }
@@ -209,77 +213,70 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
     for (int iPrimary = 0; iPrimary < numPrimaries; iPrimary++)
     {
         // Source
-        int isource = selectSource();
-        const AParticleSourceRecord & Source = Settings.SourceData[isource];
+        int iSource = selectSource();
+        const AParticleSourceRecord & Source = Settings.SourceData[iSource];
 
         // Particle
-        size_t iparticle = selectParticle(isource);
+        const size_t iParticle = selectParticle(iSource); // cannot avoid using index
 
         // Position
-        double R[3];
-        bool ok = selectPosition(isource, R);
+        double position[3];
+        bool ok = selectPosition(iSource, position);  // cannot avoid using index
         if (!ok) return false; // !!!*** error handling!
 
         // Time
-        double time = selectTime(Source, iEvent);
+        const double time = selectTime(Source, iEvent);
 
-        // generation pocedure, the algorithm depends on whether there are particles linked to this one
-        std::vector<AParticleRecord> GeneratedParticles;
-        if (LinkedPartiles[isource][iparticle].size() == 1)
-            addParticleInCone(isource, iparticle, R, time, GeneratedParticles); // there are no linked particles (first is particle itself)
+        // first store generated particles as there could be linked particles and we need direction for the "opposite direction" case
+        GeneratedParticles.clear();
+
+        if (LinkedPartiles[iSource][iParticle].size() == 1)
+        {
+            // there are no linked particles (the first record is the particle itself)
+            addGeneratedParticle(iSource, iParticle, position, time);
+        }
         else
         {
-            bool NoEvent = true;  // !!!*** kill?
-            std::vector<bool> WasGenerated(LinkedPartiles[isource][iparticle].size(), false);
-            do
+            std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+
+            for (size_t ip = 0; ip < ThisLP.size(); ip++)  //ip - index in the list of linked particles
             {
-                for (size_t ip = 0; ip < LinkedPartiles[isource][iparticle].size(); ip++)  //ip - index in the list of linked particles
+                ThisLP[ip].bWasGenerated = false;
+
+                const int  thisParticle = ThisLP[ip].iParticle;
+                const int  linkedTo     = ThisLP[ip].LinkedTo;
+                const bool bOpposite    = Source.Particles[thisParticle].LinkedOpposite;
+
+                if (ip != 0) // first is always generated, init checks that the first is not marked as opposite
                 {
-                    const int  thisParticle = LinkedPartiles[isource][iparticle][ip].iParticle;
-                    const int  linkedTo = LinkedPartiles[isource][iparticle][ip].LinkedTo;
-                    bool bOpposite = Source.Particles[thisParticle].LinkedOpposite;
+                    if (!ThisLP[linkedTo].bWasGenerated) continue; // parent was not generated
 
-                    if (ip == 0) bOpposite = false; //(paranoic) protection  !!!*** move to init to check, remove here
-                    else
+                    const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
+                    if (ARandomHub::getInstance().uniform() > LinkingProbability) continue;
+
+                    if (!bOpposite && Source.Particles[thisParticle].Particle != "-")
                     {
-                        if (!WasGenerated[linkedTo]) continue; // parent was not generated;
-
-                        const double LinkingProb = Source.Particles[thisParticle].LinkedProb;
-                        if (ARandomHub::getInstance().uniform() > LinkingProb) continue; // linking probability fail
-
-                        if (!bOpposite)
-                            if (ARandomHub::getInstance().uniform() > CollimationProbability[isource])  continue; // cone test fail
-                            // else it will be generated in opposite direction and ignore collimation cone
+                        if (ARandomHub::getInstance().uniform() > CollimationProbability[iSource])
+                            continue; // cone test fail
                     }
-
-                    NoEvent = false;
-                    WasGenerated[ip] = true;
-
-                    if (!bOpposite)
-                        addParticleInCone(isource, thisParticle, R, time, GeneratedParticles);
-                    else
-                    {
-                        int index = -1; //index in the GeneratedParticles
-                        for (int i = 0; i < linkedTo + 1; i++)
-                            if (WasGenerated.at(i)) index++;
-
-                        AParticleRecord ps(
-                                 #ifdef GEANT4
-                                    Source.Particles[thisParticle].particleDefinition,
-                                 #else
-                                    Source.Particles[thisParticle].Particle,
-                                 #endif
-                                    R, time, Source.Particles[thisParticle].generateEnergy());
-                        for (int i=0; i<3; i++) ps.v[i] = -GeneratedParticles.at(index).v[i];
-
-                        GeneratedParticles.push_back(ps);
-                    }
+                    // else
+                    //opposite: it will be generated in opposite direction and ignore collimation cone
+                    //direct:   ignore direction and so the cone
                 }
+
+                ThisLP[ip].bWasGenerated = true;
+
+                int index = -1;
+                if (bOpposite)
+                {
+                    for (int i = 0; i < linkedTo + 1; i++)
+                        if (ThisLP[i].bWasGenerated && Source.Particles[ThisLP[i].iParticle].Particle != "-") index++;
+                }
+                addGeneratedParticle(iSource, thisParticle, position, time, index);
             }
-            while (NoEvent);
         }
 
-        // reporting back to do the actual work with the particles
+        // using casll-back to do the actual work with the particles
         for (const AParticleRecord & particle : GeneratedParticles)
             handler(particle);
     }
@@ -401,31 +398,67 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     return;
 }
 
-void ASourceParticleGenerator::addParticleInCone(int iSource, int iParticle, double * position, double time, std::vector<AParticleRecord> & generatedParticles)
+void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex)
 {
     const AGunParticle & gp = Settings.SourceData[iSource].Particles[iParticle];
 
-    AParticleRecord particle(
-            #ifdef GEANT4
-               gp.particleDefinition,
-            #else
-                gp.Particle,
-            #endif
-                position, time, gp.generateEnergy());
+    const double energy = gp.generateEnergy();
 
-    //generating random direction inside the collimation cone
-    double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
-    double cosTheta = cos(spread);
-    double z = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
-    double tmp = sqrt(1.0 - z * z);
-    double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
-    AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
-    AVector3 Coll( CollimationDirection[iSource] );
-    K1.rotateUz(Coll);
+#ifdef GEANT4
+    if (gp.particleDefinition)
+#else
+    if (gp.Particle != "-")
+#endif
+    {
+        AParticleRecord particle(
+#ifdef GEANT4
+                                 gp.particleDefinition,
+#else
+                                 gp.Particle,
+#endif
+                                 position, time, energy);
 
-    for (int i=0; i<3; i++) particle.v[i] = K1[i];
+        if (oppositeToIndex == -1)
+        {
+            //generating random direction inside the collimation cone
+            const double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
+            const double cosTheta = cos(spread);
+            const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
+            const double tmp = sqrt(1.0 - z * z);
+            const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
 
-    generatedParticles.push_back(particle);
+            AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+            AVector3 Coll( CollimationDirection[iSource] );
+            K1.rotateUz(Coll);
+            for (int i = 0; i < 3; i++)  particle.v[i] = K1[i];
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++) particle.v[i] = -GeneratedParticles[oppositeToIndex].v[i];
+        }
+
+        GeneratedParticles.push_back(particle);
+    }
+    else
+    {
+#ifdef GEANT4
+        // direct deposition
+        SessionManager & SM = SessionManager::getInstance();
+
+        if (!Navigator) Navigator = new G4Navigator();
+        Navigator->SetWorldVolume(SM.WorldPV);
+        G4VPhysicalVolume * vol = Navigator->LocateGlobalPointAndSetup({position[0], position[1], position[2]});
+        if (vol)
+        {
+            G4LogicalVolume * logic = vol->GetLogicalVolume();
+            if (logic && SM.isEnergyDepoLogger(logic))
+            {
+                const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
+                SM.saveDepoRecord("-", iMat, energy, position, time);
+            }
+        }
+#endif
+    }
 }
 
 void ASourceParticleGenerator::updateLimitedToMat()
@@ -434,8 +467,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
 #ifdef GEANT4
     Navigator = new G4Navigator();
-//    SessionManager & SM = SessionManager::getInstance();
-//    Navigator->SetWorldVolume(SM.physWorld);
+    SessionManager & SM = SessionManager::getInstance();
+    Navigator->SetWorldVolume(SM.WorldPV);
 
     for (const AParticleSourceRecord & source : Settings.SourceData)
     {
@@ -443,8 +476,8 @@ void ASourceParticleGenerator::updateLimitedToMat()
 
         if (source.MaterialLimited)
         {
-//            G4NistManager * man = G4NistManager::Instance();
-//            SourceMat = man->FindMaterial(source.LimtedToMatName);
+            G4NistManager * man = G4NistManager::Instance();
+            mat = man->FindMaterial(source.LimtedToMatName);
         }
 
         LimitedToMat.push_back(mat);

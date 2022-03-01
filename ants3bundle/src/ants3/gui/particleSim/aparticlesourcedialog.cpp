@@ -124,7 +124,9 @@ void AParticleSourceDialog::closeEvent(QCloseEvent *e)
 
 void AParticleSourceDialog::on_pbAccept_clicked()
 {
-    accept();
+    std::string err = LocalRec.check();
+    if (err.empty()) accept();
+    else guitools::message(QString(err.data()), this);
 }
 
 void AParticleSourceDialog::on_pbReject_clicked()
@@ -353,6 +355,9 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 {
     ui->fLinkedParticle->setVisible(checked);
+
+    ui->labStatWeight->setVisible(!checked);
+    ui->ledGunParticleWeight->setVisible(!checked);
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -531,5 +536,15 @@ void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
     gGeoManager->ClearTracks();
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
     emit requestShowSource();
+}
+
+void AParticleSourceDialog::on_pbHelpParticle_clicked()
+{
+    guitools::message1("For particle simulations, the particle name should be one of those defined in Geant4, e.g.\n"
+                       "  e-, proton, neutron, gamma, He3, etc.\n\n"
+                       "For combined particle/optical simulations, the name can also be \"-\", \n"
+                       "  which indicates direct energy deposition (a particle is NOT generated).\n"
+                       "  Note that the direct energy deposition is only saved if the position is inside\n"
+                       "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
 }
 

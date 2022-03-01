@@ -240,9 +240,9 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 }
 
 #include "G4NistManager.hh"
-void SessionManager::updateMaterials(G4VPhysicalVolume * worldPV)
+void SessionManager::updateMaterials()
 {
-    G4LogicalVolume * worldLV = worldPV->GetLogicalVolume();
+    G4LogicalVolume * worldLV = WorldPV->GetLogicalVolume();
 
     G4NistManager * man = G4NistManager::Instance();
     for (auto & pair : Settings.RunSet.MaterialsFromNist)
@@ -542,6 +542,13 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
     }
 }
 
+#include "G4VSensitiveDetector.hh"
+bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
+{
+    G4VSensitiveDetector * sd = vol->GetSensitiveDetector();
+    return (sd && sd->GetName() == DepoLoggerSDName);
+}
+
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
@@ -553,7 +560,7 @@ void SessionManager::prepareMonitors()
 }
 
 #include "amonitorsettings.h"
-void SessionManager::ReadConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
+void SessionManager::readConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID)
 {
     WorkingDir = workingDir;
 
@@ -711,6 +718,8 @@ void SessionManager::storeMonitorsData()
 #include "G4SystemOfUnits.hh"
 G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & particleName)
 {
+    if (particleName == "-") return nullptr;
+
     G4ParticleDefinition * Particle = G4ParticleTable::GetParticleTable()->FindParticle(particleName);
 
     if (!Particle)

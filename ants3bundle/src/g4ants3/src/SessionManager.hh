@@ -42,7 +42,7 @@ class SessionManager
         SessionManager(SessionManager const&) = delete;
         void operator=(SessionManager const&) = delete;
 
-        void ReadConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID);
+        void readConfig(const std::string & workingDir, const std::string & ConfigFileName, int ID);
 
         void startSession();
         void terminateSession(const std::string & ReturnMessage); //calls exit()!
@@ -51,10 +51,10 @@ class SessionManager
         void runSimulation();
 
         void onEventFinished();
-        int findMaterial(const std::string & materialName);  // change to pointer search?
+        int  findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
-        void updateMaterials(G4VPhysicalVolume * worldPV);
+        void updateMaterials();
 
         void writeNewEventMarker();
 
@@ -79,6 +79,8 @@ class SessionManager
 
         void saveParticle(const G4String & particle, double energy, double time, double * PosDir);
 
+        bool isEnergyDepoLogger(G4LogicalVolume * vol);
+
 public:
         std::string          WorkingDir;
         AParticleSimSettings Settings;
@@ -90,9 +92,13 @@ public:
         G4LogicalVolume        * ExitVolume        = nullptr;
         AParticleGun           * ParticleGenerator = nullptr;
 
+        G4VPhysicalVolume * WorldPV = nullptr;
+
         int CurrentEvent = 0;
 
         std::vector<MonitorSensitiveDetector*> Monitors; //can contain nullptr!
+
+        const G4String DepoLoggerSDName = "SD";
 
 private:
         void prepareParticleGun();
