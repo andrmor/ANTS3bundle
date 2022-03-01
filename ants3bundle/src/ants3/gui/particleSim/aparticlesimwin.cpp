@@ -595,7 +595,10 @@ void AParticleSimWin::on_pbSimulate_clicked()
     SimManager.simulate();
     disableGui(false);
 
-    if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getError().data(), this);
+    }
     else
     {
         ui->progbSim->setValue(100);

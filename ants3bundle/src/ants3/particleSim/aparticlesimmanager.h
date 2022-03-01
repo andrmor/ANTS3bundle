@@ -54,6 +54,8 @@ private:
     AFileMerger DepositionFileMerger;
     std::vector<QString> MonitorFiles;
 
+    std::vector<QString> ReceiptFiles;
+
     int  getNumberEvents() const;
     void doPreSimChecks();
     void checkDirectories();
@@ -67,6 +69,7 @@ private:
 
     void removeOutputFiles();
     void mergeOutput();
+    void processReply(const QJsonObject & Reply);
 };
 
 #endif // APARTICLESIMMANAGER_H
