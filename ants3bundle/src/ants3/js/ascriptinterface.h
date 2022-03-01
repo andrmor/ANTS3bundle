@@ -29,6 +29,9 @@ public:
 
     bool bGuiThread      = true;
 
+public slots:
+    QString help() const;
+
 protected:
     bool bAbortRequested = false; // each unit have to be aaware of this flag! Dispatcher-based tasks are aborter automatically!
 

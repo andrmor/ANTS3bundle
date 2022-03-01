@@ -62,7 +62,7 @@ class AHistorySearchProcessor_findProcesses : public AHistorySearchProcessor
 public:
     enum SelectionMode {All, WithEnergyDeposition, TrackEnd};
 
-    AHistorySearchProcessor_findProcesses(SelectionMode Mode) : Mode(Mode) {}
+    AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom);
     AHistorySearchProcessor_findProcesses(){}
 
     void onLocalStep(const ATrackingStepData & tr) override;
@@ -70,9 +70,30 @@ public:
     void onTransitionIn (const ATrackingStepData & tr) override;
 
     SelectionMode Mode = All;
+    bool OnlyHadronic = false;
+    QString TargetIsotopeStartsFrom;
     QMap<QString, int> FoundProcesses;
 
     bool validateStep(const ATrackingStepData & tr) const;
+};
+
+class AHistorySearchProcessor_findChannels : public AHistorySearchProcessor
+{
+public:
+    AHistorySearchProcessor_findChannels();
+
+    bool onNewTrack(const AParticleTrackingRecord & pr) override;
+    void onLocalStep(const ATrackingStepData & tr) override;
+
+    QMap<QString, int> Channels;
+
+private:
+    std::vector<std::pair<QString,QString>> Aliases;
+
+    QString Particle;
+    const AParticleTrackingRecord * TrackRecord = nullptr;
+
+    const QString & getAlias(const QString & name);
 };
 
 class AHistorySearchProcessor_findDepositedEnergy : public AHistorySearchProcessor

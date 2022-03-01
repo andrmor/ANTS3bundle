@@ -14,6 +14,7 @@
 #include "ajsontools.h"
 #include "aparticletrackvisuals.h"
 #include "aparticlesourceplotter.h"
+#include "adispatcherinterface.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -47,6 +48,9 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->pbShowGeometry->setVisible(false);
 
     updateGui();
+
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
 }
@@ -264,6 +268,8 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
     SourceGenSettings.replace(isource, ps);
 
+    updateSourceList();
+
 //    on_pbUpdateSimConfig_clicked();
 
 //    if (Detector->isGDMLempty())   !!!*** no need?
@@ -400,7 +406,7 @@ void AParticleSimWin::updateSourceList()
                 if (pr.Activity == newVal) return;
                 pr.Activity = newVal;
                 e->clearFocus();
-//                emit this->RequestUpdateSimConfig();  // !!!*** update gui!
+                updateSourceList();
             });
         l->addWidget(e);
 
@@ -571,7 +577,14 @@ void AParticleSimWin::clearResultsGui()
 
 void AParticleSimWin::disableGui(bool flag)
 {
-    setDisabled(flag);
+    //setDisabled(flag);
+    ui->sbEvents->setDisabled(flag);
+    ui->pbConfigureOutput->setDisabled(flag);
+    ui->pbSimulate->setDisabled(flag);
+
+    ui->progbSim->setEnabled(flag);
+    ui->pbAbort->setEnabled(flag);
+    qApp->processEvents();
 }
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
@@ -620,24 +633,29 @@ void AParticleSimWin::on_pbSimulate_clicked()
     disableGui(false);
 
     if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
-    else if (ui->cbAutoLoadResults->isChecked())
+    else
     {
-        ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
-
-        if (SimSet.RunSet.SaveTrackingHistory)
+        ui->progbSim->setValue(100);
+        if (ui->cbAutoLoadResults->isChecked())
         {
-            ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
 
-            on_pbShowTracks_clicked();
-            EV_showTree();
-        }
+            if (SimSet.RunSet.SaveTrackingHistory)
+            {
+                ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
 
-        if (SimSet.RunSet.MonitorSettings.Enabled)
-        {
-            ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
-            updateMonitorGui(); // data will be already loaded for merging
+                on_pbShowTracks_clicked();
+                EV_showTree();
+            }
+
+            if (SimSet.RunSet.MonitorSettings.Enabled)
+            {
+                ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
+                updateMonitorGui(); // data will be already loaded for merging
+            }
         }
     }
+
 }
 
 void AParticleSimWin::on_pbLoadAllResults_clicked()
@@ -1073,7 +1091,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             }
 
             AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
-            AHistorySearchProcessor_findProcesses p(sm);
+            AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
             Crawler.find(Opt, p);
 
             QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
@@ -1353,6 +1371,7 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     }
     ui->cobPTHistVolPlus->setVisible(index == 1 || index == 3);
 
+    ui->frLimitHadronicTarget->setVisible(index == 1);
     ui->frTimeAware->setVisible(index == 4);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);
@@ -1731,21 +1750,6 @@ void AParticleSimWin::on_sbShowEvent_editingFinished()
     on_pbEventView_clicked();
 }
 
-void AParticleSimWin::on_pbPreviousEvent_clicked()
-{
-    int curEv = ui->sbShowEvent->value();
-    if (curEv == 0) return;
-
-    ui->sbShowEvent->setValue(curEv - 1);
-    on_pbEventView_clicked();
-}
-
-void AParticleSimWin::on_pbNextEvent_clicked()
-{
-    ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
-    on_pbEventView_clicked();
-}
-
 #include "atrackdrawdialog.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
@@ -1838,40 +1842,77 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
     }
 }
 
-/*
+void AParticleSimWin::on_pbPreviousEvent_clicked()
+{
+    int curEv = ui->sbShowEvent->value();
+    if (curEv == 0) return;
+//    ui->sbShowEvent->setValue(curEv - 1);
+//    on_pbEventView_clicked();
+    int ev = findEventWithFilters(curEv, false);
+    if (ev == -1)
+        guitools::message("Cannot find events according to the selected criteria", this);
+    else
+    {
+        ui->sbShowEvent->setValue(ev);
+        on_pbEventView_clicked();
+    }
+}
+
+void AParticleSimWin::on_pbNextEvent_clicked()
+{
+    //ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
+    //on_pbEventView_clicked();
+
+    int curEv = ui->sbShowEvent->value();
+    int ev = findEventWithFilters(curEv, true);
+    if (ev == -1)
+        guitools::message("Cannot find events according to the selected criteria", this);
+    else
+    {
+        ui->sbShowEvent->setValue(ev);
+        on_pbEventView_clicked();
+    }
+}
+
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
-    std::vector<AEventTrackingRecord *> & TH = MW->SimulationManager->TrackingHistory;
-    if (TH.empty()) return -1;
-    if (currentEv == 0 && !bUp) return -1;
-    if (currentEv >= (int)TH.size() && bUp) return -1;
-
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
-    bool bLimProc = ui->cbEVlimToProc->isChecked();
-    bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
+    const bool bLimProc = ui->cbEVlimToProc->isChecked();
+    const bool bLimProc_prim = ui->cbEVlimitToProcPrim->isChecked();
 
-    bool bExclProc = ui->cbEVexcludeProc->isChecked();
-    bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
+    const bool bExclProc = ui->cbEVexcludeProc->isChecked();
+    const bool bExclProc_prim = ui->cbEVexcludeProcPrim->isChecked();
 
-    bool bLimVols = ui->cbLimitToVolumes->isChecked();
+    const bool bLimVols = ui->cbLimitToVolumes->isChecked();
 
-    bool bLimParticles = ui->cbLimitToParticles->isChecked();
-    bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
+    const bool bLimParticles = ui->cbLimitToParticles->isChecked();
+    const bool bExcludeParticles = ui->cbExcludeParticles->isChecked();
 
-    QStringList LimProc = ui->leEVlimitToProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, QString::SkipEmptyParts);
-    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, QString::SkipEmptyParts);
+    const QStringList LimProc = ui->leEVlimitToProc->text().split(rx, Qt::SkipEmptyParts);
+    const QStringList ExclProc = ui->leEVexcludeProc->text().split(rx, Qt::SkipEmptyParts);
+    QStringList LimVols = ui->leLimitToVolumes->text().split(rx, Qt::SkipEmptyParts);
 
-    QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, QString::SkipEmptyParts);
-    QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, QString::SkipEmptyParts);
-
-    if (currentEv > (int)TH.size()) currentEv = (int)TH.size();
+    const QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, Qt::SkipEmptyParts);
+    const QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, Qt::SkipEmptyParts);
 
     bUp ? currentEv++ : currentEv--;
-    while (currentEv >= 0 && currentEv < (int)TH.size())
+    while (currentEv >= 0)
     {
-        const AEventTrackingRecord * er = TH.at(currentEv);
+        // !!!*** code duplication: see EV_showTree() method
+        //-->
+        QString fileName = ui->leTrackingDataFile->text();
+        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+        AEventTrackingRecord * er = AEventTrackingRecord::create();
+        QString err = SimManager.fillTrackingRecord(fileName, currentEv, er);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return -1;
+        }
+        // !!!*** add error processing, separetely process bad event index
+        // <--
 
         bool bGood = true;
         if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
@@ -1899,4 +1940,10 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
     };
     return -1;
 }
-*/
+
+void AParticleSimWin::onProgressReceived(double progress)
+{
+    if (!ui->progbSim->isEnabled()) return; // simulation is not running
+
+    ui->progbSim->setValue(progress * 100.0);
+}

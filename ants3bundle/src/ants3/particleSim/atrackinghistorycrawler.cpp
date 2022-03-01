@@ -20,10 +20,9 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 
     AEventTrackingRecord * event = AEventTrackingRecord::create();
     int iEv = 0;
-//    for (const AEventTrackingRecord * eventRecord : History)
     while (imp.extractEvent(iEv, event))
     {
-        qDebug() << "-------------Event #" << iEv;
+        //qDebug() << "-------------Event #" << iEv;
         processor.onNewEvent();
 
         const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
@@ -456,6 +455,9 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
     Distance = 0;
 }
 
+AHistorySearchProcessor_findProcesses::AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom) :
+    Mode(Mode), OnlyHadronic(onlyHadronic), TargetIsotopeStartsFrom(targetIsotopeStartsFrom.simplified()) {}
+
 void AHistorySearchProcessor_findProcesses::onLocalStep(const ATrackingStepData & tr)
 {
     if (validateStep(tr))
@@ -492,6 +494,12 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const
 {
+    if (OnlyHadronic)
+    {
+        if (tr.TargetIsotope.isEmpty()) return false;
+        if (!TargetIsotopeStartsFrom.isEmpty() && !tr.TargetIsotope.startsWith(TargetIsotopeStartsFrom)) return false;
+    }
+
     switch (Mode)
     {
     case All :                  return true;
@@ -499,6 +507,180 @@ bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData
     case TrackEnd :             return (tr.Energy == 0 || tr.Process == "O");
     }
     return false; // just to avoid warning
+}
+
+AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
+{
+    Aliases.push_back( {"gamma",    "g"} );
+    Aliases.push_back( {"proton",   "p"} );
+    Aliases.push_back( {"neutron",  "n"} );
+    Aliases.push_back( {"alpha",    "a"} );
+    Aliases.push_back( {"deuteron", "d"} );
+    Aliases.push_back( {"triton",   "t"} );
+}
+const QString & AHistorySearchProcessor_findChannels::getAlias(const QString & name)
+{
+    for (const auto & pair : Aliases)
+        if (pair.first == name) return pair.second;
+    return name;
+}
+
+bool AHistorySearchProcessor_findChannels::onNewTrack(const AParticleTrackingRecord & pr)
+{
+    Particle = getAlias(pr.ParticleName);
+    TrackRecord = &pr;
+    return false;
+}
+
+void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData & tr)
+{
+    const QString & Proc = tr.Process;
+    if (Proc == "hadElastic") return;
+
+    if (tr.TargetIsotope.isEmpty()) return;
+    if (tr.Secondaries.empty())
+    {
+        // unexpected!
+        qWarning() << "No secondaries for hadronic reacion detected!";
+        return;
+    }
+
+    std::vector<QString> ProductVec;
+    std::vector<QString> IsotopeVec;
+    for (int iSec : tr.Secondaries)
+    {
+        const AParticleTrackingRecord * sec = TrackRecord->getSecondaries()[iSec];
+        const QString & pn = sec->ParticleName;
+        if (pn[0] == pn[0].toUpper()) IsotopeVec.push_back(pn);
+        else                          ProductVec.push_back( getAlias(pn) );
+    }
+
+    QString Result;
+    if (IsotopeVec.empty())
+    {
+        auto it = std::find(ProductVec.begin(), ProductVec.end(), "a");
+        if (it != ProductVec.end())
+        {
+            Result = "He4";
+            ProductVec.erase(it);
+        }
+        else
+        {
+            auto it = std::find(ProductVec.begin(), ProductVec.end(), "t");
+            if (it != ProductVec.end())
+            {
+                Result = "H3";
+                ProductVec.erase(it);
+            }
+            else
+            {
+                auto it = std::find(ProductVec.begin(), ProductVec.end(), "d");
+                if (it != ProductVec.end())
+                {
+                    Result = "H2";
+                    ProductVec.erase(it);
+                }
+                else
+                {
+                    auto it = std::find(ProductVec.begin(), ProductVec.end(), "p");
+                    if (it != ProductVec.end())
+                    {
+                        Result = "H1";
+                        ProductVec.erase(it);
+                    }
+                    else
+                    {
+                        if (ProductVec.empty())
+                        {
+                            qWarning() << "Unexpected empty list of products of an inelastic hadron reaction";
+                            exit(222);
+                        }
+                        else
+                        {
+                            Result = ProductVec.front();
+                            ProductVec.erase(ProductVec.begin());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (IsotopeVec.size() == 1)
+    {
+        Result = IsotopeVec.front();
+    }
+    else // size > 1
+    {
+        //qDebug() << IsotopeVec << ProductVec;
+        std::vector<QString>::iterator itMax = IsotopeVec.begin();
+        int maxA = -1;
+        for (auto it = IsotopeVec.begin(); it < IsotopeVec.end(); ++it)
+        {
+            QString n = *it;
+            while (n[0].isLetter()) n = n.remove(0, 1);
+            bool ok;
+            int A = n.toInt(&ok);
+            if (ok && A > maxA)
+            {
+                itMax = it;
+                maxA = A;
+            }
+        }
+
+        Result = *itMax;
+        IsotopeVec.erase(itMax);
+        std::copy(IsotopeVec.begin(), IsotopeVec.end(), std::back_inserter(ProductVec));
+        //qDebug() << "-->" << Result << ProductVec;
+    }
+
+    //if (Result == tr.TargetIsotope) return;
+
+    std::sort(ProductVec.begin(), ProductVec.end());
+
+    QString products;
+    QString previous = "g"; // not saving gammas
+    int counter = 0;
+    for (size_t iP = 0; iP < ProductVec.size(); iP++)
+    {
+        const QString & n = ProductVec[iP];
+
+        if (n == previous)
+        {
+            counter++;
+            continue;
+        }
+
+        if (previous != "g")
+        {
+            // save previous product
+            if (!products.isEmpty()) products += "+";
+            if (counter != 1) products += QString::number(counter);
+            products += previous;
+
+            previous.clear();
+            counter = 0;
+        }
+
+        previous = n;
+        counter = 1;
+    }
+
+    //saving the last record
+    if (previous != "g")
+    {
+        if (!products.isEmpty()) products += "+";
+        if (counter != 1) products += QString::number(counter);
+        products += previous;
+    }
+
+    if (products.isEmpty()) products = "g";
+
+    const QString channel = QString("%0(%1,%2)%3").arg(tr.TargetIsotope, Particle, products, Result);
+
+    QMap<QString, int>::iterator it = Channels.find(channel);
+    if (it == Channels.end())
+        Channels.insert(channel, 1);
+    else it.value()++;
 }
 
 AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &what,

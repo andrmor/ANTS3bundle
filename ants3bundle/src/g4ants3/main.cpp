@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
     if (argc < 4) SM.terminateSession("Need 3 arguments: WorkingDir, ConfigFileName(no dir, should be in WorkingDir), Id(int)");
 
-    SM.ReadConfig(argv[1], argv[2], atoi(argv[3]));
+    SM.readConfig(argv[1], argv[2], atoi(argv[3]));
     const bool & bGui = SM.Settings.RunSet.GuiMode;
 
     G4UIExecutive * ui = nullptr;
@@ -45,8 +45,9 @@ int main(int argc, char** argv)
     G4GDMLParser parser;
     parser.Read(SM.WorkingDir + "/" + SM.Settings.RunSet.GDML, false); //false - no validation
     // need to implement own G4excpetion-based handler class  ->  SM.terminateSession("Error parsing GDML file");
-    runManager->SetUserInitialization(new DetectorConstruction(parser.GetWorldVolume()));
-    SM.updateMaterials(parser.GetWorldVolume()); // if present in config, indicated materials will be replaced with those from nist database
+    SM.WorldPV = parser.GetWorldVolume();
+    runManager->SetUserInitialization(new DetectorConstruction(SM.WorldPV));
+    SM.updateMaterials(); // if present in config, indicated materials will be replaced with those from nist database
     //runManager->PhysicsHasBeenModified();
 
     const std::string & pl = SM.Settings.G4Set.PhysicsList;

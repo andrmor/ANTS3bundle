@@ -47,6 +47,8 @@ private slots:
 
     void on_pbShowSource_clicked(bool checked);
 
+    void on_pbHelpParticle_clicked();
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num);

@@ -128,14 +128,23 @@ SOURCES += \
     js/acore_si.cpp \
     js/ademo_si.cpp \
     js/afarm_si.cpp \
+    js/ahist_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
     js/apartanalysis_si.cpp \
+    js/apeakfinder.cpp \
     js/aphotonsim_si.cpp \
+    js/arootgraphrecord.cpp \
+    js/aroothistrecord.cpp \
+    js/arootobjbase.cpp \
+    js/arootobjcollection.cpp \
+    js/aroottreerecord.cpp \
     js/ascriptinterface.cpp \
+    js/ascriptobjstore.cpp \
     js/atrackrec_si.cpp \
+    js/agraph_si.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -282,14 +291,23 @@ HEADERS += \
     js/acore_si.h \
     js/ademo_si.h \
     js/afarm_si.h \
+    js/ahist_si.h \
     js/ajscripthub.h \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/amath_si.h \
     js/apartanalysis_si.h \
+    js/apeakfinder.h \
     js/aphotonsim_si.h \
+    js/arootgraphrecord.h \
+    js/aroothistrecord.h \
+    js/arootobjbase.h \
+    js/arootobjcollection.h \
+    js/aroottreerecord.h \
     js/ascriptinterface.h \
+    js/ascriptobjstore.h \
     js/atrackrec_si.h \
+    js/agraph_si.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \

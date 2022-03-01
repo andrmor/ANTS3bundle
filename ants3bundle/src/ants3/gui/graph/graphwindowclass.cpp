@@ -112,6 +112,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &GraphWindowClass::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &GraphWindowClass::BasketReorderRequested);
 
+    connectScriptUnitDrawRequests();
+
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
@@ -170,6 +172,34 @@ GraphWindowClass::~GraphWindowClass()
     delete gvOver; gvOver = nullptr;
 
     delete Basket; Basket = nullptr;
+}
+
+#include "ajscripthub.h"
+#include "ajscriptmanager.h"
+#include "agraph_si.h"
+#include "ahist_si.h"
+void GraphWindowClass::connectScriptUnitDrawRequests()
+{
+    const AGraph_SI * graphInter = nullptr;
+    const AHist_SI  * histInter  = nullptr;
+
+    const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
+    for (const AScriptInterface * inter : interfaces)
+    {
+        if (!graphInter)
+        {
+            const AGraph_SI * test = dynamic_cast<const AGraph_SI*>(inter);
+            if (test) graphInter = test;
+        }
+        if (!histInter)
+        {
+            const AHist_SI * test = dynamic_cast<const AHist_SI*>(inter);
+            if (test) histInter = test;
+        }
+    }
+
+    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw, this, &GraphWindowClass::onScriptDrawRequest);
+    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,  this, &GraphWindowClass::onScriptDrawRequest);
 }
 
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)
@@ -1261,6 +1291,14 @@ void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool t
         Draw(obj, options.toLatin1().data(), true, transferOwnership);
     else
         DrawWithoutFocus(obj, options.toLatin1().data(), true, transferOwnership);
+}
+
+void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
+{
+    //always drawing a copy, so always need to register the object
+
+    if (fFocus) Draw(obj, options.toLatin1().data(), true, true);
+    else        DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)

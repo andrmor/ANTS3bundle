@@ -56,9 +56,7 @@ private slots:
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
-
     void on_sbEvents_editingFinished();
-
     void on_pbChooseWorkingDirectory_clicked();
 
     // tracks
@@ -172,10 +170,11 @@ private:
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
+    int  findEventWithFilters(int currentEv, bool bUp);
 
 private slots:
     void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
-
+    void onProgressReceived(double progress);
 };
 
 #endif // APARTICLESIMWIN_H

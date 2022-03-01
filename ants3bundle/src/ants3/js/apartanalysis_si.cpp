@@ -161,7 +161,7 @@ QVariantList APartAnalysis_SI::findParticles()
     return vl;
 }
 
-QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2)
+QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2, bool onlyHadronic, QString targetIsotopeStartsFrom)
 {
     QVariantList vl;
 
@@ -176,7 +176,7 @@ QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2)
 
     AHistorySearchProcessor_findProcesses::SelectionMode mode = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(All0_WithDepo1_TrackEnd2);
 
-    AHistorySearchProcessor_findProcesses p(mode);
+    AHistorySearchProcessor_findProcesses p(mode, onlyHadronic, targetIsotopeStartsFrom);
     Crawler->find(*Criteria, p);
 
     QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
@@ -292,6 +292,39 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
         el << p.Hist->GetBinCenter(iBin) << p.Hist->GetBinContent(iBin);
         vl.push_back(el);
     }
+    return vl;
+}
+
+QVariantList APartAnalysis_SI::findChannels()
+{
+    QVariantList vl;
+
+    bool ok = initCrawler();
+    if (!ok) return vl;
+
+    AHistorySearchProcessor_findChannels p;
+    Crawler->find(*Criteria, p);
+
+    std::vector<std::pair<QString,int>> vec;
+    QMap<QString, int>::const_iterator it = p.Channels.constBegin();
+    while (it != p.Channels.constEnd())
+    {
+        vec.push_back( {it.key(), it.value()} );
+        ++it;
+    }
+
+    std::sort(vec.begin(), vec.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
+
+    for (const auto & p : vec)
+    {
+        QVariantList el;
+        el << p.first << p.second;
+        vl.push_back(el);
+    }
+
     return vl;
 }
 

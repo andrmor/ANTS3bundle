@@ -2448,7 +2448,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leLimitToParticles">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2462,7 +2462,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leExcludeParticles">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2598,6 +2598,12 @@ Format: Volume_name  Step_in_mm</string>
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
                   <property name="currentIndex">
                    <number>0</number>
                   </property>
@@ -2621,6 +2627,13 @@ Format: Volume_name  Step_in_mm</string>
                     <property name="bottomMargin">
                      <number>3</number>
                     </property>
+                    <item>
+                     <widget class="QLabel" name="label_9">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_31">
                       <item>
@@ -2703,6 +2716,82 @@ Format: Volume_name  Step_in_mm</string>
                      </layout>
                     </item>
                     <item>
+                     <widget class="QFrame" name="frLimitHadronicTarget">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="frameShape">
+                       <enum>QFrame::NoFrame</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_50">
+                       <property name="spacing">
+                        <number>3</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>1</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>1</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <spacer name="horizontalSpacer_4">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>36</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="cbLimitToHadronic">
+                         <property name="text">
+                          <string>Only hadronic   Target isotope name starts from:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="leLimitHadronicTarget">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
+                         <property name="toolTip">
+                          <string>isotope name starts from this</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>36</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QFrame" name="frTimeAware">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2726,8 +2815,14 @@ Format: Volume_name  Step_in_mm</string>
                        <property name="spacing">
                         <number>3</number>
                        </property>
+                       <property name="leftMargin">
+                        <number>1</number>
+                       </property>
                        <property name="topMargin">
                         <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>1</number>
                        </property>
                        <property name="bottomMargin">
                         <number>0</number>
@@ -2822,6 +2917,19 @@ Format: Volume_name  Step_in_mm</string>
                      </widget>
                     </item>
                     <item>
+                     <spacer name="verticalSpacer_3">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>10</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_34">
                       <item>
                        <spacer name="horizontalSpacer_24">
@@ -2894,6 +3002,19 @@ Format: Volume_name  Step_in_mm</string>
                        </spacer>
                       </item>
                      </layout>
+                    </item>
+                    <item>
+                     <spacer name="verticalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>10</height>
+                       </size>
+                      </property>
+                     </spacer>
                     </item>
                    </layout>
                   </widget>
@@ -3166,7 +3287,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                    </size>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::Box</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
@@ -3285,7 +3406,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                    </size>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::Box</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
@@ -3860,7 +3981,7 @@ If checked, only &quot;creation&quot; is considered!</string>
    <hints>
     <hint type="sourcelabel">
      <x>345</x>
-     <y>205</y>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>271</x>
@@ -3875,12 +3996,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>200</y>
+     <x>564</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>210</y>
+     <x>120</x>
+     <y>712</y>
     </hint>
    </hints>
   </connection>
@@ -3891,12 +4012,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>216</y>
+     <x>589</x>
+     <y>425</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3907,12 +4028,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>215</y>
+     <x>82</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3923,12 +4044,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>213</y>
+     <x>411</x>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3939,12 +4060,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>215</y>
+     <x>82</x>
+     <y>448</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3955,12 +4076,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>441</x>
+     <y>424</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3971,12 +4092,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>216</y>
+     <x>589</x>
+     <y>453</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -3987,12 +4108,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>441</x>
+     <y>452</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4003,12 +4124,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>215</y>
+     <x>255</x>
+     <y>422</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4019,12 +4140,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>215</y>
+     <x>82</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4035,12 +4156,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>216</y>
+     <x>247</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4051,12 +4172,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>216</y>
+     <x>333</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4067,12 +4188,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>215</y>
+     <x>255</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>216</y>
+     <x>496</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -4093,50 +4214,18 @@ If checked, only &quot;creation&quot; is considered!</string>
    </hints>
   </connection>
   <connection>
-   <sender>cbLimitTimeWindow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledTimeFrom</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>255</x>
-     <y>419</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>381</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbLimitTimeWindow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledTimeTo</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>255</x>
-     <y>419</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>512</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>cbPTHistVolMat</sender>
    <signal>toggled(bool)</signal>
    <receiver>cobPTHistVolMat</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>467</y>
+     <x>332</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
      <x>482</x>
-     <y>470</y>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -4148,11 +4237,11 @@ If checked, only &quot;creation&quot; is considered!</string>
    <hints>
     <hint type="sourcelabel">
      <x>332</x>
-     <y>496</y>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
      <x>482</x>
-     <y>498</y>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -4164,11 +4253,11 @@ If checked, only &quot;creation&quot; is considered!</string>
    <hints>
     <hint type="sourcelabel">
      <x>332</x>
-     <y>523</y>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
      <x>482</x>
-     <y>527</y>
+     <y>516</y>
     </hint>
    </hints>
   </connection>
@@ -4179,12 +4268,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>329</y>
+     <x>68</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>329</y>
+     <x>258</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -4195,12 +4284,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>332</y>
+     <x>68</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>332</y>
+     <x>258</x>
+     <y>455</y>
     </hint>
    </hints>
   </connection>
@@ -4211,12 +4300,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>334</y>
+     <x>68</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>334</y>
+     <x>258</x>
+     <y>482</y>
     </hint>
    </hints>
   </connection>
@@ -4227,12 +4316,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>329</y>
+     <x>441</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>329</y>
+     <x>601</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -4243,12 +4332,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>332</y>
+     <x>441</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>332</y>
+     <x>601</x>
+     <y>455</y>
     </hint>
    </hints>
   </connection>
@@ -4259,12 +4348,60 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>334</y>
+     <x>441</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>334</y>
+     <x>601</x>
+     <y>482</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeTo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>251</x>
+     <y>411</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>516</x>
+     <y>412</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeFrom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>251</x>
+     <y>411</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>381</x>
+     <y>412</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitToHadronic</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leLimitHadronicTarget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>

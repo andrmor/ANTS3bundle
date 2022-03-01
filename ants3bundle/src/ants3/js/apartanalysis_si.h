@@ -49,13 +49,15 @@ public slots:
     void setOnlyEscaping();
 
     QVariantList findParticles();
-    QVariantList findProcesses(int All0_WithDepo1_TrackEnd2 = 0);
+    QVariantList findProcesses(int All0_WithDepo1_TrackEnd2 = 0, bool onlyHadronic = false, QString targetIsotopeStartsFrom = "");
     QVariantList findDepositedEnergies(int bins, double from, double to);
     QVariantList findDepositedEnergiesWithSecondaries(int bins, double from, double to);
     QVariantList findDepositedEnergiesOverEvent(int bins, double from, double to);
     QVariantList findDepositedEnergyStats();
     QVariantList findDepositedEnergyStats(double timeFrom, double timeTo);
     QVariantList findTravelledDistances(int bins, double from, double to);
+
+    QVariantList findChannels();
 
     QVariantList findOnBorder(QString what, QString cuts, int bins, double from, double to);
     QVariantList findOnBorder(QString what, QString vsWhat, QString cuts, int bins, double from, double to);
