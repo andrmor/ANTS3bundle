@@ -3,6 +3,8 @@
 
 #include "aeventtrackingrecord.h"
 
+#include <mutex>
+
 #include <QString>
 #include <QSet>
 #include <QMap>
@@ -300,7 +302,7 @@ public:
 
     void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const;
 
-    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads) const;
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
     void abort() {bAbortRequested = true;}
 
 private:
@@ -312,6 +314,8 @@ private:
     bool    bBinary;
 
     bool bAbortRequested = false;
+
+    std::mutex CrawlerMutex;
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

@@ -38,36 +38,30 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 }
 
 #include "athreadpool.h"
-void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads) const
+void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
 {
-    /*
     ATrackingDataImporter dataImporter(FileName, bBinary);
 
     AThreadPool pool(numThreads);
-    std::vector< std::future<AHistorySearchProcessor*> > results;
     processor.beforeSearch();
+
+    AHistorySearchProcessor * processorForCloning = processor.clone();
 
     int iEv = 0;
     while (true)
     {
         while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(10));
 
-        qDebug() << "-------------Event #" << iEv;
+        //qDebug() << "-------------Event #" << iEv;
         AEventTrackingRecord * event = AEventTrackingRecord::create();
-        bool ok = dataImporter.extractEvent(iEv, event.get());
+        bool ok = dataImporter.extractEvent(iEv, event);
         if (ok)
         {
-            qDebug() << "before send:" << event->countPrimaries();
-
-            results.emplace_back(
                 pool.addJob(
-                [&processor, event, &criteria, this]
+                    [&processor, processorForCloning, event, &criteria, this]() mutable
                     {
-                        AHistorySearchProcessor * localProcessor = processor.clone();
-                        qDebug() << (dynamic_cast<AHistorySearchProcessor_findParticles*>(localProcessor) ? "Yes" : "No");
-                        qDebug() << event->countPrimaries();
+                        AHistorySearchProcessor * localProcessor = processorForCloning->clone();
                         localProcessor->beforeSearch();
-
                         localProcessor->onNewEvent();
 
                         const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
@@ -76,29 +70,27 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 
                         localProcessor->onEventEnd();
                         localProcessor->afterSearch();
-                        return localProcessor;
+
+                        {
+                            std::unique_lock<std::mutex> lock(CrawlerMutex);
+                            processor.mergeResuts(*localProcessor);
+                        }
 
                         delete event;
+                        delete localProcessor;
                     }
-                )
-            );
+                );
         }
-
+        else
+        {
+            delete event;
+            break;
+        }
 
         iEv++;
     }
-    qDebug() << "All events were read.\nWaiting for threads to finish and merging results";
 
-    int iEvent = 0;
-    for(auto && result: results)
-    {
-        qDebug() << "  Processing event" << iEvent++;
-        AHistorySearchProcessor * localProcessor = result.get();
-        processor.mergeResuts(*localProcessor);
-        delete localProcessor;
-    }
-
-    */
+    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::microseconds(1000));}
 }
 
 void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector & opt, AHistorySearchProcessor & processor) const
