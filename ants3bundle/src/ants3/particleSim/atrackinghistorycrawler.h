@@ -81,10 +81,12 @@ public:
 
     AHistorySearchProcessor * clone() override;
 
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
     SelectionMode Mode = All;
     bool OnlyHadronic = false;
     QString TargetIsotopeStartsFrom;
-    QMap<QString, int> FoundProcesses;
+    std::map<QString, int> FoundProcesses;
 
     bool validateStep(const ATrackingStepData & tr) const;
 };
@@ -316,9 +318,8 @@ class ATrackingHistoryCrawler
 public:
     ATrackingHistoryCrawler(const QString & fileName, bool binary) : FileName(fileName), bBinary(binary) {}
 
-    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const;
+    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
 
-    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
     void abort() {bAbortRequested = true;}
 
 private:
@@ -332,6 +333,9 @@ private:
     bool bAbortRequested = false;
 
     std::mutex CrawlerMutex;
+
+
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

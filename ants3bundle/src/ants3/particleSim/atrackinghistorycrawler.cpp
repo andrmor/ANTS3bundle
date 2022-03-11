@@ -10,31 +10,34 @@
 #include "TFormula.h"
 
 #include "atrackingdataimporter.h"
-void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const
+void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
 {
     // !!!*** add error control
 
-    ATrackingDataImporter imp(FileName, bBinary);
-
-    processor.beforeSearch();
-
-    AEventTrackingRecord * event = AEventTrackingRecord::create();
-    int iEv = 0;
-    while (imp.extractEvent(iEv, event))
+    if (numThreads == -1 || numThreads == 0)
     {
-        //qDebug() << "-------------Event #" << iEv;
-        processor.onNewEvent();
+        ATrackingDataImporter imp(FileName, bBinary);
 
-        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
-        for (const AParticleTrackingRecord * p : prim)
-            findRecursive(*p, criteria, processor);
+        processor.beforeSearch();
 
-        processor.onEventEnd();
+        AEventTrackingRecord * event = AEventTrackingRecord::create();
+        int iEv = 0;
+        while (imp.extractEvent(iEv, event))
+        {
+            //qDebug() << "-------------Event #" << iEv;
+            processor.onNewEvent();
 
-        iEv++;
+            const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+            for (const AParticleTrackingRecord * p : prim)
+                findRecursive(*p, criteria, processor);
+
+            processor.onEventEnd();
+
+            iEv++;
+        }
+        processor.afterSearch();
     }
-
-    processor.afterSearch();
+    else findMultithread(criteria, processor, numThreads);
 }
 
 #include "athreadpool.h"
@@ -555,10 +558,10 @@ void AHistorySearchProcessor_findProcesses::onLocalStep(const ATrackingStepData 
     if (validateStep(tr))
     {
         const QString & Proc = tr.Process;
-        QMap<QString, int>::iterator it = FoundProcesses.find(Proc);
+        auto it = FoundProcesses.find(Proc);
         if (it == FoundProcesses.end())
-            FoundProcesses.insert(Proc, 1);
-        else it.value()++;
+            FoundProcesses[Proc] = 1;
+        else ++(it->second);
     }
 }
 
@@ -566,10 +569,10 @@ void AHistorySearchProcessor_findProcesses::onTransitionOut(const ATrackingStepD
 {
     if (validateStep(tr))
     {
-        QMap<QString, int>::iterator it = FoundProcesses.find("Out");
+        auto it = FoundProcesses.find("Out");
         if (it == FoundProcesses.end())
-            FoundProcesses.insert("Out", 1);
-        else it.value()++;
+            FoundProcesses["Out"] = 1;
+        else ++(it->second);
     }
 }
 
@@ -577,16 +580,32 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
 {
     if (validateStep(tr))
     {
-        QMap<QString, int>::iterator it = FoundProcesses.find("In");
+        auto it = FoundProcesses.find("In");
         if (it == FoundProcesses.end())
-            FoundProcesses.insert("In", 1);
-        else it.value()++;
+            FoundProcesses["In"] = 1;
+        else ++(it->second);
     }
 }
 
 AHistorySearchProcessor * AHistorySearchProcessor_findProcesses::clone()
 {
     return new AHistorySearchProcessor_findProcesses(*this);
+}
+
+bool AHistorySearchProcessor_findProcesses::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findProcesses * from = dynamic_cast<const AHistorySearchProcessor_findProcesses*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->FoundProcesses)
+    {
+        auto itHere = FoundProcesses.find(itOther.first);
+        if (itHere == FoundProcesses.end())
+            FoundProcesses[itOther.first] = itOther.second;
+        else
+            ++(itHere->second);
+    }
+    return true;
 }
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const

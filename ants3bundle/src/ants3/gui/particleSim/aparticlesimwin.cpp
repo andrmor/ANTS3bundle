@@ -1036,7 +1036,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 0:
           {
             AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
             auto it = p.FoundParticles.begin();
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Particles found:\n");
@@ -1058,16 +1058,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
 
             AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
             AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
-            QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Processes found:\n");
-            while (it != p.FoundProcesses.constEnd())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
-                ++it;
-            }
+            for (const auto & pair : p.FoundProcesses)
+                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(pair.first).arg(pair.second));
 
             selectedModeForProcess = mode;
             break;
@@ -1075,7 +1071,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 2:
           {
             AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
             if (p.Hist->GetEntries() == 0)
                 guitools::message("No trajectories found", this);
@@ -1103,7 +1099,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbPTHistVolVsTime->isChecked())
             {
                 AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist2D->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1119,7 +1115,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             else
             {
                 AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1141,12 +1137,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbLimitTimeWindow->isChecked())
             {
                 p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
             else
             {
                 p = new AHistorySearchProcessor_getDepositionStats();
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
 
             ui->ptePTHist->clear();
@@ -1221,7 +1217,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1240,7 +1236,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1256,7 +1252,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1275,7 +1271,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
