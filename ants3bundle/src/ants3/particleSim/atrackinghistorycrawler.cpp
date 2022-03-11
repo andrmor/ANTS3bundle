@@ -417,6 +417,11 @@ void AHistorySearchProcessor_findDepositedEnergy::onEventEnd()
     if (Mode == OverEvent) fillHistogram();
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergy::clone()
+{
+    return new AHistorySearchProcessor_findDepositedEnergy(*this);
+}
+
 void AHistorySearchProcessor_findDepositedEnergy::clearData()
 {
     Depo = 0;
@@ -449,6 +454,11 @@ AHistorySearchProcessor_findDepositedEnergyTimed::AHistorySearchProcessor_findDe
 AHistorySearchProcessor_findDepositedEnergyTimed::~AHistorySearchProcessor_findDepositedEnergyTimed()
 {
     delete Hist2D;
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergyTimed::clone()
+{
+    return new AHistorySearchProcessor_findDepositedEnergyTimed(*this);
 }
 
 void AHistorySearchProcessor_findDepositedEnergyTimed::clearData()
@@ -532,6 +542,11 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
     Distance = 0;
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_findTravelledDistances::clone()
+{
+    return new AHistorySearchProcessor_findTravelledDistances(*this);
+}
+
 AHistorySearchProcessor_findProcesses::AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom) :
     Mode(Mode), OnlyHadronic(onlyHadronic), TargetIsotopeStartsFrom(targetIsotopeStartsFrom.simplified()) {}
 
@@ -567,6 +582,11 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
             FoundProcesses.insert("In", 1);
         else it.value()++;
     }
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findProcesses::clone()
+{
+    return new AHistorySearchProcessor_findProcesses(*this);
 }
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const
@@ -758,6 +778,11 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
     if (it == Channels.end())
         Channels.insert(channel, 1);
     else it.value()++;
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findChannels::clone()
+{
+    return new AHistorySearchProcessor_findChannels(*this);
 }
 
 AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &what,
@@ -1026,6 +1051,11 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
     }
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_Border::clone()
+{
+    return new AHistorySearchProcessor_Border(*this);
+}
+
 TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 {
     //double  x, y, z, time, energy, vx, vy, vz
@@ -1098,6 +1128,11 @@ void AHistorySearchProcessor_getDepositionStats::onTransitionOut(const ATracking
     onLocalStep(tr);
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone()
+{
+    return new AHistorySearchProcessor_getDepositionStats(*this);
+}
+
 AHistorySearchProcessor_getDepositionStatsTimeAware::AHistorySearchProcessor_getDepositionStatsTimeAware(float timeFrom, float timeTo) :
     AHistorySearchProcessor_getDepositionStats(), timeFrom(timeFrom), timeTo(timeTo) {}
 
@@ -1114,4 +1149,9 @@ void AHistorySearchProcessor_getDepositionStatsTimeAware::onLocalStep(const ATra
 void AHistorySearchProcessor_getDepositionStatsTimeAware::onTransitionOut(const ATrackingStepData &tr)
 {
     onLocalStep(tr);
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStatsTimeAware::clone()
+{
+    return new AHistorySearchProcessor_getDepositionStatsTimeAware(*this);
 }

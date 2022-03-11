@@ -39,12 +39,12 @@ public:
     virtual void onTrackEnd(bool /*bMaster*/){} // flag is the value returned by onNewTrack()
     virtual void onEventEnd(){}
 
-    virtual AHistorySearchProcessor * clone() {return nullptr;} // !!!*** to replace with " = delete"
+    virtual AHistorySearchProcessor * clone() = 0;
 
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
 
-    virtual bool mergeResuts(const AHistorySearchProcessor & other) {return false;}
+    virtual bool mergeResuts(const AHistorySearchProcessor & other) {return false;} // !!!*** "= 0"
 
 protected:
     bool bInlineSecondaryProcessing = false;
@@ -79,6 +79,8 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override;
     void onTransitionIn (const ATrackingStepData & tr) override;
 
+    AHistorySearchProcessor * clone() override;
+
     SelectionMode Mode = All;
     bool OnlyHadronic = false;
     QString TargetIsotopeStartsFrom;
@@ -94,6 +96,8 @@ public:
 
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
+
+    AHistorySearchProcessor * clone() override;
 
     QMap<QString, int> Channels;
 
@@ -122,6 +126,8 @@ public:
     void onTrackEnd(bool bMaster) override;
     void onEventEnd() override;
 
+    AHistorySearchProcessor * clone() override;
+
     CollectionMode Mode = Individual;
     double Depo = 0;
     TH1D * Hist = nullptr;
@@ -140,6 +146,8 @@ public:
                                                      int binsE, double fromE, double toE,
                                                      int binsT, double fromT, double toT);
     ~AHistorySearchProcessor_findDepositedEnergyTimed();
+
+    AHistorySearchProcessor * clone() override;
 
     double Time = 0; // used by AHistorySearchProcessor_findDepositedEnergyTimed
     TH2D * Hist2D = nullptr;
@@ -169,6 +177,8 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
+    AHistorySearchProcessor * clone() override;
+
     const QString Dummy = "___error___";
     const QString * ParticleName = &Dummy;
     bool bAlreadyFound = false;
@@ -184,6 +194,8 @@ public:
 
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
+
+    AHistorySearchProcessor * clone() override;
 
 private:
     float timeFrom;
@@ -201,6 +213,8 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override; // "from" step
     void onTransitionIn (const ATrackingStepData & tr) override; // "from" step
     void onTrackEnd(bool) override;
+
+    AHistorySearchProcessor * clone() override;
 
     float Distance = 0;
     float LastPosition[3];
@@ -231,6 +245,8 @@ public:
 
     // direction info can be [0,0,0] !!!
     void onTransition(const ATrackingStepData & fromfromTr, const ATrackingStepData & fromTr) override; // "from" step
+
+    AHistorySearchProcessor * clone() override;
 
     QString ErrorString;  // after constructor, valid if ErrorString is empty
     bool bRequiresDirections = false;
