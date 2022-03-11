@@ -37,6 +37,33 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
     processor.afterSearch();
 }
 
+void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads) const
+{
+    ATrackingDataImporter imp(FileName, bBinary);
+
+    /*
+    processor.beforeSearch();
+
+    AEventTrackingRecord * event = AEventTrackingRecord::create();
+    int iEv = 0;
+    while (imp.extractEvent(iEv, event))
+    {
+        //qDebug() << "-------------Event #" << iEv;
+        processor.onNewEvent();
+
+        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+        for (const AParticleTrackingRecord * p : prim)
+            findRecursive(*p, criteria, processor);
+
+        processor.onEventEnd();
+
+        iEv++;
+    }
+
+    processor.afterSearch();
+    */
+}
+
 void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector & opt, AHistorySearchProcessor & processor) const
 {
     bool bDoTrack = true;
@@ -251,12 +278,28 @@ void AHistorySearchProcessor_findParticles::onTrackEnd(bool)
 {
     if (bConfirmed && !Candidate.isEmpty())
     {
-        QMap<QString, int>::iterator it = FoundParticles.find(Candidate);
+        auto it = FoundParticles.find(Candidate);
         if (it == FoundParticles.end())
-            FoundParticles.insert(Candidate, 1);
-        else it.value()++;
+            FoundParticles[Candidate] = 1;
+        else ++(it->second);
         Candidate.clear();
     }
+}
+
+bool AHistorySearchProcessor_findParticles::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findParticles * from = dynamic_cast<const AHistorySearchProcessor_findParticles*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->FoundParticles)
+    {
+        auto itHere = FoundParticles.find(itOther.first);
+        if (itHere == FoundParticles.end())
+            FoundParticles[itOther.first] = itOther.second;
+        else
+            ++(itHere->second);
+    }
+    return true;
 }
 
 AHistorySearchProcessor_findDepositedEnergy::AHistorySearchProcessor_findDepositedEnergy(CollectionMode mode, int bins, double from, double to)

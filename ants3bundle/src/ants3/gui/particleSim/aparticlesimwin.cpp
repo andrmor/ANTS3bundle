@@ -1037,12 +1037,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
           {
             AHistorySearchProcessor_findParticles p;
             Crawler.find(Opt, p);
-            QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
+            auto it = p.FoundParticles.begin();
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Particles found:\n");
-            while (it != p.FoundParticles.constEnd())
+            while (it != p.FoundParticles.end())
             {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
+                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it->first).arg(it->second));
                 ++it;
             }
             break;

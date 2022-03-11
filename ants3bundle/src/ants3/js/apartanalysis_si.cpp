@@ -150,11 +150,11 @@ QVariantList APartAnalysis_SI::findParticles()
     AHistorySearchProcessor_findParticles p;
     Crawler->find(*Criteria, p);
 
-    QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
-    while (it != p.FoundParticles.constEnd())
+    auto it = p.FoundParticles.begin();
+    while (it != p.FoundParticles.end())
     {
         QVariantList el;
-        el << it.key() << it.value();
+        el << it->first << it->second;
         vl.push_back(el);
         ++it;
     }

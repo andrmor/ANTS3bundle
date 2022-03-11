@@ -40,6 +40,8 @@ public:
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
 
+    virtual bool mergeResuts(const AHistorySearchProcessor & other) {return false;}
+
 protected:
     bool bInlineSecondaryProcessing = false;
     bool bIgnoreParticleSelectors   = false;
@@ -52,9 +54,11 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
 
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
     QString Candidate;
     bool bConfirmed = false;
-    QMap<QString, int> FoundParticles;
+    std::map<QString, int> FoundParticles;
 };
 
 class AHistorySearchProcessor_findProcesses : public AHistorySearchProcessor
@@ -292,6 +296,9 @@ public:
 
     void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const;
 
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads) const;
+    void abort() {bAbortRequested = true;}
+
 private:
     enum ProcessType {Creation, Local, NormalTransportation, ExitingWorld};
 
@@ -299,6 +306,8 @@ private:
 
     QString FileName;
     bool    bBinary;
+
+    bool bAbortRequested = false;
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H
