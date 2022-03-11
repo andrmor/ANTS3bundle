@@ -119,6 +119,32 @@ void APartAnalysis_SI::setOnlyEscaping()
     Criteria->bCreated = false;
 }
 
+#include "athreadpool.h"
+#include "arandomhub.h"
+void APartAnalysis_SI::test(int numThreads)
+{
+    AThreadPool pool(numThreads);
+
+    for(int i = 0; i < 8; ++i)
+    {
+        //qDebug() << "preparing job #" << i;
+        while (pool.isFull()) {std::this_thread::sleep_for(std::chrono::microseconds(10));}
+        qDebug() << "Pooling job #" << i;
+
+        pool.addJob([i]()
+        {
+            qDebug() << "  -->" << i;
+            std::this_thread::sleep_for(std::chrono::seconds(2) + ARandomHub::getInstance().uniform()*std::chrono::seconds(3));
+            qDebug() << "     <--" << i;
+        });
+    }
+
+    qDebug() << "Waiting for jobs to finish...";
+    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::microseconds(1000));}
+
+    qDebug() << "Done!";
+}
+
 // ---
 
 bool APartAnalysis_SI::initCrawler()
@@ -150,14 +176,33 @@ QVariantList APartAnalysis_SI::findParticles()
     AHistorySearchProcessor_findParticles p;
     Crawler->find(*Criteria, p);
 
-    auto it = p.FoundParticles.begin();
-    while (it != p.FoundParticles.end())
+    for (const auto & pair : p.FoundParticles)
     {
         QVariantList el;
-        el << it->first << it->second;
+        el << pair.first << pair.second;
         vl.push_back(el);
-        ++it;
     }
+
+    return vl;
+}
+
+QVariantList APartAnalysis_SI::findParticlesMultithread(int numThreads)
+{
+    QVariantList vl;
+
+    bool ok = initCrawler();
+    if (!ok) return vl;
+
+    AHistorySearchProcessor_findParticles p;
+    Crawler->findMultithread(*Criteria, p, numThreads);
+
+    for (const auto & pair : p.FoundParticles)
+    {
+        QVariantList el;
+        el << pair.first << pair.second;
+        vl.push_back(el);
+    }
+
     return vl;
 }
 

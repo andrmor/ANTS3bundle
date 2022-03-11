@@ -37,30 +37,67 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
     processor.afterSearch();
 }
 
+#include "athreadpool.h"
 void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads) const
 {
-    ATrackingDataImporter imp(FileName, bBinary);
-
     /*
+    ATrackingDataImporter dataImporter(FileName, bBinary);
+
+    AThreadPool pool(numThreads);
+    std::vector< std::future<AHistorySearchProcessor*> > results;
     processor.beforeSearch();
 
-    AEventTrackingRecord * event = AEventTrackingRecord::create();
     int iEv = 0;
-    while (imp.extractEvent(iEv, event))
+    while (true)
     {
-        //qDebug() << "-------------Event #" << iEv;
-        processor.onNewEvent();
+        while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(10));
 
-        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
-        for (const AParticleTrackingRecord * p : prim)
-            findRecursive(*p, criteria, processor);
+        qDebug() << "-------------Event #" << iEv;
+        AEventTrackingRecord * event = AEventTrackingRecord::create();
+        bool ok = dataImporter.extractEvent(iEv, event.get());
+        if (ok)
+        {
+            qDebug() << "before send:" << event->countPrimaries();
 
-        processor.onEventEnd();
+            results.emplace_back(
+                pool.addJob(
+                [&processor, event, &criteria, this]
+                    {
+                        AHistorySearchProcessor * localProcessor = processor.clone();
+                        qDebug() << (dynamic_cast<AHistorySearchProcessor_findParticles*>(localProcessor) ? "Yes" : "No");
+                        qDebug() << event->countPrimaries();
+                        localProcessor->beforeSearch();
+
+                        localProcessor->onNewEvent();
+
+                        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+                        for (const AParticleTrackingRecord * p : prim)
+                            findRecursive(*p, criteria, *localProcessor);
+
+                        localProcessor->onEventEnd();
+                        localProcessor->afterSearch();
+                        return localProcessor;
+
+                        delete event;
+                    }
+                )
+            );
+        }
+
 
         iEv++;
     }
+    qDebug() << "All events were read.\nWaiting for threads to finish and merging results";
 
-    processor.afterSearch();
+    int iEvent = 0;
+    for(auto && result: results)
+    {
+        qDebug() << "  Processing event" << iEvent++;
+        AHistorySearchProcessor * localProcessor = result.get();
+        processor.mergeResuts(*localProcessor);
+        delete localProcessor;
+    }
+
     */
 }
 
@@ -284,6 +321,11 @@ void AHistorySearchProcessor_findParticles::onTrackEnd(bool)
         else ++(it->second);
         Candidate.clear();
     }
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findParticles::clone()
+{
+    return new AHistorySearchProcessor_findParticles(*this);
 }
 
 bool AHistorySearchProcessor_findParticles::mergeResuts(const AHistorySearchProcessor & other)

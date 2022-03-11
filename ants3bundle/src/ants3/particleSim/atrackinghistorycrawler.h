@@ -37,6 +37,8 @@ public:
     virtual void onTrackEnd(bool /*bMaster*/){} // flag is the value returned by onNewTrack()
     virtual void onEventEnd(){}
 
+    virtual AHistorySearchProcessor * clone() {return nullptr;} // !!!*** to replace with " = delete"
+
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
 
@@ -53,6 +55,8 @@ public:
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
+
+    AHistorySearchProcessor * clone() override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 

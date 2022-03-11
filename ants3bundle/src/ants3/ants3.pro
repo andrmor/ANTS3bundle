@@ -230,6 +230,7 @@ SOURCES += \
     gui/guitools.cpp \
     tools/arandomhub.cpp \
     tools/ath.cpp \
+    tools/athreadpool.cpp \
     tools/avector.cpp
 
 HEADERS += \
@@ -397,6 +398,7 @@ HEADERS += \
     gui/guitools.h \
     tools/arandomhub.h \
     tools/ath.h \
+    tools/athreadpool.h \
     tools/avector.h
 
 FORMS += \
