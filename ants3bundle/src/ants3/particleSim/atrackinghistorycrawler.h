@@ -222,6 +222,8 @@ public:
 
     AHistorySearchProcessor * clone() override;
 
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
     float Distance = 0;
     float LastPosition[3];
     bool bStarted = false;

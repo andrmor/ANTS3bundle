@@ -587,7 +587,25 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
 
 AHistorySearchProcessor * AHistorySearchProcessor_findTravelledDistances::clone()
 {
-    return new AHistorySearchProcessor_findTravelledDistances(*this);
+    AHistorySearchProcessor_findTravelledDistances * pr = new AHistorySearchProcessor_findTravelledDistances(*this);
+
+    pr->Hist = (TH1D*)Hist->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findTravelledDistances::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findTravelledDistances * from = dynamic_cast<const AHistorySearchProcessor_findTravelledDistances*>(&other);
+    if (!from) return false;
+
+    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
+    {
+        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
+    }
+    // !!!*** underflow and overflow
+
+    return true;
 }
 
 AHistorySearchProcessor_findProcesses::AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom) :
