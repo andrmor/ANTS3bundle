@@ -2551,7 +2551,11 @@ Format: Volume_name  Step_in_mm</string>
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLineEdit" name="lePTHistParticle"/>
+                     <widget class="QLineEdit" name="lePTHistParticle">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
                     </item>
                     <item>
                      <widget class="QCheckBox" name="cbPTHistLimitToFirst">
@@ -3030,13 +3034,25 @@ Format: Volume_name  Step_in_mm</string>
                          <number>3</number>
                         </property>
                         <item>
-                         <widget class="QComboBox" name="cobPTHistVolMat"/>
+                         <widget class="QComboBox" name="cobPTHistVolMat">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="lePTHistVolVolume"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolume">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item>
-                         <widget class="QSpinBox" name="sbPTHistVolIndex"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndex">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                        </layout>
                       </item>
@@ -3219,7 +3235,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="0" column="1">
-                         <widget class="QComboBox" name="cobPTHistVolMatFrom"/>
+                         <widget class="QComboBox" name="cobPTHistVolMatFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="1" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolVolumeFrom">
@@ -3229,7 +3249,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="1" column="1">
-                         <widget class="QLineEdit" name="lePTHistVolVolumeFrom"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolumeFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="2" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolIndexFrom">
@@ -3239,7 +3263,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="2" column="1">
-                         <widget class="QSpinBox" name="sbPTHistVolIndexFrom"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndexFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="3" column="0">
                          <widget class="QCheckBox" name="cbPTHistEscaping">
@@ -3276,7 +3304,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="0" column="1">
-                         <widget class="QComboBox" name="cobPTHistVolMatTo"/>
+                         <widget class="QComboBox" name="cobPTHistVolMatTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="1" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolVolumeTo">
@@ -3286,7 +3318,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="1" column="1">
-                         <widget class="QLineEdit" name="lePTHistVolVolumeTo"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolumeTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="2" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolIndexTo">
@@ -3296,7 +3332,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="2" column="1">
-                         <widget class="QSpinBox" name="sbPTHistVolIndexTo"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndexTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="3" column="0">
                          <widget class="QCheckBox" name="cbPTHistCreated">
