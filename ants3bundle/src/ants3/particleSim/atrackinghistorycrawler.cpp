@@ -334,7 +334,7 @@ bool AHistorySearchProcessor_findParticles::mergeResuts(const AHistorySearchProc
         if (itHere == FoundParticles.end())
             FoundParticles[itOther.first] = itOther.second;
         else
-            ++(itHere->second);
+            itHere->second += itOther.second;
     }
     return true;
 }
@@ -603,7 +603,7 @@ bool AHistorySearchProcessor_findProcesses::mergeResuts(const AHistorySearchProc
         if (itHere == FoundProcesses.end())
             FoundProcesses[itOther.first] = itOther.second;
         else
-            ++(itHere->second);
+            itHere->second += itOther.second;
     }
     return true;
 }

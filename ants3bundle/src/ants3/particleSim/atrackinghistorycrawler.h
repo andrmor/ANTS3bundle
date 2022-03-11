@@ -334,7 +334,6 @@ private:
 
     std::mutex CrawlerMutex;
 
-
     void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
 };
 
