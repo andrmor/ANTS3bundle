@@ -130,6 +130,8 @@ public:
 
     AHistorySearchProcessor * clone() override;
 
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
     CollectionMode Mode = Individual;
     double Depo = 0;
     TH1D * Hist = nullptr;

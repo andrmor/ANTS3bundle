@@ -422,7 +422,25 @@ void AHistorySearchProcessor_findDepositedEnergy::onEventEnd()
 
 AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergy::clone()
 {
-    return new AHistorySearchProcessor_findDepositedEnergy(*this);
+    AHistorySearchProcessor_findDepositedEnergy * pr = new AHistorySearchProcessor_findDepositedEnergy(*this);
+
+    pr->Hist = (TH1D*)Hist->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findDepositedEnergy::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findDepositedEnergy * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergy*>(&other);
+    if (!from) return false;
+
+    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
+    {
+        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
+    }
+    // !!!*** underflow and overflow
+
+    return true;
 }
 
 void AHistorySearchProcessor_findDepositedEnergy::clearData()
