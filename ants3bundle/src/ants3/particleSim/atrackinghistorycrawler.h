@@ -153,7 +153,9 @@ public:
 
     AHistorySearchProcessor * clone() override;
 
-    double Time = 0; // used by AHistorySearchProcessor_findDepositedEnergyTimed
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    double Time = 0;
     TH2D * Hist2D = nullptr;
 
 protected:

@@ -479,7 +479,29 @@ AHistorySearchProcessor_findDepositedEnergyTimed::~AHistorySearchProcessor_findD
 
 AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergyTimed::clone()
 {
-    return new AHistorySearchProcessor_findDepositedEnergyTimed(*this);
+    AHistorySearchProcessor_findDepositedEnergyTimed * pr = new AHistorySearchProcessor_findDepositedEnergyTimed(*this);
+
+    pr->Hist2D = (TH2D*)Hist2D->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findDepositedEnergyTimed::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findDepositedEnergyTimed * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergyTimed*>(&other);
+    if (!from) return false;
+
+    for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
+    {
+        const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
+        for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
+        {
+            Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
+        }
+    }
+    // !!!*** underflow and overflow
+
+    return true;
 }
 
 void AHistorySearchProcessor_findDepositedEnergyTimed::clearData()

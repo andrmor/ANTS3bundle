@@ -1909,3 +1909,9 @@ void AParticleSimWin::onProgressReceived(double progress)
 
     ui->progbSim->setValue(progress * 100.0);
 }
+
+void AParticleSimWin::on_cbPTHistVolVsTime_toggled(bool checked)
+{
+    updatePTHistoryBinControl();
+}
+
