@@ -88,20 +88,25 @@ public:
     QString TargetIsotopeStartsFrom;
     std::map<QString, int> FoundProcesses;
 
+protected:
     bool validateStep(const ATrackingStepData & tr) const;
 };
 
-class AHistorySearchProcessor_findChannels : public AHistorySearchProcessor
+class AHistorySearchProcessor_findHadronicChannels : public AHistorySearchProcessor
 {
 public:
-    AHistorySearchProcessor_findChannels();
+    AHistorySearchProcessor_findHadronicChannels();
 
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
 
     AHistorySearchProcessor * clone() override;
 
-    QMap<QString, int> Channels;
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    std::map<QString, int> Channels;
+
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
 
 private:
     std::vector<std::pair<QString,QString>> Aliases;

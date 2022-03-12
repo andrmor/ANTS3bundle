@@ -319,28 +319,18 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
     return vl;
 }
 
-QVariantList APartAnalysis_SI::findChannels()
+QVariantList APartAnalysis_SI::findhadronicChannels()
 {
     QVariantList vl;
 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    AHistorySearchProcessor_findChannels p;
+    AHistorySearchProcessor_findHadronicChannels p;
     Crawler->find(*Criteria, p, NumThreads);
 
     std::vector<std::pair<QString,int>> vec;
-    QMap<QString, int>::const_iterator it = p.Channels.constBegin();
-    while (it != p.Channels.constEnd())
-    {
-        vec.push_back( {it.key(), it.value()} );
-        ++it;
-    }
-
-    std::sort(vec.begin(), vec.end(),
-              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
-                {return lhs.second > rhs.second;}
-             );
+    p.getResults(vec);
 
     for (const auto & p : vec)
     {

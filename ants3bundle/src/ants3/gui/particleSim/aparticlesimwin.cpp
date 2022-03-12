@@ -1001,8 +1001,9 @@ void AParticleSimWin::on_pbEventView_clicked()
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
-    // !!!***
-    // add multithread to crawler
+    setEnabled(false);
+    qApp->processEvents();
+
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
@@ -1020,6 +1021,8 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
+    int NumThreads = ui->sbNumThreadsStatistics->value();
+
     int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
     if (Selector == 0)
     {
@@ -1036,7 +1039,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 0:
           {
             AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+            Crawler.find(Opt, p, NumThreads);
             auto it = p.FoundParticles.begin();
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Particles found:\n");
@@ -1178,6 +1181,18 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             delete p;
             break;
          }
+        case 5:
+            {
+                AHistorySearchProcessor_findHadronicChannels p;
+                Crawler.find(Opt, p, NumThreads);
+                ui->ptePTHist->clear();
+                ui->ptePTHist->appendPlainText("Hadronic channels:\n");
+                std::vector<std::pair<QString,int>> vec;
+                p.getResults(vec);
+                for (const auto & pair : vec)
+                    ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+                break;
+            }
         default:
             qWarning() << "Unknown type of volume request";
         }
@@ -1289,6 +1304,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         fromB1 = from;
         toB1 = to;
     }
+
+    QTextCursor txtCursor = ui->ptePTHist->textCursor();
+    txtCursor.setPosition(0);
+    ui->ptePTHist->setTextCursor(txtCursor);
+
+    setEnabled(true);
 }
 
 void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)
@@ -1361,8 +1382,9 @@ void AParticleSimWin::updatePTHistoryBinControl()
     if (ui->twPTHistType->currentIndex() == 0)
     {
         //Volume
-        ui->frPTHistX->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() > 1  && ui->cobPTHistVolRequestWhat->currentIndex() != 4);
-        ui->frPTHistY->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() == 3 && ui->cbPTHistVolVsTime->isChecked() );
+        const int sel = ui->cobPTHistVolRequestWhat->currentIndex();
+        ui->frPTHistX->setVisible( sel == 2 || sel == 3);
+        ui->frPTHistY->setVisible( sel == 3 && ui->cbPTHistVolVsTime->isChecked() );
     }
     else
     {

@@ -14,7 +14,7 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 {
     // !!!*** add error control
 
-    if (numThreads == -1 || numThreads == 0)
+    if (numThreads < 1)
     {
         ATrackingDataImporter imp(FileName, bBinary);
 
@@ -48,7 +48,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
     AThreadPool pool(numThreads);
     processor.beforeSearch();
 
-    AHistorySearchProcessor * processorForCloning = processor.clone();
+    AHistorySearchProcessor * pProcessorForCloning = processor.clone();
 
     int iEv = 0;
     while (true)
@@ -61,9 +61,9 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
         if (ok)
         {
                 pool.addJob(
-                    [&processor, processorForCloning, event, &criteria, this]() mutable
+                    [&processor, pProcessorForCloning, event, &criteria, this]() mutable
                     {
-                        AHistorySearchProcessor * localProcessor = processorForCloning->clone();
+                        AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
                         localProcessor->beforeSearch();
                         localProcessor->onNewEvent();
 
@@ -683,7 +683,7 @@ bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData
     return false; // just to avoid warning
 }
 
-AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
+AHistorySearchProcessor_findHadronicChannels::AHistorySearchProcessor_findHadronicChannels()
 {
     Aliases.push_back( {"gamma",    "g"} );
     Aliases.push_back( {"proton",   "p"} );
@@ -692,21 +692,21 @@ AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
     Aliases.push_back( {"deuteron", "d"} );
     Aliases.push_back( {"triton",   "t"} );
 }
-const QString & AHistorySearchProcessor_findChannels::getAlias(const QString & name)
+const QString & AHistorySearchProcessor_findHadronicChannels::getAlias(const QString & name)
 {
     for (const auto & pair : Aliases)
         if (pair.first == name) return pair.second;
     return name;
 }
 
-bool AHistorySearchProcessor_findChannels::onNewTrack(const AParticleTrackingRecord & pr)
+bool AHistorySearchProcessor_findHadronicChannels::onNewTrack(const AParticleTrackingRecord & pr)
 {
     Particle = getAlias(pr.ParticleName);
     TrackRecord = &pr;
     return false;
 }
 
-void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData & tr)
+void AHistorySearchProcessor_findHadronicChannels::onLocalStep(const ATrackingStepData & tr)
 {
     const QString & Proc = tr.Process;
     if (Proc == "hadElastic") return;
@@ -715,7 +715,7 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
     if (tr.Secondaries.empty())
     {
         // unexpected!
-        qWarning() << "No secondaries for hadronic reacion detected!";
+        //qWarning() << "No secondaries for the hadronic reacion:" << Particle << "on" << tr.TargetIsotope;
         return;
     }
 
@@ -851,15 +851,44 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
 
     const QString channel = QString("%0(%1,%2)%3").arg(tr.TargetIsotope, Particle, products, Result);
 
-    QMap<QString, int>::iterator it = Channels.find(channel);
-    if (it == Channels.end())
-        Channels.insert(channel, 1);
-    else it.value()++;
+    auto it = Channels.find(channel);
+    if (it == Channels.end()) Channels[channel] = 1;
+    else                      ++(it->second);
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findChannels::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findHadronicChannels::clone()
 {
-    return new AHistorySearchProcessor_findChannels(*this);
+    return new AHistorySearchProcessor_findHadronicChannels(*this);
+}
+
+bool AHistorySearchProcessor_findHadronicChannels::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findHadronicChannels * from = dynamic_cast<const AHistorySearchProcessor_findHadronicChannels*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->Channels)
+    {
+        auto itHere = Channels.find(itOther.first);
+        if (itHere == Channels.end())
+            Channels[itOther.first] = itOther.second;
+        else
+            itHere->second += itOther.second;
+    }
+    return true;
+}
+
+void AHistorySearchProcessor_findHadronicChannels::getResults(std::vector<std::pair<QString, int>> & data) const
+{
+    data.clear();
+    data.reserve(Channels.size());
+
+    for (const auto & pair : Channels)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
 }
 
 AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &what,
@@ -1168,7 +1197,7 @@ TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 
 bool AHistorySearchProcessor_getDepositionStats::onNewTrack(const AParticleTrackingRecord &pr)
 {
-    if ( *ParticleName != pr.ParticleName)  // fast?  want to avoid research in QMap if possible
+    if ( *ParticleName != pr.ParticleName)  // fast?  want to avoid re-search in QMap if possible
     {
         ParticleName = &pr.ParticleName;
         bAlreadyFound = false;
