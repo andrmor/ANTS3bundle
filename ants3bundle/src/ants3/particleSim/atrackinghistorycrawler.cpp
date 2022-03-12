@@ -14,6 +14,8 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 {
     // !!!*** add error control
 
+    qDebug() << "HEEERREEEE" << numThreads;
+
     if (numThreads < 1)
     {
         ATrackingDataImporter imp(FileName, bBinary);
@@ -1225,9 +1227,9 @@ TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 
 bool AHistorySearchProcessor_getDepositionStats::onNewTrack(const AParticleTrackingRecord &pr)
 {
-    if ( *ParticleName != pr.ParticleName)  // fast?  want to avoid re-search in QMap if possible
+    if ( ParticleName != pr.ParticleName)  // fast?  want to avoid re-search in map if possible
     {
-        ParticleName = &pr.ParticleName;
+        ParticleName = pr.ParticleName;
         bAlreadyFound = false;
     }
     else
@@ -1246,15 +1248,17 @@ void AHistorySearchProcessor_getDepositionStats::onLocalStep(const ATrackingStep
 
     if (!bAlreadyFound)
     {
-        itParticle = DepoData.find(*ParticleName);
+        itParticle = DepoData.find(ParticleName);
+
         if (itParticle == DepoData.end())
         {
-            DepoData.insert(*ParticleName, AParticleDepoStat(1, depo, depo*depo));
+            DepoData[ParticleName] = AParticleDepoStat(1, depo, depo*depo);
             return;
         }
+        else bAlreadyFound = true;
     }
 
-    itParticle.value().append(depo);
+    itParticle->second.append(depo);
 }
 
 void AHistorySearchProcessor_getDepositionStats::onTransitionOut(const ATrackingStepData &tr)
@@ -1265,6 +1269,36 @@ void AHistorySearchProcessor_getDepositionStats::onTransitionOut(const ATracking
 AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone()
 {
     return new AHistorySearchProcessor_getDepositionStats(*this);
+}
+
+double AHistorySearchProcessor_getDepositionStats::getResults(std::vector<std::tuple<QString,double,double,int,double,double> > & data) const
+{
+    data.clear();
+    data.reserve(DepoData.size());
+
+    double sum = 0;
+    for (const auto & pair : DepoData)
+        sum += pair.second.sum;
+    const double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+
+    // Particle SumDepo FractionDepo Number Mean Sigma     --> Mean!=0 if Number>1 ; Sigma !=0 if Number > 5
+    for (const auto & pair : DepoData)
+    {
+        const AParticleDepoStat & rec = pair.second;
+
+        double mean = rec.sum / rec.num;
+        double sigma = 0;
+        if (rec.num > 5) sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
+
+        data.push_back( {pair.first, rec.sum, rec.sum*sumInv, rec.num, (rec.num > 1 ? mean : 0), sigma} );
+    }
+
+    std::sort(data.begin(), data.end(),
+              [](const std::tuple<QString,double,double,int,double,double> & lhs, const std::tuple<QString,double,double,int,double,double> & rhs)
+                {return std::get<1>(lhs) > std::get<1>(rhs);}
+             );
+
+    return sum;
 }
 
 AHistorySearchProcessor_getDepositionStatsTimeAware::AHistorySearchProcessor_getDepositionStatsTimeAware(float timeFrom, float timeTo) :

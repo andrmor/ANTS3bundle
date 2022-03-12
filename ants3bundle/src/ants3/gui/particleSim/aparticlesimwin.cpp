@@ -1152,29 +1152,20 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
 
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Deposition statistics:\n");
-            QMap<QString, AParticleDepoStat>::const_iterator it = p->DepoData.constBegin();
-            std::vector< QPair<QString, AParticleDepoStat> > vec;
-            double sum = 0;
-            while (it != p->DepoData.constEnd())
+
+            std::vector< std::tuple<QString,double,double,int,double,double> > data;
+            const double sum = p->getResults(data);
+
+            for (const auto & el : data)
             {
-                vec.push_back( QPair<QString, AParticleDepoStat>(it.key(), it.value()) );
-                sum += it.value().sum;
-                ++it;
-            }
-            double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+                QString str = QString("%1\t%2 keV (%3%)\t#: %4")
+                              .arg(std::get<0>(el))
+                              .arg(std::get<1>(el))
+                              .arg( QString::number(std::get<2>(el), 'g', 4) )
+                              .arg(std::get<3>(el));
 
-            std::sort(vec.begin(), vec.end(), [](const QPair<QString, AParticleDepoStat> & a, const QPair<QString, AParticleDepoStat> & b)->bool{return a.second.sum > b.second.sum;});
-
-            for (const auto & el : vec)
-            {
-                const AParticleDepoStat & rec = el.second;
-                const double mean = rec.sum / rec.num;
-                const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-
-                QString str = QString("%1\t%2 keV (%3%)\t#: %4").arg(el.first).arg(rec.sum).arg( QString::number(rec.sum*sumInv, 'g', 4) ).arg(rec.num);
-
-                if (rec.num > 1)  str += QString("\tmean: %1 keV").arg(mean);
-                if (rec.num > 10) str += QString("\tsigma: %1 keV").arg(sigma);
+                if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
+                if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
 
                 ui->ptePTHist->appendPlainText(str);
             }

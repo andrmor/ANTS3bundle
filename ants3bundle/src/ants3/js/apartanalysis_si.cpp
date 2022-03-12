@@ -261,16 +261,14 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats()
     AHistorySearchProcessor_getDepositionStats p;
     Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, AParticleDepoStat>::const_iterator it = p.DepoData.constBegin();
-    while (it != p.DepoData.constEnd())
+    for (const auto & dat : p.DepoData)
     {
         QVariantList el;
-        const AParticleDepoStat & rec = it.value();
+        const AParticleDepoStat & rec = dat.second;
         const double mean = rec.sum / rec.num;
         const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-        el << it.key() << rec.num << mean << sigma;
+        el << dat.first << rec.num << mean << sigma;
         vl.push_back(el);
-        ++it;
     }
     return vl;
 }
@@ -285,16 +283,14 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats(double timeFrom, double 
     AHistorySearchProcessor_getDepositionStatsTimeAware p(timeFrom, timeTo);
     Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, AParticleDepoStat>::const_iterator it = p.DepoData.constBegin();
-    while (it != p.DepoData.constEnd())
+    for (const auto & dat : p.DepoData)
     {
         QVariantList el;
-        const AParticleDepoStat & rec = it.value();
+        const AParticleDepoStat & rec = dat.second;
         const double mean = rec.sum / rec.num;
         const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-        el << it.key() << rec.num << mean << sigma;
+        el << dat.first << rec.num << mean << sigma;
         vl.push_back(el);
-        ++it;
     }
     return vl;
 }

@@ -197,12 +197,15 @@ public:
 
     AHistorySearchProcessor * clone() override;
 
-    const QString Dummy = "___error___";
-    const QString * ParticleName = &Dummy;
-    bool bAlreadyFound = false;
-    QMap<QString, AParticleDepoStat>::iterator itParticle;
+    // Particle SumDepo FractionDepo Number Mean Sigma     --> Mean!=0 if Number>1 ; Sigma !=0 if Number > 5
+    double getResults(std::vector<std::tuple<QString, double, double, int, double, double> > & data) const;
 
-    QMap<QString, AParticleDepoStat> DepoData;
+    std::map<QString, AParticleDepoStat> DepoData;
+
+protected:
+    QString ParticleName;
+    bool bAlreadyFound = false;
+    std::map<QString, AParticleDepoStat>::iterator itParticle;
 };
 
 class AHistorySearchProcessor_getDepositionStatsTimeAware : public AHistorySearchProcessor_getDepositionStats
