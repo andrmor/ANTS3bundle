@@ -339,6 +339,20 @@ bool AHistorySearchProcessor_findParticles::mergeResuts(const AHistorySearchProc
     return true;
 }
 
+void AHistorySearchProcessor_findParticles::getResults(std::vector<std::pair<QString, int> > & data) const
+{
+    data.clear();
+    data.reserve(FoundParticles.size());
+
+    for (const auto & pair : FoundParticles)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
+}
+
 AHistorySearchProcessor_findDepositedEnergy::AHistorySearchProcessor_findDepositedEnergy(CollectionMode mode, int bins, double from, double to)
 {
     Mode = mode;
@@ -664,6 +678,20 @@ bool AHistorySearchProcessor_findProcesses::mergeResuts(const AHistorySearchProc
             itHere->second += itOther.second;
     }
     return true;
+}
+
+void AHistorySearchProcessor_findProcesses::getResults(std::vector<std::pair<QString, int> > & data) const
+{
+    data.clear();
+    data.reserve(FoundProcesses.size());
+
+    for (const auto & pair : FoundProcesses)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
 }
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const

@@ -1040,14 +1040,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
           {
             AHistorySearchProcessor_findParticles p;
             Crawler.find(Opt, p, NumThreads);
-            auto it = p.FoundParticles.begin();
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Particles found:\n");
-            while (it != p.FoundParticles.end())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it->first).arg(it->second));
-                ++it;
-            }
+            ui->ptePTHist->appendPlainText("Particle and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
             break;
           }
         case 1:
@@ -1056,6 +1054,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown process selection mode", this);
+                setEnabled(true);
                 return;
             }
 
@@ -1064,9 +1063,11 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Processes found:\n");
-            for (const auto & pair : p.FoundProcesses)
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(pair.first).arg(pair.second));
+            ui->ptePTHist->appendPlainText("Process and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
 
             selectedModeForProcess = mode;
             break;
@@ -1095,6 +1096,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown energy deposition collection mode", this);
+                setEnabled(true);
                 return;
             }
             AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
@@ -1186,7 +1188,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 AHistorySearchProcessor_findHadronicChannels p;
                 Crawler.find(Opt, p, NumThreads);
                 ui->ptePTHist->clear();
-                ui->ptePTHist->appendPlainText("Hadronic channels:\n");
+                ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
                 std::vector<std::pair<QString,int>> vec;
                 p.getResults(vec);
                 for (const auto & pair : vec)

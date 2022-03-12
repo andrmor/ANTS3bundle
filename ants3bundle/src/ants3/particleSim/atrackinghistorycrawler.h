@@ -62,9 +62,13 @@ public:
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
+    std::map<QString, int> FoundParticles;
+
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
+
+protected:
     QString Candidate;
     bool bConfirmed = false;
-    std::map<QString, int> FoundParticles;
 };
 
 class AHistorySearchProcessor_findProcesses : public AHistorySearchProcessor
@@ -83,12 +87,15 @@ public:
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
-    SelectionMode Mode = All;
-    bool OnlyHadronic = false;
-    QString TargetIsotopeStartsFrom;
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
+
     std::map<QString, int> FoundProcesses;
 
 protected:
+    SelectionMode Mode = All;
+    bool OnlyHadronic = false;
+    QString TargetIsotopeStartsFrom;
+
     bool validateStep(const ATrackingStepData & tr) const;
 };
 
