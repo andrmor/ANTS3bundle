@@ -14,8 +14,6 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 {
     // !!!*** add error control
 
-    qDebug() << "HEEERREEEE" << numThreads;
-
     if (numThreads < 1)
     {
         ATrackingDataImporter imp(FileName, bBinary);
@@ -1189,7 +1187,63 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
 
 AHistorySearchProcessor * AHistorySearchProcessor_Border::clone()
 {
-    return new AHistorySearchProcessor_Border(*this);
+    AHistorySearchProcessor_Border * p = new AHistorySearchProcessor_Border(*this);
+
+    p->formulaWhat1 = ( formulaWhat1 ? new TFormula(*formulaWhat1) : nullptr);
+    p->formulaWhat2 = ( formulaWhat2 ? new TFormula(*formulaWhat2) : nullptr);
+    p->formulaWhat3 = ( formulaWhat3 ? new TFormula(*formulaWhat3) : nullptr);
+    p->formulaCuts  = ( formulaCuts  ? new TFormula(*formulaCuts)  : nullptr);
+
+    p->Hist1D    = ( Hist1D    ? (TH1D*)Hist1D->Clone()    : nullptr);
+    p->Hist1Dnum = ( Hist1Dnum ? (TH1D*)Hist1Dnum->Clone() : nullptr);
+
+    p->Hist2D    = ( Hist2D    ? (TH2D*)Hist2D->Clone()    : nullptr);
+    p->Hist2Dnum = ( Hist2Dnum ? (TH2D*)Hist2Dnum->Clone() : nullptr);
+
+    return p;
+}
+
+bool AHistorySearchProcessor_Border::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_Border * from = dynamic_cast<const AHistorySearchProcessor_Border*>(&other);
+    if (!from) return false;
+
+    //qDebug() << "->";
+    //qDebug() << formulaWhat1->IsValid() << from->formulaWhat1->GetExpFormula();
+
+    if (from->Hist1D)
+    {
+        for (int i = 1; i <= from->Hist1D->GetNbinsX(); i++)
+            Hist1D->Fill(from->Hist1D->GetBinCenter(i), from->Hist1D->GetBinContent(i));
+    }
+    if (from->Hist1Dnum)
+    {
+        for (int i = 1; i <= from->Hist1Dnum->GetNbinsX(); i++)
+            Hist1Dnum->Fill(from->Hist1Dnum->GetBinCenter(i), from->Hist1Dnum->GetBinContent(i));
+    }
+
+    if (from->Hist2D)
+    {
+        for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
+        {
+            const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
+            for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
+                Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
+        }
+    }
+    if (from->Hist2Dnum)
+    {
+        for (int ix = 1; ix <= from->Hist2Dnum->GetNbinsX(); ix++)
+        {
+            const double X = from->Hist2Dnum->GetXaxis()->GetBinCenter(ix);
+            for (int iy = 1; iy <= from->Hist2Dnum->GetNbinsY(); iy++)
+                Hist2Dnum->Fill(X, from->Hist2Dnum->GetYaxis()->GetBinCenter(iy), from->Hist2Dnum->GetBinContent(ix, iy));
+        }
+    }
+
+    // !!!*** underflow and overflow
+
+    return true;
 }
 
 TFormula *AHistorySearchProcessor_Border::parse(QString & expr)

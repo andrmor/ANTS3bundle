@@ -44,7 +44,7 @@ public:
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
 
-    virtual bool mergeResuts(const AHistorySearchProcessor & other) {return false;} // !!!*** "= 0"
+    virtual bool mergeResuts(const AHistorySearchProcessor & other) = 0;
 
 protected:
     bool bInlineSecondaryProcessing = false;
@@ -266,7 +266,8 @@ public:
                                    const QString & cuts,
                                    int bins1, double from1, double to1,
                                    int bins2, double from2, double to2);
-    ~AHistorySearchProcessor_Border();
+
+    ~AHistorySearchProcessor_Border(); // !!!*** delete num hists?
 
     void afterSearch() override;
 
@@ -274,6 +275,8 @@ public:
     void onTransition(const ATrackingStepData & fromfromTr, const ATrackingStepData & fromTr) override; // "from" step
 
     AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override; // !!!*** merge statistics of histograms
 
     QString ErrorString;  // after constructor, valid if ErrorString is empty
     bool bRequiresDirections = false;

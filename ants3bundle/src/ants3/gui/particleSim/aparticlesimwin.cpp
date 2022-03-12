@@ -1225,7 +1225,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                Crawler.find(Opt, p, NumThreads);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
