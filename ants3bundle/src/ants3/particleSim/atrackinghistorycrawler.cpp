@@ -1271,6 +1271,22 @@ AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone()
     return new AHistorySearchProcessor_getDepositionStats(*this);
 }
 
+bool AHistorySearchProcessor_getDepositionStats::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_getDepositionStats * from = dynamic_cast<const AHistorySearchProcessor_getDepositionStats*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->DepoData)
+    {
+        auto itHere = DepoData.find(itOther.first);
+        if (itHere == DepoData.end())
+            DepoData[itOther.first] = itOther.second;
+        else
+            itHere->second.merge(itOther.second);
+    }
+    return true;
+}
+
 double AHistorySearchProcessor_getDepositionStats::getResults(std::vector<std::tuple<QString,double,double,int,double,double> > & data) const
 {
     data.clear();

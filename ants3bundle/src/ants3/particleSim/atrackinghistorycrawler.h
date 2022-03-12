@@ -183,6 +183,8 @@ struct AParticleDepoStat
 
     void append(double val) {num++; sum += val; sumOfSquares += val*val;}
 
+    void merge(const AParticleDepoStat & other) {num += other.num; sum += other.sum; sumOfSquares += other.sumOfSquares;}
+
     int num = 0;
     double sum = 0;
     double sumOfSquares = 0;
@@ -196,6 +198,8 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
     AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
 
     // Particle SumDepo FractionDepo Number Mean Sigma     --> Mean!=0 if Number>1 ; Sigma !=0 if Number > 5
     double getResults(std::vector<std::tuple<QString, double, double, int, double, double> > & data) const;
