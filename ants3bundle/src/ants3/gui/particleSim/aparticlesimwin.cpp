@@ -46,6 +46,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->cobEVdepo->setCurrentIndex(1);
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
+    ui->pbUpdateIcon->setVisible(false);
 
     updateGui();
 
@@ -53,6 +54,10 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
+
+    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labFilterActivated->setPixmap(pm);
+    on_pbUpdateIcon_clicked();
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -1843,7 +1848,9 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     int curEv = ui->sbShowEvent->value();
     int ev = findEventWithFilters(curEv, true);
     if (ev == -1)
-        guitools::message("Cannot find events according to the selected criteria", this);
+    {
+        //guitools::message("Cannot find events according to the selected criteria", this);
+    }
     else
     {
         ui->sbShowEvent->setValue(ev);
@@ -1925,8 +1932,22 @@ void AParticleSimWin::onProgressReceived(double progress)
     ui->progbSim->setValue(progress * 100.0);
 }
 
-void AParticleSimWin::on_cbPTHistVolVsTime_toggled(bool checked)
+void AParticleSimWin::on_cbPTHistVolVsTime_toggled(bool)
 {
     updatePTHistoryBinControl();
 }
 
+void AParticleSimWin::on_pbUpdateIcon_clicked()
+{
+    std::vector<QCheckBox*> vec = {ui->cbEVlimToProc, ui->cbEVexcludeProc, ui->cbLimitToVolumes, ui->cbLimitToParticles, ui->cbExcludeParticles};
+
+    bool vis = false;
+    for (const auto cb : vec)
+        if (cb->isChecked())
+        {
+            vis = true;
+            break;
+        }
+
+    ui->labFilterActivated->setVisible(vis);
+}
