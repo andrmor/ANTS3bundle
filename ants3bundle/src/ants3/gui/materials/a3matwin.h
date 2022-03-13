@@ -90,6 +90,8 @@ private slots:
 
     void on_actionRemove_selected_material_triggered();
 
+    void on_pbListGeant4Materials_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
@@ -122,6 +124,8 @@ private:
     bool parseDecayOrRaiseTime(bool doParseDecay);
     void updateWarningIcons();
     void updateG4RelatedGui();
+
+    void configureG4Materials();
 };
 
 #endif // A3MATWIN_H
