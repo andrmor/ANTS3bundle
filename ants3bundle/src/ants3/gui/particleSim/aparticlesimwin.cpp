@@ -46,6 +46,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->cobEVdepo->setCurrentIndex(1);
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
+    ui->pbUpdateIcon->setVisible(false);
 
     updateGui();
 
@@ -53,6 +54,10 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
+
+    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labFilterActivated->setPixmap(pm);
+    on_pbUpdateIcon_clicked();
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -1001,8 +1006,9 @@ void AParticleSimWin::on_pbEventView_clicked()
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
-    // !!!***
-    // add multithread to crawler
+    setEnabled(false);
+    qApp->processEvents();
+
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
@@ -1020,6 +1026,8 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
+    int NumThreads = ui->sbNumThreadsStatistics->value();
+
     int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
     if (Selector == 0)
     {
@@ -1036,15 +1044,13 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 0:
           {
             AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p);
-            QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
+            Crawler.find(Opt, p, NumThreads);
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Particles found:\n");
-            while (it != p.FoundParticles.constEnd())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
-                ++it;
-            }
+            ui->ptePTHist->appendPlainText("Particle and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
             break;
           }
         case 1:
@@ -1053,21 +1059,20 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown process selection mode", this);
+                setEnabled(true);
                 return;
             }
 
             AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
             AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
-            QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Processes found:\n");
-            while (it != p.FoundProcesses.constEnd())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
-                ++it;
-            }
+            ui->ptePTHist->appendPlainText("Process and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
 
             selectedModeForProcess = mode;
             break;
@@ -1075,7 +1080,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 2:
           {
             AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
             if (p.Hist->GetEntries() == 0)
                 guitools::message("No trajectories found", this);
@@ -1096,6 +1101,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown energy deposition collection mode", this);
+                setEnabled(true);
                 return;
             }
             AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
@@ -1103,7 +1109,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbPTHistVolVsTime->isChecked())
             {
                 AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist2D->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1119,7 +1125,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             else
             {
                 AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1141,39 +1147,30 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbLimitTimeWindow->isChecked())
             {
                 p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
             else
             {
                 p = new AHistorySearchProcessor_getDepositionStats();
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
 
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Deposition statistics:\n");
-            QMap<QString, AParticleDepoStat>::const_iterator it = p->DepoData.constBegin();
-            std::vector< QPair<QString, AParticleDepoStat> > vec;
-            double sum = 0;
-            while (it != p->DepoData.constEnd())
+
+            std::vector< std::tuple<QString,double,double,int,double,double> > data;
+            const double sum = p->getResults(data);
+
+            for (const auto & el : data)
             {
-                vec.push_back( QPair<QString, AParticleDepoStat>(it.key(), it.value()) );
-                sum += it.value().sum;
-                ++it;
-            }
-            double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+                QString str = QString("%1\t%2 keV (%3%)\t#: %4")
+                              .arg(std::get<0>(el))
+                              .arg(std::get<1>(el))
+                              .arg( QString::number(std::get<2>(el), 'g', 4) )
+                              .arg(std::get<3>(el));
 
-            std::sort(vec.begin(), vec.end(), [](const QPair<QString, AParticleDepoStat> & a, const QPair<QString, AParticleDepoStat> & b)->bool{return a.second.sum > b.second.sum;});
-
-            for (const auto & el : vec)
-            {
-                const AParticleDepoStat & rec = el.second;
-                const double mean = rec.sum / rec.num;
-                const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-
-                QString str = QString("%1\t%2 keV (%3%)\t#: %4").arg(el.first).arg(rec.sum).arg( QString::number(rec.sum*sumInv, 'g', 4) ).arg(rec.num);
-
-                if (rec.num > 1)  str += QString("\tmean: %1 keV").arg(mean);
-                if (rec.num > 10) str += QString("\tsigma: %1 keV").arg(sigma);
+                if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
+                if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
 
                 ui->ptePTHist->appendPlainText(str);
             }
@@ -1182,6 +1179,18 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             delete p;
             break;
          }
+        case 5:
+            {
+                AHistorySearchProcessor_findHadronicChannels p;
+                Crawler.find(Opt, p, NumThreads);
+                ui->ptePTHist->clear();
+                ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
+                std::vector<std::pair<QString,int>> vec;
+                p.getResults(vec);
+                for (const auto & pair : vec)
+                    ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+                break;
+            }
         default:
             qWarning() << "Unknown type of volume request";
         }
@@ -1221,7 +1230,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, NumThreads);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1240,7 +1249,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1256,7 +1265,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1275,7 +1284,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1293,6 +1302,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         fromB1 = from;
         toB1 = to;
     }
+
+    QTextCursor txtCursor = ui->ptePTHist->textCursor();
+    txtCursor.setPosition(0);
+    ui->ptePTHist->setTextCursor(txtCursor);
+
+    setEnabled(true);
 }
 
 void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)
@@ -1365,8 +1380,9 @@ void AParticleSimWin::updatePTHistoryBinControl()
     if (ui->twPTHistType->currentIndex() == 0)
     {
         //Volume
-        ui->frPTHistX->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() > 1  && ui->cobPTHistVolRequestWhat->currentIndex() != 4);
-        ui->frPTHistY->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() == 3 && ui->cbPTHistVolVsTime->isChecked() );
+        const int sel = ui->cobPTHistVolRequestWhat->currentIndex();
+        ui->frPTHistX->setVisible( sel == 2 || sel == 3);
+        ui->frPTHistY->setVisible( sel == 3 && ui->cbPTHistVolVsTime->isChecked() );
     }
     else
     {
@@ -1832,7 +1848,9 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     int curEv = ui->sbShowEvent->value();
     int ev = findEventWithFilters(curEv, true);
     if (ev == -1)
-        guitools::message("Cannot find events according to the selected criteria", this);
+    {
+        //guitools::message("Cannot find events according to the selected criteria", this);
+    }
     else
     {
         ui->sbShowEvent->setValue(ev);
@@ -1912,4 +1930,24 @@ void AParticleSimWin::onProgressReceived(double progress)
     if (!ui->progbSim->isEnabled()) return; // simulation is not running
 
     ui->progbSim->setValue(progress * 100.0);
+}
+
+void AParticleSimWin::on_cbPTHistVolVsTime_toggled(bool)
+{
+    updatePTHistoryBinControl();
+}
+
+void AParticleSimWin::on_pbUpdateIcon_clicked()
+{
+    std::vector<QCheckBox*> vec = {ui->cbEVlimToProc, ui->cbEVexcludeProc, ui->cbLimitToVolumes, ui->cbLimitToParticles, ui->cbExcludeParticles};
+
+    bool vis = false;
+    for (const auto cb : vec)
+        if (cb->isChecked())
+        {
+            vis = true;
+            break;
+        }
+
+    ui->labFilterActivated->setVisible(vis);
 }

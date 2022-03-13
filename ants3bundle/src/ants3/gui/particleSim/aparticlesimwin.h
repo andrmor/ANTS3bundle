@@ -177,6 +177,8 @@ private:
 private slots:
     void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
     void onProgressReceived(double progress);
+    void on_cbPTHistVolVsTime_toggled(bool checked);
+    void on_pbUpdateIcon_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

@@ -28,7 +28,7 @@ public:
     //void ForceStop() override;
 
 public slots:
-    void configure(QString fileName, bool binary);
+    void configure(QString fileName, bool binary, int numThreads = -1);
 
     void clearCriteria();
     void setParticle(QString particleName);
@@ -48,6 +48,8 @@ public slots:
     void setOnlyCreated();
     void setOnlyEscaping();
 
+    void test(int numThreads);
+
     QVariantList findParticles();
     QVariantList findProcesses(int All0_WithDepo1_TrackEnd2 = 0, bool onlyHadronic = false, QString targetIsotopeStartsFrom = "");
     QVariantList findDepositedEnergies(int bins, double from, double to);
@@ -57,7 +59,7 @@ public slots:
     QVariantList findDepositedEnergyStats(double timeFrom, double timeTo);
     QVariantList findTravelledDistances(int bins, double from, double to);
 
-    QVariantList findChannels();
+    QVariantList findhadronicChannels();
 
     QVariantList findOnBorder(QString what, QString cuts, int bins, double from, double to);
     QVariantList findOnBorder(QString what, QString vsWhat, QString cuts, int bins, double from, double to);
@@ -67,6 +69,7 @@ public slots:
 private:
     QString FileName;
     bool    bBinaryFile;
+    int     NumThreads = -1;
 
     ATrackingHistoryCrawler * Crawler  = nullptr;
     AFindRecordSelector     * Criteria = nullptr;

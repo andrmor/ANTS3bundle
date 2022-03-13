@@ -3,6 +3,8 @@
 
 #include "aeventtrackingrecord.h"
 
+#include <mutex>
+
 #include <QString>
 #include <QSet>
 #include <QMap>
@@ -37,8 +39,12 @@ public:
     virtual void onTrackEnd(bool /*bMaster*/){} // flag is the value returned by onNewTrack()
     virtual void onEventEnd(){}
 
+    virtual AHistorySearchProcessor * clone() = 0;
+
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
+
+    virtual bool mergeResuts(const AHistorySearchProcessor & other) = 0;
 
 protected:
     bool bInlineSecondaryProcessing = false;
@@ -52,9 +58,17 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
 
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    std::map<QString, int> FoundParticles;
+
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
+
+protected:
     QString Candidate;
     bool bConfirmed = false;
-    QMap<QString, int> FoundParticles;
 };
 
 class AHistorySearchProcessor_findProcesses : public AHistorySearchProcessor
@@ -69,23 +83,37 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override;
     void onTransitionIn (const ATrackingStepData & tr) override;
 
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
+
+    std::map<QString, int> FoundProcesses;
+
+protected:
     SelectionMode Mode = All;
     bool OnlyHadronic = false;
     QString TargetIsotopeStartsFrom;
-    QMap<QString, int> FoundProcesses;
 
     bool validateStep(const ATrackingStepData & tr) const;
 };
 
-class AHistorySearchProcessor_findChannels : public AHistorySearchProcessor
+class AHistorySearchProcessor_findHadronicChannels : public AHistorySearchProcessor
 {
 public:
-    AHistorySearchProcessor_findChannels();
+    AHistorySearchProcessor_findHadronicChannels();
 
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
 
-    QMap<QString, int> Channels;
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    std::map<QString, int> Channels;
+
+    void getResults(std::vector<std::pair<QString,int>> & data) const;
 
 private:
     std::vector<std::pair<QString,QString>> Aliases;
@@ -112,6 +140,10 @@ public:
     void onTrackEnd(bool bMaster) override;
     void onEventEnd() override;
 
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
     CollectionMode Mode = Individual;
     double Depo = 0;
     TH1D * Hist = nullptr;
@@ -131,7 +163,11 @@ public:
                                                      int binsT, double fromT, double toT);
     ~AHistorySearchProcessor_findDepositedEnergyTimed();
 
-    double Time = 0; // used by AHistorySearchProcessor_findDepositedEnergyTimed
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    double Time = 0;
     TH2D * Hist2D = nullptr;
 
 protected:
@@ -147,6 +183,8 @@ struct AParticleDepoStat
 
     void append(double val) {num++; sum += val; sumOfSquares += val*val;}
 
+    void merge(const AParticleDepoStat & other) {num += other.num; sum += other.sum; sumOfSquares += other.sumOfSquares;}
+
     int num = 0;
     double sum = 0;
     double sumOfSquares = 0;
@@ -159,12 +197,19 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
-    const QString Dummy = "___error___";
-    const QString * ParticleName = &Dummy;
-    bool bAlreadyFound = false;
-    QMap<QString, AParticleDepoStat>::iterator itParticle;
+    AHistorySearchProcessor * clone() override;
 
-    QMap<QString, AParticleDepoStat> DepoData;
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
+
+    // Particle SumDepo FractionDepo Number Mean Sigma     --> Mean!=0 if Number>1 ; Sigma !=0 if Number > 5
+    double getResults(std::vector<std::tuple<QString, double, double, int, double, double> > & data) const;
+
+    std::map<QString, AParticleDepoStat> DepoData;
+
+protected:
+    QString ParticleName;
+    bool bAlreadyFound = false;
+    std::map<QString, AParticleDepoStat>::iterator itParticle;
 };
 
 class AHistorySearchProcessor_getDepositionStatsTimeAware : public AHistorySearchProcessor_getDepositionStats
@@ -174,6 +219,8 @@ public:
 
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
+
+    AHistorySearchProcessor * clone() override;
 
 private:
     float timeFrom;
@@ -191,6 +238,10 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override; // "from" step
     void onTransitionIn (const ATrackingStepData & tr) override; // "from" step
     void onTrackEnd(bool) override;
+
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override;
 
     float Distance = 0;
     float LastPosition[3];
@@ -215,12 +266,17 @@ public:
                                    const QString & cuts,
                                    int bins1, double from1, double to1,
                                    int bins2, double from2, double to2);
-    ~AHistorySearchProcessor_Border();
+
+    ~AHistorySearchProcessor_Border(); // !!!*** delete num hists?
 
     void afterSearch() override;
 
     // direction info can be [0,0,0] !!!
     void onTransition(const ATrackingStepData & fromfromTr, const ATrackingStepData & fromTr) override; // "from" step
+
+    AHistorySearchProcessor * clone() override;
+
+    bool mergeResuts(const AHistorySearchProcessor & other) override; // !!!*** merge statistics of histograms
 
     QString ErrorString;  // after constructor, valid if ErrorString is empty
     bool bRequiresDirections = false;
@@ -290,7 +346,9 @@ class ATrackingHistoryCrawler
 public:
     ATrackingHistoryCrawler(const QString & fileName, bool binary) : FileName(fileName), bBinary(binary) {}
 
-    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const;
+    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
+
+    void abort() {bAbortRequested = true;}
 
 private:
     enum ProcessType {Creation, Local, NormalTransportation, ExitingWorld};
@@ -299,6 +357,12 @@ private:
 
     QString FileName;
     bool    bBinary;
+
+    bool bAbortRequested = false;
+
+    std::mutex CrawlerMutex;
+
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

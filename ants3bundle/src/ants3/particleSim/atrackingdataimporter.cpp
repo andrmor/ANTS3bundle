@@ -107,7 +107,7 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
     if (isEndReached()) FileEndEvent = CurrentEvent;
     if (SeekMode && isEndReached())
     {
-        ErrorString = QString("End reached while seeking event index of %0").arg(SeekEvent);
+        ErrorString = QString("File end reached (cannot find event # %0)").arg(SeekEvent);
         return false;
     }
     if (isErrorInPromises())

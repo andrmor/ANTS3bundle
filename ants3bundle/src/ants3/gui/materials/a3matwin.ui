@@ -39,7 +39,6 @@
        <widget class="QLabel" name="label_18">
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -74,7 +73,6 @@
        <widget class="QPushButton" name="pbShowUsage">
         <property name="font">
          <font>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -140,7 +138,6 @@
        <widget class="QLineEdit" name="leName">
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -200,7 +197,6 @@
         </property>
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -222,7 +218,6 @@
         </property>
         <property name="font">
          <font>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -267,17 +262,36 @@
           <item>
            <widget class="QCheckBox" name="cbG4Material">
             <property name="text">
-             <string>In Geant4, use data from material database for material:</string>
+             <string>Material from Geant4 database:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLineEdit" name="leG4Material">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>e.g. G4_POLYETHYLENE
 See Geant4 material database and class G4NistManager
 
 To use Al with termal scattering, use G4_Al_TS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbListGeant4Materials">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Open default browser with the Geant4's help page. On some versions of Linux, the browser is not ficused!</string>
+            </property>
+            <property name="text">
+             <string>List</string>
             </property>
            </widget>
           </item>
@@ -309,7 +323,6 @@ To use Al with termal scattering, use G4_Al_TS</string>
            <widget class="QLabel" name="label_21">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -512,7 +525,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -635,7 +647,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                <widget class="QCheckBox" name="cbShowIsotopes">
                 <property name="font">
                  <font>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -694,7 +705,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
          <widget class="QLabel" name="label_41">
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -730,7 +740,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -749,7 +758,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -781,7 +789,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -800,7 +807,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -832,7 +838,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -864,7 +869,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -883,7 +887,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -917,7 +920,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -956,7 +958,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -975,7 +976,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1008,7 +1008,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1063,7 +1062,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1073,7 +1071,6 @@ Wavelengths shoul be given in increasing order</string>
                <widget class="QLabel" name="label_23">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1112,7 +1109,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1131,7 +1127,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1164,7 +1159,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1219,7 +1213,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1232,7 +1225,6 @@ Wavelengths shoul be given in increasing order</string>
                <widget class="QLabel" name="label_47">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1263,7 +1255,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1273,7 +1264,6 @@ Wavelengths shoul be given in increasing order</string>
                <widget class="QLabel" name="label_49">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1301,7 +1291,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1356,7 +1345,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1398,7 +1386,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1417,7 +1404,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1450,7 +1436,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1515,7 +1500,6 @@ Wavelengths shoul be given in increasing order</string>
          <widget class="QLabel" name="label_44">
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1545,7 +1529,6 @@ Wavelengths shoul be given in increasing order</string>
              <widget class="QLabel" name="label_5">
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1558,7 +1541,6 @@ Wavelengths shoul be given in increasing order</string>
              <widget class="QLabel" name="label_8">
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1571,7 +1553,6 @@ Wavelengths shoul be given in increasing order</string>
              <widget class="QLabel" name="label_24">
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1594,7 +1575,6 @@ Wavelengths shoul be given in increasing order</string>
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1616,7 +1596,6 @@ Wavelengths shoul be given in increasing order</string>
               </property>
               <property name="font">
                <font>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1647,7 +1626,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1666,7 +1644,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1699,7 +1676,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1741,7 +1717,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1751,7 +1726,6 @@ Wavelengths shoul be given in increasing order</string>
                <widget class="QLabel" name="label_28">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1776,7 +1750,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1795,7 +1768,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1837,7 +1809,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1850,7 +1821,6 @@ Wavelengths shoul be given in increasing order</string>
                <widget class="QLabel" name="label_29">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1915,7 +1885,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1934,7 +1903,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2006,7 +1974,6 @@ Wavelengths shoul be given in increasing order</string>
                 </property>
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -3067,6 +3034,22 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>142</x>
      <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbG4Material</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leG4Material</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>343</x>
+     <y>257</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>489</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
