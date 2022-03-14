@@ -53,15 +53,15 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
     int iEv = 0;
     while (true)
     {
-        while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(10));
-
         //qDebug() << "-------------Event #" << iEv;
         AEventTrackingRecord * event = AEventTrackingRecord::create();
         bool ok = dataImporter.extractEvent(iEv, event);
         if (ok)
         {
+                while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
+
                 pool.addJob(
-                    [&processor, pProcessorForCloning, event, &criteria, this]() mutable
+                    [&processor, pProcessorForCloning, event, &criteria, this]()
                     {
                         AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
                         localProcessor->beforeSearch();
@@ -81,8 +81,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 
                         delete event;
                         delete localProcessor;
-                    }
-                );
+                    } );
         }
         else
         {

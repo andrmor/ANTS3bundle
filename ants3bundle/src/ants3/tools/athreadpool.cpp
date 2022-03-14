@@ -28,7 +28,7 @@ AThreadPool::AThreadPool(size_t numThreads) : NumThreads(numThreads)
                     task();
 
                     {
-                        std::unique_lock<std::mutex> lock(this->Mutex);
+                        std::lock_guard<std::mutex> lock(this->Mutex);
                         NumBusyThreads--;
                     }
                 }
@@ -54,7 +54,7 @@ void AThreadPool::addJob(std::function<void ()> newJob)
 {
     {
         std::unique_lock<std::mutex> lock(Mutex);
-        if (StopRequested) throw std::runtime_error("Add task on stopped AThreadPool");
+        if (StopRequested) throw std::runtime_error("Cannot add job for already stopped AThreadPool");
         NumBusyThreads++;
         Jobs.push(newJob);
     }
@@ -64,12 +64,12 @@ void AThreadPool::addJob(std::function<void ()> newJob)
 
 bool AThreadPool::isFull()
 {
-    std::unique_lock<std::mutex> lock(Mutex);
+    std::lock_guard<std::mutex> lock(Mutex);
     return (NumBusyThreads == NumThreads);
 }
 
 bool AThreadPool::isIdle()
 {
-    std::unique_lock<std::mutex> lock(Mutex);
+    std::lock_guard<std::mutex> lock(Mutex);
     return NumBusyThreads == 0;
 }

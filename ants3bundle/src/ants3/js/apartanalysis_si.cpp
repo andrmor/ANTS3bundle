@@ -129,8 +129,8 @@ void APartAnalysis_SI::test(int numThreads)
     for(int i = 0; i < 8; ++i)
     {
         //qDebug() << "preparing job #" << i;
-        while (pool.isFull()) {std::this_thread::sleep_for(std::chrono::microseconds(10));}
-        qDebug() << "Pooling job #" << i;
+        while (pool.isFull()) {std::this_thread::sleep_for(std::chrono::microseconds(1));}
+        qDebug() << "Adding job to pool: #" << i;
 
         pool.addJob([i]()
         {
