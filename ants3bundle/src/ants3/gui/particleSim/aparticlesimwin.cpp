@@ -1928,7 +1928,6 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 void AParticleSimWin::onProgressReceived(double progress)
 {
     if (!ui->progbSim->isEnabled()) return; // simulation is not running
-
     ui->progbSim->setValue(progress * 100.0);
 }
 

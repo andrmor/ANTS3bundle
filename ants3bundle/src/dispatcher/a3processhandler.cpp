@@ -52,7 +52,7 @@ void A3ProcessHandler::abort()
 #include <QDebug>
 void A3ProcessHandler::onReadReady()
 {
-    QString in = Process->readAllStandardOutput();
+    const QString in = Process->readAllStandardOutput();
 
     const QStringList input = in.split('\n', Qt::SkipEmptyParts);
     for (const QString & message : input)

@@ -135,7 +135,7 @@ void SessionManager::onEventFinished()
     CurrentEvent++;
 
     int EventsDone = CurrentEvent - Settings.RunSet.EventFrom;
-    std::cout << "$$>" << EventsDone << "<$$\n";
+    std::cout << "$$>" << EventsDone << "<$$" << std::endl; // endl also flushes!
 }
 
 int SessionManager::findMaterial(const std::string &materialName)
