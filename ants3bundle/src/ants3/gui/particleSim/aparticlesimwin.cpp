@@ -395,7 +395,10 @@ void AParticleSimWin::updateSourceList()
             lab->setFont(f);
         l->addWidget(lab);
         l->addWidget(new QLabel( QString(pr.getShapeString().data()) + ','));
-        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.Particles.size()).arg( pr.Particles.size()>1 ? "s" : "" ) ) );
+            QString SPart;
+            if (pr.Particles.size() == 1) SPart = pr.Particles.front().Particle.data();
+            else SPart = QString("%1 particles").arg(pr.Particles.size());
+        l->addWidget(new QLabel(SPart));
         l->addStretch();
 
         l->addWidget(new QLabel("Fraction:"));
