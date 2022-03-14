@@ -425,9 +425,10 @@ void ATrackingDataImporter::addHistoryStep()
     CurrentParticleRecord->addStep(step);
 
     readSecondaries();
-    for (const int & index : qAsConst(BsecVec))
+    for (int index : BsecVec)
     {
-        if (PromisedSecondaries.contains(index))
+        //if (PromisedSecondaries.contains(index))
+        if (PromisedSecondaries.find(index) != PromisedSecondaries.end())
         {
             ErrorString = QString("Error: secondary with index %1 was already promised").arg(index);
             return;
@@ -435,7 +436,8 @@ void ATrackingDataImporter::addHistoryStep()
         AParticleTrackingRecord * sr = AParticleTrackingRecord::create(); //empty!
         step->Secondaries.push_back(CurrentParticleRecord->countSecondaries());
         CurrentParticleRecord->addSecondary(sr);
-        PromisedSecondaries.insert(index, sr);
+        //PromisedSecondaries.insert(index, sr);
+        PromisedSecondaries[index] = sr;
     }
 }
 
@@ -518,7 +520,7 @@ void ATrackingDataImporter::readSecondaries()
         BsecVec.clear();
         const int secIndex = (inputSL.at(0) == "T" ? 10 : 7);
         for (int i = secIndex; i < inputSL.size(); i++)
-            BsecVec << inputSL.at(i).toInt();
+            BsecVec.push_back( inputSL.at(i).toInt() );
     }
 }
 
@@ -602,7 +604,7 @@ void ATrackingDataImporter::processNewTrack(bool SeekMode)
         else
         {
             int trIndex = getNewTrackIndex();
-            AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];
+            AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];  // !!!*** searches twice: here and below in erase!
             if (!secrec)
             {
                 ErrorString = "Promised secondary not found!";
@@ -611,7 +613,8 @@ void ATrackingDataImporter::processNewTrack(bool SeekMode)
 
             updatePromisedSecondary(secrec);
             CurrentParticleRecord = secrec;
-            PromisedSecondaries.remove(trIndex);
+            //PromisedSecondaries.remove(trIndex);
+            PromisedSecondaries.erase(PromisedSecondaries.find(trIndex));
         }
     }
 
@@ -640,5 +643,5 @@ void ATrackingDataImporter::processNewStep(bool SeekMode)
 
 bool ATrackingDataImporter::isErrorInPromises()
 {
-    return !PromisedSecondaries.isEmpty();
+    return !PromisedSecondaries.empty();
 }

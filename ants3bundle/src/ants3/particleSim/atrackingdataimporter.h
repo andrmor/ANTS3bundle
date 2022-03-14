@@ -2,10 +2,10 @@
 #define ATRACKINGDATAIMPORTER_H
 
 #include <vector>
+#include <map>
+
 #include <QString>
 #include <QStringList>
-#include <QMap>
-#include <QVector>
 
 class AEventTrackingRecord;
 class AParticleTrackingRecord;
@@ -38,7 +38,7 @@ private:
     AEventTrackingRecord    * CurrentEventRecord    = nullptr;
     AParticleTrackingRecord * CurrentParticleRecord = nullptr;  // current particle - can be primary or secondary
 
-    QMap<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
+    std::map<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
 
     enum EStatus {ExpectingEvent, ExpectingTrack, ExpectingStep, TrackOngoing, Initialization};
 
@@ -70,7 +70,7 @@ private:
     int           BnextVolIndex;
     std::string   BprocessName  = "______________________________________________________"; //reserve long
     double        BdepoEnergy;
-    QVector<int>  BsecVec;
+    std::vector<int> BsecVec;
 
     //to speedup, maybe add QString fields to mirrow std::strings appear?
 
