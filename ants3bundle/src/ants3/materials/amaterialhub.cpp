@@ -330,7 +330,10 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
         if (!World->isMaterialInActiveUse(iM)) continue;
 
         const AMaterial * mat = Materials[iM];
-        if (!mat->ChemicalComposition.isDefined())
-            Errors += QString("\nComposition not defined for %1, while needed for tracking!\n").arg(mat->name);
+
+        if (mat->bG4UseNistMaterial && mat->G4NistMaterial.isEmpty())
+            Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->name);
+        if (!mat->ChemicalComposition.isDefined() && !mat->bG4UseNistMaterial)
+            Errors += QString("\nComposition not defined for material %1\n").arg(mat->name);
     }
 }
