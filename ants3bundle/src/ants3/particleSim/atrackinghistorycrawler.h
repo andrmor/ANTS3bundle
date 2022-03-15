@@ -341,6 +341,7 @@ public:
 
 };
 
+// !!!*** abort for multithreaded!
 class ATrackingHistoryCrawler
 {
 public:

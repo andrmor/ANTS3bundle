@@ -122,9 +122,29 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
 bool ATrackingDataImporter::isEndReached() const
 {
     if (bBinaryInput)
-        return inStream->eof();
+        return inStream->tellg();
     else
         return inTextStream->atEnd();
+}
+
+AImporterEventStart ATrackingDataImporter::getEventStart() const
+{
+    AImporterEventStart es;
+
+    es.CurrentEvent = CurrentEvent;
+
+    if (bBinaryInput) es.Position = inStream->tellg();
+    else              es.Position = inTextStream->pos();
+
+    return es;
+}
+
+void ATrackingDataImporter::setPositionInFile(const AImporterEventStart & es)
+{
+    CurrentEvent = es.CurrentEvent;
+
+    if (bBinaryInput) inStream->seekg(es.Position);//, std::ios_base::beg);
+    else              inTextStream->seek(es.Position);
 }
 
 int ATrackingDataImporter::countEvents()

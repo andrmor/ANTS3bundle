@@ -43,26 +43,32 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 #include "athreadpool.h"
 void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
 {
-    ATrackingDataImporter dataImporter(FileName, bBinary);
-
-    AThreadPool pool(numThreads);
     processor.beforeSearch();
 
+    ATrackingDataImporter dataImporter(FileName, bBinary);
+    AThreadPool pool(numThreads);
     AHistorySearchProcessor * pProcessorForCloning = processor.clone();
 
-    int iEv = 0;
+    int iEvent = 0;
     while (true)
     {
         //qDebug() << "-------------Event #" << iEv;
-        AEventTrackingRecord * event = AEventTrackingRecord::create();
-        bool ok = dataImporter.extractEvent(iEv, event);
-        if (ok)
-        {
-                while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
+        bool ok = dataImporter.gotoEvent(iEvent);
+        if (!ok) break;
 
-                pool.addJob(
-                    [&processor, pProcessorForCloning, event, &criteria, this]()
+        const AImporterEventStart position = dataImporter.getEventStart();
+
+        while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
+
+        pool.addJob(
+                    [&processor, pProcessorForCloning, &criteria, position, iEvent, this]()
                     {
+                        ATrackingDataImporter localDataImporter(FileName, bBinary);
+                        localDataImporter.setPositionInFile(position);
+
+                        AEventTrackingRecord * event = AEventTrackingRecord::create();
+                        localDataImporter.extractEvent(iEvent, event);
+
                         AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
                         localProcessor->beforeSearch();
                         localProcessor->onNewEvent();
@@ -75,24 +81,18 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                         localProcessor->afterSearch();
 
                         {
-                            std::unique_lock<std::mutex> lock(CrawlerMutex);
+                            std::lock_guard<std::mutex> lock(CrawlerMutex);
                             processor.mergeResuts(*localProcessor);
                         }
 
-                        delete event;
                         delete localProcessor;
+                        delete event;
                     } );
-        }
-        else
-        {
-            delete event;
-            break;
-        }
 
-        iEv++;
+        iEvent++;
     }
 
-    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::microseconds(1000));}
+    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::milliseconds(1));}
 }
 
 void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector & opt, AHistorySearchProcessor & processor) const

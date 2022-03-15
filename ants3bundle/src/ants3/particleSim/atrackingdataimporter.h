@@ -13,6 +13,12 @@ class QFile;
 class QTextStream;
 class ATrackingStepData;
 
+struct AImporterEventStart
+{
+    int64_t Position;
+    int CurrentEvent;
+};
+
 class ATrackingDataImporter
 {
 public:
@@ -22,12 +28,15 @@ public:
     bool extractEvent(int iEvent, AEventTrackingRecord * EventRecord);
     bool isEndReached() const;
 
-    int countEvents();
+    AImporterEventStart getEventStart() const;
+    void setPositionInFile(const AImporterEventStart & pos); // !!!*** return bool for error control
+
+    int  countEvents();
+    bool gotoEvent(int iEvent);
 
     QString ErrorString;
 
 private:
-    bool gotoEvent(int iEvent);
     bool readCurrentEvent();
 
     bool processFile(bool SeekMode = false);
@@ -38,7 +47,7 @@ private:
     AEventTrackingRecord    * CurrentEventRecord    = nullptr;
     AParticleTrackingRecord * CurrentParticleRecord = nullptr;  // current particle - can be primary or secondary
 
-    std::map<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>  // *** avoid using QMap - slow!
+    std::map<int, AParticleTrackingRecord*> PromisedSecondaries;   // <index in file, secondary AEventTrackingRecord *>
 
     enum EStatus {ExpectingEvent, ExpectingTrack, ExpectingStep, TrackOngoing, Initialization};
 
