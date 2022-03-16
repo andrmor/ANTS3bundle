@@ -58,6 +58,16 @@ double AMath_SI::cos(double val)
     return std::cos(val);
 }
 
+double AMath_SI::cosh(double val)
+{
+    return std::cosh(val);
+}
+
+double AMath_SI::sinh(double val)
+{
+    return std::sinh(val);
+}
+
 double AMath_SI::exp(double val)
 {
     return std::exp(val);
