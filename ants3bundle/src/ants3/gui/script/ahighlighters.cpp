@@ -13,7 +13,9 @@ AHighlighterScriptWindow::AHighlighterScriptWindow(QTextDocument *parent)
                     << "\\bdo\\b" << "\\bwhile\\b" << "\\bfor\\b" << "\\bwith\\b" << "\\bdelete\\b"
                     << "\\bin\\b" << "\\bfunction\\b" << "\\bif\\b"
                     << "\\belse\\b" << "\\breturn\\b" << "\\bswitch\\b"
-                    << "\\bthrow\\b" << "\\btry\\b" << "\\bvar\\b"
+                    << "\\bthrow\\b" << "\\btry\\b"
+                    << "\\blet\\b" << "\\bconst\\b" << "\\bvar\\b"
+                    << "\\Array\\b"
                     << "\\bpush\\b" << "\\btypeof\\b"
                     << "\\bsplice\\b"
                     << "\\bMath\\s*.\\b" << "\\bArray\\s*.\\b" << "\\bString\\s*.\\b";
