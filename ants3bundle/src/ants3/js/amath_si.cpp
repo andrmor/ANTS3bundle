@@ -313,3 +313,38 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
     delete f;
     return res;
 }
+
+#include "TVirtualFFT.h"
+QVariantList AMath_SI::fft(QVariantList array)
+{
+    QVariantList res;
+
+    std::vector<double> input(array.size());
+    bool ok = true;
+    for (int i=0; i<array.size(); i++)
+    {
+        input[i] = array[i].toDouble(&ok);
+        if (!ok)
+        {
+            abort("FFT input shoyuld be an array of doubles");
+            return res;
+        }
+    }
+
+    int N = input.size();
+    TVirtualFFT * fftr2c = TVirtualFFT::FFT(1, &N, "R2C");
+    fftr2c->SetPoints(input.data());
+
+    fftr2c->Transform();
+
+    double re, im;
+    for (int i = 0; i < N; i++)
+    {
+       fftr2c->GetPointComplex(i, re, im);
+       res.push_back(QVariantList{re, im});
+    }
+
+    delete fftr2c;
+
+    return res;
+}
