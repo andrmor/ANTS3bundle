@@ -45,9 +45,6 @@ class AHighlighterJS : public AHighlighter
     Q_OBJECT
 public:
     AHighlighterJS(QTextDocument * parent = nullptr);
-
-protected:
-    void setLanguageRules() override;
 };
 
 class AHighlighterPython : public AHighlighter
@@ -55,8 +52,6 @@ class AHighlighterPython : public AHighlighter
     Q_OBJECT
 public:
     AHighlighterPython(QTextDocument * parent = nullptr);
-
-    void setLanguageRules() override;
 };
 
 #endif // AHIGHLIGHTERS_H

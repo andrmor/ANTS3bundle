@@ -3,10 +3,7 @@
 #include <QDebug>
 
 AHighlighter::AHighlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent)
-{
-    setLanguageRules();
-}
+    : QSyntaxHighlighter(parent){}
 
 void AHighlighter::setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants)
 {
@@ -100,9 +97,7 @@ void AHighlighter::highlightBlock(const QString &text)
 // ---------------------
 
 AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
-    AHighlighter(parent) {}
-
-void AHighlighterJS::setLanguageRules()
+    AHighlighter(parent)
 {
     HighlightingRule rule;
 
@@ -178,10 +173,7 @@ void AHighlighterJS::setLanguageRules()
 // ---------------------
 
 AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
-    AHighlighter(parent) {}
-
-
-void AHighlighterPython::setLanguageRules()
+    AHighlighter(parent)
 {
     bMultilineCommentAllowed = false;
 

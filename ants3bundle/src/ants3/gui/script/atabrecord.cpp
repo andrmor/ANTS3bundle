@@ -27,13 +27,10 @@ ATabRecord::ATabRecord(const QStringList & functions, AScriptLanguageEnum langua
     Completer->setWrapAround(false);
     TextEdit->setCompleter(Completer);
 
-    Highlighter = new AHighlighter(TextEdit->document());
-    /*
-    if (language == AScriptLanguageEnum::Python)
-        Highlighter = new AHighlighterPython(TextEdit->document());
-    else
+    if (language == AScriptLanguageEnum::JavaScript)
         Highlighter = new AHighlighterJS(TextEdit->document());
-    */
+    else
+        Highlighter = new AHighlighterPython(TextEdit->document());
 
     TextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(TextEdit, &ATextEdit::customContextMenuRequested, this, &ATabRecord::onCustomContextMenuRequested);
