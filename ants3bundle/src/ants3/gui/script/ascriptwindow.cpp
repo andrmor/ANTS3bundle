@@ -15,6 +15,7 @@
 #include "ajscriptmanager.h"
 
 #include <QDebug>
+#include <QList>
 #include <QSplitter>
 #include <QFileDialog>
 #include <QMetaMethod>
@@ -111,11 +112,12 @@ AScriptWindow::~AScriptWindow()
     delete ui;
     delete RedIcon;
 
-    for (int i = (int)ScriptBooks.size() - 1; i > -1; i--)
+    for (auto & sb : ScriptBooks)
     {
-        for (ATabRecord * r : ScriptBooks[i].Tabs) delete r;
-        ScriptBooks[i].Tabs.clear();
+        for (ATabRecord * r : sb.Tabs) delete r;
+        sb.Tabs.clear();
     }
+    ScriptBooks.clear();
 }
 
 void AScriptWindow::createGuiElements()
@@ -257,7 +259,7 @@ void AScriptWindow::on_aAlphabeticOrder_changed()
 void AScriptWindow::updateRemovedAndDeprecatedMethods()
 {
     //DeprecatedOrRemovedMethods.clear();
-    //ListOfDeprecatedOrRemovedMethods.clear()
+    //ListOfDeprecatedOrRemovedMethods.clear();
     for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
         appendDeprecatedAndRemovedMethods(inter);
 }

@@ -51,7 +51,7 @@ public:
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);
     void onLineNumberChanged(int lineNumber);
-    void onTextChanged();
+    void onTextChanged(); // !!!*** let const     how about language-sensitivity?
 
 signals:
     void requestFindText();

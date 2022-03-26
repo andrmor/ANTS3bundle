@@ -8,7 +8,6 @@
 #include <QSet>
 #include <QHash>
 #include <QString>
-#include <QList>
 
 #include <vector>
 
@@ -95,7 +94,7 @@ private:
     void fillHelper(const AScriptInterface * io);
     QString getKeyPath(QTreeWidgetItem *item);
     QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, cponvert to AScriptInterface
-    void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj);
+    void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
     void addNewBook();
     void removeBook(int iBook, bool bConfirm = true);
@@ -157,7 +156,7 @@ private slots:
     void updateFileStatusIndication();
 
     void onCurrentTabChanged(int tab);   //triggered ONLY on visible book and contains only file/find gui for the current script
-    void onScriptTabMoved(int from, int to); // !!!*** check swap
+    void onScriptTabMoved(int from, int to);
 
     void twBooks_currentChanged(int index);
     void onBookTabMoved(int from, int to);
