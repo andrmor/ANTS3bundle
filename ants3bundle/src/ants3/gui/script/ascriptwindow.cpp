@@ -1,5 +1,6 @@
 #include "ascriptwindow.h"
 #include "ui_ascriptwindow.h"
+#include "atabrecord.h"
 #include "ahighlighters.h"
 #include "atextedit.h"
 #include "ascriptinterface.h"
@@ -13,13 +14,12 @@
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
 
+#include <QDebug>
 #include <QSplitter>
 #include <QFileDialog>
-#include <QDebug>
 #include <QMetaMethod>
 #include <QPainter>
 #include <QPlainTextEdit>
-#include <QStringListModel>
 #include <QShortcut>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -27,7 +27,6 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QJsonParseError>
-#include <QCompleter>
 #include <QThread>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -36,6 +35,7 @@
 #include <QInputDialog>
 #include <QHeaderView>
 #include <QRegularExpression>
+#include <QTextBlock>
 
 AScriptWindow::AScriptWindow(QWidget * parent) :
     AGuiWindow("JScript", parent),
@@ -1051,98 +1051,7 @@ void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * o
 */
 }
 
-ATabRecord::ATabRecord(const QStringList & functions, AScriptLanguageEnum language) :
-    Functions(functions)
-{
-    TextEdit = new ATextEdit();
-    TextEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
-
-    Completer = new QCompleter(this);
-    CompletitionModel = new QStringListModel(functions, this);
-    Completer->setModel(CompletitionModel);
-    Completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-    //completer->setCompletionMode(QCompleter::PopupCompletion);
-    Completer->setFilterMode(Qt::MatchContains);
-    //completer->setFilterMode(Qt::MatchStartsWith);
-    Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    Completer->setCaseSensitivity(Qt::CaseSensitive);
-    Completer->setWrapAround(false);
-    TextEdit->setCompleter(Completer);
-
-    if (language == AScriptLanguageEnum::Python)
-        Highlighter = new APythonHighlighter(TextEdit->document());
-    else
-        Highlighter = new AHighlighterScriptWindow(TextEdit->document());
-
-    TextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(TextEdit, &ATextEdit::customContextMenuRequested, this, &ATabRecord::onCustomContextMenuRequested);
-    connect(TextEdit, &ATextEdit::lineNumberChanged, this, &ATabRecord::onLineNumberChanged);
-    connect(TextEdit, &ATextEdit::textChanged, this, &ATabRecord::onTextChanged);
-}
-
-ATabRecord::~ATabRecord()
-{
-    delete TextEdit;
-}
-
-void ATabRecord::UpdateHighlight()
-{
-    bool bWasMod = wasModified();
-    Highlighter->rehighlight();
-    setModifiedStatus(bWasMod);
-}
-
-void ATabRecord::WriteToJson(QJsonObject & json) const
-{
-    json["FileName"]         = FileName;
-    json["TabName"]          = TabName;
-    json["bExplicitlyNamed"] = bExplicitlyNamed;
-    json["Script"]           = (TextEdit ? TextEdit->document()->toPlainText() : "");
-}
-
-void ATabRecord::ReadFromJson(const QJsonObject & json)
-{
-    if (!TextEdit) return;
-
-    QString Script = json["Script"].toString();
-    TextEdit->clear();
-    TextEdit->appendPlainText(Script);
-    TextEdit->document()->clearUndoRedoStacks();
-    FileName.clear();
-    FileName = json["FileName"].toString();
-
-    bExplicitlyNamed = false;
-    jstools::parseJson(json, "bExplicitlyNamed", bExplicitlyNamed);
-
-    if (json.contains("TabName")) TabName = json["TabName"].toString();
-    else //compatibility
-    {
-        if (FileName.isEmpty()) TabName.clear();
-        else
-        {
-            QFileInfo fi(FileName);
-            TabName = fi.baseName();
-        }
-    }
-}
-
-/*
-QTextEdit holds a QTextDocument object which can be retrieved using the document() method.
-You can also set your own document object using setDocument(). QTextDocument emits a textChanged() signal
- if the text changes and it also provides a isModified() function which will return true if the text has been modified
- since it was either loaded or since the last call to setModified with false as argument.
- In addition it provides methods for undo and redo.
-*/
-
-bool ATabRecord::wasModified() const
-{
-    return TextEdit->document()->isModified();
-}
-
-void ATabRecord::setModifiedStatus(bool flag)
-{
-    TextEdit->document()->setModified(flag);
-}
+// ------------------------
 
 void AScriptWindow::onCurrentTabChanged(int tab)
 {
@@ -1230,8 +1139,8 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
 
 void AScriptWindow::updateTab(ATabRecord* tab)
 {
-    tab->Highlighter->setHighlighterRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
-    tab->UpdateHighlight();
+    tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
+    tab->updateHighlight();
     tab->TextEdit->functionList = functionList;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
 }
@@ -1260,6 +1169,8 @@ ATabRecord & AScriptWindow::addNewTab()
 void AScriptWindow::formatTab(ATabRecord * tab)
 {
     updateTab(tab);
+
+    //qDebug() << GlobSet.SW_FontFamily << GlobSet.SW_FontSize << GlobSet.SW_FontWeight << GlobSet.SW_Italic;
 
     if (GlobSet.SW_FontFamily.isEmpty())
         tab->TextEdit->SetFontSize(GlobSet.SW_FontSize);
@@ -1370,6 +1281,7 @@ void AScriptWindow::on_actionSelect_font_triggered()
     GlobSet.SW_FontSize   = font.pointSize();
     GlobSet.SW_FontWeight = font.weight();
     GlobSet.SW_Italic     = font.italic();
+    GlobSet.saveConfig();
 
     for (ATabRecord* tab : getScriptTabs())
         tab->TextEdit->setFont(font);
@@ -1812,104 +1724,6 @@ void AScriptWindow::on_pbReplaceAll_clicked()
     guitools::message("Replacements performed: " + QString::number(numReplacements), this);
 }
 
-void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
-{
-    QMenu menu;
-
-    QAction* paste = menu.addAction("Paste"); paste->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
-    QAction* copy  = menu.addAction("Copy");   copy->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
-    QAction* cut   = menu.addAction("Cut");     cut->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
-    menu.addSeparator();
-    QAction* findSel =    menu.addAction("Find selected text");      findSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
-    QAction* replaceSel = menu.addAction("Replace selected text");replaceSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
-    menu.addSeparator();
-    QAction* findFunct = menu.addAction("Find function definition");      findFunct->setShortcut(QKeySequence(Qt::Key_F2));
-    QAction* findVar =   menu.addAction("Find variable definition (F3)");   findVar->setShortcut(QKeySequence(Qt::Key_F3));
-    menu.addSeparator();
-    QAction* shiftBack = menu.addAction("Go back");          shiftBack->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Left));
-    QAction* shiftForward = menu.addAction("Go forward"); shiftForward->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Right));
-    menu.addSeparator();
-    QAction* alignText = menu.addAction("Align selected text"); alignText->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
-
-    QAction* selectedItem = menu.exec(TextEdit->mapToGlobal(pos));
-    if (!selectedItem) return; //nothing was selected
-
-    if (selectedItem == findSel)         emit requestFindText();
-    if (selectedItem == replaceSel)      emit requestReplaceText();
-    else if (selectedItem == findFunct)  emit requestFindFunction();
-    else if (selectedItem == findVar)    emit requestFindVariable();
-    else if (selectedItem == replaceSel) emit requestReplaceText();
-
-    else if (selectedItem == shiftBack)    goBack();
-    else if (selectedItem == shiftForward) goForward();
-
-    else if (selectedItem == alignText) TextEdit->align();
-    else if (selectedItem == cut)       TextEdit->cut();
-    else if (selectedItem == copy)      TextEdit->copy();
-    else if (selectedItem == paste)     TextEdit->paste();
-}
-
-void ATabRecord::goBack()
-{
-    if (IndexVisitedLines >= 1 && IndexVisitedLines < VisitedLines.size())
-    {
-        IndexVisitedLines--;
-        int goTo = VisitedLines.at(IndexVisitedLines);
-        QTextCursor tc = TextEdit->textCursor();
-        int nowAt = tc.blockNumber();
-        if (nowAt == goTo) return;
-        else if (nowAt < goTo) tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, goTo-nowAt );
-        else if (nowAt > goTo) tc.movePosition(QTextCursor::Up,   QTextCursor::MoveAnchor, nowAt-goTo );
-        TextEdit->setTextCursorSilently(tc);
-        TextEdit->ensureCursorVisible();
-    }
-}
-
-void ATabRecord::goForward()
-{
-    if (IndexVisitedLines >= 0 && IndexVisitedLines < VisitedLines.size()-1)
-    {
-        IndexVisitedLines++;
-        int goTo = VisitedLines.at(IndexVisitedLines);
-        QTextCursor tc = TextEdit->textCursor();
-        int nowAt = tc.blockNumber();
-        if (nowAt == goTo) return;
-        else if (nowAt < goTo) tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, goTo-nowAt );
-        else if (nowAt > goTo) tc.movePosition(QTextCursor::Up,   QTextCursor::MoveAnchor, nowAt-goTo );
-        TextEdit->setTextCursorSilently(tc);
-        TextEdit->ensureCursorVisible();
-    }
-}
-
-void ATabRecord::onLineNumberChanged(int lineNumber)
-{
-    if (!VisitedLines.isEmpty())
-        if (VisitedLines.last() == lineNumber) return;
-
-    VisitedLines.append(lineNumber);
-    if (VisitedLines.size() > MaxLineNumbers) VisitedLines.removeFirst();
-
-    IndexVisitedLines = VisitedLines.size() - 1;
-}
-
-void ATabRecord::onTextChanged()
-{
-    //qDebug() << "Text changed!";
-    QTextDocument* d = TextEdit->document();
-    QRegularExpression re("(?<=var)\\s+\\w+\\b");
-
-    QStringList Variables;
-    QTextCursor tc = d->find(re, 0);//, flags);
-    while (!tc.isNull())
-    {
-        Variables << tc.selectedText().trimmed();
-        tc = d->find(re, tc);//, flags);
-    }
-
-    Variables.append(Functions);
-    CompletitionModel->setStringList(Variables);
-}
-
 void AScriptWindow::on_actionShortcuts_triggered()
 {
     QString s = "For the current line:\n"
@@ -1922,107 +1736,6 @@ void AScriptWindow::on_actionShortcuts_triggered()
                 "Ctrl + i\t\tAuto-align JavaScript";
 
     guitools::message(s, this);
-}
-
-// -------------------
-
-AScriptBook::AScriptBook()
-{
-    TabWidget = new QTabWidget();
-
-    TabWidget->setMovable(true);
-    TabWidget->setMinimumHeight(25);
-    TabWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-}
-
-void AScriptBook::writeToJson(QJsonObject & json) const
-{
-    json["Name"] = Name;
-    json["CurrentTab"] = getCurrentTabIndex();
-
-    QJsonArray ar;
-    for (const ATabRecord * r : Tabs)
-    {
-        QJsonObject js;
-        r->WriteToJson(js);
-        ar.append(js);
-    }
-    json["ScriptTabs"] = ar;
-}
-
-void AScriptBook::setCurrentTabIndex(int index)
-{
-    if (index < 0 || index >= Tabs.size()) return;
-    if (TabWidget) TabWidget->setCurrentIndex(index);
-}
-
-void AScriptBook::setTabName(const QString & name, int index)
-{
-    if (index < 0 || index >= Tabs.size()) return;
-    Tabs[index]->TabName = name;
-    if (TabWidget) TabWidget->setTabText(index, name);
-}
-
-int AScriptBook::getCurrentTabIndex() const
-{
-    if (!TabWidget) return -1;
-    return TabWidget->currentIndex();
-}
-
-ATabRecord * AScriptBook::getCurrentTab()
-{
-    int iCurrentTab = getCurrentTabIndex();
-    if (iCurrentTab == -1) return nullptr;
-    return Tabs[iCurrentTab];
-}
-
-ATabRecord *AScriptBook::getTab(int index)
-{
-    if (index < 0 || index >= Tabs.size()) return nullptr;
-    return Tabs[index];
-}
-
-const ATabRecord *AScriptBook::getTab(int index) const
-{
-    if (index < 0 || index >= Tabs.size()) return nullptr;
-    return Tabs[index];
-}
-
-QTabWidget *AScriptBook::getTabWidget()
-{
-    return TabWidget;
-}
-
-void AScriptBook::removeTabNoCleanup(int index)
-{
-    if (index < 0 || index >= Tabs.size()) return;
-
-    if (TabWidget)
-    {
-        if (index < TabWidget->count()) TabWidget->removeTab(index);
-        else qWarning() << "Bad TabWidget index";
-    }
-    //Tabs.removeAt(index);
-    Tabs.erase(Tabs.begin() + index);
-}
-
-void AScriptBook::removeTab(int index)
-{
-    if (index < 0 || index >= Tabs.size()) return;
-
-    if (index < TabWidget->count())
-    {
-        TabWidget->removeTab(index);
-        delete Tabs[index];
-        //Tabs.removeAt(index);
-        Tabs.erase(Tabs.begin() + index);
-    }
-}
-
-void AScriptBook::removeAllTabs()
-{
-    for (int i = Tabs.size() - 1; i > -1; i--)
-        removeTab(i);
 }
 
 // ----------------------
@@ -2121,7 +1834,7 @@ void AScriptWindow::loadBook(int iBook, const QJsonObject & json)
     {
         QJsonObject js = ar[iTab].toObject();
         ATabRecord & tab = addNewTab(iBook);
-        tab.ReadFromJson(js);
+        tab.readFromJson(js);
 
         if (tab.TabName.isEmpty()) tab.TabName = createNewTabName(iBook);
         setTabName(tab.TabName, iTab, iBook);

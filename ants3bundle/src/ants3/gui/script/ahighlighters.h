@@ -4,29 +4,31 @@
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
 
-class AHighlighterScriptWindow : public QSyntaxHighlighter
+struct HighlightingRule
+{
+    QRegularExpression Pattern;
+    QTextCharFormat    Format;
+};
+
+class AHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
-public:
-    AHighlighterScriptWindow(QTextDocument *parent = 0);
-    virtual ~AHighlighterScriptWindow() {}
 
-    void setHighlighterRules(const QStringList & units, const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
+public:
+    AHighlighter(QTextDocument * parent);
+
+    void setExternalRules(const QStringList & units, const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
 
 protected:
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString & text);
+
+    virtual void setLanguageRules() {}
+
     bool bMultilineCommentAllowed = true;
-
-//private:
-    struct HighlightingRule
-      {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-      };
-    QVector<HighlightingRule> highlightingRules;
-
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
+
+    QVector<HighlightingRule> highlightingRules;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat customKeywordFormat;
@@ -35,25 +37,26 @@ protected:
     QTextCharFormat multiLineCommentFormat;
     QTextCharFormat quotationFormat;
     QTextCharFormat charFormat;
-//    QTextCharFormat functionFormat;
     QTextCharFormat deprecatedOrRemovedFormat;
 };
 
-class AHighlighterLrfScript : public AHighlighterScriptWindow
+class AHighlighterJS : public AHighlighter
 {
     Q_OBJECT
 public:
-    AHighlighterLrfScript(QTextDocument *parent = 0);
+    AHighlighterJS(QTextDocument * parent = nullptr);
 
-private:
-    void setFixedVariables();
+protected:
+    void setLanguageRules() override;
 };
 
-class APythonHighlighter : public AHighlighterScriptWindow
+class AHighlighterPython : public AHighlighter
 {
     Q_OBJECT
 public:
-    APythonHighlighter(QTextDocument *parent = 0);
+    AHighlighterPython(QTextDocument * parent = nullptr);
+
+    void setLanguageRules() override;
 };
 
 #endif // AHIGHLIGHTERS_H

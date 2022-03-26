@@ -122,7 +122,9 @@ SOURCES += \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/script/ahighlighters.cpp \
+    gui/script/ascriptbook.cpp \
     gui/script/ascriptwindow.cpp \
+    gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     js/aconfig_si.cpp \
     js/acore_si.cpp \
@@ -286,7 +288,10 @@ HEADERS += \
     gui/photsim/asensorgview.h \
     gui/photsim/asensorwindow.h \
     gui/script/ahighlighters.h \
+    gui/script/ascriptbook.h \
+    gui/script/ascriptlanguageenum.h \
     gui/script/ascriptwindow.h \
+    gui/script/atabrecord.h \
     gui/script/atextedit.h \
     js/aconfig_si.h \
     js/acore_si.h \
