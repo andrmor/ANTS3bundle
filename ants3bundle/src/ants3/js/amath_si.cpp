@@ -326,7 +326,7 @@ QVariantList AMath_SI::fft(QVariantList array)
         input[i] = array[i].toDouble(&ok);
         if (!ok)
         {
-            abort("FFT input shoyuld be an array of doubles");
+            abort("FFT input should be an array of doubles");
             return res;
         }
     }

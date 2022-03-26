@@ -2,18 +2,16 @@
 #define ASCRIPTWINDOW_H
 
 #include "aguiwindow.h"
+#include "ascriptbook.h"
+#include "ascriptlanguageenum.h"
+
 #include <QSet>
 #include <QHash>
 #include <QString>
-#include <QList>
 
 #include <vector>
 
 class AScriptInterface;
-class AHighlighterScriptWindow;
-class QCompleter;
-class QStringListModel;
-class ATextEdit;
 class QPlainTextEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -29,36 +27,6 @@ class A3Global;
 namespace Ui {
 class AScriptWindow;
 }
-
-enum class AScriptLanguageEnum {JavaScript = 0, Python = 1};
-
-// !!!*** to a separate file!
-class AScriptBook
-{
-public:
-    AScriptBook();
-
-    QString             Name;
-    std::vector<ATabRecord*> Tabs;
-    QTabWidget *        TabWidget   = nullptr; // will be owned by the QTabItemWidget
-
-    void                writeToJson(QJsonObject & json) const;
-    //bool              readFromJson(const QJsonObject & json);  // too heavily relies on AScriptWindow, cannot be implemented here without major refactoring
-
-    int                 getCurrentTabIndex() const;
-    void                setCurrentTabIndex(int index); // !!!*** possible to use size_t?
-
-    void                setTabName(const QString & name, int index);
-
-    ATabRecord *        getCurrentTab();
-    ATabRecord *        getTab(int index);
-    const ATabRecord *  getTab(int index) const;
-    QTabWidget *        getTabWidget();
-
-    void                removeTabNoCleanup(int index); //used by move  // !!!*** check
-    void                removeTab(int index); // !!!*** check
-    void                removeAllTabs();
-};
 
 class AScriptWindow : public AGuiWindow
 {
@@ -114,8 +82,8 @@ private:
     QStringList         ListOfDeprecatedOrRemovedMethods;
     QStringList         ListOfConstants;
 
-    void readFromJson(QJsonObject &json);
-    void writeToJson(QJsonObject & json);
+    void readFromJson(QJsonObject & json);
+    void writeToJson(QJsonObject  & json);
 
     void createGuiElements();
     void findText(bool bForward);
@@ -126,7 +94,7 @@ private:
     void fillHelper(const AScriptInterface * io);
     QString getKeyPath(QTreeWidgetItem *item);
     QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, cponvert to AScriptInterface
-    void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj);
+    void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
     void addNewBook();
     void removeBook(int iBook, bool bConfirm = true);
@@ -163,8 +131,8 @@ private:
     void pasteMarkedTab();
     void copyTab(int iBook);
     void moveTab(int iBook);
-    void updateTab(ATabRecord *tab);
-    void formatTab(ATabRecord *tab);
+    void updateTab(ATabRecord *tab); // !!!*** move to tab
+    void formatTab(ATabRecord *tab); // !!!*** partially move to tab
 
 public slots:
     void clearOutput();
@@ -188,7 +156,7 @@ private slots:
     void updateFileStatusIndication();
 
     void onCurrentTabChanged(int tab);   //triggered ONLY on visible book and contains only file/find gui for the current script
-    void onScriptTabMoved(int from, int to); // !!!*** check swap
+    void onScriptTabMoved(int from, int to);
 
     void twBooks_currentChanged(int index);
     void onBookTabMoved(int from, int to);
@@ -274,53 +242,6 @@ private:
     void updateMethodHelp();
     void updateRemovedAndDeprecatedMethods();
     void updateAutocompleterAndHeighlighter();
-};
-
-// !!!*** to a separate file
-class ATabRecord : public QObject
-{
-    Q_OBJECT
-public:
-    ATabRecord(const QStringList & functions, AScriptLanguageEnum language);
-    ~ATabRecord();
-
-    ATextEdit *     TextEdit            = nullptr;
-
-    QString         FileName;
-    QString         TabName;
-    bool            bExplicitlyNamed    = false;   //if true save will not auto-rename
-
-    const QStringList & Functions;
-
-    QCompleter *    Completer           = nullptr;
-    QStringListModel * CompletitionModel;
-    AHighlighterScriptWindow * Highlighter = nullptr;
-
-    QVector<int>    VisitedLines;
-    int             IndexVisitedLines   = 0;
-    int             MaxLineNumbers      = 20;
-
-    void UpdateHighlight();
-
-    void WriteToJson(QJsonObject & json) const;
-    void ReadFromJson(const QJsonObject &json);
-
-    bool wasModified() const;
-    void setModifiedStatus(bool flag);
-
-    void goBack();
-    void goForward();
-
-private slots:
-    void onCustomContextMenuRequested(const QPoint & pos);
-    void onLineNumberChanged(int lineNumber);
-    void onTextChanged();
-
-signals:
-    void requestFindText();
-    void requestReplaceText();
-    void requestFindFunction();
-    void requestFindVariable();
 };
 
 #endif // ASCRIPTWINDOW_H
