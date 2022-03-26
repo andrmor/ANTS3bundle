@@ -22,22 +22,14 @@ public:
 protected:
     void highlightBlock(const QString & text);
 
-    virtual void setLanguageRules() {}
-
     bool bMultilineCommentAllowed = true;
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
 
     QVector<HighlightingRule> highlightingRules;
 
-    QTextCharFormat keywordFormat;
-    QTextCharFormat customKeywordFormat;
-    QTextCharFormat unitFormat;
-    QTextCharFormat singleLineCommentFormat;
     QTextCharFormat multiLineCommentFormat;
-    QTextCharFormat quotationFormat;
-    QTextCharFormat charFormat;
-    QTextCharFormat deprecatedOrRemovedFormat;
+
 };
 
 class AHighlighterJS : public AHighlighter

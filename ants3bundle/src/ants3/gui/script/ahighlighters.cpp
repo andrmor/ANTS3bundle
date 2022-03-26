@@ -11,6 +11,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
 
     HighlightingRule rule;
 
+    QTextCharFormat customKeywordFormat;
     QColor color = Qt::darkCyan;
     customKeywordFormat.setForeground(color.darker(110));
     //customKeywordFormat.setFontWeight(QFont::Bold);
@@ -25,6 +26,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
         //if (f.size() > 1 && !f.first().isEmpty()) units << f.first();
     }
 
+    QTextCharFormat deprecatedOrRemovedFormat;
     color = Qt::red;
     deprecatedOrRemovedFormat.setForeground(color.darker(110));
     for (const QString& pattern : deprecatedOrRemoved)
@@ -34,8 +36,8 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
         hr.append(rule);
     }
 
-    color = Qt::darkMagenta;
-    unitFormat.setForeground(color);
+    QTextCharFormat unitFormat;
+    unitFormat.setForeground(Qt::darkMagenta);
     for (const QString& pattern : units)
     {
         rule.Pattern = QRegularExpression("\\b"+pattern+"\\b");
@@ -101,6 +103,7 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
 {
     HighlightingRule rule;
 
+    QTextCharFormat keywordFormat;
     keywordFormat.setForeground(Qt::blue);
     //keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
@@ -129,13 +132,15 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     highlightingRules.append(rule);
 
     /*
+    QTextCharFormat classFormat;
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
-    rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
-    rule.format = classFormat;
+    rule.Pattern = QRegExp("\\bQ[A-Za-z]+\\b");
+    rule.Format = classFormat;
     highlightingRules.append(rule);
-*/
+    */
 
+    QTextCharFormat singleLineCommentFormat;
     singleLineCommentFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegularExpression("//[^\n]*");
     rule.Format = singleLineCommentFormat;
@@ -143,9 +148,8 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
 
     multiLineCommentFormat.setForeground(Qt::darkGreen);
 
+    QTextCharFormat quotationFormat;
     quotationFormat.setForeground(Qt::darkGreen);
-    //QRegularExpression rx("\".*\"");
-    //QRegularExpression rx("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1");
     QRegularExpression rx("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"|\'([^\'\\\\]*(\\\\.[^\'\\\\]*)*)\'");
     //qDebug() << "----------------------"<< rx.isValid();
     //rx.setMinimal(true); //fixes the problem with "xdsfdsfds" +variable+ "dsfdsfdsf"
@@ -153,18 +157,22 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     rule.Format = quotationFormat;
     highlightingRules.append(rule);
 
-    //    charFormat.setForeground(Qt::darkGreen);
-    //    rule.pattern = QRegularExpression("'.*'");
-    //    rule.format = charFormat;
-    //    highlightingRules.append(rule);
+    /*
+    QTextCharFormat charFormat;
+    charFormat.setForeground(Qt::darkGreen);
+    rule.Pattern = QRegularExpression("'.*'");
+    rule.Format = charFormat;
+    highlightingRules.append(rule);
+    */
 
     /*
+    QTextCharFormat functionFormat;
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
-    rule.format = functionFormat;
+    rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+    rule.Format = functionFormat;
     highlightingRules.append(rule);
-*/
+    */
 
     commentStartExpression = QRegularExpression("/\\*");
     commentEndExpression   = QRegularExpression("\\*/");
@@ -176,9 +184,11 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     AHighlighter(parent)
 {
     bMultilineCommentAllowed = false;
+    multiLineCommentFormat.setForeground(Qt::darkGreen);
 
     HighlightingRule rule;
 
+    QTextCharFormat keywordFormat;
     keywordFormat.setForeground(Qt::blue);
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
@@ -202,20 +212,21 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     }
 
     /*
+    QTextCharFormat classFormat;
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
-    rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
-    rule.format = classFormat;
+    rule.Pattern = QRegExp("\\bQ[A-Za-z]+\\b");
+    rule.Format = classFormat;
     highlightingRules.append(rule);
-*/
+    */
 
+    QTextCharFormat singleLineCommentFormat;
     singleLineCommentFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegularExpression("#[^\n]*");
     rule.Format = singleLineCommentFormat;
     highlightingRules.append(rule);
 
-    multiLineCommentFormat.setForeground(Qt::darkGreen);
-
+    QTextCharFormat quotationFormat;
     quotationFormat.setForeground(Qt::darkGreen);
     //QRegularExpression rx("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1");
     QRegularExpression rx("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"|\'([^\'\\\\]*(\\\\.[^\'\\\\]*)*)\'");
@@ -223,13 +234,15 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     rule.Pattern = rx;
     rule.Format = quotationFormat;
     highlightingRules.append(rule);
+
     /*
+    QTextCharFormat functionFormat;
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
-    rule.format = functionFormat;
+    rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+    rule.Format = functionFormat;
     highlightingRules.append(rule);
-*/
+    */
 
     QTextCharFormat includeFormat;
     includeFormat.setForeground(QColor(227, 146, 48));
