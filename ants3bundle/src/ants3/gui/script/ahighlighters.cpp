@@ -59,7 +59,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
 
 void AHighlighter::highlightBlock(const QString &text)
 {
-    for (const HighlightingRule &rule : highlightingRules)
+    for (const HighlightingRule & rule : highlightingRules)
     {
         QRegularExpressionMatchIterator matchIterator = rule.Pattern.globalMatch(text);
         while ( matchIterator.hasNext() )

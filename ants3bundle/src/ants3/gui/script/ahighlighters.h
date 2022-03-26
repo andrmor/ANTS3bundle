@@ -17,19 +17,17 @@ class AHighlighter : public QSyntaxHighlighter
 public:
     AHighlighter(QTextDocument * parent);
 
-    void setExternalRules(const QStringList & units, const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
+    void setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants);
 
 protected:
     void highlightBlock(const QString & text);
 
+    QVector<HighlightingRule> highlightingRules; // !!!*** to std::vector
+
     bool bMultilineCommentAllowed = true;
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
-
-    QVector<HighlightingRule> highlightingRules;
-
     QTextCharFormat multiLineCommentFormat;
-
 };
 
 class AHighlighterJS : public AHighlighter

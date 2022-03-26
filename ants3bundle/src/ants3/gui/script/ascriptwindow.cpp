@@ -1170,8 +1170,6 @@ void AScriptWindow::formatTab(ATabRecord * tab)
 {
     updateTab(tab);
 
-    //qDebug() << GlobSet.SW_FontFamily << GlobSet.SW_FontSize << GlobSet.SW_FontWeight << GlobSet.SW_Italic;
-
     if (GlobSet.SW_FontFamily.isEmpty())
         tab->TextEdit->SetFontSize(GlobSet.SW_FontSize);
     else
