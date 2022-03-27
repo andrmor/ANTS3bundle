@@ -15,6 +15,7 @@ class AMiniJS_SI : public AScriptMinimizerBase
 
 public:
     ~AMiniJS_SI();
+    bool wasAborted() const override;
 
 public slots:
     void setFunctorName(const QString & name) override;

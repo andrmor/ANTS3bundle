@@ -16,90 +16,45 @@ AScriptMinimizerBase::~AScriptMinimizerBase()
     clear();
 }
 
+void AScriptMinimizerBase::setHighPrecision(bool flag)
+{
+    bHighPrecision = flag;
+}
+
+void AScriptMinimizerBase::setVerbosity(int level)
+{
+    PrintVerbosity = level;
+}
+
 void AScriptMinimizerBase::clear()
 {
-    for (AVarRecordBase* r : Variables) delete r;
+    for (AVarRecordBase * r : Variables) delete r;
     Variables.clear();
 }
 
-void AScriptMinimizerBase::addVariable(QString name, double start, double step, double min, double max)
+void AScriptMinimizerBase::addLimitedVariable(QString name, double start, double step, double min, double max)
 {
-    Variables << new AVarRecordLimited(name, start, step, min, max);
+    Variables.push_back( new AVarRecordLimited(name, start, step, min, max) );
 }
 
 void AScriptMinimizerBase::addVariable(QString name, double start, double step)
 {
-    Variables << new AVarRecordNormal(name, start, step);
+    Variables.push_back( new AVarRecordNormal(name, start, step) );
 }
 
 void AScriptMinimizerBase::addFixedVariable(QString name, double value)
 {
-    Variables << new AVarRecordFixed(name, value);
+    Variables.push_back( new AVarRecordFixed(name, value) );
 }
 
 void AScriptMinimizerBase::addLowerLimitedVariable(QString name, double value, double step, double lowerLimit)
 {
-    Variables << new AVarRecordLowerLimited(name, value, step, lowerLimit);
+    Variables.push_back( new AVarRecordLowerLimited(name, value, step, lowerLimit) );
 }
 
 void AScriptMinimizerBase::addUpperLimitedVariable(QString name, double value, double step, double upperLimit)
 {
-    Variables << new AVarRecordUpperLimited(name, value, step, upperLimit);
-}
-
-void AScriptMinimizerBase::addAllVariables(QVariant array)
-{
-    //if (array.type() != QMetaType::QVariantList )
-    if (array.type() != QVariant::List )
-    {
-        abort("DefineAllVariables(): has to be an array containing initializers of the variables");
-        return;
-    }
-
-    clear();
-
-    QVariantList vl = array.toList();
-    if (vl.isEmpty())
-    {
-        abort("DefineAllVariables(): array of initializers is empty");
-        return;
-    }
-
-    for (int i=0; i<vl.size(); i++)
-    {
-        //  qDebug() << "Adding variable #"<<i;
-        QVariantList var = vl.at(i).toList();
-        switch (var.size())
-        {
-        case 1:  // fixed
-            Variables << new AVarRecordFixed(QString::number(i), var.at(0).toDouble());
-            break;
-        case 2:  // normal
-            Variables << new AVarRecordNormal(QString::number(i), var.at(0).toDouble(), var.at(1).toDouble());
-            break;
-        case 4:
-            qDebug() << var << var.at(2).isNull();
-            if (var.at(2).isNull()) //upper limited
-            {
-                Variables << new AVarRecordUpperLimited(QString::number(i), var.at(0).toDouble(), var.at(1).toDouble(), var.at(3).toDouble());
-                break;
-            }
-            else if (var.at(3).isNull()) //lower limited
-            {
-                Variables << new AVarRecordLowerLimited(QString::number(i), var.at(0).toDouble(), var.at(1).toDouble(), var.at(2).toDouble());
-                break;
-            }
-            else
-            {
-                Variables << new AVarRecordLimited(QString::number(i), var.at(0).toDouble(), var.at(1).toDouble(), var.at(2).toDouble(), var.at(3).toDouble());
-                break;
-            }
-        default:
-            abort("DefineAllVariables(): variable definition arrays have to be of length 1, 2 or 4");
-            return;
-        }
-        //  Variables.last()->Debug();
-    }
+    Variables.push_back( new AVarRecordUpperLimited(name, value, step, upperLimit) );
 }
 
 void AScriptMinimizerBase::setSimplex()
@@ -110,6 +65,21 @@ void AScriptMinimizerBase::setSimplex()
 void AScriptMinimizerBase::setMigrad()
 {
     Method = 0;
+}
+
+void AScriptMinimizerBase::setMaxIterations(int num)
+{
+    MaxIteration = num;
+}
+
+void AScriptMinimizerBase::setMaxCalls(int num)
+{
+    MaxCalls = num;
+}
+
+void AScriptMinimizerBase::setTolerance(double val)
+{
+    Tolerance = val;
 }
 
 bool AScriptMinimizerBase::run()
@@ -129,37 +99,35 @@ bool AScriptMinimizerBase::run()
     }
 
     ROOT::Minuit2::Minuit2Minimizer * RootMinimizer = new ROOT::Minuit2::Minuit2Minimizer( Method==0 ? ROOT::Minuit2::kMigrad : ROOT::Minuit2::kSimplex );
-    RootMinimizer->SetMaxFunctionCalls(500);
-    RootMinimizer->SetMaxIterations(1000);
-    RootMinimizer->SetTolerance(0.001);
-    RootMinimizer->SetPrintLevel(PrintVerbosity);
+    RootMinimizer->SetMaxFunctionCalls(MaxCalls);
+    RootMinimizer->SetMaxIterations(MaxIteration);
+    RootMinimizer->SetTolerance(Tolerance);
     RootMinimizer->SetStrategy( bHighPrecision ? 2 : 1 ); // 1 -> standard,  2 -> try to improve minimum (slower)
+    RootMinimizer->SetPrintLevel(PrintVerbosity);
 
     RootMinimizer->SetFunction(*Funct);
 
-    //setting up variables   -  start step min max etc
-    for (int i = 0; i < Variables.size(); i++)
+    for (size_t i = 0; i < Variables.size(); i++)
         Variables[i]->AddToMinimizer(i, RootMinimizer);
 
-    //  qDebug() << "Starting minimization";
-    bool fOK = RootMinimizer->Minimize();
-//fOK = fOK && !ScriptManager->isEvalAborted(); // !!!***
-
-    qDebug()<<"Minimization success? "<<fOK;
+    bool OK = RootMinimizer->Minimize();
+    OK = OK && !wasAborted();
 
     Results.clear();
-    if (fOK)
+    if (OK)
     {
-        const double *VarVals = RootMinimizer->X();
-        for (int i=0; i<Variables.size(); i++)
-        {
-            //  qDebug() << i << "-->--"<<VarVals[i];
+        const double * VarVals = RootMinimizer->X();
+        for (size_t i = 0; i < Variables.size(); i++)
             Results << VarVals[i];
-        }
     }
 
     delete Funct;
     delete RootMinimizer;
 
-    return fOK;
+    return OK;
+}
+
+QVariantList AScriptMinimizerBase::getResults()
+{
+    return Results;
 }

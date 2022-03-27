@@ -30,6 +30,12 @@ AMiniJS_SI::~AMiniJS_SI()
     delete Functor;
 }
 
+bool AMiniJS_SI::wasAborted() const
+{
+    AJScriptManager & SM = AJScriptHub::manager();
+    return SM.isAborted();
+}
+
 void AMiniJS_SI::setFunctorName(const QString & name)
 {
     AJScriptManager & SM = AJScriptHub::manager();
