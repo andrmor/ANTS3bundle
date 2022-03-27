@@ -47,7 +47,8 @@ public slots:
     //QVariantList fit1D(QVariantList array, QString tformula, QVariantList range = QVariantList(), QVariantList startParValues = QVariantList(), bool extendedOutput = false);
     QVariantList fit1D(QVariantList array, QString tformula, QVariantList startParValues = QVariantList(), bool extendedOutput = false);
 
-    QVariantList fft(QVariantList array);
+    QVariantList fft(QVariantList array, int maxN = -1);
+    QVariantList fftMulti(QVariantList arrayOfArrays, int maxN = -1);
 
 private:
     ARandomHub & RandomHub;
