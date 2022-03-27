@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<QCoreApplication> app;
 #ifdef GUI
-    if (argc == 1)
+    if ( argc == 1   ||   (argc == 2 && QString(argv[1]).startsWith("-qml")) )
     {
         QApplication * qa = new QApplication(argc, argv);
         qa->setStyle(new AProxyStyle);
