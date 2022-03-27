@@ -12,6 +12,7 @@
 #include "aphotonsim_si.h"
 #include "atrackrec_si.h"
 #include "apartanalysis_si.h"
+#include "aminijs_si.h"
 
 AJScriptHub &AJScriptHub::getInstance()
 {
@@ -50,6 +51,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new APhotonSim_SI(),    "lsim");
     SM->registerInterface(new ATrackRec_SI(),     "tracks");
     SM->registerInterface(new APartAnalysis_SI(), "partan");
+    SM->registerInterface(new AMiniJS_SI(),       "mini");
 }
 
 AJScriptHub::~AJScriptHub()

@@ -135,6 +135,7 @@ SOURCES += \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/amath_si.cpp \
+    js/aminijs_si.cpp \
     js/apartanalysis_si.cpp \
     js/apeakfinder.cpp \
     js/aphotonsim_si.cpp \
@@ -144,9 +145,11 @@ SOURCES += \
     js/arootobjcollection.cpp \
     js/aroottreerecord.cpp \
     js/ascriptinterface.cpp \
+    js/ascriptminimizerbase.cpp \
     js/ascriptobjstore.cpp \
     js/atrackrec_si.cpp \
     js/agraph_si.cpp \
+    js/avarrecordbase.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -302,6 +305,7 @@ HEADERS += \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/amath_si.h \
+    js/aminijs_si.h \
     js/apartanalysis_si.h \
     js/apeakfinder.h \
     js/aphotonsim_si.h \
@@ -311,9 +315,11 @@ HEADERS += \
     js/arootobjcollection.h \
     js/aroottreerecord.h \
     js/ascriptinterface.h \
+    js/ascriptminimizerbase.h \
     js/ascriptobjstore.h \
     js/atrackrec_si.h \
     js/agraph_si.h \
+    js/avarrecordbase.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \

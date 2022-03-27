@@ -97,6 +97,16 @@ int AJScriptManager::getErrorLineNumber()
     return Worker->getErrorLineNumber();
 }
 
+bool AJScriptManager::testMinimizationFunction()
+{
+    return Worker->testMinimizationFunction(MiniFunctionName);
+}
+
+double AJScriptManager::runMinimizationFunction(const double * p)
+{
+    return Worker->runMinimizationFunction(MiniFunctionName, p, MiniNumVariables); // !!!*** store function as JSValue
+}
+
 bool AJScriptManager::getError(QString & errorString, int & lineNumber)
 {
     QString dummy;

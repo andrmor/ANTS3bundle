@@ -61,6 +61,22 @@ int AJScriptWorker::getErrorLineNumber()
     return Result.property("lineNumber").toInt();
 }
 
+bool AJScriptWorker::testMinimizationFunction(const QString & name) const
+{
+    QJSValue prop = Engine->globalObject().property(name);
+    return prop.isCallable();
+}
+
+double AJScriptWorker::runMinimizationFunction(const QString & name, const double * p, int numParameters)
+{
+    QJSValue prop = Engine->globalObject().property(name);
+
+    QJSValueList input;
+    for (int i=0; i<numParameters; i++) input << p[i];
+
+    return prop.call(input).toNumber();
+}
+
 void AJScriptWorker::initialize()
 {
     Engine = new QJSEngine();
