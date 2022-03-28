@@ -268,7 +268,7 @@ bool ARootTreeRecord::createTree(const QString &name, const QVector<QPair<QStrin
     return true;
 }
 
-const QString ARootTreeRecord::loadTree(const QString &fileName, const QString treeNameInFile)
+QString ARootTreeRecord::loadTree(const QString &fileName, const QString treeNameInFile)
 {
     TFile *f = TFile::Open(fileName.toLocal8Bit().data(), "READ");
     if (!f) return QString("Cannot open file ") + fileName;
@@ -362,7 +362,7 @@ const QString ARootTreeRecord::loadTree(const QString &fileName, const QString t
     */
 }
 
-const QString ARootTreeRecord::resetTreeRecords()
+QString ARootTreeRecord::resetTreeRecords()
 {
     QMutexLocker locker(&Mutex);
 
@@ -416,7 +416,7 @@ int ARootTreeRecord::countBranches() const
     return Branches.size();
 }
 
-const QStringList ARootTreeRecord::getBranchNames() const
+QStringList ARootTreeRecord::getBranchNames() const
 {
     QStringList sl;
     for (ABranchBuffer* bb : Branches)
@@ -427,7 +427,7 @@ const QStringList ARootTreeRecord::getBranchNames() const
     return sl;
 }
 
-const QStringList ARootTreeRecord::getBranchTypes() const
+QStringList ARootTreeRecord::getBranchTypes() const
 {
     QStringList sl;
     for (ABranchBuffer* bb : Branches)
@@ -475,7 +475,7 @@ bool ARootTreeRecord::isBranchExist(const QString &branchName) const
     return MapOfBranches.value(branchName, 0);
 }
 
-const QVariantList ARootTreeRecord::getBranch(const QString &branchName)
+QVariantList ARootTreeRecord::getBranch(const QString &branchName)
 {
     QMutexLocker locker(&Mutex);
 
@@ -498,7 +498,7 @@ const QVariantList ARootTreeRecord::getBranch(const QString &branchName)
     return res;
 }
 
-const QVariant ARootTreeRecord::getBranch(const QString &branchName, int entry)
+QVariant ARootTreeRecord::getBranch(const QString &branchName, int entry)
 {
     QMutexLocker locker(&Mutex);
 
@@ -520,7 +520,7 @@ const QVariant ARootTreeRecord::getBranch(const QString &branchName, int entry)
     return QVariant();
 }
 
-const QVariantList ARootTreeRecord::getEntry(int entry)
+QVariantList ARootTreeRecord::getEntry(int entry)
 {
     QMutexLocker locker(&Mutex);
 

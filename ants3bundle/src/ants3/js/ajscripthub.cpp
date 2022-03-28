@@ -13,6 +13,7 @@
 #include "atrackrec_si.h"
 #include "apartanalysis_si.h"
 #include "aminijs_si.h"
+#include "atree_si.h"
 
 AJScriptHub &AJScriptHub::getInstance()
 {
@@ -46,6 +47,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new AMath_SI(),         "math");
     SM->registerInterface(new AGraph_SI(),        "graph");
     SM->registerInterface(new AHist_SI(),         "hist");
+    SM->registerInterface(new ATree_SI(),         "tree");
     SM->registerInterface(new AConfig_SI(),       "config");
     SM->registerInterface(new AFarm_SI(),         "farm");
     SM->registerInterface(new APhotonSim_SI(),    "lsim");

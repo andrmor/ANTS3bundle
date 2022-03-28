@@ -72,20 +72,20 @@ public:
     // Protected by Mutex
     bool               createTree(const QString& name, const QVector<QPair<QString, QString>>& branches,
                                   const QString fileName = "", int autosaveNum = 10000);
-    const QString      loadTree(const QString& fileName, const QString treeNameInFile = ""); //report error ("" if fine)
-    const QString      resetTreeRecords(); // need to call it after save!
+    QString            loadTree(const QString& fileName, const QString treeNameInFile = ""); //report error ("" if fine)
+    QString            resetTreeRecords(); // need to call it after save!
 
     int                countBranches() const;
     bool               isBranchExist(const QString& branchName) const;
-    const QStringList  getBranchNames() const;
-    const QStringList  getBranchTypes() const;
+    QStringList        getBranchNames() const;
+    QStringList        getBranchTypes() const;
     int                countEntries() const;
 
     bool               fillSingle(const QVariantList& vl);
 
-    const QVariantList getBranch(const QString& branchName);
-    const QVariant     getBranch(const QString& branchName, int entry);
-    const QVariantList getEntry(int entry);
+    QVariantList       getBranch(const QString & branchName);
+    QVariant           getBranch(const QString & branchName, int entry);
+    QVariantList       getEntry(int entry);
 
     void               save(const QString &FileName);
 
