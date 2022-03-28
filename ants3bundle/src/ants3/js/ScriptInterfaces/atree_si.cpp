@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #include "TFile.h"
-//#include "TTree.h"
+#include "TTree.h"
 #include "TBranch.h"
 #include "TLeaf.h"
 
@@ -14,7 +14,8 @@ ATree_SI::ATree_SI() : TmpHub(AScriptObjStore::getInstance())
     Description = "Interface to CERN ROOT trees";
 
     Help["loadTree"] = "If the third argument is not provided, the first tree found in the file is loaded";
-    Help["newTree"] = "Branch types:\n"
+    Help["newTree"] = "HeadersOfBranches:  array of [Name,BranchType] values\n"
+                      "Avaiable BranchTypes:\n"
                       "C - string\n"
                       "I - int\n"
                       "F - float\n"
@@ -341,7 +342,7 @@ QString ATree_SI::draw(QString TreeName, QString what, QString cuts, QString opt
         QString error;
         r->externalLock();
         TTree* t = static_cast<TTree*>(r->GetObject());
-        emit RequestTreeDraw(t, what, cuts, options, outBR, outML, &error);
+        emit requestTreeDraw(t, what, cuts, options, outBR, outML, &error);
         r->externalUnlock();
 
         //r->resetTreeRecords();

@@ -156,9 +156,8 @@ public slots:
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
-    bool onScriptDrawTree(TTree* tree, const QString& what, const QString& cond, const QString& how,
-                          const QVariantList binsAndRanges = QVariantList(), const QVariantList markersAndLines = QVariantList(),
-                          QString *result = 0);   // !!!*** ugly
+    bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
+                          QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
     void Reshape();
     void BasketCustomContextMenuRequested(const QPoint &pos);
     void onBasketItemDoubleClicked(QListWidgetItem *item);

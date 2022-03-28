@@ -219,7 +219,7 @@ void GraphWindowClass::connectScriptUnitDrawRequests()
 
     if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest);
     if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest);
-    if (treeInter)  connect(treeInter,  &ATree_SI::RequestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
+    if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }
 
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)
@@ -1334,9 +1334,8 @@ void SetLineAttributes(TAttLine* l, const QVariantList& vl)
     l->SetLineWidth(vl.at(2).toDouble());
 }
 
-bool GraphWindowClass::onScriptDrawTree(TTree *tree, const QString& what, const QString& cond, const QString& how,
-                                const QVariantList binsAndRanges, const QVariantList markersAndLines,
-                                QString* result)
+bool GraphWindowClass::onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
+                                        QVariantList binsAndRanges, QVariantList markersAndLines, QString * result)
 {
     if (what.isEmpty())
     {

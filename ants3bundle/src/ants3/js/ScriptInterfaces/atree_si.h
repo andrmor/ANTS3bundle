@@ -4,17 +4,12 @@
 #include "ascriptinterface.h"
 
 #include <QObject>
-#include <QVector>
 #include <QString>
 #include <QVariant>
 #include <QVariantList>
 
-#include "TString.h"
-#include "TTree.h"
-
-#include <vector>
-
 class AScriptObjStore;
+class TTree;
 
 class ATree_SI : public AScriptInterface
 {
@@ -24,12 +19,11 @@ public:
     ATree_SI();
 
 public slots:
+    void         newTree(QString TreeName, QVariantList HeadersOfBranches,
+                         QString StoreInFileName = "", int AutosaveAfterEntriesAdded = 10000); // !!!*** to std::vector inside
+    void         loadTree(QString TreeName, QString FileName, QString TreeNameInFile = ""); //one leaf per branch!
 
-    void     newTree(QString TreeName, QVariantList HeadersOfBranches,
-                     QString StoreInFileName = "", int AutosaveAfterEntriesAdded = 10000); // !!!*** to std::vector inside
-    void     loadTree(QString TreeName, QString FileName, QString TreeNameInFile = ""); //one leaf per branch!
-
-    void     fill(QString TreeName, QVariantList Array);
+    void         fill(QString TreeName, QVariantList Array);
 
     int          getNumEntries(QString TreeName);
     QVariantList getBranchNames(QString TreeName);
@@ -59,13 +53,13 @@ public slots:
     void         setAbortIfAlreadyExists(bool flag);
 
 signals:
-    void         RequestTreeDraw(TTree* tree, const QString& what, const QString& cond, const QString& how,
-                                 const QVariantList binsAndRanges, const QVariantList markersAndLine, QString* result = 0);
+    void         requestTreeDraw(TTree * tree, QString what, QString cond, QString how,
+                                 QVariantList binsAndRanges, QVariantList markersAndLine, QString * result = nullptr);
 
 private:
     AScriptObjStore & TmpHub;
 
-    bool            bAbortIfExists = false;
+    bool bAbortIfExists = false;
 };
 
 #endif // AINTERFACETOTTREE_H
