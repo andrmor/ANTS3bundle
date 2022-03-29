@@ -37,6 +37,11 @@ void AJScriptHub::abort(const QString & message)
     emit hub.showAbortMessage(message);
 }
 
+void AJScriptHub::addInterface(AScriptInterface * interface, QString name)
+{
+    SM->registerInterface(interface, name);
+}
+
 AJScriptHub::AJScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";

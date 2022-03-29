@@ -17,6 +17,8 @@
 #include "abasketlistwidget.h"
 #include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
+#include "ajscripthub.h"
+#include "agraphwin_si.h"
 
 #include <QtGui>
 #include <QFileDialog>
@@ -158,6 +160,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     new QShortcut(QKeySequence(Qt::Key_Delete), this, SLOT(deletePressed()));
 
     DrawTemplate.Selection.bExpanded = true;
+
+    AJScriptHub::getInstance().addInterface(new AGraphWin_SI(this), "grwin");
 }
 
 GraphWindowClass::~GraphWindowClass()

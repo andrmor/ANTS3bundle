@@ -5,6 +5,7 @@
 #include <QString>
 
 class AJScriptManager;
+class AScriptInterface;
 
 class AJScriptHub : public QObject
 {
@@ -16,6 +17,8 @@ public:
     static void              abort(const QString & message);
 
     AJScriptManager & getJScriptManager() {return *SM;}
+
+    void addInterface(AScriptInterface * interface, QString name);
 
 private:
     AJScriptHub();

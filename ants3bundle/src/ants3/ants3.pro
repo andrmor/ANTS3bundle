@@ -127,6 +127,7 @@ SOURCES += \
     gui/script/ascriptwindow.cpp \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
+    js/ScriptInterfaces/agraphwin_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
@@ -152,6 +153,7 @@ SOURCES += \
     js/ScriptInterfaces/atrackrec_si.cpp \
     js/ScriptInterfaces/agraph_si.cpp \
     js/ScriptInterfaces/atree_si.cpp \
+    js/ScriptInterfaces/awindowinterfacebase.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -298,6 +300,7 @@ HEADERS += \
     gui/script/ascriptwindow.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
+    js/ScriptInterfaces/agraphwin_si.h \
     js/arootgraphrecord.h \
     js/aroothistrecord.h \
     js/arootobjbase.h \
@@ -323,6 +326,7 @@ HEADERS += \
     js/ScriptInterfaces/atrackrec_si.h \
     js/ScriptInterfaces/agraph_si.h \
     js/ScriptInterfaces/atree_si.h \
+    js/ScriptInterfaces/awindowinterfacebase.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
