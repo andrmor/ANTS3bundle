@@ -5,16 +5,14 @@
 
 #include <QVariantList>
 
-class QMainWindow;
+class AGuiWindow;
 
 class AWindowInterfaceBase : public AScriptInterface
 {
     Q_OBJECT
 
 public:
-    AWindowInterfaceBase(QMainWindow * window);
-
-    void setWindow();
+    AWindowInterfaceBase(AGuiWindow * window);
 
 public slots:
     void showNormal();
@@ -25,7 +23,7 @@ public slots:
     void setGeometry(QVariantList XYWHm);
 
 protected:
-    QMainWindow * BaseWindow = nullptr;
+    AGuiWindow * BaseWindow = nullptr;
 };
 
 #endif // AWINDOWINTERFACEBASE_H

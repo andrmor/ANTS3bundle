@@ -36,6 +36,27 @@ void AGuiWindow::restoreGeomStatus()
     settings.endGroup();
 }
 
+QVariantList AGuiWindow::getGeometry()
+{
+    QVariantList vl;
+    QRect rec = frameGeometry();
+    vl << rec.x() << rec.y() << rec.width() << rec.height() << isMaximized();
+    return vl;
+}
+
+void AGuiWindow::setGeometry(QVariantList XYWHm)
+{
+    if (XYWHm.size() < 4) return;
+
+    move(XYWHm[0].toInt(), XYWHm[1].toInt());
+    resize(XYWHm[2].toInt(), XYWHm[3].toInt());
+    bool bMax = false;
+    if (XYWHm.size() > 4) bMax = XYWHm[4].toBool();
+
+    if (bMax) showMaximized();
+    else      showNormal();
+}
+
 /*
 bool AGuiWindow::event(QEvent *event)
 {

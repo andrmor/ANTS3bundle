@@ -1,8 +1,9 @@
 #include "awindowinterfacebase.h"
+#include "aguiwindow.h"
 
-#include <QMainWindow>
+#include <QTimer>
 
-AWindowInterfaceBase::AWindowInterfaceBase(QMainWindow * window) :
+AWindowInterfaceBase::AWindowInterfaceBase(AGuiWindow * window) :
     BaseWindow(window)
 {
     Help["getGeometry"] = "Returns array of X Y Width Height isMaximized";
@@ -10,25 +11,22 @@ AWindowInterfaceBase::AWindowInterfaceBase(QMainWindow * window) :
 
 void AWindowInterfaceBase::showNormal()
 {
-    BaseWindow->showNormal();
+    QTimer::singleShot(0, BaseWindow, [this](){BaseWindow->showNormal();} );
 }
 
 void AWindowInterfaceBase::showMaximized()
 {
-    BaseWindow->showMaximized();
+    QTimer::singleShot(0, BaseWindow, [this](){BaseWindow->showMaximized();} );
 }
 
 void AWindowInterfaceBase::hide()
 {
-    BaseWindow->hide();
+    QTimer::singleShot(0, BaseWindow, [this](){BaseWindow->hide();} );
 }
 
 QVariantList AWindowInterfaceBase::getGeometry()
 {
-    QVariantList vl;
-    const QRect rect = BaseWindow->geometry();
-    vl << rect.x() << rect.y() << rect.width() << rect.height() << BaseWindow->isMaximized();
-    return vl;
+    return BaseWindow->getGeometry();
 }
 
 void AWindowInterfaceBase::setGeometry(QVariantList XYWHm)
@@ -36,9 +34,5 @@ void AWindowInterfaceBase::setGeometry(QVariantList XYWHm)
     if (XYWHm.size() < 4)
         abort("setGeometry arguments shoud be an array of X Y Width Height [MaximizedBool]");
     else
-    {
-        BaseWindow->move(XYWHm[0].toInt(), XYWHm[1].toInt());
-        BaseWindow->resize(XYWHm[2].toInt(), XYWHm[3].toInt());
-        if (XYWHm.size() > 4 && XYWHm[4].toBool()) BaseWindow->showMaximized();
-    }
+        QTimer::singleShot(0, BaseWindow, [this, XYWHm](){BaseWindow->setGeometry(XYWHm);} );
 }

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QObject>
+#include <QVariantList>
 
 class WindowNavigatorClass;
 
@@ -15,12 +16,17 @@ public:
     void storeGeomStatus();
     void restoreGeomStatus();
 
+public slots:
+    QVariantList getGeometry();
+    void setGeometry(QVariantList XYWHm);
+
 protected:
 
 //    bool event(QEvent * event) override;
 //    void showEvent(QShowEvent *event) override;
 //    void hideEvent(QHideEvent *event) override;
 
+/*
     bool bWinGeomUpdateAllowed = true;
 
     int  WinPos_X = 40;
@@ -29,6 +35,7 @@ protected:
     int  WinSize_H = 600;
     bool bWinVisible = false;
     bool bMaximized  = false;
+*/
 
 private:
     QString IdStr;

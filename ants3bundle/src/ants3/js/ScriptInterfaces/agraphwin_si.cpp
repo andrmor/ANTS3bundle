@@ -115,15 +115,15 @@ QVariantList AGraphWin_SI::getAxes()
 
     min = GraphWindow->getMinX(&ok1);
     max = GraphWindow->getMaxX(&ok2);
-    if (ok1 && ok2) vl << QVariantList{min, max};
+    if (ok1 && ok2) vl.push_back( QVariantList{min, max} );
 
     min = GraphWindow->getMinY(&ok1);
     max = GraphWindow->getMaxY(&ok2);
-    if (ok1 && ok2) vl << QVariantList{min, max};
+    if (ok1 && ok2) vl.push_back( QVariantList{min, max} );
 
     min = GraphWindow->getMinZ(&ok1);
     max = GraphWindow->getMaxZ(&ok2);
-    if (ok1 && ok2) vl << QVariantList{min, max};
+    if (ok1 && ok2) vl.push_back( QVariantList{min, max} );
 
     return vl;
 }
