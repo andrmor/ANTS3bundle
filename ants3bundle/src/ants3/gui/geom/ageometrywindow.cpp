@@ -394,38 +394,42 @@ void AGeometryWindow::closeEvent(QCloseEvent * event)
 }
 
 //#include "anetworkmodule.h"
-void AGeometryWindow::ShowPMnumbers()
+void AGeometryWindow::showPMnumbers()
 {
     std::vector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.push_back( QString::number(i) );
-    ShowText(tmp, kBlack, AGeoWriter::PMs);
+    showText(tmp, kBlack, AGeoWriter::PMs);
 
     /*
     emit requestUpdateRegisteredGeoManager();
     */
 }
 
-void AGeometryWindow::ShowMonitorIndexes()
+void AGeometryWindow::showMonitorIndexes()
 {
     Geometry.GeoManager->ClearTracks();
 
     int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
     std::vector<QString> tmp;
     for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    ShowText(tmp, kBlue, AGeoWriter::PhotMons, false);
+    showText(tmp, kBlue, AGeoWriter::PhotMons, false);
 
     numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
     tmp.clear();
     for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    ShowText(tmp, kGreen, AGeoWriter::PartMons, false);
+    showText(tmp, kGreen, AGeoWriter::PartMons, false);
 
     ShowGeometry(false);
     Geometry.GeoManager->DrawTracks();
     UpdateRootCanvas();
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
 }
 
-void AGeometryWindow::ShowText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
+void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
 {
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
@@ -500,7 +504,7 @@ void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycl
     std::vector<QString> tmp;
     for (const float & f : Event)
         tmp.push_back( QString::number(f) );
-    ShowText(tmp, kBlack, AGeoWriter::PMs, bFullCycle);
+    showText(tmp, kBlack, AGeoWriter::PMs, bFullCycle);
 }
 
 void AGeometryWindow::showGeoMarkers()
@@ -604,12 +608,12 @@ void AGeometryWindow::on_cbColor_toggled(bool checked)
 
 void AGeometryWindow::on_pbShowPMnumbers_clicked()
 {
-    ShowPMnumbers();
+    showPMnumbers();
 }
 
 void AGeometryWindow::on_pbShowMonitorIndexes_clicked()
 {
-    ShowMonitorIndexes();
+    showMonitorIndexes();
 }
 
 void AGeometryWindow::on_pbShowTracks_clicked()

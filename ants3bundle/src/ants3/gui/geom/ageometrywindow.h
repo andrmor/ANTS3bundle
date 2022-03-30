@@ -9,7 +9,6 @@
 #include "TMathBase.h"
 
 class AGeometryHub;
-class ASimulationManager;
 class RasterWindowBaseClass;
 class QWebEngineView;
 class QWebEngineDownloadItem;
@@ -82,10 +81,10 @@ public slots:
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
-    void ShowPMnumbers();  // !!!***
-    void ShowMonitorIndexes();
+    void showPMnumbers();  // !!!***
+    void showMonitorIndexes();
 
-    void ShowText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
+    void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void on_pbTop_clicked();
     void on_pbFront_clicked();

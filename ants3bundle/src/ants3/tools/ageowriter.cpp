@@ -128,12 +128,12 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
             else                     track->SetLineColor(color);
             track->SetLineWidth(lineWidth);
 
-                for (const auto & pair : it->second.Coordinates)
-                {
-                    double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
-                    double y = centerPos[1] + size * pair.second;
-                    track->AddPoint(x, y, centerPos[2], 0);
-                }
+            for (const auto & pair : it->second.Coordinates)
+            {
+                double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
+                double y = centerPos[1] + size * pair.second;
+                track->AddPoint(x, y, centerPos[2], 0);
+            }
         }
     }
 
