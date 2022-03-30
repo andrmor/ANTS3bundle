@@ -91,7 +91,6 @@
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -257,7 +256,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbClearDots">
+        <widget class="QPushButton" name="pbClearMarkers">
          <property name="text">
           <string>Clear markers</string>
          </property>

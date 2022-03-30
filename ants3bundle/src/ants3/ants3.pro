@@ -127,6 +127,7 @@ SOURCES += \
     gui/script/ascriptwindow.cpp \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
+    js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
@@ -300,6 +301,7 @@ HEADERS += \
     gui/script/ascriptwindow.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
+    js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
     js/arootgraphrecord.h \
     js/aroothistrecord.h \

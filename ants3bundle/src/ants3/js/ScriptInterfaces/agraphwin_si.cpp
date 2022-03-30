@@ -1,5 +1,4 @@
 #include "agraphwin_si.h"
-#include "mainwindow.h"
 #include "graphwindowclass.h"
 
 #include <QDebug>
@@ -9,11 +8,8 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
 {
     Description = "Access to the Graph window of GUI";
 
-    Help["SaveImage"] = "Save image currently shown on the graph window to an image file.\nTip: use .png extension";
-    Help["GetAxis"] = "Returns an object with the values presented to user in 'Range' boxes.\n"
-                      "They can be accessed with min/max X/Y/Z (e.g. grwin.GetAxis().maxY).\n"
-                      "The values can be 'undefined'";
-    Help["AddLegend"] = "Adds a temporary (not savable yet!) legend to the graph.\n"
+    Help["saveImage"] = "Save image currently shown on the graph window to an image file.\nTip: use .png extension";
+    Help["addLegend"] = "Adds a temporary (not savable yet!) legend to the graph.\n"
                         "x1,y1 and x2,y2 are the bottom-left and top-right corner coordinates (0..1)";
 }
 

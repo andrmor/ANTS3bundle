@@ -9,14 +9,22 @@ AWindowInterfaceBase::AWindowInterfaceBase(AGuiWindow * window) :
     Help["getGeometry"] = "Returns array of X Y Width Height isMaximized";
 }
 
-void AWindowInterfaceBase::showNormal()
+void AWindowInterfaceBase::showWindow(bool activate)
 {
-    QTimer::singleShot(0, BaseWindow, [this](){BaseWindow->showNormal();} );
+    QTimer::singleShot(0, BaseWindow, [this, activate]()
+    {
+        BaseWindow->showNormal();
+        if (activate) BaseWindow->activateWindow();
+    } );
 }
 
-void AWindowInterfaceBase::showMaximized()
+void AWindowInterfaceBase::showWindowMaximized(bool activate)
 {
-    QTimer::singleShot(0, BaseWindow, [this](){BaseWindow->showMaximized();} );
+    QTimer::singleShot(0, BaseWindow, [this, activate]()
+    {
+        BaseWindow->showMaximized();
+        if (activate) BaseWindow->activateWindow();
+    } );
 }
 
 void AWindowInterfaceBase::hide()

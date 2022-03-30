@@ -133,6 +133,8 @@ private slots:
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
 
+    void on_pbClearMarkers_clicked();
+
 private:
     AGeometryHub         & Geometry;
 
