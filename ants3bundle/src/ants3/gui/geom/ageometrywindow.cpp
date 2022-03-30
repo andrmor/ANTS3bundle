@@ -396,9 +396,9 @@ void AGeometryWindow::closeEvent(QCloseEvent * event)
 //#include "anetworkmodule.h"
 void AGeometryWindow::ShowPMnumbers()
 {
-    QVector<QString> tmp;
+    std::vector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
-        tmp.append( QString::number(i) );
+        tmp.push_back( QString::number(i) );
     ShowText(tmp, kBlack, AGeoWriter::PMs);
 
     /*
@@ -411,13 +411,13 @@ void AGeometryWindow::ShowMonitorIndexes()
     Geometry.GeoManager->ClearTracks();
 
     int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
-    QVector<QString> tmp;
-    for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
+    std::vector<QString> tmp;
+    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
     ShowText(tmp, kBlue, AGeoWriter::PhotMons, false);
 
     numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
     tmp.clear();
-    for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
+    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
     ShowText(tmp, kGreen, AGeoWriter::PartMons, false);
 
     ShowGeometry(false);
@@ -425,12 +425,12 @@ void AGeometryWindow::ShowMonitorIndexes()
     UpdateRootCanvas();
 }
 
-void AGeometryWindow::ShowText(const QVector<QString> & strData, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
+void AGeometryWindow::ShowText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
 {
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
 
-    QString err = GeoWriter.showText(strData, color, onWhat);
+    QString err = GeoWriter.drawText(textVec, color, onWhat);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -497,9 +497,9 @@ void GeometryWindowClass::ShowEvent_Particles(size_t iEvent, bool withSecondarie
 
 void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycle)
 {
-    QVector<QString> tmp;
+    std::vector<QString> tmp;
     for (const float & f : Event)
-        tmp.append( QString::number(f) );
+        tmp.push_back( QString::number(f) );
     ShowText(tmp, kBlack, AGeoWriter::PMs, bFullCycle);
 }
 

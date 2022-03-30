@@ -85,7 +85,7 @@ public slots:
     void ShowPMnumbers();  // !!!***
     void ShowMonitorIndexes();
 
-    void ShowText(const QVector<QString> & strData, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
+    void ShowText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void on_pbTop_clicked();
     void on_pbFront_clicked();

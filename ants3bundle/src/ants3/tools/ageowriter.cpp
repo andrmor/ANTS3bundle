@@ -5,21 +5,63 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 
+#include <QDebug>
+
 #include "TVirtualGeoTrack.h"
 #include "TGeoManager.h"
+
+AGeoSymbol::AGeoSymbol(std::vector<double> x, std::vector<double> y)
+{
+    if (x.size() != y.size())
+    {
+        qWarning() << "Mismatch in x and y vector size in AGeoSymbol constr";
+        return;
+    }
+
+    for (size_t i = 0; i < x.size(); i++)
+        Coordinates.push_back({x[i], y[i]});
+}
 
 AGeoWriter::AGeoWriter()
 {
     generateSymbolMap();
 }
 
-QString AGeoWriter::showText(const QVector<QString> & strData, int color, EDraw onWhat)
+void AGeoWriter::generateSymbolMap()
+{
+    SymbolMap["0"] = { {-1,    1,     1,    -1,   -1},
+                       { 1.62, 1.62, -1.62, -1.62, 1.62} };
+    SymbolMap["1"] = { {-0.3,  0.3,   0.3},
+                       { 0.42, 1.62, -1.62} };
+    SymbolMap["2"] = { {-1,   1,    1, -1, -1,     1},
+                       { 1.62,1.62, 0,  0, -1.62, -1.62} };
+    SymbolMap["3"] = { {-1,    1,    1, -1, 1,  1,    -1},
+                       { 1.62, 1.62, 0,  0, 0, -1.62, -1.62} };
+    SymbolMap["4"] = { { -1,   -1, 1, 1,    1},
+                       {  1.62, 0, 0, 1.62,-1.62} };
+    SymbolMap["5"] = { {1,    -1,  -1, 1,  1,   -1},
+                       {1.62, 1.62, 0, 0, -1.62,-1.62} };
+    SymbolMap["6"] = { {1,   -1,    -1,     1,    1, -1},
+                       {1.62, 1.62, -1.62, -1.62, 0,  0} };
+    SymbolMap["7"] = { { -1,    1,     1},
+                       {  1.62, 1.62, -1.62} };
+    SymbolMap["8"] = { {-1, 1,  1,    -1,   -1,    1,    1},
+                       { 0, 0, -1.62, -1.62, 1.62, 1.62, 0} };
+    SymbolMap["9"] = { {-1,     1,    1,   -1,   -1, 1},
+                       {-1.62, -1.62, 1.62, 1.62, 0, 0} };
+    SymbolMap["."] = { {-0.2, 0.2, 0.2, -0.2, -0.2},
+                       {-1.2,-1.2,-1.6, -1.6, -1.2} };
+    SymbolMap["-"] = { {-1, 1},
+                       { 0, 0} };
+}
+
+QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color, EDraw onWhat)
 {
     const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
     const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
 
-    int numObj = 0;
+    size_t numObj = 0;
     switch (onWhat)
     {
     case PMs      : numObj = SensorHub.countSensors();                        break;
@@ -27,19 +69,18 @@ QString AGeoWriter::showText(const QVector<QString> & strData, int color, EDraw 
     case PartMons : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
     }
 
-    if (strData.size() != numObj) return "Show text: mismatch in vector sizes";
-
+    if (textVector.size() != numObj) return "Show text: mismatch in vector sizes";
 
     //max number of symbols to show
-    int MaxSymbols = 0;
-    for (int i=0; i<numObj; i++)
-        if (strData[i].size() > MaxSymbols)
-            MaxSymbols = strData[i].size();
+    size_t MaxSymbols = 0;
+    for (const QString & txt : textVector)
+        if (txt.size() > MaxSymbols)
+            MaxSymbols = txt.size();
     if (MaxSymbols == 0) MaxSymbols = 1;
 
-    for (int iObj = 0; iObj < numObj; iObj++)
+    for (size_t iObj = 0; iObj < numObj; iObj++)
     {
-        QString str = strData[iObj];
+        QString str = textVector[iObj];
         if (str.isEmpty()) continue;
 
         int numDigits = str.size();
@@ -72,16 +113,14 @@ QString AGeoWriter::showText(const QVector<QString> & strData, int color, EDraw 
         int lineWidth = 2;
         //if (size<2) lineWidth = 1;
 
-        qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
+        //qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
 
         for (int iDig = 0; iDig < numDigits; iDig++)
         {
             QString str1 = str.mid(iDig, 1);
 
-            int isymbol = -1;
-            for (int i = 0; i < SymbolMap.size(); i++)
-                if (str1 == SymbolMap[i])
-                    isymbol = i;
+            auto it = SymbolMap.find(str1);
+            if (it == SymbolMap.end()) continue;
 
             Int_t track_index = GeoManager->AddTrack(2, 22);
             TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
@@ -89,67 +128,14 @@ QString AGeoWriter::showText(const QVector<QString> & strData, int color, EDraw 
             else                     track->SetLineColor(color);
             track->SetLineWidth(lineWidth);
 
-            if (isymbol > -1)
-                for (int i=0; i<numbersX[isymbol].size(); i++)
+                for (const auto & pair : it->second.Coordinates)
                 {
-                    double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * numbersX[isymbol][i];
-                    double y = centerPos[1] + size * numbersY[isymbol][i];
+                    double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
+                    double y = centerPos[1] + size * pair.second;
                     track->AddPoint(x, y, centerPos[2], 0);
                 }
         }
     }
 
     return QString();
-}
-
-void AGeoWriter::generateSymbolMap()
-{
-    //0
-    SymbolMap << "0";
-    numbersX.append({-1,1,1,-1,-1});
-    numbersY.append({1.62,1.62,-1.62,-1.62,1.62});
-    //1
-    SymbolMap << "1";
-    numbersX.append({-0.3,0.3,0.3});
-    numbersY.append({0.42,1.62,-1.62});
-    //2
-    SymbolMap << "2";
-    numbersX.append({-1,1,1,-1,-1,1});
-    numbersY.append({1.62,1.62,0,0,-1.62,-1.62});
-    //3
-    SymbolMap << "3";
-    numbersX.append({-1,1,1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,0,0,0,-1.62,-1.62});
-    //4
-    SymbolMap << "4";
-    numbersX.append({-1,-1,1,1,1});
-    numbersY.append({1.62,0,0,1.62,-1.62});
-    //5
-    SymbolMap << "5";
-    numbersX.append({1,-1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,0,0,-1.62,-1.62});
-    //6
-    SymbolMap << "6";
-    numbersX.append({1,-1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,-1.62,-1.62,0,0});
-    //7
-    SymbolMap << "7";
-    numbersX.append({-1,1,1});
-    numbersY.append({1.62,1.62,-1.62});
-    //8
-    SymbolMap << "8";
-    numbersX.append({-1,1,1,-1,-1,1,1});
-    numbersY.append({0,0,-1.62,-1.62,1.62,1.62,0});
-    //9
-    SymbolMap << "9";
-    numbersX.append({-1   , 1   ,   1,  -1, -1,1});
-    numbersY.append({-1.62,-1.62,1.62,1.62,  0,0});
-    //.
-    SymbolMap << ".";
-    numbersX.append({-0.2, 0.2, 0.2,-0.2,-0.2});
-    numbersY.append({-1.2,-1.2,-1.6,-1.6,-1.2});
-    //-
-    SymbolMap << "-";
-    numbersX.append({-1, 1});
-    numbersY.append({ 0, 0});
 }
