@@ -82,8 +82,6 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
 
     ui->cbWireFrame->setVisible(false);
 
-    generateSymbolMap();
-
     CameraControl = new ACameraControlDialog(RasterWindow, this);
     CameraControl->setModal(false);
 
@@ -401,7 +399,7 @@ void AGeometryWindow::ShowPMnumbers()
     QVector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.append( QString::number(i) );
-    ShowText(tmp, kBlack, PMs);
+    ShowText(tmp, kBlack, AGeoWriter::PMs);
 
     /*
     emit requestUpdateRegisteredGeoManager();
@@ -415,159 +413,28 @@ void AGeometryWindow::ShowMonitorIndexes()
     int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
     QVector<QString> tmp;
     for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
-    ShowText(tmp, kBlue, PhotMons, false);
+    ShowText(tmp, kBlue, AGeoWriter::PhotMons, false);
 
     numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
     tmp.clear();
     for (int i = 0; i < numMon; i++) tmp.append( QString::number(i) );
-    ShowText(tmp, kGreen, PartMons, false);
+    ShowText(tmp, kGreen, AGeoWriter::PartMons, false);
 
     ShowGeometry(false);
     Geometry.GeoManager->DrawTracks();
     UpdateRootCanvas();
 }
 
-void AGeometryWindow::generateSymbolMap()
+void AGeometryWindow::ShowText(const QVector<QString> & strData, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
 {
-    //0
-    SymbolMap << "0";
-    numbersX.append({-1,1,1,-1,-1});
-    numbersY.append({1.62,1.62,-1.62,-1.62,1.62});
-    //1
-    SymbolMap << "1";
-    numbersX.append({-0.3,0.3,0.3});
-    numbersY.append({0.42,1.62,-1.62});
-    //2
-    SymbolMap << "2";
-    numbersX.append({-1,1,1,-1,-1,1});
-    numbersY.append({1.62,1.62,0,0,-1.62,-1.62});
-    //3
-    SymbolMap << "3";
-    numbersX.append({-1,1,1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,0,0,0,-1.62,-1.62});
-    //4
-    SymbolMap << "4";
-    numbersX.append({-1,-1,1,1,1});
-    numbersY.append({1.62,0,0,1.62,-1.62});
-    //5
-    SymbolMap << "5";
-    numbersX.append({1,-1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,0,0,-1.62,-1.62});
-    //6
-    SymbolMap << "6";
-    numbersX.append({1,-1,-1,1,1,-1});
-    numbersY.append({1.62,1.62,-1.62,-1.62,0,0});
-    //7
-    SymbolMap << "7";
-    numbersX.append({-1,1,1});
-    numbersY.append({1.62,1.62,-1.62});
-    //8
-    SymbolMap << "8";
-    numbersX.append({-1,1,1,-1,-1,1,1});
-    numbersY.append({0,0,-1.62,-1.62,1.62,1.62,0});
-    //9
-    SymbolMap << "9";
-    numbersX.append({-1   , 1   ,   1,  -1, -1,1});
-    numbersY.append({-1.62,-1.62,1.62,1.62,  0,0});
-    //.
-    SymbolMap << ".";
-    numbersX.append({-0.2, 0.2, 0.2,-0.2,-0.2});
-    numbersY.append({-1.2,-1.2,-1.6,-1.6,-1.2});
-    //-
-    SymbolMap << "-";
-    numbersX.append({-1, 1});
-    numbersY.append({ 0, 0});
-}
-
-void AGeometryWindow::ShowText(const QVector<QString> & strData, Color_t color, EDraw onWhat, bool bFullCycle)
-{
-    const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
-    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
-
-    int numObj = 0;
-    switch (onWhat)
-    {
-    case PMs      : numObj = SensorHub.countSensors();                        break;
-    case PhotMons : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
-    case PartMons : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
-    }
-
-    if (strData.size() != numObj)
-    {
-        guitools::message("Show text: mismatch in vector sizes", this);
-        return;
-    }
-
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
 
-    //max number of symbols to show
-    int MaxSymbols = 0;
-    for (int i=0; i<numObj; i++)
-        if (strData[i].size() > MaxSymbols)
-            MaxSymbols = strData[i].size();
-    if (MaxSymbols == 0) MaxSymbols = 1;
-
-    for (int iObj = 0; iObj < numObj; iObj++)
+    QString err = GeoWriter.showText(strData, color, onWhat);
+    if (!err.isEmpty())
     {
-        QString str = strData[iObj];
-        if (str.isEmpty()) continue;
-
-        int numDigits = str.size();
-        if (str.right(1) == "F") numDigits--;
-        AVector3 centerPos;
-        double size;
-        switch (onWhat)
-        {
-        case PMs :
-          {
-            const ASensorModel * sensorModel = SensorHub.sensorModel(iObj);
-            if (sensorModel)
-            {
-                centerPos = SensorHub.SensorData[iObj].Position;
-                size      = SensorHub.SensorData[iObj].GeoObj->Shape->minSize();    // !!!*** expand minSize for other shapes!!!
-            }
-            break;
-          }
-        case PhotMons :
-            centerPos = MonitorHub.PhotonMonitors[iObj].Position;
-            size      = MonitorHub.PhotonMonitors[iObj].GeoObj->Shape->minSize();
-            break;
-        case PartMons :
-            centerPos = MonitorHub.ParticleMonitors[iObj].Position;
-            size      = MonitorHub.ParticleMonitors[iObj].GeoObj->Shape->minSize();
-            break;
-        }
-        if (size == 0) size = 2.0; // temporary! !!!***
-        size = size / 3.0 / (0.5+0.5*MaxSymbols); // was /5.0
-        int lineWidth = 2;
-        //if (size<2) lineWidth = 1;
-
-        qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
-
-        for (int iDig = 0; iDig < numDigits; iDig++)
-        {
-            QString str1 = str.mid(iDig, 1);
-
-            int isymbol = -1;
-            for (int i = 0; i < SymbolMap.size(); i++)
-                if (str1 == SymbolMap[i])
-                    isymbol = i;
-
-            Int_t track_index = Geometry.GeoManager->AddTrack(2, 22);
-            TVirtualGeoTrack * track = Geometry.GeoManager->GetTrack(track_index);
-            if (str.right(1) == "F") track->SetLineColor(kRed);
-            else                     track->SetLineColor(color);
-            track->SetLineWidth(lineWidth);
-
-            if (isymbol > -1)
-                for (int i=0; i<numbersX[isymbol].size(); i++)
-                {
-                    double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * numbersX[isymbol][i];
-                    double y = centerPos[1] + size * numbersY[isymbol][i];
-                    track->AddPoint(x, y, centerPos[2], 0);
-                }
-        }
+        guitools::message(err, this);
+        return;
     }
 
     if (bFullCycle)
@@ -633,20 +500,19 @@ void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycl
     QVector<QString> tmp;
     for (const float & f : Event)
         tmp.append( QString::number(f) );
-    ShowText(tmp, kBlack, PMs, bFullCycle);
+    ShowText(tmp, kBlack, AGeoWriter::PMs, bFullCycle);
 }
 
 void AGeometryWindow::showGeoMarkers()
 {
-    if (GeoMarkers.isEmpty()) return;
+    if (GeoMarkers.empty()) return;
 
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
         SetAsActiveRootWindow();
-        for (int i = 0; i < GeoMarkers.size(); i++)
+        for (GeoMarkerClass * gm : GeoMarkers)
         {
-            GeoMarkerClass * gm = GeoMarkers[i];
             if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::True) // Source has its own styling
             {
                 gm->SetMarkerStyle(GeoMarkerStyle);
@@ -663,12 +529,12 @@ void AGeometryWindow::showGeoMarkers()
 #include "anoderecord.h"
 void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
 {
-    if (GeoMarkers.isEmpty() || GeoMarkers.last()->Type != GeoMarkerClass::True)
+    if (GeoMarkers.empty() || GeoMarkers.back()->Type != GeoMarkerClass::True)
     {
         GeoMarkerClass * gm = new GeoMarkerClass(GeoMarkerClass::True, 21, 10, kBlue);
-        GeoMarkers.append(gm);
+        GeoMarkers.push_back(gm);
     }
-    GeoMarkers.last()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
+    GeoMarkers.back()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
 }
 
 void AGeometryWindow::ShowTracksAndMarkers()
@@ -684,35 +550,6 @@ void AGeometryWindow::ShowTracksAndMarkers()
         ShowGeometry(true, false);
     }
 }
-
-/*
-#include "anoderecord.h"
-void GeometryWindowClass::ShowCustomNodes(int firstN)
-{
-    ClearGeoMarkers();
-    Detector.GeoManager->ClearTracks();
-
-    GeoMarkerClass * marks = new GeoMarkerClass("Nodes", 6, 2, kBlack);
-
-    int iCounter = 0;
-    for (ANodeRecord * node : SimulationManager.Nodes)
-    {
-        ANodeRecord * thisNode = node;
-        while (thisNode)
-        {
-            marks->SetNextPoint(thisNode->R[0], thisNode->R[1], thisNode->R[2]);
-            if (firstN != -1)
-            {
-                iCounter++;
-                if (iCounter > firstN) break;
-            }
-            thisNode = thisNode->getLinkedNode();
-        }
-    }
-    GeoMarkers.append(marks);
-    ShowGeometry(true, false);
-}
-*/
 
 void AGeometryWindow::ClearTracks(bool bRefreshWindow)
 {
@@ -739,14 +576,14 @@ void AGeometryWindow::clearGeoMarkers(int All_Rec_True)
             if (GeoMarkers[i]->Type == GeoMarkerClass::Recon)
             {
                 delete GeoMarkers[i];
-                GeoMarkers.remove(i);
+                GeoMarkers.erase(GeoMarkers.begin() + i);
             }
             break;
         case 2:
             if (GeoMarkers[i]->Type == GeoMarkerClass::True)
             {
                 delete GeoMarkers[i];
-                GeoMarkers.remove(i);
+                GeoMarkers.erase(GeoMarkers.begin() + i);
             }
             break;
         case 0:
@@ -800,10 +637,10 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 
     GeoMarkerClass * marks = new GeoMarkerClass(GeoMarkerClass::Source, 3, 10, kBlack);
     marks->SetNextPoint(r[0], r[1], r[2]);
-    GeoMarkers.append(marks);
+    GeoMarkers.push_back(marks);
     GeoMarkerClass* marks1 = new GeoMarkerClass(GeoMarkerClass::Source, 4, 3, kRed);
     marks1->SetNextPoint(r[0], r[1], r[2]);
-    GeoMarkers.append(marks1);
+    GeoMarkers.push_back(marks1);
 
     ShowGeometry(false);
     if (keepTracks) ShowTracks();
@@ -816,7 +653,7 @@ void AGeometryWindow::addGenerationMarker(const double * Pos)
     else
     {
         marks = new GeoMarkerClass(GeoMarkerClass::Source, 7, 1, 1);
-        GeoMarkers.append(marks);
+        GeoMarkers.push_back(marks);
     }
 
     marks->SetNextPoint(Pos[0], Pos[1], Pos[2]);
@@ -1420,5 +1257,6 @@ void AGeometryWindow::on_pbCameraDialog_clicked()
 void AGeometryWindow::on_pbClearMarkers_clicked()
 {
     clearGeoMarkers();
+    on_pbShowGeometry_clicked();
 }
 

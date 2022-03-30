@@ -220,6 +220,7 @@ SOURCES += \
     photonSim/aphotonstatistics.cpp \
     photonSim/asensorsignalarray.cpp \
     tools/aerrorhub.cpp \
+    tools/ageowriter.cpp \
     tools/ahistogram.cpp \
     tools/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
@@ -408,6 +409,7 @@ HEADERS += \
     dispatch/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
     tools/aerrorhub.h \
+    tools/ageowriter.h \
     tools/ahistogram.h \
     tools/aroothistappenders.h \
     tools/afilemerger.h \

@@ -2,6 +2,7 @@
 #define GEOMETRYWINDOWCLASS_H
 
 #include "aguiwindow.h"
+#include "ageowriter.h"
 
 #include <QVector>
 
@@ -34,9 +35,7 @@ public:
     bool fRecallWindow   = false;
     bool bDisableDraw    = false;
 
-    QVector<GeoMarkerClass*> GeoMarkers; // !!!*** to std::vector
-
-    enum EDraw {PMs, PhotMons, PartMons};
+    std::vector<GeoMarkerClass*> GeoMarkers;
 
     void ShowAndFocus();
     void SetAsActiveRootWindow();
@@ -69,7 +68,6 @@ public:
 //    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
     void ShowTracksAndMarkers();
-//    void ShowCustomNodes(int firstN); // !!!***
 
     void ClearTracks(bool bRefreshWindow = true);
 
@@ -87,7 +85,7 @@ public slots:
     void ShowPMnumbers();  // !!!***
     void ShowMonitorIndexes();
 
-    void ShowText(const QVector<QString> & strData, Color_t color, EDraw onWhat, bool bFullCycle = true);
+    void ShowText(const QVector<QString> & strData, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void on_pbTop_clicked();
     void on_pbFront_clicked();
@@ -155,17 +153,13 @@ private:
     bool ShowTop = false;
     bool ColorByMaterial = false;
 
-    //draw on PMs/Monitors related
-    QVector<QString> SymbolMap;
-    QVector< QVector < double > > numbersX;
-    QVector< QVector < double > > numbersY;
+    AGeoWriter GeoWriter;
 
 private:
     void doChangeLineWidth(int deltaWidth);
     void showWebView();
     void prepareGeoManager(bool ColorUpdateAllowed = true);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
-    void generateSymbolMap();
 
 signals:
     void requestUpdateRegisteredGeoManager();

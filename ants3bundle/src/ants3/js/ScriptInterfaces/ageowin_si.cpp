@@ -134,7 +134,7 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color)
         }
         M->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
     }
-    GeometryWindow->GeoMarkers << M;
+    GeometryWindow->GeoMarkers.push_back(M);
 }
 
 void AGeoWin_SI::clearTracks()
