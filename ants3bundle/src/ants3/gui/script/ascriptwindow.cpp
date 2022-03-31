@@ -13,6 +13,9 @@
 #include "a3global.h"
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
+#include "ascriptmsgwindow.h"
+#include "ajscripthub.h"
+#include "amsg_si.h"
 
 #include <QDebug>
 #include <QList>
@@ -101,6 +104,9 @@ AScriptWindow::AScriptWindow(QWidget * parent) :
     connect(DoAlign, &QShortcut::activated, this, [&](){getTab()->TextEdit->align();});
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
+
+    AScriptMsgWindow * msgWin = new AScriptMsgWindow(this);
+    AJScriptHub::getInstance().getJScriptManager().registerInterface(new AMsg_SI(msgWin), "msg");
 
     ReadFromJson();
 }

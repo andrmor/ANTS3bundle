@@ -124,11 +124,13 @@ SOURCES += \
     gui/photsim/asensorwindow.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
+    gui/script/ascriptmsgwindow.cpp \
     gui/script/ascriptwindow.cpp \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
+    js/ScriptInterfaces/amsg_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
@@ -299,11 +301,13 @@ HEADERS += \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
     gui/script/ascriptlanguageenum.h \
+    gui/script/ascriptmsgwindow.h \
     gui/script/ascriptwindow.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
+    js/ScriptInterfaces/amsg_si.h \
     js/arootgraphrecord.h \
     js/aroothistrecord.h \
     js/arootobjbase.h \
