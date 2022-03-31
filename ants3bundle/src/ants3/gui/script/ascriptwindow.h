@@ -241,6 +241,8 @@ signals:
     void success(QString eval);   // !!!*** signal of the manager is enough?
     void requestUpdateConfig();   // !!!***
 
+    void requestUpdateGui();
+
 private:
     void updateMethodHelp();
     void updateRemovedAndDeprecatedMethods();

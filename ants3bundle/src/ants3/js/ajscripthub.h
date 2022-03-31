@@ -35,6 +35,7 @@ signals:
     void outputHtml(QString);
     void showAbortMessage(QString message);
     void clearOutput();
+    void requestUpdateGui();
 
 private:
     AJScriptManager * SM = nullptr;

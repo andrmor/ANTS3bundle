@@ -88,9 +88,12 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
     JScriptWin->updateGui();
 
     DemoWin = new ADemoWindow(this);
+
+    connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
     loadWindowGeometries();
 

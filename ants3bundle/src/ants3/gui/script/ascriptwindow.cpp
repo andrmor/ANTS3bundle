@@ -490,6 +490,8 @@ void AScriptWindow::on_pbRunScript_clicked()
     }
 
     ScriptManager.collectGarbage();
+
+    emit requestUpdateGui();
 }
 
 void AScriptWindow::onF1pressed(QString text)

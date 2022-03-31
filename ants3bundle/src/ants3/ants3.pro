@@ -128,6 +128,7 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
     js/ScriptInterfaces/amsg_si.cpp \
@@ -305,6 +306,7 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
+    js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
     js/ScriptInterfaces/amsg_si.h \

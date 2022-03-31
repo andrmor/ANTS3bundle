@@ -1,5 +1,6 @@
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
+#include "adispatcherinterface.h"
 
 // SI
 #include "ademo_si.h"
@@ -14,19 +15,19 @@
 #include "apartanalysis_si.h"
 #include "aminijs_si.h"
 #include "atree_si.h"
+#include "ageo_si.h"
 
-AJScriptHub &AJScriptHub::getInstance()
+AJScriptHub & AJScriptHub::getInstance()
 {
     static AJScriptHub instance;
     return instance;
 }
 
-AJScriptManager &AJScriptHub::manager()
+AJScriptManager & AJScriptHub::manager()
 {
     return getInstance().getJScriptManager();
 }
 
-#include "adispatcherinterface.h"
 void AJScriptHub::abort(const QString & message)
 {
     AJScriptHub & hub = getInstance();
@@ -50,6 +51,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new ADemo_SI(),         "demo");
     SM->registerInterface(new ACore_SI(),         "core");
     SM->registerInterface(new AMath_SI(),         "math");
+    SM->registerInterface(new AGeo_SI(),          "geo");
     SM->registerInterface(new AGraph_SI(),        "graph");
     SM->registerInterface(new AHist_SI(),         "hist");
     SM->registerInterface(new ATree_SI(),         "tree");
