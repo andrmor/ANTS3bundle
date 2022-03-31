@@ -105,14 +105,12 @@ private:
   void protoMenuEmptySelection(const QPoint & pos);
 
   QString makeScriptString_basicObject(AGeoObject *obj, bool bExpandMaterials, bool usePython) const;
-  QString makeScriptString_slab(AGeoObject *obj, bool bExpandMaterials, int ident) const;
   QString makeScriptString_arrayObject(AGeoObject *obj) const;
   QString makeScriptString_instanceObject(AGeoObject *obj, bool usePython) const;
   QString makeScriptString_prototypeObject(AGeoObject *obj) const;
   QString makeScriptString_monitorBaseObject(const AGeoObject *obj) const;
   QString makeScriptString_monitorConfig(const AGeoObject *obj) const;
   QString makeScriptString_stackObjectStart(AGeoObject *obj) const;
-  QString makeScriptString_groupObjectStart(AGeoObject *obj) const;
   QString makeScriptString_stackObjectEnd(AGeoObject *obj) const;
   QString makeLinePropertiesString(AGeoObject *obj) const;
   QString makeScriptString_DisabledObject(AGeoObject *obj) const;

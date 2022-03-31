@@ -1497,7 +1497,7 @@ QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMate
 
     const QStringList MatNames = AMaterialHub::getInstance().getListOfMaterialNames();
 
-    QString str = QString("geo.TGeo( ") +
+    QString str = QString("geo.customTGeo( ") +
             "'" + obj->Name + "', " +
             "'" + GenerationString + "', " +
             (bExpandMaterials && obj->Material < MatNames.size() ? MatNames.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
@@ -1531,7 +1531,7 @@ QString AGeoTree::makeScriptString_arrayObject(AGeoObject *obj) const
         QString sOri2  = (obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2])    : obj->OrientationStr[2]);
         QString sIndex = (c->strStartIndex      .isEmpty() ? QString::number(c  ->startIndex)        : c->strStartIndex);
 
-        str +=  QString("geo.CircArray( ") +
+        str +=  QString("geo.circArray( ") +
                 "'" + obj->Name + "', " +
                 snum + ", " +
                 sstep + ", " +
@@ -1607,7 +1607,7 @@ QString AGeoTree::makeScriptString_instanceObject(AGeoObject *obj, bool usePytho
         oriStrs[i] = ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
-    QString str =  QString("geo.Instance( ") +
+    QString str =  QString("geo.instance( ") +
             "'" + obj->Name +            "', " +
             "'" + ins->PrototypeName +   "', " +
             "'" + obj->Container->Name + "',   " +
@@ -1631,7 +1631,7 @@ QString AGeoTree::makeScriptString_prototypeObject(AGeoObject * obj) const
         return "Error accessing object as prototype!";
     }
 
-    QString str =  QString("geo.Prototype( ") +
+    QString str =  QString("geo.prototype( ") +
             "'" + obj->Name +            "' )";
     return str;
 }
@@ -1646,8 +1646,8 @@ QString AGeoTree::makeScriptString_monitorBaseObject(const AGeoObject * obj) con
     }
     const AMonitorConfig & c = m->config;
 
-    // geo.Monitor( name,  shape,  size1,  size2,  container,  x,  y,  z,  phi,  theta,  psi,  SensitiveTop,  SensitiveBottom,  StopsTraking )
-    return QString("geo.Monitor( %1, %2,  %3, %4,  %5,   %6, %7, %8,   %9, %10, %11,   %12, %13,   %14 )")
+    // geo.monitor( name,  shape,  size1,  size2,  container,  x,  y,  z,  phi,  theta,  psi,  SensitiveTop,  SensitiveBottom,  StopsTraking )
+    return QString("geo.monitor( %1, %2,  %3, %4,  %5,   %6, %7, %8,   %9, %10, %11,   %12, %13,   %14 )")
             .arg("'" + obj->Name + "'")
             .arg(c.shape)
             .arg(c.str2size1.isEmpty() ? QString::number(2.0 * c.size1) : c.str2size1)
@@ -1676,8 +1676,8 @@ QString AGeoTree::makeScriptString_monitorConfig(const AGeoObject *obj) const
 
     if (c.PhotonOrParticle == 0)
     {
-        //geo.Monitor_ConfigureForPhotons( MonitorName,  Position,  Time,  Angle,  Wave )
-        return QString("geo.Monitor_ConfigureForPhotons( %1,  [%2, %3],  [%4, %5, %6],  [%7, %8, %9],  [%10, %11, %12] )")
+        //geo.configurePhotonMonitor( MonitorName,  Position,  Time,  Angle,  Wave )
+        return QString("geo.configurePhotonMonitor( %1,  [%2, %3],  [%4, %5, %6],  [%7, %8, %9],  [%10, %11, %12] )")
                 .arg("'" + obj->Name + "'")
                 .arg(c.xbins)
                 .arg(c.ybins)
@@ -1693,8 +1693,8 @@ QString AGeoTree::makeScriptString_monitorConfig(const AGeoObject *obj) const
     }
     else
     {
-        //geo.Monitor_ConfigureForParticles( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
-        return QString("geo.Monitor_ConfigureForParticles( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
+        //geo.configureParticleMonitor( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
+        return QString("geo.configureParticleMonitor( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
                 .arg("'" + obj->Name + "'")
                 .arg(c.Particle)
                 .arg(c.bPrimary && c.bSecondary ? 0 : (c.bPrimary ? 1 : 2))
@@ -1716,7 +1716,7 @@ QString AGeoTree::makeScriptString_monitorConfig(const AGeoObject *obj) const
 
 QString AGeoTree::makeScriptString_stackObjectStart(AGeoObject *obj) const
 {
-    return  QString("geo.Stack( '%1', '%2',   %3, %4, %5,   %6, %7, %8 )")
+    return  QString("geo.stack( '%1', '%2',   %3, %4, %5,   %6, %7, %8 )")
             .arg(obj->Name)
             .arg(obj->Container->Name)
             .arg(obj->PositionStr[0].isEmpty() ? QString::number(obj->Position[0]) : obj->PositionStr[0])
@@ -1727,23 +1727,16 @@ QString AGeoTree::makeScriptString_stackObjectStart(AGeoObject *obj) const
             .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
 }
 
-QString AGeoTree::makeScriptString_groupObjectStart(AGeoObject *obj) const
-{
-    return  QString("geo.MakeGroup(") +
-            "'" + obj->Name + "', " +
-            "'" + obj->Container->Name + "' )";
-}
-
 QString AGeoTree::makeScriptString_stackObjectEnd(AGeoObject *obj) const
 {
-    return QString("geo.InitializeStack( ") +
+    return QString("geo.initializeStack( ") +
            "'" + obj->Name + "',  " +
            "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";  //obj->HostedObjects.first()->Name
 }
 
 QString AGeoTree::makeLinePropertiesString(AGeoObject *obj) const
 {
-    return "geo.SetLine( '" +
+    return "geo.setLineProperties( '" +
             obj->Name +
             "',  " +
             QString::number(obj->color) + ",  " +
@@ -1753,6 +1746,5 @@ QString AGeoTree::makeLinePropertiesString(AGeoObject *obj) const
 
 QString AGeoTree::makeScriptString_DisabledObject(AGeoObject *obj) const
 {
-    return QString("geo.DisableObject( '%1')").arg(obj->Name);
+    return QString("geo.setEnabled( '%1', false )").arg(obj->Name);
 }
-

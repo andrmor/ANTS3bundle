@@ -15,33 +15,33 @@ AGeo_SI::AGeo_SI()
     QString s = "It is filled with the given material (material index iMat)\n"
                 "and positioned inside 'container' object\n"
                 "at coordinates (x,y,z) and orientation angles (phi,thetha,psi)\n"
-                "in the local frame of the container";
+                "in the local frame of the container;\n"
+                "Requires updateGeometry() to take effect!";
 
     Help["box"] = "Adds to geometry a box 'name' with the sizes (sizeX,sizeY,sizeZ)\n." + s;
     Help["cylinder"] = "Adds to geometry a cylinder 'name' with the given diameter and height\n" + s;
     Help["tube"] = "Adds to geometry a tube 'name' with the given outer and inner diameters and height\n" + s;
-    Help["Cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height\n" +s;
-    Help["Polygone"] =  "Adds to geometry a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
+    Help["cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height\n" +s;
+    Help["polygone"] =  "Adds to geometry a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
                         "circles and height.\n" +s;
-    Help["Sphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;
-    Help["Arb8"] = "Adds to geometry a TGeoArb8 object with name 'name' and the given height and two arrays,\n"
+    Help["dphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;
+    Help["srb8"] = "Adds to geometry a TGeoArb8 object with name 'name' and the given height and two arrays,\n"
                    "containing X and Y coordinates of the nodes.\n"+ s;
-    Help["TGeo"] = "Adds to geometry an object with name 'name' and the shape generated using the CERN ROOT geometry system.\n" + s +
+    Help["customTGeo"] = "Adds to geometry an object with name 'name' and the shape generated using the CERN ROOT geometry system.\n" + s +
                    "\nFor example, to generate a box of (10,10,10) half sizes use the generation string \"TGeoBBox(10, 10, 10)\".\n"
                    "To generate a composite object, first create logical volumes (using TGeo command or \"Box\" etc), and then "
                    "create the composite using, e.g., the generation string \"TGeoCompositeShape( name1 + name2 )\". Note that the logical volume is removed "
                    "from the generation list after it was used by composite object generator!";
 
     Help["setLineProperties"] = "Sets color, width and style of the line for visualisation of the object \"name\".";
-    Help["ClearAll"] = "Removes all unlocked objects (with exception of slabs) defined in the current geometry";
+    Help["clearWorld"] = "Removes all objects and prototypes leaving only World";
+
     Help["Remove"] = "Removes the Object (if not locked) from the geometry.\nAll objects hosted inside "
                      "are transfered to the container of the Object.\n"
                      "If all objects inside also have to be deleted, use RemoveRecursive function.";
     Help["RemoveRecursive"] = "Removes the Object (if not locked) and all non-locked objects hosted inside.";
 
-    Help["RemoveAllExceptWorld"] = "Removes all slabs and configured objects, ignoring the lock status!";
-
-    Help["UpdateGeometry"] = "Updates geometry and do optional check for geometry definition errors.\n"
+    Help["updateGeometry"] = "Updates geometry and do optional check for geometry definition errors.\n"
                              "It is performed automatically for the script called from Advanced Settings window.";
 
     Help["Stack"] = "Adds empty stack object. Volumes can be added normally to this object, stating its name as the container.\n"
@@ -50,7 +50,10 @@ AGeo_SI::AGeo_SI()
     Help["InitializeStack"] = "Call this function after the last element has been added to the stack."
                               "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
 
-    Help["setEnable"] = "Enable or disable the volume with the providfed name, or, if the name ends with '*', all volumes with the name starting with the provided string.)";
+    Help["setEnabled"] = "Enable or disable the volume with the providfed name, or,\n"
+                         "if the name ends with '*', all volumes with the name starting with the provided string.)\n"
+                         "Requires updateGeometry() to take effect!";
+
     Help["getPassedVoulumes"] = "Go through the defined geometry in a straight line from startXYZ in the direction startVxVyVz\n"
                                 "and return array of [X Y Z MaterualIndex VolumeName NodeIndex] for all volumes on the way until final exit to the World\n"
                                 "the X Y Z are coordinates of the entrance points";
@@ -65,11 +68,6 @@ bool AGeo_SI::beforeRun()
 {
     clearGeoObjects();
     return true;
-}
-
-bool AGeo_SI::afterRun()
-{
-    emit requestUpdateGeoGui();
 }
 
 void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QString container,
@@ -102,15 +100,15 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Polygone(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::polygone(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
-    AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoPolygon(edges, 0.5*h, 0.5*Dbot, 0.5*Dtop),
-                                   x,y,z, phi,theta,psi);
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                    new AGeoPolygon(edges, 0.5*h, 0.5*Dbot, 0.5*Dtop),
+                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    new AGeoCone(0.5*h, 0.5*Dbot, 0.5*Dtop),
@@ -118,7 +116,7 @@ void AGeo_SI::Cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    new AGeoSphere(0.5*D),
@@ -126,7 +124,7 @@ void AGeo_SI::Sphere(QString name, double D, int iMat, QString container, double
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::SphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::sphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    new AGeoSphere(0.5*Dout, 0.5*Din),
@@ -134,7 +132,7 @@ void AGeo_SI::SphereLayer(QString name, double Dout, double Din, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     //qDebug() << NodesX << NodesY;
     QStringList lx = NodesX.toStringList();
@@ -176,11 +174,11 @@ void AGeo_SI::Arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
+void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
-    AGeoObject* o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build
-                                   0,                     // no shape yet
-                                   x,y,z, phi,theta,psi);
+    AGeoObject * o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build
+                                    0,                     // no shape yet
+                                    x,y,z, phi,theta,psi);
 
     ATypeMonitorObject* mto = new ATypeMonitorObject();
     delete o->Type; o->Type = mto;
@@ -199,7 +197,7 @@ void AGeo_SI::Monitor(QString name, int shape, double size1, double size2, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::Monitor_ConfigureForPhotons(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave)
+void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave)
 {
     AGeoObject* o = nullptr;
     for (AGeoObject* obj : GeoObjects)
@@ -292,7 +290,7 @@ void AGeo_SI::Monitor_ConfigureForPhotons(QString MonitorName, QVariant Position
     }
 }
 
-void AGeo_SI::Monitor_ConfigureForParticles(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
+void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
                                             QVariant Position, QVariant Time, QVariant Angle, QVariant Energy)
 {
     AGeoObject* o = 0;
@@ -402,7 +400,7 @@ void AGeo_SI::Monitor_ConfigureForParticles(QString MonitorName, QString Particl
     }
 }
 
-void AGeo_SI::TGeo(QString name, QString GenerationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    0,
@@ -462,12 +460,7 @@ void AGeo_SI::TGeo(QString name, QString GenerationString, int iMat, QString con
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::MakeStack(QString name, QString container)
-{
-    Stack(name, container, 0,0,0,  0,0,0);
-}
-
-void AGeo_SI::Stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Type;
@@ -475,7 +468,7 @@ void AGeo_SI::Stack(QString name, QString container, double x, double y, double 
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::InitializeStack(QString StackName, QString MemberName_StackReference)
+void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReference)
 {
     AGeoObject * StackObj = nullptr;
     for (AGeoObject * obj : GeoObjects)
@@ -519,12 +512,12 @@ void AGeo_SI::InitializeStack(QString StackName, QString MemberName_StackReferen
     StackObj->HostedObjects.clear();
 }
 
-void AGeo_SI::Array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double psi)
+void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double psi)
 {
-    Array(name, numX,numY,numZ,  stepX,stepY,stepZ, container, x,y,z,  0,0,psi,  0);
+    array(name, numX,numY,numZ,  stepX,stepY,stepZ, container, x,y,z,  0,0,psi,  0);
 }
 
-void AGeo_SI::Array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
@@ -533,7 +526,7 @@ void AGeo_SI::Array(QString name, int numX, int numY, int numZ, double stepX, do
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::CircArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
@@ -542,7 +535,7 @@ void AGeo_SI::CircArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::ReconfigureArray(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ)
+void AGeo_SI::reconfigureArray(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ)
 {
     AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(name);
     if (!obj)
@@ -561,7 +554,7 @@ void AGeo_SI::ReconfigureArray(QString name, int numX, int numY, int numZ, doubl
     a->Reconfigure(numX, numY, numZ, stepX, stepY, stepZ);
 }
 
-void AGeo_SI::Prototype(QString name)
+void AGeo_SI::prototype(QString name)
 {
     AGeoObject * proto = new AGeoObject(name);
     delete proto->Type; proto->Type = new ATypePrototypeObject();
@@ -569,7 +562,7 @@ void AGeo_SI::Prototype(QString name)
     GeoObjects.push_back(proto);
 }
 
-void AGeo_SI::Instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * instance = new AGeoObject(name);
     delete instance->Type; instance->Type = new ATypeInstanceObject(prototype);
@@ -662,39 +655,7 @@ void AGeo_SI::RemoveRecursive(QString Object)
     obj->recursiveSuicide();
 }
 
-void AGeo_SI::EnableObject(QString Object)
-{
-    AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-    if (!obj)
-    {
-        abort("Cannot find object "+Object);
-        return;
-    }
-
-    obj->enableUp();
-}
-
-void AGeo_SI::DisableObject(QString Object)
-{
-    AGeoObject * obj = nullptr;
-    for (AGeoObject * geoObj : GeoObjects)
-        if (geoObj->Name == Object) obj = geoObj;
-
-    if (!obj)
-    {
-        obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-        if (!obj)
-        {
-            abort("Cannot find object " + Object);
-            return;
-        }
-    }
-
-    if (!obj->isWorld())
-        obj->fActive = false;
-}
-
-void AGeo_SI::setEnable(QString ObjectOrWildcard, bool flag)
+void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))
     {
