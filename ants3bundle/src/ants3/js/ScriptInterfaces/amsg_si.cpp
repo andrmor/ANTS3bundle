@@ -1,21 +1,29 @@
 #include "amsg_si.h"
 //#include "ajavascriptmanager.h"
-#include "ascriptmsgwindow.h"
+#include "atextoutputwindow.h"
 
 #include <QTimer>
 #include <QDebug>
 
-AMsg_SI::AMsg_SI(AScriptMsgWindow * msgWin) :
+AMsg_SI::AMsg_SI(ATextOutputWindow * msgWin) :
     AWindowInterfaceBase(msgWin), MsgWin(msgWin)
 {
     Description = "Output to script message window";
 }
 
-void AMsg_SI::append(const QString & text)
+void AMsg_SI::appendText(const QString & text)
 {
     QTimer::singleShot(0, BaseWindow, [this, &text]()
     {
-        MsgWin->append(text);
+        MsgWin->appendText(text);
+    } );
+}
+
+void AMsg_SI::appendHtml(const QString & text)
+{
+    QTimer::singleShot(0, BaseWindow, [this, &text]()
+    {
+        MsgWin->appendHtml(text);
     } );
 }
 

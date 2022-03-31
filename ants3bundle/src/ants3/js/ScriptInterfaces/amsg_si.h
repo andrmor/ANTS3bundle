@@ -8,19 +8,20 @@
 #include <QString>
 
 class AScriptManager;
-class AScriptMsgWindow;
+class ATextOutputWindow;
 
 class AMsg_SI : public AWindowInterfaceBase
 {
   Q_OBJECT
 
 public:
-  AMsg_SI(AScriptMsgWindow * msgWin);
+  AMsg_SI(ATextOutputWindow * msgWin);
 
 //  bool IsMultithreadCapable() const override {return true;}
 
 public slots:
-  void append(const QString & text);
+  void appendText(const QString & text);
+  void appendHtml(const QString & text);
   void clear();
 
   void setFontSize(int size);
@@ -30,7 +31,7 @@ public:
 //  void HideWidget();     //on script window hide
 
 private:
-  AScriptMsgWindow * MsgWin = nullptr;
+  ATextOutputWindow * MsgWin = nullptr;
 
 };
 

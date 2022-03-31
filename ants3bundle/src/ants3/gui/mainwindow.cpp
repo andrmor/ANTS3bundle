@@ -365,7 +365,8 @@ void MainWindow::closeEvent(QCloseEvent *)
 void MainWindow::saveWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
-                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
+                                   DemoWin };
 
     for (auto * w : wins) w->storeGeomStatus();
 }
@@ -373,7 +374,8 @@ void MainWindow::saveWindowGeometries()
 void MainWindow::loadWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
-                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
+                                   DemoWin };
 
     for (auto * w : wins) w->restoreGeomStatus();
 }

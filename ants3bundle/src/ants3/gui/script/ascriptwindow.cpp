@@ -13,7 +13,7 @@
 #include "a3global.h"
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
-#include "ascriptmsgwindow.h"
+#include "atextoutputwindow.h"
 #include "ajscripthub.h"
 #include "amsg_si.h"
 
@@ -105,8 +105,10 @@ AScriptWindow::AScriptWindow(QWidget * parent) :
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
 
-    AScriptMsgWindow * msgWin = new AScriptMsgWindow(this);
-    AJScriptHub::getInstance().getJScriptManager().registerInterface(new AMsg_SI(msgWin), "msg");
+    ATextOutputWindow * SMW = new ATextOutputWindow("JsMsg", this);
+    SMW->setWindowTitle("JS text output");
+    ScriptMsgWin = SMW;
+    AJScriptHub::getInstance().getJScriptManager().registerInterface(new AMsg_SI(SMW), "msg");
 
     ReadFromJson();
 }

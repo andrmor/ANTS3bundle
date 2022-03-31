@@ -11,6 +11,7 @@
 
 #include <vector>
 
+class ATextOutputWindow;
 class AScriptInterface;
 class QPlainTextEdit;
 class QTreeWidget;
@@ -47,6 +48,8 @@ public:
 
     void updateJsonTree();
     void reportError(QString error, int line = 0);   //0 - no line is highligted
+
+    AGuiWindow * ScriptMsgWin = nullptr;
 
 private:
     A3Global          & GlobSet;
