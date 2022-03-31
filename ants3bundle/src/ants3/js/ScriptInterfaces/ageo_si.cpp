@@ -36,18 +36,15 @@ AGeo_SI::AGeo_SI()
     Help["setLineProperties"] = "Sets color, width and style of the line for visualisation of the object \"name\".";
     Help["clearWorld"] = "Removes all objects and prototypes leaving only World";
 
-    Help["Remove"] = "Removes the Object (if not locked) from the geometry.\nAll objects hosted inside "
-                     "are transfered to the container of the Object.\n"
-                     "If all objects inside also have to be deleted, use RemoveRecursive function.";
-    Help["RemoveRecursive"] = "Removes the Object (if not locked) and all non-locked objects hosted inside.";
+    Help["clearHosted"] = "Removes all objects hosted inside the given Object.\nRequires updateGeometry().";
+    Help["removeWithHosted"] = "Removes the Object and all objects hosted inside.\nRequires updateGeometry().";
 
-    Help["updateGeometry"] = "Updates geometry and do optional check for geometry definition errors.\n"
-                             "It is performed automatically for the script called from Advanced Settings window.";
+    Help["updateGeometry"] = "Updates geometry and optionally check it for errors.\n";
 
-    Help["Stack"] = "Adds empty stack object. Volumes can be added normally to this object, stating its name as the container.\n"
+    Help["stack"] = "Adds empty stack object. Volumes can be added normally to this object, stating its name as the container.\n"
                     "After the last element is added, call InitializeStack(StackName, Origin) function. "
                     "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
-    Help["InitializeStack"] = "Call this function after the last element has been added to the stack."
+    Help["initializeStack"] = "Call this function after the last element has been added to the stack."
                               "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
 
     Help["setEnabled"] = "Enable or disable the volume with the providfed name, or,\n"
@@ -617,7 +614,7 @@ void AGeo_SI::clearWorld()
     AGeometryHub::getInstance().populateGeoManager();
 }
 
-void AGeo_SI::Clear(QString Object)
+void AGeo_SI::clearHosted(QString Object)
 {
     AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
     if (!obj)
@@ -628,23 +625,7 @@ void AGeo_SI::Clear(QString Object)
     obj->clearContent();
 }
 
-void AGeo_SI::Remove(QString Object)
-{
-    AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-    if (!obj)
-    {
-        abort("Cannot find object "+Object);
-        return;
-    }
-    bool ok = obj->suicide();
-    if (!ok)
-    {
-        abort("Failed to remove object "+Object);
-        return;
-    }
-}
-
-void AGeo_SI::RemoveRecursive(QString Object)
+void AGeo_SI::removeWithHosted(QString Object)
 {
     AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
     if (!obj)

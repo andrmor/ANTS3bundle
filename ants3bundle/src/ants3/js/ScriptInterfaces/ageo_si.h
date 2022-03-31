@@ -59,9 +59,8 @@ public slots:
 
     void setLineProperties(QString name, int color, int width, int style);
 
-    void Clear(QString Object);
-    void Remove(QString Object);
-    void RemoveRecursive(QString Object);
+    void clearHosted(QString Object);
+    void removeWithHosted(QString Object);
 
     void setEnabled(QString ObjectOrWildcard, bool flag);
 
