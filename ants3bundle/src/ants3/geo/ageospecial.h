@@ -22,7 +22,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     virtual void readFromJson(const QJsonObject & /*json*/) {}
 protected:
-    virtual void doWriteToJson(QJsonObject & /*json*/) const {};
+    virtual void doWriteToJson(QJsonObject & /*json*/) const {}
 };
 
 class AGeoSensor : public AGeoSpecial
@@ -31,7 +31,7 @@ public:
     AGeoSensor(){}
     AGeoSensor(int Model) : SensorModel(Model) {}
 
-    QString getType() const override {return QStringLiteral("Sensor");};
+    QString getType() const override {return QStringLiteral("Sensor");}
 
     void readFromJson(const QJsonObject & json) override;
 protected:

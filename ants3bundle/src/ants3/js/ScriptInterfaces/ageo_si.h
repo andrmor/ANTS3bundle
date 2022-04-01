@@ -53,6 +53,7 @@ public slots:
     void array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
     void reconfigureArray(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ); // !!!*** for circular?
     void circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
+    // !!!*** hex array
 
     void prototype(QString name);
     void instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi);
@@ -61,6 +62,8 @@ public slots:
 
     void clearHosted(QString Object);
     void removeWithHosted(QString Object);
+
+    void setLightSensor(QString Object);
 
     void setEnabled(QString ObjectOrWildcard, bool flag);
 

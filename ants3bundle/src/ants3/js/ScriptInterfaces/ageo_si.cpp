@@ -636,6 +636,30 @@ void AGeo_SI::removeWithHosted(QString Object)
     obj->recursiveSuicide();
 }
 
+#include "ageospecial.h"
+void AGeo_SI::setLightSensor(QString Object)
+{
+    AGeoObject * obj = nullptr;
+    for (AGeoObject * o : GeoObjects)
+        if (o->Name == Object)
+        {
+            obj = o;
+            break;
+        }
+
+    if (!obj)
+    {
+        obj = AGeometryHub::getInstance().World->findObjectByName(Object);
+        if (!obj)
+        {
+            abort("Cannot find object " + Object);
+            return;
+        }
+    }
+
+    delete obj->Role; obj->Role = new AGeoSensor(0);
+}
+
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))
