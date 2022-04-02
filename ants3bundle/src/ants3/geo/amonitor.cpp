@@ -2,6 +2,7 @@
 #include "ageoobject.h"
 #include "ageotype.h"
 #include "ajsontools.h"
+#include "ajsontoolsroot.h"
 #include "aroothistappenders.h"
 
 #include <QDebug>

@@ -225,6 +225,7 @@ SOURCES += \
     tools/aerrorhub.cpp \
     tools/ageowriter.cpp \
     tools/ahistogram.cpp \
+    tools/ajsontoolsroot.cpp \
     tools/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
     photonSim/asensormodel.cpp \
@@ -417,6 +418,7 @@ HEADERS += \
     tools/aerrorhub.h \
     tools/ageowriter.h \
     tools/ahistogram.h \
+    tools/ajsontoolsroot.h \
     tools/aroothistappenders.h \
     tools/afilemerger.h \
     tools/agraphbuilder.h \

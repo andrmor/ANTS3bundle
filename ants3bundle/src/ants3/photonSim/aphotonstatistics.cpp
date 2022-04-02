@@ -2,6 +2,7 @@
 #include "aphotonsimhub.h"
 #include "aroothistappenders.h"
 #include "ajsontools.h"
+#include "ajsontoolsroot.h"
 
 #include <QDebug>
 

@@ -8,9 +8,6 @@
 #include <vector>
 #include <string>
 
-class TH1D;
-class TH2D;
-
 namespace jstools
 {
 bool        saveJsonToFile(const QJsonObject &json, const QString& fileName);
@@ -34,15 +31,6 @@ bool        parseJson(const QJsonObject &json, const QString &key, QJsonObject &
 
 QJsonArray  vectorQStringsToJsonArray(const std::vector<QString> & vec);
 bool        parseJson(const QJsonObject & json, const QString & key, std::vector<QString> & vec);
-
-QJsonObject regularTh1dToJson(TH1D * hist);
-QJsonObject regularTh2dToJson(TH2D * hist);
-
-bool        parseJson(const QJsonObject & json, const QString & name, TH1D* & distr);
-bool        parseJson(const QJsonObject & json, const QString & name, TH2D* & distr);
-
-TH1D      * jsonToRegularTh1D(const QJsonObject & json);
-TH2D      * jsonToRegularTh2D(const QJsonObject & json);
 
 void        writeDPairVectorToArray(const std::vector<std::pair<double, double>> & vec, QJsonArray & ar);
 bool        readDPairVectorFromArray(const QJsonArray & ar, std::vector<std::pair<double, double>> & vec);

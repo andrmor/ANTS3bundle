@@ -41,6 +41,7 @@ SOURCES += \
         ../ants3/tools/aerrorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
+        ../ants3/tools/ajsontoolsroot.cpp \
         ../ants3/tools/arandomhub.cpp \
         ../ants3/geo/ageometryhub.cpp \
         ../ants3/geo/ageoconsts.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
     ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
+    ../ants3/tools/ajsontoolsroot.h \
     ../ants3/tools/arandomhub.h \
     ../ants3/geo/ageometryhub.h \
     ../ants3/geo/ageoconsts.h \
