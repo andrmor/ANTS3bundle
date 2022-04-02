@@ -5,13 +5,13 @@
 
 #include <QObject>
 #include <QVector>
+#include <QStringList>
 
 class ATextEdit;
 class QCompleter;
 class QStringListModel;
 class AHighlighter;
 class QJsonObject;
-class QStringList;
 class QPoint;
 
 class ATabRecord : public QObject
