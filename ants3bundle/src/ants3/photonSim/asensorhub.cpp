@@ -48,9 +48,10 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     return &Models[iModel];
 }
 
-void ASensorHub::addNewModel()
+int ASensorHub::addNewModel()
 {
     Models.push_back(ASensorModel());
+    return Models.size()-1;
 }
 
 void ASensorHub::cloneModel(int iModel)

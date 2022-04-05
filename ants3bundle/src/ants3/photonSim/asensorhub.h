@@ -37,7 +37,7 @@ public:
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
     const ASensorModel * sensorModelFast(int iSensor) const {return &Models[SensorData[iSensor].ModelIndex];}
 
-    void    addNewModel();
+    int     addNewModel();
     void    cloneModel(int iModel);
 
     QString removeModel(int iModel);

@@ -207,7 +207,7 @@ QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
             sw->addWidget(fDummy);
             QFrame * fSensor = new QFrame();
                 QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
-                hlSensor->addWidget(new QLabel("Sensor model:"));
+                hlSensor->addWidget(new QLabel("Default model:"));
                 cobSensorModel = new QComboBox();
                 cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
             hlSensor->addWidget(cobSensorModel);
