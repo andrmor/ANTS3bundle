@@ -3,6 +3,8 @@
 
 #include "ascriptinterface.h"
 
+#include <QVariantList>
+
 class ASensorHub;
 
 class ASensor_SI : public AScriptInterface
@@ -14,6 +16,7 @@ public slots:
     int countSensors();
     int countModels();
 
+    void clearAssignment();
     void assignModel(int iSensor, int iModel);
 
     int  newModel();

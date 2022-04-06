@@ -17,6 +17,11 @@ int ASensor_SI::countModels()
     return SensHub.countSensorModels();
 }
 
+void ASensor_SI::clearAssignment()
+{
+    SensHub.clearAssignment();
+}
+
 void ASensor_SI::assignModel(int iSensor, int iModel)
 {
     if (iSensor < 0 || iSensor >= SensHub.countSensors())
@@ -40,5 +45,10 @@ int ASensor_SI::newModel()
 
 int ASensor_SI::cloneModel(int iModel)
 {
-
+    if (iModel < 0 || iModel >= SensHub.countSensorModels())
+    {
+        abort("Invalid sensor model index");
+        return 0;
+    }
+    return SensHub.cloneModel(iModel);
 }

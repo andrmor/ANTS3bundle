@@ -54,12 +54,19 @@ int ASensorHub::addNewModel()
     return Models.size()-1;
 }
 
-void ASensorHub::cloneModel(int iModel)
+int ASensorHub::cloneModel(int iModel)
 {
-    if (iModel < 0 || iModel >= (int)Models.size()) return;
+    if (iModel < 0 || iModel >= (int)Models.size()) return -1;
     ASensorModel newModel = Models[iModel];
     newModel.Name += "_Clone";
     Models.push_back(newModel);
+    return Models.size()-1;
+}
+
+void ASensorHub::clearAssignment()
+{
+    for (ASensorData & sd : SensorData)
+        sd.ModelIndex = 0;
 }
 
 QString ASensorHub::removeModel(int iModel)

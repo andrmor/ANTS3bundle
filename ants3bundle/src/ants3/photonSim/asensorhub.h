@@ -38,7 +38,9 @@ public:
     const ASensorModel * sensorModelFast(int iSensor) const {return &Models[SensorData[iSensor].ModelIndex];}
 
     int     addNewModel();
-    void    cloneModel(int iModel);
+    int     cloneModel(int iModel);
+
+    void    clearAssignment();
 
     QString removeModel(int iModel);
 
