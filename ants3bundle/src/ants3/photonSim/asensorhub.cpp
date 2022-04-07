@@ -118,6 +118,12 @@ double ASensorHub::getMinSizeFast(int iSensor) const
     return SensorData[iSensor].GeoObj->Shape->minSize();    // !!!*** add minSize for all shapes!!!
 }
 
+AGeoObject * ASensorHub::getGeoObject(int iSensor) const
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return nullptr;
+    return SensorData[iSensor].GeoObj;
+}
+
 bool ASensorHub::updateRuntimeProperties()
 {
     for (ASensorData & sd : SensorData)

@@ -51,6 +51,8 @@ public:
     double   getMinSize(int iSensor) const;
     double   getMinSizeFast(int iSensor) const; // !!!*** expand minSize for other shapes!!! USED by draw on GeoWin
 
+    AGeoObject * getGeoObject(int iSensor) const;
+
     double  getMaxQE() const;                // !!!***
     double  getMaxQEvsWave(int iWave) const; // !!!***
 
