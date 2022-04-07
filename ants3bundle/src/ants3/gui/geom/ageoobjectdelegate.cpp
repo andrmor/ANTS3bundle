@@ -199,7 +199,7 @@ QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
     hbs->setContentsMargins(2,0,2,0);
     hbs->addStretch();
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary Scint"});
+        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
     hbs->addWidget(cobRole);
 
         QStackedWidget * sw = new QStackedWidget();
@@ -207,10 +207,23 @@ QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
             sw->addWidget(fDummy);
             QFrame * fSensor = new QFrame();
                 QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
-                hlSensor->addWidget(new QLabel("Default model:"));
-                cobSensorModel = new QComboBox();
-                cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
-            hlSensor->addWidget(cobSensorModel);
+                {
+                    cobSensorModel = new QComboBox();
+
+                    if (ASensorHub::getConstInstance().isPersistentModelAssignment())
+                    {
+                        QLabel * l = new QLabel("Custom model indexes");
+                        l->setToolTip("Sensor are configured to use persistent model indexes\n"
+                                      "Check/modify using Sensor Window and scripting tools");
+                        hlSensor->addWidget(l);
+                    }
+                    else
+                    {
+                        hlSensor->addWidget(new QLabel("Sensor model:"));
+                        cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
+                        hlSensor->addWidget(cobSensorModel);
+                    }
+                }
             sw->addWidget(fSensor);
             QFrame * fCal = new QFrame();
             sw->addWidget(fCal);

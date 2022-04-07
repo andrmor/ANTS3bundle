@@ -9,6 +9,8 @@ class ASensorHub;
 
 class ASensor_SI : public AScriptInterface
 {
+    Q_OBJECT
+
 public:
     ASensor_SI();
 

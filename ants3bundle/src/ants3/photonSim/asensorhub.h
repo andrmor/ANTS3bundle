@@ -59,6 +59,8 @@ public:
     double  getMaxQE() const;                // !!!***
     double  getMaxQEvsWave(int iWave) const; // !!!***
 
+    bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
+
     bool    updateRuntimeProperties();
 
     void    writeToJson(QJsonObject & json) const;

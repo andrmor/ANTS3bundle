@@ -16,6 +16,7 @@
 #include "aminijs_si.h"
 #include "atree_si.h"
 #include "ageo_si.h"
+#include "asensor_si.h"
 
 AJScriptHub & AJScriptHub::getInstance()
 {
@@ -52,6 +53,7 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new ACore_SI(),         "core");
     SM->registerInterface(new AMath_SI(),         "math");
     SM->registerInterface(new AGeo_SI(),          "geo");
+    SM->registerInterface(new ASensor_SI(),       "sens");
     SM->registerInterface(new AGraph_SI(),        "graph");
     SM->registerInterface(new AHist_SI(),         "hist");
     SM->registerInterface(new ATree_SI(),         "tree");
