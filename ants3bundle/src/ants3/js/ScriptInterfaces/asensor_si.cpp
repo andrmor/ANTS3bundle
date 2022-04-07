@@ -35,7 +35,7 @@ void ASensor_SI::assignModel(int iSensor, int iModel)
         return;
     }
 
-    SensHub.SensorData[iSensor].ModelIndex = iModel;
+    SensHub.setSensorModel(iSensor, iModel);
 }
 
 int ASensor_SI::newModel()

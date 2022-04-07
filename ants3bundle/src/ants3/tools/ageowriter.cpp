@@ -94,8 +94,8 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
             const ASensorModel * sensorModel = SensorHub.sensorModel(iObj);
             if (sensorModel)
             {
-                centerPos = SensorHub.SensorData[iObj].Position;
-                size      = SensorHub.SensorData[iObj].GeoObj->Shape->minSize();    // !!!*** expand minSize for other shapes!!!
+                centerPos = SensorHub.getPositionFast(iObj);
+                size      = SensorHub.getMinSizeFast(iObj);    // !!!*** expand minSize for other shapes!!!
             }
             break;
           }
