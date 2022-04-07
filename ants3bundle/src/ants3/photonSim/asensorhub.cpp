@@ -174,7 +174,9 @@ void ASensorHub::writeToJson(QJsonObject & json) const
 
 QString ASensorHub::readFromJson(const QJsonObject & json)
 {
-    clear();
+    Models.clear();
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
 
     QString err;
 
@@ -239,9 +241,19 @@ ASensorHub::ASensorHub()
     Models.front().Name = "Ideal";
 }
 
-void ASensorHub::clear()
+void ASensorHub::clearSensors()
 {
-    Models.clear();
-    PersistentModelAssignment = false;
-    LoadedModelAssignment.clear();
+    SensorData.clear();
+}
+
+void ASensorHub::registerNextSensor(ASensorData & sr)
+{
+    if (PersistentModelAssignment)
+    {
+        const size_t index = SensorData.size();
+        sr.ModelIndex = ( index < LoadedModelAssignment.size() ? LoadedModelAssignment[index]
+                                                               : 0 );
+    }
+
+    SensorData.push_back(sr);
 }

@@ -486,7 +486,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 
 void AGeometryHub::populateGeoManager()
 {
-    ASensorHub::getInstance().SensorData.clear();
+    ASensorHub::getInstance().clearSensors();
     clearMonitors();
     clearGridRecords();
 
@@ -572,7 +572,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
     getGlobalPosition(node, sr.Position);
 
-    SensorHub.SensorData.push_back(sr);
+    SensorHub.registerNextSensor(sr);
 }
 
 bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)

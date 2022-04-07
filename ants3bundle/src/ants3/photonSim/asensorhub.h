@@ -35,7 +35,10 @@ public:
     QStringList getListOfModelNames() const;
 
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
-    const ASensorModel * sensorModelFast(int iSensor) const {return &Models[SensorData[iSensor].ModelIndex];}
+    const ASensorModel * sensorModelFast(int iSensor) const {return & Models[SensorData[iSensor].ModelIndex];}
+
+    void    clearSensors();
+    void    registerNextSensor(ASensorData & sr);
 
     int     addNewModel();
     int     cloneModel(int iModel);
@@ -76,12 +79,8 @@ private:
     bool PersistentModelAssignment = false;
     std::vector<int> LoadedModelAssignment;
 
-public:
     // runtime - populated together with GeoManager, updated by updateRuntimeProperties()
     std::vector<ASensorData> SensorData;
-
-private:
-    void clear();
 
 };
 
