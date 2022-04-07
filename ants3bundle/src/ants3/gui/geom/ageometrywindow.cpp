@@ -606,11 +606,6 @@ void AGeometryWindow::on_cbColor_toggled(bool checked)
     ShowGeometry(true, false);
 }
 
-void AGeometryWindow::on_pbShowPMnumbers_clicked()
-{
-    showPMnumbers();
-}
-
 void AGeometryWindow::on_pbShowMonitorIndexes_clicked()
 {
     showMonitorIndexes();
@@ -1262,5 +1257,53 @@ void AGeometryWindow::on_pbClearMarkers_clicked()
 {
     clearGeoMarkers();
     on_pbShowGeometry_clicked();
+}
+
+void AGeometryWindow::on_actionParticle_monitors_triggered()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
+    std::vector<QString> tmp;
+    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kGreen, AGeoWriter::PartMons, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
+void AGeometryWindow::on_actionPhoton_monitors_triggered()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
+    std::vector<QString> tmp;
+    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kBlue, AGeoWriter::PhotMons, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
+void AGeometryWindow::on_actionSensor_indexes_triggered()
+{
+    showPMnumbers();
+}
+
+void AGeometryWindow::on_actionSensor_models_triggered()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const ASensorHub & SH = ASensorHub::getConstInstance();
+    int numSensors = SH.countSensors();
+    std::vector<QString> tmp;
+    for (int i = 0; i < numSensors; i++) tmp.push_back( QString::number(SH.getModelIndex(i)) );
+    showText(tmp, kRed, AGeoWriter::PMs, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
 }
 

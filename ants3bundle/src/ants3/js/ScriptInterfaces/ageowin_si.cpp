@@ -58,13 +58,15 @@ void AGeoWin_SI::showGeometry()
     } );
 }
 
+/*
 void AGeoWin_SI::showPMnumbers()
 {
     QTimer::singleShot(0, GeometryWindow, [this]()
     {
-        GeometryWindow->on_pbShowPMnumbers_clicked();
+        GeometryWindow->showPMnumbers();
     } );
 }
+*/
 
 /*
 void AGeoWin_SI::ShowTracks(int num, int OnlyColor)

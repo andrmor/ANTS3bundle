@@ -212,16 +212,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbShowPMnumbers">
+        <widget class="QPushButton" name="pbShowMonitorIndexes">
          <property name="text">
-          <string>Show PM #s</string>
+          <string>Show monitors</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbShowMonitorIndexes">
+        <widget class="QPushButton" name="pbShowPMnumbers">
          <property name="text">
-          <string>Show mon #</string>
+          <string>Show sensors</string>
          </property>
         </widget>
        </item>
@@ -391,7 +391,18 @@
     <addaction name="actionOpen_GL_viewer"/>
     <addaction name="actionJSROOT_in_browser"/>
    </widget>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionParticle_monitors"/>
+    <addaction name="actionPhoton_monitors"/>
+    <addaction name="separator"/>
+    <addaction name="actionSensor_indexes"/>
+    <addaction name="actionSensor_models"/>
+   </widget>
    <addaction name="menuView"/>
+   <addaction name="menuShow"/>
    <addaction name="menuMarkers"/>
    <addaction name="menuLines"/>
    <addaction name="menuZoom"/>
@@ -480,6 +491,26 @@
   <action name="actionJSROOT_in_browser">
    <property name="text">
     <string>JSROOT in browser</string>
+   </property>
+  </action>
+  <action name="actionParticle_monitors">
+   <property name="text">
+    <string>Particle monitors</string>
+   </property>
+  </action>
+  <action name="actionPhoton_monitors">
+   <property name="text">
+    <string>Photon monitors</string>
+   </property>
+  </action>
+  <action name="actionSensor_indexes">
+   <property name="text">
+    <string>Sensor indexes</string>
+   </property>
+  </action>
+  <action name="actionSensor_models">
+   <property name="text">
+    <string>Sensor models</string>
    </property>
   </action>
  </widget>

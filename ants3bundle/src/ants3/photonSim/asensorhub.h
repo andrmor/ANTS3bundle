@@ -37,6 +37,8 @@ public:
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
     const ASensorModel * sensorModelFast(int iSensor) const {return & Models[SensorData[iSensor].ModelIndex];}
 
+    int     getModelIndex(int iSensor) const;
+
     void    clearSensors();
     void    registerNextSensor(ASensorData & sr);
 

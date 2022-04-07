@@ -9,7 +9,7 @@ ASensorHub & ASensorHub::getInstance()
     return instance;
 }
 
-const ASensorHub &ASensorHub::getConstInstance()
+const ASensorHub & ASensorHub::getConstInstance()
 {
     return getInstance();
 }
@@ -48,6 +48,12 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     const int & iModel = SensorData[iSensor].ModelIndex;
     if (iModel < 0 || iModel >= (int)Models.size()) return nullptr;
     return &Models[iModel];
+}
+
+int ASensorHub::getModelIndex(int iSensor) const
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return -1;
+    return SensorData[iSensor].ModelIndex;
 }
 
 int ASensorHub::addNewModel()

@@ -91,7 +91,6 @@ public slots:
     void onRasterWindowChange();
     void readRasterWindowProperties();   // !*!
 
-    void on_pbShowPMnumbers_clicked();
     void on_pbShowTracks_clicked();
     void on_pbClearTracks_clicked();
 
@@ -131,6 +130,14 @@ private slots:
     void on_pbCameraDialog_clicked();
 
     void on_pbClearMarkers_clicked();
+
+    void on_actionParticle_monitors_triggered();
+
+    void on_actionPhoton_monitors_triggered();
+
+    void on_actionSensor_indexes_triggered();
+
+    void on_actionSensor_models_triggered();
 
 private:
     AGeometryHub         & Geometry;

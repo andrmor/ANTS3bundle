@@ -16,14 +16,14 @@ public:
     AGeoWin_SI(AGeometryWindow * geoWin);
 
 public slots:
-    void BlockUpdates(bool on); //forbids updates
+    void BlockUpdates(bool on);
 
     void setZoom(int level);
     void setParallel(bool on);
     void updateView();
 
     void showGeometry();
-    void showPMnumbers();
+//    void showPMnumbers(); // need?
 //    void ShowTracks(int num, int OnlyColor = -1);
 
     void clearTracks();
