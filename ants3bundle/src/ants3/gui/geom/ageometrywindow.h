@@ -81,7 +81,7 @@ public slots:
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
-    void showPMnumbers();  // !!!***
+    void showSensorIndexes();  // !!!***
     void showMonitorIndexes();
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
@@ -132,12 +132,11 @@ private slots:
     void on_pbClearMarkers_clicked();
 
     void on_actionParticle_monitors_triggered();
-
     void on_actionPhoton_monitors_triggered();
-
     void on_actionSensor_indexes_triggered();
-
     void on_actionSensor_models_triggered();
+
+    void on_pbShowSensorIndexes_clicked();
 
 private:
     AGeometryHub         & Geometry;

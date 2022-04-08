@@ -181,6 +181,7 @@ void MainWindow::on_actionSave_configuration_triggered()
 {
     QString fileName = guitools::dialogSaveFile(this, "Save configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
+    if (!fileName.endsWith(".json")) fileName += ".json";
 
     QString err = Config.save(fileName);
     if (!err.isEmpty()) guitools::message(err, this);
@@ -260,6 +261,7 @@ void MainWindow::updateAllGuiFromConfig()
 
     GeoConWin->updateGui();
     MatWin->initWindow();
+    SensWin->updateGui();
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();

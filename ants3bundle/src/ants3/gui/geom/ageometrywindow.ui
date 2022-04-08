@@ -219,7 +219,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbShowPMnumbers">
+        <widget class="QPushButton" name="pbShowSensorIndexes">
          <property name="text">
           <string>Show sensors</string>
          </property>

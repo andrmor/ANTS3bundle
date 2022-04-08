@@ -229,7 +229,7 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
                 iMod = 0;
                 bFoundInvalidModelIndex = true;
             }
-            LoadedModelAssignment.push_back(i);
+            LoadedModelAssignment.push_back(iMod);
         }
         if (bFoundInvalidModelIndex)
         {

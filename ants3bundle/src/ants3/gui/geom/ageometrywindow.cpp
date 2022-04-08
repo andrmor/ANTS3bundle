@@ -394,7 +394,7 @@ void AGeometryWindow::closeEvent(QCloseEvent * event)
 }
 
 //#include "anetworkmodule.h"
-void AGeometryWindow::showPMnumbers()
+void AGeometryWindow::showSensorIndexes()
 {
     std::vector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
@@ -1289,7 +1289,7 @@ void AGeometryWindow::on_actionPhoton_monitors_triggered()
 
 void AGeometryWindow::on_actionSensor_indexes_triggered()
 {
-    showPMnumbers();
+    showSensorIndexes();
 }
 
 void AGeometryWindow::on_actionSensor_models_triggered()
@@ -1305,5 +1305,10 @@ void AGeometryWindow::on_actionSensor_models_triggered()
     /*
     emit requestUpdateRegisteredGeoManager();
     */
+}
+
+void AGeometryWindow::on_pbShowSensorIndexes_clicked()
+{
+    showSensorIndexes();
 }
 
