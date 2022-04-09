@@ -1294,12 +1294,24 @@ void AGeometryWindow::on_actionSensor_indexes_triggered()
 
 void AGeometryWindow::on_actionSensor_models_triggered()
 {
+    showSensorModelIndexes();
+}
+
+void AGeometryWindow::showSensorModelIndexes(int iModel)
+{
     Geometry.GeoManager->ClearTracks();
 
     const ASensorHub & SH = ASensorHub::getConstInstance();
     int numSensors = SH.countSensors();
     std::vector<QString> tmp;
-    for (int i = 0; i < numSensors; i++) tmp.push_back( QString::number(SH.getModelIndex(i)) );
+    for (int i = 0; i < numSensors; i++)
+    {
+        const int index = SH.getModelIndex(i);
+        if (iModel != -1 && iModel != index)
+            tmp.push_back("");
+        else
+            tmp.push_back( QString::number(index) );
+    }
     showText(tmp, kRed, AGeoWriter::PMs, true);
 
     /*

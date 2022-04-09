@@ -211,3 +211,9 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
         Config.updateConfigFromJSON();
     }
 }
+
+void ASensorWindow::on_pbShowSensorsOfThisModel_clicked()
+{
+    emit requestShowSensorModels(ui->sbModelIndex->value());
+}
+

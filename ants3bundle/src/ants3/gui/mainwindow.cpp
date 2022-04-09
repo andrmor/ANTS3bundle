@@ -58,6 +58,7 @@ MainWindow::MainWindow() :
     RuleWin = new AInterfaceRuleWin(this);
 
     SensWin = new ASensorWindow(this);
+    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
 
     PhotSimWin = new A3PhotSimWin(this);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin, &AGeometryWindow::ShowGeometry);

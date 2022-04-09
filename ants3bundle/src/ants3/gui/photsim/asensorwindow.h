@@ -36,7 +36,9 @@ private slots:
 
     void on_sbModelIndex_editingFinished();
 
-    void on_cobAssignmentMode_activated(int index);
+    void on_cobAssignmentMode_activated(int index); // !!!*** consider more "soft" method instead of global rebuild
+
+    void on_pbShowSensorsOfThisModel_clicked();
 
 private:
     ASensorHub & SensHub;
@@ -45,6 +47,9 @@ private:
     void updateNumPixels();
     void onModelIndexChanged();
     void updateHeader();
+
+signals:
+    void requestShowSensorModels(int iModel);
 };
 
 #endif // ASENSORWINDOW_H

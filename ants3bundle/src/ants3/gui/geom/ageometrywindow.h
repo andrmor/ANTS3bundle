@@ -82,6 +82,7 @@ public slots:
     void FocusVolume(QString name);
     void CenterView(double * r);
     void showSensorIndexes();  // !!!***
+    void showSensorModelIndexes(int iModel = -1);  // !!!***
     void showMonitorIndexes();
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
