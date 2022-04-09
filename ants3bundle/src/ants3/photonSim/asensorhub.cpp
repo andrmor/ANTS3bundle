@@ -153,6 +153,12 @@ double ASensorHub::getMaxQEvsWave(int iWave) const
     return 1.0;
 }
 
+void ASensorHub::exitPersistentMode()
+{
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
+}
+
 double ASensorHub::getMaxQE() const
 {
     return 1.0;

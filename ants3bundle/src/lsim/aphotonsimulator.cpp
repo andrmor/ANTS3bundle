@@ -658,7 +658,7 @@ void APhotonSimulator::loadConfig()
 
     Error         = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
-    LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countSensorModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
+    LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
 
     Error = APhotonSimHub::getInstance().readFromJson(json);

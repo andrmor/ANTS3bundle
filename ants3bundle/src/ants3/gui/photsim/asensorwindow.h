@@ -34,11 +34,17 @@ private slots:
     void on_sbPixelsX_editingFinished();
     void on_sbPixelsY_editingFinished();
 
+    void on_sbModelIndex_editingFinished();
+
+    void on_cobAssignmentMode_activated(int index);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
 
     void updateNumPixels();
+    void onModelIndexChanged();
+    void updateHeader();
 };
 
 #endif // ASENSORWINDOW_H

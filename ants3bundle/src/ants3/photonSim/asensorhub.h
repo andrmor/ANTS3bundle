@@ -25,7 +25,7 @@ public:
     static ASensorHub & getInstance();
     static const ASensorHub & getConstInstance();
 
-    int countSensorModels() const {return Models.size();}
+    int countModels() const {return Models.size();}
     int countSensors() const {return SensorData.size();}
     int countSensorsOfModel(int iModel) const;
 
@@ -62,6 +62,7 @@ public:
     double  getMaxQEvsWave(int iWave) const; // !!!***
 
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
+    void    exitPersistentMode();
 
     bool    updateRuntimeProperties();
 
