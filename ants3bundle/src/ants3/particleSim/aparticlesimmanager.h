@@ -4,6 +4,7 @@
 #include "a3farmnoderecord.h"
 #include "afilemerger.h"
 
+#include <QObject>
 #include <QString>
 
 #include <vector>
@@ -18,8 +19,10 @@ class AParticleRunSettings;
 class AEventTrackingRecord;
 class AParticleGun;
 
-class AParticleSimManager
+class AParticleSimManager : public QObject
 {
+    Q_OBJECT
+
 public:
     static AParticleSimManager & getInstance();
 
@@ -47,6 +50,9 @@ public:
                         const int MaxTracks, int LimitToEvent = -1);
 
     QString fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record);
+
+signals:
+    void requestUpdateResultsGUI();
 
 private:
     AFileMerger HistoryFileMerger;

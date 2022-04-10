@@ -27,6 +27,7 @@ public:
 
 public slots:
     void updateGui();
+    void updateResultsGui();
 
 private slots:
     // auto-updates

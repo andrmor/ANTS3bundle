@@ -132,6 +132,7 @@ SOURCES += \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
     js/ScriptInterfaces/amsg_si.cpp \
+    js/ScriptInterfaces/aparticlesim_si.cpp \
     js/ScriptInterfaces/asensor_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
@@ -312,6 +313,7 @@ HEADERS += \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
     js/ScriptInterfaces/amsg_si.h \
+    js/ScriptInterfaces/aparticlesim_si.h \
     js/ScriptInterfaces/asensor_si.h \
     js/arootgraphrecord.h \
     js/aroothistrecord.h \

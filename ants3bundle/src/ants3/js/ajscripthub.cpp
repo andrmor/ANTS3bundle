@@ -17,6 +17,7 @@
 #include "atree_si.h"
 #include "ageo_si.h"
 #include "asensor_si.h"
+#include "aparticlesim_si.h"
 
 AJScriptHub & AJScriptHub::getInstance()
 {
@@ -52,17 +53,18 @@ AJScriptHub::AJScriptHub()
     SM->registerInterface(new ADemo_SI(),         "demo");
     SM->registerInterface(new ACore_SI(),         "core");
     SM->registerInterface(new AMath_SI(),         "math");
-    SM->registerInterface(new AGeo_SI(),          "geo");
-    SM->registerInterface(new ASensor_SI(),       "sens");
-    SM->registerInterface(new AGraph_SI(),        "graph");
-    SM->registerInterface(new AHist_SI(),         "hist");
-    SM->registerInterface(new ATree_SI(),         "tree");
     SM->registerInterface(new AConfig_SI(),       "config");
     SM->registerInterface(new AFarm_SI(),         "farm");
+    SM->registerInterface(new AGeo_SI(),          "geo");
+    SM->registerInterface(new ASensor_SI(),       "sens");
     SM->registerInterface(new APhotonSim_SI(),    "lsim");
+    SM->registerInterface(new AParticleSim_SI(),  "psim");
     SM->registerInterface(new ATrackRec_SI(),     "tracks");
     SM->registerInterface(new APartAnalysis_SI(), "partan");
     SM->registerInterface(new AMiniJS_SI(),       "mini");
+    SM->registerInterface(new AGraph_SI(),        "graph");
+    SM->registerInterface(new AHist_SI(),         "hist");
+    SM->registerInterface(new ATree_SI(),         "tree");
 }
 
 AJScriptHub::~AJScriptHub()

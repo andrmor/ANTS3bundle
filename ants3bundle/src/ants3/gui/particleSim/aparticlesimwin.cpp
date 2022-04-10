@@ -55,6 +55,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
 
+    connect(&SimManager, &AParticleSimManager::requestUpdateResultsGUI, this, &AParticleSimWin::updateResultsGui);
+
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labFilterActivated->setPixmap(pm);
     on_pbUpdateIcon_clicked();
@@ -605,31 +607,35 @@ void AParticleSimWin::on_pbSimulate_clicked()
 
     if (AErrorHub::isError())
     {
-        guitools::message(AErrorHub::getError().data(), this);
+        guitools::message(AErrorHub::getQError(), this);
     }
     else
     {
-        ui->progbSim->setValue(100);
-        if (ui->cbAutoLoadResults->isChecked())
+        updateResultsGui();
+    }
+}
+
+void AParticleSimWin::updateResultsGui()
+{
+    ui->progbSim->setValue(100);
+    if (ui->cbAutoLoadResults->isChecked())
+    {
+        ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+
+        if (SimSet.RunSet.SaveTrackingHistory)
         {
-            ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+            ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
 
-            if (SimSet.RunSet.SaveTrackingHistory)
-            {
-                ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            on_pbShowTracks_clicked();
+            EV_showTree();
+        }
 
-                on_pbShowTracks_clicked();
-                EV_showTree();
-            }
-
-            if (SimSet.RunSet.MonitorSettings.Enabled)
-            {
-                ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
-                updateMonitorGui(); // data will be already loaded for merging
-            }
+        if (SimSet.RunSet.MonitorSettings.Enabled)
+        {
+            ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
+            updateMonitorGui(); // data will be already loaded for merging
         }
     }
-
 }
 
 void AParticleSimWin::on_pbLoadAllResults_clicked()
