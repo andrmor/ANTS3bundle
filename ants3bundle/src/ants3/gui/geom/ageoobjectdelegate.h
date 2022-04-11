@@ -69,9 +69,12 @@ protected:
 
     QStringList ListOfShapesForTransform;
 
-    QWidget * RoleWidget;
-    QComboBox * cobRole;
-    QComboBox * cobSensorModel;
+    QWidget * RoleWidget = nullptr;
+    QComboBox * cobRole = nullptr;
+    QComboBox * cobSensorModel = nullptr;
+    QLineEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
+    QLineEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
+    QLineEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!

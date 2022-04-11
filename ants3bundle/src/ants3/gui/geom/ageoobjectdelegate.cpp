@@ -193,39 +193,71 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
 #include "asensorhub.h"
 QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
 {
-    QWidget * rw = new QWidget();
+    QWidget * rw = new QFrame();
 
-    QHBoxLayout * hbs = new QHBoxLayout(rw);
+    QVBoxLayout * hbs = new QVBoxLayout(rw);
     hbs->setContentsMargins(2,0,2,0);
     hbs->addStretch();
         cobRole = new QComboBox();
         cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
     hbs->addWidget(cobRole);
+    hbs->setAlignment(cobRole, Qt::AlignHCenter);
+
 
         QStackedWidget * sw = new QStackedWidget();
             QFrame * fDummy = new QFrame();
             sw->addWidget(fDummy);
             QFrame * fSensor = new QFrame();
+            {
                 QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
-                {
-                    cobSensorModel = new QComboBox();
+                cobSensorModel = new QComboBox();
 
-                    if (ASensorHub::getConstInstance().isPersistentModelAssignment())
-                    {
-                        QLabel * l = new QLabel("Custom model indexes");
-                        l->setToolTip("Sensor are configured to use persistent model indexes\n"
-                                      "Check/modify using Sensor Window and scripting tools");
-                        hlSensor->addWidget(l);
-                    }
-                    else
-                    {
-                        hlSensor->addWidget(new QLabel("Sensor model:"));
-                        cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
-                        hlSensor->addWidget(cobSensorModel);
-                    }
+                if (ASensorHub::getConstInstance().isPersistentModelAssignment())
+                {
+                    QLabel * l = new QLabel("Custom model indexes");
+                    l->setToolTip("Sensor are configured to use persistent model indexes\n"
+                                  "Check/modify using Sensor Window and scripting tools");
+                    hlSensor->addWidget(l);
                 }
+                else
+                {
+                    hlSensor->addWidget(new QLabel("Sensor model:"));
+                    cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
+                    hlSensor->addWidget(cobSensorModel);
+                }
+            }
             sw->addWidget(fSensor);
             QFrame * fCal = new QFrame();
+            {
+                QGridLayout * gl = new QGridLayout(fCal);
+                ledCalOriginX = new QLineEdit();
+                ledCalOriginY = new QLineEdit();
+                ledCalOriginZ = new QLineEdit();
+                ledCalStepX = new QLineEdit();
+                ledCalStepY = new QLineEdit();
+                ledCalStepZ = new QLineEdit();
+                leiCalBinsX = new QLineEdit();
+                leiCalBinsY = new QLineEdit();
+                leiCalBinsZ = new QLineEdit();
+                gl->addWidget(new QLabel("Origin X:"), 0, 0);
+                gl->addWidget(ledCalOriginX,           0, 1);
+                gl->addWidget(new QLabel("Y:"),        0, 2);
+                gl->addWidget(ledCalOriginY,           0, 3);
+                gl->addWidget(new QLabel("Z:"),        0, 4);
+                gl->addWidget(ledCalOriginZ,           0, 5);
+                gl->addWidget(new QLabel("Step X:"),   1, 0);
+                gl->addWidget(ledCalStepX,             1, 1);
+                gl->addWidget(new QLabel("Y:"),        1, 2);
+                gl->addWidget(ledCalStepY,             1, 3);
+                gl->addWidget(new QLabel("Z:"),        1, 4);
+                gl->addWidget(ledCalStepZ,             1, 5);
+                gl->addWidget(new QLabel("Bins X:"),   2, 0);
+                gl->addWidget(leiCalBinsX,             2, 1);
+                gl->addWidget(new QLabel("Y:"),        2, 2);
+                gl->addWidget(leiCalBinsY,             2, 3);
+                gl->addWidget(new QLabel("Z:"),        2, 4);
+                gl->addWidget(leiCalBinsZ,             2, 5);
+            }
             sw->addWidget(fCal);
             QFrame * fSec = new QFrame();
             sw->addWidget(fSec);

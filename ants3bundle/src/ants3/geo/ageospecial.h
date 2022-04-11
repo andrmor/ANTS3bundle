@@ -56,9 +56,9 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    std::array<double, 3> Origin;
-    std::array<double, 3> Step;
-    std::array<int,    3> Bins;
+    std::array<double, 3> Origin = {-5, 0, 0};
+    std::array<double, 3> Step = {1, 1, 1};
+    std::array<int,    3> Bins = {10, 1, 1};
 };
 
 class AGeoSecScint : public AGeoSpecial
