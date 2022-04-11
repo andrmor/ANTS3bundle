@@ -39,17 +39,26 @@ protected:
 
 public:
     int SensorModel = 0; // one is always defined (ideal sensor)
-
-    // runtime, not saved
-    int Index;
 };
 
+#include <array>
 class AGeoCalorimeter : public AGeoSpecial
 {
 public:
     AGeoCalorimeter(){}
+    AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
+    Origin(origin), Step(step), Bins(bins) {}
 
-    QString getType() const override {return QStringLiteral("Calorimeter");};
+    QString getType() const override {return QStringLiteral("Calorimeter");}
+
+    void readFromJson(const QJsonObject & json) override;
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+
+public:
+    std::array<double, 3> Origin;
+    std::array<double, 3> Step;
+    std::array<int,    3> Bins;
 };
 
 class AGeoSecScint : public AGeoSpecial
@@ -57,7 +66,7 @@ class AGeoSecScint : public AGeoSpecial
 public:
     AGeoSecScint(){}
 
-    QString getType() const override {return QStringLiteral("SecScint");};
+    QString getType() const override {return QStringLiteral("SecScint");}
 };
 
 #endif // AGEOSPECIAL_H
