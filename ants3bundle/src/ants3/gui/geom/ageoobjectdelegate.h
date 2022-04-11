@@ -23,6 +23,7 @@ class QDialog;
 class QListWidget;
 class QTableWidget;
 class AOneLineTextEdit;
+class QFrame;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -69,7 +70,7 @@ protected:
 
     QStringList ListOfShapesForTransform;
 
-    QWidget * RoleWidget = nullptr;
+    QWidget   * RoleWidget = nullptr;
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
     QLineEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
@@ -89,7 +90,7 @@ protected:
     void updateTypeLabel();
     void updateControlUI();
     void initSlabDelegate(int SlabModelState); // TODO: kill
-    QWidget * crateSpecialRoleWidget();
+    void crateSpecialRoleWidget();
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);

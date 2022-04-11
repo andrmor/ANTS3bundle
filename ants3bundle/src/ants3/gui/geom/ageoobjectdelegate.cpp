@@ -160,7 +160,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     lMF->addWidget(PosOrient);
 
     //special role widget
-    RoleWidget = crateSpecialRoleWidget();
+    crateSpecialRoleWidget();
     lMF->addWidget(RoleWidget);
 
     // bottom line buttons
@@ -191,85 +191,84 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
 
 #include "QStackedWidget"
 #include "asensorhub.h"
-QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
+void AGeoObjectDelegate::crateSpecialRoleWidget()
 {
-    QWidget * rw = new QFrame();
+    RoleWidget = new QWidget();
 
-    QVBoxLayout * hbs = new QVBoxLayout(rw);
-    hbs->setContentsMargins(2,0,2,0);
-    hbs->addStretch();
+    QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
+    rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
         cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
-    hbs->addWidget(cobRole);
-    hbs->setAlignment(cobRole, Qt::AlignHCenter);
+    rl->addWidget(cobRole);
+    rl->setAlignment(cobRole, Qt::AlignHCenter);
 
+    QFrame * frSensor = new QFrame();
+        QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
+        hlSensor->setContentsMargins(0,0,0,0);
+        cobSensorModel = new QComboBox();
+        if (ASensorHub::getConstInstance().isPersistentModelAssignment()) // mode does not change without rebuild, so no need in update
+        {
+            QLabel * l = new QLabel("Custom model indexes");
+            l->setToolTip("Sensor are configured to use persistent model indexes\n"
+                          "Check/modify using Sensor Window and scripting tools");
+            hlSensor->addWidget(l);
+        }
+        else
+        {
+            hlSensor->addWidget(new QLabel("Sensor model:"));
+            cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
+            hlSensor->addWidget(cobSensorModel);
+        }
+        frSensor->setVisible(false);
+        rl->addWidget(frSensor);
+        rl->setAlignment(frSensor, Qt::AlignHCenter);
 
-        QStackedWidget * sw = new QStackedWidget();
-            QFrame * fDummy = new QFrame();
-            sw->addWidget(fDummy);
-            QFrame * fSensor = new QFrame();
-            {
-                QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
-                cobSensorModel = new QComboBox();
+    QFrame * frCal = new QFrame();
+        QGridLayout * gl = new QGridLayout(frCal);
+        gl->setContentsMargins(0,0,0,0);
+        ledCalOriginX = new QLineEdit("-5");
+        ledCalOriginY = new QLineEdit("0");
+        ledCalOriginZ = new QLineEdit("0");
+        ledCalStepX = new QLineEdit("1");
+        ledCalStepY = new QLineEdit("1");
+        ledCalStepZ = new QLineEdit("1");
+        leiCalBinsX = new QLineEdit("10");
+        leiCalBinsY = new QLineEdit("1");
+        leiCalBinsZ = new QLineEdit("1");
+        gl->addWidget(new QLabel("Origin X:"), 0, 0);
+        gl->addWidget(ledCalOriginX,           0, 1);
+        gl->addWidget(new QLabel("Y:"),        0, 2);
+        gl->addWidget(ledCalOriginY,           0, 3);
+        gl->addWidget(new QLabel("Z:"),        0, 4);
+        gl->addWidget(ledCalOriginZ,           0, 5);
+        gl->addWidget(new QLabel("Step X:"),   1, 0);
+        gl->addWidget(ledCalStepX,             1, 1);
+        gl->addWidget(new QLabel("Y:"),        1, 2);
+        gl->addWidget(ledCalStepY,             1, 3);
+        gl->addWidget(new QLabel("Z:"),        1, 4);
+        gl->addWidget(ledCalStepZ,             1, 5);
+        gl->addWidget(new QLabel("Bins X:"),   2, 0);
+        gl->addWidget(leiCalBinsX,             2, 1);
+        gl->addWidget(new QLabel("Y:"),        2, 2);
+        gl->addWidget(leiCalBinsY,             2, 3);
+        gl->addWidget(new QLabel("Z:"),        2, 4);
+        gl->addWidget(leiCalBinsZ,             2, 5);
+        frCal->setVisible(false);
+        rl->addWidget(frCal);
 
-                if (ASensorHub::getConstInstance().isPersistentModelAssignment())
-                {
-                    QLabel * l = new QLabel("Custom model indexes");
-                    l->setToolTip("Sensor are configured to use persistent model indexes\n"
-                                  "Check/modify using Sensor Window and scripting tools");
-                    hlSensor->addWidget(l);
-                }
-                else
-                {
-                    hlSensor->addWidget(new QLabel("Sensor model:"));
-                    cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
-                    hlSensor->addWidget(cobSensorModel);
-                }
-            }
-            sw->addWidget(fSensor);
-            QFrame * fCal = new QFrame();
-            {
-                QGridLayout * gl = new QGridLayout(fCal);
-                ledCalOriginX = new QLineEdit();
-                ledCalOriginY = new QLineEdit();
-                ledCalOriginZ = new QLineEdit();
-                ledCalStepX = new QLineEdit();
-                ledCalStepY = new QLineEdit();
-                ledCalStepZ = new QLineEdit();
-                leiCalBinsX = new QLineEdit();
-                leiCalBinsY = new QLineEdit();
-                leiCalBinsZ = new QLineEdit();
-                gl->addWidget(new QLabel("Origin X:"), 0, 0);
-                gl->addWidget(ledCalOriginX,           0, 1);
-                gl->addWidget(new QLabel("Y:"),        0, 2);
-                gl->addWidget(ledCalOriginY,           0, 3);
-                gl->addWidget(new QLabel("Z:"),        0, 4);
-                gl->addWidget(ledCalOriginZ,           0, 5);
-                gl->addWidget(new QLabel("Step X:"),   1, 0);
-                gl->addWidget(ledCalStepX,             1, 1);
-                gl->addWidget(new QLabel("Y:"),        1, 2);
-                gl->addWidget(ledCalStepY,             1, 3);
-                gl->addWidget(new QLabel("Z:"),        1, 4);
-                gl->addWidget(ledCalStepZ,             1, 5);
-                gl->addWidget(new QLabel("Bins X:"),   2, 0);
-                gl->addWidget(leiCalBinsX,             2, 1);
-                gl->addWidget(new QLabel("Y:"),        2, 2);
-                gl->addWidget(leiCalBinsY,             2, 3);
-                gl->addWidget(new QLabel("Z:"),        2, 4);
-                gl->addWidget(leiCalBinsZ,             2, 5);
-            }
-            sw->addWidget(fCal);
-            QFrame * fSec = new QFrame();
-            sw->addWidget(fSec);
+    /*
+    QFrame * frSec = new QFrame();
+    frSec->setVisible(false);
+    rl->addWidget(frSec);
+    */
 
-            sw->setVisible(false);
-    hbs->addWidget(sw);
-    hbs->addStretch();
+    rl->addStretch();
 
-    connect(cobRole, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setVisible);
-    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setCurrentIndex);
-    return rw;
+    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
+    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal]   (int index){frCal->   setVisible(index == 2);} );
+
+    connect(cobRole,        &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobSensorModel, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
 }
 
 QString AGeoObjectDelegate::getName() const
@@ -395,7 +394,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
                 break;
             case 2:
-                obj->Role = new AGeoCalorimeter();
+                obj->Role = new AGeoCalorimeter({ledCalOriginX->text().toDouble(), ledCalOriginY->text().toDouble(), ledCalOriginZ->text().toDouble()},
+                                                {ledCalStepX  ->text().toDouble(), ledCalStepY  ->text().toDouble(), ledCalStepZ  ->text().toDouble()},
+                                                {leiCalBinsX  ->text().toInt(),    leiCalBinsY  ->text().toInt(),    leiCalBinsZ  ->text().toInt()});
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
@@ -700,7 +701,15 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             if (cal)
             {
                 cobRole->setCurrentIndex(2);
-                // ...
+                ledCalOriginX->setText( QString::number(cal->Origin[0]) );
+                ledCalOriginY->setText( QString::number(cal->Origin[1]) );
+                ledCalOriginZ->setText( QString::number(cal->Origin[2]) );
+                ledCalStepX  ->setText( QString::number(cal->Step[0]) );
+                ledCalStepY  ->setText( QString::number(cal->Step[1]) );
+                ledCalStepZ  ->setText( QString::number(cal->Step[2]) );
+                leiCalBinsX  ->setText( QString::number(cal->Bins[0]) );
+                leiCalBinsY  ->setText( QString::number(cal->Bins[1]) );
+                leiCalBinsZ  ->setText( QString::number(cal->Bins[2]) );
             }
             else
             {
