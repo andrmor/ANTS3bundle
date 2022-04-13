@@ -166,7 +166,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     config.shape = ui->cobShape->currentIndex();
     config.size1 = Size1; config.str2size1 = strSize1;
     config.size2 = Size2; config.str2size2 = strSize2;
-    obj->updateMonitorShape();
+    //obj->updateMonitorShape();
 
     for (int i = 0; i < 3; i++)
     {

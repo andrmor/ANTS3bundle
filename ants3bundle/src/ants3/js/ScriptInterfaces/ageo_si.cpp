@@ -188,7 +188,7 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
     mc.bLower = SensitiveBottom;
     mc.bStopTracking = StopsTraking;
 
-    o->updateMonitorShape();
+    //o->updateMonitorShape();
     o->color = 1;
 
     GeoObjects.push_back(o);

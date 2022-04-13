@@ -347,7 +347,7 @@ void AGeoObject::introduceGeoConstValues()
     if (Type)
     {
         Type->introduceGeoConstValues();
-        if (Type->isMonitor()) updateMonitorShape();
+        //if (Type->isMonitor()) updateMonitorShape(); // now do it when populating GeoManager
     }
 }
 

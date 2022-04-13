@@ -666,6 +666,8 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
     {
         if (obj->Type->isMonitor())
         {
+            obj->updateMonitorShape(); // !!!*** unnecessary checks inside
+
             if (obj->Container) obj->Material = obj->Container->getMaterial();
             else
             {

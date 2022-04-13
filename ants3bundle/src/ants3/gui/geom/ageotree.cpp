@@ -1051,7 +1051,7 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
     newObj->Type = new ATypeMonitorObject();
     static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (Photon ? 0 : 1);
 
-    newObj->updateMonitorShape();
+    //newObj->updateMonitorShape();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);
