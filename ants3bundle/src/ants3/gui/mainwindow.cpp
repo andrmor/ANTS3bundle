@@ -119,7 +119,7 @@ MainWindow::MainWindow() :
     */
 
   // Finalizing
-    updateGui();
+    updateAllGuiFromConfig(); //updateGui();
 }
 
 MainWindow::~MainWindow()
