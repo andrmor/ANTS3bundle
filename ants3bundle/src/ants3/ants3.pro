@@ -75,6 +75,8 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    geo/acalorimeter.cpp \
+    geo/acalorimeterhub.cpp \
     gui/aguiwindow.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
@@ -255,6 +257,8 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    geo/acalorimeter.h \
+    geo/acalorimeterhub.h \
     gui/aguiwindow.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
