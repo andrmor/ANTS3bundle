@@ -30,6 +30,8 @@ INCLUDEPATH += ../ants3/tools
 DEFINES += QT
 
 SOURCES += \
+        ../ants3/geo/acalorimeter.cpp \   # not needed for functionality, can be removed using a new DEFINE
+        ../ants3/geo/acalorimeterhub.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/amonitorhub.cpp \
         ../ants3/photonSim/adeporecord.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
@@ -90,6 +92,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/geo/acalorimeter.h \
+    ../ants3/geo/acalorimeterhub.h \
     ../ants3/geo/amonitorhub.h \
     ../ants3/photonSim/adeporecord.h \
     ../ants3/photonSim/adepositionfilehandler.h \

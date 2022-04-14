@@ -53,6 +53,8 @@ public:
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
   void onMaterialRemoved(int imat); // assumes isMaterialInUse was already called (and returned false)!
   bool isWorld() const;
+  bool isSensor() const; // !!!*** use enum
+  bool isCalorimeter() const; // !!!*** use enum
 
   int  getMaterial() const;
 

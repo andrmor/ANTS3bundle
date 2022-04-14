@@ -154,6 +154,18 @@ bool AGeoObject::isWorld() const
     return Type->isWorld();
 }
 
+bool AGeoObject::isSensor() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoSensor*>(Role);
+}
+
+bool AGeoObject::isCalorimeter() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoCalorimeter*>(Role);
+}
+
 int AGeoObject::getMaterial() const
 {
     if (Type->isHandlingArray() || Type->isHandlingSet())
