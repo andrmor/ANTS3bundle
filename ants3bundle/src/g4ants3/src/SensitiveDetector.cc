@@ -257,14 +257,16 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
     G4double depo = step->GetTotalEnergyDeposit()/keV;
     if (depo == 0.0) return false;
 
-    const G4ThreeVector & from = step->GetPreStepPoint()->GetPosition();
-    const G4ThreeVector & to   = step->GetPostStepPoint()->GetPosition();
+    const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
+    const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
 
-    std::array<double, 3> pos;
-    for (int i=0; i<3; i++)
-        pos[i] = 0.5 * (from[i] + to[i]);
+    const G4ThreeVector global = 0.5 * (fromGlobal + toGlobal);
 
-    Data->fill(pos, depo);
+    const G4ThreeVector local = step->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(global);
+
+    //std::cout << global << local << "\n";
+
+    Data->fill({local[0], local[1], local[2]}, depo);
     return true;
 }
 
@@ -273,20 +275,21 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
     json["CalorimeterIndex"] = CalorimeterIndex;
 
     json11::Json::object jsProps;
-    //Properties.writeToJson(jsProps); !!!***
+    Properties.writeToJson(jsProps);
     json["Properties"] = jsProps;
 
     json11::Json::object jsDepo;
     {
         std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
         json11::Json::array ar;
-        for (auto & row : vSpatial) // !!!*** TODO
-        {
-            json11::Json::array el;
-            for (const double & d : row)
-                el.push_back(d);
-            ar.push_back(el);
-        }
+        for (int iz = 0; iz < Properties.Bins[2]; iz++)
+            for (int iy = 0; iy < Properties.Bins[1]; iy++)
+            {
+                json11::Json::array el;
+                for (int ix = 0; ix < Properties.Bins[0]; ix++)
+                    el.push_back(vSpatial[ix][iy][iz]);
+                ar.push_back(el);
+            }
         jsDepo["Data"] = ar;
 
         const std::vector<double> vec = Data->getStat();

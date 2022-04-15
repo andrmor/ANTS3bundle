@@ -8,28 +8,45 @@
     #include "aerrorhub.h"
 #endif
 
-#ifndef JSON11
+#ifdef JSON11
+void ACalorimeterProperties::writeToJson(json11::Json::object & json) const
+#else
 void ACalorimeterProperties::writeToJson(QJsonObject & json) const
+#endif
 {
+    // Origin
     {
+#ifdef JSON11
+        json11::Json::array ar;
+#else
         QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Origin[i];
+#endif
+        for (int i=0; i<3; i++) ar.push_back(Origin[i]);
         json["Origin"] = ar;
     }
 
+    //Step
     {
+#ifdef JSON11
+        json11::Json::array ar;
+#else
         QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Step[i];
+#endif
+        for (int i=0; i<3; i++) ar.push_back(Step[i]);
         json["Step"] = ar;
     }
 
+    // NumBins
     {
+#ifdef JSON11
+        json11::Json::array ar;
+#else
         QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Bins[i];
+#endif
+        for (int i=0; i<3; i++) ar.push_back(Bins[i]);
         json["Bins"] = ar;
     }
 }
-#endif
 
 #ifdef JSON11
 void ACalorimeterProperties::readFromJson(const json11::Json::object & json)

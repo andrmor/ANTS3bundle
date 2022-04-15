@@ -111,6 +111,7 @@ private:
         void executeAdditionalCommands();
         void generateReceipt();
         void storeMonitorsData();
+        void storeCalorimeterData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:

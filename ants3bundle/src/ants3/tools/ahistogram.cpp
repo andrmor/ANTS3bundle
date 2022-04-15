@@ -290,6 +290,8 @@ AHistogram3Dfixed::AHistogram3Dfixed(std::array<double, 3> origin, std::array<do
         for (std::vector<double> & arz : ary)
             arz = std::vector<double>(Bins[2], 0);
     }
+
+    Stats.resize(11);
 }
 
 void AHistogram3Dfixed::fill(const std::array<double, 3> & pos, double val)

@@ -112,6 +112,7 @@ void SessionManager::endSession()
     ErrorMessage.clear();
 
     if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
+    if (Settings.RunSet.CalorimeterSettings.Enabled) storeCalorimeterData();
 
     generateReceipt();
 }
@@ -716,6 +717,27 @@ void SessionManager::storeMonitorsData()
 
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.MonitorSettings.FileName);
+    if (outStream.is_open())
+    {
+        std::string json_str = json11::Json(Arr).dump();
+        outStream << json_str << std::endl;
+    }
+    outStream.close();
+}
+
+void SessionManager::storeCalorimeterData()
+{
+    json11::Json::array Arr;
+
+    for (CalorimeterSensitiveDetector * cal : Calorimeters)
+    {
+        json11::Json::object json;
+        cal->writeToJson(json);
+        Arr.push_back(json);
+    }
+
+    std::ofstream outStream;
+    outStream.open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();
