@@ -111,7 +111,7 @@ void SessionManager::endSession()
     bError = false;
     ErrorMessage.clear();
 
-    storeMonitorsData();
+    if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
 
     generateReceipt();
 }
