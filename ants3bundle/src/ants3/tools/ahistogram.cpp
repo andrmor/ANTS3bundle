@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <limits>
 #include <tuple>
+#include <cmath>
 
 //#include <QDebug>
 
@@ -275,4 +276,60 @@ void AHistogram2D::processBuffer()
     }
 
     bFixedRange = true;
+}
+
+// ---
+
+AHistogram3Dfixed::AHistogram3Dfixed(std::array<double, 3> origin, std::array<double, 3> step, std::array<int, 3> bins) :
+    Origin(origin), Step(step), Bins(bins)
+{
+    Data.resize(Bins[0]);
+    for (std::vector<std::vector<double>> & ary : Data)
+    {
+        ary.resize(Bins[1]);
+        for (std::vector<double> & arz : ary)
+            arz = std::vector<double>(Bins[2], 0);
+    }
+}
+
+void AHistogram3Dfixed::fill(const std::array<double, 3> & pos, double val)
+{
+    std::array<int,3> index; // on stack, fast
+    const bool ok = getVoxel(pos, index);
+    if (!ok) return;
+
+    Data[index[0]][index[1]][index[2]] += val;
+
+    ++Entries;
+
+    /* // GetStats() of TH3D
+    s[0] = sumw s[1] = sumw2
+    s[2] = sumwx s[3] = sumwx2
+    s[4] = sumwy s[5] = sumwy2 s[6] = sumwxy
+    s[7] = sumwz s[8] = sumwz2 s[9] = sumwxz s[10] = sumwyz
+    */
+    //if (bGood)
+    {
+        Stats[0]  += val;
+        Stats[1]  += val * val;
+        Stats[2]  += val * pos[0];
+        Stats[3]  += val * pos[0]*pos[0];
+        Stats[4]  += val * pos[1];
+        Stats[5]  += val * pos[1]*pos[1];
+        Stats[6]  += val * pos[0]*pos[1];
+        Stats[7]  += val * pos[2];
+        Stats[8]  += val * pos[2]*pos[2];
+        Stats[9]  += val * pos[0]*pos[2];
+        Stats[10] += val * pos[1]*pos[2];
+    }
+}
+
+bool AHistogram3Dfixed::getVoxel(const std::array<double,3> & pos, std::array<int,3> & index)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        index[i] = floor( (pos[i] - Origin[i]) / Step[i] );
+        if ( index[i] < 0 || index[i] >= Bins[i]) return false;
+    }
+    return true;
 }

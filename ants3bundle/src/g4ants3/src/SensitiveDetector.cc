@@ -237,3 +237,65 @@ void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::obj
         sjs.push_back(d);
     json["stat"] = sjs;
 }
+
+// ---
+
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index) :
+    G4VSensitiveDetector(name),
+    Name(name), Properties(properties), CalorimeterIndex(index)
+{
+    Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+}
+
+CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
+{
+    delete Data;
+}
+
+G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+{
+    G4double depo = step->GetTotalEnergyDeposit()/keV;
+    if (depo == 0.0) return false;
+
+    const G4ThreeVector & from = step->GetPreStepPoint()->GetPosition();
+    const G4ThreeVector & to   = step->GetPostStepPoint()->GetPosition();
+
+    std::array<double, 3> pos;
+    for (int i=0; i<3; i++)
+        pos[i] = 0.5 * (from[i] + to[i]);
+
+    Data->fill(pos, depo);
+    return true;
+}
+
+void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
+{
+    json["CalorimeterIndex"] = CalorimeterIndex;
+
+    json11::Json::object jsProps;
+    //Properties.writeToJson(jsProps); !!!***
+    json["Properties"] = jsProps;
+
+    json11::Json::object jsDepo;
+    {
+        std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
+        json11::Json::array ar;
+        for (auto & row : vSpatial) // !!!*** TODO
+        {
+            json11::Json::array el;
+            for (const double & d : row)
+                el.push_back(d);
+            ar.push_back(el);
+        }
+        jsDepo["Data"] = ar;
+
+        const std::vector<double> vec = Data->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        jsDepo["Stat"] = sjs;
+
+        jsDepo["Entries"] = Data->getEntries();
+    }
+    json["XYZDepo"] = jsDepo;
+}

@@ -2,6 +2,7 @@
 #define AHISTOGRAM_H
 
 #include <vector>
+#include <array>
 #include <tuple>
 
 class AHistogram1D
@@ -92,6 +93,30 @@ private:
     void fillFixed(double x, double y, double val);
     void processBuffer();
 
+};
+
+class AHistogram3Dfixed
+{
+public:
+    AHistogram3Dfixed(std::array<double, 3> origin, std::array<double, 3> step, std::array<int, 3> bins);
+
+    void fill(const std::array<double, 3> & xyz, double val = 1.0);
+
+    const std::vector< std::vector< std::vector<double> > > & getContent() const {return Data;} //[x][y][z];
+    int getEntries() const {return Entries;}
+    const std::vector<double> & getStat() const {return Stats;} // See fill() for explanation
+
+private:
+    std::array<double, 3> Origin;
+    std::array<double, 3> Step;
+    std::array<int,    3> Bins;
+
+    std::vector< std::vector< std::vector<double> > > Data; // [x][y][z]
+
+    int Entries = 0;
+    std::vector<double> Stats;
+
+    bool getVoxel(const std::array<double, 3> & pos, std::array<int, 3> & index);
 };
 
 #endif // AHISTOGRAM_H
