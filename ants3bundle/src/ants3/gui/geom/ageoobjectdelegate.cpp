@@ -701,15 +701,16 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             if (cal)
             {
                 cobRole->setCurrentIndex(2);
-                ledCalOriginX->setText( QString::number(cal->Origin[0]) );
-                ledCalOriginY->setText( QString::number(cal->Origin[1]) );
-                ledCalOriginZ->setText( QString::number(cal->Origin[2]) );
-                ledCalStepX  ->setText( QString::number(cal->Step[0]) );
-                ledCalStepY  ->setText( QString::number(cal->Step[1]) );
-                ledCalStepZ  ->setText( QString::number(cal->Step[2]) );
-                leiCalBinsX  ->setText( QString::number(cal->Bins[0]) );
-                leiCalBinsY  ->setText( QString::number(cal->Bins[1]) );
-                leiCalBinsZ  ->setText( QString::number(cal->Bins[2]) );
+                const ACalorimeterProperties & p = cal->Properties;
+                ledCalOriginX->setText( QString::number( p.Origin[0]) );
+                ledCalOriginY->setText( QString::number( p.Origin[1]) );
+                ledCalOriginZ->setText( QString::number( p.Origin[2]) );
+                ledCalStepX  ->setText( QString::number( p.Step[0]) );
+                ledCalStepY  ->setText( QString::number( p.Step[1]) );
+                ledCalStepZ  ->setText( QString::number( p.Step[2]) );
+                leiCalBinsX  ->setText( QString::number( p.Bins[0]) );
+                leiCalBinsY  ->setText( QString::number( p.Bins[1]) );
+                leiCalBinsZ  ->setText( QString::number( p.Bins[2]) );
             }
             else
             {

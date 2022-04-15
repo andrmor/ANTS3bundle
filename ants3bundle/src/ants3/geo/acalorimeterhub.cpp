@@ -72,7 +72,7 @@ int ACalorimeterHub::countCalorimetersWithHits() const
 {
     int counter = 0;
     for (const ACalorimeterData & md : Calorimeters)
-        if (md.Calorimeter->getHits() > 0) counter++;
+        if (md.Calorimeter->getTotalEnergy() > 0) counter++;
     return counter;
 }
 

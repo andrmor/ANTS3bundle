@@ -600,6 +600,14 @@ const AMonitorConfig * AGeoObject::getMonitorConfig() const
     return &mon->config;
 }
 
+const ACalorimeterProperties * AGeoObject::getCalorimeterProperties() const
+{
+    if (!Role) return nullptr;
+    const AGeoCalorimeter * gc = dynamic_cast<const AGeoCalorimeter*>(Role);
+    if (!gc) return nullptr;
+    return & gc->Properties;
+}
+
 bool AGeoObject::isStackMember() const
 {
     if (!Container || !Container->Type) return false;

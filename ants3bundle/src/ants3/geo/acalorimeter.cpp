@@ -4,17 +4,16 @@
 #include "ajsontools.h"
 #include "ajsontoolsroot.h"
 #include "aroothistappenders.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
 #include "TH3D.h"
 #include "TString.h"
 
-ACalorimeter::ACalorimeter() : name("Undefined") {}
-
-ACalorimeter::ACalorimeter(const AGeoObject * MonitorGeoObject)
+ACalorimeter::ACalorimeter(const AGeoObject * CalorimeterGeoObject)
 {
-    readFromGeoObject(MonitorGeoObject);
+    readFromGeoObject(CalorimeterGeoObject);
 }
 
 ACalorimeter::~ACalorimeter()
@@ -27,10 +26,10 @@ void ACalorimeter::clearData()
     delete xy;     xy     = nullptr;
 }
 
-int ACalorimeter::getHits() const
+int ACalorimeter::getTotalEnergy() const
 {
     if (!xy) return 0;
-    return xy->GetEntries();
+    return 0; // !!!*** TODO
 }
 
 void ACalorimeter::fillForParticle(double x, double y, double z, double energy)
@@ -52,20 +51,18 @@ void ACalorimeter::fillForParticle(double x, double y, double z, double energy)
     */
 }
 
-bool ACalorimeter::readFromGeoObject(const AGeoObject * CalorimeterRecord) // !!!*** TODO
+bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
 {
-    /*
-    const ATypeMonitorObject* mon = dynamic_cast<const ATypeMonitorObject*>(CalorimeterRecord->Type);
-    if (!mon)
+    const ACalorimeterProperties * props = geoObj->getCalorimeterProperties();
+    if (!props)
     {
-        qWarning() << "This is not a monitor type AGeoObject!";
+        AErrorHub::addQError("Provided geo object is not a calorimeter!");
         return false;
     }
-    */
 
-    //config = mon->config;
+    Properties = *props;
 
-    name = CalorimeterRecord->Name;
+    Name = geoObj->Name;
 
     initXYHist();
 

@@ -17,6 +17,7 @@ class AGeoSpecial;
 class AGridElementRecord;
 class TGeoRotation;
 class QRegularExpression;
+class ACalorimeterProperties;
 
 class AGeoObject
 {
@@ -94,6 +95,9 @@ public:
   //for monitor -> TODO: remove from here
   void updateMonitorShape();
   const AMonitorConfig * getMonitorConfig() const; //returns nullptr if obj is not a monitor
+
+  // for calorimeters
+  const ACalorimeterProperties * getCalorimeterProperties() const;
 
   //for stacks
   bool isStackMember() const;

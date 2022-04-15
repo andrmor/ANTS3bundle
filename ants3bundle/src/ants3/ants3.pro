@@ -162,6 +162,7 @@ SOURCES += \
     js/ScriptInterfaces/agraph_si.cpp \
     js/ScriptInterfaces/atree_si.cpp \
     js/ScriptInterfaces/awindowinterfacebase.cpp \
+    particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -345,6 +346,7 @@ HEADERS += \
     js/ScriptInterfaces/agraph_si.h \
     js/ScriptInterfaces/atree_si.h \
     js/ScriptInterfaces/awindowinterfacebase.h \
+    particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \

@@ -41,13 +41,12 @@ public:
     int SensorModel = 0; // one is always defined (ideal sensor)
 };
 
-#include <array>
+#include "acalorimeter.h"
 class AGeoCalorimeter : public AGeoSpecial
 {
 public:
     AGeoCalorimeter(){}
-    AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
-    Origin(origin), Step(step), Bins(bins) {}
+    AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins);
 
     QString getType() const override {return QStringLiteral("Calorimeter");}
 
@@ -56,9 +55,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    std::array<double, 3> Origin = {-5, 0, 0};
-    std::array<double, 3> Step = {1, 1, 1};
-    std::array<int,    3> Bins = {10, 1, 1};
+    ACalorimeterProperties Properties;
 };
 
 class AGeoSecScint : public AGeoSpecial

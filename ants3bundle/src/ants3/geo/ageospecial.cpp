@@ -52,55 +52,17 @@ void AGeoSensor::doWriteToJson(QJsonObject & json) const
 
 // ---
 
+AGeoCalorimeter::AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
+    Properties(origin, step, bins){}
+
 void AGeoCalorimeter::readFromJson(const QJsonObject & json)
 {
-    {
-        QJsonArray ar;
-        jstools::parseJson(json, "Origin", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Origin");
-        else
-            for (int i=0; i<3; i++)
-                Origin[i] = ar[i].toDouble();
-    }
-
-    {
-        QJsonArray ar;
-        jstools::parseJson(json, "Step", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Step");
-        else
-            for (int i=0; i<3; i++)
-                Step[i] = ar[i].toDouble();
-    }
-
-    {
-        QJsonArray ar;
-        jstools::parseJson(json, "Bins", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Bins");
-        else
-            for (int i=0; i<3; i++)
-                Bins[i] = ar[i].toInt(1);
-    }
+    Properties.readFromJson(json);
 }
 
 void AGeoCalorimeter::doWriteToJson(QJsonObject & json) const
 {
-    {
-        QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Origin[i];
-        json["Origin"] = ar;
-    }
-
-    {
-        QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Step[i];
-        json["Step"] = ar;
-    }
-
-    {
-        QJsonArray ar;
-        for (int i=0; i<3; i++) ar << Bins[i];
-        json["Bins"] = ar;
-    }
+    Properties.writeToJson(json);
 }
 
 // ---

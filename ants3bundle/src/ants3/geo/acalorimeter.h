@@ -1,6 +1,8 @@
 #ifndef ACALORIMETER_H
 #define ACALORIMETER_H
 
+#include "acalsettings.h"
+
 #include <QString>
 #include <vector>
 
@@ -12,36 +14,32 @@ class QJsonObject;
 class ACalorimeter
 {
 public:
-  ACalorimeter();
-  ACalorimeter(const AGeoObject * CalorimeterGeoObject);
-  ~ACalorimeter();
+    ACalorimeter(){}
+    ACalorimeter(const AGeoObject * CalorimeterGeoObject);
+    ~ACalorimeter();
 
-//runtime functions
-  void fillForParticle(double x, double y, double z, double energy);
+    //configuration
+    bool readFromGeoObject(const AGeoObject * geoObj);
 
-//configuration
-  bool readFromGeoObject(const AGeoObject * CalorimeterRecord); // !!!*** TODO
+    // g4ants3 side
+    void fillForParticle(double x, double y, double z, double energy);
 
-  void writeDataToJson(QJsonObject & json) const; // !!!*** TODO
-  void readDataFromJson(const QJsonObject & json);  // !!!*** TODO
+    // data handling
+    void clearData();
+    void writeDataToJson(QJsonObject & json) const; // !!!*** TODO
+    void readDataFromJson(const QJsonObject & json);  // !!!*** TODO
+    void append(const ACalorimeter & from); // !!!*** TODO
+    void overrideDataFromJson(const QJsonObject & json); // !!!*** TODO
 
-// stat data handling
-  void clearData();
+    QString Name = "Undefined";
+    ACalorimeterProperties Properties;
 
-  QString name;
+    TH3D * xy     = nullptr;
 
-  TH3D * xy     = nullptr;
-
-  //AMonitorConfig config;
-
-  int getHits() const;
-
-  void append(const ACalorimeter & from); // !!!*** TODO
-
-  void overrideDataFromJson(const QJsonObject & json); // !!!*** TODO
+    int getTotalEnergy() const;  // !!!*** TODO
 
 private:
-  void initXYHist(); // !!!*** TODO
+    void initXYHist(); // !!!*** TODO
 
 };
 
