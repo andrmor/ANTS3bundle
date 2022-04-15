@@ -156,6 +156,5 @@ void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles
 
     QJsonObject json;
         writeDataToJson(Particle, json);
-    jstools::saveJsonToFile(json, outFile);
+        jstools::saveJsonToFile(json, outFile);
 }
-

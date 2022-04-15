@@ -84,47 +84,50 @@ std::vector<const ACalorimeterData *> ACalorimeterHub::getCalorimeters(const AGe
     return vec;
 }
 
-void ACalorimeterHub::mergeCalorimeterFiles(const std::vector<QString> & inFiles, const QString & outFile)
+#include "aerrorhub.h"
+bool ACalorimeterHub::mergeCalorimeterFiles(const std::vector<QString> & inFiles, const QString & outFile)
 {
     clearData();
 
-    const int numCalorimeters = Calorimeters.size();
+    const size_t numCalorimeters = Calorimeters.size();
+
     for (const QString & FN : inFiles)
     {
         QJsonArray ar;
         bool ok = jstools::loadJsonArrayFromFile(ar, FN);
         if (!ok)
         {
-            // !!!*** errorhub!
-            qWarning() << "failed to read particle monitor file:" << FN;
-            return;
+            QString err = "Failed to read calorimeter file: " + FN;
+            AErrorHub::addQError(err);
+            qWarning() << err;
+            return false;
         }
 
-        for (int i=0; i<ar.size(); i++)
+        for (int i = 0; i < ar.size(); i++)
         {
             QJsonObject json = ar[i].toObject();
             int iCalo;
             bool bOK = jstools::parseJson(json, "CalorimeterIndex", iCalo);
             if (!bOK)
             {
-                // !!!*** errorhub!
-                qWarning() << "Failed to read calorimeter data: Calorimeter index not found";
-                return;
+                QString err = "Failed to read calorimeter data: invalid format of Calorimeter index in file\n" + FN;
+                AErrorHub::addQError(err);
+                qWarning() << err;
+                continue;
             }
-            if (iCalo < 0 || iCalo >= numCalorimeters)
+            if (iCalo < 0 || iCalo >= (int)numCalorimeters)
             {
-                // !!!*** errorhub!
-                qWarning() << "Failed to read calorimter data: Bad calorimeter index";
-                return;
+                QString err = "Failed to read calorimter data: Bad calorimeter index in file:\n" + FN;
+                AErrorHub::addQError(err);
+                qWarning() << err;
+                return false;
             }
 
-            ACalorimeter tmp;
-            tmp.overrideDataFromJson(json);
-            Calorimeters[iCalo].Calorimeter->append(tmp);
+            Calorimeters[iCalo].Calorimeter->appendDataFromJson(json);
         }
     }
 
-    QJsonObject json;
-        writeDataToJson(json);
-    jstools::saveJsonToFile(json, outFile);
+    QJsonObject jsonOut;
+    writeDataToJson(jsonOut);
+    return jstools::saveJsonToFile(jsonOut, outFile);
 }

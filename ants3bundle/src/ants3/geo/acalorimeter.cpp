@@ -23,32 +23,13 @@ ACalorimeter::~ACalorimeter()
 
 void ACalorimeter::clearData()
 {
-    delete xy;     xy     = nullptr;
+    delete Deposition; Deposition = nullptr;
 }
 
 int ACalorimeter::getTotalEnergy() const
 {
-    if (!xy) return 0;
+    if (!Deposition) return 0;
     return 0; // !!!*** TODO
-}
-
-void ACalorimeter::fillForParticle(double x, double y, double z, double energy)
-{
-    if (xy) xy->Fill(x,y,z, energy);
-
-    /*
-    if (energy)
-    {
-        switch (config.energyUnitsInHist)
-        {
-        case 0: Energy *= 1.0e6; break;
-        case 1: Energy *= 1.0e3; break;
-        case 2: break;
-        case 3: Energy *= 1.0e-3;break;
-        }
-        energy->Fill(Energy);
-    }
-    */
 }
 
 bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
@@ -141,4 +122,25 @@ void ACalorimeter::overrideDataFromJson(const QJsonObject & json) // !!!*** TODO
     hist->Import(xfrom, xto, yfrom, yto, dataVec, statVec);
     delete xy; xy = hist;
     */
+}
+
+#include "aerrorhub.h"
+bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
+{
+    QJsonObject pjs;
+    bool ok = jstools::parseJson(json, "Properties", pjs);
+    if (!ok)
+    {
+        QString err = "Cannot find Properties object in calorimter json";
+        AErrorHub::addQError(err);
+        qWarning() << err;
+        return false;
+    }
+
+    ACalorimeterProperties loadedProps;
+    loadedProps.readFromJson(pjs);
+
+    gdsgdsgdfsg;
+
+    return true;
 }

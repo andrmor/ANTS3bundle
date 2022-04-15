@@ -21,20 +21,20 @@ public:
     //configuration
     bool readFromGeoObject(const AGeoObject * geoObj);
 
-    // g4ants3 side
-    void fillForParticle(double x, double y, double z, double energy);
-
     // data handling
     void clearData();
+
     void writeDataToJson(QJsonObject & json) const; // !!!*** TODO
     void readDataFromJson(const QJsonObject & json);  // !!!*** TODO
     void append(const ACalorimeter & from); // !!!*** TODO
     void overrideDataFromJson(const QJsonObject & json); // !!!*** TODO
 
+ bool appendDataFromJson(const QJsonObject & json);  // It is possible that Deposition hist is nullptr!
+
     QString Name = "Undefined";
     ACalorimeterProperties Properties;
 
-    TH3D * xy     = nullptr;
+    TH3D * Deposition = nullptr;
 
     int getTotalEnergy() const;  // !!!*** TODO
 

@@ -386,6 +386,7 @@ void AParticleSimManager::checkDirectories()
 }
 
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
 void AParticleSimManager::mergeOutput()
 {
     qDebug() << "Merging output files...";
@@ -401,11 +402,14 @@ void AParticleSimManager::mergeOutput()
     if (SimSet.RunSet.SaveSettings.Enabled)
         ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
-
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData(AMonitorHub::Particle);
+    //MonitorHub.clearData(AMonitorHub::Particle);
     if (SimSet.RunSet.MonitorSettings.Enabled)
         MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
+
+    ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
+    if (SimSet.RunSet.CalorimeterSettings.Enabled)
+        CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
 }
 
 #include "atrackingdataimporter.h"

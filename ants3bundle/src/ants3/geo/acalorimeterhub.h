@@ -46,7 +46,7 @@ public:
 
     std::vector<const ACalorimeterData*> getCalorimeters(const AGeoObject * obj) const;  // returns nullptr if not found
 
-    void mergeCalorimeterFiles(const std::vector<QString> & inFiles, const QString & outFile);
+    bool mergeCalorimeterFiles(const std::vector<QString> & inFiles, const QString & outFile);
 
     void writeDataToJson(QJsonObject & json) const;
 
