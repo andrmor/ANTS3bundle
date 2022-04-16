@@ -23,10 +23,11 @@ ACalorimeterHub::~ACalorimeterHub()
 void ACalorimeterHub::writeDataToJson(QJsonObject & json) const
 {
     QJsonArray ar;
+    int index = 0;
     for (const ACalorimeterData & md : Calorimeters)
     {
         QJsonObject js;
-        md.Calorimeter->writeDataToJson(js);
+        md.Calorimeter->writeDataToJson(js, index++);
         ar.push_back(js);
     }
     json["CalorimeterData"] = ar;

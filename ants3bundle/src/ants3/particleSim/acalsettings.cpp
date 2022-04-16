@@ -8,6 +8,22 @@
     #include "aerrorhub.h"
 #endif
 
+bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (Origin[i] != other.Origin[i]) return false;
+        if (Step[i]   != other.Step[i])   return false;
+        if (Bins[i]   != other.Bins[i])   return false;
+    }
+    return true;
+}
+
+bool ACalorimeterProperties::operator !=(const ACalorimeterProperties & other) const
+{
+    return !operator==(other);
+}
+
 #ifdef JSON11
 void ACalorimeterProperties::writeToJson(json11::Json::object & json) const
 #else

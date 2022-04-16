@@ -18,6 +18,9 @@ public:
     ACalorimeterProperties(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
         Origin(origin), Step(step), Bins(bins) {}
 
+    bool operator==(const ACalorimeterProperties & other) const;
+    bool operator!=(const ACalorimeterProperties & other) const;
+
 #ifdef JSON11
     void writeToJson(json11::Json::object & json) const;
     void readFromJson(const json11::Json::object & json); // !!!*** Error control!

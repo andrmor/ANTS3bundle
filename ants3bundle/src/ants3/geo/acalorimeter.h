@@ -6,10 +6,11 @@
 #include <QString>
 #include <vector>
 
-class TH3D;
+class ATH3D;
 class ATH1D;
 class AGeoObject;
 class QJsonObject;
+class QJsonArray;
 
 class ACalorimeter
 {
@@ -24,7 +25,7 @@ public:
     // data handling
     void clearData();
 
-    void writeDataToJson(QJsonObject & json) const; // !!!*** TODO
+ void writeDataToJson(QJsonObject & json, int index) const; // !!!*** TODO
     void readDataFromJson(const QJsonObject & json);  // !!!*** TODO
     void append(const ACalorimeter & from); // !!!*** TODO
     void overrideDataFromJson(const QJsonObject & json); // !!!*** TODO
@@ -34,13 +35,16 @@ public:
     QString Name = "Undefined";
     ACalorimeterProperties Properties;
 
-    TH3D * Deposition = nullptr;
+    ATH3D * Deposition = nullptr;
+    std::array<double,11> Stats;
+    int Entries = 0;
 
     int getTotalEnergy() const;  // !!!*** TODO
 
 private:
     void initXYHist(); // !!!*** TODO
 
+    bool loadDepositionFromJsonArr(const QJsonArray & ar, std::vector<std::vector<std::vector<double> > > & data) const;
 };
 
 #endif // ACALORIMETER_H
