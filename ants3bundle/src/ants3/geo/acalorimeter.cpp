@@ -5,10 +5,10 @@
 #include "ajsontoolsroot.h"
 #include "aroothistappenders.h"
 #include "aerrorhub.h"
+#include "ath.h"
 
 #include <QDebug>
 
-#include "ath.h"
 #include "TString.h"
 
 ACalorimeter::ACalorimeter(const AGeoObject * CalorimeterGeoObject)
@@ -31,7 +31,7 @@ void ACalorimeter::clearData()
 int ACalorimeter::getTotalEnergy() const
 {
     if (!Deposition) return 0;
-    return 0; // !!!*** TODO
+    return Stats[0];
 }
 
 bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
@@ -46,8 +46,6 @@ bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
     Properties = *props;
 
     Name = geoObj->Name;
-
-    initXYHist();
 
     return true;
 }
@@ -81,75 +79,6 @@ void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const // !!!**
         jsDepo["Entries"] = Entries;
     }
     json["XYZDepo"] = jsDepo;
-}
-
-void ACalorimeter::readDataFromJson(const QJsonObject &json) // !!!*** TODO
-{
-    clearData();
-
-//    jstools::parseJson(json, "XY",     xy);
-}
-
-void ACalorimeter::append(const ACalorimeter & from) // !!!*** TODO
-{
-    //appendTH2D(xy,     from.xy);
-}
-
-void ACalorimeter::initXYHist() // !!!*** TODO
-{
-    /*
-    delete xy;
-    const double limit2 = ( config.shape == 0 ? config.size2 : config.size1 ); // 0 - rectangular, 1 - round
-    xy = new TH2D("", "", config.xbins, -config.size1, config.size1, config.ybins, -limit2, limit2);
-    xy->SetXTitle("X, mm");
-    xy->SetYTitle("Y, mm");
-    */
-
-    /*
-    TString title = "";
-    switch (config.energyUnitsInHist)
-    {
-    case 0: title = "Energy, meV"; break;
-    case 1: title = "Energy, eV"; break;
-    case 2: title = "Energy, keV"; break;
-    case 3: title = "Energy, MeV"; break;
-    }
-    */
-}
-
-//#include "ahistogram.h"
-#include "ath.h"
-#include <QJsonObject>
-#include <QJsonArray>
-void ACalorimeter::overrideDataFromJson(const QJsonObject & json) // !!!*** TODO
-{
-    /*
-    QJsonObject jSpatial = json["Spatial"].toObject();
-    double xfrom = jSpatial["xfrom"].toDouble();
-    double xto   = jSpatial["xto"].toDouble();
-    double yfrom = jSpatial["yfrom"].toDouble();
-    double yto   = jSpatial["yto"].toDouble();
-
-    QJsonArray dataAr = jSpatial["data"].toArray();
-    int ybins = dataAr.size();
-    std::vector<std::vector<double>> dataVec;
-    dataVec.resize(ybins);
-    for (int iy=0; iy<ybins; iy++)
-    {
-        QJsonArray row = dataAr[iy].toArray();
-        int xbins = row.size();
-        dataVec[iy].resize(xbins);
-        for (int ix=0; ix<xbins; ix++)
-            dataVec[iy][ix] = row[ix].toDouble();
-    }
-    QJsonArray statAr = jSpatial["stat"].toArray();
-    std::vector<double> statVec;
-    for (int i=0; i<statAr.size(); i++)
-        statVec.push_back(statAr[i].toDouble());
-    ATH2D * hist = new ATH2D("", "", 100, 0, 1.0, 100, 0, 1.0);
-    hist->Import(xfrom, xto, yfrom, yto, dataVec, statVec);
-    delete xy; xy = hist;
-    */
 }
 
 bool ACalorimeter::appendDataFromJson(const QJsonObject & json)

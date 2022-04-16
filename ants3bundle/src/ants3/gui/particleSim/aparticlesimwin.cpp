@@ -666,6 +666,12 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leMonitorsFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadMonitorsData_clicked();
+
+    //calorimeters
+    fileName = QString(defaultSettings.CalorimeterSettings.FileName.data());
+    ui->leCalorimetersFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadCalorimetersData_clicked();
 }
 
 void AParticleSimWin::onMaterialsChanged()

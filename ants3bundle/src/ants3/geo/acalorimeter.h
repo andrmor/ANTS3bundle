@@ -19,18 +19,15 @@ public:
     ACalorimeter(const AGeoObject * CalorimeterGeoObject);
     ~ACalorimeter();
 
-    //configuration
     bool readFromGeoObject(const AGeoObject * geoObj);
 
-    // data handling
     void clearData();
 
- void writeDataToJson(QJsonObject & json, int index) const; // !!!*** TODO
-    void readDataFromJson(const QJsonObject & json);  // !!!*** TODO
-    void append(const ACalorimeter & from); // !!!*** TODO
-    void overrideDataFromJson(const QJsonObject & json); // !!!*** TODO
+    void writeDataToJson(QJsonObject & json, int index) const; // !!!*** TODO
 
- bool appendDataFromJson(const QJsonObject & json);  // It is possible that Deposition hist is nullptr!
+    bool appendDataFromJson(const QJsonObject & json);  // It is possible that Deposition hist is nullptr!
+
+    int getTotalEnergy() const;
 
     QString Name = "Undefined";
     ACalorimeterProperties Properties;
@@ -39,11 +36,7 @@ public:
     std::array<double,11> Stats;
     int Entries = 0;
 
-    int getTotalEnergy() const;  // !!!*** TODO
-
 private:
-    void initXYHist(); // !!!*** TODO
-
     bool loadDepositionFromJsonArr(const QJsonArray & ar, std::vector<std::vector<std::vector<double> > > & data) const;
 };
 
