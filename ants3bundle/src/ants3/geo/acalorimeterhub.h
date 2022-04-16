@@ -4,13 +4,14 @@
 #include "avector.h"
 
 #include <QString>
-#include <QJsonObject>
+#include <QStringList>
 
 #include <vector>
 
 class ACalorimeter;
 class QString;
 class AGeoObject;
+class QJsonArray;
 
 struct ACalorimeterData
 {
@@ -42,15 +43,17 @@ public:
     void clearData();
 
     int  countCalorimeters() const;
-    int  countCalorimetersWithHits() const;
+    int  countCalorimetersWithData() const;
+
+    QStringList getCalorimeterNames() const;
 
     std::vector<const ACalorimeterData*> getCalorimeters(const AGeoObject * obj) const;  // returns nullptr if not found
 
     bool mergeCalorimeterFiles(const std::vector<QString> & inFiles, const QString & outFile);
 
-    void writeDataToJson(QJsonObject & json) const;
+    void writeDataToJson(QJsonArray & ar) const;
 
-    QString appendDataFromJson(const QJsonObject & json);
+    QString appendDataFromJson(const QJsonArray & ar); // !!!*** AErrorHub
 };
 
 #endif // ACALORIMETERHUB_H

@@ -20,9 +20,8 @@ ACalorimeterHub::~ACalorimeterHub()
     clear();
 }
 
-void ACalorimeterHub::writeDataToJson(QJsonObject & json) const
+void ACalorimeterHub::writeDataToJson(QJsonArray & ar) const
 {
-    QJsonArray ar;
     int index = 0;
     for (const ACalorimeterData & md : Calorimeters)
     {
@@ -30,24 +29,16 @@ void ACalorimeterHub::writeDataToJson(QJsonObject & json) const
         md.Calorimeter->writeDataToJson(js, index++);
         ar.push_back(js);
     }
-    json["CalorimeterData"] = ar;
 }
 
-QString ACalorimeterHub::appendDataFromJson(const QJsonObject & json)
+QString ACalorimeterHub::appendDataFromJson(const QJsonArray & ar)
 {
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, "CalorimeterData", ar);
-    if (!ok) return "json does not contain calorimeter data";
-
-    if (ar.size() != (int)Calorimeters.size()) return "json contain data for wrong number of calorimeters";
+    if (ar.size() != (int)Calorimeters.size()) return "JsonArray contains data for wrong number of calorimeters";
 
     for (int i=0; i<ar.size(); i++)
     {
         QJsonObject js = ar[i].toObject();
-        ACalorimeter tmp;
-        tmp.readDataFromJson(js);
-
-        Calorimeters[i].Calorimeter->append(tmp);
+        Calorimeters[i].Calorimeter->appendDataFromJson(js);
     }
 
     return "";
@@ -69,12 +60,19 @@ int ACalorimeterHub::countCalorimeters() const
     return Calorimeters.size();
 }
 
-int ACalorimeterHub::countCalorimetersWithHits() const
+int ACalorimeterHub::countCalorimetersWithData() const
 {
     int counter = 0;
     for (const ACalorimeterData & md : Calorimeters)
         if (md.Calorimeter->getTotalEnergy() > 0) counter++;
     return counter;
+}
+
+QStringList ACalorimeterHub::getCalorimeterNames() const
+{
+    QStringList sl;
+    for (const ACalorimeterData d : Calorimeters) sl << d.Calorimeter->Name;
+    return sl;
 }
 
 std::vector<const ACalorimeterData *> ACalorimeterHub::getCalorimeters(const AGeoObject * obj) const
@@ -128,7 +126,7 @@ bool ACalorimeterHub::mergeCalorimeterFiles(const std::vector<QString> & inFiles
         }
     }
 
-    QJsonObject jsonOut;
-    writeDataToJson(jsonOut);
-    return jstools::saveJsonToFile(jsonOut, outFile);
+    QJsonArray jsCAr;
+    writeDataToJson(jsCAr);
+    return jstools::saveJsonArrayToFile(jsCAr, outFile);
 }
