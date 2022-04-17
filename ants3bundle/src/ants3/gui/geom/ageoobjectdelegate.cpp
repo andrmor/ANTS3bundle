@@ -227,14 +227,14 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         QGridLayout * gl = new QGridLayout(frCal);
         gl->setContentsMargins(0,0,0,0);
         ledCalOriginX = new QLineEdit("-5");
-        ledCalOriginY = new QLineEdit("0");
-        ledCalOriginZ = new QLineEdit("0");
+        ledCalOriginY = new QLineEdit("-5");
+        ledCalOriginZ = new QLineEdit("-8");
         ledCalStepX = new QLineEdit("1");
         ledCalStepY = new QLineEdit("1");
         ledCalStepZ = new QLineEdit("1");
         leiCalBinsX = new QLineEdit("10");
-        leiCalBinsY = new QLineEdit("1");
-        leiCalBinsZ = new QLineEdit("1");
+        leiCalBinsY = new QLineEdit("10");
+        leiCalBinsZ = new QLineEdit("10");
         cbOffX = new QCheckBox("Off");
         cbOffY = new QCheckBox("Off");
         cbOffZ = new QCheckBox("Off");
@@ -259,11 +259,42 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         frCal->setVisible(false);
         rl->addWidget(frCal);
 
-    /*
-    QFrame * frSec = new QFrame();
-    frSec->setVisible(false);
-    rl->addWidget(frSec);
-    */
+        connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginX->setDisabled(checked);
+            ledCalStepX  ->setDisabled(checked);
+            leiCalBinsX  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginX->setText("-1e10");
+                ledCalStepX->setText("2e10");
+                leiCalBinsX->setText("1");
+            }
+        } );
+        connect(cbOffY, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginY->setDisabled(checked);
+            ledCalStepY  ->setDisabled(checked);
+            leiCalBinsY  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginY->setText("-1e10");
+                ledCalStepY->setText("2e10");
+                leiCalBinsY->setText("1");
+            }
+        } );
+        connect(cbOffZ, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginZ->setDisabled(checked);
+            ledCalStepZ  ->setDisabled(checked);
+            leiCalBinsZ  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginZ->setText("-1e10");
+                ledCalStepZ->setText("2e10");
+                leiCalBinsZ->setText("1");
+            }
+        } );
 
     rl->addStretch();
 
@@ -714,6 +745,10 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
                 leiCalBinsX  ->setText( QString::number( p.Bins[0]) );
                 leiCalBinsY  ->setText( QString::number( p.Bins[1]) );
                 leiCalBinsZ  ->setText( QString::number( p.Bins[2]) );
+
+                if (p.Origin[0] == -1e10 && p.Step[0] == 2e10 && p.Bins[0] == 1) cbOffX->setChecked(true);
+                if (p.Origin[1] == -1e10 && p.Step[1] == 2e10 && p.Bins[1] == 1) cbOffY->setChecked(true);
+                if (p.Origin[2] == -1e10 && p.Step[2] == 2e10 && p.Bins[2] == 1) cbOffZ->setChecked(true);
             }
             else
             {
