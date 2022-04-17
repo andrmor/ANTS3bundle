@@ -24,6 +24,7 @@ class QListWidget;
 class QTableWidget;
 class AOneLineTextEdit;
 class QFrame;
+class ACalorimeterProperties;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -73,9 +74,9 @@ protected:
     QWidget   * RoleWidget = nullptr;
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
-    QLineEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
-    QLineEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
-    QLineEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
+    AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
+    AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
+    AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
     QCheckBox *cbOffX, *cbOffY, *cbOffZ;
 
 private slots:
@@ -92,6 +93,7 @@ protected:
     void updateControlUI();
     void initSlabDelegate(int SlabModelState); // TODO: kill
     void crateSpecialRoleWidget();
+    void updateCalorimeterGui(const ACalorimeterProperties & p);
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);

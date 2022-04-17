@@ -21,7 +21,7 @@ public:
     virtual bool updateObject(AGeoObject * obj) const = 0;
     virtual void Update(const AGeoObject * obj) = 0;
 
-    bool isLeEmpty(const QVector<AOneLineTextEdit*> & v) const;
+    bool isLeEmpty(const QVector<AOneLineTextEdit*> & v) const;  // !!!***
 
 public:
     QWidget * Widget = nullptr;

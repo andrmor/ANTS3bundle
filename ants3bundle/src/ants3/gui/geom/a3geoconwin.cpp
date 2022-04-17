@@ -822,7 +822,7 @@ void A3GeoConWin::updateGeoConstsIndication()
             connect(edit, &ALineEditWithEscape::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
             ui->tabwConstants->setCellWidget(i, 1, edit);
 
-            AOneLineTextEdit * ed = new AOneLineTextEdit(ui->tabwConstants);
+            AOneLineTextEdit * ed = new AOneLineTextEdit("", ui->tabwConstants);
             AGeoBaseDelegate::configureHighligherAndCompleter(ed, i);
             ed->setText(Expression);
             ed->setFrame(false);

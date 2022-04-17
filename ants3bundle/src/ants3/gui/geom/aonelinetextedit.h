@@ -11,7 +11,7 @@ class AOneLineTextEdit : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    AOneLineTextEdit(QWidget * parent = nullptr);
+    AOneLineTextEdit(const QString & txt = "", QWidget * parent = nullptr);
 
     void setText(const QString & text);
     QString text() const;

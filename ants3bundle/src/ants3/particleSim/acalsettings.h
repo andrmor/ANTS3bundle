@@ -31,9 +31,9 @@ public:
     void readFromJson(const QJsonObject & json);
 #endif
 
-    std::array<double, 3> Origin = {-5, -5, -5};
-    std::array<double, 3> Step   = { 1,  1,  1};
-    std::array<int,    3> Bins   = {10, 10, 10};
+    std::array<double, 3> Origin = {-5, -1e10, -1e10};
+    std::array<double, 3> Step   = { 1,  2e10,  2e10};
+    std::array<int,    3> Bins   = {10,  1,     1};
 };
 
 class ACalSetRecord
