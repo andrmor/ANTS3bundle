@@ -298,6 +298,10 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
 
     rl->addStretch();
 
+    connect(cbOffX,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffY,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffZ,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal]   (int index){frCal->   setVisible(index == 2);} );
 
