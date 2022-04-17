@@ -24,6 +24,14 @@ bool ACalorimeterProperties::operator !=(const ACalorimeterProperties & other) c
     return !operator==(other);
 }
 
+int ACalorimeterProperties::getNumDimensions() const
+{
+    int numDim = 3;
+    for (int i = 0; i < 3; i++)
+        if (Bins[i] == 1) numDim--;
+    return numDim;
+}
+
 #ifdef JSON11
 void ACalorimeterProperties::writeToJson(json11::Json::object & json) const
 #else

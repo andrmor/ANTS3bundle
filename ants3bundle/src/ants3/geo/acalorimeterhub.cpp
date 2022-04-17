@@ -71,7 +71,7 @@ int ACalorimeterHub::countCalorimetersWithData() const
 QStringList ACalorimeterHub::getCalorimeterNames() const
 {
     QStringList sl;
-    for (const ACalorimeterData d : Calorimeters) sl << d.Calorimeter->Name;
+    for (const ACalorimeterData d : Calorimeters) sl << d.Name;
     return sl;
 }
 
