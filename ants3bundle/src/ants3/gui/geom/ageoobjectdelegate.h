@@ -76,6 +76,7 @@ protected:
     QLineEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
     QLineEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
     QLineEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
+    QCheckBox *cbOffX, *cbOffY, *cbOffZ;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!

@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1349,7 +1349,7 @@ Format: Volume_name  Step_in_mm</string>
         <item>
          <widget class="QTabWidget" name="twResults">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabTrackingHistory">
            <attribute name="title">
