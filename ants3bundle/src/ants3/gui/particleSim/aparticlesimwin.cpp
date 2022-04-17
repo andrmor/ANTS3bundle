@@ -2072,7 +2072,7 @@ void AParticleSimWin::on_pbNextCalorimeter_clicked()
     if (numCal == 0) return;
 
     int iCal = ui->cobCalorimeter->currentIndex();
-    int iCalStart = iCal;
+    //int iCalStart = iCal;
 
     double depo = 0;
     do
@@ -2118,6 +2118,8 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
     const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
 
     const int numDim = p.getNumDimensions();
+    const double energyFactor = getCalorimeterEnergyFactor();
+    const TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
 
     switch (numDim)
     {
@@ -2139,12 +2141,10 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
             }
 
             TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
 
             h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
             h->GetXaxis()->SetTitle(opt + ", mm");
-            const double energyFactor = getCalorimeterEnergyFactor();
-            h->Scale(energyFactor);
-            TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
             h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
 
             emit requestDraw(h, "hist", true, true);
@@ -2153,18 +2153,33 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
     case 2:
         {
             TString opt;
-            if (p.Bins[0] != 1) opt += "x";
-            if (p.Bins[1] != 1) opt += "y";
             if (p.Bins[2] != 1) opt += "z";
+            if (p.Bins[1] != 1) opt += "y";
+            if (p.Bins[0] != 1) opt += "x";
             if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+
             TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+            h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
+
             emit requestDraw(h, "colz", true, true);
         }
         break;
     case 3:
         {
             TH3D * h = (TH3D*)(Data->Clone());
-            emit requestDraw(h, "box2z", true, true);
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle("x, mm");
+            h->GetYaxis()->SetTitle("y, mm");
+            h->GetZaxis()->SetTitle("z, mm");
+
+            emit requestDraw(h, "box2", true, true);
         }
         break;
     default:
