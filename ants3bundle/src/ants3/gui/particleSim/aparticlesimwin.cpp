@@ -2101,9 +2101,54 @@ void AParticleSimWin::on_sbCalorimeterIndex_editingFinished()
     updateCalorimeterGui();
 }
 
+#include "ath.h"
 void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
 {
+    const int iCal = ui->cobCalorimeter->currentIndex();
 
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->Deposition;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    int numDim = 3;
+    for (int i = 0; i < 3; i++)
+        if (p.Bins[i] == 1) numDim--;
+
+    switch (numDim)
+    {
+    case 0:
+        return;
+    case 1:
+        {
+            int iDim = 0;
+            for (; iDim < 3; iDim++)
+                if (p.Bins[iDim] != 1) break;
+
+            TString opt;
+            switch (iDim)
+            {
+            case 0: opt = "x"; break;
+            case 1: opt = "y"; break;
+            case 2: opt = "z"; break;
+            default:;
+            }
+
+            TH1D * h = (TH1D*)((TH1D*)Data->Project3D(opt)->Clone());
+            emit requestDraw(h, "hist", true, true);
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    default:
+        guitools::message("Unexpected number of dimensions!", this);
+        return;
+    }
 }
 
 void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
