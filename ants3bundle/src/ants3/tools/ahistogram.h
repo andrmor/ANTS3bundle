@@ -103,7 +103,7 @@ public:
     void fill(const std::array<double, 3> & xyz, double val = 1.0);
 
     const std::vector< std::vector< std::vector<double> > > & getContent() const {return Data;} //[x][y][z];
-    int getEntries() const {return Entries;}
+    double getEntries() const {return Entries;}
     const std::vector<double> & getStat() const {return Stats;} // See fill() for explanation
 
 private:
@@ -113,7 +113,7 @@ private:
 
     std::vector< std::vector< std::vector<double> > > Data; // [x][y][z]
 
-    int Entries = 0;
+    double Entries = 0;
     std::vector<double> Stats;
 
     bool getVoxel(const std::array<double, 3> & pos, std::array<int, 3> & index);

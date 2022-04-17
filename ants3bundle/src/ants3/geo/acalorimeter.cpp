@@ -151,7 +151,7 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
         qWarning() << err;
         return false;
     }
-    int entries = 0;
+    double entries = 0;
     jstools::parseJson(djs, "Entries", entries);
 
 

@@ -302,7 +302,7 @@ void AHistogram3Dfixed::fill(const std::array<double, 3> & pos, double val)
 
     Data[index[0]][index[1]][index[2]] += val;
 
-    ++Entries;
+    Entries += 1.0;
 
     /* // GetStats() of TH3D
     s[0] = sumw s[1] = sumw2

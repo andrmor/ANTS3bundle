@@ -96,7 +96,7 @@ TH1D * jstools::jsonToRegularTh1D(const QJsonObject & json)
     ok = jstools::parseJson(json, "Data", ar); if (!ok) return nullptr;
     if (ar.size() != Bins+2) return nullptr;
 
-    int Entries; ok = jstools::parseJson(json, "Entries", Entries); if (!ok) return nullptr;
+    double Entries; ok = jstools::parseJson(json, "Entries", Entries); if (!ok) return nullptr;
 
     TH1D * hist = new TH1D("", "", Bins, From, To);
     for (int i = 0; i < Bins+2; i++)
@@ -131,7 +131,7 @@ TH2D * jstools::jsonToRegularTh2D(const QJsonObject & json)
         hist->Fill(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
     }
 
-    int Entries; ok = jstools::parseJson(json, "Entries", Entries); if (!ok) return nullptr;
+    double Entries; ok = jstools::parseJson(json, "Entries", Entries); if (!ok) return nullptr;
 
     hist->BufferEmpty(1);
     hist->SetEntries(Entries);

@@ -34,7 +34,7 @@ public:
 
     ATH3D * Deposition = nullptr;
     std::array<double,11> Stats;
-    int Entries = 0;
+    double Entries = 0;
 
 private:
     bool loadDepositionFromJsonArr(const QJsonArray & ar, std::vector<std::vector<std::vector<double> > > & data) const;
