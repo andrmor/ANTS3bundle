@@ -396,11 +396,27 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPhi->isEnabled())   ok = ok && processEditBox(ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
         if (ledTheta->isEnabled()) ok = ok && processEditBox(ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
         if (ledPsi->isEnabled())   ok = ok && processEditBox(ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
-
         if (!ok) return false;
 
-
-        // TODO: can set special role for this object!  ***!!!
+        if (obj->Role)
+        {
+            const ACalorimeterProperties * p = obj->getCalorimeterProperties();
+            if (p)
+            {
+                QString str;
+                double dvalue; int ivalue;
+                ok = ok && processDoubleEditBox(ledCalOriginX, dvalue, str,  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox(ledCalOriginY, dvalue, str,  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox(ledCalOriginZ, dvalue, str,  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox(ledCalStepX,   dvalue, str,  true, true, false,  ParentWidget);
+                ok = ok && processDoubleEditBox(ledCalStepY,   dvalue, str,  true, true, false,  ParentWidget);
+                ok = ok && processDoubleEditBox(ledCalStepZ,   dvalue, str,  true, true, false,  ParentWidget);
+                ok = ok && processIntEditBox(leiCalBinsX, ivalue, str,  true, true,  ParentWidget);
+                ok = ok && processIntEditBox(leiCalBinsY, ivalue, str,  true, true,  ParentWidget);
+                ok = ok && processIntEditBox(leiCalBinsZ, ivalue, str,  true, true,  ParentWidget);
+                if (!ok) return false;
+            }
+        }
 
         // ---- all checks are ok, can assign new values to the object ----
 
@@ -479,6 +495,44 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         obj->updateNameOfLogicalMember(oldName, newName);
 
     return true;
+}
+
+bool AGeoObjectDelegate::processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str,
+                                          bool bForbidZero, bool bForbidNegative, bool bMakeHalf,
+                                          QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr);
+    return false;
+}
+
+bool AGeoObjectDelegate::processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str,
+                                          bool bForbidZero, bool bForbidNegative,
+                                          QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr);
+    return false;
 }
 
 void AGeoObjectDelegate::onChangeShapePressed()
@@ -629,23 +683,6 @@ void AGeoObjectDelegate::updateControlUI()
         pbChangeAtt->setVisible(false);
         pbScriptLine->setVisible(false);
     }
-}
-
-void AGeoObjectDelegate::initSlabDelegate(int SlabModelState)
-{
-    if (SlabModelState != 2) ledPsi->setEnabled(false);
-
-    ledX->setEnabled(false);
-    ledY->setEnabled(false);
-    ledZ->setEnabled(false);
-
-    ledPhi->setEnabled(false);
-    ledTheta->setEnabled(false);
-
-    cbScale->setVisible(false);
-
-    if (SlabModelState == 2) ListOfShapesForTransform = QStringList({"Rectangular slab", "Round slab", "Polygon slab"});
-    else pbTransform->setEnabled(false);
 }
 
 /*

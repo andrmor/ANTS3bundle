@@ -91,7 +91,6 @@ protected:
     const AGeoShape * getBaseShapeOfObject(const AGeoObject *obj);
     void updateTypeLabel();
     void updateControlUI();
-    void initSlabDelegate(int SlabModelState); // TODO: kill
     void crateSpecialRoleWidget();
     void updateCalorimeterGui(const ACalorimeterProperties & p);
 
@@ -101,6 +100,10 @@ private:
 signals:
     void RequestChangeShape(AGeoShape * newShape);
     void RequestChangeSlabShape(int Shape);
+
+public:
+    static bool processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str, bool bForbidZero, bool bForbidNegative, bool bMakeHalf, QWidget * parent);
+    static bool processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str, bool bForbidZero, bool bForbidNegative, QWidget * parent);
 };
 
 
