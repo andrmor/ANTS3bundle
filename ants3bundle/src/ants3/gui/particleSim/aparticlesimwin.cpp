@@ -2144,6 +2144,10 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
     case 2:
         break;
     case 3:
+        {
+            TH3D * h = (TH3D*)(Data->Clone());
+            emit requestDraw(h, "box2z", true, true);
+        }
         break;
     default:
         guitools::message("Unexpected number of dimensions!", this);
