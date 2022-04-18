@@ -398,24 +398,20 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPsi->isEnabled())   ok = ok && processEditBox(ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-        if (obj->Role)
+        std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
+        std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
+        if (cobRole->currentIndex() == 2)
         {
-            const ACalorimeterProperties * p = obj->getCalorimeterProperties();
-            if (p)
-            {
-                QString str;
-                double dvalue; int ivalue;
-                ok = ok && processDoubleEditBox(ledCalOriginX, dvalue, str,  false,false,false,  ParentWidget);
-                ok = ok && processDoubleEditBox(ledCalOriginY, dvalue, str,  false,false,false,  ParentWidget);
-                ok = ok && processDoubleEditBox(ledCalOriginZ, dvalue, str,  false,false,false,  ParentWidget);
-                ok = ok && processDoubleEditBox(ledCalStepX,   dvalue, str,  true, true, false,  ParentWidget);
-                ok = ok && processDoubleEditBox(ledCalStepY,   dvalue, str,  true, true, false,  ParentWidget);
-                ok = ok && processDoubleEditBox(ledCalStepZ,   dvalue, str,  true, true, false,  ParentWidget);
-                ok = ok && processIntEditBox(leiCalBinsX, ivalue, str,  true, true,  ParentWidget);
-                ok = ok && processIntEditBox(leiCalBinsY, ivalue, str,  true, true,  ParentWidget);
-                ok = ok && processIntEditBox(leiCalBinsZ, ivalue, str,  true, true,  ParentWidget);
-                if (!ok) return false;
-            }
+            ok = ok && processDoubleEditBox(ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+            if (!ok) return false;
         }
 
         // ---- all checks are ok, can assign new values to the object ----
@@ -462,9 +458,16 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
                 break;
             case 2:
-                obj->Role = new AGeoCalorimeter({ledCalOriginX->text().toDouble(), ledCalOriginY->text().toDouble(), ledCalOriginZ->text().toDouble()},
-                                                {ledCalStepX  ->text().toDouble(), ledCalStepY  ->text().toDouble(), ledCalStepZ  ->text().toDouble()},
-                                                {leiCalBinsX  ->text().toInt(),    leiCalBinsY  ->text().toInt(),    leiCalBinsZ  ->text().toInt()});
+                {
+                AGeoCalorimeter * cal = new AGeoCalorimeter({calDouble[0], calDouble[1], calDouble[2]},
+                                                            {calDouble[3], calDouble[4], calDouble[5]},
+                                                            {calInt[0], calInt[1], calInt[2]} );
+                cal->Properties.strOrigin = {calDoubleStr[0], calDoubleStr[1], calDoubleStr[2]};
+                cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
+                cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
+
+                obj->Role = cal;
+                }
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
@@ -804,15 +807,15 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
 
 void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
 {
-    ledCalOriginX->setText( QString::number( p.Origin[0]) );
-    ledCalOriginY->setText( QString::number( p.Origin[1]) );
-    ledCalOriginZ->setText( QString::number( p.Origin[2]) );
-    ledCalStepX  ->setText( QString::number( p.Step[0]) );
-    ledCalStepY  ->setText( QString::number( p.Step[1]) );
-    ledCalStepZ  ->setText( QString::number( p.Step[2]) );
-    leiCalBinsX  ->setText( QString::number( p.Bins[0]) );
-    leiCalBinsY  ->setText( QString::number( p.Bins[1]) );
-    leiCalBinsZ  ->setText( QString::number( p.Bins[2]) );
+    ledCalOriginX->setText( p.strOrigin[0].isEmpty() ? QString::number(p.Origin[0]) : p.strOrigin[0] );
+    ledCalOriginY->setText( p.strOrigin[1].isEmpty() ? QString::number(p.Origin[1]) : p.strOrigin[1] );
+    ledCalOriginZ->setText( p.strOrigin[2].isEmpty() ? QString::number(p.Origin[2]) : p.strOrigin[2] );
+    ledCalStepX  ->setText(   p.strStep[0].isEmpty() ? QString::number(  p.Step[0]) :   p.strStep[0] );
+    ledCalStepY  ->setText(   p.strStep[1].isEmpty() ? QString::number(  p.Step[1]) :   p.strStep[1] );
+    ledCalStepZ  ->setText(   p.strStep[2].isEmpty() ? QString::number(  p.Step[2]) :   p.strStep[2] );
+    leiCalBinsX  ->setText(   p.strBins[0].isEmpty() ? QString::number(  p.Bins[0]) :   p.strBins[0] );
+    leiCalBinsY  ->setText(   p.strBins[1].isEmpty() ? QString::number(  p.Bins[1]) :   p.strBins[1] );
+    leiCalBinsZ  ->setText(   p.strBins[2].isEmpty() ? QString::number(  p.Bins[2]) :   p.strBins[2] );
 
     cbOffX->setChecked( p.Origin[0] == -1e10 && p.Step[0] == 2e10 && p.Bins[0] == 1 );
     cbOffY->setChecked( p.Origin[1] == -1e10 && p.Step[1] == 2e10 && p.Bins[1] == 1 );

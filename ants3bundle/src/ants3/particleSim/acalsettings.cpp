@@ -8,6 +8,8 @@
     #include "aerrorhub.h"
 #endif
 
+#include <cmath>
+
 bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) const
 {
     for (int i = 0; i < 3; i++)
@@ -15,6 +17,12 @@ bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) c
         if (Origin[i] != other.Origin[i]) return false;
         if (Step[i]   != other.Step[i])   return false;
         if (Bins[i]   != other.Bins[i])   return false;
+
+#ifndef JSON11
+        if (strOrigin[i] != other.strOrigin[i]) return false;
+        if (strStep[i]   != other.strStep[i])   return false;
+        if (strBins[i]   != other.strBins[i])   return false;
+#endif
     }
     return true;
 }
@@ -38,38 +46,37 @@ void ACalorimeterProperties::writeToJson(json11::Json::object & json) const
 void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 #endif
 {
-    // Origin
-    {
 #ifdef JSON11
-        json11::Json::array ar;
+    json11::Json::array arO;
+    json11::Json::array arS;
+    json11::Json::array arB;
 #else
-        QJsonArray ar;
+    QJsonArray arO;
+    QJsonArray arS;
+    QJsonArray arB;
 #endif
-        for (int i=0; i<3; i++) ar.push_back(Origin[i]);
-        json["Origin"] = ar;
+    for (int i=0; i<3; i++)
+    {
+        arO.push_back(Origin[i]);
+        arS.push_back(Step[i]);
+        arB.push_back(Bins[i]);
     }
+    json["Origin"] = arO;
+    json["Step"] = arS;
+    json["Bins"] = arB;
 
-    //Step
+#ifndef JSON11
+    QJsonArray toAr, tsAr, tbAr;
+    for (int i=0; i<3; i++)
     {
-#ifdef JSON11
-        json11::Json::array ar;
-#else
-        QJsonArray ar;
-#endif
-        for (int i=0; i<3; i++) ar.push_back(Step[i]);
-        json["Step"] = ar;
+        toAr.push_back(strOrigin[i]);
+        tsAr.push_back(strStep[i]);
+        tbAr.push_back(strBins[i]);
     }
-
-    // NumBins
-    {
-#ifdef JSON11
-        json11::Json::array ar;
-#else
-        QJsonArray ar;
+    if (strOrigin != std::array<QString,3>{"", "", ""}) json["strOrigin"] = toAr;
+    if (strStep   != std::array<QString,3>{"", "", ""}) json["strStep"]   = tsAr;
+    if (strBins   != std::array<QString,3>{"", "", ""}) json["strBins"]   = tbAr;
 #endif
-        for (int i=0; i<3; i++) ar.push_back(Bins[i]);
-        json["Bins"] = ar;
-    }
 }
 
 #ifdef JSON11
@@ -86,7 +93,7 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
         json11::Json::array ar;
         jstools::parseJson(json, "Step", ar);
         for (int i=0; i<3; i++)
-            Step[i] = ar[i].number_value();
+            Step[i] = std::fabs(ar[i].number_value());
     }
 
     {
@@ -102,7 +109,7 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     {
         QJsonArray ar;
         jstools::parseJson(json, "Origin", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Origin");
+        if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json Origin");
         else
             for (int i=0; i<3; i++)
                 Origin[i] = ar[i].toDouble();
@@ -111,19 +118,63 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     {
         QJsonArray ar;
         jstools::parseJson(json, "Step", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Step");
+        if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json Step");
         else
             for (int i=0; i<3; i++)
-                Step[i] = ar[i].toDouble();
+                Step[i] = std::fabs(ar[i].toDouble());
     }
 
     {
         QJsonArray ar;
         jstools::parseJson(json, "Bins", ar);
-        if (ar.size() < 3) AErrorHub::addQError("Bad dimension for AGeoCalorimeter json Bins");
+        if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json Bins");
         else
             for (int i=0; i<3; i++)
                 Bins[i] = ar[i].toInt(1);
+    }
+
+    // str for Geo Consts
+    strOrigin = {"", "", ""};
+    strStep   = {"", "", ""};
+    strBins   = {"", "", ""};
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "strOrigin", ar);
+        if (ok)
+        {
+            if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json strOrigin");
+            else
+            {
+                for (int i=0; i<3; i++)
+                    strOrigin[i] = ar[i].toString();
+            }
+        }
+    }
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "strStep", ar);
+        if (ok)
+        {
+            if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json strStep");
+            else
+            {
+                for (int i=0; i<3; i++)
+                    strStep[i] = ar[i].toString();
+            }
+        }
+    }
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "strBins", ar);
+        if (ok)
+        {
+            if (ar.size() < 3) AErrorHub::addQError("Invalid size for AGeoCalorimeter json strBins");
+            else
+            {
+                for (int i=0; i<3; i++)
+                    strBins[i] = ar[i].toString();
+            }
+        }
     }
 }
 #endif

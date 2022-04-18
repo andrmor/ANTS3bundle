@@ -19,6 +19,8 @@ public:
 
     virtual QString getType() const = 0;
 
+    virtual bool introduceGeoConstValues() = 0;
+
     void writeToJson(QJsonObject & json) const;
     virtual void readFromJson(const QJsonObject & /*json*/) {}
 protected:
@@ -32,6 +34,8 @@ public:
     AGeoSensor(int Model) : SensorModel(Model) {}
 
     QString getType() const override {return QStringLiteral("Sensor");}
+
+    bool introduceGeoConstValues() override {return true;}
 
     void readFromJson(const QJsonObject & json) override;
 protected:
@@ -50,6 +54,8 @@ public:
 
     QString getType() const override {return QStringLiteral("Calorimeter");}
 
+    bool introduceGeoConstValues() override;
+
     void readFromJson(const QJsonObject & json) override;
 protected:
     void doWriteToJson(QJsonObject & json) const override;
@@ -64,6 +70,8 @@ public:
     AGeoSecScint(){}
 
     QString getType() const override {return QStringLiteral("SecScint");}
+
+    bool introduceGeoConstValues() override {return true;}
 };
 
 #endif // AGEOSPECIAL_H

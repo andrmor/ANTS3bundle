@@ -8,6 +8,7 @@
 #ifdef JSON11
     #include "js11tools.hh"
 #else
+    #include <QString>
     class QJsonObject;
 #endif
 
@@ -34,6 +35,13 @@ public:
     std::array<double, 3> Origin = {-5, -1e10, -1e10};
     std::array<double, 3> Step   = { 1,  2e10,  2e10};
     std::array<int,    3> Bins   = {10,  1,     1};
+
+#ifndef JSON11
+    //ants3 side: text fields to be used with Geo Constants
+    std::array<QString, 3> strOrigin = {"", "", ""};
+    std::array<QString, 3> strStep   = {"", "", ""};
+    std::array<QString, 3> strBins   = {"", "", ""};
+#endif
 };
 
 class ACalSetRecord

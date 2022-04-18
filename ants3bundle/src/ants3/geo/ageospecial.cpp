@@ -55,6 +55,28 @@ void AGeoSensor::doWriteToJson(QJsonObject & json) const
 AGeoCalorimeter::AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
     Properties(origin, step, bins){}
 
+#include "ageoconsts.h"
+bool AGeoCalorimeter::introduceGeoConstValues()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+
+    // TODO: enable error control !!!***
+
+    bool ok;
+    QString err;
+    bool bErr = false;
+    for (int i = 0; i <3 ; i++)
+    {
+        ok = GC.updateParameter(err, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
+        if (!ok) {AErrorHub::addQError(err); bErr = true;}
+        ok = GC.updateParameter(err, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
+        if (!ok) {AErrorHub::addQError(err); bErr = true;}
+        ok = GC.updateParameter(err, Properties.strBins[i],   Properties.Bins[i],   true,  true);
+        if (!ok) {AErrorHub::addQError(err); bErr = true;}
+    }
+    return bErr;
+}
+
 void AGeoCalorimeter::readFromJson(const QJsonObject & json)
 {
     Properties.readFromJson(json);
