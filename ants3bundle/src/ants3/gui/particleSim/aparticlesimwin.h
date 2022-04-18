@@ -126,6 +126,7 @@ signals:
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
     void requestClearMarkers(int selector);
     void requestAddMarker(const double *);
+    void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
 
 private:
     AParticleSimSettings  & SimSet;
@@ -161,6 +162,7 @@ private:
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
+    void updateGeneralControlInResults();
 
     void clearResultsGui();
 
@@ -192,6 +194,7 @@ private slots:
     void on_sbCalorimeterIndex_editingFinished();
     void on_pbCalorimetersShowDistribution_clicked();
     void on_pbShowCalorimeterSettings_clicked();
+    void on_pbShowMonitorProperties_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

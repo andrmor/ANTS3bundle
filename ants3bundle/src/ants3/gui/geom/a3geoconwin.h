@@ -66,7 +66,7 @@ protected:
   void resizeEvent(QResizeEvent *event);
 
 public slots:
-  void UpdateGeoTree(QString name = "");
+  void UpdateGeoTree(QString name = "", bool bShow = false);
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
   void ShowObjectRecursive(QString name);

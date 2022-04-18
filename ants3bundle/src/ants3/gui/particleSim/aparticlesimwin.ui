@@ -3916,7 +3916,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pbShowProperties">
+                  <widget class="QPushButton" name="pbShowMonitorProperties">
                    <property name="minimumSize">
                     <size>
                      <width>200</width>

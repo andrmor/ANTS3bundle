@@ -82,6 +82,8 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &A3GeoConWin::UpdateGeoTree);
+
     //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
     AJScriptHub * SH = &AJScriptHub::getInstance();

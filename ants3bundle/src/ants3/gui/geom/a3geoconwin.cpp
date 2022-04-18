@@ -141,10 +141,17 @@ void A3GeoConWin::updateGui()
     QFont font = ui->cbShowPrototypes->font(); font.setBold(numProto > 0); ui->cbShowPrototypes->setFont(font);
 }
 
-void A3GeoConWin::UpdateGeoTree(QString name)
+void A3GeoConWin::UpdateGeoTree(QString name, bool bShow)
 {
     twGeo->UpdateGui(name);
     updateGeoConstsIndication();
+
+    if (bShow)
+    {
+        ui->tabwidAddOns->setCurrentIndex(0);
+        showNormal();
+        raise();
+    }
 }
 
 void A3GeoConWin::ShowObject(QString name)

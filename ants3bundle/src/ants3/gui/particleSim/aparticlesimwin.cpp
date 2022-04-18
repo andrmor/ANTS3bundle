@@ -17,6 +17,7 @@
 #include "aparticletrackvisuals.h"
 #include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
+#include "ageoobject.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -76,6 +77,8 @@ void AParticleSimWin::updateGui()
 
     updateG4Gui();
     updateSimGui();
+
+    updateGeneralControlInResults();
 
     bGuiUpdateInProgress = false; // <--
 }
@@ -442,6 +445,14 @@ void AParticleSimWin::updateSourceList()
     if (curRow < 0 || curRow >= ui->lwDefinedParticleSources->count())
         curRow = 0;
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
+}
+
+void AParticleSimWin::updateGeneralControlInResults()
+{
+    updateMonitorGui();
+    updateCalorimeterGui();
+
+    // !!!*** sensor map?
 }
 
 void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem *)
@@ -1651,6 +1662,16 @@ void AParticleSimWin::on_pbNextMonitor_clicked()
     updateMonitorGui();
 }
 
+void AParticleSimWin::on_pbShowMonitorProperties_clicked()
+{
+    const int iMon = ui->cobMonitor->currentIndex();
+    const int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (iMon < 0 || iMon >= numMon) return;
+
+    AGeoObject * obj = MonitorHub.ParticleMonitors[iMon].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
+}
+
 void AParticleSimWin::on_pbMonitorShowAngle_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
@@ -2190,6 +2211,11 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
 
 void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
 {
+    const int iCal = ui->cobCalorimeter->currentIndex();
 
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    AGeoObject * obj = CalHub.Calorimeters[iCal].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
 }
-
