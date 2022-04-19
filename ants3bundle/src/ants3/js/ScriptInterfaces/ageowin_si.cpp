@@ -116,7 +116,7 @@ void AGeoWin_SI::DeleteAllTracks()
 }
 */
 
-void AGeoWin_SI::addMarkers(QVariantList XYZs, int color)
+void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size)
 {
     if (XYZs.isEmpty())
     {
@@ -124,7 +124,7 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color)
         return;
     }
 
-    GeoMarkerClass * M = new GeoMarkerClass(GeoMarkerClass::Undefined, 2, 6, color);
+    GeoMarkerClass * M = new GeoMarkerClass(GeoMarkerClass::Undefined, style, size, color);
     for (int i = 0; i < XYZs.size(); i++)
     {
         QVariantList el = XYZs[i].toList();
