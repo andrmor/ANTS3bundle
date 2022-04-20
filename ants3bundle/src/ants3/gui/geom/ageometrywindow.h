@@ -82,6 +82,7 @@ public slots:
     void FocusVolume(QString name);
     void CenterView(double * r);
     void showSensorIndexes();  // !!!***
+    void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
     void showMonitorIndexes();
 
@@ -138,6 +139,8 @@ private slots:
     void on_actionSensor_models_triggered();
 
     void on_pbShowSensorIndexes_clicked();
+
+    void on_actionCalorimeters_triggered();
 
 private:
     AGeometryHub         & Geometry;

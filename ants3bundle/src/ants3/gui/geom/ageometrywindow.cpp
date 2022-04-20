@@ -399,11 +399,21 @@ void AGeometryWindow::showSensorIndexes()
     std::vector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.push_back( QString::number(i) );
-    showText(tmp, kBlack, AGeoWriter::PMs);
+    showText(tmp, kBlack, AGeoWriter::Sensors);
 
     /*
     emit requestUpdateRegisteredGeoManager();
     */
+}
+
+#include "acalorimeterhub.h"
+void AGeometryWindow::showCalorimeterIndexes()
+{
+    const size_t numCal = ACalorimeterHub::getConstInstance().countCalorimeters();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < numCal; i++)
+        tmp.push_back( QString::number(i) );
+    showText(tmp, kRed, AGeoWriter::Calorimeters);
 }
 
 void AGeometryWindow::showMonitorIndexes()
@@ -504,7 +514,7 @@ void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycl
     std::vector<QString> tmp;
     for (const float & f : Event)
         tmp.push_back( QString::number(f) );
-    showText(tmp, kBlack, AGeoWriter::PMs, bFullCycle);
+    showText(tmp, kBlack, AGeoWriter::Sensors, bFullCycle);
 }
 
 void AGeometryWindow::showGeoMarkers()
@@ -1312,7 +1322,7 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
         else
             tmp.push_back( QString::number(index) );
     }
-    showText(tmp, kRed, AGeoWriter::PMs, true);
+    showText(tmp, kRed, AGeoWriter::Sensors, true);
 
     /*
     emit requestUpdateRegisteredGeoManager();
@@ -1322,5 +1332,10 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
 void AGeometryWindow::on_pbShowSensorIndexes_clicked()
 {
     showSensorIndexes();
+}
+
+void AGeometryWindow::on_actionCalorimeters_triggered()
+{
+    showCalorimeterIndexes();
 }
 

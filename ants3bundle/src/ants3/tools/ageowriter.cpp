@@ -1,6 +1,7 @@
 #include "ageowriter.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
 #include "ageometryhub.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
@@ -57,16 +58,18 @@ void AGeoWriter::generateSymbolMap()
 
 QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color, EDraw onWhat)
 {
-    const ASensorHub  & SensorHub  = ASensorHub ::getConstInstance();
-    const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
+    const ASensorHub      & SensorHub  = ASensorHub ::getConstInstance();
+    const AMonitorHub     & MonitorHub = AMonitorHub::getConstInstance();
+    const ACalorimeterHub & CalHub     = ACalorimeterHub::getConstInstance();
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
 
     size_t numObj = 0;
     switch (onWhat)
     {
-    case PMs      : numObj = SensorHub.countSensors();                        break;
-    case PhotMons : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
-    case PartMons : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
+    case Sensors      : numObj = SensorHub.countSensors();                        break;
+    case PhotMons     : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
+    case PartMons     : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
+    case Calorimeters : numObj = CalHub.countCalorimeters();                      break;
     }
 
     if (textVector.size() != numObj) return "Show text: mismatch in vector sizes";
@@ -89,7 +92,7 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
         double size;
         switch (onWhat)
         {
-        case PMs :
+        case Sensors :
           {
             const ASensorModel * sensorModel = SensorHub.sensorModel(iObj);
             if (sensorModel)
@@ -106,6 +109,10 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
         case PartMons :
             centerPos = MonitorHub.ParticleMonitors[iObj].Position;
             size      = MonitorHub.ParticleMonitors[iObj].GeoObj->Shape->minSize();
+            break;
+        case Calorimeters :
+            centerPos = CalHub.Calorimeters[iObj].Position;
+            size      = CalHub.Calorimeters[iObj].GeoObj->Shape->minSize();
             break;
         }
         if (size == 0) size = 2.0;
