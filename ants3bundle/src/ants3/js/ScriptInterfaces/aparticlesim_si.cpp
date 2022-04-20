@@ -11,7 +11,14 @@
 #include "TH1D.h"
 
 AParticleSim_SI::AParticleSim_SI() :
-    SimMan(AParticleSimManager::getInstance()) {}
+    SimMan(AParticleSimManager::getInstance())
+{
+    Help["getCalorimeterData"] = "Returns array of [x,val] or [x,y,val] or [x,y,z,val],\n"
+                                 "options: 'x' or 'y' or 'z' for 1D,\n,"
+                                 "'xy' or 'xz' or 'yx' or 'yz' or 'zx' or 'zy' for 2D,\n"
+                                 "'xyz' or empty for 3D";
+    Help["getCalorimeterProperties"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
+}
 
 void AParticleSim_SI::simulate(bool updateGui)
 {
@@ -75,10 +82,21 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString m
         const int numX = h->GetXaxis()->GetNbins();
         const int numY = h->GetYaxis()->GetNbins();
         for (int ix = 0; ix < numX; ix++)
-        {
             for (int iy = 0; iy < numY; iy++)
                 res.push_back( QVariantList{h->GetXaxis()->GetBinCenter(ix+1), h->GetYaxis()->GetBinCenter(iy+1), h->GetBinContent(ix+1, iy+1)} );
-        }
+    }
+    else if (mode == "xyz" || mode == "")
+    {
+        const int numX = data->GetXaxis()->GetNbins();
+        const int numY = data->GetYaxis()->GetNbins();
+        const int numZ = data->GetZaxis()->GetNbins();
+        for (int ix = 0; ix < numX; ix++)
+            for (int iy = 0; iy < numY; iy++)
+                for (int iz = 0; iz < numZ; iz++)
+                    res.push_back( QVariantList{data->GetXaxis()->GetBinCenter(ix+1),
+                                                data->GetYaxis()->GetBinCenter(iy+1),
+                                                data->GetZaxis()->GetBinCenter(iz+1),
+                                                data->GetBinContent(ix+1, iy+1, iz+1)} );
     }
     else abort("Undefined option in getCalorimeterData()");
 
