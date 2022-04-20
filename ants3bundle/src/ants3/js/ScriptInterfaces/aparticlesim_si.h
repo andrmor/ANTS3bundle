@@ -3,6 +3,8 @@
 
 #include "ascriptinterface.h"
 
+#include <QVariantList>
+
 class AParticleSimManager;
 
 class AParticleSim_SI : public AScriptInterface
@@ -14,6 +16,10 @@ public:
 
 public slots:
     void simulate(bool updateGui);
+
+    int countCalorimeters();
+    QVariantList getCalorimeterData(int calorimeterIndex, QString mode);
+    QVariantList getCalorimeterProperties(int calorimeterIndex);
 
 private:
     AParticleSimManager & SimMan;

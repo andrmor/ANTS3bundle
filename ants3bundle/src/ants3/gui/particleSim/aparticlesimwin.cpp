@@ -2165,7 +2165,7 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
             h->Scale(energyFactor);
 
             h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle(opt + ", mm");
+            h->GetXaxis()->SetTitle( TString(opt + ", mm") );
             h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
 
             emit requestDraw(h, "hist", true, true);

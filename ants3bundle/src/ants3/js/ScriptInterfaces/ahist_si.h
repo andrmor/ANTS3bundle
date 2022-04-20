@@ -37,7 +37,7 @@ public slots:
 
     void           FillArr(QString HistName, QVariantList XY_Array);
     void           FillArr(QString HistName, const QVariantList X_Array, const QVariantList Y_Array);
-    void           Fill2DArr(QString HistName, const QVariant Array);
+    void           Fill2DArr(QString HistName, QVariantList arrayXYW);
 
     void           draw(QString HistName, QString options = "");
 
