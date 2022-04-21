@@ -62,6 +62,7 @@ private:
   QString createScript(QString &script, bool usePython);
   void    reportGeometryConflicts();
 
+  void markCalorimeterBinning(const AGeoObject * obj);
 protected:
   void resizeEvent(QResizeEvent *event);
 

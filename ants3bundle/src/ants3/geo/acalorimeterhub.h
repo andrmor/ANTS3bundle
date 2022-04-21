@@ -12,6 +12,7 @@ class ACalorimeter;
 class QString;
 class AGeoObject;
 class QJsonArray;
+class TGeoNode;
 
 struct ACalorimeterData
 {
@@ -19,6 +20,10 @@ struct ACalorimeterData
     ACalorimeter * Calorimeter;
     AGeoObject   * GeoObj   = nullptr;
     AVector3       Position = {0, 0, 0};
+
+    double         UnitXMaster[3];
+    double         UnitYMaster[3];
+    double         UnitZMaster[3];
 };
 
 class ACalorimeterHub

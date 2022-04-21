@@ -580,6 +580,7 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     const int numNodes = nList->GetEntries();
     const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
     getGlobalPosition(node, calData.Position);
+    getGlobalUnitVectors(node, calData.UnitXMaster, calData.UnitYMaster, calData.UnitZMaster);
 
     CalorimeterHub.Calorimeters.push_back(calData);
 }
@@ -656,6 +657,41 @@ void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
         position[0] = master[0];
         position[1] = master[1];
         position[2] = master[2];
+
+        const TGeoNode * motherNode = nullptr;
+        findMotherNode(node, motherNode);
+        if (!motherNode)
+        {
+            //qDebug() << "  Mother node not found!";
+            break;
+        }
+        if (motherNode == node)
+        {
+            //qDebug() << "  strange - world passed";
+            break;
+        }
+
+        node = motherNode;
+
+        motherVol = node->GetMotherVolume();
+        //qDebug() << "  Continue search: current node:"<<n->GetName();
+    }
+}
+
+void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ)
+{
+    uvX[0] = 1.0; uvX[1] = 0.0; uvX[2] = 0.0;
+    uvY[0] = 0.0; uvY[1] = 1.0; uvY[2] = 0.0;
+    uvZ[0] = 0.0; uvZ[1] = 0.0; uvZ[2] = 1.0;
+
+    double master[3];
+
+    TGeoVolume * motherVol = node->GetMotherVolume();
+    while (motherVol)
+    {
+        node->LocalToMasterVect(uvX, master); for (int i=0; i<3; i++) uvX[i] = master[i];
+        node->LocalToMasterVect(uvY, master); for (int i=0; i<3; i++) uvY[i] = master[i];
+        node->LocalToMasterVect(uvZ, master); for (int i=0; i<3; i++) uvZ[i] = master[i];
 
         const TGeoNode * motherNode = nullptr;
         findMotherNode(node, motherNode);

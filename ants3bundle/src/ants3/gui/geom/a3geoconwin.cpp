@@ -375,6 +375,106 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
         }
         else vol->SetLineColor(kGray);
     }
+
+    if (obj->isCalorimeter()) markCalorimeterBinning(obj);
+}
+
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
+void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
+{
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+    std::vector<const ACalorimeterData *> calVec = CalHub.getCalorimeters(obj);
+    if (calVec.empty())
+    {
+        qWarning() << "Calorimeter records were not found for this object!";
+        return;
+    }
+
+    const ACalorimeter * cal = calVec.front()->Calorimeter;
+    if (!cal)
+    {
+        qWarning() << "Calorimeter is nullptr for this object!";
+        return;
+    }
+
+    const ACalorimeterProperties & props = cal->Properties;
+
+    TGeoManager * GeoManager = Geometry.GeoManager;
+    GeoManager->ClearTracks();
+
+    for (const ACalorimeterData * cd : calVec)
+    {
+        const double * worldPos = cd->Position.data();
+
+        qDebug() << "Center pos: " << worldPos[0] << worldPos[1] << worldPos[2];
+        qDebug() << "Unit vectorX:" << cd->UnitXMaster[0] << cd->UnitXMaster[1] << cd->UnitXMaster[2];
+        qDebug() << "Unit vectorY:" << cd->UnitYMaster[0] << cd->UnitYMaster[1] << cd->UnitYMaster[2];
+        qDebug() << "Unit vectorZ:" << cd->UnitZMaster[0] << cd->UnitZMaster[1] << cd->UnitZMaster[2];
+        qDebug() << "---";
+        qDebug() << "CalorimOr:" << props.Origin[0] << props.Origin[1] << props.Origin[2];
+        qDebug() << "---";
+
+        double origin[3];
+        for (int i=0; i<3; i++)
+            origin[i] = worldPos[i] + props.Origin[0]*cd->UnitXMaster[i] + props.Origin[1]*cd->UnitYMaster[i] + props.Origin[2]*cd->UnitZMaster[i];
+        //origin[1] = worldPos[1] + props.Origin[0]*cd->UnitXMaster[1] + props.Origin[1]*cd->UnitYMaster[1] + props.Origin[2]*cd->UnitZMaster[1];
+        //origin[2] = worldPos[2] + props.Origin[0]*cd->UnitXMaster[2] + props.Origin[1]*cd->UnitYMaster[2] + props.Origin[2]*cd->UnitZMaster[2];
+
+        qDebug() << "Origin:" << origin[0] << origin[1] << origin[2];
+        qDebug() << "---";
+
+        double pos[3];
+        for (int ib = 0; ib < props.Bins[0]; ib++)
+        {
+            for (int i = 0; i < 3; i++)
+                pos[i] = origin[i] + (props.Step[0]*cd->UnitXMaster[i] + props.Step[1]*cd->UnitYMaster[i] + props.Step[2]*cd->UnitZMaster[i]) * ib;
+            qDebug() << pos[0] << pos[1] << pos[2];
+        }
+
+        /*
+        //local coordinates
+        double l0 [3] = {0,             0,             0};
+
+
+        TGeoNavigator * navigator = GeoManager->GetCurrentNavigator();
+        navigator->FindNode(worldPos[0], worldPos[1], worldPos[2]);
+        //qDebug() << navigator->GetCurrentVolume()->GetName();
+        navigator->LocalToMasterVect(hl, mhl); //qDebug() << mhl[0]<< mhl[1]<< mhl[2];
+        navigator->LocalToMasterVect(vl, mvl);
+
+        track->AddPoint(worldPos[0]+mhl[0], worldPos[1]+mhl[1], worldPos[2]+mhl[2], 0);
+        track->AddPoint(worldPos[0]-mhl[0], worldPos[1]-mhl[1], worldPos[2]-mhl[2], 0);
+        track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+        track->AddPoint(worldPos[0]+mvl[0], worldPos[1]+mvl[1], worldPos[2]+mvl[2], 0);
+        track->AddPoint(worldPos[0]-mvl[0], worldPos[1]-mvl[1], worldPos[2]-mvl[2], 0);
+        track->SetLineWidth(4);
+        track->SetLineColor(kBlack);
+
+        //show orientation
+        double l[3] = {0,0, std::max(length1,length2)}; //local coordinates
+        double m[3]; //master coordinates (world)
+        navigator->LocalToMasterVect(l, m);
+        if (cal.bUpper)
+        {
+            track_index = GeoManager->AddTrack(1,22);
+            track = GeoManager->GetTrack(track_index);
+            track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+            track->AddPoint(worldPos[0]+m[0], worldPos[1]+m[1], worldPos[2]+m[2], 0);
+            track->SetLineWidth(4);
+            track->SetLineColor(kRed);
+        }
+        if (cal.bLower)
+        {
+            track_index = GeoManager->AddTrack(1,22);
+            track = GeoManager->GetTrack(track_index);
+            track->AddPoint(worldPos[0], worldPos[1], worldPos[2], 0);
+            track->AddPoint(worldPos[0]-m[0], worldPos[1]-m[1], worldPos[2]-m[2], 0);
+            track->SetLineWidth(4);
+            track->SetLineColor(kRed);
+        }
+        */
+    }
 }
 
 void ShowNodes(const TGeoNode* node, int level)
