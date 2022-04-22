@@ -80,6 +80,8 @@ signals:
   void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
   void requestShowTracks();
   void requestFocusVolume(QString name);
+  void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
+  void requestClearGeoMarkers(int All_Rec_True);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

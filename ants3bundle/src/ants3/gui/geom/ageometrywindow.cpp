@@ -551,6 +551,14 @@ void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
     GeoMarkers.back()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
 }
 
+void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size)
+{
+    GeoMarkerClass * M = new GeoMarkerClass(GeoMarkerClass::Undefined, style, size, color);
+    for (const auto & pos : XYZs)
+        M->SetNextPoint(pos[0], pos[1], pos[2]);
+    GeoMarkers.push_back(M);
+}
+
 void AGeometryWindow::ShowTracksAndMarkers()
 {
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot

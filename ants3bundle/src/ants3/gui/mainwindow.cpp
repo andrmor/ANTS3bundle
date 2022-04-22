@@ -43,9 +43,11 @@ MainWindow::MainWindow() :
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &A3GeoConWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,  GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoConWin, &A3GeoConWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
     GeoWin->show();
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());

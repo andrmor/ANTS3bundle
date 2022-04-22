@@ -100,6 +100,8 @@ public slots:
     void showGeoMarkers();
     void addPhotonNodeGeoMarker(const ANodeRecord & record);
 
+    void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
+
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item);
 
