@@ -409,6 +409,7 @@ void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
     {
         const double * worldPos = cd->Position.data();
 
+        /*
         qDebug() << "Center pos: " << worldPos[0] << worldPos[1] << worldPos[2];
         qDebug() << "Unit vectorX:" << cd->UnitXMaster[0] << cd->UnitXMaster[1] << cd->UnitXMaster[2];
         qDebug() << "Unit vectorY:" << cd->UnitYMaster[0] << cd->UnitYMaster[1] << cd->UnitYMaster[2];
@@ -416,41 +417,60 @@ void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
         qDebug() << "---";
         qDebug() << "CalorimOr:" << props.Origin[0] << props.Origin[1] << props.Origin[2];
         qDebug() << "---";
+        */
+
+        bool bXon = !props.isAxisOff(0);
+        bool bYon = !props.isAxisOff(1);
+        bool bZon = !props.isAxisOff(2);
 
         double origin[3];
         for (int i=0; i<3; i++)
-            origin[i] = worldPos[i] + props.Origin[0]*cd->UnitXMaster[i] + props.Origin[1]*cd->UnitYMaster[i] + props.Origin[2]*cd->UnitZMaster[i];
+        {
+            origin[i] = worldPos[i];
+            if (bXon) origin[i] += props.Origin[0] * cd->UnitXMaster[i];
+            if (bYon) origin[i] += props.Origin[1] * cd->UnitYMaster[i];
+            if (bZon) origin[i] += props.Origin[2] * cd->UnitZMaster[i];
+        }
 
-        qDebug() << "Origin:" << origin[0] << origin[1] << origin[2];
-        qDebug() << "---";
+        //qDebug() << "Origin:" << origin[0] << origin[1] << origin[2];
+        //qDebug() << "---";
 
         std::vector<std::array<double, 3>> XYZs;
         std::array<double,3> pos;
-        for (int ib = 0; ib < props.Bins[0]; ib++)
+        if (bXon)
         {
-            for (int i = 0; i < 3; i++)
-                pos[i] = origin[i] + props.Step[0]*cd->UnitXMaster[i] * ib;
-            XYZs.push_back(pos);
+            for (int ib = 0; ib < props.Bins[0]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[0]*cd->UnitXMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 2, 2, 1);
         }
-        emit requestAddGeoMarkers(XYZs, 2, 2, 1);
 
-        XYZs.clear();
-        for (int ib = 0; ib < props.Bins[1]; ib++)
+        if (bYon)
         {
-            for (int i = 0; i < 3; i++)
-                pos[i] = origin[i] + props.Step[1]*cd->UnitYMaster[i] * ib;
-            XYZs.push_back(pos);
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[1]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[1]*cd->UnitYMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 3, 2, 1);
         }
-        emit requestAddGeoMarkers(XYZs, 3, 2, 1);
 
-        XYZs.clear();
-        for (int ib = 0; ib < props.Bins[2]; ib++)
+        if (bZon)
         {
-            for (int i = 0; i < 3; i++)
-                pos[i] = origin[i] + props.Step[2]*cd->UnitZMaster[i] * ib;
-            XYZs.push_back(pos);
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[2]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[2]*cd->UnitZMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 4, 2, 1);
         }
-        emit requestAddGeoMarkers(XYZs, 4, 2, 1);
     }
 }
 

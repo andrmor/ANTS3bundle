@@ -817,9 +817,9 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
     leiCalBinsY  ->setText(   p.strBins[1].isEmpty() ? QString::number(  p.Bins[1]) :   p.strBins[1] );
     leiCalBinsZ  ->setText(   p.strBins[2].isEmpty() ? QString::number(  p.Bins[2]) :   p.strBins[2] );
 
-    cbOffX->setChecked( p.Origin[0] == -1e10 && p.Step[0] == 2e10 && p.Bins[0] == 1 );
-    cbOffY->setChecked( p.Origin[1] == -1e10 && p.Step[1] == 2e10 && p.Bins[1] == 1 );
-    cbOffZ->setChecked( p.Origin[2] == -1e10 && p.Step[2] == 2e10 && p.Bins[2] == 1 );
+    cbOffX->setChecked( p.isAxisOff(0) );
+    cbOffY->setChecked( p.isAxisOff(1) );
+    cbOffZ->setChecked( p.isAxisOff(2) );
 }
 
 void AGeoObjectDelegate::onContentChanged()

@@ -24,6 +24,8 @@ public:
 
     int getNumDimensions() const;
 
+    bool isAxisOff(int index) const;
+
 #ifdef JSON11
     void writeToJson(json11::Json::object & json) const;
     void readFromJson(const json11::Json::object & json); // !!!*** Error control!
