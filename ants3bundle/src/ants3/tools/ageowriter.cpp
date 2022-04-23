@@ -75,7 +75,7 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
     if (textVector.size() != numObj) return "Show text: mismatch in vector sizes";
 
     //max number of symbols to show
-    size_t MaxSymbols = 0;
+    int MaxSymbols = 0;
     for (const QString & txt : textVector)
         if (txt.size() > MaxSymbols)
             MaxSymbols = txt.size();
@@ -83,7 +83,7 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
 
     for (size_t iObj = 0; iObj < numObj; iObj++)
     {
-        QString str = textVector[iObj];
+        const QString & str = textVector[iObj];
         if (str.isEmpty()) continue;
 
         int numDigits = str.size();

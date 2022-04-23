@@ -154,6 +154,7 @@ void MainWindow::onRebuildGeometryRequested()
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoConWin->updateGui();
+    GeoConWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 

@@ -376,6 +376,7 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
         else vol->SetLineColor(kGray);
     }
 
+    emit requestClearGeoMarkers(0);
     if (obj->isCalorimeter()) markCalorimeterBinning(obj);
 }
 
@@ -383,8 +384,6 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
 #include "acalorimeter.h"
 void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
 {
-    emit requestClearGeoMarkers(0);
-
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
     std::vector<const ACalorimeterData *> calVec = CalHub.getCalorimeters(obj);
     if (calVec.empty())
