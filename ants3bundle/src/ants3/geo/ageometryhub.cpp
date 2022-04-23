@@ -10,6 +10,7 @@
 #include "ajsontools.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
 
 #include <QDebug>
 
@@ -488,6 +489,7 @@ void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().clearSensors();
     clearMonitors();
+    ACalorimeterHub::getInstance().clear();
     clearGridRecords();
 
     World->introduceGeoConstValuesRecursive();
@@ -534,7 +536,7 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     const int MonitorCounter = MonitorHub.countMonitors(MonType);
 
-    monTobj->index = MonitorCounter;
+    monTobj->index = MonitorCounter; // !!!*** need?
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
@@ -554,6 +556,33 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
 
     if (MonType == AMonitorHub::Photon) MonitorHub.PhotonMonitors.push_back(md);
     else                                MonitorHub.ParticleMonitors.push_back(md);
+}
+
+#include "acalorimeter.h"
+void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
+{
+    ACalorimeterHub & CalorimeterHub = ACalorimeterHub::getInstance();
+    const int CalorimeterCounter = CalorimeterHub.countCalorimeters();
+
+    parent->AddNode(vol, CalorimeterCounter, lTrans);
+
+    TString fixedName = vol->GetName();
+    fixedName += "_-_";
+    fixedName += CalorimeterCounter;
+    vol->SetName(fixedName);
+
+    ACalorimeterData calData;
+    calData.Name     = QString(fixedName);
+    calData.GeoObj   = obj;
+    calData.Calorimeter  = new ACalorimeter(obj);
+
+    TObjArray * nList = parent->GetNodes();
+    const int numNodes = nList->GetEntries();
+    const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
+    getGlobalPosition(node, calData.Position);
+    getGlobalUnitVectors(node, calData.UnitXMaster, calData.UnitYMaster, calData.UnitZMaster);
+
+    CalorimeterHub.Calorimeters.push_back(calData);
 }
 
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
@@ -649,6 +678,41 @@ void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
     }
 }
 
+void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ)
+{
+    uvX[0] = 1.0; uvX[1] = 0.0; uvX[2] = 0.0;
+    uvY[0] = 0.0; uvY[1] = 1.0; uvY[2] = 0.0;
+    uvZ[0] = 0.0; uvZ[1] = 0.0; uvZ[2] = 1.0;
+
+    double master[3];
+
+    TGeoVolume * motherVol = node->GetMotherVolume();
+    while (motherVol)
+    {
+        node->LocalToMasterVect(uvX, master); for (int i=0; i<3; i++) uvX[i] = master[i];
+        node->LocalToMasterVect(uvY, master); for (int i=0; i<3; i++) uvY[i] = master[i];
+        node->LocalToMasterVect(uvZ, master); for (int i=0; i<3; i++) uvZ[i] = master[i];
+
+        const TGeoNode * motherNode = nullptr;
+        findMotherNode(node, motherNode);
+        if (!motherNode)
+        {
+            //qDebug() << "  Mother node not found!";
+            break;
+        }
+        if (motherNode == node)
+        {
+            //qDebug() << "  strange - world passed";
+            break;
+        }
+
+        node = motherNode;
+
+        motherVol = node->GetMotherVolume();
+        //qDebug() << "  Continue search: current node:"<<n->GetName();
+    }
+}
+
 void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber)
 {
     if (!obj->fActive) return;
@@ -675,6 +739,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
                 return;
             }
         }
+        // No need special init for calorimeters
 
         if (obj->Type->isComposite())
         {
@@ -708,7 +773,9 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
-        else if (obj->Role && obj->Role->getType() == "Sensor")
+        else if (obj->isCalorimeter())
+            addCalorimeterNode(obj, vol, parent, lTrans);
+        else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
         else
             parent->AddNode(vol, forcedNodeNumber, lTrans);

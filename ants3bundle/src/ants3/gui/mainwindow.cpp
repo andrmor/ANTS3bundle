@@ -43,14 +43,11 @@ MainWindow::MainWindow() :
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &A3GeoConWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,  GeoWin, &AGeometryWindow::FocusVolume);
-    GeoWin->show();
-    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
-    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
-    GeoWin->ShowGeometry(false);
-    GeoWin->hide();
+    connect(GeoConWin, &A3GeoConWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
@@ -82,6 +79,8 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &A3GeoConWin::UpdateGeoTree);
+
     //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
     AJScriptHub * SH = &AJScriptHub::getInstance();
@@ -98,6 +97,13 @@ MainWindow::MainWindow() :
     connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
     loadWindowGeometries();
+
+    bool bShown = GeoWin->isVisible();
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(false);
+    if (!bShown) GeoWin->hide();
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -148,6 +154,7 @@ void MainWindow::onRebuildGeometryRequested()
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoConWin->updateGui();
+    GeoConWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 

@@ -75,6 +75,8 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    geo/acalorimeter.cpp \
+    geo/acalorimeterhub.cpp \
     gui/aguiwindow.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
@@ -160,6 +162,7 @@ SOURCES += \
     js/ScriptInterfaces/agraph_si.cpp \
     js/ScriptInterfaces/atree_si.cpp \
     js/ScriptInterfaces/awindowinterfacebase.cpp \
+    particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -255,6 +258,8 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    geo/acalorimeter.h \
+    geo/acalorimeterhub.h \
     gui/aguiwindow.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
@@ -341,6 +346,7 @@ HEADERS += \
     js/ScriptInterfaces/agraph_si.h \
     js/ScriptInterfaces/atree_si.h \
     js/ScriptInterfaces/awindowinterfacebase.h \
+    particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \

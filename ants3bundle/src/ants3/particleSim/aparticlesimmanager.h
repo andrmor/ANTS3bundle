@@ -59,6 +59,7 @@ private:
     AFileMerger ParticlesFileMerger;
     AFileMerger DepositionFileMerger;
     std::vector<QString> MonitorFiles;
+    std::vector<QString> CalorimeterFiles;
 
     std::vector<QString> ReceiptFiles;
 
@@ -71,6 +72,7 @@ private:
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     void configureMaterials();
     void configureMonitors();
+    void configureCalorimeters();
     bool configureParticleGun();
 
     void removeOutputFiles();

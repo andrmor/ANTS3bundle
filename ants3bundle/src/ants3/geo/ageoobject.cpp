@@ -154,6 +154,18 @@ bool AGeoObject::isWorld() const
     return Type->isWorld();
 }
 
+bool AGeoObject::isSensor() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoSensor*>(Role);
+}
+
+bool AGeoObject::isCalorimeter() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoCalorimeter*>(Role);
+}
+
 int AGeoObject::getMaterial() const
 {
     if (Type->isHandlingArray() || Type->isHandlingSet())
@@ -349,6 +361,8 @@ void AGeoObject::introduceGeoConstValues()
         Type->introduceGeoConstValues();
         //if (Type->isMonitor()) updateMonitorShape(); // now do it when populating GeoManager
     }
+
+    if (Role) Role->introduceGeoConstValues();
 }
 
 void AGeoObject::introduceGeoConstValuesRecursive()
@@ -586,6 +600,14 @@ const AMonitorConfig * AGeoObject::getMonitorConfig() const
     if (!mon) return nullptr;
 
     return &mon->config;
+}
+
+const ACalorimeterProperties * AGeoObject::getCalorimeterProperties() const
+{
+    if (!Role) return nullptr;
+    const AGeoCalorimeter * gc = dynamic_cast<const AGeoCalorimeter*>(Role);
+    if (!gc) return nullptr;
+    return & gc->Properties;
 }
 
 bool AGeoObject::isStackMember() const

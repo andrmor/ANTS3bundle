@@ -346,7 +346,7 @@ QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
     const AGeoConstRecord & rec = Records[index];
     if (!rec.Expression.isEmpty())
     {
-        QString constInUseBellow = isGeoConstsBellowInUse(index);
+        QString constInUseBellow = isGeoConstsBelowInUse(index);
         if (!constInUseBellow.isEmpty())
             errorStr = QString("Expression not valid:\n"
                                "%1\n\n"
@@ -362,7 +362,7 @@ QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
     return errorStr;
 }
 
-QString AGeoConsts::isGeoConstsBellowInUse(int index) const
+QString AGeoConsts::isGeoConstsBelowInUse(int index) const
 {
     for (int i = index+1; i < Records.size(); i++)
         if (Records.at(index).Expression.contains(Records.at(i).RegExp)) return Records.at(i).Name;

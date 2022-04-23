@@ -5,7 +5,7 @@
 #include <QAbstractItemView>
 #include <QScrollBar>
 
-AOneLineTextEdit::AOneLineTextEdit(QWidget * parent) : QPlainTextEdit(parent)
+AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPlainTextEdit(txt, parent)
 {
     setTabChangesFocus(true);
     setWordWrapMode(QTextOption::NoWrap);

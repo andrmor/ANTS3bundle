@@ -35,7 +35,7 @@ public slots:
 //    void AddNodeToTrack(int trk, float x, float y, float z);
 //    void DeleteAllTracks();
 
-    void addMarkers(QVariantList XYZs, int color);
+    void addMarkers(QVariantList XYZs, int color, int style, double size);
 
 private:
     AGeometryWindow * GeometryWindow = nullptr;

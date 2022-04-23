@@ -224,7 +224,7 @@ public:
     AMonitorConfig config;
 
     //runtime, not saved
-    int index;  //index of this monitor to access statistics
+    int index;  //index of this monitor to access statistics   // !!!*** check, seems not in use anymore
 };
 
 class ATypePrototypeObject : public AGeoType

@@ -19,6 +19,8 @@ public:
 
     virtual QString getType() const = 0;
 
+    virtual bool introduceGeoConstValues() = 0;
+
     void writeToJson(QJsonObject & json) const;
     virtual void readFromJson(const QJsonObject & /*json*/) {}
 protected:
@@ -33,6 +35,8 @@ public:
 
     QString getType() const override {return QStringLiteral("Sensor");}
 
+    bool introduceGeoConstValues() override {return true;}
+
     void readFromJson(const QJsonObject & json) override;
 protected:
     void doWriteToJson(QJsonObject & json) const override;
@@ -41,24 +45,23 @@ public:
     int SensorModel = 0; // one is always defined (ideal sensor)
 };
 
-#include <array>
+#include "acalorimeter.h"
 class AGeoCalorimeter : public AGeoSpecial
 {
 public:
     AGeoCalorimeter(){}
-    AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
-    Origin(origin), Step(step), Bins(bins) {}
+    AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins);
 
     QString getType() const override {return QStringLiteral("Calorimeter");}
+
+    bool introduceGeoConstValues() override;
 
     void readFromJson(const QJsonObject & json) override;
 protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    std::array<double, 3> Origin = {-5, 0, 0};
-    std::array<double, 3> Step = {1, 1, 1};
-    std::array<int,    3> Bins = {10, 1, 1};
+    ACalorimeterProperties Properties;
 };
 
 class AGeoSecScint : public AGeoSpecial
@@ -67,6 +70,8 @@ public:
     AGeoSecScint(){}
 
     QString getType() const override {return QStringLiteral("SecScint");}
+
+    bool introduceGeoConstValues() override {return true;}
 };
 
 #endif // AGEOSPECIAL_H

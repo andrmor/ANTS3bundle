@@ -42,7 +42,7 @@ public:
     bool    isIndexValid(int index);
 
     QString checkifValidAndGetDoublefromExpression(int index);
-    QString isGeoConstsBellowInUse(int index) const;
+    QString isGeoConstsBelowInUse(int index) const;
 
     QString isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const;
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index);

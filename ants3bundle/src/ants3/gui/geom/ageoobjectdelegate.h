@@ -24,6 +24,7 @@ class QListWidget;
 class QTableWidget;
 class AOneLineTextEdit;
 class QFrame;
+class ACalorimeterProperties;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -73,9 +74,10 @@ protected:
     QWidget   * RoleWidget = nullptr;
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
-    QLineEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
-    QLineEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
-    QLineEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
+    AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
+    AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
+    AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
+    QCheckBox *cbOffX, *cbOffY, *cbOffZ;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
@@ -89,8 +91,8 @@ protected:
     const AGeoShape * getBaseShapeOfObject(const AGeoObject *obj);
     void updateTypeLabel();
     void updateControlUI();
-    void initSlabDelegate(int SlabModelState); // TODO: kill
     void crateSpecialRoleWidget();
+    void updateCalorimeterGui(const ACalorimeterProperties & p);
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);
@@ -98,6 +100,10 @@ private:
 signals:
     void RequestChangeShape(AGeoShape * newShape);
     void RequestChangeSlabShape(int Shape);
+
+public:
+    static bool processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str, bool bForbidZero, bool bForbidNegative, bool bMakeHalf, QWidget * parent);
+    static bool processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str, bool bForbidZero, bool bForbidNegative, QWidget * parent);
 };
 
 

@@ -133,6 +133,7 @@ void addNames(const AParticleRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.FileNameDeposition.data());
     fileNames.push_back(OutputDir + '/' + settings.SaveSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
+    fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.Receipt.data());
 
     for (const QString & fn : fileNames) QFile::remove(fn);
@@ -190,11 +191,13 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     bool ok = configureGDML(Request, ExchangeDir); if (!ok) return false;
     configureMaterials();
     configureMonitors();
+    configureCalorimeters();
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
     ParticlesFileMerger.clear();
     MonitorFiles.clear();
+    CalorimeterFiles.clear();
     ReceiptFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -274,7 +277,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 MonitorFiles.push_back(ExchangeDir + '/' + fileName);
             }
 
-            //WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
+            if (SimSet.RunSet.CalorimeterSettings.Enabled)
+            {
+                const QString fileName = QString("calorimters-%0").arg(iProcess);
+                WorkSet.RunSet.CalorimeterSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                CalorimeterFiles.push_back(ExchangeDir + '/' + fileName);
+            }
+
             {
                 const QString fileName = QString("receipt-%0.txt").arg(iProcess);
                 WorkSet.RunSet.Receipt = fileName.toLatin1().data();
@@ -358,6 +368,11 @@ void AParticleSimManager::configureMonitors()
     SimSet.RunSet.MonitorSettings.initFromHub();
 }
 
+void AParticleSimManager::configureCalorimeters()
+{
+    SimSet.RunSet.CalorimeterSettings.initFromHub();
+}
+
 // ---
 
 #include "a3global.h"
@@ -371,6 +386,7 @@ void AParticleSimManager::checkDirectories()
 }
 
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
 void AParticleSimManager::mergeOutput()
 {
     qDebug() << "Merging output files...";
@@ -386,11 +402,14 @@ void AParticleSimManager::mergeOutput()
     if (SimSet.RunSet.SaveSettings.Enabled)
         ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
-
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData(AMonitorHub::Particle);
+    //MonitorHub.clearData(AMonitorHub::Particle);
     if (SimSet.RunSet.MonitorSettings.Enabled)
         MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
+
+    ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
+    if (SimSet.RunSet.CalorimeterSettings.Enabled)
+        CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
 }
 
 #include "atrackingdataimporter.h"

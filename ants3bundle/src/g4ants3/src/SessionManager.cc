@@ -111,7 +111,8 @@ void SessionManager::endSession()
     bError = false;
     ErrorMessage.clear();
 
-    storeMonitorsData();
+    if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
+    if (Settings.RunSet.CalorimeterSettings.Enabled) storeCalorimeterData();
 
     generateReceipt();
 }
@@ -628,6 +629,15 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
         }
         std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
     }
+
+    if (Settings.RunSet.CalorimeterSettings.Enabled)
+    {
+        for (const ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
+        {
+            CalorimeterSensitiveDetector * sd = new CalorimeterSensitiveDetector(r.Name, r.Properties, r.Index);
+            Calorimeters.push_back(sd);
+        }
+    }
 }
 
 void SessionManager::prepareOutputDepoStream()
@@ -707,6 +717,27 @@ void SessionManager::storeMonitorsData()
 
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.MonitorSettings.FileName);
+    if (outStream.is_open())
+    {
+        std::string json_str = json11::Json(Arr).dump();
+        outStream << json_str << std::endl;
+    }
+    outStream.close();
+}
+
+void SessionManager::storeCalorimeterData()
+{
+    json11::Json::array Arr;
+
+    for (CalorimeterSensitiveDetector * cal : Calorimeters)
+    {
+        json11::Json::object json;
+        cal->writeToJson(json);
+        Arr.push_back(json);
+    }
+
+    std::ofstream outStream;
+    outStream.open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

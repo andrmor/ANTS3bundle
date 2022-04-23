@@ -20,7 +20,7 @@ class AGeoWriter
 public:
     AGeoWriter();
 
-    enum EDraw {PMs, PhotMons, PartMons};
+    enum EDraw {Sensors, PhotMons, PartMons, Calorimeters};
     QString drawText(const std::vector<QString> & textVector, int color, EDraw onWhat); // returns error
 
 private:

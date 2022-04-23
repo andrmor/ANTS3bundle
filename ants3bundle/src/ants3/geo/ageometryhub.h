@@ -106,12 +106,14 @@ private:
     void expandPrototypeInstances();
     bool processCompositeObject(AGeoObject *obj);
     void addMonitorNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
+    void addCalorimeterNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
     void addSensorNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
     void clearGridRecords();  // !!!***
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
+    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);

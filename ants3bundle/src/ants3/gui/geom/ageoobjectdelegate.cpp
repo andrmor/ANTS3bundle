@@ -135,7 +135,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
       ledTheta = new AOneLineTextEdit(); gr->addWidget(ledTheta, 1, 3);
       ledPsi   = new AOneLineTextEdit(); gr->addWidget(ledPsi,   2, 3);
 
-      QVector<AOneLineTextEdit*> ole = {ledX, ledY, ledZ, ledPhi, ledTheta, ledPsi};
+      const std::vector<AOneLineTextEdit*> ole = {ledX, ledY, ledZ, ledPhi, ledTheta, ledPsi};
       for (AOneLineTextEdit * le : ole)
       {
           configureHighligherAndCompleter(le);
@@ -226,46 +226,98 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QFrame * frCal = new QFrame();
         QGridLayout * gl = new QGridLayout(frCal);
         gl->setContentsMargins(0,0,0,0);
-        ledCalOriginX = new QLineEdit("-5");
-        ledCalOriginY = new QLineEdit("0");
-        ledCalOriginZ = new QLineEdit("0");
-        ledCalStepX = new QLineEdit("1");
-        ledCalStepY = new QLineEdit("1");
-        ledCalStepZ = new QLineEdit("1");
-        leiCalBinsX = new QLineEdit("10");
-        leiCalBinsY = new QLineEdit("1");
-        leiCalBinsZ = new QLineEdit("1");
-        gl->addWidget(new QLabel("Origin X:"), 0, 0);
-        gl->addWidget(ledCalOriginX,           0, 1);
-        gl->addWidget(new QLabel("Y:"),        0, 2);
-        gl->addWidget(ledCalOriginY,           0, 3);
-        gl->addWidget(new QLabel("Z:"),        0, 4);
-        gl->addWidget(ledCalOriginZ,           0, 5);
-        gl->addWidget(new QLabel("Step X:"),   1, 0);
-        gl->addWidget(ledCalStepX,             1, 1);
-        gl->addWidget(new QLabel("Y:"),        1, 2);
-        gl->addWidget(ledCalStepY,             1, 3);
-        gl->addWidget(new QLabel("Z:"),        1, 4);
-        gl->addWidget(ledCalStepZ,             1, 5);
-        gl->addWidget(new QLabel("Bins X:"),   2, 0);
-        gl->addWidget(leiCalBinsX,             2, 1);
-        gl->addWidget(new QLabel("Y:"),        2, 2);
-        gl->addWidget(leiCalBinsY,             2, 3);
-        gl->addWidget(new QLabel("Z:"),        2, 4);
-        gl->addWidget(leiCalBinsZ,             2, 5);
+        ledCalOriginX = new AOneLineTextEdit();
+        ledCalOriginY = new AOneLineTextEdit();
+        ledCalOriginZ = new AOneLineTextEdit();
+        ledCalStepX = new AOneLineTextEdit();
+        ledCalStepY = new AOneLineTextEdit();
+        ledCalStepZ = new AOneLineTextEdit();
+        leiCalBinsX = new AOneLineTextEdit();
+        leiCalBinsY = new AOneLineTextEdit();
+        leiCalBinsZ = new AOneLineTextEdit();
+        cbOffX = new QCheckBox("Off");
+        cbOffY = new QCheckBox("Off");
+        cbOffZ = new QCheckBox("Off");
+        gl->addWidget(new QLabel("X"),      0, 1, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Y"),      0, 2, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Z"),      0, 3, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Bins"),   1, 0);
+        gl->addWidget(leiCalBinsX,          1, 1);
+        gl->addWidget(leiCalBinsY,          1, 2);
+        gl->addWidget(leiCalBinsZ,          1, 3);
+        gl->addWidget(new QLabel("Origin"), 2, 0);
+        gl->addWidget(ledCalOriginX,        2, 1);
+        gl->addWidget(ledCalOriginY,        2, 2);
+        gl->addWidget(ledCalOriginZ,        2, 3);
+        gl->addWidget(new QLabel("Step"),   3, 0);
+        gl->addWidget(ledCalStepX,          3, 1);
+        gl->addWidget(ledCalStepY,          3, 2);
+        gl->addWidget(ledCalStepZ,          3, 3);
+        gl->addWidget(cbOffX,               4, 1, Qt::AlignHCenter);
+        gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
+        gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
         frCal->setVisible(false);
         rl->addWidget(frCal);
 
-    /*
-    QFrame * frSec = new QFrame();
-    frSec->setVisible(false);
-    rl->addWidget(frSec);
-    */
+        connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginX->setDisabled(checked);
+            ledCalStepX  ->setDisabled(checked);
+            leiCalBinsX  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginX->setText("-1e10");
+                ledCalStepX->setText("2e10");
+                leiCalBinsX->setText("1");
+            }
+        } );
+        connect(cbOffY, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginY->setDisabled(checked);
+            ledCalStepY  ->setDisabled(checked);
+            leiCalBinsY  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginY->setText("-1e10");
+                ledCalStepY->setText("2e10");
+                leiCalBinsY->setText("1");
+            }
+        } );
+        connect(cbOffZ, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginZ->setDisabled(checked);
+            ledCalStepZ  ->setDisabled(checked);
+            leiCalBinsZ  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginZ->setText("-1e10");
+                ledCalStepZ->setText("2e10");
+                leiCalBinsZ->setText("1");
+            }
+        } );
+
+        const std::vector<AOneLineTextEdit*> ole = {ledCalOriginX, ledCalOriginY, ledCalOriginZ,
+                                                    ledCalStepX, ledCalStepY, ledCalStepZ,
+                                                    leiCalBinsX, leiCalBinsY, leiCalBinsZ};
+        for (AOneLineTextEdit * le : ole)
+        {
+            configureHighligherAndCompleter(le);
+            le->setContextMenuPolicy(Qt::NoContextMenu);
+            connect(le, &AOneLineTextEdit::textChanged, this, &AGeoObjectDelegate::onContentChanged);
+        }
 
     rl->addStretch();
 
+    connect(cbOffX,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffY,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffZ,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
-    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal]   (int index){frCal->   setVisible(index == 2);} );
+    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal, this](int index)
+    {
+        frCal->setVisible(index == 2);
+        if (ledCalOriginX->text().isEmpty()) updateCalorimeterGui(ACalorimeterProperties());}
+    );
 
     connect(cobRole,        &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
     connect(cobSensorModel, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
@@ -344,11 +396,23 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPhi->isEnabled())   ok = ok && processEditBox(ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
         if (ledTheta->isEnabled()) ok = ok && processEditBox(ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
         if (ledPsi->isEnabled())   ok = ok && processEditBox(ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
-
         if (!ok) return false;
 
-
-        // TODO: can set special role for this object!  ***!!!
+        std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
+        std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
+        if (cobRole->currentIndex() == 2)
+        {
+            ok = ok && processDoubleEditBox(ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox(ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox(leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+            if (!ok) return false;
+        }
 
         // ---- all checks are ok, can assign new values to the object ----
 
@@ -394,9 +458,16 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
                 break;
             case 2:
-                obj->Role = new AGeoCalorimeter({ledCalOriginX->text().toDouble(), ledCalOriginY->text().toDouble(), ledCalOriginZ->text().toDouble()},
-                                                {ledCalStepX  ->text().toDouble(), ledCalStepY  ->text().toDouble(), ledCalStepZ  ->text().toDouble()},
-                                                {leiCalBinsX  ->text().toInt(),    leiCalBinsY  ->text().toInt(),    leiCalBinsZ  ->text().toInt()});
+                {
+                AGeoCalorimeter * cal = new AGeoCalorimeter({calDouble[0], calDouble[1], calDouble[2]},
+                                                            {calDouble[3], calDouble[4], calDouble[5]},
+                                                            {calInt[0], calInt[1], calInt[2]} );
+                cal->Properties.strOrigin = {calDoubleStr[0], calDoubleStr[1], calDoubleStr[2]};
+                cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
+                cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
+
+                obj->Role = cal;
+                }
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
@@ -427,6 +498,44 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         obj->updateNameOfLogicalMember(oldName, newName);
 
     return true;
+}
+
+bool AGeoObjectDelegate::processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str,
+                                          bool bForbidZero, bool bForbidNegative, bool bMakeHalf,
+                                          QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr);
+    return false;
+}
+
+bool AGeoObjectDelegate::processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str,
+                                          bool bForbidZero, bool bForbidNegative,
+                                          QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr);
+    return false;
 }
 
 void AGeoObjectDelegate::onChangeShapePressed()
@@ -579,23 +688,6 @@ void AGeoObjectDelegate::updateControlUI()
     }
 }
 
-void AGeoObjectDelegate::initSlabDelegate(int SlabModelState)
-{
-    if (SlabModelState != 2) ledPsi->setEnabled(false);
-
-    ledX->setEnabled(false);
-    ledY->setEnabled(false);
-    ledZ->setEnabled(false);
-
-    ledPhi->setEnabled(false);
-    ledTheta->setEnabled(false);
-
-    cbScale->setVisible(false);
-
-    if (SlabModelState == 2) ListOfShapesForTransform = QStringList({"Rectangular slab", "Round slab", "Polygon slab"});
-    else pbTransform->setEnabled(false);
-}
-
 /*
 void AGeoObjectDelegate::rotate(TVector3 & v, double dPhi, double dTheta, double dPsi) const
 {
@@ -701,15 +793,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             if (cal)
             {
                 cobRole->setCurrentIndex(2);
-                ledCalOriginX->setText( QString::number(cal->Origin[0]) );
-                ledCalOriginY->setText( QString::number(cal->Origin[1]) );
-                ledCalOriginZ->setText( QString::number(cal->Origin[2]) );
-                ledCalStepX  ->setText( QString::number(cal->Step[0]) );
-                ledCalStepY  ->setText( QString::number(cal->Step[1]) );
-                ledCalStepZ  ->setText( QString::number(cal->Step[2]) );
-                leiCalBinsX  ->setText( QString::number(cal->Bins[0]) );
-                leiCalBinsY  ->setText( QString::number(cal->Bins[1]) );
-                leiCalBinsZ  ->setText( QString::number(cal->Bins[2]) );
+                const ACalorimeterProperties & p = cal->Properties;
+                updateCalorimeterGui(p);
             }
             else
             {
@@ -718,6 +803,23 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             }
         }
     }
+}
+
+void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
+{
+    ledCalOriginX->setText( p.strOrigin[0].isEmpty() ? QString::number(p.Origin[0]) : p.strOrigin[0] );
+    ledCalOriginY->setText( p.strOrigin[1].isEmpty() ? QString::number(p.Origin[1]) : p.strOrigin[1] );
+    ledCalOriginZ->setText( p.strOrigin[2].isEmpty() ? QString::number(p.Origin[2]) : p.strOrigin[2] );
+    ledCalStepX  ->setText(   p.strStep[0].isEmpty() ? QString::number(  p.Step[0]) :   p.strStep[0] );
+    ledCalStepY  ->setText(   p.strStep[1].isEmpty() ? QString::number(  p.Step[1]) :   p.strStep[1] );
+    ledCalStepZ  ->setText(   p.strStep[2].isEmpty() ? QString::number(  p.Step[2]) :   p.strStep[2] );
+    leiCalBinsX  ->setText(   p.strBins[0].isEmpty() ? QString::number(  p.Bins[0]) :   p.strBins[0] );
+    leiCalBinsY  ->setText(   p.strBins[1].isEmpty() ? QString::number(  p.Bins[1]) :   p.strBins[1] );
+    leiCalBinsZ  ->setText(   p.strBins[2].isEmpty() ? QString::number(  p.Bins[2]) :   p.strBins[2] );
+
+    cbOffX->setChecked( p.isAxisOff(0) );
+    cbOffY->setChecked( p.isAxisOff(1) );
+    cbOffZ->setChecked( p.isAxisOff(2) );
 }
 
 void AGeoObjectDelegate::onContentChanged()
@@ -2115,7 +2217,7 @@ void AGeoPconDelegate::addOneLineTextEdits(int row)
 {
     for (int ic = 0; ic < 3; ic++)
     {
-        AOneLineTextEdit * e = new AOneLineTextEdit(tab);
+        AOneLineTextEdit * e = new AOneLineTextEdit("", tab);
         configureHighligherAndCompleter(e);
         tab->setCellWidget(row, ic, e);
     }
@@ -2205,7 +2307,7 @@ void AGeoPconDelegate::updateTableW(AGeoPcon * pcon)
         QVector<AOneLineTextEdit*> le(3, nullptr);
         for (int i = 0; i < 3; i++)
         {
-            le[i] = new AOneLineTextEdit(tab);
+            le[i] = new AOneLineTextEdit("", tab);
             configureHighligherAndCompleter(le[i]);
             QObject::connect(le[i], &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
             QObject::connect(le[i], &AOneLineTextEdit::editingFinished, this, &AGeoPconDelegate::onCellEdited);
@@ -2650,19 +2752,19 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     la = new QLabel("mm"); grAW->addWidget(la, 1, 4);
     la = new QLabel("mm"); grAW->addWidget(la, 2, 4);
 
-    ledNumX  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumX,  0, 1);
-    ledNumY  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumY,  1, 1);
-    ledNumZ  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumZ,  2, 1);
-    ledStepX = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepX, 0, 3);
-    ledStepY = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepY, 1, 3);
-    ledStepZ = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepZ, 2, 3);
+    ledNumX  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX,  0, 1);
+    ledNumY  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY,  1, 1);
+    ledNumZ  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumZ,  2, 1);
+    ledStepX = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepX, 0, 3);
+    ledStepY = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepY, 1, 3);
+    ledStepZ = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepZ, 2, 3);
 
     lVer->addLayout(grAW);
 
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget);
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2765,16 +2867,16 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
     la = new QLabel("deg");           grAW->addWidget(la, 1, 2);
     la = new QLabel("mm");            grAW->addWidget(la, 2, 2);
 
-    ledNum         = new AOneLineTextEdit(Widget); grAW->addWidget(ledNum, 0, 1);
-    ledAngularStep = new AOneLineTextEdit(Widget); grAW->addWidget(ledAngularStep, 1, 1);
-    ledRadius      = new AOneLineTextEdit(Widget); grAW->addWidget(ledRadius, 2, 1);
+    ledNum         = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNum, 0, 1);
+    ledAngularStep = new AOneLineTextEdit("", Widget); grAW->addWidget(ledAngularStep, 1, 1);
+    ledRadius      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledRadius, 2, 1);
 
     lVer->addLayout(grAW);
 
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget);
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2868,7 +2970,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QLabel * la = nullptr;
 
     la = new QLabel("Pitch:");        grAW->addWidget(la, 0, 0);
-    ledStep = new AOneLineTextEdit(Widget); grAW->addWidget(ledStep, 0, 1);
+    ledStep = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStep, 0, 1);
     la = new QLabel("mm");            grAW->addWidget(la, 0, 2);
 
     //la = new QLabel("Shape:");        grAW->addWidget(la, 1, 0);
@@ -2876,12 +2978,12 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     cobShape->addItems({"Hexagonal shape", "Rectangular shape"});
 
     QLabel * laR = new QLabel("Rings:"); grAW->addWidget(laR, 2, 0);
-    ledNumRings = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumRings, 2, 1);
+    ledNumRings = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumRings, 2, 1);
 
     QLabel * laX = new QLabel("Number in X:"); grAW->addWidget(laX, 3, 0);
-    ledNumX      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumX, 3, 1);
+    ledNumX      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX, 3, 1);
     QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
-    ledNumY      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumY, 3, 3);
+    ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3);
 
     cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
     grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
@@ -2907,7 +3009,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget);
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 

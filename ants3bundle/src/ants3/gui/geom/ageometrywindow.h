@@ -82,6 +82,7 @@ public slots:
     void FocusVolume(QString name);
     void CenterView(double * r);
     void showSensorIndexes();  // !!!***
+    void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
     void showMonitorIndexes();
 
@@ -98,6 +99,8 @@ public slots:
     void clearGeoMarkers(int All_Rec_True = 0);
     void showGeoMarkers();
     void addPhotonNodeGeoMarker(const ANodeRecord & record);
+
+    void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
 
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item);
@@ -138,6 +141,8 @@ private slots:
     void on_actionSensor_models_triggered();
 
     void on_pbShowSensorIndexes_clicked();
+
+    void on_actionCalorimeters_triggered();
 
 private:
     AGeometryHub         & Geometry;

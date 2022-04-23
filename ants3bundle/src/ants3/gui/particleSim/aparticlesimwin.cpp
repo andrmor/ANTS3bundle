@@ -11,10 +11,13 @@
 #include "amaterialhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
 #include "ajsontools.h"
 #include "aparticletrackvisuals.h"
 #include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
+#include "ageoobject.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -34,6 +37,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     G4SimSet(SimSet.G4Set),
     SimManager(AParticleSimManager::getInstance()),
     MonitorHub(AMonitorHub::getInstance()),
+    CalHub(ACalorimeterHub::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
     ui->setupUi(this);
@@ -73,6 +77,8 @@ void AParticleSimWin::updateGui()
 
     updateG4Gui();
     updateSimGui();
+
+    updateGeneralControlInResults();
 
     bGuiUpdateInProgress = false; // <--
 }
@@ -441,6 +447,14 @@ void AParticleSimWin::updateSourceList()
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
 }
 
+void AParticleSimWin::updateGeneralControlInResults()
+{
+    updateMonitorGui();
+    updateCalorimeterGui();
+
+    // !!!*** sensor map?
+}
+
 void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem *)
 {
     on_pbEditParticleSource_clicked();
@@ -635,6 +649,12 @@ void AParticleSimWin::updateResultsGui()
             ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
             updateMonitorGui(); // data will be already loaded for merging
         }
+
+        if (SimSet.RunSet.CalorimeterSettings.Enabled)
+        {
+            ui->leCalorimetersFileName->setText(SimSet.RunSet.CalorimeterSettings.FileName.data());
+            updateCalorimeterGui(); // data will be already loaded for merging
+        }
     }
 }
 
@@ -657,6 +677,12 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leMonitorsFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadMonitorsData_clicked();
+
+    //calorimeters
+    fileName = QString(defaultSettings.CalorimeterSettings.FileName.data());
+    ui->leCalorimetersFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadCalorimetersData_clicked();
 }
 
 void AParticleSimWin::onMaterialsChanged()
@@ -1550,7 +1576,6 @@ void AParticleSimWin::on_pbLoadMonitorsData_clicked()
     if (!FileName.contains('/'))
         FileName = ui->leWorkingDirectory->text() + '/' + FileName;
 
-    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Particle);
 
     QJsonObject json;
@@ -1635,6 +1660,16 @@ void AParticleSimWin::on_pbNextMonitor_clicked()
 
     if (iMon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(iMon);
     updateMonitorGui();
+}
+
+void AParticleSimWin::on_pbShowMonitorProperties_clicked()
+{
+    const int iMon = ui->cobMonitor->currentIndex();
+    const int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (iMon < 0 || iMon >= numMon) return;
+
+    AGeoObject * obj = MonitorHub.ParticleMonitors[iMon].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
 }
 
 void AParticleSimWin::on_pbMonitorShowAngle_clicked()
@@ -1958,4 +1993,229 @@ void AParticleSimWin::on_pbUpdateIcon_clicked()
         }
 
     ui->labFilterActivated->setVisible(vis);
+}
+
+// ------------------ calorimeters -----------------------
+
+void AParticleSimWin::on_pbChooseCalorimetersFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by calorimeters", SimSet.RunSet.OutputDirectory.data());
+    if (!fileName.isEmpty()) ui->leCalorimetersFileName->setText(fileName);
+}
+
+void AParticleSimWin::on_pbLoadCalorimetersData_clicked()
+{
+    QString FileName = ui->leCalorimetersFileName->text();
+    if (!FileName.contains('/'))
+        FileName = ui->leWorkingDirectory->text() + '/' + FileName;
+
+    CalHub.clearData();
+
+    QJsonArray jsar;
+    bool ok = jstools::loadJsonArrayFromFile(jsar, FileName);
+    if (!ok)
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    QString err = CalHub.appendDataFromJson(jsar);
+    if (!err.isEmpty()) guitools::message(err, this);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::updateCalorimeterGui()
+{
+    const int numCal = CalHub.countCalorimeters();
+    ui->labNumCalorimeters->setText(QString::number(numCal));
+    const int numWithData = CalHub.countCalorimetersWithData();
+    ui->labNumCalWithData->setText(QString::number(numWithData));
+
+    ui->frCalorimeter->setVisible(numCal != 0);
+
+    if (numCal > 0)
+    {
+        const int oldNum = ui->cobCalorimeter->currentIndex();
+
+        ui->cobCalorimeter->clear();
+        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNames());
+
+        if (oldNum >-1 && oldNum < numCal)
+        {
+            ui->cobCalorimeter->setCurrentIndex(oldNum);
+            ui->sbCalorimeterIndex->setValue(oldNum);
+        }
+        else ui->sbCalorimeterIndex->setValue(0);
+
+        const int iCal = ui->cobCalorimeter->currentIndex();
+        const ACalorimeter * Cal = CalHub.Calorimeters[iCal].Calorimeter;
+
+        if (Cal)
+        {
+            ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
+            double total = Cal->Stats[0] * getCalorimeterEnergyFactor();
+            ui->leCalorimetersTotal->setText( QString::number(total) );
+            ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
+            ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
+        }
+        else
+        {
+            ui->leCalorimetersEntries->setText("--");
+            ui->leCalorimetersTotal->setText("--");
+            ui->pbCalorimetersShowDistribution->setEnabled(false);
+        }
+    }
+}
+
+double AParticleSimWin::getCalorimeterEnergyFactor()
+{
+    const QString txt = ui->cobCalorimeterEnergyUnits->currentText();
+
+    double factor = 1.0;
+    if      (txt == "meV") factor = 1e6;
+    else if (txt == "eV")  factor = 1e3;
+    else if (txt == "keV")  factor = 1.0;
+    else if (txt == "MeV")  factor = 1e-3;
+    else qWarning() << "Unknown unit of energy for calorimeters!";
+
+    return factor;
+}
+
+void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
+{
+    //ui->labCalorimeterUnits->setText(arg1);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_pbNextCalorimeter_clicked()
+{
+    int numCal = CalHub.countCalorimeters();
+    if (numCal == 0) return;
+
+    int iCal = ui->cobCalorimeter->currentIndex();
+    //int iCalStart = iCal;
+
+    double depo = 0;
+    do
+    {
+        iCal++;
+        if (iCal >= numCal) return;
+            /*iCal = 0;
+        if (iCal == iCalStart) return;
+        */
+        depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
+    }
+    while (depo == 0);
+
+    if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_cobCalorimeter_activated(int)
+{
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_sbCalorimeterIndex_editingFinished()
+{
+    int iCal = ui->sbCalorimeterIndex->value();
+    if (iCal >= ui->cobCalorimeter->count()) iCal = 0;
+    ui->sbCalorimeterIndex->setValue(iCal);
+    if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal); //protection: can be empty
+    updateCalorimeterGui();
+}
+
+#include "ath.h"
+void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->Deposition;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    const int numDim = p.getNumDimensions();
+    const double energyFactor = getCalorimeterEnergyFactor();
+    const TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
+
+    switch (numDim)
+    {
+    case 0:
+        return;
+    case 1:
+        {
+            int iDim = 0;
+            for (; iDim < 3; iDim++)
+                if (p.Bins[iDim] != 1) break;
+
+            TString opt;
+            switch (iDim)
+            {
+            case 0: opt = "x"; break;
+            case 1: opt = "y"; break;
+            case 2: opt = "z"; break;
+            default:;
+            }
+
+            TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle( TString(opt + ", mm") );
+            h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
+
+            emit requestDraw(h, "hist", true, true);
+        }
+        break;
+    case 2:
+        {
+            TString opt;
+            if (p.Bins[2] != 1) opt += "z";
+            if (p.Bins[1] != 1) opt += "y";
+            if (p.Bins[0] != 1) opt += "x";
+            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+
+            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+            h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
+
+            emit requestDraw(h, "colz", true, true);
+        }
+        break;
+    case 3:
+        {
+            TH3D * h = (TH3D*)(Data->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle("x, mm");
+            h->GetYaxis()->SetTitle("y, mm");
+            h->GetZaxis()->SetTitle("z, mm");
+
+            emit requestDraw(h, "box2", true, true);
+        }
+        break;
+    default:
+        guitools::message("Unexpected number of dimensions!", this);
+        return;
+    }
+}
+
+void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    AGeoObject * obj = CalHub.Calorimeters[iCal].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
 }

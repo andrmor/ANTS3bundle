@@ -141,10 +141,17 @@ void A3GeoConWin::updateGui()
     QFont font = ui->cbShowPrototypes->font(); font.setBold(numProto > 0); ui->cbShowPrototypes->setFont(font);
 }
 
-void A3GeoConWin::UpdateGeoTree(QString name)
+void A3GeoConWin::UpdateGeoTree(QString name, bool bShow)
 {
     twGeo->UpdateGui(name);
     updateGeoConstsIndication();
+
+    if (bShow)
+    {
+        ui->tabwidAddOns->setCurrentIndex(0);
+        showNormal();
+        raise();
+    }
 }
 
 void A3GeoConWin::ShowObject(QString name)
@@ -367,6 +374,102 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
             vol->SetLineWidth(3);
         }
         else vol->SetLineColor(kGray);
+    }
+
+    emit requestClearGeoMarkers(0);
+    if (obj->isCalorimeter()) markCalorimeterBinning(obj);
+}
+
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
+void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
+{
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+    std::vector<const ACalorimeterData *> calVec = CalHub.getCalorimeters(obj);
+    if (calVec.empty())
+    {
+        qWarning() << "Calorimeter records were not found for this object!";
+        return;
+    }
+
+    const ACalorimeter * cal = calVec.front()->Calorimeter;
+    if (!cal)
+    {
+        qWarning() << "Calorimeter is nullptr for this object!";
+        return;
+    }
+
+    const ACalorimeterProperties & props = cal->Properties;
+
+    TGeoManager * GeoManager = Geometry.GeoManager;
+    GeoManager->ClearTracks();
+
+    for (const ACalorimeterData * cd : calVec)
+    {
+        const double * worldPos = cd->Position.data();
+
+        /*
+        qDebug() << "Center pos: " << worldPos[0] << worldPos[1] << worldPos[2];
+        qDebug() << "Unit vectorX:" << cd->UnitXMaster[0] << cd->UnitXMaster[1] << cd->UnitXMaster[2];
+        qDebug() << "Unit vectorY:" << cd->UnitYMaster[0] << cd->UnitYMaster[1] << cd->UnitYMaster[2];
+        qDebug() << "Unit vectorZ:" << cd->UnitZMaster[0] << cd->UnitZMaster[1] << cd->UnitZMaster[2];
+        qDebug() << "---";
+        qDebug() << "CalorimOr:" << props.Origin[0] << props.Origin[1] << props.Origin[2];
+        qDebug() << "---";
+        */
+
+        bool bXon = !props.isAxisOff(0);
+        bool bYon = !props.isAxisOff(1);
+        bool bZon = !props.isAxisOff(2);
+
+        double origin[3];
+        for (int i=0; i<3; i++)
+        {
+            origin[i] = worldPos[i];
+            if (bXon) origin[i] += props.Origin[0] * cd->UnitXMaster[i];
+            if (bYon) origin[i] += props.Origin[1] * cd->UnitYMaster[i];
+            if (bZon) origin[i] += props.Origin[2] * cd->UnitZMaster[i];
+        }
+
+        //qDebug() << "Origin:" << origin[0] << origin[1] << origin[2];
+        //qDebug() << "---";
+
+        std::vector<std::array<double, 3>> XYZs;
+        std::array<double,3> pos;
+        if (bXon)
+        {
+            for (int ib = 0; ib < props.Bins[0]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[0]*cd->UnitXMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 2, 2, 1);
+        }
+
+        if (bYon)
+        {
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[1]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[1]*cd->UnitYMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 3, 2, 1);
+        }
+
+        if (bZon)
+        {
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[2]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[2]*cd->UnitZMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 4, 2, 1);
+        }
     }
 }
 
@@ -822,7 +925,7 @@ void A3GeoConWin::updateGeoConstsIndication()
             connect(edit, &ALineEditWithEscape::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
             ui->tabwConstants->setCellWidget(i, 1, edit);
 
-            AOneLineTextEdit * ed = new AOneLineTextEdit(ui->tabwConstants);
+            AOneLineTextEdit * ed = new AOneLineTextEdit("", ui->tabwConstants);
             AGeoBaseDelegate::configureHighligherAndCompleter(ed, i);
             ed->setText(Expression);
             ed->setFrame(false);

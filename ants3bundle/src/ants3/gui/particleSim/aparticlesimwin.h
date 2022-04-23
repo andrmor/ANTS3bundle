@@ -12,6 +12,7 @@ class QTreeWidgetItem;
 class AParticleTrackingRecord;
 class TObject;
 class AMonitorHub;
+class ACalorimeterHub;
 
 namespace Ui {
 class AParticleSimWin;
@@ -125,12 +126,14 @@ signals:
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
     void requestClearMarkers(int selector);
     void requestAddMarker(const double *);
+    void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
 
 private:
     AParticleSimSettings  & SimSet;
     AG4SimulationSettings & G4SimSet;
     AParticleSimManager   & SimManager;
     AMonitorHub           & MonitorHub;
+    ACalorimeterHub       & CalHub;
 
     Ui::AParticleSimWin *ui;
 
@@ -159,12 +162,14 @@ private:
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
+    void updateGeneralControlInResults();
 
     void clearResultsGui();
 
     void disableGui(bool flag);
 
     void updateMonitorGui();
+    void updateCalorimeterGui();
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
@@ -174,12 +179,22 @@ private:
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
     int  findEventWithFilters(int currentEv, bool bUp);
+    double getCalorimeterEnergyFactor();
 
 private slots:
     void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
     void onProgressReceived(double progress);
     void on_cbPTHistVolVsTime_toggled(bool checked);
     void on_pbUpdateIcon_clicked();
+    void on_pbChooseCalorimetersFile_clicked();
+    void on_pbLoadCalorimetersData_clicked();
+    void on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &arg1);
+    void on_pbNextCalorimeter_clicked();
+    void on_cobCalorimeter_activated(int index);
+    void on_sbCalorimeterIndex_editingFinished();
+    void on_pbCalorimetersShowDistribution_clicked();
+    void on_pbShowCalorimeterSettings_clicked();
+    void on_pbShowMonitorProperties_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

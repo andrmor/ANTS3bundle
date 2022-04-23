@@ -17,6 +17,7 @@ class AGeoSpecial;
 class AGridElementRecord;
 class TGeoRotation;
 class QRegularExpression;
+class ACalorimeterProperties;
 
 class AGeoObject
 {
@@ -53,6 +54,8 @@ public:
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
   void onMaterialRemoved(int imat); // assumes isMaterialInUse was already called (and returned false)!
   bool isWorld() const;
+  bool isSensor() const; // !!!*** use enum
+  bool isCalorimeter() const; // !!!*** use enum
 
   int  getMaterial() const;
 
@@ -92,6 +95,9 @@ public:
   //for monitor -> TODO: remove from here
   void updateMonitorShape();
   const AMonitorConfig * getMonitorConfig() const; //returns nullptr if obj is not a monitor
+
+  // for calorimeters
+  const ACalorimeterProperties * getCalorimeterProperties() const;
 
   //for stacks
   bool isStackMember() const;

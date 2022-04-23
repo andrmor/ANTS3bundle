@@ -237,3 +237,68 @@ void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::obj
         sjs.push_back(d);
     json["stat"] = sjs;
 }
+
+// ---
+
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index) :
+    G4VSensitiveDetector(name),
+    Name(name), Properties(properties), CalorimeterIndex(index)
+{
+    Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+}
+
+CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
+{
+    delete Data;
+}
+
+G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+{
+    G4double depo = step->GetTotalEnergyDeposit()/keV;
+    if (depo == 0.0) return false;
+
+    const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
+    const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
+
+    const G4ThreeVector global = 0.5 * (fromGlobal + toGlobal);
+
+    const G4ThreeVector local = step->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(global);
+
+    //std::cout << global << local << "\n";
+
+    Data->fill({local[0], local[1], local[2]}, depo);
+    return true;
+}
+
+void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
+{
+    json["CalorimeterIndex"] = CalorimeterIndex;
+
+    json11::Json::object jsProps;
+    Properties.writeToJson(jsProps);
+    json["Properties"] = jsProps;
+
+    json11::Json::object jsDepo;
+    {
+        std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
+        json11::Json::array ar;
+        for (int iz = 0; iz < Properties.Bins[2]; iz++)
+            for (int iy = 0; iy < Properties.Bins[1]; iy++)
+            {
+                json11::Json::array el;
+                for (int ix = 0; ix < Properties.Bins[0]; ix++)
+                    el.push_back(vSpatial[ix][iy][iz]);
+                ar.push_back(el);
+            }
+        jsDepo["Data"] = ar;
+
+        const std::vector<double> vec = Data->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        jsDepo["Stat"] = sjs;
+
+        jsDepo["Entries"] = Data->getEntries();
+    }
+    json["XYZDepo"] = jsDepo;
+}

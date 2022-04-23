@@ -62,11 +62,12 @@ private:
   QString createScript(QString &script, bool usePython);
   void    reportGeometryConflicts();
 
+  void markCalorimeterBinning(const AGeoObject * obj);
 protected:
   void resizeEvent(QResizeEvent *event);
 
 public slots:
-  void UpdateGeoTree(QString name = "");
+  void UpdateGeoTree(QString name = "", bool bShow = false);
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
   void ShowObjectRecursive(QString name);
@@ -79,6 +80,8 @@ signals:
   void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
   void requestShowTracks();
   void requestFocusVolume(QString name);
+  void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
+  void requestClearGeoMarkers(int All_Rec_True);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

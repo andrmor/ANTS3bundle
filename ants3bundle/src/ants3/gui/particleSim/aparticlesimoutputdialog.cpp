@@ -32,6 +32,9 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->cbMonitors->setChecked(RunSet.MonitorSettings.Enabled);
     ui->labMonitors->setText(RunSet.MonitorSettings.FileName.data());
+
+    ui->cbCalorimeters->setChecked(RunSet.CalorimeterSettings.Enabled);
+    ui->labCalorimeters->setText(RunSet.CalorimeterSettings.FileName.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -62,6 +65,9 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.MonitorSettings.Enabled = ui->cbMonitors->isChecked();
     //RunSet.MonitorSettings.FileName = ui->leMonitors->text().toLatin1().data();
+
+    RunSet.CalorimeterSettings.Enabled = ui->cbCalorimeters->isChecked();
+    //RunSet.CalorimeterSettings.FileName = ui->leCalorimeters->text().toLatin1().data();
 
     accept();
 }

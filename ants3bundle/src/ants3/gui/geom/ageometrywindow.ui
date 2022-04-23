@@ -400,6 +400,8 @@
     <addaction name="separator"/>
     <addaction name="actionSensor_indexes"/>
     <addaction name="actionSensor_models"/>
+    <addaction name="separator"/>
+    <addaction name="actionCalorimeters"/>
    </widget>
    <addaction name="menuView"/>
    <addaction name="menuShow"/>
@@ -511,6 +513,11 @@
   <action name="actionSensor_models">
    <property name="text">
     <string>Sensor models</string>
+   </property>
+  </action>
+  <action name="actionCalorimeters">
+   <property name="text">
+    <string>Calorimeters</string>
    </property>
   </action>
  </widget>

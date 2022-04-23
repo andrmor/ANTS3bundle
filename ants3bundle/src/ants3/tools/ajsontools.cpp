@@ -17,6 +17,17 @@ bool jstools::saveJsonToFile(const QJsonObject &json, const QString &fileName)
     return true;
 }
 
+bool jstools::saveJsonArrayToFile(const QJsonArray & jsar, const QString & fileName)
+{
+    QJsonDocument saveDoc(jsar);
+    QFile saveFile(fileName);
+    if (!saveFile.open(QIODevice::WriteOnly)) return false;
+
+    saveFile.write(saveDoc.toJson());
+    saveFile.close();
+    return true;
+}
+
 bool jstools::loadJsonFromFile(QJsonObject &json, const QString &fileName)
 {
     QFile loadFile(fileName);

@@ -57,6 +57,10 @@ void DetectorConstruction::ConstructSDandField()
     // ---- Monitors ----
     for (MonitorSensitiveDetector * mon : SM.Monitors)
         SetSensitiveDetector(mon->Name, mon);
+
+    // ---- Calorimeters ----
+    for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
+        SetSensitiveDetector(cal->Name, cal);
 }
 
 bool DetectorConstruction::isAccordingTo(const std::string &name, const std::string & wildcard) const
