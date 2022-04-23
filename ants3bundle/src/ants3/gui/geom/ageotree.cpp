@@ -249,8 +249,8 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
         item->setText(0, obj->Name);
         item->setSizeHint(0, QSize(50, 20));  // ?
 
-        if (obj->Type->isHandlingStatic())
-        { //this is one of the slabs or World
+        if (obj->Type->isWorld())
+        {
             item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);// & ~Qt::ItemIsSelectable);
             QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
         }

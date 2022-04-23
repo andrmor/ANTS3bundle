@@ -4,25 +4,28 @@
 
 #include <QDebug>
 
-AGeoType *AGeoType::TypeObjectFactory(const QString & Type)
-{
-    if (Type == "Single")             return new ATypeSingleObject();
-    if (Type == "Array")              return new ATypeArrayObject();
-    if (Type == "CircularArray")      return new ATypeCircularArrayObject();
-    if (Type == "HexagonalArray")     return new ATypeHexagonalArrayObject();
-    if (Type == "Monitor")            return new ATypeMonitorObject();
-    if (Type == "Stack")              return new ATypeStackContainerObject();
-    if (Type == "Instance")           return new ATypeInstanceObject();
-    if (Type == "Prototype")          return new ATypePrototypeObject();
-    if (Type == "Composite")          return new ATypeCompositeObject();
-    if (Type == "CompositeContainer") return new ATypeCompositeContainerObject();
-    if (Type == "GridElement")        return new ATypeGridElementObject();
-    if (Type == "Grid")               return new ATypeGridObject();
-    if (Type == "Group")              return new ATypeGroupContainerObject();
-    if (Type == "PrototypeCollection")return new ATypePrototypeCollectionObject();
-    if (Type == "World")              return new ATypeWorldObject(); //is not used to create World, only to check file with WorldTree starts with World and reads positioning script
+//static const QString World = "World";
+//bool AGeoType::isWorld() const {return pType == &World;}
+//ATypeWorldObject::ATypeWorldObject() {Type = &World;}
 
-    qCritical() << "Unknown opject type in TypeObjectFactory:"<<Type;
+AGeoType *AGeoType::makeTypeObject(const QString & typeStr)
+{
+    if (typeStr == "Single")             return new ATypeSingleObject();
+    if (typeStr == "Array")              return new ATypeArrayObject();
+    if (typeStr == "CircularArray")      return new ATypeCircularArrayObject();
+    if (typeStr == "HexagonalArray")     return new ATypeHexagonalArrayObject();
+    if (typeStr == "Monitor")            return new ATypeMonitorObject();
+    if (typeStr == "Stack")              return new ATypeStackContainerObject();
+    if (typeStr == "Instance")           return new ATypeInstanceObject();
+    if (typeStr == "Prototype")          return new ATypePrototypeObject();
+    if (typeStr == "Composite")          return new ATypeCompositeObject();
+    if (typeStr == "CompositeContainer") return new ATypeCompositeContainerObject();
+    if (typeStr == "GridElement")        return new ATypeGridElementObject();
+    if (typeStr == "Grid")               return new ATypeGridObject();
+    if (typeStr == "PrototypeCollection")return new ATypePrototypeCollectionObject();
+    if (typeStr == "World")              return new ATypeWorldObject(); //is not used to create World, only to check file with WorldTree starts with World and reads positioning script
+
+    qCritical() << "Unknown opject type in TypeObjectFactory:"<<typeStr;
     return nullptr;
 }
 
@@ -167,6 +170,7 @@ QString ATypeMonitorObject::introduceGeoConstValues()
 {
     return config.updateFromGeoConstants();
 }
+
 
 void ATypeWorldObject::writeToJson(QJsonObject & json) const
 {

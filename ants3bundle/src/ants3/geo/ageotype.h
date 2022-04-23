@@ -13,12 +13,10 @@ class AGeoType
 public:
     virtual ~AGeoType() {}
 
-    // TODO String -> enum
-    // or even better: Handling -> a system of flags; but do not use dynamic_cast (slow? ~100 ns per call)
-    bool isHandlingStatic() const   {return Handling == "Static";}      //World
-    bool isHandlingStandard() const {return Handling == "Standard";}
-    bool isHandlingSet() const      {return Handling == "Set";}         //Stack, Composite container
-    bool isHandlingArray() const    {return Handling == "Array";}       //Array and CircularArray
+    // !!!*** String -> pointer (pType and use static QStrings)
+    bool isHandlingStandard() const {return Handling == "Standard";}    // Single, Composite, Grid, GridElement, Monitor, Instance
+    bool isHandlingSet() const      {return Handling == "Set";}         // Stack, CompositeContainer, Prototype
+    bool isHandlingArray() const    {return Handling == "Array";}       // Array, CircularArray, HexagonalArray
 
     bool isWorld() const            {return Type == "World";}
     bool isPrototypes() const       {return Type == "PrototypeCollection";}
@@ -44,13 +42,13 @@ public:
 
     virtual QString introduceGeoConstValues() {return "";}
 
-    static AGeoType * TypeObjectFactory(const QString & Type);  // TYPE FACTORY !!!
+    static AGeoType * makeTypeObject(const QString & typeStr);  // AGeoType factory
 
 protected:
+    //const QString * pType = nullptr;
     QString Type;
     QString Handling;
 };
-
 
 // -- static objects --
 
@@ -72,12 +70,6 @@ public:
 };
 
 // -- Set objects --
-
-class ATypeGroupContainerObject : public AGeoType // deprecated
-{
-public:
-    ATypeGroupContainerObject() {Type = "Group"; Handling = "Set";}
-};
 
 class ATypeStackContainerObject : public AGeoType
 {

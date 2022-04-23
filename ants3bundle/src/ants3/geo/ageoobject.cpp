@@ -323,7 +323,7 @@ void AGeoObject::readFromJson(const QJsonObject & json)
     {
         QString tmpType;
         jstools::parseJson(jj, "Type", tmpType);
-        AGeoType * newType = AGeoType::TypeObjectFactory(tmpType);
+        AGeoType * newType = AGeoType::makeTypeObject(tmpType);
         if (newType)
         {
             delete Type; Type = newType;
@@ -810,7 +810,6 @@ bool AGeoObject::suicide()
 {
     //if (fLocked) return false;
     if (Type->isWorld()) return false; //cannot delete world
-    if (Type->isHandlingStatic()) return false;
 
     //cannot remove logicals used by composite (and the logicals container itself); the composite kills itself!
     if (Type->isCompositeContainer()) return false;
