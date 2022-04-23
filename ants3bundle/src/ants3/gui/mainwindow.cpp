@@ -48,11 +48,6 @@ MainWindow::MainWindow() :
     connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
     connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
     connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
-    GeoWin->show();
-    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
-    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
-    GeoWin->ShowGeometry(false);
-    GeoWin->hide();
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
@@ -102,6 +97,13 @@ MainWindow::MainWindow() :
     connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
     loadWindowGeometries();
+
+    bool bShown = GeoWin->isVisible();
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(false);
+    if (!bShown) GeoWin->hide();
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
