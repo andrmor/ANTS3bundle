@@ -3164,7 +3164,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
         cobMat = new QComboBox();
         cobMat->setContextMenuPolicy(Qt::NoContextMenu);
         cobMat->addItems(materials);
-        connect(cobMat, SIGNAL(activated(int)), this, SIGNAL(ContentChanged()));
+        //connect(cobMat, SIGNAL(activated(int)), this, SIGNAL(ContentChanged()));
+        connect(cobMat, &QComboBox::activated, this, &AGeoBaseDelegate::onContentChangedBase);
         cobMat->setMinimumWidth(120);
         hl->addWidget(cobMat);
       lMF->addLayout(hl);

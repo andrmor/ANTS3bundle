@@ -175,6 +175,9 @@ void AOneLineTextEdit::keyPressEvent(QKeyEvent * e)
 
 void AOneLineTextEdit::focusOutEvent(QFocusEvent *event)
 {
+    QTextCursor cursor = textCursor();
+    cursor.movePosition(QTextCursor::End);
+    setTextCursor(cursor);
     QPlainTextEdit::focusOutEvent(event);
     emit editingFinished();
 }
