@@ -779,7 +779,9 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
         ledScaleZ->setText(scaledShape->strScaleZ.isEmpty() ? QString::number(scaledShape->scaleZ) : scaledShape->strScaleZ);
     }
 
-    if (obj->Role)
+    const bool bCanHaveRole = (obj->Type->isSingle() || obj->Type->isComposite());
+    RoleWidget->setVisible(bCanHaveRole);
+    if (bCanHaveRole && obj->Role)
     {
         AGeoSensor * sens = dynamic_cast<AGeoSensor*>(obj->Role);
         if (sens)
