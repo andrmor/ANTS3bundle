@@ -4,9 +4,9 @@
 #include "amonitorconfig.h"
 
 #include <QString>
-#include <QRegularExpression>
 
 class QJsonObject;
+class QRegularExpression;
 
 class AGeoType
 {

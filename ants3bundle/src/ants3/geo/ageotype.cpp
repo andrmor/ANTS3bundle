@@ -3,6 +3,7 @@
 #include "ageoconsts.h"
 #include "aerrorhub.h"
 
+#include <QRegularExpression>
 #include <QDebug>
 
 static const QString World               = "World";
