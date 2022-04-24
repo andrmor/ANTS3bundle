@@ -871,7 +871,7 @@ bool AGeoObject::suicide()
 
 void AGeoObject::recursiveSuicide()
 {
-    if (Type->isPrototypes()) return;
+    if (Type->isPrototypeCollection()) return;
 
     for (int i=HostedObjects.size()-1; i >= 0; i--)
         HostedObjects[i]->recursiveSuicide();
@@ -1028,7 +1028,7 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
 bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
     if (Type->isMonitor())    return false; //monitors are always made of Container's material and cannot host objects
-    if (Type->isPrototypes()) return false;
+    if (Type->isPrototypeCollection()) return false;
     if (Type->isPrototype())  return false;
     if (Type->isInstance())   return false;
 

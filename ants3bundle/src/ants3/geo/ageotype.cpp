@@ -4,35 +4,149 @@
 
 #include <QDebug>
 
-//static const QString World = "World";
-//bool AGeoType::isWorld() const {return pType == &World;}
-//ATypeWorldObject::ATypeWorldObject() {Type = &World;}
+static const QString World               = "World";
+static const QString Single              = "Single";
+static const QString Logical             = "Logical";
+static const QString Stack               = "Stack";
+static const QString Array               = "Array";
+static const QString CircularArray       = "CircularArray";
+static const QString HexagonalArray      = "HexagonalArray";
+static const QString Monitor             = "Monitor";
+static const QString Prototype           = "Prototype";
+static const QString Instance            = "Instance";
+static const QString PrototypeCollection = "PrototypeCollection";
+static const QString Composite           = "Composite";
+static const QString CompositeContainer  = "CompositeContainer";
+static const QString Grid                = "Grid";
+static const QString GridElement         = "GridElement";
 
 AGeoType *AGeoType::makeTypeObject(const QString & typeStr)
 {
-    if (typeStr == "Single")             return new ATypeSingleObject();
-    if (typeStr == "Array")              return new ATypeArrayObject();
-    if (typeStr == "CircularArray")      return new ATypeCircularArrayObject();
-    if (typeStr == "HexagonalArray")     return new ATypeHexagonalArrayObject();
-    if (typeStr == "Monitor")            return new ATypeMonitorObject();
-    if (typeStr == "Stack")              return new ATypeStackContainerObject();
-    if (typeStr == "Instance")           return new ATypeInstanceObject();
-    if (typeStr == "Prototype")          return new ATypePrototypeObject();
-    if (typeStr == "Composite")          return new ATypeCompositeObject();
-    if (typeStr == "CompositeContainer") return new ATypeCompositeContainerObject();
-    if (typeStr == "GridElement")        return new ATypeGridElementObject();
-    if (typeStr == "Grid")               return new ATypeGridObject();
-    if (typeStr == "PrototypeCollection")return new ATypePrototypeCollectionObject();
-    if (typeStr == "World")              return new ATypeWorldObject(); //is not used to create World, only to check file with WorldTree starts with World and reads positioning script
+    if (typeStr == "Single")              return new ATypeSingleObject();
+    if (typeStr == "Array")               return new ATypeArrayObject();
+    if (typeStr == "CircularArray")       return new ATypeCircularArrayObject();
+    if (typeStr == "HexagonalArray")      return new ATypeHexagonalArrayObject();
+    if (typeStr == "Monitor")             return new ATypeMonitorObject();
+    if (typeStr == "Stack")               return new ATypeStackContainerObject();
+    if (typeStr == "Instance")            return new ATypeInstanceObject();
+    if (typeStr == "Prototype")           return new ATypePrototypeObject();
+    if (typeStr == "Composite")           return new ATypeCompositeObject();
+    if (typeStr == "CompositeContainer")  return new ATypeCompositeContainerObject();
+    if (typeStr == "GridElement")         return new ATypeGridElementObject();
+    if (typeStr == "Grid")                return new ATypeGridObject();
+    if (typeStr == "PrototypeCollection") return new ATypePrototypeCollectionObject();
+    if (typeStr == "World")               return new ATypeWorldObject(); //is not used to create World, only to check file with WorldTree starts with World and reads positioning script
 
     qCritical() << "Unknown opject type in TypeObjectFactory:"<<typeStr;
     return nullptr;
 }
 
+bool AGeoType::isWorld() const               {return pType == &World;}
+bool AGeoType::isSingle() const              {return pType == &Single;}
+bool AGeoType::isLogical() const             {return pType == &Logical;}
+bool AGeoType::isStack() const               {return pType == &Stack;}
+bool AGeoType::isArray() const               {return pType == &Array;}
+bool AGeoType::isCircularArray() const       {return pType == &CircularArray;}
+bool AGeoType::isHexagonalArray() const      {return pType == &HexagonalArray;}
+bool AGeoType::isMonitor() const             {return pType == &Monitor;}
+bool AGeoType::isPrototype() const           {return pType == &Prototype;}
+bool AGeoType::isInstance() const            {return pType == &Instance;}
+bool AGeoType::isPrototypeCollection() const {return pType == &PrototypeCollection;}
+bool AGeoType::isComposite() const           {return pType == &Composite;}
+bool AGeoType::isCompositeContainer() const  {return pType == &CompositeContainer;}
+bool AGeoType::isGrid() const                {return pType == &Grid;}
+bool AGeoType::isGridElement() const         {return pType == &GridElement;}
+
+bool AGeoType::isHandlingStandard() const
+{
+    return isSingle() || isMonitor() || isInstance() || isComposite() || isGrid() || isGridElement() ;
+}
+
+bool AGeoType::isHandlingSet() const
+{
+    return isStack() || isPrototype() || isCompositeContainer();
+}
+
+bool AGeoType::isHandlingArray() const
+{
+    return isArray() || isCircularArray() || isHexagonalArray();
+}
+
 void AGeoType::writeToJson(QJsonObject & json) const
 {
-    json["Type"] = Type;
+    json["Type"] = *pType;
+    doWriteToJson(json);
 }
+
+// --- Concrete types ---
+
+ATypeWorldObject::ATypeWorldObject() {pType = &World;}
+
+void ATypeWorldObject::doWriteToJson(QJsonObject & json) const
+{
+    json["FixedSize"] = bFixedSize;
+}
+
+void ATypeWorldObject::readFromJson(const QJsonObject &json)
+{
+    jstools::parseJson(json, "FixedSize", bFixedSize);
+}
+
+// ---
+
+ATypePrototypeCollectionObject::ATypePrototypeCollectionObject() {pType = &PrototypeCollection;}
+
+// ---
+
+ATypeSingleObject::ATypeSingleObject() {pType = &Single;}
+
+// ---
+
+ATypeCompositeObject::ATypeCompositeObject() {pType = &Composite;}
+
+// ---
+
+ATypeStackContainerObject::ATypeStackContainerObject() {pType = &Stack;}
+
+void ATypeStackContainerObject::doWriteToJson(QJsonObject & json) const
+{
+    json["ReferenceVolume"] = ReferenceVolume;
+}
+
+void ATypeStackContainerObject::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "ReferenceVolume", ReferenceVolume);
+}
+
+// ---
+
+ATypeCompositeContainerObject::ATypeCompositeContainerObject() {pType = &CompositeContainer;}
+
+// ---
+
+ATypePrototypeObject::ATypePrototypeObject() {pType = &Prototype;}
+
+// ---
+
+ATypeInstanceObject::ATypeInstanceObject(QString PrototypeName) :
+    PrototypeName(PrototypeName) {pType = &Instance;}
+
+void ATypeInstanceObject::doWriteToJson(QJsonObject & json) const
+{
+    json["PrototypeName"] = PrototypeName;
+}
+
+void ATypeInstanceObject::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "PrototypeName", PrototypeName);
+}
+
+// ---
+
+ATypeArrayObject::ATypeArrayObject() {pType = &Array;}
+
+ATypeArrayObject::ATypeArrayObject(int numX, int numY, int numZ, double stepX, double stepY, double stepZ, int startIndex)
+    : numX(numX), numY(numY), numZ(numZ), stepX(stepX), stepY(stepY), stepZ(stepZ), startIndex(startIndex) {pType = &Array;}
 
 void ATypeArrayObject::Reconfigure(int NumX, int NumY, int NumZ, double StepX, double StepY, double StepZ)
 {
@@ -83,10 +197,8 @@ void ATypeArrayObject::replaceGeoConstName(const QRegularExpression &nameRegExp,
     strStartIndex.replace(nameRegExp, newName);
 }
 
-void ATypeArrayObject::writeToJson(QJsonObject &json) const
+void ATypeArrayObject::doWriteToJson(QJsonObject &json) const
 {
-    AGeoType::writeToJson(json);
-
     json["numX"]  = numX;
     json["numY"]  = numY;
     json["numZ"]  = numZ;
@@ -123,90 +235,12 @@ void ATypeArrayObject::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strStartIndex", strStartIndex)) strStartIndex.clear();
 }
 
-void ATypeGridElementObject::writeToJson(QJsonObject &json) const
-{
-    AGeoType::writeToJson(json);
+// ---
 
-    json["size1"] = size1;
-    json["size2"] = size2;
-    json["shape"] = shape;
-    json["dz"]    = dz;
-}
+ATypeCircularArrayObject::ATypeCircularArrayObject() {pType = &CircularArray;}
 
-void ATypeGridElementObject::readFromJson(const QJsonObject &json)
-{
-    jstools::parseJson(json, "size1", size1);
-    jstools::parseJson(json, "size2", size2);
-    jstools::parseJson(json, "shape", shape);
-    jstools::parseJson(json, "dz",    dz);
-}
-
-void ATypeMonitorObject::writeToJson(QJsonObject &json) const
-{
-    AGeoType::writeToJson(json);
-
-    config.writeToJson(json);
-}
-
-void ATypeMonitorObject::readFromJson(const QJsonObject &json)
-{
-    config.readFromJson(json);
-}
-
-bool ATypeMonitorObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
-{
-    if (config.str2size1.contains(nameRegExp)) return true;
-    if (config.str2size2.contains(nameRegExp)) return true;
-    return false;
-}
-
-void ATypeMonitorObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString & newName)
-{
-    config.str2size1.replace(nameRegExp, newName);
-    config.str2size2.replace(nameRegExp, newName);
-}
-
-QString ATypeMonitorObject::introduceGeoConstValues()
-{
-    return config.updateFromGeoConstants();
-}
-
-
-void ATypeWorldObject::writeToJson(QJsonObject & json) const
-{
-    AGeoType::writeToJson(json);
-    json["FixedSize"] = bFixedSize;
-}
-
-void ATypeWorldObject::readFromJson(const QJsonObject &json)
-{
-    bFixedSize = false;
-    jstools::parseJson(json, "FixedSize", bFixedSize);
-}
-
-void ATypeStackContainerObject::writeToJson(QJsonObject & json) const
-{
-    AGeoType::writeToJson(json);
-    json["ReferenceVolume"] = ReferenceVolume;
-}
-
-void ATypeStackContainerObject::readFromJson(const QJsonObject & json)
-{
-    ReferenceVolume.clear();
-    jstools::parseJson(json, "ReferenceVolume", ReferenceVolume);
-}
-
-void ATypeInstanceObject::writeToJson(QJsonObject & json) const
-{
-    AGeoType::writeToJson(json);
-    json["PrototypeName"] = PrototypeName;
-}
-
-void ATypeInstanceObject::readFromJson(const QJsonObject & json)
-{
-    PrototypeName.clear();
-    jstools::parseJson(json, "PrototypeName", PrototypeName);
-}
+ATypeCircularArrayObject::ATypeCircularArrayObject(int num, double angularStep, double radius, int StartIndex)
+    : num(num), angularStep(angularStep), radius(radius) {startIndex = StartIndex; pType = &CircularArray;}
 
 void ATypeCircularArrayObject::Reconfigure(int Num, double AngularStep, double Radius)
 {
@@ -232,10 +266,8 @@ void ATypeCircularArrayObject::replaceGeoConstName(const QRegularExpression &nam
     strStartIndex.replace(nameRegExp, newName);
 }
 
-void ATypeCircularArrayObject::writeToJson(QJsonObject &json) const
+void ATypeCircularArrayObject::doWriteToJson(QJsonObject &json) const
 {
-    AGeoType::writeToJson(json);
-
     json["num"]         = num;
     json["angularStep"] = angularStep;
     json["radius"]      = radius;
@@ -277,6 +309,8 @@ QString ATypeCircularArrayObject::introduceGeoConstValues()
 
 // ---
 
+ATypeHexagonalArrayObject::ATypeHexagonalArrayObject() {pType = &HexagonalArray;}
+
 void ATypeHexagonalArrayObject::Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
 {
     Step        = step;
@@ -306,10 +340,8 @@ void ATypeHexagonalArrayObject::replaceGeoConstName(const QRegularExpression &na
     strStartIndex.replace(nameRegExp, newName);
 }
 
-void ATypeHexagonalArrayObject::writeToJson(QJsonObject & json) const
+void ATypeHexagonalArrayObject::doWriteToJson(QJsonObject & json) const
 {
-    AGeoType::writeToJson(json);
-
     json["Step"]        = Step;
     json["Shape"]       = ( Shape == Hexagonal ? "Hexagonal" : "XY" );
     json["Rings"]       = Rings;
@@ -360,3 +392,61 @@ QString ATypeHexagonalArrayObject::introduceGeoConstValues()
 
     return "";
 }
+
+// ---
+
+ATypeMonitorObject::ATypeMonitorObject() {pType = &Monitor;}
+
+void ATypeMonitorObject::doWriteToJson(QJsonObject &json) const
+{
+    config.writeToJson(json);
+}
+
+void ATypeMonitorObject::readFromJson(const QJsonObject &json)
+{
+    config.readFromJson(json);
+}
+
+bool ATypeMonitorObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
+{
+    if (config.str2size1.contains(nameRegExp)) return true;
+    if (config.str2size2.contains(nameRegExp)) return true;
+    return false;
+}
+
+void ATypeMonitorObject::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString & newName)
+{
+    config.str2size1.replace(nameRegExp, newName);
+    config.str2size2.replace(nameRegExp, newName);
+}
+
+QString ATypeMonitorObject::introduceGeoConstValues()
+{
+    return config.updateFromGeoConstants();
+}
+
+// ---
+
+ATypeGridObject::ATypeGridObject() {pType = &Grid;}
+
+// ---
+
+ATypeGridElementObject::ATypeGridElementObject() {pType = &GridElement;}
+
+void ATypeGridElementObject::doWriteToJson(QJsonObject & json) const
+{
+    json["size1"] = size1;
+    json["size2"] = size2;
+    json["shape"] = shape;
+    json["dz"]    = dz;
+}
+
+void ATypeGridElementObject::readFromJson(const QJsonObject &json)
+{
+    jstools::parseJson(json, "size1", size1);
+    jstools::parseJson(json, "size2", size2);
+    jstools::parseJson(json, "shape", shape);
+    jstools::parseJson(json, "dz",    dz);
+}
+
+// ---

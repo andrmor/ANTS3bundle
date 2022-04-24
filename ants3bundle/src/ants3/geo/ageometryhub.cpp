@@ -722,7 +722,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 
     if      (obj->Type->isWorld())
         vol = parent; // resuse the cycle by HostedVolumes below
-    else if (obj->Type->isPrototypes() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
+    else if (obj->Type->isPrototypeCollection() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
         return;       // logicals do not host anything to be added to the geometry
     else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance())
         vol = parent; // group objects are pure virtual, pass the volume of the parent
@@ -1227,7 +1227,7 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
     //if config contained Prototypes, there are two protoypes objects in the geometry now!
     for (AGeoObject * obj : World->HostedObjects)
     {
-        if (!obj->Type->isPrototypes()) continue;
+        if (!obj->Type->isPrototypeCollection()) continue;
         if (obj == Prototypes) continue;
         //found another Prototypes object  - it was loaded from json
         for (AGeoObject * proto : obj->HostedObjects)
