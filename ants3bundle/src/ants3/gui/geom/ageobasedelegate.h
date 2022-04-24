@@ -8,6 +8,7 @@ class AGeoObject;
 class QPushButton;
 class QHBoxLayout;
 class AOneLineTextEdit;
+class QFrame;
 
 class AGeoBaseDelegate : public QObject
 {
@@ -23,25 +24,31 @@ public:
 
     bool isLeEmpty(const QVector<AOneLineTextEdit*> & v) const;  // !!!***
 
+    void postUpdate();
+
 public:
     QWidget * Widget = nullptr;
 
 protected:
+    QFrame      * frBottomButtons = nullptr;
     QPushButton * pbShow = nullptr;
     QPushButton * pbChangeAtt = nullptr;
     QPushButton * pbScriptLine = nullptr;
 
-    QHBoxLayout * createBottomButtons();
+    void createBottomButtons();
 
 protected:
     QWidget * ParentWidget = nullptr;
 
 signals:
-    void ContentChanged();
+    void contentChanged();
     void RequestShow();
     void RequestChangeVisAttributes();
     void RequestScriptToClipboard();
     void RequestScriptRecursiveToClipboard();
+
+public slots:
+    void onContentChangedBase();
 
 public:
     static void configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex = -1); // -1 == all

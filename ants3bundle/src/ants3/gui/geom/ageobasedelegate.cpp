@@ -20,9 +20,16 @@ bool AGeoBaseDelegate::isLeEmpty(const QVector<AOneLineTextEdit *> & v) const
     return false;
 }
 
-QHBoxLayout *AGeoBaseDelegate::createBottomButtons()
+void AGeoBaseDelegate::postUpdate()
 {
-    QHBoxLayout * abl = new QHBoxLayout();
+    frBottomButtons->setEnabled(true);
+}
+
+void AGeoBaseDelegate::createBottomButtons()
+{
+    frBottomButtons = new QFrame();
+    QHBoxLayout * abl = new QHBoxLayout(frBottomButtons);
+    abl->setContentsMargins(0,0,0,0);
 
     pbShow = new QPushButton("Show");
     QObject::connect(pbShow, &QPushButton::clicked, this, &AGeoBaseDelegate::RequestShow);
@@ -36,8 +43,12 @@ QHBoxLayout *AGeoBaseDelegate::createBottomButtons()
     pbScriptLine->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(pbScriptLine, &QPushButton::customContextMenuRequested, this, &AGeoBaseDelegate::RequestScriptRecursiveToClipboard);
     abl->addWidget(pbScriptLine);
+}
 
-    return abl;
+void AGeoBaseDelegate::onContentChangedBase()
+{
+    if (frBottomButtons) frBottomButtons->setEnabled(false);
+    emit contentChanged();
 }
 
 void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex)

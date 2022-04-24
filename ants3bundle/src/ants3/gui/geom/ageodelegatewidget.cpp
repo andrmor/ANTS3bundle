@@ -120,9 +120,10 @@ void AGeoDelegateWidget::UpdateGui()
         GeoDelegate = createAndAddGeoObjectDelegate();
 
     GeoDelegate->Update(CurrentObject);
+    GeoDelegate->postUpdate();
 
     GeoDelegate->Widget->setEnabled(!CurrentObject->fLocked);
-    connect(GeoDelegate, &AGeoBaseDelegate::ContentChanged,             this, &AGeoDelegateWidget::onStartEditing);
+    connect(GeoDelegate, &AGeoBaseDelegate::contentChanged,             this, &AGeoDelegateWidget::onStartEditing);
     connect(GeoDelegate, &AGeoBaseDelegate::RequestChangeVisAttributes, this, &AGeoDelegateWidget::onRequestSetVisAttributes);
     connect(GeoDelegate, &AGeoBaseDelegate::RequestShow,                this, &AGeoDelegateWidget::onRequestShowCurrentObject);
     connect(GeoDelegate, &AGeoBaseDelegate::RequestScriptToClipboard,   this, &AGeoDelegateWidget::onRequestScriptLineToClipboard);

@@ -42,8 +42,8 @@ AMonitorDelegate::AMonitorDelegate(QWidget *ParentWidget) :
     vl->addWidget(del);
 
     // bottom line buttons
-    QHBoxLayout * abl = createBottomButtons();
-    vl->addLayout(abl);
+    createBottomButtons();
+    vl->addWidget(frBottomButtons);
 
     frMainFrame->setLayout(vl);
 }
@@ -74,6 +74,6 @@ void AMonitorDelegate::Update(const AGeoObject *obj)
 
 void AMonitorDelegate::onContentChanged()
 {
-    emit ContentChanged();
+    onContentChangedBase();
     Widget->layout()->activate();
 }

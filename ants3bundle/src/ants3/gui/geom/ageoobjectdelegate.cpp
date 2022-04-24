@@ -164,8 +164,8 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     lMF->addWidget(RoleWidget);
 
     // bottom line buttons
-    QHBoxLayout * abl = createBottomButtons();
-    lMF->addLayout(abl);
+    createBottomButtons();
+    lMF->addWidget(frBottomButtons);
 
   frMainFrame->setLayout(lMF);
 
@@ -824,7 +824,7 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
 
 void AGeoObjectDelegate::onContentChanged()
 {
-    emit ContentChanged();
+    onContentChangedBase();
 }
 
 //---------------
@@ -864,7 +864,7 @@ AGeoBoxDelegate::AGeoBoxDelegate(const QStringList &materials, QWidget *parent)
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -951,7 +951,7 @@ AGeoTubeDelegate::AGeoTubeDelegate(const QStringList & materials, QWidget *paren
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1027,7 +1027,7 @@ AGeoTubeSegDelegate::AGeoTubeSegDelegate(const QStringList & materials, QWidget 
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1116,7 +1116,7 @@ AGeoTubeSegCutDelegate::AGeoTubeSegCutDelegate(const QStringList &materials, QWi
     for (AOneLineTextEdit * le : {elnx, elny, elnz, eunx, euny, eunz})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1225,7 +1225,7 @@ AGeoParaDelegate::AGeoParaDelegate(const QStringList & materials, QWidget *paren
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1330,7 +1330,7 @@ AGeoSphereDelegate::AGeoSphereDelegate(const QStringList & materials, QWidget *p
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1428,7 +1428,7 @@ AGeoConeDelegate::AGeoConeDelegate(const QStringList &materials, QWidget *parent
     for (AOneLineTextEdit * le : {ez, eli, elo, eui, euo})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1516,7 +1516,7 @@ AGeoConeSegDelegate::AGeoConeSegDelegate(const QStringList &materials, QWidget *
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1600,7 +1600,7 @@ AGeoElTubeDelegate::AGeoElTubeDelegate(const QStringList &materials, QWidget *pa
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1687,7 +1687,7 @@ AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *pare
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1780,7 +1780,7 @@ AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *pa
     for (AOneLineTextEdit * le : {exl, exu, eyl, eyu, ez})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1876,7 +1876,7 @@ AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWi
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1966,7 +1966,7 @@ AGeoTorusDelegate::AGeoTorusDelegate(const QStringList &materials, QWidget *pare
     for (AOneLineTextEdit * le : {ead, edi, edo, ep0, epe})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -2069,7 +2069,7 @@ AGeoPolygonDelegate::AGeoPolygonDelegate(const QStringList &materials, QWidget *
     for (AOneLineTextEdit * le : {en, edp, ez, eli, elo, eui, euo})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -2176,7 +2176,8 @@ AGeoPconDelegate::AGeoPconDelegate(const QStringList &materials, QWidget *parent
             else
             {
                 tab->removeRow(row);
-                ContentChanged();
+                //ContentChanged();
+                onContentChangedBase();
             }
         });
         hl->addWidget(pbRemoveRow);
@@ -2194,7 +2195,7 @@ AGeoPconDelegate::AGeoPconDelegate(const QStringList &materials, QWidget *parent
         for (AOneLineTextEdit * le : {ep0, epe})
         {
             configureHighligherAndCompleter(le);
-            QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoPconDelegate::ContentChanged);
+            QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoPconDelegate::onContentChangedBase);
         }
     lay->addLayout(gr);
 
@@ -2309,7 +2310,7 @@ void AGeoPconDelegate::updateTableW(AGeoPcon * pcon)
         {
             le[i] = new AOneLineTextEdit("", tab);
             configureHighligherAndCompleter(le[i]);
-            QObject::connect(le[i], &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            QObject::connect(le[i], &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             QObject::connect(le[i], &AOneLineTextEdit::editingFinished, this, &AGeoPconDelegate::onCellEdited);
             tab->setCellWidget(iP, i, le[i]);
         }
@@ -2409,7 +2410,7 @@ void AGeoPconDelegate::onReorderSections(int, int oldVisualIndex, int newVisualI
         tab->verticalHeader()->moveSection(newVisualIndex, oldVisualIndex);//swaps back table rows oldVisualIndex and newVisualIndex
         tab->verticalHeader()->blockSignals(false); // <--
 
-        emit ContentChanged();
+        onContentChangedBase();
     }
     else qWarning() << "PolyCone not found in move row";
 }
@@ -2445,7 +2446,7 @@ AGeoPgonDelegate::AGeoPgonDelegate(const QStringList &materials, QWidget *parent
     tab->setHorizontalHeaderLabels(QStringList({"Z position", "Outer size", "Inner size"}));
 
     configureHighligherAndCompleter(eed);
-    QObject::connect(eed, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(eed, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
 }
 
 bool AGeoPgonDelegate::updateObject(AGeoObject *obj) const
@@ -2520,7 +2521,7 @@ AGeoCompositeDelegate::AGeoCompositeDelegate(const QStringList &materials, QWidg
         font.setPointSize(te->font().pointSize() + 2);
         te->setFont(font);
     v->addWidget(te);
-    connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::ContentChanged);
+    connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::onContentChangedBase);
 
     addLocalLayout(v);
 }
@@ -2611,7 +2612,7 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
         gr->addWidget(new QLabel("Height:"), 0, 0);
         ez = new AOneLineTextEdit(); gr->addWidget(ez,  0, 1);
         configureHighligherAndCompleter(ez);
-        connect(ez, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        connect(ez, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
         gr->addWidget(new QLabel("mm"), 0, 2);
     v->addLayout(gr);
 
@@ -2631,12 +2632,12 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
             gri->addWidget(new QLabel("  x:"),    i, 0);
             tmpV[i].X = new AOneLineTextEdit;
             configureHighligherAndCompleter(tmpV[i].X);
-            connect(tmpV[i].X, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            connect(tmpV[i].X, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             gri->addWidget(tmpV[i].X,             i, 1);
             gri->addWidget(new QLabel("mm   y:"), i, 2);
             tmpV[i].Y = new AOneLineTextEdit;
             configureHighligherAndCompleter(tmpV[i].Y);
-            connect(tmpV[i].Y, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            connect(tmpV[i].Y, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             gri->addWidget(tmpV[i].Y,             i, 3);
             gri->addWidget(new QLabel("mm"),      i, 4);
         }
@@ -2778,7 +2779,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -2890,7 +2891,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -2990,8 +2991,8 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
 
     lVer->addLayout(grAW);
 
-    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::ContentChanged);
-    QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::onContentChangedBase);
+    QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, [this, laR, laX, laY](int index)
     {
         laR->setVisible(index == 0);
@@ -3023,7 +3024,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -3169,7 +3170,7 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
       QHBoxLayout * h = new QHBoxLayout();
             h->addStretch();
             cbFixedSize = new QCheckBox("Fixed size");
-            connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::ContentChanged);
+            connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
             h->addWidget(cbFixedSize);
 
             QVBoxLayout * v1 = new QVBoxLayout();
@@ -3185,16 +3186,15 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
                 for (AOneLineTextEdit * le : {ledSizeXY, ledSizeZ})
                 {
                     configureHighligherAndCompleter(le);
-                    connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+                    connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
                 }
             h->addLayout(v2);
             h->addStretch();
     lMF->addLayout(h);
 
-    QHBoxLayout * abl = createBottomButtons();
-    pbShow->setEnabled(false);
+    createBottomButtons();
     pbScriptLine->setEnabled(false);
-    lMF->addLayout(abl);
+    lMF->addWidget(frBottomButtons);
 
     frMainFrame->setLayout(lMF);
 }
@@ -3284,7 +3284,7 @@ AGeoInstanceDelegate::AGeoInstanceDelegate(const QStringList &materials, QWidget
     leInstanceOf = new QLineEdit();                              hl->addWidget(leInstanceOf);
     QPushButton * pbToProto = new QPushButton("Show prototype"); hl->addWidget(pbToProto);
 
-    QObject::connect(leInstanceOf, &QLineEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(leInstanceOf, &QLineEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(pbToProto, &QPushButton::clicked, [this](){
         emit RequestShowPrototype(leInstanceOf->text());
     });
