@@ -1,6 +1,7 @@
 #include "ageotype.h"
 #include "ajsontools.h"
 #include "ageoconsts.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -20,7 +21,7 @@ static const QString CompositeContainer  = "CompositeContainer";
 static const QString Grid                = "Grid";
 static const QString GridElement         = "GridElement";
 
-AGeoType *AGeoType::makeTypeObject(const QString & typeStr)
+AGeoType * AGeoType::makeTypeObject(const QString & typeStr)
 {
     if (typeStr == "Single")              return new ATypeSingleObject();
     if (typeStr == "Array")               return new ATypeArrayObject();
@@ -37,7 +38,9 @@ AGeoType *AGeoType::makeTypeObject(const QString & typeStr)
     if (typeStr == "PrototypeCollection") return new ATypePrototypeCollectionObject();
     if (typeStr == "World")               return new ATypeWorldObject(); //is not used to create World, only to check file with WorldTree starts with World and reads positioning script
 
-    qCritical() << "Unknown opject type in TypeObjectFactory:"<<typeStr;
+    QString err = "Unknown object type in makeTypeObject() factory: " + typeStr;
+    AErrorHub::addQError(err);
+    qCritical() << err;
     return nullptr;
 }
 
