@@ -25,6 +25,8 @@ class AGeometryWindow : public AGuiWindow
 {
     Q_OBJECT
 
+friend class AShowNumbersDialog;
+
 public:
     explicit AGeometryWindow(QWidget * parent);
     ~AGeometryWindow();
@@ -64,7 +66,6 @@ public:
 
     bool IsWorldVisible();
 
-//    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
     void ShowTracksAndMarkers();
 
@@ -81,6 +82,8 @@ public slots:
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
+    void showPhotonMonIndexes();  // !!!***
+    void showParticleMonIndexes();  // !!!***
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
@@ -143,6 +146,8 @@ private slots:
     void on_pbShowSensorIndexes_clicked();
 
     void on_actionCalorimeters_triggered();
+
+    void on_pbShowNumbers_clicked();
 
 private:
     AGeometryHub         & Geometry;

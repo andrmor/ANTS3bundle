@@ -484,38 +484,6 @@ void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, Color_t color, int 
         AddLineToGeometry(poly[i], poly[i+1], color, width);
 }
 
-/*
-#include "aeventtrackingrecord.h"
-#include "asimulationmanager.h"
-#include "amaterialparticlecolection.h"
-#include "TGeoTrack.h"
-#include "atrackrecords.h"
-void GeometryWindowClass::ShowEvent_Particles(size_t iEvent, bool withSecondaries)
-{
-    if (iEvent < SimulationManager.TrackingHistory.size())
-    {
-        const AEventTrackingRecord * er = SimulationManager.TrackingHistory.at(iEvent);
-        er->makeTracks(SimulationManager.Tracks, Detector.MpCollection->getListOfParticleNames(), SimulationManager.TrackBuildOptions, withSecondaries);
-
-        for (int iTr=0; iTr < (int)SimulationManager.Tracks.size(); iTr++)
-        {
-            const TrackHolderClass* th = SimulationManager.Tracks.at(iTr);
-            TGeoTrack* track = new TGeoTrack(1, th->UserIndex);
-            track->SetLineColor(th->Color);
-            track->SetLineWidth(th->Width);
-            track->SetLineStyle(th->Style);
-            for (int iNode=0; iNode<th->Nodes.size(); iNode++)
-                track->AddPoint(th->Nodes[iNode].R[0], th->Nodes[iNode].R[1], th->Nodes[iNode].R[2], th->Nodes[iNode].Time);
-            if (track->GetNpoints()>1)
-                Detector.GeoManager->AddTrack(track);
-            else delete track;
-        }
-    }
-
-    DrawTracks();
-}
-*/
-
 void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycle)
 {
     std::vector<QString> tmp;
@@ -1286,6 +1254,11 @@ void AGeometryWindow::on_pbClearMarkers_clicked()
 
 void AGeometryWindow::on_actionParticle_monitors_triggered()
 {
+    showParticleMonIndexes();
+}
+
+void AGeometryWindow::showParticleMonIndexes()
+{
     Geometry.GeoManager->ClearTracks();
 
     const int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
@@ -1299,6 +1272,11 @@ void AGeometryWindow::on_actionParticle_monitors_triggered()
 }
 
 void AGeometryWindow::on_actionPhoton_monitors_triggered()
+{
+    showPhotonMonIndexes();
+}
+
+void AGeometryWindow::showPhotonMonIndexes()
 {
     Geometry.GeoManager->ClearTracks();
 
@@ -1352,5 +1330,12 @@ void AGeometryWindow::on_pbShowSensorIndexes_clicked()
 void AGeometryWindow::on_actionCalorimeters_triggered()
 {
     showCalorimeterIndexes();
+}
+
+#include "ashownumbersdialog.h"
+void AGeometryWindow::on_pbShowNumbers_clicked()
+{
+    AShowNumbersDialog d(*this);
+    d.exec();
 }
 

@@ -22,6 +22,10 @@ public:
 
     void setOrientationRoot(double latitude, double longitude) {Latitude = latitude; Longitude = longitude;}
 
+    void setSizeForSensors(double size_mm)      {SizeForSensors      = size_mm;}
+    void setSizeForMonitors(double size_mm)     {SizeForMonitors     = size_mm;}
+    void setSizeForCalorimeters(double size_mm) {SizeForCalorimeters = size_mm;}
+
     enum EDraw {Sensors, PhotMons, PartMons, Calorimeters};
     QString drawText(const std::vector<QString> & textVector, int color, EDraw onWhat); // returns error
 
@@ -30,8 +34,12 @@ private:
 
     std::map<QString, AGeoSymbol> SymbolMap;
 
-    double Latitude = 60.0;
+    double Latitude  = 60.0;
     double Longitude = -120.0;
+
+    double SizeForSensors      = 10.0;
+    double SizeForMonitors     = 10.0;
+    double SizeForCalorimeters = 10.0;
 };
 
 #endif // AGEOWRITER_H
