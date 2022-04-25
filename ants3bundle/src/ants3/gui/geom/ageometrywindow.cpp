@@ -444,6 +444,13 @@ void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, 
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
     if (!isVisible()) showNormal();
 
+    if (!RasterWindow->fCanvas->HasViewer3D()) return;
+
+    AGeoViewParameters & p = RasterWindow->ViewParameters;
+    p.read(RasterWindow->fCanvas);
+
+    GeoWriter.setOrientationRoot(p.Lat, p.Long/*, p.Psi*/);
+
     QString err = GeoWriter.drawText(textVec, color, onWhat);
     if (!err.isEmpty())
     {

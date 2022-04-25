@@ -4,50 +4,49 @@
 #include "amonitorconfig.h"
 
 #include <QString>
-#include <QRegularExpression>
 
 class QJsonObject;
+class QRegularExpression;
 
 class AGeoType
 {
 public:
+    static AGeoType * makeTypeObject(const QString & typeStr);  // AGeoType factory
+
     virtual ~AGeoType() {}
 
-    // !!!*** String -> pointer (pType and use static QStrings)
-    bool isHandlingStandard() const {return Handling == "Standard";}    // Single, Composite, Grid, GridElement, Monitor, Instance
-    bool isHandlingSet() const      {return Handling == "Set";}         // Stack, CompositeContainer, Prototype
-    bool isHandlingArray() const    {return Handling == "Array";}       // Array, CircularArray, HexagonalArray
+    bool isWorld() const;
+    bool isPrototypeCollection() const;
+    bool isStack() const;
+    bool isLogical() const;
+    bool isSingle() const;
+    bool isCompositeContainer() const;
+    bool isComposite() const;
+    bool isArray() const;
+    bool isCircularArray() const;
+    bool isHexagonalArray() const;
+    bool isInstance() const;
+    bool isPrototype() const;
+    bool isGrid() const;
+    bool isGridElement() const;
+    bool isMonitor() const;
 
-    bool isWorld() const            {return Type == "World";}
-    bool isPrototypes() const       {return Type == "PrototypeCollection";}
-    bool isStack() const            {return Type == "Stack";}
-    bool isLogical() const          {return Type == "Logical";}
-    bool isSingle() const           {return Type == "Single";}
-    bool isCompositeContainer() const {return Type == "CompositeContainer";}
-    bool isComposite() const        {return Type == "Composite";}
-    bool isArray() const            {return Type == "Array";}
-    bool isCircularArray() const    {return Type == "CircularArray";}
-    bool isHexagonalArray() const   {return Type == "HexagonalArray";}
-    bool isInstance() const         {return Type == "Instance";}
-    bool isPrototype() const        {return Type == "Prototype";}
-    bool isGrid() const             {return Type == "Grid";}
-    bool isGridElement() const      {return Type == "GridElement";}
-    bool isMonitor() const          {return Type == "Monitor";}
+    bool isHandlingStandard() const;    // Single, Monitor, Instance, Composite, Grid, GridElement
+    bool isHandlingSet() const;         // Stack, Prototype, CompositeContainer
+    bool isHandlingArray() const;       // Array, CircularArray, HexagonalArray
 
     virtual bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {return false;}
     virtual void replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 
-    virtual void writeToJson(QJsonObject & json) const;         // CALL THIS, then save additional properties of the concrete type
-    virtual void readFromJson(const QJsonObject & /*json*/) {}  // if present, read properties of the concrete type
+    void writeToJson(QJsonObject & json) const;
+    virtual void readFromJson(const QJsonObject & /*json*/) {}
 
     virtual QString introduceGeoConstValues() {return "";}
 
-    static AGeoType * makeTypeObject(const QString & typeStr);  // AGeoType factory
-
 protected:
-    //const QString * pType = nullptr;
-    QString Type;
-    QString Handling;
+    const QString * pType = nullptr;
+
+    virtual void doWriteToJson(QJsonObject & /*json*/) const {}
 };
 
 // -- static objects --
@@ -55,18 +54,32 @@ protected:
 class ATypeWorldObject : public AGeoType
 {
 public:
-    ATypeWorldObject() {Type = "World"; Handling = "Static";}
+    ATypeWorldObject();
 
     bool bFixedSize = false;
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 };
 
 class ATypePrototypeCollectionObject : public AGeoType
 {
 public:
-    ATypePrototypeCollectionObject() {Type = "PrototypeCollection"; Handling = "Logical";}
+    ATypePrototypeCollectionObject();
+};
+
+// -- Objects --
+
+class ATypeSingleObject : public AGeoType
+{
+public:
+    ATypeSingleObject();
+};
+
+class ATypeCompositeObject : public AGeoType
+{
+public:
+    ATypeCompositeObject();
 };
 
 // -- Set objects --
@@ -74,48 +87,53 @@ public:
 class ATypeStackContainerObject : public AGeoType
 {
 public:
-    ATypeStackContainerObject() {Type = "Stack"; Handling = "Set";}
+    ATypeStackContainerObject();
 
     QString ReferenceVolume;
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 };
 
 class ATypeCompositeContainerObject : public AGeoType
 {
 public:
-    ATypeCompositeContainerObject() {Type = "CompositeContainer"; Handling = "Set";}
+    ATypeCompositeContainerObject();
 };
 
+// -- Prototype / Instance --
 
-// -- Objects --
-
-class ATypeSingleObject : public AGeoType
+class ATypePrototypeObject : public AGeoType
 {
 public:
-    ATypeSingleObject() {Type = "Single"; Handling = "Standard";}
+    ATypePrototypeObject();
 };
 
-class ATypeCompositeObject : public AGeoType
+class ATypeInstanceObject : public AGeoType
 {
 public:
-    ATypeCompositeObject() {Type = "Composite"; Handling = "Standard";}
+    ATypeInstanceObject(QString PrototypeName = "");
+
+    void doWriteToJson(QJsonObject & json) const override;
+    void readFromJson(const QJsonObject & json) override;
+
+    QString PrototypeName;
 };
+
+// -- Arrays --
 
 class ATypeArrayObject : public AGeoType
 {
 public:
-    ATypeArrayObject() {Type = "Array"; Handling = "Array";}
-    ATypeArrayObject(int numX, int numY, int numZ, double stepX, double stepY, double stepZ, int startIndex = 0)
-        : numX(numX), numY(numY), numZ(numZ), stepX(stepX), stepY(stepY), stepZ(stepZ), startIndex(startIndex) {Type = "Array"; Handling = "Array";}
+    ATypeArrayObject();
+    ATypeArrayObject(int numX, int numY, int numZ, double stepX, double stepY, double stepZ, int startIndex = 0);
 
     void Reconfigure(int NumX, int NumY, int NumZ, double StepX, double StepY, double StepZ);
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
     QString introduceGeoConstValues() override;
@@ -134,16 +152,15 @@ public:
 class ATypeCircularArrayObject : public ATypeArrayObject
 {
 public:
-    ATypeCircularArrayObject() {Type = "CircularArray"; Handling = "Array";}
-    ATypeCircularArrayObject(int num, double angularStep, double radius, int StartIndex = 0)
-        : num(num), angularStep(angularStep), radius(radius) {Type = "CircularArray"; Handling = "Array"; startIndex = StartIndex;}
+    ATypeCircularArrayObject();
+    ATypeCircularArrayObject(int num, double angularStep, double radius, int StartIndex = 0);
 
     void Reconfigure(int Num, double AngularStep, double Radius);
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
     QString introduceGeoConstValues() override;
@@ -158,14 +175,14 @@ class ATypeHexagonalArrayObject : public ATypeArrayObject
 {
 public:
     enum EShapeMode {Hexagonal, XY};
-    ATypeHexagonalArrayObject() {Type = "HexagonalArray"; Handling = "Array";}
+    ATypeHexagonalArrayObject();
 
     void Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast);
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
     QString introduceGeoConstValues() override;
@@ -180,32 +197,14 @@ public:
     QString    strStep, strRings, strNumX, strNumY;
 };
 
-class ATypeGridObject : public AGeoType
-{
-public:
-    ATypeGridObject() {Type = "Grid"; Handling = "Standard";}
-};
-
-class ATypeGridElementObject : public AGeoType
-{
-public:
-    ATypeGridElementObject() {Type = "GridElement"; Handling = "Standard";}
-
-    void writeToJson(QJsonObject & json) const override;
-    void readFromJson(const QJsonObject & json) override;
-
-    int    shape = 1;       //0 : rectanglar-2wires, 1 : rectangular-crossed,  2 : hexagonal
-    double size1 = 10.0;    //half sizes for rectangular, size1 is size of hexagon
-    double size2 = 10.0;
-    double dz    = 5.0;     //half size in z
-};
+// -- Monitors --
 
 class ATypeMonitorObject : public AGeoType
 {
 public:
-    ATypeMonitorObject() {Type = "Monitor"; Handling = "Standard";}
+    ATypeMonitorObject();
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
@@ -219,21 +218,26 @@ public:
     int index;  //index of this monitor to access statistics   // !!!*** check, seems not in use anymore
 };
 
-class ATypePrototypeObject : public AGeoType
+// -- Optical grids --
+
+class ATypeGridObject : public AGeoType
 {
 public:
-    ATypePrototypeObject() {Type = "Prototype"; Handling = "Set";}
+    ATypeGridObject();
 };
 
-class ATypeInstanceObject : public AGeoType
+class ATypeGridElementObject : public AGeoType
 {
 public:
-    ATypeInstanceObject(QString PrototypeName = "") : PrototypeName(PrototypeName) {Type = "Instance"; Handling = "Standard";}
+    ATypeGridElementObject();
 
-    void writeToJson(QJsonObject & json) const override;
+    void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    QString PrototypeName;
+    int    shape = 1;       //0 : rectanglar-2wires, 1 : rectangular-crossed,  2 : hexagonal
+    double size1 = 10.0;    //half sizes for rectangular, size1 is size of hexagon
+    double size2 = 10.0;
+    double dz    = 5.0;     //half size in z
 };
 
 #endif // ATYPEGEOOBJECT_H

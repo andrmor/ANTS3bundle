@@ -239,7 +239,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
 {  
     for (AGeoObject * obj : Container->HostedObjects)
     {
-        if (obj->Type->isPrototypes()) continue;
+        if (obj->Type->isPrototypeCollection()) continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
 
