@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>192</width>
-    <height>446</height>
+    <width>148</width>
+    <height>492</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,11 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Optical sensors</string>
      </property>
@@ -24,14 +29,14 @@
    <item>
     <widget class="QPushButton" name="pbSensorIndex">
      <property name="text">
-      <string>Sensor indexes</string>
+      <string>Indexes</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pbSensorModel">
      <property name="text">
-      <string>Sensor models</string>
+      <string>Models</string>
      </property>
     </widget>
    </item>
@@ -69,36 +74,55 @@
    </item>
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="label_6">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Monitors</string>
+     </property>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QLabel" name="label_11">
+     <property name="text">
+      <string>Optical photons</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pbOptMonIndex">
      <property name="text">
-      <string>Optical monitor indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbPartMonIndex">
-     <property name="text">
-      <string>Particle monitor indexes</string>
+      <string>Indexes</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pbOptMonHits">
      <property name="text">
-      <string>Optical monitor hits</string>
+      <string>Hits</string>
+     </property>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Particles</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbPartMonIndex">
+     <property name="text">
+      <string>Indexes</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pbPartMonHits">
      <property name="text">
-      <string>Particle monitor hits</string>
+      <string>Hits</string>
      </property>
     </widget>
    </item>
@@ -136,6 +160,11 @@
    </item>
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="label_9">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Calorimeters</string>
      </property>
@@ -144,14 +173,14 @@
    <item>
     <widget class="QPushButton" name="pbCalIndex">
      <property name="text">
-      <string>Calorimeter indexes</string>
+      <string>Indexes</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pbCalTotals">
      <property name="text">
-      <string>Calorimeter totals</string>
+      <string>Totals</string>
      </property>
     </widget>
    </item>

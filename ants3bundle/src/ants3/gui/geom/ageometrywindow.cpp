@@ -416,29 +416,6 @@ void AGeometryWindow::showCalorimeterIndexes()
     showText(tmp, kRed, AGeoWriter::Calorimeters);
 }
 
-void AGeometryWindow::showMonitorIndexes()
-{
-    Geometry.GeoManager->ClearTracks();
-
-    int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
-    std::vector<QString> tmp;
-    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    showText(tmp, kBlue, AGeoWriter::PhotMons, false);
-
-    numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
-    tmp.clear();
-    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    showText(tmp, kGreen, AGeoWriter::PartMons, false);
-
-    ShowGeometry(false);
-    Geometry.GeoManager->DrawTracks();
-    UpdateRootCanvas();
-
-    /*
-    emit requestUpdateRegisteredGeoManager();
-    */
-}
-
 void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
 {
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
@@ -451,12 +428,7 @@ void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, 
 
     GeoWriter.setOrientationRoot(p.Lat, p.Long/*, p.Psi*/);
 
-    QString err = GeoWriter.drawText(textVec, color, onWhat);
-    if (!err.isEmpty())
-    {
-        guitools::message(err, this);
-        return;
-    }
+    GeoWriter.drawText(textVec, color, onWhat);
 
     if (bFullCycle)
     {
@@ -597,11 +569,6 @@ void AGeometryWindow::on_cbColor_toggled(bool checked)
     ColorByMaterial = checked;
     emit requestUpdateMaterialListWidget();
     ShowGeometry(true, false);
-}
-
-void AGeometryWindow::on_pbShowMonitorIndexes_clicked()
-{
-    showMonitorIndexes();
 }
 
 void AGeometryWindow::on_pbShowTracks_clicked()
@@ -1320,11 +1287,6 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
     /*
     emit requestUpdateRegisteredGeoManager();
     */
-}
-
-void AGeometryWindow::on_pbShowSensorIndexes_clicked()
-{
-    showSensorIndexes();
 }
 
 void AGeometryWindow::on_actionCalorimeters_triggered()

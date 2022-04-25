@@ -10,6 +10,8 @@ AShowNumbersDialog::AShowNumbersDialog(AGeometryWindow & gw) :
 {
     ui->setupUi(this);
 
+    setWindowTitle("Selector");
+
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = findChildren<QLineEdit*>();

@@ -87,7 +87,6 @@ public slots:
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
-    void showMonitorIndexes();
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
@@ -127,7 +126,6 @@ private slots:
     void on_actionDefault_zoom_to_0_triggered();
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
-    void on_pbShowMonitorIndexes_clicked();
     void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
     void on_actionJSROOT_in_browser_triggered();
@@ -142,8 +140,6 @@ private slots:
     void on_actionPhoton_monitors_triggered();
     void on_actionSensor_indexes_triggered();
     void on_actionSensor_models_triggered();
-
-    void on_pbShowSensorIndexes_clicked();
 
     void on_actionCalorimeters_triggered();
 

@@ -27,7 +27,7 @@ public:
     void setSizeForCalorimeters(double size_mm) {SizeForCalorimeters = size_mm;}
 
     enum EDraw {Sensors, PhotMons, PartMons, Calorimeters};
-    QString drawText(const std::vector<QString> & textVector, int color, EDraw onWhat); // returns error
+    void drawText(const std::vector<QString> & textVector, int color, EDraw onWhat);
 
 private:
     void generateSymbolMap();

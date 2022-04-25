@@ -219,20 +219,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbShowMonitorIndexes">
-         <property name="text">
-          <string>Show monitors</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbShowSensorIndexes">
-         <property name="text">
-          <string>Show sensors</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="pbShowTracks">
          <property name="text">
           <string>Show tracks</string>

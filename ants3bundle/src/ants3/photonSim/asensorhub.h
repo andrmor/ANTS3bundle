@@ -53,8 +53,9 @@ public:
     AVector3 getPosition(int iSensor) const;
     AVector3 getPositionFast(int iSensor) const;
 
+    // !!!*** obsolete!
     double   getMinSize(int iSensor) const;
-    double   getMinSizeFast(int iSensor) const; // !!!*** expand minSize for other shapes!!! USED by draw on GeoWin
+    double   getMinSizeFast(int iSensor) const;
 
     AGeoObject * getGeoObject(int iSensor) const;
 
