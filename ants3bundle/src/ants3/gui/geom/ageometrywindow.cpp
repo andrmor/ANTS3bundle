@@ -355,19 +355,25 @@ void AGeometryWindow::onBusyOff()
     RasterWindow->setBlockEvents(false);
 }
 
-/*
-void GeometryWindowClass::writeToJson(QJsonObject & json) const
+void AGeometryWindow::writeToJson(QJsonObject & json) const
 {
     json["ZoomLevel"] = ZoomLevel;
+
+    QJsonObject js;
+    GeoWriter.writeToJson(js);
+    json["GeoWriter"] = js;
 }
 
-void GeometryWindowClass::readFromJson(const QJsonObject &json)
+void AGeometryWindow::readFromJson(const QJsonObject & json)
 {
     fRecallWindow = false;
-    bool ok = parseJson(json, "ZoomLevel", ZoomLevel);
+    bool ok = jstools::parseJson(json, "ZoomLevel", ZoomLevel);
     if (ok) Zoom(true);
+
+    QJsonObject js;
+    ok = jstools::parseJson(json, "GeoWriter", js);
+    if (ok) GeoWriter.readFromJson(js);
 }
-*/
 
 bool AGeometryWindow::IsWorldVisible()
 {
@@ -416,29 +422,6 @@ void AGeometryWindow::showCalorimeterIndexes()
     showText(tmp, kRed, AGeoWriter::Calorimeters);
 }
 
-void AGeometryWindow::showMonitorIndexes()
-{
-    Geometry.GeoManager->ClearTracks();
-
-    int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Photon);
-    std::vector<QString> tmp;
-    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    showText(tmp, kBlue, AGeoWriter::PhotMons, false);
-
-    numMon     = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
-    tmp.clear();
-    for (int i = 0; i < numMon; i++) tmp.push_back( QString::number(i) );
-    showText(tmp, kGreen, AGeoWriter::PartMons, false);
-
-    ShowGeometry(false);
-    Geometry.GeoManager->DrawTracks();
-    UpdateRootCanvas();
-
-    /*
-    emit requestUpdateRegisteredGeoManager();
-    */
-}
-
 void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle)
 {
     if (bFullCycle) Geometry.GeoManager->ClearTracks();
@@ -451,12 +434,7 @@ void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, 
 
     GeoWriter.setOrientationRoot(p.Lat, p.Long/*, p.Psi*/);
 
-    QString err = GeoWriter.drawText(textVec, color, onWhat);
-    if (!err.isEmpty())
-    {
-        guitools::message(err, this);
-        return;
-    }
+    GeoWriter.drawText(textVec, color, onWhat);
 
     if (bFullCycle)
     {
@@ -483,38 +461,6 @@ void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, Color_t color, int 
     for (int i=0; i<poly.size()-1; i++)
         AddLineToGeometry(poly[i], poly[i+1], color, width);
 }
-
-/*
-#include "aeventtrackingrecord.h"
-#include "asimulationmanager.h"
-#include "amaterialparticlecolection.h"
-#include "TGeoTrack.h"
-#include "atrackrecords.h"
-void GeometryWindowClass::ShowEvent_Particles(size_t iEvent, bool withSecondaries)
-{
-    if (iEvent < SimulationManager.TrackingHistory.size())
-    {
-        const AEventTrackingRecord * er = SimulationManager.TrackingHistory.at(iEvent);
-        er->makeTracks(SimulationManager.Tracks, Detector.MpCollection->getListOfParticleNames(), SimulationManager.TrackBuildOptions, withSecondaries);
-
-        for (int iTr=0; iTr < (int)SimulationManager.Tracks.size(); iTr++)
-        {
-            const TrackHolderClass* th = SimulationManager.Tracks.at(iTr);
-            TGeoTrack* track = new TGeoTrack(1, th->UserIndex);
-            track->SetLineColor(th->Color);
-            track->SetLineWidth(th->Width);
-            track->SetLineStyle(th->Style);
-            for (int iNode=0; iNode<th->Nodes.size(); iNode++)
-                track->AddPoint(th->Nodes[iNode].R[0], th->Nodes[iNode].R[1], th->Nodes[iNode].R[2], th->Nodes[iNode].Time);
-            if (track->GetNpoints()>1)
-                Detector.GeoManager->AddTrack(track);
-            else delete track;
-        }
-    }
-
-    DrawTracks();
-}
-*/
 
 void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycle)
 {
@@ -629,11 +575,6 @@ void AGeometryWindow::on_cbColor_toggled(bool checked)
     ColorByMaterial = checked;
     emit requestUpdateMaterialListWidget();
     ShowGeometry(true, false);
-}
-
-void AGeometryWindow::on_pbShowMonitorIndexes_clicked()
-{
-    showMonitorIndexes();
 }
 
 void AGeometryWindow::on_pbShowTracks_clicked()
@@ -1286,6 +1227,11 @@ void AGeometryWindow::on_pbClearMarkers_clicked()
 
 void AGeometryWindow::on_actionParticle_monitors_triggered()
 {
+    showParticleMonIndexes();
+}
+
+void AGeometryWindow::showParticleMonIndexes()
+{
     Geometry.GeoManager->ClearTracks();
 
     const int numMon = AMonitorHub::getConstInstance().countMonitors(AMonitorHub::Particle);
@@ -1299,6 +1245,11 @@ void AGeometryWindow::on_actionParticle_monitors_triggered()
 }
 
 void AGeometryWindow::on_actionPhoton_monitors_triggered()
+{
+    showPhotonMonIndexes();
+}
+
+void AGeometryWindow::showPhotonMonIndexes()
 {
     Geometry.GeoManager->ClearTracks();
 
@@ -1344,13 +1295,15 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
     */
 }
 
-void AGeometryWindow::on_pbShowSensorIndexes_clicked()
-{
-    showSensorIndexes();
-}
-
 void AGeometryWindow::on_actionCalorimeters_triggered()
 {
     showCalorimeterIndexes();
+}
+
+#include "ashownumbersdialog.h"
+void AGeometryWindow::on_pbShowNumbers_clicked()
+{
+    AShowNumbersDialog d(*this);
+    d.exec();
 }
 

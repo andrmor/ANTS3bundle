@@ -123,7 +123,7 @@
        <item>
         <widget class="QCheckBox" name="cbShowTop">
          <property name="text">
-          <string>Show world</string>
+          <string>World</string>
          </property>
         </widget>
        </item>
@@ -137,7 +137,7 @@
        <item>
         <widget class="QCheckBox" name="cbShowAxes">
          <property name="text">
-          <string>Show axes</string>
+          <string>Axes</string>
          </property>
         </widget>
        </item>
@@ -212,16 +212,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbShowMonitorIndexes">
+        <widget class="QPushButton" name="pbShowNumbers">
          <property name="text">
-          <string>Show monitors</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbShowSensorIndexes">
-         <property name="text">
-          <string>Show sensors</string>
+          <string>Show numbers</string>
          </property>
         </widget>
        </item>

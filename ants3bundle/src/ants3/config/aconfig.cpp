@@ -29,6 +29,9 @@ AConfig::AConfig()
 
 void AConfig::updateJSONfromConfig()
 {
+    // if gui is present, save gui settings
+    emit requestSaveGuiSettings();
+
     writeToJson(JSON);
 }
 

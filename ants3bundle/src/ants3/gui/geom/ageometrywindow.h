@@ -25,6 +25,8 @@ class AGeometryWindow : public AGuiWindow
 {
     Q_OBJECT
 
+friend class AShowNumbersDialog;
+
 public:
     explicit AGeometryWindow(QWidget * parent);
     ~AGeometryWindow();
@@ -57,14 +59,11 @@ public:
 
     bool isColorByMaterial() {return ColorByMaterial;}
 
-/*
-   void writeToJson(QJsonObject & json) const;
-   void readFromJson(const QJsonObject & json);
-*/
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     bool IsWorldVisible();
 
-//    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
     void ShowTracksAndMarkers();
 
@@ -81,10 +80,11 @@ public slots:
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
+    void showPhotonMonIndexes();  // !!!***
+    void showParticleMonIndexes();  // !!!***
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
-    void showMonitorIndexes();
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
@@ -124,7 +124,6 @@ private slots:
     void on_actionDefault_zoom_to_0_triggered();
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
-    void on_pbShowMonitorIndexes_clicked();
     void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
     void on_actionJSROOT_in_browser_triggered();
@@ -140,9 +139,9 @@ private slots:
     void on_actionSensor_indexes_triggered();
     void on_actionSensor_models_triggered();
 
-    void on_pbShowSensorIndexes_clicked();
-
     void on_actionCalorimeters_triggered();
+
+    void on_pbShowNumbers_clicked();
 
 private:
     AGeometryHub         & Geometry;

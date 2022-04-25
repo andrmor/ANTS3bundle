@@ -5,6 +5,7 @@
 #include "ageometryhub.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 
@@ -57,7 +58,7 @@ void AGeoWriter::generateSymbolMap()
 }
 
 #include "TVector3.h"
-QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color, EDraw onWhat)
+void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, EDraw onWhat)
 {
     const ASensorHub      & SensorHub  = ASensorHub ::getConstInstance();
     const AMonitorHub     & MonitorHub = AMonitorHub::getConstInstance();
@@ -73,7 +74,11 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
     case Calorimeters : numObj = CalHub.countCalorimeters();                      break;
     }
 
-    if (textVector.size() != numObj) return "Show text: mismatch in vector sizes";
+    if (textVector.size() != numObj)
+    {
+        qWarning() << "AGeoWriter::drawText(): mismatch in vector sizes";
+        return;
+    }
 
     double longi = Longitude * 3.1415926535 / 180.0;
     double lati  = Latitude  * 3.1415926535 / 180.0;
@@ -100,42 +105,38 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
         {
         case Sensors :
           {
-            const ASensorModel * sensorModel = SensorHub.sensorModel(iObj);
-            if (sensorModel)
-            {
-                centerPos = SensorHub.getPositionFast(iObj);
-                size      = SensorHub.getMinSizeFast(iObj);    // !!!*** expand minSize for other shapes!!!
-            }
+            centerPos = SensorHub.getPositionFast(iObj);
+            size = SizeForSensors;
             break;
           }
         case PhotMons :
             centerPos = MonitorHub.PhotonMonitors[iObj].Position;
-            size      = MonitorHub.PhotonMonitors[iObj].GeoObj->Shape->minSize();
+            size = SizeForMonitors;
             break;
         case PartMons :
             centerPos = MonitorHub.ParticleMonitors[iObj].Position;
-            size      = MonitorHub.ParticleMonitors[iObj].GeoObj->Shape->minSize();
+            size = SizeForMonitors;
             break;
         case Calorimeters :
             centerPos = CalHub.Calorimeters[iObj].Position;
-            size      = CalHub.Calorimeters[iObj].GeoObj->Shape->minSize();
+            size = SizeForCalorimeters;
             break;
         }
-        if (size == 0) size = 2.0;
-        size = size / 3.0 / (0.5 + 0.5*MaxSymbols);
+
+        //size = size / 3.0 / (0.5 + 0.5*MaxSymbols);
+        size /= (1.62 * 2.0);
+        if (size == 0) size = 10.0;
         int lineWidth = 2;
         //if (size<2) lineWidth = 1;
 
-        //qDebug() <<"("<< centerPos[0] << centerPos[1]<< centerPos[2]<< ")" << size << str;
-
         for (int iDig = 0; iDig < numDigits; iDig++)
         {
-            QString str1 = str.mid(iDig, 1);
+            const QString str1 = str.mid(iDig, 1);
 
-            auto it = SymbolMap.find(str1);
+            const auto it = SymbolMap.find(str1);
             if (it == SymbolMap.end()) continue;
 
-            Int_t track_index = GeoManager->AddTrack(2, 22);
+            int track_index = GeoManager->AddTrack(2, 22);
             TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
             if (str.right(1) == "F") track->SetLineColor(kRed);
             else                     track->SetLineColor(color);
@@ -143,8 +144,8 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
 
             for (const auto & pair : it->second.Coordinates)
             {
-                double x = - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
-                double y = size * pair.second;
+                const double x = -2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
+                const double y = size * pair.second;
 
                 TVector3 pos(-y, x, 0);
                 pos.RotateZ(longi);
@@ -154,6 +155,18 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
             }
         }
     }
+}
 
-    return QString();
+void AGeoWriter::writeToJson(QJsonObject & json) const
+{
+    json["SizeForSensors"]      = SizeForSensors;
+    json["SizeForMonitors"]     = SizeForMonitors;
+    json["SizeForCalorimeters"] = SizeForCalorimeters;
+}
+
+void AGeoWriter::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "SizeForSensors",      SizeForSensors);
+    jstools::parseJson(json, "SizeForMonitors",     SizeForMonitors);
+    jstools::parseJson(json, "SizeForCalorimeters", SizeForCalorimeters);
 }

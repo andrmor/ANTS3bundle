@@ -78,6 +78,7 @@ SOURCES += \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     gui/aguiwindow.cpp \
+    gui/geom/ashownumbersdialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -261,6 +262,7 @@ HEADERS += \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
     gui/aguiwindow.h \
+    gui/geom/ashownumbersdialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/asensordrawwidget.h \
@@ -442,6 +444,7 @@ HEADERS += \
     tools/avector.h
 
 FORMS += \
+        gui/geom/ashownumbersdialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
