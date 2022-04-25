@@ -59,10 +59,8 @@ public:
 
     bool isColorByMaterial() {return ColorByMaterial;}
 
-/*
-   void writeToJson(QJsonObject & json) const;
-   void readFromJson(const QJsonObject & json);
-*/
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     bool IsWorldVisible();
 

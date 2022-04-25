@@ -16,6 +16,10 @@ AShowNumbersDialog::AShowNumbersDialog(AGeometryWindow & gw) :
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = findChildren<QLineEdit*>();
     foreach (QLineEdit * w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
+
+    ui->ledSizeSensor->     setText(QString::number(GW.GeoWriter.SizeForSensors));
+    ui->ledSizeMonitor->    setText(QString::number(GW.GeoWriter.SizeForMonitors));
+    ui->ledSizeCalorimeter->setText(QString::number(GW.GeoWriter.SizeForCalorimeters));
 }
 
 AShowNumbersDialog::~AShowNumbersDialog()
@@ -77,17 +81,17 @@ void AShowNumbersDialog::on_pbCalTotals_clicked()
 void AShowNumbersDialog::on_ledSizeSensor_editingFinished()
 {
     const double size = ui->ledSizeSensor->text().toDouble();
-    GW.GeoWriter.setSizeForSensors(size);
+    GW.GeoWriter.SizeForSensors = size;
 }
 
 void AShowNumbersDialog::on_ledSizeMonitor_editingFinished()
 {
     const double size = ui->ledSizeMonitor->text().toDouble();
-    GW.GeoWriter.setSizeForMonitors(size);
+    GW.GeoWriter.SizeForMonitors = size;
 }
 
 void AShowNumbersDialog::on_ledSizeCalorimeter_editingFinished()
 {
     const double size = ui->ledSizeCalorimeter->text().toDouble();
-    GW.GeoWriter.setSizeForCalorimeters(size);
+    GW.GeoWriter.SizeForCalorimeters = size;
 }

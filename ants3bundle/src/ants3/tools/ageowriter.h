@@ -6,6 +6,8 @@
 
 #include <QString>
 
+class QJsonObject;
+
 struct AGeoSymbol
 {
     AGeoSymbol(std::vector<double> x, std::vector<double> y);
@@ -20,14 +22,17 @@ class AGeoWriter
 public:
     AGeoWriter();
 
-    void setOrientationRoot(double latitude, double longitude) {Latitude = latitude; Longitude = longitude;}
+    double SizeForSensors      = 10.0;
+    double SizeForMonitors     = 10.0;
+    double SizeForCalorimeters = 10.0;
 
-    void setSizeForSensors(double size_mm)      {SizeForSensors      = size_mm;}
-    void setSizeForMonitors(double size_mm)     {SizeForMonitors     = size_mm;}
-    void setSizeForCalorimeters(double size_mm) {SizeForCalorimeters = size_mm;}
+    void setOrientationRoot(double latitude, double longitude) {Latitude = latitude; Longitude = longitude;}
 
     enum EDraw {Sensors, PhotMons, PartMons, Calorimeters};
     void drawText(const std::vector<QString> & textVector, int color, EDraw onWhat);
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
 private:
     void generateSymbolMap();
@@ -36,10 +41,6 @@ private:
 
     double Latitude  = 60.0;
     double Longitude = -120.0;
-
-    double SizeForSensors      = 10.0;
-    double SizeForMonitors     = 10.0;
-    double SizeForCalorimeters = 10.0;
 };
 
 #endif // AGEOWRITER_H

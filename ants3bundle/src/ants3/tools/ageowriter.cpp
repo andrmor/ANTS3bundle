@@ -5,6 +5,7 @@
 #include "ageometryhub.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 
@@ -154,4 +155,18 @@ void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, ED
             }
         }
     }
+}
+
+void AGeoWriter::writeToJson(QJsonObject & json) const
+{
+    json["SizeForSensors"]      = SizeForSensors;
+    json["SizeForMonitors"]     = SizeForMonitors;
+    json["SizeForCalorimeters"] = SizeForCalorimeters;
+}
+
+void AGeoWriter::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "SizeForSensors",      SizeForSensors);
+    jstools::parseJson(json, "SizeForMonitors",     SizeForMonitors);
+    jstools::parseJson(json, "SizeForCalorimeters", SizeForCalorimeters);
 }

@@ -355,19 +355,21 @@ void AGeometryWindow::onBusyOff()
     RasterWindow->setBlockEvents(false);
 }
 
-/*
-void GeometryWindowClass::writeToJson(QJsonObject & json) const
+void AGeometryWindow::writeToJson(QJsonObject & json) const
 {
     json["ZoomLevel"] = ZoomLevel;
 }
 
-void GeometryWindowClass::readFromJson(const QJsonObject &json)
+void AGeometryWindow::readFromJson(const QJsonObject & json)
 {
     fRecallWindow = false;
-    bool ok = parseJson(json, "ZoomLevel", ZoomLevel);
+    bool ok = jstools::parseJson(json, "ZoomLevel", ZoomLevel);
     if (ok) Zoom(true);
+
+    QJsonObject js;
+    GeoWriter.writeToJson(js);
+    json["GeoWriter"] = js;
 }
-*/
 
 bool AGeometryWindow::IsWorldVisible()
 {
