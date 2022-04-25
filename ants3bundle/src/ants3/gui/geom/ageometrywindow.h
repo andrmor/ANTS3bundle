@@ -131,25 +131,16 @@ private slots:
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
-
     void on_pbClearMarkers_clicked();
-
-    void on_actionParticle_monitors_triggered();
-    void on_actionPhoton_monitors_triggered();
-    void on_actionSensor_indexes_triggered();
-    void on_actionSensor_models_triggered();
-
-    void on_actionCalorimeters_triggered();
-
     void on_pbShowNumbers_clicked();
 
 private:
-    AGeometryHub         & Geometry;
+    AGeometryHub          & Geometry;
 
-    Ui::AGeometryWindow * ui = nullptr;
+    Ui::AGeometryWindow   * ui = nullptr;
     RasterWindowBaseClass * RasterWindow = nullptr;
 
-    ACameraControlDialog * CameraControl = nullptr;
+    ACameraControlDialog  * CameraControl = nullptr;
 
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
@@ -159,7 +150,6 @@ private:
     int GeoMarkerStyle = 6;
 
     bool TMPignore = false;
-    bool BarShown = true;
     bool ShowTop = false;
     bool ColorByMaterial = false;
 

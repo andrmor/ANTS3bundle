@@ -214,7 +214,7 @@
        <item>
         <widget class="QPushButton" name="pbShowNumbers">
          <property name="text">
-          <string>Show numbers</string>
+          <string>Show labels</string>
          </property>
         </widget>
        </item>
@@ -384,20 +384,7 @@
     <addaction name="actionOpen_GL_viewer"/>
     <addaction name="actionJSROOT_in_browser"/>
    </widget>
-   <widget class="QMenu" name="menuShow">
-    <property name="title">
-     <string>Show</string>
-    </property>
-    <addaction name="actionParticle_monitors"/>
-    <addaction name="actionPhoton_monitors"/>
-    <addaction name="separator"/>
-    <addaction name="actionSensor_indexes"/>
-    <addaction name="actionSensor_models"/>
-    <addaction name="separator"/>
-    <addaction name="actionCalorimeters"/>
-   </widget>
    <addaction name="menuView"/>
-   <addaction name="menuShow"/>
    <addaction name="menuMarkers"/>
    <addaction name="menuLines"/>
    <addaction name="menuZoom"/>

@@ -1225,11 +1225,6 @@ void AGeometryWindow::on_pbClearMarkers_clicked()
     on_pbShowGeometry_clicked();
 }
 
-void AGeometryWindow::on_actionParticle_monitors_triggered()
-{
-    showParticleMonIndexes();
-}
-
 void AGeometryWindow::showParticleMonIndexes()
 {
     Geometry.GeoManager->ClearTracks();
@@ -1244,11 +1239,6 @@ void AGeometryWindow::showParticleMonIndexes()
     */
 }
 
-void AGeometryWindow::on_actionPhoton_monitors_triggered()
-{
-    showPhotonMonIndexes();
-}
-
 void AGeometryWindow::showPhotonMonIndexes()
 {
     Geometry.GeoManager->ClearTracks();
@@ -1261,16 +1251,6 @@ void AGeometryWindow::showPhotonMonIndexes()
     /*
     emit requestUpdateRegisteredGeoManager();
     */
-}
-
-void AGeometryWindow::on_actionSensor_indexes_triggered()
-{
-    showSensorIndexes();
-}
-
-void AGeometryWindow::on_actionSensor_models_triggered()
-{
-    showSensorModelIndexes();
 }
 
 void AGeometryWindow::showSensorModelIndexes(int iModel)
@@ -1293,11 +1273,6 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
     /*
     emit requestUpdateRegisteredGeoManager();
     */
-}
-
-void AGeometryWindow::on_actionCalorimeters_triggered()
-{
-    showCalorimeterIndexes();
 }
 
 #include "ashownumbersdialog.h"
