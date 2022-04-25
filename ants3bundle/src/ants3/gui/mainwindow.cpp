@@ -36,7 +36,8 @@ MainWindow::MainWindow() :
     AGeometryHub::getInstance().populateGeoManager();
 
   // Main signal->slot lines
-    connect(&Config, &AConfig::configLoaded, this, &MainWindow::updateAllGuiFromConfig);
+    connect(&Config, &AConfig::configLoaded,           this, &MainWindow::updateAllGuiFromConfig);
+    connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
     GeoConWin = new A3GeoConWin(this);
@@ -263,6 +264,7 @@ void MainWindow::on_actionExit_triggered()
 
 // ---
 
+#include "ajsontools.h"
 void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
@@ -276,7 +278,29 @@ void MainWindow::updateAllGuiFromConfig()
 
     //rules !!!***
 
+    QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "GeometryWindow", js);
+        if (ok) GeoWin->readFromJson(js);
+    }
+
     GeoWin->ShowGeometry(false, false, true);
+}
+
+void MainWindow::onRequestSaveGuiSettings()
+{
+    QJsonObject & JSON = AConfig::getInstance().JSON;
+
+    QJsonObject json;
+
+    {
+        QJsonObject js;
+        GeoWin->writeToJson(js);
+        json["GeometryWindow"] = js;
+    }
+
+    JSON["gui"] = json;
 }
 
 void MainWindow::on_pbPhotSim_clicked()

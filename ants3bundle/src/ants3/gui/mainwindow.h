@@ -52,6 +52,7 @@ private:
 private slots:
     void onRebuildGeometryRequested(); // !!!*** refactor?
     void updateAllGuiFromConfig();
+    void onRequestSaveGuiSettings();
 
     // Main menu
     void on_actionSave_configuration_triggered();

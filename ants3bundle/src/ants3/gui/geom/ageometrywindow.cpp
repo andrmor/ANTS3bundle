@@ -358,6 +358,10 @@ void AGeometryWindow::onBusyOff()
 void AGeometryWindow::writeToJson(QJsonObject & json) const
 {
     json["ZoomLevel"] = ZoomLevel;
+
+    QJsonObject js;
+    GeoWriter.writeToJson(js);
+    json["GeoWriter"] = js;
 }
 
 void AGeometryWindow::readFromJson(const QJsonObject & json)
@@ -367,8 +371,8 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     if (ok) Zoom(true);
 
     QJsonObject js;
-    GeoWriter.writeToJson(js);
-    json["GeoWriter"] = js;
+    ok = jstools::parseJson(json, "GeoWriter", js);
+    if (ok) GeoWriter.readFromJson(js);
 }
 
 bool AGeometryWindow::IsWorldVisible()
