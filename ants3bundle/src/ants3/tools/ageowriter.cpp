@@ -75,6 +75,11 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
 
     if (textVector.size() != numObj) return "Show text: mismatch in vector sizes";
 
+    double longi = Longitude * 3.1415926535 / 180.0;
+    double lati  = Latitude  * 3.1415926535 / 180.0;
+    TVector3 os(0, 1.0, 0);
+    os.RotateZ(longi);
+
     //max number of symbols to show
     int MaxSymbols = 0;
     for (const QString & txt : textVector)
@@ -138,25 +143,13 @@ QString AGeoWriter::drawText(const std::vector<QString> & textVector, int color,
 
             for (const auto & pair : it->second.Coordinates)
             {
-                //double x = centerPos[0] - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
                 double x = - 2.6 * size * (0.5 * (numDigits-1) - 1.0 * iDig) + size * pair.first;
-                //double y = centerPos[1] + size * pair.second;
                 double y = size * pair.second;
-
-                //double longi = (Longitude + 120.0) * 3.1415926/180.0;
-                double longi = (Longitude) * 3.1415926/180.0;
 
                 TVector3 pos(-y, x, 0);
                 pos.RotateZ(longi);
+                pos.Rotate(lati, os);
 
-                TVector3 os(0, 1.0, 0);
-                os.RotateZ(longi);
-
-                pos.Rotate(Latitude * 3.1415926/180.0, os);
-
-                //pos.RotateX(Latitude * 3.1415926/180.0);
-
-                //track->AddPoint(x, y, centerPos[2], 0);
                 track->AddPoint(pos[0] + centerPos[0], pos[1] + centerPos[1], pos[2] + centerPos[2], 0);
             }
         }
