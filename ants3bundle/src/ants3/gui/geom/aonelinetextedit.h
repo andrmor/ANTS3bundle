@@ -13,7 +13,7 @@ class AOneLineTextEdit : public QPlainTextEdit
 public:
     AOneLineTextEdit(const QString & txt = "", QWidget * parent = nullptr);
 
-    void setText(const QString & text);
+    void setText(const QString & text); // also sets tooltip
     QString text() const;
 
     void setFrame(bool flag);
@@ -31,11 +31,13 @@ private slots:
     void clearTooltip();
 
 signals:
-    void editingFinished();
+    void enterPressed();
+    void editingFinished(); // if enter is pressed, this signal is emitted enterPressed()
     void escapePressed();
 
 public:
     QCompleter * Completer = nullptr;
+    bool bIntegerTooltip   = false;
 };
 
 

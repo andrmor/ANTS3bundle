@@ -5,14 +5,19 @@
 #include <QAbstractItemView>
 #include <QScrollBar>
 
-AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPlainTextEdit(txt, parent)
+AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPlainTextEdit(parent)
 {
+    setText(txt);
+
     setTabChangesFocus(true);
     setWordWrapMode(QTextOption::NoWrap);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setFixedHeight(sizeHint().height());
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    //setContentsMargins(0,0,0,0);
+    document()->setDocumentMargin(2); // !!!*** hard coded!
 
     setAcceptDrops(false);
     setCenterOnScroll(true);
@@ -38,7 +43,12 @@ void AOneLineTextEdit::setText(const QString & text)
     if (!ok)
     {
         AGeoConsts::getConstInstance().evaluateFormula(text, val);
-        setToolTip(QString::number(val));
+
+        if (bIntegerTooltip)
+            setToolTip(QString::number((int)val));
+        else
+            setToolTip(QString::number(val));
+
         setToolTipDuration(1000);
     }
 }
@@ -76,6 +86,7 @@ void AOneLineTextEdit::keyPressEvent(QKeyEvent * e)
         if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
         {
             e->accept();
+            emit enterPressed();
             emit editingFinished();
             return;
         }

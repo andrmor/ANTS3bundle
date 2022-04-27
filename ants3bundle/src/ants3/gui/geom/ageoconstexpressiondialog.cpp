@@ -22,13 +22,13 @@ AGeoConstExpressionDialog::AGeoConstExpressionDialog(A3GeoConWin * geoConW, int 
 
         lMain->addStretch();
 
-        lMain->addWidget(new QLabel("All TFormula syntax and names of constants defined above"), 0, Qt::AlignHCenter);
+        lMain->addWidget(new QLabel("Use TFormula syntax and constants defined above this one"), 0, Qt::AlignHCenter);
 
         OriginalText = AGeoConsts::getInstance().getExpression(index);
         ed = new AOneLineTextEdit(OriginalText);
-        ed->setMinimumHeight(30);
+        //ed->setMinimumHeight(30);
         AGeoBaseDelegate::configureHighligherAndCompleter(ed, Index);
-        connect(ed, &AOneLineTextEdit::editingFinished, this, &AGeoConstExpressionDialog::onAcceptPressed);
+        connect(ed, &AOneLineTextEdit::enterPressed, this, &AGeoConstExpressionDialog::onAcceptPressed);
         lMain->addWidget(ed);
 
         lMain->addStretch();
@@ -69,7 +69,10 @@ void AGeoConstExpressionDialog::onAcceptPressed()
     QString errorStr = GC.setNewExpression(Index, newText);
     if (!errorStr.isEmpty())
     {
+        blockSignals(true);
+        GC.setNewExpression(Index, OriginalText);
         guitools::message(errorStr, this);
+        blockSignals(false);
         return;
     }
 

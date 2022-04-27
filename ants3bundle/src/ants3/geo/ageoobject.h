@@ -68,7 +68,7 @@ public:
   void writeToJson(QJsonObject & json) const;
   void readFromJson(const QJsonObject & json);
 
-  void introduceGeoConstValues();
+  void introduceGeoConstValues(); // !!!*** error control!
   void introduceGeoConstValuesRecursive();
 
   //recursive json, using single object json

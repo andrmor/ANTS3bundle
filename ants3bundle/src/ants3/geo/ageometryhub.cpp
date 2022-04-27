@@ -497,6 +497,7 @@ void AGeometryHub::populateGeoManager()
     ACalorimeterHub::getInstance().clear();
     clearGridRecords();
 
+    AGeoConsts::getInstance().updateFromExpressions(); // !!!*** errors?
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
     expandPrototypeInstances();
