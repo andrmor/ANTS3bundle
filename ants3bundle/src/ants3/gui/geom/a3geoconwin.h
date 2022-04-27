@@ -24,9 +24,9 @@ public:
 
 private slots:
   void onRebuildDetectorRequest();
-  void onGeoConstEditingFinished(int index, QString newValue);
-  void onGeoConstExpressionEditingFinished(int index, QString newValue);
-  void onGeoConstEscapePressed(int index);
+  void onGeoConstEditingFinished(int index, QString newValue); // !!!*** not needed?
+  void onGeoConstExpressionEditingFinished(int index, QString newValue); // !!!*** not needed?
+  void onGeoConstEscapePressed(int index); // !!!*** not needed?
   void onRequestShowPrototypeList();
   void updateMenuIndication();
 
@@ -44,6 +44,8 @@ private slots:
   void on_actionHow_to_use_drag_and_drop_triggered();
   void on_actionTo_JavaScript_triggered();
   void on_cbShowPrototypes_toggled(bool checked);
+
+  void on_tabwConstants_cellClicked(int row, int column);
 
 private:
   AGeometryHub       & Geometry;

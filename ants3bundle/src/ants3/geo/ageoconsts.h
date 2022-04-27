@@ -29,6 +29,7 @@ public:
     static const AGeoConsts & getConstInstance();
 
     void    clearConstants();
+    void    updateFromExpressions(); // !!!*** add error handling!
 
     QString addNewConstant(const QString & name, double value, int index = -1);
     void    addNoNameConstant(int index);

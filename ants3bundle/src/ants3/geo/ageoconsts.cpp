@@ -86,6 +86,12 @@ void AGeoConsts::clearConstants()
     GeoConstValues.clear();
 }
 
+void AGeoConsts::updateFromExpressions()
+{
+    for (int i = 0; i < Records.size(); i++)
+        evaluateConstExpression(i);
+}
+
 void AGeoConsts::writeToJsonArr(QJsonArray & ar) const
 {
     ar = QJsonArray();

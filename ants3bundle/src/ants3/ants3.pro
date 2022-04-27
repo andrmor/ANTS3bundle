@@ -78,6 +78,7 @@ SOURCES += \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     gui/aguiwindow.cpp \
+    gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
@@ -262,6 +263,7 @@ HEADERS += \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
     gui/aguiwindow.h \
+    gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ashownumbersdialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
