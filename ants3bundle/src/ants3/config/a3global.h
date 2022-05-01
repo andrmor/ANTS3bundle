@@ -24,12 +24,12 @@ public:
     // !!!*** need renaming
 
     // Dirs
-    QString ExamplesDir;
-    QString ResourcesDir;
-    QString ExecutableDir;
     QString ExchangeDir;   // can be changed, therefore it is saved
+    QString ExecutableDir;
     QString ConfigDir;     // global settings are saved there
     QString QuicksaveDir;
+    QString ExamplesDir;
+    QString ResourcesDir;
     QString LastSaveDir;
     QString LastLoadDir;
 

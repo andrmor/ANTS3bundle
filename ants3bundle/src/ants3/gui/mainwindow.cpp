@@ -17,6 +17,7 @@
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
 #include "ascriptwindow.h"
+#include "aglobsetwindow.h"
 #include "ademowindow.h"
 
 #include <QDebug>
@@ -92,6 +93,8 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
     JScriptWin->updateGui();
+
+    GlobSetWin = new AGlobSetWindow(this);
 
     DemoWin = new ADemoWindow(this);
 
@@ -330,6 +333,13 @@ void MainWindow::on_pbFarm_clicked()
     FarmWin->updateGui();
 }
 
+void MainWindow::on_pbGlobSet_clicked()
+{
+    GlobSetWin->showNormal();
+    GlobSetWin->activateWindow();
+    GlobSetWin->updateGui();
+}
+
 void MainWindow::on_pbParticleSim_clicked()
 {
     PartSimWin->showNormal();
@@ -393,7 +403,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     QThread::msleep(110);
 
     std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
-                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
 
     for (auto * win : wins) delete win;
 
@@ -404,7 +414,7 @@ void MainWindow::saveWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
-                                   DemoWin };
+                                   GlobSetWin, DemoWin };
 
     for (auto * w : wins) w->storeGeomStatus();
 }
@@ -413,7 +423,7 @@ void MainWindow::loadWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
-                                   DemoWin };
+                                   GlobSetWin, DemoWin };
 
     for (auto * w : wins) w->restoreGeomStatus();
 }

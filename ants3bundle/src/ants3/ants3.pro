@@ -77,6 +77,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
+    gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -262,6 +263,7 @@ HEADERS += \
     ademomanager.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
+    gui/aglobsetwindow.h \
     gui/aguiwindow.h \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ashownumbersdialog.h \
@@ -447,6 +449,7 @@ HEADERS += \
 
 FORMS += \
         gui/geom/ashownumbersdialog.ui \
+        gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
