@@ -1,6 +1,7 @@
 #include "SessionManager.hh"
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
+#include "exceptionhandler.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -9,6 +10,7 @@
 #include "G4UIExecutive.hh"
 #include "G4GDMLParser.hh"
 #include "G4PhysListFactory.hh"
+#include "G4StateManager.hh"
 
 #include "QGSP_BIC.hh"
 #include "QGSP_BIC_HP.hh"
@@ -42,6 +44,10 @@ int main(int argc, char** argv)
     if (bGui) ui = new G4UIExecutive(argc, argv);
 
     G4RunManager * runManager = new G4RunManager;
+
+    ExceptionHandler * EH  = new ExceptionHandler();
+    G4StateManager::GetStateManager()->SetExceptionHandler(EH);
+
     G4GDMLParser parser;
     parser.Read(SM.WorkingDir + "/" + SM.Settings.RunSet.GDML, false); //false - no validation
     // need to implement own G4excpetion-based handler class  ->  SM.terminateSession("Error parsing GDML file");

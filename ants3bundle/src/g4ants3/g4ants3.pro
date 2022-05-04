@@ -65,6 +65,7 @@ SOURCES += \
         src/TrackingAction.cc \
         #src/ahistogram.cc \
         src/arandomg4hub.cpp \
+        src/exceptionhandler.cpp \
         src/json11.cc \
         src/js11tools.cc
 
@@ -101,5 +102,6 @@ HEADERS += \
     src/TrackingAction.hh \
     #src/ahistogram.hh \
     src/arandomg4hub.h \
+    src/exceptionhandler.h \
     src/json11.hh \
     src/js11tools.hh

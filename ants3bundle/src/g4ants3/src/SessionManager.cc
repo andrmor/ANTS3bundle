@@ -103,7 +103,7 @@ void SessionManager::terminateSession(const std::string & ReturnMessage)
     ErrorMessage = ReturnMessage;
     generateReceipt();
 
-    exit(0);
+    exit(1);
 }
 
 void SessionManager::endSession()
