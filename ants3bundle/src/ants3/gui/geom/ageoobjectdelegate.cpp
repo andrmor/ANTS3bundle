@@ -330,7 +330,7 @@ QString AGeoObjectDelegate::getName() const
 
 bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false in void AGeoWidget::onConfirmPressed()
 {
-    QString errorStr;
+    QString errorStr; // !!!*** to AErrorHub
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 

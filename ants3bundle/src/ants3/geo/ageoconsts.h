@@ -2,6 +2,7 @@
 #define AGEOCONSTS_H
 
 #include <QVector>
+#include <vector>
 #include <QString>
 #include <QRegularExpression>
 
@@ -67,7 +68,7 @@ public:
     bool    updateParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero = true, bool bForbidNegative = true, bool bMakeHalf = true) const;
     bool    updateParameter(QString & errorStr, QString & str, int    & returnValue, bool bForbidZero = true, bool bForbidNegative = true) const;
 
-    const QVector<QString> & getTFormulaReservedWords() const {return FormulaReservedWords;}
+    const std::vector<QString> & getTFormulaReservedWords() const {return FormulaReservedWords;}
 
 public:
     const QString placeholderStr = "______";
@@ -84,9 +85,9 @@ private:
     QVector<double> GeoConstValues;                    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
 
     //misc
-    QVector<QString> FunctionsToJS;
-    QVector<QString> FormulaReservedWords;
-    QVector<QRegularExpression> ForbiddenVarsRExp;
+    std::vector<QString> FunctionsToJS;
+    std::vector<QString> FormulaReservedWords;
+    std::vector<QRegularExpression> ForbiddenVarsRExp; // !!!*** obsolete?
 
     void updateRunTimeProperties();
 };

@@ -8,13 +8,14 @@
 
 AGeoConsts::AGeoConsts()
 {
-    FunctionsToJS << "abs" << "acos" << "asin" << "atan" << "ceil" << "floor" << "cos" << "exp" << "log" << "pow" << "sin" << "sqrt" << "tan";
+    FunctionsToJS = {"abs", "acos", "asin", "atan", "ceil", "floor", "cos", "exp", "log", "pow", "sin", "sqrt", "tan"};
 
-    FormulaReservedWords << "sqrt2" << "pi" << "ln10" << "infinity"
-                         << "pow" << "sin" << "cos" << "sqrt" << "exp" << "ceil" << "floor";
+    FormulaReservedWords = {"sqrt2", "pi", "e", "ln10", "infinity",
+                            "c", "r",
+                            "pow", "sin", "cos", "sqrt", "exp", "ceil", "floor"};
 
-    ForbiddenVarsRExp << QRegularExpression("\\bg\\b") << QRegularExpression("\\bh\\b") << QRegularExpression("\\bt\\b") << QRegularExpression("\\bk\\b") << QRegularExpression("\\bx\\b")
-                      << QRegularExpression("\\by\\b") << QRegularExpression("\\bz\\b") << QRegularExpression("\\bc\\b") << QRegularExpression("\\br\\b") << QRegularExpression("\\be\\b");
+    //std::vector<QString> vec = {"g", "h", "t", "k", "x", "y", "z", "c", "r", "e"}; // !!!*** obsolete?
+    //for (const QString & s : vec) ForbiddenVarsRExp.push_back(QRegularExpression("\\b" + s + "\\b"));
 }
 
 AGeoConsts &AGeoConsts::getInstance()
@@ -136,6 +137,7 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
 }
 
 #include "TFormula.h"
+#include "aerrorhub.h"
 bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) const
 {
     if (to == -1) to = Records.size();
@@ -143,16 +145,28 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     for (int i = 0; i < to; i++)
         str.replace(Records.at(i).RegExp, Records.at(i).Index);
 
-    for (int ir = 0; ir < ForbiddenVarsRExp.size(); ir++)
+    if (str.contains('[') || str.contains(']'))
     {
-        if (str.contains(ForbiddenVarsRExp.at(ir)) )
-            return false;
+        AErrorHub::addQError( QString("Formula (%0) contains square brackets").arg(str) );
+        return false;
     }
+
+    /*
+    for (const QRegularExpression & fe : ForbiddenVarsRExp)
+    {
+        if (str.contains(fe))
+        {
+            AErrorHub::addQError( QString("GeoConst (%0) contains invalid vars").arg(str) );
+            return false;
+        }
+    }
+    */
 
     TFormula * f = new TFormula("", str.toLocal8Bit().data());
     if (!f || !f->IsValid())
     {
         delete f;
+        AErrorHub::addQError( QString("String (%0) produces an invalid TFormula").arg(str) );
         return false;
     }
 
