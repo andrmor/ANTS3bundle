@@ -6,7 +6,7 @@ More than a half-way to alpha release
 
 Recommended:
 
-Qt 6.3
+Qt 6.3     Requires: WebSockets
 
 ROOT 6.26.02     c++17
 
