@@ -97,7 +97,7 @@ QString AMonitorConfig::updateFromGeoConstants()
     QString errorStr;
 
     bool ok;
-    ok = GC.updateParameter(errorStr, str2size1, size1); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2size2, size2); if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, str2size1, size1); if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, str2size2, size2); if (!ok) return errorStr;
     return "";
 }

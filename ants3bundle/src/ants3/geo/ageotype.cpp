@@ -165,15 +165,15 @@ QString ATypeArrayObject::introduceGeoConstValues()
     QString errorStr;
     bool ok;
 
-    ok = GC.updateParameter(errorStr, strNumX, numX, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumY, numY, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumZ, numZ, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNumX, numX, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNumY, numY, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNumZ, numZ, true, true) ; if (!ok) return errorStr;
 
-    ok = GC.updateParameter(errorStr, strStepX, stepX, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strStepX, stepX, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) return errorStr;
 
-    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) return errorStr;
 
     return "";
 }
@@ -303,10 +303,10 @@ QString ATypeCircularArrayObject::introduceGeoConstValues()
     QString errorStr;
     bool ok;
 
-    ok = GC.updateParameter(errorStr, strNum,         num,         true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStartIndex,  startIndex,  false, true);         if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNum,         num,         true,  true);         if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strStartIndex,  startIndex,  false, true);         if (!ok) return errorStr;
 
     return "";
 }
@@ -388,11 +388,11 @@ QString ATypeHexagonalArrayObject::introduceGeoConstValues()
     QString errorStr;
     bool ok;
 
-    ok = GC.updateParameter(errorStr, strStep,       Step,       true,  true, false);  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strRings,      Rings,      false, true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumX,       NumX,       true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumY,       NumY,       true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true);         if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strStep,       Step,       true,  true, false);  if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strRings,      Rings,      false, true);         if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNumX,       NumX,       true,  true);         if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strNumY,       NumY,       true,  true);         if (!ok) return errorStr;
+    ok = GC.updateIntParameter(errorStr, strStartIndex, startIndex, false, true);         if (!ok) return errorStr;
 
     return "";
 }

@@ -67,11 +67,11 @@ bool AGeoCalorimeter::introduceGeoConstValues()
     bool bErr = false;
     for (int i = 0; i <3 ; i++)
     {
-        ok = GC.updateParameter(err, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
+        ok = GC.updateDoubleParameter(err, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
         if (!ok) {AErrorHub::addQError(err); bErr = true;}
-        ok = GC.updateParameter(err, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
+        ok = GC.updateDoubleParameter(err, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
         if (!ok) {AErrorHub::addQError(err); bErr = true;}
-        ok = GC.updateParameter(err, Properties.strBins[i],   Properties.Bins[i],   true,  true);
+        ok = GC.updateIntParameter(err, Properties.strBins[i],   Properties.Bins[i],   true,  true);
         if (!ok) {AErrorHub::addQError(err); bErr = true;}
     }
     return bErr;

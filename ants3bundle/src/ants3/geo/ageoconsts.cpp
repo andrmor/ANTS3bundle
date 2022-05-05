@@ -168,7 +168,7 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     return true;
 }
 
-bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero, bool bForbidNegative, bool bMakeHalf) const
+bool AGeoConsts::updateDoubleParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero, bool bForbidNegative, bool bMakeHalf) const
 {
     if (str.isEmpty()) return true;
 
@@ -181,6 +181,7 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & ret
         if (!ok)
         {
             errorStr = QString("Syntax error:\n%1").arg(str);
+            AErrorHub::addQError(errorStr);
             return false;
         }
     }
@@ -189,6 +190,7 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & ret
     {
         errorStr = "Unacceptable zero value";
         if (!str.isEmpty()) errorStr += " in: " + str;
+        AErrorHub::addQError(errorStr);
         return false;
     }
     if (bForbidNegative && returnValue < 0)
@@ -196,13 +198,15 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & ret
         errorStr = "Unacceptable negative value in";
         if (!str.isEmpty()) errorStr += ": " + str;
         else errorStr += ": " + QString::number(returnValue);
+        AErrorHub::addQError(errorStr);
         return false;
     }
+
     if (bMakeHalf) returnValue *= 0.5;
     return true;
 }
 
-bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero, bool bForbidNegative) const
+bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero, bool bForbidNegative) const
 {
     if (str.isEmpty()) return true;
 
@@ -216,6 +220,7 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & return
         if (!ok)
         {
             errorStr = QString("Syntax error:\n%1").arg(str);
+            AErrorHub::addQError(errorStr);
             return false;
         }
         returnValue = dRetVal;
@@ -225,6 +230,7 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & return
     {
         errorStr = "Unacceptable zero value";
         if (!str.isEmpty()) errorStr += " in: " + str;
+        AErrorHub::addQError(errorStr);
         return false;
     }
     if (bForbidNegative && returnValue < 0)
@@ -232,6 +238,7 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & return
         errorStr = "Unacceptable negative value in";
         if (!str.isEmpty()) errorStr += ": " + str;
         else errorStr += ": " + QString::number(returnValue);
+        AErrorHub::addQError(errorStr);
         return false;
     }
     return true;

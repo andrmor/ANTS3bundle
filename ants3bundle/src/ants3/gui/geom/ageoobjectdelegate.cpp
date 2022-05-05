@@ -513,7 +513,7 @@ bool AGeoObjectDelegate::processDoubleEditBox(AOneLineTextEdit * lineEdit, doubl
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
-    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
     if (ok) return true;
     QMessageBox::warning(parent, "", errorStr);
     return false;
@@ -532,7 +532,7 @@ bool AGeoObjectDelegate::processIntEditBox(AOneLineTextEdit * lineEdit, int & va
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
-    bool ok = GC.updateParameter(errorStr, str, val, bForbidZero, bForbidNegative);
+    bool ok = GC.updateIntParameter(errorStr, str, val, bForbidZero, bForbidNegative);
     if (ok) return true;
     QMessageBox::warning(parent, "", errorStr);
     return false;
@@ -607,9 +607,9 @@ QString AGeoObjectDelegate::updateScalingFactors() const //not needed anymore ne
 
         const AGeoConsts & GC = AGeoConsts::getConstInstance();
         bool ok;
-        ok = GC.updateParameter(errorStr, scaled->strScaleX, scaled->scaleX, true, true, false); if (!ok) return errorStr;
-        ok = GC.updateParameter(errorStr, scaled->strScaleY, scaled->scaleY, true, true, false); if (!ok) return errorStr;
-        ok = GC.updateParameter(errorStr, scaled->strScaleZ, scaled->scaleZ, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleX, scaled->scaleX, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleY, scaled->scaleY, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleZ, scaled->scaleZ, true, true, false); if (!ok) return errorStr;
         //qDebug() <<scaled->scaleX <<scaled->scaleY <<scaled->scaleZ;
     }
     else
@@ -3234,13 +3234,13 @@ bool AWorldDelegate::updateObject(AGeoObject * obj) const
     double dx, dz;
     QString strSizeXY = ledSizeXY->text();
     QString strSizeZ  = ledSizeZ ->text();
-    ok = GC.updateParameter(errorStr, strSizeXY, dx);
+    ok = GC.updateDoubleParameter(errorStr, strSizeXY, dx);
     if (!ok)
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
         return false;
     }
-    ok = GC.updateParameter(errorStr, strSizeZ,  dz);
+    ok = GC.updateDoubleParameter(errorStr, strSizeZ,  dz);
     if (!ok)
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);

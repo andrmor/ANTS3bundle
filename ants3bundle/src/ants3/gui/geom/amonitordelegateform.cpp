@@ -131,7 +131,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 
     QString strSize1 = leSize1->text();
     double Size1;
-    bool ok = GC.updateParameter(ErrorStr, strSize1, Size1);
+    bool ok = GC.updateDoubleParameter(ErrorStr, strSize1, Size1);
     if (!ok)
     {
         guitools::message(ErrorStr, this);
@@ -140,7 +140,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 
     QString strSize2 = leSize2->text();
     double Size2;
-    ok = GC.updateParameter(ErrorStr, strSize2, Size2);
+    ok = GC.updateDoubleParameter(ErrorStr, strSize2, Size2);
     if (!ok)
     {
         guitools::message(ErrorStr, this);
