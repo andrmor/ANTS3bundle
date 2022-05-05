@@ -146,12 +146,6 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     for (int i = 0; i < to; i++)
         str.replace(Records.at(i).RegExp, Records.at(i).Index);
 
-    if (str.contains('[') || str.contains(']'))
-    {
-        AErrorHub::addQError( QString("Formula (%0) contains square brackets").arg(str) );
-        return false;
-    }
-
     for (const QRegularExpression & fe : ForbiddenVarsRExp)
     {
         if (str.contains(fe))
@@ -342,6 +336,13 @@ bool AGeoConsts::setNewValue(int index, double newValue)
 QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 {
     if (index < 0 || index >= Records.size()) return "Wrong index";
+
+    if (newExpression.contains('[') || newExpression.contains(']'))
+    {
+        QString err = QString("Expression can not contain square brackets: %0").arg(newExpression);
+        AErrorHub::addQError(err);
+        return err;
+    }
 
     AGeoConstRecord & rec = Records[index];
     rec.Expression = newExpression;

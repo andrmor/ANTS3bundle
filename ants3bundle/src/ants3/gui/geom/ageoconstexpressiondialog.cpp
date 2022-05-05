@@ -45,8 +45,11 @@ AGeoConstExpressionDialog::AGeoConstExpressionDialog(A3GeoConWin * geoConW, int 
     pbAccept->setDefault(true);
 }
 
+#include "aerrorhub.h"
 void AGeoConstExpressionDialog::onAcceptPressed()
 {
+    AErrorHub::clear();
+
     AGeoConsts & GC = AGeoConsts::getInstance();
 
     QString newText = ed->text();
@@ -69,6 +72,7 @@ void AGeoConstExpressionDialog::onAcceptPressed()
     */
 
     QString errorStr = GC.setNewExpression(Index, newText);
+
     if (!errorStr.isEmpty())
     {
         blockSignals(true);

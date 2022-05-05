@@ -103,20 +103,18 @@ A3GeoConWin::~A3GeoConWin()
     delete ui; ui = nullptr;
 }
 
+#include "aerrorhub.h"
 void A3GeoConWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+
+    AErrorHub::clear();
     emit requestRebuildGeometry();
 
-/*
-  if (MW->DoNotUpdateGeometry) return; //if bulk update in progress
-
-  MW->ReconstructDetector();
-  if (!Detector->ErrorString.isEmpty())
-  {
-      guitools::message("Errors were detected during detector construction:\n\n" + Detector->ErrorString, this);
-  }
-*/
+    if (AErrorHub::isError())
+    {
+        guitools::message("Errors were detected during detector construction:\n\n" + AErrorHub::getQError(), this);
+    }
 
     if (ui->cbAutoCheck->isChecked())
     {
