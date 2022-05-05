@@ -82,7 +82,7 @@ private:
     AGeoConsts& operator=(AGeoConsts&) = delete;
 
     QVector<AGeoConstRecord> Records;  // !!!*** std::vector
-    QVector<double> GeoConstValues;                    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
+    QVector<double> GeoConstValues;    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
 
     //misc
     std::vector<QString> FunctionsToJS;

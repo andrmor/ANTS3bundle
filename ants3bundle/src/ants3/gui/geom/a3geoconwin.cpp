@@ -113,7 +113,8 @@ void A3GeoConWin::onRebuildDetectorRequest()
 
     if (AErrorHub::isError())
     {
-        guitools::message("Errors were detected during detector construction:\n\n" + AErrorHub::getQError(), this);
+        guitools::message1(AErrorHub::getQError(), "Detected errors in geometry definition", this);
+        return; // no sense to show conflicts if there are problems in the geometry definitions
     }
 
     if (ui->cbAutoCheck->isChecked())

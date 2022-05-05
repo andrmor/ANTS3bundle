@@ -357,13 +357,9 @@ void AGeoObject::introduceGeoConstValues()
 
     if (Shape) Shape->introduceGeoConstValues();
 
-    if (Type)
-    {
-        Type->introduceGeoConstValues();
-        //if (Type->isMonitor()) updateMonitorShape(); // now do it when populating GeoManager
-    }
+    if (Type)  Type->introduceGeoConstValues();
 
-    if (Role) Role->introduceGeoConstValues();
+    if (Role)  Role->introduceGeoConstValues();
 }
 
 void AGeoObject::introduceGeoConstValuesRecursive()

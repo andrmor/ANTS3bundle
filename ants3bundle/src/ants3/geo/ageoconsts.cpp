@@ -228,15 +228,15 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
 
     if (bForbidZero && returnValue == 0)
     {
-        errorStr = "Unacceptable zero value";
-        if (!str.isEmpty()) errorStr += " in: " + str;
+        errorStr = "Invalid zero value";
+        if (!str.isEmpty()) errorStr += " in expression: " + str;
         AErrorHub::addQError(errorStr);
         return false;
     }
     if (bForbidNegative && returnValue < 0)
     {
-        errorStr = "Unacceptable negative value in";
-        if (!str.isEmpty()) errorStr += ": " + str;
+        errorStr = "Invalid negative value";
+        if (!str.isEmpty()) errorStr += " in expression: " + str;
         else errorStr += ": " + QString::number(returnValue);
         AErrorHub::addQError(errorStr);
         return false;
