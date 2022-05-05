@@ -81,7 +81,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     FormulaFormat.setForeground(Qt::blue);
     //GeoConstantFormat.setFontWeight(QFont::Bold);
 
-    const QVector<QString> & words = AGeoConsts::getConstInstance().getTFormulaReservedWords();
+    const std::vector<QString> & words = AGeoConsts::getConstInstance().getTFormulaReservedWords();
     for (const QString & word : words)
     {
         rule.pattern = QRegularExpression("\\b" + word + "\\b");

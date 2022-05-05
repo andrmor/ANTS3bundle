@@ -68,12 +68,12 @@ public:
   void writeToJson(QJsonObject & json) const;
   void readFromJson(const QJsonObject & json);
 
-  void introduceGeoConstValues();
+  void introduceGeoConstValues(); // !!!*** error control!
   void introduceGeoConstValuesRecursive();
 
   //recursive json, using single object json
   void writeAllToJarr(QJsonArray & jarr);
-  QString readAllFromJarr(AGeoObject * World, const QJsonArray & jarr);  // returns "" if no errors
+  QString readAllFromJarr(AGeoObject * World, const QJsonArray & jarr);  // returns "" if no errors   !!!*** AErrorHub?
 
   //for composite
   AGeoObject* getContainerWithLogical();

@@ -10,6 +10,24 @@ G4INCLUDE = $$join(G4DIR,,,/include/Geant4)
 INCLUDEPATH += $$G4INCLUDE
 LIBS += $$system(geant4-config --libs) -lxerces-c
 
+GEANTVERSTR = $$system(geant4-config --version)
+GEANTVERLIST = $$split(GEANTVERSTR, ".")
+G4MAJOR = $$member(GEANTVERLIST, 0)
+G4MINOR = $$member(GEANTVERLIST, 1)
+MAJORTXT = GEANT4_MAJOR=\"$$G4MAJOR\"
+message($$MAJORTXT)
+DEFINES += $$MAJORTXT
+MINORTXT = GEANT4_MAJOR=\"$$G4MINOR\"
+message($$MINORTXT)
+DEFINES += $$MINORTXT
+
+greaterThan(G4MAJOR, 10){
+   message("Geant4 major version ($$G4MAJOR) is 11 or larger")
+   DEFINES += GEANT_VERSION_FROM_11
+} else {
+  message("Geant4 major version ($$G4MAJOR) is smaller than 11")
+}
+
 DESTDIR = ../../bin
 
 INCLUDEPATH += src
@@ -47,6 +65,7 @@ SOURCES += \
         src/TrackingAction.cc \
         #src/ahistogram.cc \
         src/arandomg4hub.cpp \
+        src/exceptionhandler.cpp \
         src/json11.cc \
         src/js11tools.cc
 
@@ -83,5 +102,6 @@ HEADERS += \
     src/TrackingAction.hh \
     #src/ahistogram.hh \
     src/arandomg4hub.h \
+    src/exceptionhandler.h \
     src/json11.hh \
     src/js11tools.hh

@@ -11,6 +11,7 @@
 #include "asensorhub.h"
 #include "amonitorhub.h"
 #include "acalorimeterhub.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -453,7 +454,9 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     AGeoObject * logicals = obj->getContainerWithLogical();
     if (!logicals)
     {
-        qWarning()<< "Composite object: Not found container with logical objects!";
+        QString err = "Composite object: Not found container with logical objects: " + obj->Name;
+        AErrorHub::addQError(err);
+        qWarning() << err;
         return false;
     }
     AGeoComposite * cs = dynamic_cast<AGeoComposite*>(obj->Shape);
@@ -462,7 +465,9 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
         AGeoScaledShape * scaled = dynamic_cast<AGeoScaledShape*>(obj->Shape);
         if (!scaled)
         {
-            qWarning()<< "Composite: Shape object is not composite nor scaled composite!!";
+            QString err = "Composite: Shape object is not composite nor scaled composite: " + obj->Name;
+            AErrorHub::addQError(err);
+            qWarning() << err;
             return false;
         }
     }
@@ -492,6 +497,7 @@ void AGeometryHub::populateGeoManager()
     ACalorimeterHub::getInstance().clear();
     clearGridRecords();
 
+    AGeoConsts::getInstance().updateFromExpressions(); // !!!*** errors?
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
     expandPrototypeInstances();
@@ -730,12 +736,14 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
     {
         if (obj->Type->isMonitor())
         {
-            obj->updateMonitorShape(); // !!!*** unnecessary checks inside
+            obj->updateMonitorShape();
 
             if (obj->Container) obj->Material = obj->Container->getMaterial();
             else
             {
-                qWarning() << "Error: Monitor without container" << obj->Name;
+                QString err = "Error: Monitor without container: " + obj->Name;
+                AErrorHub::addQError(err);
+                qWarning() << err;
                 return;
             }
         }

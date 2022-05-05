@@ -10,8 +10,8 @@
 
 ADemoWindow::ADemoWindow(QWidget *parent) :
     AGuiWindow("Demo", parent),
-    ui(new Ui::ADemoWindow),
-    Config(AConfig::getInstance())
+    Config(AConfig::getInstance()),
+    ui(new Ui::ADemoWindow)
 {
     ui->setupUi(this);
 

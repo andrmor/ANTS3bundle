@@ -5,6 +5,7 @@
 #include "ajsontools.h"
 //        #include "agridelementrecord.h"
 #include "ageoconsts.h"
+#include "aerrorhub.h"
 
 #include <cmath>
 
@@ -580,13 +581,15 @@ void AGeoObject::updateMonitorShape()
 {
     if (!Type->isMonitor())
     {
-        qWarning() << "Attempt to update monitor shape for non-monitor object";
+        QString err = "Attempt to update monitor shape for a non-monitor object" + Name;
+        qWarning() << err;
+        AErrorHub::addQError(err);
         return;
     }
 
-    ATypeMonitorObject* mon = static_cast<ATypeMonitorObject*>(Type);
-    delete Shape;
+    ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
 
+    delete Shape;
     if (mon->config.shape == 0) //rectangular
         Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
     else //round

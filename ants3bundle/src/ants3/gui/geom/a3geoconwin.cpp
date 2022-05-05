@@ -925,18 +925,41 @@ void A3GeoConWin::updateGeoConstsIndication()
             connect(edit, &ALineEditWithEscape::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
             ui->tabwConstants->setCellWidget(i, 1, edit);
 
+            /*
             AOneLineTextEdit * ed = new AOneLineTextEdit("", ui->tabwConstants);
             AGeoBaseDelegate::configureHighligherAndCompleter(ed, i);
             ed->setText(Expression);
             ed->setFrame(false);
             connect(ed, &AOneLineTextEdit::editingFinished, [this, i, ed](){this->onGeoConstExpressionEditingFinished(i, ed->text()); });
             connect(ed, &AOneLineTextEdit::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
-            ui->tabwConstants->setCellWidget(i, 2, ed);
+            */
+
+            newItem = new QTableWidgetItem(Expression);
+            newItem->setToolTip(Comment);
+            if (i == numConsts) newItem->setFlags( newItem->flags() & ~Qt::ItemIsEditable);
+            ui->tabwConstants->setItem(i, 2, newItem);
 
             if (!Expression.isEmpty()) edit->setEnabled(false);
         }
         ui->tabwConstants->resizeRowsToContents();
     bGeoConstsWidgetUpdateInProgress = false; // <--
+}
+
+#include "ageoconstexpressiondialog.h"
+void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
+{
+    if (column != 2) return;
+
+    AGeoConsts & GC = AGeoConsts::getInstance();
+    const int numConsts = GC.countConstants();
+    if (row == -1 || row >= numConsts) return;
+
+    AGeoConstExpressionDialog D(this, row);
+    D.exec();
+
+    GC.updateFromExpressions();
+    updateGeoConstsIndication();
+    emit requestDelayedRebuildAndRestoreDelegate();
 }
 
 QString A3GeoConWin::createScript(QString &script, bool usePython)
@@ -1421,3 +1444,4 @@ bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
     */
     return true;
 }
+

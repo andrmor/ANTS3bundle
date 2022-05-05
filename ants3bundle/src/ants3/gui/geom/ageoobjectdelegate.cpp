@@ -330,7 +330,7 @@ QString AGeoObjectDelegate::getName() const
 
 bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false in void AGeoWidget::onConfirmPressed()
 {
-    QString errorStr;
+    QString errorStr; // !!!*** to AErrorHub
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 
@@ -2051,7 +2051,7 @@ AGeoPolygonDelegate::AGeoPolygonDelegate(const QStringList &materials, QWidget *
     labUI = new QLabel("Upper inner diameter of incircle:"); gr->addWidget(labUI, 5, 0);
     labA  = new QLabel("Angle:");                            gr->addWidget(labA,  6, 0);
 
-    en  = new AOneLineTextEdit(); gr->addWidget(en,  0, 1);
+    en  = new AOneLineTextEdit(); gr->addWidget(en,  0, 1); en->bIntegerTooltip = true;
     ez  = new AOneLineTextEdit(); gr->addWidget(ez,  1, 1);
     elo = new AOneLineTextEdit(); gr->addWidget(elo, 2, 1);
     eli = new AOneLineTextEdit(); gr->addWidget(eli, 3, 1);
@@ -2755,9 +2755,9 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     la = new QLabel("mm"); grAW->addWidget(la, 1, 4);
     la = new QLabel("mm"); grAW->addWidget(la, 2, 4);
 
-    ledNumX  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX,  0, 1);
-    ledNumY  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY,  1, 1);
-    ledNumZ  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumZ,  2, 1);
+    ledNumX  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX,  0, 1); ledNumX->bIntegerTooltip = true;
+    ledNumY  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY,  1, 1); ledNumY->bIntegerTooltip = true;
+    ledNumZ  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumZ,  2, 1); ledNumZ->bIntegerTooltip = true;
     ledStepX = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepX, 0, 3);
     ledStepY = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepY, 1, 3);
     ledStepZ = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepZ, 2, 3);
@@ -2767,7 +2767,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit("", Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2870,7 +2870,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
     la = new QLabel("deg");           grAW->addWidget(la, 1, 2);
     la = new QLabel("mm");            grAW->addWidget(la, 2, 2);
 
-    ledNum         = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNum, 0, 1);
+    ledNum         = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNum, 0, 1);         ledNum->bIntegerTooltip = true;
     ledAngularStep = new AOneLineTextEdit("", Widget); grAW->addWidget(ledAngularStep, 1, 1);
     ledRadius      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledRadius, 2, 1);
 
@@ -2879,7 +2879,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit("", Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2981,12 +2981,12 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     cobShape->addItems({"Hexagonal shape", "Rectangular shape"});
 
     QLabel * laR = new QLabel("Rings:"); grAW->addWidget(laR, 2, 0);
-    ledNumRings = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumRings, 2, 1);
+    ledNumRings = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumRings, 2, 1); ledNumRings->bIntegerTooltip = true;
 
     QLabel * laX = new QLabel("Number in X:"); grAW->addWidget(laX, 3, 0);
-    ledNumX      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX, 3, 1);
+    ledNumX      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX, 3, 1); ledNumX->bIntegerTooltip = true;
     QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
-    ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3);
+    ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3); ledNumY->bIntegerTooltip = true;
 
     cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
     grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
@@ -3012,7 +3012,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit("", Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 

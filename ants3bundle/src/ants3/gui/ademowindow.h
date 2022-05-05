@@ -29,8 +29,8 @@ private slots:
     void on_pbAbort_clicked();
 
 private:
+    AConfig         & Config;
     Ui::ADemoWindow * ui;
-    AConfig        & Config;
 
     void disableInterface(bool flag);
 };

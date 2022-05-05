@@ -127,7 +127,7 @@ public:
   QString str2rmin, str2rmax, str2dz;
 };
 
-// !!!*** remove compatibility mode
+// comment: "remove compatibility mode" <- is it still valid?
 class AGeoScaledShape  : public AGeoShape
 {
 public:
@@ -138,7 +138,7 @@ public:
   QString getShapeType() const override {return "TGeoScaledShape";}
   QString getShapeTemplate() const override {return "TGeoScaledShape( TGeoShape(parameters), scaleX, scaleY, scaleZ )";}
   QString getHelp() const override;
-  QString updateScalingFactors();
+  QString updateScalingFactors(); // !!!*** AErrorHub
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
