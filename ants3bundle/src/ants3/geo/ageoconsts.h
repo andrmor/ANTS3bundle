@@ -76,18 +76,18 @@ public:
 private:
     AGeoConsts();
 
-    AGeoConsts(const AGeoConsts&) = delete;            // Copy ctor
-    AGeoConsts(AGeoConsts&&) = delete;                 // Move ctor
-    AGeoConsts& operator=(const AGeoConsts&) = delete; // Copy assign
-    AGeoConsts& operator=(AGeoConsts&) = delete;       // Move assign
+    AGeoConsts(const AGeoConsts&) = delete;
+    AGeoConsts(AGeoConsts&&) = delete;
+    AGeoConsts& operator=(const AGeoConsts&) = delete;
+    AGeoConsts& operator=(AGeoConsts&) = delete;
 
-    QVector<AGeoConstRecord> Records;
+    QVector<AGeoConstRecord> Records;  // !!!*** std::vector
     QVector<double> GeoConstValues;                    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
 
     //misc
     std::vector<QString> FunctionsToJS;
     std::vector<QString> FormulaReservedWords;
-    std::vector<QRegularExpression> ForbiddenVarsRExp; // !!!*** obsolete?
+    std::vector<QRegularExpression> ForbiddenVarsRExp;
 
     void updateRunTimeProperties();
 };

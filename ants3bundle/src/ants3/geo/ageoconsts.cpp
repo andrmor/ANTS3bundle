@@ -14,8 +14,9 @@ AGeoConsts::AGeoConsts()
                             "c", "r",
                             "pow", "sin", "cos", "sqrt", "exp", "ceil", "floor"};
 
-    //std::vector<QString> vec = {"g", "h", "t", "k", "x", "y", "z", "c", "r", "e"}; // !!!*** obsolete?
-    //for (const QString & s : vec) ForbiddenVarsRExp.push_back(QRegularExpression("\\b" + s + "\\b"));
+    std::vector<QString> vec = {"g", "h", "t", "k", "x", "y", "z"};
+    for (const QString & s : vec)
+        ForbiddenVarsRExp.push_back(QRegularExpression("\\b" + s + "\\b"));
 }
 
 AGeoConsts &AGeoConsts::getInstance()
@@ -151,7 +152,6 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
         return false;
     }
 
-    /*
     for (const QRegularExpression & fe : ForbiddenVarsRExp)
     {
         if (str.contains(fe))
@@ -160,7 +160,6 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
             return false;
         }
     }
-    */
 
     TFormula * f = new TFormula("", str.toLocal8Bit().data());
     if (!f || !f->IsValid())
@@ -322,8 +321,12 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
     for (const QString & word : FormulaReservedWords)
     {
         reservedQRegularExpression = QRegularExpression("\\b" + word + "\\b");
-        if (newName.contains(reservedQRegularExpression)) return QString("Name contains a TFormula reserved word: %1").arg(word);
+        if (newName.contains(reservedQRegularExpression)) return QString("Name is a TFormula reserved word: %1").arg(word);
     }
+
+    for (const QRegularExpression & ex : ForbiddenVarsRExp)
+        if (newName.contains(ex)) return QString("Name is a TFormula reserved expression: %1").arg(newName);
+
     return "";
 }
 

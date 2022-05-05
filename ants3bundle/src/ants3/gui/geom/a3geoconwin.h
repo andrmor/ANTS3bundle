@@ -24,7 +24,7 @@ public:
 
 private slots:
   void onRebuildDetectorRequest();
-  void onGeoConstEditingFinished(int index, QString newValue); // !!!*** not needed?
+  void onGeoConstEditingFinished(int index, QString newValue);
   void onGeoConstExpressionEditingFinished(int index, QString newValue); // !!!*** not needed?
   void onGeoConstEscapePressed(int index); // !!!*** not needed?
   void onRequestShowPrototypeList();
@@ -64,7 +64,8 @@ private:
   QString createScript(QString &script, bool usePython);
   void    reportGeometryConflicts();
 
-  void markCalorimeterBinning(const AGeoObject * obj);
+  void    markCalorimeterBinning(const AGeoObject * obj);
+
 protected:
   void resizeEvent(QResizeEvent *event);
 

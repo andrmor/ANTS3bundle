@@ -60,11 +60,13 @@ void AGeoConstExpressionDialog::onAcceptPressed()
         return;
     }
 
+    /*  // disabled as misbehave in situations when bad syntax is loaded from file
     if (newText == GC.getExpression(Index))
     {
         reject();
         return;
     }
+    */
 
     QString errorStr = GC.setNewExpression(Index, newText);
     if (!errorStr.isEmpty())
