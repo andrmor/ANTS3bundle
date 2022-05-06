@@ -347,13 +347,37 @@ void AGeoObject::introduceGeoConstValues()
 
     QString errorStr;
 
-    if (!PositionStr[0].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[0], Position[0]);
-    if (!PositionStr[1].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[1], Position[1]);
-    if (!PositionStr[2].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[2], Position[2]);
+    if (!PositionStr[0].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[0], Position[0]);
+        if (!ok) errorStr += "in X position\n";
+    }
+    if (!PositionStr[1].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[1], Position[1]);
+        if (!ok) errorStr += "in Y position\n";
+    }
+    if (!PositionStr[2].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[2], Position[2]);
+        if (!ok) errorStr += "in Z position\n";
+    }
 
-    if (!OrientationStr[0].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[0], Orientation[0]);
-    if (!OrientationStr[1].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[1], Orientation[1]);
-    if (!OrientationStr[2].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[2], Orientation[2]);
+    if (!OrientationStr[0].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[0], Orientation[0]);
+        if (!ok) errorStr += "in Phi orientation\n";
+    }
+    if (!OrientationStr[1].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[1], Orientation[1]);
+        if (!ok) errorStr += "in Theta orientation\n";
+    }
+    if (!OrientationStr[2].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[2], Orientation[2]);
+        if (!ok) errorStr += "in Psi orientation\n";
+    }
 
     if (Shape) Shape->introduceGeoConstValues(errorStr);
 

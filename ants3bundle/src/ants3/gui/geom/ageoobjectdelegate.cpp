@@ -388,12 +388,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         QVector<QString> tempStrs(6);
         QVector<double> tempDoubles(6);
         bool ok = true;
-        ok = ok && processEditBox(ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
-        ok = ok && processEditBox(ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
-        ok = ok && processEditBox(ledZ,     tempDoubles[2],    tempStrs[2],    ParentWidget);
-        if (ledPhi->isEnabled())   ok = ok && processEditBox(ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
-        if (ledTheta->isEnabled()) ok = ok && processEditBox(ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
-        if (ledPsi->isEnabled())   ok = ok && processEditBox(ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
+        ok = ok && processEditBox("X position", ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
+        ok = ok && processEditBox("Y position", ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
+        ok = ok && processEditBox("Z position", ledZ,     tempDoubles[2],    tempStrs[2],    ParentWidget);
+        if (ledPhi->isEnabled())   ok = ok && processEditBox("Phi orientation",   ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
+        if (ledTheta->isEnabled()) ok = ok && processEditBox("Theta orientation", ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
+        if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
         std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
