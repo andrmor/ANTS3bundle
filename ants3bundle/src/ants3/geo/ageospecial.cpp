@@ -56,25 +56,22 @@ AGeoCalorimeter::AGeoCalorimeter(const std::array<double, 3> & origin, const std
     Properties(origin, step, bins){}
 
 #include "ageoconsts.h"
-bool AGeoCalorimeter::introduceGeoConstValues()
+void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    // TODO: enable error control !!!***
-
     bool ok;
-    QString err;
-    bool bErr = false;
     for (int i = 0; i <3 ; i++)
     {
-        ok = GC.updateDoubleParameter(err, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
-        if (!ok) {AErrorHub::addQError(err); bErr = true;}
-        ok = GC.updateDoubleParameter(err, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
-        if (!ok) {AErrorHub::addQError(err); bErr = true;}
-        ok = GC.updateIntParameter(err, Properties.strBins[i],   Properties.Bins[i],   true,  true);
-        if (!ok) {AErrorHub::addQError(err); bErr = true;}
+        ok = GC.updateDoubleParameter(errorStr, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
+        if (!ok) errorStr += QString(" in Origin[%0]\n").arg(i);
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
+        if (!ok) errorStr += QString(" in Step[%0]\n").arg(i);
+
+        ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
+        if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
     }
-    return bErr;
 }
 
 void AGeoCalorimeter::readFromJson(const QJsonObject & json)

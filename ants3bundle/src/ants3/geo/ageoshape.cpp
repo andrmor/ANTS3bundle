@@ -2989,15 +2989,14 @@ QString AGeoScaledShape::getHelp() const
     return "TGeoShape scaled with TGeoScale transformation";
 }
 
-QString AGeoScaledShape::updateScalingFactors()
+void AGeoScaledShape::updateScalingFactors(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateDoubleParameter(errorStr, strScaleX, scaleX, true, true, false); if (!ok) return errorStr;
-    ok = GC.updateDoubleParameter(errorStr, strScaleY, scaleY, true, true, false); if (!ok) return errorStr;
-    ok = GC.updateDoubleParameter(errorStr, strScaleZ, scaleZ, true, true, false); if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, strScaleX, scaleX, true, true, false); if (!ok) errorStr += " in X Scaling\n";
+    ok = GC.updateDoubleParameter(errorStr, strScaleY, scaleY, true, true, false); if (!ok) errorStr += " in Y Scaling\n";
+    ok = GC.updateDoubleParameter(errorStr, strScaleZ, scaleZ, true, true, false); if (!ok) errorStr += " in Z Scaling\n";
 }
 
 bool AGeoScaledShape::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -3260,6 +3259,7 @@ void AGeoScaledShape::writeToJson(QJsonObject &json) const
     }
 }
 
+#include "aerrorhub.h"
 void AGeoScaledShape::readFromJson(const QJsonObject &json)
 {
     jstools::parseJson(json, "scaleX", scaleX);
@@ -3301,7 +3301,10 @@ void AGeoScaledShape::readFromJson(const QJsonObject &json)
         qWarning() << "Shape generation failed, replacing with box";
         BaseShape = new AGeoBox();
     }
-    updateScalingFactors();
+
+    QString errorStr;
+    updateScalingFactors(errorStr);
+    if (!errorStr.isEmpty()) AErrorHub::addQError(errorStr);
 }
 
 bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)

@@ -383,7 +383,7 @@ void AGeoObject::introduceGeoConstValues()
 
     if (Type)  Type->introduceGeoConstValues(errorStr);
 
-    if (Role)  Role->introduceGeoConstValues();
+    if (Role)  Role->introduceGeoConstValues(errorStr);
 
     if (!errorStr.isEmpty())
         AErrorHub::addQError(Name + ":\n" + errorStr);

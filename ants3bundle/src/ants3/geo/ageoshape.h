@@ -138,7 +138,7 @@ public:
   QString getShapeType() const override {return "TGeoScaledShape";}
   QString getShapeTemplate() const override {return "TGeoScaledShape( TGeoShape(parameters), scaleX, scaleY, scaleZ )";}
   QString getHelp() const override;
-  QString updateScalingFactors(); // !!!*** AErrorHub
+  void updateScalingFactors(QString & errorStr);
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -156,7 +156,7 @@ public:
   TGeoShape * generateBaseTGeoShape(const QString & BaseShapeGenerationString) const;
 
   void writeToJson(QJsonObject& json) const override;
-  void readFromJson(const QJsonObject& json) override; // !!!***
+  void readFromJson(const QJsonObject& json) override; // !!!*** remove old system    !!!*** check error control
 
   bool readFromTShape(TGeoShape* Tshape) override;
 

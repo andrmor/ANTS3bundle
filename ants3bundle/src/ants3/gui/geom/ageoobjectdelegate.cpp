@@ -356,7 +356,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 return false;
             }
 
-            errorStr = scaled->updateScalingFactors();
+            scaled->updateScalingFactors(errorStr);
             if (!errorStr.isEmpty())
             {
                 QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -400,15 +400,15 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
         if (cobRole->currentIndex() == 2)
         {
-            ok = ok && processDoubleEditBox(ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox(ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox(ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox(ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
-            ok = ok && processDoubleEditBox(ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
-            ok = ok && processDoubleEditBox(ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
-            ok = ok && processIntEditBox(leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
-            ok = ok && processIntEditBox(leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
-            ok = ok && processIntEditBox(leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+            ok = ok && processDoubleEditBox("Origin X", ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Origin Y", ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Origin Z", ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step X", ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step Y", ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step Z", ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
+            ok = ok && processIntEditBox("Bins X", leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
             if (!ok) return false;
         }
 
@@ -498,9 +498,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     return true;
 }
 
-bool AGeoObjectDelegate::processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str,
-                                          bool bForbidZero, bool bForbidNegative, bool bMakeHalf,
-                                          QWidget * parent)
+bool AGeoObjectDelegate::processDoubleEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str,
+                                              bool bForbidZero, bool bForbidNegative, bool bMakeHalf,
+                                              QWidget * parent)
 {
     str = lineEdit->text();
     if (str.isEmpty())
@@ -513,11 +513,11 @@ bool AGeoObjectDelegate::processDoubleEditBox(AOneLineTextEdit * lineEdit, doubl
     QString errorStr;
     bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
     if (ok) return true;
-    QMessageBox::warning(parent, "", errorStr);
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt + "\n");
     return false;
 }
 
-bool AGeoObjectDelegate::processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str,
+bool AGeoObjectDelegate::processIntEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, int & val, QString & str,
                                           bool bForbidZero, bool bForbidNegative,
                                           QWidget * parent)
 {
@@ -532,7 +532,7 @@ bool AGeoObjectDelegate::processIntEditBox(AOneLineTextEdit * lineEdit, int & va
     QString errorStr;
     bool ok = GC.updateIntParameter(errorStr, str, val, bForbidZero, bForbidNegative);
     if (ok) return true;
-    QMessageBox::warning(parent, "", errorStr);
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt + "\n");
     return false;
 }
 
@@ -3239,13 +3239,13 @@ bool AWorldDelegate::updateObject(AGeoObject * obj) const
     ok = GC.updateDoubleParameter(errorStr, strSizeXY, dx);
     if (!ok)
     {
-        QMessageBox::warning(this->ParentWidget, "", errorStr);
+        QMessageBox::warning(this->ParentWidget, "", errorStr + " in SizeXY\n");
         return false;
     }
     ok = GC.updateDoubleParameter(errorStr, strSizeZ,  dz);
     if (!ok)
     {
-        QMessageBox::warning(this->ParentWidget, "", errorStr);
+        QMessageBox::warning(this->ParentWidget, "", errorStr + "in SizeZ\n");
         return false;
     }
 
