@@ -150,7 +150,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
     {
         if (str.contains(fe))
         {
-            error += QString("Geo constant (%0) contains invalid vars\n").arg(str);
+            error += QString("Geo constant (%0) contains invalid vars").arg(str);
             return false;
         }
     }
@@ -159,7 +159,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
     if (!f || !f->IsValid())
     {
         delete f;
-        error += QString("String (%0) produces an invalid TFormula\n").arg(str);
+        error += QString("String (%0) produces an invalid TFormula").arg(str);
         return false;
     }
 
@@ -183,17 +183,12 @@ bool AGeoConsts::updateDoubleParameter(QString & errorStr, QString & str, double
 
     if (bForbidZero && returnValue == 0)
     {
-        errorStr += "Unacceptable zero value";
-        if (!str.isEmpty()) errorStr += " in: " + str;
-        errorStr += '\n';
+        errorStr += "Invalid zero value";
         return false;
     }
     if (bForbidNegative && returnValue < 0)
     {
-        errorStr = "Unacceptable negative value in";
-        if (!str.isEmpty()) errorStr += ": " + str;
-        else errorStr += ": " + QString::number(returnValue);
-        errorStr += '\n';
+        errorStr = "Invalid negative value";
         return false;
     }
 
@@ -219,16 +214,14 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
     if (bForbidZero && returnValue == 0)
     {
         errorStr = "Invalid zero value";
-        if (!str.isEmpty()) errorStr += " in expression: " + str;
-        errorStr += '\n';
+        //if (!str.isEmpty()) errorStr += " in expression: " + str;
         return false;
     }
     if (bForbidNegative && returnValue < 0)
     {
         errorStr = "Invalid negative value";
-        if (!str.isEmpty()) errorStr += " in expression: " + str;
-        else errorStr += ": " + QString::number(returnValue);
-        errorStr += '\n';
+        //if (!str.isEmpty()) errorStr += " in expression: " + str;
+        //else errorStr += ": " + QString::number(returnValue);
         return false;
     }
     return true;

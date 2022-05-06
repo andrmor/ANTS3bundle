@@ -32,7 +32,7 @@ public:
   virtual double maxSize() const = 0;            //used for world size evaluation
   virtual double minSize() const {return 0;}     //needed only for shapes used by monitors (box tube polygon)
 
-  virtual QString introduceGeoConstValues() {return "";}
+  virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
   virtual bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const = 0;
   virtual void replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
@@ -52,7 +52,7 @@ protected:
 public:
   static AGeoShape * GeoShapeFactory(const QString ShapeType);  // -=<  SHAPE FACTORY >=-
   static QList<AGeoShape*> GetAvailableShapes();                // list of available shapes for generation of help and highlighter: do not forget to add new here!
-  static bool CheckPointsForArb8(QList<QPair<double, double> > V );
+  static bool CheckPointsForArb8(QList<QPair<double, double> > V );  // !!!*** to Arb8 shape?
   const QString getPythonGenerationString(const QString &javaGenString) const;
 };
 
@@ -69,7 +69,7 @@ public:
   QString getHelp() const override;
 
   bool readFromString(QString GenerationString) override;
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -104,7 +104,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoTube( rmin, rmax, dz )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -179,7 +179,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoParaboloid( rlo, rhi, dz )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -215,7 +215,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoCone( dz, rminL, rmaxL, rminU, rmaxU )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -249,7 +249,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoConeSeg( dz, rminL, rmaxL, rminU, rmaxU, phi1, phi2 )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -285,7 +285,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoPolygon( nedges, dphi, dz, rminL, rmaxL, rminU, rmaxU )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -338,7 +338,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoPcon( phi, dphi, { z0 : rmin0 : rmaz0 }, { z1 : rmin1 : rmax1 } )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -370,7 +370,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoPgon( phi, dphi, nedges, { z0 : rmin0 : rmaz0 }, { zN : rminN : rmaxN } )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -401,7 +401,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoTrd1( dx1, dx2, dy, dz )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -435,7 +435,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoTrd2( dx1, dx2, dy1, dy2, dz )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -468,7 +468,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoTubeSeg( rmin, rmax, dz, phi1, phi2 )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -508,7 +508,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoCtub( rmin, rmax, dz, phi1, phi2, nxlow, nylow, nzlow, nxhi, nyhi, nzhi )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -541,7 +541,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoEltu( a, b, dz )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -576,7 +576,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoSphere( rmin,  rmax, theta1, theta2, phi1, phi2 )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -609,7 +609,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoPara( dX, dY, dZ, alpha, theta, phi )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -642,7 +642,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoArb8( dz,  xL1,yL1, xL2,yL2, xL3,yL3, xL4,yL4, xU1,yU1, xU2,yU2, xU3,yU3, xU4,yU4  )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -707,7 +707,7 @@ public:
   QString getShapeTemplate() const override {return "TGeoTorus( R, Rmin, Rmax, Phi1, Dphi )";}
   QString getHelp() const override;
 
-  QString introduceGeoConstValues() override;
+  void introduceGeoConstValues(QString & errorStr) override;
 
   bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;

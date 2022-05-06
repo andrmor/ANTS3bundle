@@ -345,24 +345,24 @@ void AGeoObject::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    QString error;
+    QString errorStr;
 
-    if (!PositionStr[0].isEmpty()) GC.evaluateFormula(error, PositionStr[0], Position[0]);
-    if (!PositionStr[1].isEmpty()) GC.evaluateFormula(error, PositionStr[1], Position[1]);
-    if (!PositionStr[2].isEmpty()) GC.evaluateFormula(error, PositionStr[2], Position[2]);
+    if (!PositionStr[0].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[0], Position[0]);
+    if (!PositionStr[1].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[1], Position[1]);
+    if (!PositionStr[2].isEmpty()) GC.evaluateFormula(errorStr, PositionStr[2], Position[2]);
 
-    if (!OrientationStr[0].isEmpty()) GC.evaluateFormula(error, OrientationStr[0], Orientation[0]);
-    if (!OrientationStr[1].isEmpty()) GC.evaluateFormula(error, OrientationStr[1], Orientation[1]);
-    if (!OrientationStr[2].isEmpty()) GC.evaluateFormula(error, OrientationStr[2], Orientation[2]);
+    if (!OrientationStr[0].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[0], Orientation[0]);
+    if (!OrientationStr[1].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[1], Orientation[1]);
+    if (!OrientationStr[2].isEmpty()) GC.evaluateFormula(errorStr, OrientationStr[2], Orientation[2]);
 
-    if (Shape) Shape->introduceGeoConstValues();
+    if (Shape) Shape->introduceGeoConstValues(errorStr);
 
     if (Type)  Type->introduceGeoConstValues();
 
     if (Role)  Role->introduceGeoConstValues();
 
-    if (!error.isEmpty())
-        AErrorHub::addQError(Name + ":\n" + error);
+    if (!errorStr.isEmpty())
+        AErrorHub::addQError(Name + ":\n" + errorStr);
 }
 
 void AGeoObject::introduceGeoConstValuesRecursive()

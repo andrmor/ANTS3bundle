@@ -429,7 +429,7 @@ protected:
 
 private slots:
     void onReorderSections(int /*logicalIndex*/, int oldVisualIndex, int newVisualIndex);
-    void onCellEdited();
+    void onCellEdited();  // !!!*** check error handling
     void onAddAbove();
     void onAddBellow();
 };

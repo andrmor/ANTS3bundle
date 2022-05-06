@@ -330,7 +330,7 @@ QString AGeoObjectDelegate::getName() const
 
 bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false in void AGeoWidget::onConfirmPressed()
 {
-    QString errorStr; // !!!*** to AErrorHub
+    QString errorStr;
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 
@@ -359,7 +359,6 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             errorStr = scaled->updateScalingFactors();
             if (!errorStr.isEmpty())
             {
-                qDebug() << errorStr;
                 QMessageBox::warning(this->ParentWidget, "", errorStr);
                 return false;
             }
@@ -368,11 +367,10 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
 
         if (shape)
         {
-            errorStr.clear();
-            errorStr = shape->introduceGeoConstValues();
+            //errorStr.clear();
+            shape->introduceGeoConstValues(errorStr);
             if (!errorStr.isEmpty())
             {
-                qDebug() << errorStr;
                 QMessageBox::warning(this->ParentWidget, "", errorStr);
                 return false;
             }
@@ -2336,7 +2334,8 @@ void AGeoPconDelegate::onCellEdited()
         pcon = dynamic_cast<AGeoPcon*>(scaled->BaseShape);
     }
 
-    if (pcon) pcon->introduceGeoConstValues();
+    QString dummyErrorStr;
+    if (pcon) pcon->introduceGeoConstValues(dummyErrorStr);
 }
 
 void AGeoPconDelegate::onAddAbove()
