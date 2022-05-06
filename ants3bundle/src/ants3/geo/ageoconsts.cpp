@@ -325,8 +325,8 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
         if (newName.contains(reservedQRegularExpression)) return QString("Name is a TFormula reserved word: %1").arg(word);
     }
 
-    for (const QRegularExpression & ex : ForbiddenVarsRExp)
-        if (newName.contains(ex)) return QString("Name is a TFormula reserved expression: %1").arg(newName);
+    //for (const QRegularExpression & ex : ForbiddenVarsRExp)
+    //    if (newName.contains(ex)) return QString("Name is a TFormula reserved expression: %1").arg(newName);
 
     return "";
 }
