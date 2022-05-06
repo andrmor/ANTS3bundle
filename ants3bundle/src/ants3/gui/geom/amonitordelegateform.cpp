@@ -134,7 +134,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     bool ok = GC.updateDoubleParameter(ErrorStr, strSize1, Size1);
     if (!ok)
     {
-        guitools::message(ErrorStr, this);
+        guitools::message(ErrorStr + " in Size1\n", this);
         return false;
     }
 
@@ -143,7 +143,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     ok = GC.updateDoubleParameter(ErrorStr, strSize2, Size2);
     if (!ok)
     {
-        guitools::message(ErrorStr, this);
+        guitools::message(ErrorStr + " in Size2\n", this);
         return false;
     }
 

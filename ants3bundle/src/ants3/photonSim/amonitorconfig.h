@@ -48,7 +48,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    QString updateFromGeoConstants();
+    void updateFromGeoConstants(QString & errorStr);
 };
 
 #endif // AMONITORCONFIG_H

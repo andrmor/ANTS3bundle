@@ -381,7 +381,7 @@ void AGeoObject::introduceGeoConstValues()
 
     if (Shape) Shape->introduceGeoConstValues(errorStr);
 
-    if (Type)  Type->introduceGeoConstValues();
+    if (Type)  Type->introduceGeoConstValues(errorStr);
 
     if (Role)  Role->introduceGeoConstValues();
 

@@ -41,7 +41,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     virtual void readFromJson(const QJsonObject & /*json*/) {}
 
-    virtual QString introduceGeoConstValues() {return "";}
+    virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
 protected:
     const QString * pType = nullptr;
@@ -136,7 +136,7 @@ public:
     void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    QString introduceGeoConstValues() override;
+    void introduceGeoConstValues(QString & errorStr) override;
 
     int numX = 2;
     int numY = 2;
@@ -163,7 +163,7 @@ public:
     void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    QString introduceGeoConstValues() override;
+    void introduceGeoConstValues(QString & errorStr) override;
 
     int    num         = 6;
     double angularStep = 30.0; //in degrees
@@ -185,7 +185,7 @@ public:
     void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    QString introduceGeoConstValues() override;
+    void introduceGeoConstValues(QString & errorStr) override;
 
     double     Step         = 30.0;
     EShapeMode Shape        = Hexagonal;
@@ -210,7 +210,7 @@ public:
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
-    QString introduceGeoConstValues() override;
+    void introduceGeoConstValues(QString & errorStr) override;
 
     AMonitorConfig config;
 

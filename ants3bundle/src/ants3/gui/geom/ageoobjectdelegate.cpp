@@ -2817,7 +2817,8 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     a.strStepZ = ledStepZ->text();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -2926,7 +2927,8 @@ bool AGeoCircularArrayDelegate::updateObject(AGeoObject *obj) const
     a.strRadius      = ledRadius->text();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -3059,7 +3061,8 @@ bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
     a.Shape         = ( cobShape->currentIndex() == 0 ? ATypeHexagonalArrayObject::Hexagonal : ATypeHexagonalArrayObject::XY );
     a.SkipOddLast   = cbSkipLastOdd->isChecked();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
