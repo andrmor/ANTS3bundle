@@ -1,6 +1,7 @@
 #include "ageoconsts.h"
 #include "ageoobject.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include "TFormula.h"
 
@@ -138,8 +139,7 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
 }
 
 #include "TFormula.h"
-#include "aerrorhub.h"
-bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) const
+bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnValue, int to) const
 {
     if (to == -1) to = Records.size();
 
@@ -150,7 +150,7 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     {
         if (str.contains(fe))
         {
-            AErrorHub::addQError( QString("GeoConst (%0) contains invalid vars").arg(str) );
+            error += QString("Geo constant (%0) contains invalid vars\n").arg(str);
             return false;
         }
     }
@@ -159,7 +159,7 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     if (!f || !f->IsValid())
     {
         delete f;
-        AErrorHub::addQError( QString("String (%0) produces an invalid TFormula").arg(str) );
+        error += QString("String (%0) produces an invalid TFormula\n").arg(str);
         return false;
     }
 
@@ -177,20 +177,15 @@ bool AGeoConsts::updateDoubleParameter(QString & errorStr, QString & str, double
     if (ok) str.clear();
     else
     {
-        ok = evaluateFormula(str, returnValue);
-        if (!ok)
-        {
-            errorStr = QString("Syntax error:\n%1").arg(str);
-            AErrorHub::addQError(errorStr);
-            return false;
-        }
+        ok = evaluateFormula(errorStr, str, returnValue);
+        if (!ok) return false;
     }
 
     if (bForbidZero && returnValue == 0)
     {
-        errorStr = "Unacceptable zero value";
+        errorStr += "Unacceptable zero value";
         if (!str.isEmpty()) errorStr += " in: " + str;
-        AErrorHub::addQError(errorStr);
+        errorStr += '\n';
         return false;
     }
     if (bForbidNegative && returnValue < 0)
@@ -198,7 +193,7 @@ bool AGeoConsts::updateDoubleParameter(QString & errorStr, QString & str, double
         errorStr = "Unacceptable negative value in";
         if (!str.isEmpty()) errorStr += ": " + str;
         else errorStr += ": " + QString::number(returnValue);
-        AErrorHub::addQError(errorStr);
+        errorStr += '\n';
         return false;
     }
 
@@ -216,13 +211,8 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
     else
     {
         double dRetVal;
-        ok = evaluateFormula(str, dRetVal);
-        if (!ok)
-        {
-            errorStr = QString("Syntax error:\n%1").arg(str);
-            AErrorHub::addQError(errorStr);
-            return false;
-        }
+        ok = evaluateFormula(errorStr, str, dRetVal);
+        if (!ok) return false;
         returnValue = dRetVal;
     }
 
@@ -230,7 +220,7 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
     {
         errorStr = "Invalid zero value";
         if (!str.isEmpty()) errorStr += " in expression: " + str;
-        AErrorHub::addQError(errorStr);
+        errorStr += '\n';
         return false;
     }
     if (bForbidNegative && returnValue < 0)
@@ -238,7 +228,7 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
         errorStr = "Invalid negative value";
         if (!str.isEmpty()) errorStr += " in expression: " + str;
         else errorStr += ": " + QString::number(returnValue);
-        AErrorHub::addQError(errorStr);
+        errorStr += '\n';
         return false;
     }
     return true;
@@ -282,8 +272,13 @@ bool AGeoConsts::evaluateConstExpression(int index)
         rec.Expression.clear();
     else
     {
-        ok = evaluateFormula(strCopy, val, index);
-        if (!ok) return false;
+        QString errorStr;
+        ok = evaluateFormula(errorStr, strCopy, val, index);
+        if (!ok)
+        {
+            AErrorHub::addQError("Error in Geo const expession " + rec.Name + ":\n  " + errorStr);
+            return false;
+        }
     }
     GeoConstValues[index] = val;
     return true;

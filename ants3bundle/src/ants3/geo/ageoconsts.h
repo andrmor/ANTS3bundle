@@ -64,7 +64,7 @@ public:
     void    writeToJsonArr(QJsonArray & ar) const;
     void    readFromJsonArr(const QJsonArray & json);
 
-    bool    evaluateFormula(QString str, double & returnValue, int to = -1) const;
+    bool    evaluateFormula(QString & error, QString str, double & returnValue, int to = -1) const;
     bool    updateDoubleParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero = true, bool bForbidNegative = true, bool bMakeHalf = true) const;
     bool    updateIntParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero = true, bool bForbidNegative = true) const;
 

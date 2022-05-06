@@ -42,13 +42,18 @@ void AOneLineTextEdit::setText(const QString & text)
     double val = text.toDouble(&ok);
     if (!ok)
     {
-        AGeoConsts::getConstInstance().evaluateFormula(text, val);
+        QString errorStr;
+        bool ok = AGeoConsts::getConstInstance().evaluateFormula(errorStr, text, val);
 
-        if (bIntegerTooltip)
-            setToolTip(QString::number((int)val));
-        else
-            setToolTip(QString::number(val));
+        QString toolTip;
+        if (ok)
+        {
+            if (bIntegerTooltip) toolTip = QString::number((int)val);
+            else                 toolTip = QString::number(val);
+        }
+        else                     toolTip = errorStr;
 
+        setToolTip(toolTip);
         setToolTipDuration(1000);
     }
 }
