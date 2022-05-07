@@ -47,6 +47,8 @@ private slots:
 
   void on_tabwConstants_cellClicked(int row, int column);
 
+  void on_actionFind_object_triggered();
+
 private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;

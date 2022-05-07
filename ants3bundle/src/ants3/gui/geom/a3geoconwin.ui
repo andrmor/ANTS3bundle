@@ -802,7 +802,14 @@
     <addaction name="actionTo_JavaScript"/>
     <addaction name="actionTo_Python"/>
    </widget>
+   <widget class="QMenu" name="menuFind">
+    <property name="title">
+     <string>Find</string>
+    </property>
+    <addaction name="actionFind_object"/>
+   </widget>
    <addaction name="menuUndo_redo"/>
+   <addaction name="menuFind"/>
    <addaction name="menuGeometryToScript"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -849,6 +856,11 @@
   <action name="actionAdd_bottom_lightguide">
    <property name="text">
     <string>Add bottom lightguide</string>
+   </property>
+  </action>
+  <action name="actionFind_object">
+   <property name="text">
+    <string>Find object</string>
    </property>
   </action>
  </widget>

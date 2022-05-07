@@ -1444,3 +1444,30 @@ bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
     return true;
 }
 
+void A3GeoConWin::on_actionFind_object_triggered()
+{
+    QDialog D(this);
+    D.setWindowTitle("Find object by name");
+    QHBoxLayout * l = new QHBoxLayout(&D);
+    l->addWidget(new QLabel("Object name:"));
+    QLineEdit * le = new QLineEdit();
+    l->addWidget(le);
+    connect(le, &QLineEdit::editingFinished, &D, &QDialog::accept);
+
+    D.move(x()+40, y()+35);
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    QString name = le->text();
+    if (name.isEmpty()) return;
+
+    UpdateGeoTree(name, true);
+
+    /*
+    QString name;
+    guitools::inputString("Object name:", name, this);
+    if (name.isEmpty()) return;
+    UpdateGeoTree(name, true);
+    */
+}
+
