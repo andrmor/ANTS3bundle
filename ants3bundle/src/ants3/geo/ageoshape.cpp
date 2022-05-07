@@ -2999,6 +2999,11 @@ void AGeoScaledShape::updateScalingFactors(QString & errorStr)
     ok = GC.updateDoubleParameter(errorStr, strScaleZ, scaleZ, true, true, false); if (!ok) errorStr += " in Z Scaling\n";
 }
 
+void AGeoScaledShape::introduceGeoConstValues(QString & errorStr)
+{
+    updateScalingFactors(errorStr);
+}
+
 bool AGeoScaledShape::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (strScaleX.contains(nameRegExp)) return true;
@@ -3270,41 +3275,18 @@ void AGeoScaledShape::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strScaleY", strScaleY)) strScaleY.clear();
     if (!jstools::parseJson(json, "strScaleZ", strScaleZ)) strScaleZ.clear();
 
-    bool bOldSystem = jstools::parseJson(json, "BaseShapeGenerationString", BaseShapeGenerationString);
-    if (bOldSystem)
-    {
-        //compatibility
-        delete BaseShape;
-
-        qDebug() << "SCALED->: Generating base shape from "<< BaseShapeGenerationString;
-        QString shapeType = BaseShapeGenerationString.left(BaseShapeGenerationString.indexOf('('));
-        qDebug() << "SCALED->: base type:"<<shapeType;
-        BaseShape = AGeoShape::GeoShapeFactory(shapeType);
-        if (BaseShape)
-        {
-            qDebug() << "SCALED->" << "Created AGeoShape of type" << BaseShape->getShapeType();
-            bool fOK = BaseShape->readFromString(BaseShapeGenerationString);
-            qDebug() << "reading base shape properties ->" << fOK;
-        }
-    }
-    else
-    {
-        //new system
-        QString type = "TGeoBBox";
-        jstools::parseJson(json, "shape", type);
-        BaseShape = AGeoShape::GeoShapeFactory(type);
-        if (BaseShape) BaseShape->readFromJson(json);
-    }
+    QString type = "TGeoBBox";
+    jstools::parseJson(json, "shape", type);
+    BaseShape = AGeoShape::GeoShapeFactory(type);
+    if (BaseShape) BaseShape->readFromJson(json);
 
     if (!BaseShape)
     {
-        qWarning() << "Shape generation failed, replacing with box";
         BaseShape = new AGeoBox();
+        QString errorStr = "Scaled shape generation failed, replacing with box";
+        qWarning() << errorStr;
+        AErrorHub::addQError(errorStr);
     }
-
-    QString errorStr;
-    updateScalingFactors(errorStr);
-    if (!errorStr.isEmpty()) AErrorHub::addQError(errorStr);
 }
 
 bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)

@@ -497,13 +497,14 @@ void AGeometryHub::populateGeoManager()
     ACalorimeterHub::getInstance().clear();
     clearGridRecords();
 
-    AGeoConsts::getInstance().updateFromExpressions(); // !!!*** errors?
+    AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
+    GeoManager->SetMaxVisNodes(100000);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();

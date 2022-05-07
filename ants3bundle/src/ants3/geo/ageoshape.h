@@ -140,6 +140,8 @@ public:
   QString getHelp() const override;
   void updateScalingFactors(QString & errorStr);
 
+  void introduceGeoConstValues(QString & errorStr) override;
+
   bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
   void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
@@ -156,11 +158,11 @@ public:
   TGeoShape * generateBaseTGeoShape(const QString & BaseShapeGenerationString) const;
 
   void writeToJson(QJsonObject& json) const override;
-  void readFromJson(const QJsonObject& json) override; // !!!*** remove old system    !!!*** check error control
+  void readFromJson(const QJsonObject& json) override; // !!!*** check error control
 
   bool readFromTShape(TGeoShape* Tshape) override;
 
-  QString BaseShapeGenerationString;  //compatibility
+  QString BaseShapeGenerationString;
 
   double scaleX = 1.0;
   double scaleY = 1.0;
