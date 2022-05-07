@@ -1,7 +1,6 @@
 #ifndef AGEOCONSTS_H
 #define AGEOCONSTS_H
 
-#include <QVector>
 #include <vector>
 #include <QString>
 #include <QRegularExpression>
@@ -30,7 +29,7 @@ public:
     static const AGeoConsts & getConstInstance();
 
     void    clearConstants();
-    void    updateFromExpressions(); // !!!*** add error handling!
+    void    updateFromExpressions();
 
     QString addNewConstant(const QString & name, double value, int index = -1);
     void    addNoNameConstant(int index);
@@ -81,8 +80,8 @@ private:
     AGeoConsts& operator=(const AGeoConsts&) = delete;
     AGeoConsts& operator=(AGeoConsts&) = delete;
 
-    QVector<AGeoConstRecord> Records;  // !!!*** std::vector
-    QVector<double> GeoConstValues;    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
+    std::vector<AGeoConstRecord> Records;
+    std::vector<double> GeoConstValues;    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
 
     //misc
     std::vector<QString> FunctionsToJS;

@@ -156,11 +156,9 @@ void AGeoTree::UpdateGui(QString ObjectName)
     }
     else
     {
-        //list.first()->setSelected(true);
         if (bWorldTreeSelected) twGeoTree->setCurrentItem(list.first());
         else twPrototypes->setCurrentItem(list.first());
     }
-    //qDebug() << "<==";
 }
 
 void AGeoTree::updatePrototypeTreeGui()

@@ -45,9 +45,9 @@ QString AGeoConsts::exportToScript(const AGeoObject * obj, const QString &Commen
 {
     QString GCScript;
 
-    if (!Records.isEmpty())
+    if (!Records.empty())
     {
-        for (int i = 0; i < Records.size(); i++)
+        for (int i = 0; i < (int)Records.size(); i++)
         {
             const AGeoConstRecord & r = Records.at(i);
             QRegularExpression nameRegExp("\\b" + r.Name + "\\b");
@@ -91,7 +91,7 @@ void AGeoConsts::clearConstants()
 
 void AGeoConsts::updateFromExpressions()
 {
-    for (int i = 0; i < Records.size(); i++)
+    for (int i = 0; i < (int)Records.size(); i++)
         evaluateConstExpression(i);
 }
 
@@ -99,7 +99,7 @@ void AGeoConsts::writeToJsonArr(QJsonArray & ar) const
 {
     ar = QJsonArray();
 
-    for (int i = 0; i < Records.size(); i++)
+    for (size_t i = 0; i < Records.size(); i++)
     {
         const AGeoConstRecord & r = Records.at(i);
         QJsonArray el;
@@ -229,26 +229,26 @@ bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & ret
 
 QString AGeoConsts::getName(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     if (Records.at(index).Name == placeholderStr) return "";
     return Records.at(index).Name;
 }
 
 double AGeoConsts::getValue(int index) const
 {
-    if (index < 0 || index >= GeoConstValues.size()) return 0;
+    if (index < 0 || index >= (int)GeoConstValues.size()) return 0;
     return GeoConstValues.at(index);
 }
 
 QString AGeoConsts::getExpression(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     return Records.at(index).Expression;
 }
 
 QString AGeoConsts::getComment(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     return Records.at(index).Comment;
 }
 
@@ -279,7 +279,7 @@ bool AGeoConsts::evaluateConstExpression(int index)
 
 bool AGeoConsts::rename(int index, const QString & newName, AGeoObject * world, QString & errorStr)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
     AGeoConstRecord & rec = Records[index];
 
     if (newName == rec.Name) return true;
@@ -300,7 +300,7 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
     if (newName.contains(QRegularExpression("\\s"))) return "Name cannot contain whitespace charachters eg:\" \" or \"\\n\" ";
     if (newName.contains(QRegularExpression("\\W"))) return "Name can only contain word characters: [0-9], [A-Z], [a-z], _";
 
-    for (int i = 0; i < Records.size(); i++)
+    for (int i = 0; i < (int)Records.size(); i++)
     {
         if (i == index) continue;
         if (newName == Records.at(i).Name) return "This name is already in use";
@@ -321,7 +321,7 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
 
 bool AGeoConsts::setNewValue(int index, double newValue)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
 
     GeoConstValues[index] = newValue;
     Records[index].Expression.clear();
@@ -330,7 +330,7 @@ bool AGeoConsts::setNewValue(int index, double newValue)
 
 QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 {
-    if (index < 0 || index >= Records.size()) return "Wrong index";
+    if (index < 0 || index >= (int)Records.size()) return "Wrong index";
 
     if (newExpression.contains('[') || newExpression.contains(']'))
     {
@@ -349,13 +349,13 @@ QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 
 void AGeoConsts::setNewComment(int index, const QString & txt)
 {
-    if (index < 0 || index >= Records.size()) return;
+    if (index < 0 || index >= (int)Records.size()) return;
     Records[index].Comment = txt;
 }
 
 bool AGeoConsts::isIndexValid(int index)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
     return true;
 }
 
@@ -383,27 +383,27 @@ QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
 
 QString AGeoConsts::isGeoConstsBelowInUse(int index) const
 {
-    for (int i = index+1; i < Records.size(); i++)
+    for (int i = index+1; i < (int)Records.size(); i++)
         if (Records.at(index).Expression.contains(Records.at(i).RegExp)) return Records.at(i).Name;
     return "";
 }
 
 QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const
 {
-    for (int i = index; i < Records.size(); i++)
+    for (int i = index; i < (int)Records.size(); i++)
         if (Records.at(i).Expression.contains(nameRegExp)) return Records.at(i).Name;
     return "";
 }
 
 void AGeoConsts::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index)
 {
-    for (int i = index; i < Records.size(); i++)
+    for (int i = index; i < (int)Records.size(); i++)
         Records[i].Expression.replace(nameRegExp, newName);
 }
 
 QString AGeoConsts::addNewConstant(const QString & name, double value, int index)
 {
-    if (index < -1 || index > Records.size()) return "Bad index for the new geo constant";
+    if (index < -1 || index > (int)Records.size()) return "Bad index for the new geo constant";
 
     QString errorStr;
     if (name != placeholderStr)
@@ -413,8 +413,8 @@ QString AGeoConsts::addNewConstant(const QString & name, double value, int index
     }
     if (index == -1) index = Records.size();
 
-    Records.insert(index, AGeoConstRecord(name));
-    GeoConstValues.insert(index, value);
+           Records.insert(Records.begin()        + index, AGeoConstRecord(name));
+    GeoConstValues.insert(GeoConstValues.begin() + index, value);
 
     updateRunTimeProperties();
 
@@ -428,10 +428,10 @@ void AGeoConsts::addNoNameConstant(int index)
 
 void AGeoConsts::removeConstant(int index)
 {
-    if (index < 0 || index >= Records.size()) return;
+    if (index < 0 || index >= (int)Records.size()) return;
 
-    Records.remove(index);
-    GeoConstValues.remove(index);
+           Records.erase(Records.begin()        + index);
+    GeoConstValues.erase(GeoConstValues.begin() + index);
 
     updateRunTimeProperties();
 }
