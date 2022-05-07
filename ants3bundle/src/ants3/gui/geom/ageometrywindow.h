@@ -41,7 +41,6 @@ public:
     void ShowAndFocus();
     void SetAsActiveRootWindow();
     void ClearRootCanvas();
-    void UpdateRootCanvas();
 
     void SaveAs(const QString & filename);
     void OpenGLview();
@@ -75,6 +74,7 @@ protected:
 
 public slots:
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
+    void UpdateRootCanvas();
     void ShowTracks();
     void ShowPoint(double * r, bool keepTracks = false);
     void addGenerationMarker(const double * Pos);

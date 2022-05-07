@@ -163,7 +163,6 @@ void AGeometryWindow::on_pbShowGeometry_clicked()
 
 void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed)
 {
-    //qDebug()<<"  ----Showing geometry----" << MW->GeometryDrawDisabled;
     if (bDisableDraw) return;
 
     prepareGeoManager(ColorUpdateAllowed);
@@ -186,6 +185,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         showGeoMarkers();
 
         //ResetView();  // angles are resetted, by rotation (with mouse) starts with a wrong angles
+
         UpdateRootCanvas();
 
         CameraControl->updateGui();
@@ -373,6 +373,8 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     QJsonObject js;
     ok = jstools::parseJson(json, "GeoWriter", js);
     if (ok) GeoWriter.readFromJson(js);
+
+    RasterWindow->ForceResize();
 }
 
 bool AGeometryWindow::IsWorldVisible()
@@ -842,8 +844,8 @@ void AGeometryWindow::Zoom(bool update)
     if (!v) return;
 
     double zoomFactor = 1.0;
-    if (ZoomLevel>0) zoomFactor = pow(1.25, ZoomLevel);
-    else if (ZoomLevel<0) zoomFactor = pow(0.8, -ZoomLevel);
+    if (ZoomLevel > 0) zoomFactor = pow(1.25, ZoomLevel);
+    else if (ZoomLevel < 0) zoomFactor = pow(0.8, -ZoomLevel);
     if (ZoomLevel != 0) v->ZoomView(0, zoomFactor);
     if (update)
     {

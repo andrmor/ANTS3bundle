@@ -62,6 +62,8 @@ protected:
     void paintEvent(QPaintEvent * event ) override;
     void resizeEvent(QResizeEvent * event ) override;
 
+    QPaintEngine * paintEngine() const override {return nullptr;}  // added due to setAttribute(Qt::WA_PaintOnScreen, true);
+
 protected:
     QMainWindow * MasterWindow = nullptr;
     int wid;

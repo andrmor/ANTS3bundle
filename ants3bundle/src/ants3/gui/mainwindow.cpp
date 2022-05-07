@@ -288,6 +288,7 @@ void MainWindow::updateAllGuiFromConfig()
         if (ok) GeoWin->readFromJson(js);
     }
 
+    GeoWin->fRecallWindow = false;
     GeoWin->ShowGeometry(false, false, true);
 }
 
