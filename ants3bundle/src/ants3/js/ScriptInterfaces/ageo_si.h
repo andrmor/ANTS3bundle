@@ -49,9 +49,7 @@ public slots:
     void initializeStack(QString StackName, QString MemberName_StackReference);
     // !!!*** add posibility to reshape already exisiting stack
 
-    void array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double psi);
     void array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
-    void reconfigureArray(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ); // !!!*** for circular?
     void circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
     // !!!*** hex array
 

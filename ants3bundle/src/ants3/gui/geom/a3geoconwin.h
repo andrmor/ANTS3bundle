@@ -87,6 +87,7 @@ signals:
   void requestFocusVolume(QString name);
   void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
   void requestClearGeoMarkers(int All_Rec_True);
+  void requestAddScript(const QString & script);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

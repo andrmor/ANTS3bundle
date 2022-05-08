@@ -961,9 +961,8 @@ void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 
-QString A3GeoConWin::createScript(QString &script, bool usePython)
+QString A3GeoConWin::createScript(QString & script, bool usePython)
 {
-    /*
     QString CommentStr = "//";
     int indent = 0;
     QString VarStr;
@@ -985,11 +984,13 @@ QString A3GeoConWin::createScript(QString &script, bool usePython)
     script.insert(0, CommentStr);
 
     script += indentStr + CommentStr + "Defined materials:\n";
-    for (int i=0; i<Detector->MpCollection->countMaterials(); i++)
-        script += indentStr + VarStr + Detector->MpCollection->getMaterialName(i) + "_mat = " + QString::number(i) + "\n";
+    const QStringList mn = MaterialHub.getListOfMaterialNames();
+    for (int i = 0; i < mn.size(); i++)
+        script += indentStr + VarStr + mn[i] + "_mat = " + QString::number(i) + "\n";
     script += "\n";
 
-    AGeoObject * World = Detector->Sandwich->World;
+    AGeoObject * World = Geometry.World;
+
     QString geoScr = AGeoConsts::getConstInstance().exportToScript(World, CommentStr, VarStr);
     if (!geoScr.simplified().isEmpty())
     {
@@ -998,17 +999,11 @@ QString A3GeoConWin::createScript(QString &script, bool usePython)
         script += "\n";
     }
 
-    //script += indentStr + CommentStr + "Set all PM arrays to fully custom regularity, so PM Z-positions will not be affected by slabs\n";
-    //script += indentStr + "pms.SetAllArraysFullyCustom()\n";
-    //script += indentStr + CommentStr + "Remove all slabs and objects\n";
-    script += indentStr + "geo.RemoveAllExceptWorld()\n";
-    script += "\n";
-
-    twGeo->commonSlabToScript(script, indentStr);
+    script += indentStr + "geo.clearWorld()\n";
     script += "\n";
 
     QString protoString;
-    twGeo->objectMembersToScript(Detector->Sandwich->Prototypes, protoString, indent, true, true, usePython);
+    twGeo->objectMembersToScript(Geometry.Prototypes, protoString, indent, true, true, usePython);
     if (!protoString.simplified().isEmpty())
     {
         script += indentStr + CommentStr + "Prototypes:";
@@ -1019,9 +1014,8 @@ QString A3GeoConWin::createScript(QString &script, bool usePython)
     script += indentStr + CommentStr + "Geometry:";
     twGeo->objectMembersToScript(World, script, indent, true, true, usePython);
 
-    script += "\n\n" + indentStr + "geo.UpdateGeometry(true)";
+    script += "\n\n" + indentStr + "geo.updateGeometry(true)";
 
-    */
     return script;
 }
 
@@ -1256,14 +1250,9 @@ void A3GeoConWin::on_actionHow_to_use_drag_and_drop_triggered()
 
 void A3GeoConWin::on_actionTo_JavaScript_triggered()
 {
-    /*
     QString script;
     createScript(script, false);
-    MW->ScriptWindow->onLoadRequested(script);
-    MW->ScriptWindow->showNormal();
-    MW->ScriptWindow->raise();
-    MW->ScriptWindow->activateWindow();
-    */
+    emit requestAddScript(script);
 }
 
 void A3GeoConWin::on_cbShowPrototypes_toggled(bool checked)

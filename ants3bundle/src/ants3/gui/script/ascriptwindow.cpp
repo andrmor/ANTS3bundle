@@ -435,6 +435,15 @@ void AScriptWindow::outputAbortMessage(QString text)
     qApp->processEvents();
 }
 
+void AScriptWindow::onRequestAddScript(const QString & script)
+{
+    showNormal();
+    raise();
+    activateWindow();
+
+    onLoadRequested(script);
+}
+
 void AScriptWindow::clearOutput()
 {
     pteOut->clear();
@@ -554,13 +563,13 @@ void AScriptWindow::on_pbLoad_clicked()
     updateFileStatusIndication();
 }
 
-void AScriptWindow::onLoadRequested(QString NewScript)
+void AScriptWindow::onLoadRequested(const QString & script)
 {
     ATabRecord * tab = getTab();
     if (!tab->TextEdit->document()->isEmpty()) tab = &addNewTab();
 
     tab->TextEdit->clear();
-    tab->TextEdit->appendPlainText(NewScript);
+    tab->TextEdit->appendPlainText(script);
 
     //for example load (triggered on signal from example explorer): do not register file name!
     tab->FileName.clear();

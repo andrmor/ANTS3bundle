@@ -1381,7 +1381,7 @@ void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
 
 void AGeoTree::objectMembersToScript(AGeoObject* Master, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython)
 {
-    for (AGeoObject* obj : Master->HostedObjects)
+    for (AGeoObject * obj : Master->HostedObjects)
         objectToScript(obj, script, ident, bExpandMaterial, bRecursive, usePython);
 }
 
@@ -1567,7 +1567,7 @@ QString AGeoTree::makeScriptString_arrayObject(AGeoObject *obj) const
         QString sOri2  = (obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2])    : obj->OrientationStr[2]);
         QString sIndex = (a->strStartIndex      .isEmpty() ? QString::number(a  ->startIndex)        : a->strStartIndex);
 
-        str +=  QString("geo.Array( ") +
+        str +=  QString("geo.array( ") +
                 "'" + obj->Name + "', " +
                 snumX + ", " +
                 snumY + ", " +
