@@ -307,7 +307,7 @@ void ATypeCircularArrayObject::introduceGeoConstValues(QString & errorStr)
 
 ATypeHexagonalArrayObject::ATypeHexagonalArrayObject() {pType = &HexagonalArray;}
 
-void ATypeHexagonalArrayObject::Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
+void ATypeHexagonalArrayObject::reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
 {
     Step        = step;
     Shape       = shape;

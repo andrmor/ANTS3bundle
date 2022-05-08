@@ -527,6 +527,28 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+{
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    o->Type = ar;
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+{
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    o->Type = ar;
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::prototype(QString name)
 {
     AGeoObject * proto = new AGeoObject(name);

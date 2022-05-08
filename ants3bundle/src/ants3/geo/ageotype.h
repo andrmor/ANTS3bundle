@@ -177,7 +177,7 @@ public:
     enum EShapeMode {Hexagonal, XY};
     ATypeHexagonalArrayObject();
 
-    void Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast);
+    void reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast);
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;

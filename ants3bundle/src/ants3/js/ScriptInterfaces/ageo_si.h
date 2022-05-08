@@ -51,7 +51,8 @@ public slots:
 
     void array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
     void circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
-    // !!!*** hex array
+    void hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
+    void hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex);
 
     void prototype(QString name);
     void instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi);
