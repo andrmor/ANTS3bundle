@@ -158,7 +158,7 @@ void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int
         V.push_back( QPair<double,double>(x,y) );
     }
 
-    if (!AGeoShape::CheckPointsForArb8(V))
+    if (!AGeoArb8::checkPointsForArb8(V))
     {
         clearGeoObjects();
         abort("Arb8 nodes should be define clockwise for both planes");

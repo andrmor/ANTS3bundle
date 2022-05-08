@@ -44,16 +44,15 @@ public:
   //from TShape if geometry was loaded from GDML
   virtual bool readFromTShape(TGeoShape* /*Tshape*/) {return false;}
 
-  virtual AGeoShape * clone() const; // without override it uses Factory and save/load to/from json
+  virtual AGeoShape * clone() const; // uses Factory and save/load to/from json
 
 protected:
   bool    extractParametersFromString(QString GenerationString, QStringList& parameters, int numParameters);
 
 public:
   static AGeoShape * GeoShapeFactory(const QString ShapeType);  // -=<  SHAPE FACTORY >=-
-  static QList<AGeoShape*> GetAvailableShapes();                // list of available shapes for generation of help and highlighter: do not forget to add new here!
-  static bool CheckPointsForArb8(QList<QPair<double, double> > V );  // !!!*** to Arb8 shape?
-  const QString getPythonGenerationString(const QString &javaGenString) const;
+  static QList<AGeoShape*> getAvailableShapes();                // list of available shapes for generation of help and highlighter: do not forget to add new here!
+  const  QString getPythonGenerationString(const QString &javaGenString) const;
 };
 
 // -------------- Particular shapes ---------------
@@ -661,6 +660,8 @@ public:
   void readFromJson(const QJsonObject& json) override;
 
   bool readFromTShape(TGeoShape* Tshape) override;
+
+  static bool checkPointsForArb8(QList<QPair<double, double> > V ); // !!!*** to std::vector
 
   double dz;
   QString str2dz;

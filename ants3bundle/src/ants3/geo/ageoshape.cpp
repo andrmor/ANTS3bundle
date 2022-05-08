@@ -24,6 +24,97 @@
 
 #include <math.h>
 
+AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
+{
+    if      (ShapeType == "TGeoBBox")
+        return new AGeoBox();
+    else if (ShapeType == "TGeoPara")
+        return new AGeoPara();
+    else if (ShapeType == "TGeoSphere")
+        return new AGeoSphere();
+    else if (ShapeType == "TGeoTube")
+        return new AGeoTube();
+    else if (ShapeType == "TGeoTubeSeg")
+        return new AGeoTubeSeg();
+    else if (ShapeType == "TGeoCtub")
+        return new AGeoCtub();
+    else if (ShapeType == "TGeoEltu")
+        return new AGeoEltu();
+    else if (ShapeType == "TGeoTrd1")
+        return new AGeoTrd1();
+    else if (ShapeType == "TGeoTrd2")
+        return new AGeoTrd2();
+    else if (ShapeType == "TGeoPgon")
+        return new AGeoPgon();
+    else if (ShapeType == "TGeoPolygon")
+        return new AGeoPolygon();
+    else if (ShapeType == "TGeoCone")
+        return new AGeoCone();
+    else if (ShapeType == "TGeoConeSeg")
+        return new AGeoConeSeg();
+    else if (ShapeType == "TGeoPcon")
+        return new AGeoPcon();
+    else if (ShapeType == "TGeoParaboloid")
+        return new AGeoParaboloid();
+    else if (ShapeType == "TGeoArb8")
+        return new AGeoArb8();
+    else if (ShapeType == "TGeoTorus")
+        return new AGeoTorus();
+    else if (ShapeType == "TGeoCompositeShape")
+        return new AGeoComposite();
+    else if (ShapeType == "TGeoScaledShape")
+        return new AGeoScaledShape();
+    else return 0;
+}
+
+QList<AGeoShape *> AGeoShape::getAvailableShapes()
+{
+    QList<AGeoShape *> list;
+    list << new AGeoBox << new AGeoPara << new AGeoSphere
+         << new AGeoTube << new AGeoTubeSeg << new AGeoCtub << new AGeoEltu
+         << new AGeoTrd1 << new AGeoTrd2
+         << new AGeoCone << new AGeoConeSeg << new AGeoPcon
+         << new AGeoPolygon << new AGeoPgon
+         << new AGeoParaboloid << new AGeoTorus
+         << new AGeoArb8 << new AGeoComposite
+         << new AGeoScaledShape;
+    return list;
+}
+
+const QString AGeoShape::getPythonGenerationString(const QString &javaGenString) const
+{
+    int numberofQ = javaGenString.count("'");
+    if (numberofQ == 0) return javaGenString;
+
+    QString PythonGenString = javaGenString;
+    const QString firstStr = " )";
+    const QString secondStr = " str(";
+    int   plusAccomidation = QString(" + ").size();
+
+    bool first = true;
+    for (int i = 0; i < PythonGenString.size(); i++)
+    {
+        if (PythonGenString.at(i) == '\'')
+        {
+            if (!first)
+            {
+                PythonGenString.insert(i - plusAccomidation , firstStr);
+                i += firstStr.size();
+            }
+            else
+            {
+                PythonGenString.insert(i + plusAccomidation , secondStr);
+                i += secondStr.size();
+            }
+            first = !first;
+
+        }
+    }
+    return PythonGenString;
+}
+
+// ----------------------------
+
 AGeoShape * AGeoShape::clone() const
 {
     AGeoShape * sh = AGeoShape::GeoShapeFactory(getShapeType());
@@ -2227,7 +2318,7 @@ void AGeoArb8::introduceGeoConstValues(QString & errorStr)
         ok = GC.updateDoubleParameter(errorStr, strVertices[i][1], Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
     }
 
-    if (!AGeoShape::CheckPointsForArb8(Vertices))
+    if (!checkPointsForArb8(Vertices))
         errorStr += "Nodes of AGeoArb8 should be defined clockwise on both planes\n";
 }
 
@@ -2279,7 +2370,7 @@ bool AGeoArb8::readFromString(QString GenerationString)
     }
     //  qDebug() << dz << Vertices;
 
-    if (!AGeoShape::CheckPointsForArb8(Vertices))
+    if (!checkPointsForArb8(Vertices))
     {
         qWarning() << "Nodes of AGeoArb8 should be defined clockwise on both planes";
         return false;
@@ -2415,6 +2506,77 @@ bool AGeoArb8::readFromTShape(TGeoShape *Tshape)
     }
 
     return true;
+}
+
+bool checkPointsArb8(QList<QPair<double, double> > V)
+{
+    double X=0, Y=0;
+    for (int i=0; i<4; i++)
+    {
+        X += V[i].first;
+        Y += V[i].second;
+    }
+    X /= 4;
+    Y /= 4;
+    //qDebug() << "Center x,y:"<<X << Y;
+
+    QList<double> angles;
+    int firstNotNAN = -1;
+    for (int i=0; i<4; i++)
+    {
+        double dx = V[i].first-X;
+        double dy = V[i].second - Y;
+        double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
+        if (a==a && firstNotNAN==-1) firstNotNAN = i;
+
+        if      (dx > 0 && dy > 0) angles.append( 360.0 - a );
+        else if (dx < 0 && dy > 0) angles.append( 180.0 + a );
+        else if (dx < 0 && dy < 0) angles.append( 180.0 - a );
+        else                   angles.append( a );
+    }
+    //qDebug() << "Raw angles:" << angles;
+    // qDebug() << "First Not NAN:"<< firstNotNAN;
+    if (firstNotNAN == -1) return true; //all 4 points are the same
+
+    double delta = angles[firstNotNAN];
+    for (int i=0; i<4; i++)
+    {
+        if (angles[i] == angles[i]) // not NAN
+        {
+            angles[i] -= delta;
+            if (angles[i]<0) angles[i] += 360.0;
+        }
+    }
+
+    //qDebug() << "Shifted to first"<<angles;
+    double A = angles[firstNotNAN];
+    for (int i=firstNotNAN+1; i<4; i++)
+    {
+        //qDebug() <<i<< angles[i];
+        if (angles[i] != angles[i])
+        {
+            //qDebug() << "NAN, continue";
+            continue;
+        }
+        if (angles[i]<A)
+            return false;
+        A=angles[i];
+    }
+    return true;
+}
+
+bool AGeoArb8::checkPointsForArb8(QList<QPair<double, double> > V)
+{
+    if (V.size() != 8) return false;
+
+    bool ok = checkPointsArb8(V);
+    if (!ok) return false;
+
+    V.removeFirst();
+    V.removeFirst();
+    V.removeFirst();
+    V.removeFirst();
+    return checkPointsArb8(V);
 }
 
 void AGeoArb8::init()
@@ -3473,166 +3635,4 @@ bool AGeoTorus::readFromTShape(TGeoShape *Tshape)
     Dphi = tor->GetDphi();
 
     return true;
-}
-
-// ------------------ STATIC METHODS ---------------------
-
-bool checkPointsArb8(QList<QPair<double, double> > V)
-{
-    double X=0, Y=0;
-    for (int i=0; i<4; i++)
-    {
-        X += V[i].first;
-        Y += V[i].second;
-    }
-    X /= 4;
-    Y /= 4;
-    //qDebug() << "Center x,y:"<<X << Y;
-
-    QList<double> angles;
-    int firstNotNAN = -1;
-    for (int i=0; i<4; i++)
-    {
-        double dx = V[i].first-X;
-        double dy = V[i].second - Y;
-        double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
-        if (a==a && firstNotNAN==-1) firstNotNAN = i;
-
-        if (dx>0 && dy>0)      angles.append( 360.0 - a );
-        else if (dx<0 && dy>0) angles.append( 180.0 + a );
-        else if (dx<0 && dy<0) angles.append( 180.0 - a );
-        else                   angles.append( a );
-    }
-    //qDebug() << "Raw angles:" << angles;
-    // qDebug() << "First Not NAN:"<< firstNotNAN;
-    if (firstNotNAN == -1) return true; //all 4 points are the same
-
-    double delta = angles[firstNotNAN];
-    for (int i=0; i<4; i++)
-    {
-        if (angles[i] == angles[i]) // not NAN
-        {
-            angles[i] -= delta;
-            if (angles[i]<0) angles[i] += 360.0;
-        }
-    }
-
-    //qDebug() << "Shifted to first"<<angles;
-    double A = angles[firstNotNAN];
-    for (int i=firstNotNAN+1; i<4; i++)
-    {
-        //qDebug() <<i<< angles[i];
-        if (angles[i] != angles[i])
-        {
-            //qDebug() << "NAN, continue";
-            continue;
-        }
-        if (angles[i]<A)
-            return false;
-        A=angles[i];
-    }
-    return true;
-}
-
-bool AGeoShape::CheckPointsForArb8(QList<QPair<double, double> > V)
-{
-    if (V.size() != 8) return false;
-
-    bool ok = checkPointsArb8(V);
-    if (!ok) return false;
-
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    return checkPointsArb8(V);
-}
-
-const QString AGeoShape::getPythonGenerationString(const QString &javaGenString) const
-{
-    int numberofQ = javaGenString.count("'");
-    if (numberofQ == 0) return javaGenString;
-
-    QString PythonGenString = javaGenString;
-    const QString firstStr = " )";
-    const QString secondStr = " str(";
-    int   plusAccomidation = QString(" + ").size();
-
-    bool first = true;
-    for (int i = 0; i < PythonGenString.size(); i++)
-    {
-        if (PythonGenString.at(i) == '\'')
-        {
-            if (!first)
-            {
-                PythonGenString.insert(i - plusAccomidation , firstStr);
-                i += firstStr.size();
-            }
-            else
-            {
-                PythonGenString.insert(i + plusAccomidation , secondStr);
-                i += secondStr.size();
-            }
-            first = !first;
-
-        }
-    }
-    return PythonGenString;
-}
-
-AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
-{
-    if (ShapeType == "TGeoBBox")
-        return new AGeoBox();
-    else if (ShapeType == "TGeoPara")
-        return new AGeoPara();
-    else if (ShapeType == "TGeoSphere")
-        return new AGeoSphere();
-    else if (ShapeType == "TGeoTube")
-        return new AGeoTube();
-    else if (ShapeType == "TGeoTubeSeg")
-        return new AGeoTubeSeg();
-    else if (ShapeType == "TGeoCtub")
-        return new AGeoCtub();
-    else if (ShapeType == "TGeoEltu")
-        return new AGeoEltu();
-    else if (ShapeType == "TGeoTrd1")
-        return new AGeoTrd1();
-    else if (ShapeType == "TGeoTrd2")
-        return new AGeoTrd2();
-    else if (ShapeType == "TGeoPgon")
-        return new AGeoPgon();
-    else if (ShapeType == "TGeoPolygon")
-        return new AGeoPolygon();
-    else if (ShapeType == "TGeoCone")
-        return new AGeoCone();
-    else if (ShapeType == "TGeoConeSeg")
-        return new AGeoConeSeg();
-    else if (ShapeType == "TGeoPcon")
-        return new AGeoPcon();
-    else if (ShapeType == "TGeoParaboloid")
-        return new AGeoParaboloid();
-    else if (ShapeType == "TGeoArb8")
-        return new AGeoArb8();
-    else if (ShapeType == "TGeoTorus")
-        return new AGeoTorus();
-    else if (ShapeType == "TGeoCompositeShape")
-        return new AGeoComposite();
-    else if (ShapeType == "TGeoScaledShape")
-        return new AGeoScaledShape();
-    else return 0;
-}
-
-QList<AGeoShape *> AGeoShape::GetAvailableShapes()
-{
-    QList<AGeoShape *> list;
-    list << new AGeoBox << new AGeoPara << new AGeoSphere
-         << new AGeoTube << new AGeoTubeSeg << new AGeoCtub << new AGeoEltu
-         << new AGeoTrd1 << new AGeoTrd2
-         << new AGeoCone << new AGeoConeSeg << new AGeoPcon
-         << new AGeoPolygon << new AGeoPgon
-         << new AGeoParaboloid << new AGeoTorus
-         << new AGeoArb8 << new AGeoComposite
-         << new AGeoScaledShape;
-    return list;
 }
