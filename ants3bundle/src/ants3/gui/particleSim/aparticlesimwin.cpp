@@ -557,11 +557,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     emit requestShowTracks();
 }
 
-void AParticleSimWin::clearResultsGui()
-{
-    ui->trwEventView->clear();
-}
-
 void AParticleSimWin::disableGui(bool flag)
 {
     //setDisabled(flag);
@@ -632,13 +627,16 @@ void AParticleSimWin::on_pbSimulate_clicked()
 void AParticleSimWin::updateResultsGui()
 {
     ui->progbSim->setValue(100);
+
+    ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+    LastDir_Working = ui->leWorkingDirectory->text();
+
     if (ui->cbAutoLoadResults->isChecked())
     {
-        ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
-
         if (SimSet.RunSet.SaveTrackingHistory)
         {
             ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            LastFile_Tracking = ui->leTrackingDataFile->text();
 
             on_pbShowTracks_clicked();
             EV_showTree();
@@ -647,12 +645,14 @@ void AParticleSimWin::updateResultsGui()
         if (SimSet.RunSet.MonitorSettings.Enabled)
         {
             ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
+            LastFile_Monitors = ui->leMonitorsFileName->text();
             updateMonitorGui(); // data will be already loaded for merging
         }
 
         if (SimSet.RunSet.CalorimeterSettings.Enabled)
         {
             ui->leCalorimetersFileName->setText(SimSet.RunSet.CalorimeterSettings.FileName.data());
+            LastFile_Calorimeters = ui->leCalorimetersFileName->text();
             updateCalorimeterGui(); // data will be already loaded for merging
         }
     }
@@ -708,6 +708,7 @@ void AParticleSimWin::onRequestShowSource()
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
+    LastFile_Tracking = fileName;
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     QStringList LimitTo;
@@ -744,7 +745,20 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_clicked()
                                                     SimSet.RunSet.OutputDirectory.data(),
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    if (!dir.isEmpty()) ui->leWorkingDirectory->setText(dir);
+    if (!dir.isEmpty())
+    {
+        ui->leWorkingDirectory->setText(dir);
+        on_leWorkingDirectory_editingFinished();
+    }
+}
+
+void AParticleSimWin::on_leWorkingDirectory_editingFinished()
+{
+    const QString str = ui->leWorkingDirectory->text();
+    if (str == LastDir_Working) return;
+    LastDir_Working = str;
+    clearResults();
+    clearResultsGui();
 }
 
 void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
@@ -752,8 +766,18 @@ void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with tracking data", ui->leWorkingDirectory->text());
     if (fileName.isEmpty()) return;
 
-    fileName = QFileInfo(fileName).completeBaseName() + "." + QFileInfo(fileName).suffix();
+    //fileName = QFileInfo(fileName).completeBaseName() + "." + QFileInfo(fileName).suffix();
     ui->leTrackingDataFile->setText(fileName);
+    on_leTrackingDataFile_editingFinished();
+}
+
+void AParticleSimWin::on_leTrackingDataFile_editingFinished()
+{
+    const QString str = ui->leTrackingDataFile->text();
+    if (str == LastFile_Tracking) return;
+    LastFile_Tracking = str;
+    clearResultsTracking();
+    clearResultsGuiTrackig();
 }
 
 void AParticleSimWin::on_cbGunAllowMultipleEvents_clicked(bool checked)
@@ -1567,12 +1591,25 @@ void AParticleSimWin::on_pbFilePreview_clicked()
 void AParticleSimWin::on_pbChooseMonitorsFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by particle monitors", SimSet.RunSet.OutputDirectory.data());
-    if (!fileName.isEmpty()) ui->leMonitorsFileName->setText(fileName);
+    if (fileName.isEmpty()) return;
+
+    ui->leMonitorsFileName->setText(fileName);
+    on_leMonitorsFileName_editingFinished();
+}
+
+void AParticleSimWin::on_leMonitorsFileName_editingFinished()
+{
+    const QString str = ui->leMonitorsFileName->text();
+    if (str == LastFile_Monitors) return;
+    LastFile_Monitors = str;
+    clearResultsMonitors();
+    clearResultsGuiMonitors();
 }
 
 void AParticleSimWin::on_pbLoadMonitorsData_clicked()
 {
     QString FileName = ui->leMonitorsFileName->text();
+    LastFile_Monitors = FileName;
     if (!FileName.contains('/'))
         FileName = ui->leWorkingDirectory->text() + '/' + FileName;
 
@@ -2000,12 +2037,25 @@ void AParticleSimWin::on_pbUpdateIcon_clicked()
 void AParticleSimWin::on_pbChooseCalorimetersFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by calorimeters", SimSet.RunSet.OutputDirectory.data());
-    if (!fileName.isEmpty()) ui->leCalorimetersFileName->setText(fileName);
+    if (fileName.isEmpty()) return;
+
+    ui->leCalorimetersFileName->setText(fileName);
+    on_leCalorimetersFileName_editingFinished();
+}
+
+void AParticleSimWin::on_leCalorimetersFileName_editingFinished()
+{
+    const QString str = ui->leCalorimetersFileName->text();
+    if (str == LastFile_Calorimeters) return;
+    LastFile_Calorimeters = str;
+    clearResultsCalorimeters();
+    clearResultsGuiCalorimeters();
 }
 
 void AParticleSimWin::on_pbLoadCalorimetersData_clicked()
 {
     QString FileName = ui->leCalorimetersFileName->text();
+    LastFile_Calorimeters = FileName;
     if (!FileName.contains('/'))
         FileName = ui->leWorkingDirectory->text() + '/' + FileName;
 
@@ -2218,4 +2268,50 @@ void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
 
     AGeoObject * obj = CalHub.Calorimeters[iCal].GeoObj;
     if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
+}
+
+void AParticleSimWin::clearResults()
+{
+    clearResultsTracking();
+    clearResultsMonitors();
+    clearResultsCalorimeters();
+}
+
+void AParticleSimWin::clearResultsTracking()
+{
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
+}
+
+void AParticleSimWin::clearResultsMonitors()
+{
+    MonitorHub.clearData(AMonitorHub::Particle);
+}
+
+void AParticleSimWin::clearResultsCalorimeters()
+{
+    CalHub.clearData();
+}
+
+void AParticleSimWin::clearResultsGui()
+{
+    clearResultsGuiTrackig();
+    clearResultsGuiMonitors();
+    clearResultsGuiCalorimeters();
+}
+
+void AParticleSimWin::clearResultsGuiTrackig()
+{
+    emit requestShowGeometry(false, true, true);
+    ui->trwEventView->clear();
+    ui->ptePTHist->clear();
+}
+
+void AParticleSimWin::clearResultsGuiMonitors()
+{
+    updateMonitorGui();
+}
+
+void AParticleSimWin::clearResultsGuiCalorimeters()
+{
+    updateCalorimeterGui();
 }

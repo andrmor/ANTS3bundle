@@ -159,12 +159,27 @@ private:
 
     bool   bGuiUpdateInProgress = false;
 
+    QString LastDir_Working;
+    QString LastFile_Tracking;
+    QString LastFile_Monitors;
+    QString LastFile_Calorimeters;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
     void updateGeneralControlInResults();
 
+    //clear
+    void clearResults();
+    void clearResultsTracking();
+    void clearResultsMonitors();
+    void clearResultsCalorimeters();
+
+    // clear results gui
     void clearResultsGui();
+    void clearResultsGuiTrackig();
+    void clearResultsGuiMonitors();
+    void clearResultsGuiCalorimeters();
 
     void disableGui(bool flag);
 
@@ -195,6 +210,10 @@ private slots:
     void on_pbCalorimetersShowDistribution_clicked();
     void on_pbShowCalorimeterSettings_clicked();
     void on_pbShowMonitorProperties_clicked();
+    void on_leWorkingDirectory_editingFinished();
+    void on_leTrackingDataFile_editingFinished();
+    void on_leMonitorsFileName_editingFinished();
+    void on_leCalorimetersFileName_editingFinished();
 };
 
 #endif // APARTICLESIMWIN_H
