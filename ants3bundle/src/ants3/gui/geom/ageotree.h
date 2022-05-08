@@ -105,7 +105,7 @@ private:
   void protoMenuEmptySelection(const QPoint & pos);
 
   QString makeScriptString_basicObject(AGeoObject *obj, bool bExpandMaterials, bool usePython) const;
-  QString makeScriptString_arrayObject(AGeoObject *obj) const;
+  QString makeScriptString_arrayObject(AGeoObject *obj) const; // !!!*** to AGeoType
   QString makeScriptString_instanceObject(AGeoObject *obj, bool usePython) const;
   QString makeScriptString_prototypeObject(AGeoObject *obj) const;
   QString makeScriptString_monitorBaseObject(const AGeoObject *obj) const;

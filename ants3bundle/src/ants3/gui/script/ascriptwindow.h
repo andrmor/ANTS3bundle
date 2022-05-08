@@ -143,7 +143,8 @@ public slots:
     void outputText(QString text);
     void outputAbortMessage(QString text);
 
-    void onLoadRequested(QString NewScript);
+    void onRequestAddScript(const QString & script);
+    void onLoadRequested(const QString & script);
     void onProgressChanged(int percent);
 
 private slots:

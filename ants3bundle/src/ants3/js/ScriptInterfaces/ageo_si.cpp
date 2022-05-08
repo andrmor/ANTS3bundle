@@ -158,7 +158,7 @@ void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int
         V.push_back( QPair<double,double>(x,y) );
     }
 
-    if (!AGeoShape::CheckPointsForArb8(V))
+    if (!AGeoArb8::checkPointsForArb8(V))
     {
         clearGeoObjects();
         abort("Arb8 nodes should be define clockwise for both planes");
@@ -509,11 +509,6 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     StackObj->HostedObjects.clear();
 }
 
-void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double psi)
-{
-    array(name, numX,numY,numZ,  stepX,stepY,stepZ, container, x,y,z,  0,0,psi,  0);
-}
-
 void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -532,23 +527,26 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::reconfigureArray(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ)
+void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
-    AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(name);
-    if (!obj)
-    {
-        abort("Cannot find object "+name);
-        return;
-    }
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    o->Type = ar;
+    GeoObjects.push_back(o);
+}
 
-    if (obj->Type->isArray())
-    {
-        abort("This object is not an array: "+name);
-        return;
-    }
-
-    ATypeArrayObject* a = static_cast<ATypeArrayObject*>(obj->Type);
-    a->Reconfigure(numX, numY, numZ, stepX, stepY, stepZ);
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+{
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    o->Type = ar;
+    GeoObjects.push_back(o);
 }
 
 void AGeo_SI::prototype(QString name)

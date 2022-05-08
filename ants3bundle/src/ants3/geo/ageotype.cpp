@@ -158,27 +158,23 @@ void ATypeArrayObject::Reconfigure(int NumX, int NumY, int NumZ, double StepX, d
     stepX = StepX; stepY = StepY; stepZ = StepZ;
 }
 
-QString ATypeArrayObject::introduceGeoConstValues()
+void ATypeArrayObject::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    QString errorStr;
     bool ok;
+    ok = GC.updateIntParameter(errorStr, strNumX, numX, true, true) ; if (!ok) errorStr += " in Number in X\n";
+    ok = GC.updateIntParameter(errorStr, strNumY, numY, true, true) ; if (!ok) errorStr += " in Number in Y\n";
+    ok = GC.updateIntParameter(errorStr, strNumZ, numZ, true, true) ; if (!ok) errorStr += " in Number in Z\n";
 
-    ok = GC.updateParameter(errorStr, strNumX, numX, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumY, numY, true, true) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumZ, numZ, true, true) ; if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strStepX, stepX, true, false, false) ; if (!ok) errorStr += " in X Step\n";
+    ok = GC.updateDoubleParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) errorStr += " in Y Step\n";
+    ok = GC.updateDoubleParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) errorStr += " in Z Setp\n";
 
-    ok = GC.updateParameter(errorStr, strStepX, stepX, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) return errorStr;
-
-    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) return errorStr;
-
-    return "";
+    ok = GC.updateIntParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) errorStr += " in Start Index\n";
 }
 
-bool ATypeArrayObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
+bool ATypeArrayObject::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (strNumX .contains(nameRegExp)) return true;
     if (strNumY .contains(nameRegExp)) return true;
@@ -296,26 +292,22 @@ void ATypeCircularArrayObject::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strStartIndex",  strStartIndex))  strStartIndex.clear();
 }
 
-QString ATypeCircularArrayObject::introduceGeoConstValues()
+void ATypeCircularArrayObject::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    QString errorStr;
     bool ok;
-
-    ok = GC.updateParameter(errorStr, strNum,         num,         true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStartIndex,  startIndex,  false, true);         if (!ok) return errorStr;
-
-    return "";
+    ok = GC.updateIntParameter(errorStr, strNum,         num,         true,  true);            if (!ok) errorStr += " in Number\n";
+    ok = GC.updateDoubleParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) errorStr += " in Angular Step\n";
+    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) errorStr += " in Radius\n";
+    ok = GC.updateIntParameter(errorStr, strStartIndex,  startIndex,  false, true);            if (!ok) errorStr += " in Start Index\n";
 }
 
 // ---
 
 ATypeHexagonalArrayObject::ATypeHexagonalArrayObject() {pType = &HexagonalArray;}
 
-void ATypeHexagonalArrayObject::Reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
+void ATypeHexagonalArrayObject::reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
 {
     Step        = step;
     Shape       = shape;
@@ -381,20 +373,16 @@ void ATypeHexagonalArrayObject::readFromJson(const QJsonObject & json)
     if (!jstools::parseJson(json, "strStartIndex", strStartIndex)) strStartIndex.clear();
 }
 
-QString ATypeHexagonalArrayObject::introduceGeoConstValues()
+void ATypeHexagonalArrayObject::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    QString errorStr;
     bool ok;
-
-    ok = GC.updateParameter(errorStr, strStep,       Step,       true,  true, false);  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strRings,      Rings,      false, true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumX,       NumX,       true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strNumY,       NumY,       true,  true);         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strStartIndex, startIndex, false, true);         if (!ok) return errorStr;
-
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, strStep,       Step,       true,  true, false); if (!ok) errorStr += " in Step\n";
+    ok = GC.updateIntParameter   (errorStr, strRings,      Rings,      false, true);        if (!ok) errorStr += " in Number of Rings\n";
+    ok = GC.updateIntParameter   (errorStr, strNumX,       NumX,       true,  true);        if (!ok) errorStr += " in X Numberx\n";
+    ok = GC.updateIntParameter   (errorStr, strNumY,       NumY,       true,  true);        if (!ok) errorStr += " in Y Number\n";
+    ok = GC.updateIntParameter   (errorStr, strStartIndex, startIndex, false, true);        if (!ok) errorStr += " in Start Index\n";
 }
 
 // ---
@@ -424,9 +412,9 @@ void ATypeMonitorObject::replaceGeoConstName(const QRegularExpression &nameRegEx
     config.str2size2.replace(nameRegExp, newName);
 }
 
-QString ATypeMonitorObject::introduceGeoConstValues()
+void ATypeMonitorObject::introduceGeoConstValues(QString & errorStr)
 {
-    return config.updateFromGeoConstants();
+    config.updateFromGeoConstants(errorStr);
 }
 
 // ---

@@ -100,19 +100,19 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     QObject::connect(edit->Completer, SIGNAL(activated(QString)), edit, SLOT(insertCompletion(QString)));
 }
 
-bool AGeoBaseDelegate::processEditBox(AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent)
+bool AGeoBaseDelegate::processEditBox(const QString & whatIsIt, AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent)
 {
     str = lineEdit->text();
     if (str.isEmpty())
     {
-        QMessageBox::warning(parent, "", "Empty line!");
+        QMessageBox::warning(parent, "", "Empty line in " + whatIsIt);
         return false;
     }
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
-    bool ok = GC.updateParameter(errorStr, str, val, false, false, false);
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, false, false, false);
     if (ok) return true;
-    QMessageBox::warning(parent, "", errorStr);
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt);
     return false;
 }

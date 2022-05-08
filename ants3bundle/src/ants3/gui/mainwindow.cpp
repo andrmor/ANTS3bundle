@@ -91,7 +91,8 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
-    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
+    connect(GeoConWin,  &A3GeoConWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);
@@ -288,6 +289,7 @@ void MainWindow::updateAllGuiFromConfig()
         if (ok) GeoWin->readFromJson(js);
     }
 
+    GeoWin->fRecallWindow = false;
     GeoWin->ShowGeometry(false, false, true);
 }
 

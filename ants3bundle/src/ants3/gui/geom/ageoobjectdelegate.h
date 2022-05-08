@@ -102,8 +102,8 @@ signals:
     void RequestChangeSlabShape(int Shape);
 
 public:
-    static bool processDoubleEditBox(AOneLineTextEdit * lineEdit, double & val, QString & str, bool bForbidZero, bool bForbidNegative, bool bMakeHalf, QWidget * parent);
-    static bool processIntEditBox(AOneLineTextEdit * lineEdit, int & val, QString & str, bool bForbidZero, bool bForbidNegative, QWidget * parent);
+    static bool processDoubleEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str, bool bForbidZero, bool bForbidNegative, bool bMakeHalf, QWidget * parent);
+    static bool processIntEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, int & val, QString & str, bool bForbidZero, bool bForbidNegative, QWidget * parent);
 };
 
 
@@ -429,7 +429,7 @@ protected:
 
 private slots:
     void onReorderSections(int /*logicalIndex*/, int oldVisualIndex, int newVisualIndex);
-    void onCellEdited();
+    void onCellEdited();  // !!!*** check error handling
     void onAddAbove();
     void onAddBellow();
 };

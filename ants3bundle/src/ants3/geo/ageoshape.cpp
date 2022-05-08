@@ -24,6 +24,97 @@
 
 #include <math.h>
 
+AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
+{
+    if      (ShapeType == "TGeoBBox")
+        return new AGeoBox();
+    else if (ShapeType == "TGeoPara")
+        return new AGeoPara();
+    else if (ShapeType == "TGeoSphere")
+        return new AGeoSphere();
+    else if (ShapeType == "TGeoTube")
+        return new AGeoTube();
+    else if (ShapeType == "TGeoTubeSeg")
+        return new AGeoTubeSeg();
+    else if (ShapeType == "TGeoCtub")
+        return new AGeoCtub();
+    else if (ShapeType == "TGeoEltu")
+        return new AGeoEltu();
+    else if (ShapeType == "TGeoTrd1")
+        return new AGeoTrd1();
+    else if (ShapeType == "TGeoTrd2")
+        return new AGeoTrd2();
+    else if (ShapeType == "TGeoPgon")
+        return new AGeoPgon();
+    else if (ShapeType == "TGeoPolygon")
+        return new AGeoPolygon();
+    else if (ShapeType == "TGeoCone")
+        return new AGeoCone();
+    else if (ShapeType == "TGeoConeSeg")
+        return new AGeoConeSeg();
+    else if (ShapeType == "TGeoPcon")
+        return new AGeoPcon();
+    else if (ShapeType == "TGeoParaboloid")
+        return new AGeoParaboloid();
+    else if (ShapeType == "TGeoArb8")
+        return new AGeoArb8();
+    else if (ShapeType == "TGeoTorus")
+        return new AGeoTorus();
+    else if (ShapeType == "TGeoCompositeShape")
+        return new AGeoComposite();
+    else if (ShapeType == "TGeoScaledShape")
+        return new AGeoScaledShape();
+    else return 0;
+}
+
+QList<AGeoShape *> AGeoShape::getAvailableShapes()
+{
+    QList<AGeoShape *> list;
+    list << new AGeoBox << new AGeoPara << new AGeoSphere
+         << new AGeoTube << new AGeoTubeSeg << new AGeoCtub << new AGeoEltu
+         << new AGeoTrd1 << new AGeoTrd2
+         << new AGeoCone << new AGeoConeSeg << new AGeoPcon
+         << new AGeoPolygon << new AGeoPgon
+         << new AGeoParaboloid << new AGeoTorus
+         << new AGeoArb8 << new AGeoComposite
+         << new AGeoScaledShape;
+    return list;
+}
+
+const QString AGeoShape::getPythonGenerationString(const QString &javaGenString) const
+{
+    int numberofQ = javaGenString.count("'");
+    if (numberofQ == 0) return javaGenString;
+
+    QString PythonGenString = javaGenString;
+    const QString firstStr = " )";
+    const QString secondStr = " str(";
+    int   plusAccomidation = QString(" + ").size();
+
+    bool first = true;
+    for (int i = 0; i < PythonGenString.size(); i++)
+    {
+        if (PythonGenString.at(i) == '\'')
+        {
+            if (!first)
+            {
+                PythonGenString.insert(i - plusAccomidation , firstStr);
+                i += firstStr.size();
+            }
+            else
+            {
+                PythonGenString.insert(i + plusAccomidation , secondStr);
+                i += secondStr.size();
+            }
+            first = !first;
+
+        }
+    }
+    return PythonGenString;
+}
+
+// ----------------------------
+
 AGeoShape * AGeoShape::clone() const
 {
     AGeoShape * sh = AGeoShape::GeoShapeFactory(getShapeType());
@@ -107,15 +198,14 @@ QString AGeoBox::getHelp() const
            "The box will range from: -dx to dx on X-axis, from -dy to dy on Y and from -dz to dz on Z.";
 }
 
-QString AGeoBox::introduceGeoConstValues()
+void AGeoBox::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2dx, dx); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dy, dy); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz, dz); if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2dx, dx); if (!ok) errorStr += " in X size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy, dy); if (!ok) errorStr += " in Y size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz); if (!ok) errorStr += " in Z size\n";
 }
 
 bool AGeoBox::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -227,21 +317,18 @@ QString AGeoPara::getHelp() const
            " • phi: phi angle of the same segment";
 }
 
-QString AGeoPara::introduceGeoConstValues()
+void AGeoPara::introduceGeoConstValues(QString & errorStr)
 {
-    QString errorStr = "";
     bool ok;
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, str2dx,   dx);                         if (!ok) errorStr += " in X size\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, str2dy,   dy);                         if (!ok) errorStr += " in Y size\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, str2dz,   dz);                         if (!ok) errorStr += " in Z size\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strAlpha, alpha, false, false, false); if (!ok) errorStr += " in Alpha\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strTheta, theta, false, false, false); if (!ok) errorStr += " in Theta\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strPhi,   phi, false, false, false);   if (!ok) errorStr += " in Phi\n";
 
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, str2dx,   dx);                         if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, str2dy,   dy);                         if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, str2dz,   dz);                         if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strAlpha, alpha, false, false, false); if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strTheta, theta, false, false, false); if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strPhi,   phi, false, false, false);   if (!ok) return errorStr;
-
-    if (-90 >= alpha || alpha >= 90)                              return "alpha must be between -90 and 90";
-    if (-90 >= theta || theta >= 90)                              return "theta must be between -90 and 90";
-    return "";
+    if (-90.0 >= alpha || alpha >= 90.0) errorStr += "alpha must be between -90 and 90\n";
+    if (-90.0 >= theta || theta >= 90.0) errorStr += "theta must be between -90 and 90\n";
 }
 
 bool AGeoPara::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -467,28 +554,26 @@ QString AGeoSphere::getHelp() const
            " • phi2: ending phi value (0, 360] in degrees (phi1<phi2)";
 }
 
-QString AGeoSphere::introduceGeoConstValues()
+void AGeoSphere::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2rmax,  rmax);                           if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmin,  rmin,   false);                  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strTheta1, theta1, false, false,  false);   if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strTheta2, theta2, false, false,  false);   if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi1,   phi1,   false, false, false);    if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi2,   phi2,   false, false, false);    if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, str2rmax,  rmax);                         if (!ok) errorStr += " in Outer Diameter\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmin,  rmin,   false);                if (!ok) errorStr += " in Inner Diameter\n";
+    ok = GC.updateDoubleParameter(errorStr, strTheta1, theta1, false, false,  false); if (!ok) errorStr += " in Theta1\n";
+    ok = GC.updateDoubleParameter(errorStr, strTheta2, theta2, false, false,  false); if (!ok) errorStr += " in Theta2\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi1,   phi1,   false, false, false);  if (!ok) errorStr += " in Phi1\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi2,   phi2,   false, false, false);  if (!ok) errorStr += " in Phi2\n";
 
-    if (rmin   >= rmax)               return "Inside diameter should be smaller than the outside one!";
-    if (theta1 >= theta2)             return "Theta2 should be larger than Theta1";
-    if (phi1   >= phi2)               return   "Phi2 should be larger than Phi1";
+    if (rmin   >= rmax)   errorStr += "Inside diameter should be smaller than the outside one!\n";
+    if (theta1 >= theta2) errorStr += "Theta2 should be larger than Theta1\n";
+    if (phi1   >= phi2)   errorStr += "Phi2 should be larger than Phi1\n";
 
-    if (theta1 <  0 || theta1 >= 180) return "Theta1 should be in the range of [0, 180)";
-    if (theta2 <= 0 || theta2 >  180) return "Theta2 should be in the range of (0, 180]";
-    if (phi1   <  0 || phi1   >= 360) return   "Phi1 should be in the range of [0, 360)";
-    if (phi2   <= 0 || phi2   >  360) return   "Phi2 should be in the range of (0, 360]";
-
-    return "";
+    if (theta1 <  0 || theta1 >= 180.0) errorStr += "Theta1 should be in the range of [0, 180)\n";
+    if (theta2 <= 0 || theta2 >  180.0) errorStr += "Theta2 should be in the range of (0, 180]\n";
+    if (phi1   <  0 || phi1   >= 360.0) errorStr += "Phi1 should be in the range of [0, 360)\n";
+    if (phi2   <= 0 || phi2   >  360.0) errorStr += "Phi2 should be in the range of (0, 360]\n";
 }
 
 bool AGeoSphere::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -636,19 +721,18 @@ QString AGeoTubeSeg::getHelp() const
            "The full Z range is from -dz to +dz.";
 }
 
-QString AGeoTubeSeg::introduceGeoConstValues()
+void AGeoTubeSeg::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
-    bool ok;
-    ok = GC.updateParameter(errorStr, str2rmax, rmax);                      if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmin, rmin, false);               if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz, dz);                          if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi1, phi1, false, false, false);  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi2, phi2, false, false, false);  if (!ok) return errorStr;
 
-    if (rmin >= rmax) return "Inside diameter should be smaller than the outside one!";
-    return "";
+    bool ok;
+    ok = GC.updateDoubleParameter(errorStr, str2rmax, rmax);                     if (!ok) errorStr += " in Dmax\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmin, rmin, false);              if (!ok) errorStr += " in Dmin\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz);                         if (!ok) errorStr += " in Height\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi1, phi1, false, false, false); if (!ok) errorStr += " in Phi1\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi2, phi2, false, false, false); if (!ok) errorStr += " in Phi2\n";
+
+    if (rmin >= rmax) errorStr += "Inside diameter should be smaller than the outside one!\n";
 }
 
 bool AGeoTubeSeg::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -793,21 +877,21 @@ QString AGeoCtub::getHelp() const
            "The shape has a minimum (rmin) and a maximum (rmax) radius.\n";
 }
 
-QString AGeoCtub::introduceGeoConstValues()
+void AGeoCtub::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
-    bool ok;
-    ok = GC.updateParameter(errorStr, strnxlow, nxlow, false, false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strnylow, nylow, false, false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strnzlow, nzlow, false, false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strnxhi, nxhi,   false, false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strnyhi, nyhi,   false, false, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strnzhi, nzhi,   false, false, false); if (!ok) return errorStr;
 
-    if (nzlow >= 0) return "Lower Nz should be negative";
-    if (nzhi  <= 0) return "Upper Nz should be positive";
-    return AGeoTubeSeg::introduceGeoConstValues();
+    bool ok;
+    ok = GC.updateDoubleParameter(errorStr, strnxlow, nxlow, false, false, false); if (!ok) errorStr += " in X low\n";
+    ok = GC.updateDoubleParameter(errorStr, strnylow, nylow, false, false, false); if (!ok) errorStr += " in Y low\n";
+    ok = GC.updateDoubleParameter(errorStr, strnzlow, nzlow, false, false, false); if (!ok) errorStr += " in Z low\n";
+    ok = GC.updateDoubleParameter(errorStr, strnxhi, nxhi,   false, false, false); if (!ok) errorStr += " in X heigh\n";
+    ok = GC.updateDoubleParameter(errorStr, strnyhi, nyhi,   false, false, false); if (!ok) errorStr += " in Y heigh\n";
+    ok = GC.updateDoubleParameter(errorStr, strnzhi, nzhi,   false, false, false); if (!ok) errorStr += " in Z heigh\n";
+
+    if (nzlow >= 0) errorStr += "Lower Nz should be negative\n";
+    if (nzhi  <= 0) errorStr += "Upper Nz should be positive\n";
+    AGeoTubeSeg::introduceGeoConstValues(errorStr);
 }
 
 bool AGeoCtub::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -984,16 +1068,15 @@ QString AGeoTube::getHelp() const
            "The full Z range is from -dz to +dz.";
 }
 
-QString AGeoTube::introduceGeoConstValues()
+void AGeoTube::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2rmax, rmax);        if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmin, rmin, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz, dz);            if (!ok) return errorStr;
-    if (rmin >= rmax) return "Inside diameter should be smaller than the outside one!";
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2rmax, rmax);        if (!ok) errorStr += "in Rmax\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmin, rmin, false); if (!ok) errorStr += "in Rmin\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz);            if (!ok) errorStr += "in Height\n";
+    if (rmin >= rmax) errorStr += "Inside diameter should be smaller than the outside one!\n";
 }
 
 bool AGeoTube::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -1120,16 +1203,15 @@ QString AGeoTrd1::getHelp() const
            " • dz: half length in Z\n";
 }
 
-QString AGeoTrd1::introduceGeoConstValues()
+void AGeoTrd1::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2dx1, dx1); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dx2, dx2); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dy,  dy);  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz,  dz);  if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1); if (!ok) errorStr += " in X1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2); if (!ok) errorStr += " in X2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy,  dy);  if (!ok) errorStr += " in Y size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz,  dz);  if (!ok) errorStr += " in Z size\n";
 }
 
 bool AGeoTrd1::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1266,17 +1348,16 @@ QString AGeoTrd2::getHelp() const
            " • dz: half length in Z\n";
 }
 
-QString AGeoTrd2::introduceGeoConstValues()
+void AGeoTrd2::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2dx1, dx1); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dx2, dx2); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dy1, dy1); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dy2, dy2); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz,  dz);  if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1); if (!ok) errorStr += " in X1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2); if (!ok) errorStr += " in X2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy1, dy1); if (!ok) errorStr += " in Y1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy2, dy2); if (!ok) errorStr += " in Y2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz,  dz);  if (!ok) errorStr += " in Z size\n";
 }
 
 bool AGeoTrd2::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1422,16 +1503,19 @@ QString AGeoPgon::getHelp() const
            "{z : rmin : rmax} - arbitrary number of sections defined with z position, minimum and maximum radii";
 }
 
-QString AGeoPgon::introduceGeoConstValues()
+void AGeoPgon::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, strNedges, nedges, true, true); if (!ok) return errorStr;
-    if (nedges < 3)  return "There should be at least 3 edges";
+    ok = GC.updateIntParameter(errorStr, strNedges, nedges, true, true); if (!ok) errorStr += " in N edges\n";
+    if (nedges < 3)
+    {
+        errorStr += "There should be at least 3 edges\n";
+        return;
+    }
 
-    return AGeoPcon::introduceGeoConstValues();
-
+    AGeoPcon::introduceGeoConstValues(errorStr);
 }
 
 bool AGeoPgon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1608,18 +1692,18 @@ QString AGeoConeSeg::getHelp() const
            "phi2 - angle (0, 360]";
 }
 
-QString AGeoConeSeg::introduceGeoConstValues()
+void AGeoConeSeg::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, strPhi1,    phi1, false, true, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi2,    phi2, false, true, false); if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, strPhi1, phi1, false, true, false); if (!ok) errorStr += " in Phi1\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi2, phi2, false, true, false); if (!ok) errorStr += " in Phi2\n";
 
-    if (phi1   <  0 || phi1   >= 360) return   "Phi1 should be in the range of [0, 360)";
-    if (phi2   <= 0 || phi2   >  360) return   "Phi2 should be in the range of (0, 360]";
+    if (phi1 <  0 || phi1 >= 360.0) errorStr += "Phi1 should be in the range of [0, 360)\n";
+    if (phi2 <= 0 || phi2 >  360.0) errorStr += "Phi2 should be in the range of (0, 360]\n";
 
-    return AGeoCone::introduceGeoConstValues();
+    AGeoCone::introduceGeoConstValues(errorStr);
 }
 
 bool AGeoConeSeg::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1766,16 +1850,15 @@ QString AGeoParaboloid::getHelp() const
             " • +dz = a·rhi·rhi + b";
 }
 
-QString AGeoParaboloid::introduceGeoConstValues()
+void AGeoParaboloid::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2rlo, rlo, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rhi, rhi, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz, dz);          if (!ok) return errorStr;
-    if (rlo >= rhi)                 return "lower diameter should be smaller than the upper diameter!";
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2rlo, rlo, false); if (!ok) errorStr += " in D low\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rhi, rhi, false); if (!ok) errorStr += " in D high\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz);          if (!ok) errorStr += " in Height\n";
+    if (rlo >= rhi) errorStr += "Lower diameter should be smaller than the upper diameter!\n";
 }
 
 bool AGeoParaboloid::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -1900,23 +1983,21 @@ QString AGeoCone::getHelp() const
            "rmaxU - external radius at Z+dz";
 }
 
-QString AGeoCone::introduceGeoConstValues()
+void AGeoCone::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2dz,    dz);           if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rminL, rminL, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmaxL, rmaxL, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rminU, rminU, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmaxU, rmaxU, false); if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, str2dz,    dz);           if (!ok) errorStr += " in Height\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rminL, rminL, false); if (!ok) errorStr += " in RminL\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmaxL, rmaxL, false); if (!ok) errorStr += " in RmaxL\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rminU, rminU, false); if (!ok) errorStr += " in RminU\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmaxU, rmaxU, false); if (!ok) errorStr += " in RmaxU\n";
 
-    if (rminL >  rmaxL)                   return "Inside lower diameter should be equal or smaller than the outside one!";
-    if (rminU >  rmaxU)                   return "Inside upper diameter should be equal or smaller than the outside one!";
-    if (rmaxL == 0     && rmaxU == 0)     return "Upper and lower outside diameters can't be 0 at the same time!";
-    if (rminL == rmaxL && rminU == rmaxU) return "Upper and lower outside diameters can't be equal to the inside ones at the same time!";
-
-    return "";
+    if (rminL > rmaxL)                    errorStr += "Inside lower diameter should be equal or smaller than the outside one!\n";
+    if (rminU > rmaxU)                    errorStr += "Inside upper diameter should be equal or smaller than the outside one!\n";
+    if (rmaxL == 0     && rmaxU == 0)     errorStr += "Upper and lower outside diameters can't be 0 at the same time!\n";
+    if (rminL == rmaxL && rminU == rmaxU) errorStr += "Upper and lower outside diameters can't be equal to the inside ones at the same time!\n";
 }
 
 bool AGeoCone::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -2060,17 +2141,14 @@ QString AGeoEltu::getHelp() const
     return "An elliptical tube is defined by the two semi-axes a and b. It ranges from –dz to +dz in Z direction.";
 }
 
-QString AGeoEltu::introduceGeoConstValues()
+void AGeoEltu::introduceGeoConstValues(QString & errorStr)
 {
-
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
-    bool ok;
-    ok = GC.updateParameter(errorStr, str2a,  a);     if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2b,  b);     if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz, dz);    if (!ok) return errorStr;
 
-    return "";
+    bool ok;
+    ok = GC.updateDoubleParameter(errorStr, str2a,  a);  if (!ok) errorStr += " in A\n";
+    ok = GC.updateDoubleParameter(errorStr, str2b,  b);  if (!ok) errorStr += " in B\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz); if (!ok) errorStr += " in Height\n";
 }
 
 bool AGeoEltu::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -2228,23 +2306,20 @@ QString AGeoArb8::getHelp() const
     return s;
 }
 
-QString AGeoArb8::introduceGeoConstValues()
+void AGeoArb8::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2dz, dz); if (!ok) return errorStr;
-    for (int i =0; i<8; i++)
+    ok = GC.updateDoubleParameter(errorStr, str2dz, dz); if (!ok) errorStr += " in Height\n";
+    for (int i = 0; i < 8; i++)
     {
-        ok = GC.updateParameter(errorStr, strVertices[i][0], Vertices[i].first, false, false, false);  if (!ok) return errorStr;
-        ok = GC.updateParameter(errorStr, strVertices[i][1], Vertices[i].second, false, false, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i][0], Vertices[i].first, false, false, false);  if (!ok) errorStr += QString(" in X[%0]\n").arg(i);
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i][1], Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
     }
 
-    if (!AGeoShape::CheckPointsForArb8(Vertices))
-    {
-        return "Nodes of AGeoArb8 should be defined clockwise on both planes";
-    }
-    return "";
+    if (!checkPointsForArb8(Vertices))
+        errorStr += "Nodes of AGeoArb8 should be defined clockwise on both planes\n";
 }
 
 bool AGeoArb8::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -2295,7 +2370,7 @@ bool AGeoArb8::readFromString(QString GenerationString)
     }
     //  qDebug() << dz << Vertices;
 
-    if (!AGeoShape::CheckPointsForArb8(Vertices))
+    if (!checkPointsForArb8(Vertices))
     {
         qWarning() << "Nodes of AGeoArb8 should be defined clockwise on both planes";
         return false;
@@ -2433,6 +2508,77 @@ bool AGeoArb8::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+bool checkPointsArb8(QList<QPair<double, double> > V)
+{
+    double X=0, Y=0;
+    for (int i=0; i<4; i++)
+    {
+        X += V[i].first;
+        Y += V[i].second;
+    }
+    X /= 4;
+    Y /= 4;
+    //qDebug() << "Center x,y:"<<X << Y;
+
+    QList<double> angles;
+    int firstNotNAN = -1;
+    for (int i=0; i<4; i++)
+    {
+        double dx = V[i].first-X;
+        double dy = V[i].second - Y;
+        double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
+        if (a==a && firstNotNAN==-1) firstNotNAN = i;
+
+        if      (dx > 0 && dy > 0) angles.append( 360.0 - a );
+        else if (dx < 0 && dy > 0) angles.append( 180.0 + a );
+        else if (dx < 0 && dy < 0) angles.append( 180.0 - a );
+        else                   angles.append( a );
+    }
+    //qDebug() << "Raw angles:" << angles;
+    // qDebug() << "First Not NAN:"<< firstNotNAN;
+    if (firstNotNAN == -1) return true; //all 4 points are the same
+
+    double delta = angles[firstNotNAN];
+    for (int i=0; i<4; i++)
+    {
+        if (angles[i] == angles[i]) // not NAN
+        {
+            angles[i] -= delta;
+            if (angles[i]<0) angles[i] += 360.0;
+        }
+    }
+
+    //qDebug() << "Shifted to first"<<angles;
+    double A = angles[firstNotNAN];
+    for (int i=firstNotNAN+1; i<4; i++)
+    {
+        //qDebug() <<i<< angles[i];
+        if (angles[i] != angles[i])
+        {
+            //qDebug() << "NAN, continue";
+            continue;
+        }
+        if (angles[i]<A)
+            return false;
+        A=angles[i];
+    }
+    return true;
+}
+
+bool AGeoArb8::checkPointsForArb8(QList<QPair<double, double> > V)
+{
+    if (V.size() != 8) return false;
+
+    bool ok = checkPointsArb8(V);
+    if (!ok) return false;
+
+    V.removeFirst();
+    V.removeFirst();
+    V.removeFirst();
+    V.removeFirst();
+    return checkPointsArb8(V);
+}
+
 void AGeoArb8::init()
 {
     Vertices << QPair<double,double>(-20,20) << QPair<double,double>(20,20) << QPair<double,double>(20,-20) << QPair<double,double>(-20,-20);
@@ -2453,33 +2599,40 @@ QString AGeoPcon::getHelp() const
            "{z : rmin : rmax} - arbitrary number of sections defined with z position, minimum and maximum radii";
 }
 
-QString AGeoPcon::introduceGeoConstValues()
+void AGeoPcon::introduceGeoConstValues(QString & errorStr)
 {
-    QString errorStr = "";
     bool ok;
 
-    if (Sections.size() <2) return "there should be at least 2 sections";
+    if (Sections.size() < 2)
+    {
+        errorStr = "There should be at least 2 sections\n";
+        return;
+    }
 
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strPhi, phi,   false, false, false); if (!ok) return errorStr;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strdPhi, dphi, false, false, false); if (!ok) return errorStr;
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strPhi, phi,   false, false, false); if (!ok) errorStr += " in Phi\n";
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strdPhi, dphi, false, false, false); if (!ok) errorStr += " in dPhi\n";
 
-    if ( phi   <  0 || phi    >= 360) return   "Phi should be in the range of [0, 360)";
-    if (dphi   <= 0 || dphi   >  360) return   "Dphi should be in the range of (0, 360]";
+    if ( phi <  0 || phi  >= 360) errorStr += "Phi should be in the range of [0, 360)\n";
+    if (dphi <= 0 || dphi >  360) errorStr += "dPhi should be in the range of (0, 360]\n";
 
     for (int i = 0; i < Sections.size(); i++)
     {
         ok = Sections[i].updateShape(errorStr);
-        if (!ok)
-            return errorStr;
+        if (!ok) return;
         if (i > 0 && Sections[i-1].z > Sections[i].z)
-            return "sections' z coordinates are not in ascending order";
+        {
+            errorStr += "Sections' z coordinates are not in ascending order\n";
+            return;
+        }
         if ( i > 0  && (Sections[i-1] == Sections[i]))
-            return "sections can't have duplicates";
+        {
+            errorStr += "Sections can't have duplicates\n";
+            return;
+        }
     }
     const int lastSection = Sections.size() -1;
     if (Sections[0].z == Sections[1].z || Sections[lastSection].z == Sections[lastSection-1].z)
-        return "Not allowed first two or last two sections at same Z";
-    return "";
+        errorStr += "Not allowed first two or last two sections at same Z\n";
 }
 
 bool AGeoPcon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -2685,13 +2838,28 @@ bool APolyCGsection::updateShape(QString &errorStr)
 {
     bool ok;
 
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, strZ,     z,    false, false, false); if (!ok) return false;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, str2rmin, rmin, false);               if (!ok) return false;
-    ok = AGeoConsts::getConstInstance().updateParameter(errorStr, str2rmax, rmax);                      if (!ok) return false;
-
-    if (rmin   >= rmax)
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, strZ,     z,    false, false, false);
+    if (!ok)
     {
-        errorStr = "Inside diameter should be smaller than the outside one!";
+        errorStr += " in Z\n";
+        return false;
+    }
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, str2rmin, rmin, false);
+    if (!ok)
+    {
+        errorStr += " in Dmin\n";
+        return false;
+    }
+    ok = AGeoConsts::getConstInstance().updateDoubleParameter(errorStr, str2rmax, rmax);
+    if (!ok)
+    {
+        errorStr += " in Dmax\n";
+        return false;
+    }
+
+    if (rmin >= rmax)
+    {
+        errorStr = "Inside diameter should be smaller than the outside one!\n";
         return false;
     }
     return true;
@@ -2806,24 +2974,23 @@ QString AGeoPolygon::getHelp() const
            "rmaxU - outer size on upper side\n";
 }
 
-QString AGeoPolygon::introduceGeoConstValues()
+void AGeoPolygon::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
-    bool ok;
-    ok = GC.updateParameter(errorStr, strNedges, nedges, true, true);          if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strdPhi,   dphi, false, false, false);   if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2dz,    dz);                          if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rminL, rminL, false);                if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmaxL, rmaxL, false);                if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rminU, rminU, false);                if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2rmaxU, rmaxU, false);                if (!ok) return errorStr;
 
-    if (nedges < 3)                     return "There should be at least 3 edges";
-    if (rminL   >= rmaxL)               return "Inside lower diameter should be smaller than the outside one!";
-    if (rminU   >= rmaxU)               return "Inside upper diameter should be smaller than the outside one!";
-    if (dphi   <= 0 || dphi   >  360)   return "Phi2 should be in the range of (0, 360]";
-    return "";
+    bool ok;
+    ok = GC.updateIntParameter(errorStr,    strNedges, nedges, true, true);        if (!ok) errorStr += " in NumEdges\n";
+    ok = GC.updateDoubleParameter(errorStr, strdPhi,   dphi, false, false, false); if (!ok) errorStr += " in dPhi\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dz,    dz);                        if (!ok) errorStr += " in Height\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rminL, rminL, false);              if (!ok) errorStr += " in DminL\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmaxL, rmaxL, false);              if (!ok) errorStr += " in DmaxL\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rminU, rminU, false);              if (!ok) errorStr += " in DminU\n";
+    ok = GC.updateDoubleParameter(errorStr, str2rmaxU, rmaxU, false);              if (!ok) errorStr += " in DmaxU\n";
+
+    if (nedges < 3)                   errorStr += "There should be at least 3 edges\n";
+    if (rminL >= rmaxL)               errorStr += "Inside lower diameter should be smaller than the outside one!\n";
+    if (rminU >= rmaxU)               errorStr += "Inside upper diameter should be smaller than the outside one!\n";
+    if (dphi  <= 0 || dphi > 360.0)   errorStr += "Phi2 should be in the range of (0, 360]\n";
 }
 
 bool AGeoPolygon::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -2984,15 +3151,19 @@ QString AGeoScaledShape::getHelp() const
     return "TGeoShape scaled with TGeoScale transformation";
 }
 
-QString AGeoScaledShape::updateScalingFactors()
+void AGeoScaledShape::updateScalingFactors(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, strScaleX, scaleX, true, true, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strScaleY, scaleY, true, true, false); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strScaleZ, scaleZ, true, true, false); if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, strScaleX, scaleX, true, true, false); if (!ok) errorStr += " in X Scaling\n";
+    ok = GC.updateDoubleParameter(errorStr, strScaleY, scaleY, true, true, false); if (!ok) errorStr += " in Y Scaling\n";
+    ok = GC.updateDoubleParameter(errorStr, strScaleZ, scaleZ, true, true, false); if (!ok) errorStr += " in Z Scaling\n";
+}
+
+void AGeoScaledShape::introduceGeoConstValues(QString & errorStr)
+{
+    updateScalingFactors(errorStr);
 }
 
 bool AGeoScaledShape::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -3255,6 +3426,7 @@ void AGeoScaledShape::writeToJson(QJsonObject &json) const
     }
 }
 
+#include "aerrorhub.h"
 void AGeoScaledShape::readFromJson(const QJsonObject &json)
 {
     jstools::parseJson(json, "scaleX", scaleX);
@@ -3265,38 +3437,18 @@ void AGeoScaledShape::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "strScaleY", strScaleY)) strScaleY.clear();
     if (!jstools::parseJson(json, "strScaleZ", strScaleZ)) strScaleZ.clear();
 
-    bool bOldSystem = jstools::parseJson(json, "BaseShapeGenerationString", BaseShapeGenerationString);
-    if (bOldSystem)
-    {
-        //compatibility
-        delete BaseShape;
-
-        qDebug() << "SCALED->: Generating base shape from "<< BaseShapeGenerationString;
-        QString shapeType = BaseShapeGenerationString.left(BaseShapeGenerationString.indexOf('('));
-        qDebug() << "SCALED->: base type:"<<shapeType;
-        BaseShape = AGeoShape::GeoShapeFactory(shapeType);
-        if (BaseShape)
-        {
-            qDebug() << "SCALED->" << "Created AGeoShape of type" << BaseShape->getShapeType();
-            bool fOK = BaseShape->readFromString(BaseShapeGenerationString);
-            qDebug() << "reading base shape properties ->" << fOK;
-        }
-    }
-    else
-    {
-        //new system
-        QString type = "TGeoBBox";
-        jstools::parseJson(json, "shape", type);
-        BaseShape = AGeoShape::GeoShapeFactory(type);
-        if (BaseShape) BaseShape->readFromJson(json);
-    }
+    QString type = "TGeoBBox";
+    jstools::parseJson(json, "shape", type);
+    BaseShape = AGeoShape::GeoShapeFactory(type);
+    if (BaseShape) BaseShape->readFromJson(json);
 
     if (!BaseShape)
     {
-        qWarning() << "Shape generation failed, replacing with box";
         BaseShape = new AGeoBox();
+        QString errorStr = "Scaled shape generation failed, replacing with box";
+        qWarning() << errorStr;
+        AErrorHub::addQError(errorStr);
     }
-    updateScalingFactors();
 }
 
 bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
@@ -3339,21 +3491,19 @@ QString AGeoTorus::getHelp() const
                       "• Dphi - phi extent";
 }
 
-QString AGeoTorus::introduceGeoConstValues()
+void AGeoTorus::introduceGeoConstValues(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+
     bool ok;
-    ok = GC.updateParameter(errorStr, str2R,    R);                            if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2Rmax, Rmax);                         if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2Rmin, Rmin, false);                  if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strPhi1,  Phi1, false, false, false);    if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, strDphi,  Dphi, true,  true,  false);    if (!ok) return errorStr;
+    ok = GC.updateDoubleParameter(errorStr, str2R,    R);                         if (!ok) errorStr += " in Axial Diameter\n";
+    ok = GC.updateDoubleParameter(errorStr, str2Rmax, Rmax);                      if (!ok) errorStr += " in Outside Diameter\n";
+    ok = GC.updateDoubleParameter(errorStr, str2Rmin, Rmin, false);               if (!ok) errorStr += " in Inner Diameter\n";
+    ok = GC.updateDoubleParameter(errorStr, strPhi1,  Phi1, false, false, false); if (!ok) errorStr += " in Phi1\n";
+    ok = GC.updateDoubleParameter(errorStr, strDphi,  Dphi, true,  true,  false); if (!ok) errorStr += " in Phi2\n";
 
-    if (R <     Rmax) return "Axial diameter should be bigger or equal than outside one";
-    if (Rmin >= Rmax) return "Inside diameter should be smaller than the outside one!";
-
-    return "";
+    if (R <     Rmax) errorStr += "Axial diameter should be bigger or equal than outside one\n";
+    if (Rmin >= Rmax) errorStr += "Inside diameter should be smaller than the outside one!\n";
 }
 
 bool AGeoTorus::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -3485,166 +3635,4 @@ bool AGeoTorus::readFromTShape(TGeoShape *Tshape)
     Dphi = tor->GetDphi();
 
     return true;
-}
-
-// ------------------ STATIC METHODS ---------------------
-
-bool checkPointsArb8(QList<QPair<double, double> > V)
-{
-    double X=0, Y=0;
-    for (int i=0; i<4; i++)
-    {
-        X += V[i].first;
-        Y += V[i].second;
-    }
-    X /= 4;
-    Y /= 4;
-    //qDebug() << "Center x,y:"<<X << Y;
-
-    QList<double> angles;
-    int firstNotNAN = -1;
-    for (int i=0; i<4; i++)
-    {
-        double dx = V[i].first-X;
-        double dy = V[i].second - Y;
-        double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
-        if (a==a && firstNotNAN==-1) firstNotNAN = i;
-
-        if (dx>0 && dy>0)      angles.append( 360.0 - a );
-        else if (dx<0 && dy>0) angles.append( 180.0 + a );
-        else if (dx<0 && dy<0) angles.append( 180.0 - a );
-        else                   angles.append( a );
-    }
-    //qDebug() << "Raw angles:" << angles;
-    // qDebug() << "First Not NAN:"<< firstNotNAN;
-    if (firstNotNAN == -1) return true; //all 4 points are the same
-
-    double delta = angles[firstNotNAN];
-    for (int i=0; i<4; i++)
-    {
-        if (angles[i] == angles[i]) // not NAN
-        {
-            angles[i] -= delta;
-            if (angles[i]<0) angles[i] += 360.0;
-        }
-    }
-
-    //qDebug() << "Shifted to first"<<angles;
-    double A = angles[firstNotNAN];
-    for (int i=firstNotNAN+1; i<4; i++)
-    {
-        //qDebug() <<i<< angles[i];
-        if (angles[i] != angles[i])
-        {
-            //qDebug() << "NAN, continue";
-            continue;
-        }
-        if (angles[i]<A)
-            return false;
-        A=angles[i];
-    }
-    return true;
-}
-
-bool AGeoShape::CheckPointsForArb8(QList<QPair<double, double> > V)
-{
-    if (V.size() != 8) return false;
-
-    bool ok = checkPointsArb8(V);
-    if (!ok) return false;
-
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    return checkPointsArb8(V);
-}
-
-const QString AGeoShape::getPythonGenerationString(const QString &javaGenString) const
-{
-    int numberofQ = javaGenString.count("'");
-    if (numberofQ == 0) return javaGenString;
-
-    QString PythonGenString = javaGenString;
-    const QString firstStr = " )";
-    const QString secondStr = " str(";
-    int   plusAccomidation = QString(" + ").size();
-
-    bool first = true;
-    for (int i = 0; i < PythonGenString.size(); i++)
-    {
-        if (PythonGenString.at(i) == '\'')
-        {
-            if (!first)
-            {
-                PythonGenString.insert(i - plusAccomidation , firstStr);
-                i += firstStr.size();
-            }
-            else
-            {
-                PythonGenString.insert(i + plusAccomidation , secondStr);
-                i += secondStr.size();
-            }
-            first = !first;
-
-        }
-    }
-    return PythonGenString;
-}
-
-AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
-{
-    if (ShapeType == "TGeoBBox")
-        return new AGeoBox();
-    else if (ShapeType == "TGeoPara")
-        return new AGeoPara();
-    else if (ShapeType == "TGeoSphere")
-        return new AGeoSphere();
-    else if (ShapeType == "TGeoTube")
-        return new AGeoTube();
-    else if (ShapeType == "TGeoTubeSeg")
-        return new AGeoTubeSeg();
-    else if (ShapeType == "TGeoCtub")
-        return new AGeoCtub();
-    else if (ShapeType == "TGeoEltu")
-        return new AGeoEltu();
-    else if (ShapeType == "TGeoTrd1")
-        return new AGeoTrd1();
-    else if (ShapeType == "TGeoTrd2")
-        return new AGeoTrd2();
-    else if (ShapeType == "TGeoPgon")
-        return new AGeoPgon();
-    else if (ShapeType == "TGeoPolygon")
-        return new AGeoPolygon();
-    else if (ShapeType == "TGeoCone")
-        return new AGeoCone();
-    else if (ShapeType == "TGeoConeSeg")
-        return new AGeoConeSeg();
-    else if (ShapeType == "TGeoPcon")
-        return new AGeoPcon();
-    else if (ShapeType == "TGeoParaboloid")
-        return new AGeoParaboloid();
-    else if (ShapeType == "TGeoArb8")
-        return new AGeoArb8();
-    else if (ShapeType == "TGeoTorus")
-        return new AGeoTorus();
-    else if (ShapeType == "TGeoCompositeShape")
-        return new AGeoComposite();
-    else if (ShapeType == "TGeoScaledShape")
-        return new AGeoScaledShape();
-    else return 0;
-}
-
-QList<AGeoShape *> AGeoShape::GetAvailableShapes()
-{
-    QList<AGeoShape *> list;
-    list << new AGeoBox << new AGeoPara << new AGeoSphere
-         << new AGeoTube << new AGeoTubeSeg << new AGeoCtub << new AGeoEltu
-         << new AGeoTrd1 << new AGeoTrd2
-         << new AGeoCone << new AGeoConeSeg << new AGeoPcon
-         << new AGeoPolygon << new AGeoPgon
-         << new AGeoParaboloid << new AGeoTorus
-         << new AGeoArb8 << new AGeoComposite
-         << new AGeoScaledShape;
-    return list;
 }

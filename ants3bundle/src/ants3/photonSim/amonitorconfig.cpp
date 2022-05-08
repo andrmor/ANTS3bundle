@@ -91,13 +91,10 @@ void AMonitorConfig::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "energyUnitsInHist", energyUnitsInHist);
 }
 
-QString AMonitorConfig::updateFromGeoConstants()
+void AMonitorConfig::updateFromGeoConstants(QString & errorStr)
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
-
     bool ok;
-    ok = GC.updateParameter(errorStr, str2size1, size1); if (!ok) return errorStr;
-    ok = GC.updateParameter(errorStr, str2size2, size2); if (!ok) return errorStr;
-    return "";
+    ok = GC.updateDoubleParameter(errorStr, str2size1, size1); if (!ok) errorStr += " in Size1\n";
+    ok = GC.updateDoubleParameter(errorStr, str2size2, size2); if (!ok) errorStr += " in Size2\n";
 }

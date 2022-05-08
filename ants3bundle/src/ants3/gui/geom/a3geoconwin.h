@@ -24,7 +24,7 @@ public:
 
 private slots:
   void onRebuildDetectorRequest();
-  void onGeoConstEditingFinished(int index, QString newValue); // !!!*** not needed?
+  void onGeoConstEditingFinished(int index, QString newValue);
   void onGeoConstExpressionEditingFinished(int index, QString newValue); // !!!*** not needed?
   void onGeoConstEscapePressed(int index); // !!!*** not needed?
   void onRequestShowPrototypeList();
@@ -47,6 +47,8 @@ private slots:
 
   void on_tabwConstants_cellClicked(int row, int column);
 
+  void on_actionFind_object_triggered();
+
 private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
@@ -64,7 +66,8 @@ private:
   QString createScript(QString &script, bool usePython);
   void    reportGeometryConflicts();
 
-  void markCalorimeterBinning(const AGeoObject * obj);
+  void    markCalorimeterBinning(const AGeoObject * obj);
+
 protected:
   void resizeEvent(QResizeEvent *event);
 
@@ -84,6 +87,7 @@ signals:
   void requestFocusVolume(QString name);
   void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
   void requestClearGeoMarkers(int All_Rec_True);
+  void requestAddScript(const QString & script);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 
