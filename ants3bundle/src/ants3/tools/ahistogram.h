@@ -1,6 +1,7 @@
 #ifndef AHISTOGRAM_H
 #define AHISTOGRAM_H
 
+#include <cstddef>
 #include <vector>
 #include <array>
 #include <tuple>
