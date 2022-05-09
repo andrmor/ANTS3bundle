@@ -290,15 +290,15 @@ void AGeoDelegateWidget::onRequestShowCurrentObject()
     tw->UpdateGui(name);
 }
 
+#include "ageoscriptmaker.h"
 void AGeoDelegateWidget::onRequestScriptLineToClipboard()
 {
     if (!CurrentObject) return;
 
     QString script;
-    bool bNotRecursive = (CurrentObject->Type->isSingle() || CurrentObject->Type->isComposite());
-    emit requestBuildScript(CurrentObject, script, 0, false, !bNotRecursive, false);     // !*! the false may be temporary
-
-    qDebug() << script;
+    AGeoScriptMaker sm;
+    const bool bNotRecursive = (CurrentObject->Type->isSingle() || CurrentObject->Type->isComposite());
+    sm.objectToScript(CurrentObject, script, 0, false, !bNotRecursive);
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(script);
@@ -309,10 +309,8 @@ void AGeoDelegateWidget::onRequestScriptRecursiveToClipboard()
     if (!CurrentObject) return;
 
     QString script;
-    emit requestBuildScript(CurrentObject, script, 0, false, true, false);            // !*! the false may be temporary
-
-
-    qDebug() << script;
+    AGeoScriptMaker sm;
+    sm.objectToScript(CurrentObject, script, 0, false, true);
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(script);

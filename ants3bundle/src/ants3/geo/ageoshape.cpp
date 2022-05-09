@@ -67,6 +67,7 @@ AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
     else return 0;
 }
 
+/*
 QList<AGeoShape *> AGeoShape::getAvailableShapes()
 {
     QList<AGeoShape *> list;
@@ -80,38 +81,7 @@ QList<AGeoShape *> AGeoShape::getAvailableShapes()
          << new AGeoScaledShape;
     return list;
 }
-
-const QString AGeoShape::getPythonGenerationString(const QString &javaGenString) const
-{
-    int numberofQ = javaGenString.count("'");
-    if (numberofQ == 0) return javaGenString;
-
-    QString PythonGenString = javaGenString;
-    const QString firstStr = " )";
-    const QString secondStr = " str(";
-    int   plusAccomidation = QString(" + ").size();
-
-    bool first = true;
-    for (int i = 0; i < PythonGenString.size(); i++)
-    {
-        if (PythonGenString.at(i) == '\'')
-        {
-            if (!first)
-            {
-                PythonGenString.insert(i - plusAccomidation , firstStr);
-                i += firstStr.size();
-            }
-            else
-            {
-                PythonGenString.insert(i + plusAccomidation , secondStr);
-                i += secondStr.size();
-            }
-            first = !first;
-
-        }
-    }
-    return PythonGenString;
-}
+*/
 
 // ----------------------------
 
@@ -244,6 +214,16 @@ QString AGeoBox::getGenerationString(bool useStrings) const
                         sdz + " )";
     }
     return str;
+}
+
+QString AGeoBox::getScriptString() const
+{
+    const QString sdx = ( str2dx.isEmpty() ? QString::number(dx) : "' + " + str2dx + " + '" );
+    const QString sdy = ( str2dy.isEmpty() ? QString::number(dy) : "' + " + str2dy + " + '" );
+    const QString sdz = ( str2dz.isEmpty() ? QString::number(dz) : "' + " + str2dz + " + '" );
+
+    //void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.box( $$Name,  %0, %1, %2").arg(sdx, sdy, sdz);
 }
 
 double AGeoBox::maxSize() const

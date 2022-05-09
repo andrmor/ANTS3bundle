@@ -73,7 +73,7 @@ public slots:
     QString getMaterialComposition(int materialIndex, bool byWeight);
     */
 
-//    QString printOverrides();
+//    QString printOverrides(); // !!!*** to somewhere
 
     QVariantList getPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
 

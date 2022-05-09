@@ -961,64 +961,6 @@ void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 
-QString A3GeoConWin::createScript(QString & script, bool usePython)
-{
-    QString CommentStr = "//";
-    int indent = 0;
-    QString VarStr;
-    QString indentStr;
-
-    script += "== Auto-generated script ==\n\n";
-
-    if (!usePython)
-    {
-        VarStr = "var ";
-        indentStr = ""; //"  ";
-    }
-    else
-    {
-        CommentStr = "#";
-        indent = 0;
-        script += "true = True\n\nfalse = False\n\n";     // for now
-    }
-    script.insert(0, CommentStr);
-
-    script += indentStr + CommentStr + "Defined materials:\n";
-    const QStringList mn = MaterialHub.getListOfMaterialNames();
-    for (int i = 0; i < mn.size(); i++)
-        script += indentStr + VarStr + mn[i] + "_mat = " + QString::number(i) + "\n";
-    script += "\n";
-
-    AGeoObject * World = Geometry.World;
-
-    QString geoScr = AGeoConsts::getConstInstance().exportToScript(World, CommentStr, VarStr);
-    if (!geoScr.simplified().isEmpty())
-    {
-        script += indentStr + CommentStr + "Geometry constants:\n";
-        script += geoScr;
-        script += "\n";
-    }
-
-    script += indentStr + "geo.clearWorld()\n";
-    script += "\n";
-
-    QString protoString;
-    twGeo->objectMembersToScript(Geometry.Prototypes, protoString, indent, true, true, usePython);
-    if (!protoString.simplified().isEmpty())
-    {
-        script += indentStr + CommentStr + "Prototypes:";
-        script += protoString;
-        script += "\n\n";
-    }
-
-    script += indentStr + CommentStr + "Geometry:";
-    twGeo->objectMembersToScript(World, script, indent, true, true, usePython);
-
-    script += "\n\n" + indentStr + "geo.updateGeometry(true)";
-
-    return script;
-}
-
 void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
 {
     //qDebug() << "GeoConst value changed! index/text are:" << index << strNewValue;
@@ -1248,10 +1190,12 @@ void A3GeoConWin::on_actionHow_to_use_drag_and_drop_triggered()
     guitools::message(s, this);
 }
 
+#include "ageoscriptmaker.h"
 void A3GeoConWin::on_actionTo_JavaScript_triggered()
 {
     QString script;
-    createScript(script, false);
+    AGeoScriptMaker sm(AGeoScriptMaker::JavaScript);
+    sm.createScript(script);
     emit requestAddScript(script);
 }
 
@@ -1451,12 +1395,4 @@ void A3GeoConWin::on_actionFind_object_triggered()
     if (name.isEmpty()) return;
 
     UpdateGeoTree(name, true);
-
-    /*
-    QString name;
-    guitools::inputString("Object name:", name, this);
-    if (name.isEmpty()) return;
-    UpdateGeoTree(name, true);
-    */
 }
-

@@ -35,8 +35,6 @@ public:
 public slots:
   void UpdateGui(QString ObjectName = "");
   void onGridReshapeRequested(QString objName);
-  void objectMembersToScript(AGeoObject *Master, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
-  void objectToScript(AGeoObject *obj, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
   void rebuildDetectorAndRestoreCurrentDelegate();  // used by geoConst widget
   void onRequestShowPrototype(QString ProtoName);
   void onRequestIsValidPrototypeName(const QString & ProtoName, bool & bResult) const;
@@ -58,9 +56,9 @@ private slots:
   void onRemoveRecursiveTriggered();
 
 private:
-  AGeometryHub  & Geometry;
-  AGeoObject * World      = nullptr;
-  AGeoObject * Prototypes = nullptr;
+  AGeometryHub & Geometry;
+  AGeoObject   * World      = nullptr;
+  AGeoObject   * Prototypes = nullptr;
 
   AGeoDelegateWidget * EditWidget = nullptr;
 
@@ -103,17 +101,6 @@ private:
   void menuActionMakeItPrototype(const QList<QTreeWidgetItem *> & selected);
   void menuActionMoveProtoToWorld(AGeoObject * obj);
   void protoMenuEmptySelection(const QPoint & pos);
-
-  QString makeScriptString_basicObject(AGeoObject *obj, bool bExpandMaterials, bool usePython) const;
-  QString makeScriptString_arrayObject(AGeoObject *obj) const; // !!!*** to AGeoType
-  QString makeScriptString_instanceObject(AGeoObject *obj, bool usePython) const;
-  QString makeScriptString_prototypeObject(AGeoObject *obj) const;
-  QString makeScriptString_monitorBaseObject(const AGeoObject *obj) const;
-  QString makeScriptString_monitorConfig(const AGeoObject *obj) const;
-  QString makeScriptString_stackObjectStart(AGeoObject *obj) const;
-  QString makeScriptString_stackObjectEnd(AGeoObject *obj) const;
-  QString makeLinePropertiesString(AGeoObject *obj) const;
-  QString makeScriptString_DisabledObject(AGeoObject *obj) const;
 
 signals:
   void ObjectSelectionChanged(QString);
