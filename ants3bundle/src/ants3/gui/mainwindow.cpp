@@ -166,19 +166,77 @@ void MainWindow::onRebuildGeometryRequested()
 void MainWindow::on_pbGeometry_clicked()
 {
     GeoConWin->showNormal();
+    GeoConWin->activateWindow();
     GeoConWin->updateGui();
 }
 
 void MainWindow::on_pbGeoWin_clicked()
 {
     GeoWin->showNormal();
+    GeoWin->activateWindow();
     GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbMaterials_clicked()
 {
     MatWin->showNormal();
+    MatWin->activateWindow();
 }
+
+void MainWindow::on_pbPhotSim_clicked()
+{
+    PhotSimWin->showNormal();
+    PhotSimWin->activateWindow();
+    PhotSimWin->updateGui();
+}
+
+void MainWindow::on_pbInterfaceRules_clicked()
+{
+    RuleWin->showNormal();
+    RuleWin->activateWindow();
+    RuleWin->updateGui();
+}
+
+void MainWindow::on_pbGraphWin_clicked()
+{
+    GraphWin->showNormal();
+    GraphWin->activateWindow();
+}
+
+void MainWindow::on_pbFarm_clicked()
+{
+    FarmWin->showNormal();
+    FarmWin->activateWindow();
+    FarmWin->updateGui();
+}
+
+void MainWindow::on_pbGlobSet_clicked()
+{
+    GlobSetWin->showNormal();
+    GlobSetWin->activateWindow();
+    GlobSetWin->updateGui();
+}
+
+void MainWindow::on_pbParticleSim_clicked()
+{
+    PartSimWin->showNormal();
+    PartSimWin->activateWindow();
+    PartSimWin->updateGui();
+}
+
+void MainWindow::on_pbJavaScript_clicked()
+{
+    JScriptWin->showNormal();
+    JScriptWin->activateWindow();
+    JScriptWin->updateGui();
+}
+
+void MainWindow::on_pbDemo_clicked()
+{
+    DemoWin->showNormal();
+    DemoWin->activateWindow();
+}
+
 
 void MainWindow::on_pbLoadConfig_clicked()
 {
@@ -306,60 +364,6 @@ void MainWindow::onRequestSaveGuiSettings()
     }
 
     JSON["gui"] = json;
-}
-
-void MainWindow::on_pbPhotSim_clicked()
-{
-    PhotSimWin->showNormal();
-    PhotSimWin->activateWindow();
-    PhotSimWin->updateGui();
-}
-
-void MainWindow::on_pbInterfaceRules_clicked()
-{
-    RuleWin->showNormal();
-    RuleWin->activateWindow();
-    RuleWin->updateGui();
-}
-
-void MainWindow::on_pbGraphWin_clicked()
-{
-    GraphWin->showNormal();
-    GraphWin->activateWindow();
-}
-
-void MainWindow::on_pbFarm_clicked()
-{
-    FarmWin->showNormal();
-    FarmWin->activateWindow();
-    FarmWin->updateGui();
-}
-
-void MainWindow::on_pbGlobSet_clicked()
-{
-    GlobSetWin->showNormal();
-    GlobSetWin->activateWindow();
-    GlobSetWin->updateGui();
-}
-
-void MainWindow::on_pbParticleSim_clicked()
-{
-    PartSimWin->showNormal();
-    PartSimWin->activateWindow();
-    PartSimWin->updateGui();
-}
-
-void MainWindow::on_pbJavaScript_clicked()
-{
-    JScriptWin->showNormal();
-    JScriptWin->activateWindow();
-    JScriptWin->updateGui();
-}
-
-void MainWindow::on_pbDemo_clicked()
-{
-    DemoWin->showNormal();
-    DemoWin->activateWindow();
 }
 
 void MainWindow::on_leConfigName_editingFinished()
