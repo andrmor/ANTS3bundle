@@ -216,14 +216,27 @@ QString AGeoBox::getGenerationString(bool useStrings) const
     return str;
 }
 
-QString AGeoBox::getScriptString() const
+QString AGeoBox::getScriptString(bool useStrings) const
 {
-    const QString sdx = ( str2dx.isEmpty() ? QString::number(dx) : "' + " + str2dx + " + '" );
-    const QString sdy = ( str2dy.isEmpty() ? QString::number(dy) : "' + " + str2dy + " + '" );
-    const QString sdz = ( str2dz.isEmpty() ? QString::number(dz) : "' + " + str2dz + " + '" );
+    QString sdx;
+    QString sdy;
+    QString sdz;
+
+    if (useStrings)
+    {
+        sdx = ( str2dx.isEmpty() ? QString::number(2.0 * dx) : str2dx );
+        sdy = ( str2dy.isEmpty() ? QString::number(2.0 * dy) : str2dy );
+        sdz = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+    }
+    else
+    {
+        sdx = QString::number(2.0 * dx);
+        sdy = QString::number(2.0 * dy);
+        sdz = QString::number(2.0 * dz);
+    }
 
     //void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.box( $$Name,  %0, %1, %2").arg(sdx, sdy, sdz);
+    return QString("geo.box( $_name_$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
 }
 
 double AGeoBox::maxSize() const
@@ -1124,6 +1137,29 @@ QString AGeoTube::getGenerationString(bool useStrings) const
                 sdz   +" )";
     }
     return str;
+}
+
+QString AGeoTube::getScriptString(bool useStrings) const
+{
+    QString Dmin;
+    QString Dmax;
+    QString H;
+
+    if (useStrings)
+    {
+        Dmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        Dmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        H    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+    }
+    else
+    {
+        Dmin = QString::number(2.0 * rmin);
+        Dmax = QString::number(2.0 * rmax);
+        H    = QString::number(2.0 * dz);
+    }
+
+    //void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.tube( $_name_$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
 }
 
 double AGeoTube::maxSize() const

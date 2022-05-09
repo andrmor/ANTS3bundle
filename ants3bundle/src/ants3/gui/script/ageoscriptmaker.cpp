@@ -163,33 +163,41 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
     }
 }
 
+#include <array>
 QString AGeoScriptMaker::makeScriptString_basicObject(AGeoObject * obj, bool bExpandMaterials) const
 {
-    QVector<QString> posStrs; posStrs.reserve(3);
-    QVector<QString> oriStrs; oriStrs.reserve(3);
-
-    QString GenerationString = obj->Shape->getGenerationString(true);
-    if (Python == Language) GenerationString = getPythonGenerationString(GenerationString);
-
+    std::array<QString, 3> posStrs;
+    std::array<QString, 3> oriStrs;
     for (int i = 0; i < 3; i++)
     {
-        posStrs << ( obj->PositionStr[i].isEmpty() ? QString::number(obj->Position[i]) : obj->PositionStr[i] );
-        oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
+        posStrs[i] = ( obj->PositionStr[i].isEmpty()    ? QString::number(obj->Position[i])    : obj->PositionStr[i]    );
+        oriStrs[i] = ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
     const QStringList MatNames = AMaterialHub::getInstance().getListOfMaterialNames();
+    const QString matStr = ( bExpandMaterials && obj->Material < MatNames.size() ? MatNames[obj->Material] + "_mat"
+                                                                                 : QString::number(obj->Material) );
+    QString str = obj->Shape->getScriptString(true);
+    if (!str.isEmpty())
+        str.replace("$_name_$", "'" + obj->Name + "'");
+    else
+    {
+        QString GenerationString = obj->Shape->getGenerationString(true);
+        if (Python == Language) GenerationString = getPythonGenerationString(GenerationString);
 
-    QString str = QString("geo.customTGeo( ") +
-                  "'" + obj->Name + "', " +
-                  "'" + GenerationString + "', " +
-                  (bExpandMaterials && obj->Material < MatNames.size() ? MatNames.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
-                                                                                                                                                 "'" + obj->Container->Name + "',   "+
-                  posStrs[0] + ", " +
-                  posStrs[1] + ", " +
-                  posStrs[2] + ",   " +
-                  oriStrs[0] + ", " +
-                  oriStrs[1] + ", " +
-                  oriStrs[2] + " )";
+        str = QString("geo.customTGeo( ") +
+                      "'" + obj->Name + "', " +
+                      "'" + GenerationString + "', ";
+    }
+
+    str += matStr + ", " +
+           "'" + obj->Container->Name + "',   " +
+           posStrs[0] + ", " +
+           posStrs[1] + ", " +
+           posStrs[2] + ",   " +
+           oriStrs[0] + ", " +
+           oriStrs[1] + ", " +
+           oriStrs[2] + " )";
 
     AGeoConsts::getConstInstance().formulaToScript(str, (Python == Language) );
     return str;
@@ -472,7 +480,7 @@ QString AGeoScriptMaker::makeScriptString_DisabledObject(AGeoObject * obj) const
     return QString("geo.setEnabled( '%1', false )").arg(obj->Name);
 }
 
-QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
+const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
 {
     int numberofQ = javaGenString.count("'");
     if (numberofQ == 0) return javaGenString;
@@ -480,7 +488,7 @@ QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString
     QString PythonGenString = javaGenString;
     const QString firstStr = " )";
     const QString secondStr = " str(";
-    int   plusAccomidation = QString(" + ").size();
+    int   plusSize = QString(" + ").size();
 
     bool first = true;
     for (int i = 0; i < PythonGenString.size(); i++)
@@ -489,12 +497,12 @@ QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString
         {
             if (!first)
             {
-                PythonGenString.insert(i - plusAccomidation , firstStr);
+                PythonGenString.insert(i - plusSize , firstStr);
                 i += firstStr.size();
             }
             else
             {
-                PythonGenString.insert(i + plusAccomidation , secondStr);
+                PythonGenString.insert(i + plusSize , secondStr);
                 i += secondStr.size();
             }
             first = !first;

@@ -31,7 +31,7 @@ protected:
     QString makeLinePropertiesString(AGeoObject * obj) const;
     QString makeScriptString_DisabledObject(AGeoObject * obj) const;
 
-    QString getPythonGenerationString(const QString & javaGenString) const;
+    const QString getPythonGenerationString(const QString & javaGenString) const;
 };
 
 #endif // AGEOSCRIPTMAKER_H

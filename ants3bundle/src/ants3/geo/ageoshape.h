@@ -26,7 +26,7 @@ public:
     virtual TGeoShape * createGeoShape(const QString /*shapeName*/ = "") = 0;    //creates ROOT's TGeoShape
     virtual QString getGenerationString(bool /*useStrings*/ = false) const = 0;
 
-    virtual QString getScriptString() const {return QString();}
+    virtual QString getScriptString(bool /*useStrings*/) const {return QString();}
 
     virtual double getHeight() const {return 0;}   //for stacks; if 0, cannot be used in a stack
     virtual double getRelativePosZofCenter() const {return 0;} //for polycones and polygons in stacks
@@ -79,7 +79,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
-    QString getScriptString() const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
     double minSize() const override;
 
@@ -116,6 +116,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
     double minSize() const override;
 
