@@ -285,9 +285,9 @@ public:
     AGeoPolygon(int nedges, double dphi, double dz, double rminL, double rmaxL, double rminU, double rmaxU) :
         nedges(nedges), dphi(dphi), dz(dz), rminL(rminL), rmaxL(rmaxL), rminU(rminU), rmaxU(rmaxU) {}
     AGeoPolygon(int nedges, double dz, double rmaxL, double rmaxU) :
-        nedges(nedges), dphi(360), dz(dz), rminL(0), rmaxL(rmaxL), rminU(0), rmaxU(rmaxU) {}
+        nedges(nedges), dphi(360.0), dz(dz), rminL(0), rmaxL(rmaxL), rminU(0), rmaxU(rmaxU) {}
     AGeoPolygon() :
-        nedges(6), dphi(360), dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(20) {}
+        nedges(6), dphi(360.0), dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(20) {}
 
     QString getShapeType() const override {return "TGeoPolygon";}
     QString getShapeTemplate() const override {return "TGeoPolygon( nedges, dphi, dz, rminL, rmaxL, rminU, rmaxU )";}
@@ -304,6 +304,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

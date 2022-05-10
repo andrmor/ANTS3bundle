@@ -3233,6 +3233,43 @@ QString AGeoPolygon::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPolygon::getScriptString(bool useStrings) const
+{
+    QString sNedges, sdPhi, s2dz, s2rminL, s2rmaxL, s2rminU, s2rmaxU;
+
+    if (useStrings)
+    {
+        sNedges = ( strNedges.isEmpty() ? QString::number(nedges)      : strNedges );
+        sdPhi   = ( strdPhi  .isEmpty() ? QString::number(dphi)        : strdPhi );
+        s2dz    = ( str2dz   .isEmpty() ? QString::number(2.0 * dz)    : str2dz );
+        s2rminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        s2rmaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        s2rminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        s2rmaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+    }
+    else
+    {
+        sNedges = QString::number(nedges);
+        sdPhi   = QString::number(dphi);
+        s2dz    = QString::number(2.0 * dz);
+        s2rminL = QString::number(2.0 * rminL);
+        s2rmaxL = QString::number(2.0 * rmaxL);
+        s2rminU = QString::number(2.0 * rminU);
+        s2rmaxU = QString::number(2.0 * rmaxU);
+    }
+
+    if (sdPhi == "360" && s2rminL == "0" && s2rminU == "0" && s2rmaxL == s2rmaxU)
+    {
+        //void AGeo_SI::polygon(QString name, int edges, double diameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+        return QString("geo.polygon( $name$, %0, %1, %2,  ").arg(sNedges, s2rmaxU, s2dz);
+    }
+    else
+    {
+        //void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.polygonSegment( $name$,  %0,  %1, %2,  %3,  %4, %5, %6,  ").arg(sNedges, s2rmaxU,s2rminU, s2rmaxL,s2rminL, s2dz,  sdPhi);
+    }
+}
+
 double AGeoPolygon::maxSize() const
 {
     double m = std::max(rmaxL, rmaxU);
