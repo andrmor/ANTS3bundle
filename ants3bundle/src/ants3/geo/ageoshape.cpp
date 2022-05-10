@@ -1158,8 +1158,16 @@ QString AGeoTube::getScriptString(bool useStrings) const
         H    = QString::number(2.0 * dz);
     }
 
-    //void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.tube( $name$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
+    if (Dmin == QStringLiteral("0"))
+    {
+        //void cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.cylinder( $name$,  %0, %1,  ").arg(Dmax, H);
+    }
+    else
+    {
+        //void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.tube( $name$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
+    }
 }
 
 double AGeoTube::maxSize() const
@@ -2099,6 +2107,43 @@ QString AGeoCone::getGenerationString(bool useStrings) const
 
     }
     return str;
+}
+
+QString AGeoCone::getScriptString(bool useStrings) const
+{
+    QString sminL;
+    QString smaxL;
+    QString sminU;
+    QString smaxU;
+    QString sdz;
+
+    if (useStrings)
+    {
+        sminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        smaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        sminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        smaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+        sdz   = ( str2dz.isEmpty()    ? QString::number(2.0 * dz)    : str2dz );
+    }
+    else
+    {
+        sminL = QString::number(2.0 * rminL);
+        smaxL = QString::number(2.0 * rmaxL);
+        sminU = QString::number(2.0 * rminU);
+        smaxU = QString::number(2.0 * rmaxU);
+        sdz   = QString::number(2.0 * dz);
+    }
+
+    if (sminL == QStringLiteral("0") && sminU == QStringLiteral("0"))
+    {
+        //void cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.cone( $name$,  %0, %1, %2,  ").arg(smaxU, smaxL, sdz);
+    }
+    else
+    {
+        //void conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.conicalTube( $name$,  %0, %1, %2, %3, %4,  ").arg(smaxU, sminU, smaxL, sminL, sdz);
+    }
 }
 
 double AGeoCone::maxSize() const
