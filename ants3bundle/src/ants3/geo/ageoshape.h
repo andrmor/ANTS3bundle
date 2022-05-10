@@ -154,6 +154,8 @@ public:
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override;
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const; // returns script string for the base shape!
+    QString getScriptString_Scaled(bool useStrings) const;
     double maxSize() const override;
 
     const QString getBaseShapeType() const;

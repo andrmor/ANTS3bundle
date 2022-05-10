@@ -236,7 +236,7 @@ QString AGeoBox::getScriptString(bool useStrings) const
     }
 
     //void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.box( $_name_$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
+    return QString("geo.box( $name$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
 }
 
 double AGeoBox::maxSize() const
@@ -1159,7 +1159,7 @@ QString AGeoTube::getScriptString(bool useStrings) const
     }
 
     //void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.tube( $_name_$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
+    return QString("geo.tube( $name$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
 }
 
 double AGeoTube::maxSize() const
@@ -3372,10 +3372,8 @@ void AGeoScaledShape::setHeight(double dz)
 
 QString AGeoScaledShape::getGenerationString(bool useStrings) const
 {
-    qDebug() <<"base" <<BaseShape->getGenerationString() <<useStrings;
     if (!useStrings)
     {
-        qDebug() <<"hmnjkfsk";
         return QString() + "TGeoScaledShape( " +
                 BaseShapeGenerationString + ", " +
                 QString::number(scaleX) + ", " +
@@ -3398,6 +3396,34 @@ QString AGeoScaledShape::getGenerationString(bool useStrings) const
                 sscaleY + ", " +
                 sscaleZ + " )";
     }
+}
+
+QString AGeoScaledShape::getScriptString(bool useStrings) const
+{
+    return BaseShape->getScriptString(useStrings); // the rest is made in the caller
+}
+
+QString AGeoScaledShape::getScriptString_Scaled(bool useStrings) const
+{
+    QString sx;
+    QString sy;
+    QString sz;
+
+    if (useStrings)
+    {
+        sx = ( strScaleX.isEmpty() ? QString::number(scaleX) : strScaleX );
+        sy = ( strScaleY.isEmpty() ? QString::number(scaleY) : strScaleY );
+        sz = ( strScaleZ.isEmpty() ? QString::number(scaleZ) : strScaleZ );
+    }
+    else
+    {
+        sx = QString::number(scaleX);
+        sy = QString::number(scaleY);
+        sz = QString::number(scaleZ);
+    }
+
+    //void toScaled(QString name, double xFactor, double yFactor, double zFactor);
+    return QString("geo.toScaled( $name$,  %0, %1, %2 )").arg(sx, sy, sz);
 }
 
 double AGeoScaledShape::maxSize() const

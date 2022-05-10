@@ -171,6 +171,47 @@ void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFactor)
+{
+    AGeoObject * obj = nullptr;
+
+    for (AGeoObject * GO : GeoObjects)
+    {
+        if (GO->Name == name)
+        {
+            obj = GO;
+            break;
+        }
+    }
+
+    if (!obj) //looking through already defined objects in the geometry
+        obj = AGeometryHub::getInstance().World->findObjectByName(name);
+
+    if (!obj)
+    {
+        abort("Cannot find object " + name);
+        return;
+    }
+
+    AGeoScaledShape * scs = dynamic_cast<AGeoScaledShape*>(obj->Shape);
+    if (scs)
+    {
+        scs->scaleX = xFactor;
+        scs->scaleY = yFactor;
+        scs->scaleZ = zFactor;
+    }
+    else
+    {
+        scs = new AGeoScaledShape();
+        scs->scaleX = xFactor;
+        scs->scaleY = yFactor;
+        scs->scaleZ = zFactor;
+
+        scs->BaseShape = obj->Shape;
+        obj->Shape = scs;
+    }
+}
+
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
     AGeoObject * o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build

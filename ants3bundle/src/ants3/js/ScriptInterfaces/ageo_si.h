@@ -36,6 +36,8 @@ public slots:
     void sphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
 
+    void toScaled(QString name, double xFactor, double yFactor, double zFactor);
+
     void monitor(QString name, int shape, double size1, double size2,
                  QString container, double x, double y, double z, double phi, double theta, double psi,
                  bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);

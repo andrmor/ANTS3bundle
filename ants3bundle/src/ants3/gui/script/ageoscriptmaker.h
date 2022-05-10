@@ -14,13 +14,13 @@ public:
 
     void createScript(QString & script);
 
-    void objectMembersToScript(AGeoObject * Master, QString & script, int ident, bool bExpandMaterial, bool bRecursive);
-    void objectToScript(AGeoObject * obj, QString & script, int ident, bool bExpandMaterial, bool bRecursive);
+    void objectMembersToScript(AGeoObject * Master, QString & script, int ident, bool useStrings, bool bRecursive);
+    void objectToScript(AGeoObject * obj, QString & script, int ident, bool useStrings, bool bRecursive);
 
 protected:
     ELanguage Language = JavaScript;
 
-    QString makeScriptString_basicObject(AGeoObject * obj, bool bExpandMaterials) const;
+    QString makeScriptString_basicObject(AGeoObject * obj, bool useStrings) const;
     QString makeScriptString_arrayObject(AGeoObject * obj) const;
     QString makeScriptString_instanceObject(AGeoObject * obj) const;
     QString makeScriptString_prototypeObject(AGeoObject * obj) const;
@@ -30,6 +30,9 @@ protected:
     QString makeScriptString_stackObjectEnd(AGeoObject * obj) const;
     QString makeLinePropertiesString(AGeoObject * obj) const;
     QString makeScriptString_DisabledObject(AGeoObject * obj) const;
+
+    void addLineProperties(QString & script, AGeoObject * obj, int ident);
+    void addScaledIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings);
 
     const QString getPythonGenerationString(const QString & javaGenString) const;
 };
