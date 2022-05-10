@@ -43,8 +43,8 @@ public slots:
       //pCon
       void polygon(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
       //pGon
-      void sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      void sphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void sphereSector(QString name, double Dout, double Din, double theta1, double theta2, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
       //void torus
       //void paraboloid
       //void composite

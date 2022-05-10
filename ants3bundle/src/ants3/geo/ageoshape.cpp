@@ -655,6 +655,48 @@ QString AGeoSphere::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoSphere::getScriptString(bool useStrings) const
+{
+    QString srmin;
+    QString srmax;
+    QString sthe1;
+    QString sthe2;
+    QString sphi1;
+    QString sphi2;
+
+    if (useStrings)
+    {
+        srmin = ( str2rmin.isEmpty()  ? QString::number(2.0 * rmin) : str2rmin );
+        srmax = ( str2rmax.isEmpty()  ? QString::number(2.0 * rmax) : str2rmax );
+        sthe1 = ( strTheta1.isEmpty() ? QString::number(theta1)     : strTheta1 );
+        sthe2 = ( strTheta2.isEmpty() ? QString::number(theta1)     : strTheta2 );
+        sphi1 = ( strPhi1.isEmpty()   ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()   ? QString::number(phi2)       : strPhi2 );
+    }
+    else
+    {
+        /*
+        srmin = QString::number(2.0 * rmin);
+        srmax = QString::number(2.0 * rmax) : str2rmax );
+        sthe1 = QString::number(theta1)     : strTheta1 );
+        sthe2 = QString::number(theta1)     : strTheta2 );
+        sphi1 = QString::number(phi1)       : strPhi1 );
+        sphi2 = QString::number(phi2)       : strPhi2 );
+        */
+    }
+
+    if (true)
+    {
+        //void sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString();//("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+    }
+    else
+    {
+        //void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+        return QString();//("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+    }
+}
+
 void AGeoSphere::writeToJson(QJsonObject &json) const
 {
     json["rmin"]   = rmin;

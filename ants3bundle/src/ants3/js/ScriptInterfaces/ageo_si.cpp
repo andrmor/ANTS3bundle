@@ -129,18 +129,18 @@ void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double Db
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoSphere(0.5*D),
+                                   new AGeoSphere(0.5*Dout, 0.5*Din),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::sphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoSphere(0.5*Dout, 0.5*Din),
+                                   new AGeoSphere(0.5*Dout, 0.5*Din, Theta1, Theta2, Phi1, Phi2),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
