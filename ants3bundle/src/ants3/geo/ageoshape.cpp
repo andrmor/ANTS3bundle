@@ -669,31 +669,29 @@ QString AGeoSphere::getScriptString(bool useStrings) const
         srmin = ( str2rmin.isEmpty()  ? QString::number(2.0 * rmin) : str2rmin );
         srmax = ( str2rmax.isEmpty()  ? QString::number(2.0 * rmax) : str2rmax );
         sthe1 = ( strTheta1.isEmpty() ? QString::number(theta1)     : strTheta1 );
-        sthe2 = ( strTheta2.isEmpty() ? QString::number(theta1)     : strTheta2 );
+        sthe2 = ( strTheta2.isEmpty() ? QString::number(theta2)     : strTheta2 );
         sphi1 = ( strPhi1.isEmpty()   ? QString::number(phi1)       : strPhi1 );
         sphi2 = ( strPhi2.isEmpty()   ? QString::number(phi2)       : strPhi2 );
     }
     else
     {
-        /*
         srmin = QString::number(2.0 * rmin);
-        srmax = QString::number(2.0 * rmax) : str2rmax );
-        sthe1 = QString::number(theta1)     : strTheta1 );
-        sthe2 = QString::number(theta1)     : strTheta2 );
-        sphi1 = QString::number(phi1)       : strPhi1 );
-        sphi2 = QString::number(phi2)       : strPhi2 );
-        */
+        srmax = QString::number(2.0 * rmax);
+        sthe1 = QString::number(theta1);
+        sthe2 = QString::number(theta2);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
     }
 
-    if (true)
+    if (theta1 == 0 && theta2 == 180.0 && phi1 == 0 && phi2 == 360.0)
     {
         //void sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-        return QString();//("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+        return QString("geo.sphere( $name$,  %0, %1,  ").arg(srmax, srmin);
     }
     else
     {
         //void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
-        return QString();//("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+        return QString("geo.sphereSector( $name$,  %0, %1, %2, %3, %4, %5,  ").arg(srmax, srmin, sthe1, sthe2, sphi1, sphi2);
     }
 }
 
