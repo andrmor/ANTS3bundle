@@ -1818,6 +1818,41 @@ QString AGeoConeSeg::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoConeSeg::getScriptString(bool useStrings) const
+{
+    QString sminL;
+    QString smaxL;
+    QString sminU;
+    QString smaxU;
+    QString sdz;
+    QString sphi1;
+    QString sphi2;
+
+    if (useStrings)
+    {
+        sminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        smaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        sminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        smaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+        sdz   = ( str2dz.isEmpty()    ? QString::number(2.0 * dz)    : str2dz );
+        sphi1 = ( strPhi1.isEmpty()   ? QString::number(phi1)        : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()   ? QString::number(phi2)        : strPhi2 );
+    }
+    else
+    {
+        sminL = QString::number(2.0 * rminL);
+        smaxL = QString::number(2.0 * rmaxL);
+        sminU = QString::number(2.0 * rminU);
+        smaxU = QString::number(2.0 * rmaxU);
+        sdz   = QString::number(2.0 * dz);
+        sphi1 = QString::number(2.0 * phi1);
+        sphi2 = QString::number(2.0 * phi2);
+    }
+
+    //void coneSegment(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+}
+
 double AGeoConeSeg::maxSize() const
 {
     double m = std::max(rmaxL, rmaxU);

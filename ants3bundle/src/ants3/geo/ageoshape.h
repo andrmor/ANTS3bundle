@@ -250,7 +250,7 @@ class AGeoConeSeg : public AGeoCone
 public:
     AGeoConeSeg(double dz, double rminL, double rmaxL, double rminU, double rmaxU, double phi1, double phi2) :
         AGeoCone(dz, rminL, rmaxL, rminU, rmaxU), phi1(phi1), phi2(phi2) {}
-    AGeoConeSeg() : AGeoCone(), phi1(0), phi2(180) {}
+    AGeoConeSeg() : AGeoCone(), phi1(0), phi2(180.0) {}
 
     QString getShapeType() const override {return "TGeoConeSeg";}
     QString getShapeTemplate() const override {return "TGeoConeSeg( dz, rminL, rmaxL, rminU, rmaxU, phi1, phi2 )";}
@@ -267,6 +267,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

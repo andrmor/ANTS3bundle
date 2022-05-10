@@ -121,6 +121,14 @@ void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double D
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoConeSeg(0.5*h, 0.5*DbotIn, 0.5*DbotOut, 0.5*DtopIn, 0.5*DtopOut, phi1, phi2),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
