@@ -97,7 +97,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::polygone(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::polygon(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
                                     new AGeoPolygon(edges, 0.5*h, 0.5*Dbot, 0.5*Dtop),
