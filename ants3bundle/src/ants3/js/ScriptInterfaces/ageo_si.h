@@ -28,7 +28,7 @@ public slots:
     void updateGeometry(bool CheckOverlaps = true);
 
     void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      //void parallelepiped
+    void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
       //Trd1
       //Trd2
       void arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi); // !!!*** QVariantList [x,y]

@@ -76,6 +76,15 @@ void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container,
+                             double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoPara(0.5*Lx, 0.5*Ly, 0.5*Lz, Alpha, Theta, Phi),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,

@@ -409,6 +409,32 @@ QString AGeoPara::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPara::getScriptString(bool useStrings) const
+{
+    QString sdx, sdy, sdz, sAlpha, sTheta, sPhi;
+    if (useStrings)
+    {
+        sdx    = (str2dx  .isEmpty() ? QString::number(2.0 * dx)    : str2dx);
+        sdy    = (str2dy  .isEmpty() ? QString::number(2.0 * dy)    : str2dy);
+        sdz    = (str2dz  .isEmpty() ? QString::number(2.0 * dz)    : str2dz);
+        sAlpha = (strAlpha.isEmpty() ? QString::number(alpha) : strAlpha);
+        sTheta = (strTheta.isEmpty() ? QString::number(theta) : strTheta);
+        sPhi   = (strPhi  .isEmpty() ? QString::number(phi)   : strPhi);
+    }
+    else
+    {
+        sdx    = QString::number(2.0 * dx);
+        sdy    = QString::number(2.0 * dy);
+        sdz    = QString::number(2.0 * dz);
+        sAlpha = QString::number(alpha);
+        sTheta = QString::number(theta);
+        sPhi   = QString::number(phi);
+    }
+
+    //void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.parallelepiped( $name$,  %0, %1, %2, %3, %4, %5,  ").arg(sdx, sdy, sdz, sAlpha, sTheta, sPhi);
+}
+
 double AGeoPara::maxSize() const
 {
     double m = std::max(dx, dy);
