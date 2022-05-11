@@ -218,10 +218,7 @@ QString AGeoBox::getGenerationString(bool useStrings) const
 
 QString AGeoBox::getScriptString(bool useStrings) const
 {
-    QString sdx;
-    QString sdy;
-    QString sdz;
-
+    QString sdx, sdy, sdz;
     if (useStrings)
     {
         sdx = ( str2dx.isEmpty() ? QString::number(2.0 * dx) : str2dx );
@@ -2057,6 +2054,26 @@ QString AGeoParaboloid::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoParaboloid::getScriptString(bool useStrings) const
+{
+    QString sdb, sdu, sdz;
+    if (useStrings)
+    {
+        sdb = (str2rlo.isEmpty() ? QString::number(2.0 * rlo) : str2rlo);
+        sdu = (str2rhi.isEmpty() ? QString::number(2.0 * rhi) : str2rhi);
+        sdz = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sdb = QString::number(2.0 * rlo);
+        sdu = QString::number(2.0 * rhi);
+        sdz = QString::number(2.0 * dz);
+    }
+
+    //void paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.paraboloid( $name$,  %0, %1, %2,  ").arg(sdb, sdu, sdz);
+}
+
 double AGeoParaboloid::maxSize() const
 {
     double m = std::max(rlo, rhi);
@@ -3809,6 +3826,30 @@ QString AGeoTorus::getGenerationString(bool useStrings) const
                 sDphi +" )";
     }
     return str;
+}
+
+QString AGeoTorus::getScriptString(bool useStrings) const
+{
+    QString sD, sDmin, sDmax, sPhi, sDphi;
+    if (useStrings)
+    {
+        sD    = (str2R.isEmpty()    ? QString::number(2.0 * R)    : str2R);
+        sDmin = (str2Rmin.isEmpty() ? QString::number(2.0 * Rmin) : str2Rmin);
+        sDmax = (str2Rmax.isEmpty() ? QString::number(2.0 * Rmax) : str2Rmax);
+        sPhi  = (strPhi1 .isEmpty() ? QString::number(Phi1)       : strPhi1);
+        sDphi = (strDphi .isEmpty() ? QString::number(Dphi)       : strDphi);
+    }
+    else
+    {
+        sD    = QString::number(2.0 * R);
+        sDmin = QString::number(2.0 * Rmin);
+        sDmax = QString::number(2.0 * Rmax);
+        sPhi  = QString::number(Phi1);
+        sDphi = QString::number(Dphi);
+    }
+
+    //void torus(QString name, double D, double Dout, double Din, double Phi, double dPhi,
+    return QString("geo.torus( $name$,  %0, %1, %2, %3, %4,  ").arg(sD, sDmax, sDmin, sPhi, sDphi);
 }
 
 double AGeoTorus::maxSize() const

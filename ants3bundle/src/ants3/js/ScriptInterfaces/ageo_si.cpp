@@ -162,6 +162,22 @@ void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1,
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoTorus(0.5*D, 0.5*Din, 0.5*Dout, Phi, dPhi),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoParaboloid(0.5*Dbot, 0.5*Dup, 0.5*h),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     //qDebug() << NodesX << NodesY;
