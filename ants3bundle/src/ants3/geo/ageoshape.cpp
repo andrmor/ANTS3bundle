@@ -2696,7 +2696,7 @@ QString AGeoArb8::getScriptString(bool useStrings) const
     nodes += " ]";
 
     //void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.arb8( $name$,  %0, %1,  ").arg(sh, nodes);
+    return QString("geo.arb8( $name$,  %0, %1,  ").arg(nodes, sh);
 }
 
 double AGeoArb8::maxSize() const
