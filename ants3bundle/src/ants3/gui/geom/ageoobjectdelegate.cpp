@@ -171,7 +171,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
 
   ListOfShapesForTransform << "Box"
        << "Tube" << "Tube segment" << "Tube segment cut" << "Tube elliptical"
-       << "Trapezoid simplified" << "Trapezoid"
+       << "Trap" << "Trap2"
        << "Polycone"
        << "Polygon simplified" << "Polygon"
        << "Parallelepiped"
@@ -711,8 +711,8 @@ void AGeoObjectDelegate::onShapeDialogActivated(QDialog * d, QListWidget * w)
     else if (sel == "Tube segment cut")     emit RequestChangeShape(new AGeoCtub());
     else if (sel == "Tube elliptical")      emit RequestChangeShape(new AGeoEltu());
     else if (sel == "Sphere")               emit RequestChangeShape(new AGeoSphere());
-    else if (sel == "Trapezoid simplified") emit RequestChangeShape(new AGeoTrd1());
-    else if (sel == "Trapezoid")            emit RequestChangeShape(new AGeoTrd2());
+    else if (sel == "Trap")                 emit RequestChangeShape(new AGeoTrd1());
+    else if (sel == "Trap2")                emit RequestChangeShape(new AGeoTrd2());
     else if (sel == "Cone")                 emit RequestChangeShape(new AGeoCone());
     else if (sel == "Cone segment")         emit RequestChangeShape(new AGeoConeSeg());
     else if (sel == "Paraboloid")           emit RequestChangeShape(new AGeoParaboloid());
@@ -1652,9 +1652,9 @@ void AGeoElTubeDelegate::Update(const AGeoObject *obj)
 AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid simplified";
+    DelegateTypeName = "Trap";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trapezoidal prizm\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1714,7 +1714,7 @@ bool AGeoTrapXDelegate::updateObject(AGeoObject *obj) const
         trap->str2dy  = ey->text();
         trap->str2dz  = ez->text();
     }
-    else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+    else qWarning() << "Read delegate: Trap shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1737,15 +1737,15 @@ void AGeoTrapXDelegate::Update(const AGeoObject *obj)
             ey-> setText(trap->str2dy .isEmpty() ? QString::number(trap->dy  * 2.0) : trap->str2dy);
             ez-> setText(trap->str2dz .isEmpty() ? QString::number(trap->dz  * 2.0) : trap->str2dz);
         }
-        else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+        else qWarning() << "Read delegate: Trap shape not found!";
 }
 
 AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid";
+    DelegateTypeName = "Trap2";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trape2 shape\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1808,7 +1808,7 @@ bool AGeoTrapXYDelegate::updateObject(AGeoObject *obj) const
         trapxy->str2dy2 = eyu->text();
         trapxy->str2dz  = ez ->text();
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1832,7 +1832,7 @@ void AGeoTrapXYDelegate::Update(const AGeoObject *obj)
         eyu->setText(trapxy->str2dy2.isEmpty() ? QString::number(trapxy->dy2 * 2.0) : trapxy->str2dy2);
         ez-> setText(trapxy->str2dz .isEmpty() ? QString::number(trapxy->dz  * 2.0) : trapxy->str2dz);
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 }
 
 AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWidget *parent)

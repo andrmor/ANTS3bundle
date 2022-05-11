@@ -384,9 +384,9 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
         QAction* newTubeSegment = addTubeMenu->addAction("Tube segment");
         QAction* newTubeSegCut =  addTubeMenu->addAction("Tube segment cut");
         QAction* newTubeElli =    addTubeMenu->addAction("Elliptical tube");
-    QMenu * addTrapMenu = addObjMenu->addMenu("Trapezoid");
-        QAction* newTrapSim =     addTrapMenu->addAction("Trapezoid simplified");
-        QAction* newTrap    =     addTrapMenu->addAction("Trapezoid");
+    QMenu * addTrapMenu = addObjMenu->addMenu("Trap");
+        QAction* newTrapSim =     addTrapMenu->addAction("Trap (trapezoidal prizm)");
+        QAction* newTrap    =     addTrapMenu->addAction("Trap2");
     QAction* newPcon = addObjMenu->addAction("Polycone");
     QMenu * addPgonMenu = addObjMenu->addMenu("Polygon");
         QAction* newPgonSim =     addPgonMenu->addAction("Polygon simplified");
@@ -574,9 +574,9 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
           QAction* newTubeSegment = addTubeMenu->addAction("Tube segment");
           QAction* newTubeSegCut =  addTubeMenu->addAction("Tube segment cut");
           QAction* newTubeElli =    addTubeMenu->addAction("Elliptical tube");
-      QMenu * addTrapMenu = addObjMenu->addMenu("Trapezoid");
-          QAction* newTrapSim =     addTrapMenu->addAction("Trapezoid simplified");
-          QAction* newTrap    =     addTrapMenu->addAction("Trapezoid");
+      QMenu * addTrapMenu = addObjMenu->addMenu("Trap");
+          QAction* newTrapSim =     addTrapMenu->addAction("Trap (trapezoidal prizm");
+          QAction* newTrap    =     addTrapMenu->addAction("Trap2");
       QAction* newPcon = addObjMenu->addAction("Polycone");
       QMenu * addPgonMenu = addObjMenu->addMenu("Polygon");
           QAction* newPgonSim =     addPgonMenu->addAction("Polygon simplified");

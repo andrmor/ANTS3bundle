@@ -1376,6 +1376,29 @@ QString AGeoTrd1::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoTrd1::getScriptString(bool useStrings) const
+{
+    QString sx1, sx2, sy, sz;
+
+    if (useStrings)
+    {
+        sx1  = (str2dx1.isEmpty() ? QString::number(2.0 * dx1) : str2dx1);
+        sx2  = (str2dx2.isEmpty() ? QString::number(2.0 * dx2) : str2dx2);
+        sy   = (str2dy .isEmpty() ? QString::number(2.0 * dy)  : str2dy);
+        sz   = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sx1  = QString::number(2.0 * dx1);
+        sx2  = QString::number(2.0 * dx2);
+        sy   = QString::number(2.0 * dy);
+        sz   = QString::number(2.0 * dz);
+    }
+
+    //void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz,
+    return QString("geo.trap( $name$,  %0, %1, %2, %3,  ").arg(sx1, sx2, sy, sz);
+}
+
 double AGeoTrd1::maxSize() const
 {
     double m = std::max(dx1, dx2);
@@ -1525,6 +1548,31 @@ QString AGeoTrd2::getGenerationString(bool useStrings) const
 
     }
     return str;
+}
+
+QString AGeoTrd2::getScriptString(bool useStrings) const
+{
+    QString sx1, sx2, sy1, sy2, sz;
+
+    if (useStrings)
+    {
+        sx1 = (str2dx1.isEmpty() ? QString::number(2.0 * dx1) : str2dx1);
+        sx2 = (str2dx2.isEmpty() ? QString::number(2.0 * dx2) : str2dx2);
+        sy1 = (str2dy1.isEmpty() ? QString::number(2.0 * dy1) : str2dy1);
+        sy2 = (str2dy2.isEmpty() ? QString::number(2.0 * dy2) : str2dy2);
+        sz  = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sx1 = QString::number(2.0 * dx1);
+        sx2 = QString::number(2.0 * dx2);
+        sy1 = QString::number(2.0 * dy1);
+        sy2 = QString::number(2.0 * dy2);
+        sz  = QString::number(2.0 * dz);
+    }
+
+    //void trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz,
+    return QString("geo.trap2( $name$,  %0, %1, %2, %3, %4,  ").arg(sx1, sx2, sy1, sy2, sz);
 }
 
 double AGeoTrd2::maxSize() const
