@@ -2680,8 +2680,8 @@ bool AGeoArb8Delegate::updateObject(AGeoObject *obj) const
                 }
 
                 const int iInVert = iul * 4 + i;
-                arb8->strVertices[iInVert][0] = ve[iul][i].X->text();
-                arb8->strVertices[iInVert][1] = ve[iul][i].Y->text();
+                arb8->strVertices[iInVert].first  = ve[iul][i].X->text();
+                arb8->strVertices[iInVert].second = ve[iul][i].Y->text();
             }
         }
     }
@@ -2710,10 +2710,11 @@ void AGeoArb8Delegate::Update(const AGeoObject *obj)
             for (int i = 0; i < 4; i++)
             {
                 const int iInVert = iul * 4 + i;
-                const QPair<double, double> & V = arb8->Vertices.at(iInVert);
+                const std::pair<double, double>   & V = arb8->Vertices[iInVert];
+                const std::pair<QString, QString> & S = arb8->strVertices[iInVert];
                 AEditEdit & CEE = ve[iul][i];
-                CEE.X->setText(arb8->strVertices.at(iInVert).at(0).isEmpty() ? QString::number(V.first)  : arb8->strVertices.at(iInVert).at(0));
-                CEE.Y->setText(arb8->strVertices.at(iInVert).at(1).isEmpty() ? QString::number(V.second) : arb8->strVertices.at(iInVert).at(1));
+                CEE.X->setText( S.first.isEmpty()  ? QString::number(V.first)  : S.first  );
+                CEE.Y->setText( S.second.isEmpty() ? QString::number(V.second) : S.second );
             }
         }
     }

@@ -31,10 +31,10 @@ public slots:
     void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      void arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi); // !!!*** QVariantList [x,y]
+    void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      //void tubeSegment
+    void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
       //void tubeCut
       //void tubeEliptical
     void cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);

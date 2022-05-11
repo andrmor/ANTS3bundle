@@ -872,6 +872,31 @@ QString AGeoTubeSeg::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoTubeSeg::getScriptString(bool useStrings) const
+{
+    QString sdmin, sdmax, sh, sphi1, sphi2;
+
+    if (useStrings)
+    {
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        sh    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+        sphi1 = ( strPhi1.isEmpty()  ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()  ? QString::number(phi2)       : strPhi2 );
+    }
+    else
+    {
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+        sh    = QString::number(2.0 * dz);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
+    }
+
+    //void tubeSegment(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.tubeSegment( $name$,  %0, %1, %2, %3, %4,  ").arg(sdmax, sdmin, sh, sphi1, sphi2);
+}
+
 double AGeoTubeSeg::maxSize() const
 {
     double m = std::max(rmax, dz);
@@ -2490,30 +2515,12 @@ bool AGeoEltu::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
-AGeoArb8::AGeoArb8(double dz, QList<QPair<double, double> > VertList) : dz(dz)
-{
-    if (VertList.size() != 8)
-    {
-        qWarning() << "Wrong size of input list in AGeoArb8!";
-        init();
-    }
-    else  Vertices = VertList;
+AGeoArb8::AGeoArb8(double dz, std::array<std::pair<double, double>, 8> NodesList) :
+    dz(dz), Vertices(NodesList) {}
 
-    strVertices.resize(8);
-    for (int i =0; i<8; i++)
-    {
-        strVertices[i].resize(2);
-    }
-}
-
-AGeoArb8::AGeoArb8() : dz(10)
+AGeoArb8::AGeoArb8() : dz(10.0)
 {
     init();
-    strVertices.resize(8);
-    for (int i =0; i<8; i++)
-    {
-        strVertices[i].resize(2);
-    }
 }
 
 QString AGeoArb8::getHelp() const
@@ -2541,8 +2548,8 @@ void AGeoArb8::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateDoubleParameter(errorStr, str2dz, dz); if (!ok) errorStr += " in Height\n";
     for (int i = 0; i < 8; i++)
     {
-        ok = GC.updateDoubleParameter(errorStr, strVertices[i][0], Vertices[i].first, false, false, false);  if (!ok) errorStr += QString(" in X[%0]\n").arg(i);
-        ok = GC.updateDoubleParameter(errorStr, strVertices[i][1], Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i].first,  Vertices[i].first,  false, false, false); if (!ok) errorStr += QString(" in X[%0]\n").arg(i);
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i].second, Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
     }
 
     if (!checkPointsForArb8(Vertices))
@@ -2555,8 +2562,8 @@ bool AGeoArb8::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 
     for (int i =0; i<8; i++)
     {
-        if (strVertices[i][0].contains(nameRegExp)) return true;
-        if (strVertices[i][1].contains(nameRegExp)) return true;
+        if (strVertices[i].first.contains(nameRegExp))  return true;
+        if (strVertices[i].second.contains(nameRegExp)) return true;
     }
     return false;
 }
@@ -2567,8 +2574,8 @@ void AGeoArb8::replaceGeoConstName(const QRegularExpression &nameRegExp, const Q
 
     for (int i =0; i<8; i++)
     {
-        strVertices[i][0].replace(nameRegExp, newName);
-        strVertices[i][1].replace(nameRegExp, newName);
+        strVertices[i].first. replace(nameRegExp, newName);
+        strVertices[i].second.replace(nameRegExp, newName);
     }
 }
 
@@ -2590,10 +2597,10 @@ bool AGeoArb8::readFromString(QString GenerationString)
     }
 
     dz = tmp[0];
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        Vertices[i].first =  tmp[1+i*2];
-        Vertices[i].second = tmp[2+i*2];
+        Vertices[i].first  = tmp[1 + i*2];
+        Vertices[i].second = tmp[2 + i*2];
     }
     //  qDebug() << dz << Vertices;
 
@@ -2647,14 +2654,49 @@ QString AGeoArb8::getGenerationString(bool useStrings) const
 
         for (int i=0; i<8; i++)
         {
-            s0 = (strVertices.at(i).at(0).isEmpty() ? QString::number(Vertices.at(i).first) : "' + (" + strVertices.at(i).at(0) + ") + '");
-            s1 = (strVertices.at(i).at(1).isEmpty() ? QString::number(Vertices.at(i).second) : "' + (" + strVertices.at(i).at(1) + ") + '");
+            s0 = (strVertices[i].first.isEmpty()  ? QString::number(Vertices[i].first)  : "' + (" + strVertices[i].first  + ") + '");
+            s1 = (strVertices[i].second.isEmpty() ? QString::number(Vertices[i].second) : "' + (" + strVertices[i].second + ") + '");
             s +=s0 + "," + s1 + ", ";
         }
         str += s + " )";
     }
 
     return str;
+}
+
+QString AGeoArb8::getScriptString(bool useStrings) const
+{
+    QString sh;
+    QString s0, s1;
+    QString nodes = "[ ";
+    if (useStrings)
+    {
+        sh = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+
+        for (int i = 0; i < 8; i++)
+        {
+            s0 = (strVertices[i].first.isEmpty()  ? QString::number(Vertices[i].first)  : strVertices[i].first);
+            s1 = (strVertices[i].second.isEmpty() ? QString::number(Vertices[i].second) : strVertices[i].second);
+            nodes += QString("[%0,%1]").arg(s0, s1);
+            if (i != 7) nodes += ", ";
+        }
+    }
+    else
+    {
+        sh = QString::number(2.0 * dz);
+
+        for (int i = 0; i < 8; i++)
+        {
+            s0 = QString::number(Vertices[i].first);
+            s1 = QString::number(Vertices[i].second);
+            nodes += QString("[%0,%1]").arg(s0, s1);
+            if (i != 7) nodes += ", ";
+        }
+    }
+    nodes += " ]";
+
+    //void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.arb8( $name$,  %0, %1,  ").arg(sh, nodes);
 }
 
 double AGeoArb8::maxSize() const
@@ -2687,8 +2729,8 @@ void AGeoArb8::writeToJson(QJsonObject &json) const
     for (int i=0; i<8; i++)
     {
         QJsonArray el;
-        el << (strVertices.at(i).at(0).isEmpty() ? "" : strVertices.at(i).at(0));
-        el << (strVertices.at(i).at(1).isEmpty() ? "" : strVertices.at(i).at(1));
+        el << (strVertices[i].first.isEmpty()  ? "" : strVertices[i].first);
+        el << (strVertices[i].second.isEmpty() ? "" : strVertices[i].second);
         strAr.append(el);
     }
 
@@ -2713,8 +2755,8 @@ void AGeoArb8::readFromJson(const QJsonObject &json)
     for (int i=0; i<8; i++)
     {
         QJsonArray el = strAr[i].toArray();
-        strVertices[i][0] = el[0].toString();
-        strVertices[i][1] = el[1].toString();
+        strVertices[i].first  = el[0].toString();
+        strVertices[i].second = el[1].toString();
     }
 }
 
@@ -2725,59 +2767,56 @@ bool AGeoArb8::readFromTShape(TGeoShape *Tshape)
 
     dz = s->GetDz();
     const double (*ar)[2] = (const double(*)[2])s->GetVertices(); //fXY[8][2]
-    Vertices.clear();
-    for (int i=0; i<8; i++)
-    {
-        QPair<double, double> p(ar[i][0], ar[i][1]);
-        Vertices << p;
-    }
+    for (int i = 0; i < 8; i++)
+        Vertices[i] = {ar[i][0], ar[i][1]};
 
     return true;
 }
 
-bool checkPointsArb8(QList<QPair<double, double> > V)
+bool checkPointsArb8(const std::array<std::pair<double, double>,8> & nodes, bool bFirst)
 {
-    double X=0, Y=0;
-    for (int i=0; i<4; i++)
+    const int iDelta = (bFirst ? 0 : 4);
+    double averageX = 0, averageY = 0;
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
-        X += V[i].first;
-        Y += V[i].second;
+        averageX += nodes[i].first;
+        averageY += nodes[i].second;
     }
-    X /= 4;
-    Y /= 4;
+    averageX /= 4.0;
+    averageY /= 4.0;
     //qDebug() << "Center x,y:"<<X << Y;
 
-    QList<double> angles;
+    std::array<double, 8> angles; // 8 just to simplify
     int firstNotNAN = -1;
-    for (int i=0; i<4; i++)
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
-        double dx = V[i].first-X;
-        double dy = V[i].second - Y;
+        double dx = nodes[i].first  - averageX;
+        double dy = nodes[i].second - averageY;
         double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
-        if (a==a && firstNotNAN==-1) firstNotNAN = i;
+        if (a == a && firstNotNAN == -1) firstNotNAN = i;
 
-        if      (dx > 0 && dy > 0) angles.append( 360.0 - a );
-        else if (dx < 0 && dy > 0) angles.append( 180.0 + a );
-        else if (dx < 0 && dy < 0) angles.append( 180.0 - a );
-        else                   angles.append( a );
+        if      (dx > 0 && dy > 0) angles[i] = 360.0 - a;
+        else if (dx < 0 && dy > 0) angles[i] = 180.0 + a;
+        else if (dx < 0 && dy < 0) angles[i] = 180.0 - a;
+        else                       angles[i] = a;
     }
     //qDebug() << "Raw angles:" << angles;
     // qDebug() << "First Not NAN:"<< firstNotNAN;
     if (firstNotNAN == -1) return true; //all 4 points are the same
 
     double delta = angles[firstNotNAN];
-    for (int i=0; i<4; i++)
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
         if (angles[i] == angles[i]) // not NAN
         {
             angles[i] -= delta;
-            if (angles[i]<0) angles[i] += 360.0;
+            if (angles[i] < 0) angles[i] += 360.0;
         }
     }
 
     //qDebug() << "Shifted to first"<<angles;
     double A = angles[firstNotNAN];
-    for (int i=firstNotNAN+1; i<4; i++)
+    for (int i = firstNotNAN+1; i < 4 + iDelta; i++)
     {
         //qDebug() <<i<< angles[i];
         if (angles[i] != angles[i])
@@ -2785,31 +2824,31 @@ bool checkPointsArb8(QList<QPair<double, double> > V)
             //qDebug() << "NAN, continue";
             continue;
         }
-        if (angles[i]<A)
+        if (angles[i] < A)
             return false;
-        A=angles[i];
+        A = angles[i];
     }
     return true;
 }
 
-bool AGeoArb8::checkPointsForArb8(QList<QPair<double, double> > V)
+bool AGeoArb8::checkPointsForArb8(std::array<std::pair<double, double>,8> nodes)
 {
-    if (V.size() != 8) return false;
-
-    bool ok = checkPointsArb8(V);
+    bool ok = checkPointsArb8(nodes, true);
     if (!ok) return false;
-
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    return checkPointsArb8(V);
+    return checkPointsArb8(nodes, false);
 }
 
 void AGeoArb8::init()
 {
-    Vertices << QPair<double,double>(-20,20) << QPair<double,double>(20,20) << QPair<double,double>(20,-20) << QPair<double,double>(-20,-20);
-    Vertices << QPair<double,double>(-10,10) << QPair<double,double>(10,10) << QPair<double,double>(10,-10) << QPair<double,double>(10,-10);
+    Vertices[0] = {-20,20};
+    Vertices[1] = {20,20};
+    Vertices[2] = {20,-20};
+    Vertices[3] = {-20,-20};
+
+    Vertices[4] = {-10,10};
+    Vertices[5] = {10,10};
+    Vertices[6] = {10,-10};
+    Vertices[7] = {10,-10};
 }
 
 AGeoPcon::AGeoPcon()

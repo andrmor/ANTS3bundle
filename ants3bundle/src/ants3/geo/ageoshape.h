@@ -6,6 +6,8 @@
 #include <QList>
 #include <QStringList>
 
+#include <array>
+
 class TGeoShape;
 class QJsonObject;
 class QRegularExpression;
@@ -382,6 +384,7 @@ public:
 
     void introduceGeoConstValues(QString & errorStr) override;
 
+
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
@@ -491,6 +494,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -504,6 +508,7 @@ public:
 
 class AGeoCtub : public AGeoTubeSeg
 {
+
 public:
     AGeoCtub(double rmin, double rmax, double dz, double phi1, double phi2,
              double nxlow, double nylow, double nzlow,
@@ -649,7 +654,7 @@ public:
 class AGeoArb8 : public AGeoShape
 {
 public:
-    AGeoArb8(double dz, QList<QPair<double, double> > VertList);
+    AGeoArb8(double dz, std::array<std::pair<double, double>,8> NodesList);
     AGeoArb8();
 
     QString getShapeType() const override {return "TGeoArb8";}
@@ -667,6 +672,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -674,12 +680,12 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
-    static bool checkPointsForArb8(QList<QPair<double, double> > V ); // !!!*** to std::vector
+    static bool checkPointsForArb8(std::array<std::pair<double, double>, 8> nodes );
 
     double dz;
     QString str2dz;
-    QList<QPair<double, double> > Vertices;
-    QVector<QVector<QString> > strVertices;
+    std::array<std::pair<double, double>,8> Vertices;
+    std::array<std::pair<QString, QString>,8> strVertices;
 
 private:
     void init();

@@ -8,6 +8,8 @@
 
 #include <QDebug>
 
+#include <array>
+
 AGeo_SI::AGeo_SI()
 {
     Description = "Allows to configure detector geometry. Based on CERN ROOT TGeoManager";
@@ -113,11 +115,24 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
 {
     if (innerD >= outerD)
     {
-        abort("Inner diameter of a Tube should be smaller than the outer one");
+        abort("Inner diameter of a tube should be smaller than the outer one");
         return;
     }
     AGeoObject * o = new AGeoObject(name, container, iMat,
                                    new AGeoTube(0.5*innerD, 0.5*outerD, 0.5*h),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (innerD >= outerD)
+    {
+        abort("Inner diameter of a tube segment should be smaller than the outer one");
+        return;
+    }
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                   new AGeoTubeSeg(0.5*innerD, 0.5*outerD, 0.5*h, Phi1, Phi2),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
@@ -194,44 +209,42 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
-    //qDebug() << NodesX << NodesY;
-    QStringList lx = NodesX.toStringList();
-    QStringList ly = NodesY.toStringList();
-    //qDebug() << lx;
-    //qDebug() << ly;
-    if (lx.size()!=8 || ly.size()!=8)
+    if (NodesXY.size() != 8)
     {
-        clearGeoObjects();
-        abort("Node arrays should contain 8 points each");
+        abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
         return;
     }
 
-    QList<QPair<double, double> > V;
+    std::array<std::pair<double, double>, 8> nodes;
     bool ok1, ok2;
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        double x = lx[i].toDouble(&ok1);
-        double y = ly[i].toDouble(&ok2);
-        if (!ok1 || !ok2)
+        QVariantList el = NodesXY[i].toList();
+        if (el.size() != 2)
         {
-            clearGeoObjects();
-            abort("Arb8 node array - conversion to double error");
+            abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
             return;
         }
-        V.push_back( QPair<double,double>(x,y) );
+        double x = el[0].toDouble(&ok1);
+        double y = el[1].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
+            return;
+        }
+        nodes[i] = {x,y};
     }
 
-    if (!AGeoArb8::checkPointsForArb8(V))
+    if (!AGeoArb8::checkPointsForArb8(nodes))
     {
-        clearGeoObjects();
-        abort("Arb8 nodes should be define clockwise for both planes");
+        abort("Arb8 nodes should be defined clockwise for both planes");
         return;
     }
 
     AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoArb8(0.5*h, V),
+                                   new AGeoArb8(0.5*h, nodes),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
