@@ -137,6 +137,14 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoEltu(0.5*Dx, 0.5*Dy, 0.5*height),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,

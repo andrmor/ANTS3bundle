@@ -2474,6 +2474,26 @@ QString AGeoEltu::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoEltu::getScriptString(bool useStrings) const
+{
+    QString sdx, sdy, sdz;
+    if (useStrings)
+    {
+        sdx = ( str2a.isEmpty()  ? QString::number(2.0 * a)  : str2a );
+        sdy = ( str2b.isEmpty()  ? QString::number(2.0 * b)  : str2b );
+        sdz = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+    }
+    else
+    {
+        sdx = QString::number(2.0 * a);
+        sdy = QString::number(2.0 * b);
+        sdz = QString::number(2.0 * dz);
+    }
+
+    //void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+    return QString("geo.tubeElliptical( $name$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
+}
+
 double AGeoEltu::maxSize() const
 {
     double m = std::max(a, b);
