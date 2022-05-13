@@ -245,6 +245,58 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                    nullptr,
+                                    x,y,z, phi,theta,psi);
+
+    QString s = compositionString.simplified();
+    s.remove("(");
+    s.remove(")");
+    s.remove("+");
+    s.remove("*");
+    s.remove("-");
+    QStringList members = s.split(' ', Qt::SkipEmptyParts);
+
+    //create an empty composite object
+    AGeometryHub::getInstance().convertObjToComposite(o);
+    o->clearCompositeMembers();
+
+    //attempt to add logicals
+    for (int iMem = 0; iMem < members.size(); iMem++)
+    {
+        int index = -1;
+        for (int iObj = 0; iObj < (int)GeoObjects.size(); iObj++)
+        {
+            if (members[iMem] == GeoObjects[iObj]->Name)
+            {
+                index = iObj;
+                break;
+            }
+        }
+        if (index == -1)
+        {
+            delete o;
+            abort("Error in composite object generation: logical volume "+members[iMem]+" not found!");
+            return;
+        }
+        //found logical, transferring it to logicals container of the compsoite
+        o->getContainerWithLogical()->addObjectLast(GeoObjects[index]);
+        GeoObjects.erase(GeoObjects.begin() + index);
+    }
+    o->refreshShapeCompositeMembers();
+
+    bool ok = o->readShapeFromString( QString("TGeoCompositeShape( %0 )").arg(compositionString) );
+    if (!ok)
+    {
+        delete o;
+        abort(name + ": failed to create composite shape");
+        return;
+    }
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (NodesXY.size() != 8)

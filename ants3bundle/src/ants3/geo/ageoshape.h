@@ -696,7 +696,7 @@ private:
 class AGeoComposite : public AGeoShape
 {
 public:
-    AGeoComposite(const QStringList members, const QString GenerationString);
+    AGeoComposite(const QStringList members, QString GenerationString);
     AGeoComposite() {}
 
     QString getShapeType() const override {return "TGeoCompositeShape";}
@@ -708,7 +708,8 @@ public:
 
     bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const override {return false;}
 
-    QString getGenerationString(bool /*useStrings*/) const override {return GenerationString;}
+    QString getGenerationString(bool) const override {return GenerationString;}
+    QString getScriptString(bool) const override;
     double maxSize() const {return 0;} // have to ask AGeoObject
 
     void writeToJson(QJsonObject& json) const override;

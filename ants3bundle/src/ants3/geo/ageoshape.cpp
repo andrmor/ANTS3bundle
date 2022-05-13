@@ -488,7 +488,7 @@ bool AGeoPara::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
-AGeoComposite::AGeoComposite(const QStringList members, const QString GenerationString) :
+AGeoComposite::AGeoComposite(const QStringList members, QString GenerationString) :
     members(members), GenerationString(GenerationString)
 {
     //qDebug() << "new composite!";
@@ -547,7 +547,15 @@ TGeoShape *AGeoComposite::createGeoShape(const QString shapeName)
     return (shapeName.isEmpty()) ? new TGeoCompositeShape(s.toLatin1().data()) : new TGeoCompositeShape(shapeName.toLatin1().data(), s.toLatin1().data());
 }
 
+QString AGeoComposite::getScriptString(bool) const
+{
+    QString s = GenerationString.simplified(); // e.g. "TGeoCompositeShape( (A + B) * (C - D) )"
+    s.remove("TGeoCompositeShape(");
+    s.chop(1);
 
+    //void composite(QString name, QString compositionString,
+    return QString("geo.composite( $name$,  \"%0\",  ").arg(s.simplified());
+}
 
 void AGeoComposite::writeToJson(QJsonObject &json) const
 {
