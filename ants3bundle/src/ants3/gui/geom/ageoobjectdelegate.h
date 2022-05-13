@@ -40,7 +40,7 @@ public:
 
     void Update(const AGeoObject * obj) override;
 
-private:
+protected:
     QVBoxLayout * lMF = nullptr;      //main layout
 
     QWidget * scaleWidget = nullptr;
@@ -48,7 +48,6 @@ private:
     AOneLineTextEdit * ledScaleY   = nullptr;
     AOneLineTextEdit * ledScaleZ   = nullptr;
 
-protected:
     const AGeoObject * CurrentObject = nullptr;
 
     AGeoShape * ShapeCopy = nullptr;

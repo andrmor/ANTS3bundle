@@ -2525,6 +2525,9 @@ AGeoCompositeDelegate::AGeoCompositeDelegate(const QStringList &materials, QWidg
     connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::onContentChangedBase);
 
     addLocalLayout(v);
+
+    cbScale->setChecked(false);
+    cbScale->setEnabled(false);
 }
 
 bool AGeoCompositeDelegate::updateObject(AGeoObject *obj) const
