@@ -115,7 +115,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
 {
     if (innerD >= outerD)
     {
-        abort("Inner diameter of a tube should be smaller than the outer one");
+        abort("Inner diameter should be smaller than the outer one");
         return;
     }
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -128,11 +128,39 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
 {
     if (innerD >= outerD)
     {
-        abort("Inner diameter of a tube segment should be smaller than the outer one");
+        abort("Inner diameter should be smaller than the outer one");
         return;
     }
     AGeoObject * o = new AGeoObject(name, container, iMat,
                                    new AGeoTubeSeg(0.5*innerD, 0.5*outerD, 0.5*h, Phi1, Phi2),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
+                      QVariantList Nlow, QVariantList Nhigh,
+                      int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (innerD >= outerD)
+    {
+        abort("Inner diameter should be smaller than the outer one");
+        return;
+    }
+    if (Nlow.size() != 3 || Nhigh.size() != 3)
+    {
+        abort("Nlow and Nhigh should be unitary vectors (size=3) of the normals to the cuts");
+        return;
+    }
+
+    std::array<double, 3> al, ah;
+    for (int i = 0; i < 3; i++)
+    {
+        al[i] = Nlow[i] .toDouble();
+        ah[i] = Nhigh[i].toDouble();
+    }
+
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                   new AGeoCtub(0.5*innerD, 0.5*outerD, 0.5*h, Phi1, Phi2, al[0], al[1], al[2], ah[0], ah[1], ah[2]),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }

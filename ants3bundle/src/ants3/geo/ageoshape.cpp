@@ -893,7 +893,7 @@ QString AGeoTubeSeg::getScriptString(bool useStrings) const
         sphi2 = QString::number(phi2);
     }
 
-    //void tubeSegment(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    //void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
     return QString("geo.tubeSegment( $name$,  %0, %1, %2, %3, %4,  ").arg(sdmax, sdmin, sh, sphi1, sphi2);
 }
 
@@ -1076,6 +1076,46 @@ QString AGeoCtub::getGenerationString(bool useStrings) const
         qDebug() <<"new " <<str;
     }
     return str;
+}
+
+QString AGeoCtub::getScriptString(bool useStrings) const
+{
+    QString sdmin, sdmax, sh, sphi1, sphi2;
+    QString slx, sly, slz,  shx, shy, shz;
+
+    if (useStrings)
+    {
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        sh    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+        sphi1 = ( strPhi1.isEmpty()  ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()  ? QString::number(phi2)       : strPhi2 );
+
+        slx   = ( strnxlow.isEmpty() ? QString::number(nxlow)      : strnxlow );
+        sly   = ( strnylow.isEmpty() ? QString::number(nylow)      : strnylow );
+        slz   = ( strnzlow.isEmpty() ? QString::number(nzlow)      : strnzlow );
+        shx   = ( strnxhi.isEmpty()  ? QString::number(nxhi)       : strnxhi );
+        shy   = ( strnyhi.isEmpty()  ? QString::number(nyhi)       : strnyhi );
+        shz   = ( strnzhi.isEmpty()  ? QString::number(nzhi)       : strnzhi );
+    }
+    else
+    {
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+        sh    = QString::number(2.0 * dz);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
+
+        slx   = QString::number(nxlow);
+        sly   = QString::number(nylow);
+        slz   = QString::number(nzlow);
+        shx   = QString::number(nxhi);
+        shy   = QString::number(nyhi);
+        shz   = QString::number(nzhi);
+    }
+
+    //void tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh,
+    return QString("geo.tubeCut( $name$,  %0, %1, %2, %3, %4, [%5,%6,%7], [%8,%9,%10],  ").arg(sdmax, sdmin, sh, sphi1, sphi2, slx,sly,slz, shx,shy,shz);
 }
 
 double AGeoCtub::maxSize() const
