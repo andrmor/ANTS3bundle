@@ -189,6 +189,31 @@ void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double Dto
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (numEdges < 3)
+    {
+        abort("Number of edges should be at least 3");
+        return;
+    }
+    AGeoPgon * p = new AGeoPgon();
+    p->nedges = numEdges;
+    p->phi    = Phi;
+    p->dphi   = dPhi;
+    p->Sections.clear();
+
+    std::vector<std::array<double,3>> vecSections;
+    bool ok = getSectionsPoly(sections, vecSections);
+    if (!ok) return;
+
+    for (const auto & s : vecSections)
+        p->Sections.push_back( APolyCGsection(s[0], 0.5*s[1], 0.5*s[2]) );   //z rmin rmax
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, p,
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,

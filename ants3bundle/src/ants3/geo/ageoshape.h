@@ -394,6 +394,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

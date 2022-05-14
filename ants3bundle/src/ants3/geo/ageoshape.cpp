@@ -1849,6 +1849,32 @@ QString AGeoPgon::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPgon::getScriptString(bool useStrings) const
+{
+    QString sn, sphi, sdphi, sec;
+    if (useStrings)
+    {
+        sn    = ( strNedges.isEmpty() ? QString::number(nedges) : strNedges );
+        sphi  = ( strPhi   .isEmpty() ? QString::number(phi)    : strPhi    );
+        sdphi = ( strdPhi  .isEmpty() ? QString::number(dphi)   : strdPhi   );
+    }
+    else
+    {
+        sn    = QString::number(nedges);
+        sphi  = QString::number(phi);
+        sdphi = QString::number(dphi);
+    }
+
+    for (int i = 0; i < Sections.size(); i++)
+    {
+        if (i != 0) sec += ", ";
+        sec += Sections[i].toScriptString(useStrings);
+    }
+
+    //void pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi,
+    return QString("geo.pGon( $name$,  %0, [ %1 ], %2, %3,  ").arg(sn, sec, sphi, sdphi);
+}
+
 double AGeoPgon::maxSize() const
 {
     return AGeoPcon::maxSize();
