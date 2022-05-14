@@ -213,6 +213,71 @@ void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double Db
     GeoObjects.push_back(o);
 }
 
+bool AGeo_SI::getSectionsPoly(const QVariantList & sections, std::vector<std::array<double,3>> & vecSections)
+{
+    if (sections.size() < 2)
+    {
+        abort("There should be at least 2 sections for pCone and pGon");
+        return false;
+    }
+
+    for (int iVar = 0; iVar < sections.size(); iVar++)
+    {
+        QVariantList el = sections[iVar].toList();
+        if (el.size() != 3)
+        {
+            abort("Each section of pCone and pGon should have 3 elements: z,innerDiameter and outerDiameter");
+            return false;
+        }
+        bool ok1, ok2, ok3;
+        double z    = el[0].toDouble(&ok1);
+        double din  = el[1].toDouble(&ok2);
+        double dout = el[2].toDouble(&ok3);
+        if (!ok1 || !ok2 || !ok3)
+        {
+            abort("Error in convertion to double for one of the sections");
+            return false;
+        }
+        if (din >= dout)
+        {
+            abort("Inner diameter should be smaller than outer diamter!");
+            return false;
+        }
+        vecSections.push_back({z, din, dout});
+    }
+
+    double lastZ = vecSections[0][0];
+    for (size_t i = 1; i < vecSections.size(); i++)
+    {
+        if (vecSections[i][0] < lastZ)
+        {
+            abort("Section z coordinates are not in increasing order");
+            return false;
+        }
+        lastZ = vecSections[i][0];
+    }
+    return true;
+}
+
+void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoPcon * p = new AGeoPcon();
+    p->phi  = Phi;
+    p->dphi = dPhi;
+    p->Sections.clear();
+
+    std::vector<std::array<double,3>> vecSections;
+    bool ok = getSectionsPoly(sections, vecSections);
+    if (!ok) return;
+
+    for (const auto & s : vecSections)
+        p->Sections.push_back( APolyCGsection(s[0], 0.5*s[1], 0.5*s[2]) );   //z rmin rmax
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, p,
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -356,6 +421,13 @@ void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFac
     if (!obj)
     {
         abort("Cannot find object " + name);
+        return;
+    }
+
+    // !!!***
+    if (obj->Shape->getShapeType() == "TGeoCompositeShape")
+    {
+        abort("Cannot scale a composite shape!");
         return;
     }
 

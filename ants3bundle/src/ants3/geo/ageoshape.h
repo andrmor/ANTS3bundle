@@ -336,6 +336,7 @@ struct APolyCGsection
 
     bool fromString(QString string);
     QString toString(bool useStrings) const;
+    QString toScriptString(bool useStrings) const;
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
     bool operator ==( const APolyCGsection &section1) const;
@@ -361,6 +362,7 @@ public:
     double getHeight() const override;
     double getRelativePosZofCenter() const override;
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

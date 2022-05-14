@@ -3090,6 +3090,30 @@ QString AGeoPcon::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPcon::getScriptString(bool useStrings) const
+{
+    QString sphi, sdphi, sec;
+    if (useStrings)
+    {
+        sphi  = (strPhi .isEmpty() ? QString::number(phi)  : strPhi  );
+        sdphi = (strdPhi.isEmpty() ? QString::number(dphi) : strdPhi );
+    }
+    else
+    {
+        sphi  = QString::number(phi);
+        sdphi = QString::number(dphi);
+    }
+
+    for (int i = 0; i < Sections.size(); i++)
+    {
+        if (i != 0) sec += ", ";
+        sec += Sections[i].toScriptString(useStrings);
+    }
+
+    //void pCone(QString name, QVariantList sections, double Phi, double dPhi,
+    return QString("geo.pCone( $name$,  [ %0 ], %1, %2,  ").arg(sec, sphi, sdphi);
+}
+
 double AGeoPcon::maxSize() const
 {
     double m = 0.5*fabs(Sections.at(0).z - Sections.last().z);
@@ -3261,6 +3285,24 @@ QString APolyCGsection::toString(bool useStrings) const
 
     }
     return str;
+}
+
+QString APolyCGsection::toScriptString(bool useStrings) const
+{
+    QString sz, sdmin, sdmax;
+    if (useStrings)
+    {
+        sz    = ( strZ    .isEmpty() ? QString::number(z)          : strZ     );
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+    }
+    else
+    {
+        sz    = QString::number(z);
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+    }
+    return QString("[%0, %1, %2]").arg(sz, sdmin, sdmax);
 }
 
 void APolyCGsection::writeToJson(QJsonObject &json) const

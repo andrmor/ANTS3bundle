@@ -40,7 +40,7 @@ public slots:
     void cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void coneSegment(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      //pCon
+    void pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void polygon(QString name, int edges, double InscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
       //pGon
@@ -102,6 +102,7 @@ private:
     const QString ProrotypeContainerName = "_#_Prototype_#_";
 
     void clearGeoObjects();
+    bool getSectionsPoly(const QVariantList & sections, std::vector<std::array<double, 3> > & vecSections);
 };
 
 #endif // AGEO_SI_H
