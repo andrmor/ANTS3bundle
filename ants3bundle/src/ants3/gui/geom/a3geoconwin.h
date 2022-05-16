@@ -3,6 +3,11 @@
 
 #include "aguiwindow.h"
 
+#include <vector>
+#include <array>
+
+#include <QString>
+
 class AGeometryHub;
 class AMaterialHub;
 class AGeoTree;
@@ -30,7 +35,7 @@ private slots:
   void onRequestShowPrototypeList();
   void updateMenuIndication();
 
-  void on_tabwConstants_customContextMenuRequested(const QPoint &pos);
+  void on_tabwConstants_customContextMenuRequested(const QPoint & pos);
   void on_pbSaveTGeo_clicked();
   void on_pbRootWeb_clicked();
   void on_pbCheckGeometry_clicked();
@@ -56,7 +61,6 @@ private:
   Ui::A3GeoConWin * ui    = nullptr;
   AGeoTree        * twGeo = nullptr;                // WorldTree widget
 
-  //QString ObjectScriptTarget;
   bool bGeoConstsWidgetUpdateInProgress = false;
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
@@ -90,20 +94,6 @@ signals:
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 
-};
-
-#include <QLineEdit>
-class ALineEditWithEscape : public QLineEdit
-{
-    Q_OBJECT
-public:
-    ALineEditWithEscape(const QString & text, QWidget * parent) : QLineEdit(text, parent){}
-
-protected:
-    void keyPressEvent(QKeyEvent * event);
-
-signals:
-    void escapePressed();
 };
 
 #endif // A3GEOCONWIN_H

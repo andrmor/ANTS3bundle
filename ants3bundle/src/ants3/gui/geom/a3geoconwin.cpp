@@ -11,11 +11,11 @@
 #include "ageoshape.h"
 #include "ageotype.h"
 #include "a3global.h"
-//#include "acommonfunctions.h"
 #include "ageometrytester.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
+#include "alineeditwithescape.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -25,8 +25,6 @@
 #include <QEvent>
 #include <QRegularExpression>
 #include <QMenu>
-
-#include <vector>
 
 #include "TGeoManager.h"
 #include "TGeoTrack.h"
@@ -1138,16 +1136,6 @@ void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
 //        MW->writeDetectorToJson(MW->Config->JSON);
         updateGeoConstsIndication();
     }
-}
-
-void ALineEditWithEscape::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Escape)
-    {
-        event->accept();
-        emit escapePressed();
-    }
-    else QLineEdit::keyPressEvent(event);
 }
 
 void A3GeoConWin::on_actionUndo_triggered()
