@@ -210,8 +210,9 @@ void A3GeoConWin::ShowObjectRecursive(QString name)
 void A3GeoConWin::ShowAllInstances(QString name)
 {
     /*
-    QVector<AGeoObject*> InstancesNotDiscriminated;
-    Detector->Sandwich->World->findAllInstancesRecursive(InstancesNotDiscriminated);
+    //QVector<AGeoObject*> InstancesNotDiscriminated;
+    std::vector<AGeoObject*> InstancesNotDiscriminated;
+    Geometry.World->findAllInstancesRecursive(InstancesNotDiscriminated);
 
     MW->GeometryWindow->ShowAndFocus();
 
@@ -978,33 +979,6 @@ void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
     if (val == GC.getValue(index)) return;
 
     GC.setNewValue(index, val);
-    emit requestDelayedRebuildAndRestoreDelegate();
-}
-
-void A3GeoConWin::onGeoConstExpressionEditingFinished(int index, QString newValue)
-{
-    //qDebug() << "Geo const expression changed! index/text are:" << index << newValue;
-    AGeoConsts & GC = AGeoConsts::getInstance();
-
-    if (index == GC.countConstants()) return; // nothing to do yet - this constant is not yet defined
-    bool ok;
-    newValue.toDouble(&ok);
-    if (ok)
-    {
-        onGeoConstEditingFinished(index, newValue);
-        return;
-    }
-
-    if (newValue == GC.getExpression(index)) return;
-
-    QString errorStr = GC.setNewExpression(index, newValue);
-    if (!errorStr.isEmpty())
-    {
-        guitools::message(errorStr, this);
-        updateGeoConstsIndication();
-        return;
-    }
-
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 

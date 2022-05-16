@@ -1206,7 +1206,7 @@ void AGeoTree::ShowObjectOnly(AGeoObject * obj)
     if (obj)
     {
         fSpecialGeoViewMode = true;
-        TGeoShape * sh = obj->Shape->createGeoShape();  // make window member?
+        TGeoShape * sh = obj->Shape->createGeoShape();  // make window member?   !!!*** register!
         sh->Draw();
     }
 }

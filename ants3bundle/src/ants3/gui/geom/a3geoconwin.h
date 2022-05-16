@@ -30,8 +30,7 @@ public:
 private slots:
   void onRebuildDetectorRequest();
   void onGeoConstEditingFinished(int index, QString newValue);
-  void onGeoConstExpressionEditingFinished(int index, QString newValue); // !!!*** not needed?
-  void onGeoConstEscapePressed(int index); // !!!*** not needed?
+  void onGeoConstEscapePressed(int index);
   void onRequestShowPrototypeList();
   void updateMenuIndication();
 
@@ -72,14 +71,14 @@ private:
   void    markCalorimeterBinning(const AGeoObject * obj);
 
 protected:
-  void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent * event);
 
 public slots:
   void UpdateGeoTree(QString name = "", bool bShow = false);
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
-  void ShowObjectRecursive(QString name);
-  void ShowAllInstances(QString name);
+  void ShowObjectRecursive(QString name); // !!!***
+  void ShowAllInstances(QString name);  // !!!***
   void onRequestShowMonitorActiveDirection(const AGeoObject* mon);
   void onRequestEnableGeoConstWidget(bool flag);
 

@@ -3067,7 +3067,7 @@ TGeoShape *AGeoPcon::createGeoShape(const QString shapeName)
                                            new TGeoPcon(shapeName.toLatin1().data(), phi, dphi, Sections.size());
     for (int i=0; i<Sections.size(); i++)
     {
-        const APolyCGsection& s = Sections.at(i);
+        const APolyCGsection & s = Sections.at(i);
         pc->DefineSection(i, s.z, s.rmin, s.rmax);
     }
     return pc;
