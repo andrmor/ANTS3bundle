@@ -67,7 +67,6 @@ private:
 
   //base images for icons
   QImage Lock;
-  //QImage GroupStart, GroupMid, GroupEnd;
   QImage StackStart, StackMid, StackEnd;
 
   //QColor BackgroundColor = QColor(240,240,240);
@@ -85,7 +84,7 @@ private:
   void menuActionCloneObject(AGeoObject * obj);
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);
-  void ShowObjectOnly(AGeoObject * obj);
+  void ShowObjectOnly(AGeoObject * obj);  // !!!***
   void ShowAllInstances(AGeoObject * obj);
   void menuActionEnableDisable(AGeoObject * obj);
   void menuActionRemoveKeepContent(QTreeWidget * treeWidget);

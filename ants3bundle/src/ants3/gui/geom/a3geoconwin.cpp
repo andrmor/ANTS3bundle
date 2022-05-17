@@ -61,7 +61,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   connect(twGeo, &AGeoTree::RequestFocusObject,     this, &A3GeoConWin::FocusVolume);
   connect(twGeo, &AGeoTree::RequestHighlightObject, this, &A3GeoConWin::ShowObject);
   connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &A3GeoConWin::ShowObjectRecursive);
-  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &A3GeoConWin::ShowAllInstances);
+  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &A3GeoConWin::showAllInstances);
   connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &A3GeoConWin::onRequestEnableGeoConstWidget);
   // !!!***
 //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
@@ -124,12 +124,8 @@ void A3GeoConWin::onRebuildDetectorRequest()
 
 void A3GeoConWin::updateGui()
 {
-    qDebug() << ">DAwindow: updateGui";
+    //qDebug() << ">DAwindow: updateGui";
     UpdateGeoTree();
-
-/*
-    ui->pbBackToSandwich->setEnabled(!Detector->isGDMLempty());
-*/
 
     QString str = "Show prototypes";
     int numProto = Geometry.Prototypes->HostedObjects.size();
@@ -172,7 +168,7 @@ bool drawIfFound(TGeoNode* node, TString name)
         TGeoVolume* vol = node->GetVolume();
         //qDebug() << vol->CountNodes();
         vol->SetLineColor(2);
-        gGeoManager->SetTopVisible(true);
+        AGeometryHub::getInstance().GeoManager->SetTopVisible(true);
         vol->Draw("2");
         return true;
     }
@@ -196,40 +192,36 @@ void A3GeoConWin::ShowObjectRecursive(QString name)
 
     TString tname = name.toLatin1().data();
     tname += "_0";
-    bool found = drawIfFound(Detector->GeoManager->GetTopNode(), tname);
+    bool found = drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
     if (!found)
     {
         tname = name.toLatin1().data();
         tname += "_1";
-        drawIfFound(Detector->GeoManager->GetTopNode(), tname);
+        drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
     }
     MW->GeometryWindow->UpdateRootCanvas();
     */
 }
 
-void A3GeoConWin::ShowAllInstances(QString name)
+void A3GeoConWin::showAllInstances(QString name)
 {
-    /*
-    //QVector<AGeoObject*> InstancesNotDiscriminated;
     std::vector<AGeoObject*> InstancesNotDiscriminated;
     Geometry.World->findAllInstancesRecursive(InstancesNotDiscriminated);
 
-    MW->GeometryWindow->ShowAndFocus();
-
-    TObjArray * list = Detector->GeoManager->GetListOfVolumes();
+    TObjArray * list = Geometry.GeoManager->GetListOfVolumes();
     const int size = list->GetEntries();
     QSet<QString> set;
 
     //select those active ones which have the same prototype
     for (AGeoObject * inst : InstancesNotDiscriminated)
     {
-        const ATypeInstanceObject * insType = static_cast<const ATypeInstanceObject*>(inst->ObjectType);
+        const ATypeInstanceObject * insType = static_cast<const ATypeInstanceObject*>(inst->Type);
         if (insType->PrototypeName == name && inst->fActive)
             for (AGeoObject * obj : inst->HostedObjects)
             {
-                if (obj->ObjectType->isHandlingArray() || obj->ObjectType->isHandlingSet())
+                if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet())
                 {
-                    QVector<AGeoObject*> vec;
+                    std::vector<AGeoObject*> vec;
                     obj->collectContainingObjects(vec);
                     for (AGeoObject * obj1 : vec)
                         set << obj1->Name;
@@ -239,7 +231,7 @@ void A3GeoConWin::ShowAllInstances(QString name)
 
         for (int iVol = 0; iVol < size; iVol++)
         {
-            TGeoVolume* vol = (TGeoVolume*)list->At(iVol);
+            TGeoVolume * vol = (TGeoVolume*)list->At(iVol);
             if (!vol) break;
             const QString name = vol->GetName();
             if (set.contains(name))
@@ -251,8 +243,7 @@ void A3GeoConWin::ShowAllInstances(QString name)
         }
     }
 
-    MW->GeometryWindow->UpdateRootCanvas();
-    */
+    emit requestShowGeometry(true, true, false);
 }
 
 #include "amonitorhub.h"

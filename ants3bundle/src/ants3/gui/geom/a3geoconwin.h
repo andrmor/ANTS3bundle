@@ -78,7 +78,7 @@ public slots:
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
   void ShowObjectRecursive(QString name); // !!!***
-  void ShowAllInstances(QString name);  // !!!***
+  void showAllInstances(QString name);
   void onRequestShowMonitorActiveDirection(const AGeoObject* mon);
   void onRequestEnableGeoConstWidget(bool flag);
 
