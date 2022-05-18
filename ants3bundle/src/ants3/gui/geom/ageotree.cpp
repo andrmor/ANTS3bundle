@@ -490,6 +490,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       prototypeA->setEnabled(true);
   }
 
+  if (!obj->isGoodContainerForInstance()) addInstanceMenu->setEnabled(false);
+
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;
 
@@ -1046,6 +1048,7 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
 void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & PrototypeName)
 {
     if (!ContObj) return;
+    if (!ContObj->isGoodContainerForInstance()) return;
 
     AGeoObject * protoObj = Prototypes->findObjectByName(PrototypeName);
     if (!protoObj)

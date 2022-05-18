@@ -1391,6 +1391,12 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
     return bFoundInUse;
 }
 
+bool AGeoObject::isGoodContainerForInstance() const
+{
+    if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
+    return false;
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {

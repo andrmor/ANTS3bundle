@@ -150,6 +150,8 @@ public:
   QString makeItPrototype(AGeoObject * Prototypes);
   bool    isPrototypeInUseRecursive(const QString & PrototypeName, QStringList * Users = nullptr) const;
 
+  bool isGoodContainerForInstance() const;
+
   //service propertie
   QString tmpContName;   //used only during load
   bool fExpanded = true; //gui only: expand status in the tree view
