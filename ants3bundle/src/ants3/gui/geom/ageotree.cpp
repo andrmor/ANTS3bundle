@@ -700,13 +700,12 @@ void AGeoTree::protoMenuEmptySelection(const QPoint & pos)
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
     if (!SelectedAction) return;
 
-    AGeoObject * proto = new AGeoObject();
-    do proto->Name = AGeoObject::GenerateRandomPrototypeName();
-    while (World->isNameExists(proto->Name));
+    const QString name = Geometry.generateObjectName("Prototype");
+    AGeoObject * proto = new AGeoObject(name, nullptr);
+
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
-    const QString name = proto->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -935,12 +934,10 @@ void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomArrayName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("Array");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type;
-    newObj->Type = new ATypeArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
@@ -952,7 +949,6 @@ void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -961,12 +957,10 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomArrayName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("CircArray");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type;
-    newObj->Type = new ATypeCircularArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeCircularArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
@@ -978,7 +972,6 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -987,12 +980,10 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomArrayName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("HexArray");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type;
-    newObj->Type = new ATypeHexagonalArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeHexagonalArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
@@ -1004,7 +995,6 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1036,14 +1026,12 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomMonitorName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("Monitor");
+    AGeoObject* newObj = new AGeoObject(name, nullptr);
 
     newObj->Material = ContObj->Material;
 
-    delete newObj->Type;
-    newObj->Type = new ATypeMonitorObject();
+    delete newObj->Type; newObj->Type = new ATypeMonitorObject();
     static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (Photon ? 0 : 1);
 
     //newObj->updateMonitorShape();
@@ -1051,7 +1039,6 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1060,19 +1047,18 @@ void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & Proto
 {
     if (!ContObj) return;
 
-    AGeoObject * newObj = new AGeoObject();
-    do newObj->Name = "Instance_" + AGeoObject::GenerateRandomName();
-    while (World->isNameExists(newObj->Name));
-
-    delete newObj->Type;
-    newObj->Type = new ATypeInstanceObject(PrototypeName);
-
     AGeoObject * protoObj = Prototypes->findObjectByName(PrototypeName);
     if (!protoObj)
     {
         guitools::message("Something went very wrong: prototype not found", twGeoTree);
         return;
     }
+
+    const QString name = Geometry.generateObjectName(PrototypeName + "_Inst");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
+
+    delete newObj->Type; newObj->Type = new ATypeInstanceObject(PrototypeName);
+
     for (int i = 0; i < 3; i++)
     {
         newObj->Position[i]       = protoObj->Position[i];
@@ -1083,7 +1069,6 @@ void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & Proto
 
     ContObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1139,16 +1124,14 @@ void AGeoTree::menuActionAddNewComposite(AGeoObject * ContObj)
 {
   if (!ContObj) return;
 
-  AGeoObject* newObj = new AGeoObject();
-  do newObj->Name = AGeoObject::GenerateRandomCompositeName();
-  while (World->isNameExists(newObj->Name));
+  const QString name = Geometry.generateObjectName("Composite");
+  AGeoObject * newObj = new AGeoObject(name, nullptr);
 
   newObj->color = 1;
   ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
   Geometry.convertObjToComposite(newObj);
 
-  const QString name = newObj->Name;
   emit RequestRebuildDetector();
   UpdateGui(name);
 }
@@ -1281,27 +1264,24 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
         objs.push_back(obj);
     }
 
-    AGeoObject * stackObj = new AGeoObject();
-    delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
+    const QString name = Geometry.generateObjectName("Stack");
+    AGeoObject * stackObj = new AGeoObject(name, nullptr);
 
-    do stackObj->Name = AGeoObject::GenerateRandomStackName();
-    while (World->isNameExists(stackObj->Name));
+    delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
+
+    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
     AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
     stackObj->Container = contObj;
 
     for (AGeoObject * obj : objs)
     {
-        //contObj->HostedObjects.removeOne(obj);
         contObj->removeHostedObject(obj);
         obj->Container = stackObj;
         stackObj->HostedObjects.push_back(obj);
     }
-    //contObj->HostedObjects.insert(0, stackObj);
     contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
 
-    const QString name = stackObj->Name;
     emit RequestRebuildDetector();  // automatically calculates stack positions there
     UpdateGui(name);
 }

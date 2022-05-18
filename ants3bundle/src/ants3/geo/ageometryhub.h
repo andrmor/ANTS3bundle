@@ -91,6 +91,7 @@ public:
     QString      exportToROOT(const QString & fileName) const;
 
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
+    QString      generateObjectName(const QString & prefix) const;
 
 
 private:

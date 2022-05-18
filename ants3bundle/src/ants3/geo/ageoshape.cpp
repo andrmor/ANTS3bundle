@@ -2797,7 +2797,7 @@ double AGeoArb8::maxSize() const
 {
     double max = dz;
 
-    for (const QPair<double, double> & pair : Vertices)
+    for (const std::pair<double, double> & pair : Vertices)
         max = std::max(max, std::max( fabs(pair.first), fabs(pair.second)) );
 
     return max;
@@ -3096,7 +3096,7 @@ QString AGeoPcon::getGenerationString(bool useStrings) const
                 QString::number(phi)+", "+
                 QString::number(dphi);
 
-        for (const APolyCGsection& s : Sections) str += ", " + s.toString(false);
+        for (const APolyCGsection & s : Sections) str += ", " + s.toString(false);
 
         str +=" )";
     }
@@ -3109,7 +3109,7 @@ QString AGeoPcon::getGenerationString(bool useStrings) const
                 sphi + ", "+
                 sdphi ;
 
-        for (const APolyCGsection& s : Sections) str += ", " + s.toString(true);
+        for (const APolyCGsection & s : Sections) str += ", " + s.toString(true);
 
         str +=" )";
     }
@@ -3157,7 +3157,7 @@ void AGeoPcon::writeToJson(QJsonObject &json) const
     if (!strdPhi.isEmpty()) json["strdPhi"] = strdPhi;
 
     QJsonArray ar;
-    for (APolyCGsection s : Sections)
+    for (const APolyCGsection & s : Sections)
     {
         QJsonObject js;
         s.writeToJson(js);

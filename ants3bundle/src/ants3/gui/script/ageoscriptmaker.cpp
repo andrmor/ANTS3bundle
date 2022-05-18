@@ -8,6 +8,8 @@
 #include "ageotype.h"
 #include "ageospecial.h"
 
+#include <QDebug>
+
 void AGeoScriptMaker::createScript(QString & script)
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();

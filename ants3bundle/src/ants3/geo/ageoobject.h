@@ -23,7 +23,7 @@ class AGeoObject
 {
 public:
   AGeoObject(QString name = "", QString ShapeGenerationString = ""); //name must be unique!
-  AGeoObject(const QString & name, AGeoShape * shape);
+  AGeoObject(const QString & name, AGeoShape * shape); // accepts nullptr, then creates box shape
   AGeoObject(const AGeoObject * objToCopy);  //normal object is created
   AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape,
              double x, double y, double z,   double phi, double theta, double psi); // for tmp only, needs positioning in the container and name uniqueness check!
@@ -168,12 +168,6 @@ public:  // !!!*** remove static for this one:
   static QString GenerateRandomName();   // !!!***
   // !!!*** move statics to AGeometryHub
   static QString GenerateRandomObjectName();
-  static QString GenerateRandomPrototypeName();
-  static QString GenerateRandomCompositeName();
-  static QString GenerateRandomArrayName();
-  static QString GenerateRandomGridName();
-  static QString GenerateRandomStackName();
-  static QString GenerateRandomMonitorName();
 
   static QString generateCloneObjName(const QString & initialName);
 

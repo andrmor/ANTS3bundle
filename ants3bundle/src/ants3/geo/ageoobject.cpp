@@ -1426,48 +1426,6 @@ QString AGeoObject::GenerateRandomObjectName()
     return str;
 }
 
-QString AGeoObject::GenerateRandomPrototypeName()
-{
-    QString str = randomString(2, 1);
-    str = "Prototype_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomCompositeName()
-{
-    QString str = randomString(2, 1);
-    str = "Composite_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomArrayName()
-{
-    QString str = randomString(1, 1);
-    str = "Array_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomGridName()
-{
-    QString str = randomString(1, 1);
-    str = "Grid_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomStackName()
-{
-    QString str = randomString(2, 1);
-    str = "Stack_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomMonitorName()
-{
-    QString str = randomString(2, 1);
-    str = "Monitor_" + str;
-    return str;
-}
-
 QString AGeoObject::generateCloneObjName(const QString & initialName)
 {
     QString newName;

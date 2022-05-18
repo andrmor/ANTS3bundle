@@ -99,7 +99,7 @@ void AGeometryHub::convertObjToComposite(AGeoObject * obj)
     obj->Type = CO;
 
     AGeoObject* logicals = new AGeoObject();
-    logicals->Name = "CompositeSet_"+obj->Name;
+    logicals->Name = "Logicals_"+obj->Name;
     delete logicals->Type;
     logicals->Type = new ATypeCompositeContainerObject();
     obj->addObjectFirst(logicals);
@@ -133,12 +133,9 @@ QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
         if (!ok) return errStr;
     }
 
-    int index = 0;
-    QString name;
-    do name = QString("Prototype_%1").arg(index++);
-    while (World->isNameExists(name));
+    const QString name = generateObjectName("Prototype");
+    AGeoObject * proto = new AGeoObject(name, nullptr);
 
-    AGeoObject * proto = new AGeoObject(name);
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
@@ -1429,6 +1426,20 @@ QString AGeometryHub::generateStandaloneObjectName(const AGeoShape * shape) cons
     do
     {
         name = shape->getShortName() + QString::number(iCounter);
+        ++iCounter;
+    }
+    while (World->isNameExists(name));
+
+    return name;
+}
+
+QString AGeometryHub::generateObjectName(const QString & prefix) const
+{
+    int iCounter = 1;
+    QString name;
+    do
+    {
+        name = prefix + QString::number(iCounter);
         ++iCounter;
     }
     while (World->isNameExists(name));
