@@ -915,49 +915,46 @@ void AGeoTree::menuActionCloneObject(AGeoObject * obj)
     emit RequestHighlightObject(name);
 }
 
-void AGeoTree::menuActionAddNewObject(AGeoObject * ContObj, AGeoShape * shape)
+void AGeoTree::menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
-    AGeoObject * newObj = new AGeoObject();
-    while (World->isNameExists(newObj->Name))
-        newObj->Name = AGeoObject::GenerateRandomObjectName();
+    const QString objName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * newObj = new AGeoObject(objName);
 
-    delete newObj->Shape;
-    newObj->Shape = shape;
+    delete newObj->Shape; newObj->Shape = shape;
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    contObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
-    UpdateGui(name);
+    UpdateGui(objName);
 }
 
 void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
 {
-  if (!ContObj) return;
+    if (!ContObj) return;
 
-  AGeoObject* newObj = new AGeoObject();
-  do newObj->Name = AGeoObject::GenerateRandomArrayName();
-  while (World->isNameExists(newObj->Name));
+    AGeoObject* newObj = new AGeoObject();
+    do newObj->Name = AGeoObject::GenerateRandomArrayName();
+    while (World->isNameExists(newObj->Name));
 
-  delete newObj->Type;
-  newObj->Type = new ATypeArrayObject();
+    delete newObj->Type;
+    newObj->Type = new ATypeArrayObject();
 
-  newObj->color = 1;
-  ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    newObj->color = 1;
+    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
-  //element inside
-  AGeoObject* elObj = new AGeoObject();
-  while (World->isNameExists(elObj->Name))
-    elObj->Name = AGeoObject::GenerateRandomObjectName();
-  elObj->color = 1;
-  newObj->addObjectFirst(elObj);
+    //element inside
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
+    elObj->color = 1;
+    newObj->addObjectFirst(elObj);
 
-  const QString name = newObj->Name;
-  emit RequestRebuildDetector();
-  UpdateGui(name);
+    const QString name = newObj->Name;
+    emit RequestRebuildDetector();
+    UpdateGui(name);
 }
 
 void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
@@ -975,9 +972,9 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
     //element inside
-    AGeoObject* elObj = new AGeoObject();
-    while (World->isNameExists(elObj->Name))
-      elObj->Name = AGeoObject::GenerateRandomObjectName();
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
@@ -1001,9 +998,9 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
     //element inside
-    AGeoObject* elObj = new AGeoObject();
-    while (World->isNameExists(elObj->Name))
-      elObj->Name = AGeoObject::GenerateRandomObjectName();
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 

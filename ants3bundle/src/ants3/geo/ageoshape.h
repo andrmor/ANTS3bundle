@@ -21,6 +21,7 @@ public:
 
     //general: the same for all objects of the given shape
     virtual QString getShapeType() const = 0;
+    virtual QString getShortName() const {return QStringLiteral("New");}
     virtual QString getShapeTemplate() const = 0;  //string used in auto generated help: Name(paramType param1, paramType param2, etc)
     virtual QString getHelp() const = 0;
 
@@ -67,6 +68,7 @@ public:
     AGeoBox() : dx(10), dy(10), dz(10) {}
 
     QString getShapeType() const override {return "TGeoBBox";}
+    QString getShortName() const override {return QStringLiteral("Box");}
     QString getShapeTemplate() const override {return "TGeoBBox( dx, dy, dz )";}
     QString getHelp() const override;
 
@@ -104,6 +106,7 @@ public:
     AGeoTube() : rmin(0), rmax(10), dz(5) {}
 
     QString getShapeType() const override {return "TGeoTube";}
+    QString getShortName() const override {return QStringLiteral("Tube");}
     QString getShapeTemplate() const override {return "TGeoTube( rmin, rmax, dz )";}
     QString getHelp() const override;
 
@@ -140,6 +143,7 @@ public:
     ~AGeoScaledShape() {delete BaseShape;}
 
     QString getShapeType() const override {return "TGeoScaledShape";}
+    QString getShortName() const override {return QStringLiteral("Scaled");}
     QString getShapeTemplate() const override {return "TGeoScaledShape( TGeoShape(parameters), scaleX, scaleY, scaleZ )";}
     QString getHelp() const override;
     void updateScalingFactors(QString & errorStr);
@@ -184,6 +188,7 @@ public:
     AGeoParaboloid() : rlo(0), rhi(40), dz(10) {}
 
     QString getShapeType() const override {return "TGeoParaboloid";}
+    QString getShortName() const override {return QStringLiteral("Paraboloid");}
     QString getShapeTemplate() const override {return "TGeoParaboloid( rlo, rhi, dz )";}
     QString getHelp() const override;
 
@@ -221,6 +226,7 @@ public:
         dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(0) {}
 
     QString getShapeType() const override {return "TGeoCone";}
+    QString getShortName() const override {return QStringLiteral("Cone");}
     QString getShapeTemplate() const override {return "TGeoCone( dz, rminL, rmaxL, rminU, rmaxU )";}
     QString getHelp() const override;
 
@@ -256,6 +262,7 @@ public:
     AGeoConeSeg() : AGeoCone(), phi1(0), phi2(180.0) {}
 
     QString getShapeType() const override {return "TGeoConeSeg";}
+    QString getShortName() const override {return QStringLiteral("ConeSeg");}
     QString getShapeTemplate() const override {return "TGeoConeSeg( dz, rminL, rmaxL, rminU, rmaxU, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -293,6 +300,7 @@ public:
         nedges(6), dphi(360.0), dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(20) {}
 
     QString getShapeType() const override {return "TGeoPolygon";}
+    QString getShortName() const override {return QStringLiteral("Polygon");}
     QString getShapeTemplate() const override {return "TGeoPolygon( nedges, dphi, dz, rminL, rmaxL, rminU, rmaxU )";}
     QString getHelp() const override;
 
@@ -348,6 +356,7 @@ public:
     AGeoPcon();
 
     QString getShapeType() const override {return "TGeoPcon";}
+    QString getShortName() const override {return QStringLiteral("Pcon");}
     QString getShapeTemplate() const override {return "TGeoPcon( phi, dphi, { z0 : rmin0 : rmaz0 }, { z1 : rmin1 : rmax1 } )";}
     QString getHelp() const override;
 
@@ -381,6 +390,7 @@ public:
     AGeoPgon() : AGeoPcon(), nedges(6) {}
 
     QString getShapeType() const override {return "TGeoPgon";}
+    QString getShortName() const override {return QStringLiteral("Pgon");}
     QString getShapeTemplate() const override {return "TGeoPgon( phi, dphi, nedges, { z0 : rmin0 : rmaz0 }, { zN : rminN : rmaxN } )";}
     QString getHelp() const override;
 
@@ -414,6 +424,7 @@ public:
     AGeoTrd1() : dx1(15), dx2(5), dy(10), dz(10) {}
 
     QString getShapeType() const override {return "TGeoTrd1";}
+    QString getShortName() const override {return QStringLiteral("Trd1_");}
     QString getShapeTemplate() const override {return "TGeoTrd1( dx1, dx2, dy, dz )";}
     QString getHelp() const override;
 
@@ -449,6 +460,7 @@ public:
         dx1(15), dx2(5), dy1(10), dy2(20), dz(10) {}
 
     QString getShapeType() const override {return "TGeoTrd2";}
+    QString getShortName() const override {return QStringLiteral("Trd2_");}
     QString getShapeTemplate() const override {return "TGeoTrd2( dx1, dx2, dy1, dy2, dz )";}
     QString getHelp() const override;
 
@@ -483,6 +495,7 @@ public:
     AGeoTubeSeg() : rmin(0), rmax(10), dz(5), phi1(0), phi2(180) {}
 
     QString getShapeType() const override {return "TGeoTubeSeg";}
+    QString getShortName() const override {return QStringLiteral("TubeSeg");}
     QString getShapeTemplate() const override {return "TGeoTubeSeg( rmin, rmax, dz, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -525,6 +538,7 @@ public:
         nxhi(0), nyhi(0.09), nzhi(0.87) {}
 
     QString getShapeType() const override {return "TGeoCtub";}
+    QString getShortName() const override {return QStringLiteral("CTube");}
     QString getShapeTemplate() const override {return "TGeoCtub( rmin, rmax, dz, phi1, phi2, nxlow, nylow, nzlow, nxhi, nyhi, nzhi )";}
     QString getHelp() const override;
 
@@ -559,6 +573,7 @@ public:
     AGeoEltu() : a(10), b(20), dz(5) {}
 
     QString getShapeType() const override {return "TGeoEltu";}
+    QString getShortName() const override {return QStringLiteral("ElTube");}
     QString getShapeTemplate() const override {return "TGeoEltu( a, b, dz )";}
     QString getHelp() const override;
 
@@ -595,6 +610,7 @@ public:
     AGeoSphere() : rmin(0), rmax(10.0), theta1(0), theta2(180.0), phi1(0), phi2(360.0) {}
 
     QString getShapeType() const override {return "TGeoSphere";}
+    QString getShortName() const override {return QStringLiteral("Sphere");}
     QString getShapeTemplate() const override {return "TGeoSphere( rmin,  rmax, theta1, theta2, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -629,6 +645,7 @@ public:
     AGeoPara() : dx(10), dy(10), dz(10), alpha(10), theta(25), phi(45) {}
 
     QString getShapeType() const override {return "TGeoPara";}
+    QString getShortName() const override {return QStringLiteral("Para");}
     QString getShapeTemplate() const override {return "TGeoPara( dX, dY, dZ, alpha, theta, phi )";}
     QString getHelp() const override;
 
@@ -663,6 +680,7 @@ public:
     AGeoArb8();
 
     QString getShapeType() const override {return "TGeoArb8";}
+    QString getShortName() const override {return QStringLiteral("Arb8_");}
     QString getShapeTemplate() const override {return "TGeoArb8( dz,  xL1,yL1, xL2,yL2, xL3,yL3, xL4,yL4, xU1,yU1, xU2,yU2, xU3,yU3, xU4,yU4  )";}
     QString getHelp() const override;
 
@@ -703,6 +721,7 @@ public:
     AGeoComposite() {}
 
     QString getShapeType() const override {return "TGeoCompositeShape";}
+    QString getShortName() const override {return QStringLiteral("Composite");}
     QString getShapeTemplate() const override {return "TGeoCompositeShape( (A + B) * (C - D) )";}
     QString getHelp() const override;
 
@@ -732,6 +751,7 @@ public:
     AGeoTorus() {}
 
     QString getShapeType() const override {return "TGeoTorus";}
+    QString getShortName() const override {return QStringLiteral("Torus");}
     QString getShapeTemplate() const override {return "TGeoTorus( R, Rmin, Rmax, Phi1, Dphi )";}
     QString getHelp() const override;
 

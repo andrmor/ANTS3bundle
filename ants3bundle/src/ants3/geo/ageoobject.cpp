@@ -15,7 +15,7 @@
 
 void AGeoObject::constructorInit()
 {
-    Name = GenerateRandomObjectName();
+    if (Name.isEmpty()) Name = GenerateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -23,16 +23,29 @@ void AGeoObject::constructorInit()
 
 AGeoObject::AGeoObject(QString name, QString ShapeGenerationString)
 {
-    constructorInit();
+    Type = new ATypeSingleObject();
 
     if (!name.isEmpty()) Name = name;
     color = -1;
 
-    Type = new ATypeSingleObject();
+    constructorInit();
 
     Shape = new AGeoBox();
     if (!ShapeGenerationString.isEmpty())
         readShapeFromString(ShapeGenerationString);
+}
+
+AGeoObject::AGeoObject(const QString & name, AGeoShape * shape)
+{
+    Type = new ATypeSingleObject();
+
+    if (!name.isEmpty()) Name = name;
+    color = -1;
+
+    constructorInit();
+
+    if (!shape) shape = new AGeoBox();
+    Shape = shape;
 }
 
 AGeoObject::AGeoObject(const AGeoObject *objToCopy)

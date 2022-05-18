@@ -80,7 +80,7 @@ private:
   void markAsStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
-  void menuActionAddNewObject(AGeoObject * ContObj, AGeoShape * shape);
+  void menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape);
   void menuActionCloneObject(AGeoObject * obj);
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);

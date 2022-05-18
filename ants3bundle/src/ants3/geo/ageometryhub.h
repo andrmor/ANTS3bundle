@@ -16,6 +16,7 @@ class TGeoRotation;
 class QJsonObject;
 class AVector3;
 class QStringLists;
+class AGeoShape;
 
 // to QObject and add signal on geometry changed --> !!!*** so far not needed
 
@@ -88,6 +89,8 @@ public:
 
     QString      exportToGDML(const QString & fileName) const;
     QString      exportToROOT(const QString & fileName) const;
+
+    QString      generateStandaloneObjectName(const AGeoShape * shape) const;
 
 
 private:
