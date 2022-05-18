@@ -2767,6 +2767,9 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
 
     lVer->addLayout(grAW);
 
+    cbCenterSym = new QCheckBox("Center-symmetric");
+    lVer->addWidget(cbCenterSym, 0, Qt::AlignHCenter);
+
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
@@ -2775,6 +2778,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     lHor->addStretch();
 
     lVer->addLayout(lHor);
+
 
     addLocalLayout(lVer);
 
@@ -2819,6 +2823,7 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     a.strStepX = ledStepX->text();
     a.strStepY = ledStepY->text();
     a.strStepZ = ledStepZ->text();
+    a.bCenterSymmetric = cbCenterSym->isChecked();
     a.strStartIndex = ledStartIndex->text();
 
     QString errorStr;
@@ -2849,6 +2854,7 @@ void AGeoArrayDelegate::Update(const AGeoObject * obj)
         ledStepX->setText(array->strStepX.isEmpty() ? QString::number(array->stepX) : array->strStepX);
         ledStepY->setText(array->strStepY.isEmpty() ? QString::number(array->stepY) : array->strStepY);
         ledStepZ->setText(array->strStepZ.isEmpty() ? QString::number(array->stepZ) : array->strStepZ);
+        cbCenterSym->setChecked(array->bCenterSymmetric);
         ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);
     }
 }

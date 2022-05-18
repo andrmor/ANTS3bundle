@@ -206,6 +206,7 @@ void ATypeArrayObject::doWriteToJson(QJsonObject &json) const
     json["stepY"] = stepY;
     json["stepZ"] = stepZ;
     json["startIndex"] = startIndex;
+    json["centerSymmetric"] = bCenterSymmetric;
 
     if (!strNumX .isEmpty()) json["strNumX"]  = strNumX;
     if (!strNumY .isEmpty()) json["strNumY"]  = strNumY;
@@ -225,6 +226,7 @@ void ATypeArrayObject::readFromJson(const QJsonObject &json)
     jstools::parseJson(json, "stepY", stepY);
     jstools::parseJson(json, "stepZ", stepZ);
     jstools::parseJson(json, "startIndex", startIndex);
+    jstools::parseJson(json, "centerSymmetric", bCenterSymmetric);
 
     if (!jstools::parseJson(json, "strNumX",  strNumX))  strNumX .clear();
     if (!jstools::parseJson(json, "strNumY",  strNumY))  strNumY .clear();

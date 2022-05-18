@@ -501,6 +501,7 @@ protected:
     AOneLineTextEdit *ledNumX, *ledNumY, *ledNumZ;
     AOneLineTextEdit *ledStepX, *ledStepY, *ledStepZ;
     AOneLineTextEdit *ledStartIndex;
+    QCheckBox        *cbCenterSym;
 };
 
 class AGeoCircularArrayDelegate : public AGeoObjectDelegate

@@ -17,7 +17,7 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 
-// !!!*** to QObject and add signal on geometry changed
+// to QObject and add signal on geometry changed --> !!!*** so far not needed
 
 class AGeometryHub
 {
@@ -43,7 +43,7 @@ public:
 
     std::vector<AGridElementRecord*> GridRecords;  // !!!*** refactor / transfer
 
-    void         populateGeoManager();   // !!!*** emit signal
+    void         populateGeoManager();   // emit signal?
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);
