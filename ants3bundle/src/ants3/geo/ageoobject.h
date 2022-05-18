@@ -166,9 +166,9 @@ private:
   void enforceUniqueNameForCloneRecursive(AGeoObject * World, AGeoObject & tmpContainer);
   void addSuffixToNameRecursive(const QString & suffix);
 
-public:  // !!!*** remove static for this one:
+public:  // !!!*** remove static for this one:     ---> return to this after GDML read is refactored !!!***
   static QString GenerateRandomName();   // !!!***
-  // !!!*** move statics to AGeometryHub
+  // !!!*** move statics to AGeometryHub           ---> return to this after GDML read is refactored !!!***
   static QString GenerateRandomObjectName();
 
   static QString generateCloneObjName(const QString & initialName);
