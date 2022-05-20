@@ -24,6 +24,9 @@ public slots:
     double atan2(double y, double x);
     double ceil(double val);
     double cos(double val);
+    double sin(double val);
+    double cosh(double val);
+    double sinh(double val);
     double exp(double val);
     double floor(double val);
     double log(double val);
@@ -31,7 +34,6 @@ public slots:
     double max(double val1, double val2);
     double min(double val1, double val2);
     double pow(double val, double power);
-    double sin(double val);
     double sqrt(double val);
     double tan(double val);
     double round(double val);
@@ -44,6 +46,9 @@ public slots:
     // NOT multi-thread friendly!
     //QVariantList fit1D(QVariantList array, QString tformula, QVariantList range = QVariantList(), QVariantList startParValues = QVariantList(), bool extendedOutput = false);
     QVariantList fit1D(QVariantList array, QString tformula, QVariantList startParValues = QVariantList(), bool extendedOutput = false);
+
+    QVariantList fft(QVariantList array, int maxN = -1);
+    QVariantList fftMulti(QVariantList arrayOfArrays, int maxN = -1);
 
 private:
     ARandomHub & RandomHub;

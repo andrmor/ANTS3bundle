@@ -20,9 +20,16 @@ bool AGeoBaseDelegate::isLeEmpty(const QVector<AOneLineTextEdit *> & v) const
     return false;
 }
 
-QHBoxLayout *AGeoBaseDelegate::createBottomButtons()
+void AGeoBaseDelegate::postUpdate()
 {
-    QHBoxLayout * abl = new QHBoxLayout();
+    frBottomButtons->setEnabled(true);
+}
+
+void AGeoBaseDelegate::createBottomButtons()
+{
+    frBottomButtons = new QFrame();
+    QHBoxLayout * abl = new QHBoxLayout(frBottomButtons);
+    abl->setContentsMargins(0,0,0,0);
 
     pbShow = new QPushButton("Show");
     QObject::connect(pbShow, &QPushButton::clicked, this, &AGeoBaseDelegate::RequestShow);
@@ -36,8 +43,12 @@ QHBoxLayout *AGeoBaseDelegate::createBottomButtons()
     pbScriptLine->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(pbScriptLine, &QPushButton::customContextMenuRequested, this, &AGeoBaseDelegate::RequestScriptRecursiveToClipboard);
     abl->addWidget(pbScriptLine);
+}
 
-    return abl;
+void AGeoBaseDelegate::onContentChangedBase()
+{
+    if (frBottomButtons) frBottomButtons->setEnabled(false);
+    emit contentChanged();
 }
 
 void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex)
@@ -70,7 +81,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     FormulaFormat.setForeground(Qt::blue);
     //GeoConstantFormat.setFontWeight(QFont::Bold);
 
-    const QVector<QString> & words = AGeoConsts::getConstInstance().getTFormulaReservedWords();
+    const std::vector<QString> & words = AGeoConsts::getConstInstance().getTFormulaReservedWords();
     for (const QString & word : words)
     {
         rule.pattern = QRegularExpression("\\b" + word + "\\b");
@@ -89,19 +100,19 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     QObject::connect(edit->Completer, SIGNAL(activated(QString)), edit, SLOT(insertCompletion(QString)));
 }
 
-bool AGeoBaseDelegate::processEditBox(AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent)
+bool AGeoBaseDelegate::processEditBox(const QString & whatIsIt, AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent)
 {
     str = lineEdit->text();
     if (str.isEmpty())
     {
-        QMessageBox::warning(parent, "", "Empty line!");
+        QMessageBox::warning(parent, "", "Empty line in " + whatIsIt);
         return false;
     }
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
-    bool ok = GC.updateParameter(errorStr, str, val, false, false, false);
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, false, false, false);
     if (ok) return true;
-    QMessageBox::warning(parent, "", errorStr);
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt);
     return false;
 }

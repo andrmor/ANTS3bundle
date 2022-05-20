@@ -131,31 +131,31 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 
     QString strSize1 = leSize1->text();
     double Size1;
-    bool ok = GC.updateParameter(ErrorStr, strSize1, Size1);
+    bool ok = GC.updateDoubleParameter(ErrorStr, strSize1, Size1);
     if (!ok)
     {
-        guitools::message(ErrorStr, this);
+        guitools::message(ErrorStr + " in Size1\n", this);
         return false;
     }
 
     QString strSize2 = leSize2->text();
     double Size2;
-    ok = GC.updateParameter(ErrorStr, strSize2, Size2);
+    ok = GC.updateDoubleParameter(ErrorStr, strSize2, Size2);
     if (!ok)
     {
-        guitools::message(ErrorStr, this);
+        guitools::message(ErrorStr + " in Size2\n", this);
         return false;
     }
 
     QVector<QString> tempStrs(6);
     QVector<double>  tempDoubles(6);
     ok = true;
-    ok = ok && AGeoBaseDelegate::processEditBox(leX,     tempDoubles[0], tempStrs[0], this->parentWidget());
-    ok = ok && AGeoBaseDelegate::processEditBox(leY,     tempDoubles[1], tempStrs[1], this->parentWidget());
-    ok = ok && AGeoBaseDelegate::processEditBox(leZ,     tempDoubles[2], tempStrs[2], this->parentWidget());
-    ok = ok && AGeoBaseDelegate::processEditBox(lePhi,   tempDoubles[3], tempStrs[3], this->parentWidget());
-    ok = ok && AGeoBaseDelegate::processEditBox(leTheta, tempDoubles[4], tempStrs[4], this->parentWidget());
-    ok = ok && AGeoBaseDelegate::processEditBox(lePsi,   tempDoubles[5], tempStrs[5], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("X position",      leX,     tempDoubles[0], tempStrs[0], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("Y position",      leY,     tempDoubles[1], tempStrs[1], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("Z position",      leZ,     tempDoubles[2], tempStrs[2], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("Phi orientation", lePhi,   tempDoubles[3], tempStrs[3], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("Phi orientation", leTheta, tempDoubles[4], tempStrs[4], this->parentWidget());
+    ok = ok && AGeoBaseDelegate::processEditBox("Phi orientation", lePsi,   tempDoubles[5], tempStrs[5], this->parentWidget());
     if (!ok) return false;
 
 
@@ -166,7 +166,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     config.shape = ui->cobShape->currentIndex();
     config.size1 = Size1; config.str2size1 = strSize1;
     config.size2 = Size2; config.str2size2 = strSize2;
-    obj->updateMonitorShape();
+    //obj->updateMonitorShape();
 
     for (int i = 0; i < 3; i++)
     {

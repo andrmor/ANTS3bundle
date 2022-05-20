@@ -1009,6 +1009,11 @@ void ACore_SI::processEvents()
     qApp->processEvents();
 }
 
+void ACore_SI::requestGuiUpdate()
+{
+    emit AJScriptHub::getInstance().requestUpdateGui();
+}
+
 /*
 void ACore_SI::reportProgress(int percents)
 {

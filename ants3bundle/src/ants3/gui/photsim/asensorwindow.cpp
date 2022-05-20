@@ -28,27 +28,52 @@ ASensorWindow::~ASensorWindow()
 
 void ASensorWindow::updateGui()
 {
+    updateHeader();
+
     int iModel = ui->cobModel->currentIndex();
 
     ui->cobModel->clear();
     ui->cobModel->addItems(SensHub.getListOfModelNames());
 
-    if (iModel < 0 || iModel >= SensHub.countSensorModels()) iModel = 0;
+    if (iModel < 0 || iModel >= SensHub.countModels()) iModel = 0;
     ui->cobModel->setCurrentIndex(iModel);
     on_cobModel_activated(iModel);
+
+    ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
+
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
 {
     if (index == -1) return;
+
+    ui->sbModelIndex->setValue(index);
+    onModelIndexChanged();
+}
+
+void ASensorWindow::on_sbModelIndex_editingFinished()
+{
+    const int index = ui->sbModelIndex->value();
+    if (index >= ui->cobModel->count())
+        guitools::message("Mismatch on number of models!", this);
+    else ui->cobModel->setCurrentIndex(index);
+
+    onModelIndexChanged();
+}
+
+void ASensorWindow::onModelIndexChanged()
+{
+    const int index = ui->sbModelIndex->value();
     ASensorModel * mod = SensHub.model(index);
     if (!mod)
     {
         guitools::message("This sensor model does not exist!", this);
         return;
     }
-    ui->labModelIndex->setText(QString::number(index));
-    ui->labNumSensors->setText(QString::number(SensHub.countSensorsOfModel(index)));
+
+    const int numInUse = SensHub.countSensorsOfModel(index);
+    ui->labNumSensorsThisModel->setText(QString::number(numInUse));
+    ui->pbRemoveModel->setEnabled( numInUse == 0 );
 
     ui->leModelName->setText(mod->Name);
 
@@ -65,6 +90,12 @@ void ASensorWindow::on_cobModel_activated(int index)
     updateNumPixels();
 }
 
+void ASensorWindow::updateHeader()
+{
+    ui->labNumSensors->setText( QString::number(SensHub.countSensors()) );
+    ui->labNumModels->setText( QString::number(SensHub.countModels()) );
+}
+
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
 {
     ui->frSiPM->setEnabled(index == 1);
@@ -74,7 +105,7 @@ void ASensorWindow::on_pbAddNewModel_clicked()
 {
     SensHub.addNewModel();
     updateGui();
-    int index = SensHub.countSensorModels() - 1;
+    int index = SensHub.countModels() - 1;
     ui->cobModel->setCurrentIndex(index);
     on_cobModel_activated(index);
 }
@@ -83,7 +114,7 @@ void ASensorWindow::on_pbCloneModel_clicked()
 {
     SensHub.cloneModel(ui->cobModel->currentIndex());
     updateGui();
-    int index = SensHub.countSensorModels() - 1;
+    int index = SensHub.countModels() - 1;
     ui->cobModel->setCurrentIndex(index);
     on_cobModel_activated(index);
 }
@@ -161,5 +192,28 @@ void ASensorWindow::updateNumPixels()
 
     int num = mod->PixelsX * mod->PixelsY;
     ui->labNumPixels->setText(QString::number(num));
+}
+
+#include "aconfig.h"
+void ASensorWindow::on_cobAssignmentMode_activated(int index)
+{
+    if (index == 1)
+    {
+        guitools::message("The mode will change to \"Custom\" automatically\nas soon as any sensor assignment\nis modified by script!", this);
+        ui->cobAssignmentMode->setCurrentIndex(0);
+    }
+    else
+    {
+        SensHub.exitPersistentMode();
+
+        AConfig & Config = AConfig::getInstance();
+        Config.updateJSONfromConfig();
+        Config.updateConfigFromJSON();
+    }
+}
+
+void ASensorWindow::on_pbShowSensorsOfThisModel_clicked()
+{
+    emit requestShowSensorModels(ui->sbModelIndex->value());
 }
 

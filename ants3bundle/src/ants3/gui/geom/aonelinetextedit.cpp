@@ -5,14 +5,19 @@
 #include <QAbstractItemView>
 #include <QScrollBar>
 
-AOneLineTextEdit::AOneLineTextEdit(QWidget * parent) : QPlainTextEdit(parent)
+AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPlainTextEdit(parent)
 {
+    setText(txt);
+
     setTabChangesFocus(true);
     setWordWrapMode(QTextOption::NoWrap);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setFixedHeight(sizeHint().height());
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    //setContentsMargins(0,0,0,0);
+    document()->setDocumentMargin(2); // !!!*** hard coded!
 
     setAcceptDrops(false);
     setCenterOnScroll(true);
@@ -37,8 +42,18 @@ void AOneLineTextEdit::setText(const QString & text)
     double val = text.toDouble(&ok);
     if (!ok)
     {
-        AGeoConsts::getConstInstance().evaluateFormula(text, val);
-        setToolTip(QString::number(val));
+        QString errorStr;
+        bool ok = AGeoConsts::getConstInstance().evaluateFormula(errorStr, text, val);
+
+        QString toolTip;
+        if (ok)
+        {
+            if (bIntegerTooltip) toolTip = QString::number((int)val);
+            else                 toolTip = QString::number(val);
+        }
+        else                     toolTip = errorStr;
+
+        setToolTip(toolTip);
         setToolTipDuration(1000);
     }
 }
@@ -76,6 +91,7 @@ void AOneLineTextEdit::keyPressEvent(QKeyEvent * e)
         if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
         {
             e->accept();
+            emit enterPressed();
             emit editingFinished();
             return;
         }
@@ -175,6 +191,9 @@ void AOneLineTextEdit::keyPressEvent(QKeyEvent * e)
 
 void AOneLineTextEdit::focusOutEvent(QFocusEvent *event)
 {
+    QTextCursor cursor = textCursor();
+    cursor.movePosition(QTextCursor::End);
+    setTextCursor(cursor);
     QPlainTextEdit::focusOutEvent(event);
     emit editingFinished();
 }

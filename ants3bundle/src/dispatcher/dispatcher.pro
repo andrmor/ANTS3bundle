@@ -9,8 +9,6 @@ lessThan(QT_MAJOR_VERSION, 6) {
     CONFIG += c++11
 } else {
     CONFIG += c++17
-    #Do we really need ROOT here? !!!***
-    # ROOT has to be compiled with c++17 too!!!!
 }
 
 # The following define makes your compiler emit warnings if you use
@@ -23,10 +21,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-# CERN ROOT  - needed for jstools only? !!!***
-     INCLUDEPATH += $$system(root-config --incdir)
-     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
 
 DESTDIR = ../../bin
 

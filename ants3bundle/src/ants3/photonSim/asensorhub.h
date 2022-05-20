@@ -25,7 +25,7 @@ public:
     static ASensorHub & getInstance();
     static const ASensorHub & getConstInstance();
 
-    int countSensorModels() const {return Models.size();}
+    int countModels() const {return Models.size();}
     int countSensors() const {return SensorData.size();}
     int countSensorsOfModel(int iModel) const;
 
@@ -35,15 +35,35 @@ public:
     QStringList getListOfModelNames() const;
 
     const ASensorModel * sensorModel(int iSensor) const; // can return nullptr
-    const ASensorModel * sensorModelFast(int iSensor) const {return &Models[SensorData[iSensor].ModelIndex];}
+    const ASensorModel * sensorModelFast(int iSensor) const {return & Models[SensorData[iSensor].ModelIndex];}
 
-    void    addNewModel();
-    void    cloneModel(int iModel);
+    int     getModelIndex(int iSensor) const;
+
+    void    clearSensors();
+    void    registerNextSensor(ASensorData & sr);
+
+    int     addNewModel();
+    int     cloneModel(int iModel);
+
+    void    clearAssignment();
+    void    setSensorModel(int iSensor, int iModel);
 
     QString removeModel(int iModel);
 
+    AVector3 getPosition(int iSensor) const;
+    AVector3 getPositionFast(int iSensor) const;
+
+    // !!!*** obsolete!
+    double   getMinSize(int iSensor) const;
+    double   getMinSizeFast(int iSensor) const;
+
+    AGeoObject * getGeoObject(int iSensor) const;
+
     double  getMaxQE() const;                // !!!***
     double  getMaxQEvsWave(int iWave) const; // !!!***
+
+    bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
+    void    exitPersistentMode();
 
     bool    updateRuntimeProperties();
 
@@ -62,7 +82,9 @@ private:
 private:
     std::vector<ASensorModel> Models;
 
-public:
+    bool PersistentModelAssignment = false;
+    std::vector<int> LoadedModelAssignment;
+
     // runtime - populated together with GeoManager, updated by updateRuntimeProperties()
     std::vector<ASensorData> SensorData;
 

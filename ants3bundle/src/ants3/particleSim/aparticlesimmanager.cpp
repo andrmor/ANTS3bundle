@@ -13,6 +13,7 @@
 #include "aerrorhub.h"
 
 #include <QDebug>
+#include <QFile>
 
 AParticleSimManager & AParticleSimManager::getInstance()
 {
@@ -72,12 +73,57 @@ void AParticleSimManager::simulate(int numLocalProc)
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
 
-//    processReply(Reply);
+    processReply(Reply);
 
     if (!AErrorHub::isError()) mergeOutput();
 }
 
-#include <QFile>
+void AParticleSimManager::processReply(const QJsonObject & Reply)
+{
+    //qDebug() << "<<<<<<<--------------->>>>>>>>";
+    //qDebug() << Reply;
+
+    QString LastError;
+
+    for (size_t iFile = 0; iFile < ReceiptFiles.size(); iFile++)
+    {
+        const QString & fn = ReceiptFiles[iFile];
+        //qDebug() << fn;
+        if (!QFile::exists(fn))
+        {
+            AErrorHub::addQError(QString("Receipt file was not found for worker index %0").arg(iFile)); // make more human-readble for large numbers
+        }
+        else
+        {
+            QJsonObject ReceiptJson;
+            bool ok = jstools::loadJsonFromFile(ReceiptJson, fn);
+            if (!ok)
+            {
+                AErrorHub::addQError(QString("Cannot load json from receipt file for worker index %0").arg(iFile));
+                continue;
+            }
+
+            QString Error;
+            bool bSuccess = false;
+            ok = jstools::parseJson(ReceiptJson, "Success", bSuccess);
+            if (!ok || !bSuccess)
+            {
+                jstools::parseJson(ReceiptJson, "Error", Error);
+                if (Error.isEmpty()) AErrorHub::addQError("Unknown error!");
+                else
+                {
+                    if (Error != LastError)
+                    {
+                        AErrorHub::addQError(Error);
+                        LastError = Error;
+                    }
+                }
+                continue;
+            }
+        }
+    }
+}
+
 void addNames(const AParticleRunSettings & settings)
 {
     const QString OutputDir(settings.OutputDirectory.data());
@@ -87,6 +133,8 @@ void addNames(const AParticleRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.FileNameDeposition.data());
     fileNames.push_back(OutputDir + '/' + settings.SaveSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
+    fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.FileName.data());
+    fileNames.push_back(OutputDir + '/' + settings.Receipt.data());
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }
@@ -143,11 +191,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     bool ok = configureGDML(Request, ExchangeDir); if (!ok) return false;
     configureMaterials();
     configureMonitors();
+    configureCalorimeters();
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
     ParticlesFileMerger.clear();
     MonitorFiles.clear();
+    CalorimeterFiles.clear();
+    ReceiptFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
     RandomHub.setSeed(SimSet.RunSet.Seed);
@@ -226,7 +277,20 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
                 MonitorFiles.push_back(ExchangeDir + '/' + fileName);
             }
 
-            WorkSet.RunSet.Receipt = "receipt-" + std::to_string(iProcess) + ".txt";
+            if (SimSet.RunSet.CalorimeterSettings.Enabled)
+            {
+                const QString fileName = QString("calorimters-%0").arg(iProcess);
+                WorkSet.RunSet.CalorimeterSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                CalorimeterFiles.push_back(ExchangeDir + '/' + fileName);
+            }
+
+            {
+                const QString fileName = QString("receipt-%0.txt").arg(iProcess);
+                WorkSet.RunSet.Receipt = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                ReceiptFiles.push_back(ExchangeDir + '/' + fileName);
+            }
 
             QJsonObject json;
             WorkSet.writeToJson(json, true);
@@ -304,6 +368,11 @@ void AParticleSimManager::configureMonitors()
     SimSet.RunSet.MonitorSettings.initFromHub();
 }
 
+void AParticleSimManager::configureCalorimeters()
+{
+    SimSet.RunSet.CalorimeterSettings.initFromHub();
+}
+
 // ---
 
 #include "a3global.h"
@@ -317,6 +386,7 @@ void AParticleSimManager::checkDirectories()
 }
 
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
 void AParticleSimManager::mergeOutput()
 {
     qDebug() << "Merging output files...";
@@ -332,11 +402,14 @@ void AParticleSimManager::mergeOutput()
     if (SimSet.RunSet.SaveSettings.Enabled)
         ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
 
-
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
-    MonitorHub.clearData(AMonitorHub::Particle);
+    //MonitorHub.clearData(AMonitorHub::Particle);
     if (SimSet.RunSet.MonitorSettings.Enabled)
         MonitorHub.mergeParticleMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.MonitorSettings.FileName.data());
+
+    ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
+    if (SimSet.RunSet.CalorimeterSettings.Enabled)
+        CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
 }
 
 #include "atrackingdataimporter.h"

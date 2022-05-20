@@ -11,10 +11,13 @@
 #include "amaterialhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
 #include "ajsontools.h"
 #include "aparticletrackvisuals.h"
 #include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
+#include "ageoobject.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -34,6 +37,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     G4SimSet(SimSet.G4Set),
     SimManager(AParticleSimManager::getInstance()),
     MonitorHub(AMonitorHub::getInstance()),
+    CalHub(ACalorimeterHub::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
     ui->setupUi(this);
@@ -46,6 +50,7 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->cobEVdepo->setCurrentIndex(1);
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
+    ui->pbUpdateIcon->setVisible(false);
 
     updateGui();
 
@@ -53,6 +58,12 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
     connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
+
+    connect(&SimManager, &AParticleSimManager::requestUpdateResultsGUI, this, &AParticleSimWin::updateResultsGui);
+
+    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labFilterActivated->setPixmap(pm);
+    on_pbUpdateIcon_clicked();
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -66,6 +77,8 @@ void AParticleSimWin::updateGui()
 
     updateG4Gui();
     updateSimGui();
+
+    updateGeneralControlInResults();
 
     bGuiUpdateInProgress = false; // <--
 }
@@ -390,7 +403,10 @@ void AParticleSimWin::updateSourceList()
             lab->setFont(f);
         l->addWidget(lab);
         l->addWidget(new QLabel( QString(pr.getShapeString().data()) + ','));
-        l->addWidget(new QLabel( QString("%1 particle%2").arg(pr.Particles.size()).arg( pr.Particles.size()>1 ? "s" : "" ) ) );
+            QString SPart;
+            if (pr.Particles.size() == 1) SPart = pr.Particles.front().Particle.data();
+            else SPart = QString("%1 particles").arg(pr.Particles.size());
+        l->addWidget(new QLabel(SPart));
         l->addStretch();
 
         l->addWidget(new QLabel("Fraction:"));
@@ -429,6 +445,14 @@ void AParticleSimWin::updateSourceList()
     if (curRow < 0 || curRow >= ui->lwDefinedParticleSources->count())
         curRow = 0;
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
+}
+
+void AParticleSimWin::updateGeneralControlInResults()
+{
+    updateMonitorGui();
+    updateCalorimeterGui();
+
+    // !!!*** sensor map?
 }
 
 void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem *)
@@ -508,7 +532,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     int numTracks = 0;
 
-    auto handler = [&numTracks, Length](const AParticleRecord & particle)
+    auto handler = [&numTracks, Length, this](const AParticleRecord & particle)
     {
         if (numTracks > 10000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
@@ -517,7 +541,11 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
+
+        emit requestAddMarker(particle.r);
     };
+
+    emit requestClearMarkers(0);
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
@@ -527,52 +555,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
-    // add geo markers for emission position !!!***
-
-
-    /*
-    double R[3], K[3];
-    std::vector<AParticleRecord> GP;
-    for (int iRun=0; iRun<numParticles; iRun++)
-    {
-        bool bOK = Gun->generateEvent(GP, iRun);
-        if (bOK && numTracks < 1000)
-        {
-            for (const AParticleRecord & p : GP)
-            {
-                R[0] = p.r[0];
-                R[1] = p.r[1];
-                R[2] = p.r[2];
-
-                K[0] = p.v[0];
-                K[1] = p.v[1];
-                K[2] = p.v[2];
-
-                int track_index = gGeoManager->AddTrack(1, 22);
-                TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
-                track->AddPoint(R[0], R[1], R[2], 0);
-                track->AddPoint(R[0] + K[0]*Length, R[1] + K[1]*Length, R[2] + K[2]*Length, 0);
-//                SimulationManager->TrackBuildOptions.applyToParticleTrack(track, p->Id);
-
-//                GeoMarkerClass* marks = new GeoMarkerClass("t", 7, 1, SimulationManager->TrackBuildOptions.getParticleColor(p->Id));
-//                marks->SetNextPoint(R[0], R[1], R[2]);
-//                GeometryWindow->GeoMarkers.append(marks);
-
-                ++numTracks;
-                if (numTracks > 1000) break;
-            }
-        }
-
-        GP.clear();
-
-        if (!bOK) break;
-    }
-    */
-}
-
-void AParticleSimWin::clearResultsGui()
-{
-    ui->trwEventView->clear();
 }
 
 void AParticleSimWin::disableGui(bool flag)
@@ -590,6 +572,7 @@ void AParticleSimWin::disableGui(bool flag)
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
     gGeoManager->ClearTracks();
+    emit requestClearMarkers(0);
 
     if (checked)
     {
@@ -600,7 +583,6 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     }
     else
     {
-//        GeometryWindow->ClearGeoMarkers();
         emit requestShowGeometry(false, true, true);
     }
 }
@@ -632,30 +614,48 @@ void AParticleSimWin::on_pbSimulate_clicked()
     SimManager.simulate();
     disableGui(false);
 
-    if (AErrorHub::isError()) guitools::message(AErrorHub::getError().data(), this);
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getQError(), this);
+    }
     else
     {
-        ui->progbSim->setValue(100);
-        if (ui->cbAutoLoadResults->isChecked())
+        updateResultsGui();
+    }
+}
+
+void AParticleSimWin::updateResultsGui()
+{
+    ui->progbSim->setValue(100);
+
+    ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+    LastDir_Working = ui->leWorkingDirectory->text();
+
+    if (ui->cbAutoLoadResults->isChecked())
+    {
+        if (SimSet.RunSet.SaveTrackingHistory)
         {
-            ui->leWorkingDirectory->setText(SimSet.RunSet.OutputDirectory.data());
+            ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            LastFile_Tracking = ui->leTrackingDataFile->text();
 
-            if (SimSet.RunSet.SaveTrackingHistory)
-            {
-                ui->leTrackingDataFile->setText(SimSet.RunSet.FileNameTrackingHistory.data());
+            on_pbShowTracks_clicked();
+            EV_showTree();
+        }
 
-                on_pbShowTracks_clicked();
-                EV_showTree();
-            }
+        if (SimSet.RunSet.MonitorSettings.Enabled)
+        {
+            ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
+            LastFile_Monitors = ui->leMonitorsFileName->text();
+            updateMonitorGui(); // data will be already loaded for merging
+        }
 
-            if (SimSet.RunSet.MonitorSettings.Enabled)
-            {
-                ui->leMonitorsFileName->setText(SimSet.RunSet.MonitorSettings.FileName.data());
-                updateMonitorGui(); // data will be already loaded for merging
-            }
+        if (SimSet.RunSet.CalorimeterSettings.Enabled)
+        {
+            ui->leCalorimetersFileName->setText(SimSet.RunSet.CalorimeterSettings.FileName.data());
+            LastFile_Calorimeters = ui->leCalorimetersFileName->text();
+            updateCalorimeterGui(); // data will be already loaded for merging
         }
     }
-
 }
 
 void AParticleSimWin::on_pbLoadAllResults_clicked()
@@ -677,6 +677,12 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leMonitorsFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadMonitorsData_clicked();
+
+    //calorimeters
+    fileName = QString(defaultSettings.CalorimeterSettings.FileName.data());
+    ui->leCalorimetersFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadCalorimetersData_clicked();
 }
 
 void AParticleSimWin::onMaterialsChanged()
@@ -702,6 +708,7 @@ void AParticleSimWin::onRequestShowSource()
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
+    LastFile_Tracking = fileName;
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     QStringList LimitTo;
@@ -738,7 +745,20 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_clicked()
                                                     SimSet.RunSet.OutputDirectory.data(),
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    if (!dir.isEmpty()) ui->leWorkingDirectory->setText(dir);
+    if (!dir.isEmpty())
+    {
+        ui->leWorkingDirectory->setText(dir);
+        on_leWorkingDirectory_editingFinished();
+    }
+}
+
+void AParticleSimWin::on_leWorkingDirectory_editingFinished()
+{
+    const QString str = ui->leWorkingDirectory->text();
+    if (str == LastDir_Working) return;
+    LastDir_Working = str;
+    clearResults();
+    clearResultsGui();
 }
 
 void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
@@ -746,8 +766,18 @@ void AParticleSimWin::on_pbChooseFileTrackingData_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with tracking data", ui->leWorkingDirectory->text());
     if (fileName.isEmpty()) return;
 
-    fileName = QFileInfo(fileName).completeBaseName() + "." + QFileInfo(fileName).suffix();
+    //fileName = QFileInfo(fileName).completeBaseName() + "." + QFileInfo(fileName).suffix();
     ui->leTrackingDataFile->setText(fileName);
+    on_leTrackingDataFile_editingFinished();
+}
+
+void AParticleSimWin::on_leTrackingDataFile_editingFinished()
+{
+    const QString str = ui->leTrackingDataFile->text();
+    if (str == LastFile_Tracking) return;
+    LastFile_Tracking = str;
+    clearResultsTracking();
+    clearResultsGuiTrackig();
 }
 
 void AParticleSimWin::on_cbGunAllowMultipleEvents_clicked(bool checked)
@@ -1035,8 +1065,9 @@ void AParticleSimWin::on_pbEventView_clicked()
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
-    // !!!***
-    // add multithread to crawler
+    setEnabled(false);
+    qApp->processEvents();
+
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
 
@@ -1054,6 +1085,8 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
+    int NumThreads = ui->sbNumThreadsStatistics->value();
+
     int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
     if (Selector == 0)
     {
@@ -1070,15 +1103,13 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 0:
           {
             AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p);
-            QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
+            Crawler.find(Opt, p, NumThreads);
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Particles found:\n");
-            while (it != p.FoundParticles.constEnd())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
-                ++it;
-            }
+            ui->ptePTHist->appendPlainText("Particle and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
             break;
           }
         case 1:
@@ -1087,21 +1118,20 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown process selection mode", this);
+                setEnabled(true);
                 return;
             }
 
             AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
             AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
-            QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Processes found:\n");
-            while (it != p.FoundProcesses.constEnd())
-            {
-                ui->ptePTHist->appendPlainText(QString("%1   %2 times").arg(it.key()).arg(it.value()));
-                ++it;
-            }
+            ui->ptePTHist->appendPlainText("Process and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
 
             selectedModeForProcess = mode;
             break;
@@ -1109,7 +1139,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         case 2:
           {
             AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-            Crawler.find(Opt, p);
+            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
             if (p.Hist->GetEntries() == 0)
                 guitools::message("No trajectories found", this);
@@ -1130,6 +1160,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (mode < 0 || mode > 2)
             {
                 guitools::message("Unknown energy deposition collection mode", this);
+                setEnabled(true);
                 return;
             }
             AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
@@ -1137,7 +1168,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbPTHistVolVsTime->isChecked())
             {
                 AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist2D->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1153,7 +1184,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             else
             {
                 AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
                 if (p.Hist->GetEntries() == 0)
                     guitools::message("No deposition detected", this);
@@ -1175,39 +1206,30 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (ui->cbLimitTimeWindow->isChecked())
             {
                 p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
             else
             {
                 p = new AHistorySearchProcessor_getDepositionStats();
-                Crawler.find(Opt, *p);
+                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
             }
 
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Deposition statistics:\n");
-            QMap<QString, AParticleDepoStat>::const_iterator it = p->DepoData.constBegin();
-            std::vector< QPair<QString, AParticleDepoStat> > vec;
-            double sum = 0;
-            while (it != p->DepoData.constEnd())
+
+            std::vector< std::tuple<QString,double,double,int,double,double> > data;
+            const double sum = p->getResults(data);
+
+            for (const auto & el : data)
             {
-                vec.push_back( QPair<QString, AParticleDepoStat>(it.key(), it.value()) );
-                sum += it.value().sum;
-                ++it;
-            }
-            double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+                QString str = QString("%1\t%2 keV (%3%)\t#: %4")
+                              .arg(std::get<0>(el))
+                              .arg(std::get<1>(el))
+                              .arg( QString::number(std::get<2>(el), 'g', 4) )
+                              .arg(std::get<3>(el));
 
-            std::sort(vec.begin(), vec.end(), [](const QPair<QString, AParticleDepoStat> & a, const QPair<QString, AParticleDepoStat> & b)->bool{return a.second.sum > b.second.sum;});
-
-            for (const auto & el : vec)
-            {
-                const AParticleDepoStat & rec = el.second;
-                const double mean = rec.sum / rec.num;
-                const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-
-                QString str = QString("%1\t%2 keV (%3%)\t#: %4").arg(el.first).arg(rec.sum).arg( QString::number(rec.sum*sumInv, 'g', 4) ).arg(rec.num);
-
-                if (rec.num > 1)  str += QString("\tmean: %1 keV").arg(mean);
-                if (rec.num > 10) str += QString("\tsigma: %1 keV").arg(sigma);
+                if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
+                if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
 
                 ui->ptePTHist->appendPlainText(str);
             }
@@ -1216,6 +1238,18 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             delete p;
             break;
          }
+        case 5:
+            {
+                AHistorySearchProcessor_findHadronicChannels p;
+                Crawler.find(Opt, p, NumThreads);
+                ui->ptePTHist->clear();
+                ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
+                std::vector<std::pair<QString,int>> vec;
+                p.getResults(vec);
+                for (const auto & pair : vec)
+                    ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+                break;
+            }
         default:
             qWarning() << "Unknown type of volume request";
         }
@@ -1255,7 +1289,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p);
+                Crawler.find(Opt, p, NumThreads);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1274,7 +1308,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1290,7 +1324,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1309,7 +1343,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
                 else
                 {
-                    Crawler.find(Opt, p);
+                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                     if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                     else
                     {
@@ -1327,6 +1361,12 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
         fromB1 = from;
         toB1 = to;
     }
+
+    QTextCursor txtCursor = ui->ptePTHist->textCursor();
+    txtCursor.setPosition(0);
+    ui->ptePTHist->setTextCursor(txtCursor);
+
+    setEnabled(true);
 }
 
 void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)
@@ -1399,8 +1439,9 @@ void AParticleSimWin::updatePTHistoryBinControl()
     if (ui->twPTHistType->currentIndex() == 0)
     {
         //Volume
-        ui->frPTHistX->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() > 1  && ui->cobPTHistVolRequestWhat->currentIndex() != 4);
-        ui->frPTHistY->setVisible( ui->cobPTHistVolRequestWhat->currentIndex() == 3 && ui->cbPTHistVolVsTime->isChecked() );
+        const int sel = ui->cobPTHistVolRequestWhat->currentIndex();
+        ui->frPTHistX->setVisible( sel == 2 || sel == 3);
+        ui->frPTHistY->setVisible( sel == 3 && ui->cbPTHistVolVsTime->isChecked() );
     }
     else
     {
@@ -1550,16 +1591,28 @@ void AParticleSimWin::on_pbFilePreview_clicked()
 void AParticleSimWin::on_pbChooseMonitorsFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by particle monitors", SimSet.RunSet.OutputDirectory.data());
-    if (!fileName.isEmpty()) ui->leMonitorsFileName->setText(fileName);
+    if (fileName.isEmpty()) return;
+
+    ui->leMonitorsFileName->setText(fileName);
+    on_leMonitorsFileName_editingFinished();
+}
+
+void AParticleSimWin::on_leMonitorsFileName_editingFinished()
+{
+    const QString str = ui->leMonitorsFileName->text();
+    if (str == LastFile_Monitors) return;
+    LastFile_Monitors = str;
+    clearResultsMonitors();
+    clearResultsGuiMonitors();
 }
 
 void AParticleSimWin::on_pbLoadMonitorsData_clicked()
 {
     QString FileName = ui->leMonitorsFileName->text();
+    LastFile_Monitors = FileName;
     if (!FileName.contains('/'))
         FileName = ui->leWorkingDirectory->text() + '/' + FileName;
 
-    AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Particle);
 
     QJsonObject json;
@@ -1644,6 +1697,16 @@ void AParticleSimWin::on_pbNextMonitor_clicked()
 
     if (iMon < ui->cobMonitor->count()) ui->cobMonitor->setCurrentIndex(iMon);
     updateMonitorGui();
+}
+
+void AParticleSimWin::on_pbShowMonitorProperties_clicked()
+{
+    const int iMon = ui->cobMonitor->currentIndex();
+    const int numMon = MonitorHub.countMonitors(AMonitorHub::Particle);
+    if (iMon < 0 || iMon >= numMon) return;
+
+    AGeoObject * obj = MonitorHub.ParticleMonitors[iMon].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
 }
 
 void AParticleSimWin::on_pbMonitorShowAngle_clicked()
@@ -1866,7 +1929,9 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     int curEv = ui->sbShowEvent->value();
     int ev = findEventWithFilters(curEv, true);
     if (ev == -1)
-        guitools::message("Cannot find events according to the selected criteria", this);
+    {
+        //guitools::message("Cannot find events according to the selected criteria", this);
+    }
     else
     {
         ui->sbShowEvent->setValue(ev);
@@ -1944,6 +2009,309 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 void AParticleSimWin::onProgressReceived(double progress)
 {
     if (!ui->progbSim->isEnabled()) return; // simulation is not running
-
     ui->progbSim->setValue(progress * 100.0);
+}
+
+void AParticleSimWin::on_cbPTHistVolVsTime_toggled(bool)
+{
+    updatePTHistoryBinControl();
+}
+
+void AParticleSimWin::on_pbUpdateIcon_clicked()
+{
+    std::vector<QCheckBox*> vec = {ui->cbEVlimToProc, ui->cbEVexcludeProc, ui->cbLimitToVolumes, ui->cbLimitToParticles, ui->cbExcludeParticles};
+
+    bool vis = false;
+    for (const auto cb : vec)
+        if (cb->isChecked())
+        {
+            vis = true;
+            break;
+        }
+
+    ui->labFilterActivated->setVisible(vis);
+}
+
+// ------------------ calorimeters -----------------------
+
+void AParticleSimWin::on_pbChooseCalorimetersFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by calorimeters", SimSet.RunSet.OutputDirectory.data());
+    if (fileName.isEmpty()) return;
+
+    ui->leCalorimetersFileName->setText(fileName);
+    on_leCalorimetersFileName_editingFinished();
+}
+
+void AParticleSimWin::on_leCalorimetersFileName_editingFinished()
+{
+    const QString str = ui->leCalorimetersFileName->text();
+    if (str == LastFile_Calorimeters) return;
+    LastFile_Calorimeters = str;
+    clearResultsCalorimeters();
+    clearResultsGuiCalorimeters();
+}
+
+void AParticleSimWin::on_pbLoadCalorimetersData_clicked()
+{
+    QString FileName = ui->leCalorimetersFileName->text();
+    LastFile_Calorimeters = FileName;
+    if (!FileName.contains('/'))
+        FileName = ui->leWorkingDirectory->text() + '/' + FileName;
+
+    CalHub.clearData();
+
+    QJsonArray jsar;
+    bool ok = jstools::loadJsonArrayFromFile(jsar, FileName);
+    if (!ok)
+    {
+        guitools::message("Could not open: " + FileName, this);
+        return;
+    }
+
+    QString err = CalHub.appendDataFromJson(jsar);
+    if (!err.isEmpty()) guitools::message(err, this);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::updateCalorimeterGui()
+{
+    const int numCal = CalHub.countCalorimeters();
+    ui->labNumCalorimeters->setText(QString::number(numCal));
+    const int numWithData = CalHub.countCalorimetersWithData();
+    ui->labNumCalWithData->setText(QString::number(numWithData));
+
+    ui->frCalorimeter->setVisible(numCal != 0);
+
+    if (numCal > 0)
+    {
+        const int oldNum = ui->cobCalorimeter->currentIndex();
+
+        ui->cobCalorimeter->clear();
+        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNames());
+
+        if (oldNum >-1 && oldNum < numCal)
+        {
+            ui->cobCalorimeter->setCurrentIndex(oldNum);
+            ui->sbCalorimeterIndex->setValue(oldNum);
+        }
+        else ui->sbCalorimeterIndex->setValue(0);
+
+        const int iCal = ui->cobCalorimeter->currentIndex();
+        const ACalorimeter * Cal = CalHub.Calorimeters[iCal].Calorimeter;
+
+        if (Cal)
+        {
+            ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
+            double total = Cal->Stats[0] * getCalorimeterEnergyFactor();
+            ui->leCalorimetersTotal->setText( QString::number(total) );
+            ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
+            ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
+        }
+        else
+        {
+            ui->leCalorimetersEntries->setText("--");
+            ui->leCalorimetersTotal->setText("--");
+            ui->pbCalorimetersShowDistribution->setEnabled(false);
+        }
+    }
+}
+
+double AParticleSimWin::getCalorimeterEnergyFactor()
+{
+    const QString txt = ui->cobCalorimeterEnergyUnits->currentText();
+
+    double factor = 1.0;
+    if      (txt == "meV") factor = 1e6;
+    else if (txt == "eV")  factor = 1e3;
+    else if (txt == "keV")  factor = 1.0;
+    else if (txt == "MeV")  factor = 1e-3;
+    else qWarning() << "Unknown unit of energy for calorimeters!";
+
+    return factor;
+}
+
+void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
+{
+    //ui->labCalorimeterUnits->setText(arg1);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_pbNextCalorimeter_clicked()
+{
+    int numCal = CalHub.countCalorimeters();
+    if (numCal == 0) return;
+
+    int iCal = ui->cobCalorimeter->currentIndex();
+    //int iCalStart = iCal;
+
+    double depo = 0;
+    do
+    {
+        iCal++;
+        if (iCal >= numCal) return;
+            /*iCal = 0;
+        if (iCal == iCalStart) return;
+        */
+        depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
+    }
+    while (depo == 0);
+
+    if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal);
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_cobCalorimeter_activated(int)
+{
+    updateCalorimeterGui();
+}
+
+void AParticleSimWin::on_sbCalorimeterIndex_editingFinished()
+{
+    int iCal = ui->sbCalorimeterIndex->value();
+    if (iCal >= ui->cobCalorimeter->count()) iCal = 0;
+    ui->sbCalorimeterIndex->setValue(iCal);
+    if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal); //protection: can be empty
+    updateCalorimeterGui();
+}
+
+#include "ath.h"
+void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->Deposition;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    const int numDim = p.getNumDimensions();
+    const double energyFactor = getCalorimeterEnergyFactor();
+    const TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
+
+    switch (numDim)
+    {
+    case 0:
+        return;
+    case 1:
+        {
+            int iDim = 0;
+            for (; iDim < 3; iDim++)
+                if (p.Bins[iDim] != 1) break;
+
+            TString opt;
+            switch (iDim)
+            {
+            case 0: opt = "x"; break;
+            case 1: opt = "y"; break;
+            case 2: opt = "z"; break;
+            default:;
+            }
+
+            TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle( TString(opt + ", mm") );
+            h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
+
+            emit requestDraw(h, "hist", true, true);
+        }
+        break;
+    case 2:
+        {
+            TString opt;
+            if (p.Bins[2] != 1) opt += "z";
+            if (p.Bins[1] != 1) opt += "y";
+            if (p.Bins[0] != 1) opt += "x";
+            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+
+            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+            h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
+
+            emit requestDraw(h, "colz", true, true);
+        }
+        break;
+    case 3:
+        {
+            TH3D * h = (TH3D*)(Data->Clone());
+            h->Scale(energyFactor);
+
+            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+            h->GetXaxis()->SetTitle("x, mm");
+            h->GetYaxis()->SetTitle("y, mm");
+            h->GetZaxis()->SetTitle("z, mm");
+
+            emit requestDraw(h, "box2", true, true);
+        }
+        break;
+    default:
+        guitools::message("Unexpected number of dimensions!", this);
+        return;
+    }
+}
+
+void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    AGeoObject * obj = CalHub.Calorimeters[iCal].GeoObj;
+    if (obj) emit requestShowGeoObjectDelegate(obj->Name, true);
+}
+
+void AParticleSimWin::clearResults()
+{
+    clearResultsTracking();
+    clearResultsMonitors();
+    clearResultsCalorimeters();
+}
+
+void AParticleSimWin::clearResultsTracking()
+{
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
+}
+
+void AParticleSimWin::clearResultsMonitors()
+{
+    MonitorHub.clearData(AMonitorHub::Particle);
+}
+
+void AParticleSimWin::clearResultsCalorimeters()
+{
+    CalHub.clearData();
+}
+
+void AParticleSimWin::clearResultsGui()
+{
+    clearResultsGuiTrackig();
+    clearResultsGuiMonitors();
+    clearResultsGuiCalorimeters();
+}
+
+void AParticleSimWin::clearResultsGuiTrackig()
+{
+    emit requestShowGeometry(false, true, true);
+    ui->trwEventView->clear();
+    ui->ptePTHist->clear();
+}
+
+void AParticleSimWin::clearResultsGuiMonitors()
+{
+    updateMonitorGui();
+}
+
+void AParticleSimWin::clearResultsGuiCalorimeters()
+{
+    updateCalorimeterGui();
 }

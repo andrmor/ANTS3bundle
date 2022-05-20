@@ -24,12 +24,12 @@ public:
     // !!!*** need renaming
 
     // Dirs
-    QString ExamplesDir;
-    QString ResourcesDir;
-    QString ExecutableDir;
     QString ExchangeDir;   // can be changed, therefore it is saved
+    QString ExecutableDir;
     QString ConfigDir;     // global settings are saved there
     QString QuicksaveDir;
+    QString ExamplesDir;
+    QString ResourcesDir;
     QString LastSaveDir;
     QString LastLoadDir;
 
@@ -43,9 +43,9 @@ public:
 
     // Script window
     QJsonObject JavaScriptJson;
-    int SW_FontSize = 12;
     QString SW_FontFamily; //empty => Qt standard settings will be used
-    bool SW_FontWeight = false;
+    int SW_FontSize = 12;
+    int SW_FontWeight = false;
     bool SW_Italic = false;
 
     /*

@@ -67,7 +67,7 @@ private:
 
 signals:
   void showMonitor(const AGeoObject* mon);
-  void requestBuildScript(AGeoObject *obj, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
+  void requestBuildScript(AGeoObject * obj, QString & script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
   void requestEnableGeoConstWidget(bool);
 };
 

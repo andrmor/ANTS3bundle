@@ -1,5 +1,6 @@
 #include "ageospecial.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
 {
@@ -48,3 +49,39 @@ void AGeoSensor::doWriteToJson(QJsonObject & json) const
 {
     json["SensorModel"] = SensorModel;
 }
+
+// ---
+
+AGeoCalorimeter::AGeoCalorimeter(const std::array<double, 3> & origin, const std::array<double, 3> & step, const std::array<int, 3> & bins) :
+    Properties(origin, step, bins){}
+
+#include "ageoconsts.h"
+void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+
+    bool ok;
+    for (int i = 0; i <3 ; i++)
+    {
+        ok = GC.updateDoubleParameter(errorStr, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
+        if (!ok) errorStr += QString(" in Origin[%0]\n").arg(i);
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
+        if (!ok) errorStr += QString(" in Step[%0]\n").arg(i);
+
+        ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
+        if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
+    }
+}
+
+void AGeoCalorimeter::readFromJson(const QJsonObject & json)
+{
+    Properties.readFromJson(json);
+}
+
+void AGeoCalorimeter::doWriteToJson(QJsonObject & json) const
+{
+    Properties.writeToJson(json);
+}
+
+// ---

@@ -11,11 +11,11 @@
 #include "ageoshape.h"
 #include "ageotype.h"
 #include "a3global.h"
-//#include "acommonfunctions.h"
 #include "ageometrytester.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
+#include "alineeditwithescape.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -25,8 +25,6 @@
 #include <QEvent>
 #include <QRegularExpression>
 #include <QMenu>
-
-#include <vector>
 
 #include "TGeoManager.h"
 #include "TGeoTrack.h"
@@ -63,7 +61,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   connect(twGeo, &AGeoTree::RequestFocusObject,     this, &A3GeoConWin::FocusVolume);
   connect(twGeo, &AGeoTree::RequestHighlightObject, this, &A3GeoConWin::ShowObject);
   connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &A3GeoConWin::ShowObjectRecursive);
-  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &A3GeoConWin::ShowAllInstances);
+  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &A3GeoConWin::showAllInstances);
   connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &A3GeoConWin::onRequestEnableGeoConstWidget);
   // !!!***
 //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
@@ -103,20 +101,19 @@ A3GeoConWin::~A3GeoConWin()
     delete ui; ui = nullptr;
 }
 
+#include "aerrorhub.h"
 void A3GeoConWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+
+    AErrorHub::clear();
     emit requestRebuildGeometry();
 
-/*
-  if (MW->DoNotUpdateGeometry) return; //if bulk update in progress
-
-  MW->ReconstructDetector();
-  if (!Detector->ErrorString.isEmpty())
-  {
-      guitools::message("Errors were detected during detector construction:\n\n" + Detector->ErrorString, this);
-  }
-*/
+    if (AErrorHub::isError())
+    {
+        guitools::message1(AErrorHub::getQError(), "Detected errors in geometry definition", this);
+        return; // no sense to show conflicts if there are problems in the geometry definitions
+    }
 
     if (ui->cbAutoCheck->isChecked())
     {
@@ -127,12 +124,8 @@ void A3GeoConWin::onRebuildDetectorRequest()
 
 void A3GeoConWin::updateGui()
 {
-    qDebug() << ">DAwindow: updateGui";
+    //qDebug() << ">DAwindow: updateGui";
     UpdateGeoTree();
-
-/*
-    ui->pbBackToSandwich->setEnabled(!Detector->isGDMLempty());
-*/
 
     QString str = "Show prototypes";
     int numProto = Geometry.Prototypes->HostedObjects.size();
@@ -141,10 +134,17 @@ void A3GeoConWin::updateGui()
     QFont font = ui->cbShowPrototypes->font(); font.setBold(numProto > 0); ui->cbShowPrototypes->setFont(font);
 }
 
-void A3GeoConWin::UpdateGeoTree(QString name)
+void A3GeoConWin::UpdateGeoTree(QString name, bool bShow)
 {
     twGeo->UpdateGui(name);
     updateGeoConstsIndication();
+
+    if (bShow)
+    {
+        ui->tabwidAddOns->setCurrentIndex(0);
+        showNormal();
+        raise();
+    }
 }
 
 void A3GeoConWin::ShowObject(QString name)
@@ -168,7 +168,7 @@ bool drawIfFound(TGeoNode* node, TString name)
         TGeoVolume* vol = node->GetVolume();
         //qDebug() << vol->CountNodes();
         vol->SetLineColor(2);
-        gGeoManager->SetTopVisible(true);
+        AGeometryHub::getInstance().GeoManager->SetTopVisible(true);
         vol->Draw("2");
         return true;
     }
@@ -192,39 +192,36 @@ void A3GeoConWin::ShowObjectRecursive(QString name)
 
     TString tname = name.toLatin1().data();
     tname += "_0";
-    bool found = drawIfFound(Detector->GeoManager->GetTopNode(), tname);
+    bool found = drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
     if (!found)
     {
         tname = name.toLatin1().data();
         tname += "_1";
-        drawIfFound(Detector->GeoManager->GetTopNode(), tname);
+        drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
     }
     MW->GeometryWindow->UpdateRootCanvas();
     */
 }
 
-void A3GeoConWin::ShowAllInstances(QString name)
+void A3GeoConWin::showAllInstances(QString name)
 {
-    /*
-    QVector<AGeoObject*> InstancesNotDiscriminated;
-    Detector->Sandwich->World->findAllInstancesRecursive(InstancesNotDiscriminated);
+    std::vector<AGeoObject*> InstancesNotDiscriminated;
+    Geometry.World->findAllInstancesRecursive(InstancesNotDiscriminated);
 
-    MW->GeometryWindow->ShowAndFocus();
-
-    TObjArray * list = Detector->GeoManager->GetListOfVolumes();
+    TObjArray * list = Geometry.GeoManager->GetListOfVolumes();
     const int size = list->GetEntries();
     QSet<QString> set;
 
     //select those active ones which have the same prototype
     for (AGeoObject * inst : InstancesNotDiscriminated)
     {
-        const ATypeInstanceObject * insType = static_cast<const ATypeInstanceObject*>(inst->ObjectType);
+        const ATypeInstanceObject * insType = static_cast<const ATypeInstanceObject*>(inst->Type);
         if (insType->PrototypeName == name && inst->fActive)
             for (AGeoObject * obj : inst->HostedObjects)
             {
-                if (obj->ObjectType->isHandlingArray() || obj->ObjectType->isHandlingSet())
+                if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet())
                 {
-                    QVector<AGeoObject*> vec;
+                    std::vector<AGeoObject*> vec;
                     obj->collectContainingObjects(vec);
                     for (AGeoObject * obj1 : vec)
                         set << obj1->Name;
@@ -234,7 +231,7 @@ void A3GeoConWin::ShowAllInstances(QString name)
 
         for (int iVol = 0; iVol < size; iVol++)
         {
-            TGeoVolume* vol = (TGeoVolume*)list->At(iVol);
+            TGeoVolume * vol = (TGeoVolume*)list->At(iVol);
             if (!vol) break;
             const QString name = vol->GetName();
             if (set.contains(name))
@@ -246,8 +243,7 @@ void A3GeoConWin::ShowAllInstances(QString name)
         }
     }
 
-    MW->GeometryWindow->UpdateRootCanvas();
-    */
+    emit requestShowGeometry(true, true, false);
 }
 
 #include "amonitorhub.h"
@@ -367,6 +363,102 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
             vol->SetLineWidth(3);
         }
         else vol->SetLineColor(kGray);
+    }
+
+    emit requestClearGeoMarkers(0);
+    if (obj->isCalorimeter()) markCalorimeterBinning(obj);
+}
+
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
+void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
+{
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+    std::vector<const ACalorimeterData *> calVec = CalHub.getCalorimeters(obj);
+    if (calVec.empty())
+    {
+        qWarning() << "Calorimeter records were not found for this object!";
+        return;
+    }
+
+    const ACalorimeter * cal = calVec.front()->Calorimeter;
+    if (!cal)
+    {
+        qWarning() << "Calorimeter is nullptr for this object!";
+        return;
+    }
+
+    const ACalorimeterProperties & props = cal->Properties;
+
+    TGeoManager * GeoManager = Geometry.GeoManager;
+    GeoManager->ClearTracks();
+
+    for (const ACalorimeterData * cd : calVec)
+    {
+        const double * worldPos = cd->Position.data();
+
+        /*
+        qDebug() << "Center pos: " << worldPos[0] << worldPos[1] << worldPos[2];
+        qDebug() << "Unit vectorX:" << cd->UnitXMaster[0] << cd->UnitXMaster[1] << cd->UnitXMaster[2];
+        qDebug() << "Unit vectorY:" << cd->UnitYMaster[0] << cd->UnitYMaster[1] << cd->UnitYMaster[2];
+        qDebug() << "Unit vectorZ:" << cd->UnitZMaster[0] << cd->UnitZMaster[1] << cd->UnitZMaster[2];
+        qDebug() << "---";
+        qDebug() << "CalorimOr:" << props.Origin[0] << props.Origin[1] << props.Origin[2];
+        qDebug() << "---";
+        */
+
+        bool bXon = !props.isAxisOff(0);
+        bool bYon = !props.isAxisOff(1);
+        bool bZon = !props.isAxisOff(2);
+
+        double origin[3];
+        for (int i=0; i<3; i++)
+        {
+            origin[i] = worldPos[i];
+            if (bXon) origin[i] += props.Origin[0] * cd->UnitXMaster[i];
+            if (bYon) origin[i] += props.Origin[1] * cd->UnitYMaster[i];
+            if (bZon) origin[i] += props.Origin[2] * cd->UnitZMaster[i];
+        }
+
+        //qDebug() << "Origin:" << origin[0] << origin[1] << origin[2];
+        //qDebug() << "---";
+
+        std::vector<std::array<double, 3>> XYZs;
+        std::array<double,3> pos;
+        if (bXon)
+        {
+            for (int ib = 0; ib < props.Bins[0]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[0]*cd->UnitXMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 2, 2, 1);
+        }
+
+        if (bYon)
+        {
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[1]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[1]*cd->UnitYMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 3, 2, 1);
+        }
+
+        if (bZon)
+        {
+            XYZs.clear();
+            for (int ib = 0; ib < props.Bins[2]; ib++)
+            {
+                for (int i = 0; i < 3; i++)
+                    pos[i] = origin[i] + props.Step[2]*cd->UnitZMaster[i] * ib;
+                XYZs.push_back(pos);
+            }
+            emit requestAddGeoMarkers(XYZs, 4, 2, 1);
+        }
     }
 }
 
@@ -822,13 +914,19 @@ void A3GeoConWin::updateGeoConstsIndication()
             connect(edit, &ALineEditWithEscape::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
             ui->tabwConstants->setCellWidget(i, 1, edit);
 
-            AOneLineTextEdit * ed = new AOneLineTextEdit(ui->tabwConstants);
+            /*
+            AOneLineTextEdit * ed = new AOneLineTextEdit("", ui->tabwConstants);
             AGeoBaseDelegate::configureHighligherAndCompleter(ed, i);
             ed->setText(Expression);
             ed->setFrame(false);
             connect(ed, &AOneLineTextEdit::editingFinished, [this, i, ed](){this->onGeoConstExpressionEditingFinished(i, ed->text()); });
             connect(ed, &AOneLineTextEdit::escapePressed,   [this, i](){this->onGeoConstEscapePressed(i); });
-            ui->tabwConstants->setCellWidget(i, 2, ed);
+            */
+
+            newItem = new QTableWidgetItem(Expression);
+            newItem->setToolTip(Comment);
+            if (i == numConsts) newItem->setFlags( newItem->flags() & ~Qt::ItemIsEditable);
+            ui->tabwConstants->setItem(i, 2, newItem);
 
             if (!Expression.isEmpty()) edit->setEnabled(false);
         }
@@ -836,68 +934,21 @@ void A3GeoConWin::updateGeoConstsIndication()
     bGeoConstsWidgetUpdateInProgress = false; // <--
 }
 
-QString A3GeoConWin::createScript(QString &script, bool usePython)
+#include "ageoconstexpressiondialog.h"
+void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
 {
-    /*
-    QString CommentStr = "//";
-    int indent = 0;
-    QString VarStr;
-    QString indentStr;
+    if (column != 2) return;
 
-    script += "== Auto-generated script ==\n\n";
+    AGeoConsts & GC = AGeoConsts::getInstance();
+    const int numConsts = GC.countConstants();
+    if (row == -1 || row >= numConsts) return;
 
-    if (!usePython)
-    {
-        VarStr = "var ";
-        indentStr = ""; //"  ";
-    }
-    else
-    {
-        CommentStr = "#";
-        indent = 0;
-        script += "true = True\n\nfalse = False\n\n";     // for now
-    }
-    script.insert(0, CommentStr);
+    AGeoConstExpressionDialog D(this, row);
+    D.exec();
 
-    script += indentStr + CommentStr + "Defined materials:\n";
-    for (int i=0; i<Detector->MpCollection->countMaterials(); i++)
-        script += indentStr + VarStr + Detector->MpCollection->getMaterialName(i) + "_mat = " + QString::number(i) + "\n";
-    script += "\n";
-
-    AGeoObject * World = Detector->Sandwich->World;
-    QString geoScr = AGeoConsts::getConstInstance().exportToScript(World, CommentStr, VarStr);
-    if (!geoScr.simplified().isEmpty())
-    {
-        script += indentStr + CommentStr + "Geometry constants:\n";
-        script += geoScr;
-        script += "\n";
-    }
-
-    //script += indentStr + CommentStr + "Set all PM arrays to fully custom regularity, so PM Z-positions will not be affected by slabs\n";
-    //script += indentStr + "pms.SetAllArraysFullyCustom()\n";
-    //script += indentStr + CommentStr + "Remove all slabs and objects\n";
-    script += indentStr + "geo.RemoveAllExceptWorld()\n";
-    script += "\n";
-
-    twGeo->commonSlabToScript(script, indentStr);
-    script += "\n";
-
-    QString protoString;
-    twGeo->objectMembersToScript(Detector->Sandwich->Prototypes, protoString, indent, true, true, usePython);
-    if (!protoString.simplified().isEmpty())
-    {
-        script += indentStr + CommentStr + "Prototypes:";
-        script += protoString;
-        script += "\n\n";
-    }
-
-    script += indentStr + CommentStr + "Geometry:";
-    twGeo->objectMembersToScript(World, script, indent, true, true, usePython);
-
-    script += "\n\n" + indentStr + "geo.UpdateGeometry(true)";
-
-    */
-    return script;
+    GC.updateFromExpressions();
+    updateGeoConstsIndication();
+    emit requestDelayedRebuildAndRestoreDelegate();
 }
 
 void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
@@ -919,33 +970,6 @@ void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
     if (val == GC.getValue(index)) return;
 
     GC.setNewValue(index, val);
-    emit requestDelayedRebuildAndRestoreDelegate();
-}
-
-void A3GeoConWin::onGeoConstExpressionEditingFinished(int index, QString newValue)
-{
-    //qDebug() << "Geo const expression changed! index/text are:" << index << newValue;
-    AGeoConsts & GC = AGeoConsts::getInstance();
-
-    if (index == GC.countConstants()) return; // nothing to do yet - this constant is not yet defined
-    bool ok;
-    newValue.toDouble(&ok);
-    if (ok)
-    {
-        onGeoConstEditingFinished(index, newValue);
-        return;
-    }
-
-    if (newValue == GC.getExpression(index)) return;
-
-    QString errorStr = GC.setNewExpression(index, newValue);
-    if (!errorStr.isEmpty())
-    {
-        guitools::message(errorStr, this);
-        updateGeoConstsIndication();
-        return;
-    }
-
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 
@@ -1079,16 +1103,6 @@ void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     }
 }
 
-void ALineEditWithEscape::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Escape)
-    {
-        event->accept();
-        emit escapePressed();
-    }
-    else QLineEdit::keyPressEvent(event);
-}
-
 void A3GeoConWin::on_actionUndo_triggered()
 {
     /*
@@ -1129,16 +1143,13 @@ void A3GeoConWin::on_actionHow_to_use_drag_and_drop_triggered()
     guitools::message(s, this);
 }
 
+#include "ageoscriptmaker.h"
 void A3GeoConWin::on_actionTo_JavaScript_triggered()
 {
-    /*
     QString script;
-    createScript(script, false);
-    MW->ScriptWindow->onLoadRequested(script);
-    MW->ScriptWindow->showNormal();
-    MW->ScriptWindow->raise();
-    MW->ScriptWindow->activateWindow();
-    */
+    AGeoScriptMaker sm(AGeoScriptMaker::JavaScript);
+    sm.createScript(script);
+    emit requestAddScript(script);
 }
 
 void A3GeoConWin::on_cbShowPrototypes_toggled(bool checked)
@@ -1317,4 +1328,24 @@ bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
     QFile(tmpFileName).remove();
     */
     return true;
+}
+
+void A3GeoConWin::on_actionFind_object_triggered()
+{
+    QDialog D(this);
+    D.setWindowTitle("Find object by name");
+    QHBoxLayout * l = new QHBoxLayout(&D);
+    l->addWidget(new QLabel("Object name:"));
+    QLineEdit * le = new QLineEdit();
+    l->addWidget(le);
+    connect(le, &QLineEdit::editingFinished, &D, &QDialog::accept);
+
+    D.move(x()+40, y()+35);
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    QString name = le->text();
+    if (name.isEmpty()) return;
+
+    UpdateGeoTree(name, true);
 }

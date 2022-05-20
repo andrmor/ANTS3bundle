@@ -10,31 +10,89 @@
 #include "TFormula.h"
 
 #include "atrackingdataimporter.h"
-void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor) const
+void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
 {
     // !!!*** add error control
 
-    ATrackingDataImporter imp(FileName, bBinary);
+    if (numThreads < 1)
+    {
+        ATrackingDataImporter imp(FileName, bBinary);
 
+        processor.beforeSearch();
+
+        AEventTrackingRecord * event = AEventTrackingRecord::create();
+        int iEv = 0;
+        while (imp.extractEvent(iEv, event))
+        {
+            //qDebug() << "-------------Event #" << iEv;
+            processor.onNewEvent();
+
+            const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+            for (const AParticleTrackingRecord * p : prim)
+                findRecursive(*p, criteria, processor);
+
+            processor.onEventEnd();
+
+            iEv++;
+        }
+        processor.afterSearch();
+    }
+    else findMultithread(criteria, processor, numThreads);
+}
+
+#include "athreadpool.h"
+void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
+{
     processor.beforeSearch();
 
-    AEventTrackingRecord * event = AEventTrackingRecord::create();
-    int iEv = 0;
-    while (imp.extractEvent(iEv, event))
+    ATrackingDataImporter dataImporter(FileName, bBinary);
+    AThreadPool pool(numThreads);
+    AHistorySearchProcessor * pProcessorForCloning = processor.clone();
+
+    int iEvent = 0;
+    while (true)
     {
         //qDebug() << "-------------Event #" << iEv;
-        processor.onNewEvent();
+        bool ok = dataImporter.gotoEvent(iEvent);
+        if (!ok) break;
 
-        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
-        for (const AParticleTrackingRecord * p : prim)
-            findRecursive(*p, criteria, processor);
+        const AImporterEventStart position = dataImporter.getEventStart();
 
-        processor.onEventEnd();
+        while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
 
-        iEv++;
+        pool.addJob(
+                    [&processor, pProcessorForCloning, &criteria, position, iEvent, this]()
+                    {
+                        ATrackingDataImporter localDataImporter(FileName, bBinary);
+                        localDataImporter.setPositionInFile(position);
+
+                        AEventTrackingRecord * event = AEventTrackingRecord::create();
+                        localDataImporter.extractEvent(iEvent, event);
+
+                        AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
+                        localProcessor->beforeSearch();
+                        localProcessor->onNewEvent();
+
+                        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+                        for (const AParticleTrackingRecord * p : prim)
+                            findRecursive(*p, criteria, *localProcessor);
+
+                        localProcessor->onEventEnd();
+                        localProcessor->afterSearch();
+
+                        {
+                            std::lock_guard<std::mutex> lock(CrawlerMutex);
+                            processor.mergeResuts(*localProcessor);
+                        }
+
+                        delete localProcessor;
+                        delete event;
+                    } );
+
+        iEvent++;
     }
 
-    processor.afterSearch();
+    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::milliseconds(1));}
 }
 
 void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector & opt, AHistorySearchProcessor & processor) const
@@ -251,12 +309,47 @@ void AHistorySearchProcessor_findParticles::onTrackEnd(bool)
 {
     if (bConfirmed && !Candidate.isEmpty())
     {
-        QMap<QString, int>::iterator it = FoundParticles.find(Candidate);
+        auto it = FoundParticles.find(Candidate);
         if (it == FoundParticles.end())
-            FoundParticles.insert(Candidate, 1);
-        else it.value()++;
+            FoundParticles[Candidate] = 1;
+        else ++(it->second);
         Candidate.clear();
     }
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findParticles::clone()
+{
+    return new AHistorySearchProcessor_findParticles(*this);
+}
+
+bool AHistorySearchProcessor_findParticles::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findParticles * from = dynamic_cast<const AHistorySearchProcessor_findParticles*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->FoundParticles)
+    {
+        auto itHere = FoundParticles.find(itOther.first);
+        if (itHere == FoundParticles.end())
+            FoundParticles[itOther.first] = itOther.second;
+        else
+            itHere->second += itOther.second;
+    }
+    return true;
+}
+
+void AHistorySearchProcessor_findParticles::getResults(std::vector<std::pair<QString, int> > & data) const
+{
+    data.clear();
+    data.reserve(FoundParticles.size());
+
+    for (const auto & pair : FoundParticles)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
 }
 
 AHistorySearchProcessor_findDepositedEnergy::AHistorySearchProcessor_findDepositedEnergy(CollectionMode mode, int bins, double from, double to)
@@ -340,6 +433,29 @@ void AHistorySearchProcessor_findDepositedEnergy::onEventEnd()
     if (Mode == OverEvent) fillHistogram();
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergy::clone()
+{
+    AHistorySearchProcessor_findDepositedEnergy * pr = new AHistorySearchProcessor_findDepositedEnergy(*this);
+
+    pr->Hist = (TH1D*)Hist->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findDepositedEnergy::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findDepositedEnergy * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergy*>(&other);
+    if (!from) return false;
+
+    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
+    {
+        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
+    }
+    // !!!*** underflow and overflow
+
+    return true;
+}
+
 void AHistorySearchProcessor_findDepositedEnergy::clearData()
 {
     Depo = 0;
@@ -372,6 +488,33 @@ AHistorySearchProcessor_findDepositedEnergyTimed::AHistorySearchProcessor_findDe
 AHistorySearchProcessor_findDepositedEnergyTimed::~AHistorySearchProcessor_findDepositedEnergyTimed()
 {
     delete Hist2D;
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergyTimed::clone()
+{
+    AHistorySearchProcessor_findDepositedEnergyTimed * pr = new AHistorySearchProcessor_findDepositedEnergyTimed(*this);
+
+    pr->Hist2D = (TH2D*)Hist2D->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findDepositedEnergyTimed::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findDepositedEnergyTimed * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergyTimed*>(&other);
+    if (!from) return false;
+
+    for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
+    {
+        const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
+        for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
+        {
+            Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
+        }
+    }
+    // !!!*** underflow and overflow
+
+    return true;
 }
 
 void AHistorySearchProcessor_findDepositedEnergyTimed::clearData()
@@ -455,6 +598,29 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
     Distance = 0;
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_findTravelledDistances::clone()
+{
+    AHistorySearchProcessor_findTravelledDistances * pr = new AHistorySearchProcessor_findTravelledDistances(*this);
+
+    pr->Hist = (TH1D*)Hist->Clone();
+
+    return pr;
+}
+
+bool AHistorySearchProcessor_findTravelledDistances::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findTravelledDistances * from = dynamic_cast<const AHistorySearchProcessor_findTravelledDistances*>(&other);
+    if (!from) return false;
+
+    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
+    {
+        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
+    }
+    // !!!*** underflow and overflow
+
+    return true;
+}
+
 AHistorySearchProcessor_findProcesses::AHistorySearchProcessor_findProcesses(SelectionMode Mode, bool onlyHadronic, const QString & targetIsotopeStartsFrom) :
     Mode(Mode), OnlyHadronic(onlyHadronic), TargetIsotopeStartsFrom(targetIsotopeStartsFrom.simplified()) {}
 
@@ -463,10 +629,10 @@ void AHistorySearchProcessor_findProcesses::onLocalStep(const ATrackingStepData 
     if (validateStep(tr))
     {
         const QString & Proc = tr.Process;
-        QMap<QString, int>::iterator it = FoundProcesses.find(Proc);
+        auto it = FoundProcesses.find(Proc);
         if (it == FoundProcesses.end())
-            FoundProcesses.insert(Proc, 1);
-        else it.value()++;
+            FoundProcesses[Proc] = 1;
+        else ++(it->second);
     }
 }
 
@@ -474,10 +640,10 @@ void AHistorySearchProcessor_findProcesses::onTransitionOut(const ATrackingStepD
 {
     if (validateStep(tr))
     {
-        QMap<QString, int>::iterator it = FoundProcesses.find("Out");
+        auto it = FoundProcesses.find("Out");
         if (it == FoundProcesses.end())
-            FoundProcesses.insert("Out", 1);
-        else it.value()++;
+            FoundProcesses["Out"] = 1;
+        else ++(it->second);
     }
 }
 
@@ -485,11 +651,46 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
 {
     if (validateStep(tr))
     {
-        QMap<QString, int>::iterator it = FoundProcesses.find("In");
+        auto it = FoundProcesses.find("In");
         if (it == FoundProcesses.end())
-            FoundProcesses.insert("In", 1);
-        else it.value()++;
+            FoundProcesses["In"] = 1;
+        else ++(it->second);
     }
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findProcesses::clone()
+{
+    return new AHistorySearchProcessor_findProcesses(*this);
+}
+
+bool AHistorySearchProcessor_findProcesses::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findProcesses * from = dynamic_cast<const AHistorySearchProcessor_findProcesses*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->FoundProcesses)
+    {
+        auto itHere = FoundProcesses.find(itOther.first);
+        if (itHere == FoundProcesses.end())
+            FoundProcesses[itOther.first] = itOther.second;
+        else
+            itHere->second += itOther.second;
+    }
+    return true;
+}
+
+void AHistorySearchProcessor_findProcesses::getResults(std::vector<std::pair<QString, int> > & data) const
+{
+    data.clear();
+    data.reserve(FoundProcesses.size());
+
+    for (const auto & pair : FoundProcesses)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
 }
 
 bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData & tr) const
@@ -509,7 +710,7 @@ bool AHistorySearchProcessor_findProcesses::validateStep(const ATrackingStepData
     return false; // just to avoid warning
 }
 
-AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
+AHistorySearchProcessor_findHadronicChannels::AHistorySearchProcessor_findHadronicChannels()
 {
     Aliases.push_back( {"gamma",    "g"} );
     Aliases.push_back( {"proton",   "p"} );
@@ -518,21 +719,21 @@ AHistorySearchProcessor_findChannels::AHistorySearchProcessor_findChannels()
     Aliases.push_back( {"deuteron", "d"} );
     Aliases.push_back( {"triton",   "t"} );
 }
-const QString & AHistorySearchProcessor_findChannels::getAlias(const QString & name)
+const QString & AHistorySearchProcessor_findHadronicChannels::getAlias(const QString & name)
 {
     for (const auto & pair : Aliases)
         if (pair.first == name) return pair.second;
     return name;
 }
 
-bool AHistorySearchProcessor_findChannels::onNewTrack(const AParticleTrackingRecord & pr)
+bool AHistorySearchProcessor_findHadronicChannels::onNewTrack(const AParticleTrackingRecord & pr)
 {
     Particle = getAlias(pr.ParticleName);
     TrackRecord = &pr;
     return false;
 }
 
-void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData & tr)
+void AHistorySearchProcessor_findHadronicChannels::onLocalStep(const ATrackingStepData & tr)
 {
     const QString & Proc = tr.Process;
     if (Proc == "hadElastic") return;
@@ -541,7 +742,7 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
     if (tr.Secondaries.empty())
     {
         // unexpected!
-        qWarning() << "No secondaries for hadronic reacion detected!";
+        //qWarning() << "No secondaries for the hadronic reacion:" << Particle << "on" << tr.TargetIsotope;
         return;
     }
 
@@ -677,10 +878,44 @@ void AHistorySearchProcessor_findChannels::onLocalStep(const ATrackingStepData &
 
     const QString channel = QString("%0(%1,%2)%3").arg(tr.TargetIsotope, Particle, products, Result);
 
-    QMap<QString, int>::iterator it = Channels.find(channel);
-    if (it == Channels.end())
-        Channels.insert(channel, 1);
-    else it.value()++;
+    auto it = Channels.find(channel);
+    if (it == Channels.end()) Channels[channel] = 1;
+    else                      ++(it->second);
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_findHadronicChannels::clone()
+{
+    return new AHistorySearchProcessor_findHadronicChannels(*this);
+}
+
+bool AHistorySearchProcessor_findHadronicChannels::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_findHadronicChannels * from = dynamic_cast<const AHistorySearchProcessor_findHadronicChannels*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->Channels)
+    {
+        auto itHere = Channels.find(itOther.first);
+        if (itHere == Channels.end())
+            Channels[itOther.first] = itOther.second;
+        else
+            itHere->second += itOther.second;
+    }
+    return true;
+}
+
+void AHistorySearchProcessor_findHadronicChannels::getResults(std::vector<std::pair<QString, int>> & data) const
+{
+    data.clear();
+    data.reserve(Channels.size());
+
+    for (const auto & pair : Channels)
+        data.push_back( {pair.first, pair.second} );
+
+    std::sort(data.begin(), data.end(),
+              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
+                {return lhs.second > rhs.second;}
+             );
 }
 
 AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &what,
@@ -949,6 +1184,67 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
     }
 }
 
+AHistorySearchProcessor * AHistorySearchProcessor_Border::clone()
+{
+    AHistorySearchProcessor_Border * p = new AHistorySearchProcessor_Border(*this);
+
+    p->formulaWhat1 = ( formulaWhat1 ? new TFormula(*formulaWhat1) : nullptr);
+    p->formulaWhat2 = ( formulaWhat2 ? new TFormula(*formulaWhat2) : nullptr);
+    p->formulaWhat3 = ( formulaWhat3 ? new TFormula(*formulaWhat3) : nullptr);
+    p->formulaCuts  = ( formulaCuts  ? new TFormula(*formulaCuts)  : nullptr);
+
+    p->Hist1D    = ( Hist1D    ? (TH1D*)Hist1D->Clone()    : nullptr);
+    p->Hist1Dnum = ( Hist1Dnum ? (TH1D*)Hist1Dnum->Clone() : nullptr);
+
+    p->Hist2D    = ( Hist2D    ? (TH2D*)Hist2D->Clone()    : nullptr);
+    p->Hist2Dnum = ( Hist2Dnum ? (TH2D*)Hist2Dnum->Clone() : nullptr);
+
+    return p;
+}
+
+bool AHistorySearchProcessor_Border::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_Border * from = dynamic_cast<const AHistorySearchProcessor_Border*>(&other);
+    if (!from) return false;
+
+    //qDebug() << "->";
+    //qDebug() << formulaWhat1->IsValid() << from->formulaWhat1->GetExpFormula();
+
+    if (from->Hist1D)
+    {
+        for (int i = 1; i <= from->Hist1D->GetNbinsX(); i++)
+            Hist1D->Fill(from->Hist1D->GetBinCenter(i), from->Hist1D->GetBinContent(i));
+    }
+    if (from->Hist1Dnum)
+    {
+        for (int i = 1; i <= from->Hist1Dnum->GetNbinsX(); i++)
+            Hist1Dnum->Fill(from->Hist1Dnum->GetBinCenter(i), from->Hist1Dnum->GetBinContent(i));
+    }
+
+    if (from->Hist2D)
+    {
+        for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
+        {
+            const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
+            for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
+                Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
+        }
+    }
+    if (from->Hist2Dnum)
+    {
+        for (int ix = 1; ix <= from->Hist2Dnum->GetNbinsX(); ix++)
+        {
+            const double X = from->Hist2Dnum->GetXaxis()->GetBinCenter(ix);
+            for (int iy = 1; iy <= from->Hist2Dnum->GetNbinsY(); iy++)
+                Hist2Dnum->Fill(X, from->Hist2Dnum->GetYaxis()->GetBinCenter(iy), from->Hist2Dnum->GetBinContent(ix, iy));
+        }
+    }
+
+    // !!!*** underflow and overflow
+
+    return true;
+}
+
 TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 {
     //double  x, y, z, time, energy, vx, vy, vz
@@ -984,9 +1280,9 @@ TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 
 bool AHistorySearchProcessor_getDepositionStats::onNewTrack(const AParticleTrackingRecord &pr)
 {
-    if ( *ParticleName != pr.ParticleName)  // fast?  want to avoid research in QMap if possible
+    if ( ParticleName != pr.ParticleName)  // fast?  want to avoid re-search in map if possible
     {
-        ParticleName = &pr.ParticleName;
+        ParticleName = pr.ParticleName;
         bAlreadyFound = false;
     }
     else
@@ -1005,20 +1301,73 @@ void AHistorySearchProcessor_getDepositionStats::onLocalStep(const ATrackingStep
 
     if (!bAlreadyFound)
     {
-        itParticle = DepoData.find(*ParticleName);
+        itParticle = DepoData.find(ParticleName);
+
         if (itParticle == DepoData.end())
         {
-            DepoData.insert(*ParticleName, AParticleDepoStat(1, depo, depo*depo));
+            DepoData[ParticleName] = AParticleDepoStat(1, depo, depo*depo);
             return;
         }
+        else bAlreadyFound = true;
     }
 
-    itParticle.value().append(depo);
+    itParticle->second.append(depo);
 }
 
 void AHistorySearchProcessor_getDepositionStats::onTransitionOut(const ATrackingStepData &tr)
 {
     onLocalStep(tr);
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone()
+{
+    return new AHistorySearchProcessor_getDepositionStats(*this);
+}
+
+bool AHistorySearchProcessor_getDepositionStats::mergeResuts(const AHistorySearchProcessor & other)
+{
+    const AHistorySearchProcessor_getDepositionStats * from = dynamic_cast<const AHistorySearchProcessor_getDepositionStats*>(&other);
+    if (!from) return false;
+
+    for (const auto & itOther : from->DepoData)
+    {
+        auto itHere = DepoData.find(itOther.first);
+        if (itHere == DepoData.end())
+            DepoData[itOther.first] = itOther.second;
+        else
+            itHere->second.merge(itOther.second);
+    }
+    return true;
+}
+
+double AHistorySearchProcessor_getDepositionStats::getResults(std::vector<std::tuple<QString,double,double,int,double,double> > & data) const
+{
+    data.clear();
+    data.reserve(DepoData.size());
+
+    double sum = 0;
+    for (const auto & pair : DepoData)
+        sum += pair.second.sum;
+    const double sumInv = (sum > 0 ? 100.0/sum : 1.0);
+
+    // Particle SumDepo FractionDepo Number Mean Sigma     --> Mean!=0 if Number>1 ; Sigma !=0 if Number > 5
+    for (const auto & pair : DepoData)
+    {
+        const AParticleDepoStat & rec = pair.second;
+
+        double mean = rec.sum / rec.num;
+        double sigma = 0;
+        if (rec.num > 5) sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
+
+        data.push_back( {pair.first, rec.sum, rec.sum*sumInv, rec.num, (rec.num > 1 ? mean : 0), sigma} );
+    }
+
+    std::sort(data.begin(), data.end(),
+              [](const std::tuple<QString,double,double,int,double,double> & lhs, const std::tuple<QString,double,double,int,double,double> & rhs)
+                {return std::get<1>(lhs) > std::get<1>(rhs);}
+             );
+
+    return sum;
 }
 
 AHistorySearchProcessor_getDepositionStatsTimeAware::AHistorySearchProcessor_getDepositionStatsTimeAware(float timeFrom, float timeTo) :
@@ -1037,4 +1386,9 @@ void AHistorySearchProcessor_getDepositionStatsTimeAware::onLocalStep(const ATra
 void AHistorySearchProcessor_getDepositionStatsTimeAware::onTransitionOut(const ATrackingStepData &tr)
 {
     onLocalStep(tr);
+}
+
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStatsTimeAware::clone()
+{
+    return new AHistorySearchProcessor_getDepositionStatsTimeAware(*this);
 }

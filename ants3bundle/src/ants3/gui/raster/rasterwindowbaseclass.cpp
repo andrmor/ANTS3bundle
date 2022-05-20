@@ -16,9 +16,12 @@ RasterWindowBaseClass::RasterWindowBaseClass(QMainWindow *MasterWindow) : QWidge
 
   // set options needed to properly update the canvas when resizing the widget
   // and to properly handle context menus and mouse move events
-  setAttribute(Qt::WA_PaintOnScreen, false);
-  setAttribute(Qt::WA_OpaquePaintEvent, true);
-  setAttribute(Qt::WA_NativeWindow, true);
+
+  //setAttribute(Qt::WA_PaintOnScreen, false);
+  setAttribute(Qt::WA_PaintOnScreen, true); // required to add in header: QPaintEngine * paintEngine() const override {return nullptr;}
+  //setAttribute(Qt::WA_OpaquePaintEvent, true);
+  //setAttribute(Qt::WA_NativeWindow, true);
+
   setUpdatesEnabled(false);
   setMouseTracking(true);
   setMinimumSize(300, 200);
@@ -223,7 +226,10 @@ void RasterWindowBaseClass::wheelEvent(QWheelEvent *event)
   //double RotCenterY = ViewParameters.RotCenter[1];
 
   double factor = ( event->angleDelta().y() < 0 ? 1.25 : 0.8 );
-  setVisible(false); fCanvas->GetView()->ZoomView(0, 1.0/factor); setVisible(true);
+
+  setVisible(false);
+  fCanvas->GetView()->ZoomView(0, 1.0/factor);
+  setVisible(true);
 
   ViewParameters.read(fCanvas); //after zoom X0,Y0 will become 0, RotCenter remains unchanged
   ViewParameters.WinX = oldX0;
@@ -242,7 +248,7 @@ void RasterWindowBaseClass::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-void RasterWindowBaseClass::resizeEvent(QResizeEvent *event)
+void RasterWindowBaseClass::resizeEvent(QResizeEvent * event)
 {
     if (fCanvas)
     {

@@ -35,8 +35,6 @@ public:
 public slots:
   void UpdateGui(QString ObjectName = "");
   void onGridReshapeRequested(QString objName);
-  void objectMembersToScript(AGeoObject *Master, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
-  void objectToScript(AGeoObject *obj, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
   void rebuildDetectorAndRestoreCurrentDelegate();  // used by geoConst widget
   void onRequestShowPrototype(QString ProtoName);
   void onRequestIsValidPrototypeName(const QString & ProtoName, bool & bResult) const;
@@ -58,9 +56,9 @@ private slots:
   void onRemoveRecursiveTriggered();
 
 private:
-  AGeometryHub  & Geometry;
-  AGeoObject * World      = nullptr;
-  AGeoObject * Prototypes = nullptr;
+  AGeometryHub & Geometry;
+  AGeoObject   * World      = nullptr;
+  AGeoObject   * Prototypes = nullptr;
 
   AGeoDelegateWidget * EditWidget = nullptr;
 
@@ -69,7 +67,6 @@ private:
 
   //base images for icons
   QImage Lock;
-  //QImage GroupStart, GroupMid, GroupEnd;
   QImage StackStart, StackMid, StackEnd;
 
   //QColor BackgroundColor = QColor(240,240,240);
@@ -83,11 +80,11 @@ private:
   void markAsStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
-  void menuActionAddNewObject(AGeoObject * ContObj, AGeoShape * shape);
+  void menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape);
   void menuActionCloneObject(AGeoObject * obj);
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);
-  void ShowObjectOnly(AGeoObject * obj);
+  void ShowObjectOnly(AGeoObject * obj);  // !!!***
   void ShowAllInstances(AGeoObject * obj);
   void menuActionEnableDisable(AGeoObject * obj);
   void menuActionRemoveKeepContent(QTreeWidget * treeWidget);
@@ -103,19 +100,6 @@ private:
   void menuActionMakeItPrototype(const QList<QTreeWidgetItem *> & selected);
   void menuActionMoveProtoToWorld(AGeoObject * obj);
   void protoMenuEmptySelection(const QPoint & pos);
-
-  QString makeScriptString_basicObject(AGeoObject *obj, bool bExpandMaterials, bool usePython) const;
-  QString makeScriptString_slab(AGeoObject *obj, bool bExpandMaterials, int ident) const;
-  QString makeScriptString_arrayObject(AGeoObject *obj) const;
-  QString makeScriptString_instanceObject(AGeoObject *obj, bool usePython) const;
-  QString makeScriptString_prototypeObject(AGeoObject *obj) const;
-  QString makeScriptString_monitorBaseObject(const AGeoObject *obj) const;
-  QString makeScriptString_monitorConfig(const AGeoObject *obj) const;
-  QString makeScriptString_stackObjectStart(AGeoObject *obj) const;
-  QString makeScriptString_groupObjectStart(AGeoObject *obj) const;
-  QString makeScriptString_stackObjectEnd(AGeoObject *obj) const;
-  QString makeLinePropertiesString(AGeoObject *obj) const;
-  QString makeScriptString_DisabledObject(AGeoObject *obj) const;
 
 signals:
   void ObjectSelectionChanged(QString);

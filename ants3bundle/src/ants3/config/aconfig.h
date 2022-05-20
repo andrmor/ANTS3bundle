@@ -61,6 +61,7 @@ private:
 
 signals:
     void configLoaded();
+    void requestSaveGuiSettings();
 
 };
 

@@ -372,25 +372,18 @@ void AHist_SI::FillArr(QString HistName, const QVariantList X_Array, const QVari
     r->FillArr(val, weight);
 }
 
-void AHist_SI::Fill2DArr(QString HistName, const QVariant Array)
+void AHist_SI::Fill2DArr(QString HistName, QVariantList arrayXYW)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
     if (!r)
         abort("Histogram " + HistName + " not found!");
     else
     {
-        QVariantList VarList = Array.toList();
-        if (VarList.isEmpty())
-        {
-            abort("Array of arrays is expected as the second argument in hist.Fill2DArr()");
-            return;
-        }
-
-        QVector<double> xx(VarList.size()), yy(VarList.size()), weight(VarList.size());
+        QVector<double> xx(arrayXYW.size()), yy(arrayXYW.size()), weight(arrayXYW.size());
         bool bOK1, bOK2, bOK3;
-        for (int i=0; i<VarList.size(); i++)
+        for (int i=0; i<arrayXYW.size(); i++)
         {
-            QVariantList element = VarList.at(i).toList();
+            QVariantList element = arrayXYW.at(i).toList();
             switch (element.size())
             {
             case 2:

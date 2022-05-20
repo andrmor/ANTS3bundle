@@ -29,6 +29,9 @@ AConfig::AConfig()
 
 void AConfig::updateJSONfromConfig()
 {
+    // if gui is present, save gui settings
+    emit requestSaveGuiSettings();
+
     writeToJson(JSON);
 }
 
@@ -100,13 +103,13 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
 
+    Error = ASensorHub::getInstance().readFromJson(json); // Sensors should be read before geometry
+    if (!Error.isEmpty()) return Error;
+
     Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
 
     Error = AInterfaceRuleHub::getInstance().readFromJson(json);
-    if (!Error.isEmpty()) return Error;
-
-    Error = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
 
     Error = APhotonSimHub::getInstance().readFromJson(json);

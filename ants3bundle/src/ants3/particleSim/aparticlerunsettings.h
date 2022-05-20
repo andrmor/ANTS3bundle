@@ -2,6 +2,7 @@
 #define APARTICLERUNSETTINGS_H
 
 #include "amonitorsettings.h"
+#include "acalsettings.h"
 
 #include <string>
 #include <vector>
@@ -52,6 +53,8 @@ public:
     ASaveParticlesSettings SaveSettings;
 
     AMonitorSettings MonitorSettings;
+
+    ACalSettings CalorimeterSettings;
 
     bool        AsciiOutput    = true;
     int         AsciiPrecision = 6;

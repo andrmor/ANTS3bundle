@@ -1,6 +1,7 @@
 #include "ageoconsts.h"
 #include "ageoobject.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include "TFormula.h"
 
@@ -8,13 +9,15 @@
 
 AGeoConsts::AGeoConsts()
 {
-    FunctionsToJS << "abs" << "acos" << "asin" << "atan" << "ceil" << "floor" << "cos" << "exp" << "log" << "pow" << "sin" << "sqrt" << "tan";
+    FunctionsToJS = {"abs", "acos", "asin", "atan", "ceil", "floor", "cos", "exp", "log", "pow", "sin", "sqrt", "tan"};
 
-    FormulaReservedWords << "sqrt2" << "pi" << "ln10" << "infinity"
-                         << "pow" << "sin" << "cos" << "sqrt" << "exp" << "ceil" << "floor";
+    FormulaReservedWords = {"sqrt2", "pi", "e", "ln10", "infinity",
+                            "c", "r",
+                            "pow", "sin", "cos", "sqrt", "exp", "ceil", "floor"};
 
-    ForbiddenVarsRExp << QRegularExpression("\\bg\\b") << QRegularExpression("\\bh\\b") << QRegularExpression("\\bt\\b") << QRegularExpression("\\bk\\b") << QRegularExpression("\\bx\\b")
-                      << QRegularExpression("\\by\\b") << QRegularExpression("\\bz\\b") << QRegularExpression("\\bc\\b") << QRegularExpression("\\br\\b") << QRegularExpression("\\be\\b");
+    std::vector<QString> vec = {"g", "h", "t", "k", "x", "y", "z"};
+    for (const QString & s : vec)
+        ForbiddenVarsRExp.push_back(QRegularExpression("\\b" + s + "\\b"));
 }
 
 AGeoConsts &AGeoConsts::getInstance()
@@ -42,9 +45,9 @@ QString AGeoConsts::exportToScript(const AGeoObject * obj, const QString &Commen
 {
     QString GCScript;
 
-    if (!Records.isEmpty())
+    if (!Records.empty())
     {
-        for (int i = 0; i < Records.size(); i++)
+        for (int i = 0; i < (int)Records.size(); i++)
         {
             const AGeoConstRecord & r = Records.at(i);
             QRegularExpression nameRegExp("\\b" + r.Name + "\\b");
@@ -86,11 +89,17 @@ void AGeoConsts::clearConstants()
     GeoConstValues.clear();
 }
 
+void AGeoConsts::updateFromExpressions()
+{
+    for (int i = 0; i < (int)Records.size(); i++)
+        evaluateConstExpression(i);
+}
+
 void AGeoConsts::writeToJsonArr(QJsonArray & ar) const
 {
     ar = QJsonArray();
 
-    for (int i = 0; i < Records.size(); i++)
+    for (size_t i = 0; i < Records.size(); i++)
     {
         const AGeoConstRecord & r = Records.at(i);
         QJsonArray el;
@@ -130,23 +139,27 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
 }
 
 #include "TFormula.h"
-bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) const
+bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnValue, int to) const
 {
     if (to == -1) to = Records.size();
 
     for (int i = 0; i < to; i++)
         str.replace(Records.at(i).RegExp, Records.at(i).Index);
 
-    for (int ir = 0; ir < ForbiddenVarsRExp.size(); ir++)
+    for (const QRegularExpression & fe : ForbiddenVarsRExp)
     {
-        if (str.contains(ForbiddenVarsRExp.at(ir)) )
+        if (str.contains(fe))
+        {
+            error += QString("Geo constant (%0) contains invalid vars").arg(str);
             return false;
+        }
     }
 
     TFormula * f = new TFormula("", str.toLocal8Bit().data());
     if (!f || !f->IsValid())
     {
         delete f;
+        error += QString("String (%0) produces an invalid TFormula").arg(str);
         return false;
     }
 
@@ -155,7 +168,7 @@ bool AGeoConsts::evaluateFormula(QString str, double & returnValue, int to) cons
     return true;
 }
 
-bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero, bool bForbidNegative, bool bMakeHalf) const
+bool AGeoConsts::updateDoubleParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero, bool bForbidNegative, bool bMakeHalf) const
 {
     if (str.isEmpty()) return true;
 
@@ -164,32 +177,26 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, double & ret
     if (ok) str.clear();
     else
     {
-        ok = evaluateFormula(str, returnValue);
-        if (!ok)
-        {
-            errorStr = QString("Syntax error:\n%1").arg(str);
-            return false;
-        }
+        ok = evaluateFormula(errorStr, str, returnValue);
+        if (!ok) return false;
     }
 
     if (bForbidZero && returnValue == 0)
     {
-        errorStr = "Unacceptable zero value";
-        if (!str.isEmpty()) errorStr += " in: " + str;
+        errorStr += "Invalid zero value";
         return false;
     }
     if (bForbidNegative && returnValue < 0)
     {
-        errorStr = "Unacceptable negative value in";
-        if (!str.isEmpty()) errorStr += ": " + str;
-        else errorStr += ": " + QString::number(returnValue);
+        errorStr = "Invalid negative value";
         return false;
     }
+
     if (bMakeHalf) returnValue *= 0.5;
     return true;
 }
 
-bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero, bool bForbidNegative) const
+bool AGeoConsts::updateIntParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero, bool bForbidNegative) const
 {
     if (str.isEmpty()) return true;
 
@@ -199,26 +206,22 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & return
     else
     {
         double dRetVal;
-        ok = evaluateFormula(str, dRetVal);
-        if (!ok)
-        {
-            errorStr = QString("Syntax error:\n%1").arg(str);
-            return false;
-        }
+        ok = evaluateFormula(errorStr, str, dRetVal);
+        if (!ok) return false;
         returnValue = dRetVal;
     }
 
     if (bForbidZero && returnValue == 0)
     {
-        errorStr = "Unacceptable zero value";
-        if (!str.isEmpty()) errorStr += " in: " + str;
+        errorStr = "Invalid zero value";
+        //if (!str.isEmpty()) errorStr += " in expression: " + str;
         return false;
     }
     if (bForbidNegative && returnValue < 0)
     {
-        errorStr = "Unacceptable negative value in";
-        if (!str.isEmpty()) errorStr += ": " + str;
-        else errorStr += ": " + QString::number(returnValue);
+        errorStr = "Invalid negative value";
+        //if (!str.isEmpty()) errorStr += " in expression: " + str;
+        //else errorStr += ": " + QString::number(returnValue);
         return false;
     }
     return true;
@@ -226,26 +229,26 @@ bool AGeoConsts::updateParameter(QString & errorStr, QString & str, int & return
 
 QString AGeoConsts::getName(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     if (Records.at(index).Name == placeholderStr) return "";
     return Records.at(index).Name;
 }
 
 double AGeoConsts::getValue(int index) const
 {
-    if (index < 0 || index >= GeoConstValues.size()) return 0;
+    if (index < 0 || index >= (int)GeoConstValues.size()) return 0;
     return GeoConstValues.at(index);
 }
 
 QString AGeoConsts::getExpression(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     return Records.at(index).Expression;
 }
 
 QString AGeoConsts::getComment(int index) const
 {
-    if (index < 0 || index >= Records.size()) return "";
+    if (index < 0 || index >= (int)Records.size()) return "";
     return Records.at(index).Comment;
 }
 
@@ -262,8 +265,13 @@ bool AGeoConsts::evaluateConstExpression(int index)
         rec.Expression.clear();
     else
     {
-        ok = evaluateFormula(strCopy, val, index);
-        if (!ok) return false;
+        QString errorStr;
+        ok = evaluateFormula(errorStr, strCopy, val, index);
+        if (!ok)
+        {
+            AErrorHub::addQError("Error in Geo const expession " + rec.Name + ":\n  " + errorStr);
+            return false;
+        }
     }
     GeoConstValues[index] = val;
     return true;
@@ -271,7 +279,7 @@ bool AGeoConsts::evaluateConstExpression(int index)
 
 bool AGeoConsts::rename(int index, const QString & newName, AGeoObject * world, QString & errorStr)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
     AGeoConstRecord & rec = Records[index];
 
     if (newName == rec.Name) return true;
@@ -292,7 +300,7 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
     if (newName.contains(QRegularExpression("\\s"))) return "Name cannot contain whitespace charachters eg:\" \" or \"\\n\" ";
     if (newName.contains(QRegularExpression("\\W"))) return "Name can only contain word characters: [0-9], [A-Z], [a-z], _";
 
-    for (int i = 0; i < Records.size(); i++)
+    for (int i = 0; i < (int)Records.size(); i++)
     {
         if (i == index) continue;
         if (newName == Records.at(i).Name) return "This name is already in use";
@@ -302,14 +310,18 @@ QString AGeoConsts::isNameValid(int index, const QString & newName)
     for (const QString & word : FormulaReservedWords)
     {
         reservedQRegularExpression = QRegularExpression("\\b" + word + "\\b");
-        if (newName.contains(reservedQRegularExpression)) return QString("Name contains a TFormula reserved word: %1").arg(word);
+        if (newName.contains(reservedQRegularExpression)) return QString("Name is a TFormula reserved word: %1").arg(word);
     }
+
+    //for (const QRegularExpression & ex : ForbiddenVarsRExp)
+    //    if (newName.contains(ex)) return QString("Name is a TFormula reserved expression: %1").arg(newName);
+
     return "";
 }
 
 bool AGeoConsts::setNewValue(int index, double newValue)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
 
     GeoConstValues[index] = newValue;
     Records[index].Expression.clear();
@@ -318,7 +330,14 @@ bool AGeoConsts::setNewValue(int index, double newValue)
 
 QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 {
-    if (index < 0 || index >= Records.size()) return "Wrong index";
+    if (index < 0 || index >= (int)Records.size()) return "Wrong index";
+
+    if (newExpression.contains('[') || newExpression.contains(']'))
+    {
+        QString err = QString("Expression can not contain square brackets: %0").arg(newExpression);
+        AErrorHub::addQError(err);
+        return err;
+    }
 
     AGeoConstRecord & rec = Records[index];
     rec.Expression = newExpression;
@@ -330,13 +349,13 @@ QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 
 void AGeoConsts::setNewComment(int index, const QString & txt)
 {
-    if (index < 0 || index >= Records.size()) return;
+    if (index < 0 || index >= (int)Records.size()) return;
     Records[index].Comment = txt;
 }
 
 bool AGeoConsts::isIndexValid(int index)
 {
-    if (index < 0 || index >= Records.size()) return false;
+    if (index < 0 || index >= (int)Records.size()) return false;
     return true;
 }
 
@@ -346,7 +365,7 @@ QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
     const AGeoConstRecord & rec = Records[index];
     if (!rec.Expression.isEmpty())
     {
-        QString constInUseBellow = isGeoConstsBellowInUse(index);
+        QString constInUseBellow = isGeoConstsBelowInUse(index);
         if (!constInUseBellow.isEmpty())
             errorStr = QString("Expression not valid:\n"
                                "%1\n\n"
@@ -362,29 +381,29 @@ QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
     return errorStr;
 }
 
-QString AGeoConsts::isGeoConstsBellowInUse(int index) const
+QString AGeoConsts::isGeoConstsBelowInUse(int index) const
 {
-    for (int i = index+1; i < Records.size(); i++)
+    for (int i = index+1; i < (int)Records.size(); i++)
         if (Records.at(index).Expression.contains(Records.at(i).RegExp)) return Records.at(i).Name;
     return "";
 }
 
 QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const
 {
-    for (int i = index; i < Records.size(); i++)
+    for (int i = index; i < (int)Records.size(); i++)
         if (Records.at(i).Expression.contains(nameRegExp)) return Records.at(i).Name;
     return "";
 }
 
 void AGeoConsts::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index)
 {
-    for (int i = index; i < Records.size(); i++)
+    for (int i = index; i < (int)Records.size(); i++)
         Records[i].Expression.replace(nameRegExp, newName);
 }
 
 QString AGeoConsts::addNewConstant(const QString & name, double value, int index)
 {
-    if (index < -1 || index > Records.size()) return "Bad index for the new geo constant";
+    if (index < -1 || index > (int)Records.size()) return "Bad index for the new geo constant";
 
     QString errorStr;
     if (name != placeholderStr)
@@ -394,8 +413,8 @@ QString AGeoConsts::addNewConstant(const QString & name, double value, int index
     }
     if (index == -1) index = Records.size();
 
-    Records.insert(index, AGeoConstRecord(name));
-    GeoConstValues.insert(index, value);
+           Records.insert(Records.begin()        + index, AGeoConstRecord(name));
+    GeoConstValues.insert(GeoConstValues.begin() + index, value);
 
     updateRunTimeProperties();
 
@@ -409,10 +428,10 @@ void AGeoConsts::addNoNameConstant(int index)
 
 void AGeoConsts::removeConstant(int index)
 {
-    if (index < 0 || index >= Records.size()) return;
+    if (index < 0 || index >= (int)Records.size()) return;
 
-    Records.remove(index);
-    GeoConstValues.remove(index);
+           Records.erase(Records.begin()        + index);
+    GeoConstValues.erase(GeoConstValues.begin() + index);
 
     updateRunTimeProperties();
 }

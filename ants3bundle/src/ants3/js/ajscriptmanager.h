@@ -32,6 +32,9 @@ public:
     bool getError(QString & errorString, int & lineNumber); // false if busy or no error //***!!! handle interrupted
     int  getErrorLineNumber(); //-1 if no errors
 
+    bool   testMinimizationFunction();
+    double runMinimizationFunction(const double * p);
+
     void collectGarbage();
 private:
     void start();
@@ -49,7 +52,13 @@ protected:
     QThread        * Thread = nullptr;
     AJScriptWorker * Worker = nullptr;
 
-    bool bAborted = false;
+    bool             bAborted = false;
+
+public:
+    //for minimizer
+    QString          MiniFunctionName;
+    int              MiniNumVariables  = 0;
+    double           MiniBestResult    = 1e30;
 
 };
 

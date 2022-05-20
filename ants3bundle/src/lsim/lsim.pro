@@ -26,10 +26,14 @@ INCLUDEPATH += ../ants3/geo
 INCLUDEPATH += ../ants3/photonSim
 INCLUDEPATH += ../ants3/photonSim/interfaceRules
 INCLUDEPATH += ../ants3/tools
+INCLUDEPATH += ../ants3/particleSim # see comments below, needed only for calorimeters
 
 DEFINES += QT
 
 SOURCES += \
+        ../ants3/geo/acalorimeter.cpp \   # not needed for functionality, can be removed using a new DEFINE
+        ../ants3/geo/acalorimeterhub.cpp \ # not needed for functionality, can be removed using a new DEFINE
+        ../ants3/particleSim/acalsettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/amonitorhub.cpp \
         ../ants3/photonSim/adeporecord.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
@@ -41,6 +45,7 @@ SOURCES += \
         ../ants3/tools/aerrorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
+        ../ants3/tools/ajsontoolsroot.cpp \
         ../ants3/tools/arandomhub.cpp \
         ../ants3/geo/ageometryhub.cpp \
         ../ants3/geo/ageoconsts.cpp \
@@ -89,7 +94,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/geo/acalorimeter.h \
+    ../ants3/geo/acalorimeterhub.h \
     ../ants3/geo/amonitorhub.h \
+    ../ants3/particleSim/acalsettings.h \
     ../ants3/photonSim/adeporecord.h \
     ../ants3/photonSim/adepositionfilehandler.h \
     ../ants3/photonSim/afilehandlerbase.h \
@@ -100,6 +108,7 @@ HEADERS += \
     ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
+    ../ants3/tools/ajsontoolsroot.h \
     ../ants3/tools/arandomhub.h \
     ../ants3/geo/ageometryhub.h \
     ../ants3/geo/ageoconsts.h \

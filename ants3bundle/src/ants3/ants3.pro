@@ -46,6 +46,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
 
 INCLUDEPATH += js
+INCLUDEPATH += js/ScriptInterfaces
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
@@ -74,7 +75,13 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    geo/acalorimeter.cpp \
+    geo/acalorimeterhub.cpp \
+    gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/alineeditwithescape.cpp \
+    gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ashownumbersdialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -121,30 +128,46 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/script/ageoscriptmaker.cpp \
     gui/script/ahighlighters.cpp \
+    gui/script/ascriptbook.cpp \
     gui/script/ascriptwindow.cpp \
+    gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
-    js/aconfig_si.cpp \
-    js/acore_si.cpp \
-    js/ademo_si.cpp \
-    js/afarm_si.cpp \
-    js/ahist_si.cpp \
+    gui/script/atextoutputwindow.cpp \
+    js/ScriptInterfaces/ageo_si.cpp \
+    js/ScriptInterfaces/ageowin_si.cpp \
+    js/ScriptInterfaces/agraphwin_si.cpp \
+    js/ScriptInterfaces/amsg_si.cpp \
+    js/ScriptInterfaces/aparticlesim_si.cpp \
+    js/ScriptInterfaces/asensor_si.cpp \
     js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
-    js/amath_si.cpp \
-    js/apartanalysis_si.cpp \
     js/apeakfinder.cpp \
-    js/aphotonsim_si.cpp \
     js/arootgraphrecord.cpp \
     js/aroothistrecord.cpp \
     js/arootobjbase.cpp \
     js/arootobjcollection.cpp \
     js/aroottreerecord.cpp \
-    js/ascriptinterface.cpp \
     js/ascriptobjstore.cpp \
-    js/atrackrec_si.cpp \
-    js/agraph_si.cpp \
+    js/avarrecordbase.cpp \
+    js/ScriptInterfaces/aconfig_si.cpp \
+    js/ScriptInterfaces/acore_si.cpp \
+    js/ScriptInterfaces/ademo_si.cpp \
+    js/ScriptInterfaces/afarm_si.cpp \
+    js/ScriptInterfaces/ahist_si.cpp \
+    js/ScriptInterfaces/amath_si.cpp \
+    js/ScriptInterfaces/aminijs_si.cpp \
+    js/ScriptInterfaces/apartanalysis_si.cpp \
+    js/ScriptInterfaces/aphotonsim_si.cpp \
+    js/ScriptInterfaces/ascriptinterface.cpp \
+    js/ScriptInterfaces/ascriptminimizerbase.cpp \
+    js/ScriptInterfaces/atrackrec_si.cpp \
+    js/ScriptInterfaces/agraph_si.cpp \
+    js/ScriptInterfaces/atree_si.cpp \
+    js/ScriptInterfaces/awindowinterfacebase.cpp \
+    particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
     particleSim/afileparticlegenerator.cpp \
@@ -210,7 +233,9 @@ SOURCES += \
     photonSim/aphotonstatistics.cpp \
     photonSim/asensorsignalarray.cpp \
     tools/aerrorhub.cpp \
+    tools/ageowriter.cpp \
     tools/ahistogram.cpp \
+    tools/ajsontoolsroot.cpp \
     tools/aroothistappenders.cpp \
     photonSim/asensorhub.cpp \
     photonSim/asensormodel.cpp \
@@ -230,13 +255,21 @@ SOURCES += \
     gui/guitools.cpp \
     tools/arandomhub.cpp \
     tools/ath.cpp \
+    tools/athreadpool.cpp \
     tools/avector.cpp
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
+    ademomanager.h \
+    geo/acalorimeter.h \
+    geo/acalorimeterhub.h \
+    gui/aglobsetwindow.h \
     gui/aguiwindow.h \
+    gui/alineeditwithescape.h \
+    gui/geom/ageoconstexpressiondialog.h \
+    gui/geom/ashownumbersdialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/asensordrawwidget.h \
@@ -281,33 +314,49 @@ HEADERS += \
     gui/photsim/ainterfacerulewin.h \
     gui/photsim/ainterfacewidgetfactory.h \
     gui/photsim/aphotonsimoutputdialog.h \
-    ademomanager.h \
     gui/photsim/asensorgview.h \
     gui/photsim/asensorwindow.h \
+    gui/script/ageoscriptmaker.h \
     gui/script/ahighlighters.h \
+    gui/script/ascriptbook.h \
+    gui/script/ascriptlanguageenum.h \
     gui/script/ascriptwindow.h \
+    gui/script/atabrecord.h \
     gui/script/atextedit.h \
-    js/aconfig_si.h \
-    js/acore_si.h \
-    js/ademo_si.h \
-    js/afarm_si.h \
-    js/ahist_si.h \
-    js/ajscripthub.h \
-    js/ajscriptmanager.h \
-    js/ajscriptworker.h \
-    js/amath_si.h \
-    js/apartanalysis_si.h \
-    js/apeakfinder.h \
-    js/aphotonsim_si.h \
+    gui/script/atextoutputwindow.h \
+    js/ScriptInterfaces/ageo_si.h \
+    js/ScriptInterfaces/ageowin_si.h \
+    js/ScriptInterfaces/agraphwin_si.h \
+    js/ScriptInterfaces/amsg_si.h \
+    js/ScriptInterfaces/aparticlesim_si.h \
+    js/ScriptInterfaces/asensor_si.h \
     js/arootgraphrecord.h \
     js/aroothistrecord.h \
     js/arootobjbase.h \
     js/arootobjcollection.h \
     js/aroottreerecord.h \
-    js/ascriptinterface.h \
+    js/ajscripthub.h \
+    js/ajscriptmanager.h \
+    js/ajscriptworker.h \
+    js/apeakfinder.h \
     js/ascriptobjstore.h \
-    js/atrackrec_si.h \
-    js/agraph_si.h \
+    js/avarrecordbase.h \
+    js/ScriptInterfaces/aconfig_si.h \
+    js/ScriptInterfaces/acore_si.h \
+    js/ScriptInterfaces/ademo_si.h \
+    js/ScriptInterfaces/afarm_si.h \
+    js/ScriptInterfaces/ahist_si.h \
+    js/ScriptInterfaces/amath_si.h \
+    js/ScriptInterfaces/aminijs_si.h \
+    js/ScriptInterfaces/apartanalysis_si.h \
+    js/ScriptInterfaces/aphotonsim_si.h \
+    js/ScriptInterfaces/ascriptinterface.h \
+    js/ScriptInterfaces/ascriptminimizerbase.h \
+    js/ScriptInterfaces/atrackrec_si.h \
+    js/ScriptInterfaces/agraph_si.h \
+    js/ScriptInterfaces/atree_si.h \
+    js/ScriptInterfaces/awindowinterfacebase.h \
+    particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
     particleSim/afileparticlegenerator.h \
@@ -333,9 +382,25 @@ HEADERS += \
     photonSim/aphotonbombfilehandler.h \
     photonSim/aphotonfilehandler.h \
     photonSim/aphotonsimhub.h \
-    geo/ageometryhub.h \
-    materials/amaterialhub.h \
     photonSim/amonitorconfig.h \
+    photonSim/acommonfunctions.h \
+    photonSim/aphoton.h \
+    photonSim/aphotonsimmanager.h \
+    photonSim/aphotonsimsettings.h \
+    photonSim/aphotonstatistics.h \
+    photonSim/aphotontrackrecord.h \
+    photonSim/asensorsignalarray.h \
+    photonSim/asensorhub.h \
+    photonSim/asensormodel.h \
+    photonSim/astatisticshub.h \
+    photonSim/interfaceRules/abasicinterfacerule.h \
+    photonSim/interfaceRules/ainterfacerule.h \
+    photonSim/interfaceRules/ainterfacerulehub.h \
+    photonSim/interfaceRules/ametalinterfacerule.h \
+    photonSim/interfaceRules/aspectralbasicinterfacerule.h \
+    photonSim/interfaceRules/awaveshifterinterfacerule.h \
+    photonSim/interfaceRules/fsnpinterfacerule.h \
+    geo/ageometryhub.h \
     geo/ageoobject.h \
     geo/ageoshape.h \
     geo/ageotype.h \
@@ -361,6 +426,7 @@ HEADERS += \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
+    materials/amaterialhub.h \
     materials/achemicalelement.h \
     materials/aisotope.h \
     materials/aisotopeabundancehandler.h \
@@ -369,26 +435,11 @@ HEADERS += \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \
     farm/a3farmnoderecord.h \
-    photonSim/acommonfunctions.h \
-    photonSim/aphoton.h \
-    photonSim/aphotonsimmanager.h \
-    photonSim/aphotonsimsettings.h \
-    photonSim/aphotonstatistics.h \
-    photonSim/aphotontrackrecord.h \
-    photonSim/asensorsignalarray.h \
     tools/aerrorhub.h \
+    tools/ageowriter.h \
     tools/ahistogram.h \
+    tools/ajsontoolsroot.h \
     tools/aroothistappenders.h \
-    photonSim/asensorhub.h \
-    photonSim/asensormodel.h \
-    photonSim/astatisticshub.h \
-    photonSim/interfaceRules/abasicinterfacerule.h \
-    photonSim/interfaceRules/ainterfacerule.h \
-    photonSim/interfaceRules/ainterfacerulehub.h \
-    photonSim/interfaceRules/ametalinterfacerule.h \
-    photonSim/interfaceRules/aspectralbasicinterfacerule.h \
-    photonSim/interfaceRules/awaveshifterinterfacerule.h \
-    photonSim/interfaceRules/fsnpinterfacerule.h \
     tools/afilemerger.h \
     tools/agraphbuilder.h \
     tools/ajsontools.h \
@@ -397,9 +448,12 @@ HEADERS += \
     gui/guitools.h \
     tools/arandomhub.h \
     tools/ath.h \
+    tools/athreadpool.h \
     tools/avector.h
 
 FORMS += \
+        gui/geom/ashownumbersdialog.ui \
+        gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

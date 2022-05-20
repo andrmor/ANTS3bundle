@@ -79,6 +79,8 @@ public slots:
     void    processEvents();
 //  void    reportProgress(int percents);
 
+    void requestGuiUpdate();
+
     const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
     static void addQVariantToString(const QVariant & var, QString & string);

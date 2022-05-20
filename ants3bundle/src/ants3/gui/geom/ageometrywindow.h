@@ -2,13 +2,13 @@
 #define GEOMETRYWINDOWCLASS_H
 
 #include "aguiwindow.h"
+#include "ageowriter.h"
 
 #include <QVector>
 
 #include "TMathBase.h"
 
 class AGeometryHub;
-class ASimulationManager;
 class RasterWindowBaseClass;
 class QWebEngineView;
 class QWebEngineDownloadItem;
@@ -25,6 +25,8 @@ class AGeometryWindow : public AGuiWindow
 {
     Q_OBJECT
 
+friend class AShowNumbersDialog;
+
 public:
     explicit AGeometryWindow(QWidget * parent);
     ~AGeometryWindow();
@@ -34,14 +36,11 @@ public:
     bool fRecallWindow   = false;
     bool bDisableDraw    = false;
 
-    QVector<GeoMarkerClass*> GeoMarkers; // !!!*** to std::vector
-
-    enum EDraw {PMs, PhotMons, PartMons};
+    std::vector<GeoMarkerClass*> GeoMarkers;
 
     void ShowAndFocus();
     void SetAsActiveRootWindow();
     void ClearRootCanvas();
-    void UpdateRootCanvas();
 
     void SaveAs(const QString & filename);
     void OpenGLview();
@@ -59,17 +58,13 @@ public:
 
     bool isColorByMaterial() {return ColorByMaterial;}
 
-/*
-   void writeToJson(QJsonObject & json) const;
-   void readFromJson(const QJsonObject & json);
-*/
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     bool IsWorldVisible();
 
-//    void ShowEvent_Particles(size_t iEvent, bool withSecondaries);  // !!!***
     void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
     void ShowTracksAndMarkers();
-//    void ShowCustomNodes(int firstN); // !!!***
 
     void ClearTracks(bool bRefreshWindow = true);
 
@@ -79,27 +74,33 @@ protected:
 
 public slots:
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
+    void UpdateRootCanvas();
     void ShowTracks();
     void ShowPoint(double * r, bool keepTracks = false);
+    void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
-    void ShowPMnumbers();  // !!!***
-    void ShowMonitorIndexes();
+    void showPhotonMonIndexes();  // !!!***
+    void showParticleMonIndexes();  // !!!***
+    void showSensorIndexes();  // !!!***
+    void showCalorimeterIndexes();  // !!!***
+    void showSensorModelIndexes(int iModel = -1);  // !!!***
 
-    void ShowText(const QVector<QString> & strData, Color_t color, EDraw onWhat, bool bFullCycle = true);
+    void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void on_pbTop_clicked();
     void on_pbFront_clicked();
     void onRasterWindowChange();
     void readRasterWindowProperties();   // !*!
 
-    void on_pbShowPMnumbers_clicked();
     void on_pbShowTracks_clicked();
     void on_pbClearTracks_clicked();
 
     void clearGeoMarkers(int All_Rec_True = 0);
     void showGeoMarkers();
     void addPhotonNodeGeoMarker(const ANodeRecord & record);
+
+    void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
 
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item);
@@ -123,7 +124,6 @@ private slots:
     void on_actionDefault_zoom_to_0_triggered();
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
-    void on_pbShowMonitorIndexes_clicked();
     void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
     void on_actionJSROOT_in_browser_triggered();
@@ -131,14 +131,16 @@ private slots:
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
+    void on_pbClearMarkers_clicked();
+    void on_pbShowNumbers_clicked();
 
 private:
-    AGeometryHub         & Geometry;
+    AGeometryHub          & Geometry;
 
-    Ui::AGeometryWindow * ui = nullptr;
+    Ui::AGeometryWindow   * ui = nullptr;
     RasterWindowBaseClass * RasterWindow = nullptr;
 
-    ACameraControlDialog * CameraControl = nullptr;
+    ACameraControlDialog  * CameraControl = nullptr;
 
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
@@ -148,21 +150,16 @@ private:
     int GeoMarkerStyle = 6;
 
     bool TMPignore = false;
-    bool BarShown = true;
     bool ShowTop = false;
     bool ColorByMaterial = false;
 
-    //draw on PMs/Monitors related
-    QVector<QString> SymbolMap;
-    QVector< QVector < double > > numbersX;
-    QVector< QVector < double > > numbersY;
+    AGeoWriter GeoWriter;
 
 private:
     void doChangeLineWidth(int deltaWidth);
     void showWebView();
     void prepareGeoManager(bool ColorUpdateAllowed = true);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
-    void generateSymbolMap();
 
 signals:
     void requestUpdateRegisteredGeoManager();

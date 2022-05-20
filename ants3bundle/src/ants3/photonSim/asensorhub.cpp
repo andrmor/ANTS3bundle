@@ -1,4 +1,6 @@
 #include "asensorhub.h"
+#include "ageoobject.h"
+#include "ageoshape.h"
 #include "ajsontools.h"
 
 ASensorHub & ASensorHub::getInstance()
@@ -7,7 +9,7 @@ ASensorHub & ASensorHub::getInstance()
     return instance;
 }
 
-const ASensorHub &ASensorHub::getConstInstance()
+const ASensorHub & ASensorHub::getConstInstance()
 {
     return getInstance();
 }
@@ -48,17 +50,39 @@ const ASensorModel * ASensorHub::sensorModel(int iSensor) const
     return &Models[iModel];
 }
 
-void ASensorHub::addNewModel()
+int ASensorHub::getModelIndex(int iSensor) const
 {
-    Models.push_back(ASensorModel());
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return -1;
+    return SensorData[iSensor].ModelIndex;
 }
 
-void ASensorHub::cloneModel(int iModel)
+int ASensorHub::addNewModel()
 {
-    if (iModel < 0 || iModel >= (int)Models.size()) return;
+    Models.push_back(ASensorModel());
+    return Models.size()-1;
+}
+
+int ASensorHub::cloneModel(int iModel)
+{
+    if (iModel < 0 || iModel >= (int)Models.size()) return -1;
     ASensorModel newModel = Models[iModel];
     newModel.Name += "_Clone";
     Models.push_back(newModel);
+    return Models.size()-1;
+}
+
+void ASensorHub::clearAssignment()
+{
+    for (ASensorData & sd : SensorData)
+        sd.ModelIndex = 0;
+}
+
+void ASensorHub::setSensorModel(int iSensor, int iModel)
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return;
+    if (iModel  < 0 || iModel  >= (int)Models.size()) return;
+    SensorData[iSensor].ModelIndex = iModel;
+    PersistentModelAssignment = true;
 }
 
 QString ASensorHub::removeModel(int iModel)
@@ -72,6 +96,38 @@ QString ASensorHub::removeModel(int iModel)
 
     Models.erase(Models.begin() + iModel);
     return "";
+}
+
+AVector3 ASensorHub::getPosition(int iSensor) const
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return {0,0,0};
+    return getPositionFast(iSensor);
+}
+
+AVector3 ASensorHub::getPositionFast(int iSensor) const
+{
+    return SensorData[iSensor].Position;
+}
+
+double ASensorHub::getMinSize(int iSensor) const
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size())
+    {
+        qWarning() << "Invalid sensor index in ASensorHub::getMinSize()";
+        return 1000;
+    }
+    return getMinSizeFast(iSensor);
+}
+
+double ASensorHub::getMinSizeFast(int iSensor) const
+{
+    return SensorData[iSensor].GeoObj->Shape->minSize();    // !!!*** add minSize for all shapes!!!
+}
+
+AGeoObject * ASensorHub::getGeoObject(int iSensor) const
+{
+    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return nullptr;
+    return SensorData[iSensor].GeoObj;
 }
 
 bool ASensorHub::updateRuntimeProperties()
@@ -97,6 +153,12 @@ double ASensorHub::getMaxQEvsWave(int iWave) const
     return 1.0;
 }
 
+void ASensorHub::exitPersistentMode()
+{
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
+}
+
 double ASensorHub::getMaxQE() const
 {
     return 1.0;
@@ -113,12 +175,22 @@ void ASensorHub::writeToJson(QJsonObject & json) const
             ar.push_back(js);
         }
         mainJs["Models"] = ar;
+
+        QJsonArray arMA;
+        if (PersistentModelAssignment)
+            for (const ASensorData & sd : SensorData)
+                arMA << sd.ModelIndex;
+        mainJs["ModelAssignment"] = arMA;
     json["Sensors"] = mainJs;
 }
 
 QString ASensorHub::readFromJson(const QJsonObject & json)
 {
     Models.clear();
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
+
+    QString err;
 
     QJsonObject mainJs;
     bool ok = jstools::parseJson(json, "Sensors", mainJs);
@@ -126,22 +198,52 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
     {
         qWarning() << "No sensor data, adding a dummy sensor";
         Models.push_back(ASensorModel());
-        return "";
     }
-
-    QJsonArray ar;
-    jstools::parseJson(mainJs, "Models", ar);
-    Models.reserve(ar.size());
-
-    QString err;
-    for (int i = 0; i < ar.size(); i++)
+    else
     {
-        const QJsonObject js = ar[i].toObject();
-        ASensorModel model;
-        bool ok = model.readFromJson(js);
-        if (!ok) err = "Bad format of sensor model json";
-        Models.push_back(model);
+        QJsonArray ar;
+        jstools::parseJson(mainJs, "Models", ar);
+        Models.reserve(ar.size());
+
+        for (int i = 0; i < ar.size(); i++)
+        {
+            const QJsonObject js = ar[i].toObject();
+            ASensorModel model;
+            bool ok = model.readFromJson(js);
+            if (!ok)
+            {
+                if (!err.isEmpty()) err += "\n";
+                err += QString("Bad format of sensor model %0 json").arg(i);
+            }
+            Models.push_back(model);
+        }
     }
+
+    QJsonArray arMA;
+    ok = jstools::parseJson(mainJs, "ModelAssignment", arMA);
+    if (ok && !arMA.empty())
+    {
+        bool bFoundInvalidModelIndex = false;
+        PersistentModelAssignment = true;
+        const int maxModel = Models.size() - 1;
+        LoadedModelAssignment.reserve(arMA.size());
+        for (int i = 0; i < arMA.size(); i++)
+        {
+            int iMod = arMA[i].toInt();
+            if (iMod < 0 || iMod > maxModel)
+            {
+                iMod = 0;
+                bFoundInvalidModelIndex = true;
+            }
+            LoadedModelAssignment.push_back(iMod);
+        }
+        if (bFoundInvalidModelIndex)
+        {
+            if (!err.isEmpty()) err += "\n";
+            err += "Bad model index(es) in loaded ModelAssignment, replaced with 0";
+        }
+    }
+
     return err;
 }
 
@@ -149,4 +251,21 @@ ASensorHub::ASensorHub()
 {
     Models.resize(1);
     Models.front().Name = "Ideal";
+}
+
+void ASensorHub::clearSensors()
+{
+    SensorData.clear();
+}
+
+void ASensorHub::registerNextSensor(ASensorData & sr)
+{
+    if (PersistentModelAssignment)
+    {
+        const size_t index = SensorData.size();
+        sr.ModelIndex = ( index < LoadedModelAssignment.size() ? LoadedModelAssignment[index]
+                                                               : 0 );
+    }
+
+    SensorData.push_back(sr);
 }

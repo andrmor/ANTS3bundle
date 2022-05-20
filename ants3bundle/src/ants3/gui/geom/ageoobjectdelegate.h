@@ -23,6 +23,8 @@ class QDialog;
 class QListWidget;
 class QTableWidget;
 class AOneLineTextEdit;
+class QFrame;
+class ACalorimeterProperties;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -38,7 +40,7 @@ public:
 
     void Update(const AGeoObject * obj) override;
 
-private:
+protected:
     QVBoxLayout * lMF = nullptr;      //main layout
 
     QWidget * scaleWidget = nullptr;
@@ -46,7 +48,6 @@ private:
     AOneLineTextEdit * ledScaleY   = nullptr;
     AOneLineTextEdit * ledScaleZ   = nullptr;
 
-protected:
     const AGeoObject * CurrentObject = nullptr;
 
     AGeoShape * ShapeCopy = nullptr;
@@ -69,9 +70,13 @@ protected:
 
     QStringList ListOfShapesForTransform;
 
-    QWidget * RoleWidget;
-    QComboBox * cobRole;
-    QComboBox * cobSensorModel;
+    QWidget   * RoleWidget = nullptr;
+    QComboBox * cobRole = nullptr;
+    QComboBox * cobSensorModel = nullptr;
+    AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
+    AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
+    AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
+    QCheckBox *cbOffX, *cbOffY, *cbOffZ;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
@@ -85,8 +90,8 @@ protected:
     const AGeoShape * getBaseShapeOfObject(const AGeoObject *obj);
     void updateTypeLabel();
     void updateControlUI();
-    void initSlabDelegate(int SlabModelState); // TODO: kill
-    QWidget * crateSpecialRoleWidget();
+    void crateSpecialRoleWidget();
+    void updateCalorimeterGui(const ACalorimeterProperties & p);
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);
@@ -94,6 +99,10 @@ private:
 signals:
     void RequestChangeShape(AGeoShape * newShape);
     void RequestChangeSlabShape(int Shape);
+
+public:
+    static bool processDoubleEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str, bool bForbidZero, bool bForbidNegative, bool bMakeHalf, QWidget * parent);
+    static bool processIntEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, int & val, QString & str, bool bForbidZero, bool bForbidNegative, QWidget * parent);
 };
 
 
@@ -419,7 +428,7 @@ protected:
 
 private slots:
     void onReorderSections(int /*logicalIndex*/, int oldVisualIndex, int newVisualIndex);
-    void onCellEdited();
+    void onCellEdited();  // !!!*** check error handling
     void onAddAbove();
     void onAddBellow();
 };
@@ -492,6 +501,7 @@ protected:
     AOneLineTextEdit *ledNumX, *ledNumY, *ledNumZ;
     AOneLineTextEdit *ledStepX, *ledStepY, *ledStepZ;
     AOneLineTextEdit *ledStartIndex;
+    QCheckBox        *cbCenterSym;
 };
 
 class AGeoCircularArrayDelegate : public AGeoObjectDelegate

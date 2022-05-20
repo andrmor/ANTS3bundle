@@ -20,6 +20,7 @@ private:
 
     bool isAccordingTo(const std::string & name, const std::string & wildcard) const;
     void setStepLimiters();
+    void removeVolumeNameDecorator(std::string & name);
 };
 
 #endif // DetectorConstruction_h

@@ -4,56 +4,44 @@
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
 
-class AHighlighterScriptWindow : public QSyntaxHighlighter
+struct HighlightingRule
+{
+    QRegularExpression Pattern;
+    QTextCharFormat    Format;
+};
+
+class AHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
-public:
-    AHighlighterScriptWindow(QTextDocument *parent = 0);
-    virtual ~AHighlighterScriptWindow() {}
 
-    void setHighlighterRules(const QStringList & units, const QStringList &functions, const QStringList &deprecatedOrRemoved, const QStringList &constants);
+public:
+    AHighlighter(QTextDocument * parent);
+
+    void setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants);
 
 protected:
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString & text);
+
+    QVector<HighlightingRule> highlightingRules; // !!!*** to std::vector
+
     bool bMultilineCommentAllowed = true;
-
-//private:
-    struct HighlightingRule
-      {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-      };
-    QVector<HighlightingRule> highlightingRules;
-
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
-
-    QTextCharFormat keywordFormat;
-    QTextCharFormat customKeywordFormat;
-    QTextCharFormat unitFormat;
-    QTextCharFormat singleLineCommentFormat;
     QTextCharFormat multiLineCommentFormat;
-    QTextCharFormat quotationFormat;
-    QTextCharFormat charFormat;
-//    QTextCharFormat functionFormat;
-    QTextCharFormat deprecatedOrRemovedFormat;
 };
 
-class AHighlighterLrfScript : public AHighlighterScriptWindow
+class AHighlighterJS : public AHighlighter
 {
     Q_OBJECT
 public:
-    AHighlighterLrfScript(QTextDocument *parent = 0);
-
-private:
-    void setFixedVariables();
+    AHighlighterJS(QTextDocument * parent = nullptr);
 };
 
-class APythonHighlighter : public AHighlighterScriptWindow
+class AHighlighterPython : public AHighlighter
 {
     Q_OBJECT
 public:
-    APythonHighlighter(QTextDocument *parent = 0);
+    AHighlighterPython(QTextDocument * parent = nullptr);
 };
 
 #endif // AHIGHLIGHTERS_H

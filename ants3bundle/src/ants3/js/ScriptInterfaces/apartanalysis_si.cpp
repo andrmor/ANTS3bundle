@@ -21,10 +21,11 @@ APartAnalysis_SI::~APartAnalysis_SI()
     delete Crawler;
 }
 
-void APartAnalysis_SI::configure(QString fileName, bool binary)
+void APartAnalysis_SI::configure(QString fileName, bool binary, int numThreads)
 {
-    FileName = fileName;
+    FileName    = fileName;
     bBinaryFile = binary;
+    NumThreads  = numThreads;
 }
 
 void APartAnalysis_SI::clearCriteria()
@@ -119,6 +120,32 @@ void APartAnalysis_SI::setOnlyEscaping()
     Criteria->bCreated = false;
 }
 
+#include "athreadpool.h"
+#include "arandomhub.h"
+void APartAnalysis_SI::test(int numThreads)
+{
+    AThreadPool pool(numThreads);
+
+    for(int i = 0; i < 8; ++i)
+    {
+        //qDebug() << "preparing job #" << i;
+        while (pool.isFull()) {std::this_thread::sleep_for(std::chrono::microseconds(1));}
+        qDebug() << "Adding job to pool: #" << i;
+
+        pool.addJob([i]()
+        {
+            qDebug() << "  -->" << i;
+            std::this_thread::sleep_for(std::chrono::seconds(2) + ARandomHub::getInstance().uniform()*std::chrono::seconds(3));
+            qDebug() << "     <--" << i;
+        });
+    }
+
+    qDebug() << "Waiting for jobs to finish...";
+    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::microseconds(1000));}
+
+    qDebug() << "Done!";
+}
+
 // ---
 
 bool APartAnalysis_SI::initCrawler()
@@ -148,16 +175,15 @@ QVariantList APartAnalysis_SI::findParticles()
     if (!ok) return vl;
 
     AHistorySearchProcessor_findParticles p;
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, int>::const_iterator it = p.FoundParticles.constBegin();
-    while (it != p.FoundParticles.constEnd())
+    for (const auto & pair : p.FoundParticles)
     {
         QVariantList el;
-        el << it.key() << it.value();
+        el << pair.first << pair.second;
         vl.push_back(el);
-        ++it;
     }
+
     return vl;
 }
 
@@ -177,15 +203,13 @@ QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2, bool 
     AHistorySearchProcessor_findProcesses::SelectionMode mode = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(All0_WithDepo1_TrackEnd2);
 
     AHistorySearchProcessor_findProcesses p(mode, onlyHadronic, targetIsotopeStartsFrom);
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, int>::const_iterator it = p.FoundProcesses.constBegin();
-    while (it != p.FoundProcesses.constEnd())
+    for (const auto & pair : p.FoundProcesses)
     {
         QVariantList el;
-        el << it.key() << it.value();
+        el << pair.first << pair.second;
         vl.push_back(el);
-        ++it;
     }
     return vl;
 }
@@ -197,7 +221,7 @@ QVariantList APartAnalysis_SI::findDepE(AHistorySearchProcessor_findDepositedEne
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
     int numBins = p.Hist->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -235,18 +259,16 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats()
     if (!ok) return vl;
 
     AHistorySearchProcessor_getDepositionStats p;
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, AParticleDepoStat>::const_iterator it = p.DepoData.constBegin();
-    while (it != p.DepoData.constEnd())
+    for (const auto & dat : p.DepoData)
     {
         QVariantList el;
-        const AParticleDepoStat & rec = it.value();
+        const AParticleDepoStat & rec = dat.second;
         const double mean = rec.sum / rec.num;
         const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-        el << it.key() << rec.num << mean << sigma;
+        el << dat.first << rec.num << mean << sigma;
         vl.push_back(el);
-        ++it;
     }
     return vl;
 }
@@ -259,18 +281,16 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats(double timeFrom, double 
     if (!ok) return vl;
 
     AHistorySearchProcessor_getDepositionStatsTimeAware p(timeFrom, timeTo);
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
-    QMap<QString, AParticleDepoStat>::const_iterator it = p.DepoData.constBegin();
-    while (it != p.DepoData.constEnd())
+    for (const auto & dat : p.DepoData)
     {
         QVariantList el;
-        const AParticleDepoStat & rec = it.value();
+        const AParticleDepoStat & rec = dat.second;
         const double mean = rec.sum / rec.num;
         const double sigma = sqrt( (rec.sumOfSquares - 2.0*mean*rec.sum)/rec.num + mean*mean );
-        el << it.key() << rec.num << mean << sigma;
+        el << dat.first << rec.num << mean << sigma;
         vl.push_back(el);
-        ++it;
     }
     return vl;
 }
@@ -283,7 +303,7 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
     if (!ok) return vl;
 
     AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
     int numBins = p.Hist->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -295,28 +315,18 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
     return vl;
 }
 
-QVariantList APartAnalysis_SI::findChannels()
+QVariantList APartAnalysis_SI::findhadronicChannels()
 {
     QVariantList vl;
 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    AHistorySearchProcessor_findChannels p;
-    Crawler->find(*Criteria, p);
+    AHistorySearchProcessor_findHadronicChannels p;
+    Crawler->find(*Criteria, p, NumThreads);
 
     std::vector<std::pair<QString,int>> vec;
-    QMap<QString, int>::const_iterator it = p.Channels.constBegin();
-    while (it != p.Channels.constEnd())
-    {
-        vec.push_back( {it.key(), it.value()} );
-        ++it;
-    }
-
-    std::sort(vec.begin(), vec.end(),
-              [](const std::pair<QString,int> & lhs, const std::pair<QString,int> & rhs)
-                {return lhs.second > rhs.second;}
-             );
+    p.getResults(vec);
 
     for (const auto & p : vec)
     {
@@ -335,7 +345,7 @@ const QVariantList APartAnalysis_SI::findOB_1D(AHistorySearchProcessor_Border & 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
     int numBins = p.Hist1D->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -378,7 +388,7 @@ const QVariantList APartAnalysis_SI::findOB_2D(AHistorySearchProcessor_Border & 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p);
+    Crawler->find(*Criteria, p, NumThreads);
 
     int numX = p.Hist2D->GetXaxis()->GetNbins();
     int numY = p.Hist2D->GetYaxis()->GetNbins();

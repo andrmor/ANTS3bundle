@@ -5,6 +5,7 @@
 #include "ajsontools.h"
 //        #include "agridelementrecord.h"
 #include "ageoconsts.h"
+#include "aerrorhub.h"
 
 #include <cmath>
 
@@ -14,7 +15,7 @@
 
 void AGeoObject::constructorInit()
 {
-    Name = GenerateRandomObjectName();
+    if (Name.isEmpty()) Name = GenerateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -22,16 +23,29 @@ void AGeoObject::constructorInit()
 
 AGeoObject::AGeoObject(QString name, QString ShapeGenerationString)
 {
-    constructorInit();
+    Type = new ATypeSingleObject();
 
     if (!name.isEmpty()) Name = name;
     color = -1;
 
-    Type = new ATypeSingleObject();
+    constructorInit();
 
     Shape = new AGeoBox();
     if (!ShapeGenerationString.isEmpty())
         readShapeFromString(ShapeGenerationString);
+}
+
+AGeoObject::AGeoObject(const QString & name, AGeoShape * shape)
+{
+    Type = new ATypeSingleObject();
+
+    if (!name.isEmpty()) Name = name;
+    color = -1;
+
+    constructorInit();
+
+    if (!shape) shape = new AGeoBox();
+    Shape = shape;
 }
 
 AGeoObject::AGeoObject(const AGeoObject *objToCopy)
@@ -152,6 +166,18 @@ bool AGeoObject::isWorld() const
 {
     if (!Type) return false;
     return Type->isWorld();
+}
+
+bool AGeoObject::isSensor() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoSensor*>(Role);
+}
+
+bool AGeoObject::isCalorimeter() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoCalorimeter*>(Role);
 }
 
 int AGeoObject::getMaterial() const
@@ -311,7 +337,7 @@ void AGeoObject::readFromJson(const QJsonObject & json)
     {
         QString tmpType;
         jstools::parseJson(jj, "Type", tmpType);
-        AGeoType * newType = AGeoType::TypeObjectFactory(tmpType);
+        AGeoType * newType = AGeoType::makeTypeObject(tmpType);
         if (newType)
         {
             delete Type; Type = newType;
@@ -332,23 +358,48 @@ void AGeoObject::introduceGeoConstValues()
 {
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
-    // TODO: add error control !!!***
+    QString errorStr;
 
-    if (!PositionStr[0].isEmpty()) GC.evaluateFormula(PositionStr[0], Position[0]);
-    if (!PositionStr[1].isEmpty()) GC.evaluateFormula(PositionStr[1], Position[1]);
-    if (!PositionStr[2].isEmpty()) GC.evaluateFormula(PositionStr[2], Position[2]);
-
-    if (!OrientationStr[0].isEmpty()) GC.evaluateFormula(OrientationStr[0], Orientation[0]);
-    if (!OrientationStr[1].isEmpty()) GC.evaluateFormula(OrientationStr[1], Orientation[1]);
-    if (!OrientationStr[2].isEmpty()) GC.evaluateFormula(OrientationStr[2], Orientation[2]);
-
-    if (Shape) Shape->introduceGeoConstValues();
-
-    if (Type)
+    if (!PositionStr[0].isEmpty())
     {
-        Type->introduceGeoConstValues();
-        if (Type->isMonitor()) updateMonitorShape();
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[0], Position[0]);
+        if (!ok) errorStr += "in X position\n";
     }
+    if (!PositionStr[1].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[1], Position[1]);
+        if (!ok) errorStr += "in Y position\n";
+    }
+    if (!PositionStr[2].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, PositionStr[2], Position[2]);
+        if (!ok) errorStr += "in Z position\n";
+    }
+
+    if (!OrientationStr[0].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[0], Orientation[0]);
+        if (!ok) errorStr += "in Phi orientation\n";
+    }
+    if (!OrientationStr[1].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[1], Orientation[1]);
+        if (!ok) errorStr += "in Theta orientation\n";
+    }
+    if (!OrientationStr[2].isEmpty())
+    {
+        bool ok = GC.evaluateFormula(errorStr, OrientationStr[2], Orientation[2]);
+        if (!ok) errorStr += "in Psi orientation\n";
+    }
+
+    if (Shape) Shape->introduceGeoConstValues(errorStr);
+
+    if (Type)  Type->introduceGeoConstValues(errorStr);
+
+    if (Role)  Role->introduceGeoConstValues(errorStr);
+
+    if (!errorStr.isEmpty())
+        AErrorHub::addQError(Name + ":\n" + errorStr);
 }
 
 void AGeoObject::introduceGeoConstValuesRecursive()
@@ -566,13 +617,15 @@ void AGeoObject::updateMonitorShape()
 {
     if (!Type->isMonitor())
     {
-        qWarning() << "Attempt to update monitor shape for non-monitor object";
+        QString err = "Attempt to update monitor shape for a non-monitor object" + Name;
+        qWarning() << err;
+        AErrorHub::addQError(err);
         return;
     }
 
-    ATypeMonitorObject* mon = static_cast<ATypeMonitorObject*>(Type);
-    delete Shape;
+    ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
 
+    delete Shape;
     if (mon->config.shape == 0) //rectangular
         Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
     else //round
@@ -586,6 +639,14 @@ const AMonitorConfig * AGeoObject::getMonitorConfig() const
     if (!mon) return nullptr;
 
     return &mon->config;
+}
+
+const ACalorimeterProperties * AGeoObject::getCalorimeterProperties() const
+{
+    if (!Role) return nullptr;
+    const AGeoCalorimeter * gc = dynamic_cast<const AGeoCalorimeter*>(Role);
+    if (!gc) return nullptr;
+    return & gc->Properties;
 }
 
 bool AGeoObject::isStackMember() const
@@ -788,7 +849,6 @@ bool AGeoObject::suicide()
 {
     //if (fLocked) return false;
     if (Type->isWorld()) return false; //cannot delete world
-    if (Type->isHandlingStatic()) return false;
 
     //cannot remove logicals used by composite (and the logicals container itself); the composite kills itself!
     if (Type->isCompositeContainer()) return false;
@@ -850,7 +910,7 @@ bool AGeoObject::suicide()
 
 void AGeoObject::recursiveSuicide()
 {
-    if (Type->isPrototypes()) return;
+    if (Type->isPrototypeCollection()) return;
 
     for (int i=HostedObjects.size()-1; i >= 0; i--)
         HostedObjects[i]->recursiveSuicide();
@@ -1007,7 +1067,7 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
 bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
     if (Type->isMonitor())    return false; //monitors are always made of Container's material and cannot host objects
-    if (Type->isPrototypes()) return false;
+    if (Type->isPrototypeCollection()) return false;
     if (Type->isPrototype())  return false;
     if (Type->isInstance())   return false;
 
@@ -1331,6 +1391,12 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
     return bFoundInUse;
 }
 
+bool AGeoObject::isGoodContainerForInstance() const
+{
+    if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
+    return false;
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {
@@ -1363,48 +1429,6 @@ QString AGeoObject::GenerateRandomObjectName()
 {
     QString str = randomString(2, 1);
     str = "New_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomPrototypeName()
-{
-    QString str = randomString(2, 1);
-    str = "Prototype_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomCompositeName()
-{
-    QString str = randomString(2, 1);
-    str = "Composite_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomArrayName()
-{
-    QString str = randomString(1, 1);
-    str = "Array_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomGridName()
-{
-    QString str = randomString(1, 1);
-    str = "Grid_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomStackName()
-{
-    QString str = randomString(2, 1);
-    str = "Stack_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomMonitorName()
-{
-    QString str = randomString(2, 1);
-    str = "Monitor_" + str;
     return str;
 }
 

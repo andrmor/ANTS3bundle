@@ -15,6 +15,7 @@
 class G4ParticleDefinition;
 class G4StepPoint;
 class MonitorSensitiveDetector;
+class CalorimeterSensitiveDetector;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 class AParticleGun;
@@ -97,6 +98,7 @@ public:
         int CurrentEvent = 0;
 
         std::vector<MonitorSensitiveDetector*> Monitors; //can contain nullptr!
+        std::vector<CalorimeterSensitiveDetector*> Calorimeters; //can contain nullptr!
 
         const G4String DepoLoggerSDName = "SD";
 
@@ -109,6 +111,7 @@ private:
         void executeAdditionalCommands();
         void generateReceipt();
         void storeMonitorsData();
+        void storeCalorimeterData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
 
     private:

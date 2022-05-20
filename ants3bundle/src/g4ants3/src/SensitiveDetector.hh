@@ -6,14 +6,15 @@
 
 class G4Step;
 class G4HCofThisEvent;
+class AHistogram3Dfixed;
 
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
     SensitiveDetector(const G4String & name);
-    virtual ~SensitiveDetector();
+    ~SensitiveDetector();
 
-    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+    G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 };
 
 class AHistogram1D;
@@ -23,9 +24,9 @@ class MonitorSensitiveDetector : public G4VSensitiveDetector
 {
 public:
     MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index);
-    virtual ~MonitorSensitiveDetector();
+    ~MonitorSensitiveDetector();
 
-    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+    G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 
     void readFromJson(const json11::Json & json);
     void writeToJson(json11::Json::object & json);
@@ -70,6 +71,26 @@ public:
 
 protected:
     void writeHist1D(AHistogram1D *hist, json11::Json::object & json) const;
+};
+
+#include "acalsettings.h"
+class CalorimeterSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index);
+    ~CalorimeterSensitiveDetector();
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+
+    void writeToJson(json11::Json::object & json);
+
+    std::string Name;
+    const ACalorimeterProperties & Properties;
+    int CalorimeterIndex;
+
+    //run-time
+    AHistogram3Dfixed * Data = nullptr;
+
 };
 
 #endif // SensitiveDetector_h

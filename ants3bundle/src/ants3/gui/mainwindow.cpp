@@ -17,10 +17,12 @@
 #include "aparticlesimwin.h"
 #include "ajscripthub.h"
 #include "ascriptwindow.h"
+#include "aglobsetwindow.h"
 #include "ademowindow.h"
 
 #include <QDebug>
 #include <QTimer>
+#include <QFile>
 
 #include "TObject.h"
 
@@ -35,21 +37,19 @@ MainWindow::MainWindow() :
     AGeometryHub::getInstance().populateGeoManager();
 
   // Main signal->slot lines
-    connect(&Config, &AConfig::configLoaded, this, &MainWindow::updateAllGuiFromConfig);
+    connect(&Config, &AConfig::configLoaded,           this, &MainWindow::updateAllGuiFromConfig);
+    connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
     GeoConWin = new A3GeoConWin(this);
     connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &A3GeoConWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestShowTracks,   GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,  GeoWin, &AGeometryWindow::FocusVolume);
-    GeoWin->show();
-    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
-    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
-    GeoWin->ShowGeometry(false);
-    GeoWin->hide();
+    connect(GeoConWin, &A3GeoConWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoConWin, &A3GeoConWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
@@ -57,6 +57,7 @@ MainWindow::MainWindow() :
     RuleWin = new AInterfaceRuleWin(this);
 
     SensWin = new ASensorWindow(this);
+    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
 
     PhotSimWin = new A3PhotSimWin(this);
     connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin, &AGeometryWindow::ShowGeometry);
@@ -75,8 +76,12 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin,   &AGeometryWindow::ShowTracks);
     connect(PartSimWin, &AParticleSimWin::requestShowPosition, GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PartSimWin, &AParticleSimWin::requestAddMarker,    GeoWin,   &AGeometryWindow::addGenerationMarker);
+    connect(PartSimWin, &AParticleSimWin::requestClearMarkers, GeoWin,   &AGeometryWindow::clearGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
+
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &A3GeoConWin::UpdateGeoTree);
 
     //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
@@ -86,11 +91,24 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
+    connect(GeoConWin,  &A3GeoConWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
+
+    GlobSetWin = new AGlobSetWindow(this);
 
     DemoWin = new ADemoWindow(this);
 
+    connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
+
     loadWindowGeometries();
+
+    bool bShown = GeoWin->isVisible();
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(false);
+    if (!bShown) GeoWin->hide();
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -112,7 +130,7 @@ MainWindow::MainWindow() :
     */
 
   // Finalizing
-    updateGui();
+    updateAllGuiFromConfig(); //updateGui();
 }
 
 MainWindow::~MainWindow()
@@ -141,25 +159,84 @@ void MainWindow::onRebuildGeometryRequested()
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoConWin->updateGui();
+    GeoConWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbGeometry_clicked()
 {
     GeoConWin->showNormal();
+    GeoConWin->activateWindow();
     GeoConWin->updateGui();
 }
 
 void MainWindow::on_pbGeoWin_clicked()
 {
     GeoWin->showNormal();
+    GeoWin->activateWindow();
     GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbMaterials_clicked()
 {
     MatWin->showNormal();
+    MatWin->activateWindow();
 }
+
+void MainWindow::on_pbPhotSim_clicked()
+{
+    PhotSimWin->showNormal();
+    PhotSimWin->activateWindow();
+    PhotSimWin->updateGui();
+}
+
+void MainWindow::on_pbInterfaceRules_clicked()
+{
+    RuleWin->showNormal();
+    RuleWin->activateWindow();
+    RuleWin->updateGui();
+}
+
+void MainWindow::on_pbGraphWin_clicked()
+{
+    GraphWin->showNormal();
+    GraphWin->activateWindow();
+}
+
+void MainWindow::on_pbFarm_clicked()
+{
+    FarmWin->showNormal();
+    FarmWin->activateWindow();
+    FarmWin->updateGui();
+}
+
+void MainWindow::on_pbGlobSet_clicked()
+{
+    GlobSetWin->showNormal();
+    GlobSetWin->activateWindow();
+    GlobSetWin->updateGui();
+}
+
+void MainWindow::on_pbParticleSim_clicked()
+{
+    PartSimWin->showNormal();
+    PartSimWin->activateWindow();
+    PartSimWin->updateGui();
+}
+
+void MainWindow::on_pbJavaScript_clicked()
+{
+    JScriptWin->showNormal();
+    JScriptWin->activateWindow();
+    JScriptWin->updateGui();
+}
+
+void MainWindow::on_pbDemo_clicked()
+{
+    DemoWin->showNormal();
+    DemoWin->activateWindow();
+}
+
 
 void MainWindow::on_pbLoadConfig_clicked()
 {
@@ -175,6 +252,7 @@ void MainWindow::on_actionSave_configuration_triggered()
 {
     QString fileName = guitools::dialogSaveFile(this, "Save configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
+    if (!fileName.endsWith(".json")) fileName += ".json";
 
     QString err = Config.save(fileName);
     if (!err.isEmpty()) guitools::message(err, this);
@@ -248,66 +326,44 @@ void MainWindow::on_actionExit_triggered()
 
 // ---
 
+#include "ajsontools.h"
 void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
 
     GeoConWin->updateGui();
     MatWin->initWindow();
+    SensWin->updateGui();
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
 
     //rules !!!***
 
+    QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "GeometryWindow", js);
+        if (ok) GeoWin->readFromJson(js);
+    }
+
+    GeoWin->fRecallWindow = false;
     GeoWin->ShowGeometry(false, false, true);
 }
 
-void MainWindow::on_pbPhotSim_clicked()
+void MainWindow::onRequestSaveGuiSettings()
 {
-    PhotSimWin->showNormal();
-    PhotSimWin->activateWindow();
-    PhotSimWin->updateGui();
-}
+    QJsonObject & JSON = AConfig::getInstance().JSON;
 
-void MainWindow::on_pbInterfaceRules_clicked()
-{
-    RuleWin->showNormal();
-    RuleWin->activateWindow();
-    RuleWin->updateGui();
-}
+    QJsonObject json;
 
-void MainWindow::on_pbGraphWin_clicked()
-{
-    GraphWin->showNormal();
-    GraphWin->activateWindow();
-}
+    {
+        QJsonObject js;
+        GeoWin->writeToJson(js);
+        json["GeometryWindow"] = js;
+    }
 
-void MainWindow::on_pbFarm_clicked()
-{
-    FarmWin->showNormal();
-    FarmWin->activateWindow();
-    FarmWin->updateGui();
-}
-
-void MainWindow::on_pbParticleSim_clicked()
-{
-    PartSimWin->showNormal();
-    PartSimWin->activateWindow();
-    PartSimWin->updateGui();
-}
-
-void MainWindow::on_pbJavaScript_clicked()
-{
-    JScriptWin->showNormal();
-    JScriptWin->activateWindow();
-    JScriptWin->updateGui();
-}
-
-void MainWindow::on_pbDemo_clicked()
-{
-    DemoWin->showNormal();
-    DemoWin->activateWindow();
+    JSON["gui"] = json;
 }
 
 void MainWindow::on_leConfigName_editingFinished()
@@ -353,7 +409,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     QThread::msleep(110);
 
     std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
-                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
 
     for (auto * win : wins) delete win;
 
@@ -363,7 +419,8 @@ void MainWindow::closeEvent(QCloseEvent *)
 void MainWindow::saveWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
-                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
+                                   GlobSetWin, DemoWin };
 
     for (auto * w : wins) w->storeGeomStatus();
 }
@@ -371,7 +428,8 @@ void MainWindow::saveWindowGeometries()
 void MainWindow::loadWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
-                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, DemoWin };
+                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
+                                   GlobSetWin, DemoWin };
 
     for (auto * w : wins) w->restoreGeomStatus();
 }

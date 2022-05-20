@@ -2282,6 +2282,13 @@ Format: Volume_name  Step_in_mm</string>
                    </spacer>
                   </item>
                   <item>
+                   <widget class="QLabel" name="labFilterActivated">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QCheckBox" name="cbEVshowFilters">
                     <property name="toolTip">
                      <string>Affect 'Next' and 'Previous' navigation buttons at the bottom</string>
@@ -2372,10 +2379,18 @@ Format: Volume_name  Step_in_mm</string>
                         <number>1</number>
                        </property>
                        <item>
-                        <widget class="QLineEdit" name="leEVlimitToProc"/>
+                        <widget class="QLineEdit" name="leEVlimitToProc">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="leEVexcludeProc"/>
+                        <widget class="QLineEdit" name="leEVexcludeProc">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </item>
@@ -2386,6 +2401,9 @@ Format: Volume_name  Step_in_mm</string>
                        </property>
                        <item>
                         <widget class="QCheckBox" name="cbEVlimitToProcPrim">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string>for primaries</string>
                          </property>
@@ -2393,6 +2411,9 @@ Format: Volume_name  Step_in_mm</string>
                        </item>
                        <item>
                         <widget class="QCheckBox" name="cbEVexcludeProcPrim">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string>for primaries</string>
                          </property>
@@ -2422,7 +2443,18 @@ Format: Volume_name  Step_in_mm</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="leLimitToVolumes"/>
+                      <widget class="QLineEdit" name="leLimitToVolumes">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbUpdateIcon">
+                       <property name="text">
+                        <string>...updateIcon</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -2448,7 +2480,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leLimitToParticles">
                        <property name="enabled">
-                        <bool>true</bool>
+                        <bool>false</bool>
                        </property>
                       </widget>
                      </item>
@@ -2462,7 +2494,7 @@ Format: Volume_name  Step_in_mm</string>
                      <item>
                       <widget class="QLineEdit" name="leExcludeParticles">
                        <property name="enabled">
-                        <bool>true</bool>
+                        <bool>false</bool>
                        </property>
                       </widget>
                      </item>
@@ -2551,7 +2583,11 @@ Format: Volume_name  Step_in_mm</string>
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLineEdit" name="lePTHistParticle"/>
+                     <widget class="QLineEdit" name="lePTHistParticle">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
                     </item>
                     <item>
                      <widget class="QCheckBox" name="cbPTHistLimitToFirst">
@@ -2561,11 +2597,63 @@ Format: Volume_name  Step_in_mm</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLabel" name="label_25">
-                      <property name="text">
-                       <string/>
+                     <layout class="QHBoxLayout" name="horizontalLayout_51">
+                      <property name="topMargin">
+                       <number>0</number>
                       </property>
-                     </widget>
+                      <item>
+                       <spacer name="horizontalSpacer_62">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_10">
+                        <property name="toolTip">
+                         <string>Large values may lead to very high memory consumption!</string>
+                        </property>
+                        <property name="text">
+                         <string>Number of threads:</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbNumThreadsStatistics">
+                        <property name="toolTip">
+                         <string>Large values may lead to very high memory consumption!</string>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="value">
+                         <number>0</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_20">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </item>
@@ -2686,6 +2774,11 @@ Format: Volume_name  Step_in_mm</string>
                         <item>
                          <property name="text">
                           <string>Get deposition statistics</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Get hadronic channels</string>
                          </property>
                         </item>
                        </widget>
@@ -2978,13 +3071,25 @@ Format: Volume_name  Step_in_mm</string>
                          <number>3</number>
                         </property>
                         <item>
-                         <widget class="QComboBox" name="cobPTHistVolMat"/>
+                         <widget class="QComboBox" name="cobPTHistVolMat">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="lePTHistVolVolume"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolume">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item>
-                         <widget class="QSpinBox" name="sbPTHistVolIndex"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndex">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                        </layout>
                       </item>
@@ -3167,7 +3272,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="0" column="1">
-                         <widget class="QComboBox" name="cobPTHistVolMatFrom"/>
+                         <widget class="QComboBox" name="cobPTHistVolMatFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="1" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolVolumeFrom">
@@ -3177,7 +3286,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="1" column="1">
-                         <widget class="QLineEdit" name="lePTHistVolVolumeFrom"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolumeFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="2" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolIndexFrom">
@@ -3187,7 +3300,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="2" column="1">
-                         <widget class="QSpinBox" name="sbPTHistVolIndexFrom"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndexFrom">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="3" column="0">
                          <widget class="QCheckBox" name="cbPTHistEscaping">
@@ -3224,7 +3341,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="0" column="1">
-                         <widget class="QComboBox" name="cobPTHistVolMatTo"/>
+                         <widget class="QComboBox" name="cobPTHistVolMatTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="1" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolVolumeTo">
@@ -3234,7 +3355,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="1" column="1">
-                         <widget class="QLineEdit" name="lePTHistVolVolumeTo"/>
+                         <widget class="QLineEdit" name="lePTHistVolVolumeTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="2" column="0">
                          <widget class="QCheckBox" name="cbPTHistVolIndexTo">
@@ -3244,7 +3369,11 @@ See ROOT TFormula description</string>
                          </widget>
                         </item>
                         <item row="2" column="1">
-                         <widget class="QSpinBox" name="sbPTHistVolIndexTo"/>
+                         <widget class="QSpinBox" name="sbPTHistVolIndexTo">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
                         </item>
                         <item row="3" column="0">
                          <widget class="QCheckBox" name="cbPTHistCreated">
@@ -3741,7 +3870,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                  <item>
                   <widget class="QLabel" name="label_17">
                    <property name="text">
-                    <string>Selected monitor:</string>
+                    <string>Select monitor:</string>
                    </property>
                   </widget>
                  </item>
@@ -3787,7 +3916,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pbShowProperties">
+                  <widget class="QPushButton" name="pbShowMonitorProperties">
                    <property name="minimumSize">
                     <size>
                      <width>200</width>
@@ -3949,6 +4078,322 @@ If checked, only &quot;creation&quot; is considered!</string>
                </item>
               </layout>
              </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Calorimeters</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_52">
+              <item>
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>File:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leCalorimetersFileName">
+                <property name="text">
+                 <string>Calorimeters.json</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbChooseCalorimetersFile">
+                <property name="text">
+                 <string>Choose</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbLoadCalorimetersData">
+              <property name="text">
+               <string>Load calorimeter data</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_55">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_63">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_46">
+                <property name="text">
+                 <string>Calorimeters defined:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labNumCalorimeters">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_64">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_47">
+                <property name="text">
+                 <string>Non-zero calorimeters:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labNumCalWithData">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_65">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_53">
+              <item>
+               <widget class="QLabel" name="label_41">
+                <property name="text">
+                 <string>Select calorimeter:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="cobCalorimeter">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="sbCalorimeterIndex">
+                <property name="maximum">
+                 <number>100000</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbNextCalorimeter">
+                <property name="text">
+                 <string>Next non-zero</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QFrame" name="frCalorimeter">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_33">
+               <item>
+                <widget class="QPushButton" name="pbShowCalorimeterSettings">
+                 <property name="text">
+                  <string>Show calorimeter settings</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_54">
+                 <item>
+                  <widget class="QLabel" name="label_43">
+                   <property name="text">
+                    <string>Energy units:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cobCalorimeterEnergyUnits">
+                   <item>
+                    <property name="text">
+                     <string>MeV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>keV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>eV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>meV</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="Line" name="line_11">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_44">
+                   <property name="text">
+                    <string>Total energy:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="leCalorimetersTotal">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="labCalorimeterUnits">
+                   <property name="text">
+                    <string>MeV</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_48">
+                   <property name="text">
+                    <string>Entries:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="leCalorimetersEntries">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pbCalorimetersShowDistribution">
+                 <property name="text">
+                  <string>Show distribution</string>
+                 </property>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignHCenter">
+                <widget class="QCheckBox" name="cbCalorimeterSwapAxes">
+                 <property name="text">
+                  <string>Swap axes</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>219</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -4268,12 +4713,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>429</y>
+     <x>49</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
-     <x>258</x>
-     <y>429</y>
+     <x>68</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>
@@ -4284,12 +4729,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>455</y>
+     <x>49</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
-     <x>258</x>
-     <y>455</y>
+     <x>68</x>
+     <y>338</y>
     </hint>
    </hints>
   </connection>
@@ -4300,12 +4745,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>482</y>
+     <x>49</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
-     <x>258</x>
-     <y>482</y>
+     <x>68</x>
+     <y>340</y>
     </hint>
    </hints>
   </connection>
@@ -4316,12 +4761,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>429</y>
+     <x>95</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
-     <x>601</x>
-     <y>429</y>
+     <x>114</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>
@@ -4332,12 +4777,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>455</y>
+     <x>95</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
-     <x>601</x>
-     <y>455</y>
+     <x>114</x>
+     <y>338</y>
     </hint>
    </hints>
   </connection>
@@ -4348,12 +4793,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>482</y>
+     <x>95</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
-     <x>601</x>
-     <y>482</y>
+     <x>114</x>
+     <y>340</y>
     </hint>
    </hints>
   </connection>
@@ -4402,6 +4847,198 @@ If checked, only &quot;creation&quot; is considered!</string>
     <hint type="destinationlabel">
      <x>482</x>
      <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVlimToProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leEVlimitToProc</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>600</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>596</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVlimToProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cbEVlimitToProcPrim</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>599</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVexcludeProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leEVexcludeProc</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>627</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>627</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVexcludeProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cbEVexcludeProcPrim</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>618</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>530</x>
+     <y>627</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitToVolumes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leLimitToVolumes</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>677</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>204</x>
+     <y>678</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitToParticles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leLimitToParticles</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>728</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>727</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExcludeParticles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leExcludeParticles</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>363</x>
+     <y>725</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>452</x>
+     <y>725</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVlimToProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbUpdateIcon</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>597</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>570</x>
+     <y>678</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEVexcludeProc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbUpdateIcon</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>93</x>
+     <y>617</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>672</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitToVolumes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbUpdateIcon</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>670</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>675</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbLimitToParticles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbUpdateIcon</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>725</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>538</x>
+     <y>684</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExcludeParticles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbUpdateIcon</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>734</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>592</x>
+     <y>677</y>
     </hint>
    </hints>
   </connection>

@@ -92,6 +92,10 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     QJsonObject mjs;
         MonitorSettings.writeToJson(mjs);
     json["MonitorSettings"] = mjs;
+
+    QJsonObject cjs;
+        CalorimeterSettings.writeToJson(cjs);
+    json["CalorimeterSettings"] = cjs;
 }
 #endif
 
@@ -128,6 +132,14 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 #endif
     jstools::parseJson(json, "MonitorSettings", mjs);
     MonitorSettings.readFromJson(mjs);
+
+#ifdef JSON11
+    json11::Json::object cjs;
+#else
+    QJsonObject cjs;
+#endif
+    jstools::parseJson(json, "CalorimeterSettings", cjs);
+    CalorimeterSettings.readFromJson(cjs);
 
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);

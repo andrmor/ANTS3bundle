@@ -17,6 +17,7 @@ class GraphWindowClass;
 class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
+class AGlobSetWindow;
 class ADemoWindow; // tmp
 class QTimer;
 
@@ -45,6 +46,7 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+    AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
     QTimer * RootUpdateTimer = nullptr;
@@ -52,6 +54,7 @@ private:
 private slots:
     void onRebuildGeometryRequested(); // !!!*** refactor?
     void updateAllGuiFromConfig();
+    void onRequestSaveGuiSettings();
 
     // Main menu
     void on_actionSave_configuration_triggered();
@@ -83,6 +86,8 @@ private slots:
     void on_pushButton_clicked();
 
     void rootTimerTimeout();
+
+    void on_pbGlobSet_clicked();
 
 protected:
     void closeEvent(QCloseEvent * event);

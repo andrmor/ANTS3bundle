@@ -26,8 +26,8 @@ A3Global::A3Global()
     ExchangeDir = ExecutableDir + "/Exchange";
     QDir dir = QDir(ExchangeDir);
     if (!dir.exists()) QDir().mkdir(ExchangeDir);
-    qDebug() << "Executable dir set to:"<< ExecutableDir;
-    qDebug() << "Exchange   dir set to:"<< ExchangeDir;
+    //qDebug() << "Executable dir set to:"<< ExecutableDir;
+    //qDebug() << "Exchange   dir set to:"<< ExchangeDir;
 
     QString AntsBaseDir = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/ants3";
     if (!QDir(AntsBaseDir).exists()) QDir().mkdir(AntsBaseDir);

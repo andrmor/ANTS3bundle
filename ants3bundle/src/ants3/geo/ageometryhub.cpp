@@ -10,6 +10,8 @@
 #include "ajsontools.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
+#include "acalorimeterhub.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 
@@ -90,36 +92,34 @@ bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
     return true;
 }
 
-void AGeometryHub::convertObjToComposite(AGeoObject *obj)
+void AGeometryHub::convertObjToComposite(AGeoObject * obj)
 {
     delete obj->Type;
     ATypeCompositeObject* CO = new ATypeCompositeObject();
     obj->Type = CO;
 
     AGeoObject* logicals = new AGeoObject();
-    logicals->Name = "CompositeSet_"+obj->Name;
+    logicals->Name = "Logicals_"+obj->Name;
     delete logicals->Type;
     logicals->Type = new ATypeCompositeContainerObject();
     obj->addObjectFirst(logicals);
 
-    AGeoObject* first = new AGeoObject();
-    while (World->isNameExists(first->Name))
-        first->AGeoObject::GenerateRandomObjectName();
-    first->Shape = obj->Shape;
+    const QString firstName = generateStandaloneObjectName(obj->Shape);
+    AGeoObject * first = new AGeoObject(firstName, obj->Shape);
     first->Material = obj->Material;
     logicals->addObjectLast(first);
 
-    AGeoObject* second = new AGeoObject();
-    while (World->isNameExists(second->Name))
-        second->AGeoObject::GenerateRandomObjectName();
+    AGeoBox * boxShape = new AGeoBox();
+    const QString secondName = generateStandaloneObjectName(boxShape);
+    AGeoObject * second = new AGeoObject(secondName, boxShape);
     second->Material = obj->Material;
-    second->Position[0] = 15;
-    second->Position[1] = 15;
+    second->Position[0] = 15.0;
+    second->Position[1] = 15.0;
     logicals->addObjectLast(second);
 
     QStringList sl;
     sl << first->Name << second->Name;
-    QString str = "TGeoCompositeShape( " + first->Name + " + " + second->Name + " )";
+    const QString str = "TGeoCompositeShape( " + first->Name + " + " + second->Name + " )";
     obj->Shape = new AGeoComposite(sl, str);
 }
 
@@ -133,12 +133,9 @@ QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
         if (!ok) return errStr;
     }
 
-    int index = 0;
-    QString name;
-    do name = QString("Prototype_%1").arg(index++);
-    while (World->isNameExists(name));
+    const QString name = generateObjectName("Prototype");
+    AGeoObject * proto = new AGeoObject(name, nullptr);
 
-    AGeoObject * proto = new AGeoObject(name);
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
@@ -452,7 +449,9 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     AGeoObject * logicals = obj->getContainerWithLogical();
     if (!logicals)
     {
-        qWarning()<< "Composite object: Not found container with logical objects!";
+        QString err = "Composite object: Not found container with logical objects: " + obj->Name;
+        AErrorHub::addQError(err);
+        qWarning() << err;
         return false;
     }
     AGeoComposite * cs = dynamic_cast<AGeoComposite*>(obj->Shape);
@@ -461,7 +460,9 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
         AGeoScaledShape * scaled = dynamic_cast<AGeoScaledShape*>(obj->Shape);
         if (!scaled)
         {
-            qWarning()<< "Composite: Shape object is not composite nor scaled composite!!";
+            QString err = "Composite: Shape object is not composite nor scaled composite: " + obj->Name;
+            AErrorHub::addQError(err);
+            qWarning() << err;
             return false;
         }
     }
@@ -486,16 +487,19 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 
 void AGeometryHub::populateGeoManager()
 {
-    ASensorHub::getInstance().SensorData.clear();
+    ASensorHub::getInstance().clearSensors();
     clearMonitors();
+    ACalorimeterHub::getInstance().clear();
     clearGridRecords();
 
+    AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
+    GeoManager->SetMaxVisNodes(100000);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
@@ -534,7 +538,7 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     const int MonitorCounter = MonitorHub.countMonitors(MonType);
 
-    monTobj->index = MonitorCounter;
+    monTobj->index = MonitorCounter; // !!!*** need?
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
@@ -556,6 +560,33 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     else                                MonitorHub.ParticleMonitors.push_back(md);
 }
 
+#include "acalorimeter.h"
+void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
+{
+    ACalorimeterHub & CalorimeterHub = ACalorimeterHub::getInstance();
+    const int CalorimeterCounter = CalorimeterHub.countCalorimeters();
+
+    parent->AddNode(vol, CalorimeterCounter, lTrans);
+
+    TString fixedName = vol->GetName();
+    fixedName += "_-_";
+    fixedName += CalorimeterCounter;
+    vol->SetName(fixedName);
+
+    ACalorimeterData calData;
+    calData.Name     = QString(fixedName);
+    calData.GeoObj   = obj;
+    calData.Calorimeter  = new ACalorimeter(obj);
+
+    TObjArray * nList = parent->GetNodes();
+    const int numNodes = nList->GetEntries();
+    const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
+    getGlobalPosition(node, calData.Position);
+    getGlobalUnitVectors(node, calData.UnitXMaster, calData.UnitYMaster, calData.UnitZMaster);
+
+    CalorimeterHub.Calorimeters.push_back(calData);
+}
+
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
 {
     ASensorHub & SensorHub = ASensorHub::getInstance();
@@ -572,7 +603,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     const TGeoNode * node = (TGeoNode*)nList->At(numNodes - 1);
     getGlobalPosition(node, sr.Position);
 
-    SensorHub.SensorData.push_back(sr);
+    SensorHub.registerNextSensor(sr);
 }
 
 bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)
@@ -649,6 +680,41 @@ void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
     }
 }
 
+void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ)
+{
+    uvX[0] = 1.0; uvX[1] = 0.0; uvX[2] = 0.0;
+    uvY[0] = 0.0; uvY[1] = 1.0; uvY[2] = 0.0;
+    uvZ[0] = 0.0; uvZ[1] = 0.0; uvZ[2] = 1.0;
+
+    double master[3];
+
+    TGeoVolume * motherVol = node->GetMotherVolume();
+    while (motherVol)
+    {
+        node->LocalToMasterVect(uvX, master); for (int i=0; i<3; i++) uvX[i] = master[i];
+        node->LocalToMasterVect(uvY, master); for (int i=0; i<3; i++) uvY[i] = master[i];
+        node->LocalToMasterVect(uvZ, master); for (int i=0; i<3; i++) uvZ[i] = master[i];
+
+        const TGeoNode * motherNode = nullptr;
+        findMotherNode(node, motherNode);
+        if (!motherNode)
+        {
+            //qDebug() << "  Mother node not found!";
+            break;
+        }
+        if (motherNode == node)
+        {
+            //qDebug() << "  strange - world passed";
+            break;
+        }
+
+        node = motherNode;
+
+        motherVol = node->GetMotherVolume();
+        //qDebug() << "  Continue search: current node:"<<n->GetName();
+    }
+}
+
 void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber)
 {
     if (!obj->fActive) return;
@@ -658,7 +724,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 
     if      (obj->Type->isWorld())
         vol = parent; // resuse the cycle by HostedVolumes below
-    else if (obj->Type->isPrototypes() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
+    else if (obj->Type->isPrototypeCollection() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
         return;       // logicals do not host anything to be added to the geometry
     else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance())
         vol = parent; // group objects are pure virtual, pass the volume of the parent
@@ -666,13 +732,18 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
     {
         if (obj->Type->isMonitor())
         {
+            obj->updateMonitorShape();
+
             if (obj->Container) obj->Material = obj->Container->getMaterial();
             else
             {
-                qWarning() << "Error: Monitor without container" << obj->Name;
+                QString err = "Error: Monitor without container: " + obj->Name;
+                AErrorHub::addQError(err);
+                qWarning() << err;
                 return;
             }
         }
+        // No need special init for calorimeters
 
         if (obj->Type->isComposite())
         {
@@ -706,7 +777,9 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
-        else if (obj->Role && obj->Role->getType() == "Sensor")
+        else if (obj->isCalorimeter())
+            addCalorimeterNode(obj, vol, parent, lTrans);
+        else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
         else
             parent->AddNode(vol, forcedNodeNumber, lTrans);
@@ -864,11 +937,20 @@ void AGeometryHub::positionArrayElement(int ix, int iy, int iz, AGeoObject * el,
 {
     ATypeArrayObject* array = static_cast<ATypeArrayObject*>(arrayObj->Type);
 
-    //Position
     double local[3], master[3];
-    local[0] = el->Position[0] + (ix - 0.5*(array->numX - 1)) * array->stepX;
-    local[1] = el->Position[1] + (iy - 0.5*(array->numY - 1)) * array->stepY;
-    local[2] = el->Position[2] + (iz - 0.5*(array->numZ - 1)) * array->stepZ;
+    if (array->bCenterSymmetric)
+    {
+        local[0] = el->Position[0] + (ix - 0.5*(array->numX - 1)) * array->stepX;
+        local[1] = el->Position[1] + (iy - 0.5*(array->numY - 1)) * array->stepY;
+        local[2] = el->Position[2] + (iz - 0.5*(array->numZ - 1)) * array->stepZ;
+    }
+    else
+    {
+        local[0] = el->Position[0] + ix * array->stepX;
+        local[1] = el->Position[1] + iy * array->stepY;
+        local[2] = el->Position[2] + iz * array->stepZ;
+    }
+
     TGeoRotation ArRot("0", arrayObj->Orientation[0] , arrayObj->Orientation[1], arrayObj->Orientation[2]);
     if (arrayObj->TrueRot)
     {
@@ -1158,7 +1240,7 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
     //if config contained Prototypes, there are two protoypes objects in the geometry now!
     for (AGeoObject * obj : World->HostedObjects)
     {
-        if (!obj->Type->isPrototypes()) continue;
+        if (!obj->Type->isPrototypeCollection()) continue;
         if (obj == Prototypes) continue;
         //found another Prototypes object  - it was loaded from json
         for (AGeoObject * proto : obj->HostedObjects)
@@ -1333,6 +1415,36 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
     GeoManager->Export(c_str);
 
     return "";
+}
+
+QString AGeometryHub::generateStandaloneObjectName(const AGeoShape * shape) const
+{
+    assert(shape);
+
+    int iCounter = 1;
+    QString name;
+    do
+    {
+        name = shape->getShortName() + QString::number(iCounter);
+        ++iCounter;
+    }
+    while (World->isNameExists(name));
+
+    return name;
+}
+
+QString AGeometryHub::generateObjectName(const QString & prefix) const
+{
+    int iCounter = 1;
+    QString name;
+    do
+    {
+        name = prefix + QString::number(iCounter);
+        ++iCounter;
+    }
+    while (World->isNameExists(name));
+
+    return name;
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

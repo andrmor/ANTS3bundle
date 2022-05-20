@@ -58,6 +58,16 @@ double AMath_SI::cos(double val)
     return std::cos(val);
 }
 
+double AMath_SI::cosh(double val)
+{
+    return std::cosh(val);
+}
+
+double AMath_SI::sinh(double val)
+{
+    return std::sinh(val);
+}
+
 double AMath_SI::exp(double val)
 {
     return std::exp(val);
@@ -301,5 +311,99 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
 
     delete f1;
     delete f;
+    return res;
+}
+
+#include "TVirtualFFT.h"
+QVariantList AMath_SI::fft(QVariantList array, int maxN)
+{
+    QVariantList res;
+
+    const int arSize = array.size();
+
+    std::vector<double> input(arSize);
+    bool ok = true;
+    for (int i = 0; i < arSize; i++)
+    {
+        input[i] = array[i].toDouble(&ok);
+        if (!ok)
+        {
+            abort("FFT input should be an array of doubles");
+            return res;
+        }
+    }
+
+    int N = arSize; // does not accept const below
+    TVirtualFFT * fftr2c = TVirtualFFT::FFT(1, &N, "R2C");
+    fftr2c->SetPoints(input.data());
+
+    fftr2c->Transform();
+
+    double re, im;
+    const int limN = ( maxN == -1 ? arSize : maxN );
+    for (int i = 0; i < limN; i++)
+    {
+        if (i < arSize)
+        {
+            fftr2c->GetPointComplex(i, re, im);
+            res.push_back(QVariantList{re, im});
+        }
+        else res.push_back(QVariantList{0,0});
+    }
+
+    delete fftr2c;
+
+    return res;
+}
+
+QVariantList AMath_SI::fftMulti(QVariantList arrayOfArrays, int maxN)
+{
+    QVariantList res;
+
+    int N;
+    //TVirtualFFT * fftr2c = TVirtualFFT::FFT(1, &N, "R2C"); // apparently it is not reusable class :(
+    std::vector<double> input;
+
+    const int numAr = arrayOfArrays.size();
+    for (int iArray = 0; iArray < numAr; iArray++)
+    {
+        QVariantList array = arrayOfArrays[iArray].toList();
+        const int arSize = array.size();
+
+        input.resize(arSize);
+        bool ok = true;
+        for (int i = 0; i < arSize; i++)
+        {
+            input[i] = array[i].toDouble(&ok);
+            if (!ok)
+            {
+                abort("FFT input should be an array of doubles");
+                return res;
+            }
+        }
+
+        N = arSize;
+        TVirtualFFT * fftr2c = TVirtualFFT::FFT(1, &N, "R2C");
+        fftr2c->SetPoints(input.data());
+
+        fftr2c->Transform();
+
+        QVariantList thisRes;
+        double re, im;
+        const int limN = ( maxN == -1 ? arSize : maxN );
+        for (int i = 0; i < limN; i++)
+        {
+            if (i < arSize)
+            {
+                fftr2c->GetPointComplex(i, re, im);
+                thisRes.push_back(QVariantList{re, im});
+            }
+            else thisRes.push_back(QVariantList{0,0});
+        }
+        res.push_back(thisRes);
+        delete fftr2c;
+    }
+
+    //delete fftr2c;
     return res;
 }

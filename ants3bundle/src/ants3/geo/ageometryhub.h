@@ -16,8 +16,9 @@ class TGeoRotation;
 class QJsonObject;
 class AVector3;
 class QStringLists;
+class AGeoShape;
 
-// !!!*** to QObject and add signal on geometry changed
+// to QObject and add signal on geometry changed --> !!!*** so far not needed
 
 class AGeometryHub
 {
@@ -43,7 +44,7 @@ public:
 
     std::vector<AGridElementRecord*> GridRecords;  // !!!*** refactor / transfer
 
-    void         populateGeoManager();   // !!!*** emit signal
+    void         populateGeoManager();   // emit signal?
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);
@@ -89,6 +90,9 @@ public:
     QString      exportToGDML(const QString & fileName) const;
     QString      exportToROOT(const QString & fileName) const;
 
+    QString      generateStandaloneObjectName(const AGeoShape * shape) const;
+    QString      generateObjectName(const QString & prefix) const;
+
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
@@ -106,12 +110,14 @@ private:
     void expandPrototypeInstances();
     bool processCompositeObject(AGeoObject *obj);
     void addMonitorNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
+    void addCalorimeterNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
     void addSensorNode(AGeoObject *obj, TGeoVolume *vol, TGeoVolume *parent, TGeoCombiTrans *lTrans);
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
     void clearGridRecords();  // !!!***
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
+    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);

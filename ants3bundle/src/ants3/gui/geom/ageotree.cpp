@@ -52,7 +52,6 @@ AGeoTree::AGeoTree() :
     // widget for delegates
     EditWidget = new AGeoDelegateWidget(this);
     connect(EditWidget,   &AGeoDelegateWidget::showMonitor,                this,       &AGeoTree::RequestShowMonitor);
-    connect(EditWidget,   &AGeoDelegateWidget::requestBuildScript,         this,       &AGeoTree::objectToScript);
     connect(this,         &AGeoTree::ObjectSelectionChanged,               EditWidget, &AGeoDelegateWidget::onObjectSelectionChanged);
 
     // tree for prototypes
@@ -156,10 +155,9 @@ void AGeoTree::UpdateGui(QString ObjectName)
     }
     else
     {
-        //list.first()->setSelected(true);
-        twGeoTree->setCurrentItem(list.first());
+        if (bWorldTreeSelected) twGeoTree->setCurrentItem(list.first());
+        else twPrototypes->setCurrentItem(list.first());
     }
-    //qDebug() << "<==";
 }
 
 void AGeoTree::updatePrototypeTreeGui()
@@ -239,7 +237,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
 {  
     for (AGeoObject * obj : Container->HostedObjects)
     {
-        if (obj->Type->isPrototypes()) continue;
+        if (obj->Type->isPrototypeCollection()) continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
 
@@ -249,8 +247,8 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
         item->setText(0, obj->Name);
         item->setSizeHint(0, QSize(50, 20));  // ?
 
-        if (obj->Type->isHandlingStatic())
-        { //this is one of the slabs or World
+        if (obj->Type->isWorld())
+        {
             item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);// & ~Qt::ItemIsSelectable);
             QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
         }
@@ -386,9 +384,9 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
         QAction* newTubeSegment = addTubeMenu->addAction("Tube segment");
         QAction* newTubeSegCut =  addTubeMenu->addAction("Tube segment cut");
         QAction* newTubeElli =    addTubeMenu->addAction("Elliptical tube");
-    QMenu * addTrapMenu = addObjMenu->addMenu("Trapezoid");
-        QAction* newTrapSim =     addTrapMenu->addAction("Trapezoid simplified");
-        QAction* newTrap    =     addTrapMenu->addAction("Trapezoid");
+    QMenu * addTrapMenu = addObjMenu->addMenu("Trap");
+        QAction* newTrapSim =     addTrapMenu->addAction("Trap (trapezoidal prizm)");
+        QAction* newTrap    =     addTrapMenu->addAction("Trap2");
     QAction* newPcon = addObjMenu->addAction("Polycone");
     QMenu * addPgonMenu = addObjMenu->addMenu("Polygon");
         QAction* newPgonSim =     addPgonMenu->addAction("Polygon simplified");
@@ -492,6 +490,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       prototypeA->setEnabled(true);
   }
 
+  if (!obj->isGoodContainerForInstance()) addInstanceMenu->setEnabled(false);
+
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;
 
@@ -576,9 +576,9 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
           QAction* newTubeSegment = addTubeMenu->addAction("Tube segment");
           QAction* newTubeSegCut =  addTubeMenu->addAction("Tube segment cut");
           QAction* newTubeElli =    addTubeMenu->addAction("Elliptical tube");
-      QMenu * addTrapMenu = addObjMenu->addMenu("Trapezoid");
-          QAction* newTrapSim =     addTrapMenu->addAction("Trapezoid simplified");
-          QAction* newTrap    =     addTrapMenu->addAction("Trapezoid");
+      QMenu * addTrapMenu = addObjMenu->addMenu("Trap");
+          QAction* newTrapSim =     addTrapMenu->addAction("Trap (trapezoidal prizm");
+          QAction* newTrap    =     addTrapMenu->addAction("Trap2");
       QAction* newPcon = addObjMenu->addAction("Polycone");
       QMenu * addPgonMenu = addObjMenu->addMenu("Polygon");
           QAction* newPgonSim =     addPgonMenu->addAction("Polygon simplified");
@@ -702,13 +702,12 @@ void AGeoTree::protoMenuEmptySelection(const QPoint & pos)
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
     if (!SelectedAction) return;
 
-    AGeoObject * proto = new AGeoObject();
-    do proto->Name = AGeoObject::GenerateRandomPrototypeName();
-    while (World->isNameExists(proto->Name));
+    const QString name = Geometry.generateObjectName("Prototype");
+    AGeoObject * proto = new AGeoObject(name, nullptr);
+
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
-    const QString name = proto->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -917,73 +916,64 @@ void AGeoTree::menuActionCloneObject(AGeoObject * obj)
     emit RequestHighlightObject(name);
 }
 
-void AGeoTree::menuActionAddNewObject(AGeoObject * ContObj, AGeoShape * shape)
+void AGeoTree::menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
-    AGeoObject * newObj = new AGeoObject();
-    while (World->isNameExists(newObj->Name))
-        newObj->Name = AGeoObject::GenerateRandomObjectName();
+    const QString objName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * newObj = new AGeoObject(objName);
 
-    delete newObj->Shape;
-    newObj->Shape = shape;
+    delete newObj->Shape; newObj->Shape = shape;
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    contObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
-    UpdateGui(name);
+    UpdateGui(objName);
 }
 
 void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
 {
-  if (!ContObj) return;
+    if (!ContObj) return;
 
-  AGeoObject* newObj = new AGeoObject();
-  do newObj->Name = AGeoObject::GenerateRandomArrayName();
-  while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("Array");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-  delete newObj->Type;
-  newObj->Type = new ATypeArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeArrayObject();
 
-  newObj->color = 1;
-  ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    newObj->color = 1;
+    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
-  //element inside
-  AGeoObject* elObj = new AGeoObject();
-  while (World->isNameExists(elObj->Name))
-    elObj->Name = AGeoObject::GenerateRandomObjectName();
-  elObj->color = 1;
-  newObj->addObjectFirst(elObj);
+    //element inside
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
+    elObj->color = 1;
+    newObj->addObjectFirst(elObj);
 
-  const QString name = newObj->Name;
-  emit RequestRebuildDetector();
-  UpdateGui(name);
+    emit RequestRebuildDetector();
+    UpdateGui(name);
 }
 
 void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomArrayName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("CircArray");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type;
-    newObj->Type = new ATypeCircularArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeCircularArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
     //element inside
-    AGeoObject* elObj = new AGeoObject();
-    while (World->isNameExists(elObj->Name))
-      elObj->Name = AGeoObject::GenerateRandomObjectName();
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -992,24 +982,21 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomArrayName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("HexArray");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type;
-    newObj->Type = new ATypeHexagonalArrayObject();
+    delete newObj->Type; newObj->Type = new ATypeHexagonalArrayObject();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
     //element inside
-    AGeoObject* elObj = new AGeoObject();
-    while (World->isNameExists(elObj->Name))
-      elObj->Name = AGeoObject::GenerateRandomObjectName();
+    AGeoBox * shape = new AGeoBox();
+    const QString elName = Geometry.generateStandaloneObjectName(shape);
+    AGeoObject * elObj = new AGeoObject(elName, shape);
     elObj->color = 1;
     newObj->addObjectFirst(elObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1041,22 +1028,19 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
 {
     if (!ContObj) return;
 
-    AGeoObject* newObj = new AGeoObject();
-    do newObj->Name = AGeoObject::GenerateRandomMonitorName();
-    while (World->isNameExists(newObj->Name));
+    const QString name = Geometry.generateObjectName("Monitor");
+    AGeoObject* newObj = new AGeoObject(name, nullptr);
 
     newObj->Material = ContObj->Material;
 
-    delete newObj->Type;
-    newObj->Type = new ATypeMonitorObject();
+    delete newObj->Type; newObj->Type = new ATypeMonitorObject();
     static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (Photon ? 0 : 1);
 
-    newObj->updateMonitorShape();
+    //newObj->updateMonitorShape();
 
     newObj->color = 1;
     ContObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1064,13 +1048,7 @@ void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
 void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & PrototypeName)
 {
     if (!ContObj) return;
-
-    AGeoObject * newObj = new AGeoObject();
-    do newObj->Name = "Instance_" + AGeoObject::GenerateRandomName();
-    while (World->isNameExists(newObj->Name));
-
-    delete newObj->Type;
-    newObj->Type = new ATypeInstanceObject(PrototypeName);
+    if (!ContObj->isGoodContainerForInstance()) return;
 
     AGeoObject * protoObj = Prototypes->findObjectByName(PrototypeName);
     if (!protoObj)
@@ -1078,6 +1056,12 @@ void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & Proto
         guitools::message("Something went very wrong: prototype not found", twGeoTree);
         return;
     }
+
+    const QString name = Geometry.generateObjectName(PrototypeName + "_Inst");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
+
+    delete newObj->Type; newObj->Type = new ATypeInstanceObject(PrototypeName);
+
     for (int i = 0; i < 3; i++)
     {
         newObj->Position[i]       = protoObj->Position[i];
@@ -1088,7 +1072,6 @@ void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & Proto
 
     ContObj->addObjectFirst(newObj);
 
-    const QString name = newObj->Name;
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
@@ -1144,16 +1127,14 @@ void AGeoTree::menuActionAddNewComposite(AGeoObject * ContObj)
 {
   if (!ContObj) return;
 
-  AGeoObject* newObj = new AGeoObject();
-  do newObj->Name = AGeoObject::GenerateRandomCompositeName();
-  while (World->isNameExists(newObj->Name));
+  const QString name = Geometry.generateObjectName("Composite");
+  AGeoObject * newObj = new AGeoObject(name, nullptr);
 
   newObj->color = 1;
   ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
 
   Geometry.convertObjToComposite(newObj);
 
-  const QString name = newObj->Name;
   emit RequestRebuildDetector();
   UpdateGui(name);
 }
@@ -1208,7 +1189,7 @@ void AGeoTree::ShowObjectOnly(AGeoObject * obj)
     if (obj)
     {
         fSpecialGeoViewMode = true;
-        TGeoShape * sh = obj->Shape->createGeoShape();  // make window member?
+        TGeoShape * sh = obj->Shape->createGeoShape();  // make window member?   !!!*** register!
         sh->Draw();
     }
 }
@@ -1286,27 +1267,24 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
         objs.push_back(obj);
     }
 
-    AGeoObject * stackObj = new AGeoObject();
-    delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
+    const QString name = Geometry.generateObjectName("Stack");
+    AGeoObject * stackObj = new AGeoObject(name, nullptr);
 
-    do stackObj->Name = AGeoObject::GenerateRandomStackName();
-    while (World->isNameExists(stackObj->Name));
+    delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
+
+    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
     AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
     stackObj->Container = contObj;
 
     for (AGeoObject * obj : objs)
     {
-        //contObj->HostedObjects.removeOne(obj);
         contObj->removeHostedObject(obj);
         obj->Container = stackObj;
         stackObj->HostedObjects.push_back(obj);
     }
-    //contObj->HostedObjects.insert(0, stackObj);
     contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
 
-    const QString name = stackObj->Name;
     emit RequestRebuildDetector();  // automatically calculates stack positions there
     UpdateGui(name);
 }
@@ -1380,379 +1358,9 @@ void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
   item->setIcon(0, icon); 
 }
 
-void AGeoTree::objectMembersToScript(AGeoObject* Master, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython)
-{
-    for (AGeoObject* obj : Master->HostedObjects)
-        objectToScript(obj, script, ident, bExpandMaterial, bRecursive, usePython);
-}
-
-void AGeoTree::objectToScript(AGeoObject *obj, QString &script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython)
-{
-    int bigIdent = ident + 4;
-    int medIdent = ident + 2;
-    QString CommentStr;
-    if (!usePython)
-    {
-        CommentStr = "//";
-    }
-    else
-    {
-        bigIdent = medIdent = 0;
-        CommentStr = "#";
-    }
-
-    const QString Starter = "\n" + QString(" ").repeated(ident);
-
-    if (obj->Type->isLogical())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial, usePython);
-    }
-    else if (obj->Type->isCompositeContainer())
-    {
-         //nothing to do
-    }
-    else if (obj->Type->isSingle() )
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial, usePython);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive, usePython);
-    }
-    else if (obj->Type->isComposite())
-    {
-        script += "\n" + QString(" ").repeated(ident) + CommentStr + "-->-- logical volumes for " + obj->Name;
-        objectMembersToScript(obj->getContainerWithLogical(), script, bigIdent, bExpandMaterial, bRecursive, usePython);
-        script += "\n" + QString(" ").repeated(ident) + CommentStr + "--<-- logical volumes end for " + obj->Name;
-
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial, usePython);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive, usePython);
-    }
-    else if (obj->Type->isHandlingArray())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_arrayObject(obj);
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- array elements for " + obj->Name;
-        objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive, usePython);
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- array elements end for " + obj->Name;
-    }
-    else if (obj->Type->isMonitor())
-    {
-        script += Starter + makeScriptString_monitorBaseObject(obj);
-        script += Starter + makeScriptString_monitorConfig(obj);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
-    }
-    else if (obj->Type->isStack())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectStart(obj);
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- stack elements for " + obj->Name;
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + " Values of x, y, z only matter for the stack element, refered to at InitializeStack below";
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + " For the rest of elements they are calculated automatically";
-        objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive, usePython);
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- stack elements end for " + obj->Name;
-        if (!obj->HostedObjects.empty())
-            script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectEnd(obj);
-    }
-    else if (obj->Type->isGrid())
-    {
-        script += "\n";
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "=== Optical grid object is not supported! Make a request to the developers ===";
-        script += "\n";
-    }
-    else if (obj->Type->isInstance())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_instanceObject(obj, usePython);
-    }
-    else if (obj->Type->isPrototype())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_prototypeObject(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive, usePython);
-    }
-
-    if (obj->isDisabled())
-    {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_DisabledObject(obj);
-    }
-}
-
 void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()
 {
     const QString CurrentObjName = EditWidget->getCurrentObjectName();
     emit RequestRebuildDetector();
     UpdateGui(CurrentObjName);
 }
-
-#include "amaterialhub.h"
-QString AGeoTree::makeScriptString_basicObject(AGeoObject* obj, bool bExpandMaterials, bool usePython) const
-{
-    QVector<QString> posStrs; posStrs.reserve(3);
-    QVector<QString> oriStrs; oriStrs.reserve(3);
-
-    QString GenerationString = obj->Shape->getGenerationString(true);
-    if (usePython) GenerationString = obj->Shape->getPythonGenerationString(GenerationString);
-
-    for (int i = 0; i < 3; i++)
-    {
-        posStrs << ( obj->PositionStr[i].isEmpty() ? QString::number(obj->Position[i]) : obj->PositionStr[i] );
-        oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
-    }
-
-    const QStringList MatNames = AMaterialHub::getInstance().getListOfMaterialNames();
-
-    QString str = QString("geo.TGeo( ") +
-            "'" + obj->Name + "', " +
-            "'" + GenerationString + "', " +
-            (bExpandMaterials && obj->Material < MatNames.size() ? MatNames.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
-            "'" + obj->Container->Name + "',   "+
-            posStrs[0] + ", " +
-            posStrs[1] + ", " +
-            posStrs[2] + ",   " +
-            oriStrs[0] + ", " +
-            oriStrs[1] + ", " +
-            oriStrs[2] + " )";
-
-    AGeoConsts::getConstInstance().formulaToScript(str, usePython);
-    return str;
-}
-
-QString AGeoTree::makeScriptString_arrayObject(AGeoObject *obj) const
-{
-    QString str;
-
-    ATypeCircularArrayObject * c = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
-    if (c)
-    {
-        QString snum   = (c  ->strNum           .isEmpty() ? QString::number(c  ->num)               : c->strNum);
-        QString sstep  = (c  ->strAngularStep   .isEmpty() ? QString::number(c  ->angularStep)       : c->strAngularStep);
-        QString srad   = (c  ->strRadius        .isEmpty() ? QString::number(c  ->radius)            : c->strRadius);
-        QString sPos0  = (obj->PositionStr[0]   .isEmpty() ? QString::number(obj->Position[0])       : obj->PositionStr[0]);
-        QString sPos1  = (obj->PositionStr[1]   .isEmpty() ? QString::number(obj->Position[1])       : obj->PositionStr[1]);
-        QString sPos2  = (obj->PositionStr[2]   .isEmpty() ? QString::number(obj->Position[2])       : obj->PositionStr[2]);
-        QString sOri0  = (obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0])    : obj->OrientationStr[0]);
-        QString sOri1  = (obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1])    : obj->OrientationStr[1]);
-        QString sOri2  = (obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2])    : obj->OrientationStr[2]);
-        QString sIndex = (c->strStartIndex      .isEmpty() ? QString::number(c  ->startIndex)        : c->strStartIndex);
-
-        str +=  QString("geo.CircArray( ") +
-                "'" + obj->Name + "', " +
-                snum + ", " +
-                sstep + ", " +
-                srad + ",   " +
-                "'" + obj->Container->Name + "',   " +
-                sPos0 + ", " +
-                sPos1 + ", " +
-                sPos2 + ",   " +
-                sOri0 + ",   " +
-                sOri1 + ",   " +
-                sOri2 + ",   " +
-                sIndex + " )";
-    }
-    else
-    {
-        ATypeArrayObject* a = dynamic_cast<ATypeArrayObject*>(obj->Type);
-        if (!a)
-        {
-            qWarning() << "It is not an array!";
-            return "Error accessing object as array!";
-        }
-
-        QString snumX  = (a  ->strNumX          .isEmpty() ? QString::number(a  ->numX)              : a->strNumX);
-        QString snumY  = (a  ->strNumY          .isEmpty() ? QString::number(a  ->numY)              : a->strNumY);
-        QString snumZ  = (a  ->strNumZ          .isEmpty() ? QString::number(a  ->numZ)              : a->strNumZ);
-        QString sstepX = (a  ->strStepX         .isEmpty() ? QString::number(a  ->stepX)             : a->strStepX);
-        QString sstepY = (a  ->strStepY         .isEmpty() ? QString::number(a  ->stepY)             : a->strStepY);
-        QString sstepZ = (a  ->strStepZ         .isEmpty() ? QString::number(a  ->stepZ)             : a->strStepZ);
-        QString sPos0  = (obj->PositionStr[0]   .isEmpty() ? QString::number(obj->Position[0])       : obj->PositionStr[0]);
-        QString sPos1  = (obj->PositionStr[1]   .isEmpty() ? QString::number(obj->Position[1])       : obj->PositionStr[1]);
-        QString sPos2  = (obj->PositionStr[2]   .isEmpty() ? QString::number(obj->Position[2])       : obj->PositionStr[2]);
-        QString sOri0  = (obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0])    : obj->OrientationStr[0]);
-        QString sOri1  = (obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1])    : obj->OrientationStr[1]);
-        QString sOri2  = (obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2])    : obj->OrientationStr[2]);
-        QString sIndex = (a->strStartIndex      .isEmpty() ? QString::number(a  ->startIndex)        : a->strStartIndex);
-
-        str +=  QString("geo.Array( ") +
-                "'" + obj->Name + "', " +
-                snumX + ", " +
-                snumY + ", " +
-                snumZ + ",   " +
-                sstepX + ", " +
-                sstepY + ", " +
-                sstepZ + ", " +
-                "'" + obj->Container->Name + "',   " +
-                sPos0 + ", " +
-                sPos1 + ", " +
-                sPos2 + ",   " +
-                sOri0 + ",   " +
-                sOri1 + ",   " +
-                sOri2 + ",   " +
-                sIndex + " )";
-    }
-
-    //qDebug() <<"strrr" << str;
-    return str;
-}
-
-QString AGeoTree::makeScriptString_instanceObject(AGeoObject *obj, bool usePython) const
-{
-    ATypeInstanceObject * ins = dynamic_cast<ATypeInstanceObject*>(obj->Type);
-    if (!ins)
-    {
-        qWarning() << "It is not an instance!";
-        return "Error accessing object as instance!";
-    }
-
-    QVector<QString> posStrs(3);
-    QVector<QString> oriStrs(3);
-    for (int i = 0; i < 3; i++)
-    {
-        posStrs[i] = ( obj->PositionStr[i].isEmpty()    ? QString::number(obj->Position[i])    : obj->PositionStr[i] );
-        oriStrs[i] = ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
-    }
-
-    QString str =  QString("geo.Instance( ") +
-            "'" + obj->Name +            "', " +
-            "'" + ins->PrototypeName +   "', " +
-            "'" + obj->Container->Name + "',   " +
-            posStrs[0] + ", " +
-            posStrs[1] + ", " +
-            posStrs[2] + ",   " +
-            oriStrs[0] + ", " +
-            oriStrs[1] + ", " +
-            oriStrs[2] + " )";
-
-    AGeoConsts::getConstInstance().formulaToScript(str, usePython);
-    return str;
-}
-
-QString AGeoTree::makeScriptString_prototypeObject(AGeoObject * obj) const
-{
-    ATypePrototypeObject * pro = dynamic_cast<ATypePrototypeObject*>(obj->Type);
-    if (!pro)
-    {
-        qWarning() << "It is not a prototype!";
-        return "Error accessing object as prototype!";
-    }
-
-    QString str =  QString("geo.Prototype( ") +
-            "'" + obj->Name +            "' )";
-    return str;
-}
-
-QString AGeoTree::makeScriptString_monitorBaseObject(const AGeoObject * obj) const
-{
-    ATypeMonitorObject * m = dynamic_cast<ATypeMonitorObject*>(obj->Type);
-    if (!m)
-    {
-        qWarning() << "It is not a monitor!";
-        return "Error accessing monitor!";
-    }
-    const AMonitorConfig & c = m->config;
-
-    // geo.Monitor( name,  shape,  size1,  size2,  container,  x,  y,  z,  phi,  theta,  psi,  SensitiveTop,  SensitiveBottom,  StopsTraking )
-    return QString("geo.Monitor( %1, %2,  %3, %4,  %5,   %6, %7, %8,   %9, %10, %11,   %12, %13,   %14 )")
-            .arg("'" + obj->Name + "'")
-            .arg(c.shape)
-            .arg(c.str2size1.isEmpty() ? QString::number(2.0 * c.size1) : c.str2size1)
-            .arg(c.str2size2.isEmpty() ? QString::number(2.0 * c.size2) : c.str2size2)
-            .arg("'" + obj->Container->Name + "'")
-            .arg(obj->PositionStr[0].isEmpty() ? QString::number(obj->Position[0]) : obj->PositionStr[0])
-            .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
-            .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
-            .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
-            .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
-            .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2])
-            .arg(c.bUpper ? "true" : "false")
-            .arg(c.bLower ? "true" : "false")
-            .arg(c.bStopTracking ? "true" : "false");
-}
-
-QString AGeoTree::makeScriptString_monitorConfig(const AGeoObject *obj) const
-{
-    ATypeMonitorObject * m = dynamic_cast<ATypeMonitorObject*>(obj->Type);
-    if (!m)
-    {
-        qWarning() << "It is not a monitor!";
-        return "Error accessing monitor!";
-    }
-    const AMonitorConfig & c = m->config;
-
-    if (c.PhotonOrParticle == 0)
-    {
-        //geo.Monitor_ConfigureForPhotons( MonitorName,  Position,  Time,  Angle,  Wave )
-        return QString("geo.Monitor_ConfigureForPhotons( %1,  [%2, %3],  [%4, %5, %6],  [%7, %8, %9],  [%10, %11, %12] )")
-                .arg("'" + obj->Name + "'")
-                .arg(c.xbins)
-                .arg(c.ybins)
-                .arg(c.timeBins)
-                .arg(c.timeFrom)
-                .arg(c.timeTo)
-                .arg(c.angleBins)
-                .arg(c.angleFrom)
-                .arg(c.angleTo)
-                .arg(c.waveBins)
-                .arg(c.waveFrom)
-                .arg(c.waveTo);
-    }
-    else
-    {
-        //geo.Monitor_ConfigureForParticles( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
-        return QString("geo.Monitor_ConfigureForParticles( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
-                .arg("'" + obj->Name + "'")
-                .arg(c.Particle)
-                .arg(c.bPrimary && c.bSecondary ? 0 : (c.bPrimary ? 1 : 2))
-                .arg(c.bDirect  && c.bIndirect  ? 0 : (c.bDirect  ? 1 : 2))
-                .arg(c.xbins)
-                .arg(c.ybins)
-                .arg(c.timeBins)
-                .arg(c.timeFrom)
-                .arg(c.timeTo)
-                .arg(c.angleBins)
-                .arg(c.angleFrom)
-                .arg(c.angleTo)
-                .arg(c.energyBins)
-                .arg(c.energyFrom)
-                .arg(c.energyTo)
-                .arg(c.energyUnitsInHist);
-    }
-}
-
-QString AGeoTree::makeScriptString_stackObjectStart(AGeoObject *obj) const
-{
-    return  QString("geo.Stack( '%1', '%2',   %3, %4, %5,   %6, %7, %8 )")
-            .arg(obj->Name)
-            .arg(obj->Container->Name)
-            .arg(obj->PositionStr[0].isEmpty() ? QString::number(obj->Position[0]) : obj->PositionStr[0])
-            .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
-            .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
-            .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
-            .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
-            .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
-}
-
-QString AGeoTree::makeScriptString_groupObjectStart(AGeoObject *obj) const
-{
-    return  QString("geo.MakeGroup(") +
-            "'" + obj->Name + "', " +
-            "'" + obj->Container->Name + "' )";
-}
-
-QString AGeoTree::makeScriptString_stackObjectEnd(AGeoObject *obj) const
-{
-    return QString("geo.InitializeStack( ") +
-           "'" + obj->Name + "',  " +
-           "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";  //obj->HostedObjects.first()->Name
-}
-
-QString AGeoTree::makeLinePropertiesString(AGeoObject *obj) const
-{
-    return "geo.SetLine( '" +
-            obj->Name +
-            "',  " +
-            QString::number(obj->color) + ",  " +
-            QString::number(obj->width) + ",  " +
-            QString::number(obj->style) + " )";
-}
-
-QString AGeoTree::makeScriptString_DisabledObject(AGeoObject *obj) const
-{
-    return QString("geo.DisableObject( '%1')").arg(obj->Name);
-}
-

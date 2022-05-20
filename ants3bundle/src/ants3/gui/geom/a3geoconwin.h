@@ -3,6 +3,11 @@
 
 #include "aguiwindow.h"
 
+#include <vector>
+#include <array>
+
+#include <QString>
+
 class AGeometryHub;
 class AMaterialHub;
 class AGeoTree;
@@ -25,12 +30,11 @@ public:
 private slots:
   void onRebuildDetectorRequest();
   void onGeoConstEditingFinished(int index, QString newValue);
-  void onGeoConstExpressionEditingFinished(int index, QString newValue);
   void onGeoConstEscapePressed(int index);
   void onRequestShowPrototypeList();
   void updateMenuIndication();
 
-  void on_tabwConstants_customContextMenuRequested(const QPoint &pos);
+  void on_tabwConstants_customContextMenuRequested(const QPoint & pos);
   void on_pbSaveTGeo_clicked();
   void on_pbRootWeb_clicked();
   void on_pbCheckGeometry_clicked();
@@ -45,6 +49,10 @@ private slots:
   void on_actionTo_JavaScript_triggered();
   void on_cbShowPrototypes_toggled(bool checked);
 
+  void on_tabwConstants_cellClicked(int row, int column);
+
+  void on_actionFind_object_triggered();
+
 private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
@@ -52,25 +60,25 @@ private:
   Ui::A3GeoConWin * ui    = nullptr;
   AGeoTree        * twGeo = nullptr;                // WorldTree widget
 
-  //QString ObjectScriptTarget;
   bool bGeoConstsWidgetUpdateInProgress = false;
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
 
   bool    GDMLtoTGeo(const QString &fileName);
   void    updateGeoConstsIndication();
-  QString createScript(QString &script, bool usePython);
   void    reportGeometryConflicts();
 
+  void    markCalorimeterBinning(const AGeoObject * obj);
+
 protected:
-  void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent * event);
 
 public slots:
-  void UpdateGeoTree(QString name = "");
+  void UpdateGeoTree(QString name = "", bool bShow = false);
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
-  void ShowObjectRecursive(QString name);
-  void ShowAllInstances(QString name);
+  void ShowObjectRecursive(QString name); // !!!***
+  void showAllInstances(QString name);
   void onRequestShowMonitorActiveDirection(const AGeoObject* mon);
   void onRequestEnableGeoConstWidget(bool flag);
 
@@ -79,23 +87,12 @@ signals:
   void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
   void requestShowTracks();
   void requestFocusVolume(QString name);
+  void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
+  void requestClearGeoMarkers(int All_Rec_True);
+  void requestAddScript(const QString & script);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 
-};
-
-#include <QLineEdit>
-class ALineEditWithEscape : public QLineEdit
-{
-    Q_OBJECT
-public:
-    ALineEditWithEscape(const QString & text, QWidget * parent) : QLineEdit(text, parent){}
-
-protected:
-    void keyPressEvent(QKeyEvent * event);
-
-signals:
-    void escapePressed();
 };
 
 #endif // A3GEOCONWIN_H

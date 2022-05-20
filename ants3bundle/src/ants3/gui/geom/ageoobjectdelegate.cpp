@@ -135,7 +135,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
       ledTheta = new AOneLineTextEdit(); gr->addWidget(ledTheta, 1, 3);
       ledPsi   = new AOneLineTextEdit(); gr->addWidget(ledPsi,   2, 3);
 
-      QVector<AOneLineTextEdit*> ole = {ledX, ledY, ledZ, ledPhi, ledTheta, ledPsi};
+      const std::vector<AOneLineTextEdit*> ole = {ledX, ledY, ledZ, ledPhi, ledTheta, ledPsi};
       for (AOneLineTextEdit * le : ole)
       {
           configureHighligherAndCompleter(le);
@@ -160,18 +160,18 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     lMF->addWidget(PosOrient);
 
     //special role widget
-    RoleWidget = crateSpecialRoleWidget();
+    crateSpecialRoleWidget();
     lMF->addWidget(RoleWidget);
 
     // bottom line buttons
-    QHBoxLayout * abl = createBottomButtons();
-    lMF->addLayout(abl);
+    createBottomButtons();
+    lMF->addWidget(frBottomButtons);
 
   frMainFrame->setLayout(lMF);
 
   ListOfShapesForTransform << "Box"
        << "Tube" << "Tube segment" << "Tube segment cut" << "Tube elliptical"
-       << "Trapezoid simplified" << "Trapezoid"
+       << "Trap" << "Trap2"
        << "Polycone"
        << "Polygon simplified" << "Polygon"
        << "Parallelepiped"
@@ -191,40 +191,136 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
 
 #include "QStackedWidget"
 #include "asensorhub.h"
-QWidget * AGeoObjectDelegate::crateSpecialRoleWidget()
+void AGeoObjectDelegate::crateSpecialRoleWidget()
 {
-    QWidget * rw = new QWidget();
+    RoleWidget = new QWidget();
 
-    QHBoxLayout * hbs = new QHBoxLayout(rw);
-    hbs->setContentsMargins(2,0,2,0);
-    hbs->addStretch();
+    QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
+    rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary Scint"});
-    hbs->addWidget(cobRole);
+        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
+    rl->addWidget(cobRole);
+    rl->setAlignment(cobRole, Qt::AlignHCenter);
 
-        QStackedWidget * sw = new QStackedWidget();
-            QFrame * fDummy = new QFrame();
-            sw->addWidget(fDummy);
-            QFrame * fSensor = new QFrame();
-                QHBoxLayout * hlSensor = new QHBoxLayout(fSensor);
-                hlSensor->addWidget(new QLabel("Sensor model:"));
-                cobSensorModel = new QComboBox();
-                cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
+    QFrame * frSensor = new QFrame();
+        QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
+        hlSensor->setContentsMargins(0,0,0,0);
+        cobSensorModel = new QComboBox();
+        if (ASensorHub::getConstInstance().isPersistentModelAssignment()) // mode does not change without rebuild, so no need in update
+        {
+            QLabel * l = new QLabel("Custom model indexes");
+            l->setToolTip("Sensor are configured to use persistent model indexes\n"
+                          "Check/modify using Sensor Window and scripting tools");
+            hlSensor->addWidget(l);
+        }
+        else
+        {
+            hlSensor->addWidget(new QLabel("Sensor model:"));
+            cobSensorModel->addItems(ASensorHub::getConstInstance().getListOfModelNames());
             hlSensor->addWidget(cobSensorModel);
-            sw->addWidget(fSensor);
-            QFrame * fCal = new QFrame();
-            sw->addWidget(fCal);
-            QFrame * fSec = new QFrame();
-            sw->addWidget(fSec);
+        }
+        frSensor->setVisible(false);
+        rl->addWidget(frSensor);
+        rl->setAlignment(frSensor, Qt::AlignHCenter);
 
-            sw->setVisible(false);
-    hbs->addWidget(sw);
-    hbs->addStretch();
+    QFrame * frCal = new QFrame();
+        QGridLayout * gl = new QGridLayout(frCal);
+        gl->setContentsMargins(0,0,0,0);
+        ledCalOriginX = new AOneLineTextEdit();
+        ledCalOriginY = new AOneLineTextEdit();
+        ledCalOriginZ = new AOneLineTextEdit();
+        ledCalStepX = new AOneLineTextEdit();
+        ledCalStepY = new AOneLineTextEdit();
+        ledCalStepZ = new AOneLineTextEdit();
+        leiCalBinsX = new AOneLineTextEdit();
+        leiCalBinsY = new AOneLineTextEdit();
+        leiCalBinsZ = new AOneLineTextEdit();
+        cbOffX = new QCheckBox("Off");
+        cbOffY = new QCheckBox("Off");
+        cbOffZ = new QCheckBox("Off");
+        gl->addWidget(new QLabel("X"),      0, 1, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Y"),      0, 2, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Z"),      0, 3, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Bins"),   1, 0);
+        gl->addWidget(leiCalBinsX,          1, 1);
+        gl->addWidget(leiCalBinsY,          1, 2);
+        gl->addWidget(leiCalBinsZ,          1, 3);
+        gl->addWidget(new QLabel("Origin"), 2, 0);
+        gl->addWidget(ledCalOriginX,        2, 1);
+        gl->addWidget(ledCalOriginY,        2, 2);
+        gl->addWidget(ledCalOriginZ,        2, 3);
+        gl->addWidget(new QLabel("Step"),   3, 0);
+        gl->addWidget(ledCalStepX,          3, 1);
+        gl->addWidget(ledCalStepY,          3, 2);
+        gl->addWidget(ledCalStepZ,          3, 3);
+        gl->addWidget(cbOffX,               4, 1, Qt::AlignHCenter);
+        gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
+        gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
+        frCal->setVisible(false);
+        rl->addWidget(frCal);
 
-    connect(cobRole, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setVisible);
-    connect(cobRole, &QComboBox::currentIndexChanged, sw,   &QStackedWidget::setCurrentIndex);
-    return rw;
+        connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginX->setDisabled(checked);
+            ledCalStepX  ->setDisabled(checked);
+            leiCalBinsX  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginX->setText("-1e10");
+                ledCalStepX->setText("2e10");
+                leiCalBinsX->setText("1");
+            }
+        } );
+        connect(cbOffY, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginY->setDisabled(checked);
+            ledCalStepY  ->setDisabled(checked);
+            leiCalBinsY  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginY->setText("-1e10");
+                ledCalStepY->setText("2e10");
+                leiCalBinsY->setText("1");
+            }
+        } );
+        connect(cbOffZ, &QCheckBox::toggled, this, [this](bool checked)
+        {
+            ledCalOriginZ->setDisabled(checked);
+            ledCalStepZ  ->setDisabled(checked);
+            leiCalBinsZ  ->setDisabled(checked);
+            if (checked)
+            {
+                ledCalOriginZ->setText("-1e10");
+                ledCalStepZ->setText("2e10");
+                leiCalBinsZ->setText("1");
+            }
+        } );
+
+        const std::vector<AOneLineTextEdit*> ole = {ledCalOriginX, ledCalOriginY, ledCalOriginZ,
+                                                    ledCalStepX, ledCalStepY, ledCalStepZ,
+                                                    leiCalBinsX, leiCalBinsY, leiCalBinsZ};
+        for (AOneLineTextEdit * le : ole)
+        {
+            configureHighligherAndCompleter(le);
+            le->setContextMenuPolicy(Qt::NoContextMenu);
+            connect(le, &AOneLineTextEdit::textChanged, this, &AGeoObjectDelegate::onContentChanged);
+        }
+
+    rl->addStretch();
+
+    connect(cbOffX,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffY,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffZ,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+
+    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
+    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal, this](int index)
+    {
+        frCal->setVisible(index == 2);
+        if (ledCalOriginX->text().isEmpty()) updateCalorimeterGui(ACalorimeterProperties());}
+    );
+
+    connect(cobRole,        &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobSensorModel, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
 }
 
 QString AGeoObjectDelegate::getName() const
@@ -237,6 +333,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     QString errorStr;
     const QString oldName = obj->Name;
     const QString newName = leName->text();
+
+    if (newName.contains("_-_"))
+    {
+        QMessageBox::warning(this->ParentWidget, "", "Object name cannot contain \"_-_\" substring");
+        return false;
+    }
 
     if (obj->Type->isHandlingSet() && !obj->Type->isStack())
     {
@@ -260,10 +362,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 return false;
             }
 
-            errorStr = scaled->updateScalingFactors();
+            scaled->updateScalingFactors(errorStr);
             if (!errorStr.isEmpty())
             {
-                qDebug() << errorStr;
                 QMessageBox::warning(this->ParentWidget, "", errorStr);
                 return false;
             }
@@ -272,11 +373,10 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
 
         if (shape)
         {
-            errorStr.clear();
-            errorStr = shape->introduceGeoConstValues();
+            //errorStr.clear();
+            shape->introduceGeoConstValues(errorStr);
             if (!errorStr.isEmpty())
             {
-                qDebug() << errorStr;
                 QMessageBox::warning(this->ParentWidget, "", errorStr);
                 return false;
             }
@@ -294,17 +394,29 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         QVector<QString> tempStrs(6);
         QVector<double> tempDoubles(6);
         bool ok = true;
-        ok = ok && processEditBox(ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
-        ok = ok && processEditBox(ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
-        ok = ok && processEditBox(ledZ,     tempDoubles[2],    tempStrs[2],    ParentWidget);
-        if (ledPhi->isEnabled())   ok = ok && processEditBox(ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
-        if (ledTheta->isEnabled()) ok = ok && processEditBox(ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
-        if (ledPsi->isEnabled())   ok = ok && processEditBox(ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
-
+        ok = ok && processEditBox("X position", ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
+        ok = ok && processEditBox("Y position", ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
+        ok = ok && processEditBox("Z position", ledZ,     tempDoubles[2],    tempStrs[2],    ParentWidget);
+        if (ledPhi->isEnabled())   ok = ok && processEditBox("Phi orientation",   ledPhi,   tempDoubles[3], tempStrs[3], ParentWidget);
+        if (ledTheta->isEnabled()) ok = ok && processEditBox("Theta orientation", ledTheta, tempDoubles[4], tempStrs[4], ParentWidget);
+        if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-
-        // TODO: can set special role for this object!  ***!!!
+        std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
+        std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
+        if (cobRole->currentIndex() == 2)
+        {
+            ok = ok && processDoubleEditBox("Origin X", ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Origin Y", ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Origin Z", ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step X", ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step Y", ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
+            ok = ok && processDoubleEditBox("Step Z", ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
+            ok = ok && processIntEditBox("Bins X", leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
+            ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+            if (!ok) return false;
+        }
 
         // ---- all checks are ok, can assign new values to the object ----
 
@@ -350,7 +462,16 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 obj->Role = new AGeoSensor(cobSensorModel->currentIndex());
                 break;
             case 2:
-                obj->Role = new AGeoCalorimeter();
+                {
+                AGeoCalorimeter * cal = new AGeoCalorimeter({calDouble[0], calDouble[1], calDouble[2]},
+                                                            {calDouble[3], calDouble[4], calDouble[5]},
+                                                            {calInt[0], calInt[1], calInt[2]} );
+                cal->Properties.strOrigin = {calDoubleStr[0], calDoubleStr[1], calDoubleStr[2]};
+                cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
+                cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
+
+                obj->Role = cal;
+                }
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
@@ -381,6 +502,44 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         obj->updateNameOfLogicalMember(oldName, newName);
 
     return true;
+}
+
+bool AGeoObjectDelegate::processDoubleEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str,
+                                              bool bForbidZero, bool bForbidNegative, bool bMakeHalf,
+                                              QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt + "\n");
+    return false;
+}
+
+bool AGeoObjectDelegate::processIntEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, int & val, QString & str,
+                                          bool bForbidZero, bool bForbidNegative,
+                                          QWidget * parent)
+{
+    str = lineEdit->text();
+    if (str.isEmpty())
+    {
+        QMessageBox::warning(parent, "", "Empty line!");
+        return false;
+    }
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+    bool ok = GC.updateIntParameter(errorStr, str, val, bForbidZero, bForbidNegative);
+    if (ok) return true;
+    QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt + "\n");
+    return false;
 }
 
 void AGeoObjectDelegate::onChangeShapePressed()
@@ -452,9 +611,9 @@ QString AGeoObjectDelegate::updateScalingFactors() const //not needed anymore ne
 
         const AGeoConsts & GC = AGeoConsts::getConstInstance();
         bool ok;
-        ok = GC.updateParameter(errorStr, scaled->strScaleX, scaled->scaleX, true, true, false); if (!ok) return errorStr;
-        ok = GC.updateParameter(errorStr, scaled->strScaleY, scaled->scaleY, true, true, false); if (!ok) return errorStr;
-        ok = GC.updateParameter(errorStr, scaled->strScaleZ, scaled->scaleZ, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleX, scaled->scaleX, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleY, scaled->scaleY, true, true, false); if (!ok) return errorStr;
+        ok = GC.updateDoubleParameter(errorStr, scaled->strScaleZ, scaled->scaleZ, true, true, false); if (!ok) return errorStr;
         //qDebug() <<scaled->scaleX <<scaled->scaleY <<scaled->scaleZ;
     }
     else
@@ -533,23 +692,6 @@ void AGeoObjectDelegate::updateControlUI()
     }
 }
 
-void AGeoObjectDelegate::initSlabDelegate(int SlabModelState)
-{
-    if (SlabModelState != 2) ledPsi->setEnabled(false);
-
-    ledX->setEnabled(false);
-    ledY->setEnabled(false);
-    ledZ->setEnabled(false);
-
-    ledPhi->setEnabled(false);
-    ledTheta->setEnabled(false);
-
-    cbScale->setVisible(false);
-
-    if (SlabModelState == 2) ListOfShapesForTransform = QStringList({"Rectangular slab", "Round slab", "Polygon slab"});
-    else pbTransform->setEnabled(false);
-}
-
 /*
 void AGeoObjectDelegate::rotate(TVector3 & v, double dPhi, double dTheta, double dPsi) const
 {
@@ -575,8 +717,8 @@ void AGeoObjectDelegate::onShapeDialogActivated(QDialog * d, QListWidget * w)
     else if (sel == "Tube segment cut")     emit RequestChangeShape(new AGeoCtub());
     else if (sel == "Tube elliptical")      emit RequestChangeShape(new AGeoEltu());
     else if (sel == "Sphere")               emit RequestChangeShape(new AGeoSphere());
-    else if (sel == "Trapezoid simplified") emit RequestChangeShape(new AGeoTrd1());
-    else if (sel == "Trapezoid")            emit RequestChangeShape(new AGeoTrd2());
+    else if (sel == "Trap")                 emit RequestChangeShape(new AGeoTrd1());
+    else if (sel == "Trap2")                emit RequestChangeShape(new AGeoTrd2());
     else if (sel == "Cone")                 emit RequestChangeShape(new AGeoCone());
     else if (sel == "Cone segment")         emit RequestChangeShape(new AGeoConeSeg());
     else if (sel == "Paraboloid")           emit RequestChangeShape(new AGeoParaboloid());
@@ -641,7 +783,9 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
         ledScaleZ->setText(scaledShape->strScaleZ.isEmpty() ? QString::number(scaledShape->scaleZ) : scaledShape->strScaleZ);
     }
 
-    if (obj->Role)
+    const bool bCanHaveRole = (obj->Type->isSingle() || obj->Type->isComposite());
+    RoleWidget->setVisible(bCanHaveRole);
+    if (bCanHaveRole && obj->Role)
     {
         AGeoSensor * sens = dynamic_cast<AGeoSensor*>(obj->Role);
         if (sens)
@@ -655,7 +799,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             if (cal)
             {
                 cobRole->setCurrentIndex(2);
-                // ...
+                const ACalorimeterProperties & p = cal->Properties;
+                updateCalorimeterGui(p);
             }
             else
             {
@@ -666,9 +811,26 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
     }
 }
 
+void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
+{
+    ledCalOriginX->setText( p.strOrigin[0].isEmpty() ? QString::number(p.Origin[0]) : p.strOrigin[0] );
+    ledCalOriginY->setText( p.strOrigin[1].isEmpty() ? QString::number(p.Origin[1]) : p.strOrigin[1] );
+    ledCalOriginZ->setText( p.strOrigin[2].isEmpty() ? QString::number(p.Origin[2]) : p.strOrigin[2] );
+    ledCalStepX  ->setText(   p.strStep[0].isEmpty() ? QString::number(  p.Step[0]) :   p.strStep[0] );
+    ledCalStepY  ->setText(   p.strStep[1].isEmpty() ? QString::number(  p.Step[1]) :   p.strStep[1] );
+    ledCalStepZ  ->setText(   p.strStep[2].isEmpty() ? QString::number(  p.Step[2]) :   p.strStep[2] );
+    leiCalBinsX  ->setText(   p.strBins[0].isEmpty() ? QString::number(  p.Bins[0]) :   p.strBins[0] );
+    leiCalBinsY  ->setText(   p.strBins[1].isEmpty() ? QString::number(  p.Bins[1]) :   p.strBins[1] );
+    leiCalBinsZ  ->setText(   p.strBins[2].isEmpty() ? QString::number(  p.Bins[2]) :   p.strBins[2] );
+
+    cbOffX->setChecked( p.isAxisOff(0) );
+    cbOffY->setChecked( p.isAxisOff(1) );
+    cbOffZ->setChecked( p.isAxisOff(2) );
+}
+
 void AGeoObjectDelegate::onContentChanged()
 {
-    emit ContentChanged();
+    onContentChangedBase();
 }
 
 //---------------
@@ -708,7 +870,7 @@ AGeoBoxDelegate::AGeoBoxDelegate(const QStringList &materials, QWidget *parent)
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -795,7 +957,7 @@ AGeoTubeDelegate::AGeoTubeDelegate(const QStringList & materials, QWidget *paren
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -871,7 +1033,7 @@ AGeoTubeSegDelegate::AGeoTubeSegDelegate(const QStringList & materials, QWidget 
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -960,7 +1122,7 @@ AGeoTubeSegCutDelegate::AGeoTubeSegCutDelegate(const QStringList &materials, QWi
     for (AOneLineTextEdit * le : {elnx, elny, elnz, eunx, euny, eunz})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1069,7 +1231,7 @@ AGeoParaDelegate::AGeoParaDelegate(const QStringList & materials, QWidget *paren
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1174,7 +1336,7 @@ AGeoSphereDelegate::AGeoSphereDelegate(const QStringList & materials, QWidget *p
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1272,7 +1434,7 @@ AGeoConeDelegate::AGeoConeDelegate(const QStringList &materials, QWidget *parent
     for (AOneLineTextEdit * le : {ez, eli, elo, eui, euo})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1360,7 +1522,7 @@ AGeoConeSegDelegate::AGeoConeSegDelegate(const QStringList &materials, QWidget *
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1444,7 +1606,7 @@ AGeoElTubeDelegate::AGeoElTubeDelegate(const QStringList &materials, QWidget *pa
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1496,9 +1658,9 @@ void AGeoElTubeDelegate::Update(const AGeoObject *obj)
 AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid simplified";
+    DelegateTypeName = "Trap";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trapezoidal prizm\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1531,7 +1693,7 @@ AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *pare
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1558,7 +1720,7 @@ bool AGeoTrapXDelegate::updateObject(AGeoObject *obj) const
         trap->str2dy  = ey->text();
         trap->str2dz  = ez->text();
     }
-    else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+    else qWarning() << "Read delegate: Trap shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1581,15 +1743,15 @@ void AGeoTrapXDelegate::Update(const AGeoObject *obj)
             ey-> setText(trap->str2dy .isEmpty() ? QString::number(trap->dy  * 2.0) : trap->str2dy);
             ez-> setText(trap->str2dz .isEmpty() ? QString::number(trap->dz  * 2.0) : trap->str2dz);
         }
-        else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+        else qWarning() << "Read delegate: Trap shape not found!";
 }
 
 AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid";
+    DelegateTypeName = "Trap2";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trape2 shape\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1624,7 +1786,7 @@ AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *pa
     for (AOneLineTextEdit * le : {exl, exu, eyl, eyu, ez})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1652,7 +1814,7 @@ bool AGeoTrapXYDelegate::updateObject(AGeoObject *obj) const
         trapxy->str2dy2 = eyu->text();
         trapxy->str2dz  = ez ->text();
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1676,7 +1838,7 @@ void AGeoTrapXYDelegate::Update(const AGeoObject *obj)
         eyu->setText(trapxy->str2dy2.isEmpty() ? QString::number(trapxy->dy2 * 2.0) : trapxy->str2dy2);
         ez-> setText(trapxy->str2dz .isEmpty() ? QString::number(trapxy->dz  * 2.0) : trapxy->str2dz);
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 }
 
 AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWidget *parent)
@@ -1720,7 +1882,7 @@ AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWi
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1810,7 +1972,7 @@ AGeoTorusDelegate::AGeoTorusDelegate(const QStringList &materials, QWidget *pare
     for (AOneLineTextEdit * le : {ead, edi, edo, ep0, epe})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -1893,7 +2055,7 @@ AGeoPolygonDelegate::AGeoPolygonDelegate(const QStringList &materials, QWidget *
     labUI = new QLabel("Upper inner diameter of incircle:"); gr->addWidget(labUI, 5, 0);
     labA  = new QLabel("Angle:");                            gr->addWidget(labA,  6, 0);
 
-    en  = new AOneLineTextEdit(); gr->addWidget(en,  0, 1);
+    en  = new AOneLineTextEdit(); gr->addWidget(en,  0, 1); en->bIntegerTooltip = true;
     ez  = new AOneLineTextEdit(); gr->addWidget(ez,  1, 1);
     elo = new AOneLineTextEdit(); gr->addWidget(elo, 2, 1);
     eli = new AOneLineTextEdit(); gr->addWidget(eli, 3, 1);
@@ -1913,7 +2075,7 @@ AGeoPolygonDelegate::AGeoPolygonDelegate(const QStringList &materials, QWidget *
     for (AOneLineTextEdit * le : {en, edp, ez, eli, elo, eui, euo})
     {
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 }
 
@@ -2020,7 +2182,8 @@ AGeoPconDelegate::AGeoPconDelegate(const QStringList &materials, QWidget *parent
             else
             {
                 tab->removeRow(row);
-                ContentChanged();
+                //ContentChanged();
+                onContentChangedBase();
             }
         });
         hl->addWidget(pbRemoveRow);
@@ -2038,7 +2201,7 @@ AGeoPconDelegate::AGeoPconDelegate(const QStringList &materials, QWidget *parent
         for (AOneLineTextEdit * le : {ep0, epe})
         {
             configureHighligherAndCompleter(le);
-            QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoPconDelegate::ContentChanged);
+            QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoPconDelegate::onContentChangedBase);
         }
     lay->addLayout(gr);
 
@@ -2061,7 +2224,7 @@ void AGeoPconDelegate::addOneLineTextEdits(int row)
 {
     for (int ic = 0; ic < 3; ic++)
     {
-        AOneLineTextEdit * e = new AOneLineTextEdit(tab);
+        AOneLineTextEdit * e = new AOneLineTextEdit("", tab);
         configureHighligherAndCompleter(e);
         tab->setCellWidget(row, ic, e);
     }
@@ -2151,9 +2314,9 @@ void AGeoPconDelegate::updateTableW(AGeoPcon * pcon)
         QVector<AOneLineTextEdit*> le(3, nullptr);
         for (int i = 0; i < 3; i++)
         {
-            le[i] = new AOneLineTextEdit(tab);
+            le[i] = new AOneLineTextEdit("", tab);
             configureHighligherAndCompleter(le[i]);
-            QObject::connect(le[i], &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            QObject::connect(le[i], &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             QObject::connect(le[i], &AOneLineTextEdit::editingFinished, this, &AGeoPconDelegate::onCellEdited);
             tab->setCellWidget(iP, i, le[i]);
         }
@@ -2177,7 +2340,8 @@ void AGeoPconDelegate::onCellEdited()
         pcon = dynamic_cast<AGeoPcon*>(scaled->BaseShape);
     }
 
-    if (pcon) pcon->introduceGeoConstValues();
+    QString dummyErrorStr;
+    if (pcon) pcon->introduceGeoConstValues(dummyErrorStr);
 }
 
 void AGeoPconDelegate::onAddAbove()
@@ -2253,7 +2417,7 @@ void AGeoPconDelegate::onReorderSections(int, int oldVisualIndex, int newVisualI
         tab->verticalHeader()->moveSection(newVisualIndex, oldVisualIndex);//swaps back table rows oldVisualIndex and newVisualIndex
         tab->verticalHeader()->blockSignals(false); // <--
 
-        emit ContentChanged();
+        onContentChangedBase();
     }
     else qWarning() << "PolyCone not found in move row";
 }
@@ -2289,7 +2453,7 @@ AGeoPgonDelegate::AGeoPgonDelegate(const QStringList &materials, QWidget *parent
     tab->setHorizontalHeaderLabels(QStringList({"Z position", "Outer size", "Inner size"}));
 
     configureHighligherAndCompleter(eed);
-    QObject::connect(eed, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(eed, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
 }
 
 bool AGeoPgonDelegate::updateObject(AGeoObject *obj) const
@@ -2364,9 +2528,12 @@ AGeoCompositeDelegate::AGeoCompositeDelegate(const QStringList &materials, QWidg
         font.setPointSize(te->font().pointSize() + 2);
         te->setFont(font);
     v->addWidget(te);
-    connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::ContentChanged);
+    connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::onContentChangedBase);
 
     addLocalLayout(v);
+
+    cbScale->setChecked(false);
+    cbScale->setEnabled(false);
 }
 
 bool AGeoCompositeDelegate::updateObject(AGeoObject *obj) const
@@ -2455,7 +2622,7 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
         gr->addWidget(new QLabel("Height:"), 0, 0);
         ez = new AOneLineTextEdit(); gr->addWidget(ez,  0, 1);
         configureHighligherAndCompleter(ez);
-        connect(ez, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        connect(ez, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
         gr->addWidget(new QLabel("mm"), 0, 2);
     v->addLayout(gr);
 
@@ -2475,12 +2642,12 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
             gri->addWidget(new QLabel("  x:"),    i, 0);
             tmpV[i].X = new AOneLineTextEdit;
             configureHighligherAndCompleter(tmpV[i].X);
-            connect(tmpV[i].X, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            connect(tmpV[i].X, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             gri->addWidget(tmpV[i].X,             i, 1);
             gri->addWidget(new QLabel("mm   y:"), i, 2);
             tmpV[i].Y = new AOneLineTextEdit;
             configureHighligherAndCompleter(tmpV[i].Y);
-            connect(tmpV[i].Y, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+            connect(tmpV[i].Y, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
             gri->addWidget(tmpV[i].Y,             i, 3);
             gri->addWidget(new QLabel("mm"),      i, 4);
         }
@@ -2522,8 +2689,8 @@ bool AGeoArb8Delegate::updateObject(AGeoObject *obj) const
                 }
 
                 const int iInVert = iul * 4 + i;
-                arb8->strVertices[iInVert][0] = ve[iul][i].X->text();
-                arb8->strVertices[iInVert][1] = ve[iul][i].Y->text();
+                arb8->strVertices[iInVert].first  = ve[iul][i].X->text();
+                arb8->strVertices[iInVert].second = ve[iul][i].Y->text();
             }
         }
     }
@@ -2552,10 +2719,11 @@ void AGeoArb8Delegate::Update(const AGeoObject *obj)
             for (int i = 0; i < 4; i++)
             {
                 const int iInVert = iul * 4 + i;
-                const QPair<double, double> & V = arb8->Vertices.at(iInVert);
+                const std::pair<double, double>   & V = arb8->Vertices[iInVert];
+                const std::pair<QString, QString> & S = arb8->strVertices[iInVert];
                 AEditEdit & CEE = ve[iul][i];
-                CEE.X->setText(arb8->strVertices.at(iInVert).at(0).isEmpty() ? QString::number(V.first)  : arb8->strVertices.at(iInVert).at(0));
-                CEE.Y->setText(arb8->strVertices.at(iInVert).at(1).isEmpty() ? QString::number(V.second) : arb8->strVertices.at(iInVert).at(1));
+                CEE.X->setText( S.first.isEmpty()  ? QString::number(V.first)  : S.first  );
+                CEE.Y->setText( S.second.isEmpty() ? QString::number(V.second) : S.second );
             }
         }
     }
@@ -2596,23 +2764,27 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     la = new QLabel("mm"); grAW->addWidget(la, 1, 4);
     la = new QLabel("mm"); grAW->addWidget(la, 2, 4);
 
-    ledNumX  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumX,  0, 1);
-    ledNumY  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumY,  1, 1);
-    ledNumZ  = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumZ,  2, 1);
-    ledStepX = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepX, 0, 3);
-    ledStepY = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepY, 1, 3);
-    ledStepZ = new AOneLineTextEdit(Widget); grAW->addWidget(ledStepZ, 2, 3);
+    ledNumX  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX,  0, 1); ledNumX->bIntegerTooltip = true;
+    ledNumY  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY,  1, 1); ledNumY->bIntegerTooltip = true;
+    ledNumZ  = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumZ,  2, 1); ledNumZ->bIntegerTooltip = true;
+    ledStepX = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepX, 0, 3);
+    ledStepY = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepY, 1, 3);
+    ledStepZ = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepZ, 2, 3);
 
     lVer->addLayout(grAW);
+
+    cbCenterSym = new QCheckBox("Center-symmetric");
+    lVer->addWidget(cbCenterSym, 0, Qt::AlignHCenter);
 
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
     lVer->addLayout(lHor);
+
 
     addLocalLayout(lVer);
 
@@ -2622,7 +2794,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -2657,9 +2829,11 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     a.strStepX = ledStepX->text();
     a.strStepY = ledStepY->text();
     a.strStepZ = ledStepZ->text();
+    a.bCenterSymmetric = cbCenterSym->isChecked();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -2686,6 +2860,7 @@ void AGeoArrayDelegate::Update(const AGeoObject * obj)
         ledStepX->setText(array->strStepX.isEmpty() ? QString::number(array->stepX) : array->strStepX);
         ledStepY->setText(array->strStepY.isEmpty() ? QString::number(array->stepY) : array->strStepY);
         ledStepZ->setText(array->strStepZ.isEmpty() ? QString::number(array->stepZ) : array->strStepZ);
+        cbCenterSym->setChecked(array->bCenterSymmetric);
         ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);
     }
 }
@@ -2711,16 +2886,16 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
     la = new QLabel("deg");           grAW->addWidget(la, 1, 2);
     la = new QLabel("mm");            grAW->addWidget(la, 2, 2);
 
-    ledNum         = new AOneLineTextEdit(Widget); grAW->addWidget(ledNum, 0, 1);
-    ledAngularStep = new AOneLineTextEdit(Widget); grAW->addWidget(ledAngularStep, 1, 1);
-    ledRadius      = new AOneLineTextEdit(Widget); grAW->addWidget(ledRadius, 2, 1);
+    ledNum         = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNum, 0, 1);         ledNum->bIntegerTooltip = true;
+    ledAngularStep = new AOneLineTextEdit("", Widget); grAW->addWidget(ledAngularStep, 1, 1);
+    ledRadius      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledRadius, 2, 1);
 
     lVer->addLayout(grAW);
 
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2734,7 +2909,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -2768,7 +2943,8 @@ bool AGeoCircularArrayDelegate::updateObject(AGeoObject *obj) const
     a.strRadius      = ledRadius->text();
     a.strStartIndex = ledStartIndex->text();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -2814,7 +2990,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QLabel * la = nullptr;
 
     la = new QLabel("Pitch:");        grAW->addWidget(la, 0, 0);
-    ledStep = new AOneLineTextEdit(Widget); grAW->addWidget(ledStep, 0, 1);
+    ledStep = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStep, 0, 1);
     la = new QLabel("mm");            grAW->addWidget(la, 0, 2);
 
     //la = new QLabel("Shape:");        grAW->addWidget(la, 1, 0);
@@ -2822,20 +2998,20 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     cobShape->addItems({"Hexagonal shape", "Rectangular shape"});
 
     QLabel * laR = new QLabel("Rings:"); grAW->addWidget(laR, 2, 0);
-    ledNumRings = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumRings, 2, 1);
+    ledNumRings = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumRings, 2, 1); ledNumRings->bIntegerTooltip = true;
 
     QLabel * laX = new QLabel("Number in X:"); grAW->addWidget(laX, 3, 0);
-    ledNumX      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumX, 3, 1);
+    ledNumX      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumX, 3, 1); ledNumX->bIntegerTooltip = true;
     QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
-    ledNumY      = new AOneLineTextEdit(Widget); grAW->addWidget(ledNumY, 3, 3);
+    ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3); ledNumY->bIntegerTooltip = true;
 
     cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
     grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
 
     lVer->addLayout(grAW);
 
-    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::ContentChanged);
-    QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::onContentChangedBase);
+    QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, [this, laR, laX, laY](int index)
     {
         laR->setVisible(index == 0);
@@ -2853,7 +3029,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
-    ledStartIndex = new AOneLineTextEdit(Widget);
+    ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
     lHor->addStretch();
 
@@ -2867,7 +3043,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
         //le->setMaximumWidth(75);
         le->setContextMenuPolicy(Qt::NoContextMenu);
         configureHighligherAndCompleter(le);
-        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+        QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
 
     cbScale->setChecked(false);
@@ -2901,7 +3077,8 @@ bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
     a.Shape         = ( cobShape->currentIndex() == 0 ? ATypeHexagonalArrayObject::Hexagonal : ATypeHexagonalArrayObject::XY );
     a.SkipOddLast   = cbSkipLastOdd->isChecked();
 
-    QString errorStr = a.introduceGeoConstValues();
+    QString errorStr;
+    a.introduceGeoConstValues(errorStr);
     if (!errorStr.isEmpty())
     {
         QMessageBox::warning(this->ParentWidget, "", errorStr);
@@ -3005,7 +3182,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
         cobMat = new QComboBox();
         cobMat->setContextMenuPolicy(Qt::NoContextMenu);
         cobMat->addItems(materials);
-        connect(cobMat, SIGNAL(activated(int)), this, SIGNAL(ContentChanged()));
+        //connect(cobMat, SIGNAL(activated(int)), this, SIGNAL(ContentChanged()));
+        connect(cobMat, &QComboBox::activated, this, &AGeoBaseDelegate::onContentChangedBase);
         cobMat->setMinimumWidth(120);
         hl->addWidget(cobMat);
       lMF->addLayout(hl);
@@ -3013,7 +3191,7 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
       QHBoxLayout * h = new QHBoxLayout();
             h->addStretch();
             cbFixedSize = new QCheckBox("Fixed size");
-            connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::ContentChanged);
+            connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
             h->addWidget(cbFixedSize);
 
             QVBoxLayout * v1 = new QVBoxLayout();
@@ -3029,16 +3207,15 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
                 for (AOneLineTextEdit * le : {ledSizeXY, ledSizeZ})
                 {
                     configureHighligherAndCompleter(le);
-                    connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+                    connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
                 }
             h->addLayout(v2);
             h->addStretch();
     lMF->addLayout(h);
 
-    QHBoxLayout * abl = createBottomButtons();
-    pbShow->setEnabled(false);
+    createBottomButtons();
     pbScriptLine->setEnabled(false);
-    lMF->addLayout(abl);
+    lMF->addWidget(frBottomButtons);
 
     frMainFrame->setLayout(lMF);
 }
@@ -3075,16 +3252,16 @@ bool AWorldDelegate::updateObject(AGeoObject * obj) const
     double dx, dz;
     QString strSizeXY = ledSizeXY->text();
     QString strSizeZ  = ledSizeZ ->text();
-    ok = GC.updateParameter(errorStr, strSizeXY, dx);
+    ok = GC.updateDoubleParameter(errorStr, strSizeXY, dx);
     if (!ok)
     {
-        QMessageBox::warning(this->ParentWidget, "", errorStr);
+        QMessageBox::warning(this->ParentWidget, "", errorStr + " in SizeXY\n");
         return false;
     }
-    ok = GC.updateParameter(errorStr, strSizeZ,  dz);
+    ok = GC.updateDoubleParameter(errorStr, strSizeZ,  dz);
     if (!ok)
     {
-        QMessageBox::warning(this->ParentWidget, "", errorStr);
+        QMessageBox::warning(this->ParentWidget, "", errorStr + "in SizeZ\n");
         return false;
     }
 
@@ -3128,7 +3305,7 @@ AGeoInstanceDelegate::AGeoInstanceDelegate(const QStringList &materials, QWidget
     leInstanceOf = new QLineEdit();                              hl->addWidget(leInstanceOf);
     QPushButton * pbToProto = new QPushButton("Show prototype"); hl->addWidget(pbToProto);
 
-    QObject::connect(leInstanceOf, &QLineEdit::textChanged, this, &AGeoBaseDelegate::ContentChanged);
+    QObject::connect(leInstanceOf, &QLineEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(pbToProto, &QPushButton::clicked, [this](){
         emit RequestShowPrototype(leInstanceOf->text());
     });

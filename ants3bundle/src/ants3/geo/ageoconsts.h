@@ -1,7 +1,7 @@
 #ifndef AGEOCONSTS_H
 #define AGEOCONSTS_H
 
-#include <QVector>
+#include <vector>
 #include <QString>
 #include <QRegularExpression>
 
@@ -29,6 +29,7 @@ public:
     static const AGeoConsts & getConstInstance();
 
     void    clearConstants();
+    void    updateFromExpressions();
 
     QString addNewConstant(const QString & name, double value, int index = -1);
     void    addNoNameConstant(int index);
@@ -42,7 +43,7 @@ public:
     bool    isIndexValid(int index);
 
     QString checkifValidAndGetDoublefromExpression(int index);
-    QString isGeoConstsBellowInUse(int index) const;
+    QString isGeoConstsBelowInUse(int index) const;
 
     QString isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const;
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index);
@@ -62,11 +63,11 @@ public:
     void    writeToJsonArr(QJsonArray & ar) const;
     void    readFromJsonArr(const QJsonArray & json);
 
-    bool    evaluateFormula(QString str, double & returnValue, int to = -1) const;
-    bool    updateParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero = true, bool bForbidNegative = true, bool bMakeHalf = true) const;
-    bool    updateParameter(QString & errorStr, QString & str, int    & returnValue, bool bForbidZero = true, bool bForbidNegative = true) const;
+    bool    evaluateFormula(QString & error, QString str, double & returnValue, int to = -1) const;
+    bool    updateDoubleParameter(QString & errorStr, QString & str, double & returnValue, bool bForbidZero = true, bool bForbidNegative = true, bool bMakeHalf = true) const;
+    bool    updateIntParameter(QString & errorStr, QString & str, int & returnValue, bool bForbidZero = true, bool bForbidNegative = true) const;
 
-    const QVector<QString> & getTFormulaReservedWords() const {return FormulaReservedWords;}
+    const std::vector<QString> & getTFormulaReservedWords() const {return FormulaReservedWords;}
 
 public:
     const QString placeholderStr = "______";
@@ -74,18 +75,18 @@ public:
 private:
     AGeoConsts();
 
-    AGeoConsts(const AGeoConsts&) = delete;            // Copy ctor
-    AGeoConsts(AGeoConsts&&) = delete;                 // Move ctor
-    AGeoConsts& operator=(const AGeoConsts&) = delete; // Copy assign
-    AGeoConsts& operator=(AGeoConsts&) = delete;       // Move assign
+    AGeoConsts(const AGeoConsts&) = delete;
+    AGeoConsts(AGeoConsts&&) = delete;
+    AGeoConsts& operator=(const AGeoConsts&) = delete;
+    AGeoConsts& operator=(AGeoConsts&) = delete;
 
-    QVector<AGeoConstRecord> Records;
-    QVector<double> GeoConstValues;                    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
+    std::vector<AGeoConstRecord> Records;
+    std::vector<double> GeoConstValues;    // has to be always synchronized with Records !  GeoConstValues.data() is used by TFormula
 
     //misc
-    QVector<QString> FunctionsToJS;
-    QVector<QString> FormulaReservedWords;
-    QVector<QRegularExpression> ForbiddenVarsRExp;
+    std::vector<QString> FunctionsToJS;
+    std::vector<QString> FormulaReservedWords;
+    std::vector<QRegularExpression> ForbiddenVarsRExp;
 
     void updateRunTimeProperties();
 };

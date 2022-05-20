@@ -4,6 +4,7 @@
 #include "a3farmnoderecord.h"
 #include "afilemerger.h"
 
+#include <QObject>
 #include <QString>
 
 #include <vector>
@@ -18,8 +19,10 @@ class AParticleRunSettings;
 class AEventTrackingRecord;
 class AParticleGun;
 
-class AParticleSimManager
+class AParticleSimManager : public QObject
 {
+    Q_OBJECT
+
 public:
     static AParticleSimManager & getInstance();
 
@@ -48,11 +51,17 @@ public:
 
     QString fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record);
 
+signals:
+    void requestUpdateResultsGUI();
+
 private:
     AFileMerger HistoryFileMerger;
     AFileMerger ParticlesFileMerger;
     AFileMerger DepositionFileMerger;
     std::vector<QString> MonitorFiles;
+    std::vector<QString> CalorimeterFiles;
+
+    std::vector<QString> ReceiptFiles;
 
     int  getNumberEvents() const;
     void doPreSimChecks();
@@ -63,10 +72,12 @@ private:
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     void configureMaterials();
     void configureMonitors();
+    void configureCalorimeters();
     bool configureParticleGun();
 
     void removeOutputFiles();
     void mergeOutput();
+    void processReply(const QJsonObject & Reply);
 };
 
 #endif // APARTICLESIMMANAGER_H

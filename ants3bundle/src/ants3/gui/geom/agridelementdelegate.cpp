@@ -168,7 +168,7 @@ void AGridElementDelegate::Update(const AGeoObject *obj)
 void AGridElementDelegate::onContentChanged()
 {
     updateVisibility();
-    emit ContentChanged();
+    onContentChangedBase();
 }
 
 void AGridElementDelegate::StartDialog()

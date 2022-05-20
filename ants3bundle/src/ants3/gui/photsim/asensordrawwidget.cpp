@@ -150,11 +150,13 @@ void ASensorDrawWidget::resetViewport()
     double Ymax = -1e10;
     for (int iSens = 0; iSens < numSensors; iSens++)
     {
-        const double x =  SensorHub.SensorData[iSens].Position[0];
-        const double y = -SensorHub.SensorData[iSens].Position[1];
+        const AVector3 & Pos = SensorHub.getPosition(iSens);
+        const double x =  Pos[0];
+        const double y = -Pos[1];
 
-        AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
-        const double size = (obj->Shape ? obj->Shape->maxSize() : 0);
+        double size = 0;
+        AGeoObject * obj = SensorHub.getGeoObject(iSens);
+        if (obj && obj->Shape) size = obj->Shape->maxSize();
 
         if (x - size < Xmin) Xmin = x - size;
         if (x + size > Xmax) Xmax = x + size;
@@ -188,8 +190,8 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
     {
         const int iSens = EnabledSensors[i];
 
-        AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
-        if (!obj->Shape)
+        AGeoObject * obj = SensorHub.getGeoObject(iSens);
+        if (!obj || !obj->Shape)
         {
             qWarning() << "Shape is not defined for sensor #" << iSens;
             continue;
@@ -264,7 +266,7 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
             item = scene->addRect(-size, -size, 2.0*size, 2.0*size, pen, brush);
         }
 
-        const AVector3 & Pos = SensorHub.SensorData[iSens].Position;
+        const AVector3 & Pos = SensorHub.getPosition(iSens);
         //if (ui->cbViewFromBelow->isChecked()) tmp->setZValue(-PM.z); else
         item->setZValue(Pos[2]);
 
@@ -284,8 +286,8 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
     for (size_t i = 0; i < EnabledSensors.size(); i++)
     {
         const int iSens = EnabledSensors[i];
-        AGeoObject * obj = SensorHub.SensorData[iSens].GeoObj;
-        if (!obj->Shape)
+        AGeoObject * obj = SensorHub.getGeoObject(iSens);;
+        if (!obj || !obj->Shape)
         {
             qWarning() << "Shape is not defined for sensor #" << iSens;
             continue;
@@ -303,7 +305,7 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
             io->setBrush(Qt::white);
 
         int wid = (io->boundingRect().width()-6)/6;
-        const AVector3 & Pos = SensorHub.SensorData[iSens].Position;
+        const AVector3 & Pos = SensorHub.getPosition(iSens);
         double x = ( Pos[0] -wid*size*0.125 -0.15*size )*GVscale;
         double y = (-Pos[1] - 0.36*size) * GVscale; //minus y to invert the scale!!!
         io->setPos(x, y);

@@ -17,6 +17,8 @@
 #include "abasketlistwidget.h"
 #include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
+#include "ajscripthub.h"
+#include "agraphwin_si.h"
 
 #include <QtGui>
 #include <QFileDialog>
@@ -158,6 +160,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     new QShortcut(QKeySequence(Qt::Key_Delete), this, SLOT(deletePressed()));
 
     DrawTemplate.Selection.bExpanded = true;
+
+    AJScriptHub::getInstance().addInterface(new AGraphWin_SI(this), "grwin");
 }
 
 GraphWindowClass::~GraphWindowClass()
@@ -178,10 +182,12 @@ GraphWindowClass::~GraphWindowClass()
 #include "ajscriptmanager.h"
 #include "agraph_si.h"
 #include "ahist_si.h"
+#include "atree_si.h"
 void GraphWindowClass::connectScriptUnitDrawRequests()
 {
     const AGraph_SI * graphInter = nullptr;
     const AHist_SI  * histInter  = nullptr;
+    const ATree_SI  * treeInter  = nullptr;
 
     const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
@@ -189,17 +195,35 @@ void GraphWindowClass::connectScriptUnitDrawRequests()
         if (!graphInter)
         {
             const AGraph_SI * test = dynamic_cast<const AGraph_SI*>(inter);
-            if (test) graphInter = test;
+            if (test)
+            {
+                graphInter = test;
+                continue;
+            }
         }
         if (!histInter)
         {
             const AHist_SI * test = dynamic_cast<const AHist_SI*>(inter);
-            if (test) histInter = test;
+            if (test)
+            {
+                histInter = test;
+                continue;
+            }
+        }
+        if (!treeInter)
+        {
+            const ATree_SI * test = dynamic_cast<const ATree_SI*>(inter);
+            if (test)
+            {
+                treeInter = test;
+                continue;
+            }
         }
     }
 
-    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw, this, &GraphWindowClass::onScriptDrawRequest);
-    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,  this, &GraphWindowClass::onScriptDrawRequest);
+    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest);
+    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest);
+    if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }
 
 void GraphWindowClass::AddLine(double x1, double y1, double x2, double y2, int color, int width, int style)
@@ -1314,9 +1338,8 @@ void SetLineAttributes(TAttLine* l, const QVariantList& vl)
     l->SetLineWidth(vl.at(2).toDouble());
 }
 
-bool GraphWindowClass::DrawTree(TTree *tree, const QString& what, const QString& cond, const QString& how,
-                                const QVariantList binsAndRanges, const QVariantList markersAndLines,
-                                QString* result)
+bool GraphWindowClass::onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
+                                        QVariantList binsAndRanges, QVariantList markersAndLines, QString * result)
 {
     if (what.isEmpty())
     {
