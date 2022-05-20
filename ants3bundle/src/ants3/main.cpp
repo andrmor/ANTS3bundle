@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     AJScriptHub::getInstance();
 
-    AMaterialHub::getInstance().addNewMaterial("Dummy", true);
+    AMaterialHub::getInstance().addNewMaterial("Vacuum", true);
 
     // should be last line in initialization!
     AConfig::getInstance().updateJSONfromConfig();

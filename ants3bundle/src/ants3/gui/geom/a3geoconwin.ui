@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Detector configuration: advanced settings</string>
+   <string>Geometry configurator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -112,7 +112,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>146</width>
-                    <height>497</height>
+                    <height>500</height>
                    </rect>
                   </property>
                  </widget>
@@ -136,7 +136,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>146</width>
-                    <height>163</height>
+                    <height>164</height>
                    </rect>
                   </property>
                  </widget>
@@ -774,7 +774,7 @@
      <x>0</x>
      <y>0</y>
      <width>1102</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuUndo_redo">
