@@ -728,7 +728,7 @@ void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QStri
         for (int iMem=0; iMem<members.size(); iMem++)
         {
             int index = -1;
-            for (int iObj=0; iObj<GeoObjects.size(); iObj++)
+            for (size_t iObj = 0; iObj < GeoObjects.size(); iObj++)
             {
                 if (members[iMem] == GeoObjects[iObj]->Name)
                 {
@@ -786,10 +786,10 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     }
 
     bool bFound = false;
-    AGeoObject* origin_obj = nullptr;
-    for (int io=0; io<GeoObjects.size(); io++)
+    AGeoObject * origin_obj = nullptr;
+    for (size_t io = 0; io < GeoObjects.size(); io++)
     {
-        AGeoObject* obj = GeoObjects.at(io);
+        AGeoObject * obj = GeoObjects.at(io);
         if (obj->Name == MemberName_StackReference)
         {
             bFound = true;
@@ -838,6 +838,7 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
     ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
@@ -849,6 +850,7 @@ void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitc
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
     ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
@@ -879,7 +881,7 @@ void AGeo_SI::setLineProperties(QString name, int color, int width, int style)
 {
     AGeoObject * obj = nullptr;
 
-    for (int i = 0; i < GeoObjects.size(); i++)
+    for (size_t i = 0; i < GeoObjects.size(); i++)
     {
         const QString & GOname = GeoObjects.at(i)->Name;
         if (GOname == name)
@@ -1020,19 +1022,19 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
     AGeometryHub & GeoHub = AGeometryHub::getInstance();
 
     //checkup
-    for (int i = 0; i < GeoObjects.size(); i++)
+    for (size_t i = 0; i < GeoObjects.size(); i++)
     {
-        const QString & name = GeoObjects.at(i)->Name;
+        const QString & name = GeoObjects[i]->Name;
         if (GeoHub.World->isNameExists(name))
         {
             abort(QString("Name already exists: %1").arg(name));
             clearGeoObjects();
             return;
         }
-        for (int j = 0; j < GeoObjects.size(); j++)
+        for (size_t j = 0; j < GeoObjects.size(); j++)
         {
             if (i == j) continue;
-            if (name == GeoObjects.at(j)->Name)
+            if (name == GeoObjects[j]->Name)
             {
                 abort(QString("At least two objects have the same name: %1").arg(name));
                 clearGeoObjects();
@@ -1040,7 +1042,7 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
             }
         }
 
-        int imat = GeoObjects.at(i)->Material;
+        int imat = GeoObjects[i]->Material;
         if (imat < 0 || imat >= AMaterialHub::getConstInstance().countMaterials())
         {
             abort(QString("Wrong material index for object %1").arg(name));
@@ -1048,16 +1050,16 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
             return;
         }
 
-        const QString & cont = GeoObjects.at(i)->tmpContName;
+        const QString & cont = GeoObjects[i]->tmpContName;
         if (cont != ProrotypeContainerName)
         {
             bool fFound = AGeometryHub::getInstance().World->isNameExists(cont);
             if (!fFound)
             {
                 //maybe it will be inside one of the GeoObjects defined ABOVE this one?
-                for (int j = 0; j < i; j++)
+                for (size_t j = 0; j < i; j++)
                 {
-                    if (cont == GeoObjects.at(j)->Name)
+                    if (cont == GeoObjects[j]->Name)
                     {
                         fFound = true;
                         break;
@@ -1074,7 +1076,7 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
     }
 
     //adding objects
-    for (int i = 0; i < GeoObjects.size(); i++)
+    for (size_t i = 0; i < GeoObjects.size(); i++)
     {
         AGeoObject * obj = GeoObjects[i];
         const QString & name     = obj->Name;
