@@ -745,37 +745,34 @@ void A3MatWin::on_pbRemoveRayleigh_clicked()
 
 void A3MatWin::on_pbShowUsage_clicked()
 {
-    /*
-  QString name = tmpMaterial.name;
-  int index = ui->cobActiveMaterials->currentIndex();
+    QString name = tmpMaterial.name;
+    int index = ui->cobActiveMaterials->currentIndex();
 
-  bool flagFound = false;
-  TObjArray* list = Geometry.GeoManager->GetListOfVolumes();
-  int size = list->GetEntries();
-  for (int i=0; i<size; i++)
+    bool flagFound = false;
+    TObjArray * list = Geometry.GeoManager->GetListOfVolumes();
+    int size = list->GetEntries();
+    for (int i = 0; i < size; i++)
     {
-      TGeoVolume* vol = (TGeoVolume*)list->At(i);
-      if (!vol) break;
-      if (index == vol->GetMaterial()->GetIndex())
+        TGeoVolume * vol = (TGeoVolume*)list->At(i);
+        if (!vol) break;
+        if (index == vol->GetMaterial()->GetIndex())
         {
-          flagFound = true;
-          break;
+            flagFound = true;
+            break;
         }
     }
 
-  Geometry.GeoManager->ClearTracks();
-  MW->GeometryWindow->ClearGeoMarkers();
-  if (flagFound)
+    Geometry.GeoManager->ClearTracks();
+    if (flagFound)
     {
-      Geometry.colorVolumes(2, index);
-      MW->GeometryWindow->ShowGeometry(true, true, false);
+        Geometry.colorVolumes(2, index);
+        emit requestShowGeometry(true, true, false);
     }
-  else
+    else
     {
-      MW->GeometryWindow->ShowGeometry(false);
-      guitools::message("Current detector configuration does not have objects referring to material "+name, this);
+        emit requestShowGeometry(false, true, false);
+        guitools::message("Current detector configuration does not have objects referring to material "+name, this);
     }
-*/
 }
 
 void A3MatWin::on_actionSave_material_triggered()

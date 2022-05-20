@@ -53,6 +53,7 @@ MainWindow::MainWindow() :
 
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
+    connect(MatWin, &A3MatWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
 
     RuleWin = new AInterfaceRuleWin(this);
 

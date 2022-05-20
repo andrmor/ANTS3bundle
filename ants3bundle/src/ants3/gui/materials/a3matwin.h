@@ -126,6 +126,9 @@ private:
     void updateG4RelatedGui();
 
     void configureG4Materials();
+
+signals:
+    void requestShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed);
 };
 
 #endif // A3MATWIN_H
