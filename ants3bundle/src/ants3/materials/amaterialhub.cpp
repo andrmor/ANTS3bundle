@@ -74,7 +74,7 @@ void AMaterialHub::updateRuntimeProperties()
 
 QString AMaterialHub::getMaterialName(int matIndex) const
 {
-    if (matIndex < 0 || matIndex >= Materials.size()) return "";
+    if (matIndex < 0 || matIndex >= (int)Materials.size()) return "";
     return Materials[matIndex]->name;
 }
 
@@ -143,7 +143,7 @@ void AMaterialHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
 
 void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
 {
-    if (imat < 0 || imat >= Materials.size())
+    if (imat < 0 || imat >= (int)Materials.size())
     {
         qWarning()<<"Error: attempting to copy non-existent material #"<<imat<< " to tmpMaterial!";
         return;
@@ -235,7 +235,7 @@ QString AMaterialHub::CheckMaterial(const AMaterial* mat) const
 
 QString AMaterialHub::CheckMaterial(int iMat) const
 {
-    if (iMat<0 || iMat>=Materials.size()) return "Wrong material index: " + QString::number(iMat);
+    if (iMat < 0 || iMat >= (int)Materials.size()) return "Wrong material index: " + QString::number(iMat);
     return CheckMaterial(Materials[iMat]);
 }
 
@@ -325,7 +325,7 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 {
     const AGeoObject * World = AGeometryHub::getInstance().World;
 
-    for (int iM = 0; iM<Materials.size(); iM++)
+    for (int iM = 0; iM < (int)Materials.size(); iM++)
     {
         if (!World->isMaterialInActiveUse(iM)) continue;
 
