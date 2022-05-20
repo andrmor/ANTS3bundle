@@ -11,9 +11,9 @@
 #include "achemicalelement.h"
 #include "aelementandisotopedelegates.h"
 #include "ageometrywindow.h"
+#include "agraphbuilder.h"
 
 #include <QDebug>
-#include <QLayout>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextEdit>
@@ -547,14 +547,12 @@ void A3MatWin::on_pbLoadNlambda_clicked()
 
 void A3MatWin::on_pbShowNlambda_clicked()
 {
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
-    MW->GraphWindow->configureGraph(g, "Refractive index",
-                                    "Wavelength, nm", "Refractive index",
-                                    2, 20, 1,
-                                    2, 1,  1);
-    MW->GraphWindow->Draw(g, "APL");
-*/
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
+    AGraphBuilder::configure(g, "Refractive index",
+                                "Wavelength, nm", "Refractive index",
+                                2, 20, 1,
+                                2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
 
 void A3MatWin::on_pbDeleteNlambda_clicked()
@@ -1193,7 +1191,7 @@ void A3MatWin::on_actionAdd_default_material_triggered()
             return;
     }
 
-    MatHub.addNewMaterial("Not_defined", true);
+    MatHub.addNewMaterial("NotNamed", true);
 
     updateGui();
 

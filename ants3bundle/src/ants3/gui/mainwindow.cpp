@@ -51,9 +51,12 @@ MainWindow::MainWindow() :
     connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
     connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
+    GraphWin = new GraphWindowClass(this);
+
     MatWin = new A3MatWin(this);
     MatWin->initWindow();
-    connect(MatWin, &A3MatWin::requestShowGeometry, GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(MatWin, &A3MatWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(MatWin, &A3MatWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
 
@@ -61,15 +64,13 @@ MainWindow::MainWindow() :
     connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
 
     PhotSimWin = new A3PhotSimWin(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,             GeoWin, &AGeometryWindow::ShowTracks);
-    connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin, &AGeometryWindow::clearGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin, &AGeometryWindow::showGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin, &AGeometryWindow::ShowPoint);
-
-    GraphWin = new GraphWindowClass(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,             GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin,   &AGeometryWindow::clearGeoMarkers);
+    connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin,   &AGeometryWindow::addPhotonNodeGeoMarker);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin,   &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PhotSimWin, &A3PhotSimWin::requestDraw,                   GraphWin, &GraphWindowClass::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
