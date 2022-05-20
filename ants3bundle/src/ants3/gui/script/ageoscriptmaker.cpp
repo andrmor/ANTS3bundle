@@ -8,6 +8,8 @@
 #include "ageotype.h"
 #include "ageospecial.h"
 
+#include <QDebug>
+
 void AGeoScriptMaker::createScript(QString & script)
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
@@ -69,13 +71,13 @@ void AGeoScriptMaker::createScript(QString & script)
     script += "\n\n" + indentStr + "geo.updateGeometry(true)";
 }
 
-void AGeoScriptMaker::objectMembersToScript(AGeoObject* Master, QString &script, int ident, bool bExpandMaterial, bool bRecursive)
+void AGeoScriptMaker::objectMembersToScript(AGeoObject * Master, QString & script, int ident, bool useStrings, bool bRecursive)
 {
     for (AGeoObject * obj : Master->HostedObjects)
-        objectToScript(obj, script, ident, bExpandMaterial, bRecursive);
+        objectToScript(obj, script, ident, useStrings, bRecursive);
 }
 
-void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident, bool bExpandMaterial, bool bRecursive)
+void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ident, bool useStrings, bool bRecursive)
 {
     int bigIdent = ident + 4;
     int medIdent = ident + 2;
@@ -95,7 +97,8 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
 
     if (obj->Type->isLogical())
     {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial);
+        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, useStrings);
+        addScaledIfApplicable(script, obj, ident, useStrings);
     }
     else if (obj->Type->isCompositeContainer())
     {
@@ -103,32 +106,34 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
     }
     else if (obj->Type->isSingle() )
     {
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive);
+        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, useStrings);
+        addScaledIfApplicable(script, obj, ident, useStrings);
+        addLineProperties(script, obj, ident);
+        if (bRecursive) objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
     }
     else if (obj->Type->isComposite())
     {
         script += "\n" + QString(" ").repeated(ident) + CommentStr + "-->-- logical volumes for " + obj->Name;
-        objectMembersToScript(obj->getContainerWithLogical(), script, bigIdent, bExpandMaterial, bRecursive);
+        objectMembersToScript(obj->getContainerWithLogical(), script, bigIdent, useStrings, bRecursive);
         script += "\n" + QString(" ").repeated(ident) + CommentStr + "--<-- logical volumes end for " + obj->Name;
 
-        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, bExpandMaterial);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive);
+        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, useStrings);
+        addScaledIfApplicable(script, obj, ident, useStrings);
+        addLineProperties(script, obj, ident);
+        if (bRecursive) objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
     }
     else if (obj->Type->isHandlingArray())
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_arrayObject(obj);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- array elements for " + obj->Name;
-        objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive);
+        objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- array elements end for " + obj->Name;
     }
     else if (obj->Type->isMonitor())
     {
         script += Starter + makeScriptString_monitorBaseObject(obj);
         script += Starter + makeScriptString_monitorConfig(obj);
-        script += "\n" + QString(" ").repeated(ident)+ makeLinePropertiesString(obj);
+        addLineProperties(script, obj, ident);
     }
     else if (obj->Type->isStack())
     {
@@ -136,7 +141,7 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- stack elements for " + obj->Name;
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + " Values of x, y, z only matter for the stack element, refered to at InitializeStack below";
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + " For the rest of elements they are calculated automatically";
-        objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive);
+        objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- stack elements end for " + obj->Name;
         if (!obj->HostedObjects.empty())
             script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectEnd(obj);
@@ -154,7 +159,7 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
     else if (obj->Type->isPrototype())
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_prototypeObject(obj);
-        if (bRecursive) objectMembersToScript(obj, script, medIdent, bExpandMaterial, bRecursive);
+        if (bRecursive) objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
     }
 
     if (obj->isDisabled())
@@ -163,33 +168,41 @@ void AGeoScriptMaker::objectToScript(AGeoObject *obj, QString &script, int ident
     }
 }
 
-QString AGeoScriptMaker::makeScriptString_basicObject(AGeoObject * obj, bool bExpandMaterials) const
+#include <array>
+QString AGeoScriptMaker::makeScriptString_basicObject(AGeoObject * obj, bool useStrings) const
 {
-    QVector<QString> posStrs; posStrs.reserve(3);
-    QVector<QString> oriStrs; oriStrs.reserve(3);
-
-    QString GenerationString = obj->Shape->getGenerationString(true);
-    if (Python == Language) GenerationString = getPythonGenerationString(GenerationString);
-
+    std::array<QString, 3> posStrs;
+    std::array<QString, 3> oriStrs;
     for (int i = 0; i < 3; i++)
     {
-        posStrs << ( obj->PositionStr[i].isEmpty() ? QString::number(obj->Position[i]) : obj->PositionStr[i] );
-        oriStrs << ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
+        posStrs[i] = ( obj->PositionStr[i].isEmpty()    ? QString::number(obj->Position[i])    : obj->PositionStr[i]    );
+        oriStrs[i] = ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
     }
 
     const QStringList MatNames = AMaterialHub::getInstance().getListOfMaterialNames();
+    const QString matStr = ( useStrings && obj->Material < MatNames.size() ? MatNames[obj->Material] + "_mat"
+                                                                                 : QString::number(obj->Material) );
+    QString str = obj->Shape->getScriptString(true);
+    if (!str.isEmpty())
+        str.replace("$name$", "'" + obj->Name + "'");
+    else
+    {
+        QString GenerationString = obj->Shape->getGenerationString(true);
+        if (Python == Language) GenerationString = getPythonGenerationString(GenerationString);
 
-    QString str = QString("geo.customTGeo( ") +
-                  "'" + obj->Name + "', " +
-                  "'" + GenerationString + "', " +
-                  (bExpandMaterials && obj->Material < MatNames.size() ? MatNames.at(obj->Material) + "_mat" : QString::number(obj->Material)) + ", "
-                                                                                                                                                 "'" + obj->Container->Name + "',   "+
-                  posStrs[0] + ", " +
-                  posStrs[1] + ", " +
-                  posStrs[2] + ",   " +
-                  oriStrs[0] + ", " +
-                  oriStrs[1] + ", " +
-                  oriStrs[2] + " )";
+        str = QString("geo.customTGeo( ") +
+                      "'" + obj->Name + "', " +
+                      "'" + GenerationString + "', ";
+    }
+
+    str += matStr + ", " +
+           "'" + obj->Container->Name + "',   " +
+           posStrs[0] + ", " +
+           posStrs[1] + ", " +
+           posStrs[2] + ",   " +
+           oriStrs[0] + ", " +
+           oriStrs[1] + ", " +
+           oriStrs[2] + " )";
 
     AGeoConsts::getConstInstance().formulaToScript(str, (Python == Language) );
     return str;
@@ -472,7 +485,27 @@ QString AGeoScriptMaker::makeScriptString_DisabledObject(AGeoObject * obj) const
     return QString("geo.setEnabled( '%1', false )").arg(obj->Name);
 }
 
-QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
+void AGeoScriptMaker::addLineProperties(QString & script, AGeoObject * obj, int ident)
+{
+    if ( (obj->color == 1 || obj->color == -1) &&
+         obj->width == 1 &&
+         obj->style == 1 ) return;
+    script += "\n" + QString(" ").repeated(ident) + makeLinePropertiesString(obj);
+}
+
+void AGeoScriptMaker::addScaledIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings)
+{
+    if (obj->Shape->getShapeType() != QStringLiteral("TGeoScaledShape")) return;
+
+    AGeoScaledShape * scs = static_cast<AGeoScaledShape*>(obj->Shape);
+
+    QString str = scs->getScriptString_Scaled(useStrings);
+    str.replace("$name$", "'" + obj->Name + "'");
+
+    script += "\n" + QString(" ").repeated(ident) + str;
+}
+
+const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
 {
     int numberofQ = javaGenString.count("'");
     if (numberofQ == 0) return javaGenString;
@@ -480,7 +513,7 @@ QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString
     QString PythonGenString = javaGenString;
     const QString firstStr = " )";
     const QString secondStr = " str(";
-    int   plusAccomidation = QString(" + ").size();
+    int   plusSize = QString(" + ").size();
 
     bool first = true;
     for (int i = 0; i < PythonGenString.size(); i++)
@@ -489,12 +522,12 @@ QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString
         {
             if (!first)
             {
-                PythonGenString.insert(i - plusAccomidation , firstStr);
+                PythonGenString.insert(i - plusSize , firstStr);
                 i += firstStr.size();
             }
             else
             {
-                PythonGenString.insert(i + plusAccomidation , secondStr);
+                PythonGenString.insert(i + plusSize , secondStr);
                 i += secondStr.size();
             }
             first = !first;

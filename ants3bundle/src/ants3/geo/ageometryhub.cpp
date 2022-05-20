@@ -92,36 +92,34 @@ bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
     return true;
 }
 
-void AGeometryHub::convertObjToComposite(AGeoObject *obj)
+void AGeometryHub::convertObjToComposite(AGeoObject * obj)
 {
     delete obj->Type;
     ATypeCompositeObject* CO = new ATypeCompositeObject();
     obj->Type = CO;
 
     AGeoObject* logicals = new AGeoObject();
-    logicals->Name = "CompositeSet_"+obj->Name;
+    logicals->Name = "Logicals_"+obj->Name;
     delete logicals->Type;
     logicals->Type = new ATypeCompositeContainerObject();
     obj->addObjectFirst(logicals);
 
-    AGeoObject* first = new AGeoObject();
-    while (World->isNameExists(first->Name))
-        first->AGeoObject::GenerateRandomObjectName();
-    first->Shape = obj->Shape;
+    const QString firstName = generateStandaloneObjectName(obj->Shape);
+    AGeoObject * first = new AGeoObject(firstName, obj->Shape);
     first->Material = obj->Material;
     logicals->addObjectLast(first);
 
-    AGeoObject* second = new AGeoObject();
-    while (World->isNameExists(second->Name))
-        second->AGeoObject::GenerateRandomObjectName();
+    AGeoBox * boxShape = new AGeoBox();
+    const QString secondName = generateStandaloneObjectName(boxShape);
+    AGeoObject * second = new AGeoObject(secondName, boxShape);
     second->Material = obj->Material;
-    second->Position[0] = 15;
-    second->Position[1] = 15;
+    second->Position[0] = 15.0;
+    second->Position[1] = 15.0;
     logicals->addObjectLast(second);
 
     QStringList sl;
     sl << first->Name << second->Name;
-    QString str = "TGeoCompositeShape( " + first->Name + " + " + second->Name + " )";
+    const QString str = "TGeoCompositeShape( " + first->Name + " + " + second->Name + " )";
     obj->Shape = new AGeoComposite(sl, str);
 }
 
@@ -135,12 +133,9 @@ QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
         if (!ok) return errStr;
     }
 
-    int index = 0;
-    QString name;
-    do name = QString("Prototype_%1").arg(index++);
-    while (World->isNameExists(name));
+    const QString name = generateObjectName("Prototype");
+    AGeoObject * proto = new AGeoObject(name, nullptr);
 
-    AGeoObject * proto = new AGeoObject(name);
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
@@ -942,11 +937,20 @@ void AGeometryHub::positionArrayElement(int ix, int iy, int iz, AGeoObject * el,
 {
     ATypeArrayObject* array = static_cast<ATypeArrayObject*>(arrayObj->Type);
 
-    //Position
     double local[3], master[3];
-    local[0] = el->Position[0] + (ix - 0.5*(array->numX - 1)) * array->stepX;
-    local[1] = el->Position[1] + (iy - 0.5*(array->numY - 1)) * array->stepY;
-    local[2] = el->Position[2] + (iz - 0.5*(array->numZ - 1)) * array->stepZ;
+    if (array->bCenterSymmetric)
+    {
+        local[0] = el->Position[0] + (ix - 0.5*(array->numX - 1)) * array->stepX;
+        local[1] = el->Position[1] + (iy - 0.5*(array->numY - 1)) * array->stepY;
+        local[2] = el->Position[2] + (iz - 0.5*(array->numZ - 1)) * array->stepZ;
+    }
+    else
+    {
+        local[0] = el->Position[0] + ix * array->stepX;
+        local[1] = el->Position[1] + iy * array->stepY;
+        local[2] = el->Position[2] + iz * array->stepZ;
+    }
+
     TGeoRotation ArRot("0", arrayObj->Orientation[0] , arrayObj->Orientation[1], arrayObj->Orientation[2]);
     if (arrayObj->TrueRot)
     {
@@ -1411,6 +1415,36 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
     GeoManager->Export(c_str);
 
     return "";
+}
+
+QString AGeometryHub::generateStandaloneObjectName(const AGeoShape * shape) const
+{
+    assert(shape);
+
+    int iCounter = 1;
+    QString name;
+    do
+    {
+        name = shape->getShortName() + QString::number(iCounter);
+        ++iCounter;
+    }
+    while (World->isNameExists(name));
+
+    return name;
+}
+
+QString AGeometryHub::generateObjectName(const QString & prefix) const
+{
+    int iCounter = 1;
+    QString name;
+    do
+    {
+        name = prefix + QString::number(iCounter);
+        ++iCounter;
+    }
+    while (World->isNameExists(name));
+
+    return name;
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

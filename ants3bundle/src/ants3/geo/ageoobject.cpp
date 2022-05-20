@@ -15,7 +15,7 @@
 
 void AGeoObject::constructorInit()
 {
-    Name = GenerateRandomObjectName();
+    if (Name.isEmpty()) Name = GenerateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -23,16 +23,29 @@ void AGeoObject::constructorInit()
 
 AGeoObject::AGeoObject(QString name, QString ShapeGenerationString)
 {
-    constructorInit();
+    Type = new ATypeSingleObject();
 
     if (!name.isEmpty()) Name = name;
     color = -1;
 
-    Type = new ATypeSingleObject();
+    constructorInit();
 
     Shape = new AGeoBox();
     if (!ShapeGenerationString.isEmpty())
         readShapeFromString(ShapeGenerationString);
+}
+
+AGeoObject::AGeoObject(const QString & name, AGeoShape * shape)
+{
+    Type = new ATypeSingleObject();
+
+    if (!name.isEmpty()) Name = name;
+    color = -1;
+
+    constructorInit();
+
+    if (!shape) shape = new AGeoBox();
+    Shape = shape;
 }
 
 AGeoObject::AGeoObject(const AGeoObject *objToCopy)
@@ -1378,6 +1391,12 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
     return bFoundInUse;
 }
 
+bool AGeoObject::isGoodContainerForInstance() const
+{
+    if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
+    return false;
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {
@@ -1410,48 +1429,6 @@ QString AGeoObject::GenerateRandomObjectName()
 {
     QString str = randomString(2, 1);
     str = "New_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomPrototypeName()
-{
-    QString str = randomString(2, 1);
-    str = "Prototype_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomCompositeName()
-{
-    QString str = randomString(2, 1);
-    str = "Composite_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomArrayName()
-{
-    QString str = randomString(1, 1);
-    str = "Array_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomGridName()
-{
-    QString str = randomString(1, 1);
-    str = "Grid_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomStackName()
-{
-    QString str = randomString(2, 1);
-    str = "Stack_" + str;
-    return str;
-}
-
-QString AGeoObject::GenerateRandomMonitorName()
-{
-    QString str = randomString(2, 1);
-    str = "Monitor_" + str;
     return str;
 }
 

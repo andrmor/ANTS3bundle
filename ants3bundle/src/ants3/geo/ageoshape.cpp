@@ -216,14 +216,24 @@ QString AGeoBox::getGenerationString(bool useStrings) const
     return str;
 }
 
-QString AGeoBox::getScriptString() const
+QString AGeoBox::getScriptString(bool useStrings) const
 {
-    const QString sdx = ( str2dx.isEmpty() ? QString::number(dx) : "' + " + str2dx + " + '" );
-    const QString sdy = ( str2dy.isEmpty() ? QString::number(dy) : "' + " + str2dy + " + '" );
-    const QString sdz = ( str2dz.isEmpty() ? QString::number(dz) : "' + " + str2dz + " + '" );
+    QString sdx, sdy, sdz;
+    if (useStrings)
+    {
+        sdx = ( str2dx.isEmpty() ? QString::number(2.0 * dx) : str2dx );
+        sdy = ( str2dy.isEmpty() ? QString::number(2.0 * dy) : str2dy );
+        sdz = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+    }
+    else
+    {
+        sdx = QString::number(2.0 * dx);
+        sdy = QString::number(2.0 * dy);
+        sdz = QString::number(2.0 * dz);
+    }
 
     //void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.box( $$Name,  %0, %1, %2").arg(sdx, sdy, sdz);
+    return QString("geo.box( $name$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
 }
 
 double AGeoBox::maxSize() const
@@ -396,6 +406,32 @@ QString AGeoPara::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPara::getScriptString(bool useStrings) const
+{
+    QString sdx, sdy, sdz, sAlpha, sTheta, sPhi;
+    if (useStrings)
+    {
+        sdx    = (str2dx  .isEmpty() ? QString::number(2.0 * dx)    : str2dx);
+        sdy    = (str2dy  .isEmpty() ? QString::number(2.0 * dy)    : str2dy);
+        sdz    = (str2dz  .isEmpty() ? QString::number(2.0 * dz)    : str2dz);
+        sAlpha = (strAlpha.isEmpty() ? QString::number(alpha) : strAlpha);
+        sTheta = (strTheta.isEmpty() ? QString::number(theta) : strTheta);
+        sPhi   = (strPhi  .isEmpty() ? QString::number(phi)   : strPhi);
+    }
+    else
+    {
+        sdx    = QString::number(2.0 * dx);
+        sdy    = QString::number(2.0 * dy);
+        sdz    = QString::number(2.0 * dz);
+        sAlpha = QString::number(alpha);
+        sTheta = QString::number(theta);
+        sPhi   = QString::number(phi);
+    }
+
+    //void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.parallelepiped( $name$,  %0, %1, %2, %3, %4, %5,  ").arg(sdx, sdy, sdz, sAlpha, sTheta, sPhi);
+}
+
 double AGeoPara::maxSize() const
 {
     double m = std::max(dx, dy);
@@ -452,7 +488,7 @@ bool AGeoPara::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
-AGeoComposite::AGeoComposite(const QStringList members, const QString GenerationString) :
+AGeoComposite::AGeoComposite(const QStringList members, QString GenerationString) :
     members(members), GenerationString(GenerationString)
 {
     //qDebug() << "new composite!";
@@ -511,7 +547,15 @@ TGeoShape *AGeoComposite::createGeoShape(const QString shapeName)
     return (shapeName.isEmpty()) ? new TGeoCompositeShape(s.toLatin1().data()) : new TGeoCompositeShape(shapeName.toLatin1().data(), s.toLatin1().data());
 }
 
+QString AGeoComposite::getScriptString(bool) const
+{
+    QString s = GenerationString.simplified(); // e.g. "TGeoCompositeShape( (A + B) * (C - D) )"
+    s.remove("TGeoCompositeShape(");
+    s.chop(1);
 
+    //void composite(QString name, QString compositionString,
+    return QString("geo.composite( $name$,  \"%0\",  ").arg(s.simplified());
+}
 
 void AGeoComposite::writeToJson(QJsonObject &json) const
 {
@@ -640,6 +684,46 @@ QString AGeoSphere::getGenerationString(bool useStrings) const
                 sphi2   + " )";
     }
     return str;
+}
+
+QString AGeoSphere::getScriptString(bool useStrings) const
+{
+    QString srmin;
+    QString srmax;
+    QString sthe1;
+    QString sthe2;
+    QString sphi1;
+    QString sphi2;
+
+    if (useStrings)
+    {
+        srmin = ( str2rmin.isEmpty()  ? QString::number(2.0 * rmin) : str2rmin );
+        srmax = ( str2rmax.isEmpty()  ? QString::number(2.0 * rmax) : str2rmax );
+        sthe1 = ( strTheta1.isEmpty() ? QString::number(theta1)     : strTheta1 );
+        sthe2 = ( strTheta2.isEmpty() ? QString::number(theta2)     : strTheta2 );
+        sphi1 = ( strPhi1.isEmpty()   ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()   ? QString::number(phi2)       : strPhi2 );
+    }
+    else
+    {
+        srmin = QString::number(2.0 * rmin);
+        srmax = QString::number(2.0 * rmax);
+        sthe1 = QString::number(theta1);
+        sthe2 = QString::number(theta2);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
+    }
+
+    if (theta1 == 0 && theta2 == 180.0 && phi1 == 0 && phi2 == 360.0)
+    {
+        //void sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.sphere( $name$,  %0, %1,  ").arg(srmax, srmin);
+    }
+    else
+    {
+        //void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+        return QString("geo.sphereSector( $name$,  %0, %1, %2, %3, %4, %5,  ").arg(srmax, srmin, sthe1, sthe2, sphi1, sphi2);
+    }
 }
 
 void AGeoSphere::writeToJson(QJsonObject &json) const
@@ -794,6 +878,31 @@ QString AGeoTubeSeg::getGenerationString(bool useStrings) const
                 sphi2 + " )";
     }
     return str;
+}
+
+QString AGeoTubeSeg::getScriptString(bool useStrings) const
+{
+    QString sdmin, sdmax, sh, sphi1, sphi2;
+
+    if (useStrings)
+    {
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        sh    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+        sphi1 = ( strPhi1.isEmpty()  ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()  ? QString::number(phi2)       : strPhi2 );
+    }
+    else
+    {
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+        sh    = QString::number(2.0 * dz);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
+    }
+
+    //void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
+    return QString("geo.tubeSegment( $name$,  %0, %1, %2, %3, %4,  ").arg(sdmax, sdmin, sh, sphi1, sphi2);
 }
 
 double AGeoTubeSeg::maxSize() const
@@ -977,6 +1086,46 @@ QString AGeoCtub::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoCtub::getScriptString(bool useStrings) const
+{
+    QString sdmin, sdmax, sh, sphi1, sphi2;
+    QString slx, sly, slz,  shx, shy, shz;
+
+    if (useStrings)
+    {
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        sh    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+        sphi1 = ( strPhi1.isEmpty()  ? QString::number(phi1)       : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()  ? QString::number(phi2)       : strPhi2 );
+
+        slx   = ( strnxlow.isEmpty() ? QString::number(nxlow)      : strnxlow );
+        sly   = ( strnylow.isEmpty() ? QString::number(nylow)      : strnylow );
+        slz   = ( strnzlow.isEmpty() ? QString::number(nzlow)      : strnzlow );
+        shx   = ( strnxhi.isEmpty()  ? QString::number(nxhi)       : strnxhi );
+        shy   = ( strnyhi.isEmpty()  ? QString::number(nyhi)       : strnyhi );
+        shz   = ( strnzhi.isEmpty()  ? QString::number(nzhi)       : strnzhi );
+    }
+    else
+    {
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+        sh    = QString::number(2.0 * dz);
+        sphi1 = QString::number(phi1);
+        sphi2 = QString::number(phi2);
+
+        slx   = QString::number(nxlow);
+        sly   = QString::number(nylow);
+        slz   = QString::number(nzlow);
+        shx   = QString::number(nxhi);
+        shy   = QString::number(nyhi);
+        shz   = QString::number(nzhi);
+    }
+
+    //void tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh,
+    return QString("geo.tubeCut( $name$,  %0, %1, %2, %3, %4, [%5,%6,%7], [%8,%9,%10],  ").arg(sdmax, sdmin, sh, sphi1, sphi2, slx,sly,slz, shx,shy,shz);
+}
+
 double AGeoCtub::maxSize() const
 {
     double m = std::max(rmax, dz);
@@ -1126,6 +1275,37 @@ QString AGeoTube::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoTube::getScriptString(bool useStrings) const
+{
+    QString Dmin;
+    QString Dmax;
+    QString H;
+
+    if (useStrings)
+    {
+        Dmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        Dmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+        H    = ( str2dz.isEmpty()   ? QString::number(2.0 * dz)   : str2dz );
+    }
+    else
+    {
+        Dmin = QString::number(2.0 * rmin);
+        Dmax = QString::number(2.0 * rmax);
+        H    = QString::number(2.0 * dz);
+    }
+
+    if (Dmin == QStringLiteral("0"))
+    {
+        //void cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.cylinder( $name$,  %0, %1,  ").arg(Dmax, H);
+    }
+    else
+    {
+        //void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.tube( $name$,  %0, %1, %2,  ").arg(Dmax, Dmin, H);
+    }
+}
+
 double AGeoTube::maxSize() const
 {
     double m = std::max(rmax, dz);
@@ -1267,6 +1447,29 @@ QString AGeoTrd1::getGenerationString(bool useStrings) const
 
     }
     return str;
+}
+
+QString AGeoTrd1::getScriptString(bool useStrings) const
+{
+    QString sx1, sx2, sy, sz;
+
+    if (useStrings)
+    {
+        sx1  = (str2dx1.isEmpty() ? QString::number(2.0 * dx1) : str2dx1);
+        sx2  = (str2dx2.isEmpty() ? QString::number(2.0 * dx2) : str2dx2);
+        sy   = (str2dy .isEmpty() ? QString::number(2.0 * dy)  : str2dy);
+        sz   = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sx1  = QString::number(2.0 * dx1);
+        sx2  = QString::number(2.0 * dx2);
+        sy   = QString::number(2.0 * dy);
+        sz   = QString::number(2.0 * dz);
+    }
+
+    //void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz,
+    return QString("geo.trap( $name$,  %0, %1, %2, %3,  ").arg(sx1, sx2, sy, sz);
 }
 
 double AGeoTrd1::maxSize() const
@@ -1418,6 +1621,31 @@ QString AGeoTrd2::getGenerationString(bool useStrings) const
 
     }
     return str;
+}
+
+QString AGeoTrd2::getScriptString(bool useStrings) const
+{
+    QString sx1, sx2, sy1, sy2, sz;
+
+    if (useStrings)
+    {
+        sx1 = (str2dx1.isEmpty() ? QString::number(2.0 * dx1) : str2dx1);
+        sx2 = (str2dx2.isEmpty() ? QString::number(2.0 * dx2) : str2dx2);
+        sy1 = (str2dy1.isEmpty() ? QString::number(2.0 * dy1) : str2dy1);
+        sy2 = (str2dy2.isEmpty() ? QString::number(2.0 * dy2) : str2dy2);
+        sz  = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sx1 = QString::number(2.0 * dx1);
+        sx2 = QString::number(2.0 * dx2);
+        sy1 = QString::number(2.0 * dy1);
+        sy2 = QString::number(2.0 * dy2);
+        sz  = QString::number(2.0 * dz);
+    }
+
+    //void trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz,
+    return QString("geo.trap2( $name$,  %0, %1, %2, %3, %4,  ").arg(sx1, sx2, sy1, sy2, sz);
 }
 
 double AGeoTrd2::maxSize() const
@@ -1621,6 +1849,32 @@ QString AGeoPgon::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoPgon::getScriptString(bool useStrings) const
+{
+    QString sn, sphi, sdphi, sec;
+    if (useStrings)
+    {
+        sn    = ( strNedges.isEmpty() ? QString::number(nedges) : strNedges );
+        sphi  = ( strPhi   .isEmpty() ? QString::number(phi)    : strPhi    );
+        sdphi = ( strdPhi  .isEmpty() ? QString::number(dphi)   : strdPhi   );
+    }
+    else
+    {
+        sn    = QString::number(nedges);
+        sphi  = QString::number(phi);
+        sdphi = QString::number(dphi);
+    }
+
+    for (int i = 0; i < Sections.size(); i++)
+    {
+        if (i != 0) sec += ", ";
+        sec += Sections[i].toScriptString(useStrings);
+    }
+
+    //void pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi,
+    return QString("geo.pGon( $name$,  %0, [ %1 ], %2, %3,  ").arg(sn, sec, sphi, sdphi);
+}
+
 double AGeoPgon::maxSize() const
 {
     return AGeoPcon::maxSize();
@@ -1774,6 +2028,41 @@ QString AGeoConeSeg::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoConeSeg::getScriptString(bool useStrings) const
+{
+    QString sminL;
+    QString smaxL;
+    QString sminU;
+    QString smaxU;
+    QString sdz;
+    QString sphi1;
+    QString sphi2;
+
+    if (useStrings)
+    {
+        sminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        smaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        sminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        smaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+        sdz   = ( str2dz.isEmpty()    ? QString::number(2.0 * dz)    : str2dz );
+        sphi1 = ( strPhi1.isEmpty()   ? QString::number(phi1)        : strPhi1 );
+        sphi2 = ( strPhi2.isEmpty()   ? QString::number(phi2)        : strPhi2 );
+    }
+    else
+    {
+        sminL = QString::number(2.0 * rminL);
+        smaxL = QString::number(2.0 * rmaxL);
+        sminU = QString::number(2.0 * rminU);
+        smaxU = QString::number(2.0 * rmaxU);
+        sdz   = QString::number(2.0 * dz);
+        sphi1 = QString::number(2.0 * phi1);
+        sphi2 = QString::number(2.0 * phi2);
+    }
+
+    //void coneSegment(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.coneSegment( $name$,  %0, %1, %2, %3, %4, %5, %6,  ").arg(smaxU, sminU, smaxL, sminL, sdz, sphi1, sphi2);
+}
+
 double AGeoConeSeg::maxSize() const
 {
     double m = std::max(rmaxL, rmaxU);
@@ -1910,6 +2199,26 @@ QString AGeoParaboloid::getGenerationString(bool useStrings) const
 
     }
     return str;
+}
+
+QString AGeoParaboloid::getScriptString(bool useStrings) const
+{
+    QString sdb, sdu, sdz;
+    if (useStrings)
+    {
+        sdb = (str2rlo.isEmpty() ? QString::number(2.0 * rlo) : str2rlo);
+        sdu = (str2rhi.isEmpty() ? QString::number(2.0 * rhi) : str2rhi);
+        sdz = (str2dz .isEmpty() ? QString::number(2.0 * dz)  : str2dz);
+    }
+    else
+    {
+        sdb = QString::number(2.0 * rlo);
+        sdu = QString::number(2.0 * rhi);
+        sdz = QString::number(2.0 * dz);
+    }
+
+    //void paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.paraboloid( $name$,  %0, %1, %2,  ").arg(sdb, sdu, sdz);
 }
 
 double AGeoParaboloid::maxSize() const
@@ -2065,6 +2374,43 @@ QString AGeoCone::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoCone::getScriptString(bool useStrings) const
+{
+    QString sminL;
+    QString smaxL;
+    QString sminU;
+    QString smaxU;
+    QString sdz;
+
+    if (useStrings)
+    {
+        sminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        smaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        sminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        smaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+        sdz   = ( str2dz.isEmpty()    ? QString::number(2.0 * dz)    : str2dz );
+    }
+    else
+    {
+        sminL = QString::number(2.0 * rminL);
+        smaxL = QString::number(2.0 * rmaxL);
+        sminU = QString::number(2.0 * rminU);
+        smaxU = QString::number(2.0 * rmaxU);
+        sdz   = QString::number(2.0 * dz);
+    }
+
+    if (sminL == QStringLiteral("0") && sminU == QStringLiteral("0"))
+    {
+        //void cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.cone( $name$,  %0, %1, %2,  ").arg(smaxU, smaxL, sdz);
+    }
+    else
+    {
+        //void conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.conicalTube( $name$,  %0, %1, %2, %3, %4,  ").arg(smaxU, sminU, smaxL, sminL, sdz);
+    }
+}
+
 double AGeoCone::maxSize() const
 {
     double m = std::max(rmaxL, rmaxU);
@@ -2202,6 +2548,26 @@ QString AGeoEltu::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoEltu::getScriptString(bool useStrings) const
+{
+    QString sdx, sdy, sdz;
+    if (useStrings)
+    {
+        sdx = ( str2a.isEmpty()  ? QString::number(2.0 * a)  : str2a );
+        sdy = ( str2b.isEmpty()  ? QString::number(2.0 * b)  : str2b );
+        sdz = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+    }
+    else
+    {
+        sdx = QString::number(2.0 * a);
+        sdy = QString::number(2.0 * b);
+        sdz = QString::number(2.0 * dz);
+    }
+
+    //void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+    return QString("geo.tubeElliptical( $name$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
+}
+
 double AGeoEltu::maxSize() const
 {
     double m = std::max(a, b);
@@ -2243,30 +2609,12 @@ bool AGeoEltu::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
-AGeoArb8::AGeoArb8(double dz, QList<QPair<double, double> > VertList) : dz(dz)
-{
-    if (VertList.size() != 8)
-    {
-        qWarning() << "Wrong size of input list in AGeoArb8!";
-        init();
-    }
-    else  Vertices = VertList;
+AGeoArb8::AGeoArb8(double dz, std::array<std::pair<double, double>, 8> NodesList) :
+    dz(dz), Vertices(NodesList) {}
 
-    strVertices.resize(8);
-    for (int i =0; i<8; i++)
-    {
-        strVertices[i].resize(2);
-    }
-}
-
-AGeoArb8::AGeoArb8() : dz(10)
+AGeoArb8::AGeoArb8() : dz(10.0)
 {
     init();
-    strVertices.resize(8);
-    for (int i =0; i<8; i++)
-    {
-        strVertices[i].resize(2);
-    }
 }
 
 QString AGeoArb8::getHelp() const
@@ -2294,8 +2642,8 @@ void AGeoArb8::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateDoubleParameter(errorStr, str2dz, dz); if (!ok) errorStr += " in Height\n";
     for (int i = 0; i < 8; i++)
     {
-        ok = GC.updateDoubleParameter(errorStr, strVertices[i][0], Vertices[i].first, false, false, false);  if (!ok) errorStr += QString(" in X[%0]\n").arg(i);
-        ok = GC.updateDoubleParameter(errorStr, strVertices[i][1], Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i].first,  Vertices[i].first,  false, false, false); if (!ok) errorStr += QString(" in X[%0]\n").arg(i);
+        ok = GC.updateDoubleParameter(errorStr, strVertices[i].second, Vertices[i].second, false, false, false); if (!ok) errorStr += QString(" in Y[%0]\n").arg(i);
     }
 
     if (!checkPointsForArb8(Vertices))
@@ -2308,8 +2656,8 @@ bool AGeoArb8::isGeoConstInUse(const QRegularExpression &nameRegExp) const
 
     for (int i =0; i<8; i++)
     {
-        if (strVertices[i][0].contains(nameRegExp)) return true;
-        if (strVertices[i][1].contains(nameRegExp)) return true;
+        if (strVertices[i].first.contains(nameRegExp))  return true;
+        if (strVertices[i].second.contains(nameRegExp)) return true;
     }
     return false;
 }
@@ -2320,8 +2668,8 @@ void AGeoArb8::replaceGeoConstName(const QRegularExpression &nameRegExp, const Q
 
     for (int i =0; i<8; i++)
     {
-        strVertices[i][0].replace(nameRegExp, newName);
-        strVertices[i][1].replace(nameRegExp, newName);
+        strVertices[i].first. replace(nameRegExp, newName);
+        strVertices[i].second.replace(nameRegExp, newName);
     }
 }
 
@@ -2343,10 +2691,10 @@ bool AGeoArb8::readFromString(QString GenerationString)
     }
 
     dz = tmp[0];
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        Vertices[i].first =  tmp[1+i*2];
-        Vertices[i].second = tmp[2+i*2];
+        Vertices[i].first  = tmp[1 + i*2];
+        Vertices[i].second = tmp[2 + i*2];
     }
     //  qDebug() << dz << Vertices;
 
@@ -2400,8 +2748,8 @@ QString AGeoArb8::getGenerationString(bool useStrings) const
 
         for (int i=0; i<8; i++)
         {
-            s0 = (strVertices.at(i).at(0).isEmpty() ? QString::number(Vertices.at(i).first) : "' + (" + strVertices.at(i).at(0) + ") + '");
-            s1 = (strVertices.at(i).at(1).isEmpty() ? QString::number(Vertices.at(i).second) : "' + (" + strVertices.at(i).at(1) + ") + '");
+            s0 = (strVertices[i].first.isEmpty()  ? QString::number(Vertices[i].first)  : "' + (" + strVertices[i].first  + ") + '");
+            s1 = (strVertices[i].second.isEmpty() ? QString::number(Vertices[i].second) : "' + (" + strVertices[i].second + ") + '");
             s +=s0 + "," + s1 + ", ";
         }
         str += s + " )";
@@ -2410,11 +2758,46 @@ QString AGeoArb8::getGenerationString(bool useStrings) const
     return str;
 }
 
+QString AGeoArb8::getScriptString(bool useStrings) const
+{
+    QString sh;
+    QString s0, s1;
+    QString nodes = "[ ";
+    if (useStrings)
+    {
+        sh = ( str2dz.isEmpty() ? QString::number(2.0 * dz) : str2dz );
+
+        for (int i = 0; i < 8; i++)
+        {
+            s0 = (strVertices[i].first.isEmpty()  ? QString::number(Vertices[i].first)  : strVertices[i].first);
+            s1 = (strVertices[i].second.isEmpty() ? QString::number(Vertices[i].second) : strVertices[i].second);
+            nodes += QString("[%0,%1]").arg(s0, s1);
+            if (i != 7) nodes += ", ";
+        }
+    }
+    else
+    {
+        sh = QString::number(2.0 * dz);
+
+        for (int i = 0; i < 8; i++)
+        {
+            s0 = QString::number(Vertices[i].first);
+            s1 = QString::number(Vertices[i].second);
+            nodes += QString("[%0,%1]").arg(s0, s1);
+            if (i != 7) nodes += ", ";
+        }
+    }
+    nodes += " ]";
+
+    //void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    return QString("geo.arb8( $name$,  %0, %1,  ").arg(nodes, sh);
+}
+
 double AGeoArb8::maxSize() const
 {
     double max = dz;
 
-    for (const QPair<double, double> & pair : Vertices)
+    for (const std::pair<double, double> & pair : Vertices)
         max = std::max(max, std::max( fabs(pair.first), fabs(pair.second)) );
 
     return max;
@@ -2440,8 +2823,8 @@ void AGeoArb8::writeToJson(QJsonObject &json) const
     for (int i=0; i<8; i++)
     {
         QJsonArray el;
-        el << (strVertices.at(i).at(0).isEmpty() ? "" : strVertices.at(i).at(0));
-        el << (strVertices.at(i).at(1).isEmpty() ? "" : strVertices.at(i).at(1));
+        el << (strVertices[i].first.isEmpty()  ? "" : strVertices[i].first);
+        el << (strVertices[i].second.isEmpty() ? "" : strVertices[i].second);
         strAr.append(el);
     }
 
@@ -2466,8 +2849,8 @@ void AGeoArb8::readFromJson(const QJsonObject &json)
     for (int i=0; i<8; i++)
     {
         QJsonArray el = strAr[i].toArray();
-        strVertices[i][0] = el[0].toString();
-        strVertices[i][1] = el[1].toString();
+        strVertices[i].first  = el[0].toString();
+        strVertices[i].second = el[1].toString();
     }
 }
 
@@ -2478,59 +2861,56 @@ bool AGeoArb8::readFromTShape(TGeoShape *Tshape)
 
     dz = s->GetDz();
     const double (*ar)[2] = (const double(*)[2])s->GetVertices(); //fXY[8][2]
-    Vertices.clear();
-    for (int i=0; i<8; i++)
-    {
-        QPair<double, double> p(ar[i][0], ar[i][1]);
-        Vertices << p;
-    }
+    for (int i = 0; i < 8; i++)
+        Vertices[i] = {ar[i][0], ar[i][1]};
 
     return true;
 }
 
-bool checkPointsArb8(QList<QPair<double, double> > V)
+bool checkPointsArb8(const std::array<std::pair<double, double>,8> & nodes, bool bFirst)
 {
-    double X=0, Y=0;
-    for (int i=0; i<4; i++)
+    const int iDelta = (bFirst ? 0 : 4);
+    double averageX = 0, averageY = 0;
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
-        X += V[i].first;
-        Y += V[i].second;
+        averageX += nodes[i].first;
+        averageY += nodes[i].second;
     }
-    X /= 4;
-    Y /= 4;
+    averageX /= 4.0;
+    averageY /= 4.0;
     //qDebug() << "Center x,y:"<<X << Y;
 
-    QList<double> angles;
+    std::array<double, 8> angles; // 8 just to simplify
     int firstNotNAN = -1;
-    for (int i=0; i<4; i++)
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
-        double dx = V[i].first-X;
-        double dy = V[i].second - Y;
+        double dx = nodes[i].first  - averageX;
+        double dy = nodes[i].second - averageY;
         double a = atan( fabs(dy)/fabs(dx) ) * 180.0 / 3.1415926535;
-        if (a==a && firstNotNAN==-1) firstNotNAN = i;
+        if (a == a && firstNotNAN == -1) firstNotNAN = i;
 
-        if      (dx > 0 && dy > 0) angles.append( 360.0 - a );
-        else if (dx < 0 && dy > 0) angles.append( 180.0 + a );
-        else if (dx < 0 && dy < 0) angles.append( 180.0 - a );
-        else                   angles.append( a );
+        if      (dx > 0 && dy > 0) angles[i] = 360.0 - a;
+        else if (dx < 0 && dy > 0) angles[i] = 180.0 + a;
+        else if (dx < 0 && dy < 0) angles[i] = 180.0 - a;
+        else                       angles[i] = a;
     }
     //qDebug() << "Raw angles:" << angles;
     // qDebug() << "First Not NAN:"<< firstNotNAN;
     if (firstNotNAN == -1) return true; //all 4 points are the same
 
     double delta = angles[firstNotNAN];
-    for (int i=0; i<4; i++)
+    for (int i = 0 + iDelta; i < 4 + iDelta; i++)
     {
         if (angles[i] == angles[i]) // not NAN
         {
             angles[i] -= delta;
-            if (angles[i]<0) angles[i] += 360.0;
+            if (angles[i] < 0) angles[i] += 360.0;
         }
     }
 
     //qDebug() << "Shifted to first"<<angles;
     double A = angles[firstNotNAN];
-    for (int i=firstNotNAN+1; i<4; i++)
+    for (int i = firstNotNAN+1; i < 4 + iDelta; i++)
     {
         //qDebug() <<i<< angles[i];
         if (angles[i] != angles[i])
@@ -2538,31 +2918,31 @@ bool checkPointsArb8(QList<QPair<double, double> > V)
             //qDebug() << "NAN, continue";
             continue;
         }
-        if (angles[i]<A)
+        if (angles[i] < A)
             return false;
-        A=angles[i];
+        A = angles[i];
     }
     return true;
 }
 
-bool AGeoArb8::checkPointsForArb8(QList<QPair<double, double> > V)
+bool AGeoArb8::checkPointsForArb8(std::array<std::pair<double, double>,8> nodes)
 {
-    if (V.size() != 8) return false;
-
-    bool ok = checkPointsArb8(V);
+    bool ok = checkPointsArb8(nodes, true);
     if (!ok) return false;
-
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    V.removeFirst();
-    return checkPointsArb8(V);
+    return checkPointsArb8(nodes, false);
 }
 
 void AGeoArb8::init()
 {
-    Vertices << QPair<double,double>(-20,20) << QPair<double,double>(20,20) << QPair<double,double>(20,-20) << QPair<double,double>(-20,-20);
-    Vertices << QPair<double,double>(-10,10) << QPair<double,double>(10,10) << QPair<double,double>(10,-10) << QPair<double,double>(10,-10);
+    Vertices[0] = {-20,20};
+    Vertices[1] = {20,20};
+    Vertices[2] = {20,-20};
+    Vertices[3] = {-20,-20};
+
+    Vertices[4] = {-10,10};
+    Vertices[5] = {10,10};
+    Vertices[6] = {10,-10};
+    Vertices[7] = {10,-10};
 }
 
 AGeoPcon::AGeoPcon()
@@ -2687,7 +3067,7 @@ TGeoShape *AGeoPcon::createGeoShape(const QString shapeName)
                                            new TGeoPcon(shapeName.toLatin1().data(), phi, dphi, Sections.size());
     for (int i=0; i<Sections.size(); i++)
     {
-        const APolyCGsection& s = Sections.at(i);
+        const APolyCGsection & s = Sections.at(i);
         pc->DefineSection(i, s.z, s.rmin, s.rmax);
     }
     return pc;
@@ -2716,7 +3096,7 @@ QString AGeoPcon::getGenerationString(bool useStrings) const
                 QString::number(phi)+", "+
                 QString::number(dphi);
 
-        for (const APolyCGsection& s : Sections) str += ", " + s.toString(false);
+        for (const APolyCGsection & s : Sections) str += ", " + s.toString(false);
 
         str +=" )";
     }
@@ -2729,11 +3109,35 @@ QString AGeoPcon::getGenerationString(bool useStrings) const
                 sphi + ", "+
                 sdphi ;
 
-        for (const APolyCGsection& s : Sections) str += ", " + s.toString(true);
+        for (const APolyCGsection & s : Sections) str += ", " + s.toString(true);
 
         str +=" )";
     }
     return str;
+}
+
+QString AGeoPcon::getScriptString(bool useStrings) const
+{
+    QString sphi, sdphi, sec;
+    if (useStrings)
+    {
+        sphi  = (strPhi .isEmpty() ? QString::number(phi)  : strPhi  );
+        sdphi = (strdPhi.isEmpty() ? QString::number(dphi) : strdPhi );
+    }
+    else
+    {
+        sphi  = QString::number(phi);
+        sdphi = QString::number(dphi);
+    }
+
+    for (int i = 0; i < Sections.size(); i++)
+    {
+        if (i != 0) sec += ", ";
+        sec += Sections[i].toScriptString(useStrings);
+    }
+
+    //void pCone(QString name, QVariantList sections, double Phi, double dPhi,
+    return QString("geo.pCone( $name$,  [ %0 ], %1, %2,  ").arg(sec, sphi, sdphi);
 }
 
 double AGeoPcon::maxSize() const
@@ -2753,7 +3157,7 @@ void AGeoPcon::writeToJson(QJsonObject &json) const
     if (!strdPhi.isEmpty()) json["strdPhi"] = strdPhi;
 
     QJsonArray ar;
-    for (APolyCGsection s : Sections)
+    for (const APolyCGsection & s : Sections)
     {
         QJsonObject js;
         s.writeToJson(js);
@@ -2907,6 +3311,24 @@ QString APolyCGsection::toString(bool useStrings) const
 
     }
     return str;
+}
+
+QString APolyCGsection::toScriptString(bool useStrings) const
+{
+    QString sz, sdmin, sdmax;
+    if (useStrings)
+    {
+        sz    = ( strZ    .isEmpty() ? QString::number(z)          : strZ     );
+        sdmin = ( str2rmin.isEmpty() ? QString::number(2.0 * rmin) : str2rmin );
+        sdmax = ( str2rmax.isEmpty() ? QString::number(2.0 * rmax) : str2rmax );
+    }
+    else
+    {
+        sz    = QString::number(z);
+        sdmin = QString::number(2.0 * rmin);
+        sdmax = QString::number(2.0 * rmax);
+    }
+    return QString("[%0, %1, %2]").arg(sz, sdmin, sdmax);
 }
 
 void APolyCGsection::writeToJson(QJsonObject &json) const
@@ -3075,6 +3497,43 @@ QString AGeoPolygon::getGenerationString(bool useStrings) const
                 srmaxU  + " )";
     }
     return str;
+}
+
+QString AGeoPolygon::getScriptString(bool useStrings) const
+{
+    QString sNedges, sdPhi, s2dz, s2rminL, s2rmaxL, s2rminU, s2rmaxU;
+
+    if (useStrings)
+    {
+        sNedges = ( strNedges.isEmpty() ? QString::number(nedges)      : strNedges );
+        sdPhi   = ( strdPhi  .isEmpty() ? QString::number(dphi)        : strdPhi );
+        s2dz    = ( str2dz   .isEmpty() ? QString::number(2.0 * dz)    : str2dz );
+        s2rminL = ( str2rminL.isEmpty() ? QString::number(2.0 * rminL) : str2rminL );
+        s2rmaxL = ( str2rmaxL.isEmpty() ? QString::number(2.0 * rmaxL) : str2rmaxL );
+        s2rminU = ( str2rminU.isEmpty() ? QString::number(2.0 * rminU) : str2rminU );
+        s2rmaxU = ( str2rmaxU.isEmpty() ? QString::number(2.0 * rmaxU) : str2rmaxU );
+    }
+    else
+    {
+        sNedges = QString::number(nedges);
+        sdPhi   = QString::number(dphi);
+        s2dz    = QString::number(2.0 * dz);
+        s2rminL = QString::number(2.0 * rminL);
+        s2rmaxL = QString::number(2.0 * rmaxL);
+        s2rminU = QString::number(2.0 * rminU);
+        s2rmaxU = QString::number(2.0 * rmaxU);
+    }
+
+    if (sdPhi == "360" && s2rminL == "0" && s2rminU == "0" && s2rmaxL == s2rmaxU)
+    {
+        //void AGeo_SI::polygon(QString name, int edges, double diameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+        return QString("geo.polygon( $name$, %0, %1, %2,  ").arg(sNedges, s2rmaxU, s2dz);
+    }
+    else
+    {
+        //void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+        return QString("geo.polygonSegment( $name$,  %0,  %1, %2,  %3,  %4, %5, %6,  ").arg(sNedges, s2rmaxU,s2rminU, s2rmaxL,s2rminL, s2dz,  sdPhi);
+    }
 }
 
 double AGeoPolygon::maxSize() const
@@ -3336,10 +3795,8 @@ void AGeoScaledShape::setHeight(double dz)
 
 QString AGeoScaledShape::getGenerationString(bool useStrings) const
 {
-    qDebug() <<"base" <<BaseShape->getGenerationString() <<useStrings;
     if (!useStrings)
     {
-        qDebug() <<"hmnjkfsk";
         return QString() + "TGeoScaledShape( " +
                 BaseShapeGenerationString + ", " +
                 QString::number(scaleX) + ", " +
@@ -3362,6 +3819,34 @@ QString AGeoScaledShape::getGenerationString(bool useStrings) const
                 sscaleY + ", " +
                 sscaleZ + " )";
     }
+}
+
+QString AGeoScaledShape::getScriptString(bool useStrings) const
+{
+    return BaseShape->getScriptString(useStrings); // the rest is made in the caller
+}
+
+QString AGeoScaledShape::getScriptString_Scaled(bool useStrings) const
+{
+    QString sx;
+    QString sy;
+    QString sz;
+
+    if (useStrings)
+    {
+        sx = ( strScaleX.isEmpty() ? QString::number(scaleX) : strScaleX );
+        sy = ( strScaleY.isEmpty() ? QString::number(scaleY) : strScaleY );
+        sz = ( strScaleZ.isEmpty() ? QString::number(scaleZ) : strScaleZ );
+    }
+    else
+    {
+        sx = QString::number(scaleX);
+        sy = QString::number(scaleY);
+        sz = QString::number(scaleZ);
+    }
+
+    //void toScaled(QString name, double xFactor, double yFactor, double zFactor);
+    return QString("geo.toScaled( $name$,  %0, %1, %2 )").arg(sx, sy, sz);
 }
 
 double AGeoScaledShape::maxSize() const
@@ -3564,6 +4049,30 @@ QString AGeoTorus::getGenerationString(bool useStrings) const
                 sDphi +" )";
     }
     return str;
+}
+
+QString AGeoTorus::getScriptString(bool useStrings) const
+{
+    QString sD, sDmin, sDmax, sPhi, sDphi;
+    if (useStrings)
+    {
+        sD    = (str2R.isEmpty()    ? QString::number(2.0 * R)    : str2R);
+        sDmin = (str2Rmin.isEmpty() ? QString::number(2.0 * Rmin) : str2Rmin);
+        sDmax = (str2Rmax.isEmpty() ? QString::number(2.0 * Rmax) : str2Rmax);
+        sPhi  = (strPhi1 .isEmpty() ? QString::number(Phi1)       : strPhi1);
+        sDphi = (strDphi .isEmpty() ? QString::number(Dphi)       : strDphi);
+    }
+    else
+    {
+        sD    = QString::number(2.0 * R);
+        sDmin = QString::number(2.0 * Rmin);
+        sDmax = QString::number(2.0 * Rmax);
+        sPhi  = QString::number(Phi1);
+        sDphi = QString::number(Dphi);
+    }
+
+    //void torus(QString name, double D, double Dout, double Din, double Phi, double dPhi,
+    return QString("geo.torus( $name$,  %0, %1, %2, %3, %4,  ").arg(sD, sDmax, sDmin, sPhi, sDphi);
 }
 
 double AGeoTorus::maxSize() const

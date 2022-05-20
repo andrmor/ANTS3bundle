@@ -6,6 +6,8 @@
 #include <QList>
 #include <QStringList>
 
+#include <array>
+
 class TGeoShape;
 class QJsonObject;
 class QRegularExpression;
@@ -19,6 +21,7 @@ public:
 
     //general: the same for all objects of the given shape
     virtual QString getShapeType() const = 0;
+    virtual QString getShortName() const {return QStringLiteral("New");}
     virtual QString getShapeTemplate() const = 0;  //string used in auto generated help: Name(paramType param1, paramType param2, etc)
     virtual QString getHelp() const = 0;
 
@@ -26,7 +29,7 @@ public:
     virtual TGeoShape * createGeoShape(const QString /*shapeName*/ = "") = 0;    //creates ROOT's TGeoShape
     virtual QString getGenerationString(bool /*useStrings*/ = false) const = 0;
 
-    virtual QString getScriptString() const {return QString();}
+    virtual QString getScriptString(bool /*useStrings*/) const {return QString();}
 
     virtual double getHeight() const {return 0;}   //for stacks; if 0, cannot be used in a stack
     virtual double getRelativePosZofCenter() const {return 0;} //for polycones and polygons in stacks
@@ -65,6 +68,7 @@ public:
     AGeoBox() : dx(10), dy(10), dz(10) {}
 
     QString getShapeType() const override {return "TGeoBBox";}
+    QString getShortName() const override {return QStringLiteral("Box");}
     QString getShapeTemplate() const override {return "TGeoBBox( dx, dy, dz )";}
     QString getHelp() const override;
 
@@ -79,7 +83,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
-    QString getScriptString() const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
     double minSize() const override;
 
@@ -102,6 +106,7 @@ public:
     AGeoTube() : rmin(0), rmax(10), dz(5) {}
 
     QString getShapeType() const override {return "TGeoTube";}
+    QString getShortName() const override {return QStringLiteral("Tube");}
     QString getShapeTemplate() const override {return "TGeoTube( rmin, rmax, dz )";}
     QString getHelp() const override;
 
@@ -116,6 +121,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
     double minSize() const override;
 
@@ -137,6 +143,7 @@ public:
     ~AGeoScaledShape() {delete BaseShape;}
 
     QString getShapeType() const override {return "TGeoScaledShape";}
+    QString getShortName() const override {return QStringLiteral("Scaled");}
     QString getShapeTemplate() const override {return "TGeoScaledShape( TGeoShape(parameters), scaleX, scaleY, scaleZ )";}
     QString getHelp() const override;
     void updateScalingFactors(QString & errorStr);
@@ -153,6 +160,8 @@ public:
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override;
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const; // returns script string for the base shape!
+    QString getScriptString_Scaled(bool useStrings) const;
     double maxSize() const override;
 
     const QString getBaseShapeType() const;
@@ -179,6 +188,7 @@ public:
     AGeoParaboloid() : rlo(0), rhi(40), dz(10) {}
 
     QString getShapeType() const override {return "TGeoParaboloid";}
+    QString getShortName() const override {return QStringLiteral("Paraboloid");}
     QString getShapeTemplate() const override {return "TGeoParaboloid( rlo, rhi, dz )";}
     QString getHelp() const override;
 
@@ -193,6 +203,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double /*dz*/) override {}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject &json) const override;
@@ -215,6 +226,7 @@ public:
         dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(0) {}
 
     QString getShapeType() const override {return "TGeoCone";}
+    QString getShortName() const override {return QStringLiteral("Cone");}
     QString getShapeTemplate() const override {return "TGeoCone( dz, rminL, rmaxL, rminU, rmaxU )";}
     QString getHelp() const override;
 
@@ -229,6 +241,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -246,9 +259,10 @@ class AGeoConeSeg : public AGeoCone
 public:
     AGeoConeSeg(double dz, double rminL, double rmaxL, double rminU, double rmaxU, double phi1, double phi2) :
         AGeoCone(dz, rminL, rmaxL, rminU, rmaxU), phi1(phi1), phi2(phi2) {}
-    AGeoConeSeg() : AGeoCone(), phi1(0), phi2(180) {}
+    AGeoConeSeg() : AGeoCone(), phi1(0), phi2(180.0) {}
 
     QString getShapeType() const override {return "TGeoConeSeg";}
+    QString getShortName() const override {return QStringLiteral("ConeSeg");}
     QString getShapeTemplate() const override {return "TGeoConeSeg( dz, rminL, rmaxL, rminU, rmaxU, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -263,6 +277,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -280,11 +295,12 @@ public:
     AGeoPolygon(int nedges, double dphi, double dz, double rminL, double rmaxL, double rminU, double rmaxU) :
         nedges(nedges), dphi(dphi), dz(dz), rminL(rminL), rmaxL(rmaxL), rminU(rminU), rmaxU(rmaxU) {}
     AGeoPolygon(int nedges, double dz, double rmaxL, double rmaxU) :
-        nedges(nedges), dphi(360), dz(dz), rminL(0), rmaxL(rmaxL), rminU(0), rmaxU(rmaxU) {}
+        nedges(nedges), dphi(360.0), dz(dz), rminL(0), rmaxL(rmaxL), rminU(0), rmaxU(rmaxU) {}
     AGeoPolygon() :
-        nedges(6), dphi(360), dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(20) {}
+        nedges(6), dphi(360.0), dz(10), rminL(0), rmaxL(20), rminU(0), rmaxU(20) {}
 
     QString getShapeType() const override {return "TGeoPolygon";}
+    QString getShortName() const override {return QStringLiteral("Polygon");}
     QString getShapeTemplate() const override {return "TGeoPolygon( nedges, dphi, dz, rminL, rmaxL, rminU, rmaxU )";}
     QString getHelp() const override;
 
@@ -299,6 +315,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -327,6 +344,7 @@ struct APolyCGsection
 
     bool fromString(QString string);
     QString toString(bool useStrings) const;
+    QString toScriptString(bool useStrings) const;
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
     bool operator ==( const APolyCGsection &section1) const;
@@ -338,6 +356,7 @@ public:
     AGeoPcon();
 
     QString getShapeType() const override {return "TGeoPcon";}
+    QString getShortName() const override {return QStringLiteral("Pcon");}
     QString getShapeTemplate() const override {return "TGeoPcon( phi, dphi, { z0 : rmin0 : rmaz0 }, { z1 : rmin1 : rmax1 } )";}
     QString getHelp() const override;
 
@@ -352,6 +371,7 @@ public:
     double getHeight() const override;
     double getRelativePosZofCenter() const override;
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -370,10 +390,12 @@ public:
     AGeoPgon() : AGeoPcon(), nedges(6) {}
 
     QString getShapeType() const override {return "TGeoPgon";}
+    QString getShortName() const override {return QStringLiteral("Pgon");}
     QString getShapeTemplate() const override {return "TGeoPgon( phi, dphi, nedges, { z0 : rmin0 : rmaz0 }, { zN : rminN : rmaxN } )";}
     QString getHelp() const override;
 
     void introduceGeoConstValues(QString & errorStr) override;
+
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -382,6 +404,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -401,6 +424,7 @@ public:
     AGeoTrd1() : dx1(15), dx2(5), dy(10), dz(10) {}
 
     QString getShapeType() const override {return "TGeoTrd1";}
+    QString getShortName() const override {return QStringLiteral("Trd1_");}
     QString getShapeTemplate() const override {return "TGeoTrd1( dx1, dx2, dy, dz )";}
     QString getHelp() const override;
 
@@ -415,6 +439,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -435,6 +460,7 @@ public:
         dx1(15), dx2(5), dy1(10), dy2(20), dz(10) {}
 
     QString getShapeType() const override {return "TGeoTrd2";}
+    QString getShortName() const override {return QStringLiteral("Trd2_");}
     QString getShapeTemplate() const override {return "TGeoTrd2( dx1, dx2, dy1, dy2, dz )";}
     QString getHelp() const override;
 
@@ -449,6 +475,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -468,6 +495,7 @@ public:
     AGeoTubeSeg() : rmin(0), rmax(10), dz(5), phi1(0), phi2(180) {}
 
     QString getShapeType() const override {return "TGeoTubeSeg";}
+    QString getShortName() const override {return QStringLiteral("TubeSeg");}
     QString getShapeTemplate() const override {return "TGeoTubeSeg( rmin, rmax, dz, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -482,6 +510,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -495,6 +524,7 @@ public:
 
 class AGeoCtub : public AGeoTubeSeg
 {
+
 public:
     AGeoCtub(double rmin, double rmax, double dz, double phi1, double phi2,
              double nxlow, double nylow, double nzlow,
@@ -508,6 +538,7 @@ public:
         nxhi(0), nyhi(0.09), nzhi(0.87) {}
 
     QString getShapeType() const override {return "TGeoCtub";}
+    QString getShortName() const override {return QStringLiteral("CTube");}
     QString getShapeTemplate() const override {return "TGeoCtub( rmin, rmax, dz, phi1, phi2, nxlow, nylow, nzlow, nxhi, nyhi, nzhi )";}
     QString getHelp() const override;
 
@@ -522,6 +553,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -541,6 +573,7 @@ public:
     AGeoEltu() : a(10), b(20), dz(5) {}
 
     QString getShapeType() const override {return "TGeoEltu";}
+    QString getShortName() const override {return QStringLiteral("ElTube");}
     QString getShapeTemplate() const override {return "TGeoEltu( a, b, dz )";}
     QString getHelp() const override;
 
@@ -555,6 +588,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -569,13 +603,14 @@ public:
 class AGeoSphere : public AGeoShape
 {
 public:
-    AGeoSphere(double rmin, double rmax, double theta1, double theta2, double phi1, double phi2) :
+    AGeoSphere(double rmax, double rmin, double theta1, double theta2, double phi1, double phi2) :
         rmin(rmin), rmax(rmax), theta1(theta1), theta2(theta2), phi1(phi1), phi2(phi2) {}
-    AGeoSphere(double r) : rmin(0), rmax(r), theta1(0), theta2(180), phi1(0), phi2(360) {}
-    AGeoSphere(double rmax, double rmin) : rmin(rmin), rmax(rmax), theta1(0), theta2(180), phi1(0), phi2(360) {}
-    AGeoSphere() : rmin(0), rmax(10), theta1(0), theta2(180), phi1(0), phi2(360) {}
+    AGeoSphere(double r) : rmin(0), rmax(r), theta1(0), theta2(180.0), phi1(0), phi2(360.0) {}
+    AGeoSphere(double rmax, double rmin) : rmin(rmin), rmax(rmax), theta1(0), theta2(180.0), phi1(0), phi2(360.0) {}
+    AGeoSphere() : rmin(0), rmax(10.0), theta1(0), theta2(180.0), phi1(0), phi2(360.0) {}
 
     QString getShapeType() const override {return "TGeoSphere";}
+    QString getShortName() const override {return QStringLiteral("Sphere");}
     QString getShapeTemplate() const override {return "TGeoSphere( rmin,  rmax, theta1, theta2, phi1, phi2 )";}
     QString getHelp() const override;
 
@@ -590,6 +625,7 @@ public:
     double getHeight() const override {return rmax;}
     void setHeight(double dz) override {rmax = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override { return rmax;}
 
     void writeToJson(QJsonObject& json) const override;
@@ -609,6 +645,7 @@ public:
     AGeoPara() : dx(10), dy(10), dz(10), alpha(10), theta(25), phi(45) {}
 
     QString getShapeType() const override {return "TGeoPara";}
+    QString getShortName() const override {return QStringLiteral("Para");}
     QString getShapeTemplate() const override {return "TGeoPara( dX, dY, dZ, alpha, theta, phi )";}
     QString getHelp() const override;
 
@@ -623,6 +660,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -638,10 +676,11 @@ public:
 class AGeoArb8 : public AGeoShape
 {
 public:
-    AGeoArb8(double dz, QList<QPair<double, double> > VertList);
+    AGeoArb8(double dz, std::array<std::pair<double, double>,8> NodesList);
     AGeoArb8();
 
     QString getShapeType() const override {return "TGeoArb8";}
+    QString getShortName() const override {return QStringLiteral("Arb8_");}
     QString getShapeTemplate() const override {return "TGeoArb8( dz,  xL1,yL1, xL2,yL2, xL3,yL3, xL4,yL4, xU1,yU1, xU2,yU2, xU3,yU3, xU4,yU4  )";}
     QString getHelp() const override;
 
@@ -656,6 +695,7 @@ public:
     double getHeight() const override {return dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
@@ -663,12 +703,12 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
-    static bool checkPointsForArb8(QList<QPair<double, double> > V ); // !!!*** to std::vector
+    static bool checkPointsForArb8(std::array<std::pair<double, double>, 8> nodes );
 
     double dz;
     QString str2dz;
-    QList<QPair<double, double> > Vertices;
-    QVector<QVector<QString> > strVertices;
+    std::array<std::pair<double, double>,8> Vertices;
+    std::array<std::pair<QString, QString>,8> strVertices;
 
 private:
     void init();
@@ -677,10 +717,11 @@ private:
 class AGeoComposite : public AGeoShape
 {
 public:
-    AGeoComposite(const QStringList members, const QString GenerationString);
+    AGeoComposite(const QStringList members, QString GenerationString);
     AGeoComposite() {}
 
     QString getShapeType() const override {return "TGeoCompositeShape";}
+    QString getShortName() const override {return QStringLiteral("Composite");}
     QString getShapeTemplate() const override {return "TGeoCompositeShape( (A + B) * (C - D) )";}
     QString getHelp() const override;
 
@@ -689,7 +730,8 @@ public:
 
     bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const override {return false;}
 
-    QString getGenerationString(bool /*useStrings*/) const override {return GenerationString;}
+    QString getGenerationString(bool) const override {return GenerationString;}
+    QString getScriptString(bool) const override;
     double maxSize() const {return 0;} // have to ask AGeoObject
 
     void writeToJson(QJsonObject& json) const override;
@@ -709,6 +751,7 @@ public:
     AGeoTorus() {}
 
     QString getShapeType() const override {return "TGeoTorus";}
+    QString getShortName() const override {return QStringLiteral("Torus");}
     QString getShapeTemplate() const override {return "TGeoTorus( R, Rmin, Rmax, Phi1, Dphi )";}
     QString getHelp() const override;
 
@@ -723,6 +766,7 @@ public:
     double getHeight() const override {return Rmax;}
     void setHeight(double dz) override {this->Rmax = dz;}
     QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

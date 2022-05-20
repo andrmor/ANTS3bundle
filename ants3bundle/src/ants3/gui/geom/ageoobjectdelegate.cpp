@@ -171,7 +171,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
 
   ListOfShapesForTransform << "Box"
        << "Tube" << "Tube segment" << "Tube segment cut" << "Tube elliptical"
-       << "Trapezoid simplified" << "Trapezoid"
+       << "Trap" << "Trap2"
        << "Polycone"
        << "Polygon simplified" << "Polygon"
        << "Parallelepiped"
@@ -333,6 +333,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     QString errorStr;
     const QString oldName = obj->Name;
     const QString newName = leName->text();
+
+    if (newName.contains("_-_"))
+    {
+        QMessageBox::warning(this->ParentWidget, "", "Object name cannot contain \"_-_\" substring");
+        return false;
+    }
 
     if (obj->Type->isHandlingSet() && !obj->Type->isStack())
     {
@@ -711,8 +717,8 @@ void AGeoObjectDelegate::onShapeDialogActivated(QDialog * d, QListWidget * w)
     else if (sel == "Tube segment cut")     emit RequestChangeShape(new AGeoCtub());
     else if (sel == "Tube elliptical")      emit RequestChangeShape(new AGeoEltu());
     else if (sel == "Sphere")               emit RequestChangeShape(new AGeoSphere());
-    else if (sel == "Trapezoid simplified") emit RequestChangeShape(new AGeoTrd1());
-    else if (sel == "Trapezoid")            emit RequestChangeShape(new AGeoTrd2());
+    else if (sel == "Trap")                 emit RequestChangeShape(new AGeoTrd1());
+    else if (sel == "Trap2")                emit RequestChangeShape(new AGeoTrd2());
     else if (sel == "Cone")                 emit RequestChangeShape(new AGeoCone());
     else if (sel == "Cone segment")         emit RequestChangeShape(new AGeoConeSeg());
     else if (sel == "Paraboloid")           emit RequestChangeShape(new AGeoParaboloid());
@@ -1652,9 +1658,9 @@ void AGeoElTubeDelegate::Update(const AGeoObject *obj)
 AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid simplified";
+    DelegateTypeName = "Trap";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trapezoidal prizm\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1714,7 +1720,7 @@ bool AGeoTrapXDelegate::updateObject(AGeoObject *obj) const
         trap->str2dy  = ey->text();
         trap->str2dz  = ez->text();
     }
-    else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+    else qWarning() << "Read delegate: Trap shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1737,15 +1743,15 @@ void AGeoTrapXDelegate::Update(const AGeoObject *obj)
             ey-> setText(trap->str2dy .isEmpty() ? QString::number(trap->dy  * 2.0) : trap->str2dy);
             ez-> setText(trap->str2dz .isEmpty() ? QString::number(trap->dz  * 2.0) : trap->str2dz);
         }
-        else qWarning() << "Read delegate: Trapezoid Simplified shape not found!";
+        else qWarning() << "Read delegate: Trap shape not found!";
 }
 
 AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *parent)
     : AGeoObjectDelegate(materials, parent)
 {
-    DelegateTypeName = "Trapezoid";
+    DelegateTypeName = "Trap2";
 
-    ShapeHelp = "A trapezoid shape\n"
+    ShapeHelp = "A trape2 shape\n"
             "\n"
             "The two of the opposite faces are parallel to XY plane\n"
             "  and are positioned in Z at ± 0.5*Height.\n"
@@ -1808,7 +1814,7 @@ bool AGeoTrapXYDelegate::updateObject(AGeoObject *obj) const
         trapxy->str2dy2 = eyu->text();
         trapxy->str2dz  = ez ->text();
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 
     return AGeoObjectDelegate::updateObject(obj);
 }
@@ -1832,7 +1838,7 @@ void AGeoTrapXYDelegate::Update(const AGeoObject *obj)
         eyu->setText(trapxy->str2dy2.isEmpty() ? QString::number(trapxy->dy2 * 2.0) : trapxy->str2dy2);
         ez-> setText(trapxy->str2dz .isEmpty() ? QString::number(trapxy->dz  * 2.0) : trapxy->str2dz);
     }
-    else qWarning() << "Read delegate: Trapezoid XY shape not found!";
+    else qWarning() << "Read delegate: Trap2 shape not found!";
 }
 
 AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWidget *parent)
@@ -2525,6 +2531,9 @@ AGeoCompositeDelegate::AGeoCompositeDelegate(const QStringList &materials, QWidg
     connect(te, &QPlainTextEdit::textChanged, this, &AGeoCompositeDelegate::onContentChangedBase);
 
     addLocalLayout(v);
+
+    cbScale->setChecked(false);
+    cbScale->setEnabled(false);
 }
 
 bool AGeoCompositeDelegate::updateObject(AGeoObject *obj) const
@@ -2680,8 +2689,8 @@ bool AGeoArb8Delegate::updateObject(AGeoObject *obj) const
                 }
 
                 const int iInVert = iul * 4 + i;
-                arb8->strVertices[iInVert][0] = ve[iul][i].X->text();
-                arb8->strVertices[iInVert][1] = ve[iul][i].Y->text();
+                arb8->strVertices[iInVert].first  = ve[iul][i].X->text();
+                arb8->strVertices[iInVert].second = ve[iul][i].Y->text();
             }
         }
     }
@@ -2710,10 +2719,11 @@ void AGeoArb8Delegate::Update(const AGeoObject *obj)
             for (int i = 0; i < 4; i++)
             {
                 const int iInVert = iul * 4 + i;
-                const QPair<double, double> & V = arb8->Vertices.at(iInVert);
+                const std::pair<double, double>   & V = arb8->Vertices[iInVert];
+                const std::pair<QString, QString> & S = arb8->strVertices[iInVert];
                 AEditEdit & CEE = ve[iul][i];
-                CEE.X->setText(arb8->strVertices.at(iInVert).at(0).isEmpty() ? QString::number(V.first)  : arb8->strVertices.at(iInVert).at(0));
-                CEE.Y->setText(arb8->strVertices.at(iInVert).at(1).isEmpty() ? QString::number(V.second) : arb8->strVertices.at(iInVert).at(1));
+                CEE.X->setText( S.first.isEmpty()  ? QString::number(V.first)  : S.first  );
+                CEE.Y->setText( S.second.isEmpty() ? QString::number(V.second) : S.second );
             }
         }
     }
@@ -2763,6 +2773,9 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
 
     lVer->addLayout(grAW);
 
+    cbCenterSym = new QCheckBox("Center-symmetric");
+    lVer->addWidget(cbCenterSym, 0, Qt::AlignHCenter);
+
     QHBoxLayout * lHor = new QHBoxLayout();
     lHor->addStretch();
     lHor->addWidget(new QLabel("Index of the first node:"));
@@ -2771,6 +2784,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     lHor->addStretch();
 
     lVer->addLayout(lHor);
+
 
     addLocalLayout(lVer);
 
@@ -2815,6 +2829,7 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     a.strStepX = ledStepX->text();
     a.strStepY = ledStepY->text();
     a.strStepZ = ledStepZ->text();
+    a.bCenterSymmetric = cbCenterSym->isChecked();
     a.strStartIndex = ledStartIndex->text();
 
     QString errorStr;
@@ -2845,6 +2860,7 @@ void AGeoArrayDelegate::Update(const AGeoObject * obj)
         ledStepX->setText(array->strStepX.isEmpty() ? QString::number(array->stepX) : array->strStepX);
         ledStepY->setText(array->strStepY.isEmpty() ? QString::number(array->stepY) : array->strStepY);
         ledStepZ->setText(array->strStepZ.isEmpty() ? QString::number(array->stepZ) : array->strStepZ);
+        cbCenterSym->setChecked(array->bCenterSymmetric);
         ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);
     }
 }

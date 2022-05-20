@@ -71,6 +71,15 @@ bool DetectorConstruction::isAccordingTo(const std::string &name, const std::str
     return ( wildcard == name.substr(0, size) );
 }
 
+void DetectorConstruction::removeVolumeNameDecorator(std::string & name)
+{
+    //std::cout << name << "\n";
+    const auto begin = name.find("_-_");
+    if (begin != std::string::npos)
+        name.erase(begin);
+    //std::cout << "->" << name << std::endl;
+}
+
 void DetectorConstruction::setStepLimiters()
 {
     SessionManager & SM = SessionManager::getInstance();
@@ -82,10 +91,11 @@ void DetectorConstruction::setStepLimiters()
     for (auto const & it : StepLimitMap)
     {
         std::string VolName = it.first;
+
         double step = it.second * mm;
-        if (step == 0)
+        if (step <= 0)
         {
-            SM.terminateSession("Found zero step limit for volume " + VolName);
+            SM.terminateSession("Found zero or negative step limit for volume " + VolName);
             return;
         }
 
@@ -97,7 +107,8 @@ void DetectorConstruction::setStepLimiters()
 
             for (G4LogicalVolumeStore::iterator pos=store->begin(); pos!=store->end(); pos++)
             {
-                const std::string & volName = (*pos)->GetName();
+                std::string volName = (*pos)->GetName();
+                removeVolumeNameDecorator(volName);
                 //std::cout << "   analysing vol:" << volName << std::endl;
                 if (isAccordingTo(volName, wildcard))
                 {
@@ -111,7 +122,9 @@ void DetectorConstruction::setStepLimiters()
         {
             for (G4LogicalVolumeStore::iterator pos=store->begin(); pos!=store->end(); pos++)
             {
-                if ( VolName == (*pos)->GetName())
+                std::string name = (*pos)->GetName();
+                removeVolumeNameDecorator(name);
+                if (VolName == name)
                 {
                     //std::cout << "   found!" << std::endl;
                     G4UserLimits * stepLimit = new G4UserLimits(step);

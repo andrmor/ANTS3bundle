@@ -8,6 +8,8 @@
 
 #include <QDebug>
 
+#include <array>
+
 AGeo_SI::AGeo_SI()
 {
     Description = "Allows to configure detector geometry. Based on CERN ROOT TGeoManager";
@@ -76,6 +78,31 @@ void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container,
+                             double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoPara(0.5*Lx, 0.5*Ly, 0.5*Lz, Alpha, Theta, Phi),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoTrd1(0.5*LXlow, 0.5*LXup, 0.5*Ly, 0.5*Lz),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoTrd2(0.5*LXlow, 0.5*LXup, 0.5*LYlow, 0.5*LYup, 0.5*Lz),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -88,7 +115,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
 {
     if (innerD >= outerD)
     {
-        abort("Inner diameter of a Tube should be smaller than the outer one");
+        abort("Inner diameter should be smaller than the outer one");
         return;
     }
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -97,11 +124,93 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::polygone(QString name, int edges, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (innerD >= outerD)
+    {
+        abort("Inner diameter should be smaller than the outer one");
+        return;
+    }
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                   new AGeoTubeSeg(0.5*innerD, 0.5*outerD, 0.5*h, Phi1, Phi2),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
+                      QVariantList Nlow, QVariantList Nhigh,
+                      int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (innerD >= outerD)
+    {
+        abort("Inner diameter should be smaller than the outer one");
+        return;
+    }
+    if (Nlow.size() != 3 || Nhigh.size() != 3)
+    {
+        abort("Nlow and Nhigh should be unitary vectors (size=3) of the normals to the cuts");
+        return;
+    }
+
+    std::array<double, 3> al, ah;
+    for (int i = 0; i < 3; i++)
+    {
+        al[i] = Nlow[i] .toDouble();
+        ah[i] = Nhigh[i].toDouble();
+    }
+
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                   new AGeoCtub(0.5*innerD, 0.5*outerD, 0.5*h, Phi1, Phi2, al[0], al[1], al[2], ah[0], ah[1], ah[2]),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoEltu(0.5*Dx, 0.5*Dy, 0.5*height),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
-                                    new AGeoPolygon(edges, 0.5*h, 0.5*Dbot, 0.5*Dtop),
+                                    new AGeoPolygon(edges, 0.5*h, 0.5*inscribDiameter, 0.5*inscribDiameter),
                                     x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                    new AGeoPolygon(edges, dPhi, 0.5*h, 0.5*DbotIn, 0.5*DbotOut, 0.5*DtopIn, 0.5*DtopOut),
+                                    x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (numEdges < 3)
+    {
+        abort("Number of edges should be at least 3");
+        return;
+    }
+    AGeoPgon * p = new AGeoPgon();
+    p->nedges = numEdges;
+    p->phi    = Phi;
+    p->dphi   = dPhi;
+    p->Sections.clear();
+
+    std::vector<std::array<double,3>> vecSections;
+    bool ok = getSectionsPoly(sections, vecSections);
+    if (!ok) return;
+
+    for (const auto & s : vecSections)
+        p->Sections.push_back( APolyCGsection(s[0], 0.5*s[1], 0.5*s[2]) );   //z rmin rmax
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, p,
+                                   x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
 
@@ -113,15 +222,88 @@ void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::sphere(QString name, double D, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoSphere(0.5*D),
+                                   new AGeoCone(0.5*h, 0.5*DbotIn, 0.5*DbotOut, 0.5*DtopIn, 0.5*DtopOut),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::sphereLayer(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoConeSeg(0.5*h, 0.5*DbotIn, 0.5*DbotOut, 0.5*DtopIn, 0.5*DtopOut, phi1, phi2),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+bool AGeo_SI::getSectionsPoly(const QVariantList & sections, std::vector<std::array<double,3>> & vecSections)
+{
+    if (sections.size() < 2)
+    {
+        abort("There should be at least 2 sections for pCone and pGon");
+        return false;
+    }
+
+    for (int iVar = 0; iVar < sections.size(); iVar++)
+    {
+        QVariantList el = sections[iVar].toList();
+        if (el.size() != 3)
+        {
+            abort("Each section of pCone and pGon should have 3 elements: z,innerDiameter and outerDiameter");
+            return false;
+        }
+        bool ok1, ok2, ok3;
+        double z    = el[0].toDouble(&ok1);
+        double din  = el[1].toDouble(&ok2);
+        double dout = el[2].toDouble(&ok3);
+        if (!ok1 || !ok2 || !ok3)
+        {
+            abort("Error in convertion to double for one of the sections");
+            return false;
+        }
+        if (din >= dout)
+        {
+            abort("Inner diameter should be smaller than outer diamter!");
+            return false;
+        }
+        vecSections.push_back({z, din, dout});
+    }
+
+    double lastZ = vecSections[0][0];
+    for (size_t i = 1; i < vecSections.size(); i++)
+    {
+        if (vecSections[i][0] < lastZ)
+        {
+            abort("Section z coordinates are not in increasing order");
+            return false;
+        }
+        lastZ = vecSections[i][0];
+    }
+    return true;
+}
+
+void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoPcon * p = new AGeoPcon();
+    p->phi  = Phi;
+    p->dphi = dPhi;
+    p->Sections.clear();
+
+    std::vector<std::array<double,3>> vecSections;
+    bool ok = getSectionsPoly(sections, vecSections);
+    if (!ok) return;
+
+    for (const auto & s : vecSections)
+        p->Sections.push_back( APolyCGsection(s[0], 0.5*s[1], 0.5*s[2]) );   //z rmin rmax
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, p,
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    new AGeoSphere(0.5*Dout, 0.5*Din),
@@ -129,46 +311,168 @@ void AGeo_SI::sphereLayer(QString name, double Dout, double Din, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::arb8(QString name, QVariant NodesX, QVariant NodesY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
-    //qDebug() << NodesX << NodesY;
-    QStringList lx = NodesX.toStringList();
-    QStringList ly = NodesY.toStringList();
-    //qDebug() << lx;
-    //qDebug() << ly;
-    if (lx.size()!=8 || ly.size()!=8)
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoSphere(0.5*Dout, 0.5*Din, Theta1, Theta2, Phi1, Phi2),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoTorus(0.5*D, 0.5*Din, 0.5*Dout, Phi, dPhi),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoParaboloid(0.5*Dbot, 0.5*Dup, 0.5*h),
+                                   x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    AGeoObject * o = new AGeoObject(name, container, iMat,
+                                    nullptr,
+                                    x,y,z, phi,theta,psi);
+
+    QString s = compositionString.simplified();
+    s.remove("(");
+    s.remove(")");
+    s.remove("+");
+    s.remove("*");
+    s.remove("-");
+    QStringList members = s.split(' ', Qt::SkipEmptyParts);
+
+    //create an empty composite object
+    AGeometryHub::getInstance().convertObjToComposite(o);
+    o->clearCompositeMembers();
+
+    //attempt to add logicals
+    for (int iMem = 0; iMem < members.size(); iMem++)
     {
-        clearGeoObjects();
-        abort("Node arrays should contain 8 points each");
+        int index = -1;
+        for (int iObj = 0; iObj < (int)GeoObjects.size(); iObj++)
+        {
+            if (members[iMem] == GeoObjects[iObj]->Name)
+            {
+                index = iObj;
+                break;
+            }
+        }
+        if (index == -1)
+        {
+            delete o;
+            abort("Error in composite object generation: logical volume "+members[iMem]+" not found!");
+            return;
+        }
+        //found logical, transferring it to logicals container of the compsoite
+        o->getContainerWithLogical()->addObjectLast(GeoObjects[index]);
+        GeoObjects.erase(GeoObjects.begin() + index);
+    }
+    o->refreshShapeCompositeMembers();
+
+    bool ok = o->readShapeFromString( QString("TGeoCompositeShape( %0 )").arg(compositionString) );
+    if (!ok)
+    {
+        delete o;
+        abort(name + ": failed to create composite shape");
+        return;
+    }
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
+{
+    if (NodesXY.size() != 8)
+    {
+        abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
         return;
     }
 
-    QList<QPair<double, double> > V;
+    std::array<std::pair<double, double>, 8> nodes;
     bool ok1, ok2;
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        double x = lx[i].toDouble(&ok1);
-        double y = ly[i].toDouble(&ok2);
-        if (!ok1 || !ok2)
+        QVariantList el = NodesXY[i].toList();
+        if (el.size() != 2)
         {
-            clearGeoObjects();
-            abort("Arb8 node array - conversion to double error");
+            abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
             return;
         }
-        V.push_back( QPair<double,double>(x,y) );
+        double x = el[0].toDouble(&ok1);
+        double y = el[1].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            abort("arb8 NodesXY array: should be an array of 8 elements of [x, y] arrays");
+            return;
+        }
+        nodes[i] = {x,y};
     }
 
-    if (!AGeoArb8::checkPointsForArb8(V))
+    if (!AGeoArb8::checkPointsForArb8(nodes))
     {
-        clearGeoObjects();
-        abort("Arb8 nodes should be define clockwise for both planes");
+        abort("Arb8 nodes should be defined clockwise for both planes");
         return;
     }
 
     AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoArb8(0.5*h, V),
+                                   new AGeoArb8(0.5*h, nodes),
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
+}
+
+void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFactor)
+{
+    AGeoObject * obj = nullptr;
+
+    for (AGeoObject * GO : GeoObjects)
+    {
+        if (GO->Name == name)
+        {
+            obj = GO;
+            break;
+        }
+    }
+
+    if (!obj) //looking through already defined objects in the geometry
+        obj = AGeometryHub::getInstance().World->findObjectByName(name);
+
+    if (!obj)
+    {
+        abort("Cannot find object " + name);
+        return;
+    }
+
+    // !!!***
+    if (obj->Shape->getShapeType() == "TGeoCompositeShape")
+    {
+        abort("Cannot scale a composite shape!");
+        return;
+    }
+
+    AGeoScaledShape * scs = dynamic_cast<AGeoScaledShape*>(obj->Shape);
+    if (scs)
+    {
+        scs->scaleX = xFactor;
+        scs->scaleY = yFactor;
+        scs->scaleZ = zFactor;
+    }
+    else
+    {
+        scs = new AGeoScaledShape();
+        scs->scaleX = xFactor;
+        scs->scaleY = yFactor;
+        scs->scaleZ = zFactor;
+
+        scs->BaseShape = obj->Shape;
+        obj->Shape = scs;
+    }
 }
 
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)

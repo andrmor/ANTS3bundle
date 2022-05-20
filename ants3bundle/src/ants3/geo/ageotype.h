@@ -138,6 +138,7 @@ public:
 
     void introduceGeoConstValues(QString & errorStr) override;
 
+    bool bCenterSymmetric = true;
     int numX = 2;
     int numY = 2;
     int numZ = 1;

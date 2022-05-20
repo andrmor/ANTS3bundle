@@ -79,6 +79,7 @@ SOURCES += \
     geo/acalorimeterhub.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
@@ -266,6 +267,7 @@ HEADERS += \
     geo/acalorimeterhub.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
+    gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ashownumbersdialog.h \
     gui/particleSim/aparticlesourceplotter.h \
