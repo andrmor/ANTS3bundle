@@ -334,6 +334,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 
+    if (newName.contains("_-_"))
+    {
+        QMessageBox::warning(this->ParentWidget, "", "Object name cannot contain \"_-_\" substring");
+        return false;
+    }
+
     if (obj->Type->isHandlingSet() && !obj->Type->isStack())
     {
         //set container object does not have updateable properties except name
