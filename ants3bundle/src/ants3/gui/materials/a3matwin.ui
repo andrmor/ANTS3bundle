@@ -465,7 +465,7 @@ To use Al with termal scattering, use G4_Al_TS</string>
         <item>
          <widget class="QLabel" name="label_64">
           <property name="text">
-           <string>Chemical composition (optional unless neutron interactions will be simulated):</string>
+           <string>Chemical composition:</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

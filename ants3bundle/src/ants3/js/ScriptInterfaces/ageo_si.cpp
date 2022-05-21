@@ -26,7 +26,7 @@ AGeo_SI::AGeo_SI()
     Help["cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height\n" +s;
     Help["polygone"] =  "Adds to geometry a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
                         "circles and height.\n" +s;
-    Help["dphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;
+    Help["sphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;
     Help["srb8"] = "Adds to geometry a TGeoArb8 object with name 'name' and the given height and two arrays,\n"
                    "containing X and Y coordinates of the nodes.\n"+ s;
     Help["customTGeo"] = "Adds to geometry an object with name 'name' and the shape generated using the CERN ROOT geometry system.\n" + s +
@@ -941,7 +941,7 @@ void AGeo_SI::removeWithHosted(QString Object)
 }
 
 #include "ageospecial.h"
-void AGeo_SI::setLightSensor(QString Object)
+void AGeo_SI::setLightSensor(QString Object, int iModel)
 {
     AGeoObject * obj = nullptr;
     for (AGeoObject * o : GeoObjects)
@@ -961,7 +961,51 @@ void AGeo_SI::setLightSensor(QString Object)
         }
     }
 
-    delete obj->Role; obj->Role = new AGeoSensor(0);
+    delete obj->Role; obj->Role = new AGeoSensor(iModel);
+}
+
+void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step)
+{
+    AGeoObject * obj = nullptr;
+    for (AGeoObject * o : GeoObjects)
+        if (o->Name == Object)
+        {
+            obj = o;
+            break;
+        }
+
+    if (!obj)
+    {
+        obj = AGeometryHub::getInstance().World->findObjectByName(Object);
+        if (!obj)
+        {
+            abort("Cannot find object " + Object);
+            return;
+        }
+    }
+
+    if (bins.size() != 3 || origin.size() != 3 || step.size() != 3)
+    {
+        abort("setCalorimeter parameters should be XYZ arrays (bins, origin and step)");
+        return;
+    }
+
+    std::array<double, 3> aOrigin, aStep;
+    std::array<int, 3>    aBins;
+    bool ok1, ok2, ok3;
+    for (int i = 0; i < 3; i++)
+    {
+        aBins[i]   = bins[i]  .toInt(&ok1);
+        aOrigin[i] = origin[i].toDouble(&ok2);
+        aStep[i]   = step[i]  .toDouble(&ok3);
+        if (!ok1 || !ok2 || !ok3)
+        {
+            abort("Error during convertion to numerics for parameters of the setCalorimeterer method");
+            return;
+        }
+    }
+
+    delete obj->Role; obj->Role = new AGeoCalorimeter(aOrigin, aStep, aBins);
 }
 
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)

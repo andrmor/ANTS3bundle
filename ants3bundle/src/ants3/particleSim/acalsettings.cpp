@@ -47,6 +47,42 @@ bool ACalorimeterProperties::isAxisOff(int index) const
     return (Origin[index] == -1e10 && Step[index] == 2e10 && Bins[index] == 1);
 }
 
+#ifndef JSON11
+void ACalorimeterProperties::toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const
+{
+    originRet = "[ ";
+    stepRet   = "[ ";
+    binsRet   = "[ ";
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (i != 0)
+        {
+            originRet += ", ";
+            stepRet   += ", ";
+            binsRet   += ", ";
+        }
+
+        if (useStringValues)
+        {
+            originRet += ( strOrigin[i].isEmpty() ? QString::number(Origin[i]) : strOrigin[i] );
+            stepRet   += ( strStep[i]  .isEmpty() ? QString::number(  Step[i]) : strStep[i]   );
+            binsRet   += ( strBins[i]  .isEmpty() ? QString::number(  Bins[i]) : strBins[i]   );
+        }
+        else
+        {
+            originRet += QString::number(Origin[i]);
+            stepRet   += QString::number(Step[i]);
+            binsRet   += QString::number(Bins[i]);
+        }
+    }
+
+    originRet += " ]";
+    stepRet   += " ]";
+    binsRet   += " ]";
+}
+#endif
+
 #ifdef JSON11
 void ACalorimeterProperties::writeToJson(json11::Json::object & json) const
 #else

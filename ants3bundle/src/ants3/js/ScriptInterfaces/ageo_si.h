@@ -48,8 +48,8 @@ public slots:
     void sphereSector(QString name, double Dout, double Din, double theta1, double theta2, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-
     void composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void customTGeo(QString name, QString generationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
 
     void toScaled(QString name, double xFactor, double yFactor, double zFactor);
 
@@ -60,7 +60,6 @@ public slots:
     void configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
                                   QVariant Position, QVariant Time, QVariant Angle, QVariant Energy);
 
-    void customTGeo(QString name, QString generationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
 
     void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
     void initializeStack(QString StackName, QString MemberName_StackReference);
@@ -79,7 +78,8 @@ public slots:
     void clearHosted(QString Object);
     void removeWithHosted(QString Object);
 
-    void setLightSensor(QString Object);
+    void setLightSensor(QString Object, int iModel = 0);
+    void setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
 
     void setEnabled(QString ObjectOrWildcard, bool flag);
 
