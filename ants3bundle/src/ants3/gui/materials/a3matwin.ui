@@ -2335,7 +2335,7 @@ Wavelengths shoul be given in increasing order</string>
              </size>
             </property>
             <property name="text">
-             <string>Cancel</string>
+             <string>Cancel changes</string>
             </property>
            </widget>
           </item>
