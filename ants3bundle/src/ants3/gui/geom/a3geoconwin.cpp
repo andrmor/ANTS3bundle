@@ -57,6 +57,7 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   l->setContentsMargins(0,0,0,0);
   ui->frObjectEditor->setLayout(l);
   l->addWidget(twGeo->GetEditWidget());
+
   connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &A3GeoConWin::onRebuildDetectorRequest);
   connect(twGeo, &AGeoTree::RequestFocusObject,     this, &A3GeoConWin::FocusVolume);
   connect(twGeo, &AGeoTree::RequestHighlightObject, this, &A3GeoConWin::ShowObject);
@@ -68,6 +69,8 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &A3GeoConWin::onRequestShowPrototypeList);
   // !!!***
 //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
+  connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &A3GeoConWin::onMaterialsChanged);
+
   QPalette palette = ui->frObjectEditor->palette();
   palette.setColor( backgroundRole(), QColor( 240, 240, 240 ) );
   ui->frObjectEditor->setPalette( palette );
@@ -328,6 +331,11 @@ void A3GeoConWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
 void A3GeoConWin::onRequestEnableGeoConstWidget(bool flag)
 {
     ui->tabwConstants->setEnabled(flag);
+}
+
+void A3GeoConWin::onMaterialsChanged()
+{
+    updateGui();
 }
 
 void A3GeoConWin::highlightVolume(const QString & VolName)

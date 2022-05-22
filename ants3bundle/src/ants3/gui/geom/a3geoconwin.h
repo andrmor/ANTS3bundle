@@ -81,6 +81,7 @@ public slots:
   void showAllInstances(QString name);
   void onRequestShowMonitorActiveDirection(const AGeoObject* mon);
   void onRequestEnableGeoConstWidget(bool flag);
+  void onMaterialsChanged();
 
 signals:
   void requestRebuildGeometry(); // to the parent, direct connection

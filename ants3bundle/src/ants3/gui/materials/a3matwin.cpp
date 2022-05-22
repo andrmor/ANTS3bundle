@@ -53,6 +53,8 @@ A3MatWin::A3MatWin(QWidget * parent) :
     //windowFlags |= Qt::Tool;
     this->setWindowFlags( windowFlags );
 
+    DefaultPBStyle = ui->pbAcceptChanges->styleSheet();
+
     configureG4Materials();
 
     ui->pbWasModified->setVisible(false);
@@ -83,10 +85,7 @@ void A3MatWin::setWasModified(bool flag)
     if (flagDisreguardChange) return;
 
     bMaterialWasModified = flag;
-
-    QString s = ( flag ? "<html><span style=\"color:#ff0000;\">Material was modified: Click \"Update\" or \"Add\" to save changes</span></html>"
-                       : " " );
-    ui->labMatWasModified->setText(s);
+    ui->pbAcceptChanges->setStyleSheet( flag ? "QPushButton {color: red;}" : DefaultPBStyle );
 
     updateActionButtons();
 }
@@ -108,70 +107,19 @@ void A3MatWin::updateGui()
     setWasModified(false);
 }
 
-void A3MatWin::on_pbRename_clicked()
+bool A3MatWin::checkCurrentMaterial()
 {
-    if (bMaterialWasModified)
-    {
-        guitools::message("Material properties were modified!\nUpdate, add as new or cancel changes before renaming", this);
-        return;
-    }
-
-    const QString newName = ui->leName->text();
-    int iMat = ui->cobActiveMaterials->currentIndex();
-    if (iMat < 0) return;
-
-    const QString & oldName = MatHub[iMat]->name;
-    if (newName == oldName) return;
-
-    bool ok = MatHub.renameMaterial(iMat, newName);
-    if (!ok)
-    {
-        guitools::message("There is already a material with name " + newName, this);
-        return;
-    }
-
-    AGeometryHub::getInstance().populateGeoManager();
-}
-
-void A3MatWin::on_pbUpdateMaterial_clicked()
-{
-    addNewOrUpdateMaterial();
-}
-
-void A3MatWin::on_pbAddNewMaterial_clicked()
-{
-    addNewOrUpdateMaterial();
-}
-
-void A3MatWin::addNewOrUpdateMaterial()
-{
-    qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-    if ( !parseDecayOrRaiseTime(true) )  return;  //error messaging inside
-    if ( !parseDecayOrRaiseTime(false) ) return;  //error messaging inside
+    if ( !parseDecayOrRaiseTime(true) )  return false;  //error messaging inside
+    if ( !parseDecayOrRaiseTime(false) ) return false;  //error messaging inside
 
     QString error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())
     {
         guitools::message(error, this);
-        return;
+        return false;
     }
 
-    QString name = tmpMaterial.name;
-    int index = MatHub.findMaterial(name);
-    if (index == -1)
-        index = MatHub.countMaterials(); //then it will be appended, index = current size
-    else
-    {
-        switch( QMessageBox::information( this, "", "Update properties for material "+name+"?", "Overwrite", "Cancel", 0, 1 ) )
-        {
-        case 0:  break;  //overwrite
-        default: return; //cancel
-        }
-    }
-
-    MatHub.copyToMaterials(tmpMaterial); //if absent, new material is created!
-
-    switchToMaterial(index);
+    return true;
 }
 
 void A3MatWin::switchToMaterial(int index)
@@ -190,7 +138,6 @@ void A3MatWin::switchToMaterial(int index)
     LastShownMaterial = index;
     updateTmpMaterialGui();
 
-    ui->pbRename->setText("Rename " + ui->cobActiveMaterials->currentText());
     setWasModified(false);
 }
 
@@ -672,39 +619,17 @@ void A3MatWin::on_leName_editingFinished()
     on_pbUpdateTmpMaterial_clicked();
 }
 
-void A3MatWin::on_leName_textChanged(const QString& /*name*/)
+void A3MatWin::on_leName_textChanged(const QString & /*name*/)
 {
-    //on text change -> assuming it will be another material.
-    //The following properties are recalculated anyway on accepting changes/new material
-    tmpMaterial.absWaveBinned.clear();
-    tmpMaterial.reemissionProbBinned.clear();
-    tmpMaterial.nWaveBinned.clear();
-    tmpMaterial.GeoMat = nullptr;  //do not delete! the original material has to have them
-    tmpMaterial.GeoMed = nullptr;
-    tmpMaterial.PrimarySpectrumHist = nullptr;
-    tmpMaterial.SecondarySpectrumHist = nullptr;
-
-    updateActionButtons();
+    setWasModified(true);
 }
 
 void A3MatWin::updateActionButtons()
 {
-    const QString name = ui->leName->text();
-    int iMat = MatHub.findMaterial(name);
-    if (iMat == -1)
-    {
-        // Material with this name does not exist
-        ui->pbUpdateMaterial->setEnabled(false);  //update button
-        ui->pbAddNewMaterial->setEnabled(true);
-        ui->pbRename->setEnabled(!bMaterialWasModified);
-    }
-    else
-    {
-        // Material with this name exists
-        ui->pbUpdateMaterial->setEnabled( ui->cobActiveMaterials->currentText() == name ); //update button
-        ui->pbAddNewMaterial->setEnabled(false);
-        ui->pbRename->setEnabled(false);
-    }
+    ui->pbAcceptChanges->setEnabled(bMaterialWasModified);
+
+    ui->pbAddNew->setEnabled(!bMaterialWasModified);
+    ui->pbClone->setEnabled(!bMaterialWasModified);
 }
 
 void A3MatWin::on_ledRayleighWave_editingFinished()
@@ -1182,21 +1107,11 @@ void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
 }
 */
 
-void A3MatWin::on_actionAdd_default_material_triggered()
+#include <QDesktopServices>
+void A3MatWin::on_pbListGeant4Materials_clicked()
 {
-    if (bMaterialWasModified)
-    {
-        int res = QMessageBox::question(this, "Add new material", "All unsaved changes will be lost. Continue?", QMessageBox::Yes | QMessageBox::Cancel);
-        if (res == QMessageBox::Cancel)
-            return;
-    }
-
-    MatHub.addNewMaterial("NotNamed", true);
-
-    updateGui();
-
-    int index = ui->cobActiveMaterials->count() - 1;
-    if (index > -1) switchToMaterial(index);
+    //QDesktopServices::openUrl(QUrl("file:///C:/Documents and Settings/All Users/Desktop", QUrl::TolerantMode));
+    QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
 }
 
 void A3MatWin::on_cbG4Material_toggled(bool)
@@ -1205,6 +1120,11 @@ void A3MatWin::on_cbG4Material_toggled(bool)
 }
 
 void A3MatWin::on_actionRemove_selected_material_triggered()
+{
+    on_pbRemove_clicked();
+}
+
+void A3MatWin::on_pbRemove_clicked()
 {
     int iMat = ui->cobActiveMaterials->currentIndex();
 
@@ -1215,10 +1135,90 @@ void A3MatWin::on_actionRemove_selected_material_triggered()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
-#include <QDesktopServices>
-void A3MatWin::on_pbListGeant4Materials_clicked()
+void A3MatWin::on_actionAdd_default_material_triggered()
 {
-    //QDesktopServices::openUrl(QUrl("file:///C:/Documents and Settings/All Users/Desktop", QUrl::TolerantMode));
-    QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
+    on_pbAddNew_clicked();
 }
 
+void A3MatWin::on_pbAddNew_clicked()
+{
+    if (bMaterialWasModified)
+    {
+        int res = QMessageBox::question(this, "Add new material", "All unsaved changes will be lost. Continue?", QMessageBox::Yes | QMessageBox::Cancel);
+        if (res == QMessageBox::Cancel)
+            return;
+    }
+
+    QString matName = "NoName";
+    int iCounter = 1;
+    while (MatHub.findMaterial(matName) != -1)
+        matName = QString("NoName%1").arg(iCounter++);
+
+    MatHub.addNewMaterial(matName, true);
+
+    updateGui();
+
+    int index = ui->cobActiveMaterials->count() - 1;
+    if (index > -1) switchToMaterial(index);
+}
+
+void A3MatWin::on_pbClone_clicked()
+{
+    if (bMaterialWasModified)
+    {
+        int res = QMessageBox::question(this, "Clone material", "All unsaved changes will be lost. Continue?", QMessageBox::Yes | QMessageBox::Cancel);
+        if (res == QMessageBox::Cancel) return;
+    }
+
+    QString matName = tmpMaterial.name + "_c";
+    int iCounter = 1;
+    while (MatHub.findMaterial(matName) != -1)
+        matName = QString("%0_c%1").arg(tmpMaterial.name).arg(iCounter++);
+
+    tmpMaterial.name = matName;
+    MatHub.copyToMaterials(tmpMaterial);
+
+    switchToMaterial(MatHub.countMaterials()-1);
+}
+
+void A3MatWin::on_pbAcceptChanges_clicked()
+{
+    bool ok = checkCurrentMaterial();
+    if (!ok) return;
+
+    const QString newName = ui->leName->text();
+    const int iMat = ui->cobActiveMaterials->currentIndex();
+    const QString oldName = ui->cobActiveMaterials->currentText();
+
+    tmpMaterial.name = oldName;
+    MatHub.copyToMaterials(tmpMaterial);
+
+    if (newName != oldName)
+    {
+        const int iFound = MatHub.findMaterial(newName);
+        if (iFound != -1 && iFound != iMat)
+        {
+            guitools::message("Material with this name already exists!", this);
+            return;
+        }
+
+        ok = MatHub.renameMaterial(iMat, newName);
+        if (!ok)
+        {
+            guitools::message("Unexpected error during rename procedure!", this);
+            return;
+        }
+    }
+
+    switchToMaterial(iMat);
+}
+
+void A3MatWin::on_pbCancel_clicked()
+{
+    if (bMaterialWasModified)
+    {
+        int res = QMessageBox::question(this, "Material properties", "Cancel all changes?", QMessageBox::Yes | QMessageBox::No);
+        if (res == QMessageBox::No)return;
+    }
+    switchToMaterial(ui->cobActiveMaterials->currentIndex());
+}

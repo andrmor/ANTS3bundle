@@ -58,8 +58,6 @@ private slots:
     void on_ledRayleigh_editingFinished();
     void on_pbRemoveRayleigh_clicked();
     void on_pbShowUsage_clicked();       // !!!***
-    void on_pbRename_clicked();          // !!!*** need to update GeoManager
-    void on_pbAddNewMaterial_clicked();
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
     void on_pbModifyChemicalComposition_clicked();
@@ -74,7 +72,6 @@ private slots:
     void on_pbPriT_test_clicked(); // !!!***
     void on_pbSecScintHelp_clicked();
     void on_pbModifyByWeight_clicked();
-    void on_pbUpdateMaterial_clicked();
     void on_pbListGeant4Materials_clicked();
 
     //user or code controlled change - safe or only GUI
@@ -89,12 +86,25 @@ private slots:
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
+    void on_pbRemove_clicked();
+
+    void on_pbAddNew_clicked();
+
+    void on_pbClone_clicked();
+
+    void on_pbAcceptChanges_clicked();
+
+    void on_pbCancel_clicked();
+
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
     A3Global     & GlobSet;
 
     Ui::A3MatWin * ui = nullptr;
+
+    QString DefaultPBStyle;
 
     AMaterial tmpMaterial;
 
@@ -108,7 +118,6 @@ private:
 
 private:
     void updateTmpMaterialGui();   // yield / EnRes  !!!***
-    void addNewOrUpdateMaterial();
     void switchToMaterial(int index);
     void setWasModified(bool flag);
     void updateActionButtons();
@@ -119,6 +128,7 @@ private:
     void updateG4RelatedGui();
     void configureG4Materials();
 
+    bool checkCurrentMaterial();
 signals:
     void requestShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
