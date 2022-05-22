@@ -528,5 +528,8 @@ QString AMaterial::checkMaterial() const
     if (!errInComposition.isEmpty())
         return name + ": " + errInComposition;
 
+    if (density <= 0) return name + ": Non-positive density";
+    if (temperature <= 0) return name + ": Non-positive temperature";
+
     return "";
 }

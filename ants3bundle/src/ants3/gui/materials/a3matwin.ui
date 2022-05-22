@@ -142,7 +142,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>Material properties:</string>
@@ -271,6 +271,12 @@ To use Al with termal scattering, use G4_Al_TS</string>
            </item>
            <item>
             <widget class="QLabel" name="label_12">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>10</height>
+              </size>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -422,6 +428,12 @@ To use Al with termal scattering, use G4_Al_TS</string>
            </item>
            <item>
             <widget class="QLabel" name="label_17">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>10</height>
+              </size>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -481,33 +493,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QPushButton" name="pbModifyChemicalComposition">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Change</string>
-               </property>
-               <property name="flat">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
            <item>
@@ -547,19 +532,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                </property>
                <property name="readOnly">
                 <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pbModifyByWeight">
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Change</string>
                </property>
               </widget>
              </item>

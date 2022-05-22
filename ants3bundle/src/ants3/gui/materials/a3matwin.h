@@ -60,7 +60,6 @@ private slots:
     void on_pbShowUsage_clicked();       // !!!***
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
-    void on_pbModifyChemicalComposition_clicked();
     void on_cbShowIsotopes_clicked();
     void on_pbMaterialInfo_clicked();
     void on_trwChemicalComposition_doubleClicked(const QModelIndex &index);
@@ -71,7 +70,6 @@ private slots:
     void on_pbPriThelp_clicked();
     void on_pbPriT_test_clicked(); // !!!***
     void on_pbSecScintHelp_clicked();
-    void on_pbModifyByWeight_clicked();
     void on_pbListGeant4Materials_clicked();
 
     //user or code controlled change - safe or only GUI
@@ -95,7 +93,6 @@ private slots:
     void on_pbAcceptChanges_clicked();
 
     void on_pbCancel_clicked();
-
 
 private:
     AGeometryHub & Geometry;
@@ -127,8 +124,13 @@ private:
     void updateWarningIcons();
     void updateG4RelatedGui();
     void configureG4Materials();
-
     bool checkCurrentMaterial();
+    void modifyChemicalComposition();
+    void modifyByWeight();
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
+
 signals:
     void requestShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);

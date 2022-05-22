@@ -67,6 +67,9 @@ A3MatWin::A3MatWin(QWidget * parent) :
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     connect(&MatHub, &AMaterialHub::materialsChanged, this, &A3MatWin::onMaterialsChanged);
+
+    ui->leChemicalComposition->installEventFilter(this);
+    ui->leCompositionByWeight->installEventFilter(this);
 }
 
 A3MatWin::~A3MatWin()
@@ -78,6 +81,21 @@ void A3MatWin::initWindow()
 {
     updateGui();
     switchToMaterial(0);
+}
+
+bool A3MatWin::eventFilter(QObject * object, QEvent * event)
+{
+    if(object == ui->leChemicalComposition && event->type() == QEvent::MouseButtonPress) // FocusIn
+    {
+        modifyChemicalComposition();
+        return true;
+    }
+    if(object == ui->leCompositionByWeight && event->type() == QEvent::MouseButtonPress) // FocusIn
+    {
+        modifyByWeight();
+        return true;
+    }
+    return false;
 }
 
 void A3MatWin::setWasModified(bool flag)
@@ -180,9 +198,8 @@ void A3MatWin::updateWaveButtons()
 void A3MatWin::updateG4RelatedGui()
 {
     bool bDisable = ui->cbG4Material->isChecked();
-    QVector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
-                               ui->pbModifyChemicalComposition, ui->leCompositionByWeight, ui->pbModifyByWeight,
-                               ui->trwChemicalComposition, ui->cbShowIsotopes};
+    std::vector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
+                                   ui->leCompositionByWeight, ui->trwChemicalComposition, ui->cbShowIsotopes};
     for (QWidget * w : widgs) w->setDisabled(bDisable);
 }
 
@@ -799,7 +816,7 @@ void A3MatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y,
 */
 }
 
-void A3MatWin::on_pbModifyChemicalComposition_clicked()
+void A3MatWin::modifyChemicalComposition()
 {
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (molar fractions!)");
@@ -839,7 +856,7 @@ void A3MatWin::on_pbModifyChemicalComposition_clicked()
     updateWarningIcons();
 }
 
-void A3MatWin::on_pbModifyByWeight_clicked()
+void A3MatWin::modifyByWeight()
 {
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (fractions by weight!)");
