@@ -36,7 +36,7 @@ private:
 
     Ui::MainWindow    * ui = nullptr;
 
-    AGeoTreeWin       * GeoConWin  = nullptr;
+    AGeoTreeWin       * GeoTreeWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
     AMatWin          * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;

@@ -246,6 +246,50 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
     }
 }
 
+bool drawIfFound(TGeoNode * node, const TString & name, bool same = false)
+{
+    if (node->GetName() == name)
+    {
+        TGeoVolume * vol = node->GetVolume();
+        vol->SetLineColor(2);
+        AGeometryHub::getInstance().GeoManager->SetTopVisible(true);
+        vol->Draw(same ? "same" : "");
+
+        const int totNodes = node->GetNdaughters();
+        for (int i = 0; i < totNodes; i++)
+        {
+            TGeoNode * daugtherNode = node->GetDaughter(i);
+            if ( drawIfFound(daugtherNode, daugtherNode->GetName(), true) ) return true;
+        }
+        return true;
+    }
+
+    const int totNodes = node->GetNdaughters();
+    for (int i = 0; i < totNodes; i++)
+    {
+        TGeoNode * daugtherNode = node->GetDaughter(i);
+        if ( drawIfFound(daugtherNode, name) ) return true;
+    }
+    return false;
+}
+
+void AGeometryWindow::showRecursive(QString objectName)
+{
+    ShowAndFocus();
+
+    TString tname = objectName.toLatin1().data();
+    tname += "_0";
+    bool found = drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
+    if (!found)
+    {
+        tname = objectName.toLatin1().data();
+        tname += "_1";
+        drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
+    }
+
+    UpdateRootCanvas();
+}
+
 void AGeometryWindow::PostDraw()
 {
     TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());

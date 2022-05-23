@@ -41,15 +41,16 @@ MainWindow::MainWindow() :
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
-    GeoConWin = new AGeoTreeWin(this);
-    connect(GeoConWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+    GeoTreeWin = new AGeoTreeWin(this);
+    connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
-    connect(GeoConWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
-    connect(GeoConWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,   GeoWin, &AGeometryWindow::showRecursive);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoTreeWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     GraphWin = new GraphWindowClass(this);
 
@@ -84,7 +85,7 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
-    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &AGeoTreeWin::UpdateGeoTree);
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
@@ -95,7 +96,7 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
-    connect(GeoConWin,  &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
+    connect(GeoTreeWin,  &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);
@@ -161,16 +162,16 @@ void MainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
-    GeoConWin->updateGui();
-    GeoConWin->requestClearGeoMarkers(0);
+    GeoTreeWin->updateGui();
+    GeoTreeWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbGeometry_clicked()
 {
-    GeoConWin->showNormal();
-    GeoConWin->activateWindow();
-    GeoConWin->updateGui();
+    GeoTreeWin->showNormal();
+    GeoTreeWin->activateWindow();
+    GeoTreeWin->updateGui();
 }
 
 void MainWindow::on_pbGeoWin_clicked()
@@ -334,7 +335,7 @@ void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
 
-    GeoConWin->updateGui();
+    GeoTreeWin->updateGui();
     MatWin->initWindow();
     SensWin->updateGui();
 
@@ -411,7 +412,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     QThread::msleep(110);
 
-    std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
 
     for (auto * win : wins) delete win;
@@ -421,7 +422,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 
 void MainWindow::saveWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
 
@@ -430,7 +431,7 @@ void MainWindow::saveWindowGeometries()
 
 void MainWindow::loadWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
 

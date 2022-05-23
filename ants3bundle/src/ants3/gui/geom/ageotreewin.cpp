@@ -162,48 +162,9 @@ void AGeoTreeWin::FocusVolume(QString name)
     emit requestFocusVolume(name);
 }
 
-bool drawIfFound(TGeoNode* node, TString name)
-{
-    //qDebug() << node->GetName()<<"  of  "<<node->GetVolume()->GetName();
-    if (node->GetName() == name)
-    {
-        //qDebug() << "Found!!!";
-        TGeoVolume* vol = node->GetVolume();
-        //qDebug() << vol->CountNodes();
-        vol->SetLineColor(2);
-        AGeometryHub::getInstance().GeoManager->SetTopVisible(true);
-        vol->Draw("2");
-        return true;
-    }
-
-    int totNodes = node->GetNdaughters();
-    //qDebug() << "Nodes:"<<totNodes;
-    for (int i=0; i<totNodes; i++)
-    {
-        //qDebug() << "#"<<i;
-        TGeoNode* daugtherNode = node->GetDaughter(i);
-        //qDebug() << daugtherNode;
-        if ( drawIfFound(daugtherNode, name) ) return true;
-      }
-    return false;
-}
-
 void AGeoTreeWin::ShowObjectRecursive(QString name)
 {
-    /*
-    MW->GeometryWindow->ShowAndFocus();
-
-    TString tname = name.toLatin1().data();
-    tname += "_0";
-    bool found = drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
-    if (!found)
-    {
-        tname = name.toLatin1().data();
-        tname += "_1";
-        drawIfFound(Geometry.GeoManager->GetTopNode(), tname);
-    }
-    MW->GeometryWindow->UpdateRootCanvas();
-    */
+    emit requestShowRecursive(name);
 }
 
 void AGeoTreeWin::showAllInstances(QString name)

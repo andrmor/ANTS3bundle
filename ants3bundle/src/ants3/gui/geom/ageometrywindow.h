@@ -74,6 +74,7 @@ protected:
 
 public slots:
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
+    void showRecursive(QString objectName);
     void UpdateRootCanvas();
     void ShowTracks();
     void ShowPoint(double * r, bool keepTracks = false);
