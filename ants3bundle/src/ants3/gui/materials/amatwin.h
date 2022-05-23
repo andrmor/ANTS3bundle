@@ -1,5 +1,5 @@
-#ifndef A3MATWIN_H
-#define A3MATWIN_H
+#ifndef AMATWIN_H
+#define AMATWIN_H
 
 #include "aguiwindow.h"
 #include "amaterial.h"
@@ -11,16 +11,16 @@ class AChemicalElement;
 class TObject;
 
 namespace Ui {
-class A3MatWin;
+class AMatWin;
 }
 
-class A3MatWin : public AGuiWindow
+class AMatWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit A3MatWin(QWidget * parent);
-    ~A3MatWin();
+    explicit AMatWin(QWidget * parent);
+    ~AMatWin();
 
     void initWindow();
     void updateGui();
@@ -36,7 +36,12 @@ private slots:
     void IsotopePropertiesChanged(const AChemicalElement* element, int isotopeIndexInElement);
     void onRequestDraw(const QVector<double> & x, const QVector<double> & y, const QString & titleX, const QString & titleY); // !!!***
 
-    //on user input    
+    //on user input
+    void on_pbRemove_clicked();
+    void on_pbAddNew_clicked();
+    void on_pbClone_clicked();
+    void on_pbAcceptChanges_clicked();
+    void on_pbCancel_clicked();
     void on_leName_textChanged(const QString &arg1);
     void on_leName_editingFinished();
     void on_cobActiveMaterials_activated(int index);
@@ -84,22 +89,12 @@ private slots:
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
-    void on_pbRemove_clicked();
-
-    void on_pbAddNew_clicked();
-
-    void on_pbClone_clicked();
-
-    void on_pbAcceptChanges_clicked();
-
-    void on_pbCancel_clicked();
-
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
     A3Global     & GlobSet;
 
-    Ui::A3MatWin * ui = nullptr;
+    Ui::AMatWin * ui = nullptr;
 
     QString DefaultPBStyle;
 
@@ -136,4 +131,4 @@ signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
-#endif // A3MATWIN_H
+#endif // AMATWIN_H

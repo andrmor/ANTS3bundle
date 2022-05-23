@@ -82,6 +82,7 @@ SOURCES += \
     gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -212,7 +213,6 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
-    gui/materials/a3matwin.cpp \
     gui/materials/aelementandisotopedelegates.cpp \
     gui/photsim/a3photsimwin.cpp \
     gui/raster/acameracontroldialog.cpp \
@@ -270,6 +270,7 @@ HEADERS += \
     gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ashownumbersdialog.h \
+    gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/asensordrawwidget.h \
@@ -420,7 +421,6 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
-    gui/materials/a3matwin.h \
     gui/materials/aelementandisotopedelegates.h \
     gui/photsim/a3photsimwin.h \
     gui/raster/acameracontroldialog.h \
@@ -478,7 +478,7 @@ FORMS += \
         gui/geom/amonitordelegateform.ui \
         gui/geom/ageometrywindow.ui \
         gui/mainwindow.ui \
-        gui/materials/a3matwin.ui \
+        gui/materials/amatwin.ui \
         gui/photsim/a3photsimwin.ui \
         gui/photsim/ainterfacerulewin.ui \
         gui/photsim/ainterfaceruledialog.ui \

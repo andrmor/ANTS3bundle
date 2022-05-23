@@ -9,7 +9,7 @@ class MainWindow;
 class AConfig;
 class A3GeoConWin;
 class AGeometryWindow;
-class A3MatWin;
+class AMatWin;
 class ASensorWindow;
 class A3PhotSimWin;
 class AInterfaceRuleWin;
@@ -38,7 +38,7 @@ private:
 
     A3GeoConWin       * GeoConWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
-    A3MatWin          * MatWin     = nullptr;
+    AMatWin          * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
     A3PhotSimWin      * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;

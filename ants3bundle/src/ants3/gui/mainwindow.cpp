@@ -8,7 +8,7 @@
 #include "a3geoconwin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
-#include "a3matwin.h"
+#include "amatwin.h"
 #include "asensorwindow.h"
 #include "a3photsimwin.h"
 #include "ainterfacerulewin.h"
@@ -53,10 +53,10 @@ MainWindow::MainWindow() :
 
     GraphWin = new GraphWindowClass(this);
 
-    MatWin = new A3MatWin(this);
+    MatWin = new AMatWin(this);
     MatWin->initWindow();
-    connect(MatWin, &A3MatWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
-    connect(MatWin, &A3MatWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(MatWin, &AMatWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(MatWin, &AMatWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
 

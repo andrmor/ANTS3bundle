@@ -1,5 +1,5 @@
-#include "a3matwin.h"
-#include "ui_a3matwin.h"
+#include "amatwin.h"
+#include "ui_amatwin.h"
 #include "mainwindow.h"
 #include "amaterialhub.h"
 #include "ageometryhub.h"
@@ -37,12 +37,12 @@
 #include "TAttLine.h"
 #include "TAttMarker.h"
 
-A3MatWin::A3MatWin(QWidget * parent) :
+AMatWin::AMatWin(QWidget * parent) :
     AGuiWindow("Mat", parent),
     Geometry(AGeometryHub::getInstance()),
     MatHub(AMaterialHub::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ui(new Ui::A3MatWin)
+    ui(new Ui::AMatWin)
 {
     ui->setupUi(this);
 
@@ -66,24 +66,24 @@ A3MatWin::A3MatWin(QWidget * parent) :
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
-    connect(&MatHub, &AMaterialHub::materialsChanged, this, &A3MatWin::onMaterialsChanged);
+    connect(&MatHub, &AMaterialHub::materialsChanged, this, &AMatWin::onMaterialsChanged);
 
     ui->leChemicalComposition->installEventFilter(this);
     ui->leCompositionByWeight->installEventFilter(this);
 }
 
-A3MatWin::~A3MatWin()
+AMatWin::~AMatWin()
 {
     delete ui;
 }
 
-void A3MatWin::initWindow()
+void AMatWin::initWindow()
 {
     updateGui();
     switchToMaterial(0);
 }
 
-bool A3MatWin::eventFilter(QObject * object, QEvent * event)
+bool AMatWin::eventFilter(QObject * object, QEvent * event)
 {
     if(object == ui->leChemicalComposition && event->type() == QEvent::MouseButtonPress) // FocusIn
     {
@@ -98,7 +98,7 @@ bool A3MatWin::eventFilter(QObject * object, QEvent * event)
     return false;
 }
 
-void A3MatWin::setWasModified(bool flag)
+void AMatWin::setWasModified(bool flag)
 {
     if (flagDisreguardChange) return;
 
@@ -108,7 +108,7 @@ void A3MatWin::setWasModified(bool flag)
     updateActionButtons();
 }
 
-void A3MatWin::updateGui()
+void AMatWin::updateGui()
 {   
     if (bLockTmpMaterial) return;
 
@@ -125,7 +125,7 @@ void A3MatWin::updateGui()
     setWasModified(false);
 }
 
-bool A3MatWin::checkCurrentMaterial()
+bool AMatWin::checkCurrentMaterial()
 {
     if ( !parseDecayOrRaiseTime(true) )  return false;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return false;  //error messaging inside
@@ -140,7 +140,7 @@ bool A3MatWin::checkCurrentMaterial()
     return true;
 }
 
-void A3MatWin::switchToMaterial(int index)
+void AMatWin::switchToMaterial(int index)
 {
     if (index == -1)
     {
@@ -159,7 +159,7 @@ void A3MatWin::switchToMaterial(int index)
     setWasModified(false);
 }
 
-void A3MatWin::on_cobActiveMaterials_activated(int index)
+void AMatWin::on_cobActiveMaterials_activated(int index)
 {
     if (bMaterialWasModified)
     {
@@ -173,7 +173,7 @@ void A3MatWin::on_cobActiveMaterials_activated(int index)
     switchToMaterial(index);
 }
 
-void A3MatWin::updateWaveButtons()
+void AMatWin::updateWaveButtons()
 {   
     bool bPrimSpec = (tmpMaterial.PrimarySpectrum_lambda.size() > 0);
     ui->pbShowPrimSpectrum->setEnabled(bPrimSpec);
@@ -195,7 +195,7 @@ void A3MatWin::updateWaveButtons()
     ui->pbDeleteReemisProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
 }
 
-void A3MatWin::updateG4RelatedGui()
+void AMatWin::updateG4RelatedGui()
 {
     bool bDisable = ui->cbG4Material->isChecked();
     std::vector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
@@ -205,7 +205,7 @@ void A3MatWin::updateG4RelatedGui()
 
 #include <QCompleter>
 #include <QStringListModel>
-void A3MatWin::configureG4Materials()
+void AMatWin::configureG4Materials()
 {
     const QStringList mats{"G4_A-150_TISSUE", "G4_ACETONE", "G4_ACETYLENE", "G4_ADENINE", "G4_ADIPOSE_TISSUE_ICRP", "G4_AIR", "G4_ALANINE", "G4_ALUMINUM_OXIDE",
                            "G4_AMBER", "G4_AMMONIA", "G4_ANILINE", "G4_ANTHRACENE", "G4_B-100_BONE", "G4_BAKELITE", "G4_BARIUM_FLUORIDE", "G4_BARIUM_SULFATE",
@@ -254,7 +254,7 @@ void A3MatWin::configureG4Materials()
     ui->leG4Material->setCompleter(Completer);
 }
 
-void A3MatWin::updateTmpMaterialGui()
+void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.name);
 
@@ -339,7 +339,7 @@ void A3MatWin::updateTmpMaterialGui()
     updateWarningIcons();
 }
 
-void A3MatWin::updateWarningIcons()
+void AMatWin::updateWarningIcons()
 {
     if (tmpMaterial.ChemicalComposition.countElements() == 0)
     {
@@ -353,7 +353,7 @@ void A3MatWin::updateWarningIcons()
     else ui->twProperties->setTabIcon(0, QIcon());
 }
 
-void A3MatWin::on_pbUpdateTmpMaterial_clicked()
+void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.name = ui->leName->text();
     tmpMaterial.density = ui->ledDensity->text().toDouble();
@@ -384,17 +384,17 @@ void A3MatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.G4NistMaterial = ui->leG4Material->text();
 }
 
-void A3MatWin::setMaterial(int index)
+void AMatWin::setMaterial(int index)
 {
     switchToMaterial(index);
 }
 
-void A3MatWin::onMaterialsChanged()
+void AMatWin::onMaterialsChanged()
 {
     updateGui();
 }
 
-void A3MatWin::on_ledIntEnergyRes_editingFinished()
+void AMatWin::on_ledIntEnergyRes_editingFinished()
 {
     double newVal = ui->ledIntEnergyRes->text().toDouble();
     if (newVal < 0)
@@ -408,7 +408,7 @@ void A3MatWin::on_ledIntEnergyRes_editingFinished()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbLoadPrimSpectrum_clicked()
+void AMatWin::on_pbLoadPrimSpectrum_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load primary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -427,7 +427,7 @@ void A3MatWin::on_pbLoadPrimSpectrum_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowPrimSpectrum_clicked()
+void AMatWin::on_pbShowPrimSpectrum_clicked()
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
@@ -439,7 +439,7 @@ void A3MatWin::on_pbShowPrimSpectrum_clicked()
 */
 }
 
-void A3MatWin::on_pbDeletePrimSpectrum_clicked()
+void AMatWin::on_pbDeletePrimSpectrum_clicked()
 {
     tmpMaterial.PrimarySpectrum_lambda.clear();
     tmpMaterial.PrimarySpectrum.clear();
@@ -449,7 +449,7 @@ void A3MatWin::on_pbDeletePrimSpectrum_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbLoadSecSpectrum_clicked()
+void AMatWin::on_pbLoadSecSpectrum_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load secondary scintillation spectrum", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -468,7 +468,7 @@ void A3MatWin::on_pbLoadSecSpectrum_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowSecSpectrum_clicked()
+void AMatWin::on_pbShowSecSpectrum_clicked()
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
@@ -480,7 +480,7 @@ void A3MatWin::on_pbShowSecSpectrum_clicked()
 */
 }
 
-void A3MatWin::on_pbDeleteSecSpectrum_clicked()
+void AMatWin::on_pbDeleteSecSpectrum_clicked()
 {
     tmpMaterial.SecondarySpectrum_lambda.clear();
     tmpMaterial.SecondarySpectrum.clear();
@@ -490,7 +490,7 @@ void A3MatWin::on_pbDeleteSecSpectrum_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbLoadNlambda_clicked()
+void AMatWin::on_pbLoadNlambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load refractive index data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -509,7 +509,7 @@ void A3MatWin::on_pbLoadNlambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowNlambda_clicked()
+void AMatWin::on_pbShowNlambda_clicked()
 {
     TGraph * g = AGraphBuilder::graph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
     AGraphBuilder::configure(g, "Refractive index",
@@ -519,7 +519,7 @@ void A3MatWin::on_pbShowNlambda_clicked()
     emit requestDraw(g, "APL", true, true);
 }
 
-void A3MatWin::on_pbDeleteNlambda_clicked()
+void AMatWin::on_pbDeleteNlambda_clicked()
 {
     tmpMaterial.nWave_lambda.clear();
     tmpMaterial.nWave.clear();
@@ -530,7 +530,7 @@ void A3MatWin::on_pbDeleteNlambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbLoadABSlambda_clicked()
+void AMatWin::on_pbLoadABSlambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load exponential bulk absorption data", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -549,7 +549,7 @@ void A3MatWin::on_pbLoadABSlambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowABSlambda_clicked()
+void AMatWin::on_pbShowABSlambda_clicked()
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
@@ -561,7 +561,7 @@ void A3MatWin::on_pbShowABSlambda_clicked()
 */
 }
 
-void A3MatWin::on_pbDeleteABSlambda_clicked()
+void AMatWin::on_pbDeleteABSlambda_clicked()
 {
     tmpMaterial.absWave_lambda.clear();
     tmpMaterial.absWave.clear();
@@ -571,7 +571,7 @@ void A3MatWin::on_pbDeleteABSlambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowReemProbLambda_clicked()
+void AMatWin::on_pbShowReemProbLambda_clicked()
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
@@ -583,7 +583,7 @@ void A3MatWin::on_pbShowReemProbLambda_clicked()
 */
 }
 
-void A3MatWin::on_pbLoadReemisProbLambda_clicked()
+void AMatWin::on_pbLoadReemisProbLambda_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load reemission probability vs wavelength", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -602,7 +602,7 @@ void A3MatWin::on_pbLoadReemisProbLambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbDeleteReemisProbLambda_clicked()
+void AMatWin::on_pbDeleteReemisProbLambda_clicked()
 {
     tmpMaterial.reemisProbWave_lambda.clear();
     tmpMaterial.reemisProbWave.clear();
@@ -612,12 +612,12 @@ void A3MatWin::on_pbDeleteReemisProbLambda_clicked()
     setWasModified(true);
 }
 
-void A3MatWin::on_pbWasModified_clicked()
+void AMatWin::on_pbWasModified_clicked()
 {
     setWasModified(true);
 }
 
-void A3MatWin::on_leName_editingFinished()
+void AMatWin::on_leName_editingFinished()
 {
     QString name = ui->leName->text();
     name.replace("+","_");
@@ -636,20 +636,21 @@ void A3MatWin::on_leName_editingFinished()
     on_pbUpdateTmpMaterial_clicked();
 }
 
-void A3MatWin::on_leName_textChanged(const QString & /*name*/)
+void AMatWin::on_leName_textChanged(const QString & /*name*/)
 {
     setWasModified(true);
 }
 
-void A3MatWin::updateActionButtons()
+void AMatWin::updateActionButtons()
 {
-    ui->pbAcceptChanges->setEnabled(bMaterialWasModified);
+    //ui->pbAcceptChanges->setEnabled(bMaterialWasModified);
+    ui->frAcceptCancel->setEnabled(bMaterialWasModified);
 
     ui->pbAddNew->setEnabled(!bMaterialWasModified);
     ui->pbClone->setEnabled(!bMaterialWasModified);
 }
 
-void A3MatWin::on_ledRayleighWave_editingFinished()
+void AMatWin::on_ledRayleighWave_editingFinished()
 {
     double wave = ui->ledRayleighWave->text().toDouble();
     if (wave <= 0)
@@ -662,13 +663,13 @@ void A3MatWin::on_ledRayleighWave_editingFinished()
     tmpMaterial.rayleighWave = wave;
 }
 
-void A3MatWin::on_ledRayleigh_textChanged(const QString &arg1)
+void AMatWin::on_ledRayleigh_textChanged(const QString &arg1)
 {
     if (arg1 == "") ui->ledRayleighWave->setEnabled(false);
     else ui->ledRayleighWave->setEnabled(true);
 }
 
-void A3MatWin::on_ledRayleigh_editingFinished()
+void AMatWin::on_ledRayleigh_editingFinished()
 {
     double ray;
     if (ui->ledRayleigh->text() == "") ray = 0;
@@ -676,14 +677,14 @@ void A3MatWin::on_ledRayleigh_editingFinished()
     tmpMaterial.rayleighMFP = ray;
 }
 
-void A3MatWin::on_pbRemoveRayleigh_clicked()
+void AMatWin::on_pbRemoveRayleigh_clicked()
 {
     ui->ledRayleigh->setText("");
     tmpMaterial.rayleighMFP = 0;
     setWasModified(true);
 }
 
-void A3MatWin::on_pbShowUsage_clicked()
+void AMatWin::on_pbShowUsage_clicked()
 {
     QString name = tmpMaterial.name;
     int index = ui->cobActiveMaterials->currentIndex();
@@ -715,7 +716,7 @@ void A3MatWin::on_pbShowUsage_clicked()
     }
 }
 
-void A3MatWin::on_actionSave_material_triggered()
+void AMatWin::on_actionSave_material_triggered()
 {
     //checkig this material
     QString error = tmpMaterial.checkMaterial();
@@ -742,7 +743,7 @@ void A3MatWin::on_actionSave_material_triggered()
     if (!bOK) guitools::message("Failed to save json to file: "+fileName, this);
 }
 
-void A3MatWin::on_actionLoad_material_triggered()
+void AMatWin::on_actionLoad_material_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load material", GlobSet.LastLoadDir, "Material files (*mat *.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -775,7 +776,7 @@ tmpMaterial.readFromJson(js);
     updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
-void A3MatWin::onAddIsotope(AChemicalElement *element)
+void AMatWin::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
@@ -784,7 +785,7 @@ void A3MatWin::onAddIsotope(AChemicalElement *element)
     setWasModified(true);
 }
 
-void A3MatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
+void AMatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
 {
     if (element->Isotopes.size()<2)
     {
@@ -799,7 +800,7 @@ void A3MatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElem
     setWasModified(true);
 }
 
-void A3MatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
+void AMatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
 {
     tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
 
@@ -807,7 +808,7 @@ void A3MatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, in
     setWasModified(true);
 }
 
-void A3MatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
+void AMatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
 {
     /*
     TGraph * g = MW->GraphWindow->ConstructTGraph(x, y, "", titleX, titleY, 4, 20, 1, 4, 1, 2);
@@ -816,7 +817,7 @@ void A3MatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y,
 */
 }
 
-void A3MatWin::modifyChemicalComposition()
+void AMatWin::modifyChemicalComposition()
 {
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (molar fractions!)");
@@ -856,7 +857,7 @@ void A3MatWin::modifyChemicalComposition()
     updateWarningIcons();
 }
 
-void A3MatWin::modifyByWeight()
+void AMatWin::modifyByWeight()
 {
     QDialog* d = new QDialog(this);
     d->setWindowTitle("Enter element composition (fractions by weight!)");
@@ -898,7 +899,7 @@ void A3MatWin::modifyByWeight()
     updateWarningIcons();
 }
 
-void A3MatWin::ShowTreeWithChemicalComposition()
+void AMatWin::ShowTreeWithChemicalComposition()
 {
     bClearInProgress = true;
     ui->trwChemicalComposition->clear();
@@ -915,7 +916,7 @@ void A3MatWin::ShowTreeWithChemicalComposition()
         QTreeWidgetItem* ElItem = new QTreeWidgetItem(ui->trwChemicalComposition);
         ui->trwChemicalComposition->setItemWidget(ElItem, 0, elDel);
         ElItem->setExpanded(bShowIsotopes);
-        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &A3MatWin::onAddIsotope, Qt::QueuedConnection);
+        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &AMatWin::onAddIsotope, Qt::QueuedConnection);
 
         if (bShowIsotopes)
             for (int index = 0; index <el->Isotopes.size(); index++)
@@ -924,13 +925,13 @@ void A3MatWin::ShowTreeWithChemicalComposition()
                 QTreeWidgetItem* twi = new QTreeWidgetItem();
                 ElItem->addChild(twi);
                 ui->trwChemicalComposition->setItemWidget(twi, 0, isotopDel);
-                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &A3MatWin::onRemoveIsotope, Qt::QueuedConnection);
-                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &A3MatWin::IsotopePropertiesChanged, Qt::QueuedConnection);
+                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &AMatWin::onRemoveIsotope, Qt::QueuedConnection);
+                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &AMatWin::IsotopePropertiesChanged, Qt::QueuedConnection);
             }
     }
 }
 
-void A3MatWin::on_cbShowIsotopes_clicked()
+void AMatWin::on_cbShowIsotopes_clicked()
 {
     ShowTreeWithChemicalComposition();
 }
@@ -952,7 +953,7 @@ void flagButton(QPushButton* pb, bool flag)
     pb->setStyleSheet(s);
 }
 
-void A3MatWin::on_pbMaterialInfo_clicked()
+void AMatWin::on_pbMaterialInfo_clicked()
 {
     if (ui->leChemicalComposition->text().isEmpty())
     {
@@ -967,7 +968,7 @@ void A3MatWin::on_pbMaterialInfo_clicked()
     guitools::message(str, this);
 }
 
-void A3MatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
+void AMatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
 {
     if (!ui->cbShowIsotopes->isChecked())
     {
@@ -976,19 +977,19 @@ void A3MatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*ind
     }
 }
 
-void A3MatWin::on_lePriT_editingFinished()
+void AMatWin::on_lePriT_editingFinished()
 {
     if (bMessageLock) return;
     parseDecayOrRaiseTime(true);
 }
 
-void A3MatWin::on_lePriT_raise_editingFinished()
+void AMatWin::on_lePriT_raise_editingFinished()
 {
     if (bMessageLock) return;
     parseDecayOrRaiseTime(false);
 }
 
-bool A3MatWin::parseDecayOrRaiseTime(bool doParseDecay)
+bool AMatWin::parseDecayOrRaiseTime(bool doParseDecay)
 {
     QString s = ( doParseDecay ? ui->lePriT->text() : ui->lePriT_raise->text() );
     s = s.simplified();
@@ -1044,7 +1045,7 @@ bool A3MatWin::parseDecayOrRaiseTime(bool doParseDecay)
     return !bErrorDetected;
 }
 
-void A3MatWin::on_pbPriThelp_clicked()
+void AMatWin::on_pbPriThelp_clicked()
 {
     QString s = "The following is for both the decay and rise time generation:\n\n"
             "  If there is only one exponential component,"
@@ -1060,7 +1061,7 @@ void A3MatWin::on_pbPriThelp_clicked()
     guitools::message(s, this);
 }
 
-void A3MatWin::on_pbPriT_test_clicked()
+void AMatWin::on_pbPriT_test_clicked()
 {
     /*
     tmpMaterial.updateRuntimeProperties(); //to update sum of stat weights
@@ -1077,7 +1078,7 @@ void A3MatWin::on_pbPriT_test_clicked()
 */
 }
 
-void A3MatWin::on_pbSecScintHelp_clicked()
+void AMatWin::on_pbSecScintHelp_clicked()
 {
     QString s = "Diffusion is NOT active in \"Only photons\" simulation mode!\n"
             "\n"
@@ -1088,7 +1089,7 @@ void A3MatWin::on_pbSecScintHelp_clicked()
     guitools::message(s, this);
 }
 
-void A3MatWin::on_pteComments_textChanged()
+void AMatWin::on_pteComments_textChanged()
 {
     if (!flagDisreguardChange) setWasModified(true);
 }
@@ -1125,23 +1126,23 @@ void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
 */
 
 #include <QDesktopServices>
-void A3MatWin::on_pbListGeant4Materials_clicked()
+void AMatWin::on_pbListGeant4Materials_clicked()
 {
     //QDesktopServices::openUrl(QUrl("file:///C:/Documents and Settings/All Users/Desktop", QUrl::TolerantMode));
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
 }
 
-void A3MatWin::on_cbG4Material_toggled(bool)
+void AMatWin::on_cbG4Material_toggled(bool)
 {
     updateG4RelatedGui();
 }
 
-void A3MatWin::on_actionRemove_selected_material_triggered()
+void AMatWin::on_actionRemove_selected_material_triggered()
 {
     on_pbRemove_clicked();
 }
 
-void A3MatWin::on_pbRemove_clicked()
+void AMatWin::on_pbRemove_clicked()
 {
     int iMat = ui->cobActiveMaterials->currentIndex();
 
@@ -1152,12 +1153,12 @@ void A3MatWin::on_pbRemove_clicked()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
-void A3MatWin::on_actionAdd_default_material_triggered()
+void AMatWin::on_actionAdd_default_material_triggered()
 {
     on_pbAddNew_clicked();
 }
 
-void A3MatWin::on_pbAddNew_clicked()
+void AMatWin::on_pbAddNew_clicked()
 {
     if (bMaterialWasModified)
     {
@@ -1179,7 +1180,7 @@ void A3MatWin::on_pbAddNew_clicked()
     if (index > -1) switchToMaterial(index);
 }
 
-void A3MatWin::on_pbClone_clicked()
+void AMatWin::on_pbClone_clicked()
 {
     if (bMaterialWasModified)
     {
@@ -1198,7 +1199,7 @@ void A3MatWin::on_pbClone_clicked()
     switchToMaterial(MatHub.countMaterials()-1);
 }
 
-void A3MatWin::on_pbAcceptChanges_clicked()
+void AMatWin::on_pbAcceptChanges_clicked()
 {
     bool ok = checkCurrentMaterial();
     if (!ok) return;
@@ -1230,7 +1231,7 @@ void A3MatWin::on_pbAcceptChanges_clicked()
     switchToMaterial(iMat);
 }
 
-void A3MatWin::on_pbCancel_clicked()
+void AMatWin::on_pbCancel_clicked()
 {
     if (bMaterialWasModified)
     {
