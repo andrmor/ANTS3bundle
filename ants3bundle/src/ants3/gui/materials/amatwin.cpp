@@ -1151,6 +1151,7 @@ void AMatWin::on_pbRemove_clicked()
 
     QString err = MatHub.tryRemoveMaterial(iMat);
     if (!err.isEmpty()) guitools::message(err, this);
+    else emit requestRebuildDetector();
 }
 
 void AMatWin::on_actionAdd_default_material_triggered()
@@ -1174,6 +1175,7 @@ void AMatWin::on_pbAddNew_clicked()
 
     MatHub.addNewMaterial(matName, true);
 
+    emit requestRebuildDetector();
     updateGui();
 
     int index = ui->cobActiveMaterials->count() - 1;
@@ -1195,6 +1197,8 @@ void AMatWin::on_pbClone_clicked()
 
     tmpMaterial.name = matName;
     MatHub.copyToMaterials(tmpMaterial);
+
+    emit requestRebuildDetector();
 
     switchToMaterial(MatHub.countMaterials()-1);
 }
@@ -1227,6 +1231,8 @@ void AMatWin::on_pbAcceptChanges_clicked()
             return;
         }
     }
+
+    emit requestRebuildDetector();
 
     switchToMaterial(iMat);
 }

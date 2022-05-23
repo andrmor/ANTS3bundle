@@ -3,7 +3,6 @@
 
 #include "amaterial.h"
 
-#include <QVector>
 #include <QString>
 #include <QObject>
 #include <QStringList>

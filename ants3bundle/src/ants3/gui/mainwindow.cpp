@@ -55,8 +55,9 @@ MainWindow::MainWindow() :
 
     MatWin = new AMatWin(this);
     MatWin->initWindow();
-    connect(MatWin, &AMatWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
-    connect(MatWin, &AMatWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(MatWin, &AMatWin::requestRebuildDetector, this,     &MainWindow::onRebuildGeometryRequested);
+    connect(MatWin, &AMatWin::requestShowGeometry,    GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
 

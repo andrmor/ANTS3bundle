@@ -127,6 +127,7 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
+    void requestRebuildDetector();
     void requestShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
