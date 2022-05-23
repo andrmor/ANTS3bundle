@@ -1,5 +1,5 @@
-#ifndef A3GEOCONWIN_H
-#define A3GEOCONWIN_H
+#ifndef AGEOTREEWIN_H
+#define AGEOTREEWIN_H
 
 #include "aguiwindow.h"
 
@@ -14,16 +14,16 @@ class AGeoTree;
 class AGeoObject;
 
 namespace Ui {
-  class A3GeoConWin;
+  class AGeoTreeWin;
 }
 
-class A3GeoConWin : public AGuiWindow
+class AGeoTreeWin : public AGuiWindow
 {
   Q_OBJECT
   
 public:
-  explicit A3GeoConWin(QWidget * parent);
-  ~A3GeoConWin();
+  explicit AGeoTreeWin(QWidget * parent);
+  ~AGeoTreeWin();
 
   void updateGui();
 
@@ -57,7 +57,7 @@ private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
 
-  Ui::A3GeoConWin * ui    = nullptr;
+  Ui::AGeoTreeWin * ui    = nullptr;
   AGeoTree        * twGeo = nullptr;                // WorldTree widget
 
   bool bGeoConstsWidgetUpdateInProgress = false;
@@ -96,4 +96,4 @@ signals:
 
 };
 
-#endif // A3GEOCONWIN_H
+#endif // AGEOTREEWIN_H

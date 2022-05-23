@@ -81,6 +81,7 @@ SOURCES += \
     gui/aguiwindow.cpp \
     gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
@@ -201,7 +202,6 @@ SOURCES += \
     geo/ageoconsts.cpp \
     geo/amonitor.cpp \
     gui/arootlineconfigurator.cpp \
-    gui/geom/a3geoconwin.cpp \
     gui/geom/ageobasedelegate.cpp \
     gui/geom/ageobasetreewidget.cpp \
     gui/geom/ageodelegatewidget.cpp \
@@ -269,6 +269,7 @@ HEADERS += \
     gui/aguiwindow.h \
     gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
+    gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
     gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
@@ -408,7 +409,6 @@ HEADERS += \
     geo/ageoconsts.h \
     geo/amonitor.h \
     gui/arootlineconfigurator.h \
-    gui/geom/a3geoconwin.h \
     gui/geom/ageobasedelegate.h \
     gui/geom/ageobasetreewidget.h \
     gui/geom/ageodelegatewidget.h \
@@ -473,7 +473,7 @@ FORMS += \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
         gui/photsim/abombadvanceddialog.ui \
-        gui/geom/a3geoconwin.ui \
+        gui/geom/ageotreewin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
         gui/geom/ageometrywindow.ui \

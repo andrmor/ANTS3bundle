@@ -1,5 +1,5 @@
-#include "a3geoconwin.h"
-#include "ui_a3geoconwin.h"
+#include "ageotreewin.h"
+#include "ui_ageotreewin.h"
 #include "ageometryhub.h"
 #include "ageoconsts.h"
 #include "amaterialhub.h"
@@ -36,18 +36,18 @@
 #include "TGeoBoolNode.h"
 #include "TGeoCompositeShape.h"
 
-A3GeoConWin::A3GeoConWin(QWidget * parent) :
-  AGuiWindow("GeoCon", parent),
+AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
+  AGuiWindow("GeoTree", parent),
   Geometry(AGeometryHub::getInstance()),
   MaterialHub(AMaterialHub::getConstInstance()),
-  ui(new Ui::A3GeoConWin)
+  ui(new Ui::AGeoTreeWin)
 {
   ui->setupUi(this);
 
   // world tree widget
   twGeo = new AGeoTree();
   ui->saGeo->setWidget(twGeo->twGeoTree);
-  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &A3GeoConWin::onRequestShowMonitorActiveDirection);
+  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &AGeoTreeWin::onRequestShowMonitorActiveDirection);
 
   // prototype tree widget
   ui->saPrototypes->setWidget(twGeo->twPrototypes);
@@ -58,25 +58,25 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   ui->frObjectEditor->setLayout(l);
   l->addWidget(twGeo->GetEditWidget());
 
-  connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &A3GeoConWin::onRebuildDetectorRequest);
-  connect(twGeo, &AGeoTree::RequestFocusObject,     this, &A3GeoConWin::FocusVolume);
-  connect(twGeo, &AGeoTree::RequestHighlightObject, this, &A3GeoConWin::ShowObject);
-  connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &A3GeoConWin::ShowObjectRecursive);
-  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &A3GeoConWin::showAllInstances);
-  connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &A3GeoConWin::onRequestEnableGeoConstWidget);
+  connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &AGeoTreeWin::onRebuildDetectorRequest);
+  connect(twGeo, &AGeoTree::RequestFocusObject,     this, &AGeoTreeWin::FocusVolume);
+  connect(twGeo, &AGeoTree::RequestHighlightObject, this, &AGeoTreeWin::ShowObject);
+  connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &AGeoTreeWin::ShowObjectRecursive);
+  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &AGeoTreeWin::showAllInstances);
+  connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &AGeoTreeWin::onRequestEnableGeoConstWidget);
   // !!!***
 //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
-  connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &A3GeoConWin::onRequestShowPrototypeList);
+  connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &AGeoTreeWin::onRequestShowPrototypeList);
   // !!!***
 //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
-  connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &A3GeoConWin::onMaterialsChanged);
+  connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &AGeoTreeWin::onMaterialsChanged);
 
   QPalette palette = ui->frObjectEditor->palette();
   palette.setColor( backgroundRole(), QColor( 240, 240, 240 ) );
   ui->frObjectEditor->setPalette( palette );
   ui->frObjectEditor->setAutoFillBackground( true );
 
-  connect(this, &A3GeoConWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
+  connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
 
   QPalette p = ui->pteTP->palette();
   p.setColor(QPalette::Active, QPalette::Base, QColor(220,220,220));
@@ -96,16 +96,16 @@ A3GeoConWin::A3GeoConWin(QWidget * parent) :
   //if (!MW->PythonScriptWindow) ui->actionTo_Python->setEnabled(false);
   ui->saPrototypes->setVisible(false);
 
-  connect(ui->menuUndo_redo, &QMenu::aboutToShow, this, &A3GeoConWin::updateMenuIndication);
+  connect(ui->menuUndo_redo, &QMenu::aboutToShow, this, &AGeoTreeWin::updateMenuIndication);
 }
 
-A3GeoConWin::~A3GeoConWin()
+AGeoTreeWin::~AGeoTreeWin()
 {
     delete ui; ui = nullptr;
 }
 
 #include "aerrorhub.h"
-void A3GeoConWin::onRebuildDetectorRequest()
+void AGeoTreeWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
 
@@ -125,7 +125,7 @@ void A3GeoConWin::onRebuildDetectorRequest()
     }
 }
 
-void A3GeoConWin::updateGui()
+void AGeoTreeWin::updateGui()
 {
     //qDebug() << ">DAwindow: updateGui";
     UpdateGeoTree();
@@ -137,7 +137,7 @@ void A3GeoConWin::updateGui()
     QFont font = ui->cbShowPrototypes->font(); font.setBold(numProto > 0); ui->cbShowPrototypes->setFont(font);
 }
 
-void A3GeoConWin::UpdateGeoTree(QString name, bool bShow)
+void AGeoTreeWin::UpdateGeoTree(QString name, bool bShow)
 {
     twGeo->UpdateGui(name);
     updateGeoConstsIndication();
@@ -150,14 +150,14 @@ void A3GeoConWin::UpdateGeoTree(QString name, bool bShow)
     }
 }
 
-void A3GeoConWin::ShowObject(QString name)
+void AGeoTreeWin::ShowObject(QString name)
 {
     highlightVolume(name);
     Geometry.GeoManager->ClearTracks();
     emit requestShowGeometry(true, false, false);
 }
 
-void A3GeoConWin::FocusVolume(QString name)
+void AGeoTreeWin::FocusVolume(QString name)
 {
     emit requestFocusVolume(name);
 }
@@ -188,7 +188,7 @@ bool drawIfFound(TGeoNode* node, TString name)
     return false;
 }
 
-void A3GeoConWin::ShowObjectRecursive(QString name)
+void AGeoTreeWin::ShowObjectRecursive(QString name)
 {
     /*
     MW->GeometryWindow->ShowAndFocus();
@@ -206,7 +206,7 @@ void A3GeoConWin::ShowObjectRecursive(QString name)
     */
 }
 
-void A3GeoConWin::showAllInstances(QString name)
+void AGeoTreeWin::showAllInstances(QString name)
 {
     std::vector<AGeoObject*> InstancesNotDiscriminated;
     Geometry.World->findAllInstancesRecursive(InstancesNotDiscriminated);
@@ -251,7 +251,7 @@ void A3GeoConWin::showAllInstances(QString name)
 
 #include "amonitorhub.h"
 #include "amonitor.h"
-void A3GeoConWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
+void AGeoTreeWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
 {
     const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
     std::vector<const AMonitorData*> Mons = MonitorHub.getMonitors(mon);
@@ -328,17 +328,17 @@ void A3GeoConWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
     emit requestShowTracks();
 }
 
-void A3GeoConWin::onRequestEnableGeoConstWidget(bool flag)
+void AGeoTreeWin::onRequestEnableGeoConstWidget(bool flag)
 {
     ui->tabwConstants->setEnabled(flag);
 }
 
-void A3GeoConWin::onMaterialsChanged()
+void AGeoTreeWin::onMaterialsChanged()
 {
     updateGui();
 }
 
-void A3GeoConWin::highlightVolume(const QString & VolName)
+void AGeoTreeWin::highlightVolume(const QString & VolName)
 {
     AGeoObject * obj = Geometry.World->findObjectByName(VolName);
     if (!obj) return;
@@ -379,7 +379,7 @@ void A3GeoConWin::highlightVolume(const QString & VolName)
 
 #include "acalorimeterhub.h"
 #include "acalorimeter.h"
-void A3GeoConWin::markCalorimeterBinning(const AGeoObject * obj)
+void AGeoTreeWin::markCalorimeterBinning(const AGeoObject * obj)
 {
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
     std::vector<const ACalorimeterData *> calVec = CalHub.getCalorimeters(obj);
@@ -747,7 +747,7 @@ void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
     }    
 }
 
-void A3GeoConWin::resizeEvent(QResizeEvent *event)
+void AGeoTreeWin::resizeEvent(QResizeEvent *event)
 {
     if (!isVisible()) return;
 
@@ -769,12 +769,12 @@ void A3GeoConWin::resizeEvent(QResizeEvent *event)
     QMainWindow::resizeEvent(event);
 }
 
-void A3GeoConWin::on_pbRootWeb_clicked()
+void AGeoTreeWin::on_pbRootWeb_clicked()
 {
   QDesktopServices::openUrl( QUrl("http://gdml.web.cern.ch/GDML/doc/GDMLmanual.pdf") );
 }
 
-void A3GeoConWin::on_pbCheckGeometry_clicked()
+void AGeoTreeWin::on_pbCheckGeometry_clicked()
 {
     int overlapCount = Geometry.checkGeometryForConflicts();
     if (overlapCount == 0)
@@ -785,7 +785,7 @@ void A3GeoConWin::on_pbCheckGeometry_clicked()
     reportGeometryConflicts();
 }
 
-void A3GeoConWin::reportGeometryConflicts()
+void AGeoTreeWin::reportGeometryConflicts()
 {
     TObjArray * overlaps = Geometry.GeoManager->GetListOfOverlaps();
     const int overlapCount = overlaps->GetEntries();
@@ -795,12 +795,12 @@ void A3GeoConWin::reportGeometryConflicts()
     guitools::message1(text, "Detected conflicts:", this);
 }
 
-void A3GeoConWin::on_cbAutoCheck_clicked(bool checked)
+void AGeoTreeWin::on_cbAutoCheck_clicked(bool checked)
 {
     A3Global::getInstance().AutoCheckGeometry = checked;
 }
 
-void A3GeoConWin::on_pbRunTestParticle_clicked()
+void AGeoTreeWin::on_pbRunTestParticle_clicked()
 {
    ui->pteTP->clear();
    AGeometryTester Tester(Geometry.GeoManager);
@@ -881,7 +881,7 @@ void A3GeoConWin::on_pbRunTestParticle_clicked()
    emit requestShowTracks();
 }
 
-void A3GeoConWin::on_cbAutoCheck_stateChanged(int)
+void AGeoTreeWin::on_cbAutoCheck_stateChanged(int)
 {
     bool checked = ui->cbAutoCheck->isChecked();
     QColor col = (checked ? Qt::black : Qt::red);
@@ -894,7 +894,7 @@ void A3GeoConWin::on_cbAutoCheck_stateChanged(int)
 #include "aonelinetextedit.h"
 #include "ageobasedelegate.h"
 #include <QTabWidget>
-void A3GeoConWin::updateGeoConstsIndication()
+void AGeoTreeWin::updateGeoConstsIndication()
 {
     ui->tabwConstants->clearContents();
 
@@ -943,7 +943,7 @@ void A3GeoConWin::updateGeoConstsIndication()
 }
 
 #include "ageoconstexpressiondialog.h"
-void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
+void AGeoTreeWin::on_tabwConstants_cellClicked(int row, int column)
 {
     if (column != 2) return;
 
@@ -959,7 +959,7 @@ void A3GeoConWin::on_tabwConstants_cellClicked(int row, int column)
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 
-void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
+void AGeoTreeWin::onGeoConstEditingFinished(int index, QString strNewValue)
 {
     //qDebug() << "GeoConst value changed! index/text are:" << index << strNewValue;
     AGeoConsts & GC = AGeoConsts::getInstance();
@@ -981,17 +981,17 @@ void A3GeoConWin::onGeoConstEditingFinished(int index, QString strNewValue)
     emit requestDelayedRebuildAndRestoreDelegate();
 }
 
-void A3GeoConWin::onGeoConstEscapePressed(int /*index*/)
+void AGeoTreeWin::onGeoConstEscapePressed(int /*index*/)
 {
     updateGeoConstsIndication();
 }
 
-void A3GeoConWin::onRequestShowPrototypeList()
+void AGeoTreeWin::onRequestShowPrototypeList()
 {
     ui->cbShowPrototypes->setChecked(true);
 }
 
-void A3GeoConWin::updateMenuIndication()
+void AGeoTreeWin::updateMenuIndication()
 {
 //    ui->actionUndo->setEnabled(MW->Config->isUndoAvailable());
       ui->actionUndo->setEnabled(false);
@@ -999,7 +999,7 @@ void A3GeoConWin::updateMenuIndication()
       ui->actionRedo->setEnabled(false);
 }
 
-void A3GeoConWin::on_tabwConstants_cellChanged(int row, int column)
+void AGeoTreeWin::on_tabwConstants_cellChanged(int row, int column)
 {
     if (column != 0) return; // only name change or new
     if (bGeoConstsWidgetUpdateInProgress) return;
@@ -1054,7 +1054,7 @@ void A3GeoConWin::on_tabwConstants_cellChanged(int row, int column)
     updateGeoConstsIndication();
 }
 
-void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
+void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
 {
     AGeoConsts & GC = AGeoConsts::getInstance();
     int index = ui->tabwConstants->currentRow();
@@ -1111,7 +1111,7 @@ void A3GeoConWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     }
 }
 
-void A3GeoConWin::on_actionUndo_triggered()
+void AGeoTreeWin::on_actionUndo_triggered()
 {
     /*
     bool ok = MW->Config->isUndoAvailable();
@@ -1125,7 +1125,7 @@ void A3GeoConWin::on_actionUndo_triggered()
     */
 }
 
-void A3GeoConWin::on_actionRedo_triggered()
+void AGeoTreeWin::on_actionRedo_triggered()
 {
     /*
     bool ok = MW->Config->isRedoAvailable();
@@ -1139,7 +1139,7 @@ void A3GeoConWin::on_actionRedo_triggered()
     */
 }
 
-void A3GeoConWin::on_actionHow_to_use_drag_and_drop_triggered()
+void AGeoTreeWin::on_actionHow_to_use_drag_and_drop_triggered()
 {
     QString s = "Drag & drop can be used to move items\n"
                 "  from one container to another\n"
@@ -1152,7 +1152,7 @@ void A3GeoConWin::on_actionHow_to_use_drag_and_drop_triggered()
 }
 
 #include "ageoscriptmaker.h"
-void A3GeoConWin::on_actionTo_JavaScript_triggered()
+void AGeoTreeWin::on_actionTo_JavaScript_triggered()
 {
     QString script;
     AGeoScriptMaker sm(AGeoScriptMaker::JavaScript);
@@ -1160,14 +1160,14 @@ void A3GeoConWin::on_actionTo_JavaScript_triggered()
     emit requestAddScript(script);
 }
 
-void A3GeoConWin::on_cbShowPrototypes_toggled(bool checked)
+void AGeoTreeWin::on_cbShowPrototypes_toggled(bool checked)
 {
     ui->saPrototypes->setVisible(checked);
 }
 
 // --- export ----
 
-void A3GeoConWin::on_pbSaveTGeo_clicked()
+void AGeoTreeWin::on_pbSaveTGeo_clicked()
 {
     QString fileName = guitools::dialogSaveFile(this, "Export geometry to file (use .gdml or .root suffix)", "GDML files (*.gdml);;Root files(*.root)");
     if (fileName.isEmpty()) return;
@@ -1185,7 +1185,7 @@ void A3GeoConWin::on_pbSaveTGeo_clicked()
 
 // to GeometryHub !!!***
 
-void A3GeoConWin::on_pmParseInGeometryFromGDML_clicked()
+void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
 {
     /*
     QString fileName = QFileDialog::getOpenFileName(this, "Load GDML file", MW->GlobSet.LastOpenDir, "GDML files (*.gdml)");
@@ -1306,7 +1306,7 @@ void A3GeoConWin::on_pmParseInGeometryFromGDML_clicked()
     */
 }
 
-bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
+bool AGeoTreeWin::GDMLtoTGeo(const QString & fileName)
 {
     /*
     QString txt;
@@ -1338,7 +1338,7 @@ bool A3GeoConWin::GDMLtoTGeo(const QString & fileName)
     return true;
 }
 
-void A3GeoConWin::on_actionFind_object_triggered()
+void AGeoTreeWin::on_actionFind_object_triggered()
 {
     QDialog D(this);
     D.setWindowTitle("Find object by name");

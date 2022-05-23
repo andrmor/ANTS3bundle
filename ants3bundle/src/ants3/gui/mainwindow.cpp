@@ -5,7 +5,7 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
-#include "a3geoconwin.h"
+#include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
 #include "amatwin.h"
@@ -41,15 +41,15 @@ MainWindow::MainWindow() :
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
-    GeoConWin = new A3GeoConWin(this);
-    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+    GeoConWin = new AGeoTreeWin(this);
+    connect(GeoConWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &A3GeoConWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
-    connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
-    connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
+    connect(GeoConWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoConWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoConWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoConWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoConWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     GraphWin = new GraphWindowClass(this);
 
@@ -84,7 +84,7 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
-    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &A3GeoConWin::UpdateGeoTree);
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &AGeoTreeWin::UpdateGeoTree);
 
     //qDebug() << ">JScript window";
     JScriptWin = new AScriptWindow(this);
@@ -95,7 +95,7 @@ MainWindow::MainWindow() :
     connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
-    connect(GeoConWin,  &A3GeoConWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
+    connect(GeoConWin,  &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);

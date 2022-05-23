@@ -233,14 +233,11 @@
          </spacer>
         </item>
        </layout>
-       <zorder>layoutWidget</zorder>
-       <zorder>line_3</zorder>
+       <zorder>leDataExchangeDir</zorder>
+       <zorder>pbChangeDataExchangeDir</zorder>
        <zorder>label_188</zorder>
-       <zorder>pbOpen</zorder>
-       <zorder>comboBox</zorder>
        <zorder>line_5</zorder>
        <zorder>verticalSpacer_5</zorder>
-       <zorder>horizontalLayoutWidget</zorder>
        <zorder>verticalSpacer_6</zorder>
        <zorder>verticalSpacer_7</zorder>
       </widget>
@@ -417,7 +414,7 @@
           <item row="7" column="0" colspan="2">
            <widget class="QLabel" name="label_26">
             <property name="text">
-             <string>  </string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -505,20 +502,6 @@
        </layout>
        <zorder>pbgStyleScript</zorder>
        <zorder>line</zorder>
-       <zorder>sbNumBinsHistogramsX</zorder>
-       <zorder>sbNumBinsHistogramsY</zorder>
-       <zorder>sbNumBinsHistogramsZ</zorder>
-       <zorder>label_3</zorder>
-       <zorder>label_4</zorder>
-       <zorder>label_5</zorder>
-       <zorder>sbNumSegments</zorder>
-       <zorder>label_8</zorder>
-       <zorder>label_9</zorder>
-       <zorder>sbNumPointsFunctionX</zorder>
-       <zorder>sbNumPointsFunctionY</zorder>
-       <zorder>label_11</zorder>
-       <zorder>line_5</zorder>
-       <zorder>line_6</zorder>
        <zorder>verticalSpacer_3</zorder>
       </widget>
       <widget class="QWidget" name="tabExport">
@@ -801,7 +784,7 @@
              <item>
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>   </string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -891,8 +874,6 @@
          </spacer>
         </item>
        </layout>
-       <zorder>label_21</zorder>
-       <zorder>leRootServerURL</zorder>
        <zorder>frServers</zorder>
        <zorder>label_10</zorder>
        <zorder>verticalSpacer_2</zorder>

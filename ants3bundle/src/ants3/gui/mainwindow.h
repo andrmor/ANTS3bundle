@@ -7,7 +7,7 @@ namespace Ui {
 class MainWindow;
 }
 class AConfig;
-class A3GeoConWin;
+class AGeoTreeWin;
 class AGeometryWindow;
 class AMatWin;
 class ASensorWindow;
@@ -36,7 +36,7 @@ private:
 
     Ui::MainWindow    * ui = nullptr;
 
-    A3GeoConWin       * GeoConWin  = nullptr;
+    AGeoTreeWin       * GeoConWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
     AMatWin          * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
