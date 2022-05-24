@@ -64,11 +64,20 @@ void A3Global::init()
 
 }
 
-std::string A3Global::checkExchangeDir()
+#include "aerrorhub.h"
+bool A3Global::checkExchangeDir()
 {
-    if (ExchangeDir.isEmpty())       return "Exchange directory is not set!";
-    if (!QDir(ExchangeDir).exists()) return "Exchange directory does not exist!";
-    return "";
+    if (ExchangeDir.isEmpty())
+    {
+        AErrorHub::addError("Exchange directory is not set!");
+        return false;
+    }
+    if (!QDir(ExchangeDir).exists())
+    {
+        AErrorHub::addError("Exchange directory does not exist!");
+        return false;
+    }
+    return true;
 }
 
 void A3Global::saveConfig()

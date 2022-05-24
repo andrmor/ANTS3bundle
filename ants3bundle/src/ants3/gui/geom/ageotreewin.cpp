@@ -16,23 +16,27 @@
 #include "afiletools.h"
 #include "guitools.h"
 #include "alineeditwithescape.h"
+#include "aerrorhub.h"
+#include "aonelinetextedit.h"
+#include "ageobasedelegate.h"
+#include "amonitorhub.h"
+#include "amonitor.h"
+#include "acalorimeterhub.h"
+#include "acalorimeter.h"
 
 #include <QDebug>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QVBoxLayout>
 #include <QDesktopServices>
-#include <QEvent>
 #include <QRegularExpression>
 #include <QMenu>
+#include <QTabWidget>
 
 #include "TGeoManager.h"
 #include "TGeoTrack.h"
 #include "TVirtualGeoTrack.h"
 #include "TColor.h"
 #include "TROOT.h"
-#include "TGeoBBox.h"
-#include "TGeoTube.h"
 #include "TGeoBoolNode.h"
 #include "TGeoCompositeShape.h"
 
@@ -104,7 +108,6 @@ AGeoTreeWin::~AGeoTreeWin()
     delete ui; ui = nullptr;
 }
 
-#include "aerrorhub.h"
 void AGeoTreeWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
@@ -210,8 +213,6 @@ void AGeoTreeWin::showAllInstances(QString name)
     emit requestShowGeometry(true, true, false);
 }
 
-#include "amonitorhub.h"
-#include "amonitor.h"
 void AGeoTreeWin::onRequestShowMonitorActiveDirection(const AGeoObject * mon)
 {
     const AMonitorHub & MonitorHub = AMonitorHub::getConstInstance();
@@ -338,8 +339,6 @@ void AGeoTreeWin::highlightVolume(const QString & VolName)
     if (obj->isCalorimeter()) markCalorimeterBinning(obj);
 }
 
-#include "acalorimeterhub.h"
-#include "acalorimeter.h"
 void AGeoTreeWin::markCalorimeterBinning(const AGeoObject * obj)
 {
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
@@ -726,7 +725,6 @@ void AGeoTreeWin::resizeEvent(QResizeEvent *event)
     ui->tabwConstants->setColumnWidth(1, SecW);
     ui->tabwConstants->setColumnWidth(2, FirstPlusThird - FirstW);
 
-    //AGuiWindow::resizeEvent(event);
     QMainWindow::resizeEvent(event);
 }
 
@@ -852,9 +850,6 @@ void AGeoTreeWin::on_cbAutoCheck_stateChanged(int)
     ui->cbAutoCheck->setPalette(p);
 }
 
-#include "aonelinetextedit.h"
-#include "ageobasedelegate.h"
-#include <QTabWidget>
 void AGeoTreeWin::updateGeoConstsIndication()
 {
     ui->tabwConstants->clearContents();

@@ -127,6 +127,7 @@ signals:
     void requestClearMarkers(int selector);
     void requestAddMarker(const double *);
     void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
+    void requestConfigureExchangeDir();
 
 private:
     AParticleSimSettings  & SimSet;

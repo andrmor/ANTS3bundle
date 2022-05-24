@@ -70,7 +70,7 @@ public:
 */
 
     void    init();
-    std::string checkExchangeDir();
+    bool    checkExchangeDir();
 
     void    saveConfig();
     void    loadConfig();

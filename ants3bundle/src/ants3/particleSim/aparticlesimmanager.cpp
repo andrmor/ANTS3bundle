@@ -382,7 +382,7 @@ void AParticleSimManager::checkDirectories()
     if (SimSet.RunSet.OutputDirectory.empty())                AErrorHub::addError("Output directory is not set!");
     if (!QDir(SimSet.RunSet.OutputDirectory.data()).exists()) AErrorHub::addError("Output directory does not exist!");
 
-    AErrorHub::addError(A3Global::getInstance().checkExchangeDir());
+    A3Global::getInstance().checkExchangeDir();
 }
 
 #include "amonitorhub.h"

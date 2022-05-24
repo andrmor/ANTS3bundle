@@ -370,6 +370,7 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     {
         ui->progbSim->setValue(0);
         guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
+        if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
     }
     else
     {

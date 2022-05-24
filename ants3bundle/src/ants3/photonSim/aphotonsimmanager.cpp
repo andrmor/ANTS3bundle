@@ -153,8 +153,7 @@ bool APhotonSimManager::checkDirectories()
     if (SimSet.RunSet.OutputDirectory.isEmpty())       AErrorHub::addError("Output directory is not set!");
     if (!QDir(SimSet.RunSet.OutputDirectory).exists()) AErrorHub::addError("Output directory does not exist!");
 
-    const std::string err = A3Global::getInstance().checkExchangeDir();
-    if (!err.empty()) AErrorHub::addError(err);
+    A3Global::getInstance().checkExchangeDir();
 
     return !AErrorHub::isError();
 }

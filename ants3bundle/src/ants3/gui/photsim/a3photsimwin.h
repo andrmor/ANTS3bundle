@@ -193,6 +193,7 @@ signals:
     void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
     void requestShowGeoMarkers();
     void requestShowPosition(double * pos, bool keepTracks);
+    void requestConfigureExchangeDir();
 };
 
 #endif // A3PHOTSIMWIN_H

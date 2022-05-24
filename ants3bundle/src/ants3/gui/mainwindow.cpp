@@ -100,6 +100,8 @@ MainWindow::MainWindow() :
     JScriptWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);
+    connect(PhotSimWin, &A3PhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
+    connect(PartSimWin, &AParticleSimWin::requestConfigureExchangeDir, GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
 
     DemoWin = new ADemoWindow(this);
 

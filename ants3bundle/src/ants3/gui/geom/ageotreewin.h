@@ -58,7 +58,7 @@ private:
   const AMaterialHub & MaterialHub;
 
   Ui::AGeoTreeWin * ui    = nullptr;
-  AGeoTree        * twGeo = nullptr;                // WorldTree widget
+  AGeoTree        * twGeo = nullptr;
 
   bool bGeoConstsWidgetUpdateInProgress = false;
 
@@ -77,7 +77,7 @@ public slots:
   void UpdateGeoTree(QString name = "", bool bShow = false);
   void ShowObject(QString name = "");
   void FocusVolume(QString name);
-  void ShowObjectRecursive(QString name); // !!!***
+  void ShowObjectRecursive(QString name);
   void showAllInstances(QString name);
   void onRequestShowMonitorActiveDirection(const AGeoObject* mon);
   void onRequestEnableGeoConstWidget(bool flag);

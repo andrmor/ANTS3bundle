@@ -31,6 +31,7 @@ protected:
 public slots:
     void updateNetGui();
     void showNetSettings();
+    void onRequestConfigureExchangeDir();
 
 private slots:
     void on_pbgStyleScript_clicked();
@@ -47,6 +48,7 @@ private slots:
     void on_sbNumBinsHistogramsZ_editingFinished();
 
     void on_pbOpen_clicked();
+
 
 //    void on_sbNumPointsFunctionX_editingFinished();
 //    void on_sbNumPointsFunctionY_editingFinished();
