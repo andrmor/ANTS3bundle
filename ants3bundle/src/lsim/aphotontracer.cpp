@@ -48,21 +48,10 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
     if (SimSet.OptSet.CheckQeBeforeTracking)
     {
         rnd = RandomHub.uniform();
-        if (SimSet.WaveSet.Enabled && Photon.waveIndex != -1)
+        if (rnd > SensorHub.getMaxQE(SimSet.WaveSet.Enabled, Photon.waveIndex))
         {
-            if (rnd > SensorHub.getMaxQEvsWave(Photon.waveIndex))  // !!!*** merge methods to one?
-            {
-                SimStat.TracingSkipped++;
-                return; //no need to trace this photon
-            }
-        }
-        else
-        {
-            if (rnd > SensorHub.getMaxQE())                         // !!!*** merge methods to one?
-            {
-                SimStat.TracingSkipped++;
-                return; //no need to trace this photon
-            }
+            SimStat.TracingSkipped++;
+            return; //no need to trace this photon
         }
     }
 
@@ -88,7 +77,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         if (SimSet.RunSet.SavePhotonLog)
         {
             PhLog.clear();
-            PhLog.append( APhotonHistoryLog(p.r, "", p.time, p.waveIndex, APhotonHistoryLog::GeneratedOutsideGeometry) );
+            PhLog.push_back( APhotonHistoryLog(p.r, "", p.time, p.waveIndex, APhotonHistoryLog::GeneratedOutsideGeometry) );
         }
         return;
     }
@@ -107,7 +96,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             Track.Positions.clear();
             Track.Positions.push_back(AVector3(p.r));
         }
-        else APhotonSimHub::getInstance().Settings.RunSet.SaveTracks = false;
+        else APhotonSimHub::getInstance().Settings.RunSet.SaveTracks = false; // SimSet is read-only
     }
 
     VolumeTo   = Navigator->GetCurrentVolume();
@@ -117,10 +106,10 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
     {
         PhLog.clear();
         PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
-        PhLog.append( APhotonHistoryLog(p.r, Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+        PhLog.push_back( APhotonHistoryLog(p.r, Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
     }
 
-    TGeoNode * NodeAfterInterface;
+    TGeoNode * NodeAfterInterface = nullptr;
     Counter = 0; //number of photon transitions - there is a limit on this set by user
     //---------------------------------------------=====cycle=====-----------------------------------------
     while (Counter < SimSet.OptSet.MaxPhotonTransitions)
@@ -218,7 +207,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             //qDebug() << "Photon escaped!";
             Navigator->PopDummy();//clean up the stack
             SimStat.Escaped++;
-            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Escaped) );
+            if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Escaped) );
             goto force_stop_tracing; //finished with this photon
         }
 
@@ -258,7 +247,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
                 //qDebug() << "-Override: absorption triggered";
                 Navigator->PopDummy(); //clean up the stack
                 if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
+                    PhLog.push_back( APhotonHistoryLog(PhPos, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
                 SimStat.InterfaceRuleLoss++;
                 goto force_stop_tracing; //finished with this photon
             case AInterfaceRule::Back:
@@ -266,14 +255,14 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
                 Navigator->PopPoint();  //remaining in the original volume
                 Navigator->SetCurrentDirection(p.v); //updating direction
                 if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.append( APhotonHistoryLog(PhPos, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
+                    PhLog.push_back( APhotonHistoryLog(PhPos, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
                 SimStat.InterfaceRuleBack++;
                 continue; //send to the next iteration
             case AInterfaceRule::Forward:
                 Navigator->SetCurrentDirection(p.v); //updating direction
                 fDoFresnel = false; //stack cleaned afterwards
                 if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.append( APhotonHistoryLog(PhPos, nameTo, p.time, p.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
+                    PhLog.push_back( APhotonHistoryLog(PhPos, nameTo, p.time, p.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
                 SimStat.InterfaceRuleForward++;
                 break; //switch break
             case AInterfaceRule::NotTriggered:
@@ -306,7 +295,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
                 Navigator->PopPoint(); //restore the point before the border
                 PerformReflection();
                 if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
+                    PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
                 continue;
             }
             //otherwise transmission
@@ -322,10 +311,10 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         if (fGridShiftOn && Step >0.001)
         {
             //qDebug() << "++Grid back shift triggered!";
-            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftOut) );
+            if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftOut) );
             ReturnFromGridShift();
             Navigator->FindNode();
-            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Exit) );
+            if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Exit) );
             //         qDebug() << "Navigator coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
         }
 */
@@ -343,8 +332,8 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
                 //qDebug()<< "Sensor hit! (" << ThisVolume->GetTitle() <<") Sensor name:"<< ThisVolume->GetName() << "Sensor index" << iSensor;
                 if (SimSet.RunSet.SavePhotonLog)
                 {
-                    PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
-                    PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
+                    PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                    PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
                 }
                 Track.HitSensor = true;
                 processSensorHit(iSensor);
@@ -355,10 +344,10 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         case 'G': // grid hit
             {
             //qDebug() << "Grid hit!" << ThisVolume->GetName() << ThisVolume->GetTitle()<< "Number:"<<NodeAfterInterface->GetNumber();
-            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Enter) );
+            if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Enter) );
             GridWasHit(NodeAfterInterface->GetNumber()); // it is assumed that "empty part" of the grid element will have the same refractive index as the material from which photon enters it
             GridVolume = ThisVolume;
-            if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftIn) );
+            if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftIn) );
             break;
             }
 */
@@ -383,7 +372,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
                     if (MonitorHub.PhotonMonitors[iMon].Monitor->isStopsTracking())
                     {
                         SimStat.MonitorKill++;
-                        if (SimSet.RunSet.SavePhotonLog) PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::KilledByMonitor) );
+                        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::KilledByMonitor) );
                         goto force_stop_tracing; //finished with this photon
                     }
                 }
@@ -404,7 +393,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             // true - successful, false - forbidden -> considered that the photon is absorbed at the surface! Should not happen
             if (!ok) qWarning()<<"Error in photon tracker: problem with transmission!";
             if (SimSet.RunSet.SavePhotonLog)
-                PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
         }
 
     } //while cycle: going to the next iteration
@@ -576,7 +565,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
                     Track.Positions.push_back(AVector3(point));
                 }
                 if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.append( APhotonHistoryLog(point, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Absorbed, MatIndexFrom) );
+                    PhLog.push_back( APhotonHistoryLog(point, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Absorbed, MatIndexFrom) );
             }
 
             //check if this material is waveshifter
@@ -623,7 +612,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
 
                     SimStat.Reemission++;
                     if (SimSet.RunSet.SavePhotonLog)
-                        PhLog.append( APhotonHistoryLog(R, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Reemission, MatIndexFrom) );
+                        PhLog.push_back( APhotonHistoryLog(R, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Reemission, MatIndexFrom) );
                     return WaveShifted;
                 }
             }
@@ -665,7 +654,7 @@ APhotonTracer::AbsRayEnum APhotonTracer::AbsorptionAndRayleigh()
                 Track.Positions.push_back(AVector3(R));
             }
             if (SimSet.RunSet.SavePhotonLog)
-                PhLog.append( APhotonHistoryLog(R, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Rayleigh, MatIndexFrom) );
+                PhLog.push_back( APhotonHistoryLog(R, nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Rayleigh, MatIndexFrom) );
 
             return RayTriggered;
         }
@@ -737,7 +726,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     const bool bDetected = Event.checkSensorHit(iSensor, p.time, p.waveIndex, local[0], local[1], cosAngle, Counter, rnd);
 
     if (SimSet.RunSet.SavePhotonLog)
-        PhLog.append( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
+        PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), p.time, p.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
 }
 
 bool APhotonTracer::PerformRefraction(double nn) // nn = nFrom / nTo

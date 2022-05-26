@@ -148,18 +148,13 @@ bool ASensorHub::updateRuntimeProperties()
     return true;
 }
 
-double ASensorHub::getMaxQEvsWave(int iWave) const
-{
-    return 1.0;
-}
-
 void ASensorHub::exitPersistentMode()
 {
     PersistentModelAssignment = false;
     LoadedModelAssignment.clear();
 }
 
-double ASensorHub::getMaxQE() const
+double ASensorHub::getMaxQE(bool waveResolved, int iWave) const
 {
     return 1.0;
 }

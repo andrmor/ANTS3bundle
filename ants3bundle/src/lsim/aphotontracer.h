@@ -7,7 +7,6 @@
 
 #include "TString.h"
 
-#include <QVector>
 #include <vector>
 
 class APhotonSimSettings;
@@ -33,8 +32,8 @@ public:
 
     void tracePhoton(const APhoton & Photon);
 
-    APhotonTrackRecord         Track;
-    QVector<APhotonHistoryLog> PhLog;
+    APhotonTrackRecord             Track;
+    std::vector<APhotonHistoryLog> PhLog;
 
 private:
     const AMaterialHub       & MatHub;
@@ -80,7 +79,7 @@ private:
     static constexpr double c_in_vac = 299.7925; //speed of light in mm/ns
 
     enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
-    AbsRayEnum AbsorptionAndRayleigh();   // !!!*** TOD: fix Rayleigh
+    AbsRayEnum AbsorptionAndRayleigh();
     double CalculateReflectionCoefficient();
     void processSensorHit(int iSensor);
     bool PerformRefraction(double nn);
