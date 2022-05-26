@@ -22,6 +22,8 @@ class TGeoNavigator;
 class TGeoVolume;
 class AGridElementRecord;
 class QTextStream;
+class AInterfaceRule;
+class TGeoNode;
 
 class APhotonTracer
 {
@@ -87,9 +89,12 @@ private:
     void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
     void ReturnFromGridShift();      // !!!***
-    void AppendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
+    void appendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
 
     void savePhotonLogRecord(){} // !!!***
     void saveTrack();
+    void endTracing();
+    AInterfaceRule * getInterfaceRule() const; // can be nullptr
+    void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
 };
 #endif // APHOTONTRACER_H
