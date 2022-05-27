@@ -85,7 +85,7 @@ private:
     double CalculateReflectionCoefficient();
     void processSensorHit(int iSensor);
     bool PerformRefraction(double nn);
-    void PerformReflection();
+    void performReflection();
     void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
     void ReturnFromGridShift();      // !!!***
@@ -96,5 +96,6 @@ private:
     void endTracing();
     AInterfaceRule * getInterfaceRule() const; // can be nullptr
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
+    void tryReflection(bool & returnFlagReflected);
 };
 #endif // APHOTONTRACER_H

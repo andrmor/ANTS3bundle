@@ -130,14 +130,14 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         //----- Making a step towards the interface ------
         Navigator->Step(true, false); //stopped right before the crossing
 
-        Double_t R_afterStep[3];
+        double R_afterStep[3];
         if (fGridShiftOn && Step > 0.001) // !!!*** why 0.001?
         {   //if point after Step is outside of grid bulk, kill this photon
             // it is not realistic in respect of Rayleigh for photons travelling in grid plane
             //also, there is a small chance that photon is rejected by this procedure when it hits the grid wire straight on center
             //chance is very small (~0.1%) even for grids with ~25% transmission value
 
-            const Double_t* rc = Navigator->GetCurrentPoint();
+            const double * rc = Navigator->GetCurrentPoint();
             //qDebug() << "...Checking after step of " << Step << "still inside grid bulk?";
             //qDebug() << "...Position in world:"<<rc[0] << rc[1] << rc[2];
             //qDebug() << "...Navigator is supposed to be inside the grid element. Currently in:"<<navigator->GetCurrentNode()->GetVolume()->GetName();
@@ -258,35 +258,14 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         }
         else fDoFresnel = true;
 
-
         //-- Interface rule not set or not triggered --
 
         if (fDoFresnel)
         {
-            //qDebug()<<"Performing fresnel"; //Fresnel equations //http://en.wikipedia.org/wiki/Fresnel_equations
-            if (!fHaveNormal)
-            {
-                N = Navigator->FindNormal(false);
-                fHaveNormal = true;
-            }
-            //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
-            //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
-
-            const double prob = CalculateReflectionCoefficient(); //reflection probability
-            if (RandomHub.uniform() < prob)
-            { //-----Reflection-----
-                //qDebug()<<"Fresnel - reflection!";
-                SimStat.FresnelReflected++;
-                // photon remains in the same volume -> continue to the next iteration
-                Navigator->PopPoint(); //restore the point before the border
-                PerformReflection();
-                if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
-                continue;
-            }
-            //otherwise transmission
-            SimStat.FresnelTransmitted++;
+            bool reflectedFlag;
+            tryReflection(reflectedFlag);
+            if (reflectedFlag) continue;
         }
-
 
         // --------------- Photon entered another volume ----------------------
         Navigator->PopDummy(); //clean up the stack
@@ -303,7 +282,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             //         qDebug() << "Navigator coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
         }
 */
-        bool endTracingFlag = false;
+        bool endTracingFlag;
         checkSpecialVolume(NodeAfterInterface, endTracingFlag);
         if (endTracingFlag)
         {
@@ -333,6 +312,34 @@ void APhotonTracer::endTracing()
     if (SimSet.RunSet.SaveTracks)    saveTrack();
 
     //qDebug()<<"Finished with the photon";
+}
+
+void APhotonTracer::tryReflection(bool & returnFlagReflected)
+{
+    //qDebug()<<"Performing fresnel"; //Fresnel equations //http://en.wikipedia.org/wiki/Fresnel_equations
+    if (!fHaveNormal)
+    {
+        N = Navigator->FindNormal(false);
+        fHaveNormal = true;
+    }
+    //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+    //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
+
+    const double prob = CalculateReflectionCoefficient(); //reflection probability
+    if (RandomHub.uniform() < prob)
+    {
+        SimStat.FresnelReflected++;
+        returnFlagReflected = true;
+        // photon remains in the same volume -> continue to the next iteration
+        Navigator->PopPoint(); //restore the point before the border
+        performReflection();
+        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameFrom, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
+    }
+    else
+    {
+        SimStat.FresnelTransmitted++;
+        returnFlagReflected = false;
+    }
 }
 
 void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag)
@@ -765,7 +772,7 @@ bool APhotonTracer::PerformRefraction(double nn) // nn = nFrom / nTo
     return true;
 }
 
-void APhotonTracer::PerformReflection()
+void APhotonTracer::performReflection()
 {
     if (!fHaveNormal)
     {
