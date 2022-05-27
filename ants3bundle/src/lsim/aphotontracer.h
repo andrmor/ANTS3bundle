@@ -25,12 +25,16 @@ class QTextStream;
 class AInterfaceRule;
 class TGeoNode;
 
+enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
+enum class EFresnelResult     {Reflected, Transmitted};
+enum class EInterRuleResult   {NotTriggered, Absorbed, Reflected, Transmitted};
+
 class APhotonTracer
 {
 public:
     APhotonTracer(AOneEvent & event, QTextStream* & streamTracks);
 
-    void init();
+    void configureTracer();
 
     void tracePhoton(const APhoton & Photon);
 
@@ -55,7 +59,7 @@ private:
 
     APhoton  p; //the photon which is traced
     int      AddedTracks = 0;
-    int      Counter = 0; //number of photon transitions
+    int      TransitionCounter = 0; //number of photon transitions
     double   rnd; //pre-generated random number for accelerated mode
     double   Step;
     double * N = nullptr; //normal vector to the surface
@@ -65,13 +69,14 @@ private:
     double   RefrIndexFrom;
     double   RefrIndexTo;
     bool     fDoFresnel; //flag - to perform or not the fresnel calculation on the interface
-    TString  nameFrom;
+    TString  NameFrom;
     TString  nameTo;
 
     const TGeoVolume * VolumeFrom   = nullptr;
     const TGeoVolume * VolumeTo     = nullptr;
     const AMaterial  * MaterialFrom = nullptr; //material before the interface
     const AMaterial  * MaterialTo   = nullptr; //material after the interface
+    TGeoNode         * NodeAfter    = nullptr; //node after interface
 
     bool         fGridShiftOn = false;
     double       FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
@@ -80,11 +85,10 @@ private:
 
     static constexpr double c_in_vac = 299.7925; //speed of light in mm/ns
 
-    enum AbsRayEnum {AbsRayNotTriggered=0, AbsTriggered, RayTriggered, WaveShifted};
-    AbsRayEnum AbsorptionAndRayleigh();
-    double CalculateReflectionCoefficient();
+    EBulkProcessResult checkBulkProcesses();
+    double calculateReflectionProbability();
     void processSensorHit(int iSensor);
-    bool PerformRefraction(double nn);
+    bool performRefraction(double nn);
     void performReflection();
     void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
@@ -96,6 +100,11 @@ private:
     void endTracing();
     AInterfaceRule * getInterfaceRule() const; // can be nullptr
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
-    void tryReflection(bool & returnFlagReflected);
+    EFresnelResult tryReflection();
+    EInterRuleResult tryInterfaceRule();
+    void initTracks();
+    void initPhotonLog();
+    bool skipTracing(int waveIndex);
+    bool initBeforeTracing(const APhoton &Photon);
 };
 #endif // APHOTONTRACER_H
