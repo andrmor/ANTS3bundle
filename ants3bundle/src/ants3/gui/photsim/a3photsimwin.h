@@ -177,13 +177,16 @@ private:
 
     void doShowEvent();
 
-    void showSensorSignal();
+    void showSensorSignal(bool suppressMessage);
     void showSensorSignalDraw();
     void showSensorSignalTable();
 
     void showBombSingleEvent();
     bool updateBombHandler();
 
+    void loadStatistics(bool suppressMessage);
+    void loadMonitorsData(bool suppressMessage);
+    void loadTracks(bool suppressMessage);
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();

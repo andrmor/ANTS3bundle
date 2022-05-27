@@ -25,3 +25,9 @@ QString APhotonSim_SI::simulate(bool updateGui)
         return AErrorHub::getQError();
     }
 }
+
+#include "arandomhub.h"
+void APhotonSim_SI::setSeed(double seed)
+{
+    ARandomHub::getInstance().setSeed(seed);
+}

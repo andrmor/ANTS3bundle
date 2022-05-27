@@ -430,19 +430,19 @@ void A3PhotSimWin::on_pbLoadAllResults_clicked()
     APhotSimRunSettings Set;
 
     ui->leStatisticsFile->setText(Set.FileNameStatistics);
-    on_pbLoadAndShowStatistics_clicked();
+    loadStatistics(true);
 
     ui->leMonitorsFileName->setText(Set.FileNameMonitors);
-    on_pbLoadMonitorsData_clicked();
+    loadMonitorsData(true);
 
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
-    showSensorSignal();
+    showSensorSignal(true);
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
-    on_pbLoadAndShowTracks_clicked();
+    loadTracks(true);
 }
 
 void A3PhotSimWin::on_sbFloodNumber_editingFinished()
@@ -557,13 +557,18 @@ void A3PhotSimWin::on_pbSelectTracksFile_clicked()
 
 void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
 {
+    loadTracks(false);
+}
+
+void A3PhotSimWin::loadTracks(bool suppressMessage)
+{
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
 
     QFile file(FileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -615,16 +620,22 @@ void A3PhotSimWin::on_pbSelectStatisticsFile_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon statistics", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leStatisticsFile->setText(fileName);
 }
+
 void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
+{
+    loadStatistics(false);
+}
+
+void A3PhotSimWin::loadStatistics(bool suppressMessage)
 {
     QString FileName = ui->leStatisticsFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
 
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, FileName);
-    if(!ok)
+    if (!ok)
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -700,6 +711,11 @@ void A3PhotSimWin::on_pbChooseMonitorsFile_clicked()
 
 void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
 {
+    loadMonitorsData(false);
+}
+
+void A3PhotSimWin::loadMonitorsData(bool suppressMessage)
+{
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Photon);
 
@@ -710,7 +726,7 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
     bool ok = jstools::loadJsonFromFile(json, FileName);
     if(!ok)
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -1269,22 +1285,22 @@ void A3PhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignal();    break;
-    case 3 : showBombSingleEvent(); break;
+    case 2 : showSensorSignal(true); break;
+    case 3 : showBombSingleEvent();  break;
     case 4 : break;
 
     default :;
     }
 }
 
-void A3PhotSimWin::showSensorSignal()
+void A3PhotSimWin::showSensorSignal(bool suppressMessage)
 {
     QString name = ui->leSensorSigFileName->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
 
     if (name.isEmpty())
     {
-        guitools::message("File name is empty!", this);
+        if (!suppressMessage) guitools::message("File name is empty!", this);
         return;
     }
 
@@ -1297,7 +1313,7 @@ void A3PhotSimWin::showSensorSignal()
         bool ok = SignalsFileHandler->init();
         if (!ok)
         {
-            guitools::message(AErrorHub::getQError(), this);
+            if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
             return;
         }
     }
@@ -1390,7 +1406,7 @@ bool A3PhotSimWin::updateBombHandler()
 
     if (name.isEmpty())
     {
-        guitools::message("File name is empty!", this);
+        //guitools::message("File name is empty!", this);
         return false;
     }
 
@@ -1403,7 +1419,7 @@ bool A3PhotSimWin::updateBombHandler()
         bool ok = BombFileHandler->init();
         if (!ok)
         {
-            guitools::message(AErrorHub::getQError(), this);
+            //guitools::message(AErrorHub::getQError(), this);
             return false;
         }
     }

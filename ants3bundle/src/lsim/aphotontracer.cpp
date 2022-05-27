@@ -176,9 +176,9 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         Navigator->PushPoint(); //DO NOT FORGET TO CLEAN IT IF NOT USED!!!
 
         //can make the track now - the photon made it to the other border in any case
-        const double refIndex = MaterialFrom->getRefractiveIndex(p.waveIndex);
-        //qDebug() << "Refractive index from:" << refIndex;
-        p.time += Step / c_in_vac * refIndex;
+        RefrIndexFrom = MaterialFrom->getRefractiveIndex(p.waveIndex);
+        //qDebug() << "Refractive index from:" << RefrIndexFrom;
+        p.time += Step / c_in_vac * RefrIndexFrom;
         if (SimSet.RunSet.SaveTracks && Step > 0.001) // !!!*** hard coded 0.001
         {
             if (fGridShiftOn)
@@ -233,6 +233,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         //--- Interface rule not set or not triggered ---
         if (fDoFresnel)
         {
+            RefrIndexTo = MaterialTo->getRefractiveIndex(p.waveIndex);
             const EFresnelResult res = tryReflection();
             if (res == EFresnelResult::Reflected) continue;
         }
@@ -268,7 +269,7 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
             if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
         }
 
-    } //while cycle: end of this iteration
+    } //if below max number of transitions, process next (or reflect back to stay in the same) volume
 
     if (TransitionCounter == SimSet.OptSet.MaxPhotonTransitions) SimStat.MaxTransitions++;  // maximum number of transitions reached
     endTracing();
@@ -686,9 +687,6 @@ double APhotonTracer::calculateReflectionProbability()
     const double NK = N[0]*p.v[0] + N[1]*p.v[1] + N[2]*p.v[2]; // NK = cos of the angle of incidence = cos1
     const double cos1 = fabs(NK);
     //qDebug() << "Cos of incidence:"<<cos1;
-
-    RefrIndexFrom = MaterialFrom->getRefractiveIndex(p.waveIndex);
-    RefrIndexTo   = MaterialTo->getRefractiveIndex(p.waveIndex);
 
     //qDebug()<<"Photon wavelength"<<p->wavelength<<"WaveIndex:"<<p->WaveIndex<<"n1 and n2 are: "<<RefrIndexFrom<<RefrIndexTo;
     const double sin1 = sqrt(1.0 - NK*NK);
