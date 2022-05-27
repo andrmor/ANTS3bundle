@@ -1,5 +1,5 @@
-#ifndef A3PHOTSIMWIN_H
-#define A3PHOTSIMWIN_H
+#ifndef APHOTSIMWIN_H
+#define APHOTSIMWIN_H
 
 #include "aphotonsimsettings.h"
 #include "aguiwindow.h"
@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace Ui {
-class A3PhotSimWin;
+class APhotSimWin;
 }
 
 class TObject;
@@ -17,13 +17,13 @@ class ANodeRecord; // tmp ?
 class ASensorDrawWidget;
 class AFileHandlerBase;
 
-class A3PhotSimWin : public AGuiWindow
+class APhotSimWin : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit A3PhotSimWin(QWidget * parent = nullptr);
-    ~A3PhotSimWin();
+    explicit APhotSimWin(QWidget * parent = nullptr);
+    ~APhotSimWin();
 
 public slots:
     void updateGui();
@@ -148,7 +148,7 @@ private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
 
-    Ui::A3PhotSimWin   * ui        = nullptr;
+    Ui::APhotSimWin    * ui        = nullptr;
     ASensorDrawWidget  * gvSensors = nullptr;
 
     ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
@@ -199,4 +199,4 @@ signals:
     void requestConfigureExchangeDir();
 };
 
-#endif // A3PHOTSIMWIN_H
+#endif // APHOTSIMWIN_H

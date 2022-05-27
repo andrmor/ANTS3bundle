@@ -10,7 +10,7 @@
 #include "ageometryhub.h"
 #include "amatwin.h"
 #include "asensorwindow.h"
-#include "a3photsimwin.h"
+#include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
 #include "aremotewindow.h"
@@ -65,14 +65,14 @@ MainWindow::MainWindow() :
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
 
-    PhotSimWin = new A3PhotSimWin(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,             GeoWin,   &AGeometryWindow::ShowTracks);
-    connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin,   &AGeometryWindow::clearGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin,   &AGeometryWindow::addPhotonNodeGeoMarker);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin,   &AGeometryWindow::showGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin,   &AGeometryWindow::ShowPoint);
-    connect(PhotSimWin, &A3PhotSimWin::requestDraw,                   GraphWin, &GraphWindowClass::onDrawRequest);
+    PhotSimWin = new APhotSimWin(this);
+    connect(PhotSimWin, &APhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(PhotSimWin, &APhotSimWin::requestShowTracks,             GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(PhotSimWin, &APhotSimWin::requestClearGeoMarkers,        GeoWin,   &AGeometryWindow::clearGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin,   &AGeometryWindow::addPhotonNodeGeoMarker);
+    connect(PhotSimWin, &APhotSimWin::requestShowGeoMarkers,         GeoWin,   &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestShowPosition,           GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PhotSimWin, &APhotSimWin::requestDraw,                   GraphWin, &GraphWindowClass::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
@@ -100,7 +100,7 @@ MainWindow::MainWindow() :
     JScriptWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
+    connect(PhotSimWin, &APhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
     connect(PartSimWin, &AParticleSimWin::requestConfigureExchangeDir, GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
 
     DemoWin = new ADemoWindow(this);
