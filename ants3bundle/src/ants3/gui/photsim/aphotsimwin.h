@@ -187,6 +187,8 @@ private:
     void loadStatistics(bool suppressMessage);
     void loadMonitorsData(bool suppressMessage);
     void loadTracks(bool suppressMessage);
+    void showTracksSingleEvent();
+
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks();

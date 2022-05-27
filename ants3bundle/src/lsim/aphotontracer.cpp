@@ -89,10 +89,10 @@ bool APhotonTracer::initBeforeTracing(const APhoton & Photon)
         return false;
     }
 
-    //qDebug()<<"Photon starts from:";
-    //qDebug()<<Navigator->GetPath();
-    //qDebug()<<"material name: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetName();
-    //qDebug()<<"material index: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
+//    qDebug()<<"Photon starts from:";
+//    qDebug()<<Navigator->GetPath();
+//    qDebug()<<"material name: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetName();
+//    qDebug()<<"material index: "<<Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
 
     p.copyFrom(Photon);
 
@@ -104,7 +104,7 @@ bool APhotonTracer::initBeforeTracing(const APhoton & Photon)
 
 void APhotonTracer::tracePhoton(const APhoton & Photon)
 {
-    //qDebug() << "Photon tracing called"
+//    qDebug() << "Photon tracing called";
     if (SimSet.OptSet.CheckQeBeforeTracking && skipTracing(Photon.waveIndex)) return;
     if (!initBeforeTracing(Photon)) return;
 
@@ -118,8 +118,11 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
     {
         TransitionCounter++; //qDebug() << "tracing cycle #" << TransitionCounter;
 
-        VolumeFrom   = VolumeTo;
-        MatIndexFrom = MatIndexTo;
+        //VolumeFrom   = VolumeTo;
+        VolumeFrom = Navigator->GetCurrentVolume();
+        //MatIndexFrom = MatIndexTo;
+        if (VolumeFrom) MatIndexFrom = VolumeFrom->GetMaterial()->GetIndex();
+
         MaterialFrom = MatHub[MatIndexFrom]; //this is the material where the photon is currently in
         if (SimSet.RunSet.SavePhotonLog) NameFrom = Navigator->GetCurrentVolume()->GetName();
 
@@ -216,9 +219,9 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         MaterialTo = MatHub[MatIndexTo];
         fHaveNormal = false;
 
-        //qDebug()<<"Found border with another volume: "<<ThisVolume->GetName();
-        //qDebug()<<"Mat index after interface: "<<MatIndexTo<<" Mat index before: "<<MatIndexFrom;
-        //qDebug()<<"coordinates: "<<Navigator->GetCurrentPoint()[0]<<Navigator->GetCurrentPoint()[1]<<Navigator->GetCurrentPoint()[2];
+//        qDebug()  << "Found border with another volume: " << VolumeTo->GetName();
+//        qDebug()  << "Mat index after interface: " << MatIndexTo << " Mat index before: " << MatIndexFrom;
+//        qDebug()  << "Coordinates: "<<Navigator->GetCurrentPoint()[0]<<Navigator->GetCurrentPoint()[1]<<Navigator->GetCurrentPoint()[2];
 
         //--- Check interface rule ---
         const EInterRuleResult res = tryInterfaceRule();
@@ -280,7 +283,7 @@ void APhotonTracer::endTracing()
     if (SimSet.RunSet.SavePhotonLog) appendHistoryRecord(); //Add tracks is also there, it has extra filtering   !!!*** not parallel!!!
     if (SimSet.RunSet.SaveTracks)    saveTrack();
 
-    //qDebug()<<"Finished with the photon";
+//    qDebug() << "Finished with the photon\n\n";
 }
 
 EInterRuleResult APhotonTracer::tryInterfaceRule()

@@ -1285,10 +1285,9 @@ void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignal(true); break;
-    case 3 : showBombSingleEvent();  break;
-    case 4 : break;
-
+    case 2 : showSensorSignal(true);  break;
+    case 3 : showBombSingleEvent();   break;
+    case 4 : showTracksSingleEvent(); break;
     default :;
     }
 }
@@ -1397,6 +1396,66 @@ void APhotSimWin::showBombSingleEvent()
         emit requestAddPhotonNodeGeoMarker(node);
 
     emit requestShowGeoMarkers();
+}
+
+void APhotSimWin::showTracksSingleEvent()
+{
+    QString FileName = ui->leTracksFile->text();
+    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+
+    QFile file(FileName);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return;
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    const int iShowEvent = ui->sbEvent->value();
+
+    QTextStream in(&file);
+    int iCurrentEvent = 0;
+    while (!in.atEnd())
+    {
+        QString line = in.readLine();
+        if (line.startsWith('#'))
+        {
+            line.remove('#');
+            iCurrentEvent = line.toInt();
+            continue;
+        }
+
+        if (iShowEvent != iCurrentEvent) continue;
+
+        QJsonObject json = jstools::strToJson(line);
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "P", ar);
+        if (!ok)
+        {
+            guitools::message("Unknown file format!", this);
+            return;
+        }
+        const bool bHit = (json.contains("h") ? true : false);
+        const bool bSec = (json.contains("s") ? true : false);
+
+        TGeoTrack * track = new TGeoTrack(1, 22);
+        int Color = 7;
+        if (bSec) Color = kMagenta;
+        if (bHit) Color = 2;
+        track->SetLineColor(Color);
+        //track->SetLineWidth(th->Width);
+        //track->SetLineStyle(th->Style);
+
+        for (int iNode = 0; iNode < ar.size(); iNode++)
+        {
+            QJsonArray el = ar[iNode].toArray();
+            if (el.size() < 3) continue; // !!!***
+            track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
+        }
+        if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
+        else delete track;
+    }
+
+    emit requestShowGeometry(); // !!!***
+    emit requestShowTracks();
 }
 
 bool APhotSimWin::updateBombHandler()
