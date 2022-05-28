@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>569</width>
-    <height>724</height>
+    <height>595</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -642,771 +642,830 @@ Can be used to automatically configure gamma interaction cross-sections and neut
          </widget>
          <widget class="QWidget" name="tab">
           <attribute name="title">
-           <string>Optical</string>
+           <string>Optics</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_20">
+          <layout class="QVBoxLayout" name="verticalLayout_10">
            <item>
-            <widget class="QLabel" name="label_41">
-             <property name="font">
-              <font>
-               <bold>true</bold>
-              </font>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox">
+             <item>
+              <property name="text">
+               <string>Refractive index and bulk absorption</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Complex refractive index</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="stackedWidget">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="page">
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <property name="spacing">
+                <number>2</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_2">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Refractive index:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_13">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>    vs. wavelength:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_48">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>3</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_3">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Bulk absorption:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_14">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>    vs. wavelength:</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_17">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_25">
+                     <item>
+                      <widget class="QLineEdit" name="ledN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>85</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_24">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_20">
+                     <item>
+                      <widget class="QPushButton" name="pbShowNlambda">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Show</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbLoadNlambda">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>File format:
+Two columns, the first is wavelength[nm],  the second is refractive index
+Wavelengths shoul be given in increasing order</string>
+                       </property>
+                       <property name="text">
+                        <string>Load</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbDeleteNlambda">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>X</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_18">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_55">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>3</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_21">
+                     <item>
+                      <widget class="QLineEdit" name="ledAbs">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>85</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_23">
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>mm-1</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_19">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_22">
+                     <item>
+                      <widget class="QPushButton" name="pbShowABSlambda">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Show</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbLoadABSlambda">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>File format:
+Two columns, the first is wavelength[nm],  the second is attenuation coefficient[mm-1]
+Wavelengths shoul be given in increasing order</string>
+                       </property>
+                       <property name="text">
+                        <string>Load</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbDeleteABSlambda">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>X</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_20">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="page_2">
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <property name="spacing">
+                <number>2</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_6">
+                   <item>
+                    <widget class="QLabel" name="label_7">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Refractive index:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_15">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>21</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>    vs. wavelength:</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                     <item>
+                      <widget class="QLabel" name="label_31">
+                       <property name="text">
+                        <string>Re:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="ledReN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>85</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_30">
+                       <property name="text">
+                        <string>Im:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="ledImN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>85</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_13">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_27">
+                     <item>
+                      <widget class="QPushButton" name="pbShowComplexN">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Show</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbLoadComplexN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>File format:
+Two columns, the first is wavelength[nm],  the second is refractive index
+Wavelengths shoul be given in increasing order</string>
+                       </property>
+                       <property name="text">
+                        <string>Load</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbDeleteComplexN">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>21</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>X</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_23">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_32">
              <property name="text">
-              <string>Basic properties</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <string>   </string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="Line" name="line_8">
+            <widget class="Line" name="line_5">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_27">
+            <layout class="QHBoxLayout" name="horizontalLayout_23">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_15">
-               <property name="spacing">
-                <number>3</number>
+              <widget class="QLabel" name="label_46">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>21</height>
+                </size>
                </property>
-               <item>
-                <widget class="QLabel" name="label_2">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Refractive index:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_13">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>    vs. wavelength:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_48">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_3">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Bulk absorption:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_14">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>    vs. wavelength:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_56">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_46">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Rayleigh MFP:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_63">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_57">
-                 <property name="minimumSize">
-                  <size>
-                   <width>200</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Reemission probability:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_27">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>    vs. wavelength:</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Rayleigh MFP:</string>
+               </property>
+              </widget>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_17">
-               <property name="spacing">
-                <number>3</number>
+              <widget class="QLineEdit" name="ledRayleigh">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
                </property>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_25">
-                 <item>
-                  <widget class="QLineEdit" name="ledN">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>85</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_24">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_20">
-                 <item>
-                  <widget class="QPushButton" name="pbShowNlambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Show</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbLoadNlambda">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>File format:
-Two columns, the first is wavelength[nm],  the second is refractive index
-Wavelengths shoul be given in increasing order</string>
-                   </property>
-                   <property name="text">
-                    <string>Load</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbDeleteNlambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_18">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_55">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_21">
-                 <item>
-                  <widget class="QLineEdit" name="ledAbs">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>85</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_23">
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>mm-1</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_19">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_22">
-                 <item>
-                  <widget class="QPushButton" name="pbShowABSlambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Show</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbLoadABSlambda">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>File format:
-Two columns, the first is wavelength[nm],  the second is attenuation coefficient[mm-1]
-Wavelengths shoul be given in increasing order</string>
-                   </property>
-                   <property name="text">
-                    <string>Load</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbDeleteABSlambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_20">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_65">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_23">
-                 <item>
-                  <widget class="QLineEdit" name="ledRayleigh">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>85</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>Keep empty if there is no Rayleigh scattering in this material</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_47">
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>mm at</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ledRayleighWave">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>85</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_49">
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>nm</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbRemoveRayleigh">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_21">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_66">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>3</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_26">
-                 <item>
-                  <widget class="QLineEdit" name="ledReemissionProbability">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>85</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>Use to define a waveshifter. Value should be from 0 to 1</string>
-                   </property>
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_25">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_24">
-                 <item>
-                  <widget class="QPushButton" name="pbShowReemProbLambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Show</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbLoadReemisProbLambda">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>File format:
-Two columns, the first is wavelength[nm],  the second is reemission probability (0..1)
-Wavelengths shoul be given in increasing order</string>
-                   </property>
-                   <property name="text">
-                    <string>Load</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbDeleteReemisProbLambda">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>21</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_26">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-              </layout>
+               <property name="maximumSize">
+                <size>
+                 <width>85</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Keep empty to disable Rayleigh scattering</string>
+               </property>
+              </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_23">
+              <widget class="QLabel" name="label_47">
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>mm at</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledRayleighWave">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>85</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_49">
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>nm</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbRemoveRayleigh">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_21">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1421,14 +1480,189 @@ Wavelengths shoul be given in increasing order</string>
             </layout>
            </item>
            <item>
-            <widget class="Line" name="line_5">
+            <widget class="QLabel" name="label_35">
+             <property name="text">
+              <string>    </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_6">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_4">
+            <layout class="QHBoxLayout" name="horizontalLayout_26">
+             <item>
+              <widget class="QLabel" name="label_57">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Reemission probability:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledReemissionProbability">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>85</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Use to define a waveshifter. Value should be from 0 to 1</string>
+               </property>
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_25">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_24">
+             <item>
+              <widget class="QLabel" name="label_27">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>    vs. wavelength:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbShowReemProbLambda">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Show</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbLoadReemisProbLambda">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>File format:
+Two columns, the first is wavelength[nm],  the second is reemission probability (0..1)
+Wavelengths shoul be given in increasing order</string>
+               </property>
+               <property name="text">
+                <string>Load</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbDeleteReemisProbLambda">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_26">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -1440,27 +1674,28 @@ Wavelengths shoul be given in increasing order</string>
              </property>
             </spacer>
            </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Primary scint</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QLabel" name="label_44">
-             <property name="font">
-              <font>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Primary scintillation</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line_10">
+            <spacer name="verticalSpacer_6">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Vertical</enum>
              </property>
-            </widget>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_34">
@@ -1972,21 +2207,14 @@ Wavelengths shoul be given in increasing order</string>
             </layout>
            </item>
            <item>
-            <widget class="Line" name="line_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_3">
+            <spacer name="verticalSpacer_5">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>141</height>
               </size>
              </property>
             </spacer>
@@ -1999,14 +2227,17 @@ Wavelengths shoul be given in increasing order</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <item>
-            <spacer name="verticalSpacer">
+            <spacer name="verticalSpacer_7">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>20</height>
               </size>
              </property>
             </spacer>
@@ -2462,7 +2693,6 @@ Wavelengths shoul be given in increasing order</string>
   <tabstop>cobActiveMaterials</tabstop>
   <tabstop>ledDensity</tabstop>
   <tabstop>ledAbs</tabstop>
-  <tabstop>lePriT</tabstop>
   <tabstop>pbShowSecSpectrum</tabstop>
   <tabstop>pbShowNlambda</tabstop>
   <tabstop>pbLoadNlambda</tabstop>
@@ -2470,491 +2700,23 @@ Wavelengths shoul be given in increasing order</string>
   <tabstop>pbShowABSlambda</tabstop>
   <tabstop>pbLoadABSlambda</tabstop>
   <tabstop>pbDeleteABSlambda</tabstop>
-  <tabstop>pbShowPrimSpectrum</tabstop>
-  <tabstop>pbLoadPrimSpectrum</tabstop>
-  <tabstop>pbDeletePrimSpectrum</tabstop>
   <tabstop>pbLoadSecSpectrum</tabstop>
-  <tabstop>ledPrimaryYield</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>ledDensity</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>283</x>
-     <y>264</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledW</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>327</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSecYield</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSecT</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledEDriftVelocity</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledDensity</sender>
+   <sender>leG4Material</sender>
    <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>283</x>
-     <y>264</y>
+     <x>394</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledW</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>327</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledEDriftVelocity</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSecYield</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledSecT</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbShowIsotopes</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>labContextMenuHelp</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>258</x>
-     <y>643</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>475</x>
-     <y>643</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledPrimaryYield</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>597</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledIntEnergyRes</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>623</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lePriT</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>389</x>
-     <y>520</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledReemissionProbability</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>388</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledRayleigh</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>309</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledRayleighWave</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>431</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledRayleigh</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>309</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledAbs</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>284</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledN</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>240</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledReemissionProbability</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>388</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledAbs</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>284</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledN</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>240</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lePriT_raise</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>389</x>
-     <y>546</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledT</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>295</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledT</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>295</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>leChemicalComposition</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>369</x>
-     <y>368</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>leChemicalComposition</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>369</x>
-     <y>368</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledPrimaryYield</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>597</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledEDiffT</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>385</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
+     <x>924</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
@@ -2965,92 +2727,60 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>414</y>
+     <x>700</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
+     <x>1045</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ledEDiffT</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>385</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledEDiffL</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>408</x>
-     <y>414</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledPrimaryYield</sender>
-   <signal>textEdited(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>597</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>leTags</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>84</x>
-     <y>646</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>leTags</sender>
+   <sender>ledDensity</sender>
    <signal>editingFinished()</signal>
    <receiver>pbUpdateTmpMaterial</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
-     <y>646</y>
+     <x>645</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>476</x>
-     <y>50</y>
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEDriftVelocity</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledSecT</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
@@ -3065,24 +2795,184 @@ Wavelengths shoul be given in increasing order</string>
      <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
+     <x>924</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>leG4Material</sender>
+   <sender>ledReemissionProbability</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>360</x>
+     <y>746</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledW</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leChemicalComposition</sender>
    <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>394</x>
-     <y>212</y>
+     <x>470</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>50</y>
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledReemissionProbability</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>360</x>
+     <y>746</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledT</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>603</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledRayleigh</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>694</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEDiffT</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leTags</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>817</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leChemicalComposition</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbShowIsotopes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labContextMenuHelp</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>506</x>
+     <y>814</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>723</x>
+     <y>814</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEDiffL</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
@@ -3093,7 +2983,7 @@ Wavelengths shoul be given in increasing order</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
+     <x>253</x>
      <y>211</y>
     </hint>
     <hint type="destinationlabel">
@@ -3109,12 +2999,268 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>245</y>
+     <x>645</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>363</x>
-     <y>34</y>
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledSecT</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEDiffT</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledSecYield</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledT</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>603</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leTags</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>482</x>
+     <y>817</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEDriftVelocity</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledRayleighWave</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>436</x>
+     <y>694</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledW</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledRayleigh</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>694</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledDensity</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledSecYield</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>229</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>280</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledN</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledN</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAbs</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>395</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAbs</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>395</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
