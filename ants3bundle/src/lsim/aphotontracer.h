@@ -37,7 +37,7 @@ public:
 
     void configureTracer();
 
-    void tracePhoton(const APhoton & Photon);
+    void tracePhoton(const APhoton & phot);
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;
@@ -57,56 +57,56 @@ private:
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
 
-    APhoton  p; //the photon which is traced
+    APhoton  Photon;                // the photon which is traced
     int      AddedTracks = 0;
-    int      TransitionCounter = 0; //number of photon transitions
-    double   Rnd; //pre-generated random number for accelerated mode
+    int      TransitionCounter = 0; // number of photon transitions
+    double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
-    double * N = nullptr; //normal vector to the surface
+    double * N = nullptr;           //normal vector to the surface
     bool     bHaveNormal = false;
-    int      MatIndexFrom; //material index of the current medium or medium before the interface
-    int      MatIndexTo;   //material index of the medium after interface
+    int      MatIndexFrom;          // material index of the current medium or medium before the interface
+    int      MatIndexTo;            // material index of the medium after interface
     double   RefrIndexFrom;
     double   RefrIndexTo;
-    bool     bDoFresnel; //flag - to perform or not the fresnel calculation on the interface
+    bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
     TString  NameTo;
 
     const TGeoVolume * VolumeFrom   = nullptr;
     const TGeoVolume * VolumeTo     = nullptr;
-    const AMaterial  * MaterialFrom = nullptr; //material before the interface
-    const AMaterial  * MaterialTo   = nullptr; //material after the interface
-    TGeoNode         * NodeAfter    = nullptr; //node after interface
+    const AMaterial  * MaterialFrom = nullptr; // material before the interface
+    const AMaterial  * MaterialTo   = nullptr; // material after the interface
+    TGeoNode         * NodeAfter    = nullptr; // node after interface
 
     bool               bGridShiftOn = false;
     double             R_afterStep[3];
-    double             FromGridToGlobal[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
-    double             FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
-    const TGeoVolume * GridVolume = nullptr;   // the grid bulk
+    double             FromGridToGlobal[3];          // add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
+    double             FromGridElementToGridBulk[3]; // add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
+    const TGeoVolume * GridVolume = nullptr;         // the grid bulk
 
-    static constexpr double c_in_vac = 299.7925; //speed of light in mm/ns
+    static constexpr double c_in_vac = 299.7925;     // speed of light in mm/ns
 
     EBulkProcessResult checkBulkProcesses();
     double calculateReflectionProbability();
     void processSensorHit(int iSensor);
     bool performRefraction(double nn);
     void performReflection();
-    bool enterGrid(int GridNumber); // !!!***
-    void appendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
+    bool enterGrid(int GridNumber);
+    void exitGrid();
+    void appendHistoryRecord();    // !!!*** why save photon tracks only those which are not filtered by the log?
 
-    void savePhotonLogRecord(){} // !!!***
+    void savePhotonLogRecord(){}   // !!!***
     void saveTrack();
     void endTracing();
-    AInterfaceRule * getInterfaceRule() const; // can be nullptr
+    AInterfaceRule * getInterfaceRule() const; // can return nullptr
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     EFresnelResult tryReflection();
     EInterRuleResult tryInterfaceRule();
     void initTracks();
     void initPhotonLog();
     bool skipTracing(int waveIndex);
-    bool initBeforeTracing(const APhoton &Photon);
+    bool initBeforeTracing(const APhoton & phot);
     bool isOutsideGridBulk();
     bool isPhotonEscaped();
-    void exitGrid();
 };
 #endif // APHOTONTRACER_H
