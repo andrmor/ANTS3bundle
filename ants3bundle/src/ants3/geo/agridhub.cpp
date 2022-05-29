@@ -55,6 +55,9 @@ void AGridHub::convertObjToGrid(AGeoObject * obj)
     elObj->color = 1;
     obj->addObjectFirst(elObj);
     elObj->updateGridElementShape();
+
+    shapeGrid(obj, 1, 10, 10, 1, 0);
+        //mesh - 1, pitchX, pitchY, wireDiameter
 }
 
 void AGridHub::shapeGrid(AGeoObject *obj, int shape, double p0, double p1, double p2, int wireMat)
