@@ -9,6 +9,7 @@
 #include "ajsontools.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
+#include "agridhub.h"
 #include "acalorimeterhub.h"
 #include "aerrorhub.h"
 
@@ -62,7 +63,7 @@ void AGeometryHub::clearWorld()
     World->HostedObjects.push_back(Prototypes);
 
     clearMonitors();
-    clearGridRecords();
+    AGridHub::getInstance().clear();
 }
 
 void AGeometryHub::clearMonitors()
@@ -70,14 +71,6 @@ void AGeometryHub::clearMonitors()
     AMonitorHub & mh = AMonitorHub::getInstance();
     mh.clear(AMonitorHub::Photon);
     mh.clear(AMonitorHub::Particle);
-}
-
-void AGeometryHub::clearGridRecords()
-{
-    /*
-    for (auto * gr : GridRecords) delete gr;
-    GridRecords.clear();
-*/
 }
 
 bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
@@ -252,7 +245,7 @@ void AGeometryHub::populateGeoManager()
     ASensorHub::getInstance().clearSensors();
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
-    clearGridRecords();
+    AGridHub::getInstance().clear();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
@@ -534,8 +527,9 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         // Positioning this object if it is physical
         if (obj->Type->isGrid())
         {
-            //            GridRecords.append(obj->createGridRecord());
-            //            parent->AddNode(vol, GridRecords.size() - 1, lTrans);
+            AGridHub & GridHub = AGridHub::getInstance();
+            GridHub.GridRecords.push_back(GridHub.createGridRecord(obj));
+            parent->AddNode(vol, GridHub.GridRecords.size() - 1, lTrans);
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);

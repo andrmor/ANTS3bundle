@@ -79,6 +79,7 @@ private:
     TGeoNode         * NodeAfter    = nullptr; //node after interface
 
     bool         fGridShiftOn = false;
+    // !!!*** rename to GridElementToGloabl and GloabToGridElement
     double       FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
     double       FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
     TGeoVolume * GridVolume = nullptr; // the grid bulk
