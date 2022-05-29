@@ -377,13 +377,11 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
 
     if (Selector == 'G') // Optical grid
     {
-        /*      !!!***
         //qDebug() << "Grid hit!" << ThisVolume->GetName() << ThisVolume->GetTitle()<< "Number:"<<NodeAfterInterface->GetNumber();
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Enter) );
         GridWasHit(NodeAfterInterface->GetNumber()); // it is assumed that "empty part" of the grid element will have the same refractive index as the material from which photon enters it
-        GridVolume = ThisVolume;
+        GridVolume = VolumeTo;
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftIn) );
-        */
         returnEndTracingFlag = false;
         return;
     }

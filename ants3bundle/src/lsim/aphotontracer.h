@@ -82,7 +82,7 @@ private:
     // !!!*** rename to GridElementToGloabl and GloabToGridElement
     double       FromGridCorrection[3]; //add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
     double       FromGridElementToGridBulk[3]; //add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
-    TGeoVolume * GridVolume = nullptr; // the grid bulk
+    const TGeoVolume * GridVolume = nullptr; // the grid bulk
 
     static constexpr double c_in_vac = 299.7925; //speed of light in mm/ns
 
