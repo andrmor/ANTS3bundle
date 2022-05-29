@@ -175,37 +175,35 @@ void AGeoTree::updatePrototypeTreeGui()
     updateExpandState(topItemPrototypes, true);
 }
 
+#include "agridhub.h"
 void AGeoTree::onGridReshapeRequested(QString objName)
 {
-    AGeoObject* obj = World->findObjectByName(objName);
+    AGeoObject * obj = World->findObjectByName(objName);
     if (!obj) return;
     if (!obj->Type->isGrid()) return;
 
-     // !!!***
-    /*
     if (!obj->getGridElement()) return;
-    ATypeGridElementObject* GE = static_cast<ATypeGridElementObject*>(obj->getGridElement()->Type);
+    ATypeGridElementObject * GE = static_cast<ATypeGridElementObject*>(obj->getGridElement()->Type);
 
-    AGridElementDialog* d = new AGridElementDialog(Sandwich->Materials, EditWidget);
+    AGridElementDialog * d = new AGridElementDialog(EditWidget);
     switch (GE->shape)
-     {
-      case 0: d->setValues(0, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001); break;
-      case 1: d->setValues(1, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001); break;
-      case 2:
-      {
-        AGeoPgon* pg = dynamic_cast<AGeoPgon*>(obj->getGridElement()->Shape);
-        if (pg)
-          d->setValues(2, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001);
-        break;
-      }
+    {
+    case 0: d->setValues(0, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001); break;
+    case 1: d->setValues(1, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001); break;
+    case 2:
+        {
+            AGeoPgon * pg = dynamic_cast<AGeoPgon*>(obj->getGridElement()->Shape);
+            if (pg) d->setValues(2, GE->size1, GE->size2, obj->getGridElement()->Shape->getHeight()-0.001);
+            break;
+        }
     }
 
     //setting materials
     d->setBulkMaterial(obj->Material);
-    if (!obj->HostedObjects.isEmpty())
-        if (!obj->HostedObjects.first()->HostedObjects.isEmpty())
+    if (!obj->HostedObjects.empty())
+        if (!obj->HostedObjects.front()->HostedObjects.empty())
         {
-            int wireMat = obj->HostedObjects.first()->HostedObjects.first()->Material;
+            int wireMat = obj->HostedObjects.front()->HostedObjects.front()->Material;
             d->setWireMaterial(wireMat);
         }
 
@@ -214,11 +212,12 @@ void AGeoTree::onGridReshapeRequested(QString objName)
     if (res != 0)
     {
         //qDebug() << "Accepted!";
+        AGridHub & GridHub = AGridHub::getInstance();
         switch (d->shape())
         {
-        case 0: Sandwich->shapeGrid(obj, 0, d->pitch(), d->length(), d->diameter(), d->wireMaterial()); break;
-        case 1: Sandwich->shapeGrid(obj, 1, d->pitchX(), d->pitchY(), d->diameter(), d->wireMaterial()); break;
-        case 2: Sandwich->shapeGrid(obj, 2, d->outer(), d->inner(), d->height(), d->wireMaterial()); break;
+        case 0: GridHub.shapeGrid(obj, 0, d->pitch(),  d->length(), d->diameter(), d->wireMaterial()); break;
+        case 1: GridHub.shapeGrid(obj, 1, d->pitchX(), d->pitchY(), d->diameter(), d->wireMaterial()); break;
+        case 2: GridHub.shapeGrid(obj, 2, d->outer(),  d->inner(),  d->height(),   d->wireMaterial()); break;
         default:
             qWarning() << "Unknown grid type!";
         }
@@ -230,7 +229,6 @@ void AGeoTree::onGridReshapeRequested(QString objName)
     }
     //else qDebug() << "Rejected!";
     delete d;
-    */
 }
 
 void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Container, bool fDisabled)
@@ -1001,27 +999,23 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
     UpdateGui(name);
 }
 
+#include "agridhub.h"
 void AGeoTree::menuActionAddNewGrid(AGeoObject * ContObj)
 {
-  if (!ContObj) return;
+    if (!ContObj) return;
 
-  // !!!***
-  /*
-  AGeoObject* newObj = new AGeoObject();
-  do newObj->Name = AGeoObject::GenerateRandomGridName();
-  while (World->isNameExists(newObj->Name));
-  if (newObj->Shape) delete newObj->Shape;
-  newObj->Shape = new AGeoBox(50, 50, 0.501);
-  newObj->Material = ContObj->Material;
+    AGeoObject * newObj = new AGeoObject();
+    newObj->Name = Geometry.generateObjectName("Grid");
+    delete newObj->Shape; newObj->Shape = new AGeoBox(50.0, 50.0, 0.501);
+    newObj->Material = ContObj->Material;
 
-  newObj->color = 1;
-  ContObj->addObjectFirst(newObj);
-  Geometry.convertObjToGrid(newObj);
+    newObj->color = 1;
+    ContObj->addObjectFirst(newObj);
+    AGridHub::getInstance().convertObjToGrid(newObj);
 
-  const QString name = newObj->Name;
-  emit RequestRebuildDetector();
-  UpdateGui(name);
-  */
+    const QString name = newObj->Name;
+    emit RequestRebuildDetector();
+    UpdateGui(name);
 }
 
 void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)

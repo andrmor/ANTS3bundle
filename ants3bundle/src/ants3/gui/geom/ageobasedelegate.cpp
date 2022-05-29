@@ -22,7 +22,7 @@ bool AGeoBaseDelegate::isLeEmpty(const QVector<AOneLineTextEdit *> & v) const
 
 void AGeoBaseDelegate::postUpdate()
 {
-    frBottomButtons->setEnabled(true);
+    if (frBottomButtons) frBottomButtons->setEnabled(true);
 }
 
 void AGeoBaseDelegate::createBottomButtons()
