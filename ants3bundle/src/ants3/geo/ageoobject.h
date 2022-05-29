@@ -86,12 +86,9 @@ public:
   void removeCompositeStructure();
   void updateNameOfLogicalMember(const QString & oldName, const QString & newName);
 
-/*
-  //for grid
-  AGeoObject* getGridElement();    // used in cpp - temporary commented in addObjectFirst
+  //for grids
+  AGeoObject * getGridElement();
   void  updateGridElementShape();
-  AGridElementRecord* createGridRecord();
-*/
 
   //for monitor -> TODO: remove from here
   void updateMonitorShape();
@@ -117,8 +114,8 @@ public:
   bool isContainsLocked();
   bool isDisabled() const;
   void enableUp();
-  void addObjectFirst(AGeoObject* Object);  // !!!***
-  void addObjectLast(AGeoObject* Object);   // !!!***
+  void addObjectFirst(AGeoObject * Object);
+  void addObjectLast(AGeoObject * Object);   // !!!***
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
   bool suicide(); // not possible for locked and static objects  !!!***

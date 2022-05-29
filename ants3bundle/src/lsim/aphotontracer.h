@@ -13,6 +13,7 @@ class APhotonSimSettings;
 class AMaterialHub;
 class AInterfaceRuleHub;
 class ASensorHub;
+class AGridHub;
 class ARandomHub;
 class APhotonStatistics;
 class TGeoManager;
@@ -45,6 +46,7 @@ private:
     const AMaterialHub       & MatHub;
     const AInterfaceRuleHub  & RuleHub;
     const ASensorHub         & SensorHub;
+    const AGridHub           & GridHub;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
     APhotonStatistics        & SimStat;
@@ -54,8 +56,6 @@ private:
     QTextStream            * & StreamTracks;
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
-
-//    const QVector<AGridElementRecord*>* grids;
 
     APhoton  p; //the photon which is traced
     int      AddedTracks = 0;
@@ -92,7 +92,7 @@ private:
     void performReflection();
     void RandomDir();   // !!!*** APhoton already has this method!
     bool GridWasHit(int GridNumber); // !!!***
-    void ReturnFromGridShift();      // !!!***
+    void returnFromGridShift();      // !!!***
     void appendHistoryRecord();  // !!!*** why save photon tracks only those which are not filtered by the log?
 
     void savePhotonLogRecord(){} // !!!***

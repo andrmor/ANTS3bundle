@@ -77,6 +77,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
+    geo/agridhub.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
     gui/alineeditwithescape.cpp \
@@ -265,6 +266,8 @@ HEADERS += \
     ademomanager.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
+    geo/agridelementrecord.h \
+    geo/agridhub.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
     gui/alineeditwithescape.h \

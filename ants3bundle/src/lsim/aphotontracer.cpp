@@ -10,7 +10,8 @@
 #include "ainterfacerule.h"
 #include "aphotonstatistics.h"
 #include "aoneevent.h"
-//#include "agridelementrecord.h"
+#include "agridhub.h"
+#include "agridelementrecord.h"
 #include "aphoton.h"
 #include "amonitor.h"
 #include "amonitorhub.h"
@@ -20,20 +21,19 @@
 
 #include "TGeoManager.h"
 #include "TMath.h"
-#include "TH1I.h"
+#include "TH1D.h"
 
 APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
+    GridHub(AGridHub::getConstInstance()),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
     SimStat(AStatisticsHub::getInstance().SimStat),
     Event(event),
     StreamTracks(streamTracks)
-{
-//    grids = Grids;
-}
+{}
 
 void APhotonTracer::configureTracer()
 {
@@ -118,11 +118,8 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
     {
         TransitionCounter++; //qDebug() << "tracing cycle #" << TransitionCounter;
 
-        //VolumeFrom   = VolumeTo;
         VolumeFrom = Navigator->GetCurrentVolume();
-        //MatIndexFrom = MatIndexTo;
         if (VolumeFrom) MatIndexFrom = VolumeFrom->GetMaterial()->GetIndex();
-
         MaterialFrom = MatHub[MatIndexFrom]; //this is the material where the photon is currently in
         if (SimSet.RunSet.SavePhotonLog) NameFrom = Navigator->GetCurrentVolume()->GetName();
 
@@ -244,18 +241,17 @@ void APhotonTracer::tracePhoton(const APhoton & Photon)
         //--- Photon entered another volume ---
         Navigator->PopDummy(); //clean up the stack
 
-/*      !!!***
-        //if passed overrides and gridNavigator!=0, abandon it - photon is considered to exit the grid
-        if (fGridShiftOn && Step >0.001)
+        // photon is considered to exit the grid
+        if (fGridShiftOn && Step > 0.001)
         {
             //qDebug() << "++Grid back shift triggered!";
             if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_ShiftOut) );
-            ReturnFromGridShift();
+            returnFromGridShift();
             Navigator->FindNode();
             if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), nameTo, p.time, p.waveIndex, APhotonHistoryLog::Grid_Exit) );
-            //         qDebug() << "Navigator coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
+            //qDebug() << "Navigator coordinates: "<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
         }
-*/
+
         bool endTracingFlag;
         checkSpecialVolume(NodeAfter, endTracingFlag);
         if (endTracingFlag)
@@ -815,16 +811,14 @@ void APhotonTracer::RandomDir()
 
 bool APhotonTracer::GridWasHit(int GridNumber)
 {
-    /*
-
-    //calculating where we are in respect to the grid element
+    //calculating where we are in respect to the grid elementary cell
     const Double_t *global = Navigator->GetCurrentPoint();
     //init only:
     FromGridCorrection[0] = global[0];
     FromGridCorrection[1] = global[1];
     FromGridCorrection[2] = global[2];
 
-    if (GridNumber<0 || GridNumber>grids->size()-1)
+    if (GridNumber < 0 || GridNumber > GridHub.GridRecords.size()-1)
     {
         qCritical() << "Grid hit: Bad grid number!";
         return false;
@@ -840,11 +834,11 @@ bool APhotonTracer::GridWasHit(int GridNumber)
     FromGridElementToGridBulk[1] = local[1];
     FromGridElementToGridBulk[2] = local[2];
 
-    if ((*grids)[GridNumber]->shape < 2)
+    if (GridHub.GridRecords[GridNumber]->shape < 2)
     {
         //rectangular grid
-        double& dx = (*grids)[GridNumber]->dx;
-        double& dy = (*grids)[GridNumber]->dy;
+        double & dx = GridHub.GridRecords[GridNumber]->dx;
+        double & dy = GridHub.GridRecords[GridNumber]->dy;
         //qDebug() << "-->grid cell half size in x and y"<<dx<<dy;
 
         int periodX = 0.5*fabs(local[0])/dx + 0.5;
@@ -862,7 +856,7 @@ bool APhotonTracer::GridWasHit(int GridNumber)
     else
     {
         //hexagonal grid - the size is given in radius of circle inside!
-        double dx = (*grids)[GridNumber]->dx*1.1547; // 1.0/cos(30)
+        double dx = GridHub.GridRecords[GridNumber]->dx * 1.1547; // 1.0/cos(30)
         double dy = dx*0.866; //sqrt(3)*2
         //        qDebug() << "-->dx,dy:"<<dx<<dy;
         int ix = fabs(local[0]/dx/1.5);
@@ -926,19 +920,15 @@ bool APhotonTracer::GridWasHit(int GridNumber)
     //qDebug() << "-->  Current point:"<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
     //qDebug() << "-->  Shifts in XYZ to get to normal:"<<FromGridCorrection[0]<<FromGridCorrection[1]<<FromGridCorrection[2];
     return true;
-
-    */
-    return false;
 }
 
-void APhotonTracer::ReturnFromGridShift()
+void APhotonTracer::returnFromGridShift()
 {
-/*
     //qDebug() << "<--Returning from grid shift!";
     //qDebug() << "<--Shifted coordinates:"<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
     //qDebug() << "<--Currently in"<<navigator->FindNode()->GetName();
-    const Double_t* r = Navigator->GetCurrentPoint();
-    Double_t R[3];
+    const double * r = Navigator->GetCurrentPoint();
+    double R[3];
     R[0] = r[0] + FromGridCorrection[0];
     R[1] = r[1] + FromGridCorrection[1];
     R[2] = r[2] + FromGridCorrection[2];
@@ -947,5 +937,4 @@ void APhotonTracer::ReturnFromGridShift()
     fGridShiftOn = false;
     //qDebug() << "<--True coordinates:"<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
     //qDebug() << "<--After back shift in"<<navigator->FindNode()->GetName();
-*/
 }
