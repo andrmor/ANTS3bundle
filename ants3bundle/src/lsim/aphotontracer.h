@@ -21,7 +21,6 @@ class AMaterial;
 class AOneEvent;
 class TGeoNavigator;
 class TGeoVolume;
-class AGridElementRecord;
 class QTextStream;
 class AInterfaceRule;
 class TGeoNode;
@@ -86,27 +85,26 @@ private:
 
     static constexpr double c_in_vac = 299.7925;     // speed of light in mm/ns
 
-    EBulkProcessResult checkBulkProcesses();
+    bool initBeforeTracing(const APhoton & phot);
+    void initTracks();
+    void initPhotonLog();
+    bool skipTracing(int waveIndex);
+    void endTracing();
     double calculateReflectionProbability();
     void processSensorHit(int iSensor);
     bool performRefraction(double nn);
     void performReflection();
     bool enterGrid(int GridNumber);
+    bool isOutsideGridBulk();
     void exitGrid();
     void appendHistoryRecord();    // !!!*** why save photon tracks only those which are not filtered by the log?
-
     void savePhotonLogRecord(){}   // !!!***
     void saveTrack();
-    void endTracing();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
-    void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     EFresnelResult tryReflection();
     EInterRuleResult tryInterfaceRule();
-    void initTracks();
-    void initPhotonLog();
-    bool skipTracing(int waveIndex);
-    bool initBeforeTracing(const APhoton & phot);
-    bool isOutsideGridBulk();
+    EBulkProcessResult checkBulkProcesses();
+    void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     bool isPhotonEscaped();
 };
 #endif // APHOTONTRACER_H

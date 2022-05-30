@@ -61,7 +61,7 @@ void AMonitor::fillForPhoton(double x, double y, double Time, double Angle, int 
 {
     if (xy)    xy->Fill(x,y);
     if (time)  time->Fill(Time);
-    if (angle) angle->Fill(Angle);
+    if (angle) angle->Fill(Angle); // !!!*** check num bins == 1 then skip, put angle from cos calculation here
     if (wave)  wave->Fill(waveIndex);
 }
 

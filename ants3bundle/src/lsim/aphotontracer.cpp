@@ -179,10 +179,10 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         const EInterRuleResult res = tryInterfaceRule();
         switch (res)
         {
-            case EInterRuleResult::Absorbed     : endTracing(); return;      // stack cleaned inside
-            case EInterRuleResult::Reflected    : continue;                  // stack cleaned inside
-            case EInterRuleResult::Transmitted  : bDoFresnel = false; break;
             case EInterRuleResult::NotTriggered : bDoFresnel = true;  break;
+            case EInterRuleResult::Transmitted  : bDoFresnel = false; break;
+            case EInterRuleResult::Reflected    : continue;                  // stack cleaned inside
+            case EInterRuleResult::Absorbed     : endTracing(); return;      // stack cleaned inside
         }
 
         //--- Interface rule not set or not triggered ---
@@ -242,31 +242,26 @@ EInterRuleResult APhotonTracer::tryInterfaceRule()
     switch (result)
     {
     case AInterfaceRule::Absorbed:
-        //qDebug() << "-Override: absorption triggered";
-        Navigator->PopDummy(); //clean up the stack
+        Navigator->PopDummy();
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(PhPos, NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
         SimStat.InterfaceRuleLoss++;
         return EInterRuleResult::Absorbed;
     case AInterfaceRule::Back:
-        //qDebug() << "-Override: photon bounced back";
-        Navigator->PopPoint();  //remaining in the original volume
-        Navigator->SetCurrentDirection(Photon.v); //updating direction
+        Navigator->PopPoint();
+        Navigator->SetCurrentDirection(Photon.v);
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(PhPos, NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
         SimStat.InterfaceRuleBack++;
         return EInterRuleResult::Reflected;
     case AInterfaceRule::Forward:
         Navigator->SetCurrentDirection(Photon.v);
-        //stack cleaned afterwards
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(PhPos, NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
         SimStat.InterfaceRuleForward++;
-        return EInterRuleResult::Transmitted;
+        return EInterRuleResult::Transmitted;  // stack cleaned afterwards
     case AInterfaceRule::NotTriggered:
-        //stack cleaned afterwards
-        return EInterRuleResult::NotTriggered;
+        return EInterRuleResult::NotTriggered; // stack cleaned afterwards
     default:
-        //stack cleaned afterwards
         qCritical() << "override error - doing fresnel instead!";
-        return EInterRuleResult::NotTriggered;
+        return EInterRuleResult::NotTriggered; // stack cleaned afterwards
     }
 }
 
@@ -285,15 +280,14 @@ EFresnelResult APhotonTracer::tryReflection()
     if (RandomHub.uniform() < prob)
     {
         SimStat.FresnelReflected++;
-        // photon remains in the same volume -> continue to the next iteration
-        Navigator->PopPoint(); //restore the point before the border
+        Navigator->PopPoint();           // restore the point before the border
         performReflection();
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
         return EFresnelResult::Reflected;
     }
 
     SimStat.FresnelTransmitted++;
-    return EFresnelResult::Transmitted;
+    return EFresnelResult::Transmitted;  // stack cleaned afterwards
 }
 
 bool APhotonTracer::isOutsideGridBulk()
@@ -354,6 +348,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
     const char* VolTitle = VolumeTo->GetTitle();
     //qDebug() << "Title:"<<VolTitle;
 
+    // volumes without special role have titles statring with '-'
     const char Selector = VolTitle[0];
     if (Selector == 'S') // Sensor
     {
@@ -387,8 +382,8 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         AMonitorHub & MonitorHub = AMonitorHub::getInstance();
         const int iMon = NodeAfterInterface->GetNumber();
         //qDebug() << "Monitor hit!" << ThisVolume->GetName() << "Number:"<<iMon;// << MatIndexFrom<<MatIndexTo;
-        Double_t local[3];
-        const Double_t * global = Navigator->GetCurrentPoint();
+        double local[3];
+        const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);
         //qDebug()<<local[0]<<local[1];
         //qDebug() << "Monitors:"<<SimStat.Monitors.size();
@@ -412,7 +407,6 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         return;
     }
 
-    // volumes without special role have titles statring with '-'
     returnEndTracingFlag = false;
 }
 
@@ -584,7 +578,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
             if (SimSet.RunSet.SaveTracks || SimSet.RunSet.SavePhotonLog)
             {
-                Double_t point[3];
+                double point[3];
                 point[0] = Navigator->GetCurrentPoint()[0] + Photon.v[0]*AbsPath;
                 point[1] = Navigator->GetCurrentPoint()[1] + Photon.v[1]*AbsPath;
                 point[2] = Navigator->GetCurrentPoint()[2] + Photon.v[2]*AbsPath;
@@ -758,15 +752,15 @@ bool APhotonTracer::performRefraction(double nn) // nn = nFrom / nTo
     // T = -( nn*(NK) - sqrt(1-nn*nn*[1-(NK)*(NK)]))*N + nn*K
 
     if (!bHaveNormal) N = Navigator->FindNormal(kFALSE);
-    const Double_t NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
+    const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
 
-    const Double_t UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
-    if (UnderRoot<0)
+    const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
+    if (UnderRoot < 0)
     {
         //        qDebug()<<"total internal detected - will assume this photon is abosrbed at the surface";
         return false;    //total internal reflection! //previous reflection test should catch this situation
     }
-    const Double_t tmp = nn*NK - sqrt(UnderRoot);
+    const double tmp = nn*NK - sqrt(UnderRoot);
 
     Photon.v[0] = -tmp*N[0] + nn*Photon.v[0];
     Photon.v[1] = -tmp*N[1] + nn*Photon.v[1];
