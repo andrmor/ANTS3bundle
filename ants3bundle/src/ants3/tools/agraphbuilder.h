@@ -16,9 +16,9 @@ class QString;
 namespace AGraphBuilder
 {
     TGraph * graph(const QVector<double>& x, const QVector<double>& y);
-    TGraph * graph(const std::vector<std::pair<double, double>> & data);
-
+    TGraph * graph(const std::vector<double> & x, const std::vector<double> & y);
     TGraph * graph(const std::vector<float>& x, const std::vector<float>& y);
+    TGraph * graph(const std::vector<std::pair<double, double>> & data);
 
     TGraph * graph(const QVector<double>& x, const QVector<double>& y,
                           const char *Title, const char *XTitle, const char *YTitle,
@@ -33,10 +33,10 @@ namespace AGraphBuilder
                           short MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
                           short LineColor=2,   int LineStyle=1,    int LineWidth=2);
 
-    void configure(TGraph * graph, const QString & GraphTitle,
-                          const QString & XTitle, const QString & YTitle,
-                          int MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
-                          int LineColor=2,   int LineStyle=1,    int LineWidth=2);
+    void configure(TGraph * graph,
+                   const QString & GraphTitle, const QString & XTitle, const QString & YTitle,
+                   int MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
+                   int LineColor=2,   int LineStyle=1,    int LineWidth=2);
 
     TGraph2D * graph(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z);
     TGraph2D * graph(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z,

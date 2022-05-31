@@ -5,7 +5,7 @@
 #include "ainterfacerule.h"
 #include "ainterfacewidgetfactory.h"
 #include "guitools.h"
-//#include "aopticaloverridetester.h"
+#include "aopticaloverridetester.h"
 
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -40,8 +40,8 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     updateGui();
 
-//    TesterWindow = new AOpticalOverrideTester(&ovLocal, MW, matFrom, matTo, this);
-//    TesterWindow->readFromJson(MW->OvTesterSettings);
+    TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
+//    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
 }
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
@@ -129,9 +129,9 @@ void AInterfaceRuleDialog::on_pbCancel_clicked()
 
 void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 {
-//    TesterWindow->writeToJson(MW->OvTesterSettings);
-//    TesterWindow->hide();
-//    delete TesterWindow; TesterWindow = nullptr;
+//    TesterWindow->writeToJson(MW->OvTesterSettings);  !!!***
+    TesterWindow->hide();
+    delete TesterWindow; TesterWindow = nullptr;
 
     QDialog::closeEvent(e);
 }
@@ -153,7 +153,7 @@ void AInterfaceRuleDialog::on_cobType_activated(int index)
 
 void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 {
-//    TesterWindow->show();
-//    TesterWindow->updateGUI();
-//    TesterWindow->showGeometry();
+    TesterWindow->show();
+    TesterWindow->updateGUI();
+    TesterWindow->showGeometry();
 }

@@ -31,7 +31,7 @@ private slots:
     void on_pbTestOverride_clicked();
 
 protected:
-    void closeEvent(QCloseEvent * e);
+    void closeEvent(QCloseEvent * e);  // !!!*** saqve/load settings!
 
 private:
     AMaterialHub      & MatHub;
