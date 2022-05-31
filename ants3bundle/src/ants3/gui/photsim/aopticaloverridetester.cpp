@@ -218,7 +218,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
     N[2] = SurfNorm.Z();
     TVector3 PhotDir = getPhotonVector();
 
-    tracks.clear();
+    Tracks.clear();
     double d = 0.5; //offset - for drawing only
 
     //preparing and running cycle with photons
@@ -251,8 +251,8 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         default:                           rep.error++; continue;         // ! ->
         }
 
-        Color_t col;
-        Int_t type;
+        short col;
+        int type;
         if ((*pOV)->Status == AInterfaceRule::SpikeReflection)
         {
             rep.Bspike++;
@@ -277,9 +277,9 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
             col = kBlue; //blue for error
         }
 
-        tracks.append(APhotonTrackRecord(type, col));
-        tracks.last().Nodes.append(TrackNodeStruct(d, d, d, 0));
-        tracks.last().Nodes.append(TrackNodeStruct(d + ph.v[0], d + ph.v[1], d + ph.v[2], 0));
+        Tracks.push_back(ATmpTrackRec(type, col));
+        Tracks.back().Nodes.push_back( {d, d, d} );
+        Tracks.back().Nodes.push_back( {d + ph.v[0], d + ph.v[1], d + ph.v[2]} );
 
         double costr = - SurfNorm[0] * ph.v[0] - SurfNorm[1] * ph.v[1] - SurfNorm[2] * ph.v[2];
 
@@ -342,24 +342,24 @@ void AOpticalOverrideTester::on_pbST_showTracks_clicked()
 {
     showGeometry();
 
-    if (tracks.isEmpty()) return;
+    if (Tracks.empty()) return;
     int selector = ui->cobST_trackType->currentIndex() - 1;
     if (selector == 3) return; //do not show any tracks
 
     int numTracks = 0;
-    for(int i = 1; i<tracks.count() && numTracks < maxNumTracks; i++)
+    for(int i = 1; i < Tracks.size() && numTracks < maxNumTracks; i++)
     {
-        const TrackHolderClass* th = &tracks.at(i);
+        const ATmpTrackRec & th = Tracks[i];
         //filter
-        if (selector>-1)  //-1 - show all
-            if (selector != th->UserIndex) continue;
+        if (selector > -1)  //-1 - show all
+            if (selector != th.Type) continue;
 
         int track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack* track = gGeoManager->GetTrack(track_index);
-        track->SetLineColor(th->Color);
+        TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+        track->SetLineColor(th.Color);
         track->SetLineWidth(1);
-        for (int iNode=0; iNode<th->Nodes.size(); iNode++)
-            track->AddPoint(th->Nodes[iNode].R[0], th->Nodes[iNode].R[1], th->Nodes[iNode].R[2], th->Nodes[iNode].Time);
+        for (int iNode=0; iNode < th.Nodes.size(); iNode++)
+            track->AddPoint(th.Nodes[iNode][0], th.Nodes[iNode][1], th.Nodes[iNode][2], 0);
     }
 
     emit requestShowTracks();

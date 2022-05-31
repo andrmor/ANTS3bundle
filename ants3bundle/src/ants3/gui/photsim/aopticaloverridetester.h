@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <vector>
+#include <array>
 
 #include "TVector3.h"
 
@@ -13,7 +14,11 @@ class AOpticalOverrideTester;
 
 struct ATmpTrackRec
 {
+    ATmpTrackRec(int type, short color) : Type(type), Color(color) {}
 
+    int   Type;
+    short Color;
+    std::vector<std::array<double,3>> Nodes;
 };
 
 struct AReportForOverride
