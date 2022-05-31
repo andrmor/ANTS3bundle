@@ -28,8 +28,6 @@
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 
-static QVector<APhotonTrackRecord> tracks;
-
 AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
@@ -225,7 +223,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
 
     //preparing and running cycle with photons
 
-    TH1D* hist1 = new TH1D("", "", 100, 0, 0);
+    TH1D * hist1 = new TH1D("", "", 100, 0, 0);
     hist1->GetXaxis()->SetTitle("Backscattering angle, degrees");
 
     APhoton ph;
@@ -279,7 +277,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
             col = kBlue; //blue for error
         }
 
-        tracks.append(TrackHolderClass(type, col));
+        tracks.append(APhotonTrackRecord(type, col));
         tracks.last().Nodes.append(TrackNodeStruct(d, d, d, 0));
         tracks.last().Nodes.append(TrackNodeStruct(d + ph.v[0], d + ph.v[1], d + ph.v[2], 0));
 
@@ -288,7 +286,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         hist1->Fill(180.0 / TMath::Pi() * acos(costr));
     }
 
-    GraphWindow->Draw(hist1);
+    emit requestDraw(hist1, "hist", true, true);
     on_pbST_showTracks_clicked();
 
     rep.waveChanged = Stats.WaveChanged;
@@ -299,7 +297,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
 void AOpticalOverrideTester::showGeometry()
 {
     gGeoManager->ClearTracks();
-    GeometryWindow->ClearRootCanvas();
+    emit requestClearGeometryViewer();
 
     double d = 0.5;
     double f = 0.5;
@@ -337,13 +335,11 @@ void AOpticalOverrideTester::showGeometry()
     track->SetLineColor(kRed);
     track->SetLineWidth(3);
 
-    GeometryWindow->show();
-    GeometryWindow->DrawTracks();
+    emit requestShowTracks();
 }
 
 void AOpticalOverrideTester::on_pbST_showTracks_clicked()
 {
-    GeometryWindow->ShowAndFocus();
     showGeometry();
 
     if (tracks.isEmpty()) return;
@@ -366,8 +362,7 @@ void AOpticalOverrideTester::on_pbST_showTracks_clicked()
             track->AddPoint(th->Nodes[iNode].R[0], th->Nodes[iNode].R[1], th->Nodes[iNode].R[2], th->Nodes[iNode].Time);
     }
 
-    GeometryWindow->show();
-    GeometryWindow->DrawTracks();
+    emit requestShowTracks();
 }
 
 bool AOpticalOverrideTester::testOverride()
@@ -389,8 +384,10 @@ bool AOpticalOverrideTester::testOverride()
 
 int AOpticalOverrideTester::getWaveIndex()
 {
+    const double wavelength = ui->ledST_wave->text().toDouble();
     if (ui->cbWavelength->isChecked())
-        return MPcollection->WaveToIndex( ui->ledST_wave->text().toDouble() ); // always in [0, WaveNodes-1]
+        //return MPcollection->WaveToIndex(wavelength); // always in [0, WaveNodes-1]
+        return APhotonSimHub::getConstInstance().Settings.WaveSet.toIndex(wavelength);
     else return -1;
 }
 
@@ -458,7 +455,7 @@ void AOpticalOverrideTester::on_pbST_uniform_clicked()
         hist1->Fill(180.0 / TMath::Pi() * acos(costr));
     }
 
-    GraphWindow->Draw(hist1);
+    emit requestDraw(hist1, "hist", true, true);
 
     rep.waveChanged = Stats.WaveChanged;
     rep.timeChanged = Stats.TimeChanged;

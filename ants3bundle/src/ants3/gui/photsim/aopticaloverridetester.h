@@ -3,11 +3,18 @@
 
 #include <QMainWindow>
 
+#include <vector>
+
 #include "TVector3.h"
 
 namespace Ui {
 class AOpticalOverrideTester;
 }
+
+struct ATmpTrackRec
+{
+
+};
 
 struct AReportForOverride
 {
@@ -72,6 +79,8 @@ private:
 
     const int maxNumTracks = 1000;
 
+    std::vector<ATmpTrackRec> Tracks;
+
     bool testOverride();
     int getWaveIndex();
     const TVector3 getPhotonVector();
@@ -80,6 +89,8 @@ private:
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestDrawLegend();
+    void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
+    void requestShowTracks(); // also focuses the geo view window
 
 };
 
