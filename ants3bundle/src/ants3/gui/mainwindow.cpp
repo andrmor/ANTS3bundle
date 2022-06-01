@@ -170,7 +170,7 @@ void MainWindow::onRebuildGeometryRequested()
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoTreeWin->updateGui();
-    GeoTreeWin->requestClearGeoMarkers(0);
+    emit GeoTreeWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 

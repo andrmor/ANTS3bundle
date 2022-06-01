@@ -34,6 +34,8 @@ void AInterfaceRuleWin::updateGui()
 {
     updateMatGui();
     updateVolGui();
+
+    delete RuleDialog; RuleDialog = nullptr;
 }
 
 void AInterfaceRuleWin::updateMatGui()

@@ -163,6 +163,8 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
     TesterWindow->updateGUI();
     TesterWindow->showGeometry();
 
+    TesterWindow->move(x(), y());
+
     connect(TesterWindow, &AOpticalOverrideTester::closed, this, &AInterfaceRuleDialog::setEnabled);
     setEnabled(false);
     TesterWindow->setEnabled(true);
