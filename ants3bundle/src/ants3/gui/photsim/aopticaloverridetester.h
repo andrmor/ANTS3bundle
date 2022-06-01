@@ -71,6 +71,9 @@ private slots:
 
     void on_ledAngle_editingFinished();
 
+protected:
+    void closeEvent(QCloseEvent * e);
+
 private:
     AMaterialHub const & MatHub;
     ARandomHub         & RandomHub;
@@ -96,6 +99,7 @@ signals:
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
     void requestShowTracks(); // also focuses the geo view window
+    void closed(bool);
 
 };
 

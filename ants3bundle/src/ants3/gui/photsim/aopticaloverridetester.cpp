@@ -486,6 +486,12 @@ void AOpticalOverrideTester::on_ledAngle_editingFinished()
     showGeometry();
 }
 
+void AOpticalOverrideTester::closeEvent(QCloseEvent * e)
+{
+    QMainWindow::closeEvent(e);
+    emit closed(true);
+}
+
 void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int numPhot)
 {
     ui->pte->clear();

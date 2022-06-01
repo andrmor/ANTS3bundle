@@ -25,6 +25,9 @@ public:
 
     AInterfaceRule * getRule();
 
+    int MatFrom;
+    int MatTo;
+
 private slots:
     void on_pbAccept_clicked();
     void on_pbCancel_clicked();
@@ -38,8 +41,6 @@ private:
     AMaterialHub      & MatHub;
     AInterfaceRuleHub & RuleHub;
 
-    int MatFrom;
-    int MatTo;
 
     Ui::AInterfaceRuleDialog * ui           = nullptr;
     AInterfaceRule           * LocalRule    = nullptr;
@@ -60,6 +61,7 @@ signals:
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
     void requestShowTracks(); // also focuses the geo view window
+    void closed(bool);
 
 };
 

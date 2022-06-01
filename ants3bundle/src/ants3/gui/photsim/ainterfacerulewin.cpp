@@ -108,24 +108,18 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
     int iFrom = ui->tabwMat->currentRow();
     int iTo   = ui->tabwMat->currentColumn();
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
-    configureInterfaceDialog(d);
-    //d->show();
-    int res = d->exec();
-    if (res == QDialog::Accepted) RuleHub.MaterialRules[iFrom][iTo] = d->getRule();
-    updateMatGui();
-    delete d;
+    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
+    configureInterfaceDialog();
+    connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Mat);
+    RuleDialog->show();
 }
 
-#include "TObject.h"
-void AInterfaceRuleWin::configureInterfaceDialog(AInterfaceRuleDialog * d)
+void AInterfaceRuleWin::OnRuleDialogAccepted_Mat()
 {
-    //d->setWindowModality(Qt::WindowModal);
-    d->setWindowModality(Qt::NonModal);
-    connect(d, &AInterfaceRuleDialog::requestClearGeometryViewer, this, &AInterfaceRuleWin::requestClearGeometryViewer);
-    connect(d, &AInterfaceRuleDialog::requestDraw,                this, &AInterfaceRuleWin::requestDraw);
-    connect(d, &AInterfaceRuleDialog::requestDrawLegend,          this, &AInterfaceRuleWin::requestDrawLegend);
-    connect(d, &AInterfaceRuleDialog::requestShowTracks,          this, &AInterfaceRuleWin::requestShowTracks);
+    if (!RuleDialog) return;
+    RuleHub.MaterialRules[RuleDialog->MatFrom][RuleDialog->MatTo] = RuleDialog->getRule();
+    updateMatGui();
+    delete RuleDialog; RuleDialog = nullptr;
 }
 
 void AInterfaceRuleWin::onVolCellDoubleClicked()
@@ -134,21 +128,34 @@ void AInterfaceRuleWin::onVolCellDoubleClicked()
     if (iCol != 2) return;
     int iRow = ui->tabwVolumes->currentRow();
 
-    TString From(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
-    TString To  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+    LastFrom = ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data();
+    LastTo   = ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data();
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getVolumeRule(From, To), 0, 0, this);    
-    configureInterfaceDialog(d);
-    int res = d->exec();
-    if (res == QDialog::Accepted)
-    {
-        AInterfaceRule * newRule = d->getRule();
-        if (newRule) RuleHub.setVolumeRule(From, To, newRule);
-        else         RuleHub.removeVolumeRule(From, To);
-    }
-    delete d;
+    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), 0, 0, this);
+    configureInterfaceDialog();
+    connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Vol);
+    RuleDialog->show();
+}
 
+void AInterfaceRuleWin::OnRuleDialogAccepted_Vol()
+{
+    if (!RuleDialog) return;
+
+    AInterfaceRule * newRule = RuleDialog->getRule();
+    if (newRule) RuleHub.setVolumeRule(LastFrom, LastTo, newRule);
+    else         RuleHub.removeVolumeRule(LastFrom, LastTo);
     updateVolGui();
+}
+
+#include "TObject.h"
+void AInterfaceRuleWin::configureInterfaceDialog()
+{
+    //RuleDialog->setWindowModality(Qt::WindowModal);
+    //RuleDialog->setWindowModality(Qt::NonModal);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestClearGeometryViewer, this, &AInterfaceRuleWin::requestClearGeometryViewer);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestDraw,                this, &AInterfaceRuleWin::requestDraw);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestDrawLegend,          this, &AInterfaceRuleWin::requestDrawLegend);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestShowTracks,          this, &AInterfaceRuleWin::requestShowTracks);
 }
 
 void AInterfaceRuleWin::onVolCellChanged()

@@ -13,9 +13,9 @@
 
 AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent) :
     QDialog(parent),
+    MatFrom(matFrom), MatTo(matTo),
     MatHub(AMaterialHub::getInstance()),
     RuleHub(AInterfaceRuleHub::getInstance()),
-    MatFrom(matFrom), MatTo(matTo),
     ui(new Ui::AInterfaceRuleDialog)
 {
     ui->setupUi(this);
@@ -139,6 +139,7 @@ void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
     delete TesterWindow; TesterWindow = nullptr;
 
     QDialog::closeEvent(e);
+    emit closed(true);
 }
 
 void AInterfaceRuleDialog::on_cobType_activated(int index)
@@ -161,4 +162,8 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
     TesterWindow->show();
     TesterWindow->updateGUI();
     TesterWindow->showGeometry();
+
+    connect(TesterWindow, &AOpticalOverrideTester::closed, this, &AInterfaceRuleDialog::setEnabled);
+    setEnabled(false);
+    TesterWindow->setEnabled(true);
 }
