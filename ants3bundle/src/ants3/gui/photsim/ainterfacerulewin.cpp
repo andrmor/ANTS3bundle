@@ -109,12 +109,23 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
     int iTo   = ui->tabwMat->currentColumn();
 
     AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
-    //d->setAttribute(Qt::WA_DeleteOnClose);
-    d->setWindowModality(Qt::WindowModal);
+    configureInterfaceDialog(d);
+    //d->show();
     int res = d->exec();
     if (res == QDialog::Accepted) RuleHub.MaterialRules[iFrom][iTo] = d->getRule();
     updateMatGui();
     delete d;
+}
+
+#include "TObject.h"
+void AInterfaceRuleWin::configureInterfaceDialog(AInterfaceRuleDialog * d)
+{
+    //d->setWindowModality(Qt::WindowModal);
+    d->setWindowModality(Qt::NonModal);
+    connect(d, &AInterfaceRuleDialog::requestClearGeometryViewer, this, &AInterfaceRuleWin::requestClearGeometryViewer);
+    connect(d, &AInterfaceRuleDialog::requestDraw,                this, &AInterfaceRuleWin::requestDraw);
+    connect(d, &AInterfaceRuleDialog::requestDrawLegend,          this, &AInterfaceRuleWin::requestDrawLegend);
+    connect(d, &AInterfaceRuleDialog::requestShowTracks,          this, &AInterfaceRuleWin::requestShowTracks);
 }
 
 void AInterfaceRuleWin::onVolCellDoubleClicked()
@@ -126,8 +137,8 @@ void AInterfaceRuleWin::onVolCellDoubleClicked()
     TString From(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
     TString To  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getVolumeRule(From, To), 0, 0, this);
-    d->setWindowModality(Qt::WindowModal);
+    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getVolumeRule(From, To), 0, 0, this);    
+    configureInterfaceDialog(d);
     int res = d->exec();
     if (res == QDialog::Accepted)
     {

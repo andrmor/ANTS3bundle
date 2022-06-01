@@ -41,6 +41,11 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     updateGui();
 
     TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
+    connect(TesterWindow, &AOpticalOverrideTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
+    connect(TesterWindow, &AOpticalOverrideTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
+    connect(TesterWindow, &AOpticalOverrideTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
+    connect(TesterWindow, &AOpticalOverrideTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
+
 //    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
 }
 

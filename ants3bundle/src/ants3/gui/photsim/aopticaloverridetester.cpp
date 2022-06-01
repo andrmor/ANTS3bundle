@@ -173,7 +173,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         emit requestDraw(gB, "Lsame", true, false);
         emit requestDraw(gF, "Lsame", true, false);
 
-        emit requestDrawLegend();
+        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Basic info");
         break;
     }
     case 1:
@@ -190,7 +190,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         emit requestDraw(gL, "Lsame", true, false);
         emit requestDraw(gD, "Lsame", true, false);
 
-        emit requestDrawLegend();
+        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Backscattering");
         break;
     }
     case 2:
@@ -200,7 +200,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         gW->SetMaximum(1.05);
         gW->SetMinimum(0);
         emit requestDraw(gW, "AL", true, false);
-        emit requestDrawLegend();
+        //emit requestDrawLegend(0.1,0.1, 0.5,0.5, "Waveshifted");
         break;
     }
     }

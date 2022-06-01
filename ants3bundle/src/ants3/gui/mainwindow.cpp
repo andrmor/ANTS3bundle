@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
+#include <QString>
 
 #include "TObject.h"
 
@@ -61,6 +62,10 @@ MainWindow::MainWindow() :
     connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
+    connect(RuleWin, &AInterfaceRuleWin::requestClearGeometryViewer, GeoWin,   &AGeometryWindow::ClearRootCanvas);
+    connect(RuleWin, &AInterfaceRuleWin::requestShowTracks,          GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(RuleWin, &AInterfaceRuleWin::requestDraw,                GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend,          GraphWin, &GraphWindowClass::drawLegend);
 
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);

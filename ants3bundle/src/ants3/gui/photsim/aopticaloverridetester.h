@@ -93,7 +93,7 @@ private:
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
-    void requestDrawLegend();
+    void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
     void requestShowTracks(); // also focuses the geo view window
 

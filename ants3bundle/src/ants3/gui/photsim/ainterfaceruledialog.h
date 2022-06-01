@@ -13,13 +13,14 @@ class AInterfaceRule;
 class AOpticalOverrideTester;
 class AMaterialHub;
 class AInterfaceRuleHub;
+class TObject;
 
 class AInterfaceRuleDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent);
+    explicit AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent); // !!!*** load
     ~AInterfaceRuleDialog();
 
     AInterfaceRule * getRule();
@@ -52,6 +53,14 @@ private:
     void updateGui();
     AInterfaceRule * findInOpended(const QString & ovType);
     void clearTmpRules();
+
+signals:
+    // next four are retranslators from aopticaloverridetester
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
+    void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
+    void requestShowTracks(); // also focuses the geo view window
+
 };
 
 #endif // AINTERFACERULEDIALOG_H
