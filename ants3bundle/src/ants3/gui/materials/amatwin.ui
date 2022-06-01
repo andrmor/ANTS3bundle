@@ -27,6 +27,7 @@
        <widget class="QLabel" name="label_18">
         <property name="font">
          <font>
+          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -109,6 +110,7 @@
        <widget class="QPushButton" name="pbShowUsage">
         <property name="font">
          <font>
+          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -190,6 +192,7 @@
           <widget class="QLineEdit" name="leName">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -301,6 +304,7 @@ To use Al with termal scattering, use G4_Al_TS</string>
               <widget class="QLabel" name="label_21">
                <property name="font">
                 <font>
+                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -591,6 +595,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                   <widget class="QCheckBox" name="cbShowIsotopes">
                    <property name="font">
                     <font>
+                     <weight>75</weight>
                      <bold>true</bold>
                     </font>
                    </property>
@@ -714,6 +719,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -732,6 +738,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -763,6 +770,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -781,6 +789,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -814,6 +823,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -852,6 +862,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -870,6 +881,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -902,6 +914,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -956,6 +969,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -965,6 +979,7 @@ Wavelengths shoul be given in increasing order</string>
                       <widget class="QLabel" name="label_23">
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1003,6 +1018,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1021,6 +1037,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1053,6 +1070,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1113,6 +1131,7 @@ Wavelengths shoul be given in increasing order</string>
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -1131,6 +1150,7 @@ Wavelengths shoul be given in increasing order</string>
                      </property>
                      <property name="font">
                       <font>
+                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -1168,6 +1188,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1199,8 +1220,46 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_34">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_38">
+                       <property name="text">
+                        <string>assuming</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="lineEdit">
+                       <property name="maximumSize">
+                        <size>
+                         <width>85</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_36">
+                       <property name="text">
+                        <string>nm</string>
                        </property>
                       </widget>
                      </item>
@@ -1234,6 +1293,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1252,6 +1312,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1284,6 +1345,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
+                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1331,7 +1393,7 @@ Wavelengths shoul be given in increasing order</string>
            <item>
             <widget class="QLabel" name="label_32">
              <property name="text">
-              <string>   </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -1354,6 +1416,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1378,6 +1441,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1390,6 +1454,7 @@ Wavelengths shoul be given in increasing order</string>
               <widget class="QLabel" name="label_47">
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1420,6 +1485,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1429,6 +1495,7 @@ Wavelengths shoul be given in increasing order</string>
               <widget class="QLabel" name="label_49">
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1456,6 +1523,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1482,7 +1550,7 @@ Wavelengths shoul be given in increasing order</string>
            <item>
             <widget class="QLabel" name="label_35">
              <property name="text">
-              <string>    </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -1505,6 +1573,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1529,6 +1598,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1567,6 +1637,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1588,6 +1659,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1606,6 +1678,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1638,6 +1711,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1708,6 +1782,7 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_5">
                  <property name="font">
                   <font>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1720,6 +1795,7 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_8">
                  <property name="font">
                   <font>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1732,6 +1808,7 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_24">
                  <property name="font">
                   <font>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1754,6 +1831,7 @@ Wavelengths shoul be given in increasing order</string>
                  </property>
                  <property name="font">
                   <font>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1775,6 +1853,7 @@ Wavelengths shoul be given in increasing order</string>
                  </property>
                  <property name="font">
                   <font>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1805,6 +1884,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1823,6 +1903,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1855,6 +1936,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1896,6 +1978,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1905,6 +1988,7 @@ Wavelengths shoul be given in increasing order</string>
                   <widget class="QLabel" name="label_28">
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1929,6 +2013,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1947,6 +2032,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1988,6 +2074,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2000,6 +2087,7 @@ Wavelengths shoul be given in increasing order</string>
                   <widget class="QLabel" name="label_29">
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2064,6 +2152,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2082,6 +2171,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2153,6 +2243,7 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
+                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2536,6 +2627,7 @@ Wavelengths shoul be given in increasing order</string>
             </property>
             <property name="font">
              <font>
+              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -2597,7 +2689,7 @@ Wavelengths shoul be given in increasing order</string>
      <x>0</x>
      <y>0</y>
      <width>569</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuLibrary">
