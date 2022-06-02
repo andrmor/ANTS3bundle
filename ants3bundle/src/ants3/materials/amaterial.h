@@ -4,6 +4,9 @@
 #include <QString>
 #include <QVector>
 
+#include <vector>
+#include <complex>
+
 #include "amaterialcomposition.h"
 
 class QJsonObject;
@@ -34,6 +37,14 @@ public:
     QVector<APair_ValueAndWeight> PriScint_Decay;
     QVector<APair_ValueAndWeight> PriScint_Raise;
 
+    //complex refractive index
+    bool   UseComplexN = false;
+    double ReN = 1.0;
+    double ImN = 0;
+    double ComplexWave = 500.0; // effective wavelength to get absorption coefficient from the refractive index
+    std::vector<std::pair<double,std::complex<double>>> ComplexN; // Wave[nm] + ComplexRefractiveIndex
+    std::vector<std::complex<double>> ComplexNBinned;
+
     double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
     //double getPhotonYield(int iParticle) const;   !!!***
 
@@ -55,7 +66,7 @@ public:
     double IntrEnergyRes = 0; // intrinsic energy resolution
     */
 
-    // !!!*** to std::vector<DPair>
+    // !!!*** to std::vector<std::pair>
     QVector<double> nWave_lambda;
     QVector<double> nWave;
 

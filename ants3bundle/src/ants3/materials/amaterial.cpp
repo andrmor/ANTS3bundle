@@ -3,6 +3,7 @@
 //#include "acommonfunctions.h"
 #include "ajsontools.h"
 #include "afiletools.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 #include <QStandardPaths>
@@ -171,6 +172,9 @@ void AMaterial::updateRuntimeProperties()
         if (reemisProbWave_lambda.size() > 0)
             WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
 
+        ComplexN.clear();
+        if (!ComplexN.empty()) WaveSet.toStandardBins(ComplexN, ComplexNBinned);
+
         if (rayleighMFP != 0)
         {
             rayleighBinned.clear();
@@ -212,6 +216,7 @@ void AMaterial::updateRuntimeProperties()
         absWaveBinned.clear();
         reemissionProbBinned.clear();
         rayleighBinned.clear();
+        ComplexNBinned.clear();
         delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
         delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
     }
@@ -226,6 +231,13 @@ void AMaterial::clear()
     e_driftVelocity = W = SecYield = SecScintDecayTime = e_diffusion_L = e_diffusion_T = 0;
     rayleighWave = 500.0;
     Comments = "";
+
+    UseComplexN = false;
+    ReN = 1.0;
+    ImN = 0;
+    ComplexWave = 500.0;
+    ComplexN.clear();
+    ComplexNBinned.clear();
 
     PriScint_Decay.clear();
     PriScint_Decay << APair_ValueAndWeight(0, 1.0);
@@ -278,6 +290,21 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["RayleighMFP"] = rayleighMFP;
     json["RayleighWave"] = rayleighWave;
     json["ReemissionProb"] = reemissionProb;
+
+    json["UseComplexN"] = UseComplexN;
+    json["ReN"] = ReN;
+    json["ImN"] = ImN;
+    json["ComplexWave"] = ComplexWave;
+    {
+        QJsonArray ar;
+        for (const auto & rec : ComplexN)
+        {
+            QJsonArray el;
+            el << rec.first << rec.second.real() << rec.second.imag();
+            ar.append(el);
+        }
+        json["ComplexN"] = ar;
+    }
 
     json["PhotonYieldDefault"] = PhotonYieldDefault;
     json["IntrEnergyResDefault"] = IntrEnResDefault;
@@ -376,6 +403,33 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "RayleighWave", rayleighWave);
     jstools::parseJson(json, "ReemissionProb", reemissionProb);
     //PhotonYieldDefault for compatibility at the end
+
+    jstools::parseJson(json, "UseComplexN", UseComplexN);
+    jstools::parseJson(json, "ReN", ReN);
+    jstools::parseJson(json, "ImN", ImN);
+    jstools::parseJson(json, "ComplexWave", ComplexWave);
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "ComplexN", ar);
+        for (int i = 0; i < ar.size(); i++)
+        {
+            QJsonArray el = ar[i].toArray();
+            if (el.size() < 3)
+            {
+                AErrorHub::addError("Bad size for a record of complex N");
+                continue;
+            }
+            const double wave = el[0].toDouble(-1e99);
+            const double real = el[1].toDouble(-1e99);
+            const double imag = el[2].toDouble(-1e99);
+            if (wave == -1e99 || real == -1e99 || imag == -1e99)
+            {
+                AErrorHub::addError("Convertion to double error for a record of complex N");
+                continue;
+            }
+            ComplexN.push_back( {wave, {real, imag}} );
+        }
+    }
 
     if (json.contains("PrimScint_Tau")) //compatibility
     {

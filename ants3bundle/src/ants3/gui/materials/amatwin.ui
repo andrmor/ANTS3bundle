@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>569</width>
+    <width>600</width>
     <height>595</height>
    </rect>
   </property>
@@ -27,7 +27,6 @@
        <widget class="QLabel" name="label_18">
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -110,7 +109,6 @@
        <widget class="QPushButton" name="pbShowUsage">
         <property name="font">
          <font>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -192,7 +190,6 @@
           <widget class="QLineEdit" name="leName">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -222,7 +219,7 @@
        <item>
         <widget class="QTabWidget" name="twProperties">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -304,7 +301,6 @@ To use Al with termal scattering, use G4_Al_TS</string>
               <widget class="QLabel" name="label_21">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -595,7 +591,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                   <widget class="QCheckBox" name="cbShowIsotopes">
                    <property name="font">
                     <font>
-                     <weight>75</weight>
                      <bold>true</bold>
                     </font>
                    </property>
@@ -683,7 +678,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
            <item>
             <widget class="QStackedWidget" name="stackedWidget">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="page">
               <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -719,7 +714,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -738,7 +732,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -770,7 +763,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -789,7 +781,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -823,7 +814,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -862,7 +852,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -881,7 +870,6 @@ Can be used to automatically configure gamma interaction cross-sections and neut
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -914,7 +902,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -969,7 +956,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -979,7 +965,6 @@ Wavelengths shoul be given in increasing order</string>
                       <widget class="QLabel" name="label_23">
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1018,7 +1003,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1037,7 +1021,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1070,7 +1053,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1131,7 +1113,6 @@ Wavelengths shoul be given in increasing order</string>
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -1150,7 +1131,6 @@ Wavelengths shoul be given in increasing order</string>
                      </property>
                      <property name="font">
                       <font>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -1188,7 +1168,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1220,7 +1199,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1247,7 +1225,7 @@ Wavelengths shoul be given in increasing order</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit">
+                      <widget class="QLineEdit" name="ledComplexWave">
                        <property name="maximumSize">
                         <size>
                          <width>85</width>
@@ -1293,7 +1271,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1312,7 +1289,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1345,7 +1321,6 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="font">
                         <font>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -1416,7 +1391,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1441,7 +1415,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1454,7 +1427,6 @@ Wavelengths shoul be given in increasing order</string>
               <widget class="QLabel" name="label_47">
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1485,7 +1457,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1495,7 +1466,6 @@ Wavelengths shoul be given in increasing order</string>
               <widget class="QLabel" name="label_49">
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1523,7 +1493,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1573,7 +1542,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1598,7 +1566,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1637,7 +1604,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1659,7 +1625,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1678,7 +1643,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1711,7 +1675,6 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1782,7 +1745,6 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_5">
                  <property name="font">
                   <font>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1795,7 +1757,6 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_8">
                  <property name="font">
                   <font>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1808,7 +1769,6 @@ Wavelengths shoul be given in increasing order</string>
                 <widget class="QLabel" name="label_24">
                  <property name="font">
                   <font>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1831,7 +1791,6 @@ Wavelengths shoul be given in increasing order</string>
                  </property>
                  <property name="font">
                   <font>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1853,7 +1812,6 @@ Wavelengths shoul be given in increasing order</string>
                  </property>
                  <property name="font">
                   <font>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1884,7 +1842,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1903,7 +1860,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1936,7 +1892,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1978,7 +1933,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -1988,7 +1942,6 @@ Wavelengths shoul be given in increasing order</string>
                   <widget class="QLabel" name="label_28">
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2013,7 +1966,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2032,7 +1984,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2074,7 +2025,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2087,7 +2037,6 @@ Wavelengths shoul be given in increasing order</string>
                   <widget class="QLabel" name="label_29">
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2152,7 +2101,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2171,7 +2119,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2243,7 +2190,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2627,7 +2573,6 @@ Wavelengths shoul be given in increasing order</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -2688,8 +2633,8 @@ Wavelengths shoul be given in increasing order</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>569</width>
-     <height>22</height>
+     <width>600</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuLibrary">
@@ -2807,7 +2752,7 @@ Wavelengths shoul be given in increasing order</string>
      <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2819,11 +2764,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>300</y>
+     <x>427</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2835,11 +2780,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>645</x>
+     <x>343</x>
      <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2851,11 +2796,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>242</y>
+     <x>427</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2867,11 +2812,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>358</y>
+     <x>427</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2887,7 +2832,7 @@ Wavelengths shoul be given in increasing order</string>
      <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2899,11 +2844,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>360</x>
-     <y>746</y>
+     <x>318</x>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2915,11 +2860,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>213</y>
+     <x>427</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2935,7 +2880,7 @@ Wavelengths shoul be given in increasing order</string>
      <y>356</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2947,11 +2892,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>360</x>
-     <y>746</y>
+     <x>318</x>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2963,11 +2908,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>603</x>
+     <x>376</x>
      <y>289</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2979,11 +2924,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>694</y>
+     <x>318</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -2995,11 +2940,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>271</y>
+     <x>427</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3011,11 +2956,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>817</y>
+     <x>124</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3031,7 +2976,7 @@ Wavelengths shoul be given in increasing order</string>
      <y>356</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3043,12 +2988,12 @@ Wavelengths shoul be given in increasing order</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>506</x>
-     <y>814</y>
+     <x>278</x>
+     <y>528</y>
     </hint>
     <hint type="destinationlabel">
-     <x>723</x>
-     <y>814</y>
+     <x>495</x>
+     <y>528</y>
     </hint>
    </hints>
   </connection>
@@ -3059,11 +3004,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>300</y>
+     <x>427</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3091,11 +3036,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>645</x>
+     <x>343</x>
      <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3107,11 +3052,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>358</y>
+     <x>427</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3123,11 +3068,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>271</y>
+     <x>427</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3139,11 +3084,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>329</y>
+     <x>427</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3155,11 +3100,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>603</x>
+     <x>376</x>
      <y>289</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3171,11 +3116,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>817</y>
+     <x>502</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3187,11 +3132,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>242</y>
+     <x>427</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3203,11 +3148,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>436</x>
-     <y>694</y>
+     <x>454</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3219,11 +3164,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>213</y>
+     <x>427</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3235,11 +3180,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>694</y>
+     <x>318</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3251,11 +3196,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>645</x>
+     <x>343</x>
      <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3267,11 +3212,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>329</y>
+     <x>427</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3299,11 +3244,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>326</y>
+     <x>324</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3315,11 +3260,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>326</y>
+     <x>324</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3331,11 +3276,11 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>395</y>
+     <x>324</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>924</x>
+     <x>469</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3347,12 +3292,108 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>395</y>
+     <x>324</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
+     <x>590</x>
      <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledReN</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>301</x>
+     <y>250</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledImN</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>388</x>
+     <y>257</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>34</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledComplexWave</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>516</x>
+     <y>257</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>428</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledReN</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>285</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledImN</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>389</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>574</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledComplexWave</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>518</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>508</x>
+     <y>41</y>
     </hint>
    </hints>
   </connection>
