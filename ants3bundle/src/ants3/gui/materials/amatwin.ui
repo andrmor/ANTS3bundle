@@ -662,7 +662,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
             </spacer>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="cobNAbsOrComplex">
              <item>
               <property name="text">
                <string>Refractive index and bulk absorption</string>
@@ -3222,7 +3222,7 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>comboBox</sender>
+   <sender>cobNAbsOrComplex</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>stackedWidget</receiver>
    <slot>setCurrentIndex(int)</slot>

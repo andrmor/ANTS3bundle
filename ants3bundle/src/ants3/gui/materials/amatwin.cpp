@@ -191,6 +191,10 @@ void AMatWin::updateWaveButtons()
     ui->pbShowABSlambda->setEnabled(bA);
     ui->pbDeleteABSlambda->setEnabled(bA);
 
+    bool bCompexN = (!tmpMaterial.ComplexN.empty());
+    ui->pbShowComplexN->setEnabled(bCompexN);
+    ui->pbDeleteComplexN->setEnabled(bCompexN);
+
     ui->pbShowReemProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
     ui->pbDeleteReemisProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
 }
@@ -271,6 +275,12 @@ void AMatWin::updateTmpMaterialGui()
 
     ui->ledN->setText( QString::number(tmpMaterial.n) );
     ui->ledAbs->setText( QString::number(tmpMaterial.abs) );
+
+    ui->cobNAbsOrComplex->setCurrentIndex(tmpMaterial.UseComplexN ? 1 : 0);
+    ui->ledReN->setText(QString::number(tmpMaterial.ReN));
+    ui->ledImN->setText(QString::number(tmpMaterial.ImN));
+    ui->ledComplexWave->setText(QString::number(tmpMaterial.ComplexWave));
+
     ui->ledReemissionProbability->setText( QString::number(tmpMaterial.reemissionProb) );
 
     QString s = ( tmpMaterial.rayleighMFP > 0 ? QString::number(tmpMaterial.rayleighMFP)
@@ -361,6 +371,11 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.n = ui->ledN->text().toDouble();
     tmpMaterial.abs = ui->ledAbs->text().toDouble();
     tmpMaterial.reemissionProb = ui->ledReemissionProbability->text().toDouble();
+
+    tmpMaterial.UseComplexN = (ui->cobNAbsOrComplex->currentIndex() == 1);
+    tmpMaterial.ReN = ui->ledReN->text().toDouble();
+    tmpMaterial.ImN = ui->ledImN->text().toDouble();
+    tmpMaterial.ComplexWave = ui->ledComplexWave->text().toDouble();
 
     tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
