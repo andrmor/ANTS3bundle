@@ -3381,21 +3381,5 @@ Wavelengths shoul be given in increasing order</string>
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>ledComplexWave</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>518</x>
-     <y>265</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>41</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
 </ui>

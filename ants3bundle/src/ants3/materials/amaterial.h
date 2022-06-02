@@ -83,6 +83,7 @@ public:
 
     void    clear();
     void    clearDynamicProperties();
+
     void    updateRuntimeProperties();
 
     void    generateTGeoMat();
@@ -108,6 +109,7 @@ public:
     QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
     QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
     QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
+    std::complex<double> ComplexRI;
 
 private:
     double FT(double td, double tr, double t) const;

@@ -154,6 +154,12 @@ void AMaterial::updateRuntimeProperties()
     for (const APair_ValueAndWeight& pair : PriScint_Raise)
         _PrimScintSumStatWeight__Raise += pair.statWeight;
 
+    if (UseComplexN)
+    {
+        abs = fabs(4.0 * 3.1415926535 * ImN / ComplexWave * 1e6); // [mm-1]
+        ComplexRI = {ReN, (ImN > 0 ? -ImN : ImN) };
+    }
+
     //wavelength-resolved properties
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
@@ -164,16 +170,31 @@ void AMaterial::updateRuntimeProperties()
         if (nWave_lambda.size() > 0)
             WaveSet.toStandardBins(&nWave_lambda, &nWave, &nWaveBinned);
 
-        absWaveBinned.clear();
-        if (absWave_lambda.size() > 0)
-            WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
-
         reemissionProbBinned.clear();
         if (reemisProbWave_lambda.size() > 0)
             WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
 
-        ComplexN.clear();
-        if (!ComplexN.empty()) WaveSet.toStandardBins(ComplexN, ComplexNBinned);
+        absWaveBinned.clear();
+        if (ComplexN.empty())
+        {
+            if (absWave_lambda.size() > 0)
+                WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
+        }
+        else
+        {
+            ComplexNBinned.clear();
+            if (!ComplexN.empty())
+            {
+                WaveSet.toStandardBins(ComplexN, ComplexNBinned);
+                for (auto & cri : ComplexNBinned)
+                    if (cri.imag() > 0) cri = std::conj(cri);
+                for (size_t i = 0; i < ComplexNBinned.size(); i++)
+                {
+                    const double wave = WaveSet.From + WaveSet.Step * i; // [nm]
+                    absWaveBinned.push_back(  fabs(4.0 * 3.1415926535 * ComplexNBinned[i].imag() / wave * 1e6) ); // [mm-1]);
+                }
+            }
+        }
 
         if (rayleighMFP != 0)
         {

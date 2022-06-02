@@ -1261,3 +1261,10 @@ void AMatWin::on_pbCancel_clicked()
     }
     switchToMaterial(ui->cobActiveMaterials->currentIndex());
 }
+
+void AMatWin::on_ledComplexWave_editingFinished()
+{
+    double wave = ui->ledComplexWave->text().toDouble();
+    if (wave > 0) tmpMaterial.ComplexWave = wave;
+    else guitools::message("Wavelength should be positive!", this);
+}
