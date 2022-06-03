@@ -70,6 +70,7 @@ private:
     bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
     TString  NameTo;
+    double   SpeedOfLight;          // photon speed in current material (MatIndexFrom) in mm/ns
 
     const TGeoVolume * VolumeFrom   = nullptr;
     const TGeoVolume * VolumeTo     = nullptr;
@@ -83,8 +84,6 @@ private:
     double             FromGridElementToGridBulk[3]; // add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
     const TGeoVolume * GridVolume = nullptr;         // the grid bulk
 
-    static constexpr double c_in_vac = 299.7925;     // speed of light in mm/ns
-
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
@@ -92,7 +91,7 @@ private:
     void endTracing();
     double calculateReflectionProbability();
     void processSensorHit(int iSensor);
-    bool performRefraction(double nn);
+    bool performRefraction();
     void performReflection();
     bool enterGrid(int GridNumber);
     bool isOutsideGridBulk();

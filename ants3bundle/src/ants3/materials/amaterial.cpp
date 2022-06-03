@@ -59,6 +59,22 @@ double AMaterial::getReemissionProbability(int iWave) const
     return reemissionProbBinned[iWave];
 }
 
+double AMaterial::getSpeedOfLight(int iWave) const
+{
+    double refIndexReal;
+    if (UseComplexN)
+    {
+        if (iWave == -1 || ComplexN.empty()) refIndexReal = ReN;
+        else refIndexReal = ComplexNBinned[iWave].real();
+    }
+    else
+    {
+        refIndexReal = getRefractiveIndex(iWave);
+    }
+
+    return c_in_vac / refIndexReal;
+}
+
 void AMaterial::generateTGeoMat()
 {
     GeoMat = ChemicalComposition.generateTGeoMaterial(name.toLocal8Bit().data(), density);

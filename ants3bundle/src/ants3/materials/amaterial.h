@@ -93,6 +93,9 @@ public:
     double  getAbsorptionCoefficient(int iWave = -1) const;
     double  getReemissionProbability(int iWave = -1) const;
 
+    static constexpr double c_in_vac = 299.7925;     // speed of light in mm/ns
+    double  getSpeedOfLight(int iWave = -1) const;
+
     void    writeToJson (QJsonObject & json) const;
     bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
 
