@@ -45,11 +45,25 @@ double AMaterial::getRefractiveIndex(int iWave) const
     return nWaveBinned[iWave];
 }
 
+const std::complex<double> & AMaterial::getComplexRefractiveIndex(int iWave) const
+{
+    if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) return RefIndex_Complex;
+    return RefIndex_Comlex_WaveBinned[iWave];
+}
+
 double AMaterial::getAbsorptionCoefficient(int iWave) const
 {
-    //qDebug() << iWave << absWaveBinned.size();
-    if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
-    return absWaveBinned[iWave];
+    if (!UseComplexN)
+    {
+        //qDebug() << iWave << absWaveBinned.size();
+        if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
+        return absWaveBinned[iWave];
+    }
+    else
+    {
+        if (iWave == -1 || Abs_FromComplex_WaveBinned.empty()) return Abs_FromComplex;
+        return Abs_FromComplex_WaveBinned[iWave];
+    }
 }
 
 double AMaterial::getReemissionProbability(int iWave) const
@@ -65,7 +79,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
     if (UseComplexN)
     {
         if (iWave == -1 || ComplexN.empty()) refIndexReal = ReN;
-        else refIndexReal = ComplexNBinned[iWave].real();
+        else refIndexReal = RefIndex_Comlex_WaveBinned[iWave].real();
     }
     else
     {
@@ -162,59 +176,53 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 #include "aphotonsimhub.h"
 void AMaterial::updateRuntimeProperties()
 {
-    //updating sum stat weights for primary scintillation time generator
-    _PrimScintSumStatWeight_Decay = 0;
-    _PrimScintSumStatWeight__Raise = 0;
-    for (const APair_ValueAndWeight& pair : PriScint_Decay)
-        _PrimScintSumStatWeight_Decay += pair.statWeight;
-    for (const APair_ValueAndWeight& pair : PriScint_Raise)
-        _PrimScintSumStatWeight__Raise += pair.statWeight;
+    RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
 
-    if (UseComplexN)
-    {
-        abs = fabs(4.0 * 3.1415926535 * ImN / ComplexWave * 1e6); // [mm-1]
-        ComplexRI = {ReN, (ImN > 0 ? -ImN : ImN) };
-    }
+    if (UseComplexN) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
 
-    //wavelength-resolved properties
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
+    nWaveBinned.clear();
+    absWaveBinned.clear();
+    RefIndex_Comlex_WaveBinned.clear();
+    Abs_FromComplex_WaveBinned.clear();
+    rayleighBinned.clear();
+    reemissionProbBinned.clear();
+    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
+    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
+
     if (WaveSet.Enabled)
     {
-        //calculating histograms and "-Binned" for effective data
-        nWaveBinned.clear();
-        if (nWave_lambda.size() > 0)
-            WaveSet.toStandardBins(&nWave_lambda, &nWave, &nWaveBinned);
-
-        reemissionProbBinned.clear();
-        if (reemisProbWave_lambda.size() > 0)
-            WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
-
-        absWaveBinned.clear();
-        if (ComplexN.empty())
+        if (!UseComplexN)
         {
-            if (absWave_lambda.size() > 0)
-                WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
+            if (nWave_lambda.size() > 0)
+            {
+                WaveSet.toStandardBins(&nWave_lambda, &nWave, &nWaveBinned);
+                for (const double & d : nWaveBinned) RefIndex_Comlex_WaveBinned.push_back({d, 0});
+            }
+            if (absWave_lambda.size() > 0) WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
         }
         else
         {
-            ComplexNBinned.clear();
             if (!ComplexN.empty())
             {
-                WaveSet.toStandardBins(ComplexN, ComplexNBinned);
-                for (auto & cri : ComplexNBinned)
+                WaveSet.toStandardBins(ComplexN, RefIndex_Comlex_WaveBinned);
+                for (auto & cri : RefIndex_Comlex_WaveBinned)
                     if (cri.imag() > 0) cri = std::conj(cri);
-                for (size_t i = 0; i < ComplexNBinned.size(); i++)
+
+                for (size_t i = 0; i < RefIndex_Comlex_WaveBinned.size(); i++)
                 {
                     const double wave = WaveSet.From + WaveSet.Step * i; // [nm]
-                    absWaveBinned.push_back(  fabs(4.0 * 3.1415926535 * ComplexNBinned[i].imag() / wave * 1e6) ); // [mm-1]);
+                    Abs_FromComplex_WaveBinned.push_back(  fabs(4.0 * 3.1415926535 * RefIndex_Comlex_WaveBinned[i].imag() / wave * 1e6) ); // [mm-1]);
                 }
             }
         }
 
+        if (reemisProbWave_lambda.size() > 0)
+            WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
+
         if (rayleighMFP != 0)
         {
-            rayleighBinned.clear();
             double baseWave4 = rayleighWave * rayleighWave * rayleighWave * rayleighWave;
             double base = rayleighMFP / baseWave4;
             for (int i = 0; i < WaveNodes; i++)
@@ -225,7 +233,6 @@ void AMaterial::updateRuntimeProperties()
             }
         }
 
-        delete PrimarySpectrumHist; PrimarySpectrumHist = nullptr;
         if (PrimarySpectrum_lambda.size() > 0)
         {
             QVector<double> y;
@@ -236,7 +243,6 @@ void AMaterial::updateRuntimeProperties()
             PrimarySpectrumHist->GetIntegral(); //to make thread safe
         }
 
-        delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
         if (SecondarySpectrum_lambda.size() > 0)
         {
             QVector<double> y;
@@ -247,16 +253,14 @@ void AMaterial::updateRuntimeProperties()
             SecondarySpectrumHist->GetIntegral(); //to make thread safe
         }
     }
-    else
-    {
-        nWaveBinned.clear();
-        absWaveBinned.clear();
-        reemissionProbBinned.clear();
-        rayleighBinned.clear();
-        ComplexNBinned.clear();
-        delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
-        delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
-    }
+
+    //updating sum stat weights for primary scintillation time generator
+    _PrimScintSumStatWeight_Decay = 0;
+    _PrimScintSumStatWeight__Raise = 0;
+    for (const APair_ValueAndWeight& pair : PriScint_Decay)
+        _PrimScintSumStatWeight_Decay += pair.statWeight;
+    for (const APair_ValueAndWeight& pair : PriScint_Raise)
+        _PrimScintSumStatWeight__Raise += pair.statWeight;
 }
 
 void AMaterial::clear()
@@ -272,9 +276,9 @@ void AMaterial::clear()
     UseComplexN = false;
     ReN = 1.0;
     ImN = 0;
-    ComplexWave = 500.0;
+    ComplexEffectiveWave = 500.0;
     ComplexN.clear();
-    ComplexNBinned.clear();
+    RefIndex_Comlex_WaveBinned.clear();
 
     PriScint_Decay.clear();
     PriScint_Decay << APair_ValueAndWeight(0, 1.0);
@@ -331,7 +335,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["UseComplexN"] = UseComplexN;
     json["ReN"] = ReN;
     json["ImN"] = ImN;
-    json["ComplexWave"] = ComplexWave;
+    json["ComplexEffectiveWave"] = ComplexEffectiveWave;
     {
         QJsonArray ar;
         for (const auto & rec : ComplexN)
@@ -444,7 +448,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "UseComplexN", UseComplexN);
     jstools::parseJson(json, "ReN", ReN);
     jstools::parseJson(json, "ImN", ImN);
-    jstools::parseJson(json, "ComplexWave", ComplexWave);
+    jstools::parseJson(json, "ComplexEffectiveWave", ComplexEffectiveWave);
     {
         QJsonArray ar;
         jstools::parseJson(json, "ComplexN", ar);

@@ -187,8 +187,6 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         //--- Interface rule not set or not triggered ---
         if (bDoFresnel)
         {
-            RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
-            RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
             const EFresnelResult res = tryReflection();
             if (res == EFresnelResult::Reflected) continue;
         }
@@ -267,15 +265,6 @@ EInterRuleResult APhotonTracer::tryInterfaceRule()
 
 EFresnelResult APhotonTracer::tryReflection()
 {
-    //qDebug()<<"Performing fresnel"; //Fresnel equations //http://en.wikipedia.org/wiki/Fresnel_equations
-    if (!bHaveNormal)
-    {
-        N = Navigator->FindNormal(false);
-        bHaveNormal = true;
-    }
-    //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
-    //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
-
     const double prob = calculateReflectionProbability();
     if (RandomHub.uniform() < prob)
     {
@@ -681,6 +670,16 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
 double APhotonTracer::calculateReflectionProbability()
 {
+    RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+    RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
+    if (!bHaveNormal)
+    {
+        N = Navigator->FindNormal(false);
+        bHaveNormal = true;
+    }
+    //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+    //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
+
     const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2]; // NK = cos of the angle of incidence = cos1
     const double cos1 = fabs(NK);
     //qDebug() << "Cos of incidence:"<<cos1;
@@ -690,7 +689,7 @@ double APhotonTracer::calculateReflectionProbability()
     const double sin2 = RefrIndexFrom/RefrIndexTo*sin1;
 
     //         qDebug()<<"cos1 sin1 sin2 are:"<<cos1<<sin1<<sin2;
-    if (fabs(sin2)>1.0)
+    if (fabs(sin2) > 1.0)
     {
         // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
         return 1.0;

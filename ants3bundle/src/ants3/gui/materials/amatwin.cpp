@@ -279,7 +279,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->cobNAbsOrComplex->setCurrentIndex(tmpMaterial.UseComplexN ? 1 : 0);
     ui->ledReN->setText(QString::number(tmpMaterial.ReN));
     ui->ledImN->setText(QString::number(tmpMaterial.ImN));
-    ui->ledComplexWave->setText(QString::number(tmpMaterial.ComplexWave));
+    ui->ledComplexWave->setText(QString::number(tmpMaterial.ComplexEffectiveWave));
 
     ui->ledReemissionProbability->setText( QString::number(tmpMaterial.reemissionProb) );
 
@@ -375,7 +375,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.UseComplexN = (ui->cobNAbsOrComplex->currentIndex() == 1);
     tmpMaterial.ReN = ui->ledReN->text().toDouble();
     tmpMaterial.ImN = ui->ledImN->text().toDouble();
-    tmpMaterial.ComplexWave = ui->ledComplexWave->text().toDouble();
+    tmpMaterial.ComplexEffectiveWave = ui->ledComplexWave->text().toDouble();
 
     tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
@@ -1265,6 +1265,6 @@ void AMatWin::on_pbCancel_clicked()
 void AMatWin::on_ledComplexWave_editingFinished()
 {
     double wave = ui->ledComplexWave->text().toDouble();
-    if (wave > 0) tmpMaterial.ComplexWave = wave;
+    if (wave > 0) tmpMaterial.ComplexEffectiveWave = wave;
     else guitools::message("Wavelength should be positive!", this);
 }
