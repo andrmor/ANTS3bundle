@@ -42,6 +42,7 @@ public:
     std::vector<APhotonHistoryLog> PhLog;
 
 private:
+    // hubs & settings
     const AMaterialHub       & MatHub;
     const AInterfaceRuleHub  & RuleHub;
     const ASensorHub         & SensorHub;
@@ -76,7 +77,7 @@ private:
     const TGeoVolume * VolumeTo     = nullptr;
     const AMaterial  * MaterialFrom = nullptr; // material before the interface
     const AMaterial  * MaterialTo   = nullptr; // material after the interface
-    TGeoNode         * NodeAfter    = nullptr; // node after interface
+    //TGeoNode         * NodeAfter    = nullptr; // node after interface
 
     bool               bGridShiftOn = false;
     double             R_afterStep[3];

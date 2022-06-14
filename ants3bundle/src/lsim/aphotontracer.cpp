@@ -155,7 +155,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         }
 
         //--- Now entering the next material volume on the path ---
-        NodeAfter = Navigator->FindNextBoundaryAndStep(); //this is the node after crossing the boundary
+        TGeoNode * NodeAfter = Navigator->FindNextBoundaryAndStep(); //this is the node after crossing the boundary
         //this method MOVES the current position! different from FindNextBoundary method, which only calculates the step
         //now the current point is inside the next volume!
 
@@ -196,9 +196,9 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 
         if (bGridShiftOn && Step > 0.001) exitGrid();
 
-        bool endTracingFlag;
-        checkSpecialVolume(NodeAfter, endTracingFlag);
-        if (endTracingFlag)
+        bool returnEndTracingFlag;
+        checkSpecialVolume(NodeAfter, returnEndTracingFlag);
+        if (returnEndTracingFlag)
         {
             endTracing();
             return;
@@ -522,7 +522,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     //prepare abs
     bool DoAbsorption;
     double AbsPath;
-    const double AbsCoeff = MatHub[MatIndexFrom]->getAbsorptionCoefficient(Photon.waveIndex); // for complex ref index, imaginary part was copied to abs and absWaveBinned in material->updateRuntimeProperties()
+    const double AbsCoeff = MatHub[MatIndexFrom]->getAbsorptionCoefficient(Photon.waveIndex);
     if (AbsCoeff > 0)
     {
         AbsPath = -log(RandomHub.uniform()) / AbsCoeff;
@@ -570,13 +570,8 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                 point[0] = Navigator->GetCurrentPoint()[0] + Photon.v[0]*AbsPath;
                 point[1] = Navigator->GetCurrentPoint()[1] + Photon.v[1]*AbsPath;
                 point[2] = Navigator->GetCurrentPoint()[2] + Photon.v[2]*AbsPath;
-                if (SimSet.RunSet.SaveTracks)
-                {
-                    //track->Nodes.append(TrackNodeStruct(point, p.time));
-                    Track.Positions.push_back(AVector3(point));
-                }
-                if (SimSet.RunSet.SavePhotonLog)
-                    PhLog.push_back( APhotonHistoryLog(point, NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Absorbed, MatIndexFrom) );
+                if (SimSet.RunSet.SaveTracks) Track.Positions.push_back(AVector3(point));
+                if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(point, NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Absorbed, MatIndexFrom) );
             }
 
             //check if this material is waveshifter
@@ -617,8 +612,6 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                     Navigator->SetCurrentDirection(Photon.v);
                     //qDebug() << "After:"<<p->WaveIndex;
 
-                    //if (SimSet->fTimeResolved)
-                    //    p.time += RandGen->Exp(  MaterialFrom->PriScintDecayTime );
                     Photon.time += MatHub[MatIndexFrom]->generatePrimScintTime(RandomHub);
 
                     SimStat.Reemission++;
