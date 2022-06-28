@@ -2,14 +2,30 @@
 CONFIG += ants3_GUI          #if commented away, GUI is not compiled
 CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
-#CONFIG += ants2_Python      #enable Python scripting
-#CONFIG += ants2_RootServer  #enable cern CERN ROOT html server
-#CONFIG += ants2_jsroot       #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
+CONFIG += ants3_Python      #enable Python scripting
+#CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+#CONFIG += ants3_jsroot       #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
 LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
 #ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
+
+# PYTHON
+ants3_Python {
+    #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
+    #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
+
+    PCONFIGDIR = $$system(python3-config --configdir)
+    message($$PCONFIGDIR)
+    CDSPLIT = $$split(PCONFIGDIR, /)
+    message($$CDSPLIT)
+    PYTHONV = $$find(CDSPLIT, python)
+    message($$PYTHONV)
+    LIBS = -L$$system(python3-config --configdir) -l$$PYTHONV
+
+    QMAKE_CXXFLAGS += $$system(python3-config --includes)
+}
 
 QT += core
 ants3_GUI {
@@ -46,6 +62,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
 
 INCLUDEPATH += js
+INCLUDEPATH += js/Python
 INCLUDEPATH += js/ScriptInterfaces
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
@@ -137,6 +154,7 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    js/Python/apythoninterface.cpp \
     js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
@@ -326,6 +344,7 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
+    js/Python/apythoninterface.h \
     js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
