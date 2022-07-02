@@ -453,7 +453,7 @@ void MainWindow::on_pbPython_clicked()
     pi.initialize();
 
     //pi.evalScript("print('aaaaa')");
-    pi.evalScript("core.test(223)");
+    pi.evalScript("print('Pyton returns:',core.test(223))");
 
 }
 

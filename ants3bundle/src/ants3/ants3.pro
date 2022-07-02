@@ -16,17 +16,18 @@ ants3_Python {
     #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
     #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
 
-    #PCONFIGDIR = $$system(python3-config --configdir)
-    #message($$PCONFIGDIR)
-    #CDSPLIT = $$split(PCONFIGDIR, /)
-    ##message($$CDSPLIT)
-    #PYTHONV = $$find(CDSPLIT, python)
-    #message($$PYTHONV)
-    #LIBS += -L$$system(python3-config --configdir) -l$$PYTHONV
-
     LIBS += $$system(python3-config --libs --embed)
 
     QMAKE_CXXFLAGS += $$system(python3-config --includes)
+
+    SOURCES += \
+        js/Python/apythoninterface.cpp
+
+    HEADERS += \
+        js/Python/apythoninterface.h
+
+    INCLUDEPATH += js/Python
+
 }
 
 QT += core
@@ -64,7 +65,6 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
 
 INCLUDEPATH += js
-INCLUDEPATH += js/Python
 INCLUDEPATH += js/ScriptInterfaces
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
@@ -156,7 +156,6 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
-    js/Python/apythoninterface.cpp \
     js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
@@ -346,7 +345,6 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
-    js/Python/apythoninterface.h \
     js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
