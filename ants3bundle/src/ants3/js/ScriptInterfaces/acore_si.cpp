@@ -79,6 +79,12 @@ void ACore_SI::abort(QString message)
     AScriptInterface::abort(message);
 }
 
+int ACore_SI::test(int in)
+{
+    qDebug() << "qaaaaaaaaaaaaaaaaaaaaaaa" << in;
+    return 123;
+}
+
 #include <QElapsedTimer>
 void ACore_SI::sleep(int ms)
 {

@@ -1,3 +1,5 @@
+#include "apythoninterface.h"
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "a3global.h"
@@ -439,3 +441,19 @@ void MainWindow::loadWindowGeometries()
 
     for (auto * w : wins) w->restoreGeomStatus();
 }
+
+#include "acore_si.h"
+void MainWindow::on_pbPython_clicked()
+{
+    APythonInterface pi;
+
+    ACore_SI * core = new ACore_SI();
+
+    pi.registerUnit(core, "core");
+    pi.initialize();
+
+    //pi.evalScript("print('aaaaa')");
+    pi.evalScript("core.test(223)");
+
+}
+

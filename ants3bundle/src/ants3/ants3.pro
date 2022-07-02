@@ -16,13 +16,15 @@ ants3_Python {
     #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
     #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
 
-    PCONFIGDIR = $$system(python3-config --configdir)
-    message($$PCONFIGDIR)
-    CDSPLIT = $$split(PCONFIGDIR, /)
-    message($$CDSPLIT)
-    PYTHONV = $$find(CDSPLIT, python)
-    message($$PYTHONV)
-    LIBS = -L$$system(python3-config --configdir) -l$$PYTHONV
+    #PCONFIGDIR = $$system(python3-config --configdir)
+    #message($$PCONFIGDIR)
+    #CDSPLIT = $$split(PCONFIGDIR, /)
+    ##message($$CDSPLIT)
+    #PYTHONV = $$find(CDSPLIT, python)
+    #message($$PYTHONV)
+    #LIBS += -L$$system(python3-config --configdir) -l$$PYTHONV
+
+    LIBS += $$system(python3-config --libs --embed)
 
     QMAKE_CXXFLAGS += $$system(python3-config --includes)
 }

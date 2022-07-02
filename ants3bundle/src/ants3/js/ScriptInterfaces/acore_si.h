@@ -25,6 +25,8 @@ public:
 public slots:
     void    abort(QString message);
 
+    int test(int in);
+
     // Output
     void    clearOutput();
     void    print(QJSValue message);
