@@ -50,21 +50,21 @@ AJScriptHub::AJScriptHub()
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     SM = new AJScriptManager();
 
-    SM->registerInterface(new ADemo_SI(),         "demo");
-    SM->registerInterface(new ACore_SI(),         "core");
-    SM->registerInterface(new AMath_SI(),         "math");
-    SM->registerInterface(new AConfig_SI(),       "config");
-    SM->registerInterface(new AFarm_SI(),         "farm");
-    SM->registerInterface(new AGeo_SI(),          "geo");
-    SM->registerInterface(new ASensor_SI(),       "sens");
-    SM->registerInterface(new APhotonSim_SI(),    "lsim");
-    SM->registerInterface(new AParticleSim_SI(),  "psim");
-    SM->registerInterface(new ATrackRec_SI(),     "tracks");
-    SM->registerInterface(new APartAnalysis_SI(), "partan");
-    SM->registerInterface(new AMiniJS_SI(),       "mini");
-    SM->registerInterface(new AGraph_SI(),        "graph");
-    SM->registerInterface(new AHist_SI(),         "hist");
-    SM->registerInterface(new ATree_SI(),         "tree");
+    addInterface(new ADemo_SI(),         "demo");
+    addInterface(new ACore_SI(),         "core");
+    addInterface(new AMath_SI(),         "math");
+    addInterface(new AConfig_SI(),       "config");
+    addInterface(new AFarm_SI(),         "farm");
+    addInterface(new AGeo_SI(),          "geo");
+    addInterface(new ASensor_SI(),       "sens");
+    addInterface(new APhotonSim_SI(),    "lsim");
+    addInterface(new AParticleSim_SI(),  "psim");
+    addInterface(new ATrackRec_SI(),     "tracks");
+    addInterface(new APartAnalysis_SI(), "partan");
+    addInterface(new AMiniJS_SI(),       "mini");
+    addInterface(new AGraph_SI(),        "graph");
+    addInterface(new AHist_SI(),         "hist");
+    addInterface(new ATree_SI(),         "tree");
 }
 
 AJScriptHub::~AJScriptHub()

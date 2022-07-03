@@ -6,7 +6,7 @@
 #include <QDebug>
 
 AJScriptManager::AJScriptManager(QObject *parent) :
-    QObject(parent)
+    AVirtualScriptManager(parent)
 {
     //qDebug() << "Creating script manager" << QThread::currentThreadId();
     start();
@@ -82,9 +82,9 @@ void AJScriptManager::abort() // to abort script use AJScriptHub::abort(message)
     Worker->abort();
 }
 
-QJSValue AJScriptManager::getResult()
+QVariant AJScriptManager::getResult()
 {
-    return Worker->getResult();
+    return Worker->getResult().toVariant();
 }
 
 bool AJScriptManager::isError() const

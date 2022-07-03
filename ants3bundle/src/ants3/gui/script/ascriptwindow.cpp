@@ -479,23 +479,18 @@ void AScriptWindow::on_pbRunScript_clicked()
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
 
-    QJSValue resSV = ScriptManager.getResult();
-    QString  resStr = resSV.toString();
-    //qDebug() << "Script returned:" << resStr;
-
     if (ScriptManager.isError())
     {
+        // !!!*** refactor!
+        QString err = ScriptManager.getResult().toString();
         if (!ScriptManager.isAborted())
-            reportError(resStr, ScriptManager.getErrorLineNumber());
+            reportError(err, ScriptManager.getErrorLineNumber());
     }
     else
     {
-        if (resStr != "undefined" && !resStr.isEmpty())
-        {
-            QString s;
-            ACore_SI::addQVariantToString(resSV.toVariant(), s);
-            outputText(s);
-        }
+        QString s;
+        ACore_SI::addQVariantToString(ScriptManager.getResult(), s);
+        if (s != "undefined" && !s.isEmpty()) outputText(s);
     }
 
     ScriptManager.collectGarbage();

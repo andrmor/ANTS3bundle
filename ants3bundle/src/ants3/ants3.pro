@@ -377,6 +377,7 @@ HEADERS += \
     js/ScriptInterfaces/agraph_si.h \
     js/ScriptInterfaces/atree_si.h \
     js/ScriptInterfaces/awindowinterfacebase.h \
+    js/avirtualscriptmanager.h \
     particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
