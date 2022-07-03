@@ -1,5 +1,6 @@
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
+#include "apythonscriptmanager.h"
 #include "adispatcherinterface.h"
 
 // SI
@@ -19,36 +20,43 @@
 #include "asensor_si.h"
 #include "aparticlesim_si.h"
 
-AJScriptHub & AJScriptHub::getInstance()
+AScriptHub & AScriptHub::getInstance()
 {
-    static AJScriptHub instance;
+    static AScriptHub instance;
     return instance;
 }
 
-AJScriptManager & AJScriptHub::manager()
+AJScriptManager & AScriptHub::manager()
 {
     return getInstance().getJScriptManager();
 }
 
-void AJScriptHub::abort(const QString & message)
+void AScriptHub::abort(const QString & message)
 {
-    AJScriptHub & hub = getInstance();
-    hub.SM->abort();
+    AScriptHub & hub = getInstance();
+    hub.JSM->abort();
 
     ADispatcherInterface::getInstance().abortTask();
 
     emit hub.showAbortMessage(message);
 }
 
-void AJScriptHub::addInterface(AScriptInterface * interface, QString name)
+void AScriptHub::addInterface(AScriptInterface * interface, QString name)
 {
-    SM->registerInterface(interface, name);
+    JSM->registerInterface(interface, name);
+    PyM->registerInterface(interface, name);
 }
 
-AJScriptHub::AJScriptHub()
+void AScriptHub::finalizeInit()
+{
+    PyM->finalizeInit();
+}
+
+AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
-    SM = new AJScriptManager();
+    JSM = new AJScriptManager();
+    PyM = new APythonScriptManager();
 
     addInterface(new ADemo_SI(),         "demo");
     addInterface(new ACore_SI(),         "core");
@@ -67,7 +75,8 @@ AJScriptHub::AJScriptHub()
     addInterface(new ATree_SI(),         "tree");
 }
 
-AJScriptHub::~AJScriptHub()
+AScriptHub::~AScriptHub()
 {
-    delete SM; SM = nullptr;
+    delete JSM; JSM = nullptr;
+    delete PyM; PyM = nullptr;
 }

@@ -11,7 +11,7 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3global.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "atextoutputwindow.h"
 #include "amsg_si.h"
@@ -44,7 +44,7 @@
 AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
     AGuiWindow( (lang == AScriptLanguageEnum::JavaScript ? "JScript" : "Python"), parent),
     GlobSet(A3Global::getInstance()),
-    ScriptManager(lang == AScriptLanguageEnum::JavaScript ? AJScriptHub::getInstance().getJScriptManager() : AJScriptHub::getInstance().getJScriptManager()), // !!!***
+    ScriptManager(lang == AScriptLanguageEnum::JavaScript ? AScriptHub::getInstance().getJScriptManager() : AScriptHub::getInstance().getJScriptManager()), // !!!***
     ScriptLanguage(lang),
     ui(new Ui::AScriptWindow)
 {
@@ -258,7 +258,7 @@ void AScriptWindow::updateMethodHelp()
 {
     functionList.clear();
     trwHelp->clear();
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : AScriptHub::manager().getInterfaces())
         fillHelper(inter);
 }
 
@@ -343,7 +343,8 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    writeToJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == AScriptLanguageEnum::JavaScript) writeToJson(GlobSet.JavaScriptJson);
+    else                                                   writeToJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::writeToJson(QJsonObject & json)
@@ -367,7 +368,8 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 
 void AScriptWindow::ReadFromJson()
 {
-    readFromJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == AScriptLanguageEnum::JavaScript) readFromJson(GlobSet.JavaScriptJson);
+    else                                                   readFromJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -533,7 +535,7 @@ void AScriptWindow::on_pbStop_clicked()
     if (ScriptManager.isRunning())
     {
         qDebug() << "Stop button pressed!";
-        AJScriptHub::abort("<p style='color:red'>Aborting...</p>");
+        AScriptHub::abort("<p style='color:red'>Aborting...</p>");
         qApp->processEvents();
     }
 }

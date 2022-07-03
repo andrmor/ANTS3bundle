@@ -1,5 +1,5 @@
 #include "aminijs_si.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 
 #include <QDebug>
@@ -8,7 +8,7 @@
 
 double AFunctorJS::operator()(const double * p)
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
+    AJScriptManager & ScriptManager = AScriptHub::manager();
     if (ScriptManager.isAborted()) return 1e30;
 
         QString str;
@@ -32,25 +32,25 @@ AMiniJS_SI::~AMiniJS_SI()
 
 bool AMiniJS_SI::wasAborted() const
 {
-    AJScriptManager & SM = AJScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::manager();
     return SM.isAborted();
 }
 
 void AMiniJS_SI::setFunctorName(const QString & name)
 {
-    AJScriptManager & SM = AJScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::manager();
     SM.MiniFunctionName = name;
 }
 
 void AMiniJS_SI::configureNumVariables(int num)
 {
-    AJScriptManager & SM = AJScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::manager();
     SM.MiniNumVariables = num;
 }
 
 ROOT::Math::Functor * AMiniJS_SI::configureFunctor()
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
+    AJScriptManager & ScriptManager = AScriptHub::manager();
 
     bool ok = ScriptManager.testMinimizationFunction();
     if (!ok) return nullptr;

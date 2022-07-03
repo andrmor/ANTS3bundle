@@ -1,5 +1,3 @@
-#include "apythoninterface.h"
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "a3global.h"
@@ -17,7 +15,7 @@
 #include "graphwindowclass.h"
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ascriptwindow.h"
 #include "aglobsetwindow.h"
 #include "ademowindow.h"
@@ -90,17 +88,28 @@ MainWindow::MainWindow() :
 
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
-    //qDebug() << ">JScript window";
+    AScriptHub * SH = &AScriptHub::getInstance();
+    qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(AScriptLanguageEnum::JavaScript, this);
-    AJScriptHub * SH = &AJScriptHub::getInstance();
     JScriptWin->registerInterfaces();
-    connect(SH, &AJScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
-    connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
-    connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
-    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
-    connect(GeoTreeWin,  &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
+    connect(SH, &AScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
+
+    qDebug() << "Creating Python window";
+    PythonWin = new AScriptWindow(AScriptLanguageEnum::Python, this);
+    PythonWin->registerInterfaces();
+    connect(SH, &AScriptHub::clearOutput,      PythonWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText,       PythonWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml,       PythonWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::showAbortMessage, PythonWin, &AScriptWindow::outputAbortMessage);
+    connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   PythonWin, &AScriptWindow::onRequestAddScript);
+    PythonWin->updateGui();
 
     GlobSetWin = new AGlobSetWindow(this);
     connect(PhotSimWin, &A3PhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
@@ -108,7 +117,7 @@ MainWindow::MainWindow() :
 
     DemoWin = new ADemoWindow(this);
 
-    connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
     loadWindowGeometries();
 
@@ -140,6 +149,7 @@ MainWindow::MainWindow() :
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
+    SH->finalizeInit();
 }
 
 MainWindow::~MainWindow()
@@ -240,12 +250,18 @@ void MainWindow::on_pbJavaScript_clicked()
     JScriptWin->updateGui();
 }
 
+void MainWindow::on_pbPython_clicked()
+{
+    PythonWin->showNormal();
+    PythonWin->activateWindow();
+    PythonWin->updateGui();
+}
+
 void MainWindow::on_pbDemo_clicked()
 {
     DemoWin->showNormal();
     DemoWin->activateWindow();
 }
-
 
 void MainWindow::on_pbLoadConfig_clicked()
 {
@@ -407,6 +423,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     //saving ANTS master-configuration file
     JScriptWin->WriteToJson();
+    PythonWin->WriteToJson();
     A3Global::getInstance().saveConfig();
 
     qDebug()<<"<Saving ANTS configuration";
@@ -419,6 +436,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
+    wins.push_back(PythonWin);
 
     for (auto * win : wins) delete win;
 
@@ -430,6 +448,8 @@ void MainWindow::saveWindowGeometries()
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+    wins.push_back(PythonWin);
+    wins.push_back(PythonWin->ScriptMsgWin);
 
     for (auto * w : wins) w->storeGeomStatus();
 }
@@ -439,22 +459,8 @@ void MainWindow::loadWindowGeometries()
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+    wins.push_back(PythonWin);
+    wins.push_back(PythonWin->ScriptMsgWin);
 
     for (auto * w : wins) w->restoreGeomStatus();
 }
-
-#include "acore_si.h"
-void MainWindow::on_pbPython_clicked()
-{
-    APythonInterface pi;
-
-    ACore_SI * core = new ACore_SI();
-
-    pi.registerUnit(core, "core");
-    pi.initialize();
-
-    //pi.evalScript("print('aaaaa')");
-    pi.evalScript("print('Pyton returns:',core.test(223))");
-
-}
-

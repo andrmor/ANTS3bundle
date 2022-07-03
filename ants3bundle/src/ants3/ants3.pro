@@ -156,13 +156,13 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    js/Python/apythonscriptmanager.cpp \
     js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
     js/ScriptInterfaces/amsg_si.cpp \
     js/ScriptInterfaces/aparticlesim_si.cpp \
     js/ScriptInterfaces/asensor_si.cpp \
-    js/ajscripthub.cpp \
     js/ajscriptmanager.cpp \
     js/ajscriptworker.cpp \
     js/apeakfinder.cpp \
@@ -171,6 +171,7 @@ SOURCES += \
     js/arootobjbase.cpp \
     js/arootobjcollection.cpp \
     js/aroottreerecord.cpp \
+    js/ascripthub.cpp \
     js/ascriptobjstore.cpp \
     js/avarrecordbase.cpp \
     js/ScriptInterfaces/aconfig_si.cpp \
@@ -345,6 +346,7 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
+    js/Python/apythonscriptmanager.h \
     js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \
@@ -356,10 +358,10 @@ HEADERS += \
     js/arootobjbase.h \
     js/arootobjcollection.h \
     js/aroottreerecord.h \
-    js/ajscripthub.h \
     js/ajscriptmanager.h \
     js/ajscriptworker.h \
     js/apeakfinder.h \
+    js/ascripthub.h \
     js/ascriptobjstore.h \
     js/avarrecordbase.h \
     js/ScriptInterfaces/aconfig_si.h \

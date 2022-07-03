@@ -3,7 +3,7 @@
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 
 #ifdef GUI
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
-    AJScriptHub::getInstance();
+    AScriptHub::getInstance();
 
     AMaterialHub::getInstance().addNewMaterial("Vacuum", true);
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     if (argc > 1)  // later will be replaced with a proper line parser like in ants2
 #endif // GUI
     {
-        AJScriptManager * SM = &AJScriptHub::manager();
+        AJScriptManager * SM = &AScriptHub::manager();
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
         QObject::connect(SM, &AJScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();

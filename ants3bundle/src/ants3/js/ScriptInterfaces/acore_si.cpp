@@ -1,6 +1,6 @@
 #include "acore_si.h"
-#include "ajscripthub.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "afiletools.h"
 
@@ -95,7 +95,7 @@ void ACore_SI::sleep(int ms)
     {
         QThread::usleep(100);
         qApp->processEvents();
-        if (!AJScriptHub::manager().isRunning()) break;
+        if (!AScriptHub::manager().isRunning()) break;
     }
     while (t.elapsed()<ms);
 }
@@ -187,19 +187,19 @@ void ACore_SI::print(QJSValue message)
 {
     QString s;
     addQVariantToString(message.toVariant(), s);
-    emit AJScriptHub::getInstance().outputText(s);
+    emit AScriptHub::getInstance().outputText(s);
 }
 
 void ACore_SI::printHtml(QJSValue message)
 {
     QString s;
     addQVariantToString(message.toVariant(), s);
-    emit AJScriptHub::getInstance().outputHtml(s);
+    emit AScriptHub::getInstance().outputHtml(s);
 }
 
 void ACore_SI::clearOutput()
 {
-    emit AJScriptHub::getInstance().clearOutput();
+    emit AScriptHub::getInstance().clearOutput();
 }
 
 QString ACore_SI::getDateTimeStamp()
@@ -1017,7 +1017,7 @@ void ACore_SI::processEvents()
 
 void ACore_SI::requestGuiUpdate()
 {
-    emit AJScriptHub::getInstance().requestUpdateGui();
+    emit AScriptHub::getInstance().requestUpdateGui();
 }
 
 /*

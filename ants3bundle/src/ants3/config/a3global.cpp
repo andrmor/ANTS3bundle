@@ -106,6 +106,7 @@ void A3Global::saveConfig()
 */
 
     js["JavaScriptJson"] = JavaScriptJson;
+    js["PythonJson"]     = PythonJson;
     js["SW_FontSize"]    = SW_FontSize;
     js["SW_FontFamily"]  = SW_FontFamily;
     js["SW_FontWeight"]  = SW_FontWeight;
@@ -157,6 +158,7 @@ void A3Global::loadConfig()
     jstools::parseJson(js, "OpenImageExternalEditor", OpenImageExternalEditor);
 
     jstools::parseJson(js, "JavaScriptJson", JavaScriptJson);
+    jstools::parseJson(js, "PythonJson", PythonJson);
     jstools::parseJson(js, "SW_FontSize", SW_FontSize);
     jstools::parseJson(js, "SW_FontFamily", SW_FontFamily);
     jstools::parseJson(js, "SW_FontWeight", SW_FontWeight);
