@@ -189,7 +189,7 @@ void GraphWindowClass::connectScriptUnitDrawRequests()
     const AHist_SI  * histInter  = nullptr;
     const ATree_SI  * treeInter  = nullptr;
 
-    const std::vector<AScriptInterface *> interfaces = AScriptHub::manager().getInterfaces();
+    const std::vector<AScriptInterface *> interfaces = AScriptHub::getInstance().getJScriptManager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
     {
         if (!graphInter)

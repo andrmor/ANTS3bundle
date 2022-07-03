@@ -421,6 +421,8 @@ void APythonInterface::initialize()
 
 bool APythonInterface::evalScript(const QString & script)
 {
+    PyErr_Clear();
+
     PyObject * mainModule = getMainModule();
 
     PyObject * dict = PyModule_GetDict(mainModule);

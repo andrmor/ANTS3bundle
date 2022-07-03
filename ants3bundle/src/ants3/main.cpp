@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     if (argc > 1)  // later will be replaced with a proper line parser like in ants2
 #endif // GUI
     {
-        AJScriptManager * SM = &AScriptHub::manager();
+        AJScriptManager * SM = &AScriptHub::getInstance().getJScriptManager();
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
         QObject::connect(SM, &AJScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();

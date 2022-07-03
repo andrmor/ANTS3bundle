@@ -16,7 +16,7 @@ class APythonScriptManager : public AVirtualScriptManager
 {
     Q_OBJECT
 public:
-    explicit APythonScriptManager(QObject * parent = nullptr);
+    APythonScriptManager(QObject * parent = nullptr);
     ~APythonScriptManager(){}
 
     void registerInterface(AScriptInterface * interface, QString name) override;
@@ -25,7 +25,7 @@ public:
     bool evaluate(const QString & script) override;
     void abort() override {}  // to abort script use AJScriptHub::abort(message) !!!***
 
-    bool isRunning() const override {} // !!!***
+    bool isRunning() const override {return false;} // !!!***
     bool isAborted() const override {return bAborted;} // !!!***
 
     QVariant getResult() override;

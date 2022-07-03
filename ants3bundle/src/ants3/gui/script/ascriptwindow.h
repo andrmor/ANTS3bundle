@@ -11,6 +11,7 @@
 
 #include <vector>
 
+class AScriptHub;
 class ATextOutputWindow;
 class AScriptInterface;
 class QPlainTextEdit;
@@ -53,10 +54,13 @@ public:
     AGuiWindow * ScriptMsgWin = nullptr;
 
 private:
+    AScriptHub        & ScriptHub;
     A3Global          & GlobSet;
-    AVirtualScriptManager & ScriptManager;
+    Ui::AScriptWindow * ui = nullptr;
+
     AScriptLanguageEnum ScriptLanguage = AScriptLanguageEnum::JavaScript;
-    Ui::AScriptWindow * ui             = nullptr;
+    AVirtualScriptManager * ScriptManager = nullptr;
+
     QStringList         Methods;
 
     std::vector<AScriptBook> ScriptBooks;

@@ -13,12 +13,13 @@ class AScriptHub : public QObject
     Q_OBJECT
 
 public:
-    static AScriptHub &     getInstance();
-    static AJScriptManager & manager(); // !!!***
+    static AScriptHub      & getInstance();
+    static AJScriptManager & manager(); // !!!*** to kill
+
     static void              abort(const QString & message);
 
-    AJScriptManager      & getJScriptManager() {return *JSM;}
-    APythonScriptManager & getPythonManager()  {return *PyM;}
+    AJScriptManager        & getJScriptManager() {return *JSM;}
+    APythonScriptManager   & getPythonManager()  {return *PyM;}
 
     void addInterface(AScriptInterface * interface, QString name);
     void finalizeInit(); // run when initialization is finished (all additional script units already registered)

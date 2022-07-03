@@ -13,6 +13,7 @@
 #include "a3global.h"
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
+#include "apythonscriptmanager.h"
 #include "atextoutputwindow.h"
 #include "amsg_si.h"
 #include "avirtualscriptmanager.h"
@@ -43,14 +44,23 @@
 
 AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
     AGuiWindow( (lang == AScriptLanguageEnum::JavaScript ? "JScript" : "Python"), parent),
+    ScriptHub(AScriptHub::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ScriptManager(lang == AScriptLanguageEnum::JavaScript ? AScriptHub::getInstance().getJScriptManager() : AScriptHub::getInstance().getJScriptManager()), // !!!***
-    ScriptLanguage(lang),
-    ui(new Ui::AScriptWindow)
+    ui(new Ui::AScriptWindow),
+    ScriptLanguage(lang)
 {
     ui->setupUi(this);
 
-    setWindowTitle(lang == AScriptLanguageEnum::JavaScript ? "JavaScript" : "Python");
+    if (lang == AScriptLanguageEnum::JavaScript)
+    {
+        ScriptManager = &ScriptHub.getJScriptManager();
+        setWindowTitle("JavaScript");
+    }
+    else
+    {
+        ScriptManager = &ScriptHub.getPythonManager();
+        setWindowTitle("Python");
+    }
 
     /*
     QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
@@ -108,10 +118,10 @@ AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
 
-    ATextOutputWindow * SMW = new ATextOutputWindow("JsMsg", this);
-    SMW->setWindowTitle("JS text output");
+    ATextOutputWindow * SMW = new ATextOutputWindow( (lang == AScriptLanguageEnum::JavaScript ? "JS_Msg" : "Python_Msg"), this );
+    SMW->setWindowTitle( lang == AScriptLanguageEnum::JavaScript ? "JS msg window" : "Python msg window");
     ScriptMsgWin = SMW;
-    ScriptManager.registerInterface(new AMsg_SI(SMW), "msg");
+    ScriptManager->registerInterface(new AMsg_SI(SMW), "msg");
 
     ReadFromJson();
 }
@@ -258,7 +268,7 @@ void AScriptWindow::updateMethodHelp()
 {
     functionList.clear();
     trwHelp->clear();
-    for (const AScriptInterface * inter : AScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         fillHelper(inter);
 }
 
@@ -271,7 +281,7 @@ void AScriptWindow::updateRemovedAndDeprecatedMethods()
 {
     //DeprecatedOrRemovedMethods.clear();
     //ListOfDeprecatedOrRemovedMethods.clear();
-    for (const AScriptInterface * inter : ScriptManager.getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         appendDeprecatedAndRemovedMethods(inter);
 }
 
@@ -280,7 +290,7 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     UnitNames.clear();
     Methods.clear();
 
-    for (const AScriptInterface * inter : ScriptManager.getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
     {
         const QString & name = inter->Name;
         UnitNames << name;
@@ -472,32 +482,32 @@ void AScriptWindow::on_pbRunScript_clicked()
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
-    ScriptManager.evaluate(Script);
+    ScriptManager->evaluate(Script);
     do
     {
         QThread::msleep(50);
         qApp->processEvents();
     }
-    while (ScriptManager.isRunning());
+    while (ScriptManager->isRunning());
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
 
-    if (ScriptManager.isError())
+    if (ScriptManager->isError())
     {
         // !!!*** refactor!
-        QString err = ScriptManager.getResult().toString();
-        if (!ScriptManager.isAborted())
-            reportError(err, ScriptManager.getErrorLineNumber());
+        QString err = ScriptManager->getResult().toString();
+        if (!ScriptManager->isAborted())
+            reportError(err, ScriptManager->getErrorLineNumber());
     }
     else
     {
         QString s;
-        ACore_SI::addQVariantToString(ScriptManager.getResult(), s);
+        ACore_SI::addQVariantToString(ScriptManager->getResult(), s);
         if (s != "undefined" && !s.isEmpty()) outputText(s);
     }
 
-    ScriptManager.collectGarbage();
+    ScriptManager->collectGarbage();
 
     emit requestUpdateGui();
 }
@@ -532,7 +542,7 @@ void AScriptWindow::onF1pressed(QString text)
 
 void AScriptWindow::on_pbStop_clicked()
 {
-    if (ScriptManager.isRunning())
+    if (ScriptManager->isRunning())
     {
         qDebug() << "Stop button pressed!";
         AScriptHub::abort("<p style='color:red'>Aborting...</p>");
