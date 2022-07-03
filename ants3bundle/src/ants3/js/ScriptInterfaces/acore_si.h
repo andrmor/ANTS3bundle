@@ -29,11 +29,11 @@ public slots:
 
     // Output
     void    clearOutput();
-    void    print(QJSValue message);
-    void    printHtml(QJSValue message);
+    void    print(QVariant message); //QJSValue
+    void    printHtml(QVariant message);
 
     // Time
-    void    sleep(int ms);
+    void    sleep(int ms); // !!!***
     double  getTimeMark();
     QString getDateTimeStamp();
 
@@ -85,7 +85,7 @@ public slots:
 
     const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
-    static void addQVariantToString(const QVariant & var, QString & string);
+    static void addQVariantToString(const QVariant &var, QString & string);
 
 private:
     enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
