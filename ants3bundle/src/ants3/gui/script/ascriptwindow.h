@@ -24,6 +24,7 @@ class AScriptManager;
 class ATabRecord;
 class QTabWidget;
 class A3Global;
+class AVirtualScriptManager;
 
 namespace Ui {
 class AScriptWindow;
@@ -34,7 +35,7 @@ class AScriptWindow : public AGuiWindow
     Q_OBJECT
 
 public:
-    explicit AScriptWindow(QWidget * parent);
+    AScriptWindow(AScriptLanguageEnum lang, QWidget * parent);
     ~AScriptWindow();
 
     void registerInterfaces();
@@ -53,6 +54,7 @@ public:
 
 private:
     A3Global          & GlobSet;
+    AVirtualScriptManager & ScriptManager;
     AScriptLanguageEnum ScriptLanguage = AScriptLanguageEnum::JavaScript;
     Ui::AScriptWindow * ui             = nullptr;
     QStringList         Methods;

@@ -21,6 +21,7 @@
 #include "ascriptwindow.h"
 #include "aglobsetwindow.h"
 #include "ademowindow.h"
+#include "ascriptlanguageenum.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -90,7 +91,7 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     //qDebug() << ">JScript window";
-    JScriptWin = new AScriptWindow(this);
+    JScriptWin = new AScriptWindow(AScriptLanguageEnum::JavaScript, this);
     AJScriptHub * SH = &AJScriptHub::getInstance();
     JScriptWin->registerInterfaces();
     connect(SH, &AJScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);

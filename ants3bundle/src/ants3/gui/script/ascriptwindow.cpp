@@ -14,8 +14,8 @@
 #include "ajscripthub.h"
 #include "ajscriptmanager.h"
 #include "atextoutputwindow.h"
-#include "ajscripthub.h"
 #include "amsg_si.h"
+#include "avirtualscriptmanager.h"
 
 #include <QDebug>
 #include <QList>
@@ -41,13 +41,16 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
-AScriptWindow::AScriptWindow(QWidget * parent) :
-    AGuiWindow("JScript", parent),
+AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
+    AGuiWindow( (lang == AScriptLanguageEnum::JavaScript ? "JScript" : "Python"), parent),
     GlobSet(A3Global::getInstance()),
+    ScriptManager(lang == AScriptLanguageEnum::JavaScript ? AJScriptHub::getInstance().getJScriptManager() : AJScriptHub::getInstance().getJScriptManager()), // !!!***
+    ScriptLanguage(lang),
     ui(new Ui::AScriptWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("JavaScript");
+
+    setWindowTitle(lang == AScriptLanguageEnum::JavaScript ? "JavaScript" : "Python");
 
     /*
     QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
@@ -108,7 +111,7 @@ AScriptWindow::AScriptWindow(QWidget * parent) :
     ATextOutputWindow * SMW = new ATextOutputWindow("JsMsg", this);
     SMW->setWindowTitle("JS text output");
     ScriptMsgWin = SMW;
-    AJScriptHub::getInstance().getJScriptManager().registerInterface(new AMsg_SI(SMW), "msg");
+    ScriptManager.registerInterface(new AMsg_SI(SMW), "msg");
 
     ReadFromJson();
 }
@@ -268,7 +271,7 @@ void AScriptWindow::updateRemovedAndDeprecatedMethods()
 {
     //DeprecatedOrRemovedMethods.clear();
     //ListOfDeprecatedOrRemovedMethods.clear();
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager.getInterfaces())
         appendDeprecatedAndRemovedMethods(inter);
 }
 
@@ -277,7 +280,7 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     UnitNames.clear();
     Methods.clear();
 
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager.getInterfaces())
     {
         const QString & name = inter->Name;
         UnitNames << name;
@@ -453,7 +456,6 @@ void AScriptWindow::clearOutput()
 #include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
     // save all tabs -> GlobSet
     WriteToJson();
     A3Global::getInstance().saveConfig();
@@ -528,7 +530,6 @@ void AScriptWindow::onF1pressed(QString text)
 
 void AScriptWindow::on_pbStop_clicked()
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
     if (ScriptManager.isRunning())
     {
         qDebug() << "Stop button pressed!";
