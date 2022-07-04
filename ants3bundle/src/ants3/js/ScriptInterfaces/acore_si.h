@@ -25,7 +25,7 @@ public:
 public slots:
     void    abort(QString message);
 
-    int test(int in);
+    QVariant test(QVariant in);
 
     // Output
     void    clearOutput();

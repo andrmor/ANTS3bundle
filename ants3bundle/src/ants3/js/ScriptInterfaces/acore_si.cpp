@@ -79,10 +79,10 @@ void ACore_SI::abort(QString message)
     AScriptInterface::abort(message);
 }
 
-int ACore_SI::test(int in)
+QVariant ACore_SI::test(QVariant in)
 {
-    qDebug() << "qaaaaaaaaaaaaaaaaaaaaaaa" << in;
-    return 123;
+    qDebug() << in;
+    return in;
 }
 
 #include <QElapsedTimer>

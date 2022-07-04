@@ -93,6 +93,21 @@ bool APythonInterface::pyObjectToVariant(PyObject * po, QVariant & var)
         return true;
     }
 
+    if (PyList_Check(po))
+    {
+        QVariantList vl;
+        pyObjectToVariantList(po, vl);
+        var = vl;
+        return true;
+    }
+    if (PySet_Check(po))
+    {
+        QVariantList vl;
+        pyObjectToVariantList(po, vl);
+        var = vl;
+        return true;
+    }
+
     return false;
 }
 
@@ -112,7 +127,36 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
         return true;
     }
 
-    return false;
+    res = PyList_Check(po);
+    if (res)
+    {
+        const int size = PyList_Size(po);
+        list.resize(size);
+        for (int i = 0; i < size; i++)
+        {
+            PyObject * el = PyList_GetItem(po, i);
+            bool ok = pyObjectToVariant(el, list[i]);
+            if (!ok) break;
+        }
+        return true;
+    }
+
+    // last resort: check if it is possible to iterate over items
+    PyObject *iterator = PyObject_GetIter(po);
+    if (!iterator) return false;
+
+    PyObject * item;
+    bool ok;
+    while ((item = PyIter_Next(iterator)))
+    {
+        QVariant var;
+        ok = pyObjectToVariant(item, var);
+        Py_DECREF(item);
+        if (!ok) break;
+        list.push_back(var);
+    }
+    Py_DECREF(iterator);
+    return ok;
 }
 
 bool APythonInterface::pyObjectToVariantMap(PyObject * po, QVariantMap & map)
