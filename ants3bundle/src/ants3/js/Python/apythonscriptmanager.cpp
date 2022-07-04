@@ -53,7 +53,7 @@ void APythonScriptManager::finalizeInit()
 
 void APythonScriptManager::evalFinished(bool flag)
 {
-
+    emit finished(flag);
 }
 
 const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() const
@@ -71,6 +71,17 @@ bool APythonScriptManager::evaluate(const QString & script)
     emit doEval(script);
 
     return true;
+}
+
+void APythonScriptManager::abort()
+{
+    bAborted = true;
+    Worker->abort();
+}
+
+bool APythonScriptManager::isRunning() const
+{
+    return Worker->isBusy();
 }
 
 QVariant APythonScriptManager::getResult()

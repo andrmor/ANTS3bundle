@@ -35,6 +35,7 @@ void AScriptHub::abort(const QString & message)
 {
     AScriptHub & hub = getInstance();
     hub.JSM->abort();
+    hub.PyM->abort();
 
     ADispatcherInterface::getInstance().abortTask();
 

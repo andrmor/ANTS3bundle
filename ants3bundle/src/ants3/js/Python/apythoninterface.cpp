@@ -492,6 +492,12 @@ bool APythonInterface::evalScript(const QString & script)
     return true;
 }
 
+void APythonInterface::abort()
+{
+    qDebug() << "--> abort of Python Interface...";
+    PyErr_SetInterrupt();
+}
+
 PyObject * APythonInterface::getMainModule()
 {
     PyObject * md = PyImport_GetModuleDict();    // borrowed

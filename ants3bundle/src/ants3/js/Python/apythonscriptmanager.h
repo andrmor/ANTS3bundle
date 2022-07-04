@@ -24,9 +24,9 @@ public:
     const std::vector<AScriptInterface*> & getInterfaces() const override;
 
     bool evaluate(const QString & script) override;
-    void abort() override {}  // to abort script use AJScriptHub::abort(message) !!!***
+    void abort() override;  // to abort script use AJScriptHub::abort(message) !!!***
 
-    bool isRunning() const override {return false;} // !!!***
+    bool isRunning() const override;
     bool isAborted() const override {return bAborted;}
 
     QVariant getResult() override;

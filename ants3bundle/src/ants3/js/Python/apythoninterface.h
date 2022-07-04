@@ -23,6 +23,8 @@ public:
 
     bool evalScript(const QString & script);
 
+    void abort();
+
     QString ErrorDescription;
     int     ErrorLineNumber = -1;
 

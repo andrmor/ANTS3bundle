@@ -18,7 +18,9 @@ APythonWorker::~APythonWorker()
 
 void APythonWorker::abort()
 {
+    for (AScriptInterface * inter : Interfaces) inter->abortRun();
 
+    PyInterface->abort();
 }
 
 bool APythonWorker::isError() const
