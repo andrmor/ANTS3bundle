@@ -33,7 +33,7 @@ public:
     QVariant getResult() override;
 
     bool isError() const override;
-    bool getError(QString & errorString, int & lineNumber); // false if busy or no error //***!!! handle interrupted
+    QString getErrorDescription() const override;
     int  getErrorLineNumber() override; //-1 if no errors
 
     bool   testMinimizationFunction();

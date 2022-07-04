@@ -27,7 +27,7 @@ public:
     QJSValue getResult() const {return Result;}
 
     bool     isError() const;
-    bool     getError(QString & errorString, int & lineNumber, QString & errorFileName);
+    QString  getErrorDescription() const;
     int      getErrorLineNumber();
 
     const std::vector<AScriptInterface*> & getInterfaces() const {return Interfaces;}

@@ -37,18 +37,14 @@ bool AJScriptWorker::isError() const
     return Result.isError();
 }
 
-bool AJScriptWorker::getError(QString & errorString, int & lineNumber, QString & errorFileName)
+QString AJScriptWorker::getErrorDescription() const
 {
-    if (bBusy) return false;
+    if (bBusy) return "";
 
     bool bError = Result.isError();
-    if (!bError) return false;
+    if (!bError) return "";
 
-    errorString   = Result.property("message").toString();
-    lineNumber    = Result.property("lineNumber").toInt();
-    errorFileName = Result.property("fileName").toString();
-
-    return true;
+    return Result.property("message").toString();
 }
 
 int AJScriptWorker::getErrorLineNumber()

@@ -25,6 +25,7 @@ public:
     virtual QVariant getResult() = 0;
 
     virtual bool isError() const = 0;
+    virtual QString getErrorDescription() const = 0;
     virtual int  getErrorLineNumber() = 0; //-1 if no errors
 
     virtual void collectGarbage() = 0;

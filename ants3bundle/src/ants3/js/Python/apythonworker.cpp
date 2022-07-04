@@ -23,12 +23,17 @@ void APythonWorker::abort()
 
 bool APythonWorker::isError() const
 {
-
+    return !PyInterface->ErrorDescription.isEmpty();
 }
 
-int APythonWorker::getErrorLineNumber()
+QString APythonWorker::getErrorDescription() const
 {
+    return PyInterface->ErrorDescription;
+}
 
+int APythonWorker::getErrorLineNumber() const
+{
+    return PyInterface->ErrorLineNumber;
 }
 
 void APythonWorker::initialize()

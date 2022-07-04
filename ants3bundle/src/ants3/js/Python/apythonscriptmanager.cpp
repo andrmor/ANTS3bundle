@@ -75,15 +75,20 @@ bool APythonScriptManager::evaluate(const QString & script)
 
 QVariant APythonScriptManager::getResult()
 {
-    return "";
+    return "undefined";
 }
 
 bool APythonScriptManager::isError() const
 {
-    return false;
+    return Worker->isError();
+}
+
+QString APythonScriptManager::getErrorDescription() const
+{
+    return Worker->getErrorDescription();
 }
 
 int APythonScriptManager::getErrorLineNumber()
 {
-    return -1;
+    return Worker->getErrorLineNumber();
 }

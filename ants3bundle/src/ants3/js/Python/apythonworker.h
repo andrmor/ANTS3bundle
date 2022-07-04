@@ -17,8 +17,9 @@ public:
     bool isBusy() const {return bBusy;}
     void abort();
 
-    bool isError() const;
-    int  getErrorLineNumber();
+    bool    isError() const;
+    QString getErrorDescription() const;
+    int     getErrorLineNumber() const;
 
     const std::vector<AScriptInterface*> & getInterfaces() const {return Interfaces;}
 

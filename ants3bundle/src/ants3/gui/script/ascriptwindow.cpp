@@ -495,8 +495,8 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     if (ScriptManager->isError())
     {
-        // !!!*** refactor!
-        QString err = ScriptManager->getResult().toString();
+        QString err = ScriptManager->getErrorDescription();
+        qDebug() << "->->->->-->" << err << ScriptManager->getErrorLineNumber() << ScriptManager->isAborted();
         if (!ScriptManager->isAborted())
             reportError(err, ScriptManager->getErrorLineNumber());
     }
@@ -504,7 +504,7 @@ void AScriptWindow::on_pbRunScript_clicked()
     {
         QString s;
         ACore_SI::addQVariantToString(ScriptManager->getResult(), s);
-        if (s != "undefined" && !s.isEmpty()) outputText(s);
+        if (!s.isEmpty() && s != "\"undefined\"") outputText(s);
     }
 
     ScriptManager->collectGarbage();

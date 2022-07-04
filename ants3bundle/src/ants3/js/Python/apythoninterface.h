@@ -23,10 +23,13 @@ public:
 
     bool evalScript(const QString & script);
 
+    QString ErrorDescription;
+    int     ErrorLineNumber = -1;
+
 protected:
     PyObject * getMainModule();
-    void handleError(){}
     void fillMethods();
+    void handleError();
 
 public:
     static PyObject* variantToPyObject(const QVariant & var);

@@ -31,8 +31,9 @@ public:
 
     QVariant getResult() override;
 
-    bool isError() const override;
-    int  getErrorLineNumber() override; //-1 if no errors
+    bool    isError() const override;
+    QString getErrorDescription() const override;
+    int     getErrorLineNumber() override; //-1 if no errors
 
     void collectGarbage() override {}
 

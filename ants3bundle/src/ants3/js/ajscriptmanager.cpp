@@ -105,10 +105,9 @@ double AJScriptManager::runMinimizationFunction(const double * p)
     return Worker->runMinimizationFunction(MiniFunctionName, p, MiniNumVariables); // !!!*** store function as JSValue
 }
 
-bool AJScriptManager::getError(QString & errorString, int & lineNumber)
+QString AJScriptManager::getErrorDescription() const
 {
-    QString dummy;
-    return Worker->getError(errorString, lineNumber, dummy);
+    return Worker->getErrorDescription();
 }
 
 void AJScriptManager::collectGarbage()
