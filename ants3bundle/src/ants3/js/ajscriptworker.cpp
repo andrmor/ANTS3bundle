@@ -86,8 +86,7 @@ void AJScriptWorker::evaluate(const QString & script)
 {
     if (bBusy) return;
 
-    for (AScriptInterface * inter : Interfaces)
-        inter->beforeRun(); // !!!*** error control!
+    for (AScriptInterface * inter : Interfaces) inter->beforeRun(); // !!!*** error control!
 
     bBusy = true;
     Engine->setInterrupted(false);

@@ -157,6 +157,7 @@ SOURCES += \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
     js/Python/apythonscriptmanager.cpp \
+    js/Python/apythonworker.cpp \
     js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
@@ -347,6 +348,7 @@ HEADERS += \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
     js/Python/apythonscriptmanager.h \
+    js/Python/apythonworker.h \
     js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \

@@ -5,19 +5,20 @@
 
 #include <QObject>
 #include <QString>
-#include <QJSValue>
+#include <QVariant>
 
 #include <vector>
 
 class AScriptInterface;
-class APythonInterface;
+class APythonWorker;
+class QThread;
 
 class APythonScriptManager : public AVirtualScriptManager
 {
     Q_OBJECT
 public:
     APythonScriptManager(QObject * parent = nullptr);
-    ~APythonScriptManager(){}
+    ~APythonScriptManager();
 
     void registerInterface(AScriptInterface * interface, QString name) override;
     const std::vector<AScriptInterface*> & getInterfaces() const override;
@@ -26,7 +27,7 @@ public:
     void abort() override {}  // to abort script use AJScriptHub::abort(message) !!!***
 
     bool isRunning() const override {return false;} // !!!***
-    bool isAborted() const override {return bAborted;} // !!!***
+    bool isAborted() const override {return bAborted;}
 
     QVariant getResult() override;
 
@@ -37,19 +38,6 @@ public:
 
     void finalizeInit();
 
-private:
-    bool             bAborted = false;  // TODO !!!***
-
-    APythonInterface * PyInterface = nullptr;
-
-    std::vector<AScriptInterface*> Interfaces;
-
-};
-
-/*
-private:
-    void start();
-
 private slots:
     void evalFinished(bool flag);
 
@@ -58,17 +46,12 @@ signals:
     void doEval(const QString & script);
     void doExit();
     void doRegisterInterface(AScriptInterface * interface, QString name);
+    void doFinalizeInit();
 
 protected:
-    QThread        * Thread = nullptr;
-    AJScriptWorker * Worker = nullptr;
-
-
-public:
-    //for minimizer
-    QString          MiniFunctionName;
-    int              MiniNumVariables  = 0;
-    double           MiniBestResult    = 1e30;
-*/
+    QThread       * Thread = nullptr;
+    APythonWorker * Worker = nullptr;
+    bool            bAborted = false;
+};
 
 #endif // APYTHONSCRIPTMANAGER_H

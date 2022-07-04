@@ -2,37 +2,81 @@
 
 #include "apythonscriptmanager.h"
 #include "ascriptinterface.h"
+#include "apythonworker.h"
+
+#include <QThread>
 
 APythonScriptManager::APythonScriptManager(QObject *parent)
     : AVirtualScriptManager{parent}
 {
-    PyInterface = new APythonInterface();
+    //PyInterface = new APythonInterface();
+
+    //qDebug() << "Starting script worlker"<< QThread::currentThreadId();
+    Thread = new QThread();
+    Worker = new APythonWorker();
+    Worker->moveToThread(Thread);
+
+    connect(Thread, &QThread::started,             Worker, &APythonWorker::initialize);
+    connect(this,   &APythonScriptManager::doEval, Worker, &APythonWorker::evaluate);
+    connect(this,   &APythonScriptManager::doExit, Worker, &APythonWorker::exit);
+    connect(Worker, &APythonWorker::evalFinished,  this,   &APythonScriptManager::evalFinished);
+
+    connect(Worker, &APythonWorker::stopped,       Thread, &QThread::quit);
+//    connect(Worker, &APythonWorker::stopped,       Worker, &APythonWorker::deleteLater);
+    connect(Thread, &QThread::finished,            Thread, &QThread::deleteLater);
+
+    connect(this, &APythonScriptManager::doRegisterInterface, Worker, &APythonWorker::onRegisterInterface);
+    connect(this, &APythonScriptManager::doFinalizeInit,      Worker, &APythonWorker::onFinalizeInit);
+
+    Thread->start();
+}
+
+APythonScriptManager::~APythonScriptManager()
+{
+    qDebug() << "Destr for PythonManager";
+    Worker->abort();
+    Worker->exit();
+    Thread->exit();
+    delete Worker;
+    delete Thread;
 }
 
 void APythonScriptManager::registerInterface(AScriptInterface * interface, QString name)
 {
-    PyInterface->registerUnit(interface, name);
-    interface->Name = name;
-    Interfaces.push_back(interface);
+    emit doRegisterInterface(interface, name);
 }
 
 void APythonScriptManager::finalizeInit()
 {
-    PyInterface->initialize();
+    emit doFinalizeInit();
+}
+
+void APythonScriptManager::evalFinished(bool flag)
+{
+
 }
 
 const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() const
 {
-    return Interfaces;
+    return Worker->getInterfaces();
 }
 
 bool APythonScriptManager::evaluate(const QString & script)
 {
-    PyInterface->evalScript(script);
+    qDebug() << "Request to evaluate script:\n" << script;
+    if (Worker->isBusy()) return false;
+
+    bAborted = false;
+
+    emit doEval(script);
+
     return true;
 }
 
-QVariant APythonScriptManager::getResult() {return "";}
+QVariant APythonScriptManager::getResult()
+{
+    return "";
+}
 
 bool APythonScriptManager::isError() const
 {

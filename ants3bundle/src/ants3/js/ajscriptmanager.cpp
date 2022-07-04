@@ -14,22 +14,20 @@ AJScriptManager::AJScriptManager(QObject *parent) :
 
 AJScriptManager::~AJScriptManager()
 {
-    qDebug() << "Destr for ScriptManager";
+    qDebug() << "Destr for JScriptManager";
     Worker->abort();
-    //emit doExit();
     Worker->exit();
     Thread->exit();
     delete Worker;
     delete Thread;
 }
 
-#include <QTimer>
 void AJScriptManager::registerInterface(AScriptInterface * interface, QString name)
 {
     emit doRegisterInterface(interface, name);
 }
 
-const std::vector<AScriptInterface *> &AJScriptManager::getInterfaces() const
+const std::vector<AScriptInterface*> & AJScriptManager::getInterfaces() const
 {
     return Worker->getInterfaces();
 }
@@ -47,7 +45,7 @@ void AJScriptManager::start()
     connect(Worker, &AJScriptWorker::evalFinished, this,   &AJScriptManager::evalFinished);
 
     connect(Worker, &AJScriptWorker::stopped,     Thread, &QThread::quit);
-    connect(Worker, &AJScriptWorker::stopped,     Worker, &AJScriptWorker::deleteLater);
+//    connect(Worker, &AJScriptWorker::stopped,     Worker, &AJScriptWorker::deleteLater);
     connect(Thread, &QThread::finished,           Thread, &QThread::deleteLater);
 
     connect(this, &AJScriptManager::doRegisterInterface, Worker, &AJScriptWorker::onRegisterInterface);
