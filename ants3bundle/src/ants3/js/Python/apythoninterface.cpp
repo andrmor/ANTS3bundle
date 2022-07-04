@@ -460,7 +460,7 @@ void APythonInterface::handleError()
     PyObject * pyErr = PyErr_Occurred();
     if (!pyErr)
     {
-        qDebug() << ">>> But  error was not actually raised!";
+        ErrorDescription = "Error reported, by PyErr not generated!";
         return;
     }
 
@@ -481,11 +481,20 @@ void APythonInterface::handleError()
         PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
         //qDebug() << PyLong_AsLong( PyTuple_GetItem(second, 1) );
         ErrorLineNumber = PyLong_AsLong( PyTuple_GetItem(second, 1) );
-        qDebug() << "...Storing info:" << ErrorDescription << ErrorLineNumber;
+        //qDebug() << "...Storing info:" << ErrorDescription << ErrorLineNumber;
         return;
     }
 
+    // Not (yet) implemented errors types
+    PyObject* repr = PyObject_Repr(pvalue);
+    PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
+    const char * bytes = PyBytes_AS_STRING(str);
 
+    ErrorDescription = QString(bytes);
+    qDebug() << ">>>>>>>" << ErrorDescription;
+
+    Py_XDECREF(repr);
+    Py_XDECREF(str);
 
 
     {

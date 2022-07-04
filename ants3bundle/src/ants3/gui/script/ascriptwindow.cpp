@@ -473,12 +473,9 @@ void AScriptWindow::on_pbRunScript_clicked()
     A3Global::getInstance().saveConfig();
     emit requestUpdateConfig();
 
-    QString Script = getTab()->TextEdit->document()->toPlainText();
+    const QString Script = getTab()->TextEdit->document()->toPlainText();
 
-    //qDebug() << "Init on Start done";
     pteOut->clear();
-    //AScriptWindow::ShowText("Processing script");
-
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
@@ -496,7 +493,7 @@ void AScriptWindow::on_pbRunScript_clicked()
     if (ScriptManager->isError())
     {
         QString err = ScriptManager->getErrorDescription();
-        qDebug() << "->->->->-->" << err << ScriptManager->getErrorLineNumber() << ScriptManager->isAborted();
+        //qDebug() << "->->->->-->" << err << ScriptManager->getErrorLineNumber() << ScriptManager->isAborted();
         if (!ScriptManager->isAborted())
             reportError(err, ScriptManager->getErrorLineNumber());
     }
