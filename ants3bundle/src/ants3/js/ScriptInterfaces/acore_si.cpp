@@ -199,19 +199,19 @@ void ACore_SI::print(QVariant message)
 {
     QString s;
     addQVariantToString(message, s);
-    emit AScriptHub::getInstance().outputText(s);
+    AScriptHub::getInstance().outputText(s, Lang);
 }
 
 void ACore_SI::printHtml(QVariant message)
 {
     QString s;
     addQVariantToString(message, s);
-    emit AScriptHub::getInstance().outputHtml(s);
+    AScriptHub::getInstance().outputHtml(s, Lang);
 }
 
 void ACore_SI::clearOutput()
 {
-    emit AScriptHub::getInstance().clearOutput();
+    AScriptHub::getInstance().clearOutput(Lang);
 }
 
 QString ACore_SI::getDateTimeStamp()

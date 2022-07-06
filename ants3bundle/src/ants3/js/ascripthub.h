@@ -1,6 +1,8 @@
 #ifndef ASCRIPTHUB_H
 #define ASCRIPTHUB_H
 
+#include "ascriptlanguageenum.h"
+
 #include <QObject>
 #include <QString>
 
@@ -29,6 +31,10 @@ public:
     void addCommonInterface(AScriptInterface * interface, QString name);
     void finalizeInit(); // run when initialization is finished (all additional script units already registered)
 
+    void outputText(const QString & text, AScriptLanguageEnum lang);
+    void outputHtml(const QString & text, AScriptLanguageEnum lang);
+    void clearOutput(AScriptLanguageEnum lang);
+
 private:
     AScriptHub();
     ~AScriptHub();
@@ -40,10 +46,13 @@ private:
 
 signals:
     //for gui
-    void outputText(QString);
-    void outputHtml(QString);
+    void outputText_JS(QString);
+    void outputText_P(QString);
+    void outputHtml_JS(QString);
+    void outputHtml_P(QString);
     void showAbortMessage(QString message);
-    void clearOutput();
+    void clearOutput_JS();
+    void clearOutput_P();
     void requestUpdateGui();
 
 private:

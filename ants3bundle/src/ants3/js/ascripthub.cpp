@@ -1,7 +1,6 @@
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
-#include "ascriptlanguageenum.h"
 
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
@@ -63,6 +62,24 @@ void AScriptHub::finalizeInit()
 #ifdef ANTS3_PYTHON
     PythonM->finalizeInit();
 #endif
+}
+
+void AScriptHub::outputText(const QString & text, AScriptLanguageEnum lang)
+{
+    if (lang == AScriptLanguageEnum::JavaScript) emit outputText_JS(text);
+    else                                         emit outputText_P(text);
+}
+
+void AScriptHub::outputHtml(const QString &text, AScriptLanguageEnum lang)
+{
+    if (lang == AScriptLanguageEnum::JavaScript) emit outputHtml_JS(text);
+    else                                         emit outputHtml_P(text);
+}
+
+void AScriptHub::clearOutput(AScriptLanguageEnum lang)
+{
+    if (lang == AScriptLanguageEnum::JavaScript) emit clearOutput_JS();
+    else                                         emit clearOutput_P();
 }
 
 AScriptHub::AScriptHub()

@@ -92,9 +92,9 @@ MainWindow::MainWindow() :
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(AScriptLanguageEnum::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(SH, &AScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(SH, &AScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
-    connect(SH, &AScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::clearOutput_JS,   JScriptWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText_JS,    JScriptWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml_JS,    JScriptWin, &AScriptWindow::outputHtml);
     connect(SH, &AScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
@@ -104,9 +104,9 @@ MainWindow::MainWindow() :
     qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(AScriptLanguageEnum::Python, this);
     PythonWin->registerInterfaces();
-    connect(SH, &AScriptHub::clearOutput,      PythonWin, &AScriptWindow::clearOutput);
-    connect(SH, &AScriptHub::outputText,       PythonWin, &AScriptWindow::outputText);
-    connect(SH, &AScriptHub::outputHtml,       PythonWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::clearOutput_JS,   PythonWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText_P,     PythonWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml_P,     PythonWin, &AScriptWindow::outputHtml);
     connect(SH, &AScriptHub::showAbortMessage, PythonWin, &AScriptWindow::outputAbortMessage);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   PythonWin, &AScriptWindow::onRequestAddScript);
