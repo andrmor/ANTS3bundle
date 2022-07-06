@@ -13,7 +13,9 @@ APythonWorker::~APythonWorker()
     qDebug() << "Destr for PythonWorker";
     delete PyInterface;
 
-    // do not delete script interfaces, it is automatic!
+    // JS does not need the following step due to QObject paranting, this does:
+    for (AScriptInterface * inter : Interfaces)
+        delete inter;
 }
 
 void APythonWorker::abort()
@@ -22,10 +24,6 @@ void APythonWorker::abort()
 
     for (AScriptInterface * inter : Interfaces)
         inter->abortRun();
-
-    // JS does not need the following step due to QObject paranting, this does:
-    for (AScriptInterface * inter : Interfaces)
-        delete inter;
 }
 
 bool APythonWorker::isError() const
