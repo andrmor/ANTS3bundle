@@ -14,6 +14,8 @@ class ASensor_SI : public AScriptInterface
 public:
     ASensor_SI();
 
+    AScriptInterface * cloneBase() const {return new ASensor_SI();}
+
 public slots:
     int countSensors();
     int countModels();

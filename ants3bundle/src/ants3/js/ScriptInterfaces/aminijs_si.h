@@ -17,6 +17,8 @@ public:
     ~AMiniJS_SI();
     bool wasAborted() const override;
 
+    AScriptInterface * cloneBase() const {return new AMiniJS_SI();}
+
 public slots:
     void setFunctorName(const QString & name) override;
 

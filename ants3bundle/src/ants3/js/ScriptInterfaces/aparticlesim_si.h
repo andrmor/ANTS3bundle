@@ -14,6 +14,8 @@ class AParticleSim_SI : public AScriptInterface
 public:
     AParticleSim_SI();
 
+    AScriptInterface * cloneBase() const {return new AParticleSim_SI();}
+
 public slots:
     void simulate(bool updateGui);
 

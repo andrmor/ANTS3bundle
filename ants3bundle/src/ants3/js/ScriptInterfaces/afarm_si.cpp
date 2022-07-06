@@ -1,9 +1,7 @@
 #include "afarm_si.h"
 #include "afarmhub.h"
 
-AFarm_SI::AFarm_SI(QObject * parent) :
-    AScriptInterface(),
-    FarmHub(AFarmHub::getInstance()) {}
+AFarm_SI::AFarm_SI() : AScriptInterface(), FarmHub(AFarmHub::getInstance()) {}
 
 void AFarm_SI::clearNodes()
 {

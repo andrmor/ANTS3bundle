@@ -22,6 +22,8 @@ public:
     //bool InitOnRun() override {}
     //bool IsMultithreadCapable() const override {return true;}
 
+    AScriptInterface * cloneBase() const {return new AGraph_SI();}
+
 public slots:
     void new1D(QString GraphName);
     void new1DErr(QString GraphName);

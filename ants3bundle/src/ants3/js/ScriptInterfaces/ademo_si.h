@@ -14,6 +14,8 @@ public:
     bool afterRun()  override;  // just as an example
     void abortRun()  override;
 
+    AScriptInterface * cloneBase() const {return new ADemo_SI();}
+
 public slots:
     bool run(int numLocalProc = -1);
 };

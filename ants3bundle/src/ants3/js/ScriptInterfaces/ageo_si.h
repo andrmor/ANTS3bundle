@@ -21,6 +21,8 @@ public:
 
     bool beforeRun() override;
 
+    AScriptInterface * cloneBase() const {return new AGeo_SI();}
+
     std::vector<AGeoObject*> GeoObjects;
 
 public slots:

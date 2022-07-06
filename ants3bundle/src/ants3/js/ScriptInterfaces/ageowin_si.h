@@ -15,6 +15,8 @@ class AGeoWin_SI : public AWindowInterfaceBase
 public:
     AGeoWin_SI(AGeometryWindow * geoWin);
 
+    AScriptInterface * cloneBase() const {return new AGeoWin_SI(GeometryWindow);}
+
 public slots:
     void BlockUpdates(bool on);
 

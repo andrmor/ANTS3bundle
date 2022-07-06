@@ -35,7 +35,7 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
 APythonScriptManager::~APythonScriptManager()
 {
     qDebug() << "Destr for PythonManager";
-//    Worker->abort();  !!!*** back when units are independent for js and python
+    Worker->abort();
     Worker->exit();
     Thread->exit();
     delete Worker;

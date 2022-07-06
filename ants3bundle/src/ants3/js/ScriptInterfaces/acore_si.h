@@ -2,6 +2,7 @@
 #define ACORESCRIPTINTERFACE_H
 
 #include "ascriptinterface.h"
+#include "ascriptlanguageenum.h"
 
 #include <QVariant>
 #include <QSet>
@@ -19,9 +20,13 @@ class ACore_SI : public AScriptInterface
     Q_OBJECT
 
 public:
-    ACore_SI();
+    ACore_SI(AScriptLanguageEnum lang);
 //  ACore_SI(const ACore_SI& other);
     // !!!*** for text outout for array (line ~135) --> consider '[]' for JS and '()' for Python
+
+    AScriptInterface * cloneBase() const {return new ACore_SI(Lang);}
+
+    AScriptLanguageEnum Lang = AScriptLanguageEnum::JavaScript;
 
 public slots:
     void    abort(QString message);

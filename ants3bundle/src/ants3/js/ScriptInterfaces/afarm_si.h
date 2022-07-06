@@ -13,7 +13,9 @@ class AFarm_SI : public AScriptInterface
     Q_OBJECT
 
 public:
-    AFarm_SI(QObject * parent = nullptr);
+    AFarm_SI();
+
+    AScriptInterface * cloneBase() const {return new AFarm_SI();}
 
 public slots:
     void clearNodes();

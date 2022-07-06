@@ -16,6 +16,8 @@ class AMath_SI : public AScriptInterface
 public:
     AMath_SI();
 
+    AScriptInterface * cloneBase() const {return new AMath_SI();}
+
 public slots:
     double abs(double val);
     double acos(double val);

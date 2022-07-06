@@ -17,6 +17,8 @@ public:
     virtual bool afterRun()  {return true;}   // automatically called after  script evaluation
     virtual void abortRun()  {}
 
+    virtual AScriptInterface * cloneBase() const = 0;
+
 //    virtual bool isMultithreadCapable() const {return false;}
 
     const QString & getMethodHelp(const QString & method) const;

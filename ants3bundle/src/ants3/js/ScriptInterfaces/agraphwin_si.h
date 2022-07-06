@@ -16,6 +16,8 @@ class AGraphWin_SI : public AWindowInterfaceBase
 public:
     AGraphWin_SI(GraphWindowClass * graphWin);
 
+    AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
+
 public slots:
     void setLog(bool Xaxis, bool Yaxis);
 

@@ -21,11 +21,11 @@ void APythonWorker::abort()
     PyInterface->abort();
 
     for (AScriptInterface * inter : Interfaces)
-    {
-        //qDebug() << "aborting" << inter->Name;
         inter->abortRun();
-    }
 
+    // JS does not need the following step due to QObject paranting, this does:
+    for (AScriptInterface * inter : Interfaces)
+        delete inter;
 }
 
 bool APythonWorker::isError() const
@@ -48,10 +48,10 @@ void APythonWorker::initialize()
     PyInterface = new APythonInterface();
 }
 
-void APythonWorker::onRegisterInterface(AScriptInterface *interface, QString name)
+void APythonWorker::onRegisterInterface(AScriptInterface * interface, QString name)
 {
+    interface->Name = name;
     PyInterface->registerUnit(interface, name);
-    interface->Name = name; // !!!*** up to the original caller
     Interfaces.push_back(interface);
 }
 

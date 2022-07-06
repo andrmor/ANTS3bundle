@@ -22,6 +22,8 @@ class AConfig_SI : public AScriptInterface
 public:
     AConfig_SI();
 
+    AScriptInterface * cloneBase() const {return new AConfig_SI();}
+
 public slots:
     bool        load(QString FileName);
     bool        save(QString FileName);

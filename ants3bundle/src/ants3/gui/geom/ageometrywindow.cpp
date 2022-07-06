@@ -85,7 +85,7 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
     CameraControl = new ACameraControlDialog(RasterWindow, this);
     CameraControl->setModal(false);
 
-    AScriptHub::getInstance().addInterface(new AGeoWin_SI(this), "geowin");
+    AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(this), "geowin");
 }
 
 AGeometryWindow::~AGeometryWindow()

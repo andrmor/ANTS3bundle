@@ -17,6 +17,8 @@ class AMsg_SI : public AWindowInterfaceBase
 public:
   AMsg_SI(ATextOutputWindow * msgWin);
 
+  AScriptInterface * cloneBase() const {return new AMsg_SI(MsgWin);}
+
 //  bool IsMultithreadCapable() const override {return true;}
 
 public slots:

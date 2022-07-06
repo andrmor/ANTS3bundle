@@ -1,6 +1,7 @@
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
+#include "ascriptlanguageenum.h"
 
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
@@ -38,60 +39,70 @@ void AScriptHub::abort(const QString & message)
 {
     AScriptHub & hub = getInstance();
 #ifdef ANTS3_PYTHON
-    hub.PyM->abort();
+    hub.PythonM->abort();
 #endif
-    hub.JSM->abort();
+    hub.JavaScriptM->abort();
 
     ADispatcherInterface::getInstance().abortTask();
 
     emit hub.showAbortMessage(message);
 }
 
-void AScriptHub::addInterface(AScriptInterface * interface, QString name)
+void AScriptHub::addCommonInterface(AScriptInterface * interface, QString name)
 {
-    JSM->registerInterface(interface, name);
+    JavaScriptM->registerInterface(interface, name);
+
 #ifdef ANTS3_PYTHON
-    PyM->registerInterface(interface, name);
+    AScriptInterface * twin = interface->cloneBase();
+    PythonM->registerInterface(twin, name);
 #endif
 }
 
 void AScriptHub::finalizeInit()
 {
 #ifdef ANTS3_PYTHON
-    PyM->finalizeInit();
+    PythonM->finalizeInit();
 #endif
 }
 
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
-    JSM = new AJScriptManager();
+    JavaScriptM = new AJScriptManager();
+      ACore_SI * coreJS = new ACore_SI(AScriptLanguageEnum::JavaScript);
+      JavaScriptM->registerInterface(coreJS, "core");
+
 #ifdef ANTS3_PYTHON
-    PyM = new APythonScriptManager();
+    PythonM = new APythonScriptManager();
+      ACore_SI * coreP = new ACore_SI(AScriptLanguageEnum::Python);
+      PythonM->registerInterface(coreP, "core");
 #endif
 
-    addInterface(new ADemo_SI(),         "demo");
-    addInterface(new ACore_SI(),         "core");
-    addInterface(new AMath_SI(),         "math");
-    addInterface(new AConfig_SI(),       "config");
-    addInterface(new AFarm_SI(),         "farm");
-    addInterface(new AGeo_SI(),          "geo");
-    addInterface(new ASensor_SI(),       "sens");
-    addInterface(new APhotonSim_SI(),    "lsim");
-    addInterface(new AParticleSim_SI(),  "psim");
-    addInterface(new ATrackRec_SI(),     "tracks");
-    addInterface(new APartAnalysis_SI(), "partan");
-    addInterface(new AMiniJS_SI(),       "mini");
-    addInterface(new AGraph_SI(),        "graph");
-    addInterface(new AHist_SI(),         "hist");
-    addInterface(new ATree_SI(),         "tree");
+    addCommonInterface(new AMath_SI(),         "math");
+    addCommonInterface(new AConfig_SI(),       "config");
+    addCommonInterface(new AFarm_SI(),         "farm");
+    addCommonInterface(new AGeo_SI(),          "geo");
+    addCommonInterface(new ASensor_SI(),       "sens");
+    addCommonInterface(new APhotonSim_SI(),    "lsim");
+    addCommonInterface(new AParticleSim_SI(),  "psim");
+    addCommonInterface(new ATrackRec_SI(),     "tracks");
+    addCommonInterface(new APartAnalysis_SI(), "partan");
+    addCommonInterface(new AGraph_SI(),        "graph");
+    addCommonInterface(new AHist_SI(),         "hist");
+    addCommonInterface(new ATree_SI(),         "tree");
+    addCommonInterface(new ADemo_SI(),         "demo");
+
+    JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");
+#ifdef ANTS3_PYTHON
+    //PythonM->registerInterface(new AMiniPython_SI(), "mini");
+#endif
 }
 
 AScriptHub::~AScriptHub()
 {
     qDebug() << "Destr for ScriptHub";
-    delete JSM; JSM = nullptr;
 #ifdef ANTS3_PYTHON
-    delete PyM; PyM = nullptr;
+    delete PythonM; PythonM = nullptr;
 #endif
+    delete JavaScriptM; JavaScriptM = nullptr;
 }

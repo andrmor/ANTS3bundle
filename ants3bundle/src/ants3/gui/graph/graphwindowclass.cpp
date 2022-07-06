@@ -161,7 +161,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
     DrawTemplate.Selection.bExpanded = true;
 
-    AScriptHub::getInstance().addInterface(new AGraphWin_SI(this), "grwin");
+    AScriptHub::getInstance().addCommonInterface(new AGraphWin_SI(this), "grwin");
 }
 
 GraphWindowClass::~GraphWindowClass()

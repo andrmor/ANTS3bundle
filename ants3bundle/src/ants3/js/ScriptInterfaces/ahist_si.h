@@ -22,6 +22,8 @@ public:
     //bool           InitOnRun() override {}
     //bool           IsMultithreadCapable() const override {return true;}
 
+    AScriptInterface * cloneBase() const {return new AHist_SI();}
+
 public slots:
     void           new1D(QString HistName, int bins, double start, double stop);
     void           new2D(QString HistName, int binsX, double startX, double stopX,   int binsY, double startY, double stopY);

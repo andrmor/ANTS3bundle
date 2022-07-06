@@ -21,6 +21,8 @@ public:
     ATrackRec_SI();
     ~ATrackRec_SI();
 
+    AScriptInterface * cloneBase() const {return new ATrackRec_SI();}
+
 public slots:
     void configure(QString fileName, bool binary);
 

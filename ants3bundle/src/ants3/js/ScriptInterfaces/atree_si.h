@@ -18,6 +18,8 @@ class ATree_SI : public AScriptInterface
 public:
     ATree_SI();
 
+    AScriptInterface * cloneBase() const {return new ATree_SI();}
+
 public slots:
     void         newTree(QString TreeName, QVariantList HeadersOfBranches,
                          QString StoreInFileName = "", int AutosaveAfterEntriesAdded = 10000); // !!!*** to std::vector inside

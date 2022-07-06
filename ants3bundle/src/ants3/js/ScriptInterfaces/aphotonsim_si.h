@@ -13,6 +13,8 @@ public:
     APhotonSim_SI();
     ~APhotonSim_SI();
 
+    AScriptInterface * cloneBase() const {return new APhotonSim_SI();}
+
 public slots:
     QString simulate(bool updateGui);
 

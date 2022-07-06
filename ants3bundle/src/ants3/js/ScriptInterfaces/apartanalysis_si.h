@@ -24,6 +24,8 @@ public:
     APartAnalysis_SI();
     ~APartAnalysis_SI();
 
+    AScriptInterface * cloneBase() const {return new APartAnalysis_SI();}
+
     //bool InitOnRun() override;
     //void ForceStop() override;
 

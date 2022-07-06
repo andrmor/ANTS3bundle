@@ -19,14 +19,14 @@ public:
     static AScriptHub      & getInstance();
     static AJScriptManager & manager(); // !!!*** to kill
 
-    static void              abort(const QString & message);
+    static void              abort(const QString & message); // !!!*** to kill, use JS or Python independently
 
-    AJScriptManager        & getJScriptManager() {return *JSM;}
+    AJScriptManager        & getJScriptManager() {return *JavaScriptM;}
 #ifdef ANTS3_PYTHON
-    APythonScriptManager   & getPythonManager()  {return *PyM;}
+    APythonScriptManager   & getPythonManager()  {return *PythonM;}
 #endif
 
-    void addInterface(AScriptInterface * interface, QString name);
+    void addCommonInterface(AScriptInterface * interface, QString name);
     void finalizeInit(); // run when initialization is finished (all additional script units already registered)
 
 private:
@@ -47,9 +47,9 @@ signals:
     void requestUpdateGui();
 
 private:
-    AJScriptManager      * JSM = nullptr;
+    AJScriptManager      * JavaScriptM = nullptr;
 #ifdef ANTS3_PYTHON
-    APythonScriptManager * PyM = nullptr;
+    APythonScriptManager * PythonM = nullptr;
 #endif
 };
 

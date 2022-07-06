@@ -14,9 +14,9 @@ AJScriptWorker::~AJScriptWorker()
 
 void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString name)
 {
+    interface->Name = name;
     QJSValue sv = Engine->newQObject(interface);
     Engine->globalObject().setProperty(name, sv);
-    interface->Name = name;
     Interfaces.push_back(interface);
 }
 
