@@ -117,7 +117,11 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
     if (res)
     {
         const int size = PyTuple_Size(po);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        list.clear(); list.reserve(size); for (int i = 0; i < size; i++) list << QVariant();
+#else
         list.resize(size);
+#endif
         for (int i = 0; i < size; i++)
         {
             PyObject * el = PyTuple_GetItem(po, i);
@@ -131,7 +135,11 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
     if (res)
     {
         const int size = PyList_Size(po);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        list.clear(); list.reserve(size); for (int i = 0; i < size; i++) list << QVariant();
+#else
         list.resize(size);
+#endif
         for (int i = 0; i < size; i++)
         {
             PyObject * el = PyList_GetItem(po, i);
@@ -200,9 +208,9 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
     PyObject * po = PyTuple_GetItem(args, iArg);
     AArgDataHolder & h = ArgDataHolders[iArg];
 
-    QMetaType asType = met.parameterMetaType(iArg);
+    int asType = met.parameterType(iArg); // QMetaType asType = met.parameterMetaType(iArg);
 
-    if (asType == QMetaType(QMetaType::Bool))
+    if (asType == QMetaType::Bool) // if (asType == QMetaType(QMetaType::Bool))
     {
         int res = PyObject_IsTrue(po);
         if (res != -1)
@@ -212,7 +220,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::Int))
+    else if (asType == QMetaType::Int) // else if (asType == QMetaType(QMetaType::Int))
     {
         int res = PyLong_Check(po);
         if (res)
@@ -229,7 +237,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::Double))
+    else if (asType == QMetaType::Double) // else if (asType == QMetaType(QMetaType::Double))
     {
         int res = PyFloat_Check(po);
         if (res)
@@ -239,7 +247,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::QString))
+    else if (asType == QMetaType::QString) // else if (asType == QMetaType(QMetaType::QString))
     {
         int res = PyUnicode_Check(po);
         if (res)
@@ -249,7 +257,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::QVariant))
+    else if (asType == QMetaType::QVariant) // else if (asType == QMetaType(QMetaType::QVariant))
     {
         bool ok = APythonInterface::pyObjectToVariant(po, h.Variant);
         if (ok)
@@ -258,7 +266,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::QVariantList))
+    else if (asType == QMetaType::QVariantList) //  else if (asType == QMetaType(QMetaType::QVariantList))
     {
         bool ok = APythonInterface::pyObjectToVariantList(po, h.List);
         if (ok)
@@ -267,7 +275,7 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             return true;
         }
     }
-    else if (asType == QMetaType(QMetaType::QVariantMap))
+    else if (asType == QMetaType::QVariantMap) // else if (asType == QMetaType(QMetaType::QVariantMap))
     {
         bool ok = APythonInterface::pyObjectToVariantMap(po, h.Map);
         if (ok)
@@ -277,20 +285,24 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
         }
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name().data()).arg(iArg).arg(QMetaType(asType).name().data()).toLatin1().data());
+#else
     PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name()).arg(iArg).arg(asType.name()).toLatin1().data());
+#endif
     return false;
 }
 
 PyObject* APythonInterface::variantToPyObject(const QVariant & var)
 {
-    const QMetaType mtype = var.metaType();
-    if      (mtype == QMetaType(QMetaType::Void))         return Py_NewRef(Py_None);
-    else if (mtype == QMetaType(QMetaType::Bool))         return PyBool_FromLong(var.toBool());
-    else if (mtype == QMetaType(QMetaType::Int))          return PyLong_FromLong(var.toInt());
-    else if (mtype == QMetaType(QMetaType::Double))       return PyFloat_FromDouble(var.toDouble());
-    else if (mtype == QMetaType(QMetaType::QString))      return PyUnicode_FromString(var.toString().toLatin1().data());
-    else if (mtype == QMetaType(QMetaType::QVariantList)) return listToTuple(var.toList());
-    else if (mtype == QMetaType(QMetaType::QVariantMap))  return mapToDict(var.toMap());
+    const int mtype = var.type(); // const QMetaType mtype = var.metaType();
+    if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
+    else if (mtype == QMetaType::Bool)         return PyBool_FromLong(var.toBool()); // else if (mtype == QMetaType(QMetaType::Bool))
+    else if (mtype == QMetaType::Int)          return PyLong_FromLong(var.toInt());
+    else if (mtype == QMetaType::Double)       return PyFloat_FromDouble(var.toDouble());
+    else if (mtype == QMetaType::QString)      return PyUnicode_FromString(var.toString().toLatin1().data());
+    else if (mtype == QMetaType::QVariantList) return listToTuple(var.toList());
+    else if (mtype == QMetaType::QVariantMap)  return mapToDict(var.toMap());
     return nullptr;
 }
 
@@ -337,33 +349,36 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 
     QObject * obj = ModData[iModule]->Object;
     QMetaMethod met = obj->metaObject()->method(iMethod);
-    /*
-    int retVal;
-    met.invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(int, retVal));
-    return PyLong_FromLong(retVal);
-    */
 
-    const QMetaType mtype = met.returnMetaType();
-    qDebug() << "==============>" << mtype.name();
+    const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
+    qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
     QGenericReturnArgument ret;
-    if      (mtype == QMetaType(QMetaType::Void))         ; // keep default
-    else if (mtype == QMetaType(QMetaType::Bool))         ret = Q_RETURN_ARG(bool,         retBool);
-    else if (mtype == QMetaType(QMetaType::Int))          ret = Q_RETURN_ARG(int,          retInt);
-    else if (mtype == QMetaType(QMetaType::Double))       ret = Q_RETURN_ARG(double,       retDouble);
-    else if (mtype == QMetaType(QMetaType::QString))      ret = Q_RETURN_ARG(QString,      retString);
-    else if (mtype == QMetaType(QMetaType::QVariant))     ret = Q_RETURN_ARG(QVariant,     retVariant);
-    else if (mtype == QMetaType(QMetaType::QVariantList)) ret = Q_RETURN_ARG(QVariantList, retList);
-    else if (mtype == QMetaType(QMetaType::QVariantMap))  ret = Q_RETURN_ARG(QVariantMap,  retMap);
+    if      (mtype == QMetaType::Void)         ; // keep default
+    else if (mtype == QMetaType::Bool)         ret = Q_RETURN_ARG(bool,         retBool); //  else if (mtype == QMetaType(QMetaType::Bool))
+    else if (mtype == QMetaType::Int)          ret = Q_RETURN_ARG(int,          retInt);
+    else if (mtype == QMetaType::Double)       ret = Q_RETURN_ARG(double,       retDouble);
+    else if (mtype == QMetaType::QString)      ret = Q_RETURN_ARG(QString,      retString);
+    else if (mtype == QMetaType::QVariant)     ret = Q_RETURN_ARG(QVariant,     retVariant);
+    else if (mtype == QMetaType::QVariantList) ret = Q_RETURN_ARG(QVariantList, retList);
+    else if (mtype == QMetaType::QVariantMap)  ret = Q_RETURN_ARG(QVariantMap,  retMap);
     else
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name().data()).arg(QMetaType(mtype).name().data())).toLatin1().data());
+#else
         PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name()).arg(mtype.name())).toLatin1().data());
+#endif
         return nullptr;
     }
 
     const int numArgs = met.parameterCount();
     if (PyTuple_Size(args) < numArgs)
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires at least %2 argument(s)").arg(met.name().data()).arg(numArgs)).toLatin1().data());
+#else
         PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires at least %2 argument(s)").arg(met.name()).arg(numArgs)).toLatin1().data());
+#endif
         return nullptr;
     }
 
@@ -377,48 +392,20 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     if (!ret.name()) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
     else             met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // ugly, but it's Qt :)
 
-    /*
-    switch (numArgs)
-    {
-    case 0:
-        {
-            if (!ret.name()) met.invoke(obj, Qt::DirectConnection);
-            else             met.invoke(obj, Qt::DirectConnection, ret);
-            break;
-        }
-    case 1:
-        {
-            QGenericArgument arg0;
-            bool ok = parseArg(0, args, met, arg0);
-            if (!ok) return nullptr;
-            if (!ret.name()) met.invoke(obj, Qt::DirectConnection, arg0);
-            else             met.invoke(obj, Qt::DirectConnection, ret, arg0);
-            break;
-        }
-    case 2:
-        {
-            QGenericArgument arg0, arg1;
-            bool ok = parseArg(0, args, met, arg0);
-            if (!ok) return nullptr;
-            ok = parseArg(1, args, met, arg1);
-            if (!ok) return nullptr;
-            if (!ret.name()) met.invoke(obj, Qt::DirectConnection, arg0, arg1);
-            else             met.invoke(obj, Qt::DirectConnection, ret, arg0, arg1);
-            break;
-        }
-    }
-    */
+    if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
+    else if (mtype == QMetaType::Bool)         return PyBool_FromLong(retBool); // else if (mtype == QMetaType(QMetaType::Bool))
+    else if (mtype == QMetaType::Int)          return PyLong_FromLong(retInt);
+    else if (mtype == QMetaType::Double)       return PyFloat_FromDouble(retDouble);
+    else if (mtype == QMetaType::QString)      return PyUnicode_FromString(retString.toLatin1().data());
+    else if (mtype == QMetaType::QVariant)     return APythonInterface::variantToPyObject(retVariant);
+    else if (mtype == QMetaType::QVariantList) return APythonInterface::listToTuple(retList);
+    else if (mtype == QMetaType::QVariantMap)  return APythonInterface::mapToDict(retMap);
 
-    if      (mtype == QMetaType(QMetaType::Void))         return Py_NewRef(Py_None);
-    else if (mtype == QMetaType(QMetaType::Bool))         return PyBool_FromLong(retBool);
-    else if (mtype == QMetaType(QMetaType::Int))          return PyLong_FromLong(retInt);
-    else if (mtype == QMetaType(QMetaType::Double))       return PyFloat_FromDouble(retDouble);
-    else if (mtype == QMetaType(QMetaType::QString))      return PyUnicode_FromString(retString.toLatin1().data());
-    else if (mtype == QMetaType(QMetaType::QVariant))     return APythonInterface::variantToPyObject(retVariant);
-    else if (mtype == QMetaType(QMetaType::QVariantList)) return APythonInterface::listToTuple(retList);
-    else if (mtype == QMetaType(QMetaType::QVariantMap))  return APythonInterface::mapToDict(retMap);
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    PyErr_SetString(PyExc_TypeError, QString("Unexpected mismatch in return type of method '%1'").arg(met.name().data()).toLatin1().data());
+#else
     PyErr_SetString(PyExc_TypeError, QString("Unexpected mismatch in return type of method '%1'").arg(met.name()).toLatin1().data());
+#endif
     return nullptr;
 }
 

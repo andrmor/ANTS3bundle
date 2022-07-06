@@ -21,6 +21,7 @@ class ACore_SI : public AScriptInterface
 public:
     ACore_SI();
 //  ACore_SI(const ACore_SI& other);
+    // !!!*** for text outout for array (line ~135) --> consider '[]' for JS and '()' for Python
 
 public slots:
     void    abort(QString message);

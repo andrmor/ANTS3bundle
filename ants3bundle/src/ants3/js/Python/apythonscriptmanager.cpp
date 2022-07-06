@@ -5,6 +5,7 @@
 #include "apythonworker.h"
 
 #include <QThread>
+#include <QDebug>
 
 APythonScriptManager::APythonScriptManager(QObject *parent)
     : AVirtualScriptManager{parent}
