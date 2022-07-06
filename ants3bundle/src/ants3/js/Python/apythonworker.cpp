@@ -67,15 +67,13 @@ void APythonWorker::evaluate(const QString &script)
     for (AScriptInterface * inter : Interfaces) inter->beforeRun(); // !!!*** error control!
 
     bBusy = true;
-//    Engine->setInterrupted(false);
     bool ok = PyInterface->evalScript(script);
     bBusy = false;
 
-    qDebug() << "Script eval finished:\n" << ok;
+    //qDebug() << "Script eval finished:\n" << ok;
 
     for (AScriptInterface * inter : Interfaces) inter->afterRun(); // !!!*** error control!
 
-//    ok = !Result.isError();
     emit evalFinished(ok);
 }
 

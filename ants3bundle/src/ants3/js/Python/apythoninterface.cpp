@@ -298,14 +298,19 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name().data()).arg(iArg).arg(QMetaType(asType).name().data()).toLatin1().data());
 #else
-    PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name()).arg(iArg).arg(asType.name()).toLatin1().data());
+    //PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name()).arg(iArg).arg(asType.name()).toLatin1().data());
+    PyErr_SetString(PyExc_TypeError, QString("Method '%1' argument %2 conversion error to %3").arg(met.name()).arg(iArg).arg(QMetaType(asType).name()).toLatin1().data());
 #endif
     return false;
 }
 
-PyObject* APythonInterface::variantToPyObject(const QVariant & var)
+PyObject* APythonInterface::variantToPyObject(const QVariant & var) // returns new ref
 {
-    const int mtype = var.type(); // const QMetaType mtype = var.metaType();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const int mtype = var.type();
+#else
+    const int mtype = var.metaType().id(); // const QMetaType mtype = var.metaType();
+#endif
     if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
     else if (mtype == QMetaType::Bool)         return PyBool_FromLong(var.toBool()); // else if (mtype == QMetaType(QMetaType::Bool))
     else if (mtype == QMetaType::Int)          return PyLong_FromLong(var.toInt());
@@ -323,7 +328,7 @@ PyObject * APythonInterface::listToTuple(const QVariantList & list)
     for (size_t i = 0; i < size; i++)
     {
         PyObject * el = variantToPyObject(list[i]);
-        PyTuple_SetItem(tu, i, el);
+        PyTuple_SetItem(tu, i, el);  // steals ref
     }
     return tu;
 }
@@ -335,7 +340,9 @@ PyObject* APythonInterface::mapToDict(const QVariantMap & map)
     while (it != map.constEnd())
     {
         //qDebug() << it.key() << ": " << it.value();
-        PyDict_SetItemString(dic, it.key().toLatin1().data(), variantToPyObject(it.value()));
+        PyObject * newVal = variantToPyObject(it.value());
+        PyDict_SetItemString(dic, it.key().toLatin1().data(), newVal); // does NOT steal ref
+        Py_DecRef(newVal);
         ++it;
     }
     return dic;
@@ -350,18 +357,18 @@ QVariantList retList;
 QVariantMap  retMap;
 static PyObject* baseFunction(PyObject *caller, PyObject *args)
 {
-    qDebug() << "Base function called!";
-    qDebug() << "caller-->" << caller->ob_type->tp_name;
+    //qDebug() << "Base function called!";
+    //qDebug() << "caller-->" << caller->ob_type->tp_name;
     int iModule;
     int iMethod;
     PyArg_ParseTuple(caller, "ii", &iModule, &iMethod);
-    qDebug() << iModule << iMethod;
+    //qDebug() << iModule << iMethod;
 
     QObject * obj = ModData[iModule]->Object;
     QMetaMethod met = obj->metaObject()->method(iMethod);
 
     const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
-    qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
+    //qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
     QGenericReturnArgument ret;
     if      (mtype == QMetaType::Void)         ; // keep default
     else if (mtype == QMetaType::Bool)         ret = Q_RETURN_ARG(bool,         retBool); //  else if (mtype == QMetaType(QMetaType::Bool))
@@ -376,7 +383,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name().data()).arg(QMetaType(mtype).name().data())).toLatin1().data());
 #else
-        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name()).arg(mtype.name())).toLatin1().data());
+        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name()).arg(QMetaType(mtype).name())).toLatin1().data());
 #endif
         return nullptr;
     }
@@ -432,22 +439,22 @@ void APythonInterface::initialize()
 
     for (size_t iUnit = 0; iUnit < ModData.size(); iUnit++)
     {
-        qDebug() << "-->" << iUnit;
+        //qDebug() << "-->" << iUnit;
         strName = &ModData[iUnit]->StrName;
         evalScript( QString("import %1").arg(strName->data()) );
 
         PyObject * module = PyDict_GetItemString(mainModule, strName->data());
-        qDebug() << "  module:" << module;
+        //qDebug() << "  module:" << module;
 
         const int numMethods = ModData[iUnit]->Object->metaObject()->methodCount();
-        qDebug() << "  num meta methods" << numMethods;
+        //qDebug() << "  num meta methods" << numMethods;
         for (int iMet = 0; iMet < numMethods; iMet++)
         {
             QMetaMethod meta = ModData[iUnit]->Object->metaObject()->method(iMet);
             if ((meta.methodType() == QMetaMethod::Slot) && meta.access() == QMetaMethod::Public)
             {
                 if (meta.name() == "deleteLater") continue;
-                qDebug() << "  ->" << meta.name() << " with meta index:" << iMet;
+                //qDebug() << "  ->" << meta.name() << " with meta index:" << iMet;
 
                 PyObject* caller = PyTuple_Pack(2, PyLong_FromSize_t(iUnit), PyLong_FromLong(iMet));
                 PyObject * pyFunc = PyCFunction_New(&baseMethodDef, caller);
@@ -457,7 +464,7 @@ void APythonInterface::initialize()
             }
         }
     }
-    qDebug() << "initialized finished\n";
+    //qDebug() << "initialized finished\n";
 }
 
 bool APythonInterface::evalScript(const QString & script)
@@ -476,7 +483,7 @@ bool APythonInterface::evalScript(const QString & script)
     ErrorDescription.clear();
     ErrorLineNumber = -1;
 
-    qDebug() << "Running script:" << script;
+    //qDebug() << "Running script:" << script;
     PyObject * outObj = PyRun_String(script.toLatin1().data(), Py_file_input, dict, dict);
 
     if (!outObj)
@@ -491,7 +498,7 @@ bool APythonInterface::evalScript(const QString & script)
 
 void APythonInterface::abort()
 {
-    qDebug() << "--> abort of Python Interface...";
+    //qDebug() << "--> abort of Python Interface...";
     PyErr_SetInterrupt();
 }
 
@@ -522,7 +529,7 @@ void APythonInterface::handleError()
         qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
 
         PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
-        //qDebug() << "QQQQQQQQQQQQQQQ:" << PyUnicode_AsUTF8(PyObject_Str(first));
+        //qDebug() << "SyntRel:" << PyUnicode_AsUTF8(PyObject_Str(first));
         ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(first));
 
         PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
@@ -532,18 +539,18 @@ void APythonInterface::handleError()
         return;
     }
 
-    // Not (yet) implemented errors types
+    // Not (yet) specifically implemented errors types (npo need?)
     PyObject* repr = PyObject_Repr(pvalue);
     PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
     const char * bytes = PyBytes_AS_STRING(str);
 
     ErrorDescription = QString(bytes);
-    qDebug() << ">>>>>>>" << ErrorDescription;
+    //qDebug() << ">>>>>>>" << ErrorDescription;
 
     Py_XDECREF(repr);
     Py_XDECREF(str);
 
-
+/*
     {
         PyObject* repr = PyObject_Repr(ptype);
         PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
@@ -577,7 +584,7 @@ void APythonInterface::handleError()
         Py_XDECREF(repr);
         Py_XDECREF(str);
     }
-
+*/
     //const char *errMsg = PyUnicode_AsUTF8(PyObject_Str(pvalue));
     //qDebug() << "\n\n" << errMsg;
 

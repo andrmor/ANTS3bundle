@@ -8,7 +8,7 @@ class AJScriptManager;
 class AScriptInterface;
 
 #ifdef ANTS3_PYTHON
-class APythonScriptManager;
+    class APythonScriptManager;
 #endif
 
 class AScriptHub : public QObject

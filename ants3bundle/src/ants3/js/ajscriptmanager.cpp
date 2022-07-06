@@ -60,7 +60,7 @@ void AJScriptManager::evalFinished(bool flag)
 
 bool AJScriptManager::evaluate(const QString &script)
 {
-    qDebug() << "Request to evaluate script:\n" << script;
+    //qDebug() << "Request to evaluate script:\n" << script;
     if (Worker->isBusy()) return false;
 
     bAborted = false;

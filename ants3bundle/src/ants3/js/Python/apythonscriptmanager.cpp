@@ -35,7 +35,7 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
 APythonScriptManager::~APythonScriptManager()
 {
     qDebug() << "Destr for PythonManager";
-//    Worker->abort();
+//    Worker->abort();  !!!*** back when units are independent for js and python
     Worker->exit();
     Thread->exit();
     delete Worker;
@@ -64,7 +64,7 @@ const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() co
 
 bool APythonScriptManager::evaluate(const QString & script)
 {
-    qDebug() << "Request to evaluate script:\n" << script;
+    //qDebug() << "Request to evaluate script:\n" << script;
     if (Worker->isBusy()) return false;
 
     bAborted = false;

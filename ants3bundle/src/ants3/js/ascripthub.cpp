@@ -37,10 +37,10 @@ AJScriptManager & AScriptHub::manager()
 void AScriptHub::abort(const QString & message)
 {
     AScriptHub & hub = getInstance();
-    hub.JSM->abort();
 #ifdef ANTS3_PYTHON
     hub.PyM->abort();
 #endif
+    hub.JSM->abort();
 
     ADispatcherInterface::getInstance().abortTask();
 
