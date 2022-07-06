@@ -2,7 +2,7 @@
 CONFIG += ants3_GUI          #if commented away, GUI is not compiled
 CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
-CONFIG += ants3_Python      #enable Python scripting
+#CONFIG += ants3_Python      #enable Python scripting
 #CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
 #CONFIG += ants3_jsroot       #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
 
@@ -13,6 +13,7 @@ LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit
 
 # PYTHON
 ants3_Python {
+    DEFINES += ANTS3_PYTHON
     #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
     #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
 
@@ -21,13 +22,16 @@ ants3_Python {
     QMAKE_CXXFLAGS += $$system(python3-config --includes)
 
     SOURCES += \
-        js/Python/apythoninterface.cpp
+        js/Python/apythoninterface.cpp \
+        js/Python/apythonscriptmanager.cpp \
+        js/Python/apythonworker.cpp
 
     HEADERS += \
-        js/Python/apythoninterface.h
+        js/Python/apythoninterface.h \
+        js/Python/apythonscriptmanager.h \
+        js/Python/apythonworker.h
 
     INCLUDEPATH += js/Python
-
 }
 
 QT += core
@@ -156,8 +160,6 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
-    js/Python/apythonscriptmanager.cpp \
-    js/Python/apythonworker.cpp \
     js/ScriptInterfaces/ageo_si.cpp \
     js/ScriptInterfaces/ageowin_si.cpp \
     js/ScriptInterfaces/agraphwin_si.cpp \
@@ -347,8 +349,6 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
-    js/Python/apythonscriptmanager.h \
-    js/Python/apythonworker.h \
     js/ScriptInterfaces/ageo_si.h \
     js/ScriptInterfaces/ageowin_si.h \
     js/ScriptInterfaces/agraphwin_si.h \

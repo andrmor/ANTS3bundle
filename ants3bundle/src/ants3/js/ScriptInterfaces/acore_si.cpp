@@ -108,13 +108,13 @@ double ACore_SI::getTimeMark()
 #include <QtGlobal>
 void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
 {
-    if (var.metaType().name() == QStringLiteral("QJSValue") )
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    if (var.typeName() == QStringLiteral("QJSValue") )
     {
         addQVariantToString(var.value<QJSValue>().toVariant(), string);
         return;
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     switch (var.type())
     {
     case QVariant::Map:
@@ -151,6 +151,12 @@ void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
         string += var.toString();
     }
 #else
+    if (var.metaType().name() == QStringLiteral("QJSValue") )
+    {
+        addQVariantToString(var.value<QJSValue>().toVariant(), string);
+        return;
+    }
+
     switch (var.userType())
     {
     case QMetaType::QVariantMap :

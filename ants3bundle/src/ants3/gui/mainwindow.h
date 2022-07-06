@@ -46,7 +46,9 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+#ifdef ANTS3_PYTHON
     AScriptWindow     * PythonWin = nullptr;
+#endif
     AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 

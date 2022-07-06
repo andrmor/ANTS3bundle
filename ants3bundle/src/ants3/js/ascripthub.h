@@ -5,8 +5,11 @@
 #include <QString>
 
 class AJScriptManager;
-class APythonScriptManager;
 class AScriptInterface;
+
+#ifdef ANTS3_PYTHON
+class APythonScriptManager;
+#endif
 
 class AScriptHub : public QObject
 {
@@ -19,7 +22,9 @@ public:
     static void              abort(const QString & message);
 
     AJScriptManager        & getJScriptManager() {return *JSM;}
+#ifdef ANTS3_PYTHON
     APythonScriptManager   & getPythonManager()  {return *PyM;}
+#endif
 
     void addInterface(AScriptInterface * interface, QString name);
     void finalizeInit(); // run when initialization is finished (all additional script units already registered)
@@ -43,7 +48,9 @@ signals:
 
 private:
     AJScriptManager      * JSM = nullptr;
+#ifdef ANTS3_PYTHON
     APythonScriptManager * PyM = nullptr;
+#endif
 };
 
 #endif // ASCRIPTHUB_H

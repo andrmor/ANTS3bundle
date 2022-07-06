@@ -13,10 +13,13 @@
 #include "a3global.h"
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
-#include "apythonscriptmanager.h"
 #include "atextoutputwindow.h"
 #include "amsg_si.h"
 #include "avirtualscriptmanager.h"
+
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 
 #include <QDebug>
 #include <QList>
@@ -51,16 +54,20 @@ AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
 {
     ui->setupUi(this);
 
+#ifdef ANTS3_PYTHON
     if (lang == AScriptLanguageEnum::JavaScript)
     {
+#endif
         ScriptManager = &ScriptHub.getJScriptManager();
         setWindowTitle("JavaScript");
+#ifdef ANTS3_PYTHON
     }
     else
     {
         ScriptManager = &ScriptHub.getPythonManager();
         setWindowTitle("Python");
     }
+#endif
 
     /*
     QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);

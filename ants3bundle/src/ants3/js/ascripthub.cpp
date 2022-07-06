@@ -1,7 +1,10 @@
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
-#include "apythonscriptmanager.h"
 #include "adispatcherinterface.h"
+
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 
 // SI
 #include "ademo_si.h"
@@ -35,7 +38,9 @@ void AScriptHub::abort(const QString & message)
 {
     AScriptHub & hub = getInstance();
     hub.JSM->abort();
+#ifdef ANTS3_PYTHON
     hub.PyM->abort();
+#endif
 
     ADispatcherInterface::getInstance().abortTask();
 
@@ -45,19 +50,25 @@ void AScriptHub::abort(const QString & message)
 void AScriptHub::addInterface(AScriptInterface * interface, QString name)
 {
     JSM->registerInterface(interface, name);
+#ifdef ANTS3_PYTHON
     PyM->registerInterface(interface, name);
+#endif
 }
 
 void AScriptHub::finalizeInit()
 {
+#ifdef ANTS3_PYTHON
     PyM->finalizeInit();
+#endif
 }
 
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     JSM = new AJScriptManager();
+#ifdef ANTS3_PYTHON
     PyM = new APythonScriptManager();
+#endif
 
     addInterface(new ADemo_SI(),         "demo");
     addInterface(new ACore_SI(),         "core");
@@ -79,5 +90,7 @@ AScriptHub::AScriptHub()
 AScriptHub::~AScriptHub()
 {
     delete JSM; JSM = nullptr;
+#ifdef ANTS3_PYTHON
     delete PyM; PyM = nullptr;
+#endif
 }

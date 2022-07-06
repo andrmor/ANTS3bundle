@@ -100,6 +100,7 @@ MainWindow::MainWindow() :
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
+#ifdef ANTS3_PYTHON
     qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(AScriptLanguageEnum::Python, this);
     PythonWin->registerInterfaces();
@@ -110,6 +111,7 @@ MainWindow::MainWindow() :
     connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   PythonWin, &AScriptWindow::onRequestAddScript);
     PythonWin->updateGui();
+#endif
 
     GlobSetWin = new AGlobSetWindow(this);
     connect(PhotSimWin, &A3PhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
@@ -252,9 +254,13 @@ void MainWindow::on_pbJavaScript_clicked()
 
 void MainWindow::on_pbPython_clicked()
 {
+#ifdef ANTS3_PYTHON
     PythonWin->showNormal();
     PythonWin->activateWindow();
     PythonWin->updateGui();
+#else
+    guitools::message("Ants3 was compiled without Python support.\nIt can be enabled in ants3.pro by uncommenting:\n#CONFIG += ants3_Python", this);
+#endif
 }
 
 void MainWindow::on_pbDemo_clicked()
@@ -423,7 +429,9 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     //saving ANTS master-configuration file
     JScriptWin->WriteToJson();
+#ifdef ANTS3_PYTHON
     PythonWin->WriteToJson();
+#endif
     A3Global::getInstance().saveConfig();
 
     qDebug()<<"<Saving ANTS configuration";
@@ -436,7 +444,9 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
+#endif
 
     for (auto * win : wins) delete win;
 
@@ -448,8 +458,10 @@ void MainWindow::saveWindowGeometries()
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
     wins.push_back(PythonWin->ScriptMsgWin);
+#endif
 
     for (auto * w : wins) w->storeGeomStatus();
 }
@@ -459,8 +471,10 @@ void MainWindow::loadWindowGeometries()
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
     wins.push_back(PythonWin->ScriptMsgWin);
+#endif
 
     for (auto * w : wins) w->restoreGeomStatus();
 }
