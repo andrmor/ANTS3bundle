@@ -89,6 +89,7 @@ AScriptHub::AScriptHub()
 
 AScriptHub::~AScriptHub()
 {
+    qDebug() << "Destr for ScriptHub";
     delete JSM; JSM = nullptr;
 #ifdef ANTS3_PYTHON
     delete PyM; PyM = nullptr;

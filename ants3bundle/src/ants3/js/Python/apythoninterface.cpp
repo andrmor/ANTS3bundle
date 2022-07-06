@@ -1,5 +1,3 @@
-//#define PY_SSIZE_T_CLEAN
-
 #include "apythoninterface.h"
 
 #include <QObject>
@@ -19,6 +17,17 @@ static std::vector<AModuleData*> ModData;          // filled directly
 static std::string * strName;                      // used to transfer the module name to function pointer during init phase
 static std::vector<PyModuleDef*> ModDefinitions;   // filled indirectly
 
+static PyObject * initModule() // requires strName to be filled with the pointer to a persistent name c-string!
+{
+    //qDebug() << "init called!";
+
+    PyModuleDef * md = new PyModuleDef{PyModuleDef_HEAD_INIT, strName->data(), NULL, -1, NULL, NULL, NULL,NULL,NULL};
+    ModDefinitions.push_back(md);
+
+    return PyModule_Create(md);
+}
+
+
 APythonInterface::APythonInterface()
 {
     const wchar_t * program = Py_DecodeLocale(QString("Ants3Python").toLatin1().data(), NULL);
@@ -28,16 +37,6 @@ APythonInterface::APythonInterface()
 APythonInterface::~APythonInterface()
 {
     Py_FinalizeEx();
-}
-
-static PyObject* initModule() // requires strName to be filled with the pointer to a persistent name c-string!
-{
-    qDebug() << "init called!";
-
-    PyModuleDef * md = new PyModuleDef{PyModuleDef_HEAD_INIT, strName->data(), NULL, -1, NULL, NULL, NULL,NULL,NULL};
-    ModDefinitions.push_back(md);
-
-    return PyModule_Create(md);
 }
 
 bool APythonInterface::registerUnit(QObject * unit, const QString & unitName)  // just the first phase, continues in initialize()
@@ -81,14 +80,16 @@ bool APythonInterface::pyObjectToVariant(PyObject * po, QVariant & var)
     if (PyTuple_Check(po))
     {
         QVariantList vl;
-        pyObjectToVariantList(po, vl);
+        bool ok = pyObjectToVariantList(po, vl);
+        if (!ok) return false;
         var = vl;
         return true;
     }
     if (PyDict_Check(po))
     {
         QVariantMap vm;
-        pyObjectToVariantMap(po, vm);
+        bool ok = pyObjectToVariantMap(po, vm);
+        if (!ok) return false;
         var = vm;
         return true;
     }
@@ -96,14 +97,16 @@ bool APythonInterface::pyObjectToVariant(PyObject * po, QVariant & var)
     if (PyList_Check(po))
     {
         QVariantList vl;
-        pyObjectToVariantList(po, vl);
+        bool ok = pyObjectToVariantList(po, vl);
+        if (!ok) return false;
         var = vl;
         return true;
     }
     if (PySet_Check(po))
     {
         QVariantList vl;
-        pyObjectToVariantList(po, vl);
+        bool ok = pyObjectToVariantList(po, vl);
+        if (!ok) return false;
         var = vl;
         return true;
     }
@@ -124,7 +127,7 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
 #endif
         for (int i = 0; i < size; i++)
         {
-            PyObject * el = PyTuple_GetItem(po, i);
+            PyObject * el = PyTuple_GetItem(po, i); // borrowed
             bool ok = pyObjectToVariant(el, list[i]);
             if (!ok) break;
         }
@@ -142,7 +145,7 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
 #endif
         for (int i = 0; i < size; i++)
         {
-            PyObject * el = PyList_GetItem(po, i);
+            PyObject * el = PyList_GetItem(po, i); // borrowed
             bool ok = pyObjectToVariant(el, list[i]);
             if (!ok) break;
         }
@@ -150,12 +153,12 @@ bool APythonInterface::pyObjectToVariantList(PyObject * po, QVariantList & list)
     }
 
     // last resort: check if it is possible to iterate over items
-    PyObject *iterator = PyObject_GetIter(po);
+    list.clear();
+    PyObject * iterator = PyObject_GetIter(po); // new ref
     if (!iterator) return false;
-
-    PyObject * item;
-    bool ok;
-    while ((item = PyIter_Next(iterator)))
+    PyObject * item = nullptr;
+    bool ok = false;
+    while ((item = PyIter_Next(iterator)))  // new ref
     {
         QVariant var;
         ok = pyObjectToVariant(item, var);
@@ -172,19 +175,26 @@ bool APythonInterface::pyObjectToVariantMap(PyObject * po, QVariantMap & map)
     int res = PyDict_Check(po);
     if (res)
     {
-        PyObject * keys = PyDict_Keys(po);
-        PyObject * vals = PyDict_Values(po);
+        PyObject * keys = PyDict_Keys(po);   // new ref
+        PyObject * vals = PyDict_Values(po); // new ref
 
         const int size = PyList_Size(keys);
-        qDebug() << "++++++++++++++++++++++++" << size;
+        //qDebug() << "++++++++++++++++++++++++" << size;
         for (int i = 0; i < size; i++)
         {
-            QString  s(PyUnicode_AsUTF8( PyList_GetItem(keys, i) ));
+            QString  s(PyUnicode_AsUTF8( PyList_GetItem(keys, i) ));     // borrowed
             QVariant val;
-            bool ok = pyObjectToVariant( PyList_GetItem(vals, i), val);
-            if (!ok) return false;
+            bool ok = pyObjectToVariant( PyList_GetItem(vals, i), val);  // borrowed
+            if (!ok)
+            {
+                Py_DecRef(keys);
+                Py_DecRef(vals);
+                return false;
+            }
             map[s] = val;
         }
+        Py_DecRef(keys);
+        Py_DecRef(vals);
         return true;
     }
 
@@ -205,7 +215,7 @@ struct AArgDataHolder
 static std::array<AArgDataHolder,10> ArgDataHolders;
 static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgument & arg)
 {
-    PyObject * po = PyTuple_GetItem(args, iArg);
+    PyObject * po = PyTuple_GetItem(args, iArg);  // borrowed
     AArgDataHolder & h = ArgDataHolders[iArg];
 
     int asType = met.parameterType(iArg); // QMetaType asType = met.parameterMetaType(iArg);
@@ -306,10 +316,10 @@ PyObject* APythonInterface::variantToPyObject(const QVariant & var)
     return nullptr;
 }
 
-PyObject* APythonInterface::listToTuple(const QVariantList & list)
+PyObject * APythonInterface::listToTuple(const QVariantList & list)
 {
     const size_t size = list.size();
-    PyObject * tu = PyTuple_New(size);
+    PyObject * tu = PyTuple_New(size); // new ref
     for (size_t i = 0; i < size; i++)
     {
         PyObject * el = variantToPyObject(list[i]);
@@ -320,7 +330,7 @@ PyObject* APythonInterface::listToTuple(const QVariantList & list)
 
 PyObject* APythonInterface::mapToDict(const QVariantMap & map)
 {
-    PyObject * dic = PyDict_New();
+    PyObject * dic = PyDict_New(); // new ref
     QMap<QString, QVariant>::const_iterator it = map.constBegin();
     while (it != map.constEnd())
     {
