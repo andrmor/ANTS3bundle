@@ -59,7 +59,7 @@ bool APythonScriptManager::testMinimizationFunction()
 
 double APythonScriptManager::runMinimizationFunction(const double *p)
 {
-    return Worker->runMinimizationFunction(MiniFunctionName, p, MiniNumVariables); // !!!*** store function as JSValue
+    return Worker->runMinimizationFunction(p, MiniNumVariables);
 }
 
 void APythonScriptManager::evalFinished(bool flag)

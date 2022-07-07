@@ -68,7 +68,7 @@ bool APythonWorker::testMinimizationFunction(const QString & name) const
     return false;
 }
 
-double APythonWorker::runMinimizationFunction(const QString & name, const double *p, int numParameters)
+double APythonWorker::runMinimizationFunction(const double *p, int numParameters)
 {
     qDebug() << "  Still callable?" << PyCallable_Check(PyInterface->MinimizationFunctor) << "num_P:" << numParameters;
 
@@ -82,6 +82,7 @@ double APythonWorker::runMinimizationFunction(const QString & name, const double
 
     PyObject * pyth_val = PyObject_Call(PyInterface->MinimizationFunctor, tupleArgs, NULL);
     qDebug() << "return obj:" << pyth_val;
+    Py_DecRef(tupleArgs);
 
     if (!pyth_val)
     {
@@ -89,6 +90,7 @@ double APythonWorker::runMinimizationFunction(const QString & name, const double
         return 0;
     }
     double result = PyFloat_AsDouble(pyth_val);
+    Py_DecRef(pyth_val);
     qDebug() << "GOT:" << result;
     return result;
 }
