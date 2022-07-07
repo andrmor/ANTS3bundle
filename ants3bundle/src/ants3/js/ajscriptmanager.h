@@ -58,12 +58,6 @@ protected:
 
     bool             bAborted = false;
 
-public:
-    //for minimizer
-    QString          MiniFunctionName;
-    int              MiniNumVariables  = 0;
-    double           MiniBestResult    = 1e30;
-
 };
 
 #endif // AJSCRIPTMANAGER_H

@@ -52,6 +52,16 @@ void APythonScriptManager::finalizeInit()
     emit doFinalizeInit();
 }
 
+bool APythonScriptManager::testMinimizationFunction()
+{
+    return Worker->testMinimizationFunction(MiniFunctionName);
+}
+
+double APythonScriptManager::runMinimizationFunction(const double *p)
+{
+    return Worker->runMinimizationFunction(MiniFunctionName, p, MiniNumVariables); // !!!*** store function as JSValue
+}
+
 void APythonScriptManager::evalFinished(bool flag)
 {
     emit finished(flag);

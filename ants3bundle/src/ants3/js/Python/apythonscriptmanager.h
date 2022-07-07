@@ -39,6 +39,9 @@ public:
 
     void finalizeInit();
 
+    bool   testMinimizationFunction();
+    double runMinimizationFunction(const double * p);
+
 private slots:
     void evalFinished(bool flag);
 

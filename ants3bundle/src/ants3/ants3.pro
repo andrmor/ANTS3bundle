@@ -24,12 +24,14 @@ ants3_Python {
     SOURCES += \
         js/Python/apythoninterface.cpp \
         js/Python/apythonscriptmanager.cpp \
-        js/Python/apythonworker.cpp
+        js/Python/apythonworker.cpp \
+        js/Python/aminipython_si.cpp
 
     HEADERS += \
         js/Python/apythoninterface.h \
         js/Python/apythonscriptmanager.h \
-        js/Python/apythonworker.h
+        js/Python/apythonworker.h \
+        js/Python/aminipython_si.h
 
     INCLUDEPATH += js/Python
 }

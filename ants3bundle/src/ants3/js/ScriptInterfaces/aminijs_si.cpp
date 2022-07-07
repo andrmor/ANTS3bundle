@@ -55,6 +55,7 @@ ROOT::Math::Functor * AMiniJS_SI::configureFunctor()
     bool ok = ScriptManager.testMinimizationFunction();
     if (!ok) return nullptr;
 
+    // !!!*** delete old one?
     Functor = new AFunctorJS();
     return new ROOT::Math::Functor(*Functor, ScriptManager.MiniNumVariables);
 }

@@ -23,8 +23,8 @@ public:
 
     const std::vector<AScriptInterface*> & getInterfaces() const {return Interfaces;}
 
-//    bool     testMinimizationFunction(const QString & name) const;
-//    double   runMinimizationFunction(const QString & name, const double * p, int numParameters);
+    bool     testMinimizationFunction(const QString & name) const;
+    double   runMinimizationFunction(const QString & name, const double * p, int numParameters);
 
 public slots:
     void initialize();

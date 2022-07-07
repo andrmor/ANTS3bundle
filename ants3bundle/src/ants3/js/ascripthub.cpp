@@ -4,6 +4,7 @@
 
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
+    #include "aminipython_si.h"
 #endif
 
 // SI
@@ -111,7 +112,7 @@ AScriptHub::AScriptHub()
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");
 #ifdef ANTS3_PYTHON
-    //PythonM->registerInterface(new AMiniPython_SI(), "mini");
+    PythonM->registerInterface(new AMiniPython_SI(), "mini");
 #endif
 }
 

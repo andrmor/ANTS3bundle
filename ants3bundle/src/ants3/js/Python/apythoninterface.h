@@ -28,8 +28,9 @@ public:
     QString ErrorDescription;
     int     ErrorLineNumber = -1;
 
-protected:
     PyObject * getMainModule();
+
+protected:
     void fillMethods();
     void handleError();
 
@@ -40,6 +41,10 @@ public:
     static bool pyObjectToVariant(PyObject * po, QVariant & var);
     static bool pyObjectToVariantList(PyObject *po, QVariantList & list);
     static bool pyObjectToVariantMap(PyObject * po, QVariantMap & map);
+
+    //-- for minimizer --
+    PyObject* MinimizationFunctor = nullptr;
+    //----
 
 };
 

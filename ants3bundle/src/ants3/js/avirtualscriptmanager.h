@@ -29,6 +29,11 @@ public:
     virtual int  getErrorLineNumber() = 0; //-1 if no errors
 
     virtual void collectGarbage() = 0;
+
+    //for minimizer
+    QString          MiniFunctionName;
+    int              MiniNumVariables  = 0;
+    double           MiniBestResult    = 1e30;
 };
 
 #endif // AVIRTUALSCRIPTMANAGER_H
