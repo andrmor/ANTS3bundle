@@ -13,7 +13,7 @@ AMsg_SI::AMsg_SI(ATextOutputWindow * msgWin) :
 
 void AMsg_SI::appendText(const QString & text)
 {
-    QTimer::singleShot(0, BaseWindow, [this, &text]()
+    QTimer::singleShot(0, BaseWindow, [this, text]()
     {
         MsgWin->appendText(text);
     } );
@@ -21,7 +21,7 @@ void AMsg_SI::appendText(const QString & text)
 
 void AMsg_SI::appendHtml(const QString & text)
 {
-    QTimer::singleShot(0, BaseWindow, [this, &text]()
+    QTimer::singleShot(0, BaseWindow, [this, text]()
     {
         MsgWin->appendHtml(text);
     } );
