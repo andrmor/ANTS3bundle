@@ -4,7 +4,7 @@
 #include "ahighlighters.h"
 #include "atextedit.h"
 #include "ascriptinterface.h"
-#include "acore_si.h"
+//#include "acore_si.h"
 //#include "amath_si.h"
 #include "guitools.h"
 //#include "ascriptexampleexplorer.h"
@@ -507,7 +507,7 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         QString s;
-        ACore_SI::addQVariantToString(ScriptManager->getResult(), s);
+        AVirtualScriptManager::addQVariantToString(ScriptManager->getResult(), s, ScriptLanguage);
         if (!s.isEmpty() && s != "\"undefined\"") outputText(s);
     }
 

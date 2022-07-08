@@ -1,7 +1,8 @@
 #include "acore_si.h"
 #include "ascripthub.h"
 #include "ascripthub.h"
-#include "ajscriptmanager.h"
+#include "avirtualscriptmanager.h"
+#include "ajscriptmanager.h"  // !!!*** to remove
 #include "afiletools.h"
 
 #ifdef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
@@ -105,107 +106,17 @@ double ACore_SI::getTimeMark()
     return QDateTime::currentMSecsSinceEpoch();
 }
 
-#include <QtGlobal>
-void ACore_SI::addQVariantToString(const QVariant & var, QString & string)
-{
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (var.typeName() == QStringLiteral("QJSValue") )
-    {
-        addQVariantToString(var.value<QJSValue>().toVariant(), string);
-        return;
-    }
-
-    switch (var.type())
-    {
-    case QVariant::Map:
-    {
-        string += '{';
-        const QMap<QString, QVariant> map = var.toMap();
-        for (const QString & k : map.keys())
-        {
-            string += QString("\"%1\":").arg(k);
-            addQVariantToString(map.value(k), string);
-            string += ", ";
-        }
-        if (string.endsWith(", ")) string.chop(2);
-        string += '}';
-        break;
-    }
-    case QVariant::List:
-        string += '[';
-        for (const QVariant & v : var.toList())
-        {
-            addQVariantToString(v, string);
-            string += ", ";
-        }
-        if (string.endsWith(", ")) string.chop(2);
-        string += ']';
-        break;
-    case QVariant::String:
-        string += "\"";
-        string += var.toString();
-        string += "\"";
-        break;
-    default:
-        // implicit convertion to string
-        string += var.toString();
-    }
-#else
-    if (var.metaType().name() == QStringLiteral("QJSValue") )
-    {
-        addQVariantToString(var.value<QJSValue>().toVariant(), string);
-        return;
-    }
-
-    switch (var.userType())
-    {
-    case QMetaType::QVariantMap :
-    {
-        string += '{';
-        const QMap<QString, QVariant> map = var.toMap();
-        for (const QString & k : map.keys())
-        {
-            string += QString("\"%1\":").arg(k);
-            addQVariantToString(map.value(k), string);
-            string += ", ";
-        }
-        if (string.endsWith(", ")) string.chop(2);
-        string += '}';
-        break;
-    }
-    case QMetaType::QVariantList :
-        string += '[';
-        for (const QVariant & v : var.toList())
-        {
-            addQVariantToString(v, string);
-            string += ", ";
-        }
-        if (string.endsWith(", ")) string.chop(2);
-        string += ']';
-        break;
-    case QMetaType::QString:
-        string += "\"";
-        string += var.toString();
-        string += "\"";
-        break;
-    default:
-        // implicit convertion to string
-        string += var.toString();
-    }
-#endif
-}
-
 void ACore_SI::print(QVariant message)
 {
     QString s;
-    addQVariantToString(message, s);
+    AVirtualScriptManager::addQVariantToString(message, s, Lang);
     AScriptHub::getInstance().outputText(s, Lang);
 }
 
 void ACore_SI::printHtml(QVariant message)
 {
     QString s;
-    addQVariantToString(message, s);
+    AVirtualScriptManager::addQVariantToString(message, s, Lang);
     AScriptHub::getInstance().outputHtml(s, Lang);
 }
 

@@ -35,11 +35,11 @@ public slots:
 
     // Output
     void    clearOutput();
-    void    print(QVariant message); //QJSValue
+    void    print(QVariant message); // before was QJSValue
     void    printHtml(QVariant message);
 
     // Time
-    void    sleep(int ms); // !!!***
+    void    sleep(int ms); // !!!*** expand to Python!!
     double  getTimeMark();
     QString getDateTimeStamp();
 
@@ -90,8 +90,6 @@ public slots:
     void requestGuiUpdate();
 
     const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
-
-    static void addQVariantToString(const QVariant &var, QString & string);
 
 private:
     enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};

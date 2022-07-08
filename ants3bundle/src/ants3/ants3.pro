@@ -194,6 +194,7 @@ SOURCES += \
     js/ScriptInterfaces/agraph_si.cpp \
     js/ScriptInterfaces/atree_si.cpp \
     js/ScriptInterfaces/awindowinterfacebase.cpp \
+    js/avirtualscriptmanager.cpp \
     particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
