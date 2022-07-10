@@ -10,9 +10,7 @@
 
 #include <vector>
 
-class AScriptManager;
 class CurveFit;
-
 
 class ACore_SI : public AScriptInterface
 {
@@ -35,7 +33,7 @@ public slots:
     void    printHtml(QVariant message);
 
     // Time
-    void    sleep(int ms); // !!!*** expand to Python!!
+    void    sleep(int ms);
     double  getTimeMark();
     QString getDateTimeStamp();
 
@@ -45,7 +43,7 @@ public slots:
     bool deleteFile(QString fileName);
     bool createDir(QString path);
     QString getCurrentDir();
-    bool setCirrentDir(QString path); // !!!*** does it affect exec dir for worker processes?
+    //bool setCirrentDir(QString path); // affects exec dir for worker processes?
 
     // Text
     void    saveText(QString text, QString fileName, bool append);

@@ -2,7 +2,10 @@
 #include "ascripthub.h"
 #include "ascripthub.h"
 #include "avirtualscriptmanager.h"
-#include "ajscriptmanager.h"  // !!!*** to remove
+#include "ajscriptmanager.h"
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 #include "afiletools.h"
 
 #ifdef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
@@ -90,15 +93,23 @@ QVariant ACore_SI::test(QVariant in)
 void ACore_SI::sleep(int ms)
 {
     if (ms == 0) return;
+
+    AScriptHub & SH = AScriptHub::getInstance();
+    AVirtualScriptManager * SM = nullptr;
+    if (Lang == EScriptLanguage::JavaScript) SM = &SH.getJScriptManager();
+#ifdef ANTS3_PYTHON
+    if (Lang == EScriptLanguage::Python)     SM = &SH.getPythonManager();
+#endif
+
     QElapsedTimer t;
     t.start();
     do
     {
         QThread::usleep(100);
         qApp->processEvents();
-        if (!AScriptHub::manager().isRunning()) break;
+        if (!SM->isRunning()) break;
     }
-    while (t.elapsed()<ms);
+    while (t.elapsed() < ms);
 }
 
 double ACore_SI::getTimeMark()
@@ -979,10 +990,10 @@ QString ACore_SI::getCurrentDir()
     return QDir::currentPath();
 }
 
-bool ACore_SI::setCirrentDir(QString path)
-{
-    return QDir::setCurrent(path);
-}
+//bool ACore_SI::setCirrentDir(QString path)
+//{
+//    return QDir::setCurrent(path);
+//}
 
 const QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
 {
