@@ -22,18 +22,18 @@ ants3_Python {
     QMAKE_CXXFLAGS += $$system(python3-config --includes)
 
     SOURCES += \
-        js/Python/apythoninterface.cpp \
-        js/Python/apythonscriptmanager.cpp \
-        js/Python/apythonworker.cpp \
-        js/Python/aminipython_si.cpp
+        script/Python/apythoninterface.cpp \
+        script/Python/apythonscriptmanager.cpp \
+        script/Python/apythonworker.cpp \
+        script/Python/aminipython_si.cpp
 
     HEADERS += \
-        js/Python/apythoninterface.h \
-        js/Python/apythonscriptmanager.h \
-        js/Python/apythonworker.h \
-        js/Python/aminipython_si.h
+        script/Python/apythoninterface.h \
+        script/Python/apythonscriptmanager.h \
+        script/Python/apythonworker.h \
+        script/Python/aminipython_si.h
 
-    INCLUDEPATH += js/Python
+    INCLUDEPATH += script/Python
 }
 
 QT += core
@@ -70,8 +70,8 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
 
-INCLUDEPATH += js
-INCLUDEPATH += js/ScriptInterfaces
+INCLUDEPATH += script
+INCLUDEPATH += script/ScriptInterfaces
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
@@ -162,39 +162,39 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
-    js/ScriptInterfaces/ageo_si.cpp \
-    js/ScriptInterfaces/ageowin_si.cpp \
-    js/ScriptInterfaces/agraphwin_si.cpp \
-    js/ScriptInterfaces/amsg_si.cpp \
-    js/ScriptInterfaces/aparticlesim_si.cpp \
-    js/ScriptInterfaces/asensor_si.cpp \
-    js/ajscriptmanager.cpp \
-    js/ajscriptworker.cpp \
-    js/apeakfinder.cpp \
-    js/arootgraphrecord.cpp \
-    js/aroothistrecord.cpp \
-    js/arootobjbase.cpp \
-    js/arootobjcollection.cpp \
-    js/aroottreerecord.cpp \
-    js/ascripthub.cpp \
-    js/ascriptobjstore.cpp \
-    js/avarrecordbase.cpp \
-    js/ScriptInterfaces/aconfig_si.cpp \
-    js/ScriptInterfaces/acore_si.cpp \
-    js/ScriptInterfaces/ademo_si.cpp \
-    js/ScriptInterfaces/afarm_si.cpp \
-    js/ScriptInterfaces/ahist_si.cpp \
-    js/ScriptInterfaces/amath_si.cpp \
-    js/ScriptInterfaces/aminijs_si.cpp \
-    js/ScriptInterfaces/apartanalysis_si.cpp \
-    js/ScriptInterfaces/aphotonsim_si.cpp \
-    js/ScriptInterfaces/ascriptinterface.cpp \
-    js/ScriptInterfaces/ascriptminimizerbase.cpp \
-    js/ScriptInterfaces/atrackrec_si.cpp \
-    js/ScriptInterfaces/agraph_si.cpp \
-    js/ScriptInterfaces/atree_si.cpp \
-    js/ScriptInterfaces/awindowinterfacebase.cpp \
-    js/avirtualscriptmanager.cpp \
+    script/ScriptInterfaces/ageo_si.cpp \
+    script/ScriptInterfaces/ageowin_si.cpp \
+    script/ScriptInterfaces/agraphwin_si.cpp \
+    script/ScriptInterfaces/amsg_si.cpp \
+    script/ScriptInterfaces/aparticlesim_si.cpp \
+    script/ScriptInterfaces/asensor_si.cpp \
+    script/ajscriptmanager.cpp \
+    script/ajscriptworker.cpp \
+    script/apeakfinder.cpp \
+    script/arootgraphrecord.cpp \
+    script/aroothistrecord.cpp \
+    script/arootobjbase.cpp \
+    script/arootobjcollection.cpp \
+    script/aroottreerecord.cpp \
+    script/ascripthub.cpp \
+    script/ascriptobjstore.cpp \
+    script/avarrecordbase.cpp \
+    script/ScriptInterfaces/aconfig_si.cpp \
+    script/ScriptInterfaces/acore_si.cpp \
+    script/ScriptInterfaces/ademo_si.cpp \
+    script/ScriptInterfaces/afarm_si.cpp \
+    script/ScriptInterfaces/ahist_si.cpp \
+    script/ScriptInterfaces/amath_si.cpp \
+    script/ScriptInterfaces/aminijs_si.cpp \
+    script/ScriptInterfaces/apartanalysis_si.cpp \
+    script/ScriptInterfaces/aphotonsim_si.cpp \
+    script/ScriptInterfaces/ascriptinterface.cpp \
+    script/ScriptInterfaces/ascriptminimizerbase.cpp \
+    script/ScriptInterfaces/atrackrec_si.cpp \
+    script/ScriptInterfaces/agraph_si.cpp \
+    script/ScriptInterfaces/atree_si.cpp \
+    script/ScriptInterfaces/awindowinterfacebase.cpp \
+    script/avirtualscriptmanager.cpp \
     particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
@@ -352,39 +352,39 @@ HEADERS += \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
-    js/ScriptInterfaces/ageo_si.h \
-    js/ScriptInterfaces/ageowin_si.h \
-    js/ScriptInterfaces/agraphwin_si.h \
-    js/ScriptInterfaces/amsg_si.h \
-    js/ScriptInterfaces/aparticlesim_si.h \
-    js/ScriptInterfaces/asensor_si.h \
-    js/arootgraphrecord.h \
-    js/aroothistrecord.h \
-    js/arootobjbase.h \
-    js/arootobjcollection.h \
-    js/aroottreerecord.h \
-    js/ajscriptmanager.h \
-    js/ajscriptworker.h \
-    js/apeakfinder.h \
-    js/ascripthub.h \
-    js/ascriptobjstore.h \
-    js/avarrecordbase.h \
-    js/ScriptInterfaces/aconfig_si.h \
-    js/ScriptInterfaces/acore_si.h \
-    js/ScriptInterfaces/ademo_si.h \
-    js/ScriptInterfaces/afarm_si.h \
-    js/ScriptInterfaces/ahist_si.h \
-    js/ScriptInterfaces/amath_si.h \
-    js/ScriptInterfaces/aminijs_si.h \
-    js/ScriptInterfaces/apartanalysis_si.h \
-    js/ScriptInterfaces/aphotonsim_si.h \
-    js/ScriptInterfaces/ascriptinterface.h \
-    js/ScriptInterfaces/ascriptminimizerbase.h \
-    js/ScriptInterfaces/atrackrec_si.h \
-    js/ScriptInterfaces/agraph_si.h \
-    js/ScriptInterfaces/atree_si.h \
-    js/ScriptInterfaces/awindowinterfacebase.h \
-    js/avirtualscriptmanager.h \
+    script/ScriptInterfaces/ageo_si.h \
+    script/ScriptInterfaces/ageowin_si.h \
+    script/ScriptInterfaces/agraphwin_si.h \
+    script/ScriptInterfaces/amsg_si.h \
+    script/ScriptInterfaces/aparticlesim_si.h \
+    script/ScriptInterfaces/asensor_si.h \
+    script/arootgraphrecord.h \
+    script/aroothistrecord.h \
+    script/arootobjbase.h \
+    script/arootobjcollection.h \
+    script/aroottreerecord.h \
+    script/ajscriptmanager.h \
+    script/ajscriptworker.h \
+    script/apeakfinder.h \
+    script/ascripthub.h \
+    script/ascriptobjstore.h \
+    script/avarrecordbase.h \
+    script/ScriptInterfaces/aconfig_si.h \
+    script/ScriptInterfaces/acore_si.h \
+    script/ScriptInterfaces/ademo_si.h \
+    script/ScriptInterfaces/afarm_si.h \
+    script/ScriptInterfaces/ahist_si.h \
+    script/ScriptInterfaces/amath_si.h \
+    script/ScriptInterfaces/aminijs_si.h \
+    script/ScriptInterfaces/apartanalysis_si.h \
+    script/ScriptInterfaces/aphotonsim_si.h \
+    script/ScriptInterfaces/ascriptinterface.h \
+    script/ScriptInterfaces/ascriptminimizerbase.h \
+    script/ScriptInterfaces/atrackrec_si.h \
+    script/ScriptInterfaces/agraph_si.h \
+    script/ScriptInterfaces/atree_si.h \
+    script/ScriptInterfaces/awindowinterfacebase.h \
+    script/avirtualscriptmanager.h \
     particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
