@@ -347,11 +347,11 @@ HEADERS += \
     gui/script/ageoscriptmaker.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
-    gui/script/ascriptlanguageenum.h \
     gui/script/ascriptwindow.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
+    gui/script/escriptlanguage.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \

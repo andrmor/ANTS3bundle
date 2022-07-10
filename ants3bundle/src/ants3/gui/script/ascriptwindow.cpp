@@ -45,8 +45,8 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
-AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
-    AGuiWindow( (lang == AScriptLanguageEnum::JavaScript ? "JScript" : "Python"), parent),
+AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
+    AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
     ScriptHub(AScriptHub::getInstance()),
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AScriptWindow),
@@ -55,7 +55,7 @@ AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
     ui->setupUi(this);
 
 #ifdef ANTS3_PYTHON
-    if (lang == AScriptLanguageEnum::JavaScript)
+    if (lang == EScriptLanguage::JavaScript)
     {
 #endif
         ScriptManager = &ScriptHub.getJScriptManager();
@@ -125,8 +125,8 @@ AScriptWindow::AScriptWindow(AScriptLanguageEnum lang, QWidget * parent) :
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
 
-    ATextOutputWindow * SMW = new ATextOutputWindow( (lang == AScriptLanguageEnum::JavaScript ? "JS_Msg" : "Python_Msg"), this );
-    SMW->setWindowTitle( lang == AScriptLanguageEnum::JavaScript ? "JS msg window" : "Python msg window");
+    ATextOutputWindow * SMW = new ATextOutputWindow( (lang == EScriptLanguage::JavaScript ? "JS_Msg" : "Python_Msg"), this );
+    SMW->setWindowTitle( lang == EScriptLanguage::JavaScript ? "JS msg window" : "Python msg window");
     ScriptMsgWin = SMW;
     ScriptManager->registerInterface(new AMsg_SI(SMW), "msg");
 
@@ -360,7 +360,7 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    if (ScriptLanguage == AScriptLanguageEnum::JavaScript) writeToJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript) writeToJson(GlobSet.JavaScriptJson);
     else                                                   writeToJson(GlobSet.PythonJson);
 }
 
@@ -385,7 +385,7 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 
 void AScriptWindow::ReadFromJson()
 {
-    if (ScriptLanguage == AScriptLanguageEnum::JavaScript) readFromJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript) readFromJson(GlobSet.JavaScriptJson);
     else                                                   readFromJson(GlobSet.PythonJson);
 }
 

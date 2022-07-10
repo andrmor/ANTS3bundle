@@ -19,7 +19,7 @@
 #include "ascriptwindow.h"
 #include "aglobsetwindow.h"
 #include "ademowindow.h"
-#include "ascriptlanguageenum.h"
+#include "escriptlanguage.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -90,7 +90,7 @@ MainWindow::MainWindow() :
 
     AScriptHub * SH = &AScriptHub::getInstance();
     qDebug() << "Creating JScript window";
-    JScriptWin = new AScriptWindow(AScriptLanguageEnum::JavaScript, this);
+    JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
     connect(SH, &AScriptHub::clearOutput_JS,   JScriptWin, &AScriptWindow::clearOutput);
     connect(SH, &AScriptHub::outputText_JS,    JScriptWin, &AScriptWindow::outputText);
@@ -102,7 +102,7 @@ MainWindow::MainWindow() :
 
 #ifdef ANTS3_PYTHON
     qDebug() << "Creating Python window";
-    PythonWin = new AScriptWindow(AScriptLanguageEnum::Python, this);
+    PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
     connect(SH, &AScriptHub::clearOutput_JS,   PythonWin, &AScriptWindow::clearOutput);
     connect(SH, &AScriptHub::outputText_P,     PythonWin, &AScriptWindow::outputText);

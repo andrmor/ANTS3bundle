@@ -65,21 +65,21 @@ void AScriptHub::finalizeInit()
 #endif
 }
 
-void AScriptHub::outputText(const QString & text, AScriptLanguageEnum lang)
+void AScriptHub::outputText(const QString & text, EScriptLanguage lang)
 {
-    if (lang == AScriptLanguageEnum::JavaScript) emit outputText_JS(text);
+    if (lang == EScriptLanguage::JavaScript) emit outputText_JS(text);
     else                                         emit outputText_P(text);
 }
 
-void AScriptHub::outputHtml(const QString &text, AScriptLanguageEnum lang)
+void AScriptHub::outputHtml(const QString &text, EScriptLanguage lang)
 {
-    if (lang == AScriptLanguageEnum::JavaScript) emit outputHtml_JS(text);
+    if (lang == EScriptLanguage::JavaScript) emit outputHtml_JS(text);
     else                                         emit outputHtml_P(text);
 }
 
-void AScriptHub::clearOutput(AScriptLanguageEnum lang)
+void AScriptHub::clearOutput(EScriptLanguage lang)
 {
-    if (lang == AScriptLanguageEnum::JavaScript) emit clearOutput_JS();
+    if (lang == EScriptLanguage::JavaScript) emit clearOutput_JS();
     else                                         emit clearOutput_P();
 }
 
@@ -87,12 +87,12 @@ AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     JavaScriptM = new AJScriptManager();
-      ACore_SI * coreJS = new ACore_SI(AScriptLanguageEnum::JavaScript);
+      ACore_SI * coreJS = new ACore_SI(EScriptLanguage::JavaScript);
       JavaScriptM->registerInterface(coreJS, "core");
 
 #ifdef ANTS3_PYTHON
     PythonM = new APythonScriptManager();
-      ACore_SI * coreP = new ACore_SI(AScriptLanguageEnum::Python);
+      ACore_SI * coreP = new ACore_SI(EScriptLanguage::Python);
       PythonM->registerInterface(coreP, "core");
 #endif
 

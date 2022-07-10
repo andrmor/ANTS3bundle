@@ -3,7 +3,7 @@
 
 #include "aguiwindow.h"
 #include "ascriptbook.h"
-#include "ascriptlanguageenum.h"
+#include "escriptlanguage.h"
 
 #include <QSet>
 #include <QHash>
@@ -36,7 +36,7 @@ class AScriptWindow : public AGuiWindow
     Q_OBJECT
 
 public:
-    AScriptWindow(AScriptLanguageEnum lang, QWidget * parent);
+    AScriptWindow(EScriptLanguage lang, QWidget * parent);
     ~AScriptWindow();
 
     void registerInterfaces();
@@ -58,7 +58,7 @@ private:
     A3Global          & GlobSet;
     Ui::AScriptWindow * ui = nullptr;
 
-    AScriptLanguageEnum ScriptLanguage = AScriptLanguageEnum::JavaScript;
+    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
     AVirtualScriptManager * ScriptManager = nullptr;
 
     QStringList         Methods;

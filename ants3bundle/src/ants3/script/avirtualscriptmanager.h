@@ -1,7 +1,7 @@
 #ifndef AVIRTUALSCRIPTMANAGER_H
 #define AVIRTUALSCRIPTMANAGER_H
 
-#include "ascriptlanguageenum.h"
+#include "escriptlanguage.h"
 
 #include <QObject>
 #include <QString>
@@ -32,7 +32,7 @@ public:
 
     virtual void collectGarbage() = 0;
 
-    static void addQVariantToString(const QVariant & var, QString & string, AScriptLanguageEnum lang);
+    static void addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang);
 
     //for minimizer
     QString          MiniFunctionName;
