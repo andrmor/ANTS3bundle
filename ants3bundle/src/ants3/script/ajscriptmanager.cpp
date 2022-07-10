@@ -24,6 +24,7 @@ AJScriptManager::~AJScriptManager()
 
 void AJScriptManager::registerInterface(AScriptInterface * interface, QString name)
 {
+    interface->Lang = EScriptLanguage::JavaScript;
     emit doRegisterInterface(interface, name);
 }
 

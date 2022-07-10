@@ -26,7 +26,7 @@
 #include <ostream>
 #include <ios>
 
-ACore_SI::ACore_SI(EScriptLanguage lang) : AScriptInterface(), Lang(lang)
+ACore_SI::ACore_SI() : AScriptInterface()
 {
     Description = "General-purpose opeartions: abort script, basic text output and file save/load";
 

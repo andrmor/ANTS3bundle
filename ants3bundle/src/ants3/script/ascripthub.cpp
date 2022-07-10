@@ -35,17 +35,20 @@ AJScriptManager & AScriptHub::manager()
     return getInstance().getJScriptManager();
 }
 
-void AScriptHub::abort(const QString & message)
+void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
     AScriptHub & hub = getInstance();
 #ifdef ANTS3_PYTHON
-    hub.PythonM->abort();
+    if (lang == EScriptLanguage::Python)     hub.PythonM->abort();
 #endif
-    hub.JavaScriptM->abort();
+    if (lang == EScriptLanguage::JavaScript) hub.JavaScriptM->abort();
 
     ADispatcherInterface::getInstance().abortTask();
 
-    emit hub.showAbortMessage(message);
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
+#endif
+    if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
 }
 
 void AScriptHub::addCommonInterface(AScriptInterface * interface, QString name)
@@ -68,34 +71,30 @@ void AScriptHub::finalizeInit()
 void AScriptHub::outputText(const QString & text, EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit outputText_JS(text);
-    else                                         emit outputText_P(text);
+    else                                     emit outputText_P(text);
 }
 
 void AScriptHub::outputHtml(const QString &text, EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit outputHtml_JS(text);
-    else                                         emit outputHtml_P(text);
+    else                                     emit outputHtml_P(text);
 }
 
 void AScriptHub::clearOutput(EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit clearOutput_JS();
-    else                                         emit clearOutput_P();
+    else                                     emit clearOutput_P();
 }
 
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
     JavaScriptM = new AJScriptManager();
-      ACore_SI * coreJS = new ACore_SI(EScriptLanguage::JavaScript);
-      JavaScriptM->registerInterface(coreJS, "core");
-
 #ifdef ANTS3_PYTHON
     PythonM = new APythonScriptManager();
-      ACore_SI * coreP = new ACore_SI(EScriptLanguage::Python);
-      PythonM->registerInterface(coreP, "core");
 #endif
 
+    addCommonInterface(new ACore_SI(),         "core");
     addCommonInterface(new AMath_SI(),         "math");
     addCommonInterface(new AConfig_SI(),       "config");
     addCommonInterface(new AFarm_SI(),         "farm");

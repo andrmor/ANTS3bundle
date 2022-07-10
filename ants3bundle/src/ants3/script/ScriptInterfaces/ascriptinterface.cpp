@@ -44,5 +44,5 @@ QString AScriptInterface::help() const
 void AScriptInterface::abort(const QString & message)
 {
     qDebug() << "Abort triggered!" << message;
-    AScriptHub::getInstance().abort(message);
+    AScriptHub::getInstance().abort(message, Lang);
 }

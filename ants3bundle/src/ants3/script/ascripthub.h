@@ -21,7 +21,7 @@ public:
     static AScriptHub      & getInstance();
     static AJScriptManager & manager(); // !!!*** to kill
 
-    static void              abort(const QString & message); // !!!*** to kill, use JS or Python independently
+    static void              abort(const QString & message, EScriptLanguage lang);
 
     AJScriptManager        & getJScriptManager() {return *JavaScriptM;}
 #ifdef ANTS3_PYTHON
@@ -50,7 +50,8 @@ signals:
     void outputText_P(QString);
     void outputHtml_JS(QString);
     void outputHtml_P(QString);
-    void showAbortMessage(QString message);
+    void showAbortMessage_JS(QString message);
+    void showAbortMessage_P(QString message);
     void clearOutput_JS();
     void clearOutput_P();
     void requestUpdateGui();

@@ -44,6 +44,7 @@ APythonScriptManager::~APythonScriptManager()
 
 void APythonScriptManager::registerInterface(AScriptInterface * interface, QString name)
 {
+    interface->Lang = EScriptLanguage::Python;
     emit doRegisterInterface(interface, name);
 }
 

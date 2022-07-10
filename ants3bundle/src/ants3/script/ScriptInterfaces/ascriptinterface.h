@@ -1,6 +1,8 @@
 #ifndef ASCRIPTINTERFACE_H
 #define ASCRIPTINTERFACE_H
 
+#include "escriptlanguage.h"
+
 #include <QObject>
 #include <QString>
 #include <map>
@@ -30,6 +32,8 @@ public:
     std::map<QString, QString> RemovedMethods;
 
     bool bGuiThread      = true;
+
+    EScriptLanguage Lang = EScriptLanguage::JavaScript;
 
 public slots:
     QString help() const;

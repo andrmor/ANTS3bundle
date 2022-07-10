@@ -2,7 +2,6 @@
 #define ACORESCRIPTINTERFACE_H
 
 #include "ascriptinterface.h"
-#include "escriptlanguage.h"
 
 #include <QVariant>
 #include <QSet>
@@ -20,12 +19,10 @@ class ACore_SI : public AScriptInterface
     Q_OBJECT
 
 public:
-    ACore_SI(EScriptLanguage lang);
+    ACore_SI();
 //  ACore_SI(const ACore_SI& other);
 
-    AScriptInterface * cloneBase() const {return new ACore_SI(Lang);}
-
-    EScriptLanguage Lang = EScriptLanguage::JavaScript;
+    AScriptInterface * cloneBase() const {return new ACore_SI();}
 
 public slots:
     void    abort(QString message);
