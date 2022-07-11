@@ -510,7 +510,7 @@ PyObject * APythonInterface::getMainModule()
 
 void APythonInterface::handleError()
 {
-    qDebug() << "-------------ERROR-----------";
+    //qDebug() << "-------------ERROR-----------";
     PyObject * pyErr = PyErr_Occurred();
     if (!pyErr)
     {

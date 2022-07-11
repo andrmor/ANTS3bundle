@@ -45,43 +45,39 @@ bool APythonWorker::testMinimizationFunction(const QString & name) const
 {
     Py_XDECREF( PyInterface->MinimizationFunctor );
 
-    qDebug() << "--> Test:" << name;
+    //qDebug() << "--> Test:" << name;
 
     PyObject* mainModule = PyInterface->getMainModule();
     PyObject* dict = PyModule_GetDict(mainModule);
 
-    qDebug() << "Dict:" << dict;
+    //qDebug() << "Dict:" << dict;
 
-    //PyInterface->MinimizationFunctor.setNewRef( PyDict_GetItemString(psm->GlobalDict, ScriptManager->MiniFunctionName.toLatin1().data()) );
     PyInterface->MinimizationFunctor = PyDict_GetItemString(dict, name.toLatin1().data());
-
-    qDebug() << "---->" << PyInterface->MinimizationFunctor;
+    //qDebug() << "---->" << PyInterface->MinimizationFunctor;
 
     if (PyInterface->MinimizationFunctor && PyCallable_Check(PyInterface->MinimizationFunctor))
     {
-        qDebug() << "Callable!";
-        //Py_IncRef(PyInterface->MinimizationFunctor);
+        //qDebug() << "Callable!";
         return true;
     }
-    qDebug() << "NOT callable";
+    //qDebug() << "NOT callable";
     PyInterface->MinimizationFunctor = nullptr;
     return false;
 }
 
 double APythonWorker::runMinimizationFunction(const double *p, int numParameters)
 {
-    qDebug() << "  Still callable?" << PyCallable_Check(PyInterface->MinimizationFunctor) << "num_P:" << numParameters;
+    //qDebug() << "  Still callable?" << PyCallable_Check(PyInterface->MinimizationFunctor) << "num_P:" << numParameters;
 
     PyObject* tupleArgs = PyTuple_New(numParameters);
-
     for (int i = 0; i < numParameters; i++)
     {
-        qDebug() << "    ->" << i << p[i];
+        //qDebug() << "    ->" << i << p[i];
         PyTuple_SetItem(tupleArgs, i, PyFloat_FromDouble(p[i]));
     }
 
     PyObject * pyth_val = PyObject_Call(PyInterface->MinimizationFunctor, tupleArgs, NULL);
-    qDebug() << "return obj:" << pyth_val;
+    //qDebug() << "return obj:" << pyth_val;
     Py_DecRef(tupleArgs);
 
     if (!pyth_val)
@@ -89,9 +85,9 @@ double APythonWorker::runMinimizationFunction(const double *p, int numParameters
         qDebug() << "Python mini: received NULL from functor call";
         return 0;
     }
-    double result = PyFloat_AsDouble(pyth_val);
+    const double result = PyFloat_AsDouble(pyth_val);
     Py_DecRef(pyth_val);
-    qDebug() << "GOT:" << result;
+    //qDebug() << "GOT:" << result;
     return result;
 }
 
@@ -131,5 +127,5 @@ void APythonWorker::evaluate(const QString &script)
 
 void APythonWorker::exit()
 {
-    // !!!***
+    if (bBusy) PyInterface->abort();
 }
