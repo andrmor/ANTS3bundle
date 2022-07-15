@@ -24,6 +24,8 @@ void APythonWorker::abort()
 
     for (AScriptInterface * inter : Interfaces)
         inter->abortRun();
+
+    bBusy = false;
 }
 
 bool APythonWorker::isError() const

@@ -36,6 +36,8 @@ APythonInterface::APythonInterface()
 
 APythonInterface::~APythonInterface()
 {
+    qDebug() << "Destr for PythonInterface";
+    // !!!*** waiting for something here (mutex?) when e.g. a plot was shown in an external module
     Py_FinalizeEx();
 }
 
@@ -464,6 +466,11 @@ void APythonInterface::initialize()
             }
         }
     }
+
+    evalScript( "def print(txt):\n"
+                "  core.print(str(txt))\n"
+                "  return" );
+
     //qDebug() << "initialized finished\n";
 }
 

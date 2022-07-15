@@ -31,7 +31,6 @@ public:
     PyObject * getMainModule();
 
 protected:
-    void fillMethods();
     void handleError();
 
 public:
