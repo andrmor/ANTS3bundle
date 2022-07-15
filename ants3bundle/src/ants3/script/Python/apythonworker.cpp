@@ -20,6 +20,7 @@ APythonWorker::~APythonWorker()
 
 void APythonWorker::abort()
 {
+    qDebug() << "Python Worker abort triggered";
     PyInterface->abort();
 
     for (AScriptInterface * inter : Interfaces)
@@ -129,6 +130,7 @@ void APythonWorker::evaluate(const QString &script)
 
 void APythonWorker::exit()
 {
+    qDebug() << "Python Worker exit triggered";
     emit stopped();
     //if (bBusy) PyInterface->abort();
 }

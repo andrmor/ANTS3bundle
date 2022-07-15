@@ -37,7 +37,8 @@ APythonScriptManager::~APythonScriptManager()
     // !!!*** to do: crashes on exit i script is running (same with JS)
     qDebug() << "Destr for PythonManager";
     Worker->abort();
-    Worker->exit();
+    emit doExit();
+    //Worker->exit();
     //Thread->exit();
     //delete Worker;
     //delete Thread;

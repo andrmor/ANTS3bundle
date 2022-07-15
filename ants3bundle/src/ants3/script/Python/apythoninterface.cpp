@@ -37,8 +37,7 @@ APythonInterface::APythonInterface()
 APythonInterface::~APythonInterface()
 {
     qDebug() << "Destr for PythonInterface";
-    // !!!*** waiting for something here (mutex?) when e.g. a plot was shown in an external module
-    //Py_FinalizeEx();
+    Py_FinalizeEx();
 }
 
 bool APythonInterface::registerUnit(QObject * unit, const QString & unitName)  // just the first phase, continues in initialize()

@@ -4,12 +4,10 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"  // must be first include!
 
-#include <vector>
-
-#include <QString>
 #include <QVariant>
 
-class QObject;
+class  QObject;
+class  QString;
 struct APyModuleData;
 
 class APythonInterface
