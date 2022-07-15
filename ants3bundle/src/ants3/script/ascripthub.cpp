@@ -95,7 +95,13 @@ AScriptHub::AScriptHub()
 #endif
 
     addCommonInterface(new ACore_SI(),         "core");
-    addCommonInterface(new AMath_SI(),         "math");
+
+    //addCommonInterface(new AMath_SI(),         "math");  // conflicts with inbuild Python module "math"
+    JavaScriptM->registerInterface(new AMath_SI(), "math");
+#ifdef ANTS3_PYTHON
+    PythonM->registerInterface(new AMath_SI(),     "Math");
+#endif
+
     addCommonInterface(new AConfig_SI(),       "config");
     addCommonInterface(new AFarm_SI(),         "farm");
     addCommonInterface(new AGeo_SI(),          "geo");
