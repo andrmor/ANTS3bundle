@@ -23,7 +23,7 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
     connect(Worker, &APythonWorker::evalFinished,  this,   &APythonScriptManager::evalFinished);
 
     connect(Worker, &APythonWorker::stopped,       Thread, &QThread::quit);
-//    connect(Worker, &APythonWorker::stopped,       Worker, &APythonWorker::deleteLater);
+    connect(Worker, &APythonWorker::stopped,       Worker, &APythonWorker::deleteLater);
     connect(Thread, &QThread::finished,            Thread, &QThread::deleteLater);
 
     connect(this, &APythonScriptManager::doRegisterInterface, Worker, &APythonWorker::onRegisterInterface);
@@ -34,12 +34,13 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
 
 APythonScriptManager::~APythonScriptManager()
 {
+    // !!!*** to do: crashes on exit i script is running (same with JS)
     qDebug() << "Destr for PythonManager";
     Worker->abort();
     Worker->exit();
-    Thread->exit();
-    delete Worker;
-    delete Thread;
+    //Thread->exit();
+    //delete Worker;
+    //delete Thread;
 }
 
 void APythonScriptManager::registerInterface(AScriptInterface * interface, QString name)

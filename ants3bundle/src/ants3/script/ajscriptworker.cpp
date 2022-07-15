@@ -6,7 +6,7 @@
 
 AJScriptWorker::~AJScriptWorker()
 {
-    qDebug() << "Destr for ScriptWorker";
+    qDebug() << "Destr for JavaScriptWorker";
     delete Engine;
 
     // do not delete script interfaces, it is automatic!

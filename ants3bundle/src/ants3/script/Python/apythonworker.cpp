@@ -129,5 +129,6 @@ void APythonWorker::evaluate(const QString &script)
 
 void APythonWorker::exit()
 {
-    if (bBusy) PyInterface->abort();
+    emit stopped();
+    //if (bBusy) PyInterface->abort();
 }
