@@ -124,6 +124,56 @@ void ACore_SI::print(QVariant message)
     AScriptHub::getInstance().outputText(s, Lang);
 }
 
+void ACore_SI::print(QVariant m1, QVariant m2)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(m1, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m2, s, Lang);
+    AScriptHub::getInstance().outputText(s, Lang);
+}
+
+void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(m1, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m2, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m3, s, Lang);
+    AScriptHub::getInstance().outputText(s, Lang);
+}
+
+void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(m1, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m2, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m3, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m4, s, Lang);
+    AScriptHub::getInstance().outputText(s, Lang);
+}
+
+void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(m1, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m2, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m3, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m4, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m5, s, Lang);
+    AScriptHub::getInstance().outputText(s, Lang);
+}
+
+void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(m1, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m2, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m3, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m4, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m5, s, Lang); s += " ";
+    AVirtualScriptManager::addQVariantToString(m6, s, Lang);
+    AScriptHub::getInstance().outputText(s, Lang);
+}
+
 void ACore_SI::printHtml(QVariant message)
 {
     QString s;

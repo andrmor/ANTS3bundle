@@ -29,7 +29,13 @@ public slots:
 
     // Output
     void    clearOutput();
-    void    print(QVariant message); // before was QJSValue
+    //void    print(QVariant message); // before was QJSValue
+    void    print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6);
+    void    print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5);
+    void    print(QVariant m1, QVariant m2, QVariant m3, QVariant m4);
+    void    print(QVariant m1, QVariant m2, QVariant m3);
+    void    print(QVariant m1, QVariant m2);
+    void    print(QVariant message);
     void    printHtml(QVariant message);
 
     // Time

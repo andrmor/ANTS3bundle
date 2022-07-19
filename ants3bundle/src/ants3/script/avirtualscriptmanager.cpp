@@ -3,7 +3,7 @@
 #include <QtGlobal>
 #include <QJSValue>
 
-void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang)
+void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang, bool bAddQuotation)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (var.typeName() == QStringLiteral("QJSValue") )
@@ -30,7 +30,7 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
     }
     case QVariant::List:
         //string += '[';
-        string += ( lang == AScriptLanguageEnum::JavaScript ? '[' : '(' );
+        string += ( lang == EScriptLanguage::JavaScript ? '[' : '(' );
         for (const QVariant & v : var.toList())
         {
             addQVariantToString(v, string, lang);
@@ -38,12 +38,12 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
         }
         if (string.endsWith(", ")) string.chop(2);
         //string += ']';
-        string += ( lang == AScriptLanguageEnum::JavaScript ? ']' : ')' );
+        string += ( lang == EScriptLanguage::JavaScript ? ']' : ')' );
         break;
     case QVariant::String:
-        string += "\"";
+        if (bAddQuotation) string += "\"";
         string += var.toString();
-        string += "\"";
+        if (bAddQuotation) string += "\"";
         break;
     default:
         // implicit convertion to string
@@ -85,9 +85,9 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
         string += ( lang == EScriptLanguage::JavaScript ? ']' : ')' );
         break;
     case QMetaType::QString:
-        string += "\"";
+        if (bAddQuotation) string += "\"";
         string += var.toString();
-        string += "\"";
+        if (bAddQuotation) string += "\"";
         break;
     default:
         // implicit convertion to string

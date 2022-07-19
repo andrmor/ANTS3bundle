@@ -466,9 +466,8 @@ void APythonInterface::initialize()
         }
     }
 
-    evalScript( "def print(txt):\n"
-                "  core.print(str(txt))\n"
-                "  return" );
+    //evalScript( "def print(txt): core.print(str(txt))" );
+    evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
 
     //qDebug() << "initialized finished\n";
 }

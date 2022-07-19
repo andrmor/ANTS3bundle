@@ -32,7 +32,7 @@ public:
 
     virtual void collectGarbage() = 0;
 
-    static void addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang);
+    static void addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang, bool bAddQuotation = false);
 
     //for minimizer
     QString          MiniFunctionName;
