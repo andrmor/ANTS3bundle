@@ -4,18 +4,22 @@
 #include "ahighlighters.h"
 #include "atextedit.h"
 #include "ascriptinterface.h"
-#include "acore_si.h"
+//#include "acore_si.h"
 //#include "amath_si.h"
 #include "guitools.h"
 //#include "ascriptexampleexplorer.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3global.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "atextoutputwindow.h"
-#include "ajscripthub.h"
 #include "amsg_si.h"
+#include "avirtualscriptmanager.h"
+
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 
 #include <QDebug>
 #include <QList>
@@ -41,13 +45,29 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
-AScriptWindow::AScriptWindow(QWidget * parent) :
-    AGuiWindow("JScript", parent),
+AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
+    AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
+    ScriptHub(AScriptHub::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ui(new Ui::AScriptWindow)
+    ui(new Ui::AScriptWindow),
+    ScriptLanguage(lang)
 {
     ui->setupUi(this);
-    setWindowTitle("JavaScript");
+
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::JavaScript)
+    {
+#endif
+        ScriptManager = &ScriptHub.getJScriptManager();
+        setWindowTitle("JavaScript");
+#ifdef ANTS3_PYTHON
+    }
+    else
+    {
+        ScriptManager = &ScriptHub.getPythonManager();
+        setWindowTitle("Python");
+    }
+#endif
 
     /*
     QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
@@ -105,10 +125,10 @@ AScriptWindow::AScriptWindow(QWidget * parent) :
     //QShortcut* DoPaste = new QShortcut(QKeySequence("Ctrl+V"), this);
     //connect(DoPaste, &QShortcut::activated, [&](){getTab()->TextEdit->paste();});
 
-    ATextOutputWindow * SMW = new ATextOutputWindow("JsMsg", this);
-    SMW->setWindowTitle("JS text output");
+    ATextOutputWindow * SMW = new ATextOutputWindow( (lang == EScriptLanguage::JavaScript ? "JS_Msg" : "Python_Msg"), this );
+    SMW->setWindowTitle( lang == EScriptLanguage::JavaScript ? "JS msg window" : "Python msg window");
     ScriptMsgWin = SMW;
-    AJScriptHub::getInstance().getJScriptManager().registerInterface(new AMsg_SI(SMW), "msg");
+    ScriptManager->registerInterface(new AMsg_SI(SMW), "msg");
 
     ReadFromJson();
 }
@@ -255,7 +275,7 @@ void AScriptWindow::updateMethodHelp()
 {
     functionList.clear();
     trwHelp->clear();
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         fillHelper(inter);
 }
 
@@ -268,7 +288,7 @@ void AScriptWindow::updateRemovedAndDeprecatedMethods()
 {
     //DeprecatedOrRemovedMethods.clear();
     //ListOfDeprecatedOrRemovedMethods.clear();
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         appendDeprecatedAndRemovedMethods(inter);
 }
 
@@ -277,7 +297,7 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     UnitNames.clear();
     Methods.clear();
 
-    for (const AScriptInterface * inter : AJScriptHub::manager().getInterfaces())
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
     {
         const QString & name = inter->Name;
         UnitNames << name;
@@ -340,7 +360,8 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    writeToJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript) writeToJson(GlobSet.JavaScriptJson);
+    else                                                   writeToJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::writeToJson(QJsonObject & json)
@@ -364,7 +385,8 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 
 void AScriptWindow::ReadFromJson()
 {
-    readFromJson(GlobSet.JavaScriptJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript) readFromJson(GlobSet.JavaScriptJson);
+    else                                                   readFromJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -453,52 +475,43 @@ void AScriptWindow::clearOutput()
 #include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
     // save all tabs -> GlobSet
     WriteToJson();
     A3Global::getInstance().saveConfig();
     emit requestUpdateConfig();
 
-    QString Script = getTab()->TextEdit->document()->toPlainText();
+    const QString Script = getTab()->TextEdit->document()->toPlainText();
 
-    //qDebug() << "Init on Start done";
     pteOut->clear();
-    //AScriptWindow::ShowText("Processing script");
-
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
-    ScriptManager.evaluate(Script);
+    ScriptManager->evaluate(Script);
     do
     {
         QThread::msleep(50);
         qApp->processEvents();
     }
-    while (ScriptManager.isRunning());
+    while (ScriptManager->isRunning());
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
 
-    QJSValue resSV = ScriptManager.getResult();
-    QString  resStr = resSV.toString();
-    //qDebug() << "Script returned:" << resStr;
-
-    if (ScriptManager.isError())
+    if (ScriptManager->isError())
     {
-        if (!ScriptManager.isAborted())
-            reportError(resStr, ScriptManager.getErrorLineNumber());
+        QString err = ScriptManager->getErrorDescription();
+        //qDebug() << "->->->->-->" << err << ScriptManager->getErrorLineNumber() << ScriptManager->isAborted();
+        if (!ScriptManager->isAborted())
+            reportError(err, ScriptManager->getErrorLineNumber());
     }
     else
     {
-        if (resStr != "undefined" && !resStr.isEmpty())
-        {
-            QString s;
-            ACore_SI::addQVariantToString(resSV.toVariant(), s);
-            outputText(s);
-        }
+        QString s;
+        AVirtualScriptManager::addQVariantToString(ScriptManager->getResult(), s, ScriptLanguage);
+        if (!s.isEmpty() && s != "undefined") outputText(s);
     }
 
-    ScriptManager.collectGarbage();
+    ScriptManager->collectGarbage();
 
     emit requestUpdateGui();
 }
@@ -533,11 +546,10 @@ void AScriptWindow::onF1pressed(QString text)
 
 void AScriptWindow::on_pbStop_clicked()
 {
-    AJScriptManager & ScriptManager = AJScriptHub::manager();
-    if (ScriptManager.isRunning())
+    if (ScriptManager->isRunning())
     {
         qDebug() << "Stop button pressed!";
-        AJScriptHub::abort("<p style='color:red'>Aborting...</p>");
+        AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
         qApp->processEvents();
     }
 }

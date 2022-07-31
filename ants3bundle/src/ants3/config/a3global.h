@@ -43,6 +43,7 @@ public:
 
     // Script window
     QJsonObject JavaScriptJson;
+    QJsonObject PythonJson;
     QString SW_FontFamily; //empty => Qt standard settings will be used
     int SW_FontSize = 12;
     int SW_FontWeight = false;

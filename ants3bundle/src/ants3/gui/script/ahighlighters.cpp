@@ -196,11 +196,11 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
                        "def" << "del" << "elif" << "else" << "except" <<
                        "exec" << "finally" << "for" << "from" << "global" <<
                        "if" << "import" << "in" << "is" << "lambda" <<
-                       "not" << "or" << "pass" << "print" << "raise" <<
+                       "not" << "or" << "pass" << "raise" <<
                        "return" << "try" << "while" <<
                        "Data" << "Float" << "Int" << "Numeric" << "Oxphys" <<
                        "array" << "close" << "float" << "int" << "input" <<
-                       "open" << "range" << "type" << "write" << "zeros";
+                       "open" << "range" << "type" << "write" << "zeros";  // removed "print"!
 
     for (const QString &pattern : keywordPatterns)
     {

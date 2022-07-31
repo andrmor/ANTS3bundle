@@ -1,7 +1,7 @@
 #ifndef ATABRECORD_H
 #define ATABRECORD_H
 
-#include "ascriptlanguageenum.h"
+#include "escriptlanguage.h"
 
 #include <QObject>
 #include <QVector>
@@ -18,7 +18,7 @@ class ATabRecord : public QObject
 {
     Q_OBJECT
 public:
-    ATabRecord(const QStringList & functions, AScriptLanguageEnum language);
+    ATabRecord(const QStringList & functions, EScriptLanguage language);
     ~ATabRecord();
 
     ATextEdit *     TextEdit            = nullptr;

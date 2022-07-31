@@ -9,7 +9,7 @@
 #include <QAction>
 #include <QFileInfo>
 
-ATabRecord::ATabRecord(const QStringList & functions, AScriptLanguageEnum language) :
+ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) :
     Functions(functions)
 {
     TextEdit = new ATextEdit();
@@ -27,7 +27,7 @@ ATabRecord::ATabRecord(const QStringList & functions, AScriptLanguageEnum langua
     Completer->setWrapAround(false);
     TextEdit->setCompleter(Completer);
 
-    if (language == AScriptLanguageEnum::JavaScript)
+    if (language == EScriptLanguage::JavaScript)
         Highlighter = new AHighlighterJS(TextEdit->document());
     else
         Highlighter = new AHighlighterPython(TextEdit->document());
