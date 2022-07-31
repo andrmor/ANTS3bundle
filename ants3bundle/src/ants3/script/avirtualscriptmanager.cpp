@@ -5,6 +5,8 @@
 
 void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang, bool bAddQuotation)
 {
+    if (var.isNull()) return;
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (var.typeName() == QStringLiteral("QJSValue") )
     {

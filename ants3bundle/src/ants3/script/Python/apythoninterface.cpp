@@ -460,8 +460,8 @@ void APythonInterface::initialize()
                 PyObject* caller = PyTuple_Pack(2, PyLong_FromSize_t(iUnit), PyLong_FromLong(iMet));
                 PyObject * pyFunc = PyCFunction_New(&baseMethodDef, caller);
                 if (pyFunc == NULL) qDebug() << "PyCFunction is null!";
-                int res = PyModule_AddObject(module, meta.name(), pyFunc); //store method names?
-                if (res < 0) qDebug() << "Failed to create object for this method";
+                int res = PyModule_AddObject(module, meta.name(), pyFunc);
+                if (res < 0) qDebug() << "Failed to create object for method" << meta.name();
             }
         }
     }
