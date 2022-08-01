@@ -53,7 +53,7 @@ const std::complex<double> & AMaterial::getComplexRefractiveIndex(int iWave) con
 
 double AMaterial::getAbsorptionCoefficient(int iWave) const
 {
-    if (!UseComplexN)
+    if (Dielectric)
     {
         //qDebug() << iWave << absWaveBinned.size();
         if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
@@ -76,14 +76,11 @@ double AMaterial::getReemissionProbability(int iWave) const
 double AMaterial::getSpeedOfLight(int iWave) const
 {
     double refIndexReal;
-    if (UseComplexN)
-    {
-        if (iWave == -1 || ComplexN.empty()) refIndexReal = ReN;
-        else refIndexReal = RefIndex_Comlex_WaveBinned[iWave].real();
-    }
+    if (Dielectric) refIndexReal = getRefractiveIndex(iWave);
     else
     {
-        refIndexReal = getRefractiveIndex(iWave);
+        if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) refIndexReal = ReN;
+        else refIndexReal = RefIndex_Comlex_WaveBinned[iWave].real();
     }
 
     return c_in_vac / refIndexReal;
@@ -178,7 +175,7 @@ void AMaterial::updateRuntimeProperties()
 {
     RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
 
-    if (UseComplexN) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
+    if (!Dielectric) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
@@ -193,7 +190,7 @@ void AMaterial::updateRuntimeProperties()
 
     if (WaveSet.Enabled)
     {
-        if (!UseComplexN)
+        if (Dielectric)
         {
             if (nWave_lambda.size() > 0)
             {
@@ -273,7 +270,7 @@ void AMaterial::clear()
     rayleighWave = 500.0;
     Comments = "";
 
-    UseComplexN = false;
+    Dielectric = true;
     ReN = 1.0;
     ImN = 0;
     ComplexEffectiveWave = 500.0;
@@ -332,7 +329,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["RayleighWave"] = rayleighWave;
     json["ReemissionProb"] = reemissionProb;
 
-    json["UseComplexN"] = UseComplexN;
+    json["Dielectric"] = Dielectric;
     json["ReN"] = ReN;
     json["ImN"] = ImN;
     json["ComplexEffectiveWave"] = ComplexEffectiveWave;
@@ -445,7 +442,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ReemissionProb", reemissionProb);
     //PhotonYieldDefault for compatibility at the end
 
-    jstools::parseJson(json, "UseComplexN", UseComplexN);
+    jstools::parseJson(json, "Dielectric", Dielectric);
     jstools::parseJson(json, "ReN", ReN);
     jstools::parseJson(json, "ImN", ImN);
     jstools::parseJson(json, "ComplexEffectiveWave", ComplexEffectiveWave);

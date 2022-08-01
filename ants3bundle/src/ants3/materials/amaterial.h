@@ -37,8 +37,8 @@ public:
     QVector<APair_ValueAndWeight> PriScint_Decay;
     QVector<APair_ValueAndWeight> PriScint_Raise;
 
+    bool   Dielectric = true;
     //complex refractive index
-    bool   UseComplexN = false;
     double ReN = 1.0;
     double ImN = 0;
     double ComplexEffectiveWave = 500.0; // effective wavelength to get absorption coefficient from the refractive index

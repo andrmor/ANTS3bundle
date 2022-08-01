@@ -276,7 +276,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledN->setText( QString::number(tmpMaterial.n) );
     ui->ledAbs->setText( QString::number(tmpMaterial.abs) );
 
-    ui->cobNAbsOrComplex->setCurrentIndex(tmpMaterial.UseComplexN ? 1 : 0);
+    ui->cobNAbsOrComplex->setCurrentIndex(tmpMaterial.Dielectric ? 0 : 1);
     ui->ledReN->setText(QString::number(tmpMaterial.ReN));
     ui->ledImN->setText(QString::number(tmpMaterial.ImN));
     ui->ledComplexWave->setText(QString::number(tmpMaterial.ComplexEffectiveWave));
@@ -372,7 +372,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.abs = ui->ledAbs->text().toDouble();
     tmpMaterial.reemissionProb = ui->ledReemissionProbability->text().toDouble();
 
-    tmpMaterial.UseComplexN = (ui->cobNAbsOrComplex->currentIndex() == 1);
+    tmpMaterial.Dielectric = (ui->cobNAbsOrComplex->currentIndex() == 0);
     tmpMaterial.ReN = ui->ledReN->text().toDouble();
     tmpMaterial.ImN = ui->ledImN->text().toDouble();
     tmpMaterial.ComplexEffectiveWave = ui->ledComplexWave->text().toDouble();

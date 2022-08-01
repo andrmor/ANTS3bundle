@@ -665,12 +665,12 @@ Can be used to automatically configure gamma interaction cross-sections and neut
             <widget class="QComboBox" name="cobNAbsOrComplex">
              <item>
               <property name="text">
-               <string>Refractive index and bulk absorption</string>
+               <string>Dielectric</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Complex refractive index</string>
+               <string>Metal</string>
               </property>
              </item>
             </widget>
@@ -678,7 +678,7 @@ Can be used to automatically configure gamma interaction cross-sections and neut
            <item>
             <widget class="QStackedWidget" name="stackedWidget">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="page">
               <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -3244,8 +3244,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>267</y>
+     <x>114</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>469</x>
@@ -3260,8 +3260,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>267</y>
+     <x>114</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>590</x>
@@ -3276,8 +3276,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>325</y>
+     <x>114</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>469</x>
@@ -3292,8 +3292,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>325</y>
+     <x>114</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>590</x>
