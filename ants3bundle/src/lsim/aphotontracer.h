@@ -66,8 +66,6 @@ private:
     bool     bHaveNormal = false;
     int      MatIndexFrom;          // material index of the current medium or medium before the interface
     int      MatIndexTo;            // material index of the medium after interface
-    double   RefrIndexFrom;
-    double   RefrIndexTo;
     bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
     TString  NameTo;

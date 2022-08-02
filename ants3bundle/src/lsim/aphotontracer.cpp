@@ -661,6 +661,8 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     return EBulkProcessResult::NotTriggered;
 }
 
+#include <complex>
+//#include "TComplex.h"
 double APhotonTracer::calculateReflectionProbability()
 {
     if (!bHaveNormal)
@@ -673,27 +675,27 @@ double APhotonTracer::calculateReflectionProbability()
     const double cos1 = fabs(NK);
     //qDebug() << "Cos of incidence:"<<cos1;
 
-    /*
-    if (MaterialFrom->UseComplexN || MaterialTo->UseComplexN)
+    if (!MaterialTo->Dielectric)
     {
-        const std::complex<double> & nFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex);
-        const std::complex<double> & nTo   = MaterialTo  ->getRefractiveIndex(Photon.waveIndex);
+        using namespace std::complex_literals;
 
-        //TComplex N(RealN, ImaginaryN);
-        //TComplex U(1,0);
+        const double nFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex);
+        const std::complex<double> & NTo   = MaterialTo  ->getComplexRefractiveIndex(Photon.waveIndex);
+        //qDebug() << "cosTheta:"<< cos1 << "  from:" << nFrom << "  to:" << NTo.real() << NTo.imag();
 
-        double cos1;
-        double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
+        const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
+        //qDebug() << "sin1" << sin1;
+        const std::complex<double> sin2 = sin1 / NTo * nFrom;
+        //qDebug() << "sin2" << sin2.real() << sin2.imag();
+        const std::complex<double> cos2 = sqrt( 1.0 - sin2*sin2 );
+        //qDebug() << "cos2" << cos2.real() << cos2.imag();
 
-        //TComplex CosPhi = TMath::Sqrt( U - sin1*sin1/ (N*N/nFrom/nFrom) );
-        std::complex<double> cos2 = sqrt( std::complex<double>{1.0,0} - sin1*sin1/ (N*N/nFrom/nFrom) );
-
-        double cos2;
-        std::complex<double> rs = (nFrom*cos1 - N*cos2) / (nFrom*cos1 + N*cos2);
-        std::complex<double> rp = ( -N*cos1 + nFrom*cos2) / (N*cos1 + nFrom*cos2);
+        const std::complex<double> rs = (nFrom*cos1 -   NTo*cos2) / (nFrom*cos1 +   NTo*cos2);
+        const std::complex<double> rp = ( -NTo*cos1 + nFrom*cos2) / (  NTo*cos1 + nFrom*cos2);
 
         const double RS = std::norm(rs);
         const double RP = std::norm(rp);
+        //qDebug() << "rs" << rs.real() << rs.imag() << RS;
 
         const double R = 0.5 * (RS + RP);
         //qDebug() << "Refl coeff = "<< R;
@@ -702,9 +704,8 @@ double APhotonTracer::calculateReflectionProbability()
     }
     else
     {
-    */
-        RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
-        RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
+        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+        const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
 
         //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
         //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
@@ -728,7 +729,7 @@ double APhotonTracer::calculateReflectionProbability()
             Rp *= Rp;
             return 0.5*(Rs + Rp);
         }
-//    }
+    }
 }
 
 void APhotonTracer::processSensorHit(int iSensor)
@@ -768,6 +769,9 @@ void APhotonTracer::processSensorHit(int iSensor)
 
 bool APhotonTracer::performRefraction()
 {
+    const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+    const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
+
     double nn = RefrIndexFrom / RefrIndexTo;
     //qDebug()<<"refraction triggered, n1/n2 ="<<nn;
     //N - normal vector, K - origial photon direction vector
