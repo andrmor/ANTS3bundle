@@ -41,7 +41,7 @@ public:
     //complex refractive index
     double ReN = 1.0;
     double ImN = 0;
-    double ComplexEffectiveWave = 500.0; // effective wavelength to get absorption coefficient from the refractive index
+    //double ComplexEffectiveWave = 500.0; // effective wavelength to get absorption coefficient from the refractive index
     std::vector<std::pair<double,std::complex<double>>> ComplexN; // Wave[nm] + ComplexRefractiveIndex
 
     double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
@@ -117,8 +117,8 @@ public:
       // complex refraction index-related
     std::complex<double> RefIndex_Complex;                        // also computed for purely real index!
     std::vector<std::complex<double>> RefIndex_Comlex_WaveBinned; // also computed for purely real index!
-    double Abs_FromComplex;                                       // only for complex case
-    std::vector<double> Abs_FromComplex_WaveBinned;               // only for comlex case
+    //double Abs_FromComplex;                                       // only for complex case
+    //std::vector<double> Abs_FromComplex_WaveBinned;               // only for comlex case
 
 private:
     double FT(double td, double tr, double t) const;

@@ -61,8 +61,9 @@ double AMaterial::getAbsorptionCoefficient(int iWave) const
     }
     else
     {
-        if (iWave == -1 || Abs_FromComplex_WaveBinned.empty()) return Abs_FromComplex;
-        return Abs_FromComplex_WaveBinned[iWave];
+        return 1e50;
+        //if (iWave == -1 || Abs_FromComplex_WaveBinned.empty()) return Abs_FromComplex;
+        //return Abs_FromComplex_WaveBinned[iWave];
     }
 }
 
@@ -175,14 +176,14 @@ void AMaterial::updateRuntimeProperties()
 {
     RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
 
-    if (!Dielectric) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
+    //if (!Dielectric) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
     nWaveBinned.clear();
     absWaveBinned.clear();
     RefIndex_Comlex_WaveBinned.clear();
-    Abs_FromComplex_WaveBinned.clear();
+    //Abs_FromComplex_WaveBinned.clear();
     rayleighBinned.clear();
     reemissionProbBinned.clear();
     delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
@@ -207,11 +208,11 @@ void AMaterial::updateRuntimeProperties()
                 for (auto & cri : RefIndex_Comlex_WaveBinned)
                     if (cri.imag() > 0) cri = std::conj(cri);
 
-                for (size_t i = 0; i < RefIndex_Comlex_WaveBinned.size(); i++)
-                {
-                    const double wave = WaveSet.From + WaveSet.Step * i; // [nm]
-                    Abs_FromComplex_WaveBinned.push_back(  fabs(4.0 * 3.1415926535 * RefIndex_Comlex_WaveBinned[i].imag() / wave * 1e6) ); // [mm-1]);
-                }
+                //for (size_t i = 0; i < RefIndex_Comlex_WaveBinned.size(); i++)
+                //{
+                //    const double wave = WaveSet.From + WaveSet.Step * i; // [nm]
+                //    Abs_FromComplex_WaveBinned.push_back(  fabs(4.0 * 3.1415926535 * RefIndex_Comlex_WaveBinned[i].imag() / wave * 1e6) ); // [mm-1]);
+                //}
             }
         }
 
@@ -273,7 +274,7 @@ void AMaterial::clear()
     Dielectric = true;
     ReN = 1.0;
     ImN = 0;
-    ComplexEffectiveWave = 500.0;
+    //ComplexEffectiveWave = 500.0;
     ComplexN.clear();
     RefIndex_Comlex_WaveBinned.clear();
 
@@ -332,7 +333,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["Dielectric"] = Dielectric;
     json["ReN"] = ReN;
     json["ImN"] = ImN;
-    json["ComplexEffectiveWave"] = ComplexEffectiveWave;
+    //json["ComplexEffectiveWave"] = ComplexEffectiveWave;
     {
         QJsonArray ar;
         for (const auto & rec : ComplexN)
@@ -445,7 +446,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Dielectric", Dielectric);
     jstools::parseJson(json, "ReN", ReN);
     jstools::parseJson(json, "ImN", ImN);
-    jstools::parseJson(json, "ComplexEffectiveWave", ComplexEffectiveWave);
+    //jstools::parseJson(json, "ComplexEffectiveWave", ComplexEffectiveWave);
     {
         QJsonArray ar;
         jstools::parseJson(json, "ComplexN", ar);

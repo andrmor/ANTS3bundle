@@ -662,7 +662,6 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 }
 
 #include <complex>
-//#include "TComplex.h"
 double APhotonTracer::calculateReflectionProbability()
 {
     if (!bHaveNormal)
@@ -680,7 +679,7 @@ double APhotonTracer::calculateReflectionProbability()
         using namespace std::complex_literals;
 
         const double nFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex);
-        const std::complex<double> & NTo   = MaterialTo  ->getComplexRefractiveIndex(Photon.waveIndex);
+        const std::complex<double> & NTo = MaterialTo->getComplexRefractiveIndex(Photon.waveIndex);
         //qDebug() << "cosTheta:"<< cos1 << "  from:" << nFrom << "  to:" << NTo.real() << NTo.imag();
 
         const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
