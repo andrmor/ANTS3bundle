@@ -32,7 +32,7 @@ enum class EInterRuleResult   {NotTriggered, Absorbed, Reflected, Transmitted};
 class APhotonTracer
 {
 public:
-    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks);
+    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & StreamSensorLog);
 
     void configureTracer();
 
@@ -53,7 +53,8 @@ private:
 
     // external resources
     AOneEvent                & Event;
-    QTextStream            * & StreamTracks;
+    QTextStream*             & StreamTracks;
+    QTextStream*             & StreamSensorLog;
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
 
@@ -104,5 +105,6 @@ private:
     EBulkProcessResult checkBulkProcesses();
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     bool isPhotonEscaped();
+    void appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex);
 };
 #endif // APHOTONTRACER_H

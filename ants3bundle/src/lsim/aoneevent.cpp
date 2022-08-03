@@ -8,6 +8,7 @@
 //#include "acustomrandomsampling.h"
 
 #include <QDebug>
+#include <QTextStream>
 
 #include "TMath.h"
 #include "TH1D.h"
@@ -16,7 +17,8 @@ AOneEvent::AOneEvent() :
     SimSet(APhotonSimHub::getInstance().Settings),
     SensorHub(ASensorHub::getConstInstance()),
     RandomHub(ARandomHub::getInstance()),
-    SimStat(AStatisticsHub::getInstance().SimStat) {}
+    SimStat(AStatisticsHub::getInstance().SimStat)
+{}
 
 void AOneEvent::init()
 {
@@ -49,7 +51,7 @@ void AOneEvent::clearHits()
     }
 }
 
-bool AOneEvent::checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd)
+bool AOneEvent::checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double angle, int Transitions, double rnd)
 {
     const ASensorModel * model = SensorHub.sensorModelFast(ipm); // already checked
     double detectionProb = model->getPDE(WaveIndex);
@@ -91,7 +93,7 @@ bool AOneEvent::checkSensorHit(int ipm, double time, int WaveIndex, double x, do
         */
     }
 
-    if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(WaveIndex, time, cosAngle, Transitions);
+    if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(WaveIndex, time, angle, Transitions);
     return true;
 }
 
@@ -275,10 +277,8 @@ float AOneEvent::generateDarkHitIncrement(int ipm) const
 */
 }
 
-void AOneEvent::fillDetectionStatistics(int WaveIndex, double time, double cosAngle, int Transitions)
+void AOneEvent::fillDetectionStatistics(int WaveIndex, double time, double angle, int Transitions)
 {
-    double angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
-
     SimStat.registerWave(WaveIndex);
     SimStat.registerTime(time);
     SimStat.registerAngle(angle);

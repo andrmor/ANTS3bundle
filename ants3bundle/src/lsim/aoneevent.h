@@ -9,6 +9,7 @@ class ASensorHub;
 class ARandomHub;
 class APhotonSimSettings;
 class APhotonStatistics;
+class QTextStream;
 
 class AOneEvent
 {
@@ -19,19 +20,18 @@ public:
     std::vector<float>     PMsignals;    // -- converted to signal [pm]
     std::vector<QBitArray> SiPMpixels;   //on/off status of SiPM pixels [PM#] [pixY] [pixX]
 
-
     void init();
 
     //hits processing
     void clearHits();
     bool isHitsEmpty() const;
-    bool checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double cosAngle, int Transitions, double rnd);
+    bool checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double angle, int Transitions, double rnd);
     void HitsToSignal();  //convert hits of PMs to signal using electronics settings
 
     //  void addHits(int ipm, float hits) {PMhits[ipm] += hits;}
     void addSignals(int ipm, float signal) {PMsignals[ipm] += signal;}  //only used in LRF-based sim
 
-    void fillDetectionStatistics(int WaveIndex, double time, double cosAngle, int Transitions);
+    void fillDetectionStatistics(int WaveIndex, double time, double angle, int Transitions);
 
 private:
     const APhotonSimSettings & SimSet;

@@ -52,6 +52,7 @@ private:
     APhotonSimSettings & SimSet;
 
     AFileMerger          SignalFileMerger;
+    AFileMerger          SensorLogFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
 

@@ -23,7 +23,7 @@
 #include "TMath.h"
 #include "TH1D.h"
 
-APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks) :
+APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
@@ -32,7 +32,8 @@ APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks) :
     RandomHub(ARandomHub::getInstance()),
     SimStat(AStatisticsHub::getInstance().SimStat),
     Event(event),
-    StreamTracks(streamTracks)
+    StreamTracks(streamTracks),
+    StreamSensorLog(streamSensorLog)
 {}
 
 void APhotonTracer::configureTracer()
@@ -737,12 +738,12 @@ void APhotonTracer::processSensorHit(int iSensor)
     if (!model)
     {
         // !!!*** report error!
-        qWarning() << "Unknown server index or non existent sensor model" << iSensor;
+        qWarning() << "Unknown sensor index or non existent sensor model" << iSensor;
         exit(222);
     }
 
     double local[3];//if no area dep or not SiPM - local[0] and [1] are undefined!
-    if (model->isXYSensitive() || model->SiPM)
+    if (model->isXYSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
     {
         const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);
@@ -760,10 +761,31 @@ void APhotonTracer::processSensorHit(int iSensor)
 
     if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); //else already calculated
 
-    const bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], cosAngle, TransitionCounter, Rnd);
+    double angle = 0;
+    if ( SimSet.RunSet.SaveStatistics ||
+         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) // !!!*** or angular dependence!
+    {
+        // !!!*** TODO for metals!
+        angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
+    }
+
+    const bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
+
+    if (bDetected && SimSet.RunSet.SaveSensorLog)
+        appendToSensorLog(iSensor, Photon.time, local[0], local[1], angle, Photon.waveIndex);
 
     if (SimSet.RunSet.SavePhotonLog)
         PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
+}
+
+void APhotonTracer::appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex)
+{
+    *StreamSensorLog << ipm;
+    if (SimSet.RunSet.SensorLogTime)  *StreamSensorLog << ' ' << time;
+    if (SimSet.RunSet.SensorLogXY)    *StreamSensorLog << ' ' << x << ' ' << y;
+    if (SimSet.RunSet.SensorLogAngle) *StreamSensorLog << ' ' << angle;
+    if (SimSet.RunSet.SensorLogWave)  *StreamSensorLog << ' ' << waveIndex;
+    *StreamSensorLog << '\n';
 }
 
 bool APhotonTracer::performRefraction()
