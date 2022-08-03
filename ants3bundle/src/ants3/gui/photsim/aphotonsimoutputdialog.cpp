@@ -15,11 +15,13 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
     ui->leOutputDirectory->setText(RunSet.OutputDirectory);
+    ui->cobFileFormat->setCurrentIndex(RunSet.BinaryFormat ? 1 : 0);
 
     ui->cbSensorSignals->setChecked(RunSet.SaveSensorSignals);
     ui->labSensorSignals->setText(RunSet.FileNameSensorSignals);
 
     ui->cbSensorLog->setChecked(RunSet.SaveSensorLog);
+    ui->frSensorLog->setVisible(RunSet.SaveSensorLog);
     ui->labSensorLog->setText(RunSet.FileNameSensorLog);
     ui->cbSensorLogTime->setChecked(RunSet.SensorLogTime);
     ui->cbSensorLogXY->setChecked(RunSet.SensorLogXY);
@@ -39,8 +41,6 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbStatistics->setChecked(RunSet.SaveStatistics);
     ui->labStatistics->setText(RunSet.FileNameStatistics);
     ui->ledTimeLimit->setText(QString::number(RunSet.UpperTimeLimit));
-
-    ui->frLogPhotons->setVisible(false);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -60,6 +60,7 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
     APhotSimRunSettings & RunSet = APhotonSimHub::getInstance().Settings.RunSet;
 
     RunSet.OutputDirectory   = ui->leOutputDirectory->text();
+    RunSet.BinaryFormat      = (ui->cobFileFormat->currentIndex() == 1);
 
     RunSet.SaveSensorSignals = ui->cbSensorSignals->isChecked();
 

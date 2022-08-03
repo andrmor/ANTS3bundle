@@ -211,6 +211,7 @@ public:
     int     EventTo   = 0;
 
     QString OutputDirectory;
+    bool    BinaryFormat = false;
 
     bool    SaveSensorSignals     = true;
     QString FileNameSensorSignals = "SensorSignals.txt";

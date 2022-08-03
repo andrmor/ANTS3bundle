@@ -492,6 +492,7 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
     json["EventTo"]               = EventTo;
 
     json["OutputDirectory"]       = OutputDirectory;
+    json["BinaryFormat"]          = BinaryFormat;
 
     json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
@@ -532,6 +533,7 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EventTo",               EventTo);
 
     jstools::parseJson(json, "OutputDirectory",       OutputDirectory);
+    jstools::parseJson(json, "BinaryFormat",          BinaryFormat);
 
     jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);
