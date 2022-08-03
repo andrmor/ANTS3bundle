@@ -496,6 +496,13 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
     json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
 
+    json["SaveSensorLog"]         = SaveSensorLog;
+    json["FileNameSensorLog"]     = FileNameSensorLog;
+    json["SensorLogTime"]         = SensorLogTime;
+    json["SensorLogXY"]           = SensorLogXY;
+    json["SensorLogAngle"]        = SensorLogAngle;
+    json["SensorLogWave"]         = SensorLogWave;
+
     json["SavePhotonBombs"]       = SavePhotonBombs;
     json["FileNamePhotonBombs"]   = FileNamePhotonBombs;
 
@@ -528,6 +535,13 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);
+
+    jstools::parseJson(json, "SaveSensorLog",         SaveSensorLog);
+    jstools::parseJson(json, "FileNameSensorLog",     FileNameSensorLog);
+    jstools::parseJson(json, "SensorLogTime",         SensorLogTime);
+    jstools::parseJson(json, "SensorLogXY",           SensorLogXY);
+    jstools::parseJson(json, "SensorLogAngle",        SensorLogAngle);
+    jstools::parseJson(json, "SensorLogWave",         SensorLogWave);
 
     jstools::parseJson(json, "SavePhotonBombs",       SavePhotonBombs);
     jstools::parseJson(json, "FileNamePhotonBombs",   FileNamePhotonBombs);

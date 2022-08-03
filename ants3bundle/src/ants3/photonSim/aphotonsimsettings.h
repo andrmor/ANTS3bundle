@@ -215,6 +215,13 @@ public:
     bool    SaveSensorSignals     = true;
     QString FileNameSensorSignals = "SensorSignals.txt";
 
+    bool    SaveSensorLog         = false;
+    QString FileNameSensorLog     = "SensorLog.dat";
+    bool    SensorLogTime         = true;
+    bool    SensorLogXY           = false;
+    bool    SensorLogAngle        = false;
+    bool    SensorLogWave         = false;
+
     bool    SavePhotonBombs       = true;
     QString FileNamePhotonBombs   = "PhotonBombs.txt";
 
