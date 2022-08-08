@@ -46,6 +46,9 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+#ifdef ANTS3_PYTHON
+    AScriptWindow     * PythonWin = nullptr;
+#endif
     AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
@@ -88,6 +91,8 @@ private slots:
     void rootTimerTimeout();
 
     void on_pbGlobSet_clicked();
+
+    void on_pbPython_clicked();
 
 protected:
     void closeEvent(QCloseEvent * event);

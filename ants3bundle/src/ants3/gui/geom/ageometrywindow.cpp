@@ -13,7 +13,7 @@
 #include "ageoobject.h"
 #include "acameracontroldialog.h"
 #include "guitools.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ageowin_si.h"
 
 #include <vector>
@@ -85,7 +85,7 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
     CameraControl = new ACameraControlDialog(RasterWindow, this);
     CameraControl->setModal(false);
 
-    AJScriptHub::getInstance().addInterface(new AGeoWin_SI(this), "geowin");
+    AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(this), "geowin");
 }
 
 AGeometryWindow::~AGeometryWindow()

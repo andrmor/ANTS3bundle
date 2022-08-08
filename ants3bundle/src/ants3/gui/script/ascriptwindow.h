@@ -3,7 +3,7 @@
 
 #include "aguiwindow.h"
 #include "ascriptbook.h"
-#include "ascriptlanguageenum.h"
+#include "escriptlanguage.h"
 
 #include <QSet>
 #include <QHash>
@@ -11,6 +11,7 @@
 
 #include <vector>
 
+class AScriptHub;
 class ATextOutputWindow;
 class AScriptInterface;
 class QPlainTextEdit;
@@ -24,6 +25,7 @@ class AScriptManager;
 class ATabRecord;
 class QTabWidget;
 class A3Global;
+class AVirtualScriptManager;
 
 namespace Ui {
 class AScriptWindow;
@@ -34,7 +36,7 @@ class AScriptWindow : public AGuiWindow
     Q_OBJECT
 
 public:
-    explicit AScriptWindow(QWidget * parent);
+    AScriptWindow(EScriptLanguage lang, QWidget * parent);
     ~AScriptWindow();
 
     void registerInterfaces();
@@ -52,9 +54,13 @@ public:
     AGuiWindow * ScriptMsgWin = nullptr;
 
 private:
+    AScriptHub        & ScriptHub;
     A3Global          & GlobSet;
-    AScriptLanguageEnum ScriptLanguage = AScriptLanguageEnum::JavaScript;
-    Ui::AScriptWindow * ui             = nullptr;
+    Ui::AScriptWindow * ui = nullptr;
+
+    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
+    AVirtualScriptManager * ScriptManager = nullptr;
+
     QStringList         Methods;
 
     std::vector<AScriptBook> ScriptBooks;

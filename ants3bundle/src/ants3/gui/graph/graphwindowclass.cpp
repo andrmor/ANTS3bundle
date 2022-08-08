@@ -17,7 +17,7 @@
 #include "abasketlistwidget.h"
 #include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "agraphwin_si.h"
 
 #include <QtGui>
@@ -161,7 +161,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
     DrawTemplate.Selection.bExpanded = true;
 
-    AJScriptHub::getInstance().addInterface(new AGraphWin_SI(this), "grwin");
+    AScriptHub::getInstance().addCommonInterface(new AGraphWin_SI(this), "grwin");
 }
 
 GraphWindowClass::~GraphWindowClass()
@@ -178,7 +178,7 @@ GraphWindowClass::~GraphWindowClass()
     delete Basket; Basket = nullptr;
 }
 
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "agraph_si.h"
 #include "ahist_si.h"
@@ -189,7 +189,7 @@ void GraphWindowClass::connectScriptUnitDrawRequests()
     const AHist_SI  * histInter  = nullptr;
     const ATree_SI  * treeInter  = nullptr;
 
-    const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
+    const std::vector<AScriptInterface *> interfaces = AScriptHub::getInstance().getJScriptManager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
     {
         if (!graphInter)
