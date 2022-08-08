@@ -78,6 +78,7 @@ SOURCES += \
         ../ants3/photonSim/astatisticshub.cpp \
         ../ants3/tools/ath.cpp \
         ../ants3/tools/avector.cpp \
+        alocalnormalsampler.cpp \
         anoderecord.cpp \
         aphotongenerator.cpp \
         aphotonsimulator.cpp \
@@ -87,6 +88,7 @@ SOURCES += \
         alogger.cpp \
         as1generator.cpp \
         as2generator.cpp \
+        asurfacesettings.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -144,6 +146,7 @@ HEADERS += \
     ../ants3/photonSim/aphotontrackrecord.h \
     ../ants3/tools/ath.h \
     ../ants3/tools/avector.h \
+    alocalnormalsampler.h \
     aphotonsimulator.h \
     aphotontracer.h \
     aoneevent.h \
@@ -152,4 +155,5 @@ HEADERS += \
     aphotongenerator.h \
     alogger.h \
     as1generator.h \
-    as2generator.h
+    as2generator.h \
+    asurfacesettings.h
