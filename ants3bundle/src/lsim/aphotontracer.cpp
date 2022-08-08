@@ -675,10 +675,36 @@ double APhotonTracer::calculateReflectionProbability()
     const double cos1 = fabs(NK);
     //qDebug() << "Cos of incidence:"<<cos1;
 
-    if (!MaterialTo->Dielectric)
+    if (MaterialTo->Dielectric)
     {
-        using namespace std::complex_literals;
+        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+        const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
 
+        //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+        //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
+        //qDebug()<<"Photon wavelength"<<p->wavelength<<"WaveIndex:"<<p->WaveIndex<<"n1 and n2 are: "<<RefrIndexFrom<<RefrIndexTo;
+
+        const double sin1 = sqrt(1.0 - NK*NK);
+        const double sin2 = RefrIndexFrom/RefrIndexTo*sin1;
+        //qDebug()<<"cos1 sin1 sin2 are:"<<cos1<<sin1<<sin2;
+        if (fabs(sin2) > 1.0)
+        {
+            // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
+            return 1.0;
+        }
+        else
+        {
+            const double cos2 = sqrt(1.0 - sin2*sin2);
+            double Rs = (RefrIndexFrom*cos1 - RefrIndexTo*cos2) / (RefrIndexFrom*cos1 + RefrIndexTo*cos2);
+            Rs *= Rs;
+            double Rp = (RefrIndexFrom*cos2 - RefrIndexTo*cos1) / (RefrIndexFrom*cos2 + RefrIndexTo*cos1);
+            Rp *= Rp;
+            return 0.5 * (Rs + Rp);
+        }
+    }
+    else
+    {
+        //using namespace std::complex_literals;
         const double nFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex);
         const std::complex<double> & NTo = MaterialTo->getComplexRefractiveIndex(Photon.waveIndex);
         //qDebug() << "cosTheta:"<< cos1 << "  from:" << nFrom << "  to:" << NTo.real() << NTo.imag();
@@ -701,34 +727,6 @@ double APhotonTracer::calculateReflectionProbability()
         //qDebug() << "Refl coeff = "<< R;
 
         return R;
-    }
-    else
-    {
-        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
-        const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
-
-        //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
-        //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
-
-        //qDebug()<<"Photon wavelength"<<p->wavelength<<"WaveIndex:"<<p->WaveIndex<<"n1 and n2 are: "<<RefrIndexFrom<<RefrIndexTo;
-        const double sin1 = sqrt(1.0 - NK*NK);
-        const double sin2 = RefrIndexFrom/RefrIndexTo*sin1;
-
-        //         qDebug()<<"cos1 sin1 sin2 are:"<<cos1<<sin1<<sin2;
-        if (fabs(sin2) > 1.0)
-        {
-            // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
-            return 1.0;
-        }
-        else
-        {
-            double cos2 = sqrt(1-sin2*sin2);
-            double Rs = (RefrIndexFrom*cos1-RefrIndexTo*cos2) / (RefrIndexFrom*cos1+RefrIndexTo*cos2);
-            Rs *= Rs;
-            double Rp = (RefrIndexFrom*cos2-RefrIndexTo*cos1) / (RefrIndexFrom*cos2+RefrIndexTo*cos1);
-            Rp *= Rp;
-            return 0.5*(Rs + Rp);
-        }
     }
 }
 
