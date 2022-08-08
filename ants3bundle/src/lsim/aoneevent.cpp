@@ -51,10 +51,10 @@ void AOneEvent::clearHits()
     }
 }
 
-bool AOneEvent::checkSensorHit(int ipm, double time, int WaveIndex, double x, double y, double angle, int Transitions, double rnd)
+bool AOneEvent::checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, double rnd)
 {
     const ASensorModel * model = SensorHub.sensorModelFast(ipm); // already checked
-    double detectionProb = model->getPDE(WaveIndex);
+    double detectionProb = model->getPDE(iWave);
 /*
     detectionProb *= PMs->getActualAngularResponse(ipm, cosAngle);
     detectionProb *= PMs->getActualAreaResponse(ipm, x, y);
@@ -93,7 +93,7 @@ bool AOneEvent::checkSensorHit(int ipm, double time, int WaveIndex, double x, do
         */
     }
 
-    if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(WaveIndex, time, angle, Transitions);
+    if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(iWave, time, angle, numTransitions);
     return true;
 }
 

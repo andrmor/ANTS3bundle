@@ -742,7 +742,7 @@ void APhotonTracer::processSensorHit(int iSensor)
         exit(222);
     }
 
-    double local[3];//if no area dep or not SiPM - local[0] and [1] are undefined!
+    double local[3];//if no area dep or not SiPM - local content is undefined!
     if (model->isXYSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
     {
         const double * global = Navigator->GetCurrentPoint();
@@ -758,9 +758,6 @@ void APhotonTracer::processSensorHit(int iSensor)
     double cosAngle = 0;
     for (int i=0; i<3; i++) cosAngle += N[i] * Photon.v[i];
     //       qDebug()<<"cos() = "<<cosAngle;
-
-    if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); //else already calculated
-
     double angle = 0;
     if ( SimSet.RunSet.SaveStatistics ||
          (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) // !!!*** or angular dependence!
@@ -769,6 +766,7 @@ void APhotonTracer::processSensorHit(int iSensor)
         angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
     }
 
+    if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); //else already calculated
     const bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
 
     if (bDetected && SimSet.RunSet.SaveSensorLog)
@@ -790,32 +788,37 @@ void APhotonTracer::appendToSensorLog(int ipm, double time, double x, double y, 
 
 bool APhotonTracer::performRefraction()
 {
-    const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
-    const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
-
-    double nn = RefrIndexFrom / RefrIndexTo;
-    //qDebug()<<"refraction triggered, n1/n2 ="<<nn;
-    //N - normal vector, K - origial photon direction vector
-    // nn = n(in)/n(tr)
-    // (NK) - scalar product
-    // T = -( nn*(NK) - sqrt(1-nn*nn*[1-(NK)*(NK)]))*N + nn*K
-
-    if (!bHaveNormal) N = Navigator->FindNormal(kFALSE);
-    const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
-
-    const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
-    if (UnderRoot < 0)
+    if (MaterialTo->Dielectric)
     {
-        //        qDebug()<<"total internal detected - will assume this photon is abosrbed at the surface";
-        return false;    //total internal reflection! //previous reflection test should catch this situation
+        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+        const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
+
+        double nn = RefrIndexFrom / RefrIndexTo;
+        //qDebug()<<"refraction triggered, n1/n2 ="<<nn;
+        //N - normal vector, K - origial photon direction vector
+        // nn = n(in)/n(tr)
+        // (NK) - scalar product
+        // T = -( nn*(NK) - sqrt(1-nn*nn*[1-(NK)*(NK)]))*N + nn*K
+
+        if (!bHaveNormal) N = Navigator->FindNormal(kFALSE);
+        const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
+
+        const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
+        if (UnderRoot < 0)
+        {
+            //        qDebug()<<"total internal detected - will assume this photon is abosrbed at the surface";
+            return false;    //total internal reflection! //previous reflection test should catch this situation
+        }
+        const double tmp = nn*NK - sqrt(UnderRoot);
+
+        Photon.v[0] = -tmp*N[0] + nn*Photon.v[0];
+        Photon.v[1] = -tmp*N[1] + nn*Photon.v[1];
+        Photon.v[2] = -tmp*N[2] + nn*Photon.v[2];
+
+        Navigator->SetCurrentDirection(Photon.v);
     }
-    const double tmp = nn*NK - sqrt(UnderRoot);
+    // for metals do nothing -> anyway geometric optics is not a proper model to use
 
-    Photon.v[0] = -tmp*N[0] + nn*Photon.v[0];
-    Photon.v[1] = -tmp*N[1] + nn*Photon.v[1];
-    Photon.v[2] = -tmp*N[2] + nn*Photon.v[2];
-
-    Navigator->SetCurrentDirection(Photon.v);
     return true;
 }
 
