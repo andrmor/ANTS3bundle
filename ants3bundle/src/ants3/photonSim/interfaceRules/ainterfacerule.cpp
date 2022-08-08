@@ -8,6 +8,7 @@
 #include "fsnpinterfacerule.h"
 #include "awaveshifterinterfacerule.h"
 #include "ametalinterfacerule.h"
+#include "asurfaceinterfacerule.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -24,6 +25,8 @@ AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int
         return new FsnpInterfaceRule(MatFrom, MatTo);
     if (Model == "SurfaceWLS")
         return new AWaveshifterInterfaceRule(MatFrom, MatTo);
+    if (Model == "Surface")
+        return new ASurfaceInterfaceRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
 }
@@ -36,7 +39,8 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
       << "SimplisticSpectral"
       << "FSNP"
       << "DielectricToMetal"
-      << "SurfaceWLS";
+      << "SurfaceWLS"
+      << "Surface";
 
     return l;
 }

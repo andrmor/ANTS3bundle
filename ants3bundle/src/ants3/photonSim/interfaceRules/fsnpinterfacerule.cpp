@@ -9,7 +9,7 @@
 #include <QJsonObject>
 
 #include "TMath.h"
-#include "TRandom2.h"
+//#include "TRandom2.h"
 
 AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {

@@ -3,6 +3,7 @@
 #include "abasicinterfacerule.h"
 #include "ametalinterfacerule.h"
 #include "fsnpinterfacerule.h"
+#include "asurfaceinterfacerule.h"
 #include "awaveshifterinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"
 #include "guitools.h"
@@ -28,6 +29,9 @@ QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidg
 
     FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(Rule);
     if (fir) return new AFsnpInterfaceWidget(fir);
+
+    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(Rule);
+    if (sir) return new ASurfaceInterfaceWidget(sir);
 
     AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(Rule);
     if (wir) return new AWaveshifterInterfaceWidget(wir, Caller, GraphWindow);
@@ -461,5 +465,25 @@ void ASpectralBasicInterfaceWidget::updateButtons()
     /*
     pbShow->setDisabled(Wave.isEmpty());
     pbShowBinned->setDisabled(!WaveSet.Enabled || Wave.isEmpty());
+    */
+}
+
+ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
+{
+    setFrameStyle(QFrame::Box);
+
+    QHBoxLayout* l = new QHBoxLayout(this);
+        QLabel* lab = new QLabel("Dummy");
+    l->addWidget(lab);
+    /*
+        QLineEdit* le = new QLineEdit(QString::number(rule->Albedo));
+        QDoubleValidator* val = new QDoubleValidator(this);
+        val->setNotation(QDoubleValidator::StandardNotation);
+        val->setBottom(0);
+        //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
+        val->setDecimals(6);
+        le->setValidator(val);
+        QObject::connect(le, &QLineEdit::editingFinished, [le, rule]() { rule->Albedo = le->text().toDouble(); } );
+    l->addWidget(le);
     */
 }

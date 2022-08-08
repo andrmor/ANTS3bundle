@@ -11,6 +11,7 @@ class AMetalInterfaceRule;
 class AWaveshifterInterfaceRule;
 class ASpectralBasicInterfaceRule;
 class FsnpInterfaceRule;
+class ASurfaceInterfaceRule;
 class QPushButton;
 
 class AInterfaceWidgetFactory
@@ -38,6 +39,13 @@ class AFsnpInterfaceWidget : public QFrame
     Q_OBJECT
 public:
     AFsnpInterfaceWidget(FsnpInterfaceRule * rule);
+};
+
+class ASurfaceInterfaceWidget : public QFrame
+{
+    Q_OBJECT
+public:
+    ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule);
 };
 
 class AWaveshifterInterfaceWidget : public QFrame
