@@ -89,6 +89,8 @@ private slots:
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
+    //void on_ledComplexWave_editingFinished();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

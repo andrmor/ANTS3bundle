@@ -68,32 +68,10 @@ void AGeoWin_SI::showPMnumbers()
 }
 */
 
-/*
-void AGeoWin_SI::ShowTracks(int num, int OnlyColor)
+void AGeoWin_SI::showTracks()
 {
-    Detector->GeoManager->ClearTracks();
-    if (SimManager->Tracks.empty()) return;
-
-    for (int iTr = 0; iTr < (int)SimManager->Tracks.size() && iTr < num; iTr++)
-    {
-        TrackHolderClass* th = SimManager->Tracks.at(iTr);
-        TGeoTrack* track = new TGeoTrack(1, th->UserIndex);
-        track->SetLineColor(th->Color);
-        track->SetLineWidth(th->Width);
-        track->SetLineStyle(th->Style);
-        for (int iNode=0; iNode<th->Nodes.size(); iNode++)
-            track->AddPoint(th->Nodes[iNode].R[0], th->Nodes[iNode].R[1], th->Nodes[iNode].R[2], th->Nodes[iNode].Time);
-
-        if (track->GetNpoints()>1)
-        {
-            if (OnlyColor == -1  || OnlyColor == th->Color)
-                Detector->GeoManager->AddTrack(track);
-        }
-        else delete track;
-    }
-    GeometryWindow->DrawTracks();
+    GeometryWindow->ShowTracks();
 }
-*/
 
 /*
 int AGeoWin_SI::AddTrack()

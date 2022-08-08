@@ -127,7 +127,7 @@ public:
     void RestoreBasketActiveId();
     void ClearCopyOfActiveBasketId();
     void ShowProjectionTool();
-    TLegend * AddLegend();
+    TLegend * addLegend();
     void HighlightUpdateBasketButton(bool flag);
 
     QString UseProjectionTool(const QString & option);
@@ -142,7 +142,7 @@ public slots:
     void UpdateControls(); //updates visualisation of the current master graph parameters   !!!***
     void DoSaveGraph(QString name);
     void AddCurrentToBasket(const QString &name);
-    void AddLegend(double x1, double y1, double x2, double y2, QString title);
+    void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void ShowTextPanel(const QString Text, bool bShowFrame=true, int AlignLeftCenterRight=0,
                        double x1=0.15, double y1=0.75, double x2=0.5, double y2=0.85, const QString opt = "NDC");
     void SetLegendBorder(int color, int style, int size);

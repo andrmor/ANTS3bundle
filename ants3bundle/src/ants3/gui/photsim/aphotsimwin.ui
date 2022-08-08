@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>A3PhotSimWin</class>
- <widget class="QMainWindow" name="A3PhotSimWin">
+ <class>APhotSimWin</class>
+ <widget class="QMainWindow" name="APhotSimWin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -3533,7 +3533,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>2</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">
@@ -4611,7 +4611,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
      <x>0</x>
      <y>0</y>
      <width>593</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -44,7 +44,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Config file: " << ConfigFN   << "\n";
 
     Event = new AOneEvent();
-    Tracer = new APhotonTracer(*Event, StreamTracks);
+    Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog);
 }
 
 APhotonSimulator::~APhotonSimulator()
@@ -58,6 +58,10 @@ APhotonSimulator::~APhotonSimulator()
     if (FileSensorSignals) FileSensorSignals->close();
     delete StreamSensorHits;
     delete FileSensorSignals;
+
+    if (FileSensorLog) FileSensorLog->close();
+    delete StreamSensorLog;
+    delete FileSensorLog;
 
     if (FilePhotonBombs) FilePhotonBombs->close();
     delete StreamPhotonBombs;
@@ -119,7 +123,7 @@ void APhotonSimulator::setupCommonProperties()
     AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();
-    Tracer->init();
+    Tracer->configureTracer();
 }
 
 QString APhotonSimulator::openOutput()
@@ -129,6 +133,13 @@ QString APhotonSimulator::openOutput()
         FileSensorSignals = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameSensorSignals, this);
         if (!FileSensorSignals->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor signals: " + SimSet.RunSet.FileNameSensorSignals;
         StreamSensorHits = new QTextStream(FileSensorSignals);
+    }
+
+    if (SimSet.RunSet.SaveSensorLog)
+    {
+        FileSensorLog = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameSensorLog, this);
+        if (!FileSensorLog->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save sensor log: " + SimSet.RunSet.FileNameSensorLog;
+        StreamSensorLog = new QTextStream(FileSensorLog);
     }
 
     if (SimSet.RunSet.SavePhotonBombs)
@@ -165,6 +176,11 @@ void APhotonSimulator::saveEventMarker()
     if (SimSet.RunSet.SaveSensorSignals)
     {
         *StreamSensorHits << '#' << CurrentEvent << '\n';
+    }
+
+    if (SimSet.RunSet.SaveSensorLog)
+    {
+        *StreamSensorLog << '#' << CurrentEvent << '\n';
     }
 }
 

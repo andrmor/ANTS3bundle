@@ -123,8 +123,7 @@ bool AGridElementDelegate::updateObject(AGeoObject * obj) const
     GE->size1 = ledDX->text().toDouble();
     GE->size2 = ledDY->text().toDouble();
 
-    // !!!***
-//    obj->updateGridElementShape();
+    obj->updateGridElementShape();
 
     return true;
 }
@@ -147,7 +146,7 @@ void AGridElementDelegate::updateVisibility()
 
 void AGridElementDelegate::Update(const AGeoObject *obj)
 {
-    ATypeGridElementObject* GE = dynamic_cast<ATypeGridElementObject*>(obj->Type);
+    ATypeGridElementObject * GE = dynamic_cast<ATypeGridElementObject*>(obj->Type);
     if (!GE)
     {
         qWarning() << "Attempt to use non-grid element object to update grid element delegate!";

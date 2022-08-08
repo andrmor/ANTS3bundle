@@ -3,12 +3,18 @@
 
 #include "aguiwindow.h"
 
+#include <QString>
+
+#include "TGString.h"
+
 namespace Ui {
 class AInterfaceRuleWin;
 }
 
 class AMaterialHub;
 class AInterfaceRuleHub;
+class AInterfaceRuleDialog;
+class TObject;
 
 class AInterfaceRuleWin : public AGuiWindow
 {
@@ -26,18 +32,35 @@ private:
 
     Ui::AInterfaceRuleWin * ui = nullptr;
 
+    AInterfaceRuleDialog * RuleDialog = nullptr;
+
     int NumMatRules = 0;
     bool BulkUpdate = false;
+
+    TString LastFrom;
+    TString LastTo;
 
     void updateMatGui();
     void updateVolGui();
 
+    void configureInterfaceDialog();
+
 private slots:
-    void onMatCellDoubleClicked();
+    void onMatCellDoubleClicked(); // !!!*** to show() to make it non-blocking
     void onVolCellDoubleClicked();
     void onVolCellChanged();
+    void OnRuleDialogAccepted_Mat();
+    void OnRuleDialogAccepted_Vol();
 
     void on_pbAddNewVolumeRule_clicked();
+
+signals:
+    // retranslated from aopticaloverridetester
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
+    void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
+    void requestShowTracks();
+
 };
 
 #endif // AINTERFACERULEWIN_H

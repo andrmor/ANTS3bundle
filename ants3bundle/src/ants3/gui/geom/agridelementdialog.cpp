@@ -1,11 +1,14 @@
 #include "agridelementdialog.h"
 #include "ui_agridelementdialog.h"
+#include "amaterialhub.h"
 
-AGridElementDialog::AGridElementDialog(const QStringList& MaterialList, QWidget *parent) :
+AGridElementDialog::AGridElementDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AGridElementDialog)
 {
     ui->setupUi(this);
+
+    const QStringList MaterialList = AMaterialHub::getConstInstance().getListOfMaterialNames();
 
     ui->cobBulkMaterial->insertItems(0, MaterialList);
     ui->cobWireMaterial->insertItems(0, MaterialList);

@@ -2,6 +2,7 @@
 #include "ui_aphotonsimoutputdialog.h"
 #include "aphotonsimhub.h"
 #include "aphotonsimsettings.h"
+#include "guitools.h"
 
 #include <QFileDialog>
 
@@ -14,9 +15,18 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
     ui->leOutputDirectory->setText(RunSet.OutputDirectory);
+    ui->cobFileFormat->setCurrentIndex(RunSet.BinaryFormat ? 1 : 0);
 
     ui->cbSensorSignals->setChecked(RunSet.SaveSensorSignals);
     ui->labSensorSignals->setText(RunSet.FileNameSensorSignals);
+
+    ui->cbSensorLog->setChecked(RunSet.SaveSensorLog);
+    ui->frSensorLog->setVisible(RunSet.SaveSensorLog);
+    ui->labSensorLog->setText(RunSet.FileNameSensorLog);
+    ui->cbSensorLogTime->setChecked(RunSet.SensorLogTime);
+    ui->cbSensorLogXY->setChecked(RunSet.SensorLogXY);
+    ui->cbSensorLogAngle->setChecked(RunSet.SensorLogAngle);
+    ui->cbSensorLogWave->setChecked(RunSet.SensorLogWave);
 
     ui->cbMonitors->setChecked(RunSet.SaveMonitors);
     ui->labMonitors->setText(RunSet.FileNameMonitors);
@@ -40,26 +50,35 @@ APhotonSimOutputDialog::~APhotonSimOutputDialog()
 
 void APhotonSimOutputDialog::on_pbAccept_clicked()
 {
+    if (ui->cbSensorLog->isChecked())
+        if (!ui->cbSensorLogTime->isChecked() && !ui->cbSensorLogXY->isChecked() && !ui->cbSensorLogAngle->isChecked() && !ui->cbSensorLogWave->isChecked())
+        {
+            guitools::message("Check at least one of the checkboxes in photon log configuration", this);
+            return;
+        }
+
     APhotSimRunSettings & RunSet = APhotonSimHub::getInstance().Settings.RunSet;
 
-    RunSet.OutputDirectory       = ui->leOutputDirectory->text();
+    RunSet.OutputDirectory   = ui->leOutputDirectory->text();
+    RunSet.BinaryFormat      = (ui->cobFileFormat->currentIndex() == 1);
 
-    RunSet.SaveSensorSignals     = ui->cbSensorSignals->isChecked();
-    //RunSet.FileNameSensorSignals = ui->leSensorSignals->text();
+    RunSet.SaveSensorSignals = ui->cbSensorSignals->isChecked();
 
-    RunSet.SaveMonitors          = ui->cbMonitors->isChecked();
-    //RunSet.FileNameMonitors      = ui->leMonitors->text();
+    RunSet.SaveSensorLog     = ui->cbSensorLog->isChecked();
+    RunSet.SensorLogTime     = ui->cbSensorLogTime->isChecked();
+    RunSet.SensorLogXY       = ui->cbSensorLogXY->isChecked();
+    RunSet.SensorLogAngle    = ui->cbSensorLogAngle->isChecked();
+    RunSet.SensorLogWave     = ui->cbSensorLogWave->isChecked();
 
-    RunSet.SaveTracks            = ui->cbPhotonTracks->isChecked();
-    //RunSet.FileNameTracks        = ui->lePhotonTracks->text();
-    RunSet.MaxTracks             = ui->sbMaxTracks->value();
+    RunSet.SaveMonitors      = ui->cbMonitors->isChecked();
 
-    RunSet.SavePhotonBombs       = ui->cbBombs->isChecked();
-    //RunSet.FileNamePhotonBombs   = ui->leBombs->text();
+    RunSet.SaveTracks        = ui->cbPhotonTracks->isChecked();
+    RunSet.MaxTracks         = ui->sbMaxTracks->value();
 
-    RunSet.SaveStatistics        = ui->cbStatistics->isChecked();
-    //RunSet.FileNameStatistics    = ui->leStatistics->text();
-    RunSet.UpperTimeLimit        = ui->ledTimeLimit->text().toDouble();
+    RunSet.SavePhotonBombs   = ui->cbBombs->isChecked();
+
+    RunSet.SaveStatistics    = ui->cbStatistics->isChecked();
+    RunSet.UpperTimeLimit    = ui->ledTimeLimit->text().toDouble();
 
     accept();
 }

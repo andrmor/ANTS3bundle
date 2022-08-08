@@ -40,7 +40,6 @@ public:
 
     void ShowAndFocus();
     void SetAsActiveRootWindow();
-    void ClearRootCanvas();
 
     void SaveAs(const QString & filename);
     void OpenGLview();
@@ -73,6 +72,7 @@ protected:
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
+    void ClearRootCanvas();
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void showRecursive(QString objectName);
     void UpdateRootCanvas();

@@ -26,7 +26,7 @@ public slots:
 
     void showGeometry();
 //    void showPMnumbers(); // need?
-//    void ShowTracks(int num, int OnlyColor = -1);
+    void showTracks();
 
     void clearTracks();
     void clearMarkers();

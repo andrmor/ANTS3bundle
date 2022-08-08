@@ -25,7 +25,7 @@ void AGraphWin_SI::setStatPanelVisible(bool flag)
 
 void AGraphWin_SI::addLegend(double x1, double y1, double x2, double y2, QString title)
 {
-    GraphWindow->AddLegend(x1, y1, x2, y2, title);
+    GraphWindow->drawLegend(x1, y1, x2, y2, title);
 }
 
 void AGraphWin_SI::setLegendBorder(int color, int style, int size)

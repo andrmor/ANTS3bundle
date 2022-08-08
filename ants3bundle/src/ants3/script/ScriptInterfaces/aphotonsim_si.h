@@ -18,6 +18,8 @@ public:
 public slots:
     QString simulate(bool updateGui);
 
+    void setSeed(double seed);
+
 private:
     APhotonSimManager & SimMan;
 

@@ -22,6 +22,23 @@ TGraph * AGraphBuilder::graph(const QVector<double> & x, const QVector<double> &
     return gr;
 }
 
+TGraph *AGraphBuilder::graph(const std::vector<double> &x, const std::vector<double> &y)
+{
+    int numEl = (int)x.size();
+    TVectorD xx(numEl);
+    TVectorD yy(numEl);
+    for (int i=0; i < numEl; i++)
+    {
+        xx[i] = x.at(i);
+        yy[i] = y.at(i);
+    }
+
+    TGraph * gr = new TGraph(xx,yy);
+    gr->SetFillStyle(0);
+    gr->SetFillColor(0);
+    return gr;
+}
+
 TGraph * AGraphBuilder::graph(const std::vector<float> &x, const std::vector<float> &y)
 {
     int numEl = (int)x.size();

@@ -9,7 +9,6 @@
 class AGeoObject;
 class TGeoManager;
 class TGeoVolume;
-class AGridElementRecord;
 class TGeoNode;
 class TGeoCombiTrans;
 class TGeoRotation;
@@ -17,8 +16,6 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 class AGeoShape;
-
-// to QObject and add signal on geometry changed --> !!!*** so far not needed
 
 class AGeometryHub
 {
@@ -42,8 +39,6 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    std::vector<AGridElementRecord*> GridRecords;  // !!!*** refactor / transfer
-
     void         populateGeoManager();   // emit signal?
 
     void         writeToJson(QJsonObject & json) const;
@@ -52,21 +47,12 @@ public:
     void         clearWorld();
     bool         canBeDeleted(AGeoObject * obj) const;
 
-    void         convertObjToComposite(AGeoObject * obj);
+    void         convertObjToComposite(AGeoObject * obj) const;
 
     QString      convertToNewPrototype(std::vector<AGeoObject*> members);
     bool         isValidPrototypeName(const QString & ProtoName) const;
 
     void         aboutToQuit();
-
-    //grids
-/*
-    void         convertObjToGrid(AGeoObject * obj);
-    void         shapeGrid(AGeoObject * obj, int shape, double p0, double p1, double p2, int wireMat);
-    //parallel - 0, pitch, length, wireDiameter
-    //mesh - 1, pitchX, pitchY, wireDiameter
-    //hexa - 2, outer circle diameter, inner circle diameter, full height
-*/
 
     bool         isMaterialInUse(int imat, QString & volName) const;
     void         onMaterialRemoved(int imat);  // !!!*** add signal
@@ -115,7 +101,6 @@ private:
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
-    void clearGridRecords();  // !!!***
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
     void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);

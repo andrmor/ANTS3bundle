@@ -43,8 +43,8 @@ public slots:
     bool isFileExist(QString fileName);
     bool deleteFile(QString fileName);
     bool createDir(QString path);
+
     QString getCurrentDir();
-    //bool setCirrentDir(QString path); // affects exec dir for worker processes?
 
     // Text
     void    saveText(QString text, QString fileName, bool append);
@@ -84,7 +84,7 @@ public slots:
 
     void requestGuiUpdate();
 
-    const QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
+    QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
 private:
     enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};

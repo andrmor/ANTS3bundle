@@ -578,7 +578,6 @@ void AGeoObject::updateNameOfLogicalMember(const QString & oldName, const QStrin
     }
 }
 
-/*
 AGeoObject * AGeoObject::getGridElement()
 {
     if (!Type->isGrid()) return nullptr;
@@ -601,17 +600,6 @@ void AGeoObject::updateGridElementShape()
     else
         Shape = new AGeoPolygon(6, GE->dz, GE->size1, GE->size1);
 }
-
-AGridElementRecord *AGeoObject::createGridRecord()
-{
-    AGeoObject* geObj = getGridElement();
-    if (!geObj) return 0;
-    if (!geObj->Type->isGridElement()) return 0;
-
-    ATypeGridElementObject* GE = static_cast<ATypeGridElementObject*>(geObj->Type);
-    return new AGridElementRecord(GE->shape, GE->size1, GE->size2);
-}
-*/
 
 void AGeoObject::updateMonitorShape()
 {
@@ -771,7 +759,7 @@ void AGeoObject::addObjectFirst(AGeoObject * Object)
 {
     auto it = HostedObjects.begin();
     if (getContainerWithLogical()) ++it;
-//    if (getGridElement()) ++it;
+    if (getGridElement()) ++it;
     HostedObjects.insert(it, Object);
     Object->Container = this;
 }

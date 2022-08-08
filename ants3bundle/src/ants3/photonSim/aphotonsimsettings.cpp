@@ -49,28 +49,65 @@ int AWaveResSettings::toIndexFast(double wavelength) const
     return (wavelength - From) / Step;
 }
 
-void AWaveResSettings::toStandardBins(const QVector<double>* sp_x, const QVector<double>* sp_y, QVector<double>* y) const
+void AWaveResSettings::toStandardBins(const QVector<double>* wavelength, const QVector<double>* value, QVector<double>* binnedValue) const
 {
-    y->clear();
+    binnedValue->clear();
 
-    double xx, yy;
+    double wave, binned;
     const int points = countNodes();
     for (int iP = 0; iP < points; iP++)
     {
-        xx = From + Step * iP;
-        if (xx <= sp_x->at(0)) yy = sp_y->at(0);
+        wave = From + Step * iP;
+        if (wave <= wavelength->at(0)) binned = value->at(0);
         else
         {
-            if (xx >= sp_x->at(sp_x->size()-1)) yy = sp_y->at(sp_x->size()-1);
+            if (wave >= wavelength->at(wavelength->size()-1)) binned = value->at(wavelength->size()-1);
             else
             {
-                //general case
-                yy = getInterpolatedValue(xx, sp_x, sp_y); //reusing interpolation function
-                if (yy<0) yy = 0; // !!!*** is it needed?
+                binned = getInterpolatedValue(wave, wavelength, value); //reusing interpolation function
+                if (binned<0) binned = 0;
             }
         }
-        y->append(yy);
+        binnedValue->append(binned);
     }
+}
+
+void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const
+{
+    binnedValue.clear();
+
+    double wave, binned;
+    const int points = countNodes();
+    for (int iP = 0; iP < points; iP++)
+    {
+        wave = From + Step * iP;
+        if (wave <= wavelength.front()) binned = value.front();
+        else
+        {
+            if (wave >= wavelength.back()) binned = value.back();
+            else                           binned = getInterpolatedValue(wave, wavelength, value);
+        }
+        binnedValue.push_back(binned);
+    }
+}
+
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const
+{
+    std::vector<double> wavelength, realValue, imagValue, realBinned, imagBinned;
+
+    for (const auto & rec : waveReIm)
+    {
+        wavelength.push_back(rec.first);
+        realValue.push_back(rec.second.real());
+        imagValue.push_back(rec.second.imag());
+    }
+
+    toStandardBins(wavelength, realValue, realBinned);
+    toStandardBins(wavelength, imagValue, imagBinned);
+
+    reIm.clear();
+    for (size_t i = 0; i < realBinned.size(); i++)
+        reIm.push_back( {realBinned[i], imagBinned[i]} );
 }
 
 double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const
@@ -108,6 +145,28 @@ double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> 
     else                          InterpolationValue = Less + (More-Less)*(val-EnergyLess)/(EnergyMore-EnergyLess);
     //      qDebug()<<"energy / interValue"<<energy<<InteractValue;
     return InterpolationValue;
+}
+
+double AWaveResSettings::getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F) const
+{
+    if (X.size() == 0) return 0;
+    if (X.size() == 1) return F.front();;
+
+    if (val <= X.front()) return F.front();
+    if (val >= X.back())  return F.back();
+
+    std::vector<double>::const_iterator it;
+    it = std::lower_bound(X.begin(), X.end(), val);
+    int index = it - X.begin();
+    if (index < 1) return F.front();
+
+    const double & F_Less = F[index-1];
+    const double & F_More = F[index];
+    const double & X_Less = X[index-1];
+    const double & X_More = X[index];
+
+    if (X_Less == X_More) return F_More;
+    return F_Less + (F_More - F_Less) * (val - X_Less) / (X_More - X_Less);
 }
 
 // ---
@@ -433,9 +492,17 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json) const
     json["EventTo"]               = EventTo;
 
     json["OutputDirectory"]       = OutputDirectory;
+    json["BinaryFormat"]          = BinaryFormat;
 
     json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
+
+    json["SaveSensorLog"]         = SaveSensorLog;
+    json["FileNameSensorLog"]     = FileNameSensorLog;
+    json["SensorLogTime"]         = SensorLogTime;
+    json["SensorLogXY"]           = SensorLogXY;
+    json["SensorLogAngle"]        = SensorLogAngle;
+    json["SensorLogWave"]         = SensorLogWave;
 
     json["SavePhotonBombs"]       = SavePhotonBombs;
     json["FileNamePhotonBombs"]   = FileNamePhotonBombs;
@@ -466,9 +533,17 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EventTo",               EventTo);
 
     jstools::parseJson(json, "OutputDirectory",       OutputDirectory);
+    jstools::parseJson(json, "BinaryFormat",          BinaryFormat);
 
     jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);
+
+    jstools::parseJson(json, "SaveSensorLog",         SaveSensorLog);
+    jstools::parseJson(json, "FileNameSensorLog",     FileNameSensorLog);
+    jstools::parseJson(json, "SensorLogTime",         SensorLogTime);
+    jstools::parseJson(json, "SensorLogXY",           SensorLogXY);
+    jstools::parseJson(json, "SensorLogAngle",        SensorLogAngle);
+    jstools::parseJson(json, "SensorLogWave",         SensorLogWave);
 
     jstools::parseJson(json, "SavePhotonBombs",       SavePhotonBombs);
     jstools::parseJson(json, "FileNamePhotonBombs",   FileNamePhotonBombs);

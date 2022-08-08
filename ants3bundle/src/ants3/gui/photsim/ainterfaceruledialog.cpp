@@ -5,7 +5,7 @@
 #include "ainterfacerule.h"
 #include "ainterfacewidgetfactory.h"
 #include "guitools.h"
-//#include "aopticaloverridetester.h"
+#include "aopticaloverridetester.h"
 
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -13,9 +13,9 @@
 
 AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent) :
     QDialog(parent),
+    MatFrom(matFrom), MatTo(matTo),
     MatHub(AMaterialHub::getInstance()),
     RuleHub(AInterfaceRuleHub::getInstance()),
-    MatFrom(matFrom), MatTo(matTo),
     ui(new Ui::AInterfaceRuleDialog)
 {
     ui->setupUi(this);
@@ -40,8 +40,13 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     updateGui();
 
-//    TesterWindow = new AOpticalOverrideTester(&ovLocal, MW, matFrom, matTo, this);
-//    TesterWindow->readFromJson(MW->OvTesterSettings);
+    TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
+    connect(TesterWindow, &AOpticalOverrideTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
+    connect(TesterWindow, &AOpticalOverrideTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
+    connect(TesterWindow, &AOpticalOverrideTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
+    connect(TesterWindow, &AOpticalOverrideTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
+
+//    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
 }
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
@@ -129,11 +134,12 @@ void AInterfaceRuleDialog::on_pbCancel_clicked()
 
 void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 {
-//    TesterWindow->writeToJson(MW->OvTesterSettings);
-//    TesterWindow->hide();
-//    delete TesterWindow; TesterWindow = nullptr;
+//    TesterWindow->writeToJson(MW->OvTesterSettings);  !!!***
+    TesterWindow->hide();
+    delete TesterWindow; TesterWindow = nullptr;
 
     QDialog::closeEvent(e);
+    emit closed(true);
 }
 
 void AInterfaceRuleDialog::on_cobType_activated(int index)
@@ -153,7 +159,13 @@ void AInterfaceRuleDialog::on_cobType_activated(int index)
 
 void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 {
-//    TesterWindow->show();
-//    TesterWindow->updateGUI();
-//    TesterWindow->showGeometry();
+    TesterWindow->show();
+    TesterWindow->updateGUI();
+    TesterWindow->showGeometry();
+
+    TesterWindow->move(x(), y());
+
+    connect(TesterWindow, &AOpticalOverrideTester::closed, this, &AInterfaceRuleDialog::setEnabled);
+    setEnabled(false);
+    TesterWindow->setEnabled(true);
 }

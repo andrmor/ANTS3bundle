@@ -386,7 +386,7 @@ bool ACore_SI::readFormat(const QVariantList & format, std::vector<EArrayFormat>
 
 void ACore_SI::readFormattedLine(const QStringList & fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList & el)
 {
-    for (int i=0; i<FormatSelector.size(); i++)
+    for (int i = 0; i < (int)FormatSelector.size(); i++)
     {
         const QString & txt = fields.at(i);
 
@@ -545,7 +545,7 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
 
 bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList & el)
 {
-    for (int i=0; i<FormatSelector.size(); i++)
+    for (int i = 0; i < (int)FormatSelector.size(); i++)
     {
         switch (FormatSelector.at(i))
         {
@@ -1008,12 +1008,8 @@ QString ACore_SI::getCurrentDir()
     return QDir::currentPath();
 }
 
-//bool ACore_SI::setCirrentDir(QString path)
-//{
-//    return QDir::setCurrent(path);
-//}
-
-const QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
+#include <QProcess>
+QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
 {
 #ifndef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
     abort("Launch of external process is not allowed.\nEnable \"_ALLOW_LAUNCH_EXTERNAL_PROCESS_\" in ants3.pro");
@@ -1032,15 +1028,15 @@ const QString ACore_SI::startExternalProcess(QString command, QVariant argumentA
     }
     else
     {
-        qDebug() << "Format error in argument list";
-        return "bad arguments";
+        abort("Format error in argument list");
+        return "";
     }
 
     QString str = command + " ";
-    for (QString &s : arg) str += s + " ";
+    for (QString & s : arg) str += s + " ";
     qDebug() << "Executing external command:" << str;
 
-    QProcess *process = new QProcess(this);
+    QProcess * process = new QProcess(this);
     QString errorString;
 
     if (waitToFinish)

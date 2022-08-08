@@ -102,6 +102,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
+    geo/agridhub.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
     gui/alineeditwithescape.cpp \
@@ -111,6 +112,8 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/photsim/aopticaloverridetester.cpp \
+    gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
@@ -240,7 +243,6 @@ SOURCES += \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
     gui/materials/aelementandisotopedelegates.cpp \
-    gui/photsim/a3photsimwin.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
@@ -291,6 +293,8 @@ HEADERS += \
     ademomanager.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
+    geo/agridelementrecord.h \
+    geo/agridhub.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
     gui/alineeditwithescape.h \
@@ -300,6 +304,8 @@ HEADERS += \
     gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/photsim/aopticaloverridetester.h \
+    gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
@@ -449,7 +455,6 @@ HEADERS += \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
     gui/materials/aelementandisotopedelegates.h \
-    gui/photsim/a3photsimwin.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
@@ -482,6 +487,8 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
+        gui/photsim/aopticaloverridetester.ui \
+        gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
@@ -506,7 +513,6 @@ FORMS += \
         gui/geom/ageometrywindow.ui \
         gui/mainwindow.ui \
         gui/materials/amatwin.ui \
-        gui/photsim/a3photsimwin.ui \
         gui/photsim/ainterfacerulewin.ui \
         gui/photsim/ainterfaceruledialog.ui \
         gui/photsim/aphotonsimoutputdialog.ui \

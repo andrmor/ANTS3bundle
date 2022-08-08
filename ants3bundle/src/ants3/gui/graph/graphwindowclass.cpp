@@ -1977,7 +1977,7 @@ void GraphWindowClass::updateLogScaleFlags(QVector<ADrawObject> & drawObjects) c
     }
 }
 
-void GraphWindowClass::AddLegend(double x1, double y1, double x2, double y2, QString title)
+void GraphWindowClass::drawLegend(double x1, double y1, double x2, double y2, QString title)
 {
     TLegend* leg = RasterWindow->fCanvas->BuildLegend(x1, y1, x2, y2, title.toLatin1());
 
@@ -2531,7 +2531,7 @@ void GraphWindowClass::on_cbShowFitParameters_toggled(bool checked)
     else gStyle->SetOptFit(0000);
 }
 
-TLegend * GraphWindowClass::AddLegend()
+TLegend * GraphWindowClass::addLegend()
 {
     TLegend * leg = RasterWindow->fCanvas->BuildLegend();
     RegisterTObject(leg);
@@ -2556,7 +2556,7 @@ void GraphWindowClass::on_pbAddLegend_clicked()
         }
     }
     if (!leg )
-        leg = AddLegend();
+        leg = addLegend();
 
     ALegendDialog Dialog(*leg, DrawObjects, this);
     connect(&Dialog, &ALegendDialog::requestCanvasUpdate, RasterWindow, &RasterWindowBaseClass::UpdateRootCanvas);
@@ -2771,7 +2771,7 @@ void GraphWindowClass::applyTemplate(bool bAll)
                 if (Legend) break;
             }
             if (!Legend) //cannot build legend inside Template due to limitations in ROOT (problems with positioning if TCanvas is not involved)
-                Legend = AddLegend();
+                Legend = addLegend();
         }
     }
 

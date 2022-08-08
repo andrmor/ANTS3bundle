@@ -354,6 +354,7 @@ void AGeometryWindow::SetAsActiveRootWindow()
 void AGeometryWindow::ClearRootCanvas()
 {
     RasterWindow->fCanvas->Clear();
+    RasterWindow->fCanvas->cd();
 }
 
 void AGeometryWindow::UpdateRootCanvas()

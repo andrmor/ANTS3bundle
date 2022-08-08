@@ -1,4 +1,4 @@
-#include "a3photsimwin.h"
+#include "aphotsimwin.h"
 #include "ageometryhub.h"
 #include "aphotonsimhub.h"
 #include "amonitorhub.h"
@@ -6,7 +6,7 @@
 #include "arandomhub.h"
 #include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
-#include "ui_a3photsimwin.h"
+#include "ui_aphotsimwin.h"
 #include "aconfig.h"
 #include "ajsontools.h"
 #include "guitools.h"
@@ -34,11 +34,11 @@
 #include "TVirtualGeoTrack.h"
 #include "TGeoTrack.h"
 
-A3PhotSimWin::A3PhotSimWin(QWidget * parent) :
+APhotSimWin::APhotSimWin(QWidget * parent) :
     AGuiWindow("PhotSim", parent),
     SimSet(APhotonSimHub::getInstance().Settings),
     MonitorHub(AMonitorHub::getConstInstance()),
-    ui(new Ui::A3PhotSimWin)
+    ui(new Ui::APhotSimWin)
 {
     ui->setupUi(this);
 
@@ -49,10 +49,10 @@ A3PhotSimWin::A3PhotSimWin(QWidget * parent) :
     BombFileHandler  = new APhotonBombFileHandler(*BombFileSettings);
 
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
-    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &A3PhotSimWin::onProgressReceived);
+    connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &APhotSimWin::onProgressReceived);
 
     APhotonSimManager & SimMan = APhotonSimManager::getInstance(); // make a class ref here !!!***
-    connect(&SimMan, &APhotonSimManager::requestUpdateResultsGUI, this, &A3PhotSimWin::showSimulationResults);
+    connect(&SimMan, &APhotonSimManager::requestUpdateResultsGUI, this, &APhotSimWin::showSimulationResults);
 
     QList<QPushButton*> listDummyButtons = findChildren<QPushButton*>();
     for (QPushButton * pb : qAsConst(listDummyButtons))
@@ -72,14 +72,14 @@ A3PhotSimWin::A3PhotSimWin(QWidget * parent) :
     updateGui();
 }
 
-A3PhotSimWin::~A3PhotSimWin()
+APhotSimWin::~APhotSimWin()
 {
     delete ui;
 
     // !!!*** delete dynamic members!
 }
 
-void A3PhotSimWin::updateGui()
+void APhotSimWin::updateGui()
 {
     int index;
     switch (SimSet.SimType)
@@ -100,7 +100,7 @@ void A3PhotSimWin::updateGui()
     updateGeneralSettingsGui();
 }
 
-void A3PhotSimWin::updatePhotBombGui()
+void APhotSimWin::updatePhotBombGui()
 {
     const APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
     {
@@ -189,7 +189,7 @@ void A3PhotSimWin::updatePhotBombGui()
     updateAdvancedBombIndicator();
 }
 
-void A3PhotSimWin::updateDepoGui()
+void APhotSimWin::updateDepoGui()
 {
     ui->leDepositionFile->setText(SimSet.DepoSet.FileName);
     ui->labDepositionFileFormat->setText(SimSet.DepoSet.getFormatName());
@@ -202,7 +202,7 @@ void A3PhotSimWin::updateDepoGui()
     ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
 }
 
-void A3PhotSimWin::updateBombFileGui()
+void APhotSimWin::updateBombFileGui()
 {
     const ABombFileSettings & s = SimSet.BombSet.BombFileSettings;
 
@@ -214,7 +214,7 @@ void A3PhotSimWin::updateBombFileGui()
     ui->labNodeFileEvents->setText(strEvents);
 }
 
-void A3PhotSimWin::updatePhotonFileGui()
+void APhotSimWin::updatePhotonFileGui()
 {
     const APhotonFileSettings & s = SimSet.PhotFileSet;
 
@@ -226,7 +226,7 @@ void A3PhotSimWin::updatePhotonFileGui()
     ui->labSinglePhotonsEvents->setText(strEvents);
 }
 
-void A3PhotSimWin::updateGeneralSettingsGui()
+void APhotSimWin::updateGeneralSettingsGui()
 {
     ui->twGeneralOption->setEnabled(SimSet.SimType != EPhotSimType::FromLRFs);
 
@@ -241,7 +241,7 @@ void A3PhotSimWin::updateGeneralSettingsGui()
     ui->cbRndCheckBeforeTrack->setChecked(SimSet.OptSet.CheckQeBeforeTracking);
 }
 
-void A3PhotSimWin::on_pbdWave_clicked()
+void APhotSimWin::on_pbdWave_clicked()
 {
     if (ui->ledWaveStep->text().toDouble() <= 0)
     {
@@ -261,7 +261,7 @@ void A3PhotSimWin::on_pbdWave_clicked()
     updateGeneralSettingsGui();
 }
 
-void A3PhotSimWin::storeGeneralSettings()
+void APhotSimWin::storeGeneralSettings()
 {
     SimSet.WaveSet.Enabled = ui->cbWaveResolved->isChecked();
     SimSet.WaveSet.From    = ui->ledWaveFrom->text().toDouble();
@@ -269,7 +269,7 @@ void A3PhotSimWin::storeGeneralSettings()
     SimSet.WaveSet.Step    = ui->ledWaveStep->text().toDouble();
 }
 
-void A3PhotSimWin::disableInterface(bool flag)
+void APhotSimWin::disableInterface(bool flag)
 {
     ui->pbConfigureOutput->setDisabled(flag);
     ui->pbSimulate->setDisabled(flag);
@@ -280,29 +280,29 @@ void A3PhotSimWin::disableInterface(bool flag)
     qApp->processEvents();
 }
 
-void A3PhotSimWin::onProgressReceived(double progress)
+void APhotSimWin::onProgressReceived(double progress)
 {
     if (!ui->progbSim->isEnabled()) return; // simulation is not running
 
     ui->progbSim->setValue(progress * 100.0);
 }
 
-void A3PhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
+void APhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
 {
     SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
 }
 
-void A3PhotSimWin::on_cbRndCheckBeforeTrack_clicked()
+void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
 {
     SimSet.OptSet.CheckQeBeforeTracking = ui->cbRndCheckBeforeTrack->isChecked();
 }
 
-void A3PhotSimWin::on_pbQEacceleratorHelp_clicked()
+void APhotSimWin::on_pbQEacceleratorHelp_clicked()
 {
     guitools::message("TODO", this);
 }
 
-void A3PhotSimWin::on_cobSimType_activated(int index)
+void APhotSimWin::on_cobSimType_activated(int index)
 {
     switch (index)
     {
@@ -314,7 +314,7 @@ void A3PhotSimWin::on_cobSimType_activated(int index)
     }
 }
 
-void A3PhotSimWin::on_cobNumPhotonsMode_activated(int index)
+void APhotSimWin::on_cobNumPhotonsMode_activated(int index)
 {
     APhotonsPerBombSettings & PS = SimSet.BombSet.PhotonsPerBomb;
 
@@ -329,7 +329,7 @@ void A3PhotSimWin::on_cobNumPhotonsMode_activated(int index)
     }
 }
 
-void A3PhotSimWin::on_cobNodeGenerationMode_activated(int index)
+void APhotSimWin::on_cobNodeGenerationMode_activated(int index)
 {
     switch (index)
     {
@@ -341,22 +341,22 @@ void A3PhotSimWin::on_cobNodeGenerationMode_activated(int index)
     }
 }
 
-void A3PhotSimWin::on_ledSingleX_editingFinished()
+void APhotSimWin::on_ledSingleX_editingFinished()
 {
     SimSet.BombSet.SingleSettings.Position[0] = ui->ledSingleX->text().toDouble();
 }
 
-void A3PhotSimWin::on_ledSingleY_editingFinished()
+void APhotSimWin::on_ledSingleY_editingFinished()
 {
     SimSet.BombSet.SingleSettings.Position[1] = ui->ledSingleY->text().toDouble();
 }
 
-void A3PhotSimWin::on_ledSingleZ_editingFinished()
+void APhotSimWin::on_ledSingleZ_editingFinished()
 {
     SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
-void A3PhotSimWin::on_pbSimulate_clicked()
+void APhotSimWin::on_pbSimulate_clicked()
 {
     SimSet.RunSet.Seed = INT_MAX * ARandomHub::getInstance().uniform();
 
@@ -387,7 +387,7 @@ void A3PhotSimWin::on_pbSimulate_clicked()
     if (ok) showSimulationResults();
 }
 
-void A3PhotSimWin::showSimulationResults()
+void APhotSimWin::showSimulationResults()
 {
     if (ui->cbAutoLoadResults->isChecked())
     {
@@ -423,125 +423,125 @@ void A3PhotSimWin::showSimulationResults()
     }
 }
 
-void A3PhotSimWin::on_pbLoadAllResults_clicked()
+void APhotSimWin::on_pbLoadAllResults_clicked()
 {
     ui->sbEvent->setValue(0);
 
     APhotSimRunSettings Set;
 
     ui->leStatisticsFile->setText(Set.FileNameStatistics);
-    on_pbLoadAndShowStatistics_clicked();
+    loadStatistics(true);
 
     ui->leMonitorsFileName->setText(Set.FileNameMonitors);
-    on_pbLoadMonitorsData_clicked();
+    loadMonitorsData(true);
 
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
-    showSensorSignal();
+    showSensorSignal(true);
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
-    on_pbLoadAndShowTracks_clicked();
+    loadTracks(true);
 }
 
-void A3PhotSimWin::on_sbFloodNumber_editingFinished()
+void APhotSimWin::on_sbFloodNumber_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();
 }
-void A3PhotSimWin::on_cobFloodShape_activated(int index)
+void APhotSimWin::on_cobFloodShape_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
 }
-void A3PhotSimWin::on_ledFloodXfrom_editingFinished()
+void APhotSimWin::on_ledFloodXfrom_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodXto_editingFinished()
+void APhotSimWin::on_ledFloodXto_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodYfrom_editingFinished()
+void APhotSimWin::on_ledFloodYfrom_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodYto_editingFinished()
+void APhotSimWin::on_ledFloodYto_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodCenterX_editingFinished()
+void APhotSimWin::on_ledFloodCenterX_editingFinished()
 {
     SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodCenterY_editingFinished()
+void APhotSimWin::on_ledFloodCenterY_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodOuterDiameter_editingFinished()
+void APhotSimWin::on_ledFloodOuterDiameter_editingFinished()
 {
     SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodInnerDiameter_editingFinished()
+void APhotSimWin::on_ledFloodInnerDiameter_editingFinished()
 {
     SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
 }
-void A3PhotSimWin::on_cobFloodZmode_activated(int index)
+void APhotSimWin::on_cobFloodZmode_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Zmode = (index == 0 ? AFloodSettings::Fixed : AFloodSettings::Range);
 }
-void A3PhotSimWin::on_ledFloodZ_editingFinished()
+void APhotSimWin::on_ledFloodZ_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodZfrom_editingFinished()
+void APhotSimWin::on_ledFloodZfrom_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
 }
-void A3PhotSimWin::on_ledFloodZto_editingFinished()
+void APhotSimWin::on_ledFloodZto_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
 }
 
 
-void A3PhotSimWin::on_sbNumPhotons_editingFinished()
+void APhotSimWin::on_sbNumPhotons_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.FixedNumber = ui->sbNumPhotons->value();
 }
-void A3PhotSimWin::on_ledPoissonMean_editingFinished()
+void APhotSimWin::on_ledPoissonMean_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.PoissonMean = ui->ledPoissonMean->text().toDouble();
 }
-void A3PhotSimWin::on_sbNumMin_editingFinished()
+void APhotSimWin::on_sbNumMin_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.UniformMin = ui->sbNumMin->value();
 }
-void A3PhotSimWin::on_sbNumMax_editingFinished()
+void APhotSimWin::on_sbNumMax_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.UniformMax = ui->sbNumMax->value();
 }
-void A3PhotSimWin::on_ledGaussSigma_editingFinished()
+void APhotSimWin::on_ledGaussSigma_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.NormalSigma = ui->ledGaussSigma->text().toDouble();
 }
-void A3PhotSimWin::on_ledGaussMean_editingFinished()
+void APhotSimWin::on_ledGaussMean_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.NormalMean = ui->ledGaussMean->text().toDouble();
 }
-void A3PhotSimWin::on_pbNumDistShow_clicked()
+void APhotSimWin::on_pbNumDistShow_clicked()
 {
 
 }
-void A3PhotSimWin::on_pbNumDistLoad_clicked()
+void APhotSimWin::on_pbNumDistLoad_clicked()
 {
 
 }
-void A3PhotSimWin::on_pbNumDistDelete_clicked()
+void APhotSimWin::on_pbNumDistDelete_clicked()
 {
 
 }
 
 #include "aphotonsimoutputdialog.h"
-void A3PhotSimWin::on_pbConfigureOutput_clicked()
+void APhotSimWin::on_pbConfigureOutput_clicked()
 {
     APhotonSimOutputDialog dialog(this);
     dialog.exec();
@@ -549,13 +549,18 @@ void A3PhotSimWin::on_pbConfigureOutput_clicked()
 
 // ========================= RESULTS ========================
 
-void A3PhotSimWin::on_pbSelectTracksFile_clicked()
+void APhotSimWin::on_pbSelectTracksFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with track data", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leTracksFile->setText(fileName);
 }
 
-void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
+void APhotSimWin::on_pbLoadAndShowTracks_clicked()
+{
+    loadTracks(false);
+}
+
+void APhotSimWin::loadTracks(bool suppressMessage)
 {
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
@@ -563,7 +568,7 @@ void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
     QFile file(FileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -610,21 +615,27 @@ void A3PhotSimWin::on_pbLoadAndShowTracks_clicked()
 }
 
 #include "astatisticshub.h"
-void A3PhotSimWin::on_pbSelectStatisticsFile_clicked()
+void APhotSimWin::on_pbSelectStatisticsFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon statistics", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leStatisticsFile->setText(fileName);
 }
-void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
+
+void APhotSimWin::on_pbLoadAndShowStatistics_clicked()
+{
+    loadStatistics(false);
+}
+
+void APhotSimWin::loadStatistics(bool suppressMessage)
 {
     QString FileName = ui->leStatisticsFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
 
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, FileName);
-    if(!ok)
+    if (!ok)
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -662,25 +673,25 @@ void A3PhotSimWin::on_pbLoadAndShowStatistics_clicked()
     ui->pteEndOfLife->clear();
     ui->pteEndOfLife->appendPlainText(s);
 }
-void A3PhotSimWin::on_pbShowTransitionDistr_clicked()
+void APhotSimWin::on_pbShowTransitionDistr_clicked()
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.TransitionDistr)
         emit requestDraw(Stat.TransitionDistr, "hist", false, true);
 }
-void A3PhotSimWin::on_pbShowWaveDistr_clicked()
+void APhotSimWin::on_pbShowWaveDistr_clicked()
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.WaveDistr)
         emit requestDraw(Stat.WaveDistr, "hist", false, true);
 }
-void A3PhotSimWin::on_pbShowTimeDistr_clicked()
+void APhotSimWin::on_pbShowTimeDistr_clicked()
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.TimeDistr)
         emit requestDraw(Stat.TimeDistr, "hist", false, true);
 }
-void A3PhotSimWin::on_pbShowAngleDistr_clicked()
+void APhotSimWin::on_pbShowAngleDistr_clicked()
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.AngularDistr)
@@ -692,13 +703,18 @@ void A3PhotSimWin::on_pbShowAngleDistr_clicked()
 #include "amonitorhub.h"
 #include "amonitor.h"
 
-void A3PhotSimWin::on_pbChooseMonitorsFile_clicked()
+void APhotSimWin::on_pbChooseMonitorsFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with data recorded by monitors", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leMonitorsFileName->setText(fileName);
 }
 
-void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
+void APhotSimWin::on_pbLoadMonitorsData_clicked()
+{
+    loadMonitorsData(false);
+}
+
+void APhotSimWin::loadMonitorsData(bool suppressMessage)
 {
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     MonitorHub.clearData(AMonitorHub::Photon);
@@ -710,7 +726,7 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
     bool ok = jstools::loadJsonFromFile(json, FileName);
     if(!ok)
     {
-        guitools::message("Could not open: " + FileName, this);
+        if (!suppressMessage) guitools::message("Could not open: " + FileName, this);
         return;
     }
 
@@ -719,7 +735,7 @@ void A3PhotSimWin::on_pbLoadMonitorsData_clicked()
     updateMonitorGui();
 }
 
-void A3PhotSimWin::updateMonitorGui()
+void APhotSimWin::updateMonitorGui()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     ui->labNumMonitors->setText(QString::number(numMonitors));
@@ -762,12 +778,12 @@ void A3PhotSimWin::updateMonitorGui()
     }
 }
 
-void A3PhotSimWin::on_cobMonitor_activated(int)
+void APhotSimWin::on_cobMonitor_activated(int)
 {
     updateMonitorGui();
 }
 
-void A3PhotSimWin::on_sbMonitorIndex_editingFinished()
+void APhotSimWin::on_sbMonitorIndex_editingFinished()
 {
     int mon = ui->sbMonitorIndex->value();
     if (mon >= ui->cobMonitor->count()) mon = 0;
@@ -776,7 +792,7 @@ void A3PhotSimWin::on_sbMonitorIndex_editingFinished()
     updateMonitorGui();
 }
 
-void A3PhotSimWin::on_pbNextMonitor_clicked()
+void APhotSimWin::on_pbNextMonitor_clicked()
 {
     int numMon = MonitorHub.countMonitors(AMonitorHub::Photon);
     if (numMon == 0) return;
@@ -797,7 +813,7 @@ void A3PhotSimWin::on_pbNextMonitor_clicked()
     updateMonitorGui();
 }
 
-void A3PhotSimWin::on_pbMonitorShowAngle_clicked()
+void APhotSimWin::on_pbMonitorShowAngle_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
@@ -805,7 +821,7 @@ void A3PhotSimWin::on_pbMonitorShowAngle_clicked()
         emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->angle, "hist", false, true);
 }
 
-void A3PhotSimWin::on_pbMonitorShowXY_clicked()
+void APhotSimWin::on_pbMonitorShowXY_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
@@ -813,7 +829,7 @@ void A3PhotSimWin::on_pbMonitorShowXY_clicked()
         emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->xy, "colz", false, true);
 }
 
-void A3PhotSimWin::on_pbMonitorShowTime_clicked()
+void APhotSimWin::on_pbMonitorShowTime_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
@@ -821,7 +837,7 @@ void A3PhotSimWin::on_pbMonitorShowTime_clicked()
         emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->time, "hist", false, true);
 }
 
-void A3PhotSimWin::on_pbMonitorShowWaveIndex_clicked()
+void APhotSimWin::on_pbMonitorShowWaveIndex_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
@@ -829,7 +845,7 @@ void A3PhotSimWin::on_pbMonitorShowWaveIndex_clicked()
         emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->wave, "hist", false, true);
 }
 
-void A3PhotSimWin::on_pbMonitorShowWavelength_clicked()
+void APhotSimWin::on_pbMonitorShowWavelength_clicked()
 {
     if (!SimSet.WaveSet.Enabled)
     {
@@ -866,7 +882,7 @@ void A3PhotSimWin::on_pbMonitorShowWavelength_clicked()
     }
 }
 
-void A3PhotSimWin::on_pbMonitorShowEnergy_clicked()
+void APhotSimWin::on_pbMonitorShowEnergy_clicked()
 {
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
@@ -874,7 +890,7 @@ void A3PhotSimWin::on_pbMonitorShowEnergy_clicked()
         emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->energy, "hist", false, true);
 }
 
-void A3PhotSimWin::on_pbShowMonitorHitDistribution_clicked()
+void APhotSimWin::on_pbShowMonitorHitDistribution_clicked()
 {
     const int numMon = MonitorHub.countMonitors(AMonitorHub::Photon);
     if (numMon == 0) return;
@@ -895,7 +911,7 @@ void A3PhotSimWin::on_pbShowMonitorHitDistribution_clicked()
     emit requestDraw(h, "hist", true, true);
 }
 
-void A3PhotSimWin::on_pbShowMonitorTimeOverall_clicked()
+void APhotSimWin::on_pbShowMonitorTimeOverall_clicked()
 {
     const int numMon = MonitorHub.countMonitors(AMonitorHub::Photon);
     if (numMon == 0) return;
@@ -943,14 +959,14 @@ void A3PhotSimWin::on_pbShowMonitorTimeOverall_clicked()
 
 // ---
 
-void A3PhotSimWin::on_pbChangeDepositionFile_clicked()
+void APhotSimWin::on_pbChangeDepositionFile_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with energy deposition data", "");
     if (fileName.isEmpty()) return;
     ui->leDepositionFile->setText(fileName);
     on_leDepositionFile_editingFinished();
 }
-void A3PhotSimWin::on_leDepositionFile_editingFinished()
+void APhotSimWin::on_leDepositionFile_editingFinished()
 {
     QString NewFileName = ui->leDepositionFile->text();
     if (NewFileName != SimSet.DepoSet.FileName)
@@ -960,16 +976,16 @@ void A3PhotSimWin::on_leDepositionFile_editingFinished()
         updateDepoGui();
     }
 }
-void A3PhotSimWin::on_cbPrimaryScint_clicked(bool checked)
+void APhotSimWin::on_cbPrimaryScint_clicked(bool checked)
 {
     SimSet.DepoSet.Primary = checked;
 }
-void A3PhotSimWin::on_cbSecondaryScint_clicked(bool checked)
+void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
 {
     SimSet.DepoSet.Secondary = checked;
 }
 
-void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
+void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
 
@@ -1013,19 +1029,19 @@ void A3PhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     updateDepoGui();
 }
 #include "adeporecord.h"
-void A3PhotSimWin::on_pbViewDepositionFile_clicked()
+void APhotSimWin::on_pbViewDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
     ADepoRecord record;
     QString text = fh.preview(record, 100);
     guitools::message1(text, "", this);
 }
-void A3PhotSimWin::on_pbHelpDepositionFile_clicked()
+void APhotSimWin::on_pbHelpDepositionFile_clicked()
 {
 
 }
 
-void A3PhotSimWin::on_pbdUpdateScanSettings_clicked()
+void APhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
     AGridSettings & g = SimSet.BombSet.GridSettings;
 
@@ -1059,14 +1075,14 @@ void A3PhotSimWin::on_pbdUpdateScanSettings_clicked()
 }
 
 #include "abombadvanceddialog.h"
-void A3PhotSimWin::on_pbAdvancedBombSettings_clicked()
+void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 {
     ABombAdvancedDialog dia(this);
     dia.exec();
     updateAdvancedBombIndicator();
 }
 
-void A3PhotSimWin::updateAdvancedBombIndicator()
+void APhotSimWin::updateAdvancedBombIndicator()
 {
     const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
 
@@ -1076,7 +1092,7 @@ void A3PhotSimWin::updateAdvancedBombIndicator()
 
 // --- BombFile ---
 
-void A3PhotSimWin::on_leNodeFileName_editingFinished()
+void APhotSimWin::on_leNodeFileName_editingFinished()
 {
     ABombFileSettings & s = SimSet.BombSet.BombFileSettings;
     QString NewFileName = ui->leNodeFileName->text();
@@ -1087,7 +1103,7 @@ void A3PhotSimWin::on_leNodeFileName_editingFinished()
         updateBombFileGui();
     }
 }
-void A3PhotSimWin::on_pbNodeFileChange_clicked()
+void APhotSimWin::on_pbNodeFileChange_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with photon bombs", "");
     if (fileName.isEmpty()) return;
@@ -1095,7 +1111,7 @@ void A3PhotSimWin::on_pbNodeFileChange_clicked()
     on_leNodeFileName_editingFinished();
 }
 #include "aphotonbombfilehandler.h"
-void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
+void APhotSimWin::on_pbNodeFileAnalyze_clicked()
 {
     ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
 
@@ -1141,21 +1157,21 @@ void A3PhotSimWin::on_pbNodeFileAnalyze_clicked()
     updateBombFileGui();
 }
 #include "anoderecord.h"
-void A3PhotSimWin::on_pbNodeFilePreview_clicked()
+void APhotSimWin::on_pbNodeFilePreview_clicked()
 {
     APhotonBombFileHandler fh(SimSet.BombSet.BombFileSettings);
     ANodeRecord rec;
     QString text = fh.preview(rec, 100);
     guitools::message1(text, "", this);
 }
-void A3PhotSimWin::on_pbNodeFileHelp_clicked()
+void APhotSimWin::on_pbNodeFileHelp_clicked()
 {
 
 }
 
 // ---
 
-void A3PhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
+void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
 {
     bool bFromFile = (index == 3);
     ui->cobNumPhotonsMode->setDisabled(bFromFile);
@@ -1164,7 +1180,7 @@ void A3PhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
 
 // ---
 
-void A3PhotSimWin::on_leSinglePhotonsFile_editingFinished()
+void APhotSimWin::on_leSinglePhotonsFile_editingFinished()
 {
     APhotonFileSettings & s = SimSet.PhotFileSet;
     const QString NewFileName = ui->leSinglePhotonsFile->text();
@@ -1176,7 +1192,7 @@ void A3PhotSimWin::on_leSinglePhotonsFile_editingFinished()
     }
 }
 
-void A3PhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
+void APhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with individual photon records", "");
     if (fileName.isEmpty()) return;
@@ -1185,7 +1201,7 @@ void A3PhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
 }
 
 #include "aphotonfilehandler.h"
-void A3PhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
+void APhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
 {
     APhotonFileSettings & bset = SimSet.PhotFileSet;
 
@@ -1227,64 +1243,63 @@ void A3PhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
     updatePhotonFileGui();
 }
 #include "aphoton.h"
-void A3PhotSimWin::on_pbViewSinglePhotFile_clicked()
+void APhotSimWin::on_pbViewSinglePhotFile_clicked()
 {
     APhotonFileHandler fh(SimSet.PhotFileSet);
     APhoton phot;
     QString text = fh.preview(phot, 100);
     guitools::message1(text, "", this);
 }
-void A3PhotSimWin::on_pbSinglePhotonsHelp_clicked()
+void APhotSimWin::on_pbSinglePhotonsHelp_clicked()
 {
 
 }
 
 // --- Show Photon bombs ---
 
-void A3PhotSimWin::on_pbSelectBombsFile_clicked()
+void APhotSimWin::on_pbSelectBombsFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon bombs", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leBombsFile->setText(fileName);
 }
 
-void A3PhotSimWin::on_pbChangeWorkingDir_clicked()
+void APhotSimWin::on_pbChangeWorkingDir_clicked()
 {
     QString dir = guitools::dialogDirectory(this, "Select directory with photon data", SimSet.RunSet.OutputDirectory, true, false);
     if (!dir.isEmpty()) ui->leResultsWorkingDir->setText(dir);
 }
 
-void A3PhotSimWin::on_tbwResults_currentChanged(int index)
+void APhotSimWin::on_tbwResults_currentChanged(int index)
 {
     ui->frEventNumber->setVisible(index > 1);
 }
 
-void A3PhotSimWin::on_pbShowEvent_clicked()
+void APhotSimWin::on_pbShowEvent_clicked()
 {
     disableGui(true);
         doShowEvent();
     disableGui(false);
 }
 
-void A3PhotSimWin::doShowEvent()
+void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignal();    break;
-    case 3 : showBombSingleEvent(); break;
-    case 4 : break;
-
+    case 2 : showSensorSignal(true);  break;
+    case 3 : showBombSingleEvent();   break;
+    case 4 : showTracksSingleEvent(); break;
     default :;
     }
 }
 
-void A3PhotSimWin::showSensorSignal()
+void APhotSimWin::showSensorSignal(bool suppressMessage)
 {
     QString name = ui->leSensorSigFileName->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
 
     if (name.isEmpty())
     {
-        guitools::message("File name is empty!", this);
+        if (!suppressMessage) guitools::message("File name is empty!", this);
         return;
     }
 
@@ -1297,7 +1312,7 @@ void A3PhotSimWin::showSensorSignal()
         bool ok = SignalsFileHandler->init();
         if (!ok)
         {
-            guitools::message(AErrorHub::getQError(), this);
+            if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
             return;
         }
     }
@@ -1309,7 +1324,7 @@ void A3PhotSimWin::showSensorSignal()
 }
 
 #include "asensorsignalarray.h"
-void A3PhotSimWin::showSensorSignalDraw()
+void APhotSimWin::showSensorSignalDraw()
 {
     ASensorSignalArray ar;
     const int numSensors = ASensorHub::getConstInstance().countSensors();
@@ -1341,12 +1356,12 @@ void A3PhotSimWin::showSensorSignalDraw()
     gvSensors->updateGui(ar.Signals, enabledSensors);
 }
 
-void A3PhotSimWin::showSensorSignalTable()
+void APhotSimWin::showSensorSignalTable()
 {
 
 }
 
-void A3PhotSimWin::showBombSingleEvent()
+void APhotSimWin::showBombSingleEvent()
 {
     emit requestClearGeoMarkers(0);
 
@@ -1383,14 +1398,74 @@ void A3PhotSimWin::showBombSingleEvent()
     emit requestShowGeoMarkers();
 }
 
-bool A3PhotSimWin::updateBombHandler()
+void APhotSimWin::showTracksSingleEvent()
+{
+    QString FileName = ui->leTracksFile->text();
+    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+
+    QFile file(FileName);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return;
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    const int iShowEvent = ui->sbEvent->value();
+
+    QTextStream in(&file);
+    int iCurrentEvent = 0;
+    while (!in.atEnd())
+    {
+        QString line = in.readLine();
+        if (line.startsWith('#'))
+        {
+            line.remove('#');
+            iCurrentEvent = line.toInt();
+            continue;
+        }
+
+        if (iShowEvent != iCurrentEvent) continue;
+
+        QJsonObject json = jstools::strToJson(line);
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "P", ar);
+        if (!ok)
+        {
+            guitools::message("Unknown file format!", this);
+            return;
+        }
+        const bool bHit = (json.contains("h") ? true : false);
+        const bool bSec = (json.contains("s") ? true : false);
+
+        TGeoTrack * track = new TGeoTrack(1, 22);
+        int Color = 7;
+        if (bSec) Color = kMagenta;
+        if (bHit) Color = 2;
+        track->SetLineColor(Color);
+        //track->SetLineWidth(th->Width);
+        //track->SetLineStyle(th->Style);
+
+        for (int iNode = 0; iNode < ar.size(); iNode++)
+        {
+            QJsonArray el = ar[iNode].toArray();
+            if (el.size() < 3) continue; // !!!***
+            track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
+        }
+        if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
+        else delete track;
+    }
+
+    emit requestShowGeometry(); // !!!***
+    emit requestShowTracks();
+}
+
+bool APhotSimWin::updateBombHandler()
 {
     QString name = ui->leBombsFile->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
 
     if (name.isEmpty())
     {
-        guitools::message("File name is empty!", this);
+        //guitools::message("File name is empty!", this);
         return false;
     }
 
@@ -1403,7 +1478,7 @@ bool A3PhotSimWin::updateBombHandler()
         bool ok = BombFileHandler->init();
         if (!ok)
         {
-            guitools::message(AErrorHub::getQError(), this);
+            //guitools::message(AErrorHub::getQError(), this);
             return false;
         }
     }
@@ -1411,12 +1486,12 @@ bool A3PhotSimWin::updateBombHandler()
     return true;
 }
 
-void A3PhotSimWin::disableGui(bool flag)
+void APhotSimWin::disableGui(bool flag)
 {
     setDisabled(flag);
 }
 
-void A3PhotSimWin::on_pbEventNumberLess_clicked()
+void APhotSimWin::on_pbEventNumberLess_clicked()
 {
     int iEvent = ui->sbEvent->value();
     if (iEvent == 0) return;
@@ -1425,19 +1500,19 @@ void A3PhotSimWin::on_pbEventNumberLess_clicked()
     on_pbShowEvent_clicked();
 }
 
-void A3PhotSimWin::on_pbEventNumberMore_clicked()
+void APhotSimWin::on_pbEventNumberMore_clicked()
 {
     ui->sbEvent->setValue(ui->sbEvent->value() + 1);
     on_pbShowEvent_clicked();
 }
 
-void A3PhotSimWin::on_pbChooseSensorSigFile_clicked()
+void APhotSimWin::on_pbChooseSensorSigFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select file with sensor data", SimSet.RunSet.OutputDirectory);
     if (!fileName.isEmpty()) ui->leSensorSigFileName->setText(fileName);
 }
 
-void A3PhotSimWin::on_pbShowBombsMultiple_clicked()
+void APhotSimWin::on_pbShowBombsMultiple_clicked()
 {
     emit requestShowGeometry(true);
 //    emit requestShowTracks(); // !!!***
@@ -1459,7 +1534,7 @@ void A3PhotSimWin::on_pbShowBombsMultiple_clicked()
     emit requestShowGeoMarkers();
 }
 
-void A3PhotSimWin::on_pbSingleSourceShow_clicked()
+void APhotSimWin::on_pbSingleSourceShow_clicked()
 {
     double pos[3];
     pos[0] = ui->ledSingleX->text().toDouble();

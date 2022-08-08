@@ -94,21 +94,26 @@ double AMetalInterfaceRule::calculateReflectivity(double CosTheta, double RealN,
     TComplex N(RealN, ImaginaryN);
     TComplex U(1,0);
 
-    double SinTheta = (CosTheta < 0.9999999) ? sqrt(1.0 - CosTheta*CosTheta) : 0;
-    //  TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/(N*N));
+    const double SinTheta = (CosTheta < 0.9999999) ? sqrt(1.0 - CosTheta*CosTheta) : 0;
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-    double nFrom = MatHub[MatFrom]->getRefractiveIndex(waveIndex);
-    TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/ (N*N/nFrom/nFrom) );
+    const double nFrom = MatHub[MatFrom]->getRefractiveIndex(waveIndex);
+    //qDebug() << "nFrom" << nFrom;
 
-    //  TComplex rs = (CosTheta - N*CosPhi) / (CosTheta + N*CosPhi);
-    TComplex rs = (nFrom*CosTheta - N*CosPhi) / (nFrom*CosTheta + N*CosPhi);
-    //  TComplex rp = ( -N*CosTheta + CosPhi) / (N*CosTheta + CosPhi);
-    TComplex rp = ( -N*CosTheta + nFrom*CosPhi) / (N*CosTheta + nFrom*CosPhi);
+    const TComplex SinPhi = SinTheta / N * nFrom;
+    //qDebug() << "SinPhi" << SinPhi.Re() << SinPhi.Im();
 
-    double RS = rs.Rho2();
-    double RP = rp.Rho2();
+    //TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/ (N*N/nFrom/nFrom) );
+    const TComplex CosPhi = TMath::Sqrt( U - SinPhi*SinPhi );
+    //qDebug() << "CosPhi:" << CosPhi.Re() << CosPhi.Im();
 
-    double R = 0.5 * (RS+RP);
+    const TComplex rs = (nFrom*CosTheta - N*CosPhi) / (nFrom*CosTheta + N*CosPhi);
+    const TComplex rp = ( -N*CosTheta + nFrom*CosPhi) / (N*CosTheta + nFrom*CosPhi);
+
+    const double RS = rs.Rho2();
+    const double RP = rp.Rho2();
+    //qDebug() << "rs" << rs.Re() << rs.Im() << RS;
+
+    const double R = 0.5 * (RS + RP);
     //qDebug() << "Refl coeff = "<< R;
 
     return R;
