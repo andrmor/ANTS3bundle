@@ -3,35 +3,14 @@
 #include "amaterialhub.h"
 #include "arandomhub.h"
 
-#include <QDebug>
-#include <QJsonObject>
-
-AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
-    RandomHub(ARandomHub::getInstance()),
-    MatFrom(MatFrom), MatTo(MatTo) {}
-
-QString AInterfaceRule::getLongReportLine() const
-{
-    return getReportLine();
-}
-
-void AInterfaceRule::writeToJson(QJsonObject &json) const
-{
-    json["Model"]   = getType();
-    json["MatFrom"] = MatFrom;
-    json["MatTo"]   = MatTo;
-}
-
-bool AInterfaceRule::readFromJson(const QJsonObject &)
-{
-    return true;
-}
-
 #include "abasicinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"
 #include "fsnpinterfacerule.h"
 #include "awaveshifterinterfacerule.h"
 #include "ametalinterfacerule.h"
+
+#include <QDebug>
+#include <QJsonObject>
 
 AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo)
 {
@@ -60,4 +39,25 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
       << "SurfaceWLS";
 
     return l;
+}
+
+AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
+    RandomHub(ARandomHub::getInstance()),
+    MatFrom(MatFrom), MatTo(MatTo) {}
+
+QString AInterfaceRule::getLongReportLine() const
+{
+    return getReportLine();
+}
+
+void AInterfaceRule::writeToJson(QJsonObject &json) const
+{
+    json["Model"]   = getType();
+    json["MatFrom"] = MatFrom;
+    json["MatTo"]   = MatTo;
+}
+
+bool AInterfaceRule::readFromJson(const QJsonObject &)
+{
+    return true;
 }

@@ -7,9 +7,10 @@ class AInterfaceRule;
 class APhoton;
 class QJsonObject;
 class ARandomHub;
+class ASurfaceSettings;
 
 //  ----  !!!  ----
-// modify two static functions of the class below after adding a new override type!
+// modify two static functions in the cpp file after adding a new override type!
 
 class AInterfaceRule
 {
@@ -28,6 +29,8 @@ public:
 
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule() {}
+
+    void configureSurface(const ASurfaceSettings & surfaceSettings) {SurfaceSettings = &surfaceSettings;}
 
     // !!!*** to reference
     virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
@@ -60,6 +63,8 @@ public:
 protected:
     ARandomHub & RandomHub;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
+
+    const ASurfaceSettings * SurfaceSettings = nullptr;
 
 };
 
