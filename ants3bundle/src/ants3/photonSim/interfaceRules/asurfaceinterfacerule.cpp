@@ -28,7 +28,7 @@ AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhot
 
     LocalNormSampler->getLocalNormal(NormalVector, Photon->v, LocalNormal);
 
-    return Absorbed;
+    return DelegateLocalNormal;
 }
 
 QString ASurfaceInterfaceRule::getReportLine() const

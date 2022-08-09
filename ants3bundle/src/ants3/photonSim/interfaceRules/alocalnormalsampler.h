@@ -13,7 +13,7 @@ public:
 
 protected:
     const ASurfaceSettings & Settings;
-    ARandomHub             & RandHub;
+    ARandomHub             & RandomHub;
 };
 
 #endif // ALOCALNORMALSAMPLER_H
