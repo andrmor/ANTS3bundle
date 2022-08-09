@@ -8,6 +8,7 @@ class APhoton;
 class QJsonObject;
 class ARandomHub;
 class ASurfaceSettings;
+class ALocalNormalSampler;
 
 //  ----  !!!  ----
 // modify two static functions in the cpp file after adding a new override type!
@@ -18,7 +19,7 @@ public:
     static AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
     static QStringList      getAllInterfaceRuleTypes();
 
-    enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, _Error_}; //return status for photon tracing:
+    enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_}; //return status for photon tracing:
     enum ScatterStatusEnum {
         Absorption,
         SpikeReflection, LobeReflection, LambertianReflection,
@@ -28,12 +29,14 @@ public:
     }; //detailed status for statistics only - used by override tester only
 
     AInterfaceRule(int MatFrom, int MatTo);
-    virtual ~AInterfaceRule() {}
+    virtual ~AInterfaceRule();
 
-    void configureSurface(const ASurfaceSettings & surfaceSettings) {SurfaceSettings = &surfaceSettings;}
+    void configureSurface(const ASurfaceSettings & surfaceSettings); // !!!*** refactor
 
     // !!!*** to reference
     virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
+
+    bool isLocalNormalIntroduced() const {return LocalNormSampler;}
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
@@ -60,11 +63,14 @@ public:
     int getMaterialFrom() const {return MatFrom;}
     int getMaterialTo()   const {return MatTo;}
 
+    double LocalNormal[3];
+
 protected:
     ARandomHub & RandomHub;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 
     const ASurfaceSettings * SurfaceSettings = nullptr;
+    ALocalNormalSampler * LocalNormSampler = nullptr;
 
 };
 

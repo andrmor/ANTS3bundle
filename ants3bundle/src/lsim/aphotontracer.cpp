@@ -177,12 +177,14 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 
         //--- Check interface rule ---
         const EInterRuleResult res = tryInterfaceRule();
+        bUseLocalNormal = (res == EInterRuleResult::DelegateLocalNormal);
         switch (res)
         {
-            case EInterRuleResult::NotTriggered : bDoFresnel = true;  break;
-            case EInterRuleResult::Transmitted  : bDoFresnel = false; break;
-            case EInterRuleResult::Reflected    : continue;                  // stack cleaned inside
-            case EInterRuleResult::Absorbed     : endTracing(); return;      // stack cleaned inside
+            case EInterRuleResult::NotTriggered        : bDoFresnel = true;  break;
+            case EInterRuleResult::DelegateLocalNormal : bDoFresnel = true;  break; // same as NotTriggered, but with bUseLocalNormal on
+            case EInterRuleResult::Transmitted         : bDoFresnel = false; break;
+            case EInterRuleResult::Reflected           : continue;                  // stack cleaned inside
+            case EInterRuleResult::Absorbed            : endTracing(); return;      // stack cleaned inside
         }
 
         //--- Interface rule not set or not triggered ---
@@ -228,15 +230,16 @@ void APhotonTracer::endTracing()
 
 EInterRuleResult APhotonTracer::tryInterfaceRule()
 {
-    AInterfaceRule * rule = getInterfaceRule();
-    if (!rule) return EInterRuleResult::NotTriggered;
+    InterfaceRule = getInterfaceRule();
+    if (!InterfaceRule) return EInterRuleResult::NotTriggered;
 
     //qDebug() << "Interface rule defined! Model = "<<ov->getType();
     N = Navigator->FindNormal(false); bHaveNormal = true;
     const double * PhPos = Navigator->GetCurrentPoint();
     for (int i=0; i<3; i++) Photon.r[i] = PhPos[i];
 
-    AInterfaceRule::OpticalOverrideResultEnum result = rule->calculate(&Photon, N);
+tryAgainLabel:
+    AInterfaceRule::OpticalOverrideResultEnum result = InterfaceRule->calculate(&Photon, N);
 
     switch (result)
     {
@@ -246,17 +249,29 @@ EInterRuleResult APhotonTracer::tryInterfaceRule()
         SimStat.InterfaceRuleLoss++;
         return EInterRuleResult::Absorbed;
     case AInterfaceRule::Back:
+        if (InterfaceRule->isLocalNormalIntroduced())
+        {
+            if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0) //back only in respect ot the local normal but actually forward
+            {
+                qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+                goto tryAgainLabel;
+            }
+        }
         Navigator->PopPoint();
         Navigator->SetCurrentDirection(Photon.v);
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(PhPos, NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
         SimStat.InterfaceRuleBack++;
         return EInterRuleResult::Reflected;
     case AInterfaceRule::Forward:
+        // with local normal modified, it can happen that the photon direction 'points' towards the interface again --> this situation is handled normally
         Navigator->SetCurrentDirection(Photon.v);
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(PhPos, NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
         SimStat.InterfaceRuleForward++;
         return EInterRuleResult::Transmitted;  // stack cleaned afterwards
+    case AInterfaceRule::DelegateLocalNormal:
+        return EInterRuleResult::DelegateLocalNormal;
     case AInterfaceRule::NotTriggered:
+        // if nothing at all happened (also local normal was NOT introduced)
         return EInterRuleResult::NotTriggered; // stack cleaned afterwards
     default:
         qCritical() << "override error - doing fresnel instead!";

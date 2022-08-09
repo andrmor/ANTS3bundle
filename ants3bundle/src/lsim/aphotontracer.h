@@ -27,7 +27,7 @@ class TGeoNode;
 
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
 enum class EFresnelResult     {Reflected, Transmitted};
-enum class EInterRuleResult   {NotTriggered, Absorbed, Reflected, Transmitted};
+enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Reflected, Transmitted};
 
 class APhotonTracer
 {
@@ -63,7 +63,8 @@ private:
     int      TransitionCounter = 0; // number of photon transitions
     double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
-    double * N = nullptr;           //normal vector to the surface
+    double * N = nullptr;           //normal vector to the surface - returned by TGeo
+    double   LocalN[3];             //local normal vector to the surface - only if the interface rule defines it!
     bool     bHaveNormal = false;
     int      MatIndexFrom;          // material index of the current medium or medium before the interface
     int      MatIndexTo;            // material index of the medium after interface
@@ -83,6 +84,9 @@ private:
     double             FromGridToGlobal[3];          // add to xyz of the current point in glob coordinates of the grid element to obtain true global point coordinates
     double             FromGridElementToGridBulk[3]; // add to xyz of current point for gridnavigator to obtain normal navigator current point coordinates
     const TGeoVolume * GridVolume = nullptr;         // the grid bulk
+
+    AInterfaceRule * InterfaceRule = nullptr;
+    bool    bUseLocalNormal = false;
 
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();

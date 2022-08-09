@@ -2,6 +2,7 @@
 #include "aphotonsimhub.h"
 #include "amaterialhub.h"
 #include "arandomhub.h"
+#include "alocalnormalsampler.h"
 
 #include "abasicinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"
@@ -48,6 +49,17 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
 AInterfaceRule::AInterfaceRule(int MatFrom, int MatTo) :
     RandomHub(ARandomHub::getInstance()),
     MatFrom(MatFrom), MatTo(MatTo) {}
+
+AInterfaceRule::~AInterfaceRule()
+{
+    delete LocalNormSampler;
+}
+
+void AInterfaceRule::configureSurface(const ASurfaceSettings & surfaceSettings)
+{
+    SurfaceSettings = &surfaceSettings;
+    LocalNormSampler = new ALocalNormalSampler(*SurfaceSettings);
+}
 
 QString AInterfaceRule::getLongReportLine() const
 {

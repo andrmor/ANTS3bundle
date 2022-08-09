@@ -7,13 +7,13 @@ class ARandomHub;
 class ALocalNormalSampler
 {
 public:
-    ALocalNormalSampler(ASurfaceSettings & settings);
+    ALocalNormalSampler(const ASurfaceSettings & settings);
 
     void getLocalNormal(const double * globalNormal, const double * photonDirection, double * localNormal);
 
 protected:
-    ASurfaceSettings & Settings;
-    ARandomHub       & RandHub;
+    const ASurfaceSettings & Settings;
+    ARandomHub             & RandHub;
 };
 
 #endif // ALOCALNORMALSAMPLER_H
