@@ -187,7 +187,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
             case EInterRuleResult::Absorbed            : endTracing(); return;      // stack cleaned inside
         }
 
-        //--- Interface rule not set or not triggered ---
+        //--- Interface rule not set or not triggered (but local normal might have changed!) ---
         if (bDoFresnel)
         {
             const EFresnelResult res = tryReflection();
@@ -209,7 +209,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 
         if (bDoFresnel)
         {
-            const bool ok = performRefraction();
+            const bool ok = performRefraction(); // if local normal is defined, the photon direction can be pointing towards the interface!
             // true - successful, false - forbidden -> considered that the photon is absorbed at the surface! Should not happen
             if (!ok) qWarning()<<"Error in photon tracker: problem with transmission!";
             if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
@@ -285,8 +285,8 @@ EFresnelResult APhotonTracer::tryReflection()
     if (RandomHub.uniform() < prob)
     {
         SimStat.FresnelReflected++;
-        Navigator->PopPoint();           // restore the point before the border
-        performReflection();
+        Navigator->PopPoint();       // restore the point before the border
+        performReflection();         // in the case of modified local normal, photon can point towards the interface again!
         if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
         return EFresnelResult::Reflected;
     }
@@ -686,21 +686,23 @@ double APhotonTracer::calculateReflectionProbability()
         bHaveNormal = true;
     }
 
-    const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2]; // NK = cos of the angle of incidence = cos1
-    const double cos1 = fabs(NK);
+    double NK = 0;
+    if (bUseLocalNormal) for (int i = 0; i < 3; i++) NK += Photon.v[i] * InterfaceRule->LocalNormal[i];
+    else                 for (int i = 0; i < 3; i++) NK += Photon.v[i] * N[i];
+    const double cos1 = fabs(NK); // cos of the angle of incidence
     //qDebug() << "Cos of incidence:"<<cos1;
+    const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
+    //qDebug() << "sin1" << sin1;
 
     if (MaterialTo->Dielectric)
     {
         const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
         const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
 
-        //qDebug()<<"Normal length is:"<<sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
         //qDebug()<<"Dir vector length is:"<<sqrt(p.v[0]*p.v[0] + p.v[1]*p.v[1] + p.v[2]*p.v[2]);
         //qDebug()<<"Photon wavelength"<<p->wavelength<<"WaveIndex:"<<p->WaveIndex<<"n1 and n2 are: "<<RefrIndexFrom<<RefrIndexTo;
 
-        const double sin1 = sqrt(1.0 - NK*NK);
-        const double sin2 = RefrIndexFrom/RefrIndexTo*sin1;
+        const double sin2 = RefrIndexFrom / RefrIndexTo * sin1;
         //qDebug()<<"cos1 sin1 sin2 are:"<<cos1<<sin1<<sin2;
         if (fabs(sin2) > 1.0)
         {
@@ -724,8 +726,6 @@ double APhotonTracer::calculateReflectionProbability()
         const std::complex<double> & NTo = MaterialTo->getComplexRefractiveIndex(Photon.waveIndex);
         //qDebug() << "cosTheta:"<< cos1 << "  from:" << nFrom << "  to:" << NTo.real() << NTo.imag();
 
-        const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
-        //qDebug() << "sin1" << sin1;
         const std::complex<double> sin2 = sin1 / NTo * nFrom;
         //qDebug() << "sin2" << sin2.real() << sin2.imag();
         const std::complex<double> cos2 = sqrt( 1.0 - sin2*sin2 );
@@ -764,7 +764,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     }
 
     //since we check vs cos of _refracted_:
-    if (bDoFresnel) performRefraction(); // true - successful
+    if (bDoFresnel) performRefraction(); // true - successful  // !!!*** now can use local normal! - check
     if (!bHaveNormal) N = Navigator->FindNormal(false);
     //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
     //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);
@@ -806,15 +806,18 @@ bool APhotonTracer::performRefraction()
         const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
         const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
 
-        double nn = RefrIndexFrom / RefrIndexTo;
+        const double nn = RefrIndexFrom / RefrIndexTo;
         //qDebug()<<"refraction triggered, n1/n2 ="<<nn;
         //N - normal vector, K - origial photon direction vector
         // nn = n(in)/n(tr)
         // (NK) - scalar product
         // T = -( nn*(NK) - sqrt(1-nn*nn*[1-(NK)*(NK)]))*N + nn*K
 
-        if (!bHaveNormal) N = Navigator->FindNormal(kFALSE);
-        const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
+        if (!bHaveNormal) N = Navigator->FindNormal(false);
+        //const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
+        double NK = 0;
+        if (bUseLocalNormal) for (int i = 0; i < 3; i++) NK += Photon.v[i] * InterfaceRule->LocalNormal[i];
+        else                 for (int i = 0; i < 3; i++) NK += Photon.v[i] * N[i];
 
         const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
         if (UnderRoot < 0)
@@ -822,11 +825,11 @@ bool APhotonTracer::performRefraction()
             //        qDebug()<<"total internal detected - will assume this photon is abosrbed at the surface";
             return false;    //total internal reflection! //previous reflection test should catch this situation
         }
-        const double tmp = nn*NK - sqrt(UnderRoot);
+        const double tmp = nn * NK - sqrt(UnderRoot);
 
-        Photon.v[0] = -tmp*N[0] + nn*Photon.v[0];
-        Photon.v[1] = -tmp*N[1] + nn*Photon.v[1];
-        Photon.v[2] = -tmp*N[2] + nn*Photon.v[2];
+        //Photon.v[0] = -tmp*N[0] + nn*Photon.v[0]; Photon.v[1] = -tmp*N[1] + nn*Photon.v[1]; Photon.v[2] = -tmp*N[2] + nn*Photon.v[2];
+        if (bUseLocalNormal) for (int i = 0; i < 3; i++) Photon.v[i] = nn * Photon.v[i] - tmp * InterfaceRule->LocalNormal[i];
+        else                 for (int i = 0; i < 3; i++) Photon.v[i] = nn * Photon.v[i] - tmp * N[i];
 
         Navigator->SetCurrentDirection(Photon.v);
     }
@@ -847,10 +850,19 @@ void APhotonTracer::performReflection()
 
     //rotating the vector
     //K = K - 2*(NK)*N    where K is the photon direction vector
-    const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
-    Photon.v[0] -= 2.0 * NK * N[0];
-    Photon.v[1] -= 2.0 * NK * N[1];
-    Photon.v[2] -= 2.0 * NK * N[2];
+    if (bUseLocalNormal)
+    {
+        double NK = 0;
+        for (int i = 0; i < 3; i++) NK += InterfaceRule->LocalNormal[i] * Photon.v[i];
+        for (int i = 0; i < 3; i++) Photon.v[i] -= 2.0 * NK * InterfaceRule->LocalNormal[i];
+    }
+    else
+    {
+        const double NK = N[0]*Photon.v[0] + N[1]*Photon.v[1] + N[2]*Photon.v[2];
+        Photon.v[0] -= 2.0 * NK * N[0];
+        Photon.v[1] -= 2.0 * NK * N[1];
+        Photon.v[2] -= 2.0 * NK * N[2];
+    }
 
     //qDebug() << "Vector after:"<<p.v[0]<<p.v[1]<<p.v[2];
     //qDebug() << "Photon position:"<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
