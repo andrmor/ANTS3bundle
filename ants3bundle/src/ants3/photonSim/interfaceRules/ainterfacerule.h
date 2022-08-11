@@ -1,14 +1,14 @@
 #ifndef AINTERFACERULE_H
 #define AINTERFACERULE_H
 
+#include "asurfacesettings.h"
+
 #include <QString>
 
 class AInterfaceRule;
 class APhoton;
 class QJsonObject;
 class ARandomHub;
-class ASurfaceSettings;
-class ALocalNormalSampler;
 
 //  ----  !!!  ----
 // modify two static functions in the cpp file after adding a NEW override type!
@@ -32,12 +32,8 @@ public:
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule();
 
-    void configureSurface(const ASurfaceSettings & surfaceSettings); // !!!*** refactor
-
     // !!!*** to reference
     virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
-
-    bool isLocalNormalIntroduced() const {return LocalNormSampler;}
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
@@ -48,8 +44,8 @@ public:
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data
 
     // save/load config
-    virtual void writeToJson(QJsonObject & json) const;
-    virtual bool readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
+    bool readFromJson(const QJsonObject & json);
 
     //used by MatCollection when a material is removed
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
@@ -64,15 +60,18 @@ public:
     int getMaterialFrom() const {return MatFrom;}
     int getMaterialTo()   const {return MatTo;}
 
+    bool isNotPolishedSurface() const {return SurfaceSettings.isNotPolished();}
     double LocalNormal[3];
+    ASurfaceSettings SurfaceSettings;
 
 protected:
     ARandomHub & RandomHub;
     int MatFrom, MatTo;   // material index of material before(from) and after(to) the optical interface
 
-    const ASurfaceSettings * SurfaceSettings = nullptr;
-    ALocalNormalSampler * LocalNormSampler = nullptr;
+    virtual void doWriteToJson(QJsonObject & json) const = 0;
+    virtual bool doReadFromJson(const QJsonObject & json) = 0;
 
+    void calculateLocalNormal(const double * globalNormal, const double * photonDirection);
 };
 
 #endif // AINTERFACERULE_H

@@ -126,8 +126,8 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
         for (auto const & r : VolumeRules)
         {
             QJsonObject jj;
-            TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
-            TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
+            const TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
+            const TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
             r.second->writeToJson(jj);
             ar.append(jj);
         }

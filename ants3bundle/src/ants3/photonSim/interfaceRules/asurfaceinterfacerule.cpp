@@ -5,7 +5,6 @@
 #include "aphotonstatistics.h"
 #include "ajsontools.h"
 #include "arandomhub.h"
-#include "alocalnormalsampler.h"
 #include "asurfacesettings.h" // !!!*** tmp
 
 #include <QJsonObject>
@@ -17,16 +16,14 @@
 ASurfaceInterfaceRule::ASurfaceInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)
 {
-    // !!!*** temporary!
-    SurfaceSettings = new ASurfaceSettings();
-    LocalNormSampler = new ALocalNormalSampler(*SurfaceSettings);
+    SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; // !!!***
 }
 
 AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     qDebug() << "Surface rule triggered";
 
-    LocalNormSampler->getLocalNormal(NormalVector, Photon->v, LocalNormal);
+    calculateLocalNormal(NormalVector, Photon->v);
 
     return DelegateLocalNormal;
 }
@@ -44,14 +41,12 @@ QString ASurfaceInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void ASurfaceInterfaceRule::writeToJson(QJsonObject & json) const
+void ASurfaceInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     //json["Albedo"] = Albedo;
 }
 
-bool ASurfaceInterfaceRule::readFromJson(const QJsonObject & json)
+bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     return true; //jstools::parseJson(json, "Albedo", Albedo);
 }

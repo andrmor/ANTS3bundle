@@ -95,14 +95,12 @@ QString FsnpInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void FsnpInterfaceRule::writeToJson(QJsonObject &json) const
+void FsnpInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-  AInterfaceRule::writeToJson(json);
-
-  json["Albedo"] = Albedo;
+    json["Albedo"] = Albedo;
 }
 
-bool FsnpInterfaceRule::readFromJson(const QJsonObject &json)
+bool FsnpInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     return jstools::parseJson(json, "Albedo", Albedo);
 }

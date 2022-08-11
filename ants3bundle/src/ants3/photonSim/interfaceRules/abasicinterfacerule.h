@@ -15,15 +15,17 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject &json) const override;
-    bool readFromJson(const QJsonObject &json) override;
-
     QString checkOverrideData() override;
 
     double Abs          = 0; //probability of absorption
     double Spec         = 0; //probability of specular reflection
     double Scat         = 0; //probability of scattering
     int    ScatterModel = 1; //0 - 4Pi, 1 - 2Pi back, 2 - 2Pi forward
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+
 };
 
 #endif // ABASICINTERFACERULE_H

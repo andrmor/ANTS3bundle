@@ -156,17 +156,15 @@ QString ABasicInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void ABasicInterfaceRule::writeToJson(QJsonObject &json) const
+void ABasicInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     json["Abs"]      = Abs;
     json["Spec"]     = Spec;
     json["Scat"]     = Scat;
     json["ScatMode"] = ScatterModel;
 }
 
-bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
+bool ABasicInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "Abs",      Abs) )          return false;
     if ( !jstools::parseJson(json, "Spec",     Spec) )         return false;
@@ -177,7 +175,7 @@ bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
 
 QString ABasicInterfaceRule::checkOverrideData()
 {
-    if (ScatterModel<0 || ScatterModel>2) return "Invalid scatter model";
+    if (ScatterModel < 0 || ScatterModel > 2) return "Invalid scatter model";
 
     if (Abs  < 0 || Abs  > 1.0) return "Absorption probability should be within [0, 1.0]";
     if (Spec < 0 || Spec > 1.0) return "Reflection probability should be within [0, 1.0]";

@@ -19,8 +19,8 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
 void ASurfaceSettings::readFromJson(const QJsonObject & json)
 {
     QString str;
-    jstools::parseJson(json, "", str);
-    if (str == "Polished") Model = Polished;
+    jstools::parseJson(json, "Model", str);
+    if      (str == "Polished")        Model = Polished;
     else if (str == "GaussSimplistic") Model = GaussSimplistic;
     else
     {

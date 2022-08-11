@@ -182,9 +182,8 @@ QString AWaveshifterInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void AWaveshifterInterfaceRule::writeToJson(QJsonObject &json) const
+void AWaveshifterInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
 /*
     QJsonArray arRP;
     writeTwoQVectorsToJArray(ReemissionProbability_lambda, ReemissionProbability, arRP);
@@ -196,7 +195,7 @@ void AWaveshifterInterfaceRule::writeToJson(QJsonObject &json) const
 */
 }
 
-bool AWaveshifterInterfaceRule::readFromJson(const QJsonObject &json)
+bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "ReemissionModel", ReemissionModel) )
     {

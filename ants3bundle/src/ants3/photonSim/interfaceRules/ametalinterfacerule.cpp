@@ -28,15 +28,13 @@ QString AMetalInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void AMetalInterfaceRule::writeToJson(QJsonObject &json) const
+void AMetalInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     json["RealN"]  = RealN;
     json["ImaginaryN"]  = ImaginaryN;
 }
 
-bool AMetalInterfaceRule::readFromJson(const QJsonObject &json)
+bool AMetalInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "RealN", RealN) ) return false;
     if ( !jstools::parseJson(json, "ImaginaryN", ImaginaryN) ) return false;
@@ -48,15 +46,14 @@ QString AMetalInterfaceRule::checkOverrideData()
     return "";
 }
 
-#include "alocalnormalsampler.h"
 AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
     double cosTheta = 0;
-    if (!LocalNormSampler)
+    if (SurfaceSettings.isNotPolished())
         for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * globalNormal[i];
     else
     {
-        LocalNormSampler->getLocalNormal(globalNormal, photon->v, LocalNormal);
+        calculateLocalNormal(globalNormal, photon->v);
         for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * LocalNormal[i];
     }
     const double reflCoeff = calculateReflectivity(cosTheta, RealN, ImaginaryN, photon->waveIndex);
@@ -71,7 +68,7 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton
 
     //else specular reflection --> rotating the vector: K = K - 2*(NK)*N
     double NK = 0;
-    if (!LocalNormSampler)
+    if (SurfaceSettings.isNotPolished())
     {
         for (int i = 0; i < 3; i++) NK += photon->v[i] * globalNormal[i];
         for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * globalNormal[i];

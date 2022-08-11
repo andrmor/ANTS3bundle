@@ -249,11 +249,11 @@ tryAgainLabel:
         SimStat.InterfaceRuleLoss++;
         return EInterRuleResult::Absorbed;
     case AInterfaceRule::Back:
-        if (InterfaceRule->isLocalNormalIntroduced())
+        if (InterfaceRule->isNotPolishedSurface())
         {
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0) //back only in respect ot the local normal but actually forward
             {
-                qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+                //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
                 goto tryAgainLabel;
             }
         }

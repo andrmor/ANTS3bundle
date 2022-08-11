@@ -21,9 +21,6 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject &json) const override;
-    bool readFromJson(const QJsonObject &json) override;
-
     void initializeWaveResolved() override;
 
     QString loadData(const QString & fileName); // !!!***
@@ -39,6 +36,10 @@ public:
     QVector<double> ProbDiffBinned; //probability of scattering
     double effectiveWavelength = 500; //if waveIndex of photon is -1, index correspinding to this wavelength will be used
     double effectiveWaveIndex;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
 
 private:
     const AWaveResSettings & WaveSet;

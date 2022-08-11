@@ -16,13 +16,14 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject &json) const override;
-    bool readFromJson(const QJsonObject &json) override;
-
     QString checkOverrideData() override;
 
     double RealN      = 1.07;
     double ImaginaryN = 0.6;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
 
 private:
     double calculateReflectivity(double CosTheta, double RealN, double ImaginaryN, int waveIndex);

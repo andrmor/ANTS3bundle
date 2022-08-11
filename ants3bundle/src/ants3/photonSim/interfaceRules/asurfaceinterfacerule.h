@@ -15,10 +15,11 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject & json) const override;
-    bool readFromJson(const QJsonObject & json) override;
-
     QString checkOverrideData() override;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
 
 };
 
