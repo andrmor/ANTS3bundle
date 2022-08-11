@@ -209,7 +209,7 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Double-click a cell to edit or define a new rule</string>
+           <string>Rows are 'from', columns are 'to'. Double-click a cell to edit or define a new rule</string>
           </property>
          </widget>
         </item>
@@ -228,7 +228,7 @@
      <x>0</x>
      <y>0</y>
      <width>555</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

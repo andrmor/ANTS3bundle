@@ -26,7 +26,7 @@ AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int
         return new FsnpInterfaceRule(MatFrom, MatTo);
     if (Model == "SurfaceWLS")
         return new AWaveshifterInterfaceRule(MatFrom, MatTo);
-    if (Model == "Surface")
+    if (Model == "RoughSurface")
         return new ASurfaceInterfaceRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
@@ -41,7 +41,7 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
       << "FSNP"
       << "DielectricToMetal"
       << "SurfaceWLS"
-      << "Surface";
+      << "RoughSurface";
 
     return l;
 }
