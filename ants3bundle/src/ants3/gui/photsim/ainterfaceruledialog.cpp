@@ -89,11 +89,30 @@ void AInterfaceRuleDialog::updateGui()
         //customWidget = ovLocal->getEditWidget(this, MW->GraphWindow);
         customWidget = AInterfaceWidgetFactory::createEditWidget(LocalRule, this, nullptr); // !!!***
         l->insertWidget(customWidgetPositionInLayout, customWidget);
+
+        //surface
+        if (!LocalRule->canHaveRoughSurface()) LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
+        int iModel = 0;
+        switch (LocalRule->SurfaceSettings.Model)
+        {
+        case ASurfaceSettings::Polished        : iModel = 0; break;
+        case ASurfaceSettings::GaussSimplistic : iModel = 1; break;
+        default:
+            qWarning() << "Invalid surface model!";
+            iModel = 0;
+            break;
+        }
+        ui->cobSurfaceModel->setCurrentIndex(iModel);
+        ui->swSurfaceModel->setCurrentIndex(iModel);
+        ui->cobSurfaceModel->setEnabled(LocalRule->canHaveRoughSurface());
     }
     else
     {
         ui->frNoOverride->setVisible(true);
         ui->pbTestOverride->setVisible(false);
+        ui->cobSurfaceModel->setCurrentIndex(0);
+        ui->swSurfaceModel->setCurrentIndex(0);
+        ui->cobSurfaceModel->setEnabled(false);
     }
 }
 

@@ -6,8 +6,7 @@
 class AMetalInterfaceRule : public AInterfaceRule
 {
 public:    
-    AMetalInterfaceRule(int MatFrom, int MatTo)
-        : AInterfaceRule(MatFrom, MatTo) {}
+    AMetalInterfaceRule(int MatFrom, int MatTo);
 
     OpticalOverrideResultEnum calculate(APhoton * photon, const double * globalNormal) override;
 
@@ -15,6 +14,8 @@ public:
     QString getAbbreviation() const override {return "Met";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+
+    bool canHaveRoughSurface() const override {return true;}
 
     QString checkOverrideData() override;
 

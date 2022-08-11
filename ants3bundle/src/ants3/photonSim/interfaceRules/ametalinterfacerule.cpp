@@ -11,6 +11,12 @@
 #include "TComplex.h"
 #include "TRandom2.h"
 
+AMetalInterfaceRule::AMetalInterfaceRule(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo)
+{
+    SurfaceSettings.Model = ASurfaceSettings::Polished;
+}
+
 QString AMetalInterfaceRule::getReportLine() const
 {
     QString s;
@@ -114,4 +120,3 @@ double AMetalInterfaceRule::calculateReflectivity(double CosTheta, double RealN,
 
     return R;
 }
-

@@ -60,6 +60,7 @@ public:
     int getMaterialFrom() const {return MatFrom;}
     int getMaterialTo()   const {return MatTo;}
 
+    virtual bool canHaveRoughSurface() const {return false;}
     bool isNotPolishedSurface() const {return SurfaceSettings.isNotPolished();}
     double LocalNormal[3];
     ASurfaceSettings SurfaceSettings;

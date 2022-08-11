@@ -15,6 +15,8 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
+    bool canHaveRoughSurface() const override {return true;}
+
     QString checkOverrideData() override;
 
 protected:
