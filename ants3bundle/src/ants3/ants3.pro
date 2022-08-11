@@ -114,6 +114,7 @@ SOURCES += \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/photsim/aopticaloverridetester.cpp \
     gui/photsim/aphotsimwin.cpp \
+    gui/photsim/aroughsurfacedialog.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
@@ -309,6 +310,7 @@ HEADERS += \
     gui/particleSim/atrackdrawdialog.h \
     gui/photsim/aopticaloverridetester.h \
     gui/photsim/aphotsimwin.h \
+    gui/photsim/aroughsurfacedialog.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
@@ -495,6 +497,7 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/photsim/aopticaloverridetester.ui \
         gui/photsim/aphotsimwin.ui \
+        gui/photsim/aroughsurfacedialog.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \

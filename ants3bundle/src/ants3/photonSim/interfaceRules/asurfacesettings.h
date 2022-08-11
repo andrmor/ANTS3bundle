@@ -6,11 +6,11 @@ class QJsonObject;
 class ASurfaceSettings
 {
 public:
-    enum EModel {Model1, Model2, Model3};
+    enum EModel {Polished, GaussSimplistic};
 
     ASurfaceSettings(){}
 
-    EModel Model = Model1;
+    EModel Model = GaussSimplistic;
 
     //Model1 settings
     // ...
