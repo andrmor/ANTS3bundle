@@ -48,29 +48,20 @@ QString AMetalInterfaceRule::checkOverrideData()
     return "";
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
+#include "alocalnormalsampler.h"
+AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
-    double CosTheta = Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2];
+    double cosTheta = 0;
+    if (!LocalNormSampler)
+        for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * globalNormal[i];
+    else
+    {
+        LocalNormSampler->getLocalNormal(globalNormal, photon->v, LocalNormal);
+        for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * LocalNormal[i];
+    }
+    const double reflCoeff = calculateReflectivity(cosTheta, RealN, ImaginaryN, photon->waveIndex);
 
-    //  double Rindex1, Rindex2;
-    //  if (iWave == -1)
-    //    {
-    //      Rindex1 = (*MatCollection)[MatFrom]->n;
-    //      //Rindex2 = (*MatCollection)[MatTo]->n;
-    //      Rindex2 = RealN;
-    //    }
-    //  else
-    //    {
-    //      Rindex1 = (*MatCollection)[MatFrom]->nWaveBinned.at(iWave);
-    //      //Rindex2 = (*MatCollection)[MatTo]->nWaveBinned.at(iWave);
-    //      Rindex2 = RealN;
-    //    }
-    //  double Refl = calculateReflectivity(CosTheta, RealN/Rindex1, ImaginaryN/Rindex1);
-
-    double Refl = calculateReflectivity(CosTheta, RealN, ImaginaryN, Photon->waveIndex);
-    //qDebug() << "Dielectric-metal override: Cos theta="<<CosTheta<<" Reflectivity:"<<Refl;
-
-    if (RandomHub.uniform() > Refl)
+    if (RandomHub.uniform() > reflCoeff)
     {
         //Absorption
         //qDebug() << "Override: Loss on metal";
@@ -78,11 +69,19 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton
         return Absorbed;
     }
 
-    //else specular reflection
-    //qDebug()<<"Override: Specular reflection from metal";
-    //rotating the vector: K = K - 2*(NK)*N
-    double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
-    Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
+    //else specular reflection --> rotating the vector: K = K - 2*(NK)*N
+    double NK = 0;
+    if (!LocalNormSampler)
+    {
+        for (int i = 0; i < 3; i++) NK += photon->v[i] * globalNormal[i];
+        for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * globalNormal[i];
+    }
+    else
+    {
+        for (int i = 0; i < 3; i++) NK += photon->v[i] * LocalNormal[i];
+        for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * LocalNormal[i];
+    }
+
     Status = SpikeReflection;
     return Back;
 }

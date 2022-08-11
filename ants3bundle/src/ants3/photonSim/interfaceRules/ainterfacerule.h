@@ -11,7 +11,7 @@ class ASurfaceSettings;
 class ALocalNormalSampler;
 
 //  ----  !!!  ----
-// modify two static functions in the cpp file after adding a new override type!
+// modify two static functions in the cpp file after adding a NEW override type!
 
 class AInterfaceRule
 {
@@ -25,6 +25,7 @@ public:
         SpikeReflection, LobeReflection, LambertianReflection,
         UnclassifiedReflection,
         Transmission,
+        //DelegatedLocalNormal ? !!!***
         Empty, Fresnel, Error
     }; //detailed status for statistics only - used by override tester only
 

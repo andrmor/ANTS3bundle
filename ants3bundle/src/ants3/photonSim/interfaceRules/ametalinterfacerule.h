@@ -9,7 +9,7 @@ public:
     AMetalInterfaceRule(int MatFrom, int MatTo)
         : AInterfaceRule(MatFrom, MatTo) {}
 
-    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    OpticalOverrideResultEnum calculate(APhoton * photon, const double * globalNormal) override;
 
     QString getType() const override {return "DielectricToMetal";}
     QString getAbbreviation() const override {return "Met";}
