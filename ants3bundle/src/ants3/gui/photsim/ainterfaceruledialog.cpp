@@ -38,6 +38,8 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
         QJsonObject json; rule->writeToJson(json); LocalRule->readFromJson(json);
     }
 
+    ui->swSurfaceModel->setVisible(false);
+
     updateGui();
 
     TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
@@ -169,3 +171,10 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
     setEnabled(false);
     TesterWindow->setEnabled(true);
 }
+
+void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
+{
+    ui->swSurfaceModel->setCurrentIndex(index);
+    ui->swSurfaceModel->setVisible(index != 0);
+}
+

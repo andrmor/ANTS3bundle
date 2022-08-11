@@ -473,7 +473,8 @@ ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
     setFrameStyle(QFrame::Box);
 
     QHBoxLayout* l = new QHBoxLayout(this);
-        QLabel* lab = new QLabel("Dummy");
+        QLabel* lab = new QLabel("Using Fresnel equations and Snell's law");
+        lab->setAlignment(Qt::AlignHCenter);
     l->addWidget(lab);
     /*
         QLineEdit* le = new QLineEdit(QString::number(rule->Albedo));
