@@ -43,6 +43,7 @@ class APhotonStatistics;
 class ARandomHub;
 class QJsonObject;
 class TObject;
+class APhoton;
 
 class AOpticalOverrideTester : public QMainWindow
 {
@@ -61,13 +62,14 @@ public slots:
 
 private slots:
     void on_pbST_RvsAngle_clicked();
-    void on_pbCSMtestmany_clicked();
+    void on_pbTracePhotons_clicked();
     void on_pbST_showTracks_clicked();
     void on_pbST_uniform_clicked();
 
     void on_cbWavelength_toggled(bool checked);
     void on_ledST_wave_editingFinished();
     void on_ledAngle_editingFinished();
+
 
 protected:
     void closeEvent(QCloseEvent * e);
@@ -87,10 +89,11 @@ private:
 
     std::vector<ATmpTrackRec> Tracks;
 
-    bool testOverride();
-    int getWaveIndex();
-    const TVector3 getPhotonVector();
-    void reportStatistics(const AReportForOverride & rep, int numPhot);
+    bool     testOverride();
+    int      getWaveIndex();
+    TVector3 getPhotonVector();
+    void     reportStatistics(const AReportForOverride & rep, int numPhot);
+    double   calculateReflectionProbability(const APhoton & Photon) const;
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);

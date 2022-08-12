@@ -24,6 +24,7 @@ AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhot
     qDebug() << "Surface rule triggered";
 
     calculateLocalNormal(NormalVector, Photon->v);
+    Status = LocalNormalDelegated;
 
     return DelegateLocalNormal;
 }

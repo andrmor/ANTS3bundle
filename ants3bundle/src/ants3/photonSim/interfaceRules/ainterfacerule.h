@@ -25,7 +25,7 @@ public:
         SpikeReflection, LobeReflection, LambertianReflection,
         UnclassifiedReflection,
         Transmission,
-        //DelegatedLocalNormal ? !!!***
+        LocalNormalDelegated,
         Empty, Fresnel, Error
     }; //detailed status for statistics only - used by override tester only
 

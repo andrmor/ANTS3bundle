@@ -220,7 +220,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
     }
 }
 
-void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
+void AOpticalOverrideTester::on_pbTracePhotons_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -260,11 +260,48 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         //in case of absorption or not triggered override, do not build tracks!
         switch (result)
         {
-        case AInterfaceRule::Absorbed:     rep.abs++; continue;           // ! ->
-        case AInterfaceRule::NotTriggered: rep.notTrigger++; continue;    // ! ->
-        case AInterfaceRule::Forward:      rep.forw++; break;
-        case AInterfaceRule::Back:         rep.back++; break;
-        default:                           rep.error++; continue;         // ! ->
+        case AInterfaceRule::Absorbed            : rep.abs++; continue;           // ! ->
+        case AInterfaceRule::NotTriggered        : rep.notTrigger++; continue;    // ! ->
+        case AInterfaceRule::Forward             : rep.forw++; break;
+        case AInterfaceRule::Back                : rep.back++; break;
+        default                                  : rep.error++; continue;         // ! ->
+        case AInterfaceRule::DelegateLocalNormal :
+            {
+                const double ref = calculateReflectionProbability(ph);
+                if (RandomHub.uniform() < ref)
+                {
+                    //reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
+                    double NK = 0;
+                    for (int i = 0; i < 3; i++) NK += (*pOV)->LocalNormal[i] * ph.v[i];
+                    for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * (*pOV)->LocalNormal[i];
+                    (*pOV)->Status = AInterfaceRule::LobeReflection;
+                    rep.back++; break;
+                }
+                else
+                {
+                    //transmitted --> must be synchronized with performRefraction() method of APhotontracer class
+                    if (MatHub[MatTo]->Dielectric)
+                    {
+                        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(ph.waveIndex);
+                        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(ph.waveIndex);
+
+                        const double nn = RefrIndexFrom / RefrIndexTo;
+                        double NK = 0;
+                        for (int i = 0; i < 3; i++) NK += ph.v[i] * (*pOV)->LocalNormal[i];
+
+                        const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
+                        if (UnderRoot < 0)
+                        {
+                            //should not happen --> reflection coefficient takes it into account
+                            rep.error++; continue;                                 // ! ->
+                        }
+                        const double tmp = nn * NK - sqrt(UnderRoot);
+                        for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * (*pOV)->LocalNormal[i];
+                    }
+                    // for metals do nothing -> anyway geometric optics is not a proper model to use
+                    rep.forw++; break;
+                }
+            }
         }
 
         short col;
@@ -290,7 +327,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         else
         {
             type = 666;
-            col = kBlue; //blue for error
+            col = kBlue; //blue for transmitted or error
         }
 
         Tracks.push_back(ATmpTrackRec(type, col));
@@ -407,7 +444,7 @@ int AOpticalOverrideTester::getWaveIndex()
     else return -1;
 }
 
-const TVector3 AOpticalOverrideTester::getPhotonVector()
+TVector3 AOpticalOverrideTester::getPhotonVector()
 {
     TVector3 PhotDir(0, 0, -1.0);
     TVector3 perp(0, 1.0, 0);
@@ -541,4 +578,52 @@ void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int
     ui->pte->appendPlainText(t);
     ui->pte->moveCursor(QTextCursor::Start);
     ui->pte->ensureCursorVisible();
+}
+
+double AOpticalOverrideTester::calculateReflectionProbability(const APhoton & Photon) const
+{
+    // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
+
+    double NK = 0;
+    for (int i = 0; i < 3; i++) NK += Photon.v[i] * (*pOV)->LocalNormal[i];
+    const double cos1 = fabs(NK); // cos of the angle of incidence
+    const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
+
+    if (MatHub[MatTo]->Dielectric)
+    {
+        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
+        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(Photon.waveIndex);
+
+        const double sin2 = RefrIndexFrom / RefrIndexTo * sin1;
+        if (fabs(sin2) > 1.0)
+        {
+            // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
+            return 1.0;
+        }
+        else
+        {
+            const double cos2 = sqrt(1.0 - sin2*sin2);
+            double Rs = (RefrIndexFrom*cos1 - RefrIndexTo*cos2) / (RefrIndexFrom*cos1 + RefrIndexTo*cos2);
+            Rs *= Rs;
+            double Rp = (RefrIndexFrom*cos2 - RefrIndexTo*cos1) / (RefrIndexFrom*cos2 + RefrIndexTo*cos1);
+            Rp *= Rp;
+            return 0.5 * (Rs + Rp);
+        }
+    }
+    else
+    {
+        const double nFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
+        const std::complex<double> & NTo = MatHub[MatTo]->getComplexRefractiveIndex(Photon.waveIndex);
+
+        const std::complex<double> sin2 = sin1 / NTo * nFrom;
+        const std::complex<double> cos2 = sqrt( 1.0 - sin2*sin2 );
+
+        const std::complex<double> rs = (nFrom*cos1 -   NTo*cos2) / (nFrom*cos1 +   NTo*cos2);
+        const std::complex<double> rp = ( -NTo*cos1 + nFrom*cos2) / (  NTo*cos1 + nFrom*cos2);
+
+        const double RS = std::norm(rs);
+        const double RP = std::norm(rp);
+
+        return 0.5 * (RS + RP);
+    }
 }

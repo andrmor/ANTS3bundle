@@ -225,7 +225,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="pbCSMtestmany">
+     <widget class="QPushButton" name="pbTracePhotons">
       <property name="font">
        <font>
         <bold>true</bold>
@@ -398,12 +398,12 @@ the incoming photon direction is positive.</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
-     <y>132</y>
+     <x>385</x>
+     <y>52</y>
     </hint>
     <hint type="destinationlabel">
-     <x>369</x>
-     <y>129</y>
+     <x>445</x>
+     <y>53</y>
     </hint>
    </hints>
   </connection>
