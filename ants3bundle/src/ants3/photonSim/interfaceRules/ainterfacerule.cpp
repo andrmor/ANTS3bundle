@@ -79,6 +79,13 @@ bool AInterfaceRule::readFromJson(const QJsonObject & json)
     return doReadFromJson(json);
 }
 
+QString AInterfaceRule::checkOverrideData()
+{
+    if (isNotPolishedSurface() && !canHaveRoughSurface()) return "This interface rule type cannot have rough optical surface";
+
+    return doCheckOverrideData();
+}
+
 #include "TVector3.h"
 void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const double * photonDirection)
 {

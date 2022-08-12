@@ -51,7 +51,8 @@ bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & json)
     return true; //jstools::parseJson(json, "Albedo", Albedo);
 }
 
-QString ASurfaceInterfaceRule::checkOverrideData()
+QString ASurfaceInterfaceRule::doCheckOverrideData()
 {
+    if (!isNotPolishedSurface()) return "Polished surface cannot be used with this interface type!";
     return "";
 }

@@ -105,7 +105,7 @@ bool FsnpInterfaceRule::doReadFromJson(const QJsonObject & json)
     return jstools::parseJson(json, "Albedo", Albedo);
 }
 
-QString FsnpInterfaceRule::checkOverrideData()
+QString FsnpInterfaceRule::doCheckOverrideData()
 {
     if (Albedo < 0 || Albedo > 1.0) return "Albedo should be within [0, 1.0]";
     return "";

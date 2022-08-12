@@ -17,14 +17,14 @@ public:
 
     bool canHaveRoughSurface() const override {return true;}
 
-    QString checkOverrideData() override;
-
     double RealN      = 1.07;
     double ImaginaryN = 0.6;
 
 protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override;
+
+    QString doCheckOverrideData() override;
 
 private:
     double calculateReflectivity(double CosTheta, double RealN, double ImaginaryN, int waveIndex);

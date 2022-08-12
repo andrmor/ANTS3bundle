@@ -25,8 +25,6 @@ public:
 
     QString loadData(const QString & fileName); // !!!***
 
-    QString checkOverrideData() override;
-
     QVector<double> Wave;
     QVector<double> ProbLoss; //probability of absorption
     QVector<double> ProbLossBinned; //probability of absorption
@@ -40,6 +38,8 @@ public:
 protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override;
+
+    QString doCheckOverrideData() override;
 
 private:
     const AWaveResSettings & WaveSet;

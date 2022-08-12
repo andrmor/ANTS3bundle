@@ -17,12 +17,11 @@ public:
 
     bool canHaveRoughSurface() const override {return true;}
 
-    QString checkOverrideData() override;
-
 protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override;
 
+    QString doCheckOverrideData() override;
 };
 
 #endif // ASURFACEINTERFACERULE_H

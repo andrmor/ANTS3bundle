@@ -36,6 +36,8 @@ private slots:
 
     void on_cobSurfaceModel_currentIndexChanged(int index);
 
+    void on_cobSurfaceModel_activated(int index);
+
 protected:
     void closeEvent(QCloseEvent * e);  // !!!*** saqve/load settings!
 

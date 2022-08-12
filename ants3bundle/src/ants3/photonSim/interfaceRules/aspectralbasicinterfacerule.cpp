@@ -149,7 +149,7 @@ QString ASpectralBasicInterfaceRule::loadData(const QString &fileName)
     return "";
 }
 
-QString ASpectralBasicInterfaceRule::checkOverrideData()
+QString ASpectralBasicInterfaceRule::doCheckOverrideData()
 {
     //checking spectrum
     if (Wave.size() == 0) return "Spectral data are not defined";

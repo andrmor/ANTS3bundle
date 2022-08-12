@@ -216,9 +216,9 @@ bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
     return true;
 }
 
-QString AWaveshifterInterfaceRule::checkOverrideData()
+QString AWaveshifterInterfaceRule::doCheckOverrideData()
 {
-    if (ReemissionModel<0 || ReemissionModel>2) return "Invalid reemission model";
+    if (ReemissionModel < 0 || ReemissionModel > 2) return "Invalid reemission model";
 
     if (ReemissionProbability_lambda.isEmpty())
         return "Reemission probability not loaded";

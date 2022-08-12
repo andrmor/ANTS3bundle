@@ -23,8 +23,6 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    QString checkOverrideData() override;
-
     int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
     QVector<double> ReemissionProbability_lambda;
     QVector<double> ReemissionProbability;
@@ -37,6 +35,8 @@ public:
 protected:
     void doWriteToJson(QJsonObject & json) const override;  // !!!***
     bool doReadFromJson(const QJsonObject & json) override; // !!!***
+
+    QString doCheckOverrideData() override;
 
 private:
     const AWaveResSettings & WaveSet;

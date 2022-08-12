@@ -13,6 +13,7 @@
 #include "arandomhub.h"
 #include "astatisticshub.h"
 #include "agraphbuilder.h"
+#include "aphotonsimhub.h"
 
 #include <QDoubleValidator>
 #include <QLineEdit>
@@ -50,7 +51,7 @@ AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int ma
     updateGUI();
 }
 
-#include "aphotonsimhub.h"
+#include <complex>
 void AOpticalOverrideTester::updateGUI()
 {
     bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
@@ -62,9 +63,22 @@ void AOpticalOverrideTester::updateGUI()
     else
         ui->cbWavelength->setEnabled(true);
 
-    int waveIndex = getWaveIndex();
-    ui->ledST_Ref1->setText( QString::number( MatHub[MatFrom]->getRefractiveIndex(waveIndex) ) );
-    ui->ledST_Ref2->setText( QString::number( MatHub[MatTo]  ->getRefractiveIndex(waveIndex) ) );
+    const int waveIndex = getWaveIndex();
+    QString str1, str2;
+    if (MatHub[MatFrom]->Dielectric) str1 = QString::number( MatHub[MatFrom]->getRefractiveIndex(waveIndex) );
+    else
+    {
+        const std::complex<double> ref = MatHub[MatFrom]->getComplexRefractiveIndex(waveIndex);
+        str1 = QString("%1 %2*i").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+    }
+    if (MatHub[MatTo]->Dielectric) str2 = QString::number( MatHub[MatTo]->getRefractiveIndex(waveIndex) );
+    else
+    {
+        const std::complex<double> ref = MatHub[MatTo]->getComplexRefractiveIndex(waveIndex);
+        str2 = QString("%1 %2*i").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+    }
+    ui->ledST_Ref1->setText(str1);
+    ui->ledST_Ref2->setText(str2);
 }
 
 AOpticalOverrideTester::~AOpticalOverrideTester()

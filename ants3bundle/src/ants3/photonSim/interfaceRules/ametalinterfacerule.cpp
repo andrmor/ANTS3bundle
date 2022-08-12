@@ -47,7 +47,7 @@ bool AMetalInterfaceRule::doReadFromJson(const QJsonObject & json)
     return true;
 }
 
-QString AMetalInterfaceRule::checkOverrideData()
+QString AMetalInterfaceRule::doCheckOverrideData()
 {
     return "";
 }

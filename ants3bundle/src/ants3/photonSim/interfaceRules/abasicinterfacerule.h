@@ -15,8 +15,6 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    QString checkOverrideData() override;
-
     double Abs          = 0; //probability of absorption
     double Spec         = 0; //probability of specular reflection
     double Scat         = 0; //probability of scattering
@@ -26,6 +24,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override;
 
+    QString doCheckOverrideData() override;
 };
 
 #endif // ABASICINTERFACERULE_H

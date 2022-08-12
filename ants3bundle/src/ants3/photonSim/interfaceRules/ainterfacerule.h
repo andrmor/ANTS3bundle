@@ -51,7 +51,7 @@ public:
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
-    virtual QString checkOverrideData() = 0; //cannot be const - w.resolved needs rebin
+    QString checkOverrideData(); //cannot be const - w.resolved needs rebin
 
     // read-out variables for standalone checker only (not multithreaded)
     ScatterStatusEnum Status;               // type of interaction which happened - use in 1 thread only!
@@ -71,6 +71,8 @@ protected:
 
     virtual void doWriteToJson(QJsonObject & json) const = 0;
     virtual bool doReadFromJson(const QJsonObject & json) = 0;
+
+    virtual QString doCheckOverrideData() = 0; //cannot be const - w.resolved needs rebin
 
     void calculateLocalNormal(const double * globalNormal, const double * photonDirection);
 };

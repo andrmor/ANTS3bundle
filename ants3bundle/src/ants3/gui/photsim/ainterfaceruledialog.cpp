@@ -197,3 +197,20 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
     ui->swSurfaceModel->setVisible(index != 0);
 }
 
+
+void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
+{
+    if (LocalRule)
+    {
+        switch (index)
+        {
+        case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
+        case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; break;
+        default:
+            qWarning() << "Error in selecting surface model!";
+            LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
+            break;
+        }
+    }
+}
+

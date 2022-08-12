@@ -173,7 +173,7 @@ bool ABasicInterfaceRule::doReadFromJson(const QJsonObject & json)
     return true;
 }
 
-QString ABasicInterfaceRule::checkOverrideData()
+QString ABasicInterfaceRule::doCheckOverrideData()
 {
     if (ScatterModel < 0 || ScatterModel > 2) return "Invalid scatter model";
 
