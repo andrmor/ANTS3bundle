@@ -53,6 +53,6 @@ bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & json)
 
 QString ASurfaceInterfaceRule::doCheckOverrideData()
 {
-    if (!isNotPolishedSurface()) return "Polished surface cannot be used with this interface type!";
+    if (isPolishedSurface()) return "Polished surface cannot be used with this interface type!";
     return "";
 }

@@ -66,9 +66,7 @@ private slots:
     void on_pbST_uniform_clicked();
 
     void on_cbWavelength_toggled(bool checked);
-
     void on_ledST_wave_editingFinished();
-
     void on_ledAngle_editingFinished();
 
 protected:

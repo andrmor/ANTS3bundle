@@ -89,6 +89,7 @@ QString AInterfaceRule::checkOverrideData()
 #include "TVector3.h"
 void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const double * photonDirection)
 {
+    qDebug() << (int)SurfaceSettings.Model;
     qDebug() << "globNorm:" << globalNormal[0] << ' ' << globalNormal[1] << ' ' << globalNormal[2];
     qDebug() << "photDir:"  << photonDirection[0] << ' ' << photonDirection[1] << ' ' << photonDirection[2];
 

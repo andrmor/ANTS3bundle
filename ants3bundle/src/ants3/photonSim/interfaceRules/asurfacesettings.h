@@ -10,6 +10,7 @@ public:
 
     ASurfaceSettings(){}
 
+    bool isPolished()    const {return Model == Polished;}
     bool isNotPolished() const {return Model != Polished;}
 
     EModel Model = GaussSimplistic;

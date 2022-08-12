@@ -55,7 +55,7 @@ QString AMetalInterfaceRule::doCheckOverrideData()
 AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
     double cosTheta = 0;
-    if (SurfaceSettings.isNotPolished())
+    if (SurfaceSettings.isPolished())
         for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * globalNormal[i];
     else
     {
@@ -74,18 +74,19 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton
 
     //else specular reflection --> rotating the vector: K = K - 2*(NK)*N
     double NK = 0;
-    if (SurfaceSettings.isNotPolished())
+    if (SurfaceSettings.isPolished())
     {
         for (int i = 0; i < 3; i++) NK += photon->v[i] * globalNormal[i];
         for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * globalNormal[i];
+        Status = SpikeReflection;
     }
     else
     {
         for (int i = 0; i < 3; i++) NK += photon->v[i] * LocalNormal[i];
         for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * LocalNormal[i];
+        Status = LobeReflection;
     }
 
-    Status = SpikeReflection;
     return Back;
 }
 
