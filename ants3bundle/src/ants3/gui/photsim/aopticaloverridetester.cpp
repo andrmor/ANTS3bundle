@@ -255,6 +255,8 @@ void AOpticalOverrideTester::on_pbTracePhotons_clicked()
         ph.v[2] = PhotDir.Z();
         ph.time = 0;
         ph.waveIndex = waveIndex;
+
+tryAgainLabel:
         AInterfaceRule::OpticalOverrideResultEnum result = (*pOV)->calculate(&ph, N);
 
         //in case of absorption or not triggered override, do not build tracks!
@@ -274,6 +276,15 @@ void AOpticalOverrideTester::on_pbTracePhotons_clicked()
                     double NK = 0;
                     for (int i = 0; i < 3; i++) NK += (*pOV)->LocalNormal[i] * ph.v[i];
                     for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * (*pOV)->LocalNormal[i];
+
+                    double GNK = 0;
+                    for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
+                    if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
+                    {
+                        //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+                        goto tryAgainLabel;
+                    }
+
                     (*pOV)->Status = AInterfaceRule::LobeReflection;
                     rep.back++; break;
                 }

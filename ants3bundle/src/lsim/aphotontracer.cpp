@@ -251,7 +251,7 @@ tryAgainLabel:
     case AInterfaceRule::Back:
         if (InterfaceRule->isNotPolishedSurface())
         {
-            if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0) //back only in respect ot the local normal but actually forward
+            if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0) //back only in respect to the local normal but actually forward considering global one
             {
                 //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
                 goto tryAgainLabel;

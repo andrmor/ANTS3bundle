@@ -105,7 +105,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
             TVector3 ort = gn.Orthogonal();
 
             double scal = 0;
-            do
+            //do
             {
                 TVector3 vec(gn);
 
@@ -121,7 +121,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
                 }
                 qDebug() << "nk" << scal;
             }
-            while (scal < 0);
+            //while (scal < 0);
 
             break;
         }

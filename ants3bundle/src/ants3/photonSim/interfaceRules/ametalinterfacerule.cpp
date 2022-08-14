@@ -54,6 +54,7 @@ QString AMetalInterfaceRule::doCheckOverrideData()
 
 AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
+tryAgainLabel:
     double cosTheta = 0;
     if (SurfaceSettings.isPolished())
         for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * globalNormal[i];
@@ -84,6 +85,15 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton
     {
         for (int i = 0; i < 3; i++) NK += photon->v[i] * LocalNormal[i];
         for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * LocalNormal[i];
+
+        double GNK = 0;
+        for (int i = 0; i < 3; i++) GNK += photon->v[i] * globalNormal[i];
+        if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
+        {
+            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+            goto tryAgainLabel;
+        }
+
         Status = LobeReflection;
     }
 
