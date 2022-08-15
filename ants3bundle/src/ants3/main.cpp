@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
 
     qRegisterMetaType<AScriptInterface*>();
+    qRegisterMetaType<TObject*>();
 
     std::unique_ptr<QCoreApplication> app;
 #ifdef GUI
