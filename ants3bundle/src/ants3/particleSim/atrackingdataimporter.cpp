@@ -28,6 +28,7 @@ ATrackingDataImporter::~ATrackingDataImporter()
 
 bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * EventRecord)
 {
+    ErrorString.clear();
     CurrentEventRecord = EventRecord;
 
     if (iEvent == CurrentEvent) return readCurrentEvent();

@@ -12,6 +12,7 @@
 class AEventTrackingRecord;
 class AParticleTrackingRecord;
 class ATrackingHistoryCrawler;
+class ATrackingDataImporter;
 
 class ATrackRec_SI : public AScriptInterface
 {
@@ -28,6 +29,7 @@ public slots:
 
     int  countEvents();
     void setEvent(int iEvent);
+    bool nextEvent();
 
     int  countPrimaries();
     void setPrimary(int iPrimary);
@@ -39,10 +41,9 @@ public slots:
     int  countSteps();
     int  countSecondaries();
 
-    void firstStep();
-    void lastStep();
-
     bool makeStep();
+    void gotoFirstStep();
+    void gotoLastStep();
     void gotoStep(int iStep);
     bool gotoNextProcessStep(QString processName);
     bool gotoNextNonTransportationStep();
@@ -59,6 +60,10 @@ private:
     QString FileName;
     bool    bBinaryFile;
 
+    ATrackingDataImporter * Importer = nullptr;
+
+    int NumEvents = -1;
+
     AEventTrackingRecord          * EventRecord = nullptr;
     const AParticleTrackingRecord * ParticleRecord = nullptr;
 
@@ -68,7 +73,10 @@ private:
     std::vector<int> ReturnStepIndex;
 
     static constexpr auto RecordNotSet = "'tracks' unit not configured: select file, event and (optionally, if !=0) primary";
+    static constexpr auto NoPrimaries = "This event does not have recorded primaries";
 
+    bool checkImporter();
+    bool checkImporterAndPrimary();
 };
 
 #endif // APTHISTORY_SI_H

@@ -15,47 +15,68 @@ ATrackRec_SI::ATrackRec_SI() :
 ATrackRec_SI::~ATrackRec_SI()
 {
     delete EventRecord; EventRecord = nullptr;
+    delete Importer; Importer = nullptr;
 }
 
 void ATrackRec_SI::configure(QString fileName, bool binary)
 {
     FileName = fileName;
     bBinaryFile = binary;
+
+    delete Importer; Importer = new ATrackingDataImporter(FileName, bBinaryFile);
+    if (!Importer->ErrorString.isEmpty())
+    {
+        abort("Error accessing the tracking history file:\n" + Importer->ErrorString);
+        return;
+    }
+
+    NumEvents = -1;
+}
+
+bool ATrackRec_SI::checkImporter()
+{
+    if (!Importer)
+    {
+        abort("Use configure() method to setup the file reader");
+        return false;
+    }
+    return true;
 }
 
 int ATrackRec_SI::countEvents()
 {
-    if (FileName.isEmpty())
-    {
-        abort(RecordNotSet);
-        return 0;
-    }
-    ATrackingDataImporter TDI(FileName, bBinaryFile);
-    if (!TDI.ErrorString.isEmpty())
-    {
-        abort("Error accessing the tracking history file:\n" + TDI.ErrorString);
-        return 0;
-    }
-    return TDI.countEvents();
+    if (!checkImporter()) return 0;
+
+    if (NumEvents != -1) return NumEvents;
+    NumEvents = Importer->countEvents();
+    return NumEvents;
 }
 
 void ATrackRec_SI::setEvent(int iEvent)
 {
-    if (FileName.isEmpty())
-    {
-        abort(RecordNotSet);
-        return;
-    }
+    if (!checkImporter()) return;
 
-    ATrackingDataImporter TDI(FileName, bBinaryFile);
-    bool ok = TDI.extractEvent(iEvent, EventRecord);
-    if (!ok) abort(TDI.ErrorString);
+    bool ok = Importer->extractEvent(iEvent, EventRecord);
+    if (!ok) abort(Importer->ErrorString);
 
     CurrentEvent = iEvent;
 
-    if (countPrimaries() > 0)
-        setPrimary(0);
+    if (countPrimaries() > 0) setPrimary(0);
     else ParticleRecord = nullptr;
+}
+
+bool ATrackRec_SI::nextEvent()
+{
+    if (!checkImporter()) return false;
+
+    bool ok = Importer->extractEvent(CurrentEvent+1, EventRecord);
+    if (!ok) return false;
+
+    CurrentEvent++;
+
+    if (countPrimaries() > 0) setPrimary(0);
+    else ParticleRecord = nullptr;
+    return true;
 }
 
 int ATrackRec_SI::countPrimaries()
@@ -71,14 +92,13 @@ void ATrackRec_SI::setPrimary(int iPrimary)
         return;
     }
     ParticleRecord = EventRecord->getPrimaryParticleRecords().at(iPrimary);
-    firstStep();
+    gotoFirstStep();
 }
 
 QString ATrackRec_SI::recordToString(bool includeSecondaries)
 {
     QString s;
-    if (ParticleRecord)
-        ParticleRecord->logToString(s, 0, includeSecondaries);
+    if (ParticleRecord) ParticleRecord->logToString(s, 0, includeSecondaries);
     else abort(RecordNotSet);
     return s;
 }
@@ -148,7 +168,7 @@ int ATrackRec_SI::countSecondaries()
     return 0;
 }
 
-void ATrackRec_SI::firstStep()
+void ATrackRec_SI::gotoFirstStep()
 {
     if (ParticleRecord)
     {
@@ -162,7 +182,7 @@ void ATrackRec_SI::firstStep()
     else abort(RecordNotSet);
 }
 
-void ATrackRec_SI::lastStep()
+void ATrackRec_SI::gotoLastStep()
 {
     if (ParticleRecord)
     {
