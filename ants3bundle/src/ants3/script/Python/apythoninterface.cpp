@@ -27,7 +27,6 @@ static PyObject * initModule() // requires strName to be filled with the pointer
     return PyModule_Create(md);
 }
 
-
 APythonInterface::APythonInterface()
 {
     const wchar_t * program = Py_DecodeLocale(QString("Ants3Python").toLatin1().data(), NULL);
@@ -359,14 +358,54 @@ QVariantMap  retMap;
 static PyObject* baseFunction(PyObject *caller, PyObject *args)
 {
     //qDebug() << "Base function called!";
-    //qDebug() << "caller-->" << caller->ob_type->tp_name;
-    int iModule;
-    int iMethod;
-    PyArg_ParseTuple(caller, "ii", &iModule, &iMethod);
-    //qDebug() << iModule << iMethod;
-
+    //qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
+         //int iModule, iMethod; PyArg_ParseTuple(caller, "ii", &iModule, &iMethod); qDebug() << iModule << iMethod;
+    const int iModule = PyLong_AsLong(PyTuple_GetItem(caller, 0));
     QObject * obj = ModData[iModule]->Object;
+
+    // optimized for non-overloaded methods
+    int iMethod = PyLong_AsLong(PyTuple_GetItem(caller, 1));
     QMetaMethod met = obj->metaObject()->method(iMethod);
+    int numArgs = met.parameterCount();
+    if (PyTuple_Size(args) != numArgs)
+    {
+        const int numMethods = PyTuple_Size(caller) - 1;
+        //qDebug() << "There are" << numMethods << "method versions";
+        if (numMethods == 1)
+        {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires %2 argument(s)").arg(met.name().data()).arg(numArgs)).toLatin1().data());
+#else
+            PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires %2 argument(s)").arg(met.name()).arg(numArgs)).toLatin1().data());
+#endif
+            return nullptr;
+        }
+        else
+        {
+            //check overloaded
+            bool bFound = false;
+            for (int methodIndex = 1; methodIndex < numMethods; methodIndex++)
+            {
+                iMethod = PyLong_AsLong(PyTuple_GetItem(caller, 1 + methodIndex)); // 1 is for the iModule!
+                met = obj->metaObject()->method(iMethod);
+                numArgs = met.parameterCount();
+                if (PyTuple_Size(args) == numArgs)
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            if (!bFound)
+            {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                PyErr_SetString(PyExc_TypeError, (QString("Non of the overloaded versions of method '%1' takes %2 argument(s)").arg(met.name().data()).arg(PyTuple_Size(args))).toLatin1().data());
+#else
+                PyErr_SetString(PyExc_TypeError, (QString("Non of the overloaded versions of method '%1' takes %2 argument(s)").arg(met.name()).arg(PyTuple_Size(args))).toLatin1().data());
+#endif
+                return nullptr;
+            }
+        }
+    }
 
     const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
     //qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
@@ -385,17 +424,6 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
         PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name().data()).arg(QMetaType(mtype).name().data())).toLatin1().data());
 #else
         PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met.name()).arg(QMetaType(mtype).name())).toLatin1().data());
-#endif
-        return nullptr;
-    }
-
-    const int numArgs = met.parameterCount();
-    if (PyTuple_Size(args) < numArgs)
-    {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires at least %2 argument(s)").arg(met.name().data()).arg(numArgs)).toLatin1().data());
-#else
-        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires at least %2 argument(s)").arg(met.name()).arg(numArgs)).toLatin1().data());
 #endif
         return nullptr;
     }
@@ -432,6 +460,7 @@ static PyMethodDef baseMethodDef = {"dummy",
                                     METH_VARARGS,
                                     "Base method for interfacing QObjects"};
 
+/*
 void APythonInterface::initialize()
 {
     Py_Initialize();
@@ -457,7 +486,7 @@ void APythonInterface::initialize()
                 if (meta.name() == "deleteLater") continue;
                 //qDebug() << "  ->" << meta.name() << " with meta index:" << iMet;
 
-                PyObject* caller = PyTuple_Pack(2, PyLong_FromSize_t(iUnit), PyLong_FromLong(iMet));
+                PyObject * caller = PyTuple_Pack(2, PyLong_FromSize_t(iUnit), PyLong_FromLong(iMet));
                 PyObject * pyFunc = PyCFunction_New(&baseMethodDef, caller);
                 if (pyFunc == NULL) qDebug() << "PyCFunction is null!";
                 int res = PyModule_AddObject(module, meta.name(), pyFunc);
@@ -470,6 +499,83 @@ void APythonInterface::initialize()
     evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
 
     //qDebug() << "initialized finished\n";
+}
+*/
+
+void APythonInterface::initialize()
+{
+    Py_Initialize();
+
+    PyObject * mainModule = PyImport_GetModuleDict();
+
+    for (size_t iUnit = 0; iUnit < ModData.size(); iUnit++)
+    {
+        strName = &ModData[iUnit]->StrName;
+        //qDebug() << "-->" << QString(strName->data());
+        evalScript( QString("import %1").arg(strName->data()) );
+
+        PyObject * module = PyDict_GetItemString(mainModule, strName->data());
+
+        const int numMethods = ModData[iUnit]->Object->metaObject()->methodCount();
+        //qDebug() << "  num meta methods" << numMethods;
+        QSet<int> AlreadyProcessedMethods;
+        for (int iMet = 0; iMet < numMethods; iMet++)
+        {
+            if (AlreadyProcessedMethods.contains(iMet))
+            {
+                //qDebug() << "Already processed!";
+                continue;
+            }
+            QMetaMethod meta = ModData[iUnit]->Object->metaObject()->method(iMet);
+            if ((meta.methodType() == QMetaMethod::Slot) && meta.access() == QMetaMethod::Public)
+            {
+                if (meta.name() == "deleteLater") continue;
+                //qDebug() << "  ->" << meta.name() << " with meta index:" << iMet;
+
+                std::vector<int> sameNameMethods;
+                collectOverloaded(iUnit, iMet, sameNameMethods);
+                PyObject * caller;
+                if (sameNameMethods.empty())
+                {
+                    caller = PyTuple_Pack(2, PyLong_FromSize_t(iUnit), PyLong_FromLong(iMet));
+                }
+                else
+                {
+                    caller = PyTuple_New(2 + sameNameMethods.size());
+                    PyTuple_SetItem(caller, 0, PyLong_FromSize_t(iUnit));
+                    PyTuple_SetItem(caller, 1, PyLong_FromLong(iMet));
+                    for (size_t index = 0; index < sameNameMethods.size(); index++)
+                    {
+                        const int iOtherMethod = sameNameMethods[index];
+                        PyTuple_SetItem(caller, 2 + index, PyLong_FromLong(iOtherMethod));
+                        AlreadyProcessedMethods << iOtherMethod;
+                    }
+                    //qDebug() << PyTuple_Size(caller);
+                }
+                PyObject * pyFunc = PyCFunction_New(&baseMethodDef, caller);
+                if (pyFunc == NULL) qDebug() << "PyCFunction is null!";
+                int res = PyModule_AddObject(module, meta.name(), pyFunc);
+                if (res < 0) qDebug() << "Failed to create object for method" << meta.name();
+            }
+        }
+    }
+
+    evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
+}
+
+void APythonInterface::collectOverloaded(int Unit, int Method, std::vector<int> & SameNameMethods)
+{
+    const int numMethods = ModData[Unit]->Object->metaObject()->methodCount();
+    const QByteArray Name = ModData[Unit]->Object->metaObject()->method(Method).name();
+    for (int iMet = Method + 1; iMet < numMethods; iMet++)
+    {
+        QMetaMethod meta = ModData[Unit]->Object->metaObject()->method(iMet);
+        if (meta.methodType() == QMetaMethod::Slot && meta.access() == QMetaMethod::Public)
+        {
+            if (Name != meta.name()) continue;
+            SameNameMethods.push_back(iMet);
+        }
+    }
 }
 
 bool APythonInterface::evalScript(const QString & script)

@@ -27,6 +27,9 @@ public slots:
 
     QVariant test(QVariant in);
 
+    int fun(int i);
+    int fun(int i, int j);
+
     // Output
     void    clearOutput();
     void    print(QVariant message);

@@ -89,6 +89,18 @@ QVariant ACore_SI::test(QVariant in)
     return in;
 }
 
+int ACore_SI::fun(int i)
+{
+    qDebug() << "Single arg!";
+    return i;
+}
+
+int ACore_SI::fun(int i, int j)
+{
+    qDebug() << "Two args!";
+    return i + j;
+}
+
 #include <QElapsedTimer>
 void ACore_SI::sleep(int ms)
 {
