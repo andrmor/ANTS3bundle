@@ -4,7 +4,6 @@
 #include "graphwindowclass.h"
 #include "ui_graphwindowclass.h"
 #include "rasterwindowgraphclass.h"
-//#include "windownavigatorclass.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "shapeablerectitem.h"
@@ -19,6 +18,10 @@
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
+#include "ajscriptmanager.h"
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 
 #include <QtGui>
 #include <QFileDialog>
@@ -114,7 +117,10 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &GraphWindowClass::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &GraphWindowClass::BasketReorderRequested);
 
-    connectScriptUnitDrawRequests();
+    connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
+#ifdef ANTS3_PYTHON
+    connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
+#endif
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -178,18 +184,15 @@ GraphWindowClass::~GraphWindowClass()
     delete Basket; Basket = nullptr;
 }
 
-#include "ascripthub.h"
-#include "ajscriptmanager.h"
 #include "agraph_si.h"
 #include "ahist_si.h"
 #include "atree_si.h"
-void GraphWindowClass::connectScriptUnitDrawRequests()
+void GraphWindowClass::connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces)
 {
     const AGraph_SI * graphInter = nullptr;
     const AHist_SI  * histInter  = nullptr;
     const ATree_SI  * treeInter  = nullptr;
 
-    const std::vector<AScriptInterface *> interfaces = AScriptHub::getInstance().getJScriptManager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
     {
         if (!graphInter)
