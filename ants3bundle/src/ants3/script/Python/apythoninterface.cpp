@@ -256,6 +256,13 @@ static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgum
             arg = Q_ARG(double, h.Double);
             return true;
         }
+        res = PyLong_Check(po);
+        if (res)
+        {
+            h.Double = PyLong_AsLong(po);
+            arg = Q_ARG(double, h.Double);
+            return true;
+        }
     }
     else if (asType == QMetaType::QString) // else if (asType == QMetaType(QMetaType::QString))
     {
