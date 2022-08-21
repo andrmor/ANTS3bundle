@@ -200,7 +200,8 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
                        "return" << "try" << "while" <<
                        "Data" << "Float" << "Int" << "Numeric" << "Oxphys" <<
                        "array" << "close" << "float" << "int" << "input" <<
-                       "open" << "range" << "type" << "write" << "zeros";  // removed "print"!
+                       "open" << "range" << "type" << "write" << "zeros" <<
+                       "print";
 
     for (const QString &pattern : keywordPatterns)
     {
