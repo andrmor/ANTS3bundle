@@ -36,12 +36,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["abort"] = "Abort script execution and show text (1st argument) in the output";
 
     Help["clearOutput"] = "Clear the output text";
-    if (Lang == EScriptLanguage::JavaScript)
-        Help["print"] = "Appen up to 10 arguments to the output";
-    else
-        Help["print"] = "Appen up to 10 arguments to the output. It is possible to use python's 'print' method directly";
-
-    Help["printHtml"] = "Append the provided string to outpur assuming it has HTML format";
+    Help["print"] = "Append up to 10 arguments to the output";
+    Help["printHtml"] = "Append the provided string to the output assuming HTML format";
 
     Help["getTimeMark"] = "Return the number of milliseconds since 1970-01-01T00:00:00 Universal Coordinated Time";
 
