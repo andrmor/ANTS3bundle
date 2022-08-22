@@ -657,13 +657,13 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
     QStringList functions = getListOfMethods(io, module, true);
     if (ui->aAlphabeticOrder->isChecked()) functions.sort();
 
-    QTreeWidgetItem *objItem = new QTreeWidgetItem(trwHelp);
+    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
     objItem->setText(0, module);
     QFont f = objItem->font(0);
     f.setBold(true);
     objItem->setFont(0, f);
     objItem->setToolTip(0, io->Description);
-    for (int i=0; i<functions.size(); i++)
+    for (int i = 0; i < functions.size(); i++)
     {
         QStringList sl = functions.at(i).split("_:_");
         QString Fshort = sl.first();
