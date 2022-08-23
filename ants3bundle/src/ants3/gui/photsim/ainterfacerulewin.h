@@ -46,7 +46,7 @@ private:
     void configureInterfaceDialog();
 
 private slots:
-    void onMatCellDoubleClicked(); // !!!*** to show() to make it non-blocking
+    void onMatCellDoubleClicked();
     void onVolCellDoubleClicked();
     void onVolCellChanged();
     void OnRuleDialogAccepted_Mat();
@@ -55,7 +55,7 @@ private slots:
     void on_pbAddNewVolumeRule_clicked();
 
 signals:
-    // retranslated from aopticaloverridetester
+    // retranslated from AInterfaceRuleTester
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!

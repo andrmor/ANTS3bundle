@@ -47,14 +47,11 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     connect(TesterWindow, &AInterfaceRuleTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
     connect(TesterWindow, &AInterfaceRuleTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
     connect(TesterWindow, &AInterfaceRuleTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
-
-//    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
 }
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
 {
     qDebug() << "Destr for AInterfaceRuleDialog";
-    //TesterWindow is saved and deleted on CloseEvent
     delete ui;
     clearTmpRules();
     delete LocalRule;
@@ -155,7 +152,6 @@ void AInterfaceRuleDialog::on_pbCancel_clicked()
 
 void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 {
-//    TesterWindow->writeToJson(MW->OvTesterSettings);  !!!***
     TesterWindow->hide();
     delete TesterWindow; TesterWindow = nullptr;
 

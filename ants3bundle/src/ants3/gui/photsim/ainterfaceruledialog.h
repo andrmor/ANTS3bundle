@@ -39,16 +39,15 @@ private slots:
     void on_cobSurfaceModel_activated(int index);
 
 protected:
-    void closeEvent(QCloseEvent * e);  // !!!*** save/load settings!
+    void closeEvent(QCloseEvent * e);
 
 private:
     AMaterialHub      & MatHub;
     AInterfaceRuleHub & RuleHub;
 
-
     Ui::AInterfaceRuleDialog * ui           = nullptr;
     AInterfaceRule           * LocalRule    = nullptr;
-    AInterfaceRuleTester   * TesterWindow = nullptr;
+    AInterfaceRuleTester     * TesterWindow = nullptr;
 
     int customWidgetPositionInLayout = 5;
     QWidget * customWidget = nullptr;
