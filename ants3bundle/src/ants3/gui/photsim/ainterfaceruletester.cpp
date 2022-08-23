@@ -1,5 +1,5 @@
 #include "ainterfaceruletester.h"
-#include "ui_aopticaloverridetester.h"
+#include "ui_ainterfaceruletester.h"
 #include "mainwindow.h"
 #include "guitools.h"
 #include "amaterialhub.h"
@@ -14,14 +14,13 @@
 #include "astatisticshub.h"
 #include "agraphbuilder.h"
 #include "aphotonsimhub.h"
+#include "ageometryhub.h"
 
 #include <QDoubleValidator>
 #include <QLineEdit>
-#include <QSpinBox>
 #include <QDebug>
 
 #include "TVector3.h"
-#include "TRandom2.h"
 #include "TGraph.h"
 #include "TLegend.h"
 #include "TMath.h"
@@ -34,10 +33,11 @@
 AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
+    GeoHub(AGeometryHub::getInstance()),
     RandomHub(ARandomHub::getInstance()),
     Stats(AStatisticsHub::getInstance().SimStat),
     pOV(ovLocal), MatFrom(matFrom), MatTo(matTo),
-    ui(new Ui::AOpticalOverrideTester)
+    ui(new Ui::AInterfaceRuleTester)
 {
     ui->setupUi(this);
     setWindowTitle("Override tester");
@@ -361,7 +361,7 @@ tryAgainLabel:
 
 void AInterfaceRuleTester::showGeometry()
 {
-    gGeoManager->ClearTracks();
+    GeoHub.GeoManager->ClearTracks();
     emit requestClearGeometryViewer();
 
     double d = 0.5;
@@ -369,8 +369,8 @@ void AInterfaceRuleTester::showGeometry()
 
     //surface normal
     TVector3 SurfNorm(0, 0, -1.0);
-    int track_index = gGeoManager->AddTrack(1,22);
-    TVirtualGeoTrack* track = gGeoManager->GetTrack(track_index);
+    int track_index = GeoHub.GeoManager->AddTrack(1,22);
+    TVirtualGeoTrack* track = GeoHub.GeoManager->GetTrack(track_index);
     track->AddPoint(d, d, d, 0);
     track->AddPoint(d + SurfNorm.X(), d + SurfNorm.Y(), d + SurfNorm.Z(), 0);
     track->SetLineWidth(3);
@@ -378,8 +378,8 @@ void AInterfaceRuleTester::showGeometry()
     track->SetLineColor(1);
 
     //surface
-    track_index = gGeoManager->AddTrack(1, 22);
-    track = gGeoManager->GetTrack(track_index);
+    track_index = GeoHub.GeoManager->AddTrack(1, 22);
+    track = GeoHub.GeoManager->GetTrack(track_index);
     TVector3 perp = SurfNorm.Orthogonal();
     perp.Rotate(0.25 * TMath::Pi(), SurfNorm);
     for (int i=0; i<5; i++)
@@ -391,8 +391,8 @@ void AInterfaceRuleTester::showGeometry()
     track->SetLineColor(1);
 
     //intitial photon track
-    track_index = gGeoManager->AddTrack(1, 10);
-    track = gGeoManager->GetTrack(track_index);
+    track_index = GeoHub.GeoManager->AddTrack(1, 10);
+    track = GeoHub.GeoManager->GetTrack(track_index);
     track->AddPoint(d, d, d, 0);
 
     TVector3 PhotDir = getPhotonVector();
@@ -412,18 +412,18 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
     if (selector == 3) return; //do not show any tracks
 
     int numTracks = 0;
-    for(int i = 1; i < Tracks.size() && numTracks < maxNumTracks; i++)
+    for(size_t iTrack = 1; iTrack < Tracks.size() && numTracks < maxNumTracks; iTrack++)
     {
-        const ATmpTrackRec & th = Tracks[i];
+        const ATmpTrackRec & th = Tracks[iTrack];
         //filter
         if (selector > -1)  //-1 - show all
             if (selector != th.Type) continue;
 
-        int track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+        int track_index = GeoHub.GeoManager->AddTrack(1,22);
+        TVirtualGeoTrack * track = GeoHub.GeoManager->GetTrack(track_index);
         track->SetLineColor(th.Color);
         track->SetLineWidth(1);
-        for (int iNode=0; iNode < th.Nodes.size(); iNode++)
+        for (size_t iNode=0; iNode < th.Nodes.size(); iNode++)
             track->AddPoint(th.Nodes[iNode][0], th.Nodes[iNode][1], th.Nodes[iNode][2], 0);
     }
 

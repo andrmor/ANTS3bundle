@@ -9,7 +9,7 @@
 #include "TVector3.h"
 
 namespace Ui {
-class AOpticalOverrideTester;
+class AInterfaceRuleTester;
 }
 
 struct ATmpTrackRec
@@ -39,6 +39,7 @@ struct AReportForOverride
 
 class AInterfaceRule;
 class AMaterialHub;
+class AGeometryHub;
 class APhotonStatistics;
 class ARandomHub;
 class QJsonObject;
@@ -70,12 +71,12 @@ private slots:
     void on_ledST_wave_editingFinished();
     void on_ledAngle_editingFinished();
 
-
 protected:
     void closeEvent(QCloseEvent * e);
 
 private:
     AMaterialHub const & MatHub;
+    AGeometryHub       & GeoHub;
     ARandomHub         & RandomHub;
     APhotonStatistics  & Stats;
 
@@ -83,7 +84,7 @@ private:
     int MatFrom;
     int MatTo;
 
-    Ui::AOpticalOverrideTester * ui = nullptr;
+    Ui::AInterfaceRuleTester * ui = nullptr;
 
     const int maxNumTracks = 1000;
 

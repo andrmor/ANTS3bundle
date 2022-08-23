@@ -39,7 +39,7 @@ private slots:
     void on_cobSurfaceModel_activated(int index);
 
 protected:
-    void closeEvent(QCloseEvent * e);  // !!!*** saqve/load settings!
+    void closeEvent(QCloseEvent * e);  // !!!*** save/load settings!
 
 private:
     AMaterialHub      & MatHub;
@@ -64,7 +64,7 @@ signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
-    void requestShowTracks(); // also focuses the geo view window
+    void requestShowTracks();
     void closed(bool);
 
 };
