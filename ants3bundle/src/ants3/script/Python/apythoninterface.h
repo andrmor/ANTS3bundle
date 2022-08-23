@@ -4,6 +4,8 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"  // must be first include!
 
+#include <vector>
+
 #include <QVariant>
 
 class  QObject;
@@ -43,6 +45,8 @@ public:
     PyObject* MinimizationFunctor = nullptr;
     //----
 
+private:
+    void collectOverloaded(int Unit, int Method, std::vector<int> & SameNameMethods);
 };
 
 #endif // APYTHONINTERFACE_H

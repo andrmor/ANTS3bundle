@@ -29,6 +29,7 @@ class ABasketListWidget;
 class TLegend;
 class TGaxis;
 class AMultiGraphDesigner;
+class AScriptInterface;
 
 namespace Ui {
 class GraphWindowClass;
@@ -292,7 +293,7 @@ private:
     void fixGraphFrame();
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
-    void connectScriptUnitDrawRequests();
+    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
 };
 
 #endif // GRAPHWINDOWCLASS_H

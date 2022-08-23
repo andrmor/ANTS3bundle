@@ -657,25 +657,36 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
     QStringList functions = getListOfMethods(io, module, true);
     if (ui->aAlphabeticOrder->isChecked()) functions.sort();
 
-    QTreeWidgetItem *objItem = new QTreeWidgetItem(trwHelp);
+    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
     objItem->setText(0, module);
     QFont f = objItem->font(0);
     f.setBold(true);
     objItem->setFont(0, f);
     objItem->setToolTip(0, io->Description);
-    for (int i=0; i<functions.size(); i++)
+    bool bAlreadyAdded = false; // TMP!!!
+    for (int i = 0; i < functions.size(); i++)
     {
         QStringList sl = functions.at(i).split("_:_");
         QString Fshort = sl.first();
         QString Flong  = sl.last();
         functionList << Flong;
 
+        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
+        methodName.remove(0, module.length() + 1); //remove module name and '.'
+
+        // TMP!!! !!!***
+        if (methodName == "print")
+        {
+            if (bAlreadyAdded) continue;
+            Fshort = "core.print( m1, ... )";
+            Flong  = "void core.print( QVariant m1, ... )";
+            bAlreadyAdded = true;
+        }
+
         QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
-        QString methodName = Fshort.remove(QRegularExpression("\\((.*)\\)"));
-        methodName.remove(0, module.length()+1); //remove module name and '.'
         const QString & str = io->getMethodHelp(methodName);
         fItem->setToolTip(0, str);
     }

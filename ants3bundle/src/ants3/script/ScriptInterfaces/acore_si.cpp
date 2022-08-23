@@ -36,8 +36,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["abort"] = "Abort script execution and show text (1st argument) in the output";
 
     Help["clearOutput"] = "Clear the output text";
-    Help["print"] = "Appen the 1st argument to the output";
-    Help["printHtml"] = "Append the 1st argument, assuming it has HTML format, in the output";
+    Help["print"] = "Append up to 10 arguments to the output";
+    Help["printHtml"] = "Append the provided string to the output assuming HTML format";
 
     Help["getTimeMark"] = "Return the number of milliseconds since 1970-01-01T00:00:00 Universal Coordinated Time";
 
@@ -72,7 +72,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
 ACore_SI::ACore_SI(const ACore_SI &other) :
     AScriptInterface(other)
 {
-    ScriptManager = 0; //to be set after copy!!!
+    ScriptManager = 0; //to be set after copy
 }
 */
 
@@ -87,6 +87,20 @@ QVariant ACore_SI::test(QVariant in)
 {
     qDebug() << in;
     return in;
+}
+
+/*
+int ACore_SI::fun(int i)
+{
+    qDebug() << "Single arg!";
+    return i;
+}
+*/
+
+int ACore_SI::fun(int i, int j, int k)
+{
+    qDebug() << "Three args!";
+    return i + j + k;
 }
 
 #include <QElapsedTimer>
@@ -124,8 +138,7 @@ void ACore_SI::print(QVariant message)
     AScriptHub::getInstance().outputText(s, Lang);
 }
 
-/*
-void ACore_SI::mprint(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6, QVariant m7, QVariant m8, QVariant m9, QVariant m10)
+void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6, QVariant m7, QVariant m8, QVariant m9, QVariant m10)
 {
     QString s;
     AVirtualScriptManager::addQVariantToString(m1,  s, Lang); s += " ";
@@ -140,13 +153,13 @@ void ACore_SI::mprint(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVaria
     AVirtualScriptManager::addQVariantToString(m10, s, Lang);
     AScriptHub::getInstance().outputText(s, Lang);
 }
-*/
 
-void ACore_SI::printHtml(QVariant message)
+void ACore_SI::printHtml(QString text)
 {
-    QString s;
-    AVirtualScriptManager::addQVariantToString(message, s, Lang);
-    AScriptHub::getInstance().outputHtml(s, Lang);
+    //QString s;
+    //AVirtualScriptManager::addQVariantToString(text, s, Lang);
+    //AScriptHub::getInstance().outputHtml(s, Lang);
+    AScriptHub::getInstance().outputHtml(text, Lang);
 }
 
 void ACore_SI::clearOutput()
