@@ -182,7 +182,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         gN->SetMinimum(0);
         gN->SetMaximum(1.05);
 
-        emit requestDraw(gN, "AL",    true, false);
+        emit requestDraw(gN, "AL",    true, true);
         emit requestDraw(gA, "Lsame", true, false);
         emit requestDraw(gB, "Lsame", true, false);
         emit requestDraw(gF, "Lsame", true, false);
@@ -199,7 +199,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         gT->SetMinimum(0);
         gT->SetMaximum(1.05);
 
-        emit requestDraw(gT, "AL",    true, false);
+        emit requestDraw(gT, "AL",    true, true);
         emit requestDraw(gS, "Lsame", true, false);
         emit requestDraw(gL, "Lsame", true, false);
         emit requestDraw(gD, "Lsame", true, false);
@@ -213,7 +213,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         AGraphBuilder::configure(gW, "Wavelength shifted", "Angle, deg", "Fraction", 4, 0, 1, 4, 1, 2);
         gW->SetMaximum(1.05);
         gW->SetMinimum(0);
-        emit requestDraw(gW, "AL", true, false);
+        emit requestDraw(gW, "AL", true, true);
         //emit requestDrawLegend(0.1,0.1, 0.5,0.5, "Waveshifted");
         break;
     }

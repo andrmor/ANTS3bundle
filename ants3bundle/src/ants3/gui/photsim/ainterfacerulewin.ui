@@ -80,7 +80,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Checked first, slow</string>
+         <string>&lt;-- Checked first, slow</string>
         </property>
        </widget>
       </item>
@@ -136,7 +136,7 @@
       <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Fast</string>
+         <string>&lt;-- Fast</string>
         </property>
        </widget>
       </item>
