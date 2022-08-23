@@ -5,7 +5,7 @@
 #include "ainterfacerule.h"
 #include "ainterfacewidgetfactory.h"
 #include "guitools.h"
-#include "aopticaloverridetester.h"
+#include "ainterfaceruletester.h"
 
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -42,11 +42,11 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     updateGui();
 
-    TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
-    connect(TesterWindow, &AOpticalOverrideTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
-    connect(TesterWindow, &AOpticalOverrideTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
-    connect(TesterWindow, &AOpticalOverrideTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
-    connect(TesterWindow, &AOpticalOverrideTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
+    TesterWindow = new AInterfaceRuleTester(&LocalRule,  matFrom, matTo, this);
+    connect(TesterWindow, &AInterfaceRuleTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
+    connect(TesterWindow, &AInterfaceRuleTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
+    connect(TesterWindow, &AInterfaceRuleTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
+    connect(TesterWindow, &AInterfaceRuleTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
 
 //    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
 }
@@ -186,7 +186,7 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 
     TesterWindow->move(x(), y());
 
-    connect(TesterWindow, &AOpticalOverrideTester::closed, this, &AInterfaceRuleDialog::setEnabled);
+    connect(TesterWindow, &AInterfaceRuleTester::closed, this, &AInterfaceRuleDialog::setEnabled);
     setEnabled(false);
     TesterWindow->setEnabled(true);
 }

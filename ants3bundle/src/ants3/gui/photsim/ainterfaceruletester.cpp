@@ -1,4 +1,4 @@
-#include "aopticaloverridetester.h"
+#include "ainterfaceruletester.h"
 #include "ui_aopticaloverridetester.h"
 #include "mainwindow.h"
 #include "guitools.h"
@@ -29,7 +29,9 @@
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 
-AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
+#include <complex>
+
+AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
     RandomHub(ARandomHub::getInstance()),
@@ -51,8 +53,7 @@ AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int ma
     updateGUI();
 }
 
-#include <complex>
-void AOpticalOverrideTester::updateGUI()
+void AInterfaceRuleTester::updateGUI()
 {
     bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
     if (!bWR)
@@ -81,18 +82,18 @@ void AOpticalOverrideTester::updateGUI()
     ui->ledST_Ref2->setText(str2);
 }
 
-AOpticalOverrideTester::~AOpticalOverrideTester()
+AInterfaceRuleTester::~AInterfaceRuleTester()
 {
     delete ui;
 }
 
-void AOpticalOverrideTester::writeToJson(QJsonObject &json) const
+void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
 {
     json["PositionX"] = x();
     json["PositionY"] = y();
 }
 
-void AOpticalOverrideTester::readFromJson(const QJsonObject &json)
+void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
 {
     if (json.isEmpty()) return;
 
@@ -102,7 +103,7 @@ void AOpticalOverrideTester::readFromJson(const QJsonObject &json)
     if (x>0 && y>0) move(x, y);
 }
 
-void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
+void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -220,7 +221,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
     }
 }
 
-void AOpticalOverrideTester::on_pbTracePhotons_clicked()
+void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -358,7 +359,7 @@ tryAgainLabel:
     reportStatistics(rep, numPhot);
 }
 
-void AOpticalOverrideTester::showGeometry()
+void AInterfaceRuleTester::showGeometry()
 {
     gGeoManager->ClearTracks();
     emit requestClearGeometryViewer();
@@ -402,7 +403,7 @@ void AOpticalOverrideTester::showGeometry()
     emit requestShowTracks();
 }
 
-void AOpticalOverrideTester::on_pbST_showTracks_clicked()
+void AInterfaceRuleTester::on_pbST_showTracks_clicked()
 {
     showGeometry();
 
@@ -429,7 +430,7 @@ void AOpticalOverrideTester::on_pbST_showTracks_clicked()
     emit requestShowTracks();
 }
 
-bool AOpticalOverrideTester::testOverride()
+bool AInterfaceRuleTester::testOverride()
 {
     if ( !(*pOV) )
     {
@@ -446,7 +447,7 @@ bool AOpticalOverrideTester::testOverride()
     return true;
 }
 
-int AOpticalOverrideTester::getWaveIndex()
+int AInterfaceRuleTester::getWaveIndex()
 {
     const double wavelength = ui->ledST_wave->text().toDouble();
     if (ui->cbWavelength->isChecked())
@@ -455,7 +456,7 @@ int AOpticalOverrideTester::getWaveIndex()
     else return -1;
 }
 
-TVector3 AOpticalOverrideTester::getPhotonVector()
+TVector3 AInterfaceRuleTester::getPhotonVector()
 {
     TVector3 PhotDir(0, 0, -1.0);
     TVector3 perp(0, 1.0, 0);
@@ -465,7 +466,7 @@ TVector3 AOpticalOverrideTester::getPhotonVector()
     return PhotDir;
 }
 
-void AOpticalOverrideTester::on_pbST_uniform_clicked()
+void AInterfaceRuleTester::on_pbST_uniform_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -528,17 +529,17 @@ void AOpticalOverrideTester::on_pbST_uniform_clicked()
     showGeometry(); //to clear track vis
 }
 
-void AOpticalOverrideTester::on_cbWavelength_toggled(bool)
+void AInterfaceRuleTester::on_cbWavelength_toggled(bool)
 {
     updateGUI();
 }
 
-void AOpticalOverrideTester::on_ledST_wave_editingFinished()
+void AInterfaceRuleTester::on_ledST_wave_editingFinished()
 {
     updateGUI();
 }
 
-void AOpticalOverrideTester::on_ledAngle_editingFinished()
+void AInterfaceRuleTester::on_ledAngle_editingFinished()
 {
     const double angle = ui->ledAngle->text().toDouble();
     if (angle < 0 || angle >= 90.0 )
@@ -550,13 +551,13 @@ void AOpticalOverrideTester::on_ledAngle_editingFinished()
     showGeometry();
 }
 
-void AOpticalOverrideTester::closeEvent(QCloseEvent * e)
+void AInterfaceRuleTester::closeEvent(QCloseEvent * e)
 {
     QMainWindow::closeEvent(e);
     emit closed(true);
 }
 
-void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int numPhot)
+void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int numPhot)
 {
     ui->pte->clear();
 
@@ -591,7 +592,7 @@ void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int
     ui->pte->ensureCursorVisible();
 }
 
-double AOpticalOverrideTester::calculateReflectionProbability(const APhoton & Photon) const
+double AInterfaceRuleTester::calculateReflectionProbability(const APhoton & Photon) const
 {
     // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
 

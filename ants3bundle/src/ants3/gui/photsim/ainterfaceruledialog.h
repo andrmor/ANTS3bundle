@@ -10,7 +10,7 @@ class AInterfaceRuleDialog;
 }
 
 class AInterfaceRule;
-class AOpticalOverrideTester;
+class AInterfaceRuleTester;
 class AMaterialHub;
 class AInterfaceRuleHub;
 class TObject;
@@ -48,7 +48,7 @@ private:
 
     Ui::AInterfaceRuleDialog * ui           = nullptr;
     AInterfaceRule           * LocalRule    = nullptr;
-    AOpticalOverrideTester   * TesterWindow = nullptr;
+    AInterfaceRuleTester   * TesterWindow = nullptr;
 
     int customWidgetPositionInLayout = 5;
     QWidget * customWidget = nullptr;

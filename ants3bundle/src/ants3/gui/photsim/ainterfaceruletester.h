@@ -1,5 +1,5 @@
-#ifndef AOPTICALOVERRIDETESTER_H
-#define AOPTICALOVERRIDETESTER_H
+#ifndef AINTERFACERULETESTER_H
+#define AINTERFACERULETESTER_H
 
 #include <QMainWindow>
 
@@ -45,13 +45,13 @@ class QJsonObject;
 class TObject;
 class APhoton;
 
-class AOpticalOverrideTester : public QMainWindow
+class AInterfaceRuleTester : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit AOpticalOverrideTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
-    ~AOpticalOverrideTester();
+    explicit AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
+    ~AInterfaceRuleTester();
 
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
@@ -104,4 +104,4 @@ signals:
 
 };
 
-#endif // AOPTICALOVERRIDETESTER_H
+#endif // AINTERFACERULETESTER_H

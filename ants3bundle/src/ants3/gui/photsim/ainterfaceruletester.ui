@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AOpticalOverrideTester</class>
- <widget class="QMainWindow" name="AOpticalOverrideTester">
+ <class>AInterfaceRuleTester</class>
+ <widget class="QMainWindow" name="AInterfaceRuleTester">
   <property name="geometry">
    <rect>
     <x>0</x>

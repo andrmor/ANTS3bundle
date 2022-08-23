@@ -112,7 +112,7 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
-    gui/photsim/aopticaloverridetester.cpp \
+    gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -306,7 +306,7 @@ HEADERS += \
     gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
-    gui/photsim/aopticaloverridetester.h \
+    gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
@@ -491,7 +491,7 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
-        gui/photsim/aopticaloverridetester.ui \
+        gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
