@@ -37,7 +37,7 @@ public slots:
     bool        replace(QString Key, QVariant Value);
     QVariant    getKeyValue(QString Key);
 
-    void        rebuildDetector();
+    void        updateConfig();
     void        updateGui();
 
 private:

@@ -18,7 +18,7 @@ ATrackRec_SI::~ATrackRec_SI()
     delete Importer; Importer = nullptr;
 }
 
-void ATrackRec_SI::configure(QString fileName, bool binary)
+void ATrackRec_SI::open(QString fileName, bool binary)
 {
     FileName = fileName;
     bBinaryFile = binary;
