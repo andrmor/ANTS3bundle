@@ -279,6 +279,7 @@ void AGeometryHub::populateGeoManager()
     addTGeoVolumeRecursively(World, Top);
 
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
+    setVolumeTitle(World, Top);
 
     GeoManager->CloseGeometry();
 }
