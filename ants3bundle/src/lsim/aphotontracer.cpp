@@ -355,6 +355,9 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
 
     // volumes without special role have titles statring with '-'
     const char Selector = VolTitle[0];
+
+    if (Selector == '-') return; // Not a special volume
+
     if (Selector == 'S') // Sensor
     {
         const int iSensor = NodeAfterInterface->GetNumber();
@@ -432,7 +435,13 @@ AInterfaceRule * APhotonTracer::getInterfaceRule() const
     AInterfaceRule * rule = nullptr;
     if (VolumeFrom->GetTitle()[1] == '*' && VolumeTo->GetTitle()[2] == '*')
     {
-        rule = RuleHub.getVolumeRule(VolumeFrom->GetName(), VolumeTo->GetName());
+        TString fromName = VolumeFrom->GetName();
+        TString toName   = VolumeTo->GetName();
+        if (VolumeFrom->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
+            AGeometryHub::removeNameDecorators(fromName);
+        if (VolumeTo->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
+            AGeometryHub::removeNameDecorators(toName);
+        rule = RuleHub.getVolumeRule(fromName, toName);
         rule->updateMatIndices(MatIndexFrom, MatIndexTo);
     }
     if (!rule) rule = RuleHub.getMaterialRuleFast(MatIndexFrom, MatIndexTo);

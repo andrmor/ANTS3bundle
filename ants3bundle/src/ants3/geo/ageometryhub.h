@@ -16,6 +16,7 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 class AGeoShape;
+class TString;
 
 class AGeometryHub
 {
@@ -38,6 +39,8 @@ public:
 
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
+
+    static constexpr char IndexSeparator[] = "_-_";
 
     void         populateGeoManager();   // emit signal?
 
@@ -79,6 +82,7 @@ public:
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
 
+    static void  removeNameDecorators(TString & name);
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);

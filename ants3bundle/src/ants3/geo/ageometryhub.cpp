@@ -279,6 +279,7 @@ void AGeometryHub::populateGeoManager()
     addTGeoVolumeRecursively(World, Top);
 
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
+    setVolumeTitle(World, Top);
 
     GeoManager->CloseGeometry();
 }
@@ -297,7 +298,7 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += "_-_";
+    fixedName += IndexSeparator;
     fixedName += MonitorCounter;
     vol->SetName(fixedName);
 
@@ -324,7 +325,7 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     parent->AddNode(vol, CalorimeterCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += "_-_";
+    fixedName += IndexSeparator;
     fixedName += CalorimeterCounter;
     vol->SetName(fixedName);
 
@@ -565,8 +566,9 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 
     if      (obj->Role)
     {
-         if      (obj->Role->getType() == "Sensor")   title[0] = 'S';
-         else if (obj->Role->getType() == "SecScint") title[0] = '2';
+        if      (obj->Role->getType() == "Sensor")      title[0] = 'S';
+        else if (obj->Role->getType() == "SecScint")    title[0] = '2';
+        else if (obj->Role->getType() == "Calorimeter") title[0] = 'C'; // not used with photons, but needed to update name for interface rules
     }
     else if (obj->Type->isMonitor())
     {
@@ -1081,7 +1083,7 @@ void AGeometryHub::colorVolumes(int scheme, int id)
                 if (!obj && !name.isEmpty())
                 {
                     //special for monitors
-                    QString mName = name.split("_-_").at(0);
+                    QString mName = name.split(IndexSeparator).at(0);
                     obj = World->findObjectByName(mName);
                 }
                 if (obj)
@@ -1201,6 +1203,12 @@ QString AGeometryHub::generateObjectName(const QString & prefix) const
     while (World->isNameExists(name));
 
     return name;
+}
+
+void AGeometryHub::removeNameDecorators(TString & name)
+{
+    const int ind = name.Index(IndexSeparator, 3, 0, TString::kExact);
+    if (ind != TString::kNPOS) name.Resize(ind);
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

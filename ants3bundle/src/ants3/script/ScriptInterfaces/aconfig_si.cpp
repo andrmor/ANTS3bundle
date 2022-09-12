@@ -147,7 +147,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     bool ok = modifyJsonValue(Config.JSON, Key, jv);
     if (ok)
     {
-        // !!!*** update stategy!
+        // not needed here as it was in ants2: user has to trigger updateConfig() and, optionally, updateGui()
 
 /*
         //qDebug() << "-------Key:"<<Key;
@@ -260,7 +260,7 @@ QVariant AConfig_SI::getKeyValue(QString Key)
     return 0;
 }
 
-void AConfig_SI::rebuildDetector()
+void AConfig_SI::updateConfig()
 {
     if (!bGuiThread)
     {
@@ -268,7 +268,8 @@ void AConfig_SI::rebuildDetector()
         return;
     }
 
-    Config.updateConfigFromJSON();
+    QString err = Config.updateConfigFromJSON();
+    if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
 }
 
 void AConfig_SI::updateGui()
@@ -277,7 +278,6 @@ void AConfig_SI::updateGui()
 
     emit Config.configLoaded();
 }
-
 
 bool AConfig_SI::keyToNameAndIndex(QString Key, QString & Name, std::vector<int> & Indexes)
 {

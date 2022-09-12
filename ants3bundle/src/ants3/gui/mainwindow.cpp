@@ -370,11 +370,10 @@ void MainWindow::updateAllGuiFromConfig()
     GeoTreeWin->updateGui();
     MatWin->initWindow();
     SensWin->updateGui();
+    RuleWin->updateGui();
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
-
-    //rules !!!***
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
     {

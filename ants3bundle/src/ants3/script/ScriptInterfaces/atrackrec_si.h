@@ -25,7 +25,7 @@ public:
     AScriptInterface * cloneBase() const {return new ATrackRec_SI();}
 
 public slots:
-    void configure(QString fileName, bool binary);
+    void open(QString fileName, bool binary);
 
     int  countEvents();
     void setEvent(int iEvent);
@@ -72,7 +72,7 @@ private:
 
     std::vector<int> ReturnStepIndex;
 
-    static constexpr auto RecordNotSet = "'tracks' unit not configured: select file, event and (optionally, if !=0) primary";
+    static constexpr auto RecordNotSet = "'tracks' unit not configured: open file, select event and (optionally, if !=0) select primary";
     static constexpr auto NoPrimaries = "This event does not have recorded primaries";
 
     bool checkImporter();
