@@ -125,11 +125,86 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
 
             break;
         }
-//    case ASurfaceSettings::Model3 :
-//        {
+    case ASurfaceSettings::Glisur :
+        {
+            // see G4ThreeVector G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector& Momentum, const G4ThreeVector& Normal ) const
+            // https://apc.u-paris.fr/~franco/g4doxy4.10/html/_g4_op_boundary_process_8cc_source.html
+            // line 665
+/*
+            G4ThreeVector FacetNormal;
+            double  polish = 1.0;
+            if (OpticalSurface) polish = OpticalSurface->GetPolish();
+            if (polish < 1.0)
+            {
+                do
+                {
+                    G4ThreeVector smear;
+                    do
+                    {
+                        smear.setX(2.0 * G4UniformRand() - 1.0);
+                        smear.setY(2.0 * G4UniformRand() - 1.0);
+                        smear.setZ(2.0 * G4UniformRand() - 1.0);
+                    }
+                    while (smear.mag() > 1.0);
+                    smear = (1.0 - polish) * smear;
+                    FacetNormal = Normal + smear;
+                }
+                while (Momentum * FacetNormal >= 0.0);
+                FacetNormal = FacetNormal.unit();
+            }
+            else FacetNormal = Normal;
+            return FacetNormal;
+*/
+            break;
+        }
+    case ASurfaceSettings::Unified :
+        {
+            // see G4ThreeVector G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector& Momentum, const G4ThreeVector& Normal ) const
+            // https://apc.u-paris.fr/~franco/g4doxy4.10/html/_g4_op_boundary_process_8cc_source.html
+            // line 620
 
-//            break;
-//        }
+            /* This function code alpha to a random value taken from the
+               distribution p(alpha) = g(alpha; 0, sigma_alpha)*std::sin(alpha),
+               for alpha > 0 and alpha < 90, where g(alpha; 0, sigma_alpha)
+               is a gaussian distribution with mean 0 and standard deviation
+               sigma_alpha.  */
+
+/*
+            G4ThreeVector FacetNormal;
+            double alpha;
+            double sigma_alpha = 0.0;
+            if (OpticalSurface) sigma_alpha = OpticalSurface->GetSigmaAlpha();
+            if (sigma_alpha == 0.0) return FacetNormal = Normal;
+
+            double f_max = std::min(1.0, 4.0 * sigma_alpha);
+            do
+            {
+                do alpha = G4RandGauss::shoot(0.0, sigma_alpha);
+                while (G4UniformRand() * f_max > std::sin(alpha) || alpha >= halfpi );
+
+                double phi = G4UniformRand() * twopi;
+
+                double SinAlpha = std::sin(alpha);
+                double CosAlpha = std::cos(alpha);
+                double SinPhi   = std::sin(phi);
+                double CosPhi   = std::cos(phi);
+
+                double unit_x = SinAlpha * CosPhi;
+                double unit_y = SinAlpha * SinPhi;
+                double unit_z = CosAlpha;
+
+                FacetNormal.setX(unit_x);
+                FacetNormal.setY(unit_y);
+                FacetNormal.setZ(unit_z);
+
+                G4ThreeVector tmpNormal = Normal;
+
+                FacetNormal.rotateUz(tmpNormal);
+            }
+            while (Momentum * FacetNormal >= 0.0);
+*/
+            break;
+        }
     default:;
     }
 
