@@ -18,8 +18,8 @@ public:
     //Model1 settings
     // ...
 
-    //Model2 settings
-    // ...
+    //Glisur model settings
+    double Polish = 0.5;
 
     //Model3 settings
     // ...

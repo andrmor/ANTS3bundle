@@ -130,31 +130,45 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
             // see G4ThreeVector G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector& Momentum, const G4ThreeVector& Normal ) const
             // https://apc.u-paris.fr/~franco/g4doxy4.10/html/_g4_op_boundary_process_8cc_source.html
             // line 665
-/*
-            G4ThreeVector FacetNormal;
-            double  polish = 1.0;
-            if (OpticalSurface) polish = OpticalSurface->GetPolish();
-            if (polish < 1.0)
+
+            if (SurfaceSettings.Polish < 1.0)
             {
+                double nk;
                 do
                 {
-                    G4ThreeVector smear;
+                    TVector3 smear;
                     do
                     {
-                        smear.setX(2.0 * G4UniformRand() - 1.0);
-                        smear.setY(2.0 * G4UniformRand() - 1.0);
-                        smear.setZ(2.0 * G4UniformRand() - 1.0);
+                        smear.SetX(2.0 * RandomHub.uniform() - 1.0);
+                        smear.SetY(2.0 * RandomHub.uniform() - 1.0);
+                        smear.SetZ(2.0 * RandomHub.uniform() - 1.0);
                     }
-                    while (smear.mag() > 1.0);
-                    smear = (1.0 - polish) * smear;
-                    FacetNormal = Normal + smear;
+                    while (smear.Mag() > 1.0);
+                    smear = (1.0 - SurfaceSettings.Polish) * smear;
+                    //FacetNormal = Normal + smear;
+                    nk = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        LocalNormal[i] = globalNormal[i] + smear[i];
+                        nk += photonDirection[i] * LocalNormal[i];
+                    }
                 }
-                while (Momentum * FacetNormal >= 0.0);
-                FacetNormal = FacetNormal.unit();
+                //while (Momentum * FacetNormal >= 0.0);
+                while (nk >= 0.0);
+
+                //FacetNormal = FacetNormal.unit();
+                double mag = 0;
+                for (int i = 0; i < 3; i++) mag += LocalNormal[i] * LocalNormal[i];
+                mag = sqrt(mag);
+                if (abs(mag) > 1e-30)
+                    for (int i = 0; i < 3; i++) LocalNormal[i] /= mag;
             }
-            else FacetNormal = Normal;
-            return FacetNormal;
-*/
+            else
+            {
+                //FacetNormal = Normal;
+                for (int i = 0; i < 3; i++) LocalNormal[i] = globalNormal[i];
+            }
+
             break;
         }
     case ASurfaceSettings::Unified :
