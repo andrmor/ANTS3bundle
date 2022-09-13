@@ -37,14 +37,14 @@ void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, 
 bool AInterfaceRuleHub::isFromVolume(const char * name) const
 {
     TString tsname(name);
-    AGeometryHub::removeNameDecorators(tsname);
+    AGeometryHub::getConstInstance().removeNameDecorators(tsname);
     return (VolumesFrom.find(tsname) != VolumesFrom.end());
 }
 
 bool AInterfaceRuleHub::isToVolume(const char * name) const
 {
     TString tsname(name);
-    AGeometryHub::removeNameDecorators(tsname);
+    AGeometryHub::getConstInstance().removeNameDecorators(tsname);
     return (VolumesTo.find(tsname) != VolumesTo.end());
 }
 

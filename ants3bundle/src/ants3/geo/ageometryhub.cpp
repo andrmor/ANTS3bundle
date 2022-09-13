@@ -1083,7 +1083,7 @@ void AGeometryHub::colorVolumes(int scheme, int id)
                 if (!obj && !name.isEmpty())
                 {
                     //special for monitors
-                    QString mName = name.split(IndexSeparator).at(0);
+                    QString mName = name.split(IndexSeparator.Data()).at(0);
                     obj = World->findObjectByName(mName);
                 }
                 if (obj)
@@ -1205,9 +1205,9 @@ QString AGeometryHub::generateObjectName(const QString & prefix) const
     return name;
 }
 
-void AGeometryHub::removeNameDecorators(TString & name)
+void AGeometryHub::removeNameDecorators(TString & name) const
 {
-    const int ind = name.Index(IndexSeparator, 3, 0, TString::kExact);
+    const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
     if (ind != TString::kNPOS) name.Resize(ind);
 }
 

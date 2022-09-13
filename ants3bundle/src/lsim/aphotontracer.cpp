@@ -438,9 +438,9 @@ AInterfaceRule * APhotonTracer::getInterfaceRule() const
         TString fromName = VolumeFrom->GetName();
         TString toName   = VolumeTo->GetName();
         if (VolumeFrom->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-            AGeometryHub::removeNameDecorators(fromName);
+            AGeometryHub::getConstInstance().removeNameDecorators(fromName);
         if (VolumeTo->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-            AGeometryHub::removeNameDecorators(toName);
+            AGeometryHub::getConstInstance().removeNameDecorators(toName);
         rule = RuleHub.getVolumeRule(fromName, toName);
         rule->updateMatIndices(MatIndexFrom, MatIndexTo);
     }
