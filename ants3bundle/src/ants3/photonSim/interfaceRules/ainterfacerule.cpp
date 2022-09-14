@@ -154,7 +154,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
                     }
                 }
                 //while (Momentum * FacetNormal >= 0.0);
-                while (nk >= 0.0);
+                while (nk <= 0.0);
 
                 //FacetNormal = FacetNormal.unit();
                 double mag = 0;

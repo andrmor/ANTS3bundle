@@ -94,6 +94,7 @@ void AInterfaceRuleDialog::updateGui()
         {
         case ASurfaceSettings::Polished        : iModel = 0; break;
         case ASurfaceSettings::GaussSimplistic : iModel = 1; break;
+        case ASurfaceSettings::Glisur          : iModel = 2; break;
         default:
             qWarning() << "Invalid surface model!";
             iModel = 0;
@@ -102,6 +103,7 @@ void AInterfaceRuleDialog::updateGui()
         ui->cobSurfaceModel->setCurrentIndex(iModel);
         ui->swSurfaceModel->setCurrentIndex(iModel);
         ui->cobSurfaceModel->setEnabled(LocalRule->canHaveRoughSurface());
+        ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
     }
     else
     {
@@ -202,11 +204,24 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
         {
         case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
         case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; break;
+        case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
         default:
             qWarning() << "Error in selecting surface model!";
             LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
             break;
         }
     }
+}
+
+void AInterfaceRuleDialog::on_lePolishGlisur_editingFinished()
+{
+    bool ok;
+    const double polish = ui->lePolishGlisur->text().toDouble(&ok);
+    if (!ok || polish < 0 || polish > 1.0)
+    {
+        guitools::message("Polish should be a number in the range from 0 to 1", this);
+        ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
+    }
+    LocalRule->SurfaceSettings.Polish = polish;
 }
 

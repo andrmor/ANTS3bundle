@@ -38,6 +38,8 @@ private slots:
 
     void on_cobSurfaceModel_activated(int index);
 
+    void on_lePolishGlisur_editingFinished();
+
 protected:
     void closeEvent(QCloseEvent * e);
 

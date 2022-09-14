@@ -13,7 +13,8 @@ public:
     bool isPolished()    const {return Model == Polished;}
     bool isNotPolished() const {return Model != Polished;}
 
-    EModel Model = GaussSimplistic;
+    //EModel Model = GaussSimplistic;
+    EModel Model = Glisur;
 
     //Model1 settings
     // ...
