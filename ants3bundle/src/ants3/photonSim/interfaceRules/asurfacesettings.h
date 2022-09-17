@@ -16,14 +16,11 @@ public:
     //EModel Model = GaussSimplistic;
     EModel Model = Glisur;
 
-    //Model1 settings
-    // ...
-
     //Glisur model settings
-    double Polish = 0.5;
+    double Polish = 0.85;
 
-    //Model3 settings
-    // ...
+    //Unified model settings
+    double SigmaAlpha = 0.1;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

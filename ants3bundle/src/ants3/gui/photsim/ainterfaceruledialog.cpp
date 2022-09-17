@@ -95,6 +95,7 @@ void AInterfaceRuleDialog::updateGui()
         case ASurfaceSettings::Polished        : iModel = 0; break;
         case ASurfaceSettings::GaussSimplistic : iModel = 1; break;
         case ASurfaceSettings::Glisur          : iModel = 2; break;
+        case ASurfaceSettings::Unified         : iModel = 3; break;
         default:
             qWarning() << "Invalid surface model!";
             iModel = 0;
@@ -104,6 +105,7 @@ void AInterfaceRuleDialog::updateGui()
         ui->swSurfaceModel->setCurrentIndex(iModel);
         ui->cobSurfaceModel->setEnabled(LocalRule->canHaveRoughSurface());
         ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
+        ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
     }
     else
     {
@@ -195,7 +197,6 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
     ui->swSurfaceModel->setVisible(index != 0);
 }
 
-
 void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
 {
     if (LocalRule)
@@ -205,6 +206,7 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
         case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
         case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; break;
         case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
+        case 3 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Unified; break;
         default:
             qWarning() << "Error in selecting surface model!";
             LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
@@ -223,5 +225,18 @@ void AInterfaceRuleDialog::on_lePolishGlisur_editingFinished()
         ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
     }
     LocalRule->SurfaceSettings.Polish = polish;
+}
+
+
+void AInterfaceRuleDialog::on_leSigmaAlphaUnified_editingFinished()
+{
+    bool ok;
+    const double sa = ui->leSigmaAlphaUnified->text().toDouble(&ok);
+    if (!ok || sa < 0)
+    {
+        guitools::message("Sigma Alpha cannot have negative value", this);
+        ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
+    }
+    LocalRule->SurfaceSettings.SigmaAlpha = sa;
 }
 

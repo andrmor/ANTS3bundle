@@ -10,11 +10,17 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
     switch (Model)
     {
     default:
-    case Polished : str = "Polished"; break;
+    case Polished :
+        str = "Polished";
+        break;
     case GaussSimplistic : str = "GaussSimplistic"; break;
     case Glisur :
         str = "Glisur";
         json["Polish"] = Polish;
+        break;
+    case Unified :
+        str = "Unified";
+        json["SigmaAlpha"] = SigmaAlpha;
         break;
     }
     json["Model"] = str;
@@ -31,10 +37,15 @@ void ASurfaceSettings::readFromJson(const QJsonObject & json)
         Model = Glisur;
         jstools::parseJson(json, "Polish", Polish);
     }
+    else if (str == "Unified")
+    {
+        Model = Unified;
+        jstools::parseJson(json, "SigmaAlpha", SigmaAlpha);
+    }
     else
     {
-        qWarning() << "Unknown rough surface model!";
-        AErrorHub::addQError("Unknown rough surface model!");
+        qWarning() << "Unknown optical surface model!";
+        AErrorHub::addQError("Unknown optical surface model!");
         Model = Polished;
         return;
     }

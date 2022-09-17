@@ -89,9 +89,9 @@ QString AInterfaceRule::checkOverrideData()
 #include "TVector3.h"
 void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const double * photonDirection)
 {
-    qDebug() << (int)SurfaceSettings.Model;
-    qDebug() << "globNorm:" << globalNormal[0] << ' ' << globalNormal[1] << ' ' << globalNormal[2];
-    qDebug() << "photDir:"  << photonDirection[0] << ' ' << photonDirection[1] << ' ' << photonDirection[2];
+    //qDebug() << (int)SurfaceSettings.Model;
+    //qDebug() << "globNorm:" << globalNormal[0] << ' ' << globalNormal[1] << ' ' << globalNormal[2];
+    //qDebug() << "photDir:"  << photonDirection[0] << ' ' << photonDirection[1] << ' ' << photonDirection[2];
 
     switch (SurfaceSettings.Model)
     {
@@ -119,7 +119,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
                     LocalNormal[i] = vec[i];
                     scal += LocalNormal[i] * photonDirection[i];
                 }
-                qDebug() << "nk" << scal;
+                //qDebug() << "nk" << scal;
             }
             //while (scal < 0);
 
@@ -183,44 +183,56 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
                is a gaussian distribution with mean 0 and standard deviation
                sigma_alpha.  */
 
-/*
-            G4ThreeVector FacetNormal;
-            double alpha;
-            double sigma_alpha = 0.0;
-            if (OpticalSurface) sigma_alpha = OpticalSurface->GetSigmaAlpha();
-            if (sigma_alpha == 0.0) return FacetNormal = Normal;
+            if (SurfaceSettings.SigmaAlpha == 0.0)
+            {
+                //FacetNormal = Normal;
+                for (int i = 0; i < 3; i++) LocalNormal[i] = globalNormal[i];
+            }
 
-            double f_max = std::min(1.0, 4.0 * sigma_alpha);
+            //G4ThreeVector tmpNormal = Normal;
+            const TVector3 tmpNormal(globalNormal);
+            TVector3 FacetNormal;
+            const double f_max = std::min(1.0, 4.0 * SurfaceSettings.SigmaAlpha);
+            double alpha, nk;
             do
             {
-                do alpha = G4RandGauss::shoot(0.0, sigma_alpha);
-                while (G4UniformRand() * f_max > std::sin(alpha) || alpha >= halfpi );
+                //do alpha = G4RandGauss::shoot(0.0, SurfaceSettings.SigmaAlpha);
+                //while (G4UniformRand() * f_max > std::sin(alpha) || alpha >= halfpi );
+                do alpha = RandomHub.gauss(0.0, SurfaceSettings.SigmaAlpha);
+                while (RandomHub.uniform() * f_max > sin(alpha) || alpha >= 0.5*3.1415926535 );
 
-                double phi = G4UniformRand() * twopi;
+                //double phi = G4UniformRand() * twopi;
+                const double phi = RandomHub.uniform() * 2.0*3.1415926535;
 
-                double SinAlpha = std::sin(alpha);
-                double CosAlpha = std::cos(alpha);
-                double SinPhi   = std::sin(phi);
-                double CosPhi   = std::cos(phi);
+                const double SinAlpha = sin(alpha);
+                const double CosAlpha = cos(alpha);
+                const double SinPhi   = sin(phi);
+                const double CosPhi   = cos(phi);
 
-                double unit_x = SinAlpha * CosPhi;
-                double unit_y = SinAlpha * SinPhi;
-                double unit_z = CosAlpha;
+                const double unit_x = SinAlpha * CosPhi;
+                const double unit_y = SinAlpha * SinPhi;
+                const double unit_z = CosAlpha;
 
-                FacetNormal.setX(unit_x);
-                FacetNormal.setY(unit_y);
-                FacetNormal.setZ(unit_z);
+                FacetNormal.SetX(unit_x);
+                FacetNormal.SetY(unit_y);
+                FacetNormal.SetZ(unit_z);
 
-                G4ThreeVector tmpNormal = Normal;
+                //G4ThreeVector tmpNormal = Normal;
 
-                FacetNormal.rotateUz(tmpNormal);
+                FacetNormal.RotateUz(tmpNormal);
+
+                nk = 0;
+                for (int i = 0; i < 3; i++) nk += photonDirection[i] * FacetNormal[i];
             }
-            while (Momentum * FacetNormal >= 0.0);
-*/
+            //while (Momentum * FacetNormal >= 0.0);
+            while (nk <= 0.0);
+
+            for (int i = 0; i < 3; i++) LocalNormal[i] = FacetNormal[i];
+
             break;
         }
     default:;
     }
 
-    qDebug() << "localNorm:"  << LocalNormal[0] << ' ' << LocalNormal[1] << ' ' << LocalNormal[2];
+    //qDebug() << "localNorm:"  << LocalNormal[0] << ' ' << LocalNormal[1] << ' ' << LocalNormal[2];
 }

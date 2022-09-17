@@ -212,6 +212,11 @@
             <string>Glisur</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Unified</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>
@@ -232,7 +237,7 @@
       <item>
        <widget class="QStackedWidget" name="swSurfaceModel">
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="page"/>
         <widget class="QWidget" name="page_2">
@@ -324,6 +329,50 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>79</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_4">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>99</width>
+              <height>18</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Sigma alpha:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leSigmaAlphaUnified">
+            <property name="text">
+             <string>0.1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>98</width>
               <height>20</height>
              </size>
             </property>

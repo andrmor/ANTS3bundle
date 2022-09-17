@@ -40,6 +40,8 @@ private slots:
 
     void on_lePolishGlisur_editingFinished();
 
+    void on_leSigmaAlphaUnified_editingFinished();
+
 protected:
     void closeEvent(QCloseEvent * e);
 
