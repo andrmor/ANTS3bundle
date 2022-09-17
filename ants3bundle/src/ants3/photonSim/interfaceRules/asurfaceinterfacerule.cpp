@@ -16,7 +16,7 @@
 ASurfaceInterfaceRule::ASurfaceInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)
 {
-    SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; // !!!***
+    SurfaceSettings.Model = ASurfaceSettings::Glisur;
 }
 
 AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)

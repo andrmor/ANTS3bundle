@@ -225,7 +225,7 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 {
     if ( !testOverride() ) return;
 
-    qDebug() << "Surface:->" << (int)((*pOV)->SurfaceSettings.Model);
+    //qDebug() << "Surface:->" << (int)((*pOV)->SurfaceSettings.Model);
 
     //surface normal and photon direction
     TVector3 SurfNorm(0, 0, -1.0);

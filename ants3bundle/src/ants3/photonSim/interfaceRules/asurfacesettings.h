@@ -6,14 +6,13 @@ class QJsonObject;
 class ASurfaceSettings
 {
 public:
-    enum EModel {Polished, GaussSimplistic, Glisur, Unified};
+    enum EModel {Polished, Glisur, Unified};
 
     ASurfaceSettings(){}
 
     bool isPolished()    const {return Model == Polished;}
     bool isNotPolished() const {return Model != Polished;}
 
-    //EModel Model = GaussSimplistic;
     EModel Model = Glisur;
 
     //Glisur model settings

@@ -13,7 +13,6 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
     case Polished :
         str = "Polished";
         break;
-    case GaussSimplistic : str = "GaussSimplistic"; break;
     case Glisur :
         str = "Glisur";
         json["Polish"] = Polish;
@@ -31,7 +30,6 @@ void ASurfaceSettings::readFromJson(const QJsonObject & json)
     QString str;
     jstools::parseJson(json, "Model", str);
     if      (str == "Polished")        Model = Polished;
-    else if (str == "GaussSimplistic") Model = GaussSimplistic;
     else if (str == "Glisur")
     {
         Model = Glisur;

@@ -93,9 +93,8 @@ void AInterfaceRuleDialog::updateGui()
         switch (LocalRule->SurfaceSettings.Model)
         {
         case ASurfaceSettings::Polished        : iModel = 0; break;
-        case ASurfaceSettings::GaussSimplistic : iModel = 1; break;
-        case ASurfaceSettings::Glisur          : iModel = 2; break;
-        case ASurfaceSettings::Unified         : iModel = 3; break;
+        case ASurfaceSettings::Glisur          : iModel = 1; break;
+        case ASurfaceSettings::Unified         : iModel = 2; break;
         default:
             qWarning() << "Invalid surface model!";
             iModel = 0;
@@ -204,9 +203,8 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
         switch (index)
         {
         case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
-        case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::GaussSimplistic; break;
-        case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
-        case 3 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Unified; break;
+        case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
+        case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Unified; break;
         default:
             qWarning() << "Error in selecting surface model!";
             LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
