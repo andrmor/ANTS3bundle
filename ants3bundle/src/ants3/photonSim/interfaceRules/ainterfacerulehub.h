@@ -31,8 +31,8 @@ public:
     static const AInterfaceRuleHub & getConstInstance();
 
     void updateVolumesFromTo();  // run it before filling GeoManager
-    bool isFromVolume(const char * name) const;
-    bool isToVolume(const char * name) const;
+    bool isFromVolume(const TString & name) const;
+    bool isToVolume(const TString &name) const;
 
     AInterfaceRule * getMaterialRuleFast(int MatFrom, int MatTo) const {return MaterialRules[MatFrom][MatTo];} // TODO: size_t and const !!!***
     AInterfaceRule * getVolumeRule(const TString & from, const TString & to) const;

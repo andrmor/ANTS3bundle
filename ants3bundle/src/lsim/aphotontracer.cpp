@@ -433,17 +433,49 @@ bool APhotonTracer::isPhotonEscaped()
 AInterfaceRule * APhotonTracer::getInterfaceRule() const
 {
     AInterfaceRule * rule = nullptr;
+
+    // 1. Check Name-to-Name rule exists
+    // Title: ---- for "normal", adds base name for instances
+    // Title[0]!='-' volume has a special role, Title[1]='*' there are named rules from this volume, Title[2]='*' there are named rules from this vilume
     if (VolumeFrom->GetTitle()[1] == '*' && VolumeTo->GetTitle()[2] == '*')
     {
-        TString fromName = VolumeFrom->GetName();
-        TString toName   = VolumeTo->GetName();
-        if (VolumeFrom->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-            AGeometryHub::getConstInstance().removeNameDecorators(fromName);
-        if (VolumeTo->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-            AGeometryHub::getConstInstance().removeNameDecorators(toName);
+        //qDebug() << VolumeFrom->GetName() << VolumeFrom->GetTitle() << (int)VolumeFrom->GetTitle()[4];
+        //qDebug() << "->" << VolumeTo->GetName() << VolumeTo->GetTitle() << (int)VolumeTo->GetTitle()[4];
+
+        TString fromName;
+        if (VolumeFrom->GetTitle()[4] == 0)
+        {
+            // not an intance
+            fromName = VolumeFrom->GetName();
+            if (VolumeFrom->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
+                AGeometryHub::getConstInstance().removeNameDecorators(fromName);
+        }
+        else
+        {
+            // instance, Title from index 4 contains base name
+            fromName = VolumeFrom->GetTitle();
+            fromName.Remove(0, 4);
+        }
+        TString toName;
+        if (VolumeTo->GetTitle()[4] == 0)
+        {
+            // not an intance
+            toName = VolumeTo->GetName();
+            if (VolumeTo->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
+                AGeometryHub::getConstInstance().removeNameDecorators(toName);
+        }
+        else
+        {
+            // instance, Title from index 4 contains base name
+            toName = VolumeTo->GetTitle();
+            toName.Remove(0, 4);
+        }
+
         rule = RuleHub.getVolumeRule(fromName, toName);
-        rule->updateMatIndices(MatIndexFrom, MatIndexTo);
+        if (rule) rule->updateMatIndices(MatIndexFrom, MatIndexTo);
     }
+
+    // 2. if not, check Materil-tomaterial rule exists
     if (!rule) rule = RuleHub.getMaterialRuleFast(MatIndexFrom, MatIndexTo);
     return rule;
 }
