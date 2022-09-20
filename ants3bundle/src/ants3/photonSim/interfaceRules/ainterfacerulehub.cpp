@@ -1,6 +1,7 @@
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "amaterialhub.h"
+#include "ageometryhub.h"
 #include "ajsontools.h"
 
 AInterfaceRuleHub::AInterfaceRuleHub() :
@@ -33,14 +34,18 @@ void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, 
     VolumeRules[{from, to}] = rule;
 }
 
-bool AInterfaceRuleHub::isFromVolume(const TString & name) const
+bool AInterfaceRuleHub::isFromVolume(const char * name) const
 {
-    return (VolumesFrom.find(name) != VolumesFrom.end());
+    TString tsname(name);
+    AGeometryHub::getConstInstance().removeNameDecorators(tsname);
+    return (VolumesFrom.find(tsname) != VolumesFrom.end());
 }
 
-bool AInterfaceRuleHub::isToVolume(const TString & name) const
+bool AInterfaceRuleHub::isToVolume(const char * name) const
 {
-    return (VolumesTo.find(name) != VolumesTo.end());
+    TString tsname(name);
+    AGeometryHub::getConstInstance().removeNameDecorators(tsname);
+    return (VolumesTo.find(tsname) != VolumesTo.end());
 }
 
 void AInterfaceRuleHub::removeVolumeRule(const TString & from, const TString & to)

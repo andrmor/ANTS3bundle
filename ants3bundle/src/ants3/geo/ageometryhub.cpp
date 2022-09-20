@@ -559,12 +559,10 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 {
     //  Photon tracer uses volume title for identification of special volumes
-    //  First character ([0]) can be 'M' for monitor, 'S' for light sensor, '2' for secondary scintillator, 'G' for optical grid
+    //  First character can be 'M' for monitor, 'S' for light sensor, '2' for secondary scintillator, 'G' for optical grid
     //  * in the second (or third) places indicate that this volume has a defined optical interface rule from (or to)
-    // the forth position ([3]) is currently not used
-    // starting from index 4
 
-    TString title = "----";
+    TString title = "---";
 
     if      (obj->Role)
     {
@@ -579,21 +577,9 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     }
     else if (obj->Type->isGrid())                  title[0] = 'G';
 
-    const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
-    TString BaseName;
-    if (bInstance) BaseName = TString(obj->NameWithoutSuffix.toLatin1().data());
-    else
-    {
-        BaseName = vol->GetName();
-        if (title[0] != '-') AGeometryHub::getConstInstance().removeNameDecorators(BaseName);
-    }
-
     const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
-    if (IRH.isFromVolume(BaseName)) title[1] = '*';
-    if (IRH.isToVolume(BaseName))   title[2] = '*';
-
-    if (bInstance) title += BaseName;
-    // !!!*** consider setting titles only for volumes with named overrides from/to
+    if (IRH.isFromVolume(vol->GetName())) title[1] = '*';
+    if (IRH.isToVolume(vol->GetName()))   title[2] = '*';
 
     vol->SetTitle(title);
 }
