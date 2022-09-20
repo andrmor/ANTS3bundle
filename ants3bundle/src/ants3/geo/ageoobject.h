@@ -52,6 +52,8 @@ public:
   int style = 1;
   int width = 1;
 
+  QString NameWithoutSuffix; // used only during population of GeoManager: name of a prototype member without the corresponding instance suffix
+
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
   void onMaterialRemoved(int imat); // assumes isMaterialInUse was already called (and returned false)!
   bool isWorld() const;
