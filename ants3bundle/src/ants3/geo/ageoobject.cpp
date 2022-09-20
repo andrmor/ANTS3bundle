@@ -1240,8 +1240,9 @@ void AGeoObject::addSuffixToNameRecursive(const QString & suffix)
         if (Stack->ReferenceVolume == Name)
             Stack->ReferenceVolume = newName;
     }
-    if (isCompositeMemeber())
-        updateNameOfLogicalMember(Name, newName);
+    if (isCompositeMemeber()) updateNameOfLogicalMember(Name, newName);
+
+    NameWithoutSuffix = Name;
     Name = newName;
 
     for (AGeoObject * obj : HostedObjects)
