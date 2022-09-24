@@ -90,13 +90,12 @@ void AInterfaceRuleWin::updateVolGui()
 
         AInterfaceRule * ov = r.second;
         QString text = ov->getAbbreviation();
-        QTableWidgetItem * it = new QTableWidgetItem(text);
-        it->setTextAlignment(Qt::AlignCenter);
-        //it->setBackground(QBrush(Qt::lightGray));
-        it->setToolTip(ov->getLongReportLine());
-        it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        QTableWidgetItem * item = new QTableWidgetItem(text);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setToolTip(ov->getLongReportLine());
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
-        ui->tabwVolumes->setItem(iRow, 2, it);
+        ui->tabwVolumes->setItem(iRow, 2, item);
         iRow++;
     }
 
@@ -146,6 +145,7 @@ void AInterfaceRuleWin::OnRuleDialogAccepted_Vol()
     AInterfaceRule * newRule = RuleDialog->getRule();
     if (newRule) RuleHub.setVolumeRule(LastFrom, LastTo, newRule);
     else         RuleHub.removeVolumeRule(LastFrom, LastTo);
+
     updateVolGui();
 }
 
@@ -192,7 +192,7 @@ void AInterfaceRuleWin::onVolCellChanged()
         RuleHub.moveVolumeRule(OldFrom, OldTo, OldFrom, NewTo);
     }
 
-    updateVolGui();
+    //updateVolGui();
 }
 
 #include "abasicinterfacerule.h"
