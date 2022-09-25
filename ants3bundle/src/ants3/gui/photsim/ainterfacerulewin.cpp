@@ -19,8 +19,10 @@ AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
     connect(&RuleHub, &AInterfaceRuleHub::rulesLoaded, this, &AInterfaceRuleWin::updateGui);
 
     connect(ui->tabwMat,     &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onMatCellDoubleClicked);
+
     connect(ui->tabwVolumes, &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onVolCellDoubleClicked);
     connect(ui->tabwVolumes, &QTableWidget::itemChanged, this, &AInterfaceRuleWin::onVolCellChanged);
+    connect(ui->tabwVolumes->horizontalHeader(), &QHeaderView::sectionClicked, this, &AInterfaceRuleWin::onVolColumnClicked);
 
     updateGui();
 }
@@ -71,7 +73,7 @@ void AInterfaceRuleWin::updateMatGui()
 
     ui->labNumMatMat->setText( QString::number(NumMatRules) );
 }
-
+/*
 void AInterfaceRuleWin::updateVolGui()
 {
     BulkUpdate = true; // -->
@@ -97,6 +99,59 @@ void AInterfaceRuleWin::updateVolGui()
 
         ui->tabwVolumes->setItem(iRow, 2, item);
         iRow++;
+    }
+
+    BulkUpdate = false; // <--
+
+    ui->labNumVolVol->setText( QString::number(RuleHub.VolumeRules.size()) );
+}
+*/
+
+void AInterfaceRuleWin::updateVolGui()
+{
+    BulkUpdate = true; // -->
+
+    ui->tabwVolumes->clear();
+    ui->tabwVolumes->setColumnCount(3);
+    ui->tabwVolumes->setRowCount(RuleHub.VolumeRules.size());
+
+    ui->tabwVolumes->setHorizontalHeaderLabels({"Volume from", "Volume to", "Interface rule"});
+
+    typedef std::tuple< TString,TString,AInterfaceRule* > rec;  // from, to, rule*
+    std::vector<rec> records;
+    for (auto const & r : RuleHub.VolumeRules) records.push_back({r.first.first, r.first.second, r.second});
+
+    std::sort(records.begin(), records.end(), [this](const rec & lhs, const rec & rhs)
+    {
+        if (sortByColumn == 0)
+        {
+            return std::get<0>(lhs) < std::get<0>(rhs);
+        }
+        else if (sortByColumn == 1)
+        {
+            return std::get<1>(lhs) < std::get<1>(rhs);
+        }
+        else
+        {
+            return std::get<2>(lhs)->getAbbreviation() < std::get<2>(rhs)->getAbbreviation();
+        }
+    });
+
+    for (size_t iRow = 0; iRow < records.size(); iRow++)
+    {
+        const rec r = records[iRow];
+
+        TString from = std::get<0>(r); ui->tabwVolumes->setItem(iRow, 0, new QTableWidgetItem(from.Data()));
+        TString to   = std::get<1>(r); ui->tabwVolumes->setItem(iRow, 1, new QTableWidgetItem(to  .Data()));
+
+        AInterfaceRule * ov = std::get<2>(r);
+        QString text = ov->getAbbreviation();
+        QTableWidgetItem * item = new QTableWidgetItem(text);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setToolTip(ov->getLongReportLine());
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+        ui->tabwVolumes->setItem(iRow, 2, item);
     }
 
     BulkUpdate = false; // <--
@@ -203,9 +258,15 @@ void AInterfaceRuleWin::onVolCellChanged()
     //updateVolGui();
 }
 
+void AInterfaceRuleWin::onVolColumnClicked(int index)
+{
+    sortByColumn = index;
+    updateVolGui();
+}
+
 #include "abasicinterfacerule.h"
 void AInterfaceRuleWin::on_pbAddNewVolumeRule_clicked()
 {
-    RuleHub.setVolumeRule("NameFrom", "NameTo", new ABasicInterfaceRule(0,0));
+    RuleHub.setVolumeRule("_NameFrom_", "_NameTo_", new ABasicInterfaceRule(0,0));
     updateVolGui();
 }

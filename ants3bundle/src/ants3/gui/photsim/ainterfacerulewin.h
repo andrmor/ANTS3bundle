@@ -35,6 +35,7 @@ private:
 
     AInterfaceRuleDialog * RuleDialog = nullptr;
     QTableWidgetItem * itemDoubleClicked = nullptr;
+    int sortByColumn = 0;
 
     int NumMatRules = 0;
     bool BulkUpdate = false;
@@ -51,6 +52,7 @@ private slots:
     void onMatCellDoubleClicked();
     void onVolCellDoubleClicked();
     void onVolCellChanged();
+    void onVolColumnClicked(int index);
     void OnRuleDialogAccepted_Mat();
     void OnRuleDialogAccepted_Vol();
 
