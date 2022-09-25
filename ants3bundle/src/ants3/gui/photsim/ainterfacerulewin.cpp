@@ -267,6 +267,16 @@ void AInterfaceRuleWin::onVolColumnClicked(int index)
 #include "abasicinterfacerule.h"
 void AInterfaceRuleWin::on_pbAddNewVolumeRule_clicked()
 {
-    RuleHub.setVolumeRule("_NameFrom_", "_NameTo_", new ABasicInterfaceRule(0,0));
+    const QString Fr = "_NameFrom_";
+    const QString To = "_NameTo_";
+    RuleHub.setVolumeRule(Fr.toLatin1().data(), To.toLatin1().data(), new ABasicInterfaceRule(0,0));
     updateVolGui();
+
+    for (int iRow = 0; iRow < ui->tabwVolumes->rowCount(); iRow++)
+    {
+        if (Fr != ui->tabwVolumes->item(iRow, 0)->text()) continue;
+        if (To != ui->tabwVolumes->item(iRow, 1)->text()) continue;
+        ui->tabwVolumes->selectRow(iRow);
+        break;
+    }
 }

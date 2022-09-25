@@ -170,7 +170,7 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Double-click to edit</string>
+           <string>Double-click to edit; Click a column to sort</string>
           </property>
          </widget>
         </item>
