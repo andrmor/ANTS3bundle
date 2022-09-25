@@ -134,6 +134,7 @@ void AInterfaceRuleWin::onVolCellDoubleClicked()
 
     delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), 0, 0, this);
     configureInterfaceDialog();
+    itemDoubleClicked = ui->tabwVolumes->item(iRow, iCol);
     connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Vol);
     RuleDialog->show();
 }
@@ -143,10 +144,17 @@ void AInterfaceRuleWin::OnRuleDialogAccepted_Vol()
     if (!RuleDialog) return;
 
     AInterfaceRule * newRule = RuleDialog->getRule();
-    if (newRule) RuleHub.setVolumeRule(LastFrom, LastTo, newRule);
-    else         RuleHub.removeVolumeRule(LastFrom, LastTo);
-
-    updateVolGui();
+    if (newRule)
+    {
+        RuleHub.setVolumeRule(LastFrom, LastTo, newRule);
+        if (itemDoubleClicked) itemDoubleClicked->setText(newRule->getAbbreviation());
+        else updateVolGui();
+    }
+    else
+    {
+        RuleHub.removeVolumeRule(LastFrom, LastTo);
+        updateVolGui();
+    }
 }
 
 #include "TObject.h"

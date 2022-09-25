@@ -15,6 +15,7 @@ class AMaterialHub;
 class AInterfaceRuleHub;
 class AInterfaceRuleDialog;
 class TObject;
+class QTableWidgetItem;
 
 class AInterfaceRuleWin : public AGuiWindow
 {
@@ -33,6 +34,7 @@ private:
     Ui::AInterfaceRuleWin * ui = nullptr;
 
     AInterfaceRuleDialog * RuleDialog = nullptr;
+    QTableWidgetItem * itemDoubleClicked = nullptr;
 
     int NumMatRules = 0;
     bool BulkUpdate = false;
