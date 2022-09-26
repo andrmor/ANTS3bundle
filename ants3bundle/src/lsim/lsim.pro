@@ -73,6 +73,7 @@ SOURCES += \
         ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
         ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
         ../ants3/photonSim/interfaceRules/asurfaceinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/aunifiedrule.cpp \
         ../ants3/photonSim/aphoton.cpp \
         ../ants3/photonSim/aphotonstatistics.cpp \
         ../ants3/tools/aroothistappenders.cpp \
@@ -140,6 +141,7 @@ HEADERS += \
     ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \
     ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
     ../ants3/photonSim/interfaceRules/asurfaceinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/aunifiedrule.h \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/aphotonstatistics.h \
     ../ants3/tools/aroothistappenders.h \
