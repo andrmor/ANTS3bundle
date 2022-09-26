@@ -9,7 +9,6 @@
 #include <QJsonObject>
 
 #include "TMath.h"
-#include "TRandom2.h"
 
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)

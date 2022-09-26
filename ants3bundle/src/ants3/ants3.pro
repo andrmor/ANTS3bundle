@@ -167,6 +167,7 @@ SOURCES += \
     gui/script/atextoutputwindow.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
+    photonSim/interfaceRules/aunifiedrule.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -362,6 +363,7 @@ HEADERS += \
     gui/script/escriptlanguage.h \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
+    photonSim/interfaceRules/aunifiedrule.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \

@@ -22,7 +22,7 @@ public:
     enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_}; //return status for photon tracing:
     enum ScatterStatusEnum {
         Absorption,
-        SpikeReflection, LobeReflection, LambertianReflection,
+        SpikeReflection, LobeReflection, LambertianReflection, BackscatterSpikeReflection,
         UnclassifiedReflection,
         Transmission,
         LocalNormalDelegated,
