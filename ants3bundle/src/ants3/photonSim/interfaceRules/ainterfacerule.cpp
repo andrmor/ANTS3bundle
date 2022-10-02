@@ -10,6 +10,7 @@
 #include "awaveshifterinterfacerule.h"
 #include "ametalinterfacerule.h"
 #include "asurfaceinterfacerule.h"
+#include "aunifiedrule.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -28,6 +29,8 @@ AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int
         return new AWaveshifterInterfaceRule(MatFrom, MatTo);
     if (Model == "RoughSurface")
         return new ASurfaceInterfaceRule(MatFrom, MatTo);
+    if (Model == "Unified")
+        return new AUnifiedRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
 }
@@ -41,7 +44,8 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
       << "FSNP"
       << "DielectricToMetal"
       << "SurfaceWLS"
-      << "RoughSurface";
+      << "RoughSurface"
+      << "Unified";
 
     return l;
 }

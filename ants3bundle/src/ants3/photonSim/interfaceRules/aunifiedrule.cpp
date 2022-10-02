@@ -184,10 +184,13 @@ bool AUnifiedRule::doReadFromJson(const QJsonObject &json)
     jstools::parseJson(json, "Cspeclobe", Cspeclobe);
     jstools::parseJson(json, "Cdiflobe",  Cdiflobe);
     jstools::parseJson(json, "Cback",     Cback);
+
+    return true;
 }
 
 QString AUnifiedRule::doCheckOverrideData()
 {
+    if (Cspec + Cspeclobe + Cdiflobe + Cback != 1.0) return "Sum of all coefficients should be unity!";
     return "";
 }
 

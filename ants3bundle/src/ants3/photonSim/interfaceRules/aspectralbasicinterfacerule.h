@@ -17,7 +17,7 @@ public:
     OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "SimplisticSpectral";}
-    QString getAbbreviation() const override {return "SiSp";}
+    QString getAbbreviation() const override {return "SimpS";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
