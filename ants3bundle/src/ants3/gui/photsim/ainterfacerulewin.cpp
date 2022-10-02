@@ -178,6 +178,8 @@ void AInterfaceRuleWin::OnRuleDialogAccepted_Mat()
     delete RuleDialog; RuleDialog = nullptr;
 }
 
+#include "ageometryhub.h"
+#include "ageoobject.h"
 void AInterfaceRuleWin::onVolCellDoubleClicked()
 {
     int iCol = ui->tabwVolumes->currentColumn();
@@ -187,7 +189,15 @@ void AInterfaceRuleWin::onVolCellDoubleClicked()
     LastFrom = ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data();
     LastTo   = ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data();
 
-    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), 0, 0, this);
+    AGeoObject * world = AGeometryHub::getConstInstance().World;
+    AGeoObject * obFrom = world->findObjectByName(LastFrom.Data());
+    int iFrom = 0;
+    if (obFrom) iFrom = obFrom->Material;
+    int iTo = 0;
+    AGeoObject * obTo = world->findObjectByName(LastTo.Data());
+    if (obTo) iTo = obTo->Material;
+
+    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), iFrom, iTo, this);
     configureInterfaceDialog();
     itemDoubleClicked = ui->tabwVolumes->item(iRow, iCol);
     connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Vol);
