@@ -38,7 +38,10 @@ public:
     // TODO: refactor:
     void   toStandardBins(const QVector<double> *wavelength, const QVector<double> *value, QVector<double>* binnedValue) const;
     void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const;
+    void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const;
     void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
+
+    void   getWavelengthBins(std::vector<double> & wavelength) const;
 
 private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;

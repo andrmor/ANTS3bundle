@@ -8,6 +8,7 @@ class ASensorWindow;
 }
 
 class ASensorHub;
+class TObject;
 
 class ASensorWindow : public AGuiWindow
 {
@@ -40,6 +41,11 @@ private slots:
 
     void on_pbShowSensorsOfThisModel_clicked();
 
+    void on_pbLoadPDE_clicked();
+    void on_pbRemovePDE_clicked();
+    void on_pbShowPDE_clicked();
+    void on_pbShowBinnedPDE_clicked();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
@@ -47,9 +53,11 @@ private:
     void updateNumPixels();
     void onModelIndexChanged();
     void updateHeader();
+    void updatePdeButtons();
 
 signals:
     void requestShowSensorModels(int iModel);
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
 #endif // ASENSORWINDOW_H

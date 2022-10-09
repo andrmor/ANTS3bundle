@@ -68,7 +68,7 @@ AInterfaceRule::OpticalOverrideResultEnum AUnifiedRule::calculate(APhoton * Phot
     rnd -= Refl * Cspeclobe;
     if (rnd < 0)
     {
-        qDebug() << "Spectral lobe (microfacet reflection)";
+        //qDebug() << "Spectral lobe (microfacet reflection)";
         //rotating the vector: K = K - 2*(NK)*N
         double NK = LocalNormal[0]*Photon->v[0]; NK += LocalNormal[1]*Photon->v[1];  NK += LocalNormal[2]*Photon->v[2];
         Photon->v[0] -= 2.0*NK*LocalNormal[0]; Photon->v[1] -= 2.0*NK*LocalNormal[1]; Photon->v[2] -= 2.0*NK*LocalNormal[2];

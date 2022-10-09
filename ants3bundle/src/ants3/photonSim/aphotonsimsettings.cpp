@@ -91,6 +91,19 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     }
 }
 
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const
+{
+    std::vector<double> wavVec, valVec;
+
+    for (const auto & pair : waveAndData)
+    {
+        wavVec.push_back(pair.first);
+        valVec.push_back(pair.second);
+    }
+
+    toStandardBins(wavVec, valVec, binnedValue);
+}
+
 void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const
 {
     std::vector<double> wavelength, realValue, imagValue, realBinned, imagBinned;
@@ -108,6 +121,14 @@ void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::c
     reIm.clear();
     for (size_t i = 0; i < realBinned.size(); i++)
         reIm.push_back( {realBinned[i], imagBinned[i]} );
+}
+
+void AWaveResSettings::getWavelengthBins(std::vector<double> & wavelength) const
+{
+    wavelength.clear();
+    const int points = countNodes();
+    for (int iP = 0; iP < points; iP++)
+        wavelength.push_back(From + Step * iP);
 }
 
 double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const
