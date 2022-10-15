@@ -69,7 +69,8 @@ MainWindow::MainWindow() :
     connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend,          GraphWin, &GraphWindowClass::drawLegend);
 
     SensWin = new ASensorWindow(this);
-    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
+    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin,   &AGeometryWindow::showSensorModelIndexes);
+    connect(SensWin, &ASensorWindow::requestDraw,             GraphWin, &GraphWindowClass::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
     connect(PhotSimWin, &APhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);

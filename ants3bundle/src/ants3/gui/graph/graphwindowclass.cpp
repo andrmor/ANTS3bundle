@@ -1312,7 +1312,7 @@ void GraphWindowClass::DrawStrOpt(TObject *obj, QString options, bool DoUpdate)
     Draw(obj, options.toLatin1().data(), DoUpdate, true); // changed to register - now hist/graph scripts make a copy to draw
 }
 
-void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool transferOwnership, bool focusWindow)
+void GraphWindowClass::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
     if (focusWindow)
         Draw(obj, options.toLatin1().data(), true, transferOwnership);

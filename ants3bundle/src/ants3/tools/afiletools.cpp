@@ -59,7 +59,42 @@ QString ftools::mergeTextFiles(const std::vector<QString> & FilesToMerge, QStrin
     return "";
 }
 
+QString ftools::loadPairs(const QString & FileName, std::vector<std::pair<double, double>> & data, bool enforceIncreasing)
+{
+    if (FileName.isEmpty()) return "Error: empty name was given to file loader!";
 
+    QFile file(FileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + FileName;
+
+    QTextStream in(&file);
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    data.clear();
+    while (!in.atEnd())
+    {
+        QString line = in.readLine();
+
+        if (line.isEmpty()) continue;
+        if (line[0] == '#') continue;
+
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        if (fields.size() != 2) return "Each line of the file (besides empty lines and comments starting with '#' symbol) should contain two numbers";
+
+        bool ok1, ok2;
+        double x, y;
+        x = fields[0].toDouble(&ok1);
+        y = fields[1].toDouble(&ok2);
+        if (!ok1 || !ok2) return "Each line of the file (besides empty lines and comments starting with '#' symbol) should contain two numbers";
+
+        if (enforceIncreasing)
+            if (data.size() > 1)
+                if (data.back().first <= data[data.size()-2].first) return "Data should have increasing values in the first column";
+
+        data.push_back({x, y});
+    }
+    file.close();
+    return "";
+}
 
 QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)
 {
@@ -480,4 +515,3 @@ int SaveIntVectorsToFile(QString FileName, const QVector<int> *x, const QVector<
 }
 
 */
-

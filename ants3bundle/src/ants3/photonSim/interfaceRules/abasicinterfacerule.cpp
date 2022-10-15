@@ -9,12 +9,14 @@
 #include <QJsonObject>
 
 #include "TMath.h"
-#include "TRandom2.h"
 
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
-    : AInterfaceRule(MatFrom, MatTo) {}
+    : AInterfaceRule(MatFrom, MatTo)
+{
+    SurfaceSettings.Model = ASurfaceSettings::Polished; // !!!*** set default to Polished, and for rough surface rule to Glisur
+}
 
-AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     double rnd = RandomHub.uniform();
 
@@ -102,10 +104,19 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton
         }
     }
 
-    // overrides NOT triggered - what is left is covered by Fresnel in the tracker code
-    // qDebug()<<"Overrides did not trigger, using fresnel";
-    Status = Transmission;
-    return NotTriggered;
+    // overrides NOT triggered
+    if (isPolishedSurface())
+    {
+        // what is left is covered by Fresnel in the tracker code
+        // qDebug()<<"Overrides did not trigger, using fresnel";
+        Status = Transmission;
+        return NotTriggered;
+    }
+
+    // rough surface, calculating facet normal and delegating the rest to the tracer
+    calculateLocalNormal(NormalVector, Photon->v);
+    Status = LocalNormalDelegated;
+    return DelegateLocalNormal;
 }
 
 QString ABasicInterfaceRule::getReportLine() const
@@ -156,17 +167,15 @@ QString ABasicInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void ABasicInterfaceRule::writeToJson(QJsonObject &json) const
+void ABasicInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     json["Abs"]      = Abs;
     json["Spec"]     = Spec;
     json["Scat"]     = Scat;
     json["ScatMode"] = ScatterModel;
 }
 
-bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
+bool ABasicInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "Abs",      Abs) )          return false;
     if ( !jstools::parseJson(json, "Spec",     Spec) )         return false;
@@ -175,9 +184,9 @@ bool ABasicInterfaceRule::readFromJson(const QJsonObject & json)
     return true;
 }
 
-QString ABasicInterfaceRule::checkOverrideData()
+QString ABasicInterfaceRule::doCheckOverrideData()
 {
-    if (ScatterModel<0 || ScatterModel>2) return "Invalid scatter model";
+    if (ScatterModel < 0 || ScatterModel > 2) return "Invalid scatter model";
 
     if (Abs  < 0 || Abs  > 1.0) return "Absorption probability should be within [0, 1.0]";
     if (Spec < 0 || Spec > 1.0) return "Reflection probability should be within [0, 1.0]";

@@ -10,7 +10,7 @@ class AInterfaceRuleDialog;
 }
 
 class AInterfaceRule;
-class AOpticalOverrideTester;
+class AInterfaceRuleTester;
 class AMaterialHub;
 class AInterfaceRuleHub;
 class TObject;
@@ -34,17 +34,24 @@ private slots:
     void on_cobType_activated(int index);
     void on_pbTestOverride_clicked();
 
+    void on_cobSurfaceModel_currentIndexChanged(int index);
+
+    void on_cobSurfaceModel_activated(int index);
+
+    void on_lePolishGlisur_editingFinished();
+
+    void on_leSigmaAlphaUnified_editingFinished();
+
 protected:
-    void closeEvent(QCloseEvent * e);  // !!!*** saqve/load settings!
+    void closeEvent(QCloseEvent * e);
 
 private:
     AMaterialHub      & MatHub;
     AInterfaceRuleHub & RuleHub;
 
-
     Ui::AInterfaceRuleDialog * ui           = nullptr;
     AInterfaceRule           * LocalRule    = nullptr;
-    AOpticalOverrideTester   * TesterWindow = nullptr;
+    AInterfaceRuleTester     * TesterWindow = nullptr;
 
     int customWidgetPositionInLayout = 5;
     QWidget * customWidget = nullptr;
@@ -60,7 +67,7 @@ signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
-    void requestShowTracks(); // also focuses the geo view window
+    void requestShowTracks();
     void closed(bool);
 
 };

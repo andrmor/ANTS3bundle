@@ -765,5 +765,6 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
 void APhotonSimulator::terminate(const QString & reason)
 {
     LOG << reason;
+    qDebug() << reason;
     exit(1);
 }

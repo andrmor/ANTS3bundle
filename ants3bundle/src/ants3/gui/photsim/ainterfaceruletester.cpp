@@ -1,5 +1,5 @@
-#include "aopticaloverridetester.h"
-#include "ui_aopticaloverridetester.h"
+#include "ainterfaceruletester.h"
+#include "ui_ainterfaceruletester.h"
 #include "mainwindow.h"
 #include "guitools.h"
 #include "amaterialhub.h"
@@ -13,14 +13,14 @@
 #include "arandomhub.h"
 #include "astatisticshub.h"
 #include "agraphbuilder.h"
+#include "aphotonsimhub.h"
+#include "ageometryhub.h"
 
 #include <QDoubleValidator>
 #include <QLineEdit>
-#include <QSpinBox>
 #include <QDebug>
 
 #include "TVector3.h"
-#include "TRandom2.h"
 #include "TGraph.h"
 #include "TLegend.h"
 #include "TMath.h"
@@ -28,13 +28,16 @@
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 
-AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
+#include <complex>
+
+AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
+    GeoHub(AGeometryHub::getInstance()),
     RandomHub(ARandomHub::getInstance()),
     Stats(AStatisticsHub::getInstance().SimStat),
     pOV(ovLocal), MatFrom(matFrom), MatTo(matTo),
-    ui(new Ui::AOpticalOverrideTester)
+    ui(new Ui::AInterfaceRuleTester)
 {
     ui->setupUi(this);
     setWindowTitle("Override tester");
@@ -50,8 +53,7 @@ AOpticalOverrideTester::AOpticalOverrideTester(AInterfaceRule ** ovLocal, int ma
     updateGUI();
 }
 
-#include "aphotonsimhub.h"
-void AOpticalOverrideTester::updateGUI()
+void AInterfaceRuleTester::updateGUI()
 {
     bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
     if (!bWR)
@@ -62,23 +64,36 @@ void AOpticalOverrideTester::updateGUI()
     else
         ui->cbWavelength->setEnabled(true);
 
-    int waveIndex = getWaveIndex();
-    ui->ledST_Ref1->setText( QString::number( MatHub[MatFrom]->getRefractiveIndex(waveIndex) ) );
-    ui->ledST_Ref2->setText( QString::number( MatHub[MatTo]  ->getRefractiveIndex(waveIndex) ) );
+    const int waveIndex = getWaveIndex();
+    QString str1, str2;
+    if (MatHub[MatFrom]->Dielectric) str1 = QString::number( MatHub[MatFrom]->getRefractiveIndex(waveIndex) );
+    else
+    {
+        const std::complex<double> ref = MatHub[MatFrom]->getComplexRefractiveIndex(waveIndex);
+        str1 = QString("%1 %2*i").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+    }
+    if (MatHub[MatTo]->Dielectric) str2 = QString::number( MatHub[MatTo]->getRefractiveIndex(waveIndex) );
+    else
+    {
+        const std::complex<double> ref = MatHub[MatTo]->getComplexRefractiveIndex(waveIndex);
+        str2 = QString("%1 %2*i").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+    }
+    ui->ledST_Ref1->setText(str1);
+    ui->ledST_Ref2->setText(str2);
 }
 
-AOpticalOverrideTester::~AOpticalOverrideTester()
+AInterfaceRuleTester::~AInterfaceRuleTester()
 {
     delete ui;
 }
 
-void AOpticalOverrideTester::writeToJson(QJsonObject &json) const
+void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
 {
     json["PositionX"] = x();
     json["PositionY"] = y();
 }
 
-void AOpticalOverrideTester::readFromJson(const QJsonObject &json)
+void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
 {
     if (json.isEmpty()) return;
 
@@ -88,7 +103,7 @@ void AOpticalOverrideTester::readFromJson(const QJsonObject &json)
     if (x>0 && y>0) move(x, y);
 }
 
-void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
+void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -168,7 +183,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         gN->SetMinimum(0);
         gN->SetMaximum(1.05);
 
-        emit requestDraw(gN, "AL",    true, false);
+        emit requestDraw(gN, "AL",    true, true);
         emit requestDraw(gA, "Lsame", true, false);
         emit requestDraw(gB, "Lsame", true, false);
         emit requestDraw(gF, "Lsame", true, false);
@@ -185,7 +200,7 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         gT->SetMinimum(0);
         gT->SetMaximum(1.05);
 
-        emit requestDraw(gT, "AL",    true, false);
+        emit requestDraw(gT, "AL",    true, true);
         emit requestDraw(gS, "Lsame", true, false);
         emit requestDraw(gL, "Lsame", true, false);
         emit requestDraw(gD, "Lsame", true, false);
@@ -199,16 +214,18 @@ void AOpticalOverrideTester::on_pbST_RvsAngle_clicked()
         AGraphBuilder::configure(gW, "Wavelength shifted", "Angle, deg", "Fraction", 4, 0, 1, 4, 1, 2);
         gW->SetMaximum(1.05);
         gW->SetMinimum(0);
-        emit requestDraw(gW, "AL", true, false);
+        emit requestDraw(gW, "AL", true, true);
         //emit requestDrawLegend(0.1,0.1, 0.5,0.5, "Waveshifted");
         break;
     }
     }
 }
 
-void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
+void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 {
     if ( !testOverride() ) return;
+
+    //qDebug() << "Surface:->" << (int)((*pOV)->SurfaceSettings.Model);
 
     //surface normal and photon direction
     TVector3 SurfNorm(0, 0, -1.0);
@@ -239,16 +256,64 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         ph.v[2] = PhotDir.Z();
         ph.time = 0;
         ph.waveIndex = waveIndex;
+
+tryAgainLabel:
         AInterfaceRule::OpticalOverrideResultEnum result = (*pOV)->calculate(&ph, N);
 
         //in case of absorption or not triggered override, do not build tracks!
         switch (result)
         {
-        case AInterfaceRule::Absorbed:     rep.abs++; continue;           // ! ->
-        case AInterfaceRule::NotTriggered: rep.notTrigger++; continue;    // ! ->
-        case AInterfaceRule::Forward:      rep.forw++; break;
-        case AInterfaceRule::Back:         rep.back++; break;
-        default:                           rep.error++; continue;         // ! ->
+        case AInterfaceRule::Absorbed            : rep.abs++; continue;           // ! ->
+        case AInterfaceRule::NotTriggered        : rep.notTrigger++; continue;    // ! ->
+        case AInterfaceRule::Forward             : rep.forw++; break;
+        case AInterfaceRule::Back                : rep.back++; break;
+        default                                  : rep.error++; continue;         // ! ->
+        case AInterfaceRule::DelegateLocalNormal :
+            {
+                const double ref = calculateReflectionProbability(ph);
+                if (RandomHub.uniform() < ref)
+                {
+                    //reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
+                    double NK = 0;
+                    for (int i = 0; i < 3; i++) NK += (*pOV)->LocalNormal[i] * ph.v[i];
+                    for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * (*pOV)->LocalNormal[i];
+
+                    double GNK = 0;
+                    for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
+                    if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
+                    {
+                        //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+                        goto tryAgainLabel;
+                    }
+
+                    (*pOV)->Status = AInterfaceRule::LobeReflection;
+                    rep.back++; break;
+                }
+                else
+                {
+                    //transmitted --> must be synchronized with performRefraction() method of APhotontracer class
+                    if (MatHub[MatTo]->Dielectric)
+                    {
+                        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(ph.waveIndex);
+                        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(ph.waveIndex);
+
+                        const double nn = RefrIndexFrom / RefrIndexTo;
+                        double NK = 0;
+                        for (int i = 0; i < 3; i++) NK += ph.v[i] * (*pOV)->LocalNormal[i];
+
+                        const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
+                        if (UnderRoot < 0)
+                        {
+                            //should not happen --> reflection coefficient takes it into account
+                            rep.error++; continue;                                 // ! ->
+                        }
+                        const double tmp = nn * NK - sqrt(UnderRoot);
+                        for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * (*pOV)->LocalNormal[i];
+                    }
+                    // for metals do nothing -> anyway geometric optics is not a proper model to use
+                    rep.forw++; break;
+                }
+            }
         }
 
         short col;
@@ -274,7 +339,7 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
         else
         {
             type = 666;
-            col = kBlue; //blue for error
+            col = kBlue; //blue for transmitted or error
         }
 
         Tracks.push_back(ATmpTrackRec(type, col));
@@ -294,9 +359,9 @@ void AOpticalOverrideTester::on_pbCSMtestmany_clicked()
     reportStatistics(rep, numPhot);
 }
 
-void AOpticalOverrideTester::showGeometry()
+void AInterfaceRuleTester::showGeometry()
 {
-    gGeoManager->ClearTracks();
+    GeoHub.GeoManager->ClearTracks();
     emit requestClearGeometryViewer();
 
     double d = 0.5;
@@ -304,8 +369,8 @@ void AOpticalOverrideTester::showGeometry()
 
     //surface normal
     TVector3 SurfNorm(0, 0, -1.0);
-    int track_index = gGeoManager->AddTrack(1,22);
-    TVirtualGeoTrack* track = gGeoManager->GetTrack(track_index);
+    int track_index = GeoHub.GeoManager->AddTrack(1,22);
+    TVirtualGeoTrack* track = GeoHub.GeoManager->GetTrack(track_index);
     track->AddPoint(d, d, d, 0);
     track->AddPoint(d + SurfNorm.X(), d + SurfNorm.Y(), d + SurfNorm.Z(), 0);
     track->SetLineWidth(3);
@@ -313,8 +378,8 @@ void AOpticalOverrideTester::showGeometry()
     track->SetLineColor(1);
 
     //surface
-    track_index = gGeoManager->AddTrack(1, 22);
-    track = gGeoManager->GetTrack(track_index);
+    track_index = GeoHub.GeoManager->AddTrack(1, 22);
+    track = GeoHub.GeoManager->GetTrack(track_index);
     TVector3 perp = SurfNorm.Orthogonal();
     perp.Rotate(0.25 * TMath::Pi(), SurfNorm);
     for (int i=0; i<5; i++)
@@ -326,8 +391,8 @@ void AOpticalOverrideTester::showGeometry()
     track->SetLineColor(1);
 
     //intitial photon track
-    track_index = gGeoManager->AddTrack(1, 10);
-    track = gGeoManager->GetTrack(track_index);
+    track_index = GeoHub.GeoManager->AddTrack(1, 10);
+    track = GeoHub.GeoManager->GetTrack(track_index);
     track->AddPoint(d, d, d, 0);
 
     TVector3 PhotDir = getPhotonVector();
@@ -338,7 +403,7 @@ void AOpticalOverrideTester::showGeometry()
     emit requestShowTracks();
 }
 
-void AOpticalOverrideTester::on_pbST_showTracks_clicked()
+void AInterfaceRuleTester::on_pbST_showTracks_clicked()
 {
     showGeometry();
 
@@ -347,25 +412,25 @@ void AOpticalOverrideTester::on_pbST_showTracks_clicked()
     if (selector == 3) return; //do not show any tracks
 
     int numTracks = 0;
-    for(int i = 1; i < Tracks.size() && numTracks < maxNumTracks; i++)
+    for(size_t iTrack = 1; iTrack < Tracks.size() && numTracks < maxNumTracks; iTrack++)
     {
-        const ATmpTrackRec & th = Tracks[i];
+        const ATmpTrackRec & th = Tracks[iTrack];
         //filter
         if (selector > -1)  //-1 - show all
             if (selector != th.Type) continue;
 
-        int track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+        int track_index = GeoHub.GeoManager->AddTrack(1,22);
+        TVirtualGeoTrack * track = GeoHub.GeoManager->GetTrack(track_index);
         track->SetLineColor(th.Color);
         track->SetLineWidth(1);
-        for (int iNode=0; iNode < th.Nodes.size(); iNode++)
+        for (size_t iNode=0; iNode < th.Nodes.size(); iNode++)
             track->AddPoint(th.Nodes[iNode][0], th.Nodes[iNode][1], th.Nodes[iNode][2], 0);
     }
 
     emit requestShowTracks();
 }
 
-bool AOpticalOverrideTester::testOverride()
+bool AInterfaceRuleTester::testOverride()
 {
     if ( !(*pOV) )
     {
@@ -382,7 +447,7 @@ bool AOpticalOverrideTester::testOverride()
     return true;
 }
 
-int AOpticalOverrideTester::getWaveIndex()
+int AInterfaceRuleTester::getWaveIndex()
 {
     const double wavelength = ui->ledST_wave->text().toDouble();
     if (ui->cbWavelength->isChecked())
@@ -391,7 +456,7 @@ int AOpticalOverrideTester::getWaveIndex()
     else return -1;
 }
 
-const TVector3 AOpticalOverrideTester::getPhotonVector()
+TVector3 AInterfaceRuleTester::getPhotonVector()
 {
     TVector3 PhotDir(0, 0, -1.0);
     TVector3 perp(0, 1.0, 0);
@@ -401,7 +466,7 @@ const TVector3 AOpticalOverrideTester::getPhotonVector()
     return PhotDir;
 }
 
-void AOpticalOverrideTester::on_pbST_uniform_clicked()
+void AInterfaceRuleTester::on_pbST_uniform_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -464,17 +529,17 @@ void AOpticalOverrideTester::on_pbST_uniform_clicked()
     showGeometry(); //to clear track vis
 }
 
-void AOpticalOverrideTester::on_cbWavelength_toggled(bool)
+void AInterfaceRuleTester::on_cbWavelength_toggled(bool)
 {
     updateGUI();
 }
 
-void AOpticalOverrideTester::on_ledST_wave_editingFinished()
+void AInterfaceRuleTester::on_ledST_wave_editingFinished()
 {
     updateGUI();
 }
 
-void AOpticalOverrideTester::on_ledAngle_editingFinished()
+void AInterfaceRuleTester::on_ledAngle_editingFinished()
 {
     const double angle = ui->ledAngle->text().toDouble();
     if (angle < 0 || angle >= 90.0 )
@@ -486,13 +551,13 @@ void AOpticalOverrideTester::on_ledAngle_editingFinished()
     showGeometry();
 }
 
-void AOpticalOverrideTester::closeEvent(QCloseEvent * e)
+void AInterfaceRuleTester::closeEvent(QCloseEvent * e)
 {
     QMainWindow::closeEvent(e);
     emit closed(true);
 }
 
-void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int numPhot)
+void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int numPhot)
 {
     ui->pte->clear();
 
@@ -525,4 +590,52 @@ void AOpticalOverrideTester::reportStatistics(const AReportForOverride &rep, int
     ui->pte->appendPlainText(t);
     ui->pte->moveCursor(QTextCursor::Start);
     ui->pte->ensureCursorVisible();
+}
+
+double AInterfaceRuleTester::calculateReflectionProbability(const APhoton & Photon) const
+{
+    // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
+
+    double NK = 0;
+    for (int i = 0; i < 3; i++) NK += Photon.v[i] * (*pOV)->LocalNormal[i];
+    const double cos1 = fabs(NK); // cos of the angle of incidence
+    const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
+
+    if (MatHub[MatTo]->Dielectric)
+    {
+        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
+        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(Photon.waveIndex);
+
+        const double sin2 = RefrIndexFrom / RefrIndexTo * sin1;
+        if (fabs(sin2) > 1.0)
+        {
+            // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
+            return 1.0;
+        }
+        else
+        {
+            const double cos2 = sqrt(1.0 - sin2*sin2);
+            double Rs = (RefrIndexFrom*cos1 - RefrIndexTo*cos2) / (RefrIndexFrom*cos1 + RefrIndexTo*cos2);
+            Rs *= Rs;
+            double Rp = (RefrIndexFrom*cos2 - RefrIndexTo*cos1) / (RefrIndexFrom*cos2 + RefrIndexTo*cos1);
+            Rp *= Rp;
+            return 0.5 * (Rs + Rp);
+        }
+    }
+    else
+    {
+        const double nFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
+        const std::complex<double> & NTo = MatHub[MatTo]->getComplexRefractiveIndex(Photon.waveIndex);
+
+        const std::complex<double> sin2 = sin1 / NTo * nFrom;
+        const std::complex<double> cos2 = sqrt( 1.0 - sin2*sin2 );
+
+        const std::complex<double> rs = (nFrom*cos1 -   NTo*cos2) / (nFrom*cos1 +   NTo*cos2);
+        const std::complex<double> rp = ( -NTo*cos1 + nFrom*cos2) / (  NTo*cos1 + nFrom*cos2);
+
+        const double RS = std::norm(rs);
+        const double RP = std::norm(rp);
+
+        return 0.5 * (RS + RP);
+    }
 }

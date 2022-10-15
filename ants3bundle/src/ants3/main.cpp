@@ -26,6 +26,8 @@
 
 #include "ascriptinterface.h"
 
+Q_DECLARE_METATYPE(TObject*);
+
 int main(int argc, char *argv[])
 {
     int rootargc = 1;

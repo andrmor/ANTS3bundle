@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AOpticalOverrideTester</class>
- <widget class="QMainWindow" name="AOpticalOverrideTester">
+ <class>AInterfaceRuleTester</class>
+ <widget class="QMainWindow" name="AInterfaceRuleTester">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>443</width>
+    <width>481</width>
     <height>424</height>
    </rect>
   </property>
@@ -85,9 +85,16 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
+       <widget class="QLabel" name="labMaterials">
+        <property name="text">
+         <string>a -&gt; b</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_303">
         <property name="text">
-         <string>Refractive index:</string>
+         <string>  Refr index from</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -95,17 +102,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labFrom">
-        <property name="text">
-         <string>   from:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="ledST_Ref1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>50</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -120,7 +126,7 @@
       <item>
        <widget class="QLabel" name="labTo">
         <property name="text">
-         <string>to:</string>
+         <string>to</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -129,9 +135,15 @@
       </item>
       <item>
        <widget class="QLineEdit" name="ledST_Ref2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>50</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -142,26 +154,6 @@
          <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labMaterials">
-        <property name="text">
-         <string>(a -&gt; b)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
@@ -233,10 +225,9 @@
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="pbCSMtestmany">
+     <widget class="QPushButton" name="pbTracePhotons">
       <property name="font">
        <font>
-        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -318,7 +309,6 @@ the incoming photon direction is positive.</string>
         </property>
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -365,7 +355,6 @@ the incoming photon direction is positive.</string>
      <widget class="QPushButton" name="pbST_uniform">
       <property name="font">
        <font>
-        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -394,7 +383,7 @@ the incoming photon direction is positive.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>443</width>
+     <width>481</width>
      <height>21</height>
     </rect>
    </property>
@@ -409,12 +398,12 @@ the incoming photon direction is positive.</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
-     <y>132</y>
+     <x>385</x>
+     <y>52</y>
     </hint>
     <hint type="destinationlabel">
-     <x>369</x>
-     <y>129</y>
+     <x>445</x>
+     <y>53</y>
     </hint>
    </hints>
   </connection>

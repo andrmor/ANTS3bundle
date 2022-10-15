@@ -3,8 +3,12 @@
 #include "asensorhub.h"
 #include "asensormodel.h"
 #include "guitools.h"
+#include "afiletools.h"
+#include "agraphbuilder.h"
 
 #include <QDoubleValidator>
+
+#include "TGraph.h"
 
 ASensorWindow::ASensorWindow(QWidget *parent) :
     AGuiWindow("Sens", parent),
@@ -41,6 +45,7 @@ void ASensorWindow::updateGui()
 
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
+    updatePdeButtons();
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
@@ -79,10 +84,7 @@ void ASensorWindow::onModelIndexChanged()
 
     ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
 
-    bool bHaveSpectral = (mod->PDE_spectral.size() > 0);
-    ui->pbShowPDE->setEnabled(bHaveSpectral);
-    ui->pbRemovePDE->setEnabled(bHaveSpectral);
-    ui->pbShowBinnedPDE->setEnabled(bHaveSpectral);
+    updatePdeButtons();
 
     ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
     ui->sbPixelsX->setValue(mod->PixelsX);
@@ -215,5 +217,78 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
 void ASensorWindow::on_pbShowSensorsOfThisModel_clicked()
 {
     emit requestShowSensorModels(ui->sbModelIndex->value());
+}
+
+void ASensorWindow::updatePdeButtons()
+{
+    bool enabled = false;
+
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (mod) enabled = !mod->PDE_spectral.empty();
+
+    ui->pbShowPDE->setEnabled(enabled);
+    ui->pbRemovePDE->setEnabled(enabled);
+    ui->pbShowBinnedPDE->setEnabled(enabled);
+}
+
+void ASensorWindow::on_pbLoadPDE_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    QString fname =guitools::dialogLoadFile(this, "Load spectral PDE", "");
+    if (fname.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> data;
+    QString err = ftools::loadPairs(fname, data, true);
+    if (err.isEmpty())
+    {
+        mod->PDE_spectral = data;
+        updatePdeButtons();
+    }
+    else guitools::message(err, this);
+}
+
+void ASensorWindow::on_pbRemovePDE_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PDE_spectral.clear();
+    updatePdeButtons();
+}
+
+void ASensorWindow::on_pbShowPDE_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->PDE_spectral.empty()) return;
+
+    TGraph * gr = AGraphBuilder::graph(mod->PDE_spectral);
+    AGraphBuilder::configure(gr, QString("PDE for model%0").arg(iModel), "Wavelength, nm", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+#include "aphotonsimhub.h"
+void ASensorWindow::on_pbShowBinnedPDE_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->PDE_spectral.empty()) return;
+
+    mod->updateRuntimeProperties();
+
+    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
+    std::vector<double> wave;
+    SimSet.WaveSet.getWavelengthBins(wave);
+
+    TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
+    AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+    emit requestDraw(gr, "APL", true, true);
 }
 

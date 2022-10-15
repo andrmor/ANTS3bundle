@@ -1,7 +1,6 @@
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "amaterialhub.h"
-#include "ageometryhub.h"
 #include "ajsontools.h"
 
 AInterfaceRuleHub::AInterfaceRuleHub() :
@@ -34,18 +33,14 @@ void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, 
     VolumeRules[{from, to}] = rule;
 }
 
-bool AInterfaceRuleHub::isFromVolume(const char * name) const
+bool AInterfaceRuleHub::isFromVolume(const TString & name) const
 {
-    TString tsname(name);
-    AGeometryHub::removeNameDecorators(tsname);
-    return (VolumesFrom.find(tsname) != VolumesFrom.end());
+    return (VolumesFrom.find(name) != VolumesFrom.end());
 }
 
-bool AInterfaceRuleHub::isToVolume(const char * name) const
+bool AInterfaceRuleHub::isToVolume(const TString & name) const
 {
-    TString tsname(name);
-    AGeometryHub::removeNameDecorators(tsname);
-    return (VolumesTo.find(tsname) != VolumesTo.end());
+    return (VolumesTo.find(name) != VolumesTo.end());
 }
 
 void AInterfaceRuleHub::removeVolumeRule(const TString & from, const TString & to)
@@ -131,8 +126,8 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
         for (auto const & r : VolumeRules)
         {
             QJsonObject jj;
-            TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
-            TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
+            const TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
+            const TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
             r.second->writeToJson(jj);
             ar.append(jj);
         }

@@ -112,7 +112,7 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
-    gui/photsim/aopticaloverridetester.cpp \
+    gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -165,6 +165,9 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    photonSim/interfaceRules/asurfaceinterfacerule.cpp \
+    photonSim/interfaceRules/asurfacesettings.cpp \
+    photonSim/interfaceRules/aunifiedrule.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -304,7 +307,7 @@ HEADERS += \
     gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
-    gui/photsim/aopticaloverridetester.h \
+    gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
@@ -358,6 +361,9 @@ HEADERS += \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
     gui/script/escriptlanguage.h \
+    photonSim/interfaceRules/asurfaceinterfacerule.h \
+    photonSim/interfaceRules/asurfacesettings.h \
+    photonSim/interfaceRules/aunifiedrule.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \
@@ -487,7 +493,7 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
-        gui/photsim/aopticaloverridetester.ui \
+        gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

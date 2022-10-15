@@ -153,7 +153,7 @@ public slots:
     QVector<double> Get2DArray(); //for temporary script command
 
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
-    void onDrawRequest(TObject* obj, const QString options, bool transferOwnership, bool focusWindow);
+    void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);

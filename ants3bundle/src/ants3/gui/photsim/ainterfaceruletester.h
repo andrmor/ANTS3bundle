@@ -1,5 +1,5 @@
-#ifndef AOPTICALOVERRIDETESTER_H
-#define AOPTICALOVERRIDETESTER_H
+#ifndef AINTERFACERULETESTER_H
+#define AINTERFACERULETESTER_H
 
 #include <QMainWindow>
 
@@ -9,7 +9,7 @@
 #include "TVector3.h"
 
 namespace Ui {
-class AOpticalOverrideTester;
+class AInterfaceRuleTester;
 }
 
 struct ATmpTrackRec
@@ -39,18 +39,20 @@ struct AReportForOverride
 
 class AInterfaceRule;
 class AMaterialHub;
+class AGeometryHub;
 class APhotonStatistics;
 class ARandomHub;
 class QJsonObject;
 class TObject;
+class APhoton;
 
-class AOpticalOverrideTester : public QMainWindow
+class AInterfaceRuleTester : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit AOpticalOverrideTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
-    ~AOpticalOverrideTester();
+    explicit AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
+    ~AInterfaceRuleTester();
 
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
@@ -61,14 +63,12 @@ public slots:
 
 private slots:
     void on_pbST_RvsAngle_clicked();
-    void on_pbCSMtestmany_clicked();
+    void on_pbTracePhotons_clicked();
     void on_pbST_showTracks_clicked();
     void on_pbST_uniform_clicked();
 
     void on_cbWavelength_toggled(bool checked);
-
     void on_ledST_wave_editingFinished();
-
     void on_ledAngle_editingFinished();
 
 protected:
@@ -76,6 +76,7 @@ protected:
 
 private:
     AMaterialHub const & MatHub;
+    AGeometryHub       & GeoHub;
     ARandomHub         & RandomHub;
     APhotonStatistics  & Stats;
 
@@ -83,16 +84,17 @@ private:
     int MatFrom;
     int MatTo;
 
-    Ui::AOpticalOverrideTester * ui = nullptr;
+    Ui::AInterfaceRuleTester * ui = nullptr;
 
     const int maxNumTracks = 1000;
 
     std::vector<ATmpTrackRec> Tracks;
 
-    bool testOverride();
-    int getWaveIndex();
-    const TVector3 getPhotonVector();
-    void reportStatistics(const AReportForOverride & rep, int numPhot);
+    bool     testOverride();
+    int      getWaveIndex();
+    TVector3 getPhotonVector();
+    void     reportStatistics(const AReportForOverride & rep, int numPhot);
+    double   calculateReflectionProbability(const APhoton & Photon) const;
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
@@ -103,4 +105,4 @@ signals:
 
 };
 
-#endif // AOPTICALOVERRIDETESTER_H
+#endif // AINTERFACERULETESTER_H

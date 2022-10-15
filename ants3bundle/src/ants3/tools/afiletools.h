@@ -13,8 +13,10 @@ namespace ftools
 
     QString mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName); //returns error string, otherwise ""
 
+    QString loadPairs(const QString & FileName, std::vector<std::pair<double,double>> & data, bool enforceIncreasing = false);
+
     // to std::vector
-    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<double>* x, QVector<double>* y, QString *header = 0, int numLines = 10);  //cleans previous data
+    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<double>* x, QVector<double>* y, QString * header = nullptr, int numLines = 10);  //cleans previous data
     QString loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V);  //cleans previous data, returns error string
 
     QString saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName);

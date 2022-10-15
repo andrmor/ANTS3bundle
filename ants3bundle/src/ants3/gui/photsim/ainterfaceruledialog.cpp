@@ -5,7 +5,7 @@
 #include "ainterfacerule.h"
 #include "ainterfacewidgetfactory.h"
 #include "guitools.h"
-#include "aopticaloverridetester.h"
+#include "ainterfaceruletester.h"
 
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -38,21 +38,20 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
         QJsonObject json; rule->writeToJson(json); LocalRule->readFromJson(json);
     }
 
+    ui->swSurfaceModel->setVisible(false);
+
     updateGui();
 
-    TesterWindow = new AOpticalOverrideTester(&LocalRule,  matFrom, matTo, this);
-    connect(TesterWindow, &AOpticalOverrideTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
-    connect(TesterWindow, &AOpticalOverrideTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
-    connect(TesterWindow, &AOpticalOverrideTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
-    connect(TesterWindow, &AOpticalOverrideTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
-
-//    TesterWindow->readFromJson(MW->OvTesterSettings);  !!!***
+    TesterWindow = new AInterfaceRuleTester(&LocalRule,  matFrom, matTo, this);
+    connect(TesterWindow, &AInterfaceRuleTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
+    connect(TesterWindow, &AInterfaceRuleTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
+    connect(TesterWindow, &AInterfaceRuleTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);
+    connect(TesterWindow, &AInterfaceRuleTester::requestShowTracks,          this, &AInterfaceRuleDialog::requestShowTracks);
 }
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
 {
     qDebug() << "Destr for AInterfaceRuleDialog";
-    //TesterWindow is saved and deleted on CloseEvent
     delete ui;
     clearTmpRules();
     delete LocalRule;
@@ -87,11 +86,33 @@ void AInterfaceRuleDialog::updateGui()
         //customWidget = ovLocal->getEditWidget(this, MW->GraphWindow);
         customWidget = AInterfaceWidgetFactory::createEditWidget(LocalRule, this, nullptr); // !!!***
         l->insertWidget(customWidgetPositionInLayout, customWidget);
+
+        //surface
+        if (!LocalRule->canHaveRoughSurface()) LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
+        int iModel = 0;
+        switch (LocalRule->SurfaceSettings.Model)
+        {
+        case ASurfaceSettings::Polished        : iModel = 0; break;
+        case ASurfaceSettings::Glisur          : iModel = 1; break;
+        case ASurfaceSettings::Unified         : iModel = 2; break;
+        default:
+            qWarning() << "Invalid surface model!";
+            iModel = 0;
+            break;
+        }
+        ui->cobSurfaceModel->setCurrentIndex(iModel);
+        ui->swSurfaceModel->setCurrentIndex(iModel);
+        ui->cobSurfaceModel->setEnabled(LocalRule->canHaveRoughSurface());
+        ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
+        ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
     }
     else
     {
         ui->frNoOverride->setVisible(true);
         ui->pbTestOverride->setVisible(false);
+        ui->cobSurfaceModel->setCurrentIndex(0);
+        ui->swSurfaceModel->setCurrentIndex(0);
+        ui->cobSurfaceModel->setEnabled(false);
     }
 }
 
@@ -134,7 +155,6 @@ void AInterfaceRuleDialog::on_pbCancel_clicked()
 
 void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 {
-//    TesterWindow->writeToJson(MW->OvTesterSettings);  !!!***
     TesterWindow->hide();
     delete TesterWindow; TesterWindow = nullptr;
 
@@ -165,7 +185,56 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 
     TesterWindow->move(x(), y());
 
-    connect(TesterWindow, &AOpticalOverrideTester::closed, this, &AInterfaceRuleDialog::setEnabled);
+    connect(TesterWindow, &AInterfaceRuleTester::closed, this, &AInterfaceRuleDialog::setEnabled);
     setEnabled(false);
     TesterWindow->setEnabled(true);
 }
+
+void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
+{
+    ui->swSurfaceModel->setCurrentIndex(index);
+    ui->swSurfaceModel->setVisible(index != 0);
+}
+
+void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
+{
+    if (LocalRule)
+    {
+        switch (index)
+        {
+        case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
+        case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
+        case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Unified; break;
+        default:
+            qWarning() << "Error in selecting surface model!";
+            LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
+            break;
+        }
+    }
+}
+
+void AInterfaceRuleDialog::on_lePolishGlisur_editingFinished()
+{
+    bool ok;
+    const double polish = ui->lePolishGlisur->text().toDouble(&ok);
+    if (!ok || polish < 0 || polish > 1.0)
+    {
+        guitools::message("Polish should be a number in the range from 0 to 1", this);
+        ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
+    }
+    LocalRule->SurfaceSettings.Polish = polish;
+}
+
+
+void AInterfaceRuleDialog::on_leSigmaAlphaUnified_editingFinished()
+{
+    bool ok;
+    const double sa = ui->leSigmaAlphaUnified->text().toDouble(&ok);
+    if (!ok || sa < 0)
+    {
+        guitools::message("Sigma Alpha cannot have negative value", this);
+        ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
+    }
+    LocalRule->SurfaceSettings.SigmaAlpha = sa;
+}
+
