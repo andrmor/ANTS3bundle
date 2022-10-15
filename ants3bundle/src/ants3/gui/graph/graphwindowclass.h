@@ -158,6 +158,7 @@ public slots:
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);
+    // !!!*** TODO: similarly to two above, modify draw tree from script
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
                           QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
 

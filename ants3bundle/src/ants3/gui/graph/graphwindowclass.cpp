@@ -122,6 +122,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
 #endif
     connect(this, &GraphWindowClass::requestLocalDrawObject, this, &GraphWindowClass::processScriptDrawRequest, Qt::QueuedConnection);
+    // !!!*** TODO: similarly to the above, modify draw tree from script
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
