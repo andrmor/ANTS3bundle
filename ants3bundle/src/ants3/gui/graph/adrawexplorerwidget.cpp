@@ -187,6 +187,8 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         QAction* expA       =   fitMenu->addAction("Exp. decay (use click-frag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction* splineFitA =   fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
         fitMenu->addSeparator();
+        QAction* gauss2FitA =   fitMenu->addAction("2D Gauss"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
+        fitMenu->addSeparator();
         QAction* showFitPanel = fitMenu->addAction("Show fit panel");
 
     Menu.addSeparator();
@@ -233,6 +235,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
    else if (si == linFitA)      linFit(index);
    else if (si == fwhmA)        fwhm(index);
    else if (si == expA)         expFit(index);
+   else if (si == gauss2FitA)   gauss2Fit(index);
    else if (si == interpolateA) interpolate(obj);
    else if (si == axesX)        editAxis(obj, 0);
    else if (si == axesY)        editAxis(obj, 1);
@@ -1170,6 +1173,71 @@ void ADrawExplorerWidget::expFit(int index)
     DrawObjects.insert(index+1, ADrawObject(f, "same"));
 
     QString text = QString("y = A*exp{-(t-t0)/T)}\nT = %1, A = %2, t0 = %3\nx range: %3 -> %4").arg(T).arg(A).arg(startX).arg(stopX);
+    TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
+    la->SetFillColor(0);
+    la->SetBorderSize(1);
+    la->SetLineColor(1);
+    la->SetTextAlign( (0 + 1) * 10 + 2);
+    QStringList sl = text.split("\n");
+    for (QString s : sl) la->AddText(s.toLatin1());
+    GraphWindow.RegisterTObject(la);
+    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+
+    GraphWindow.RedrawAll();
+    GraphWindow.HighlightUpdateBasketButton(true);
+}
+
+double gauss2D(double * x, double * par)
+{
+   return par[0] * exp( -0.5*pow( (x[0]-par[1])/par[3], 2) -0.5*pow( (x[1]-par[2])/par[4], 2)  );
+}
+
+double gauss2Dsymmetric(double * x, double * par)
+{
+   return par[0] * exp( -0.5*pow( (x[0]-par[1])/par[3], 2) -0.5*pow( (x[1]-par[2])/par[3], 2)  );
+}
+
+void ADrawExplorerWidget::gauss2Fit(int index)
+{
+    ADrawObject & obj = DrawObjects[index];
+
+    const QString cn = obj.Pointer->ClassName();
+    if (!cn.startsWith("TH2"))
+    {
+        guitools::message("Can be used only with 2D histograms!", &GraphWindow);
+        return;
+    }
+
+    TH2 * h = static_cast<TH2*>(obj.Pointer);
+
+    TF2 * f = new TF2("myfunc", gauss2Dsymmetric, -100, 100, -100, 100, 4);
+    f->SetTitle("2D Gauss fit");
+    GraphWindow.RegisterTObject(f);
+
+    f->SetParameter(0, 100);
+    f->SetParameter(1, 0);
+    f->SetParameter(2, 0);
+    f->SetParameter(3, 1);
+
+
+    int status = h->Fit(f, "");
+    if (status != 0)
+    {
+        guitools::message("Fit failed!", &GraphWindow);
+        return;
+    }
+
+    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.MakeCopyOfActiveBasketId();
+
+    double A = f->GetParameter(0);
+    double x0 = f->GetParameter(1);
+    double y0 = f->GetParameter(2);
+    double sigma = f->GetParameter(3);
+
+    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+
+    QString text = QString("MeanX: %0\nMeanY: %1\nSigma: %2\nScaling: %3").arg(x0).arg(y0).arg(sigma).arg(A);
     TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
     la->SetFillColor(0);
     la->SetBorderSize(1);

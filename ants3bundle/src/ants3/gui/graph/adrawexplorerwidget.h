@@ -64,6 +64,7 @@ private:
 
     void linFit(int index);
     void expFit(int index);
+    void gauss2Fit(int index);
     void interpolate(ADrawObject &obj);
     void median(ADrawObject &obj);
     void projection(ADrawObject &obj, int axis);
