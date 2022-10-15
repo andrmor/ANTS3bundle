@@ -157,8 +157,10 @@ public slots:
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
+    void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
                           QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
+
     void Reshape();
     void BasketCustomContextMenuRequested(const QPoint &pos);
     void onBasketItemDoubleClicked(QListWidgetItem *item);
@@ -268,6 +270,7 @@ private:
     int  LastOptStat              = 1111;
     bool TMPignore                = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
     bool ColdStart                = true;
+    bool DrawFinished             = false;
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
@@ -294,6 +297,9 @@ private:
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+
+signals:
+    void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };
 
 #endif // GRAPHWINDOWCLASS_H

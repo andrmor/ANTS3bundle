@@ -55,6 +55,7 @@ MainWindow::MainWindow() :
     connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     GraphWin = new GraphWindowClass(this);
+    //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
 
     MatWin = new AMatWin(this);
     MatWin->initWindow();

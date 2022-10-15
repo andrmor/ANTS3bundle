@@ -121,6 +121,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
 #endif
+    connect(this, &GraphWindowClass::requestLocalDrawObject, this, &GraphWindowClass::processScriptDrawRequest, Qt::QueuedConnection);
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -224,8 +225,8 @@ void GraphWindowClass::connectScriptUnitDrawRequests(const std::vector<AScriptIn
         }
     }
 
-    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest);
-    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest);
+    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
+    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
     if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }
 
@@ -507,6 +508,8 @@ void GraphWindowClass::DrawWithoutFocus(TObject *obj, const char *options, bool 
 
     EnforceOverlayOff();
     UpdateControls();
+
+    DrawFinished = true;
 }
 
 void GraphWindowClass::UpdateGuiControlsForMainObject(const QString & ClassName, const QString & options)
@@ -1322,10 +1325,21 @@ void GraphWindowClass::onDrawRequest(TObject * obj, QString options, bool transf
 
 void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    //always drawing a copy, so always need to register the object
+    DrawFinished = false;
 
-    if (fFocus) Draw(obj, options.toLatin1().data(), true, true);
-    else        DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
+    emit requestLocalDrawObject(obj, options, fFocus);
+    do
+    {
+        QThread::msleep(100);
+    }
+    while (!DrawFinished);
+}
+
+void GraphWindowClass::processScriptDrawRequest(TObject *obj, QString options, bool fFocus)
+{
+    //always drawing a copy, so always need to register the object
+    if (fFocus) ShowAndFocus();
+    DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
