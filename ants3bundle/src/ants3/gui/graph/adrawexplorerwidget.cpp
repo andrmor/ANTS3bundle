@@ -119,6 +119,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     const QString Type = obj.Pointer->ClassName();
 
     QMenu Menu;
+    Menu.setToolTipsVisible(true);
 
     QAction * editTextPave = ( Type == "TPaveText" ? Menu.addAction("Edit") : nullptr );
     if (editTextPave) Menu.addSeparator();
@@ -182,14 +183,20 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     Menu.addSeparator();
 
     QMenu * fitMenu =       Menu.addMenu("Fit");
-        QAction* linFitA    =   fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction* fwhmA      =   fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction* expA       =   fitMenu->addAction("Exp. decay (use click-frag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction* splineFitA =   fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
+        fitMenu->setToolTipsVisible(true);
+        QAction * linFitA    = fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * fwhmA      = fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
+
         fitMenu->addSeparator();
-        QAction* gauss2FitA =   fitMenu->addAction("2D Gauss"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
+
+        QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
+                  gauss2FitA->setToolTip("Select a rectangular area around the center position indicating the approximate FWHM");
+
         fitMenu->addSeparator();
-        QAction* showFitPanel = fitMenu->addAction("Show fit panel");
+
+        QAction * showFitPanel = fitMenu->addAction("Show fit panel");
 
     Menu.addSeparator();
 
@@ -1208,21 +1215,38 @@ void ADrawExplorerWidget::gauss2Fit(int index)
         return;
     }
 
+    GraphWindow.TriggerGlobalBusy(true);
+
+    GraphWindow.Extract2DBox();
+    if (!GraphWindow.Extraction()) return; //cancel
+
+    double X1 = GraphWindow.extractedX1();
+    double X2 = GraphWindow.extractedX2();
+    double Y1 = GraphWindow.extractedY1();
+    double Y2 = GraphWindow.extractedY2();
+
     TH2 * h = static_cast<TH2*>(obj.Pointer);
     double xmin = h->GetXaxis()->GetXmin();
     double xmax = h->GetXaxis()->GetXmax();
     double ymin = h->GetYaxis()->GetXmin();
     double ymax = h->GetYaxis()->GetXmax();
+    double xmean = 0.5 * (X1 + X2);
+    double ymean = 0.5 * (Y1 + Y2);
+    double fwhmX = fabs(X2 - X1);
+    double fwhmY = fabs(Y2 - Y1);
+    double sig = 0.5 * (fwhmX + fwhmY) / 2.355;
+    double A0 = h->Interpolate(xmean, ymean);
 
     TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
     f->SetTitle("2D Gauss fit");
     GraphWindow.RegisterTObject(f);
 
-    f->SetParameter(0, 100);
-    f->SetParameter(1, 0);
-    f->SetParameter(2, 0);
-    f->SetParameter(3, 1);
+    f->SetParameter(0, A0);
+    f->SetParameter(1, xmean);
+    f->SetParameter(2, ymean);
+    f->SetParameter(3, sig);
 
+    //qDebug() << A0 << xmean << ymean << sig;
 
     int status = h->Fit(f, "");
     if (status != 0)
