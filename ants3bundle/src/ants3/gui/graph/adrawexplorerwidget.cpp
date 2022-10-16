@@ -192,7 +192,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         fitMenu->addSeparator();
 
         QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
-                  gauss2FitA->setToolTip("Select a rectangular area around the center position indicating the approximate FWHM");
+                  gauss2FitA->setToolTip("Select a rectangular area indicating the fitting range.\nIf fit fails, try to center the area at the expected mean position");
 
         fitMenu->addSeparator();
 
@@ -1222,22 +1222,25 @@ void ADrawExplorerWidget::gauss2Fit(int index)
 
     double X1 = GraphWindow.extractedX1();
     double X2 = GraphWindow.extractedX2();
+    if (X1 > X2) std::swap(X1, X2);
     double Y1 = GraphWindow.extractedY1();
     double Y2 = GraphWindow.extractedY2();
+    if (Y1 > Y2) std::swap(Y1, Y2);
 
     TH2 * h = static_cast<TH2*>(obj.Pointer);
-    double xmin = h->GetXaxis()->GetXmin();
-    double xmax = h->GetXaxis()->GetXmax();
-    double ymin = h->GetYaxis()->GetXmin();
-    double ymax = h->GetYaxis()->GetXmax();
+    //double xmin = h->GetXaxis()->GetXmin();
+    //double xmax = h->GetXaxis()->GetXmax();
+    //double ymin = h->GetYaxis()->GetXmin();
+    //double ymax = h->GetYaxis()->GetXmax();
     double xmean = 0.5 * (X1 + X2);
     double ymean = 0.5 * (Y1 + Y2);
-    double fwhmX = fabs(X2 - X1);
-    double fwhmY = fabs(Y2 - Y1);
+    double fwhmX = 0.25 * (X2 - X1);
+    double fwhmY = 0.25 * (Y2 - Y1);
     double sig = 0.5 * (fwhmX + fwhmY) / 2.355;
     double A0 = h->Interpolate(xmean, ymean);
 
-    TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
+    //TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
+    TF2 * f = new TF2("myfunc", gauss2Dsymmetric, X1, X2, Y1, Y2, 4);
     f->SetTitle("2D Gauss fit");
     GraphWindow.RegisterTObject(f);
 
@@ -1248,7 +1251,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
 
     //qDebug() << A0 << xmean << ymean << sig;
 
-    int status = h->Fit(f, "");
+    int status = h->Fit(f, "R");
     if (status != 0)
     {
         guitools::message("Fit failed!", &GraphWindow);
