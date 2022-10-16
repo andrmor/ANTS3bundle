@@ -1209,8 +1209,12 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     }
 
     TH2 * h = static_cast<TH2*>(obj.Pointer);
+    double xmin = h->GetXaxis()->GetXmin();
+    double xmax = h->GetXaxis()->GetXmax();
+    double ymin = h->GetYaxis()->GetXmin();
+    double ymax = h->GetYaxis()->GetXmax();
 
-    TF2 * f = new TF2("myfunc", gauss2Dsymmetric, -100, 100, -100, 100, 4);
+    TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
     f->SetTitle("2D Gauss fit");
     GraphWindow.RegisterTObject(f);
 
@@ -1230,21 +1234,22 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     GraphWindow.MakeCopyOfDrawObjects();
     GraphWindow.MakeCopyOfActiveBasketId();
 
-    double A = f->GetParameter(0);
-    double x0 = f->GetParameter(1);
-    double y0 = f->GetParameter(2);
-    double sigma = f->GetParameter(3);
+    double A     = f->GetParameter(0); double dA     = f->GetParError(0);
+    double x0    = f->GetParameter(1); double dx0    = f->GetParError(1);
+    double y0    = f->GetParameter(2); double dy0    = f->GetParError(2);
+    double Sigma = f->GetParameter(3); double dSigma = f->GetParError(3);
 
     DrawObjects.insert(index+1, ADrawObject(f, "same"));
 
-    QString text = QString("MeanX: %0\nMeanY: %1\nSigma: %2\nScaling: %3").arg(x0).arg(y0).arg(sigma).arg(A);
+    QString text = QString("MeanX: %0 #pm %1\nMeanY: %2 #pm %3\nSigma: %4 #pm %5\nScaling: %6 #pm %7")
+                          .arg(x0).arg(dx0).arg(y0).arg(dy0).arg(Sigma).arg(dSigma).arg(A).arg(dA);
     TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
     la->SetFillColor(0);
     la->SetBorderSize(1);
     la->SetLineColor(1);
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
-    for (QString s : sl) la->AddText(s.toLatin1());
+    for (const QString & s : sl) la->AddText(s.toLatin1());
     GraphWindow.RegisterTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
