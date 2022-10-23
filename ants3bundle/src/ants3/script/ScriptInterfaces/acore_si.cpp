@@ -383,6 +383,7 @@ bool ACore_SI::readFormat(const QVariantList & format, std::vector<EArrayFormat>
         EArrayFormat   Option;
         if      (f == "s") Option = StringFormat;
         else if (f == "i") Option = IntFormat;
+        else if (f == "ui32") Option = UI32Format;
         else if (f == "d") Option = DoubleFormat;
         else if (f == "f") Option = FloatFormat;
         else if (f == "c") Option = CharFormat;
@@ -583,6 +584,14 @@ bool ACore_SI::readFormattedBinaryLine(std::ifstream & inStream, const std::vect
             el.push_back(v);
             break;
         }
+        case EArrayFormat::UI32Format:
+        {
+            int v;
+            inStream.read((char*)&v, sizeof(uint32_t));
+            //qDebug() << "int:"<<v;
+            el.push_back(v);
+            break;
+        }
         case EArrayFormat::DoubleFormat:
         {
             double v;
@@ -639,6 +648,17 @@ bool ACore_SI::writeFormattedBinaryLine(std::ofstream & outStream, const std::ve
                 return false;
             }
             outStream.write((char*)&v, sizeof(int));
+            break;
+        }
+        case UI32Format:
+        {
+            const uint32_t v = el[i].toUInt(&ok);
+            if (!ok)
+            {
+                err = "Write binary line to file: error in convesion to uint32";
+                return false;
+            }
+            outStream.write((char*)&v, sizeof(uint32_t));
             break;
         }
         case DoubleFormat:

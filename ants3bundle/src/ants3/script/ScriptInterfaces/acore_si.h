@@ -90,7 +90,7 @@ public slots:
     QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
 
 private:
-    enum EArrayFormat {StringFormat, IntFormat, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
+    enum EArrayFormat {StringFormat, IntFormat, UI32Format, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
     //file finder
     QSet<QString>   Finder_FileNames;
     QString         Finder_Dir;
