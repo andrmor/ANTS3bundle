@@ -80,7 +80,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Checked first, slow</string>
+         <string>&lt;-- Checked first, slow</string>
         </property>
        </widget>
       </item>
@@ -136,7 +136,7 @@
       <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Fast</string>
+         <string>&lt;-- Fast</string>
         </property>
        </widget>
       </item>
@@ -170,12 +170,16 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Double-click to edit</string>
+           <string>Double-click to edit; Click a column to sort</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="tabwVolumes"/>
+         <widget class="QTableWidget" name="tabwVolumes">
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pbAddNewVolumeRule">
@@ -209,7 +213,7 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Double-click a cell to edit or define a new rule</string>
+           <string>Rows are 'from', columns are 'to'. Double-click a cell to edit or define a new rule</string>
           </property>
          </widget>
         </item>
@@ -228,7 +232,7 @@
      <x>0</x>
      <y>0</y>
      <width>555</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

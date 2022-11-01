@@ -11,6 +11,12 @@
 #include "TComplex.h"
 #include "TRandom2.h"
 
+AMetalInterfaceRule::AMetalInterfaceRule(int MatFrom, int MatTo)
+    : AInterfaceRule(MatFrom, MatTo)
+{
+    SurfaceSettings.Model = ASurfaceSettings::Polished;
+}
+
 QString AMetalInterfaceRule::getReportLine() const
 {
     QString s;
@@ -28,49 +34,38 @@ QString AMetalInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void AMetalInterfaceRule::writeToJson(QJsonObject &json) const
+void AMetalInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     json["RealN"]  = RealN;
     json["ImaginaryN"]  = ImaginaryN;
 }
 
-bool AMetalInterfaceRule::readFromJson(const QJsonObject &json)
+bool AMetalInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "RealN", RealN) ) return false;
     if ( !jstools::parseJson(json, "ImaginaryN", ImaginaryN) ) return false;
     return true;
 }
 
-QString AMetalInterfaceRule::checkOverrideData()
+QString AMetalInterfaceRule::doCheckOverrideData()
 {
     return "";
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
+AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
-    double CosTheta = Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2];
+tryAgainLabel:
+    double cosTheta = 0;
+    if (SurfaceSettings.isPolished())
+        for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * globalNormal[i];
+    else
+    {
+        calculateLocalNormal(globalNormal, photon->v);
+        for (int i = 0; i < 3; i++) cosTheta += photon->v[i] * LocalNormal[i];
+    }
+    const double reflCoeff = calculateReflectivity(cosTheta, RealN, ImaginaryN, photon->waveIndex);
 
-    //  double Rindex1, Rindex2;
-    //  if (iWave == -1)
-    //    {
-    //      Rindex1 = (*MatCollection)[MatFrom]->n;
-    //      //Rindex2 = (*MatCollection)[MatTo]->n;
-    //      Rindex2 = RealN;
-    //    }
-    //  else
-    //    {
-    //      Rindex1 = (*MatCollection)[MatFrom]->nWaveBinned.at(iWave);
-    //      //Rindex2 = (*MatCollection)[MatTo]->nWaveBinned.at(iWave);
-    //      Rindex2 = RealN;
-    //    }
-    //  double Refl = calculateReflectivity(CosTheta, RealN/Rindex1, ImaginaryN/Rindex1);
-
-    double Refl = calculateReflectivity(CosTheta, RealN, ImaginaryN, Photon->waveIndex);
-    //qDebug() << "Dielectric-metal override: Cos theta="<<CosTheta<<" Reflectivity:"<<Refl;
-
-    if (RandomHub.uniform() > Refl)
+    if (RandomHub.uniform() > reflCoeff)
     {
         //Absorption
         //qDebug() << "Override: Loss on metal";
@@ -78,12 +73,30 @@ AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton
         return Absorbed;
     }
 
-    //else specular reflection
-    //qDebug()<<"Override: Specular reflection from metal";
-    //rotating the vector: K = K - 2*(NK)*N
-    double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
-    Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
-    Status = SpikeReflection;
+    //else specular reflection --> rotating the vector: K = K - 2*(NK)*N
+    double NK = 0;
+    if (SurfaceSettings.isPolished())
+    {
+        for (int i = 0; i < 3; i++) NK += photon->v[i] * globalNormal[i];
+        for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * globalNormal[i];
+        Status = SpikeReflection;
+    }
+    else
+    {
+        for (int i = 0; i < 3; i++) NK += photon->v[i] * LocalNormal[i];
+        for (int i = 0; i < 3; i++) photon->v[i] -= 2.0 * NK * LocalNormal[i];
+
+        double GNK = 0;
+        for (int i = 0; i < 3; i++) GNK += photon->v[i] * globalNormal[i];
+        if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
+        {
+            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+            goto tryAgainLabel;
+        }
+
+        Status = LobeReflection;
+    }
+
     return Back;
 }
 
@@ -94,23 +107,27 @@ double AMetalInterfaceRule::calculateReflectivity(double CosTheta, double RealN,
     TComplex N(RealN, ImaginaryN);
     TComplex U(1,0);
 
-    double SinTheta = (CosTheta < 0.9999999) ? sqrt(1.0 - CosTheta*CosTheta) : 0;
-    //  TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/(N*N));
+    const double SinTheta = (CosTheta < 0.9999999) ? sqrt(1.0 - CosTheta*CosTheta) : 0;
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-    double nFrom = MatHub[MatFrom]->getRefractiveIndex(waveIndex);
-    TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/ (N*N/nFrom/nFrom) );
+    const double nFrom = MatHub[MatFrom]->getRefractiveIndex(waveIndex);
+    //qDebug() << "nFrom" << nFrom;
 
-    //  TComplex rs = (CosTheta - N*CosPhi) / (CosTheta + N*CosPhi);
-    TComplex rs = (nFrom*CosTheta - N*CosPhi) / (nFrom*CosTheta + N*CosPhi);
-    //  TComplex rp = ( -N*CosTheta + CosPhi) / (N*CosTheta + CosPhi);
-    TComplex rp = ( -N*CosTheta + nFrom*CosPhi) / (N*CosTheta + nFrom*CosPhi);
+    const TComplex SinPhi = SinTheta / N * nFrom;
+    //qDebug() << "SinPhi" << SinPhi.Re() << SinPhi.Im();
 
-    double RS = rs.Rho2();
-    double RP = rp.Rho2();
+    //TComplex CosPhi = TMath::Sqrt( U - SinTheta*SinTheta/ (N*N/nFrom/nFrom) );
+    const TComplex CosPhi = TMath::Sqrt( U - SinPhi*SinPhi );
+    //qDebug() << "CosPhi:" << CosPhi.Re() << CosPhi.Im();
 
-    double R = 0.5 * (RS+RP);
+    const TComplex rs = (nFrom*CosTheta - N*CosPhi) / (nFrom*CosTheta + N*CosPhi);
+    const TComplex rp = ( -N*CosTheta + nFrom*CosPhi) / (N*CosTheta + nFrom*CosPhi);
+
+    const double RS = rs.Rho2();
+    const double RP = rp.Rho2();
+    //qDebug() << "rs" << rs.Re() << rs.Im() << RS;
+
+    const double R = 0.5 * (RS + RP);
     //qDebug() << "Refl coeff = "<< R;
 
     return R;
 }
-

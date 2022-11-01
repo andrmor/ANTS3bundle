@@ -33,6 +33,7 @@ protected:
 
     void addLineProperties(QString & script, AGeoObject * obj, int ident);
     void addScaledIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings);
+    void addRoleIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings);
 
     const QString getPythonGenerationString(const QString & javaGenString) const;
 };

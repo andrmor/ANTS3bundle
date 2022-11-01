@@ -2,14 +2,39 @@
 CONFIG += ants3_GUI          #if commented away, GUI is not compiled
 CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
-#CONFIG += ants2_Python      #enable Python scripting
-#CONFIG += ants2_RootServer  #enable cern CERN ROOT html server
-#CONFIG += ants2_jsroot       #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
+CONFIG += ants3_Python      #enable Python scripting
+# not yet!  #CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+# not yet!  #CONFIG += ants3_jsroot      #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
 LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
 #ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
+
+# PYTHON
+ants3_Python {
+    DEFINES += ANTS3_PYTHON
+    #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
+    #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
+
+    LIBS += $$system(python3-config --libs --embed)
+
+    QMAKE_CXXFLAGS += $$system(python3-config --includes)
+
+    SOURCES += \
+        script/Python/apythoninterface.cpp \
+        script/Python/apythonscriptmanager.cpp \
+        script/Python/apythonworker.cpp \
+        script/Python/aminipython_si.cpp
+
+    HEADERS += \
+        script/Python/apythoninterface.h \
+        script/Python/apythonscriptmanager.h \
+        script/Python/apythonworker.h \
+        script/Python/aminipython_si.h
+
+    INCLUDEPATH += script/Python
+}
 
 QT += core
 ants3_GUI {
@@ -45,8 +70,8 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
 
-INCLUDEPATH += js
-INCLUDEPATH += js/ScriptInterfaces
+INCLUDEPATH += script
+INCLUDEPATH += script/ScriptInterfaces
 INCLUDEPATH += gui
 INCLUDEPATH += gui/geom
 INCLUDEPATH += gui/raster
@@ -77,13 +102,18 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
+    geo/agridhub.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
     gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
     dispatch/adispatcherinterface.cpp \
@@ -135,38 +165,42 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
-    js/ScriptInterfaces/ageo_si.cpp \
-    js/ScriptInterfaces/ageowin_si.cpp \
-    js/ScriptInterfaces/agraphwin_si.cpp \
-    js/ScriptInterfaces/amsg_si.cpp \
-    js/ScriptInterfaces/aparticlesim_si.cpp \
-    js/ScriptInterfaces/asensor_si.cpp \
-    js/ajscripthub.cpp \
-    js/ajscriptmanager.cpp \
-    js/ajscriptworker.cpp \
-    js/apeakfinder.cpp \
-    js/arootgraphrecord.cpp \
-    js/aroothistrecord.cpp \
-    js/arootobjbase.cpp \
-    js/arootobjcollection.cpp \
-    js/aroottreerecord.cpp \
-    js/ascriptobjstore.cpp \
-    js/avarrecordbase.cpp \
-    js/ScriptInterfaces/aconfig_si.cpp \
-    js/ScriptInterfaces/acore_si.cpp \
-    js/ScriptInterfaces/ademo_si.cpp \
-    js/ScriptInterfaces/afarm_si.cpp \
-    js/ScriptInterfaces/ahist_si.cpp \
-    js/ScriptInterfaces/amath_si.cpp \
-    js/ScriptInterfaces/aminijs_si.cpp \
-    js/ScriptInterfaces/apartanalysis_si.cpp \
-    js/ScriptInterfaces/aphotonsim_si.cpp \
-    js/ScriptInterfaces/ascriptinterface.cpp \
-    js/ScriptInterfaces/ascriptminimizerbase.cpp \
-    js/ScriptInterfaces/atrackrec_si.cpp \
-    js/ScriptInterfaces/agraph_si.cpp \
-    js/ScriptInterfaces/atree_si.cpp \
-    js/ScriptInterfaces/awindowinterfacebase.cpp \
+    photonSim/interfaceRules/asurfaceinterfacerule.cpp \
+    photonSim/interfaceRules/asurfacesettings.cpp \
+    photonSim/interfaceRules/aunifiedrule.cpp \
+    script/ScriptInterfaces/ageo_si.cpp \
+    script/ScriptInterfaces/ageowin_si.cpp \
+    script/ScriptInterfaces/agraphwin_si.cpp \
+    script/ScriptInterfaces/amsg_si.cpp \
+    script/ScriptInterfaces/aparticlesim_si.cpp \
+    script/ScriptInterfaces/asensor_si.cpp \
+    script/ajscriptmanager.cpp \
+    script/ajscriptworker.cpp \
+    script/apeakfinder.cpp \
+    script/arootgraphrecord.cpp \
+    script/aroothistrecord.cpp \
+    script/arootobjbase.cpp \
+    script/arootobjcollection.cpp \
+    script/aroottreerecord.cpp \
+    script/ascripthub.cpp \
+    script/ascriptobjstore.cpp \
+    script/avarrecordbase.cpp \
+    script/ScriptInterfaces/aconfig_si.cpp \
+    script/ScriptInterfaces/acore_si.cpp \
+    script/ScriptInterfaces/ademo_si.cpp \
+    script/ScriptInterfaces/afarm_si.cpp \
+    script/ScriptInterfaces/ahist_si.cpp \
+    script/ScriptInterfaces/amath_si.cpp \
+    script/ScriptInterfaces/aminijs_si.cpp \
+    script/ScriptInterfaces/apartanalysis_si.cpp \
+    script/ScriptInterfaces/aphotonsim_si.cpp \
+    script/ScriptInterfaces/ascriptinterface.cpp \
+    script/ScriptInterfaces/ascriptminimizerbase.cpp \
+    script/ScriptInterfaces/atrackrec_si.cpp \
+    script/ScriptInterfaces/agraph_si.cpp \
+    script/ScriptInterfaces/atree_si.cpp \
+    script/ScriptInterfaces/awindowinterfacebase.cpp \
+    script/avirtualscriptmanager.cpp \
     particleSim/acalsettings.cpp \
     particleSim/aeventtrackingrecord.cpp \
     particleSim/afilegeneratorsettings.cpp \
@@ -200,7 +234,6 @@ SOURCES += \
     geo/ageoconsts.cpp \
     geo/amonitor.cpp \
     gui/arootlineconfigurator.cpp \
-    gui/geom/a3geoconwin.cpp \
     gui/geom/ageobasedelegate.cpp \
     gui/geom/ageobasetreewidget.cpp \
     gui/geom/ageodelegatewidget.cpp \
@@ -212,9 +245,7 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
-    gui/materials/a3matwin.cpp \
     gui/materials/aelementandisotopedelegates.cpp \
-    gui/photsim/a3photsimwin.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
@@ -265,13 +296,19 @@ HEADERS += \
     ademomanager.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
+    geo/agridelementrecord.h \
+    geo/agridhub.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
     gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
+    gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
+    gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/photsim/ainterfaceruletester.h \
+    gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
     config/aconfig.h \
     dispatch/adispatcherinterface.h \
@@ -319,43 +356,47 @@ HEADERS += \
     gui/script/ageoscriptmaker.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
-    gui/script/ascriptlanguageenum.h \
     gui/script/ascriptwindow.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
-    js/ScriptInterfaces/ageo_si.h \
-    js/ScriptInterfaces/ageowin_si.h \
-    js/ScriptInterfaces/agraphwin_si.h \
-    js/ScriptInterfaces/amsg_si.h \
-    js/ScriptInterfaces/aparticlesim_si.h \
-    js/ScriptInterfaces/asensor_si.h \
-    js/arootgraphrecord.h \
-    js/aroothistrecord.h \
-    js/arootobjbase.h \
-    js/arootobjcollection.h \
-    js/aroottreerecord.h \
-    js/ajscripthub.h \
-    js/ajscriptmanager.h \
-    js/ajscriptworker.h \
-    js/apeakfinder.h \
-    js/ascriptobjstore.h \
-    js/avarrecordbase.h \
-    js/ScriptInterfaces/aconfig_si.h \
-    js/ScriptInterfaces/acore_si.h \
-    js/ScriptInterfaces/ademo_si.h \
-    js/ScriptInterfaces/afarm_si.h \
-    js/ScriptInterfaces/ahist_si.h \
-    js/ScriptInterfaces/amath_si.h \
-    js/ScriptInterfaces/aminijs_si.h \
-    js/ScriptInterfaces/apartanalysis_si.h \
-    js/ScriptInterfaces/aphotonsim_si.h \
-    js/ScriptInterfaces/ascriptinterface.h \
-    js/ScriptInterfaces/ascriptminimizerbase.h \
-    js/ScriptInterfaces/atrackrec_si.h \
-    js/ScriptInterfaces/agraph_si.h \
-    js/ScriptInterfaces/atree_si.h \
-    js/ScriptInterfaces/awindowinterfacebase.h \
+    gui/script/escriptlanguage.h \
+    photonSim/interfaceRules/asurfaceinterfacerule.h \
+    photonSim/interfaceRules/asurfacesettings.h \
+    photonSim/interfaceRules/aunifiedrule.h \
+    script/ScriptInterfaces/ageo_si.h \
+    script/ScriptInterfaces/ageowin_si.h \
+    script/ScriptInterfaces/agraphwin_si.h \
+    script/ScriptInterfaces/amsg_si.h \
+    script/ScriptInterfaces/aparticlesim_si.h \
+    script/ScriptInterfaces/asensor_si.h \
+    script/arootgraphrecord.h \
+    script/aroothistrecord.h \
+    script/arootobjbase.h \
+    script/arootobjcollection.h \
+    script/aroottreerecord.h \
+    script/ajscriptmanager.h \
+    script/ajscriptworker.h \
+    script/apeakfinder.h \
+    script/ascripthub.h \
+    script/ascriptobjstore.h \
+    script/avarrecordbase.h \
+    script/ScriptInterfaces/aconfig_si.h \
+    script/ScriptInterfaces/acore_si.h \
+    script/ScriptInterfaces/ademo_si.h \
+    script/ScriptInterfaces/afarm_si.h \
+    script/ScriptInterfaces/ahist_si.h \
+    script/ScriptInterfaces/amath_si.h \
+    script/ScriptInterfaces/aminijs_si.h \
+    script/ScriptInterfaces/apartanalysis_si.h \
+    script/ScriptInterfaces/aphotonsim_si.h \
+    script/ScriptInterfaces/ascriptinterface.h \
+    script/ScriptInterfaces/ascriptminimizerbase.h \
+    script/ScriptInterfaces/atrackrec_si.h \
+    script/ScriptInterfaces/agraph_si.h \
+    script/ScriptInterfaces/atree_si.h \
+    script/ScriptInterfaces/awindowinterfacebase.h \
+    script/avirtualscriptmanager.h \
     particleSim/acalsettings.h \
     particleSim/aeventtrackingrecord.h \
     particleSim/afilegeneratorsettings.h \
@@ -407,7 +448,6 @@ HEADERS += \
     geo/ageoconsts.h \
     geo/amonitor.h \
     gui/arootlineconfigurator.h \
-    gui/geom/a3geoconwin.h \
     gui/geom/ageobasedelegate.h \
     gui/geom/ageobasetreewidget.h \
     gui/geom/ageodelegatewidget.h \
@@ -420,9 +460,7 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
-    gui/materials/a3matwin.h \
     gui/materials/aelementandisotopedelegates.h \
-    gui/photsim/a3photsimwin.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
@@ -455,6 +493,8 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
+        gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
@@ -473,13 +513,12 @@ FORMS += \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
         gui/photsim/abombadvanceddialog.ui \
-        gui/geom/a3geoconwin.ui \
+        gui/geom/ageotreewin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
         gui/geom/ageometrywindow.ui \
         gui/mainwindow.ui \
-        gui/materials/a3matwin.ui \
-        gui/photsim/a3photsimwin.ui \
+        gui/materials/amatwin.ui \
         gui/photsim/ainterfacerulewin.ui \
         gui/photsim/ainterfaceruledialog.ui \
         gui/photsim/aphotonsimoutputdialog.ui \

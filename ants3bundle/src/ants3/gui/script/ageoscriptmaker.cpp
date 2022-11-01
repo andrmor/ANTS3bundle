@@ -108,6 +108,7 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, useStrings);
         addScaledIfApplicable(script, obj, ident, useStrings);
+        addRoleIfApplicable(script, obj, ident, useStrings);
         addLineProperties(script, obj, ident);
         if (bRecursive) objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
     }
@@ -119,6 +120,7 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
 
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_basicObject(obj, useStrings);
         addScaledIfApplicable(script, obj, ident, useStrings);
+        addRoleIfApplicable(script, obj, ident, useStrings);
         addLineProperties(script, obj, ident);
         if (bRecursive) objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
     }
@@ -503,6 +505,33 @@ void AGeoScriptMaker::addScaledIfApplicable(QString & script, AGeoObject * obj, 
     str.replace("$name$", "'" + obj->Name + "'");
 
     script += "\n" + QString(" ").repeated(ident) + str;
+}
+
+void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int ident, bool useStrings)
+{
+    if (!obj->Role) return;
+
+    AGeoCalorimeter * cal = dynamic_cast<AGeoCalorimeter*>(obj->Role);
+    if (cal)
+    {
+        QString bins, origin, step;
+        cal->Properties.toStrings(origin, step, bins, useStrings);
+
+        //setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
+        QString str = QString("geo.setCalorimeter( '%0', %1, %2, %3 )").arg(obj->Name, bins, origin, step);
+        AGeoConsts::getConstInstance().formulaToScript(str, false);
+        script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
+
+    AGeoSensor * pm = dynamic_cast<AGeoSensor*>(obj->Role);
+    if (pm)
+    {
+        //void setLightSensor(QString Object, int iModel = 0);
+        QString str = QString("geo.setLightSensor( '%0', %1 )").arg(obj->Name, QString::number(pm->SensorModel));
+        script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
 }
 
 const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const

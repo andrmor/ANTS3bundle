@@ -121,6 +121,7 @@ QString AMonitorDelegateForm::getName() const
     return ui->leName->text();
 }
 
+#include "ageometryhub.h"
 bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 {
     ATypeMonitorObject* mon = dynamic_cast<ATypeMonitorObject*>(obj->Type);
@@ -128,6 +129,12 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString ErrorStr;
+
+    if (getName().contains(AGeometryHub::getConstInstance().IndexSeparator.Data()))
+    {
+        guitools::message(QString("Monitor name cannot contain %1 substring").arg(AGeometryHub::getInstance().IndexSeparator.Data()), this);
+        return false;
+    }
 
     QString strSize1 = leSize1->text();
     double Size1;

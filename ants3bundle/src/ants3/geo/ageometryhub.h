@@ -9,7 +9,6 @@
 class AGeoObject;
 class TGeoManager;
 class TGeoVolume;
-class AGridElementRecord;
 class TGeoNode;
 class TGeoCombiTrans;
 class TGeoRotation;
@@ -18,7 +17,7 @@ class AVector3;
 class QStringLists;
 class AGeoShape;
 
-// to QObject and add signal on geometry changed --> !!!*** so far not needed
+#include "TString.h"
 
 class AGeometryHub
 {
@@ -42,7 +41,7 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    std::vector<AGridElementRecord*> GridRecords;  // !!!*** refactor / transfer
+    const TString IndexSeparator = "_-_";
 
     void         populateGeoManager();   // emit signal?
 
@@ -52,21 +51,12 @@ public:
     void         clearWorld();
     bool         canBeDeleted(AGeoObject * obj) const;
 
-    void         convertObjToComposite(AGeoObject * obj);
+    void         convertObjToComposite(AGeoObject * obj) const;
 
     QString      convertToNewPrototype(std::vector<AGeoObject*> members);
     bool         isValidPrototypeName(const QString & ProtoName) const;
 
     void         aboutToQuit();
-
-    //grids
-/*
-    void         convertObjToGrid(AGeoObject * obj);
-    void         shapeGrid(AGeoObject * obj, int shape, double p0, double p1, double p2, int wireMat);
-    //parallel - 0, pitch, length, wireDiameter
-    //mesh - 1, pitchX, pitchY, wireDiameter
-    //hexa - 2, outer circle diameter, inner circle diameter, full height
-*/
 
     bool         isMaterialInUse(int imat, QString & volName) const;
     void         onMaterialRemoved(int imat);  // !!!*** add signal
@@ -93,6 +83,7 @@ public:
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
 
+    void         removeNameDecorators(TString & name) const;
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
@@ -115,7 +106,6 @@ private:
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
-    void clearGridRecords();  // !!!***
     void getGlobalPosition(const TGeoNode * node, AVector3 & position);
     void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);

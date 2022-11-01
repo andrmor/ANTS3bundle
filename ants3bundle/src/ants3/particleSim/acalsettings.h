@@ -32,6 +32,8 @@ public:
 #else
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    void toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const;
 #endif
 
     std::array<double, 3> Origin = {-5, -1e10, -1e10};

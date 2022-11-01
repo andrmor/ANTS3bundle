@@ -59,8 +59,7 @@ public:
 
     AGeoObject * getGeoObject(int iSensor) const;
 
-    double  getMaxQE() const;                // !!!***
-    double  getMaxQEvsWave(int iWave) const; // !!!***
+    double  getMaxQE(bool waveResolved, int iWave) const; // !!!***
 
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
     void    exitPersistentMode();

@@ -2,7 +2,6 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-//#include "agridelementrecord.h"
 #include "ageoconsts.h"
 #include "amaterialhub.h"
 #include "ainterfacerulehub.h"
@@ -10,6 +9,7 @@
 #include "ajsontools.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
+#include "agridhub.h"
 #include "acalorimeterhub.h"
 #include "aerrorhub.h"
 
@@ -63,7 +63,7 @@ void AGeometryHub::clearWorld()
     World->HostedObjects.push_back(Prototypes);
 
     clearMonitors();
-    clearGridRecords();
+    AGridHub::getInstance().clear();
 }
 
 void AGeometryHub::clearMonitors()
@@ -71,14 +71,6 @@ void AGeometryHub::clearMonitors()
     AMonitorHub & mh = AMonitorHub::getInstance();
     mh.clear(AMonitorHub::Photon);
     mh.clear(AMonitorHub::Particle);
-}
-
-void AGeometryHub::clearGridRecords()
-{
-    /*
-    for (auto * gr : GridRecords) delete gr;
-    GridRecords.clear();
-*/
 }
 
 bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
@@ -92,7 +84,7 @@ bool AGeometryHub::canBeDeleted(AGeoObject * obj) const
     return true;
 }
 
-void AGeometryHub::convertObjToComposite(AGeoObject * obj)
+void AGeometryHub::convertObjToComposite(AGeoObject * obj) const
 {
     delete obj->Type;
     ATypeCompositeObject* CO = new ATypeCompositeObject();
@@ -157,243 +149,6 @@ void AGeometryHub::aboutToQuit()
 {
     delete GeoManager; GeoManager = nullptr;
 }
-
-/*
-void AGeometry::convertObjToGrid(AGeoObject *obj)
-{
-    delete obj->Type;
-    obj->Type = new ATypeGridObject();
-    QString name = obj->Name;
-
-    //grid element inside
-    AGeoObject* elObj = new AGeoObject();
-    delete elObj->Type;
-    ATypeGridElementObject* GE = new ATypeGridElementObject();
-    elObj->Type = GE;
-    GE->dz = obj->Shape->getHeight();
-    if (GE->dz == 0) GE->dz = 1.001;
-    elObj->Name = "GridElement_" + name;
-    elObj->color = 1;
-    obj->addObjectFirst(elObj);
-    elObj->updateGridElementShape();
-}
-
-void AGeometry::shapeGrid(AGeoObject *obj, int shape, double p0, double p1, double p2, int wireMat)
-{
-    //qDebug() << "Grid shape request:"<<shape<<p0<<p1<<p2;
-    if (!obj) return;
-
-    if (!obj->Type->isGrid()) return;
-    AGeoObject* GEobj = obj->getGridElement();
-    if (!GEobj) return;
-    ATypeGridElementObject* GE = static_cast<ATypeGridElementObject*>(GEobj->Type);
-
-    //clear anything which is inside grid element
-    for (int i=GEobj->HostedObjects.size()-1; i>-1; i--)
-    {
-        //qDebug() << "...."<< GEobj->HostedObjects[i]->Name;
-        GEobj->HostedObjects[i]->clearAll();
-    }
-    GEobj->HostedObjects.clear();
-
-    obj->Shape->  setHeight(0.5*p2 + 0.001);
-    GE->shape = shape;
-    GE->dz = 0.5*p2 + 0.001;
-    GE->size1 = 0.5*p0;
-    GE->size2 = 0.5*p1;
-
-    switch (shape)
-    {
-    case 0: // parallel wires
-    {
-        AGeoObject* w = new AGeoObject(new ATypeSingleObject(), new AGeoTubeSeg(0, 0.5*p2, 0.5*p1, 90, 270));
-        w->Position[0] = 0.5*p0;
-        w->Orientation[1] = 90;
-        w->Material = wireMat;
-        do w->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w->Name));
-        GEobj->addObjectFirst(w);
-        w = new AGeoObject(new ATypeSingleObject(), new AGeoTubeSeg(0, 0.5*p2, 0.5*p1, -90, 90));
-        w->Position[0] = -0.5*p0;
-        w->Orientation[1] = 90;
-        w->Material = wireMat;
-        do w->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w->Name));
-        GEobj->addObjectFirst(w);
-        break;
-    }
-    case 1: // mesh
-    {
-        AGeoObject* com = new AGeoObject();
-        do com->Name = AGeoObject::GenerateRandomCompositeName();
-        while (World->isNameExists(com->Name));
-        convertObjToComposite(com);
-        com->Material = wireMat;
-        AGeoObject* logicals = com->getContainerWithLogical();
-        for (int i=0; i<logicals->HostedObjects.size(); i++)
-            delete logicals->HostedObjects[i];
-        logicals->HostedObjects.clear();
-
-        AGeoObject* w1 = new AGeoObject();
-        do w1->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w1->Name));
-        delete w1->Shape;
-        w1->Shape = new AGeoTubeSeg(0, 0.5*p2, 0.5*p1, -90, 90);
-        w1->Position[0] = -0.5*p0;
-        w1->Orientation[1] = 90;
-        w1->Material = wireMat;
-        logicals->addObjectFirst(w1);
-
-        AGeoObject* w2 = new AGeoObject();
-        do w2->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w2->Name));
-        delete w2->Shape;
-        w2->Shape = new AGeoTubeSeg(0, 0.5*p2, 0.5*p1, 90, 270);
-        w2->Position[0] = 0.5*p0;
-        w2->Orientation[1] = 90;
-        w2->Material = wireMat;
-        logicals->addObjectLast(w2);
-
-        AGeoObject* w3 = new AGeoObject();
-        do w3->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w3->Name));
-        delete w3->Shape;
-        w3->Shape = new AGeoTubeSeg(0, 0.5*p2, 0.5*p0, 90, 270);
-        w3->Position[1] = 0.5*p1;
-        w3->Orientation[0] = 90;
-        w3->Orientation[1] = 90;
-        w3->Material = wireMat;
-        logicals->addObjectLast(w3);
-
-        AGeoObject* w4 = new AGeoObject();
-        do w4->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w4->Name));
-        delete w4->Shape;
-        w4->Shape = new AGeoTubeSeg(0, 0.5*p2, 0.5*p0, -90, 90);
-        w4->Position[1] = -0.5*p1;
-        w4->Orientation[0] = 90;
-        w4->Orientation[1] = 90;
-        w4->Material = wireMat;
-        logicals->addObjectLast(w4);
-
-        AGeoComposite* comSh = static_cast<AGeoComposite*>(com->Shape);
-        comSh->GenerationString = "TGeoCompositeShape( " +
-                w1->Name + " + " +
-                w2->Name + " + " +
-                w3->Name + " + " +
-                w4->Name + " )";
-
-        GEobj->addObjectFirst(com);
-        break;
-    }
-    case 2: //hexagon
-    {
-        AGeoObject* com = new AGeoObject();
-        do com->Name = AGeoObject::GenerateRandomCompositeName();
-        while (World->isNameExists(com->Name));
-        convertObjToComposite(com);
-        com->Material = wireMat;
-        AGeoObject* logicals = com->getContainerWithLogical();
-        for (int i=0; i<logicals->HostedObjects.size(); i++)
-            delete logicals->HostedObjects[i];
-        logicals->HostedObjects.clear();
-
-        //qDebug() << "p0, p1, p2"<<p0<<p1<<p2;
-        double d = 0.5*p0/0.86603; //radius of circumscribed circle
-        double delta = 0.5*(p0-p1); // wall thickness
-        //qDebug() << "d, delta:"<<d << delta;
-        double dd = d + 2.0*delta*0.57735;
-        double x = 0.5*(p0-delta)*0.866025;
-
-        AGeoObject* w1 = new AGeoObject();
-        do w1->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w1->Name));
-        delete w1->Shape;
-        w1->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w1->Position[1] = 0.5*p0 - 0.5*delta;
-        w1->Orientation[1] = 90;
-        w1->Material = wireMat;
-        logicals->addObjectFirst(w1);
-
-        AGeoObject* w2 = new AGeoObject();
-        do w2->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w2->Name));
-        delete w2->Shape;
-        w2->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w2->Position[1] = -0.5*p0 + 0.5*delta;
-        w2->Orientation[0] = 180;
-        w2->Orientation[1] = 90;
-        w2->Material = wireMat;
-        logicals->addObjectFirst(w2);
-
-        AGeoObject* w3 = new AGeoObject();
-        do w3->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w3->Name));
-        delete w3->Shape;
-        w3->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w3->Position[0] = -x;
-        w3->Position[1] = 0.5*(0.5*p0 - 0.5*delta);
-        w3->Orientation[0] = 60;
-        w3->Orientation[1] = 90;
-        w3->Material = wireMat;
-        logicals->addObjectFirst(w3);
-
-        AGeoObject* w4 = new AGeoObject();
-        do w4->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w4->Name));
-        delete w4->Shape;
-        w4->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w4->Position[0] = x;
-        w4->Position[1] = 0.5*(0.5*p0 - 0.5*delta);
-        w4->Orientation[0] = -60;
-        w4->Orientation[1] = 90;
-        w4->Material = wireMat;
-        logicals->addObjectFirst(w4);
-
-        AGeoObject* w5 = new AGeoObject();
-        do w5->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w5->Name));
-        delete w5->Shape;
-        w5->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w5->Position[0] = -x;
-        w5->Position[1] = -0.5*(0.5*p0 - 0.5*delta);
-        w5->Orientation[0] = 120;
-        w5->Orientation[1] = 90;
-        w5->Material = wireMat;
-        logicals->addObjectFirst(w5);
-
-        AGeoObject* w6 = new AGeoObject();
-        do w6->Name = AGeoObject::GenerateRandomObjectName();
-        while (World->isNameExists(w6->Name));
-        delete w6->Shape;
-        w6->Shape = new AGeoTrd1( 0.5*d, 0.5*dd, 0.5*p2, 0.5*delta );
-        w6->Position[0] = x;
-        w6->Position[1] = -0.5*(0.5*p0 - 0.5*delta);
-        w6->Orientation[0] = -120;
-        w6->Orientation[1] = 90;
-        w6->Material = wireMat;
-        logicals->addObjectFirst(w6);
-
-        AGeoComposite* comSh = static_cast<AGeoComposite*>(com->Shape);
-        comSh->GenerationString = "TGeoCompositeShape( " +
-                w1->Name + " + " +
-                w2->Name + " + " +
-                w3->Name + " + " +
-                w4->Name + " + " +
-                w5->Name + " + " +
-                w6->Name + " )";
-
-        GEobj->addObjectFirst(com);
-        break;
-    }
-
-    default:
-        qWarning() << "Unknown grid element shape!";
-        return;
-    }
-    GEobj->updateGridElementShape();
-}
-*/
 
 void rotate(TVector3 & v, double dPhi, double dTheta, double dPsi)
 {
@@ -490,7 +245,7 @@ void AGeometryHub::populateGeoManager()
     ASensorHub::getInstance().clearSensors();
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
-    clearGridRecords();
+    AGridHub::getInstance().clear();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
@@ -524,6 +279,7 @@ void AGeometryHub::populateGeoManager()
     addTGeoVolumeRecursively(World, Top);
 
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
+    setVolumeTitle(World, Top);
 
     GeoManager->CloseGeometry();
 }
@@ -542,7 +298,7 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += "_-_";
+    fixedName += IndexSeparator;
     fixedName += MonitorCounter;
     vol->SetName(fixedName);
 
@@ -569,7 +325,7 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     parent->AddNode(vol, CalorimeterCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += "_-_";
+    fixedName += IndexSeparator;
     fixedName += CalorimeterCounter;
     vol->SetName(fixedName);
 
@@ -772,8 +528,9 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         // Positioning this object if it is physical
         if (obj->Type->isGrid())
         {
-            //            GridRecords.append(obj->createGridRecord());
-            //            parent->AddNode(vol, GridRecords.size() - 1, lTrans);
+            AGridHub & GridHub = AGridHub::getInstance();
+            GridHub.GridRecords.push_back(GridHub.createGridRecord(obj));
+            parent->AddNode(vol, GridHub.GridRecords.size() - 1, lTrans);
         }
         else if (obj->Type->isMonitor())
             addMonitorNode(obj, vol, parent, lTrans);
@@ -802,15 +559,18 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 {
     //  Photon tracer uses volume title for identification of special volumes
-    //  First character can be 'M' for monitor, 'S' for light sensor, '2' for secondary scintillator, 'G' for optical grid
+    //  First character ([0]) can be 'M' for monitor, 'S' for light sensor, '2' for secondary scintillator, 'G' for optical grid
     //  * in the second (or third) places indicate that this volume has a defined optical interface rule from (or to)
+    // the forth position ([3]) is currently not used
+    // starting from index 4
 
-    TString title = "---";
+    TString title = "----";
 
     if      (obj->Role)
     {
-         if      (obj->Role->getType() == "Sensor")   title[0] = 'S';
-         else if (obj->Role->getType() == "SecScint") title[0] = '2';
+        if      (obj->Role->getType() == "Sensor")      title[0] = 'S';
+        else if (obj->Role->getType() == "SecScint")    title[0] = '2';
+        else if (obj->Role->getType() == "Calorimeter") title[0] = 'C'; // not used with photons, but needed to update name for interface rules
     }
     else if (obj->Type->isMonitor())
     {
@@ -819,9 +579,21 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     }
     else if (obj->Type->isGrid())                  title[0] = 'G';
 
+    const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
+    TString BaseName;
+    if (bInstance) BaseName = TString(obj->NameWithoutSuffix.toLatin1().data());
+    else
+    {
+        BaseName = vol->GetName();
+        if (title[0] != '-') AGeometryHub::getConstInstance().removeNameDecorators(BaseName);
+    }
+
     const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
-    if (IRH.isFromVolume(vol->GetName())) title[1] = '*';
-    if (IRH.isToVolume(vol->GetName()))   title[2] = '*';
+    if (IRH.isFromVolume(BaseName)) title[1] = '*';
+    if (IRH.isToVolume(BaseName))   title[2] = '*';
+
+    if (bInstance) title += BaseName;
+    // !!!*** consider setting titles only for volumes with named overrides from/to
 
     vol->SetTitle(title);
 }
@@ -1325,7 +1097,7 @@ void AGeometryHub::colorVolumes(int scheme, int id)
                 if (!obj && !name.isEmpty())
                 {
                     //special for monitors
-                    QString mName = name.split("_-_").at(0);
+                    QString mName = name.split(IndexSeparator.Data()).at(0);
                     obj = World->findObjectByName(mName);
                 }
                 if (obj)
@@ -1445,6 +1217,12 @@ QString AGeometryHub::generateObjectName(const QString & prefix) const
     while (World->isNameExists(name));
 
     return name;
+}
+
+void AGeometryHub::removeNameDecorators(TString & name) const
+{
+    const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
+    if (ind != TString::kNPOS) name.Resize(ind);
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

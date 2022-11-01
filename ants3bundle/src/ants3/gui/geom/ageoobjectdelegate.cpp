@@ -328,15 +328,16 @@ QString AGeoObjectDelegate::getName() const
     return leName->text();
 }
 
+#include "ageometryhub.h"
 bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false in void AGeoWidget::onConfirmPressed()
 {
     QString errorStr;
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 
-    if (newName.contains("_-_"))
+    if (newName.contains(AGeometryHub::getInstance().IndexSeparator.Data()))
     {
-        QMessageBox::warning(this->ParentWidget, "", "Object name cannot contain \"_-_\" substring");
+        QMessageBox::warning(this->ParentWidget, "", QString("Object name cannot contain %1 substring").arg(AGeometryHub::getInstance().IndexSeparator.Data()));
         return false;
     }
 

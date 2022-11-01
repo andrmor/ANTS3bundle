@@ -16,12 +16,13 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject & json) const override;
-    bool readFromJson(const QJsonObject & json) override;
-
-    QString checkOverrideData() override;
-
     double Albedo = 0.95;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+
+    QString doCheckOverrideData() override;
 };
 
 #endif // FSNPOPTICALOVERRIDE_H

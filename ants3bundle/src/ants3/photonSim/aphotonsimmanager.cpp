@@ -153,8 +153,7 @@ bool APhotonSimManager::checkDirectories()
     if (SimSet.RunSet.OutputDirectory.isEmpty())       AErrorHub::addError("Output directory is not set!");
     if (!QDir(SimSet.RunSet.OutputDirectory).exists()) AErrorHub::addError("Output directory does not exist!");
 
-    const std::string err = A3Global::getInstance().checkExchangeDir();
-    if (!err.empty()) AErrorHub::addError(err);
+    A3Global::getInstance().checkExchangeDir();
 
     return !AErrorHub::isError();
 }
@@ -209,9 +208,10 @@ void APhotonSimManager::mergeOutput()
     qDebug() << "Merging output files...";
 
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
-    if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
-    if (SimSet.RunSet.SaveTracks)        TrackFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
-    if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger  .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger   .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
+    if (SimSet.RunSet.SaveSensorLog)     SensorLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorLog);
+    if (SimSet.RunSet.SaveTracks)        TrackFileMerger    .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
+    if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger     .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
 
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     Stat.clear();
@@ -242,6 +242,7 @@ void APhotonSimManager::mergeOutput()
 void  APhotonSimManager::clearFileMergers()
 {
     SignalFileMerger.clear();
+    SensorLogFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
     StatisticsFiles.clear();
@@ -375,6 +376,12 @@ void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhoto
         WorkSet.RunSet.FileNameSensorSignals = QString("signals-%0").arg(iProcess);
         Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorSignals);
         SignalFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorSignals);
+    }
+    if (SimSet.RunSet.SaveSensorLog)
+    {
+        WorkSet.RunSet.FileNameSensorLog = QString("sensorlog-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorLog);
+        SensorLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorLog);
     }
     if (SimSet.RunSet.SaveTracks)
     {

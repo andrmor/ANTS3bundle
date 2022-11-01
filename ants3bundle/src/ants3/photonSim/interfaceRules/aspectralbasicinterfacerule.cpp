@@ -49,10 +49,8 @@ QString ASpectralBasicInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void ASpectralBasicInterfaceRule::writeToJson(QJsonObject &json) const
+void ASpectralBasicInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-    AInterfaceRule::writeToJson(json);
-
     json["ScatMode"] = ScatterModel;
     json["EffWavelength"] = effectiveWavelength;
 
@@ -71,7 +69,7 @@ void ASpectralBasicInterfaceRule::writeToJson(QJsonObject &json) const
     json["Data"] = sp;
 }
 
-bool ASpectralBasicInterfaceRule::readFromJson(const QJsonObject &json)
+bool ASpectralBasicInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     if ( !jstools::parseJson(json, "ScatMode", ScatterModel) ) return false;
     if ( !jstools::parseJson(json, "EffWavelength", effectiveWavelength) ) return false;
@@ -151,7 +149,7 @@ QString ASpectralBasicInterfaceRule::loadData(const QString &fileName)
     return "";
 }
 
-QString ASpectralBasicInterfaceRule::checkOverrideData()
+QString ASpectralBasicInterfaceRule::doCheckOverrideData()
 {
     //checking spectrum
     if (Wave.size() == 0) return "Spectral data are not defined";

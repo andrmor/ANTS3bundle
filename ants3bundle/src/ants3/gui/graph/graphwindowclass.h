@@ -29,6 +29,7 @@ class ABasketListWidget;
 class TLegend;
 class TGaxis;
 class AMultiGraphDesigner;
+class AScriptInterface;
 
 namespace Ui {
 class GraphWindowClass;
@@ -127,7 +128,7 @@ public:
     void RestoreBasketActiveId();
     void ClearCopyOfActiveBasketId();
     void ShowProjectionTool();
-    TLegend * AddLegend();
+    TLegend * addLegend();
     void HighlightUpdateBasketButton(bool flag);
 
     QString UseProjectionTool(const QString & option);
@@ -142,7 +143,7 @@ public slots:
     void UpdateControls(); //updates visualisation of the current master graph parameters   !!!***
     void DoSaveGraph(QString name);
     void AddCurrentToBasket(const QString &name);
-    void AddLegend(double x1, double y1, double x2, double y2, QString title);
+    void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void ShowTextPanel(const QString Text, bool bShowFrame=true, int AlignLeftCenterRight=0,
                        double x1=0.15, double y1=0.75, double x2=0.5, double y2=0.85, const QString opt = "NDC");
     void SetLegendBorder(int color, int style, int size);
@@ -152,12 +153,15 @@ public slots:
     QVector<double> Get2DArray(); //for temporary script command
 
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
-    void onDrawRequest(TObject* obj, const QString options, bool transferOwnership, bool focusWindow);
+    void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
+    void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);
+    // !!!*** TODO: similarly to two above, modify draw tree from script
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
                           QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
+
     void Reshape();
     void BasketCustomContextMenuRequested(const QPoint &pos);
     void onBasketItemDoubleClicked(QListWidgetItem *item);
@@ -267,6 +271,7 @@ private:
     int  LastOptStat              = 1111;
     bool TMPignore                = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
     bool ColdStart                = true;
+    bool DrawFinished             = false;
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
@@ -292,7 +297,10 @@ private:
     void fixGraphFrame();
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
-    void connectScriptUnitDrawRequests();
+    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+
+signals:
+    void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };
 
 #endif // GRAPHWINDOWCLASS_H

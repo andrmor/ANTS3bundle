@@ -3,7 +3,6 @@
 
 #include "amaterial.h"
 
-#include <QVector>
 #include <QString>
 #include <QObject>
 #include <QStringList>
@@ -51,7 +50,7 @@ public:
 
     QString tryRemoveMaterial(int iMat); // !!!*** add check for PhotonSources!
 
-    void    copyToMaterials(const AMaterial & tmpMaterial);  // update if name exists, otherwise creates new one
+    void    copyToMaterials(const AMaterial & tmpMaterial);  // update if name exists, otherwise creates new one  !!!*** do we really need to repopulate Geomanager?
     void    copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
 
     double  getS1PhotonYield(int iMat, const QString & particle = "") const; // !!!***

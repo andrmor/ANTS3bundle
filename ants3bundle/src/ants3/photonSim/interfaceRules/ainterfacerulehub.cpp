@@ -33,12 +33,12 @@ void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, 
     VolumeRules[{from, to}] = rule;
 }
 
-bool AInterfaceRuleHub::isFromVolume(const char * name) const
+bool AInterfaceRuleHub::isFromVolume(const TString & name) const
 {
     return (VolumesFrom.find(name) != VolumesFrom.end());
 }
 
-bool AInterfaceRuleHub::isToVolume(const char * name) const
+bool AInterfaceRuleHub::isToVolume(const TString & name) const
 {
     return (VolumesTo.find(name) != VolumesTo.end());
 }
@@ -126,8 +126,8 @@ void AInterfaceRuleHub::writeToJson(QJsonObject & json) const
         for (auto const & r : VolumeRules)
         {
             QJsonObject jj;
-            TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
-            TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
+            const TString from = r.first.first;  jj["VolumeFrom"] = from.Data();
+            const TString to   = r.first.second; jj["VolumeTo"]   = to  .Data();
             r.second->writeToJson(jj);
             ar.append(jj);
         }

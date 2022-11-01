@@ -1,5 +1,5 @@
 #include "ageoconstexpressiondialog.h"
-#include "a3geoconwin.h"
+#include "ageotreewin.h"
 #include "aonelinetextedit.h"
 #include "ageobasedelegate.h"
 #include "ageoconsts.h"
@@ -10,7 +10,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-AGeoConstExpressionDialog::AGeoConstExpressionDialog(A3GeoConWin * geoConW, int index) :
+AGeoConstExpressionDialog::AGeoConstExpressionDialog(AGeoTreeWin * geoConW, int index) :
     QDialog(geoConW), GW(geoConW), Index(index)
 {
     AGeoConsts & GC = AGeoConsts::getInstance();

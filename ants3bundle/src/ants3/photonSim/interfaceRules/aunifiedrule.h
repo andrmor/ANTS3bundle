@@ -1,0 +1,34 @@
+#ifndef AUNIFIEDRULE_H
+#define AUNIFIEDRULE_H
+
+#include "ainterfacerule.h"
+
+class AUnifiedRule : public AInterfaceRule
+{
+public:
+    AUnifiedRule(int MatFrom, int MatTo);
+
+    OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+
+    QString getType() const override {return "Unified";}
+    QString getAbbreviation() const override {return "Uni";}
+    QString getReportLine() const override;
+    QString getLongReportLine() const override;
+
+    bool    canHaveRoughSurface() const override {return true;}
+
+    double Cspec     = 0;   // specular spike
+    double Cspeclobe = 1.0; // specular lobe (reflection on microfacet)
+    double Cdiflobe  = 0;   // diffuse lobe (Lambertian)
+    double Cback     = 0;   // backscatter spike
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+
+    QString doCheckOverrideData() override;
+
+    double computeRefractionProbability(const APhoton *Photon, const double * NormalVector) const; // !!!*** code duplication! Not easy to remove...
+};
+
+#endif // AUNIFIEDRULE_H

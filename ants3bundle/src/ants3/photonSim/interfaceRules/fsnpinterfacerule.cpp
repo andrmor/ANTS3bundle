@@ -9,7 +9,7 @@
 #include <QJsonObject>
 
 #include "TMath.h"
-#include "TRandom2.h"
+//#include "TRandom2.h"
 
 AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
@@ -95,19 +95,17 @@ QString FsnpInterfaceRule::getLongReportLine() const
     return s;
 }
 
-void FsnpInterfaceRule::writeToJson(QJsonObject &json) const
+void FsnpInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-  AInterfaceRule::writeToJson(json);
-
-  json["Albedo"] = Albedo;
+    json["Albedo"] = Albedo;
 }
 
-bool FsnpInterfaceRule::readFromJson(const QJsonObject &json)
+bool FsnpInterfaceRule::doReadFromJson(const QJsonObject & json)
 {
     return jstools::parseJson(json, "Albedo", Albedo);
 }
 
-QString FsnpInterfaceRule::checkOverrideData()
+QString FsnpInterfaceRule::doCheckOverrideData()
 {
     if (Albedo < 0 || Albedo > 1.0) return "Albedo should be within [0, 1.0]";
     return "";

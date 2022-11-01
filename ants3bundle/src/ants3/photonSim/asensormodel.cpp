@@ -1,6 +1,8 @@
 #include "asensormodel.h"
 #include "ajsontools.h"
 
+#include <tuple>
+
 #include "TMath.h"
 
 void ASensorModel::clear()
@@ -114,8 +116,13 @@ double ASensorModel::getPDE(int iWave) const
     return PDEbinned[iWave];
 }
 
+#include "aphotonsimhub.h"
 void ASensorModel::updateRuntimeProperties()
 {
     PDEbinned.clear();
     AngularSensitivityCosRefracted.clear();
+
+    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
+
+    if (!PDE_spectral.empty()) SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
 }

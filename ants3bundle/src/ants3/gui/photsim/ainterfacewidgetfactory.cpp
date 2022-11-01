@@ -3,6 +3,8 @@
 #include "abasicinterfacerule.h"
 #include "ametalinterfacerule.h"
 #include "fsnpinterfacerule.h"
+#include "asurfaceinterfacerule.h"
+#include "aunifiedrule.h"
 #include "awaveshifterinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"
 #include "guitools.h"
@@ -28,6 +30,12 @@ QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidg
 
     FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(Rule);
     if (fir) return new AFsnpInterfaceWidget(fir);
+
+    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(Rule);
+    if (sir) return new ASurfaceInterfaceWidget(sir);
+
+    AUnifiedRule * uir = dynamic_cast<AUnifiedRule*>(Rule);
+    if (uir) return new AUnifiedInterfaceWidget(uir);
 
     AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(Rule);
     if (wir) return new AWaveshifterInterfaceWidget(wir, Caller, GraphWindow);
@@ -462,4 +470,58 @@ void ASpectralBasicInterfaceWidget::updateButtons()
     pbShow->setDisabled(Wave.isEmpty());
     pbShowBinned->setDisabled(!WaveSet.Enabled || Wave.isEmpty());
     */
+}
+
+ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
+{
+    setFrameStyle(QFrame::Box);
+
+    QHBoxLayout* l = new QHBoxLayout(this);
+        QLabel* lab = new QLabel("Using Fresnel equations and Snell's law");
+        lab->setAlignment(Qt::AlignHCenter);
+    l->addWidget(lab);
+    /*
+        QLineEdit* le = new QLineEdit(QString::number(rule->Albedo));
+        QDoubleValidator* val = new QDoubleValidator(this);
+        val->setNotation(QDoubleValidator::StandardNotation);
+        val->setBottom(0);
+        //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
+        val->setDecimals(6);
+        le->setValidator(val);
+        QObject::connect(le, &QLineEdit::editingFinished, [le, rule]() { rule->Albedo = le->text().toDouble(); } );
+    l->addWidget(le);
+    */
+}
+
+AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule)
+{
+    setFrameStyle(QFrame::Box);
+
+    QGridLayout * lay = new QGridLayout(this);
+
+    lay->addWidget(new QLabel("Specular Spike:"), 0, 0);
+    lay->addWidget(new QLabel("Specular Lobe:"), 0, 2);
+    lay->addWidget(new QLabel("Diffuse Lobe:"), 1, 0);
+    lay->addWidget(new QLabel("Backscatter Spike:"), 1, 2);
+
+    QDoubleValidator* val = new QDoubleValidator(this);
+    val->setNotation(QDoubleValidator::StandardNotation);
+    val->setBottom(0.0);
+    val->setTop(1.0);
+    val->setDecimals(6);
+
+    QLineEdit * leSS = new QLineEdit(QString::number(rule->Cspec));     leSS->setValidator(val);
+    QLineEdit * leSL = new QLineEdit(QString::number(rule->Cspeclobe)); leSL->setValidator(val);
+    QLineEdit * leDL = new QLineEdit(QString::number(rule->Cdiflobe));  leDL->setValidator(val);
+    QLineEdit * leBS = new QLineEdit(QString::number(rule->Cback));     leBS->setValidator(val);
+
+    lay->addWidget(leSS, 0, 1);
+    lay->addWidget(leSL, 0, 3);
+    lay->addWidget(leDL, 1, 1);
+    lay->addWidget(leBS, 1, 3);
+
+    QObject::connect(leSS, &QLineEdit::editingFinished, [leSS, rule]() { rule->Cspec = leSS->text().toDouble(); } );
+    QObject::connect(leSL, &QLineEdit::editingFinished, [leSL, rule]() { rule->Cspeclobe = leSL->text().toDouble(); } );
+    QObject::connect(leDL, &QLineEdit::editingFinished, [leDL, rule]() { rule->Cdiflobe = leDL->text().toDouble(); } );
+    QObject::connect(leBS, &QLineEdit::editingFinished, [leBS, rule]() { rule->Cback = leBS->text().toDouble(); } );
 }

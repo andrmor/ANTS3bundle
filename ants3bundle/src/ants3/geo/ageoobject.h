@@ -52,6 +52,8 @@ public:
   int style = 1;
   int width = 1;
 
+  QString NameWithoutSuffix; // used only during population of GeoManager: name of a prototype member without the corresponding instance suffix
+
   bool readShapeFromString(const QString & GenerationString, bool OnlyCheck = false); // using parameter values taken from gui generation string
   void onMaterialRemoved(int imat); // assumes isMaterialInUse was already called (and returned false)!
   bool isWorld() const;
@@ -86,12 +88,9 @@ public:
   void removeCompositeStructure();
   void updateNameOfLogicalMember(const QString & oldName, const QString & newName);
 
-/*
-  //for grid
-  AGeoObject* getGridElement();    // used in cpp - temporary commented in addObjectFirst
+  //for grids
+  AGeoObject * getGridElement();
   void  updateGridElementShape();
-  AGridElementRecord* createGridRecord();
-*/
 
   //for monitor -> TODO: remove from here
   void updateMonitorShape();
@@ -117,8 +116,8 @@ public:
   bool isContainsLocked();
   bool isDisabled() const;
   void enableUp();
-  void addObjectFirst(AGeoObject* Object);  // !!!***
-  void addObjectLast(AGeoObject* Object);   // !!!***
+  void addObjectFirst(AGeoObject * Object);
+  void addObjectLast(AGeoObject * Object);   // !!!***
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
   bool suicide(); // not possible for locked and static objects  !!!***

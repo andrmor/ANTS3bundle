@@ -237,6 +237,13 @@ void AGlobSetWindow::on_pbOpen_clicked()
     QDesktopServices::openUrl(QUrl("file:///" + what, QUrl::TolerantMode));
 }
 
+void AGlobSetWindow::onRequestConfigureExchangeDir()
+{
+    showNormal();
+    activateWindow();
+    setTab(0);
+}
+
 #include "ageometryhub.h"
 void AGlobSetWindow::on_sbNumSegments_editingFinished()
 {

@@ -4,7 +4,6 @@
 #include "graphwindowclass.h"
 #include "ui_graphwindowclass.h"
 #include "rasterwindowgraphclass.h"
-//#include "windownavigatorclass.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "shapeablerectitem.h"
@@ -17,8 +16,12 @@
 #include "abasketlistwidget.h"
 #include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "agraphwin_si.h"
+#include "ajscriptmanager.h"
+#ifdef ANTS3_PYTHON
+    #include "apythonscriptmanager.h"
+#endif
 
 #include <QtGui>
 #include <QFileDialog>
@@ -114,7 +117,12 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &GraphWindowClass::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &GraphWindowClass::BasketReorderRequested);
 
-    connectScriptUnitDrawRequests();
+    connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
+#ifdef ANTS3_PYTHON
+    connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
+#endif
+    connect(this, &GraphWindowClass::requestLocalDrawObject, this, &GraphWindowClass::processScriptDrawRequest, Qt::QueuedConnection);
+    // !!!*** TODO: similarly to the above, modify draw tree from script
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -161,7 +169,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
     DrawTemplate.Selection.bExpanded = true;
 
-    AJScriptHub::getInstance().addInterface(new AGraphWin_SI(this), "grwin");
+    AScriptHub::getInstance().addCommonInterface(new AGraphWin_SI(this), "grwin");
 }
 
 GraphWindowClass::~GraphWindowClass()
@@ -178,18 +186,15 @@ GraphWindowClass::~GraphWindowClass()
     delete Basket; Basket = nullptr;
 }
 
-#include "ajscripthub.h"
-#include "ajscriptmanager.h"
 #include "agraph_si.h"
 #include "ahist_si.h"
 #include "atree_si.h"
-void GraphWindowClass::connectScriptUnitDrawRequests()
+void GraphWindowClass::connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces)
 {
     const AGraph_SI * graphInter = nullptr;
     const AHist_SI  * histInter  = nullptr;
     const ATree_SI  * treeInter  = nullptr;
 
-    const std::vector<AScriptInterface *> interfaces = AJScriptHub::manager().getInterfaces();
     for (const AScriptInterface * inter : interfaces)
     {
         if (!graphInter)
@@ -221,8 +226,8 @@ void GraphWindowClass::connectScriptUnitDrawRequests()
         }
     }
 
-    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest);
-    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest);
+    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
+    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
     if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }
 
@@ -504,6 +509,8 @@ void GraphWindowClass::DrawWithoutFocus(TObject *obj, const char *options, bool 
 
     EnforceOverlayOff();
     UpdateControls();
+
+    DrawFinished = true;
 }
 
 void GraphWindowClass::UpdateGuiControlsForMainObject(const QString & ClassName, const QString & options)
@@ -1309,7 +1316,7 @@ void GraphWindowClass::DrawStrOpt(TObject *obj, QString options, bool DoUpdate)
     Draw(obj, options.toLatin1().data(), DoUpdate, true); // changed to register - now hist/graph scripts make a copy to draw
 }
 
-void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool transferOwnership, bool focusWindow)
+void GraphWindowClass::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
     if (focusWindow)
         Draw(obj, options.toLatin1().data(), true, transferOwnership);
@@ -1319,10 +1326,21 @@ void GraphWindowClass::onDrawRequest(TObject *obj, const QString options, bool t
 
 void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    //always drawing a copy, so always need to register the object
+    DrawFinished = false;
 
-    if (fFocus) Draw(obj, options.toLatin1().data(), true, true);
-    else        DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
+    emit requestLocalDrawObject(obj, options, fFocus);
+    do
+    {
+        QThread::msleep(100);
+    }
+    while (!DrawFinished);
+}
+
+void GraphWindowClass::processScriptDrawRequest(TObject *obj, QString options, bool fFocus)
+{
+    //always drawing a copy, so always need to register the object
+    if (fFocus) ShowAndFocus();
+    DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
@@ -1977,7 +1995,7 @@ void GraphWindowClass::updateLogScaleFlags(QVector<ADrawObject> & drawObjects) c
     }
 }
 
-void GraphWindowClass::AddLegend(double x1, double y1, double x2, double y2, QString title)
+void GraphWindowClass::drawLegend(double x1, double y1, double x2, double y2, QString title)
 {
     TLegend* leg = RasterWindow->fCanvas->BuildLegend(x1, y1, x2, y2, title.toLatin1());
 
@@ -2531,7 +2549,7 @@ void GraphWindowClass::on_cbShowFitParameters_toggled(bool checked)
     else gStyle->SetOptFit(0000);
 }
 
-TLegend * GraphWindowClass::AddLegend()
+TLegend * GraphWindowClass::addLegend()
 {
     TLegend * leg = RasterWindow->fCanvas->BuildLegend();
     RegisterTObject(leg);
@@ -2556,7 +2574,7 @@ void GraphWindowClass::on_pbAddLegend_clicked()
         }
     }
     if (!leg )
-        leg = AddLegend();
+        leg = addLegend();
 
     ALegendDialog Dialog(*leg, DrawObjects, this);
     connect(&Dialog, &ALegendDialog::requestCanvasUpdate, RasterWindow, &RasterWindowBaseClass::UpdateRootCanvas);
@@ -2771,7 +2789,7 @@ void GraphWindowClass::applyTemplate(bool bAll)
                 if (Legend) break;
             }
             if (!Legend) //cannot build legend inside Template due to limitations in ROOT (problems with positioning if TCanvas is not involved)
-                Legend = AddLegend();
+                Legend = addLegend();
         }
     }
 

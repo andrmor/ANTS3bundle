@@ -23,11 +23,6 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    void writeToJson(QJsonObject &json) const override;  // !!!***
-    bool readFromJson(const QJsonObject &json) override; // !!!***
-
-    QString checkOverrideData() override;
-
     int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
     QVector<double> ReemissionProbability_lambda;
     QVector<double> ReemissionProbability;
@@ -36,6 +31,12 @@ public:
     QVector<double> EmissionSpectrum_lambda;
     QVector<double> EmissionSpectrum;
     TH1D * Spectrum = nullptr;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;  // !!!***
+    bool doReadFromJson(const QJsonObject & json) override; // !!!***
+
+    QString doCheckOverrideData() override;
 
 private:
     const AWaveResSettings & WaveSet;

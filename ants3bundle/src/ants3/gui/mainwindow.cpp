@@ -5,24 +5,26 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "afiletools.h"
-#include "a3geoconwin.h"
+#include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
-#include "a3matwin.h"
+#include "amatwin.h"
 #include "asensorwindow.h"
-#include "a3photsimwin.h"
+#include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ascriptwindow.h"
 #include "aglobsetwindow.h"
 #include "ademowindow.h"
+#include "escriptlanguage.h"
 
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
+#include <QString>
 
 #include "TObject.h"
 
@@ -41,34 +43,44 @@ MainWindow::MainWindow() :
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
-    GeoConWin = new A3GeoConWin(this);
-    connect(GeoConWin, &A3GeoConWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+    GeoTreeWin = new AGeoTreeWin(this);
+    connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(this);
-    connect(GeoConWin, &A3GeoConWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoConWin, &A3GeoConWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoConWin, &A3GeoConWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
-    connect(GeoConWin, &A3GeoConWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
-    connect(GeoConWin, &A3GeoConWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
-
-    MatWin = new A3MatWin(this);
-    MatWin->initWindow();
-
-    RuleWin = new AInterfaceRuleWin(this);
-
-    SensWin = new ASensorWindow(this);
-    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin, &AGeometryWindow::showSensorModelIndexes);
-
-    PhotSimWin = new A3PhotSimWin(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeometry,           GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowTracks,             GeoWin, &AGeometryWindow::ShowTracks);
-    connect(PhotSimWin, &A3PhotSimWin::requestClearGeoMarkers,        GeoWin, &AGeometryWindow::clearGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowGeoMarkers,         GeoWin, &AGeometryWindow::showGeoMarkers);
-    connect(PhotSimWin, &A3PhotSimWin::requestShowPosition,           GeoWin, &AGeometryWindow::ShowPoint);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,   GeoWin, &AGeometryWindow::showRecursive);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoTreeWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
 
     GraphWin = new GraphWindowClass(this);
-    connect(PhotSimWin, &A3PhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
+
+    MatWin = new AMatWin(this);
+    MatWin->initWindow();
+    connect(MatWin, &AMatWin::requestRebuildDetector, this,     &MainWindow::onRebuildGeometryRequested);
+    connect(MatWin, &AMatWin::requestShowGeometry,    GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
+
+    RuleWin = new AInterfaceRuleWin(this);
+    connect(RuleWin, &AInterfaceRuleWin::requestClearGeometryViewer, GeoWin,   &AGeometryWindow::ClearRootCanvas);
+    connect(RuleWin, &AInterfaceRuleWin::requestShowTracks,          GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(RuleWin, &AInterfaceRuleWin::requestDraw,                GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend,          GraphWin, &GraphWindowClass::drawLegend);
+
+    SensWin = new ASensorWindow(this);
+    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin,   &AGeometryWindow::showSensorModelIndexes);
+    connect(SensWin, &ASensorWindow::requestDraw,             GraphWin, &GraphWindowClass::onDrawRequest);
+
+    PhotSimWin = new APhotSimWin(this);
+    connect(PhotSimWin, &APhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);
+    connect(PhotSimWin, &APhotSimWin::requestShowTracks,             GeoWin,   &AGeometryWindow::ShowTracks);
+    connect(PhotSimWin, &APhotSimWin::requestClearGeoMarkers,        GeoWin,   &AGeometryWindow::clearGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin,   &AGeometryWindow::addPhotonNodeGeoMarker);
+    connect(PhotSimWin, &APhotSimWin::requestShowGeoMarkers,         GeoWin,   &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestShowPosition,           GeoWin,   &AGeometryWindow::ShowPoint);
+    connect(PhotSimWin, &APhotSimWin::requestDraw,                   GraphWin, &GraphWindowClass::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
@@ -81,25 +93,40 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
 
-    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoConWin, &A3GeoConWin::UpdateGeoTree);
+    connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
-    //qDebug() << ">JScript window";
-    JScriptWin = new AScriptWindow(this);
-    AJScriptHub * SH = &AJScriptHub::getInstance();
+    AScriptHub * SH = &AScriptHub::getInstance();
+    qDebug() << "Creating JScript window";
+    JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(SH, &AJScriptHub::clearOutput,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(SH, &AJScriptHub::outputText,       JScriptWin, &AScriptWindow::outputText);
-    connect(SH, &AJScriptHub::outputHtml,       JScriptWin, &AScriptWindow::outputHtml);
-    connect(SH, &AJScriptHub::showAbortMessage, JScriptWin, &AScriptWindow::outputAbortMessage);
-    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
-    connect(GeoConWin,  &A3GeoConWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
+    connect(SH, &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
+#ifdef ANTS3_PYTHON
+    qDebug() << "Creating Python window";
+    PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
+    PythonWin->registerInterfaces();
+    connect(SH, &AScriptHub::clearOutput_JS,     PythonWin, &AScriptWindow::clearOutput);
+    connect(SH, &AScriptHub::outputText_P,       PythonWin, &AScriptWindow::outputText);
+    connect(SH, &AScriptHub::outputHtml_P,       PythonWin, &AScriptWindow::outputHtml);
+    connect(SH, &AScriptHub::showAbortMessage_P, PythonWin, &AScriptWindow::outputAbortMessage);
+    connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   PythonWin, &AScriptWindow::onRequestAddScript);
+    PythonWin->updateGui();
+#endif
+
     GlobSetWin = new AGlobSetWindow(this);
+    connect(PhotSimWin, &APhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
+    connect(PartSimWin, &AParticleSimWin::requestConfigureExchangeDir, GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
 
     DemoWin = new ADemoWindow(this);
 
-    connect(&AJScriptHub::getInstance(), &AJScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
     loadWindowGeometries();
 
@@ -131,6 +158,7 @@ MainWindow::MainWindow() :
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
+    SH->finalizeInit();
 }
 
 MainWindow::~MainWindow()
@@ -158,16 +186,16 @@ void MainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
-    GeoConWin->updateGui();
-    GeoConWin->requestClearGeoMarkers(0);
+    GeoTreeWin->updateGui();
+    emit GeoTreeWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbGeometry_clicked()
 {
-    GeoConWin->showNormal();
-    GeoConWin->activateWindow();
-    GeoConWin->updateGui();
+    GeoTreeWin->showNormal();
+    GeoTreeWin->activateWindow();
+    GeoTreeWin->updateGui();
 }
 
 void MainWindow::on_pbGeoWin_clicked()
@@ -231,12 +259,22 @@ void MainWindow::on_pbJavaScript_clicked()
     JScriptWin->updateGui();
 }
 
+void MainWindow::on_pbPython_clicked()
+{
+#ifdef ANTS3_PYTHON
+    PythonWin->showNormal();
+    PythonWin->activateWindow();
+    PythonWin->updateGui();
+#else
+    guitools::message("Ants3 was compiled without Python support.\nIt can be enabled in ants3.pro by uncommenting:\n#CONFIG += ants3_Python", this);
+#endif
+}
+
 void MainWindow::on_pbDemo_clicked()
 {
     DemoWin->showNormal();
     DemoWin->activateWindow();
 }
-
 
 void MainWindow::on_pbLoadConfig_clicked()
 {
@@ -331,14 +369,13 @@ void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
 
-    GeoConWin->updateGui();
+    GeoTreeWin->updateGui();
     MatWin->initWindow();
     SensWin->updateGui();
+    RuleWin->updateGui();
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
-
-    //rules !!!***
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
     {
@@ -398,6 +435,9 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     //saving ANTS master-configuration file
     JScriptWin->WriteToJson();
+#ifdef ANTS3_PYTHON
+    PythonWin->WriteToJson();
+#endif
     A3Global::getInstance().saveConfig();
 
     qDebug()<<"<Saving ANTS configuration";
@@ -408,8 +448,11 @@ void MainWindow::closeEvent(QCloseEvent *)
     disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     QThread::msleep(110);
 
-    std::vector<AGuiWindow*> wins{ GeoConWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
                                    RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
+    wins.push_back(PythonWin);
+#endif
 
     for (auto * win : wins) delete win;
 
@@ -418,18 +461,26 @@ void MainWindow::closeEvent(QCloseEvent *)
 
 void MainWindow::saveWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
+    wins.push_back(PythonWin);
+    wins.push_back(PythonWin->ScriptMsgWin);
+#endif
 
     for (auto * w : wins) w->storeGeomStatus();
 }
 
 void MainWindow::loadWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoConWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, DemoWin };
+#ifdef ANTS3_PYTHON
+    wins.push_back(PythonWin);
+    wins.push_back(PythonWin->ScriptMsgWin);
+#endif
 
     for (auto * w : wins) w->restoreGeomStatus();
 }

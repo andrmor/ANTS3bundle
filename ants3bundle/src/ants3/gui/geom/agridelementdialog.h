@@ -12,7 +12,7 @@ class AGridElementDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AGridElementDialog(const QStringList& MaterialList, QWidget *parent = 0);
+    explicit AGridElementDialog(QWidget *parent = 0);
     ~AGridElementDialog();
 
     void setValues(int shape, double p0, double p1, double p2);

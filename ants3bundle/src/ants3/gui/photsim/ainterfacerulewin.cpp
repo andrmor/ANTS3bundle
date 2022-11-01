@@ -19,8 +19,10 @@ AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
     connect(&RuleHub, &AInterfaceRuleHub::rulesLoaded, this, &AInterfaceRuleWin::updateGui);
 
     connect(ui->tabwMat,     &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onMatCellDoubleClicked);
+
     connect(ui->tabwVolumes, &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onVolCellDoubleClicked);
     connect(ui->tabwVolumes, &QTableWidget::itemChanged, this, &AInterfaceRuleWin::onVolCellChanged);
+    connect(ui->tabwVolumes->horizontalHeader(), &QHeaderView::sectionClicked, this, &AInterfaceRuleWin::onVolColumnClicked);
 
     updateGui();
 }
@@ -34,6 +36,8 @@ void AInterfaceRuleWin::updateGui()
 {
     updateMatGui();
     updateVolGui();
+
+    delete RuleDialog; RuleDialog = nullptr;
 }
 
 void AInterfaceRuleWin::updateMatGui()
@@ -69,7 +73,7 @@ void AInterfaceRuleWin::updateMatGui()
 
     ui->labNumMatMat->setText( QString::number(NumMatRules) );
 }
-
+/*
 void AInterfaceRuleWin::updateVolGui()
 {
     BulkUpdate = true; // -->
@@ -88,14 +92,66 @@ void AInterfaceRuleWin::updateVolGui()
 
         AInterfaceRule * ov = r.second;
         QString text = ov->getAbbreviation();
-        QTableWidgetItem * it = new QTableWidgetItem(text);
-        it->setTextAlignment(Qt::AlignCenter);
-        //it->setBackground(QBrush(Qt::lightGray));
-        it->setToolTip(ov->getLongReportLine());
-        it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        QTableWidgetItem * item = new QTableWidgetItem(text);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setToolTip(ov->getLongReportLine());
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
-        ui->tabwVolumes->setItem(iRow, 2, it);
+        ui->tabwVolumes->setItem(iRow, 2, item);
         iRow++;
+    }
+
+    BulkUpdate = false; // <--
+
+    ui->labNumVolVol->setText( QString::number(RuleHub.VolumeRules.size()) );
+}
+*/
+
+void AInterfaceRuleWin::updateVolGui()
+{
+    BulkUpdate = true; // -->
+
+    ui->tabwVolumes->clear();
+    ui->tabwVolumes->setColumnCount(3);
+    ui->tabwVolumes->setRowCount(RuleHub.VolumeRules.size());
+
+    ui->tabwVolumes->setHorizontalHeaderLabels({"Volume from", "Volume to", "Interface rule"});
+
+    typedef std::tuple< TString,TString,AInterfaceRule* > rec;  // from, to, rule*
+    std::vector<rec> records;
+    for (auto const & r : RuleHub.VolumeRules) records.push_back({r.first.first, r.first.second, r.second});
+
+    std::sort(records.begin(), records.end(), [this](const rec & lhs, const rec & rhs)
+    {
+        if (sortByColumn == 0)
+        {
+            return std::get<0>(lhs) < std::get<0>(rhs);
+        }
+        else if (sortByColumn == 1)
+        {
+            return std::get<1>(lhs) < std::get<1>(rhs);
+        }
+        else
+        {
+            return std::get<2>(lhs)->getAbbreviation() < std::get<2>(rhs)->getAbbreviation();
+        }
+    });
+
+    for (size_t iRow = 0; iRow < records.size(); iRow++)
+    {
+        const rec r = records[iRow];
+
+        TString from = std::get<0>(r); ui->tabwVolumes->setItem(iRow, 0, new QTableWidgetItem(from.Data()));
+        TString to   = std::get<1>(r); ui->tabwVolumes->setItem(iRow, 1, new QTableWidgetItem(to  .Data()));
+
+        AInterfaceRule * ov = std::get<2>(r);
+        QString text = ov->getAbbreviation();
+        QTableWidgetItem * item = new QTableWidgetItem(text);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setToolTip(ov->getLongReportLine());
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+        ui->tabwVolumes->setItem(iRow, 2, item);
     }
 
     BulkUpdate = false; // <--
@@ -108,36 +164,73 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
     int iFrom = ui->tabwMat->currentRow();
     int iTo   = ui->tabwMat->currentColumn();
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
-    //d->setAttribute(Qt::WA_DeleteOnClose);
-    d->setWindowModality(Qt::WindowModal);
-    int res = d->exec();
-    if (res == QDialog::Accepted) RuleHub.MaterialRules[iFrom][iTo] = d->getRule();
-    updateMatGui();
-    delete d;
+    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getMaterialRuleFast(iFrom, iTo), iFrom, iTo, this);
+    configureInterfaceDialog();
+    connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Mat);
+    RuleDialog->show();
 }
 
+void AInterfaceRuleWin::OnRuleDialogAccepted_Mat()
+{
+    if (!RuleDialog) return;
+    RuleHub.MaterialRules[RuleDialog->MatFrom][RuleDialog->MatTo] = RuleDialog->getRule();
+    updateMatGui();
+    delete RuleDialog; RuleDialog = nullptr;
+}
+
+#include "ageometryhub.h"
+#include "ageoobject.h"
 void AInterfaceRuleWin::onVolCellDoubleClicked()
 {
     int iCol = ui->tabwVolumes->currentColumn();
     if (iCol != 2) return;
     int iRow = ui->tabwVolumes->currentRow();
 
-    TString From(ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data());
-    TString To  (ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data());
+    LastFrom = ui->tabwVolumes->item(iRow, 0)->text().toLatin1().data();
+    LastTo   = ui->tabwVolumes->item(iRow, 1)->text().toLatin1().data();
 
-    AInterfaceRuleDialog * d = new AInterfaceRuleDialog(RuleHub.getVolumeRule(From, To), 0, 0, this);
-    d->setWindowModality(Qt::WindowModal);
-    int res = d->exec();
-    if (res == QDialog::Accepted)
+    AGeoObject * world = AGeometryHub::getConstInstance().World;
+    AGeoObject * obFrom = world->findObjectByName(LastFrom.Data());
+    int iFrom = 0;
+    if (obFrom) iFrom = obFrom->Material;
+    int iTo = 0;
+    AGeoObject * obTo = world->findObjectByName(LastTo.Data());
+    if (obTo) iTo = obTo->Material;
+
+    delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), iFrom, iTo, this);
+    configureInterfaceDialog();
+    itemDoubleClicked = ui->tabwVolumes->item(iRow, iCol);
+    connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Vol);
+    RuleDialog->show();
+}
+
+void AInterfaceRuleWin::OnRuleDialogAccepted_Vol()
+{
+    if (!RuleDialog) return;
+
+    AInterfaceRule * newRule = RuleDialog->getRule();
+    if (newRule)
     {
-        AInterfaceRule * newRule = d->getRule();
-        if (newRule) RuleHub.setVolumeRule(From, To, newRule);
-        else         RuleHub.removeVolumeRule(From, To);
+        RuleHub.setVolumeRule(LastFrom, LastTo, newRule);
+        if (itemDoubleClicked) itemDoubleClicked->setText(newRule->getAbbreviation());
+        else updateVolGui();
     }
-    delete d;
+    else
+    {
+        RuleHub.removeVolumeRule(LastFrom, LastTo);
+        updateVolGui();
+    }
+}
 
-    updateVolGui();
+#include "TObject.h"
+void AInterfaceRuleWin::configureInterfaceDialog()
+{
+    //RuleDialog->setWindowModality(Qt::WindowModal);
+    //RuleDialog->setWindowModality(Qt::NonModal);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestClearGeometryViewer, this, &AInterfaceRuleWin::requestClearGeometryViewer);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestDraw,                this, &AInterfaceRuleWin::requestDraw);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestDrawLegend,          this, &AInterfaceRuleWin::requestDrawLegend);
+    connect(RuleDialog, &AInterfaceRuleDialog::requestShowTracks,          this, &AInterfaceRuleWin::requestShowTracks);
 }
 
 void AInterfaceRuleWin::onVolCellChanged()
@@ -172,12 +265,28 @@ void AInterfaceRuleWin::onVolCellChanged()
         RuleHub.moveVolumeRule(OldFrom, OldTo, OldFrom, NewTo);
     }
 
+    //updateVolGui();
+}
+
+void AInterfaceRuleWin::onVolColumnClicked(int index)
+{
+    sortByColumn = index;
     updateVolGui();
 }
 
 #include "abasicinterfacerule.h"
 void AInterfaceRuleWin::on_pbAddNewVolumeRule_clicked()
 {
-    RuleHub.setVolumeRule("NameFrom", "NameTo", new ABasicInterfaceRule(0,0));
+    const QString Fr = "_NameFrom_";
+    const QString To = "_NameTo_";
+    RuleHub.setVolumeRule(Fr.toLatin1().data(), To.toLatin1().data(), new ABasicInterfaceRule(0,0));
     updateVolGui();
+
+    for (int iRow = 0; iRow < ui->tabwVolumes->rowCount(); iRow++)
+    {
+        if (Fr != ui->tabwVolumes->item(iRow, 0)->text()) continue;
+        if (To != ui->tabwVolumes->item(iRow, 1)->text()) continue;
+        ui->tabwVolumes->selectRow(iRow);
+        break;
+    }
 }

@@ -1,6 +1,6 @@
 #include "ademowindow.h"
 #include "ui_ademowindow.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "adispatcherinterface.h"
 #include "aconfig.h"

@@ -7,11 +7,11 @@ namespace Ui {
 class MainWindow;
 }
 class AConfig;
-class A3GeoConWin;
+class AGeoTreeWin;
 class AGeometryWindow;
-class A3MatWin;
+class AMatWin;
 class ASensorWindow;
-class A3PhotSimWin;
+class APhotSimWin;
 class AInterfaceRuleWin;
 class GraphWindowClass;
 class ARemoteWindow;
@@ -36,16 +36,19 @@ private:
 
     Ui::MainWindow    * ui = nullptr;
 
-    A3GeoConWin       * GeoConWin  = nullptr;
+    AGeoTreeWin       * GeoTreeWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
-    A3MatWin          * MatWin     = nullptr;
+    AMatWin          * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
-    A3PhotSimWin      * PhotSimWin = nullptr;
+    APhotSimWin      * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     GraphWindowClass  * GraphWin   = nullptr;
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+#ifdef ANTS3_PYTHON
+    AScriptWindow     * PythonWin = nullptr;
+#endif
     AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
@@ -88,6 +91,8 @@ private slots:
     void rootTimerTimeout();
 
     void on_pbGlobSet_clicked();
+
+    void on_pbPython_clicked();
 
 protected:
     void closeEvent(QCloseEvent * event);

@@ -617,6 +617,7 @@ void AParticleSimWin::on_pbSimulate_clicked()
     if (AErrorHub::isError())
     {
         guitools::message(AErrorHub::getQError(), this);
+        if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
     }
     else
     {

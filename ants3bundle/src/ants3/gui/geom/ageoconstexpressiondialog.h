@@ -5,17 +5,17 @@
 #include <QDialog>
 #include <QString>
 
-class A3GeoConWin;
+class AGeoTreeWin;
 class AOneLineTextEdit;
 
 class AGeoConstExpressionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    AGeoConstExpressionDialog(A3GeoConWin * geoConW, int index);
+    AGeoConstExpressionDialog(AGeoTreeWin * geoConW, int index);
 
 private:
-    A3GeoConWin * GW = nullptr;
+    AGeoTreeWin * GW = nullptr;
     QString       OriginalText;
     int           Index;
 

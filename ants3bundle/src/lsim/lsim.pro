@@ -33,6 +33,7 @@ DEFINES += QT
 SOURCES += \
         ../ants3/geo/acalorimeter.cpp \   # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/acalorimeterhub.cpp \ # not needed for functionality, can be removed using a new DEFINE
+        ../ants3/geo/agridhub.cpp \
         ../ants3/particleSim/acalsettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/amonitorhub.cpp \
         ../ants3/photonSim/adeporecord.cpp \
@@ -71,6 +72,8 @@ SOURCES += \
         ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.cpp \
         ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.cpp \
         ../ants3/photonSim/interfaceRules/fsnpinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/asurfaceinterfacerule.cpp \
+        ../ants3/photonSim/interfaceRules/aunifiedrule.cpp \
         ../ants3/photonSim/aphoton.cpp \
         ../ants3/photonSim/aphotonstatistics.cpp \
         ../ants3/tools/aroothistappenders.cpp \
@@ -86,6 +89,7 @@ SOURCES += \
         alogger.cpp \
         as1generator.cpp \
         as2generator.cpp \
+        ../ants3/photonSim/interfaceRules/asurfacesettings.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -96,6 +100,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ../ants3/geo/acalorimeter.h \
     ../ants3/geo/acalorimeterhub.h \
+    ../ants3/geo/agridelementrecord.h \
+    ../ants3/geo/agridhub.h \
     ../ants3/geo/amonitorhub.h \
     ../ants3/particleSim/acalsettings.h \
     ../ants3/photonSim/adeporecord.h \
@@ -134,6 +140,8 @@ HEADERS += \
     ../ants3/photonSim/interfaceRules/aspectralbasicinterfacerule.h \
     ../ants3/photonSim/interfaceRules/awaveshifterinterfacerule.h \
     ../ants3/photonSim/interfaceRules/fsnpinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/asurfaceinterfacerule.h \
+    ../ants3/photonSim/interfaceRules/aunifiedrule.h \
     ../ants3/photonSim/aphoton.h \
     ../ants3/photonSim/aphotonstatistics.h \
     ../ants3/tools/aroothistappenders.h \
@@ -149,4 +157,5 @@ HEADERS += \
     aphotongenerator.h \
     alogger.h \
     as1generator.h \
-    as2generator.h
+    as2generator.h \
+    ../ants3/photonSim/interfaceRules/asurfacesettings.h

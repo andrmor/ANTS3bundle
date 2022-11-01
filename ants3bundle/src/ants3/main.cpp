@@ -3,7 +3,7 @@
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "amaterialhub.h"
-#include "ajscripthub.h"
+#include "ascripthub.h"
 #include "ajscriptmanager.h"
 
 #ifdef GUI
@@ -26,6 +26,8 @@
 
 #include "ascriptinterface.h"
 
+Q_DECLARE_METATYPE(TObject*);
+
 int main(int argc, char *argv[])
 {
     int rootargc = 1;
@@ -34,6 +36,7 @@ int main(int argc, char *argv[])
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView and ResolutionVsArea
 
     qRegisterMetaType<AScriptInterface*>();
+    qRegisterMetaType<TObject*>();
 
     std::unique_ptr<QCoreApplication> app;
 #ifdef GUI
@@ -59,9 +62,9 @@ int main(int argc, char *argv[])
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
-    AJScriptHub::getInstance();
+    AScriptHub::getInstance();
 
-    AMaterialHub::getInstance().addNewMaterial("Dummy", true);
+    AMaterialHub::getInstance().addNewMaterial("Vacuum", true);
 
     // should be last line in initialization!
     AConfig::getInstance().updateJSONfromConfig();
@@ -82,7 +85,7 @@ int main(int argc, char *argv[])
     if (argc > 1)  // later will be replaced with a proper line parser like in ants2
 #endif // GUI
     {
-        AJScriptManager * SM = &AJScriptHub::manager();
+        AJScriptManager * SM = &AScriptHub::getInstance().getJScriptManager();
         QTimer::singleShot(0, SM, [SM, argv](){SM->evaluate(argv[1]);});
         QObject::connect(SM, &AJScriptManager::finished, &(*app), &QCoreApplication::quit, Qt::QueuedConnection);
         app->exec();

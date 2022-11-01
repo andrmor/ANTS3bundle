@@ -125,6 +125,9 @@ void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
     AMaterial * m = new AMaterial;
 
+    m->ChemicalComposition.setCompositionString("H");
+    m->density = 1e-25;
+
     AInterfaceRuleHub::getInstance().onMaterialAdded();
 
     Materials.push_back(m);

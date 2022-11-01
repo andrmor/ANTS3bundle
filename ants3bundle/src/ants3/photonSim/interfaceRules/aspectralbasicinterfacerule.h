@@ -17,18 +17,13 @@ public:
     OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "SimplisticSpectral";}
-    QString getAbbreviation() const override {return "SiSp";}
+    QString getAbbreviation() const override {return "SimpS";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
-
-    void writeToJson(QJsonObject &json) const override;
-    bool readFromJson(const QJsonObject &json) override;
 
     void initializeWaveResolved() override;
 
     QString loadData(const QString & fileName); // !!!***
-
-    QString checkOverrideData() override;
 
     QVector<double> Wave;
     QVector<double> ProbLoss; //probability of absorption
@@ -39,6 +34,12 @@ public:
     QVector<double> ProbDiffBinned; //probability of scattering
     double effectiveWavelength = 500; //if waveIndex of photon is -1, index correspinding to this wavelength will be used
     double effectiveWaveIndex;
+
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+
+    QString doCheckOverrideData() override;
 
 private:
     const AWaveResSettings & WaveSet;
