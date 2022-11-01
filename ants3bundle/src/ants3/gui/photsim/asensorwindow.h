@@ -46,6 +46,10 @@ private slots:
     void on_pbShowPDE_clicked();
     void on_pbShowBinnedPDE_clicked();
 
+    void on_pbShowAngular_clicked();
+    void on_pbLoadAngular_clicked();
+    void on_pbRemoveAngular_clicked();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
@@ -54,6 +58,7 @@ private:
     void onModelIndexChanged();
     void updateHeader();
     void updatePdeButtons();
+    void updateAngularButtons();
 
 signals:
     void requestShowSensorModels(int iModel);

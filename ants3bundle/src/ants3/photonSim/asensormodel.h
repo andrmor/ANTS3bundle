@@ -22,7 +22,7 @@ public:
     double  getPDE(int iWave) const;
 
     std::vector<std::pair<double,double>> AngularFactors;
-    double  InterfaceN = 1.0; // refractive index of the interfacing medium where sensor object was positioned to measure the angular response
+    //double  InterfaceN = 1.0; // refractive index of the interfacing medium where sensor object was positioned to measure the angular response
 
     std::vector<std::vector<double>> XYFactors;
     double  StepX = 1.0;       // in mm
@@ -35,7 +35,7 @@ public:
 
     void    clear();
 
-    void    writeToJson(QJsonObject & json) const;  // !!! ***
+    void    writeToJson(QJsonObject & json) const;
     bool    readFromJson(const QJsonObject & json); // !!!***
 
     //runtime

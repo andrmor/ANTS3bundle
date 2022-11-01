@@ -93,6 +93,8 @@ QString ftools::loadPairs(const QString & FileName, std::vector<std::pair<double
         data.push_back({x, y});
     }
     file.close();
+
+    if (data.empty()) return "Nothing was loaded";
     return "";
 }
 

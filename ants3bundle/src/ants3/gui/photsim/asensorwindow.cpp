@@ -5,6 +5,7 @@
 #include "guitools.h"
 #include "afiletools.h"
 #include "agraphbuilder.h"
+#include "aphotonsimhub.h"
 
 #include <QDoubleValidator>
 
@@ -46,6 +47,7 @@ void ASensorWindow::updateGui()
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
     updatePdeButtons();
+    updateAngularButtons();
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
@@ -85,6 +87,7 @@ void ASensorWindow::onModelIndexChanged()
     ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
 
     updatePdeButtons();
+    updateAngularButtons();
 
     ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
     ui->sbPixelsX->setValue(mod->PixelsX);
@@ -232,6 +235,18 @@ void ASensorWindow::updatePdeButtons()
     ui->pbShowBinnedPDE->setEnabled(enabled);
 }
 
+void ASensorWindow::updateAngularButtons()
+{
+    bool enabled = false;
+
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (mod) enabled = !mod->AngularFactors.empty();
+
+    ui->pbShowAngular->setEnabled(enabled);
+    ui->pbRemoveAngular->setEnabled(enabled);
+}
+
 void ASensorWindow::on_pbLoadPDE_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -273,7 +288,6 @@ void ASensorWindow::on_pbShowPDE_clicked()
     emit requestDraw(gr, "APL", true, true);
 }
 
-#include "aphotonsimhub.h"
 void ASensorWindow::on_pbShowBinnedPDE_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -290,5 +304,50 @@ void ASensorWindow::on_pbShowBinnedPDE_clicked()
     TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
     AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
     emit requestDraw(gr, "APL", true, true);
+}
+
+void ASensorWindow::on_pbShowAngular_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->AngularFactors.empty()) return;
+
+    TGraph * gr = AGraphBuilder::graph(mod->AngularFactors);
+    AGraphBuilder::configure(gr, QString("Angular sensitivity for model%0").arg(iModel), "Incidence angle, deg", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+void ASensorWindow::on_pbLoadAngular_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    QString fname = guitools::dialogLoadFile(this, "Load sensitivity vs angle of incidence [deg].\nShould start from 0 and end with 90 degrees!", "");
+    if (fname.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> data;
+    QString err = ftools::loadPairs(fname, data, true);
+    if (err.isEmpty())
+    {
+        if (data.front().first != 0)    err = "Data should start from zero degrees";
+        if (data.back(). first != 90.0) err = "Data should end with 90 degrees";
+        else
+        {
+            mod->AngularFactors = data;
+            updateAngularButtons();
+            return;
+        }
+    }
+    guitools::message(err, this);
+}
+void ASensorWindow::on_pbRemoveAngular_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->AngularFactors.clear();
+    updateAngularButtons();
 }
 
