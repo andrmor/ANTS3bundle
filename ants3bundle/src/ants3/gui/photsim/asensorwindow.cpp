@@ -46,8 +46,15 @@ void ASensorWindow::updateGui()
 
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
+    ASensorModel * mod = SensHub.model(iModel); // can be nullptr
+    double StepX = ( mod ? mod->StepX : 1.0 );
+    double StepY = ( mod ? mod->StepY : 1.0 );
+    ui->ledAreaStepX->setText(QString::number(StepX));
+    ui->ledAreaStepY->setText(QString::number(StepY));
+
     updatePdeButtons();
     updateAngularButtons();
+    updateAreaButtons();
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
@@ -88,6 +95,7 @@ void ASensorWindow::onModelIndexChanged()
 
     updatePdeButtons();
     updateAngularButtons();
+    updateAreaButtons();
 
     ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
     ui->sbPixelsX->setValue(mod->PixelsX);
@@ -247,6 +255,18 @@ void ASensorWindow::updateAngularButtons()
     ui->pbRemoveAngular->setEnabled(enabled);
 }
 
+void ASensorWindow::updateAreaButtons()
+{
+    bool enabled = false;
+
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (mod) enabled = !mod->AreaFactors.empty();
+
+    ui->pbShowArea->setEnabled(enabled);
+    ui->pbRemoveArea->setEnabled(enabled);
+}
+
 void ASensorWindow::on_pbLoadPDE_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -366,3 +386,72 @@ void ASensorWindow::on_pbShowBinnedAngular_clicked()
     AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
     emit requestDraw(gr, "APL", true, true);
 }
+
+#include "TH2D.h"
+void ASensorWindow::on_pbShowArea_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->AreaFactors.empty()) return;
+
+    const size_t xNum = mod->AreaFactors.front().size();
+    const size_t yNum = mod->AreaFactors.size();
+    const double & xStep = mod->StepX;
+    const double & yStep = mod->StepY;
+
+    qDebug() << xNum << xStep << yNum << yStep;
+
+    TH2D * hist2D = new TH2D("", "AreaFactors", xNum, -0.5 * xNum * xStep, 0.5 * xNum * xStep,     yNum, -0.5 * yNum * yStep, 0.5 * yNum * yStep);
+
+    for (size_t iY = 0; iY < yNum; iY++)
+        for (size_t iX = 0; iX < xNum; iX++)
+            hist2D->Fill(-0.5 * xNum * xStep + (0.5 + iX) * xStep, -0.5 * yNum * yStep + (0.5 + iY) * yStep, mod->AreaFactors[iY][iX]);
+    //hist2D->SetBinContent(iX+1, iY+1, mod->AreaFactors[iX][yNum-1 - iY]);
+
+    hist2D->SetXTitle("X, mm");
+    hist2D->SetYTitle("Y, mm");
+    emit requestDraw(hist2D, "colz", true, true);
+}
+void ASensorWindow::on_pbLoadArea_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    QString fname = guitools::dialogLoadFile(this, "Load matrix of area factors", "");
+    if (fname.isEmpty()) return;
+
+    std::vector<std::vector<double>> data;
+    QString err = ftools::loadMatrix(fname, data);
+    if (err.isEmpty()) mod->AreaFactors = data;
+    else guitools::message(err, this);
+
+    updateAreaButtons();
+}
+void ASensorWindow::on_pbRemoveArea_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->AreaFactors.clear();
+    updateAreaButtons();
+}
+void ASensorWindow::on_ledAreaStepX_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->StepX = ui->ledAreaStepX->text().toDouble();
+}
+void ASensorWindow::on_ledAreaStepY_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->StepY = ui->ledAreaStepY->text().toDouble();
+}
+

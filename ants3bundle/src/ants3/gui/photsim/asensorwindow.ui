@@ -535,7 +535,7 @@
            <item row="7" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
-              <string>Anglular factor</string>
+              <string>Anglular factors</string>
              </property>
             </widget>
            </item>
@@ -590,6 +590,111 @@
              </item>
              <item>
               <spacer name="horizontalSpacer_12">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Area factors</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QPushButton" name="pbShowArea">
+               <property name="text">
+                <string>Show</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbLoadArea">
+               <property name="text">
+                <string>Load</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbRemoveArea">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_15">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>dX:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledAreaStepX">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>dY:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledAreaStepY">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_19">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_14">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>

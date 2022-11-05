@@ -51,6 +51,12 @@ private slots:
     void on_pbRemoveAngular_clicked();
     void on_pbShowBinnedAngular_clicked();
 
+    void on_pbShowArea_clicked();
+    void on_pbLoadArea_clicked();
+    void on_pbRemoveArea_clicked();
+    void on_ledAreaStepX_editingFinished();
+    void on_ledAreaStepY_editingFinished();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
@@ -60,6 +66,7 @@ private:
     void updateHeader();
     void updatePdeButtons();
     void updateAngularButtons();
+    void updateAreaButtons();
 
 signals:
     void requestShowSensorModels(int iModel);

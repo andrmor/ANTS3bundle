@@ -59,12 +59,12 @@ QString ftools::mergeTextFiles(const std::vector<QString> & FilesToMerge, QStrin
     return "";
 }
 
-QString ftools::loadPairs(const QString & FileName, std::vector<std::pair<double, double>> & data, bool enforceIncreasing)
+QString ftools::loadPairs(const QString & fileName, std::vector<std::pair<double, double>> & data, bool enforceIncreasing)
 {
-    if (FileName.isEmpty()) return "Error: empty name was given to file loader!";
+    if (fileName.isEmpty()) return "Error: empty name was given to file loader!";
 
-    QFile file(FileName);
-    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + FileName;
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + fileName;
 
     QTextStream in(&file);
     const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
@@ -75,7 +75,7 @@ QString ftools::loadPairs(const QString & FileName, std::vector<std::pair<double
         QString line = in.readLine();
 
         if (line.isEmpty()) continue;
-        if (line[0] == '#') continue;
+        if (line.simplified()[0] == '#') continue;
 
         const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
         if (fields.size() != 2) return "Each line of the file (besides empty lines and comments starting with '#' symbol) should contain two numbers";
@@ -96,6 +96,54 @@ QString ftools::loadPairs(const QString & FileName, std::vector<std::pair<double
 
     if (data.empty()) return "Nothing was loaded";
     return "";
+}
+
+QString ftools::loadMatrix(const QString & fileName, std::vector<std::vector<double>> & data)
+{
+    if (fileName.isEmpty()) return "Error: empty name was given to file loader!";
+
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + fileName;
+
+    QTextStream in(&file);
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    data.clear();
+    int numInLine = -1;
+    while (!in.atEnd())
+    {
+        QString line = in.readLine();
+
+        if (line.isEmpty()) continue;
+        if (line.simplified()[0] == '#') continue;
+
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        if (numInLine != -1 && fields.size() != numInLine)
+        {
+            data.clear();
+            return "All rows of the matrix should have the same size";
+        }
+
+        numInLine = fields.size();
+        std::vector<double> row(numInLine);
+
+        bool ok;
+        for (int iField = 0; iField < numInLine; iField++)
+        {
+            row[iField] = fields[iField].toDouble(&ok);
+            if (!ok)
+            {
+                data.clear();
+                return "Each line of the matrix (besides empty lines and comments starting with '#' symbol) should contain only numbers";
+            }
+        }
+        data.push_back(row);
+    }
+    file.close();
+
+    if (data.empty()) return "Nothing was loaded";
+    return "";
+
 }
 
 QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)

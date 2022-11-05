@@ -23,7 +23,7 @@ void ASensorModel::clear()
 
     StepX = 1.0;
     StepY = 1.0;
-    XYFactors.clear();
+    AreaFactors.clear();
 
     DarkCountRate = 0;
 }
@@ -64,7 +64,7 @@ void ASensorModel::writeToJson(QJsonObject & json) const
             js["StepX"] = StepX;
             js["StepY"] = StepY;
             QJsonArray ar;
-                jstools::writeDVectorOfVectorsToArray(XYFactors, ar);
+                jstools::writeDVectorOfVectorsToArray(AreaFactors, ar);
             js["Data"] = ar;
         json["AreaResponse"] = js;
     }
@@ -102,7 +102,7 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         jstools::parseJson(areaj, "AreaStepY", StepY);
         QJsonArray arar;
         jstools::parseJson(areaj, "Data", arar);
-        ok = jstools::readDVectorOfVectorsFromArray(arar, XYFactors);
+        ok = jstools::readDVectorOfVectorsFromArray(arar, AreaFactors);
         if (!ok) return false; // !!!***
 
     return true;
