@@ -56,9 +56,7 @@ bool AOneEvent::checkSensorHit(int ipm, double time, int iWave, double x, double
     const ASensorModel * model = SensorHub.sensorModelFast(ipm); // already checked
     double detectionProb = model->getPDE(iWave);
     detectionProb *= model->getAngularFactor(angle); // angle is undefined if model has no angular sensitivity data (then always returns 1.0)
-/*
-    detectionProb *= PMs->getActualAreaResponse(ipm, x, y);
-*/
+    detectionProb *= model->getAreaFactor(x, y);
     if (rnd > detectionProb) return false; //random number is provided by the tracker (accelerator mechanics!)
 
     if (!model->SiPM)

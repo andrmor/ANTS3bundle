@@ -797,7 +797,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     }
 
     double local[3];//if no area dep or not SiPM - local content is undefined!
-    if (model->isXYSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
+    if (model->isAreaSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
     {
         const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);

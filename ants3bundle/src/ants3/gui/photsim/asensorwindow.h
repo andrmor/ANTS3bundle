@@ -54,8 +54,8 @@ private slots:
     void on_pbShowArea_clicked();
     void on_pbLoadArea_clicked();
     void on_pbRemoveArea_clicked();
-    void on_ledAreaStepX_editingFinished();
-    void on_ledAreaStepY_editingFinished();
+    void on_lepAreaStepX_editingFinished();
+    void on_lepAreaStepY_editingFinished();
 
 private:
     ASensorHub & SensHub;

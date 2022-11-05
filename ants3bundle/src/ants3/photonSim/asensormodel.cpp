@@ -98,8 +98,8 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         if (!ok) return false; // !!!***
 
     QJsonObject areaj = json["AreaResponse"].toObject();
-        jstools::parseJson(areaj, "AreaStepX", StepX);
-        jstools::parseJson(areaj, "AreaStepY", StepY);
+        jstools::parseJson(areaj, "StepX", StepX);
+        jstools::parseJson(areaj, "StepY", StepY);
         QJsonArray arar;
         jstools::parseJson(areaj, "Data", arar);
         ok = jstools::readDVectorOfVectorsFromArray(arar, AreaFactors);
@@ -125,6 +125,24 @@ double ASensorModel::getAngularFactor(double angle) const
         exit(2222); // !!!*** add to error hub and return 1.0
     }
     return AngularBinned[bin];
+}
+
+double ASensorModel::getAreaFactor(double x, double y) const
+{
+    if (AreaFactors.empty()) return 1.0;
+
+    const size_t numX = AreaFactors.front().size();
+    const size_t numY = AreaFactors.size();
+
+    const int xBin = std::floor( (x + 0.5*numX*StepX) / StepX );
+    //qDebug() << x << xBin << StepX;
+    if (xBin < 0 || xBin >= numX) return 0;
+
+    int yBin = std::floor( (y + 0.5*numY*StepY) / StepY );
+    if (yBin < 0 || yBin >= numY) return 0;
+    yBin = numY-1 - yBin; // inverting Y as the matrix holds "top" Y row in the index 0
+    qDebug() << "X:" << x << "xBin:" << xBin << "Y:" << y << "yBin:" << yBin << AreaFactors[yBin][xBin];
+    return AreaFactors[yBin][xBin];
 }
 
 #include "aphotonsimhub.h"

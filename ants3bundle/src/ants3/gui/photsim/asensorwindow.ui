@@ -649,12 +649,12 @@
              <item>
               <widget class="QLabel" name="label_17">
                <property name="text">
-                <string>dX:</string>
+                <string>StepX:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="ledAreaStepX">
+              <widget class="QLineEdit" name="lepAreaStepX">
                <property name="maximumSize">
                 <size>
                  <width>50</width>
@@ -669,12 +669,12 @@
              <item>
               <widget class="QLabel" name="label_18">
                <property name="text">
-                <string>dY:</string>
+                <string>StepY:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="ledAreaStepY">
+              <widget class="QLineEdit" name="lepAreaStepY">
                <property name="maximumSize">
                 <size>
                  <width>50</width>

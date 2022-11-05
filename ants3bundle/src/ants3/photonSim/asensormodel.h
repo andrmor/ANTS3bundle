@@ -22,12 +22,13 @@ public:
     double  getPDE(int iWave) const;
 
     std::vector<std::pair<double,double>> AngularFactors;  // should be defined from 0 to 90.0 incidence angle
-    double getAngularFactor(double angle) const;  // incidence angle is [-90.0, 90.0]
+    double  getAngularFactor(double angle) const;  // incidence angle is [-90.0, 90.0]
 
     std::vector<std::vector<double>> AreaFactors;
     double  StepX = 1.0;       // in mm
     double  StepY = 1.0;       // in mm
-    bool    isXYSensitive() const {return !AreaFactors.empty();}
+    bool    isAreaSensitive() const {return !AreaFactors.empty();}
+    double  getAreaFactor(double x, double y) const;
 
     double  DarkCountRate = 0; //per ns
 

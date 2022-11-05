@@ -18,10 +18,16 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QDoubleValidator* dv = new QDoubleValidator(this);
+    QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = findChildren<QLineEdit *>();
     foreach(QLineEdit * w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
+
+    QDoubleValidator * dvp = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    dv->setBottom(1e-30);
+    ui->lepAreaStepX->setValidator(dvp);
+    ui->lepAreaStepY->setValidator(dvp);
 
     updateGui();
 }
@@ -49,8 +55,8 @@ void ASensorWindow::updateGui()
     ASensorModel * mod = SensHub.model(iModel); // can be nullptr
     double StepX = ( mod ? mod->StepX : 1.0 );
     double StepY = ( mod ? mod->StepY : 1.0 );
-    ui->ledAreaStepX->setText(QString::number(StepX));
-    ui->ledAreaStepY->setText(QString::number(StepY));
+    ui->lepAreaStepX->setText(QString::number(StepX));
+    ui->lepAreaStepY->setText(QString::number(StepY));
 
     updatePdeButtons();
     updateAngularButtons();
@@ -253,6 +259,7 @@ void ASensorWindow::updateAngularButtons()
 
     ui->pbShowAngular->setEnabled(enabled);
     ui->pbRemoveAngular->setEnabled(enabled);
+    ui->pbShowBinnedAngular->setEnabled(enabled);
 }
 
 void ASensorWindow::updateAreaButtons()
@@ -265,6 +272,8 @@ void ASensorWindow::updateAreaButtons()
 
     ui->pbShowArea->setEnabled(enabled);
     ui->pbRemoveArea->setEnabled(enabled);
+    ui->lepAreaStepX->setEnabled(enabled);
+    ui->lepAreaStepY->setEnabled(enabled);
 }
 
 void ASensorWindow::on_pbLoadPDE_clicked()
@@ -400,14 +409,10 @@ void ASensorWindow::on_pbShowArea_clicked()
     const double & xStep = mod->StepX;
     const double & yStep = mod->StepY;
 
-    qDebug() << xNum << xStep << yNum << yStep;
-
     TH2D * hist2D = new TH2D("", "AreaFactors", xNum, -0.5 * xNum * xStep, 0.5 * xNum * xStep,     yNum, -0.5 * yNum * yStep, 0.5 * yNum * yStep);
-
     for (size_t iY = 0; iY < yNum; iY++)
         for (size_t iX = 0; iX < xNum; iX++)
-            hist2D->Fill(-0.5 * xNum * xStep + (0.5 + iX) * xStep, -0.5 * yNum * yStep + (0.5 + iY) * yStep, mod->AreaFactors[iY][iX]);
-    //hist2D->SetBinContent(iX+1, iY+1, mod->AreaFactors[iX][yNum-1 - iY]);
+            hist2D->Fill(-0.5 * xNum * xStep + (0.5 + iX) * xStep, -0.5 * yNum * yStep + (0.5 + iY) * yStep, mod->AreaFactors[yNum-1 - iY][iX]);
 
     hist2D->SetXTitle("X, mm");
     hist2D->SetYTitle("Y, mm");
@@ -426,7 +431,7 @@ void ASensorWindow::on_pbLoadArea_clicked()
     QString err = ftools::loadMatrix(fname, data);
     if (err.isEmpty()) mod->AreaFactors = data;
     else guitools::message(err, this);
-
+    // note that the min index of y is on top of the matrix!
     updateAreaButtons();
 }
 void ASensorWindow::on_pbRemoveArea_clicked()
@@ -438,20 +443,20 @@ void ASensorWindow::on_pbRemoveArea_clicked()
     mod->AreaFactors.clear();
     updateAreaButtons();
 }
-void ASensorWindow::on_ledAreaStepX_editingFinished()
+void ASensorWindow::on_lepAreaStepX_editingFinished()
 {
     int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    mod->StepX = ui->ledAreaStepX->text().toDouble();
+    mod->StepX = ui->lepAreaStepX->text().toDouble();
 }
-void ASensorWindow::on_ledAreaStepY_editingFinished()
+void ASensorWindow::on_lepAreaStepY_editingFinished()
 {
     int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    mod->StepY = ui->ledAreaStepY->text().toDouble();
+    mod->StepY = ui->lepAreaStepY->text().toDouble();
 }
 
