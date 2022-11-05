@@ -49,6 +49,7 @@ private slots:
     void on_pbShowAngular_clicked();
     void on_pbLoadAngular_clicked();
     void on_pbRemoveAngular_clicked();
+    void on_pbShowBinnedAngular_clicked();
 
 private:
     ASensorHub & SensHub;

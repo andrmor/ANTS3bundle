@@ -19,7 +19,7 @@ void ASensorModel::clear()
 
     AngularFactors.clear();
     //InterfaceN = 1.0;
-    AngularSensitivityCosRefracted.clear();
+    AngularBinned.clear();
 
     StepX = 1.0;
     StepY = 1.0;
@@ -53,7 +53,6 @@ void ASensorModel::writeToJson(QJsonObject & json) const
 
     {
         QJsonObject js;
-            //js["InterfaceN"] = InterfaceN;
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(AngularFactors, ar);
             js["Data"] = ar;
@@ -93,7 +92,6 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         if (!ok) return false; // !!!***
 
     QJsonObject angj = json["AngularResponse"].toObject();
-        //jstools::parseJson(angj, "InterfaceN", InterfaceN);
         QJsonArray aar;
         jstools::parseJson(angj, "Data", aar);
         ok = jstools::readDPairVectorFromArray(aar, AngularFactors);
@@ -116,11 +114,24 @@ double ASensorModel::getPDE(int iWave) const
     return PDEbinned[iWave];
 }
 
+double ASensorModel::getAngularFactor(double angle) const
+{
+    if (AngularBinned.empty()) return 1.0;
+
+    int bin = fabs(angle);
+    if (bin > 90)
+    {
+        qCritical() << "Angle of incidence for a sensor cannot be more than 90 degrees";
+        exit(2222); // !!!*** add to error hub and return 1.0
+    }
+    return AngularBinned[bin];
+}
+
 #include "aphotonsimhub.h"
 void ASensorModel::updateRuntimeProperties()
 {
     PDEbinned.clear();
-    AngularSensitivityCosRefracted.clear();
+    AngularBinned.clear();
 
     const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
 
@@ -128,44 +139,11 @@ void ASensorModel::updateRuntimeProperties()
 
     if (!AngularFactors.empty())
     {
-        /*
-        //transforming degrees to cos(Refracted)
-        QVector<double> x, y;
-        double n1 = 1.0; // InterfaceN;
-        double n2 = (*MaterialCollection)[PMtypes[typ]->MaterialIndex]->n;
-        //      qDebug()<<"n1 n2 "<<n1<<n2;
-
-        for (int i=PMtypes[typ]->AngularSensitivity_lambda.size()-1; i>=0; i--) //if i++ - data span from 1 down to 0
+        AngularBinned.reserve(91);
+        for (int i = 0; i < 91; i++)
         {
-            double Angle = PMtypes[typ]->AngularSensitivity_lambda[i] * TMath::Pi()/180.0;
-            //calculating cos of the transmitted angle
-            double sinI = sin(Angle);
-            double cosI = cos(Angle);
-
-            double sinT = sinI * n1 / n2;
-            double cosT = sqrt(1 - sinT*sinT);
-            x.append(cosT);
-
-            //         qDebug()<<"Angle: "<<Angle<< " sinI="<<sinI<<" cosI="<<cosI;
-            //         qDebug()<<"sinT="<<sinT<<"cosT="<<cosT;
-
-            //correcting for the reflection loss
-            double Rs = (n1*cosI-n2*cosT)*(n1*cosI-n2*cosT) / ( (n1*cosI+n2*cosT) * (n1*cosI+n2*cosT) );
-            double Rp = (n1*cosT-n2*cosI)*(n1*cosT-n2*cosI) / ( (n1*cosT+n2*cosI) * (n1*cosT+n2*cosI) );
-            double R = 0.5*(Rs+Rp);
-            //         qDebug()<<"Rs Rp"<<Rs<<Rp;
-            //         qDebug()<<"Reflection "<<R<<"ReflectionforNormal="<<(n1-n2)*(n1-n2)/(n1+n2)/(n1+n2);
-
-            const double correction = R < 0.99999 ? 1.0/(1.0-R) : 1.0; //T = (1-R)
-            //meaning: have to take into account that during measurements part of the light was reflected
-
-            y.append(PMtypes[typ]->AngularSensitivity[i]*correction);
-            //         qDebug()<<cosT<<correction<<PMtypeProperties[typ].AngularSensitivity[i]*correction;
+            const double sens = AWaveResSettings::getInterpolatedValue(i, AngularFactors);
+            AngularBinned.push_back(sens);
         }
-        x.replace(0, x[1]); //replace with the last available value
-        y.replace(0, y[1]);
-        //reusing the function:
-        ConvertToStandardWavelengthes(&x, &y, 0, 1.0/(CosBins-1), CosBins, &PMtypes[typ]->AngularSensitivityCosRefracted);
-        */
     }
 }

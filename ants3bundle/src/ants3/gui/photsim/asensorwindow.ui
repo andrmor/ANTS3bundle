@@ -535,7 +535,7 @@
            <item row="7" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
-              <string>DE vs angle</string>
+              <string>Anglular factor</string>
              </property>
             </widget>
            </item>
@@ -565,6 +565,26 @@
               <widget class="QPushButton" name="pbRemoveAngular">
                <property name="text">
                 <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_13">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbShowBinnedAngular">
+               <property name="text">
+                <string>Show binned</string>
                </property>
               </widget>
              </item>

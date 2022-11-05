@@ -237,6 +237,8 @@ void APhotonSimManager::mergeOutput()
     MonitorHub.clearData(AMonitorHub::Photon);
     if (SimSet.RunSet.SaveMonitors)
         MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
+
+    qDebug() << "Done!";
 }
 
 void  APhotonSimManager::clearFileMergers()

@@ -21,10 +21,10 @@ public:
     std::vector<std::pair<double,double>> PDE_spectral;
     double  getPDE(int iWave) const;
 
-    std::vector<std::pair<double,double>> AngularFactors;
-    //double  InterfaceN = 1.0; // refractive index of the interfacing medium where sensor object was positioned to measure the angular response
+    std::vector<std::pair<double,double>> AngularFactors;  // should be defined from 0 to 90.0 incidence angle
+    double getAngularFactor(double angle) const;  // incidence angle is [-90.0, 90.0]
 
-    std::vector<std::vector<double>> XYFactors;
+    std::vector<std::vector<double>> XYFactors; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
     double  StepX = 1.0;       // in mm
     double  StepY = 1.0;       // in mm
     bool    isXYSensitive() const {return !XYFactors.empty();}
@@ -40,7 +40,7 @@ public:
 
     //runtime
     std::vector<double> PDEbinned;
-    std::vector<double> AngularSensitivityCosRefracted; // response vs cos of refracted beam, spanning from 0 to 1, in CosBins bins
+    std::vector<double> AngularBinned; // binned to 1 degree steps using linear interpolation
 
 };
 

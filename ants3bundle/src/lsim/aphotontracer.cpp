@@ -813,8 +813,9 @@ void APhotonTracer::processSensorHit(int iSensor)
     for (int i=0; i<3; i++) cosAngle += N[i] * Photon.v[i];
     //       qDebug()<<"cos() = "<<cosAngle;
     double angle = 0;
-    if ( SimSet.RunSet.SaveStatistics ||
-         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) // !!!*** or angular dependence!
+    if ( !model->AngularBinned.empty() ||
+         SimSet.RunSet.SaveStatistics ||
+         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) )
     {
         // !!!*** TODO for metals!
         angle = TMath::ACos(cosAngle)*180.0/3.1415926535;

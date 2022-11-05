@@ -350,4 +350,19 @@ void ASensorWindow::on_pbRemoveAngular_clicked()
     mod->AngularFactors.clear();
     updateAngularButtons();
 }
+void ASensorWindow::on_pbShowBinnedAngular_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->AngularFactors.empty()) return;
 
+    mod->updateRuntimeProperties();
+
+    std::vector<double> angles;
+    for (int i = 0; i < 91; i++) angles.push_back(i);
+
+    TGraph * gr = AGraphBuilder::graph(angles, mod->AngularBinned);
+    AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
+    emit requestDraw(gr, "APL", true, true);
+}

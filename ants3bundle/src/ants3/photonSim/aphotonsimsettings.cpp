@@ -168,10 +168,10 @@ double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> 
     return InterpolationValue;
 }
 
-double AWaveResSettings::getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F) const
+double AWaveResSettings::getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F)
 {
     if (X.size() == 0) return 0;
-    if (X.size() == 1) return F.front();;
+    if (X.size() == 1) return F.front();
 
     if (val <= X.front()) return F.front();
     if (val >= X.back())  return F.back();
@@ -185,6 +185,32 @@ double AWaveResSettings::getInterpolatedValue(double val, const std::vector<doub
     const double & F_More = F[index];
     const double & X_Less = X[index-1];
     const double & X_More = X[index];
+
+    if (X_Less == X_More) return F_More;
+    return F_Less + (F_More - F_Less) * (val - X_Less) / (X_More - X_Less);
+}
+
+double AWaveResSettings::getInterpolatedValue(double val, const std::vector<std::pair<double, double>> & F)
+{
+    if (F.size() == 0) return 0;
+    if (F.size() == 1) return F.front().second;
+
+    if (val <= F.front().first) return F.front().second;
+    if (val >= F.back().first)  return F.back().second;
+
+    std::vector<std::pair<double, double>>::const_iterator it;
+    it = std::lower_bound(F.begin(), F.end(), std::pair<double,double>{val,0},
+                          [](const std::pair<double, double> & lh, const std::pair<double, double> & rh)
+                          {
+                            return (lh.first < rh.first);
+                          });
+    int index = it - F.begin();
+    if (index < 1) return F.front().second;
+
+    const double & F_Less = F[index-1].second;
+    const double & F_More = F[index].second;
+    const double & X_Less = F[index-1].first;
+    const double & X_More = F[index].first;
 
     if (X_Less == X_More) return F_More;
     return F_Less + (F_More - F_Less) * (val - X_Less) / (X_More - X_Less);
