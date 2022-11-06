@@ -30,6 +30,7 @@ public slots:
     void setPDE_spectral(int iModel, QVariantList arWaveAndPDE);
 
     void setAngularFactors(int iModel, QVariantList arAngleAndFactor);
+    void setArearFactors(int iModel, QVariantList arFactorMatrix, double stepX, double stepY);
 
 private:
     ASensorHub & SensHub;

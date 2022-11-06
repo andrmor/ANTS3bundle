@@ -147,6 +147,27 @@ QString ASensorModel::checkAngularFactors() const
     return "";
 }
 
+QString ASensorModel::checkAreaFactors() const
+{
+    if (AreaFactors.empty()) return "";
+
+    if (AreaFactors.size() < 2) return "Data should be at least a 2x2 matrix";
+    const size_t numX = AreaFactors.front().size();
+    if (numX < 2) return "Data should be at least a 2x2 matrix";
+
+    for (const auto & vec : AreaFactors)
+    {
+        if (vec.size() != numX) return "Wrong size of a row of the matrix";
+        for (const double & val : vec)
+            if (val < 0) return "Area factors cannot be negative";
+    }
+
+    if (StepX <= 0.0) return "StepX should be a positive number";
+    if (StepY <= 0.0) return "StepY should be a positive number";
+
+    return "";
+}
+
 double ASensorModel::getPDE(int iWave) const
 {
     if (iWave == -1 || PDEbinned.empty()) return PDE_effective;

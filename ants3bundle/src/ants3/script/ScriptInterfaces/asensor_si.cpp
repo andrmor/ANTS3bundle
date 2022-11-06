@@ -75,19 +75,19 @@ void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
     }
 
     std::vector<std::pair<double,double>> data;
-    const int size = arWaveAndPDE.size();
+    const size_t size = arWaveAndPDE.size();
     data.resize(size);
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        QVariantList el = arWaveAndPDE[i].toList();
+        const QVariantList el = arWaveAndPDE[i].toList();
         if (el.size() != 2)
         {
             abort("arWaveAndPDE should contain arrays of two values: wavelength[nm] and the corresponding pde");
             return;
         }
         bool ok1, ok2;
-        double wave = el[0].toDouble(&ok1);
-        double pde  = el[1].toDouble(&ok2);
+        const double wave = el[0].toDouble(&ok1);
+        const double pde  = el[1].toDouble(&ok2);
         if (!ok1 || !ok2)
         {
             abort("Convertion to number error");
@@ -96,15 +96,15 @@ void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
         data[i] = {wave, pde};
     }
 
-    const std::vector<std::pair<double,double>> oldData = model->PDE_spectral;
-    model->PDE_spectral = data;
-    QString err = model->checkPDE_spectral();
+    ASensorModel tmpModel; tmpModel.PDE_spectral = data;
+    const QString err = tmpModel.checkPDE_spectral();
     if (!err.isEmpty())
     {
-        model->PDE_spectral = oldData;
         abort(err);
         return;
     }
+
+    model->PDE_spectral = data;
 }
 
 void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
@@ -117,19 +117,19 @@ void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
     }
 
     std::vector<std::pair<double,double>> data;
-    const int size = arAngleAndFactor.size();
+    const size_t size = arAngleAndFactor.size();
     data.resize(size);
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        QVariantList el = arAngleAndFactor[i].toList();
+        const QVariantList el = arAngleAndFactor[i].toList();
         if (el.size() != 2)
         {
             abort("arAngleAndFactor should contain arrays of two values: angle[deg] and the corresponding angular factor");
             return;
         }
         bool ok1, ok2;
-        double angle  = el[0].toDouble(&ok1);
-        double factor = el[1].toDouble(&ok2);
+        const double angle  = el[0].toDouble(&ok1);
+        const double factor = el[1].toDouble(&ok2);
         if (!ok1 || !ok2)
         {
             abort("Convertion to number error");
@@ -138,13 +138,54 @@ void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
         data[i] = {angle, factor};
     }
 
-    const std::vector<std::pair<double,double>> oldData = model->AngularFactors;
-    model->AngularFactors = data;
-    QString err = model->checkAngularFactors();
+    ASensorModel tmpModel; tmpModel.AngularFactors = data;
+    const QString err = tmpModel.checkAngularFactors();
     if (!err.isEmpty())
     {
-        model->AngularFactors = oldData;
         abort(err);
         return;
     }
+
+    model->AngularFactors = data;
+}
+
+void ASensor_SI::setArearFactors(int iModel, QVariantList arFactorMatrix, double stepX, double stepY)
+{
+    ASensorModel * model = SensHub.model(iModel);
+    if (!model)
+    {
+        abort("Invalid sensor model index");
+        return;
+    }
+
+    std::vector<std::vector<double>> data;
+    const size_t size = arFactorMatrix.size();
+    data.resize(size);
+    for (size_t iR = 0; iR < size; iR++)
+    {
+        const QVariantList el = arFactorMatrix[iR].toList();
+        data[iR].resize(el.size());
+        for (size_t iC = 0; iC < el.size(); iC++)
+        {
+            bool ok;
+            data[iR][iC] = el[iC].toDouble(&ok);
+            if (!ok)
+            {
+                abort("arFactorMatrix should contain arrays of numeric values");
+                return;
+            }
+        }
+    }
+
+    ASensorModel tmpModel; tmpModel.AreaFactors = data; tmpModel.StepX = stepX; tmpModel.StepY = stepY;
+    const QString err = tmpModel.checkAreaFactors();
+    if (!err.isEmpty())
+    {
+        abort(err);
+        return;
+    }
+
+    model->AreaFactors = data;
+    model->StepX = stepX;
+    model->StepY = stepY;
 }
