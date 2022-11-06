@@ -105,7 +105,26 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         ok = jstools::readDVectorOfVectorsFromArray(arar, AreaFactors);
         if (!ok) return false; // !!!***
 
-    return true;
+        return true;
+}
+
+QString ASensorModel::checkPDE_spectral() const
+{
+    if (PDE_spectral.empty()) return "";
+
+    if (PDE_spectral.size() < 2) return "Data should contain at least two wavelengths";
+
+    double prevWave = -1e10;
+    for (const auto & p : PDE_spectral)
+    {
+        const double & wave = p.first;
+        const double & pde  = p.second;
+        if (wave <= 0.0) return "Wavelengths should be positive numbers";
+        if (wave <= prevWave) return "Wavelengths should be provided as increasing numbers";
+        prevWave = wave;
+        if (pde < 0) return "PDE cannot be negative";
+    }
+    return "";
 }
 
 double ASensorModel::getPDE(int iWave) const
@@ -119,11 +138,7 @@ double ASensorModel::getAngularFactor(double angle) const
     if (AngularBinned.empty()) return 1.0;
 
     int bin = fabs(angle);
-    if (bin > 90)
-    {
-        qCritical() << "Angle of incidence for a sensor cannot be more than 90 degrees";
-        exit(2222); // !!!*** add to error hub and return 1.0
-    }
+    if (bin > 90) return 0;
     return AngularBinned[bin];
 }
 

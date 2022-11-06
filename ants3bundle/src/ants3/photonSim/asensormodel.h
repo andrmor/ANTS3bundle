@@ -39,6 +39,9 @@ public:
     void    writeToJson(QJsonObject & json) const;
     bool    readFromJson(const QJsonObject & json); // !!!***
 
+    //check-ups !!!*** to combine to code performed before sim start!
+    QString checkPDE_spectral() const;
+
     //runtime
     std::vector<double> PDEbinned;
     std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)

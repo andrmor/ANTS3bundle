@@ -52,3 +52,57 @@ int ASensor_SI::cloneModel(int iModel)
     }
     return SensHub.cloneModel(iModel);
 }
+
+void ASensor_SI::setPDE(int iModel, double effective_PDE)
+{
+    ASensorModel * model = SensHub.model(iModel);
+    if (!model)
+    {
+        abort("Invalid sensor model index");
+        return;
+    }
+
+    model->PDE_effective = effective_PDE;
+}
+
+void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
+{
+    ASensorModel * model = SensHub.model(iModel);
+    if (!model)
+    {
+        abort("Invalid sensor model index");
+        return;
+    }
+
+    std::vector<std::pair<double,double>> data;
+    const int size = arWaveAndPDE.size();
+    data.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        QVariantList el = arWaveAndPDE[i].toList();
+        if (el.size() != 2)
+        {
+            abort("arWaveAndPDE should contain arrays of two values: wavelength[nm] and the corresponding pde");
+            return;
+        }
+        bool ok1, ok2;
+        double wave = el[0].toDouble(&ok1);
+        double pde  = el[1].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            abort("Convertion to number error");
+            return;
+        }
+        data[i] = {wave, pde};
+    }
+
+    const std::vector<std::pair<double,double>> oldData = model->PDE_spectral;
+    model->PDE_spectral = data;
+    QString err = model->checkPDE_spectral();
+    if (!err.isEmpty())
+    {
+        model->PDE_spectral = oldData;
+        abort(err);
+        return;
+    }
+}
