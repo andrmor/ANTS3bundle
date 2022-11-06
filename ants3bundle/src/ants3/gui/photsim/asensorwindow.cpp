@@ -24,10 +24,9 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
     foreach(QLineEdit * w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     QDoubleValidator * dvp = new QDoubleValidator(this);
-    dv->setNotation(QDoubleValidator::ScientificNotation);
-    dv->setBottom(1e-30);
-    ui->lepAreaStepX->setValidator(dvp);
-    ui->lepAreaStepY->setValidator(dvp);
+    dvp->setNotation(QDoubleValidator::ScientificNotation);
+    dvp->setBottom(0);
+    foreach(QLineEdit * w, list) if (w->objectName().startsWith("lep")) w->setValidator(dvp);
 
     updateGui();
 }
@@ -53,10 +52,20 @@ void ASensorWindow::updateGui()
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
     ASensorModel * mod = SensHub.model(iModel); // can be nullptr
-    double StepX = ( mod ? mod->StepX : 1.0 );
-    double StepY = ( mod ? mod->StepY : 1.0 );
-    ui->lepAreaStepX->setText(QString::number(StepX));
-    ui->lepAreaStepY->setText(QString::number(StepY));
+
+    if (mod)
+    {
+        ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
+        ui->sbPixelsX->setValue(mod->PixelsX);
+        ui->sbPixelsY->setValue(mod->PixelsY);
+        ui->lepPixelSizeX->setText(QString::number(mod->PixelSizeX));
+        ui->lepPixelSizeY->setText(QString::number(mod->PixelSizeY));
+        ui->lepPixelSpacingX->setText(QString::number(mod->PixelSpacingX));
+        ui->lepPixelSpacingY->setText(QString::number(mod->PixelSpacingY));
+
+        ui->lepAreaStepX->setText(QString::number(mod->StepX));
+        ui->lepAreaStepY->setText(QString::number(mod->StepY));
+    }
 
     updatePdeButtons();
     updateAngularButtons();
@@ -201,6 +210,50 @@ void ASensorWindow::on_sbPixelsY_editingFinished()
 
     mod->PixelsY = ui->sbPixelsY->value();
     updateNumPixels();
+}
+void ASensorWindow::on_lepPixelSizeX_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    double val = ui->lepPixelSizeX->text().toDouble();
+    if (val <= 0)
+    {
+        ui->lepPixelSizeX->setText(QString::number(mod->PixelSizeX));
+        guitools::message("Value should be positive", this);
+    }
+    else mod->PixelSizeX = val;
+}
+void ASensorWindow::on_lepPixelSizeY_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    double val = ui->lepPixelSizeY->text().toDouble();
+    if (val <= 0)
+    {
+        ui->lepPixelSizeY->setText(QString::number(mod->PixelSizeX));
+        guitools::message("Value should be positive", this);
+    }
+    else mod->PixelSizeY = val;
+}
+void ASensorWindow::on_lepPixelSpacingX_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PixelSpacingX = ui->lepPixelSpacingX->text().toDouble();
+}
+void ASensorWindow::on_lepPixelSpacingY_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PixelSpacingY = ui->lepPixelSpacingY->text().toDouble();
 }
 
 void ASensorWindow::updateNumPixels()
@@ -459,4 +512,3 @@ void ASensorWindow::on_lepAreaStepY_editingFinished()
 
     mod->StepY = ui->lepAreaStepY->text().toDouble();
 }
-

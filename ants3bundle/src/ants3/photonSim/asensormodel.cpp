@@ -12,18 +12,21 @@ void ASensorModel::clear()
     SiPM = false;
     PixelsX = 50;
     PixelsY = 50;
+    PixelSizeX = 3.0;
+    PixelSizeY = 3.0;
+    PixelSpacingX = 0;
+    PixelSpacingY = 0;
 
     PDE_effective = 1.0;
     PDE_spectral.clear();
     PDEbinned.clear();
 
     AngularFactors.clear();
-    //InterfaceN = 1.0;
     AngularBinned.clear();
 
+    AreaFactors.clear();
     StepX = 1.0;
     StepY = 1.0;
-    AreaFactors.clear();
 
     DarkCountRate = 0;
 }
@@ -36,9 +39,13 @@ void ASensorModel::writeToJson(QJsonObject & json) const
 
     {
         QJsonObject js;
-            js["isSiPM"]  = SiPM;
-            js["PixelsX"] = PixelsX;
-            js["PixelsY"] = PixelsY;
+            js["isSiPM"]        = SiPM;
+            js["PixelsX"]       = PixelsX;
+            js["PixelsY"]       = PixelsY;
+            js["PixelSizeX"]    = PixelSizeX;
+            js["PixelSizeY"]    = PixelSizeY;
+            js["PixelSpacingX"] = PixelSpacingX;
+            js["PixelSpacingY"] = PixelSpacingY;
         json["SiPM"] = js;
     }
 
@@ -79,33 +86,45 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Name",          Name);
     jstools::parseJson(json, "DarkCountRate", DarkCountRate);
 
-    QJsonObject sij = json["SiPM"].toObject();
-        jstools::parseJson(sij, "isSiPM",  SiPM);
-        jstools::parseJson(sij, "PixelsX", PixelsX);
-        jstools::parseJson(sij, "PixelsY", PixelsY);
+    {
+        QJsonObject js = json["SiPM"].toObject();
+        jstools::parseJson(js, "isSiPM",        SiPM);
+        jstools::parseJson(js, "PixelsX",       PixelsX);
+        jstools::parseJson(js, "PixelsY",       PixelsY);
+        jstools::parseJson(js, "PixelSizeX",    PixelSizeX);
+        jstools::parseJson(js, "PixelSizeY",    PixelSizeY);
+        jstools::parseJson(js, "PixelSpacingX", PixelSpacingX);
+        jstools::parseJson(js, "PixelSpacingY", PixelSpacingY);
+    }
 
-    QJsonObject pdej = json["PDE"].toObject();
-        jstools::parseJson(pdej, "Effective", PDE_effective);
-        QJsonArray par;
-        jstools::parseJson(pdej, "Spectral", par);
-        bool ok = jstools::readDPairVectorFromArray(par, PDE_spectral);
+    {
+        QJsonObject js = json["PDE"].toObject();
+        jstools::parseJson(js, "Effective", PDE_effective);
+        QJsonArray ar;
+        jstools::parseJson(js, "Spectral", ar);
+        bool ok = jstools::readDPairVectorFromArray(ar, PDE_spectral);
         if (!ok) return false; // !!!***
+    }
 
-    QJsonObject angj = json["AngularResponse"].toObject();
-        QJsonArray aar;
-        jstools::parseJson(angj, "Data", aar);
-        ok = jstools::readDPairVectorFromArray(aar, AngularFactors);
+    {
+        QJsonObject js = json["AngularResponse"].toObject();
+        QJsonArray ar;
+        jstools::parseJson(js, "Data", ar);
+        bool ok = jstools::readDPairVectorFromArray(ar, AngularFactors);
         if (!ok) return false; // !!!***
+    }
 
-    QJsonObject areaj = json["AreaResponse"].toObject();
-        jstools::parseJson(areaj, "StepX", StepX);
-        jstools::parseJson(areaj, "StepY", StepY);
-        QJsonArray arar;
-        jstools::parseJson(areaj, "Data", arar);
-        ok = jstools::readDVectorOfVectorsFromArray(arar, AreaFactors);
+    {
+        QJsonObject js = json["AreaResponse"].toObject();
+        jstools::parseJson(js, "StepX", StepX);
+        jstools::parseJson(js, "StepY", StepY);
+        QJsonArray ar;
+        jstools::parseJson(js, "Data", ar);
+        bool ok = jstools::readDVectorOfVectorsFromArray(ar, AreaFactors);
         if (!ok) return false; // !!!***
+    }
 
-        return true;
+    return true;
 }
 
 QString ASensorModel::checkPDE_spectral() const

@@ -15,7 +15,7 @@ class ASensorWindow : public AGuiWindow
     Q_OBJECT
 
 public:
-    explicit ASensorWindow(QWidget * parent = nullptr);
+    ASensorWindow(QWidget * parent = nullptr);
     ~ASensorWindow();
 
     void updateGui();
@@ -31,9 +31,14 @@ private slots:
     void on_pbRemoveModel_clicked();
     void on_leModelName_editingFinished();
     void on_ledEffectivePDE_editingFinished();
+
     void on_cobSensorType_activated(int index);
     void on_sbPixelsX_editingFinished();
     void on_sbPixelsY_editingFinished();
+    void on_lepPixelSizeX_editingFinished();
+    void on_lepPixelSizeY_editingFinished();
+    void on_lepPixelSpacingY_editingFinished();
+    void on_lepPixelSpacingX_editingFinished();
 
     void on_sbModelIndex_editingFinished();
 
@@ -56,6 +61,7 @@ private slots:
     void on_pbRemoveArea_clicked();
     void on_lepAreaStepX_editingFinished();
     void on_lepAreaStepY_editingFinished();
+
 
 private:
     ASensorHub & SensHub;

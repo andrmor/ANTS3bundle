@@ -16,6 +16,10 @@ public:
     bool    SiPM = false;
     int     PixelsX = 50;
     int     PixelsY = 50;
+    double  PixelSizeX = 3.0;
+    double  PixelSizeY = 3.0;
+    double  PixelSpacingX = 0;
+    double  PixelSpacingY = 0;
 
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
