@@ -106,3 +106,45 @@ void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
         return;
     }
 }
+
+void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
+{
+    ASensorModel * model = SensHub.model(iModel);
+    if (!model)
+    {
+        abort("Invalid sensor model index");
+        return;
+    }
+
+    std::vector<std::pair<double,double>> data;
+    const int size = arAngleAndFactor.size();
+    data.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        QVariantList el = arAngleAndFactor[i].toList();
+        if (el.size() != 2)
+        {
+            abort("arAngleAndFactor should contain arrays of two values: angle[deg] and the corresponding angular factor");
+            return;
+        }
+        bool ok1, ok2;
+        double angle  = el[0].toDouble(&ok1);
+        double factor = el[1].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            abort("Convertion to number error");
+            return;
+        }
+        data[i] = {angle, factor};
+    }
+
+    const std::vector<std::pair<double,double>> oldData = model->AngularFactors;
+    model->AngularFactors = data;
+    QString err = model->checkAngularFactors();
+    if (!err.isEmpty())
+    {
+        model->AngularFactors = oldData;
+        abort(err);
+        return;
+    }
+}

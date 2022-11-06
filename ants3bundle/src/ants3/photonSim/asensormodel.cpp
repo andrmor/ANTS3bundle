@@ -127,6 +127,26 @@ QString ASensorModel::checkPDE_spectral() const
     return "";
 }
 
+QString ASensorModel::checkAngularFactors() const
+{
+    if (AngularFactors.empty()) return "";
+
+    if (AngularFactors.size() < 2) return "Data should contain at least two angles: 0 and 90 degrees";
+    if (AngularFactors.front().first != 0.0) return "Data should start from 0 degrees";
+    if (AngularFactors.back().first != 90.0) return "Data should end with 90 degrees";
+
+    double prevAngle = -1e10;
+    for (const auto & p : AngularFactors)
+    {
+        const double & angle  = p.first;
+        const double & factor = p.second;
+        if (angle <= prevAngle) return "Angles should be provided as increasing numbers";
+        prevAngle = angle;
+        if (factor < 0) return "AngularFactor cannot be negative";
+    }
+    return "";
+}
+
 double ASensorModel::getPDE(int iWave) const
 {
     if (iWave == -1 || PDEbinned.empty()) return PDE_effective;

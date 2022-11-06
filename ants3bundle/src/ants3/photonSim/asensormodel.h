@@ -41,6 +41,7 @@ public:
 
     //check-ups !!!*** to combine to code performed before sim start!
     QString checkPDE_spectral() const;
+    QString checkAngularFactors() const;
 
     //runtime
     std::vector<double> PDEbinned;
