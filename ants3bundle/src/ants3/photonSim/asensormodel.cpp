@@ -187,6 +187,29 @@ QString ASensorModel::checkAreaFactors() const
     return "";
 }
 
+int ASensorModel::getPixelHit(double x, double y) const
+{
+    if (SiPM)
+    {
+        //qDebug() << "Checking hit for local x,y:" << x << y << ", showing nothing if there were no pixel hit...";
+        if (x < - _HalfSensitiveSizeX || x > _HalfSensitiveSizeX) return -1;
+        if (y < - _HalfSensitiveSizeY || y > _HalfSensitiveSizeY) return -1;
+
+        x += _HalfSensitiveSizeX;  // [0, FullSizeX]
+        y += _HalfSensitiveSizeY;  // [0, FullSizeY]
+
+        if (std::fmod(x, _PixelPitchX) > PixelSizeX) return -1;
+        if (std::fmod(y, _PixelPitchY) > PixelSizeY) return -1;
+
+        const int ix = x / _PixelPitchX;
+        const int iy = y / _PixelPitchY;
+        const int index = iy * PixelsX + ix;
+        //qDebug() << "-->Hit detected; ix,iy,index:"<< ix << iy << index;
+        return index;
+    }
+    else return -1;
+}
+
 double ASensorModel::getPDE(int iWave) const
 {
     if (iWave == -1 || PDEbinned.empty()) return PDE_effective;
@@ -223,6 +246,15 @@ double ASensorModel::getAreaFactor(double x, double y) const
 #include "aphotonsimhub.h"
 void ASensorModel::updateRuntimeProperties()
 {
+    if (SiPM)
+    {
+        _PixelPitchX = PixelSizeX + PixelSpacingX;
+        _PixelPitchY = PixelSizeY + PixelSpacingY;
+
+        _HalfSensitiveSizeX = 0.5 * (PixelSizeX * PixelsX + PixelSpacingX * (PixelsX - 1));
+        _HalfSensitiveSizeY = 0.5 * (PixelSizeY * PixelsY + PixelSpacingY * (PixelsY - 1));
+    }
+
     PDEbinned.clear();
     AngularBinned.clear();
 

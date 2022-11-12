@@ -20,6 +20,7 @@ public:
     double  PixelSizeY = 3.0;
     double  PixelSpacingX = 0;
     double  PixelSpacingY = 0;
+    int     getPixelHit(double x, double y) const; // returns -1 if none was hit
 
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
@@ -49,6 +50,10 @@ public:
     QString checkAreaFactors() const;
 
     //runtime
+    double _HalfSensitiveSizeX;
+    double _HalfSensitiveSizeY;
+    double _PixelPitchX;
+    double _PixelPitchY;
     std::vector<double> PDEbinned;
     std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
 

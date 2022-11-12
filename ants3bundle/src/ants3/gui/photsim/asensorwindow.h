@@ -63,6 +63,8 @@ private slots:
     void on_lepAreaStepY_editingFinished();
 
 
+    void on_pbShowPixelMap_clicked();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;

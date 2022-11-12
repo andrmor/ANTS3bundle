@@ -439,6 +439,19 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QSpinBox" name="sbShowResolution">
+                  <property name="toolTip">
+                   <string>The larger the number, the higher the representation accuracy, but slower the histogram drawing time</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item>

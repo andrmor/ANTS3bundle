@@ -10,6 +10,7 @@
 #include <QDoubleValidator>
 
 #include "TGraph.h"
+#include "TH2D.h"
 
 ASensorWindow::ASensorWindow(QWidget *parent) :
     AGuiWindow("Sens", parent),
@@ -449,7 +450,6 @@ void ASensorWindow::on_pbShowBinnedAngular_clicked()
     emit requestDraw(gr, "APL", true, true);
 }
 
-#include "TH2D.h"
 void ASensorWindow::on_pbShowArea_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -512,3 +512,77 @@ void ASensorWindow::on_lepAreaStepY_editingFinished()
 
     mod->StepY = ui->lepAreaStepY->text().toDouble();
 }
+
+void ASensorWindow::on_pbShowPixelMap_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+     double dotsPerMin = ui->sbShowResolution->value();
+
+     double & PX = mod->PixelSizeX;
+     double & PY = mod->PixelSizeY;
+     double & dX = mod->PixelSpacingX;
+     double & dY = mod->PixelSpacingY;
+
+     double minX = std::min(PX, dX); if (minX == 0) minX = PX;
+     double minY = std::min(PY, dY); if (minY == 0) minY = PY;
+
+     double scaleX = minX / dotsPerMin; // mm per dot
+     double scaleY = minY / dotsPerMin; // mm per dot
+
+     double fullSizeX = PX * mod->PixelsX + dX * (mod->PixelsX-1);
+     double fullSizeY = PY * mod->PixelsY + dY * (mod->PixelsY-1);
+
+     int numX = fullSizeX/scaleX + 1;
+     int numY = fullSizeY/scaleY + 1;
+
+     //qDebug() << std::fmod(6.3, 2); shows 0.3
+
+     TH2D * h = new TH2D("", "", numX, -0.5*fullSizeX, 0.5*fullSizeX,   numY, -0.5*fullSizeY, 0.5*fullSizeY);
+
+     mod->updateRuntimeProperties(); // to enable mod->getPixelHit()
+
+     bool bFlag = true;
+     int  oldIndex = -1;
+     int  indexOnLineStart = -1;
+     int  onLineStartFlagValue = true;
+     for (int iy = 0; iy < numY; iy++)
+     {
+         bool bFirstPixelInLineCandidate = true;
+         const double y = iy * scaleY - 0.5*fullSizeY;
+         for (int ix = 0; ix < numX; ix++)
+         {
+             const double x = ix * scaleX - 0.5*fullSizeX;
+             const int index = mod->getPixelHit(x, y);
+             //qDebug() << iy << ix << index;
+             if (index == -1) continue;
+
+             if (index != oldIndex)
+             {
+                 bFlag = !bFlag;
+                 oldIndex = index;
+             }
+
+             if (bFirstPixelInLineCandidate)
+             {
+                 if (index != indexOnLineStart) // new pixel in the line start!
+                 {
+                     if (bFlag == onLineStartFlagValue) bFlag = !bFlag;
+                     onLineStartFlagValue = bFlag;
+                     indexOnLineStart = index;
+                 }
+                 else bFlag = onLineStartFlagValue;
+                 bFirstPixelInLineCandidate = false;
+             }
+
+             h->Fill(x, y, (bFlag ? 5 : 1) );
+         }
+     }
+
+     h->SetXTitle("Local X, mm");
+     h->SetYTitle("Local Y, mm");
+     emit requestDraw(h, "col", true, true);
+}
+
