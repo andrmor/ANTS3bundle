@@ -187,27 +187,27 @@ QString ASensorModel::checkAreaFactors() const
     return "";
 }
 
-int ASensorModel::getPixelHit(double x, double y) const
+bool ASensorModel::getPixelHit(double x, double y, size_t & xBin, size_t & yBin) const
 {
     if (SiPM)
     {
-        //qDebug() << "Checking hit for local x,y:" << x << y << ", showing nothing if there were no pixel hit...";
-        if (x < - _HalfSensitiveSizeX || x > _HalfSensitiveSizeX) return -1;
-        if (y < - _HalfSensitiveSizeY || y > _HalfSensitiveSizeY) return -1;
+        //qDebug() << "Checking hit for local x,y:" << x << y << ", showing nothing if there were no pixel hit";
+        if (x < - _HalfSensitiveSizeX || x > _HalfSensitiveSizeX) return false;
+        if (y < - _HalfSensitiveSizeY || y > _HalfSensitiveSizeY) return false;
 
         x += _HalfSensitiveSizeX;  // [0, FullSizeX]
         y += _HalfSensitiveSizeY;  // [0, FullSizeY]
 
-        if (std::fmod(x, _PixelPitchX) > PixelSizeX) return -1;
-        if (std::fmod(y, _PixelPitchY) > PixelSizeY) return -1;
+        if (std::fmod(x, _PixelPitchX) > PixelSizeX) return false;
+        if (std::fmod(y, _PixelPitchY) > PixelSizeY) return false;
 
-        const int ix = x / _PixelPitchX;
-        const int iy = y / _PixelPitchY;
-        const int index = iy * PixelsX + ix;
-        //qDebug() << "-->Hit detected; ix,iy,index:"<< ix << iy << index;
-        return index;
+        xBin = x / _PixelPitchX;
+        yBin = y / _PixelPitchY;
+        //const int index = iy * PixelsX + ix;
+        //qDebug() << "-->Hit detected; xBin,yBin,index:"<< xBin << yBin << index;
+        return true;
     }
-    else return -1;
+    else return false;
 }
 
 double ASensorModel::getPDE(int iWave) const

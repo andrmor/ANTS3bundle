@@ -544,37 +544,37 @@ void ASensorWindow::on_pbShowPixelMap_clicked()
 
      mod->updateRuntimeProperties(); // to enable mod->getPixelHit()
 
+     size_t binX = -1;
+     size_t binY = -1;
+     size_t oldBinX = -2;
+     size_t oldBinY = -2;
      bool bFlag = true;
-     int  oldIndex = -1;
-     int  indexOnLineStart = -1;
-     int  onLineStartFlagValue = true;
+     bool bFlagOnLineStart = true;
      for (int iy = 0; iy < numY; iy++)
      {
-         bool bFirstPixelInLineCandidate = true;
          const double y = iy * scaleY - 0.5*fullSizeY;
          for (int ix = 0; ix < numX; ix++)
          {
              const double x = ix * scaleX - 0.5*fullSizeX;
-             const int index = mod->getPixelHit(x, y);
-             //qDebug() << iy << ix << index;
-             if (index == -1) continue;
+             const bool isPixel = mod->getPixelHit(x, y, binX, binY);
+             //qDebug() << "binY, binX:" << binY << binX;
+             if (!isPixel) continue;
 
-             if (index != oldIndex)
+             if (binX != oldBinX)
              {
                  bFlag = !bFlag;
-                 oldIndex = index;
+                 oldBinX = binX;
              }
 
-             if (bFirstPixelInLineCandidate)
+             if (binX == 0)
              {
-                 if (index != indexOnLineStart) // new pixel in the line start!
+                 if (binY != oldBinY) // new pixel in the line start!
                  {
-                     if (bFlag == onLineStartFlagValue) bFlag = !bFlag;
-                     onLineStartFlagValue = bFlag;
-                     indexOnLineStart = index;
+                     if (bFlag == bFlagOnLineStart) bFlag = !bFlag;
+                     bFlagOnLineStart = bFlag;
+                     oldBinY = binY;
                  }
-                 else bFlag = onLineStartFlagValue;
-                 bFirstPixelInLineCandidate = false;
+                 else bFlag = bFlagOnLineStart;
              }
 
              h->Fill(x, y, (bFlag ? 5 : 1) );

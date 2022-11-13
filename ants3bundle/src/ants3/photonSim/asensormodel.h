@@ -20,7 +20,7 @@ public:
     double  PixelSizeY = 3.0;
     double  PixelSpacingX = 0;
     double  PixelSpacingY = 0;
-    int     getPixelHit(double x, double y) const; // returns -1 if none was hit
+    bool    getPixelHit(double x, double y, size_t & xBin, size_t & yBin) const; // returns false if none was hit
 
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
