@@ -187,7 +187,7 @@ QString ASensorModel::checkAreaFactors() const
     return "";
 }
 
-bool ASensorModel::getPixelHit(double x, double y, size_t & xBin, size_t & yBin) const
+bool ASensorModel::getPixelHit(double x, double y, size_t & binX, size_t & binY) const
 {
     if (SiPM)
     {
@@ -201,8 +201,8 @@ bool ASensorModel::getPixelHit(double x, double y, size_t & xBin, size_t & yBin)
         if (std::fmod(x, _PixelPitchX) > PixelSizeX) return false;
         if (std::fmod(y, _PixelPitchY) > PixelSizeY) return false;
 
-        xBin = x / _PixelPitchX;
-        yBin = y / _PixelPitchY;
+        binX = x / _PixelPitchX;
+        binY = y / _PixelPitchY;
         //const int index = iy * PixelsX + ix;
         //qDebug() << "-->Hit detected; xBin,yBin,index:"<< xBin << yBin << index;
         return true;

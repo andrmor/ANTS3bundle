@@ -65,50 +65,43 @@ bool AOneEvent::checkSensorHit(int ipm, double time, int iWave, double x, double
     }
     else
     {
+        size_t binX, binY;
+        bool isPixelHit = model->getPixelHit(x, y, binX, binY);
+        if (!isPixelHit) return false;
+
         /*
-            const int itype = PMs->at(ipm).type;
-            const APmType* tp = PMs->getType(itype);
-            double sizeX = tp->SizeX;
-            int pixelsX =  tp->PixelsX;
-            int binX = pixelsX * (x/sizeX + 0.5);
-            if (binX<0) binX = 0;
-            if (binX>pixelsX-1) binX = pixelsX-1;
-
-            double sizeY = tp->SizeY;//PMtypeProperties[itype].SizeY;
-            int pixelsY =  tp->PixelsY;// PMtypeProperties[itype].PixelsY;
-            int binY = pixelsY * (y/sizeY + 0.5);
-            if (binY<0) binY = 0;
-            if (binY>pixelsY-1) binY = pixelsY-1;
-
             if (PMs->isDoMCcrosstalk() && PMs->at(ipm).MCmodel==0)
             {
                 int num = PMs->at(ipm).MCsampl->sample(RandGen) + 1;
-                registerSiPMhit(ipm, iTime, binX, binY, num);
+                registerSiPMhit(ipm, binX, binY, num);
             }
-            else
-                registerSiPMhit(ipm, iTime, binX, binY);
-
+            else registerSiPMhit(ipm, binX, binY);
         */
+        const int iXY = model->PixelsX * binY + binX;
+        if (SiPMpixels[ipm].testBit(iXY)) return false; // this pixel is already lit
+
+        //registering hit
+        SiPMpixels[ipm].setBit(iXY, true);
+        PMhits[ipm] += 1.0f;
     }
 
     if (SimSet.RunSet.SaveStatistics) fillDetectionStatistics(iWave, time, angle, numTransitions);
     return true;
 }
 
-void AOneEvent::registerSiPMhit(int ipm, int iTime, int binX, int binY, float numHits)
+void AOneEvent::registerSiPMhit(int ipm, int binX, int binY, float numHits)
 //numHits != 1 is used 1) for the simplistic model of microcell cross-talk -> then MCmodel = 0
 //                     2) to simulate dark counts in advanced model (MCmodel = 1)
 {
-/*
-    const APmType* tp = PMs->getTypeForPM(ipm);
-
-    const int iXY = tp->PixelsX*binY + binX;
-    if (SiPMpixels[ipm].testBit(iXY)) return;  //nothing to do - already lit
+    const ASensorModel * model = SensorHub.sensorModelFast(ipm); // safe, already was checked
+    const int iXY = model->PixelsX * binY + binX;
+    if (SiPMpixels[ipm].testBit(iXY)) return;                    // this pixel is already lit
 
     //registering hit
     SiPMpixels[ipm].setBit(iXY, true);
     PMhits[ipm] += numHits;
 
+    /*
     if (PMs->isDoMCcrosstalk()  &&  PMs->at(ipm).MCmodel == 1)
     {
         //checking 4 neighbours
@@ -118,7 +111,7 @@ void AOneEvent::registerSiPMhit(int ipm, int iTime, int binX, int binY, float nu
         if (binY > 0             && RandGen->Rndm() < trigProb) registerSiPMhit(ipm, iTime, binX, binY-1, numHits);//bottom
         if (binY+1 < tp->PixelsY && RandGen->Rndm() < trigProb) registerSiPMhit(ipm, iTime, binX, binY+1, numHits);//top
     }
-*/
+    */
 }
 
 bool AOneEvent::isHitsEmpty() const

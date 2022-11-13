@@ -559,6 +559,9 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Remember to adjust the SiPM's PDE not to take the geometric factor for the sensitive area into account twice!</string>
+                  </property>
                   <property name="text">
                    <string>Spacing</string>
                   </property>
