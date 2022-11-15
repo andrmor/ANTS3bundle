@@ -66,6 +66,11 @@ void ASensorWindow::updateGui()
 
         ui->lepAreaStepX->setText(QString::number(mod->StepX));
         ui->lepAreaStepY->setText(QString::number(mod->StepY));
+
+        ui->lepDarkRate->setText(QString::number(mod->DarkCountRate));
+        ui->lepIntegrationTime->setText(QString::number(mod->IntegrationTime));
+        ui->lepElNoiseSigma->setText(QString::number(mod->ElectronicNoiseSigma));
+        ui->lepGainFactor->setText(QString::number(mod->ElectronicGainFactor));
     }
 
     updatePdeButtons();
@@ -584,5 +589,48 @@ void ASensorWindow::on_pbShowPixelMap_clicked()
      h->SetXTitle("Local X, mm");
      h->SetYTitle("Local Y, mm");
      emit requestDraw(h, "col", true, true);
+}
+
+void ASensorWindow::on_lepDarkRate_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->DarkCountRate = ui->lepDarkRate->text().toDouble();
+}
+
+void ASensorWindow::on_lepIntegrationTime_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->IntegrationTime = ui->lepIntegrationTime->text().toDouble();
+}
+
+void ASensorWindow::on_lepElNoiseSigma_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->ElectronicNoiseSigma = ui->lepElNoiseSigma->text().toDouble();
+}
+
+void ASensorWindow::on_lepGain_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->ElectronicGainFactor = ui->lepGainFactor->text().toDouble();
+}
+
+void ASensorWindow::on_cobSignalModel_currentIndexChanged(int index)
+{
+    ui->swSignalModel->setCurrentIndex(index);
+    ui->frAverageSignalPerPhEl->setHidden(index == 3);
+    ui->swSignalModel->setHidden(index == 0);
 }
 

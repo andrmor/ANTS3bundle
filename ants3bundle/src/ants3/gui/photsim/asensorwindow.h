@@ -61,9 +61,14 @@ private slots:
     void on_pbRemoveArea_clicked();
     void on_lepAreaStepX_editingFinished();
     void on_lepAreaStepY_editingFinished();
-
-
     void on_pbShowPixelMap_clicked();
+
+    void on_lepDarkRate_editingFinished();
+    void on_lepIntegrationTime_editingFinished();
+    void on_lepElNoiseSigma_editingFinished();
+    void on_lepGain_editingFinished();
+
+    void on_cobSignalModel_currentIndexChanged(int index);
 
 private:
     ASensorHub & SensHub;

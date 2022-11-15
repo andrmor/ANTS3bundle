@@ -35,7 +35,10 @@ public:
     bool    isAreaSensitive() const {return !AreaFactors.empty();}
     double  getAreaFactor(double x, double y) const;
 
-    double  DarkCountRate = 0; //per ns
+    double  DarkCountRate = 0;      // counts per second
+    double  IntegrationTime = 1e-6; // in seconds
+    double  ElectronicNoiseSigma = 0;
+    double  ElectronicGainFactor = 1.0;
 
     void    updateRuntimeProperties();
 

@@ -29,13 +29,14 @@ void ASensorModel::clear()
     StepY = 1.0;
 
     DarkCountRate = 0;
+    IntegrationTime = 1e-6;
+    ElectronicNoiseSigma = 0;
+    ElectronicGainFactor = 1.0;
 }
 
 void ASensorModel::writeToJson(QJsonObject & json) const
 {
     json["Name"] = Name;
-
-    json["DarkCountRate"] = DarkCountRate;
 
     {
         QJsonObject js;
@@ -75,6 +76,11 @@ void ASensorModel::writeToJson(QJsonObject & json) const
             js["Data"] = ar;
         json["AreaResponse"] = js;
     }
+
+    json["DarkCountRate"] = DarkCountRate;
+    json["IntegrationTime"] = IntegrationTime;
+    json["ElectronicNoiseSigma"] = ElectronicNoiseSigma;
+    json["ElectronicGainFactor"] = ElectronicGainFactor;
 }
 
 bool ASensorModel::readFromJson(const QJsonObject & json)
@@ -84,7 +90,6 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
     if (!json.contains("Name") || !json.contains("SiPM")) return false; // simple check of format
 
     jstools::parseJson(json, "Name",          Name);
-    jstools::parseJson(json, "DarkCountRate", DarkCountRate);
 
     {
         QJsonObject js = json["SiPM"].toObject();
@@ -123,6 +128,11 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         bool ok = jstools::readDVectorOfVectorsFromArray(ar, AreaFactors);
         if (!ok) return false; // !!!***
     }
+
+    jstools::parseJson(json, "DarkCountRate", DarkCountRate);
+    jstools::parseJson(json, "IntegrationTime", IntegrationTime);
+    jstools::parseJson(json, "ElectronicNoiseSigma", ElectronicNoiseSigma);
+    jstools::parseJson(json, "ElectronicGainFactor", ElectronicGainFactor);
 
     return true;
 }
