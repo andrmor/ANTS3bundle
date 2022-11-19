@@ -1009,7 +1009,7 @@
            <item row="13" column="0">
             <widget class="QLabel" name="label_32">
              <property name="text">
-              <string>Electronic noise</string>
+              <string>Preamp noise</string>
              </property>
             </widget>
            </item>
@@ -1028,7 +1028,7 @@
              <item>
               <widget class="QLabel" name="label_34">
                <property name="text">
-                <string>sigma in ph.e-</string>
+                <string>sigma in photo-electrons</string>
                </property>
               </widget>
              </item>
@@ -1108,7 +1108,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lepGainFactor">
+              <widget class="QLineEdit" name="lepElGainFactor">
                <property name="maximumSize">
                 <size>
                  <width>100</width>
@@ -1208,7 +1208,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="leAverageSignalPerPhE">
+                    <widget class="QLineEdit" name="lepAverageSignalPerPhE">
                      <property name="maximumSize">
                       <size>
                        <width>100</width>
@@ -1239,7 +1239,7 @@
                    <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>3</number>
                   </property>
                   <widget class="QWidget" name="page_3"/>
                   <widget class="QWidget" name="page_4">
@@ -1264,7 +1264,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_2">
+                     <widget class="QLineEdit" name="lepNormalSigma">
                       <property name="maximumSize">
                        <size>
                         <width>100</width>
@@ -1310,7 +1310,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_3">
+                     <widget class="QLineEdit" name="lepGammaShape">
                       <property name="maximumSize">
                        <size>
                         <width>100</width>
@@ -1349,16 +1349,29 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QPushButton" name="pushButton">
+                     <widget class="QPushButton" name="pbShowCustomPhElSig">
                       <property name="text">
-                       <string>PushButton</string>
+                       <string>Show</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_2">
+                     <widget class="QPushButton" name="pbLoadCustomPhElSig">
                       <property name="text">
-                       <string>PushButton</string>
+                       <string>Load</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pbRemoveCustomPhElSig">
+                      <property name="maximumSize">
+                       <size>
+                        <width>25</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>X</string>
                       </property>
                      </widget>
                     </item>
@@ -1382,7 +1395,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QPushButton" name="pbTestSignal">
+               <widget class="QPushButton" name="pbTestPhElSignal">
                 <property name="text">
                  <string>Test</string>
                 </property>

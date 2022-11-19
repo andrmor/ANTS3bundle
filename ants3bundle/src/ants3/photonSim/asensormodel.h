@@ -37,8 +37,16 @@ public:
 
     double  DarkCountRate = 0;      // counts per second
     double  IntegrationTime = 1e-6; // in seconds
+
     double  ElectronicNoiseSigma = 0;
+
     double  ElectronicGainFactor = 1.0;
+    enum    EPhElToSignal {Constant, Normal, Gamma, Custom};
+    EPhElToSignal PhElToSignalModel = Constant;
+    double  AverageSignalPerPhEl = 1.0;
+    double  NormalSigma = 0;
+    double  GammaShape  = 2.0;
+    std::vector<std::pair<double,double>> CustomSignalPerPhEl;
 
     void    updateRuntimeProperties();
 
@@ -51,6 +59,7 @@ public:
     QString checkPDE_spectral() const;
     QString checkAngularFactors() const;
     QString checkAreaFactors() const;
+    QString checkPhElToSignals() const;
 
     //runtime
     double _HalfSensitiveSizeX;

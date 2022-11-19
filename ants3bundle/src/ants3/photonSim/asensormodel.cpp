@@ -79,8 +79,30 @@ void ASensorModel::writeToJson(QJsonObject & json) const
 
     json["DarkCountRate"] = DarkCountRate;
     json["IntegrationTime"] = IntegrationTime;
-    json["ElectronicNoiseSigma"] = ElectronicNoiseSigma;
-    json["ElectronicGainFactor"] = ElectronicGainFactor;
+
+    json["PreampSigma"] = ElectronicNoiseSigma;
+
+    {
+        QJsonObject js;
+            js["ElectronicGainFactor"] = ElectronicGainFactor;
+            QString str;
+                switch (PhElToSignalModel)
+                {
+                default       : qWarning() << "Not implemented json write for selected PhElToSignal model"; // fall-through!
+                case Constant : str = "Constant"; break;
+                case Normal   : str = "Normal";   break;
+                case Gamma    : str = "Gamma";    break;
+                case Custom   : str = "Custom";   break;
+                }
+            js["Model"] = str;
+            js["AverageSignalPerPhEl"] = AverageSignalPerPhEl;
+            js["NormalSigma"] = NormalSigma;
+            js["GammaShape"] = GammaShape;
+            QJsonArray ar;
+                jstools::writeDPairVectorToArray(CustomSignalPerPhEl, ar);
+            js["CustomSignalPerPhEl"] = ar;
+        json["PhElToSignals"] = js;
+    }
 }
 
 bool ASensorModel::readFromJson(const QJsonObject & json)
@@ -131,8 +153,31 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "DarkCountRate", DarkCountRate);
     jstools::parseJson(json, "IntegrationTime", IntegrationTime);
-    jstools::parseJson(json, "ElectronicNoiseSigma", ElectronicNoiseSigma);
-    jstools::parseJson(json, "ElectronicGainFactor", ElectronicGainFactor);
+
+    jstools::parseJson(json, "PreampSigma", ElectronicNoiseSigma);
+
+    {
+        QJsonObject js = json["PhElToSignals"].toObject();
+        jstools::parseJson(js, "ElectronicGainFactor", ElectronicGainFactor);
+        QString str;
+        jstools::parseJson(js, "Model", str);
+        if      (str == "Constant") PhElToSignalModel = Constant;
+        else if (str == "Normal")   PhElToSignalModel = Normal;
+        else if (str == "Gamma")    PhElToSignalModel = Gamma;
+        else if (str == "Custom")   PhElToSignalModel = Custom;
+        else
+        {
+            qWarning() << "Unknown model of PhEl to signal convertion:" << str;  // !!!***
+            PhElToSignalModel = Constant;
+        }
+        jstools::parseJson(js, "AverageSignalPerPhEl", AverageSignalPerPhEl);
+        jstools::parseJson(js, "NormalSigma", NormalSigma);
+        jstools::parseJson(js, "GammaShape", GammaShape);
+        QJsonArray ar;
+        jstools::parseJson(js, "CustomSignalPerPhEl", ar);
+        bool ok = jstools::readDPairVectorFromArray(ar, CustomSignalPerPhEl);
+        if (!ok) return false; // !!!***
+    }
 
     return true;
 }
@@ -193,6 +238,28 @@ QString ASensorModel::checkAreaFactors() const
 
     if (StepX <= 0.0) return "StepX should be a positive number";
     if (StepY <= 0.0) return "StepY should be a positive number";
+
+    return "";
+}
+
+QString ASensorModel::checkPhElToSignals() const
+{
+    if (ElectronicGainFactor <= 0) return "Electronic gain factor should be positive";
+
+    if (PhElToSignalModel == Custom)
+    {
+        const QString errstr = "CustomSignalPerPhEl data should start from 0 and contain at least two data points";
+        if (CustomSignalPerPhEl.size() < 2) return errstr;
+        if (CustomSignalPerPhEl.front().first != 0) return errstr;
+        auto prevVal = CustomSignalPerPhEl.front();
+        for (size_t i = 1; i < CustomSignalPerPhEl.size(); i++)
+        {
+            const auto thisVal = CustomSignalPerPhEl[i];
+            if (prevVal.first >= thisVal.first) return "CustomSignalPerPhEl data should be sorted (increasing and not-repeating ph.el. values)";
+            if (thisVal.second < 0) return "CustomSignalPerPhEl data should contain non-negative convertion factors";
+            prevVal = thisVal;
+        }
+    }
 
     return "";
 }

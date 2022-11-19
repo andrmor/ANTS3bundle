@@ -69,13 +69,30 @@ void ASensorWindow::updateGui()
 
         ui->lepDarkRate->setText(QString::number(mod->DarkCountRate));
         ui->lepIntegrationTime->setText(QString::number(mod->IntegrationTime));
+
         ui->lepElNoiseSigma->setText(QString::number(mod->ElectronicNoiseSigma));
-        ui->lepGainFactor->setText(QString::number(mod->ElectronicGainFactor));
+
+        int index = 0;
+        switch (mod->PhElToSignalModel)
+        {
+        case ASensorModel::Constant : index = 0; break;
+        case ASensorModel::Normal   : index = 1; break;
+        case ASensorModel::Gamma    : index = 2; break;
+        case ASensorModel::Custom   : index = 3; break;
+        default: qWarning() << "Unknown ph.e- to signal model!\nSwitching to \"Constant\"";
+        }
+        ui->cobSignalModel->setCurrentIndex(index);
+        on_cobSignalModel_currentIndexChanged(index);
+        ui->lepElGainFactor->setText(QString::number(mod->ElectronicGainFactor));
+        ui->lepAverageSignalPerPhE->setText(QString::number(mod->AverageSignalPerPhEl));
+        ui->lepNormalSigma->setText(QString::number(mod->NormalSigma));
+        ui->lepGammaShape->setText(QString::number(mod->GammaShape));
     }
 
     updatePdeButtons();
     updateAngularButtons();
     updateAreaButtons();
+    updatePhElToSigButtons();
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
@@ -618,15 +635,6 @@ void ASensorWindow::on_lepElNoiseSigma_editingFinished()
     mod->ElectronicNoiseSigma = ui->lepElNoiseSigma->text().toDouble();
 }
 
-void ASensorWindow::on_lepGain_editingFinished()
-{
-    int iModel = ui->cobModel->currentIndex();
-    ASensorModel * mod = SensHub.model(iModel);
-    if (!mod) return;
-
-    mod->ElectronicGainFactor = ui->lepGainFactor->text().toDouble();
-}
-
 void ASensorWindow::on_cobSignalModel_currentIndexChanged(int index)
 {
     ui->swSignalModel->setCurrentIndex(index);
@@ -634,3 +642,117 @@ void ASensorWindow::on_cobSignalModel_currentIndexChanged(int index)
     ui->swSignalModel->setHidden(index == 0);
 }
 
+void ASensorWindow::on_cobSignalModel_activated(int index)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    switch (index)
+    {
+    default: qWarning() << "Non-implemented value for PhElToSignalModel, assumong \"Constant\""; // fall-through
+    case 0 : mod->PhElToSignalModel = ASensorModel::Constant; break;
+    case 1 : mod->PhElToSignalModel = ASensorModel::Normal;   break;
+    case 2 : mod->PhElToSignalModel = ASensorModel::Gamma;    break;
+    case 3 : mod->PhElToSignalModel = ASensorModel::Custom;   break;
+    }
+}
+
+void ASensorWindow::on_lepElGainFactor_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->ElectronicGainFactor = ui->lepElGainFactor->text().toDouble();
+}
+
+void ASensorWindow::on_lepAverageSignalPerPhE_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->AverageSignalPerPhEl = ui->lepAverageSignalPerPhE->text().toDouble();
+}
+
+void ASensorWindow::on_lepNormalSigma_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->NormalSigma = ui->lepNormalSigma->text().toDouble();
+}
+
+void ASensorWindow::on_lepGammaShape_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->GammaShape = ui->lepGammaShape->text().toDouble();
+}
+
+void ASensorWindow::on_pbLoadCustomPhElSig_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    QString fname = guitools::dialogLoadFile(this, "Load factors for ph.e- to signal convertion.\nShould start from 0 ph.e-!", "");
+    if (fname.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> data;
+    QString err = ftools::loadPairs(fname, data, true);
+    if (err.isEmpty())
+    {
+        ASensorModel dummy;
+        dummy.CustomSignalPerPhEl = data;
+        err = dummy.checkPhElToSignals();
+        if (err.isEmpty())
+        {
+            mod->CustomSignalPerPhEl = data;
+            updatePhElToSigButtons();
+            return;
+        }
+    }
+    guitools::message(err, this);
+}
+
+void ASensorWindow::on_pbShowCustomPhElSig_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->CustomSignalPerPhEl.empty()) return;
+
+    TGraph * gr = AGraphBuilder::graph(mod->CustomSignalPerPhEl);
+    AGraphBuilder::configure(gr, QString("Custom ph.e- to signal factors for model%0").arg(iModel), "Number of ph.e-", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void ASensorWindow::on_pbRemoveCustomPhElSig_clicked()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->CustomSignalPerPhEl.clear();
+    updatePhElToSigButtons();
+}
+
+void ASensorWindow::updatePhElToSigButtons()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    ui->pbShowCustomPhElSig->setDisabled(mod->CustomSignalPerPhEl.empty());
+    ui->pbRemoveCustomPhElSig->setDisabled(mod->CustomSignalPerPhEl.empty());
+}
+
+void ASensorWindow::on_pbTestPhElSignal_clicked()
+{
+
+}
