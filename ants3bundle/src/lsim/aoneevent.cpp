@@ -25,7 +25,7 @@ void AOneEvent::init()
     numPMs = SensorHub.countSensors();
 
     PMhits.resize(numPMs);
-    PMsignals.resize(numPMs);
+    //PMsignals.resize(numPMs);
     SiPMpixels.resize(numPMs);
 
     for (int iSensor = 0; iSensor < numPMs; iSensor++)
@@ -45,7 +45,7 @@ void AOneEvent::clearHits()
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
         PMhits[ipm] = 0;
-        PMsignals[ipm] = 0;
+        //PMsignals[ipm] = 0;
 
         SiPMpixels[ipm].fill(false);
     }
@@ -121,70 +121,66 @@ bool AOneEvent::isHitsEmpty() const
     return true;
 }
 
-void AOneEvent::HitsToSignal()
+void AOneEvent::convertHitsToSignals()
 {
-    PMsignals.resize(numPMs);
-
-//    if (PMs->fDoDarkCounts) AddDarkCounts(); //add dark counts for all SiPMs
-
-    convertHitsToSignal(PMhits, PMsignals);
-}
-
-void AOneEvent::convertHitsToSignal(const std::vector<float> & pmHits, std::vector<float> & pmSignals)
-{
-/*
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
-        const APm & pm = PMs->at(ipm);
+        const ASensorModel * model = SensorHub.sensorModelFast(ipm);
 
-        // SPE
-        if ( PMs->isDoPHS() )
+        if (model->ElectronicNoiseSigma > 0)
         {
-            switch (pm.SPePHSmode)
+            PMhits[ipm] += RandomHub.gauss(0, model->ElectronicNoiseSigma);
+
+            /*
+            const double& sigma_const = pm.ElNoiseSigma;
+            const double& sigma_stat  = pm.ElNoiseSigma_StatSigma;
+            const double& sigma_norm  = pm.ElNoiseSigma_StatNorm;
+
+            const double sigma = (sigma_stat == 0 ? sigma_const : sqrt( sigma_const*sigma_const  +  sigma_stat*sigma_stat * pmSignals.at(ipm) / sigma_norm) );
+            PMhits[ipm] += RandGen->Gaus(0, model->ElectronicNoiseSigma);
+            */
+        }
+
+        switch (model->PhElToSignalModel)
+        {
+        case ASensorModel::Constant :
+            PMhits[ipm] *= model->AverageSignalPerPhEl;
+            break;
+        case ASensorModel::Normal :
             {
-            case 0:
-                pmSignals[ipm] = pm.AverageSigPerPhE * pmHits.at(ipm);
-                break;
-            case 1:
-            {
-                double mean =  pm.AverageSigPerPhE * pmHits.at(ipm);
-                double sigma = pm.SPePHSsigma * TMath::Sqrt( pmHits.at(ipm) );
-                pmSignals[ipm] = RandGen->Gaus(mean, sigma);
+                const double mean  = model->AverageSignalPerPhEl * PMhits[ipm];
+                const double sigma = model->NormalSigma          * TMath::Sqrt( PMhits[ipm] );
+                PMhits[ipm] = RandomHub.gauss(mean, sigma);
                 break;
             }
-            case 2:
+        case ASensorModel::Gamma :
             {
-                double k = pm.SPePHSshape;
-                double theta = pm.AverageSigPerPhE / k;
-                k *= pmHits.at(ipm); //for sum distribution
-                pmSignals[ipm] = GammaRandomGen->getGamma(k, theta);
+                double k = model->GammaShape;
+                const double theta = model->AverageSignalPerPhEl / k;
+                k *= PMhits[ipm]; //for sum distribution
+                PMhits[ipm] = RandomHub.gamma(k, theta);
                 break;
             }
-            case 3:
+        case ASensorModel::Custom :
             {
+                /*
                 pmSignals[ipm] = 0;
                 if ( pm.SPePHShist )
                 {
                     for (int j = 0; j < pmHits.at(ipm); j++)
                         pmSignals[ipm] += pm.SPePHShist->GetRandom();
                 }
+                */
             }
-            }
-
-            pmSignals[ipm] *= pm.relElStrength;
         }
-        else pmSignals[ipm] = pmHits.at(ipm);
 
-        // electronic noise
-        if (PMs->isDoElNoise())
-        {
-            const double& sigma_const = pm.ElNoiseSigma;
-            const double& sigma_stat  = pm.ElNoiseSigma_StatSigma;
-            const double& sigma_norm  = pm.ElNoiseSigma_StatNorm;
+        PMhits[ipm] *= model->ElectronicGainFactor;
+    }
 
-            const double sigma = (sigma_stat == 0 ? sigma_const : sqrt( sigma_const*sigma_const  +  sigma_stat*sigma_stat * pmSignals.at(ipm) / sigma_norm) );
-            pmSignals[ipm] += RandGen->Gaus(0, sigma);
-        }
+    /*
+    for (int ipm = 0; ipm < numPMs; ipm++)
+    {
+        const APm & pm = PMs->at(ipm);
 
         // ADC simulation
         if (PMs->isDoADC())
@@ -197,7 +193,7 @@ void AOneEvent::convertHitsToSignal(const std::vector<float> & pmHits, std::vect
             }
         }
     }
-*/
+    */
 }
 
 void AOneEvent::addDarkCounts() //currently applicable only for SiPMs!

@@ -349,3 +349,30 @@ void ASensorModel::updateRuntimeProperties()
         }
     }
 }
+
+#include "arandomhub.h"
+double ASensorModel::generateSignalForOnePhotoelectron()
+{
+    double val = 0;
+
+    ARandomHub & RandGub = ARandomHub::getInstance();
+    switch (PhElToSignalModel)
+    {
+    case 0:
+        val = AverageSignalPerPhEl;
+        break;
+    case 1:
+        val = RandGub.gauss(AverageSignalPerPhEl, NormalSigma);
+        break;
+    case 2:
+        val = RandGub.gamma(GammaShape, AverageSignalPerPhEl / GammaShape);
+        break;
+    case 3:
+        //if ( pm.SPePHShist ) val = pm.SPePHShist->GetRandom();
+        break;
+    default:
+        qWarning() << "Error: unrecognized type in signal per photoelectron generation";
+    }
+
+    return val * ElectronicGainFactor;
+}

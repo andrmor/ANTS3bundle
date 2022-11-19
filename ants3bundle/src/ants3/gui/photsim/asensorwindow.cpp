@@ -754,5 +754,13 @@ void ASensorWindow::updatePhElToSigButtons()
 
 void ASensorWindow::on_pbTestPhElSignal_clicked()
 {
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
 
+    auto hist1D = new TH1D("tmpHistElTgen", "test", 100, 0, 0);
+    for (int i = 0; i < 10000; i++)
+        hist1D->Fill(mod->generateSignalForOnePhotoelectron());
+    hist1D->SetXTitle("PM signal for 1 photoelectron");
+    emit requestDraw(hist1D, "hist", true, true);
 }

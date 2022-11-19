@@ -24,9 +24,12 @@ public:
     double exp(double tau);
     double gauss(double mean, double sigma);
     double poisson(double mean);
+    double gamma(double a, double b);
 
 private:
     TRandom2 * RandGen = nullptr;
+
+    double getPosUniRand() const;
 };
 
 #endif // ARANDOMHUB_H

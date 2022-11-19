@@ -40,13 +40,14 @@ public:
 
     double  ElectronicNoiseSigma = 0;
 
-    double  ElectronicGainFactor = 1.0;
     enum    EPhElToSignal {Constant, Normal, Gamma, Custom};
     EPhElToSignal PhElToSignalModel = Constant;
+    double  ElectronicGainFactor = 1.0;
     double  AverageSignalPerPhEl = 1.0;
     double  NormalSigma = 0;
     double  GammaShape  = 2.0;
     std::vector<std::pair<double,double>> CustomSignalPerPhEl;
+    double  generateSignalForOnePhotoelectron();
 
     void    updateRuntimeProperties();
 
