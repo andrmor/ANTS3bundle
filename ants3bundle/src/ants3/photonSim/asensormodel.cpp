@@ -1,8 +1,11 @@
 #include "asensormodel.h"
+#include "aphotonsimhub.h"
+#include "arandomhub.h"
 #include "ajsontools.h"
 
 #include <tuple>
 
+#include "TH1D.h"
 #include "TMath.h"
 
 void ASensorModel::clear()
@@ -32,6 +35,8 @@ void ASensorModel::clear()
     IntegrationTime = 1e-6;
     ElectronicNoiseSigma = 0;
     ElectronicGainFactor = 1.0;
+
+    delete _PHS; _PHS = nullptr;
 }
 
 void ASensorModel::writeToJson(QJsonObject & json) const
@@ -99,8 +104,8 @@ void ASensorModel::writeToJson(QJsonObject & json) const
             js["NormalSigma"] = NormalSigma;
             js["GammaShape"] = GammaShape;
             QJsonArray ar;
-                jstools::writeDPairVectorToArray(CustomSignalPerPhEl, ar);
-            js["CustomSignalPerPhEl"] = ar;
+                jstools::writeDPairVectorToArray(SinglePhElPHS, ar);
+            js["SinglePhElPHS"] = ar;
         json["PhElToSignals"] = js;
     }
 }
@@ -174,8 +179,8 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         jstools::parseJson(js, "NormalSigma", NormalSigma);
         jstools::parseJson(js, "GammaShape", GammaShape);
         QJsonArray ar;
-        jstools::parseJson(js, "CustomSignalPerPhEl", ar);
-        bool ok = jstools::readDPairVectorFromArray(ar, CustomSignalPerPhEl);
+        jstools::parseJson(js, "SinglePhElPHS", ar);
+        bool ok = jstools::readDPairVectorFromArray(ar, SinglePhElPHS);
         if (!ok) return false; // !!!***
     }
 
@@ -248,15 +253,13 @@ QString ASensorModel::checkPhElToSignals() const
 
     if (PhElToSignalModel == Custom)
     {
-        const QString errstr = "CustomSignalPerPhEl data should start from 0 and contain at least two data points";
-        if (CustomSignalPerPhEl.size() < 2) return errstr;
-        if (CustomSignalPerPhEl.front().first != 0) return errstr;
-        auto prevVal = CustomSignalPerPhEl.front();
-        for (size_t i = 1; i < CustomSignalPerPhEl.size(); i++)
+        if (SinglePhElPHS.size() < 2) return "Custom pulse height distribution for single ph.e- should contain at leats two data points";
+        auto prevVal = SinglePhElPHS.front();
+        for (size_t i = 1; i < SinglePhElPHS.size(); i++)
         {
-            const auto thisVal = CustomSignalPerPhEl[i];
-            if (prevVal.first >= thisVal.first) return "CustomSignalPerPhEl data should be sorted (increasing and not-repeating ph.el. values)";
-            if (thisVal.second < 0) return "CustomSignalPerPhEl data should contain non-negative convertion factors";
+            const auto thisVal = SinglePhElPHS[i];
+            if (prevVal.first >= thisVal.first) return "Custom pulse height distribution for single ph.e- data should be sorted (increasing and not-repeating signal values)";
+            //if (thisVal.second < 0) return "Custom pulse height distribution for single ph.e- should contain non-negative signal values";
             prevVal = thisVal;
         }
     }
@@ -320,7 +323,6 @@ double ASensorModel::getAreaFactor(double x, double y) const
     return AreaFactors[yBin][xBin];
 }
 
-#include "aphotonsimhub.h"
 void ASensorModel::updateRuntimeProperties()
 {
     if (SiPM)
@@ -348,36 +350,34 @@ void ASensorModel::updateRuntimeProperties()
             AngularBinned.push_back(sens);
         }
     }
-}
 
-#include "arandomhub.h"
-double ASensorModel::generateSignalForOnePhotoelectron()
-{
-    double val = 0;
-
-    ARandomHub & RandGub = ARandomHub::getInstance();
-    switch (PhElToSignalModel)
+    delete _PHS; _PHS = nullptr;
+    const int size = SinglePhElPHS.size();
+    if (size > 1)
     {
-    case 0:
-        val = AverageSignalPerPhEl;
-        break;
-    case 1:
-        val = RandGub.gauss(AverageSignalPerPhEl, NormalSigma);
-        break;
-    case 2:
-        val = RandGub.gamma(GammaShape, AverageSignalPerPhEl / GammaShape);
-        break;
-    case 3:
-        //if ( pm.SPePHShist ) val = pm.SPePHShist->GetRandom();
-        break;
-    default:
-        qWarning() << "Error: unrecognized type in signal per photoelectron generation";
-    }
+        //_PHS = new TH1D("", "", size, SinglePhElPHS.front().first, SinglePhElPHS.back().first);  // bad, cannot take phs WITH irregular intervals
 
-    return val * ElectronicGainFactor;
+        //std::vector<double> xx;  // bad, random is area-based
+        //std::for_each(SinglePhElPHS.begin(), SinglePhElPHS.end(), [&xx](const std::pair<double,double> & el){xx.push_back(el.first);});
+        //_PHS = new TH1D("", "", size, xx.data());
+        //for (int j = 1; j < size+1; j++) _PHS->SetBinContent(j, SinglePhElPHS[j-1].second);
+
+        const int bins = 1000;
+        const double start = SinglePhElPHS.front().first;
+        const double stop  = SinglePhElPHS.back().first;
+        const double delta = (stop - start) / bins;
+        _PHS = new TH1D("", "", 1000, start, stop);
+        for (int j = 1; j < bins+1; j++)
+        {
+            const double pos = start + delta * (j - 0.5);
+            const double binVal = AWaveResSettings::getInterpolatedValue(pos, SinglePhElPHS);
+            _PHS->SetBinContent(j, binVal);
+        }
+
+        _PHS->GetIntegral();
+    }
 }
 
-#include "arandomhub.h"
 double ASensorModel::convertHitsToSignal(double phel) const
 {
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -405,19 +405,33 @@ double ASensorModel::convertHitsToSignal(double phel) const
         }
     case ASensorModel::Custom :
         {
-            /*
-            pmSignals[ipm] = 0;
-            if ( pm.SPePHShist )
+            signal = 0;
+            if (_PHS)
             {
-                for (int j = 0; j < pmHits.at(ipm); j++)
-                    pmSignals[ipm] += pm.SPePHShist->GetRandom();
+                const int num = (int)phel;
+                for (int j = 0; j < num; j++)
+                    signal += _PHS->GetRandom();
             }
-            */
             break;
         }
     }
 
+    if (ElectronicNoiseSigma != 0) signal += RandomHub.gauss(0, ElectronicNoiseSigma);
+
     signal *= ElectronicGainFactor;
 
     return signal;
+
+    /*
+        // ADC simulation
+        if (PMs->isDoADC())
+        {
+            if (pmSignals[ipm] < 0) pmSignals[ipm] = 0;
+            else
+            {
+                if (pmSignals[ipm] > pm.ADCmax) pmSignals[ipm] = pm.ADClevels;
+                else pmSignals[ipm] = static_cast<int>( pmSignals.at(ipm) / PMs->at(ipm).ADCstep );
+            }
+        }
+    */
 }

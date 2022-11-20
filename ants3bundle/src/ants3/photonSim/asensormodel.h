@@ -5,6 +5,7 @@
 #include <vector>
 
 class QJsonObject;
+class TH1D;
 
 class ASensorModel
 {
@@ -46,8 +47,7 @@ public:
     double  AverageSignalPerPhEl = 1.0;
     double  NormalSigma = 0;
     double  GammaShape  = 2.0;
-    std::vector<std::pair<double,double>> CustomSignalPerPhEl;
-    double  generateSignalForOnePhotoelectron();
+    std::vector<std::pair<double,double>> SinglePhElPHS;
     double  convertHitsToSignal(double phel) const;
 
     void    updateRuntimeProperties();
@@ -70,6 +70,7 @@ public:
     double _PixelPitchY;
     std::vector<double> PDEbinned;
     std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
+    TH1D * _PHS = nullptr;
 
 };
 

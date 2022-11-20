@@ -66,20 +66,16 @@ private slots:
     void on_lepDarkRate_editingFinished();
     void on_lepIntegrationTime_editingFinished();
 
-    void on_lepElNoiseSigma_editingFinished();
-
     void on_cobSignalModel_currentIndexChanged(int index); // user and automatic action
-    void on_cobSignalModel_activated(int index);  // only user action
-
-    void on_lepElGainFactor_editingFinished();
-
+    void on_cobSignalModel_activated(int index);           // only user action
     void on_lepAverageSignalPerPhE_editingFinished();
-
     void on_lepNormalSigma_editingFinished();
     void on_lepGammaShape_editingFinished();
     void on_pbLoadCustomPhElSig_clicked();
     void on_pbShowCustomPhElSig_clicked();
     void on_pbRemoveCustomPhElSig_clicked();
+    void on_lepElNoiseSigma_editingFinished();
+    void on_lepElGainFactor_editingFinished();
     void on_pbTestPhElSignal_clicked();
 
 private:

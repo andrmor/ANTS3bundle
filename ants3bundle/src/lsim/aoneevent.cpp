@@ -126,41 +126,8 @@ void AOneEvent::convertHitsToSignals()
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
         const ASensorModel * model = SensorHub.sensorModelFast(ipm);
-
-        if (model->ElectronicNoiseSigma > 0)
-        {
-            PMhits[ipm] += RandomHub.gauss(0, model->ElectronicNoiseSigma);
-
-            /*
-            const double& sigma_const = pm.ElNoiseSigma;
-            const double& sigma_stat  = pm.ElNoiseSigma_StatSigma;
-            const double& sigma_norm  = pm.ElNoiseSigma_StatNorm;
-
-            const double sigma = (sigma_stat == 0 ? sigma_const : sqrt( sigma_const*sigma_const  +  sigma_stat*sigma_stat * pmSignals.at(ipm) / sigma_norm) );
-            PMhits[ipm] += RandGen->Gaus(0, model->ElectronicNoiseSigma);
-            */
-        }
-
         PMhits[ipm] = model->convertHitsToSignal(PMhits[ipm]);
     }
-
-    /*
-    for (int ipm = 0; ipm < numPMs; ipm++)
-    {
-        const APm & pm = PMs->at(ipm);
-
-        // ADC simulation
-        if (PMs->isDoADC())
-        {
-            if (pmSignals[ipm] < 0) pmSignals[ipm] = 0;
-            else
-            {
-                if (pmSignals[ipm] > pm.ADCmax) pmSignals[ipm] = pm.ADClevels;
-                else pmSignals[ipm] = static_cast<int>( pmSignals.at(ipm) / PMs->at(ipm).ADCstep );
-            }
-        }
-    }
-    */
 }
 
 void AOneEvent::addDarkCounts() //currently applicable only for SiPMs!

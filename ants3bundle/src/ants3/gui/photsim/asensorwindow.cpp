@@ -700,7 +700,7 @@ void ASensorWindow::on_pbLoadCustomPhElSig_clicked()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    QString fname = guitools::dialogLoadFile(this, "Load factors for ph.e- to signal convertion.\nShould start from 0 ph.e-!", "");
+    QString fname = guitools::dialogLoadFile(this, "Load custom pulse height distribution for single ph.e-", "");
     if (fname.isEmpty()) return;
 
     std::vector<std::pair<double,double>> data;
@@ -708,11 +708,11 @@ void ASensorWindow::on_pbLoadCustomPhElSig_clicked()
     if (err.isEmpty())
     {
         ASensorModel dummy;
-        dummy.CustomSignalPerPhEl = data;
+        dummy.SinglePhElPHS = data;
         err = dummy.checkPhElToSignals();
         if (err.isEmpty())
         {
-            mod->CustomSignalPerPhEl = data;
+            mod->SinglePhElPHS = data;
             updatePhElToSigButtons();
             return;
         }
@@ -725,10 +725,10 @@ void ASensorWindow::on_pbShowCustomPhElSig_clicked()
     int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
-    if (mod->CustomSignalPerPhEl.empty()) return;
+    if (mod->SinglePhElPHS.empty()) return;
 
-    TGraph * gr = AGraphBuilder::graph(mod->CustomSignalPerPhEl);
-    AGraphBuilder::configure(gr, QString("Custom ph.e- to signal factors for model%0").arg(iModel), "Number of ph.e-", "");
+    TGraph * gr = AGraphBuilder::graph(mod->SinglePhElPHS);
+    AGraphBuilder::configure(gr, QString("Single ph.e- PHS for model%0").arg(iModel), "Sensor signal", "");
     emit requestDraw(gr, "APL", true, true);
 }
 
@@ -738,7 +738,7 @@ void ASensorWindow::on_pbRemoveCustomPhElSig_clicked()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    mod->CustomSignalPerPhEl.clear();
+    mod->SinglePhElPHS.clear();
     updatePhElToSigButtons();
 }
 
@@ -748,20 +748,23 @@ void ASensorWindow::updatePhElToSigButtons()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    ui->pbShowCustomPhElSig->setDisabled(mod->CustomSignalPerPhEl.empty());
-    ui->pbRemoveCustomPhElSig->setDisabled(mod->CustomSignalPerPhEl.empty());
+    ui->pbShowCustomPhElSig->setDisabled(mod->SinglePhElPHS.empty());
+    ui->pbRemoveCustomPhElSig->setDisabled(mod->SinglePhElPHS.empty());
 }
 
 #include <QDialog>
 #include <QSpinBox>
 #include <QDoubleValidator>
-static int    lastSelectedTimes = 10000;
+static int    lastSelectedTimes = 100000;
 static double lastSelectedPhEl = 1.0;
 void ASensorWindow::on_pbTestPhElSignal_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
+
+    // !!!*** check for errors
+    mod->updateRuntimeProperties();
 
     QDialog * dialog = new QDialog(this);
     dialog->setWindowTitle("Ph.e-  to signal convertion tester");
@@ -783,10 +786,10 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
     {
         lastSelectedPhEl = lePE->text().toDouble();
         lastSelectedTimes = sbTimes->value();
-        auto hist1D = new TH1D("tmpHistElTgen", "test", 100, 0, 0);
+        auto hist1D = new TH1D("", "Signal distribution", 100, 0, 0);
         for (int i = 0; i < lastSelectedTimes; i++)
             hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl));
-        hist1D->SetXTitle("PM signal");
+        hist1D->SetXTitle("Sensor signal");
         emit requestDraw(hist1D, "hist", true, true);
 
         dialog->accept();
