@@ -413,11 +413,20 @@ void MainWindow::on_pteConfigDescription_textChanged()
     Config.ConfigDescription = ui->pteConfigDescription->document()->toPlainText();
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pbSensors_clicked()
 {
-    SensWin->showNormal();
-    SensWin->activateWindow();
-    SensWin->updateGui();
+    if (SensWin->isVisible())
+    {
+        SensWin->storeGeomStatus();
+        SensWin->hide();
+    }
+    else
+    {
+        SensWin->restoreGeomStatus();
+        SensWin->showNormal();
+        SensWin->activateWindow();
+        SensWin->updateGui();
+    }
 }
 
 #include <QThread>

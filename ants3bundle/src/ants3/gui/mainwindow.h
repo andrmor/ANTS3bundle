@@ -38,9 +38,9 @@ private:
 
     AGeoTreeWin       * GeoTreeWin  = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
-    AMatWin          * MatWin     = nullptr;
+    AMatWin           * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
-    APhotSimWin      * PhotSimWin = nullptr;
+    APhotSimWin       * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     GraphWindowClass  * GraphWin   = nullptr;
     ARemoteWindow     * FarmWin    = nullptr;
@@ -86,13 +86,14 @@ private slots:
     void on_pbSaveConfig_clicked();
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
-    void on_pushButton_clicked();
+    void on_pbSensors_clicked();
 
     void rootTimerTimeout();
 
     void on_pbGlobSet_clicked();
 
     void on_pbPython_clicked();
+
 
 protected:
     void closeEvent(QCloseEvent * event);
