@@ -141,40 +141,7 @@ void AOneEvent::convertHitsToSignals()
             */
         }
 
-        switch (model->PhElToSignalModel)
-        {
-        case ASensorModel::Constant :
-            PMhits[ipm] *= model->AverageSignalPerPhEl;
-            break;
-        case ASensorModel::Normal :
-            {
-                const double mean  = model->AverageSignalPerPhEl * PMhits[ipm];
-                const double sigma = model->NormalSigma          * TMath::Sqrt( PMhits[ipm] );
-                PMhits[ipm] = RandomHub.gauss(mean, sigma);
-                break;
-            }
-        case ASensorModel::Gamma :
-            {
-                double k = model->GammaShape;
-                const double theta = model->AverageSignalPerPhEl / k;
-                k *= PMhits[ipm]; //for sum distribution
-                PMhits[ipm] = RandomHub.gamma(k, theta);
-                break;
-            }
-        case ASensorModel::Custom :
-            {
-                /*
-                pmSignals[ipm] = 0;
-                if ( pm.SPePHShist )
-                {
-                    for (int j = 0; j < pmHits.at(ipm); j++)
-                        pmSignals[ipm] += pm.SPePHShist->GetRandom();
-                }
-                */
-            }
-        }
-
-        PMhits[ipm] *= model->ElectronicGainFactor;
+        PMhits[ipm] = model->convertHitsToSignal(PMhits[ipm]);
     }
 
     /*

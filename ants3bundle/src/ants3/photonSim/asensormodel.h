@@ -48,6 +48,7 @@ public:
     double  GammaShape  = 2.0;
     std::vector<std::pair<double,double>> CustomSignalPerPhEl;
     double  generateSignalForOnePhotoelectron();
+    double  convertHitsToSignal(double phel) const;
 
     void    updateRuntimeProperties();
 

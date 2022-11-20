@@ -376,3 +376,48 @@ double ASensorModel::generateSignalForOnePhotoelectron()
 
     return val * ElectronicGainFactor;
 }
+
+#include "arandomhub.h"
+double ASensorModel::convertHitsToSignal(double phel) const
+{
+    ARandomHub & RandomHub = ARandomHub::getInstance();
+
+    double signal;
+    switch (PhElToSignalModel)
+    {
+    case ASensorModel::Constant :
+        signal = phel * AverageSignalPerPhEl;
+        break;
+    case ASensorModel::Normal :
+        {
+            const double mean  = AverageSignalPerPhEl * phel;
+            const double sigma = NormalSigma          * TMath::Sqrt( phel );
+            signal = RandomHub.gauss(mean, sigma);
+            break;
+        }
+    case ASensorModel::Gamma :
+        {
+            double k = GammaShape;
+            const double theta = AverageSignalPerPhEl / k;
+            k *= phel; //for sum distribution
+            signal = RandomHub.gamma(k, theta);
+            break;
+        }
+    case ASensorModel::Custom :
+        {
+            /*
+            pmSignals[ipm] = 0;
+            if ( pm.SPePHShist )
+            {
+                for (int j = 0; j < pmHits.at(ipm); j++)
+                    pmSignals[ipm] += pm.SPePHShist->GetRandom();
+            }
+            */
+            break;
+        }
+    }
+
+    signal *= ElectronicGainFactor;
+
+    return signal;
+}

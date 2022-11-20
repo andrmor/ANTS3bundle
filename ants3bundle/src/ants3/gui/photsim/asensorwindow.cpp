@@ -752,15 +752,49 @@ void ASensorWindow::updatePhElToSigButtons()
     ui->pbRemoveCustomPhElSig->setDisabled(mod->CustomSignalPerPhEl.empty());
 }
 
+#include <QDialog>
+#include <QSpinBox>
+#include <QDoubleValidator>
+static int    lastSelectedTimes = 10000;
+static double lastSelectedPhEl = 1.0;
 void ASensorWindow::on_pbTestPhElSignal_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    auto hist1D = new TH1D("tmpHistElTgen", "test", 100, 0, 0);
-    for (int i = 0; i < 10000; i++)
-        hist1D->Fill(mod->generateSignalForOnePhotoelectron());
-    hist1D->SetXTitle("PM signal for 1 photoelectron");
-    emit requestDraw(hist1D, "hist", true, true);
+    QDialog * dialog = new QDialog(this);
+    dialog->setWindowTitle("Ph.e-  to signal convertion tester");
+    QVBoxLayout * vlay = new QVBoxLayout(dialog);
+    QPushButton * pb = new QPushButton("Generate");
+    vlay->addWidget(pb);
+    QHBoxLayout * lay = new QHBoxLayout();
+        lay->addWidget(new QLabel("signal for"));
+        QLineEdit * lePE = new QLineEdit(QString::number(lastSelectedPhEl)); lePE->setMaximumWidth(80);
+        QDoubleValidator * dv = new QDoubleValidator(dialog); dv->setBottom(0); lePE->setValidator(dv);
+        lay->addWidget(lePE);
+        lay->addWidget(new QLabel("photoelectrons"));
+        QSpinBox * sbTimes = new QSpinBox(); sbTimes->setMaximum(1e9); sbTimes->setMinimum(1); sbTimes->setValue(lastSelectedTimes);
+        lay->addWidget(sbTimes);
+        lay->addWidget(new QLabel("times"));
+    vlay->addLayout(lay);
+
+    auto click = [this, mod, dialog, lePE, sbTimes]()
+    {
+        lastSelectedPhEl = lePE->text().toDouble();
+        lastSelectedTimes = sbTimes->value();
+        auto hist1D = new TH1D("tmpHistElTgen", "test", 100, 0, 0);
+        for (int i = 0; i < lastSelectedTimes; i++)
+            hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl));
+        hist1D->SetXTitle("PM signal");
+        emit requestDraw(hist1D, "hist", true, true);
+
+        dialog->accept();
+    };
+    connect(pb, &QPushButton::clicked, this, click);
+
+    dialog->setMinimumWidth(width());
+    dialog->show();
+    dialog->move(dialog->x(), QCursor::pos().y() - 15);
+    dialog->exec();
 }
