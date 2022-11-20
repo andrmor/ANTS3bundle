@@ -135,7 +135,6 @@ bool ASensorHub::updateRuntimeProperties()
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
-        qDebug() << "bbbbb" << index;
         if (index < 0 || index >= (int)Models.size())
         {
             // !!!*** error reporting
