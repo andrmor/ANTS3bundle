@@ -22,6 +22,7 @@ public:
     double  PixelSpacingX = 0;
     double  PixelSpacingY = 0;
     bool    getPixelHit(double x, double y, size_t & binX, size_t & binY) const; // returns false if none was hit
+    int     getPixelIndex(int binX, int binY) const {return PixelsX * binY + binX;}
 
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
@@ -71,6 +72,8 @@ public:
     std::vector<double> PDEbinned;
     std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
     TH1D * _PHS = nullptr;
+    double _AverageDarkCounts;
+    double _PixelDarkFiringProbability;
 
 };
 

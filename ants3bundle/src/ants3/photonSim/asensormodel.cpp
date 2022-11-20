@@ -37,6 +37,8 @@ void ASensorModel::clear()
     ElectronicGainFactor = 1.0;
 
     delete _PHS; _PHS = nullptr;
+    _AverageDarkCounts = 0;
+    _PixelDarkFiringProbability = 0;
 }
 
 void ASensorModel::writeToJson(QJsonObject & json) const
@@ -333,6 +335,9 @@ void ASensorModel::updateRuntimeProperties()
         _HalfSensitiveSizeX = 0.5 * (PixelSizeX * PixelsX + PixelSpacingX * (PixelsX - 1));
         _HalfSensitiveSizeY = 0.5 * (PixelSizeY * PixelsY + PixelSpacingY * (PixelsY - 1));
     }
+
+    _AverageDarkCounts = DarkCountRate * IntegrationTime;
+    if (SiPM) _PixelDarkFiringProbability = _AverageDarkCounts / PixelsX / PixelsY;
 
     PDEbinned.clear();
     AngularBinned.clear();
