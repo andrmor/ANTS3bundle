@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>655</height>
+    <width>592</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -698,8 +698,14 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbRemovePDE">
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
-                <string>Remove</string>
+                <string>X</string>
                </property>
               </widget>
              </item>
@@ -769,8 +775,14 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbRemoveAngular">
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
-                <string>Remove</string>
+                <string>X</string>
                </property>
               </widget>
              </item>
@@ -834,8 +846,14 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbRemoveArea">
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
-                <string>Remove</string>
+                <string>X</string>
                </property>
               </widget>
              </item>
@@ -1006,47 +1024,6 @@
              </property>
             </widget>
            </item>
-           <item row="13" column="0">
-            <widget class="QLabel" name="label_32">
-             <property name="text">
-              <string>Preamp noise</string>
-             </property>
-            </widget>
-           </item>
-           <item row="13" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_14">
-             <item>
-              <widget class="QLineEdit" name="lepElNoiseSigma">
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_34">
-               <property name="text">
-                <string>sigma in photo-electrons</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_20">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
            <item row="14" column="0">
             <widget class="QLabel" name="label_33">
              <property name="text">
@@ -1101,34 +1078,11 @@
               </spacer>
              </item>
              <item>
-              <widget class="QLabel" name="label_35">
+              <widget class="QPushButton" name="pbTestPhElSignal">
                <property name="text">
-                <string>Relative gain:</string>
+                <string>Test</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lepElGainFactor">
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_21">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
@@ -1394,15 +1348,86 @@
                 </item>
                </layout>
               </item>
-              <item>
-               <widget class="QPushButton" name="pbTestPhElSignal">
-                <property name="text">
-                 <string>Test</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </widget>
+           </item>
+           <item row="16" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="label_32">
+               <property name="text">
+                <string>Preamp noise (sigma)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lepElNoiseSigma">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_34">
+               <property name="text">
+                <string>ph.e-</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_20">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="17" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_22">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_35">
+               <property name="text">
+                <string>Electronic gain</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lepElGainFactor">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_21">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -1555,7 +1580,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>634</width>
+     <width>592</width>
      <height>21</height>
     </rect>
    </property>
