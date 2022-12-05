@@ -299,7 +299,14 @@ void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
 
 void APhotSimWin::on_pbQEacceleratorHelp_clicked()
 {
-    guitools::message("TODO", this);
+    QString str;
+    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
+           "Before tracing each photon, a random number is generated "
+           "and the max det.eff. is checked against it. If the generated number is larger, "
+           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
+           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
+           "as it will be distorted!";
+    guitools::message(str, this);
 }
 
 void APhotSimWin::on_cobSimType_activated(int index)
