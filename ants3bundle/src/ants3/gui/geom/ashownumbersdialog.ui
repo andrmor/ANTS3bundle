@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>148</width>
-    <height>492</height>
+    <height>517</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,6 +37,13 @@
     <widget class="QPushButton" name="pbSensorModel">
      <property name="text">
       <string>Models</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbSensorSignals">
+     <property name="text">
+      <string>Hits/Signals</string>
      </property>
     </widget>
    </item>

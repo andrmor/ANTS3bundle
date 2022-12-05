@@ -23,6 +23,7 @@ public slots:
 private slots:
     void on_pbSensorIndex_clicked();
     void on_pbSensorModel_clicked();
+    void on_pbSensorSignals_clicked();
     void on_ledSizeSensor_editingFinished();
 
     void on_pbOptMonIndex_clicked();
@@ -34,6 +35,7 @@ private slots:
     void on_pbCalIndex_clicked();
     void on_pbCalTotals_clicked();
     void on_ledSizeCalorimeter_editingFinished();
+
 
 private:
     AGeometryWindow & GW;
