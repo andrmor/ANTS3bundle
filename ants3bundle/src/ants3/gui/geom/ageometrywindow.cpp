@@ -1322,11 +1322,6 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
     */
 }
 
-void AGeometryWindow::showSensorSignals()
-{
-
-}
-
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {

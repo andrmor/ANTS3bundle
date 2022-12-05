@@ -61,8 +61,9 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     ui->cbSensorsAll->setChecked(true);
 
-    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
-    ui->labAdvancedBombOn->setPixmap(pm);
+    YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labAdvancedBombOn->setPixmap(YellowCircle);
+    ui->labSkipTracingON->setPixmap(YellowCircle);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
@@ -1549,3 +1550,10 @@ void APhotSimWin::on_pbSingleSourceShow_clicked()
     pos[2] = ui->ledSingleZ->text().toDouble();
     emit requestShowPosition(pos, false);
 }
+
+void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
+{
+    ui->labSkipTracingON->setVisible(checked);
+    ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+}
+

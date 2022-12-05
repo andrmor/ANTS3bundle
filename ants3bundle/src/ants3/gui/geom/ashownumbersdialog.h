@@ -23,7 +23,6 @@ public slots:
 private slots:
     void on_pbSensorIndex_clicked();
     void on_pbSensorModel_clicked();
-    void on_pbSensorSignals_clicked();
     void on_ledSizeSensor_editingFinished();
 
     void on_pbOptMonIndex_clicked();
