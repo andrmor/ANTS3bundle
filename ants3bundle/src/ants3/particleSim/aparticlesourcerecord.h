@@ -26,13 +26,10 @@ struct AGunParticle
     double       LinkedProb      = 0;          //probability to be emitted after the parent particle
     bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
 
-    AHistogram1D EnergyDistr; //energy spectrum   !!!*** check initRandomGenerator is called
+    std::vector<std::pair<double, double>> EnergySpectrum;
 
-    //run-time
-    G4ParticleDefinition * particleDefinition = nullptr;
-
+    bool    buildEnergyHistogram();
     double  generateEnergy() const;
-    bool    loadSpectrum(const std::string & fileName); // !!!***  wrong place!
 
 #ifdef JSON11
     bool    readFromJson(const json11::Json::object & json);  // !!!***
@@ -40,6 +37,10 @@ struct AGunParticle
     void    writeToJson(QJsonObject & json) const;   // !!!***
     bool    readFromJson(const QJsonObject & json);  // !!!***
 #endif
+
+    //run-time
+    G4ParticleDefinition * particleDefinition = nullptr;
+    AHistogram1D _EnergyHist; //energy spectrum   !!!*** check initRandomGenerator is called
 };
 
 struct AParticleSourceRecord
@@ -99,7 +100,7 @@ struct AParticleSourceRecord
 
     std::string getShapeString() const;
 
-    std::string check() const;
+    std::string check() const;  // !!!*** check energy spectrum
 
 };
 

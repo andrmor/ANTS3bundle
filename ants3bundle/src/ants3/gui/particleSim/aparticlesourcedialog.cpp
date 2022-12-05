@@ -7,6 +7,7 @@
 #include "asourceparticlegenerator.h"
 #include "aparticlesimsettings.h"
 #include "aparticlesourceplotter.h"
+#include "agraphbuilder.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -74,7 +75,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     if ( !Rec.Particles.empty() )
     {
         ui->lwGunParticles->setCurrentRow(0);
-        UpdateParticleInfo();
+        updateParticleInfo();
     }
 
     on_cobGunSourceType_currentIndexChanged(ui->cobGunSourceType->currentIndex());
@@ -222,7 +223,7 @@ void AParticleSourceDialog::on_pbGunAddNew_clicked()
 
     UpdateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbGunRemove_clicked()
@@ -245,7 +246,7 @@ void AParticleSourceDialog::on_pbGunRemove_clicked()
 
     UpdateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::UpdateListWidget()
@@ -289,12 +290,12 @@ void AParticleSourceDialog::UpdateListWidget()
     bUpdateInProgress = false; // <<<---
 }
 
-void AParticleSourceDialog::UpdateParticleInfo()
+void AParticleSourceDialog::updateParticleInfo()
 {
     int row = ui->lwGunParticles->currentRow();
 
     int DefinedSourceParticles = LocalRec.Particles.size();
-    if (DefinedSourceParticles > 0 && row>-1)
+    if (DefinedSourceParticles > 0 && row > -1)
     {
         ui->fGunParticle->setEnabled(true);
         QString part = LocalRec.Particles.at(row).Particle.data();
@@ -329,6 +330,7 @@ void AParticleSourceDialog::UpdateParticleInfo()
         bool bFix = gRec.UseFixedEnergy;
         ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
         ui->pbGunShowSpectrum->setVisible(!bFix);
+        ui->pbGunShowSpectrum->setEnabled(!gRec.EnergySpectrum.empty());
         ui->pbGunLoadSpectrum->setVisible(!bFix);
         ui->pbDeleteSpectrum->setVisible(!bFix);
         ui->ledGunEnergy->setVisible(bFix);
@@ -341,7 +343,7 @@ void AParticleSourceDialog::on_lwGunParticles_currentRowChanged(int)
 {
     if (bUpdateInProgress) return;
 
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_cobUnits_activated(int)
@@ -349,7 +351,7 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart == -1) return;
     LocalRec.Particles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
@@ -427,7 +429,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     if ( curRow < 0 && curRow >= ui->lwGunParticles->count() )
         curRow = 0;
     ui->lwGunParticles->setCurrentRow(curRow);
-    UpdateParticleInfo();
+    updateParticleInfo();
     updateColorLimitingMat();
 
     if (ui->pbShowSource->isChecked())
@@ -474,36 +476,41 @@ void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
     on_pbUpdateRecord_clicked();
 }
 
+#include "TGraph.h"
 void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
 {
-//    int particle = ui->lwGunParticles->currentRow();
-//    TH1D* h = new TH1D(*Rec->GunParticles[particle]->spectrum);
-
-//    h->GetXaxis()->SetTitle("Energy, keV");
-//    MW.GraphWindow->Draw(h); //registering!
-//    MW.GraphWindow->ShowAndFocus();
+    int particle = ui->lwGunParticles->currentRow();
+    TGraph * gr = AGraphBuilder::graph(LocalRec.Particles[particle].EnergySpectrum);
+    AGraphBuilder::configure(gr, "Energy distribution", "Energy, keV", "");
+    emit requestDraw(gr, "APL", true, true);
 }
 
+#include "afiletools.h"
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 {
-//    QString fileName = QFileDialog::getOpenFileName(this, "Load energy spectrum", MW.GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
-//    if (fileName.isEmpty()) return;
-//    MW.GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
+    QString fileName = guitools::dialogLoadFile(this, "Load energy spectrum", "");
+    if (fileName.isEmpty()) return;
 
-//    int iPart = ui->lwGunParticles->currentRow();
-//    bool bOK = Rec->GunParticles[iPart]->loadSpectrum(fileName);
-//    if (!bOK) guitools::message("Load file failed!", this);
+    int iPart = ui->lwGunParticles->currentRow();
+    QString err = ftools::loadPairs(fileName, LocalRec.Particles[iPart].EnergySpectrum, true);
+    if (!err.isEmpty())
+    {
+        LocalRec.Particles[iPart].EnergySpectrum.clear();
+        LocalRec.Particles[iPart].UseFixedEnergy = true;
 
-//    UpdateParticleInfo();
+        guitools::message(err, this);
+    }
+
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
-    LocalRec.Particles[iPart].EnergyDistr.clear();
-    LocalRec.Particles[iPart].UseFixedEnergy = false;
+    LocalRec.Particles[iPart].EnergySpectrum.clear();
+    LocalRec.Particles[iPart].UseFixedEnergy = true;
 
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 #include "amaterialhub.h"

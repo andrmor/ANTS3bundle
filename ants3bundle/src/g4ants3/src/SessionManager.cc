@@ -71,7 +71,11 @@ void SessionManager::prepareParticleGun()
         {
             for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
                 for (AGunParticle & particle : source.Particles)
+                {
                     particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+                    bool ok = particle.buildEnergyHistogram();
+                    if (!ok) SessionManager::terminateSession("Failed to build energy histogram for particle " + particle.Particle + " of source " + source.Name);
+                }
 
             ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
         }

@@ -53,3 +53,22 @@ bool jstools::parseJson(const json11::Json & json, const std::string & key, json
     var = json[key].object_items();
     return true;
 }
+
+bool jstools::readDPairVectorFromArray(const json11::Json::array & ar, std::vector<std::pair<double, double>> & vec)
+{
+    vec.clear();
+
+    const int size = ar.size();
+    for (int i = 0; i < size; i++)
+    {
+        if ( !ar[i].is_array() ) return false;
+
+        const json11::Json::array jar = ar[i].array_items();
+        if (jar.size() < 2) return false;
+        if (!jar[0].is_number()) return false;
+        if (!jar[1].is_number()) return false;
+
+        vec.emplace_back(jar[0].number_value(), jar[1].number_value());
+    }
+    return true;
+}

@@ -24,16 +24,16 @@
     <number>2</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="bottomMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_23">
@@ -96,7 +96,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Shape</string>
+        <string>Shape:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -147,6 +147,19 @@
         </property>
        </item>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_15">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

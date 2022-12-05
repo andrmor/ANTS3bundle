@@ -274,6 +274,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
 
     int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
     if (res == QDialog::Rejected) return;
@@ -285,7 +286,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
 //    on_pbUpdateSimConfig_clicked();
 
-//    if (Detector->isGDMLempty())   !!!*** no need?
+//    if (Detector->isGDMLempty())   !!!***
 //    {
 //        double XYm = 0;
 //        double  Zm = 0;

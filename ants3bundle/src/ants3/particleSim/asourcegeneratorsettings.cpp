@@ -71,7 +71,7 @@ void ASourceGeneratorSettings::writeToJson(QJsonObject &json) const
     for (const AParticleSourceRecord & ps : SourceData)
     {
         QJsonObject js;
-        ps.writeToJson(js);
+            ps.writeToJson(js);
         ja.append(js);
     }
     json["ParticleSources"] = ja;
@@ -108,7 +108,11 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
 #endif
         AParticleSourceRecord ps;
         bool ok = ps.readFromJson(js);
-        if (ok) SourceData.push_back(ps);
+        if (ok)
+        {
+
+            SourceData.push_back(ps);
+        }
         else
         {
             // Load particle source # << iSource << from json failed!

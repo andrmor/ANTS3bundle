@@ -12,6 +12,8 @@ public:
     AHistogram1D(int Bins, double From, double To);
     AHistogram1D();
 
+    void configureFromData(const std::vector<std::pair<double,double>> & VecOfPairs);
+
     void setBufferSize(size_t size) {BufferSize = size;}
 
     void fill(double x, double val = 1.0);
@@ -48,6 +50,7 @@ private:
     std::vector<double> SumBins; // size = Bins + 1
 
 private:
+    void init();
     void fillFixed(double x, double val);
     void processBuffer();
 

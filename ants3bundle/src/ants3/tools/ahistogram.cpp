@@ -16,6 +16,11 @@
 AHistogram1D::AHistogram1D(int Bins, double From, double To) :
     Bins(Bins), From(From), To(To)
 {
+    init();
+}
+
+void AHistogram1D::init()
+{
     if (Bins < 1) Bins = 1;
     Data.resize(Bins + 2);
 
@@ -33,8 +38,24 @@ AHistogram1D::AHistogram1D(int Bins, double From, double To) :
 
 AHistogram1D::AHistogram1D()
 {
-    Buffer.reserve(BufferSize);
-    FixedRange = false;
+    init();
+}
+
+void AHistogram1D::configureFromData(const std::vector<std::pair<double, double>> & VecOfPairs)
+{
+    Bins = VecOfPairs.size();
+    if (!VecOfPairs.empty())
+    {
+        From = VecOfPairs.front().first;
+        To = VecOfPairs.back().first;
+    }
+
+    init();
+
+    for (size_t i = 0; i < VecOfPairs.size(); i++)
+    {
+        Data[i+1] = VecOfPairs[i].second;
+    }
 }
 
 void AHistogram1D::fill(double x, double val)

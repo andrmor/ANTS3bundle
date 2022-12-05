@@ -11,6 +11,7 @@ class AParticleSourceDialog;
 }
 
 class MainWindow;
+class TObject;
 
 class AParticleSourceDialog : public QDialog
 {
@@ -53,6 +54,7 @@ signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num);
     void requestShowSource();
+    void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 
 private:
     AParticleSourceRecord         LocalRec;
@@ -64,7 +66,7 @@ private:
 
 private:
     void UpdateListWidget();
-    void UpdateParticleInfo();
+    void updateParticleInfo();
     void updateColorLimitingMat();
 };
 

@@ -7,27 +7,19 @@
 #include "afiletools.h"
 #endif
 
+bool AGunParticle::buildEnergyHistogram()
+{
+    if (UseFixedEnergy) return true;
+
+    if (EnergySpectrum.empty()) return false;
+    _EnergyHist.configureFromData(EnergySpectrum);
+    return _EnergyHist.initRandomGenerator();
+}
+
 double AGunParticle::generateEnergy() const
 {
     if (UseFixedEnergy) return Energy;
-    return EnergyDistr.getRandom();
-}
-
-bool AGunParticle::loadSpectrum(const std::string &fileName)
-{
-/*
-    QVector<double> x, y;
-    QVector<QVector<double> *> V = {&x, &y};
-    const QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
-    if (!res.isEmpty()) return false; // !!!*** return string
-
-    delete EnergyDistr; EnergyDistr = 0;
-    int size = x.size();
-    EnergyDistr = new TH1D("","Energy spectrum", size-1, x.data());
-    for (int j = 1; j < size+1; j++)
-        EnergyDistr->SetBinContent(j, y[j-1]);
-*/
-    return true;
+    return _EnergyHist.getRandom();
 }
 
 #ifndef JSON11
@@ -41,12 +33,11 @@ void AGunParticle::writeToJson(QJsonObject & json) const
     json["LinkingOppositeDir"] = LinkedOpposite;
     json["Energy"] = Energy;
     json["UseFixedEnergy"] = UseFixedEnergy;
-//    if ( spectrum )
-//    {
-//        QJsonArray ja;
-//            writeTH1DtoJsonArr(spectrum, ja);
-//        json["EnergySpectrum"] = ja;
-//    }
+
+    QJsonArray ar;
+        jstools::writeDPairVectorToArray(EnergySpectrum, ar);
+    json["EnergySpectrum"] = ar;
+
     json["PreferredUnits"] = QString(PreferredUnits.data());
 }
 #endif
@@ -66,26 +57,17 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "Energy",             Energy );
     jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
+
     jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
 
-/*
-    QJsonArray ar = json["EnergySpectrum"].toArray();
-    if (!ar.isEmpty())
-    {
-        int size = ar.size();
-        double* xx = new double [size];
-        double* yy = new double [size];
-        for (int i=0; i<size; i++)
-        {
-            xx[i] = ar[i].toArray()[0].toDouble();
-            yy[i] = ar[i].toArray()[1].toDouble();
-        }
-        EnergyDistr = new TH1D("", "", size-1, xx);
-        for (int j = 1; j<size+1; j++) EnergyDistr->SetBinContent(j, yy[j-1]);
-        delete[] xx;
-        delete[] yy;
-    }
-*/
+#ifdef JSON11
+    json11::Json::array ar;
+#else
+    QJsonArray ar;
+#endif
+    jstools::parseJson(json, "EnergySpectrum", ar);
+    jstools::readDPairVectorFromArray(ar, EnergySpectrum);
+
     return true;
 }
 
@@ -175,13 +157,13 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["TimeSpreadWidth"]   = TimeSpreadWidth;
 
     //particles
-    int GunParticleSize = Particles.size();
-    json["Particles"] = GunParticleSize;
+    //int GunParticleSize = Particles.size();
+    //json["Particles"] = GunParticleSize;
     QJsonArray jParticleEntries;
     for (const AGunParticle & gp : Particles)
     {
         QJsonObject js;
-        gp.writeToJson(js);
+            gp.writeToJson(js);
         jParticleEntries.append(js);
     }
     json["Particles"] = jParticleEntries;
