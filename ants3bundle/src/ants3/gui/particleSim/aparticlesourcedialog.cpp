@@ -165,11 +165,11 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
         break;
       case 1: s <<"Length:"<<""<<"";
         break;
-      case 2: s <<"X:"<<"Y:"<<"";
+      case 2: s <<"SizeX:"<<"SizeY:"<<"";
         break;
       case 3: s <<"Diameter:"<<""<<"";
         break;
-      case 4: s <<"X:"<<"Y:"<<"Z:";
+      case 4: s <<"SizeX:"<<"SizeY:"<<"SizeZ:";
         break;
       case 5: s <<"Diameter:"<<""<<"Height:";
         break;
@@ -182,7 +182,7 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     ui->lGun3DSize->setText(s[2]);
 
     bool bPoint = (index == 0);
-    ui->labDimensions->setVisible(!bPoint);
+    ui->frDimensions->setVisible(!bPoint);
 
     bool b1 = !s[0].isEmpty();
     ui->lGun1DSize->setVisible(b1);
