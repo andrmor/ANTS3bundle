@@ -241,6 +241,20 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
     return err;
 }
 
+double ASensorHub::getMaxQE(bool bWaveRes) const
+{
+    double maxQE = 0;
+    for (const ASensorData & SM : SensorData)
+    {
+        const int & iModel = SM.ModelIndex;
+        if (iModel < 0 || iModel >= (int)Models.size()) continue;
+        double modelMaxQE = Models[iModel].getMaxQE(bWaveRes);
+        if (modelMaxQE > maxQE) maxQE = modelMaxQE;
+    }
+    qDebug() << "----- Max QE:" << maxQE;
+    return maxQE;
+}
+
 ASensorHub::ASensorHub()
 {
     Models.resize(1);

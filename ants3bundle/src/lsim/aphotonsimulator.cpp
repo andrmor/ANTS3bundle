@@ -123,7 +123,7 @@ void APhotonSimulator::setupCommonProperties()
     AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();
-    Tracer->configureTracer();
+    Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
 }
 
 QString APhotonSimulator::openOutput()

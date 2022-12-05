@@ -88,10 +88,11 @@ private:
     AInterfaceRule * InterfaceRule = nullptr;
     bool    bUseLocalNormal = false;
 
+    double _MaxQE = 1.0;
+
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
-    bool skipTracing(int waveIndex);
     void endTracing();
     double calculateReflectionProbability();
     void processSensorHit(int iSensor);

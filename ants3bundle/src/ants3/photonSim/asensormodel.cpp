@@ -325,6 +325,14 @@ double ASensorModel::getAreaFactor(double x, double y) const
     return AreaFactors[yBin][xBin];
 }
 
+double ASensorModel::getMaxQE(bool bWaveRes) const
+{
+    double maxQE = (bWaveRes ? _MaxPDE_spectral : PDE_effective);
+    maxQE *= _MaxAngularFactor;
+    maxQE *= _MaxAreaFactor;
+    return maxQE;
+}
+
 void ASensorModel::updateRuntimeProperties()
 {
     if (SiPM)
@@ -342,18 +350,35 @@ void ASensorModel::updateRuntimeProperties()
     PDEbinned.clear();
     AngularBinned.clear();
 
-    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
+    const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
-    if (!PDE_spectral.empty()) SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
+    _MaxPDE_spectral = 1.0;
+    if (!PDE_spectral.empty())
+    {
+        SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
+        _MaxPDE_spectral = *std::max_element(PDEbinned.begin(), PDEbinned.end());
+    }
 
-    if (!AngularFactors.empty())
+    if (AngularFactors.empty()) _MaxAngularFactor = 1.0;
+    else
     {
         AngularBinned.reserve(91);
+        _MaxAngularFactor = 0;
         for (int i = 0; i < 91; i++)
         {
             const double sens = AWaveResSettings::getInterpolatedValue(i, AngularFactors);
             AngularBinned.push_back(sens);
+            if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
         }
+    }
+
+    if (AreaFactors.empty()) _MaxAreaFactor = 1.0;
+    else
+    {
+        _MaxAreaFactor = 0;
+        for (const std::vector<double> & vec : AreaFactors)
+            for (double val : vec)
+                if (val > _MaxAreaFactor) _MaxAreaFactor = val;
     }
 
     delete _PHS; _PHS = nullptr;

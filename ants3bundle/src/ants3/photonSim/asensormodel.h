@@ -37,6 +37,8 @@ public:
     bool    isAreaSensitive() const {return !AreaFactors.empty();}
     double  getAreaFactor(double x, double y) const;
 
+    double  getMaxQE(bool bWaveRes) const;
+
     double  DarkCountRate = 0;      // counts per second
     double  IntegrationTime = 1e-6; // in seconds
 
@@ -74,6 +76,10 @@ public:
     TH1D * _PHS = nullptr;
     double _AverageDarkCounts;
     double _PixelDarkFiringProbability;
+
+    double _MaxPDE_spectral = 1.0;
+    double _MaxAngularFactor = 1.0;
+    double _MaxAreaFactor = 1.0;
 
 };
 

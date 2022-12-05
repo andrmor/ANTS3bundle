@@ -40,6 +40,8 @@ void APhotonTracer::configureTracer()
 {
     Track.Positions.reserve(SimSet.OptSet.MaxPhotonTransitions + 1);
     AddedTracks = 0;
+
+    _MaxQE = SensorHub.getMaxQE(SimSet.WaveSet.Enabled);
 }
 
 void APhotonTracer::initTracks()
@@ -59,17 +61,6 @@ void APhotonTracer::initPhotonLog()
     PhLog.clear();
     PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
     PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
-}
-
-bool APhotonTracer::skipTracing(int waveIndex)
-{
-    Rnd = RandomHub.uniform();
-    if (Rnd > SensorHub.getMaxQE(SimSet.WaveSet.Enabled, waveIndex))
-    {
-        SimStat.TracingSkipped++;
-        return true;
-    }
-    return false;
 }
 
 bool APhotonTracer::initBeforeTracing(const APhoton & phot)
@@ -107,8 +98,19 @@ bool APhotonTracer::initBeforeTracing(const APhoton & phot)
 
 void APhotonTracer::tracePhoton(const APhoton & phot)
 {
-//    qDebug() << "Photon tracing called";
-    if (SimSet.OptSet.CheckQeBeforeTracking && skipTracing(phot.waveIndex)) return;
+//    qDebug() << "Photon tracing started";
+
+    if (SimSet.OptSet.CheckQeBeforeTracking)
+    {
+        //if (skipTracing(phot.waveIndex)) return;  // in contrast to ANTS2, do not assume that wavelength will be constant during tracing
+        Rnd = RandomHub.uniform();
+        if (Rnd > _MaxQE)
+        {
+            SimStat.TracingSkipped++;
+            return;
+        }
+    }
+
     if (!initBeforeTracing(phot)) return;
 
     TransitionCounter = 0;
