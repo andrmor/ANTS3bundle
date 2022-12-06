@@ -14,7 +14,7 @@
 
 #include "Randomize.hh"  // !!!*** need?
 
-#include <QDebug> // !!!***
+//#include <QDebug>
 
 SessionManager &SessionManager::getInstance()
 {
@@ -83,7 +83,7 @@ void SessionManager::prepareParticleGun()
     case AParticleSimSettings::File :
         {
             Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
-            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Settings.FileGenSettings.FileName.data();
+            //qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Settings.FileGenSettings.FileName.data();
             ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
         }
         break;
@@ -94,7 +94,7 @@ void SessionManager::prepareParticleGun()
     }
 
     bool ok = ParticleGenerator->init();
-    qDebug() << "Particle gun init:" << ok;
+    //qDebug() << "Particle gun init:" << ok;
 
     if (ok) ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
 }

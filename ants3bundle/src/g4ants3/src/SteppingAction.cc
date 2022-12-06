@@ -13,7 +13,8 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <QDebug>
+
+//#include <QDebug>
 
 SteppingAction::SteppingAction(){}
 

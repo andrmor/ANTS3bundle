@@ -2,8 +2,8 @@
 #include "ajsontools.h"
 #include "aparticlesourcerecord.h"
 
-#include <QDebug>
-#include <QFileInfo>
+//#include <QDebug>
+//#include <QFileInfo>
 
 void AParticleSimSettings::clearSettings()
 {

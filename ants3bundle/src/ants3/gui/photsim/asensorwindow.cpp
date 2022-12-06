@@ -8,6 +8,7 @@
 #include "aphotonsimhub.h"
 
 #include <QDoubleValidator>
+#include <QDebug>
 
 #include "TGraph.h"
 #include "TH2D.h"
