@@ -356,3 +356,74 @@ bool AHistogram3Dfixed::getVoxel(const std::array<double,3> & pos, std::array<in
     }
     return true;
 }
+
+// ---
+
+bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & data, bool bAssumePointMeasures)
+{
+    clear();
+
+    const size_t dataSize = data.size();
+    if (dataSize < 2) return false;
+
+    LeftBounds.resize(dataSize);
+    Values.resize(dataSize - 1);
+    SumBins.resize(dataSize - 1);
+
+    double sum = 0;
+    for (size_t i = 0; i < dataSize-1; i++)
+    {
+        const double x = data[i].first;
+        if (i != 0 && x <= data[i-1].first) // only continuously increasing bin bounds
+        {
+            clear();
+            return false;
+        }
+        LeftBounds[i] = x;
+
+        const double val = data[i].second;
+        if (val < 0) // non-negative values
+        {
+            clear();
+            return false;
+        }
+        Values[i] = val;
+
+        if (bAssumePointMeasures) sum += Values[i] * (data[i+1].first - data[i].first);
+        else                      sum += Values[i];
+        SumBins[i] = sum;
+    }
+    LeftBounds.back() = data.back().first;
+
+    if (SumBins.back() == 0) // integral cannot be zero
+    {
+        clear();
+        return false;
+    }
+
+    return true;
+}
+
+void ARandomSampler::clear()
+{
+    LeftBounds.clear();
+    Values.clear();
+    SumBins.clear();
+}
+
+double ARandomSampler::getRandom() const
+{
+    if (SumBins.empty()) return 0;
+
+    const double r1 = SumBins.back() * ARandomHub::getInstance().uniform(); // integral * random[0,1)
+    int ibin = std::upper_bound(SumBins.begin(), SumBins.end(), r1) - SumBins.begin() - 1;
+
+    const double From = LeftBounds[ibin];
+    const double To   = LeftBounds[ibin+1];
+
+    double x = From;
+    if (r1 > SumBins[ibin])
+        x += (To - From) * (r1 - SumBins[ibin]) / (SumBins[ibin+1] - SumBins[ibin]);
+
+    return x;
+}

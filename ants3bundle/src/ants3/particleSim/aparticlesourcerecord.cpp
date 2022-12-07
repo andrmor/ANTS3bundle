@@ -12,14 +12,13 @@ bool AGunParticle::buildEnergyHistogram()
     if (UseFixedEnergy) return true;
 
     if (EnergySpectrum.empty()) return false;
-    _EnergyHist.configureFromData(EnergySpectrum);
-    return _EnergyHist.initRandomGenerator();
+    return _EnergySampler.configure(EnergySpectrum, true);
 }
 
 double AGunParticle::generateEnergy() const
 {
     if (UseFixedEnergy) return Energy;
-    return _EnergyHist.getRandom();
+    return _EnergySampler.getRandom();
 }
 
 #ifndef JSON11
@@ -67,6 +66,12 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
 #endif
     jstools::parseJson(json, "EnergySpectrum", ar);
     jstools::readDPairVectorFromArray(ar, EnergySpectrum);
+
+    if (!UseFixedEnergy)
+    {
+        bool ok = buildEnergyHistogram();
+        if (!ok) return false;//("Failed to build energy histogram for particle " + particle.Particle + " of source " + source.Name);
+    }
 
     return true;
 }

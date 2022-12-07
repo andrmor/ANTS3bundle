@@ -40,7 +40,8 @@ struct AGunParticle
 
     //run-time
     G4ParticleDefinition * particleDefinition = nullptr;
-    AHistogram1D _EnergyHist; //energy spectrum   !!!*** check initRandomGenerator is called
+    //AHistogram1D _EnergyHist; //energy spectrum   !!!*** check initRandomGenerator is called
+    ARandomSampler _EnergySampler;
 };
 
 struct AParticleSourceRecord
