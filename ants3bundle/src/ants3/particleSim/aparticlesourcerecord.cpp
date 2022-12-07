@@ -32,6 +32,7 @@ void AGunParticle::writeToJson(QJsonObject & json) const
     json["LinkingOppositeDir"] = LinkedOpposite;
     json["Energy"] = Energy;
     json["UseFixedEnergy"] = UseFixedEnergy;
+    json["AssumePointMeaurements"] = AssumePointMeaurements;
 
     QJsonArray ar;
         jstools::writeDPairVectorToArray(EnergySpectrum, ar);
@@ -58,6 +59,7 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
 
     jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
+    jstools::parseJson(json, "AssumePointMeaurements", AssumePointMeaurements );
 
 #ifdef JSON11
     json11::Json::array ar;
@@ -69,7 +71,7 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
 
     if (!UseFixedEnergy)
     {
-        bool ok = buildEnergyHistogram();
+        bool ok = buildEnergyHistogram(); // !!!*** dublicated here -> it is checked by the check() method of the particle source
         if (!ok) return false;//("Failed to build energy histogram for particle " + particle.Particle + " of source " + source.Name);
     }
 
@@ -293,6 +295,12 @@ std::string AParticleSourceRecord::check() const
         }
 
         if (gp.Energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
+
+        if (!gp.UseFixedEnergy)
+        {
+            if (gp.EnergySpectrum.size() < 2) return "Energy spectrum should have at least 2 points";
+            if (!gp._EnergySampler.isReady()) return "Energy sampler is not ready: Check energy spectrum"; // !!!*** make full error check
+        }
     }
 
     if (numIndParts   == 0) return "No individual particles defined";

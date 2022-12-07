@@ -1581,6 +1581,13 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="cbShowStatistics">
+       <property name="text">
+        <string>Show statsistics</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pbAbort">
        <property name="text">
         <string>Abort</string>

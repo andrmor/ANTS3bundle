@@ -13,6 +13,7 @@ class AParticleTrackingRecord;
 class TObject;
 class AMonitorHub;
 class ACalorimeterHub;
+class TH1D;
 
 namespace Ui {
 class AParticleSimWin;
@@ -165,6 +166,8 @@ private:
     QString LastFile_Monitors;
     QString LastFile_Calorimeters;
 
+    TH1D * histEnergy = nullptr;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -197,8 +200,10 @@ private:
     int  findEventWithFilters(int currentEv, bool bUp);
     double getCalorimeterEnergyFactor();
 
+    void addStatistics(double energy, double time);
+
 private slots:
-    void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
+    void testParticleGun(AParticleGun * Gun, int numParticles, bool fillStatistics);
     void onProgressReceived(double progress);
     void on_cbPTHistVolVsTime_toggled(bool checked);
     void on_pbUpdateIcon_clicked();

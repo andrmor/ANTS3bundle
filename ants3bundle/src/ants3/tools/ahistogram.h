@@ -61,6 +61,7 @@ class ARandomSampler
 {
 public:
     bool configure(const std::vector<std::pair<double,double>> & data, bool bAssumePointMeasures);
+    bool isReady() const {return !SumBins.empty();}
 
     double getRandom() const; // if not configured or error during configure -> always returns 0
 

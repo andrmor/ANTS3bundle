@@ -56,8 +56,6 @@ bool ASourceParticleGenerator::init()
 
     updateLimitedToMat(); // !!!*** error handling?
 
-    // !!!*** check energy histograms, init them
-
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
     for (int iSource = 0; iSource < NumSources; iSource++)

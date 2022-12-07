@@ -52,7 +52,7 @@ private slots:
 
 signals:
     void delayClose();
-    void requestTestParticleGun(AParticleGun * gun, int num);
+    void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
     void requestShowSource();
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 

@@ -27,6 +27,7 @@ struct AGunParticle
     bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
 
     std::vector<std::pair<double, double>> EnergySpectrum;
+    bool         AssumePointMeaurements = true; // !!!*** find a better name
 
     bool    buildEnergyHistogram();
     double  generateEnergy() const;

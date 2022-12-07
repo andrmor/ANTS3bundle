@@ -150,7 +150,7 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
 
     ui->pbAbort->setVisible(true);
 
-    emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value());
+    emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
     ui->pbAbort->setVisible(false);
 
@@ -499,6 +499,15 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
         LocalRec.Particles[iPart].UseFixedEnergy = true;
 
         guitools::message(err, this);
+    }
+
+    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, true);
+    if (!ok)
+    {
+        LocalRec.Particles[iPart].EnergySpectrum.clear();
+        LocalRec.Particles[iPart].UseFixedEnergy = true;
+
+        guitools::message("bad spectrum", this); // !!!*** use a generic check! (todo)
     }
 
     updateParticleInfo();

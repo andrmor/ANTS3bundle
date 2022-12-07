@@ -30,6 +30,7 @@
 #include <string>
 
 #include "TVirtualGeoTrack.h"
+#include "TH1D.h"
 
 AParticleSimWin::AParticleSimWin(QWidget *parent) :
     AGuiWindow("PartSim", parent),
@@ -465,7 +466,7 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
 #include "afileparticlegenerator.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
-//    WindowNavigator->BusyOn();   // -->
+//    WindowNavigator->BusyOn();   // -->   !!!***
 
     gGeoManager->ClearTracks();
 
@@ -497,7 +498,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
     font.setBold(true);
     ui->pbAbort->setFont(font);
 
-    testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
+    testParticleGun(pg, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
     if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 
@@ -509,7 +510,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
 //    WindowNavigator->BusyOff();  // <--
 }
 
-void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
+void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool fillStatistics)
 {
     AErrorHub::clear();
 
@@ -532,17 +533,25 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     double Length = std::max(WorldSizeXY, WorldSizeZ)*0.4;
 
     int numTracks = 0;
-
-    auto handler = [&numTracks, Length, this](const AParticleRecord & particle)
+    if (fillStatistics)
     {
-        if (numTracks > 10000) return;
+        delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0);
+        histEnergy->GetXaxis()->SetTitle("Energy, keV");
+
+    }
+
+    auto handler = [&numTracks, Length, fillStatistics, this](const AParticleRecord & particle)
+    {
+        //qDebug() << particle.particle.data();
+        if (fillStatistics) addStatistics(particle.energy, particle.time);
+
+        if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
         AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
-
         emit requestAddMarker(particle.r);
     };
 
@@ -551,7 +560,13 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
         bool bOK = Gun->generateEvent(handler, iRun);
-        if (!bOK || numTracks > 10000) break;
+        //if (!bOK || numTracks > 10000) break;
+        if (!bOK) break;
+    }
+
+    if (fillStatistics)
+    {
+        emit requestDraw(histEnergy, "hist", false, true);
     }
 
     emit requestShowGeometry(true, true, false);
@@ -2131,6 +2146,12 @@ double AParticleSimWin::getCalorimeterEnergyFactor()
     else qWarning() << "Unknown unit of energy for calorimeters!";
 
     return factor;
+}
+
+void AParticleSimWin::addStatistics(double energy, double time)
+{
+    //qDebug() << energy << time;
+    histEnergy->Fill(energy, 1);
 }
 
 void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
