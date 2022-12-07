@@ -333,6 +333,8 @@ void AParticleSourceDialog::updateParticleInfo()
         ui->pbGunShowSpectrum->setEnabled(!gRec.EnergySpectrum.empty());
         ui->pbGunLoadSpectrum->setVisible(!bFix);
         ui->pbDeleteSpectrum->setVisible(!bFix);
+        ui->cbRangeBaseEnergyData->setVisible(!bFix);
+        ui->cbRangeBaseEnergyData->setChecked(gRec.RangeBasedEnergies);
         ui->ledGunEnergy->setVisible(bFix);
         ui->cobUnits->setVisible(bFix);
     }
@@ -418,6 +420,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
         else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
         p.Energy = energy;
+        p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
         p.Individual = !ui->cbLinkedParticle->isChecked();
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
@@ -501,7 +504,7 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
         guitools::message(err, this);
     }
 
-    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, true);
+    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
     if (!ok)
     {
         LocalRec.Particles[iPart].EnergySpectrum.clear();
@@ -562,5 +565,26 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
                        "  which indicates direct energy deposition (a particle is NOT generated).\n"
                        "  Note that the direct energy deposition is only saved if the position is inside\n"
                        "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
+}
+
+
+void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
+{
+    int iPart = ui->lwGunParticles->currentRow();
+
+    LocalRec.Particles[iPart].RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
+
+    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
+    /*
+    if (!ok)
+    {
+        LocalRec.Particles[iPart].EnergySpectrum.clear();
+        LocalRec.Particles[iPart].UseFixedEnergy = true;
+
+        guitools::message("Bad spectrum", this); // !!!*** use a generic check! (todo)
+    }
+    */
+
+    updateParticleInfo();
 }
 

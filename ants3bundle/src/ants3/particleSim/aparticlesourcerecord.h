@@ -27,7 +27,7 @@ struct AGunParticle
     bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
 
     std::vector<std::pair<double, double>> EnergySpectrum;
-    bool         AssumePointMeaurements = true; // !!!*** find a better name
+    bool         RangeBasedEnergies = false;
 
     bool    buildEnergyHistogram();
     double  generateEnergy() const;
@@ -41,7 +41,6 @@ struct AGunParticle
 
     //run-time
     G4ParticleDefinition * particleDefinition = nullptr;
-    //AHistogram1D _EnergyHist; //energy spectrum   !!!*** check initRandomGenerator is called
     ARandomSampler _EnergySampler;
 };
 

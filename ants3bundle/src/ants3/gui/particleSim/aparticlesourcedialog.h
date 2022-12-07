@@ -50,6 +50,8 @@ private slots:
 
     void on_pbHelpParticle_clicked();
 
+    void on_cbRangeBaseEnergyData_clicked(); // !!!*** dublicate code (on Load Spectrum uses the same check-up!)
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);

@@ -12,7 +12,7 @@ bool AGunParticle::buildEnergyHistogram()
     if (UseFixedEnergy) return true;
 
     if (EnergySpectrum.empty()) return false;
-    return _EnergySampler.configure(EnergySpectrum, true);
+    return _EnergySampler.configure(EnergySpectrum, RangeBasedEnergies);
 }
 
 double AGunParticle::generateEnergy() const
@@ -32,7 +32,7 @@ void AGunParticle::writeToJson(QJsonObject & json) const
     json["LinkingOppositeDir"] = LinkedOpposite;
     json["Energy"] = Energy;
     json["UseFixedEnergy"] = UseFixedEnergy;
-    json["AssumePointMeaurements"] = AssumePointMeaurements;
+    json["RangeBasedEnergies"] = RangeBasedEnergies;
 
     QJsonArray ar;
         jstools::writeDPairVectorToArray(EnergySpectrum, ar);
@@ -59,7 +59,7 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
 
     jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
-    jstools::parseJson(json, "AssumePointMeaurements", AssumePointMeaurements );
+    jstools::parseJson(json, "RangeBasedEnergies", RangeBasedEnergies );
 
 #ifdef JSON11
     json11::Json::array ar;

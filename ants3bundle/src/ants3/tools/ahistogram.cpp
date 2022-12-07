@@ -359,7 +359,7 @@ bool AHistogram3Dfixed::getVoxel(const std::array<double,3> & pos, std::array<in
 
 // ---
 
-bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & data, bool bAssumePointMeasures)
+bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & data, bool RangeBasedData)
 {
     clear();
 
@@ -390,8 +390,8 @@ bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & da
         Values[i] = val;
 
         SumBins[i] = sum;
-        if (bAssumePointMeasures) sum += Values[i] * (data[i+1].first - data[i].first);
-        else                      sum += Values[i];
+        if (RangeBasedData) sum += Values[i];
+        else                sum += Values[i] * (data[i+1].first - data[i].first);
     }
 
     if (SumBins.back() == 0) // integral cannot be zero

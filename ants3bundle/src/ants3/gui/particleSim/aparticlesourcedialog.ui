@@ -979,6 +979,18 @@ If material with this name does not exist, this limitation is not applied.</stri
               </item>
              </layout>
             </item>
+            <item>
+             <widget class="QCheckBox" name="cbRangeBaseEnergyData">
+              <property name="toolTip">
+               <string>Affects only distribution with non-uniform step.
+When checked, the values are assumed to to be collected for the entire corresponding range.
+In conract, when not checked, the distribution values are assumed to be measured for fixed energies.</string>
+              </property>
+              <property name="text">
+               <string>Range-based data</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -1735,8 +1747,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>432</x>
-     <y>122</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1747,12 +1759,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>98</y>
+     <x>263</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1763,12 +1775,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>98</y>
+     <x>385</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1799,8 +1811,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>127</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1811,12 +1823,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>192</y>
+     <x>117</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1827,8 +1839,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>192</y>
+     <x>214</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
      <x>439</x>
@@ -1843,12 +1855,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>192</y>
+     <x>311</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1859,12 +1871,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>245</y>
+     <x>128</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
-     <x>434</x>
-     <y>127</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1875,12 +1887,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>245</y>
+     <x>254</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1891,12 +1903,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>399</x>
-     <y>245</y>
+     <x>401</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1907,12 +1919,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>295</y>
+     <x>128</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1923,12 +1935,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>295</y>
+     <x>254</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1939,12 +1951,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>373</x>
-     <y>295</y>
+     <x>375</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1955,8 +1967,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>481</x>
-     <y>431</y>
+     <x>479</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -1971,12 +1983,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>545</x>
-     <y>570</y>
+     <x>542</x>
+     <y>561</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -1987,12 +1999,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>444</y>
+     <x>404</x>
+     <y>431</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2003,8 +2015,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>381</y>
+     <x>541</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2019,12 +2031,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>628</y>
+     <x>227</x>
+     <y>629</y>
     </hint>
     <hint type="destinationlabel">
-     <x>522</x>
-     <y>628</y>
+     <x>508</x>
+     <y>629</y>
     </hint>
    </hints>
   </connection>
@@ -2035,11 +2047,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
+     <x>158</x>
      <y>657</y>
     </hint>
     <hint type="destinationlabel">
-     <x>390</x>
+     <x>374</x>
      <y>657</y>
     </hint>
    </hints>
@@ -2051,12 +2063,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>628</y>
+     <x>227</x>
+     <y>629</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>136</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2067,12 +2079,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>628</y>
+     <x>307</x>
+     <y>629</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2083,12 +2095,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>633</y>
+     <x>262</x>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
-     <x>434</x>
-     <y>132</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2099,8 +2111,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>633</y>
+     <x>315</x>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2115,12 +2127,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
+     <x>158</x>
      <y>657</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
-     <y>133</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2131,12 +2143,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>662</y>
+     <x>238</x>
+     <y>660</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>136</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2147,12 +2159,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>662</y>
+     <x>238</x>
+     <y>660</y>
     </hint>
     <hint type="destinationlabel">
-     <x>458</x>
-     <y>137</y>
+     <x>545</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
