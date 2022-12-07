@@ -1974,10 +1974,10 @@ void GraphWindowClass::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    AddCurrentToBasket(text);
+    addCurrentToBasket(text);
 }
 
-void GraphWindowClass::AddCurrentToBasket(const QString & name)
+void GraphWindowClass::addCurrentToBasket(const QString & name)
 {
     if (DrawObjects.isEmpty()) return;
     updateLogScaleFlags(DrawObjects);

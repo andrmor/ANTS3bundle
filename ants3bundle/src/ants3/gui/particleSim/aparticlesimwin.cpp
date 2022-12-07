@@ -535,8 +535,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
     int numTracks = 0;
     if (fillStatistics)
     {
-        delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0);
-        histEnergy->GetXaxis()->SetTitle("Energy, keV");
+        delete histTime;   histTime = new TH1D("", "Time", 100,0,0);     histTime->GetXaxis()->SetTitle("Time, ns");
+        delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0); histEnergy->GetXaxis()->SetTitle("Energy, keV");
 
     }
 
@@ -564,13 +564,14 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
         if (!bOK) break;
     }
 
-    if (fillStatistics)
-    {
-        emit requestDraw(histEnergy, "hist", false, true);
-    }
-
     emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
+
+    if (fillStatistics)
+    {
+        emit requestDraw(histTime, "hist", false, true);   emit requestAddToBasket("Time");
+        emit requestDraw(histEnergy, "hist", false, true); emit requestAddToBasket("Energy");
+    }
 }
 
 void AParticleSimWin::disableGui(bool flag)
@@ -2151,6 +2152,7 @@ double AParticleSimWin::getCalorimeterEnergyFactor()
 void AParticleSimWin::addStatistics(double energy, double time)
 {
     //qDebug() << energy << time;
+    histTime->Fill(time, 1);
     histEnergy->Fill(energy, 1);
 }
 

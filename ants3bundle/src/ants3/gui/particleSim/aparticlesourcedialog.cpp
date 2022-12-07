@@ -567,7 +567,6 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
                        "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
 }
 
-
 void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
@@ -587,4 +586,3 @@ void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
 
     updateParticleInfo();
 }
-

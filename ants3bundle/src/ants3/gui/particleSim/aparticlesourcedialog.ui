@@ -1588,7 +1588,7 @@ In conract, when not checked, the distribution values are assumed to be measured
         <number>1000000</number>
        </property>
        <property name="value">
-        <number>100</number>
+        <number>1000</number>
        </property>
       </widget>
      </item>

@@ -122,6 +122,7 @@ signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);
     void requestCenterView(double * pos);
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
@@ -167,6 +168,7 @@ private:
     QString LastFile_Calorimeters;
 
     TH1D * histEnergy = nullptr;
+    TH1D * histTime = nullptr;
 
     void updateG4Gui();
     void updateSimGui();
