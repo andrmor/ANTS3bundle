@@ -84,7 +84,7 @@ MainWindow::MainWindow() :
 
     FarmWin = new ARemoteWindow(this);
 
-    PartSimWin = new AParticleSimWin(this);
+    PartSimWin = new AParticleSimWin(nullptr); // Qt::WindowModality for the source dialog requires another parent for the window!
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin,   &AGeometryWindow::ShowTracks);
     connect(PartSimWin, &AParticleSimWin::requestShowPosition, GeoWin,   &AGeometryWindow::ShowPoint);

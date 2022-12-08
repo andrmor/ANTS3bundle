@@ -222,6 +222,9 @@ private slots:
     void on_leTrackingDataFile_editingFinished();
     void on_leMonitorsFileName_editingFinished();
     void on_leCalorimetersFileName_editingFinished();
+
+signals:
+    void killSourceDialog();
 };
 
 #endif // APARTICLESIMWIN_H

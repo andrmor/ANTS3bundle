@@ -100,7 +100,6 @@ AParticleSourceDialog::~AParticleSourceDialog()
 {
     ShowStatistics = ui->cbShowStatistics->isChecked();
     NumInStatistics = ui->sbGunTestEvents->value();
-    qDebug() << ShowStatistics << NumInStatistics;
 
     delete ui;
 }

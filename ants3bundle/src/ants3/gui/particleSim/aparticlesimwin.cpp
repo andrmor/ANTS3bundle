@@ -32,7 +32,7 @@
 #include "TVirtualGeoTrack.h"
 #include "TH1D.h"
 
-AParticleSimWin::AParticleSimWin(QWidget *parent) :
+AParticleSimWin::AParticleSimWin(QWidget * parent) :
     AGuiWindow("PartSim", parent),
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
@@ -80,6 +80,8 @@ void AParticleSimWin::updateGui()
     updateSimGui();
 
     updateGeneralControlInResults();
+
+    emit killSourceDialog();
 
     bGuiUpdateInProgress = false; // <--
 }
@@ -276,19 +278,18 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
+    connect(this,                  &AParticleSimWin::killSourceDialog,             &ParticleSourceDialog, &AParticleSourceDialog::reject);
 
-    int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
+    int res = ParticleSourceDialog.exec();
     if (res == QDialog::Rejected) return;
 
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
+    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-//    on_pbUpdateSimConfig_clicked();
-
-//    if (Detector->isGDMLempty())   !!!***
-//    {
+//  !!!*** update world size
 //        double XYm = 0;
 //        double  Zm = 0;
 //        for (int isource = 0; isource < numSources; isource++)
@@ -312,9 +313,6 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 //            Detector->Sandwich->setWorldSizeZ ( std::max(1.05*Zm,  currZm) );
 //            ReconstructDetector();
 //        }
-//    }
-
-//    if (ui->pbGunShowSource->isChecked()) ShowParticleSource_noFocus();
 }
 
 void AParticleSimWin::on_pbAddSource_clicked()
