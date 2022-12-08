@@ -7,7 +7,7 @@
 #include "afiletools.h"
 #endif
 
-bool AGunParticle::buildEnergyHistogram()
+bool AGunParticle::configureEnergySampler()
 {
     if (EnergySpectrum.empty()) return false;
     return _EnergySampler.configure(EnergySpectrum, RangeBasedEnergies);
@@ -67,7 +67,7 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EnergySpectrum", ar);
     jstools::readDPairVectorFromArray(ar, EnergySpectrum);
 
-    bool ok = buildEnergyHistogram(); // !!!*** dublicated here -> it is checked by the check() method of the particle source
+    bool ok = configureEnergySampler(); // !!!*** dublicated here -> it is checked by the check() method of the particle source
     if (!ok && !UseFixedEnergy) return false;//("Failed to build energy histogram for particle " + particle.Particle + " of source " + source.Name);
 
     return true;
@@ -146,6 +146,10 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["CollPhi"]   = CollPhi;
     json["CollTheta"] = CollTheta;
     json["Spread"]    = Spread;
+    json["UseCustomAngular"] = UseCustomAngular;
+    QJsonArray ar;
+        jstools::writeDPairVectorToArray(AngularDistribution, ar);
+    json["AngularDistribution"] = ar;
 
     json["MaterialLimited"] = MaterialLimited;
     json["LimitedToMaterial"] = QString(LimtedToMatName.data());
@@ -159,8 +163,6 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["TimeSpreadWidth"]   = TimeSpreadWidth;
 
     //particles
-    //int GunParticleSize = Particles.size();
-    //json["Particles"] = GunParticleSize;
     QJsonArray jParticleEntries;
     for (const AGunParticle & gp : Particles)
     {
@@ -208,6 +210,16 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "CollPhi",   CollPhi);
     jstools::parseJson(json, "CollTheta", CollTheta);
     jstools::parseJson(json, "Spread",    Spread);
+
+    jstools::parseJson(json, "UseCustomAngular", UseCustomAngular);
+#ifdef JSON11
+    json11::Json::array ar;
+#else
+    QJsonArray ar;
+#endif
+    jstools::parseJson(json, "AngularDistribution", ar);
+    jstools::readDPairVectorFromArray(ar, AngularDistribution);
+    bool ok = configureAngularSampler();
 
     jstools::parseJson(json, "TimeAverageMode",   TimeAverageMode);
     jstools::parseJson(json, "TimeAverage",       TimeAverage);
@@ -302,4 +314,10 @@ std::string AParticleSourceRecord::check() const
     if (TotPartWeight == 0) return "Total statistical weight of individual particles is zero";
 
     return "";
+}
+
+bool AParticleSourceRecord::configureAngularSampler()
+{
+    if (AngularDistribution.empty()) return false;
+    return _AngularSampler.configure(AngularDistribution, false);
 }

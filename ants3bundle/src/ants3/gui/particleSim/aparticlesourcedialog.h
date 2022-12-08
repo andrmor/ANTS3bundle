@@ -52,6 +52,16 @@ private slots:
 
     void on_cbRangeBaseEnergyData_clicked(); // !!!*** dublicate code (on Load Spectrum uses the same check-up!)
 
+    void on_cbCustomAngular_clicked(bool checked);
+
+    void on_cbCustomAngular_toggled(bool checked);
+
+    void on_pbShowAngular_clicked();
+
+    void on_pbLoadAngular_clicked();
+
+    void on_pbDeleteAngular_clicked();
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);

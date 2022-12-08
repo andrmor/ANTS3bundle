@@ -29,7 +29,7 @@ struct AGunParticle
     std::vector<std::pair<double, double>> EnergySpectrum;
     bool         RangeBasedEnergies = false;
 
-    bool    buildEnergyHistogram();
+    bool    configureEnergySampler();
     double  generateEnergy() const;
 
 #ifdef JSON11
@@ -70,6 +70,8 @@ struct AParticleSourceRecord
     double      CollPhi   = 0;
     double      CollTheta = 0;
     double      Spread    = 45.0;
+    bool        UseCustomAngular = false;
+    std::vector<std::pair<double, double>> AngularDistribution;
 
     // Limit to material
     bool        MaterialLimited = false;  // !!!*** remove? use empty LimtedToMatName
@@ -95,7 +97,7 @@ struct AParticleSourceRecord
 #ifdef JSON11
     bool readFromJson(const json11::Json::object & json); // !!!*** error handling?
 #else
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json) const;  // make subjson for time, angular etc !!!***
     bool readFromJson(const QJsonObject & json); // !!!*** error handling
 #endif
 
@@ -103,6 +105,10 @@ struct AParticleSourceRecord
 
     std::string check() const;  // !!!*** check energy spectrum
 
+    bool configureAngularSampler();
+
+    // run-time
+    ARandomSampler _AngularSampler;
 };
 
 #endif // APARTICLESOURCERECORD_H

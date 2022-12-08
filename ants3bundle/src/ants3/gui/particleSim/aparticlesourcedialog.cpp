@@ -61,6 +61,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunCollPhi->setText(QString::number(Rec.CollPhi));
     ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
     ui->ledGunSpread->setText(QString::number(Rec.Spread));
+    ui->cbCustomAngular->setChecked(Rec.UseCustomAngular);
 
     ui->cbSourceLimitmat->setChecked(Rec.MaterialLimited);
     ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
@@ -514,6 +515,7 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
         guitools::message(err, this);
     }
 
+    // !!!*** use LocalRec.Particles[iPart].configure...
     bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
     if (!ok)
     {
@@ -596,3 +598,53 @@ void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
 
     updateParticleInfo();
 }
+
+void AParticleSourceDialog::on_cbCustomAngular_clicked(bool checked)
+{
+    LocalRec.UseCustomAngular = checked;
+}
+
+void AParticleSourceDialog::on_cbCustomAngular_toggled(bool checked)
+{
+    ui->ledGunSpread->setEnabled(!checked);
+}
+
+void AParticleSourceDialog::on_pbShowAngular_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.AngularDistribution);
+    AGraphBuilder::configure(gr, "Angular distribution", "Angle, degrees", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void AParticleSourceDialog::on_pbLoadAngular_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load angular distribution", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.AngularDistribution, true);
+    if (!err.isEmpty())
+    {
+        LocalRec.AngularDistribution.clear();
+        LocalRec.UseCustomAngular = false;
+
+        guitools::message(err, this);
+    }
+
+    //bool ok = LocalRec._AngularSampler.configure(LocalRec.AngularDistribution, false);
+    bool ok = LocalRec.configureAngularSampler();
+    if (!ok)
+    {
+        LocalRec.AngularDistribution.clear();
+        LocalRec.UseCustomAngular = false;
+
+        guitools::message("bad angular", this); // !!!*** use a generic check! (todo)
+    }
+}
+
+// !!!*** add method to update button enable/disable
+void AParticleSourceDialog::on_pbDeleteAngular_clicked()
+{
+    LocalRec.AngularDistribution.clear();
+    LocalRec.UseCustomAngular = false;
+}
+

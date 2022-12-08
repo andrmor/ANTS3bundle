@@ -7,6 +7,7 @@
 #include "avector.h"
 
 #include <vector>
+#include <functional>
 
 class  ASourceGeneratorSettings;
 struct AParticleSourceRecord;
