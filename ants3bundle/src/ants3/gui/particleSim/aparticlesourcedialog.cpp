@@ -19,6 +19,10 @@
 #include "TGeoManager.h"
 #include "TH1D.h"
 
+// save to make persistent? !!!***
+static bool ShowStatistics = false;
+static int  NumInStatistics = 1000;
+
 AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent) :
     QDialog(parent),
     LocalRec(Rec), OriginalRec(Rec),
@@ -82,6 +86,9 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     ui->pbAbort->setVisible(false);
 
+    ui->cbShowStatistics->setChecked(ShowStatistics);
+    ui->sbGunTestEvents->setValue(NumInStatistics);
+
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
 //    fileMenu->addAction("Load source", this, &AParticleSourceDialog::loadSource);
@@ -91,6 +98,10 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
 AParticleSourceDialog::~AParticleSourceDialog()
 {
+    ShowStatistics = ui->cbShowStatistics->isChecked();
+    NumInStatistics = ui->sbGunTestEvents->value();
+    qDebug() << ShowStatistics << NumInStatistics;
+
     delete ui;
 }
 

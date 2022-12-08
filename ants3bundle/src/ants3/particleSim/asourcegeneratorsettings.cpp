@@ -110,7 +110,6 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
         bool ok = ps.readFromJson(js);
         if (ok)
         {
-
             SourceData.push_back(ps);
         }
         else
