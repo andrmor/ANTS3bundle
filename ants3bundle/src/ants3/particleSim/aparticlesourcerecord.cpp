@@ -9,7 +9,11 @@
 
 bool AGunParticle::configureEnergySampler()
 {
-    if (EnergySpectrum.empty()) return false;
+    if (EnergySpectrum.empty())
+    {
+        _EnergySampler.clear();
+        return false;
+    }
     return _EnergySampler.configure(EnergySpectrum, RangeBasedEnergies);
 }
 
@@ -318,6 +322,10 @@ std::string AParticleSourceRecord::check() const
 
 bool AParticleSourceRecord::configureAngularSampler()
 {
-    if (AngularDistribution.empty()) return false;
+    if (AngularDistribution.empty())
+    {
+        _AngularSampler.clear();
+        return false;
+    }
     return _AngularSampler.configure(AngularDistribution, false);
 }

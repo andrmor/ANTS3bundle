@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>748</height>
+    <height>763</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -362,7 +362,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Position of the source center, mm:</string>
+      <string>Position of the center:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -435,6 +435,13 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_20">
+       <property name="text">
+        <string>mm</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -464,7 +471,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Source orientation, degrees:</string>
+      <string>Orientation:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -542,6 +549,13 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <property name="text">
         <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_21">
+       <property name="text">
+        <string>degrees</string>
        </property>
       </widget>
      </item>

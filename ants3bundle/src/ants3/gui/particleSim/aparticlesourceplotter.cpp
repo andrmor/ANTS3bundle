@@ -186,3 +186,9 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
         track->SetLineColor(9);
     }
 }
+
+void AParticleSourcePlotter::clearTracks()
+{
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+}

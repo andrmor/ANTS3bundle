@@ -1,23 +1,21 @@
 #include "aparticlesourcedialog.h"
 #include "ui_aparticlesourcedialog.h"
-#include "mainwindow.h"
-#include "graphwindowclass.h"
 #include "ajsontools.h"
 #include "guitools.h"
+#include "afiletools.h"
 #include "asourceparticlegenerator.h"
 #include "aparticlesimsettings.h"
 #include "aparticlesourceplotter.h"
 #include "agraphbuilder.h"
+#include "amaterialhub.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QApplication>
 
-#include "TGeoManager.h"
 #include "TH1D.h"
+#include "TGraph.h"
 
 // save to make persistent? !!!***
 static bool ShowStatistics = false;
@@ -75,7 +73,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
 
     ui->frSecondary->setVisible(false);
-    UpdateListWidget();
+    updateListWidget();
     updateColorLimitingMat();
     if ( !Rec.Particles.empty() )
     {
@@ -89,6 +87,8 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     ui->cbShowStatistics->setChecked(ShowStatistics);
     ui->sbGunTestEvents->setValue(NumInStatistics);
+
+    updateCustomAngularButtons();
 
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
@@ -150,10 +150,8 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
 {
     ui->pbGunTest->setEnabled(false); //-->
 
-    gGeoManager->ClearTracks();
-
-    if (ui->pbShowSource->isChecked())
-        AParticleSourcePlotter::plotSource(LocalRec);
+    AParticleSourcePlotter::clearTracks();
+    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(LocalRec);
@@ -232,7 +230,7 @@ void AParticleSourceDialog::on_pbGunAddNew_clicked()
     tmp.Energy = ui->ledGunEnergy->text().toDouble();
     LocalRec.Particles.push_back(tmp);
 
-    UpdateListWidget();
+    updateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
     updateParticleInfo();
 }
@@ -252,15 +250,14 @@ void AParticleSourceDialog::on_pbGunRemove_clicked()
         return;
     }
 
-    //Rec->GunParticles.remove(iparticle);
     LocalRec.Particles.erase(LocalRec.Particles.begin() + iparticle);
 
-    UpdateListWidget();
+    updateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
     updateParticleInfo();
 }
 
-void AParticleSourceDialog::UpdateListWidget()
+void AParticleSourceDialog::updateListWidget()
 {
     bUpdateInProgress = true; // >>>---
 
@@ -439,7 +436,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     }
 
     int curRow = ui->lwGunParticles->currentRow();
-    UpdateListWidget();
+    updateListWidget();
     if ( curRow < 0 && curRow >= ui->lwGunParticles->count() )
         curRow = 0;
     ui->lwGunParticles->setCurrentRow(curRow);
@@ -448,7 +445,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     if (ui->pbShowSource->isChecked())
     {
-        gGeoManager->ClearTracks();
+        AParticleSourcePlotter::clearTracks();
         AParticleSourcePlotter::plotSource(LocalRec);
         emit requestShowSource();
     }
@@ -490,7 +487,6 @@ void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
     on_pbUpdateRecord_clicked();
 }
 
-#include "TGraph.h"
 void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
 {
     int particle = ui->lwGunParticles->currentRow();
@@ -499,7 +495,6 @@ void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
     emit requestDraw(gr, "APL", true, true);
 }
 
-#include "afiletools.h"
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load energy spectrum", "");
@@ -515,8 +510,7 @@ void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
         guitools::message(err, this);
     }
 
-    // !!!*** use LocalRec.Particles[iPart].configure...
-    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
+    bool ok = LocalRec.Particles[iPart].configureEnergySampler();
     if (!ok)
     {
         LocalRec.Particles[iPart].EnergySpectrum.clear();
@@ -537,7 +531,6 @@ void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
     updateParticleInfo();
 }
 
-#include "amaterialhub.h"
 void AParticleSourceDialog::updateColorLimitingMat()
 {
     if (!ui->cbSourceLimitmat->isChecked()) return;
@@ -557,6 +550,13 @@ void AParticleSourceDialog::updateColorLimitingMat()
     ui->leSourceLimitMaterial->setPalette(palette);
 }
 
+void AParticleSourceDialog::updateCustomAngularButtons()
+{
+    const bool distrLoaded = !LocalRec.AngularDistribution.empty();
+    ui->pbShowAngular->setEnabled(distrLoaded);
+    ui->pbDeleteAngular->setEnabled(distrLoaded);
+}
+
 void AParticleSourceDialog::on_leGunParticle_editingFinished()
 {
     on_pbUpdateRecord_clicked();
@@ -564,7 +564,7 @@ void AParticleSourceDialog::on_leGunParticle_editingFinished()
 
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 {
-    gGeoManager->ClearTracks();
+    AParticleSourcePlotter::clearTracks();
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
     emit requestShowSource();
 }
@@ -630,7 +630,6 @@ void AParticleSourceDialog::on_pbLoadAngular_clicked()
         guitools::message(err, this);
     }
 
-    //bool ok = LocalRec._AngularSampler.configure(LocalRec.AngularDistribution, false);
     bool ok = LocalRec.configureAngularSampler();
     if (!ok)
     {
@@ -639,12 +638,13 @@ void AParticleSourceDialog::on_pbLoadAngular_clicked()
 
         guitools::message("bad angular", this); // !!!*** use a generic check! (todo)
     }
+
+    updateCustomAngularButtons();
 }
 
-// !!!*** add method to update button enable/disable
 void AParticleSourceDialog::on_pbDeleteAngular_clicked()
 {
     LocalRec.AngularDistribution.clear();
     LocalRec.UseCustomAngular = false;
+    updateCustomAngularButtons();
 }
-

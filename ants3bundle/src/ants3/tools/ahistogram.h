@@ -56,12 +56,12 @@ private:
 
 };
 
-// !!!*** consider making a part of AHistogram1D
 class ARandomSampler
 {
 public:
     bool configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData);
     bool isReady() const {return !SumBins.empty();}
+    void clear();
 
     double getRandom() const; // if not configured or error during configure -> always returns 0
 
@@ -69,8 +69,6 @@ private:
     std::vector<double> LeftBounds;
     std::vector<double> Values;
     std::vector<double> SumBins;
-
-    void clear();
 };
 
 class AHistogram2D
