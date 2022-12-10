@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Particle simulation</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources.qrc">
+    <normaloff>:/images/gui/images/ant.png</normaloff>:/images/gui/images/ant.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_8">
     <property name="spacing">
@@ -4423,7 +4427,9 @@ If checked, only &quot;creation&quot; is considered!</string>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>cobParticleGenerationMode</sender>

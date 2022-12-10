@@ -242,19 +242,19 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
 #endif
     jstools::parseJson(json, "Angular", js);
         std::string str;
-        jstools::parseJson(json, "Mode", str);
+        jstools::parseJson(js, "Mode", str);
         if      (str == "Uniform") AngularMode = UniformAngular;
         else if (str == "Fixed")   AngularMode = FixedDirection;
         else if (str == "Gauss")   AngularMode = GaussDispersion;
         else if (str == "Custom")  AngularMode = CustomAngular;
         // !!!*** error if not found
 
-        jstools::parseJson(json, "Phi",       DirectionPhi);
-        jstools::parseJson(json, "Theta",     DirectionTheta);
-        jstools::parseJson(json, "UseCutOff", UseCutOff);
-        jstools::parseJson(json, "CutOff",    CutOff);
-        jstools::parseJson(json, "Sigma",     DispersionSigma);
-        jstools::parseJson(json, "CustomDistribution", ar);
+        jstools::parseJson(js, "Phi",       DirectionPhi);
+        jstools::parseJson(js, "Theta",     DirectionTheta);
+        jstools::parseJson(js, "UseCutOff", UseCutOff);
+        jstools::parseJson(js, "CutOff",    CutOff);
+        jstools::parseJson(js, "Sigma",     DispersionSigma);
+        jstools::parseJson(js, "CustomDistribution", ar);
         jstools::readDPairVectorFromArray(ar, AngularDistribution);
         configureAngularSampler();
     }

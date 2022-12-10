@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>800</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -653,7 +653,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_6"/>
        <widget class="QWidget" name="page_9"/>
@@ -922,6 +922,9 @@ If material with this name does not exist, this limitation is not applied.</stri
         </item>
         <item>
          <widget class="QLineEdit" name="ledAngularCutoff">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="maximumSize">
            <size>
             <width>75</width>
@@ -1108,7 +1111,7 @@ If material with this name does not exist, this limitation is not applied.</stri
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>50</height>
+            <height>0</height>
            </size>
           </property>
           <property name="frameShape">
@@ -2375,8 +2378,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>477</x>
-     <y>468</y>
+     <x>482</x>
+     <y>452</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -2407,8 +2410,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>479</y>
+     <x>423</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2423,8 +2426,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>494</x>
-     <y>405</y>
+     <x>492</x>
+     <y>397</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2621,6 +2624,22 @@ In conract, when not checked, the distribution values are assumed to be measured
     <hint type="destinationlabel">
      <x>496</x>
      <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAngularCutoff</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledAngularCutoff</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>361</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>500</x>
+     <y>291</y>
     </hint>
    </hints>
   </connection>

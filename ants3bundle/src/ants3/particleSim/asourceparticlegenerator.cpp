@@ -438,19 +438,35 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
             {
                 for (int i = 0; i < 3; i++) particle.v[i] = CollimationDirection[iSource][i];
             }
+            //*** add error if CutOff is zero in this mode!
             else if (src.AngularMode == AParticleSourceRecord::GaussDispersion)
             {
+                double angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+                if (src.UseCutOff)
+                {
+                    while (angle > src.CutOff)
+                        angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+                }
+
                 AVector3 K1(0, 0, 1.0);
-                K1.rotateX( RandomHub.gauss(0, src.DispersionSigma * 3.14159265358979323846 / 180.0) );
-                K1.rotateZ( RandomHub.uniform() * 3.14159265358979323846 * 2.0 );
-                AVector3 Coll( CollimationDirection[iSource] );
+                K1.rotateX(angle * 3.14159265358979323846 / 180.0);
+                K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
+                AVector3 Coll(CollimationDirection[iSource]);
                 K1.rotateUz(Coll);
                 for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
             }
+            // !!!*** add error if AngularDistribution does not have presence within CutOff
             else if (src.AngularMode == AParticleSourceRecord::CustomAngular)
             {
+                double angle = src._AngularSampler.getRandom();
+                if (src.UseCutOff)
+                {
+                    while (angle > src.CutOff)
+                        angle = src._AngularSampler.getRandom();
+                }
+
                 AVector3 K1(0, 0, 1.0);
-                K1.rotateX(src._AngularSampler.getRandom() * 3.14159265358979323846 / 180.0);
+                K1.rotateX(angle * 3.14159265358979323846 / 180.0);
                 K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
                 AVector3 Coll( CollimationDirection[iSource] );
                 K1.rotateUz(Coll);
