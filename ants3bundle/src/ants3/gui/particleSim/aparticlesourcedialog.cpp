@@ -379,9 +379,7 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
 {
     ui->fLinkedParticle->setVisible(checked);
-
-    ui->labStatWeight->setVisible(!checked);
-    ui->ledGunParticleWeight->setVisible(!checked);
+    ui->frStatWeight->setVisible(!checked);
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -661,7 +659,7 @@ void AParticleSourceDialog::on_pbDeleteAngular_clicked()
 void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
 {
     ui->swAngular->setCurrentIndex(index);
-    ui->swAngular->setVisible(index > 1);
+    //ui->swAngular->setVisible(index > 1);
     updateDirectionVisibility();
 }
 
