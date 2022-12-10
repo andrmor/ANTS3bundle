@@ -48,12 +48,15 @@ private slots:
     void on_pbHelpParticle_clicked();
 
     void on_cbCustomAngular_clicked(bool checked); // user interaction
-    void on_cbCustomAngular_toggled(bool checked); // automatic
     void on_cbRangeBaseEnergyData_clicked(); // !!!*** dublicate code (on Load Spectrum uses the same check-up!)
 
     void on_pbShowAngular_clicked();
     void on_pbLoadAngular_clicked();
     void on_pbDeleteAngular_clicked();
+
+    void on_cobAngularMode_currentIndexChanged(int index);
+
+    void on_cbAngularCutoff_toggled(bool checked);
 
 signals:
     void delayClose();
@@ -74,6 +77,7 @@ private:
     void updateParticleInfo();
     void updateColorLimitingMat();
     void updateCustomAngularButtons();
+    void updateDirectionVisibility();
 };
 
 #endif // APARTICLESOURCEDIALOG_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>763</height>
+    <height>745</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -296,13 +296,6 @@
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_8">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <property name="leftMargin">
       <number>0</number>
@@ -555,7 +548,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <widget class="QLabel" name="label_21">
        <property name="text">
-        <string>degrees</string>
+        <string>deg</string>
        </property>
       </widget>
      </item>
@@ -589,99 +582,51 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Collimation direction (polar system) and cone, degrees:</string>
+      <string>Angular properties:</string>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_11">
+    <layout class="QHBoxLayout" name="horizontalLayout_26">
      <property name="leftMargin">
       <number>20</number>
      </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QLabel" name="label_179">
+      <widget class="QLabel" name="label_13">
        <property name="text">
-        <string>Phi:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <string>Generation mode:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGunCollPhi">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
+      <widget class="QComboBox" name="cobAngularMode">
+       <item>
+        <property name="text">
+         <string>Uniform distribution</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fixed direction</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian divergence</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Custom distribution</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_174">
-       <property name="text">
-        <string>Theta:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGunCollTheta">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_17">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Uniform in cone:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGunSpread">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Angle from the collimation direction</string>
-       </property>
-       <property name="text">
-        <string>45</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
+      <spacer name="horizontalSpacer_18">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -696,79 +641,307 @@ If material with this name does not exist, this limitation is not applied.</stri
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_16">
+    <widget class="QStackedWidget" name="swAngular">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="page_6"/>
+     <widget class="QWidget" name="page_9"/>
+     <widget class="QWidget" name="page_7">
+      <layout class="QHBoxLayout" name="horizontalLayout_27">
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>Sigma:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ledAngularSigma">
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>mm</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_19">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_8">
+      <layout class="QHBoxLayout" name="horizontalLayout_16">
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="cbCustomAngular">
+         <property name="text">
+          <string>Custom angular distribution</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbShowAngular">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Show</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbLoadAngular">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbDeleteAngular">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>18</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>X</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_16">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>181</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_11">
      <property name="leftMargin">
       <number>20</number>
      </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
      <item>
-      <widget class="QCheckBox" name="cbCustomAngular">
-       <property name="text">
-        <string>Custom angular distribution</string>
+      <widget class="QFrame" name="frDirection">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_28">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_179">
+          <property name="text">
+           <string>Direction phi:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGunCollPhi">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_174">
+          <property name="text">
+           <string>theta:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGunCollTheta">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_22">
+          <property name="text">
+           <string>deg    </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pbShowAngular">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
+      <widget class="QFrame" name="frAngularCutoff">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>50</width>
-         <height>16777215</height>
-        </size>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
        </property>
-       <property name="text">
-        <string>Show</string>
-       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_29">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbAngularCutoff">
+          <property name="text">
+           <string>Angular cut-off:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGunSpread">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Angle from the collimation direction</string>
+          </property>
+          <property name="text">
+           <string>45</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>deg</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pbLoadAngular">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>50</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Load</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbDeleteAngular">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>18</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>X</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_16">
+      <spacer name="horizontalSpacer_5">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -943,7 +1116,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <widget class="QLineEdit" name="ledGunParticleWeight">
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>75</width>
               <height>16777215</height>
              </size>
             </property>
@@ -951,6 +1124,19 @@ If material with this name does not exist, this limitation is not applied.</stri
              <string>1</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_20">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -1164,6 +1350,19 @@ In conract, when not checked, the distribution values are assumed to be measured
              <item>
               <widget class="QSpinBox" name="sbLinkedTo"/>
              </item>
+             <item>
+              <spacer name="horizontalSpacer_17">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
            <item>
@@ -1171,7 +1370,7 @@ In conract, when not checked, the distribution values are assumed to be measured
              <item>
               <widget class="QLabel" name="label_152">
                <property name="text">
-                <string>With probability:</string>
+                <string>Probability:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1191,14 +1390,14 @@ In conract, when not checked, the distribution values are assumed to be measured
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QCheckBox" name="cbLinkingOpposite">
+               <property name="text">
+                <string>Opposite dir</string>
+               </property>
+              </widget>
+             </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbLinkingOpposite">
-             <property name="text">
-              <string>Generate in opposite direction</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
@@ -1268,7 +1467,7 @@ In conract, when not checked, the distribution values are assumed to be measured
       </font>
      </property>
      <property name="text">
-      <string>Time properties of emitted particles:</string>
+      <string>Temporal properties:</string>
      </property>
     </widget>
    </item>
@@ -1628,34 +1827,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    </item>
    <item>
     <widget class="Line" name="line_9">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>10</height>
+       <width>0</width>
+       <height>5</height>
       </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="Line" name="line_2">
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="lineWidth">
-      <number>2</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -2033,8 +2209,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>128</x>
-     <y>280</y>
+     <x>108</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2049,8 +2225,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>280</y>
+     <x>214</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2065,8 +2241,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>375</x>
-     <y>280</y>
+     <x>486</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2082,7 +2258,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>479</x>
-     <y>408</y>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -2098,7 +2274,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>542</x>
-     <y>561</y>
+     <y>587</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2114,7 +2290,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>404</x>
-     <y>431</y>
+     <y>479</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2130,7 +2306,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>541</x>
-     <y>362</y>
+     <y>416</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>

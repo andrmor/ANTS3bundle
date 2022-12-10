@@ -28,7 +28,7 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
     const double CollPhi   = p.CollPhi   * pi / 180.0;
     const double CollTheta = p.CollTheta * pi / 180.0;
 
-    const double Spread = p.Spread * pi / 180.0;
+    const double Spread = p.CutOff * pi / 180.0;
 
     //calculating unit vector along 1D direction
     TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));

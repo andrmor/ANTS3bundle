@@ -69,12 +69,12 @@ struct AParticleSourceRecord
     // Collimation
     double      CollPhi   = 0;
     double      CollTheta = 0;
-    double      Spread    = 45.0;
+    double      CutOff    = 45.0;
     bool        UseCustomAngular = false;
     std::vector<std::pair<double, double>> AngularDistribution;
 
     // Limit to material
-    bool        MaterialLimited = false;  // !!!*** remove? use empty LimtedToMatName
+    bool        MaterialLimited = false;
     std::string LimtedToMatName;
 
     // Relative activity

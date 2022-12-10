@@ -96,7 +96,7 @@ bool ASourceParticleGenerator::init()
     {
         const double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
         const double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
-        const double Spread    = Settings.SourceData[isource].Spread*3.1415926535/180.0;
+        const double Spread    = Settings.SourceData[isource].CutOff*3.1415926535/180.0;
 
         CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
@@ -430,7 +430,7 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
             else
             {
                 //generating random direction inside the collimation cone
-                const double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
+                const double spread   = Settings.SourceData[iSource].CutOff * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
                 const double cosTheta = cos(spread);
                 const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
                 const double tmp = sqrt(1.0 - z * z);

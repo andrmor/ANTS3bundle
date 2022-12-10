@@ -98,7 +98,7 @@ void AParticleSourceRecord::clear()
 
     CollPhi   = 0;
     CollTheta = 0;
-    Spread    = 45.0;
+    CutOff    = 45.0;
 
     MaterialLimited = false;
     LimtedToMatName.clear();
@@ -149,7 +149,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 
     json["CollPhi"]   = CollPhi;
     json["CollTheta"] = CollTheta;
-    json["Spread"]    = Spread;
+    json["Spread"]    = CutOff;
     json["UseCustomAngular"] = UseCustomAngular;
     QJsonArray ar;
         jstools::writeDPairVectorToArray(AngularDistribution, ar);
@@ -213,7 +213,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "CollPhi",   CollPhi);
     jstools::parseJson(json, "CollTheta", CollTheta);
-    jstools::parseJson(json, "Spread",    Spread);
+    jstools::parseJson(json, "Spread",    CutOff);
 
     jstools::parseJson(json, "UseCustomAngular", UseCustomAngular);
 #ifdef JSON11
@@ -279,11 +279,18 @@ std::string AParticleSourceRecord::check() const
     const int numParts = Particles.size();
     if (numParts == 0) return "No particles defined";
 
-    if (Spread < 0)    return "negative spread angle";
-    if (Activity < 0)  return "negative activity";
+    if (Activity < 0)  return "Negative activity";
+
+    if (CutOff < 0)    return "Negative spread angle";
+    if (UseCustomAngular)
+    {
+        if (AngularDistribution.size() < 2) return "Custom angular distribution data should contain at least two data points";
+        // !!!*** other checks
+        if (!_AngularSampler.isReady()) return "Angular sampler is not ready: Check angular distribution";
+    }
 
     int    numIndParts   = 0;
-    double TotPartWeight = 0;
+    double totPartWeight = 0;
     for (int ip = 0; ip < numParts; ip++)
     {
         const AGunParticle & gp = Particles.at(ip);
@@ -291,7 +298,7 @@ std::string AParticleSourceRecord::check() const
         {
             numIndParts++;
             if (Particles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);
-            TotPartWeight += Particles.at(ip).StatWeight;
+            totPartWeight += Particles.at(ip).StatWeight;
         }
         else
         {
@@ -310,12 +317,13 @@ std::string AParticleSourceRecord::check() const
         if (!gp.UseFixedEnergy)
         {
             if (gp.EnergySpectrum.size() < 2) return "Energy spectrum should have at least 2 points";
-            if (!gp._EnergySampler.isReady()) return "Energy sampler is not ready: Check energy spectrum"; // !!!*** make full error check
+            // !!!*** make full error check
+            if (!gp._EnergySampler.isReady()) return "Energy sampler is not ready: Check energy spectrum";
         }
     }
 
     if (numIndParts   == 0) return "No individual particles defined";
-    if (TotPartWeight == 0) return "Total statistical weight of individual particles is zero";
+    if (totPartWeight == 0) return "Total statistical weight of individual particles is zero";
 
     return "";
 }

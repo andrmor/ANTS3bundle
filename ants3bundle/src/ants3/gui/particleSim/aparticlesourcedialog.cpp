@@ -58,7 +58,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     ui->ledGunCollPhi->setText(QString::number(Rec.CollPhi));
     ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
-    ui->ledGunSpread->setText(QString::number(Rec.Spread));
+    ui->ledGunSpread->setText(QString::number(Rec.CutOff));
     ui->cbCustomAngular->setChecked(Rec.UseCustomAngular);
 
     ui->cbSourceLimitmat->setChecked(Rec.MaterialLimited);
@@ -89,6 +89,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->sbGunTestEvents->setValue(NumInStatistics);
 
     updateCustomAngularButtons();
+    on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
 
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
@@ -403,7 +404,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     LocalRec.CollPhi = ui->ledGunCollPhi->text().toDouble();
     LocalRec.CollTheta = ui->ledGunCollTheta->text().toDouble();
-    LocalRec.Spread = ui->ledGunSpread->text().toDouble();
+    LocalRec.CutOff = ui->ledGunSpread->text().toDouble();
 
     LocalRec.TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
     LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
@@ -604,11 +605,6 @@ void AParticleSourceDialog::on_cbCustomAngular_clicked(bool checked)
     LocalRec.UseCustomAngular = checked;
 }
 
-void AParticleSourceDialog::on_cbCustomAngular_toggled(bool checked)
-{
-    ui->ledGunSpread->setEnabled(!checked);
-}
-
 void AParticleSourceDialog::on_pbShowAngular_clicked()
 {
     TGraph * gr = AGraphBuilder::graph(LocalRec.AngularDistribution);
@@ -648,3 +644,20 @@ void AParticleSourceDialog::on_pbDeleteAngular_clicked()
     LocalRec.UseCustomAngular = false;
     updateCustomAngularButtons();
 }
+
+void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
+{
+    ui->swAngular->setCurrentIndex(index);
+    ui->swAngular->setVisible(index > 1);
+    updateDirectionVisibility();
+}
+
+void AParticleSourceDialog::updateDirectionVisibility()
+{
+    ui->frDirection->setVisible(ui->swAngular->currentIndex() != 0 || ui->cbAngularCutoff->isChecked());
+}
+void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
+{
+    updateDirectionVisibility();
+}
+
