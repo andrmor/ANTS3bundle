@@ -47,7 +47,6 @@ private slots:
     void on_pbShowSource_clicked(bool checked);
     void on_pbHelpParticle_clicked();
 
-    void on_cbCustomAngular_clicked(bool checked); // user interaction
     void on_cbRangeBaseEnergyData_clicked(); // !!!*** dublicate code (on Load Spectrum uses the same check-up!)
 
     void on_pbShowAngular_clicked();

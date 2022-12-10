@@ -96,9 +96,13 @@ void AParticleSourceRecord::clear()
     Size2 = 10.0;
     Size3 = 10.0;
 
-    CollPhi   = 0;
-    CollTheta = 0;
+    AngularMode = UniformAngular;
+    DirectionPhi   = 0;
+    DirectionTheta = 0;
+    UseCutOff = false;
     CutOff    = 45.0;
+    DispersionSigma = 5.0;
+    AngularDistribution.clear();
 
     MaterialLimited = false;
     LimtedToMatName.clear();
@@ -147,13 +151,28 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["Theta"] = Theta;
     json["Psi"]   = Psi;
 
-    json["CollPhi"]   = CollPhi;
-    json["CollTheta"] = CollTheta;
-    json["Spread"]    = CutOff;
-    json["UseCustomAngular"] = UseCustomAngular;
-    QJsonArray ar;
-        jstools::writeDPairVectorToArray(AngularDistribution, ar);
-    json["AngularDistribution"] = ar;
+    // Angular properties
+    {
+        QJsonObject js;
+            QString str;
+            switch (AngularMode)
+            {
+            case UniformAngular  : str = "Uniform"; break;
+            case FixedDirection  : str = "Fixed";   break;
+            case GaussDispersion : str = "Gauss";   break;
+            case CustomAngular   : str = "Custom";  break;
+            }
+            js["Mode"]  = str;
+            js["Phi"]   = DirectionPhi;
+            js["Theta"] = DirectionTheta;
+            js["UseCutOff"] = UseCutOff;
+            js["CutOff"] = CutOff;
+            js["Sigma"] = DispersionSigma;
+            QJsonArray ar;
+                jstools::writeDPairVectorToArray(AngularDistribution, ar);
+            js["CustomDistribution"] = ar;
+        json["Angular"] = js;
+    }
 
     json["MaterialLimited"] = MaterialLimited;
     json["LimitedToMaterial"] = QString(LimtedToMatName.data());
@@ -196,6 +215,7 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     else if (tmp == "round")     Shape = Round;
     else if (tmp == "box")       Shape = Box;
     else if (tmp == "cylinder")  Shape = Cylinder;
+    // !!!*** error if not found
 
     jstools::parseJson(json, "Activity", Activity);
 
@@ -211,19 +231,33 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Theta", Theta);
     jstools::parseJson(json, "Psi",   Psi);
 
-    jstools::parseJson(json, "CollPhi",   CollPhi);
-    jstools::parseJson(json, "CollTheta", CollTheta);
-    jstools::parseJson(json, "Spread",    CutOff);
-
-    jstools::parseJson(json, "UseCustomAngular", UseCustomAngular);
+    // Angular properties
+    {
 #ifdef JSON11
+    json11::Json::object js;
     json11::Json::array ar;
 #else
+    QJsonObject js;
     QJsonArray ar;
 #endif
-    jstools::parseJson(json, "AngularDistribution", ar);
-    jstools::readDPairVectorFromArray(ar, AngularDistribution);
-    bool ok = configureAngularSampler();
+    jstools::parseJson(json, "Angular", js);
+        std::string str;
+        jstools::parseJson(json, "Mode", str);
+        if      (str == "Uniform") AngularMode = UniformAngular;
+        else if (str == "Fixed")   AngularMode = FixedDirection;
+        else if (str == "Gauss")   AngularMode = GaussDispersion;
+        else if (str == "Custom")  AngularMode = CustomAngular;
+        // !!!*** error if not found
+
+        jstools::parseJson(json, "Phi",       DirectionPhi);
+        jstools::parseJson(json, "Theta",     DirectionTheta);
+        jstools::parseJson(json, "UseCutOff", UseCutOff);
+        jstools::parseJson(json, "CutOff",    CutOff);
+        jstools::parseJson(json, "Sigma",     DispersionSigma);
+        jstools::parseJson(json, "CustomDistribution", ar);
+        jstools::readDPairVectorFromArray(ar, AngularDistribution);
+        configureAngularSampler();
+    }
 
     jstools::parseJson(json, "TimeAverageMode",   TimeAverageMode);
     jstools::parseJson(json, "TimeAverage",       TimeAverage);
@@ -281,13 +315,21 @@ std::string AParticleSourceRecord::check() const
 
     if (Activity < 0)  return "Negative activity";
 
-    if (CutOff < 0)    return "Negative spread angle";
-    if (UseCustomAngular)
+    switch (AngularMode)
     {
+    case UniformAngular : break;
+    case FixedDirection : break;
+    case GaussDispersion :
+        if (DispersionSigma < 0) return "Dispersion sigma cannot be negative";
+        break;
+    case CustomAngular :
         if (AngularDistribution.size() < 2) return "Custom angular distribution data should contain at least two data points";
         // !!!*** other checks
         if (!_AngularSampler.isReady()) return "Angular sampler is not ready: Check angular distribution";
+        break;
     }
+
+    if (UseCutOff && CutOff < 0) return "Negative cutt-off angle";
 
     int    numIndParts   = 0;
     double totPartWeight = 0;

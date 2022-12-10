@@ -25,8 +25,8 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
     const double size2 = p.Size2;
     const double size3 = p.Size3;
 
-    const double CollPhi   = p.CollPhi   * pi / 180.0;
-    const double CollTheta = p.CollTheta * pi / 180.0;
+    const double CollPhi   = p.DirectionPhi   * pi / 180.0;
+    const double CollTheta = p.DirectionTheta * pi / 180.0;
 
     const double Spread = p.CutOff * pi / 180.0;
 

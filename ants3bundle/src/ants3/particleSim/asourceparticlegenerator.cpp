@@ -94,8 +94,8 @@ bool ASourceParticleGenerator::init()
     CollimationProbability.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        const double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
-        const double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
+        const double CollPhi   = Settings.SourceData[isource].DirectionPhi*3.1415926535/180.0;
+        const double CollTheta = Settings.SourceData[isource].DirectionTheta*3.1415926535/180.0;
         const double Spread    = Settings.SourceData[isource].CutOff*3.1415926535/180.0;
 
         CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
@@ -396,9 +396,11 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     return;
 }
 
+// !!!*** override for secondaries to uniform!
 void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex)
 {
-    const AGunParticle & gp = Settings.SourceData[iSource].Particles[iParticle];
+    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+    const AGunParticle & gp = src.Particles[iParticle];
 
     const double energy = gp.generateEnergy();
 
@@ -418,25 +420,38 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
 
         if (oppositeToIndex == -1)
         {
-            if (Settings.SourceData[iSource].UseCustomAngular)
-            {
-                AVector3 K1(0, 0, 1.0);
-                K1.rotateX(Settings.SourceData[iSource]._AngularSampler.getRandom() * 3.14159265358979323846 / 180.0);
-                K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
-                AVector3 Coll( CollimationDirection[iSource] );
-                K1.rotateUz(Coll);
-                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
-            }
-            else
+            if (src.AngularMode == AParticleSourceRecord::UniformAngular)
             {
                 //generating random direction inside the collimation cone
-                const double spread   = Settings.SourceData[iSource].CutOff * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
+                const double spread   = (src.UseCutOff ? src.CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
                 const double cosTheta = cos(spread);
                 const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
                 const double tmp = sqrt(1.0 - z * z);
                 const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
 
                 AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+                AVector3 Coll( CollimationDirection[iSource] );
+                K1.rotateUz(Coll);
+                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
+            }
+            else if (src.AngularMode == AParticleSourceRecord::FixedDirection)
+            {
+                for (int i = 0; i < 3; i++) particle.v[i] = CollimationDirection[iSource][i];
+            }
+            else if (src.AngularMode == AParticleSourceRecord::GaussDispersion)
+            {
+                AVector3 K1(0, 0, 1.0);
+                K1.rotateX( RandomHub.gauss(0, src.DispersionSigma * 3.14159265358979323846 / 180.0) );
+                K1.rotateZ( RandomHub.uniform() * 3.14159265358979323846 * 2.0 );
+                AVector3 Coll( CollimationDirection[iSource] );
+                K1.rotateUz(Coll);
+                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
+            }
+            else if (src.AngularMode == AParticleSourceRecord::CustomAngular)
+            {
+                AVector3 K1(0, 0, 1.0);
+                K1.rotateX(src._AngularSampler.getRandom() * 3.14159265358979323846 / 180.0);
+                K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
                 AVector3 Coll( CollimationDirection[iSource] );
                 K1.rotateUz(Coll);
                 for (int i = 0; i < 3; i++) particle.v[i] = K1[i];

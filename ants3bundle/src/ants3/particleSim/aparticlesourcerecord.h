@@ -47,6 +47,7 @@ struct AGunParticle
 struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
+    enum EAngularMode {UniformAngular, FixedDirection, GaussDispersion, CustomAngular};
 
     std::string Name  = "No_name";
     EShape      Shape = Point;
@@ -66,11 +67,13 @@ struct AParticleSourceRecord
     double      Size2 = 10.0;
     double      Size3 = 10.0;
 
-    // Collimation
-    double      CollPhi   = 0;
-    double      CollTheta = 0;
-    double      CutOff    = 45.0;
-    bool        UseCustomAngular = false;
+    // Angular properties
+    EAngularMode AngularMode;
+    double       DirectionPhi   = 0;
+    double       DirectionTheta = 0;
+    bool         UseCutOff = false;
+    double       CutOff = 45.0;
+    double       DispersionSigma = 1.0;
     std::vector<std::pair<double, double>> AngularDistribution;
 
     // Limit to material

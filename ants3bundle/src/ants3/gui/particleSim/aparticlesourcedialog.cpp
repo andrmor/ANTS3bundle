@@ -56,10 +56,24 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunTheta->setText(QString::number(Rec.Theta));
     ui->ledGunPsi->setText(QString::number(Rec.Psi));
 
-    ui->ledGunCollPhi->setText(QString::number(Rec.CollPhi));
-    ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
-    ui->ledGunSpread->setText(QString::number(Rec.CutOff));
-    ui->cbCustomAngular->setChecked(Rec.UseCustomAngular);
+    int index = 0;
+    switch (Rec.AngularMode)
+    {
+    case AParticleSourceRecord::UniformAngular  : index = 0; break;
+    case AParticleSourceRecord::FixedDirection  : index = 1; break;
+    case AParticleSourceRecord::GaussDispersion : index = 2; break;
+    case AParticleSourceRecord::CustomAngular   : index = 3; break;
+    default:
+        guitools::message("Unknown angular mode, setting to Uniform!", this);
+    }
+    ui->cobAngularMode->setCurrentIndex(index);
+    on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
+    ui->ledAngularSigma->setText(QString::number(Rec.DispersionSigma));
+    updateCustomAngularButtons();
+    ui->ledGunCollPhi->setText(QString::number(Rec.DirectionPhi));
+    ui->ledGunCollTheta->setText(QString::number(Rec.DirectionTheta));
+    ui->cbAngularCutoff->setChecked(Rec.UseCutOff);
+    ui->ledAngularCutoff->setText(QString::number(Rec.CutOff));
 
     ui->cbSourceLimitmat->setChecked(Rec.MaterialLimited);
     ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
@@ -87,9 +101,6 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     ui->cbShowStatistics->setChecked(ShowStatistics);
     ui->sbGunTestEvents->setValue(NumInStatistics);
-
-    updateCustomAngularButtons();
-    on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
 
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
@@ -402,9 +413,21 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.Theta = ui->ledGunTheta->text().toDouble();
     LocalRec.Psi = ui->ledGunPsi->text().toDouble();
 
-    LocalRec.CollPhi = ui->ledGunCollPhi->text().toDouble();
-    LocalRec.CollTheta = ui->ledGunCollTheta->text().toDouble();
-    LocalRec.CutOff = ui->ledGunSpread->text().toDouble();
+    switch (ui->cobAngularMode->currentIndex())
+    {
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord::UniformAngular;  break;
+    case 1 : LocalRec.AngularMode = AParticleSourceRecord::FixedDirection;  break;
+    case 2 : LocalRec.AngularMode = AParticleSourceRecord::GaussDispersion; break;
+    case 3 : LocalRec.AngularMode = AParticleSourceRecord::CustomAngular;   break;
+    default:
+        qWarning() << "Unknown angular mode!";
+        LocalRec.AngularMode = AParticleSourceRecord::UniformAngular;
+    }
+    LocalRec.DispersionSigma = ui->ledAngularSigma->text().toDouble();
+    LocalRec.DirectionPhi = ui->ledGunCollPhi->text().toDouble();
+    LocalRec.DirectionTheta = ui->ledGunCollTheta->text().toDouble();
+    LocalRec.UseCutOff = ui->cbAngularCutoff->isChecked();
+    LocalRec.CutOff = ui->ledAngularCutoff->text().toDouble();
 
     LocalRec.TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
     LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
@@ -600,11 +623,6 @@ void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
     updateParticleInfo();
 }
 
-void AParticleSourceDialog::on_cbCustomAngular_clicked(bool checked)
-{
-    LocalRec.UseCustomAngular = checked;
-}
-
 void AParticleSourceDialog::on_pbShowAngular_clicked()
 {
     TGraph * gr = AGraphBuilder::graph(LocalRec.AngularDistribution);
@@ -621,8 +639,6 @@ void AParticleSourceDialog::on_pbLoadAngular_clicked()
     if (!err.isEmpty())
     {
         LocalRec.AngularDistribution.clear();
-        LocalRec.UseCustomAngular = false;
-
         guitools::message(err, this);
     }
 
@@ -630,8 +646,6 @@ void AParticleSourceDialog::on_pbLoadAngular_clicked()
     if (!ok)
     {
         LocalRec.AngularDistribution.clear();
-        LocalRec.UseCustomAngular = false;
-
         guitools::message("bad angular", this); // !!!*** use a generic check! (todo)
     }
 
@@ -641,7 +655,6 @@ void AParticleSourceDialog::on_pbLoadAngular_clicked()
 void AParticleSourceDialog::on_pbDeleteAngular_clicked()
 {
     LocalRec.AngularDistribution.clear();
-    LocalRec.UseCustomAngular = false;
     updateCustomAngularButtons();
 }
 

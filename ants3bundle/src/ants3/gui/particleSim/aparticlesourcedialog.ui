@@ -721,9 +721,9 @@ If material with this name does not exist, this limitation is not applied.</stri
         <number>0</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="cbCustomAngular">
+        <widget class="QLabel" name="label_24">
          <property name="text">
-          <string>Custom angular distribution</string>
+          <string>Distribution:</string>
          </property>
         </widget>
        </item>
@@ -791,7 +791,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>181</width>
+           <width>301</width>
            <height>20</height>
           </size>
          </property>
@@ -915,7 +915,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGunSpread">
+         <widget class="QLineEdit" name="ledAngularCutoff">
           <property name="maximumSize">
            <size>
             <width>75</width>
@@ -2006,7 +2006,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2022,7 +2022,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>455</x>
-     <y>125</y>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
@@ -2038,7 +2038,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2054,7 +2054,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2070,7 +2070,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2082,11 +2082,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>117</x>
-     <y>125</y>
+     <y>120</y>
     </hint>
     <hint type="destinationlabel">
      <x>440</x>
-     <y>124</y>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -2098,11 +2098,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>361</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2114,11 +2114,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>117</x>
-     <y>178</y>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2130,11 +2130,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>214</x>
-     <y>178</y>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>439</x>
-     <y>125</y>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
@@ -2146,11 +2146,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>178</y>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2162,11 +2162,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>128</x>
-     <y>229</y>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2178,11 +2178,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>254</x>
-     <y>229</y>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2194,11 +2194,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>401</x>
-     <y>229</y>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2209,12 +2209,12 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>308</y>
+     <x>170</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2225,17 +2225,17 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>308</y>
+     <x>274</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ledGunSpread</sender>
+   <sender>ledAngularCutoff</sender>
    <signal>editingFinished()</signal>
    <receiver>pbUpdateRecord</receiver>
    <slot>click()</slot>
@@ -2246,7 +2246,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2262,7 +2262,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
-     <y>123</y>
+     <y>118</y>
     </hint>
    </hints>
   </connection>
@@ -2273,12 +2273,12 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>542</x>
-     <y>587</y>
+     <x>541</x>
+     <y>580</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2294,7 +2294,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2305,12 +2305,12 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>541</x>
-     <y>416</y>
+     <x>495</x>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
-     <y>124</y>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -2358,7 +2358,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2374,7 +2374,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2390,7 +2390,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2406,7 +2406,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
-     <y>124</y>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -2422,7 +2422,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2438,7 +2438,7 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2454,7 +2454,55 @@ In conract, when not checked, the distribution values are assumed to be measured
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>126</y>
+     <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAngularCutoff</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAngularMode</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>481</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAngularSigma</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>132</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
