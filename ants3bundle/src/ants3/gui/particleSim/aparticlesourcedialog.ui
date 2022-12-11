@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
+    <width>558</width>
     <height>787</height>
    </rect>
   </property>
@@ -1496,8 +1496,11 @@ In conract, when not checked, the distribution values are assumed to be measured
              </property>
              <item>
               <widget class="QCheckBox" name="cbLinkingOpposite">
+               <property name="toolTip">
+                <string>Intended usage are annihilation gammas</string>
+               </property>
                <property name="text">
-                <string>Emitted in opposite direction</string>
+                <string>Generate back-to-back pair</string>
                </property>
               </widget>
              </item>

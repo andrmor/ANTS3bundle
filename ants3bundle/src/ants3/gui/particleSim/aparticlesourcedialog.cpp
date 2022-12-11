@@ -17,7 +17,7 @@
 #include "TH1D.h"
 #include "TGraph.h"
 
-// save to make persistent? !!!***
+// save to make persistent?
 static bool ShowStatistics = false;
 static int  NumInStatistics = 1000;
 
@@ -102,6 +102,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->cbShowStatistics->setChecked(ShowStatistics);
     ui->sbGunTestEvents->setValue(NumInStatistics);
 
+    // !!!*** export / import source
 //    QMenuBar* mb = new QMenuBar(this);
 //    QMenu* fileMenu = mb->addMenu("&File");
 //    fileMenu->addAction("Load source", this, &AParticleSourceDialog::loadSource);
@@ -301,8 +302,7 @@ void AParticleSourceDialog::updateListWidget()
             str += QString::number(gps.LinkedTo);
             str += " P=";
             str += QString::number(gps.LinkedProb);
-            if (gps.LinkedOpposite)
-                str += " Opposite";
+            if (gps.LinkedBtBPair) str += " BtB pair";
         }
         ui->lwGunParticles->addItem(str);
     }
@@ -345,7 +345,7 @@ void AParticleSourceDialog::updateParticleInfo()
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
-        ui->cbLinkingOpposite->setChecked(gRec.LinkedOpposite);
+        ui->cbLinkingOpposite->setChecked(gRec.LinkedBtBPair);
 
         bool bFix = gRec.UseFixedEnergy;
         ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
@@ -454,7 +454,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         p.Individual = !ui->cbLinkedParticle->isChecked();
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
-        p.LinkedOpposite = ui->cbLinkingOpposite->isChecked();
+        p.LinkedBtBPair = ui->cbLinkingOpposite->isChecked();
     }
 
     int curRow = ui->lwGunParticles->currentRow();
@@ -501,7 +501,7 @@ void AParticleSourceDialog::on_sbLinkedTo_editingFinished()
 void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
 {
     double val = ui->ledLinkingProbability->text().toDouble();
-    if (val < 0 || val > 1.0)
+    if ((val < 0) || (val > 1.0))
     {
         ui->ledLinkingProbability->setText(0);
         guitools::message("Linking probability has to be within [0, 1] range. Setting to 0", this);
@@ -604,20 +604,8 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
 void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
-
     LocalRec.Particles[iPart].RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
-
-    bool ok = LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
-    /*
-    if (!ok)
-    {
-        LocalRec.Particles[iPart].EnergySpectrum.clear();
-        LocalRec.Particles[iPart].UseFixedEnergy = true;
-
-        guitools::message("Bad spectrum", this); // !!!*** use a generic check! (todo)
-    }
-    */
-
+    LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
     updateParticleInfo();
 }
 
@@ -659,7 +647,6 @@ void AParticleSourceDialog::on_pbDeleteAngular_clicked()
 void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
 {
     ui->swAngular->setCurrentIndex(index);
-    //ui->swAngular->setVisible(index > 1);
     updateDirectionVisibility();
 }
 

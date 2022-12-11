@@ -23,17 +23,26 @@ double AGunParticle::generateEnergy() const
     return _EnergySampler.getRandom();
 }
 
+bool AGunParticle::isDirectDeposition() const
+{
+#ifdef GEANT4
+    return (particleDefinition == nullptr);
+#else
+    return (Particle == "-");
+#endif
+}
+
 #ifndef JSON11
 void AGunParticle::writeToJson(QJsonObject & json) const
 {
-    json["Particle"]   = QString(Particle.data());
-    json["StatWeight"] = StatWeight;
-    json["Individual"] = Individual;
-    json["LinkedTo"] = LinkedTo;
+    json["Particle"]           = QString(Particle.data());
+    json["StatWeight"]         = StatWeight;
+    json["Individual"]         = Individual;
+    json["LinkedTo"]           = LinkedTo;
     json["LinkingProbability"] = LinkedProb;
-    json["LinkingOppositeDir"] = LinkedOpposite;
-    json["Energy"] = Energy;
-    json["UseFixedEnergy"] = UseFixedEnergy;
+    json["LinkedBtBPair"]      = LinkedBtBPair;
+    json["Energy"]             = Energy;
+    json["UseFixedEnergy"]     = UseFixedEnergy;
     json["RangeBasedEnergies"] = RangeBasedEnergies;
 
     QJsonArray ar;
@@ -55,7 +64,7 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Individual",         Individual );
     jstools::parseJson(json, "LinkedTo",           LinkedTo ); //linked always to previously already defined particles!
     jstools::parseJson(json, "LinkingProbability", LinkedProb );
-    jstools::parseJson(json, "LinkingOppositeDir", LinkedOpposite );
+    jstools::parseJson(json, "LinkedBtBPair",      LinkedBtBPair );
 
     jstools::parseJson(json, "Energy",             Energy );
     jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
@@ -348,10 +357,10 @@ std::string AParticleSourceRecord::check() const
             if (ip <  gp.LinkedTo) return "Invalid linking for particle #" + std::to_string(ip);
         }
 
-        if (gp.LinkedOpposite)
+        if (gp.LinkedBtBPair)
         {
-            if (ip == 0) return "The first particle cannot be set as \"opposite\"!"; // not needed?
-            if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + ") cannot be set \"opposite\" to one representing direct deposition (\"-\")";
+            // !!!*** tweak error message
+            if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + ") cannot be set \"LinkedBtBPair\" to one representing direct deposition (\"-\")";
         }
 
         if (gp.Energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);

@@ -162,6 +162,64 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
     return true;
 }
 
+void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotropic, double * direction) const
+{
+    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+
+    if (src.AngularMode == AParticleSourceRecord::UniformAngular || forceIsotropic)
+    {
+        //generating random direction inside the collimation cone
+        const double spread   = (src.UseCutOff ? src.CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
+        const double cosTheta = cos(spread);
+        const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
+        const double tmp = sqrt(1.0 - z * z);
+        const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+
+        AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+        AVector3 Coll( CollimationDirection[iSource] );
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+    else if (src.AngularMode == AParticleSourceRecord::FixedDirection)
+    {
+        for (int i = 0; i < 3; i++) direction[i] = CollimationDirection[iSource][i];
+    }
+    //*** add error if CutOff is zero in this mode!
+    else if (src.AngularMode == AParticleSourceRecord::GaussDispersion)
+    {
+        double angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+        if (src.UseCutOff)
+        {
+            while (angle > src.CutOff)
+                angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+        }
+
+        AVector3 K1(0, 0, 1.0);
+        K1.rotateX(angle * 3.14159265358979323846 / 180.0);
+        K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
+        AVector3 Coll(CollimationDirection[iSource]);
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+    // !!!*** add error if AngularDistribution does not have presence within CutOff
+    else if (src.AngularMode == AParticleSourceRecord::CustomAngular)
+    {
+        double angle = src._AngularSampler.getRandom();
+        if (src.UseCutOff)
+        {
+            while (angle > src.CutOff)
+                angle = src._AngularSampler.getRandom();
+        }
+
+        AVector3 K1(0, 0, 1.0);
+        K1.rotateX(angle * 3.14159265358979323846 / 180.0);
+        K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
+        AVector3 Coll( CollimationDirection[iSource] );
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+}
+
 double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source, int iEvent)
 {
     double time;
@@ -225,58 +283,46 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
         // Time
         const double time = selectTime(Source, iEvent);
 
-        // first store generated particles as there could be linked particles and we need direction for the "opposite direction" case
-        GeneratedParticles.clear();
+        // generating the selected particle itself
+        addGeneratedParticle(iSource, iParticle, position, time, false, handler);
 
-        if (LinkedPartiles[iSource][iParticle].size() == 1)
+        // generating linked particles
+        std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+        ThisLP.front().bWasGenerated = true;
+        for (size_t ip = 1; ip < ThisLP.size(); ip++) // ThisLP starts from the particle itself, so skip the first record
         {
-            // there are no linked particles (the first record is the particle itself)
-            addGeneratedParticle(iSource, iParticle, position, time);
-        }
-        else
-        {
-            std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+            const int thisParticle = ThisLP[ip].iParticle;
+            const int linkedTo     = ThisLP[ip].LinkedTo;
 
-            for (size_t ip = 0; ip < ThisLP.size(); ip++)  //ip - index in the list of linked particles
+            if (!ThisLP[linkedTo].bWasGenerated) // parent was not generated
             {
                 ThisLP[ip].bWasGenerated = false;
-
-                const int  thisParticle = ThisLP[ip].iParticle;
-                const int  linkedTo     = ThisLP[ip].LinkedTo;
-                const bool bOpposite    = Source.Particles[thisParticle].LinkedOpposite;
-
-                if (ip != 0) // first is always generated, init checks that the first is not marked as opposite
-                {
-                    if (!ThisLP[linkedTo].bWasGenerated) continue; // parent was not generated
-
-                    const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
-                    if (ARandomHub::getInstance().uniform() > LinkingProbability) continue;
-
-                    if (!bOpposite && Source.Particles[thisParticle].Particle != "-")
-                    {
-                        if (ARandomHub::getInstance().uniform() > CollimationProbability[iSource])
-                            continue; // cone test fail
-                    }
-                    // else
-                    //opposite: it will be generated in opposite direction and ignore collimation cone
-                    //direct:   ignore direction and so the cone
-                }
-
-                ThisLP[ip].bWasGenerated = true;
-
-                int index = -1;
-                if (bOpposite)
-                {
-                    for (int i = 0; i < linkedTo + 1; i++)
-                        if (ThisLP[i].bWasGenerated && Source.Particles[ThisLP[i].iParticle].Particle != "-") index++;
-                }
-                addGeneratedParticle(iSource, thisParticle, position, time, index);
+                continue;
             }
-        }
 
-        // using casll-back to do the actual work with the particles
-        for (const AParticleRecord & particle : GeneratedParticles)
-            handler(particle);
+            const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
+            if (ARandomHub::getInstance().uniform() > LinkingProbability)
+            {
+                ThisLP[ip].bWasGenerated = false;
+                continue;
+            }
+
+            if (Source.UseCutOff && Source.Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
+            {
+                double inCutoffProbability = CollimationProbability[iSource];
+                if (Source.Particles[thisParticle].LinkedBtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
+                if (ARandomHub::getInstance().uniform() > inCutoffProbability)
+                {
+                    // did not pass cut-off
+                    ThisLP[ip].bWasGenerated = true;  // marked as generated, just do not add to tracking since outside of cut-off
+                    continue;
+                }
+            }
+
+            ThisLP[ip].bWasGenerated = true;
+
+            addGeneratedParticle(iSource, thisParticle, position, time, true, handler);
+        }
     }
 
     return true;
@@ -397,18 +443,14 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
 }
 
 // !!!*** override for secondaries to uniform!
-void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex)
+void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler)
 {
     const AParticleSourceRecord & src = Settings.SourceData[iSource];
     const AGunParticle & gp = src.Particles[iParticle];
 
     const double energy = gp.generateEnergy();
 
-#ifdef GEANT4
-    if (gp.particleDefinition)
-#else
-    if (gp.Particle != "-")
-#endif
+    if (!gp.isDirectDeposition())
     {
         AParticleRecord particle(
 #ifdef GEANT4
@@ -418,67 +460,14 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
 #endif
                                  position, time, energy);
 
-        if (oppositeToIndex == -1)
+        generateDirection(iSource, forceIsotropic, particle.v);
+        handler(particle);
+
+        if (gp.LinkedBtBPair)
         {
-            if (src.AngularMode == AParticleSourceRecord::UniformAngular)
-            {
-                //generating random direction inside the collimation cone
-                const double spread   = (src.UseCutOff ? src.CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
-                const double cosTheta = cos(spread);
-                const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
-                const double tmp = sqrt(1.0 - z * z);
-                const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
-
-                AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
-                AVector3 Coll( CollimationDirection[iSource] );
-                K1.rotateUz(Coll);
-                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
-            }
-            else if (src.AngularMode == AParticleSourceRecord::FixedDirection)
-            {
-                for (int i = 0; i < 3; i++) particle.v[i] = CollimationDirection[iSource][i];
-            }
-            //*** add error if CutOff is zero in this mode!
-            else if (src.AngularMode == AParticleSourceRecord::GaussDispersion)
-            {
-                double angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
-                if (src.UseCutOff)
-                {
-                    while (angle > src.CutOff)
-                        angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
-                }
-
-                AVector3 K1(0, 0, 1.0);
-                K1.rotateX(angle * 3.14159265358979323846 / 180.0);
-                K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
-                AVector3 Coll(CollimationDirection[iSource]);
-                K1.rotateUz(Coll);
-                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
-            }
-            // !!!*** add error if AngularDistribution does not have presence within CutOff
-            else if (src.AngularMode == AParticleSourceRecord::CustomAngular)
-            {
-                double angle = src._AngularSampler.getRandom();
-                if (src.UseCutOff)
-                {
-                    while (angle > src.CutOff)
-                        angle = src._AngularSampler.getRandom();
-                }
-
-                AVector3 K1(0, 0, 1.0);
-                K1.rotateX(angle * 3.14159265358979323846 / 180.0);
-                K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
-                AVector3 Coll( CollimationDirection[iSource] );
-                K1.rotateUz(Coll);
-                for (int i = 0; i < 3; i++) particle.v[i] = K1[i];
-            }
+            for (int i = 0; i < 3; i++) particle.v[i] = -particle.v[i];
+            handler(particle);
         }
-        else
-        {
-            for (int i = 0; i < 3; i++) particle.v[i] = -GeneratedParticles[oppositeToIndex].v[i];
-        }
-
-        GeneratedParticles.push_back(particle);
     }
     else
     {

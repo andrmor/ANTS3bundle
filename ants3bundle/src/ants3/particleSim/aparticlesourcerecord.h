@@ -14,23 +14,26 @@
 
 class G4ParticleDefinition;
 
+// !!!*** add check method (check energy spectrum, values are positive, add: LinkedBtBPair cannot be for "-")
 struct AGunParticle
 {
     std::string  Particle        = "geantino";
     double       StatWeight      = 1.0;
     bool         UseFixedEnergy  = true;
-    double       Energy          = 100.0;      //in keV
+    double       Energy          = 100.0;      // in keV
     std::string  PreferredUnits  = "keV";
     bool         Individual      = true;       // true = individual particle; false = linked
     int          LinkedTo        = 0;          // index of the "parent" particle this one is following
-    double       LinkedProb      = 0;          //probability to be emitted after the parent particle
-    bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
+    double       LinkedProb      = 0;          // probability to be emitted after the parent particle
+    bool         LinkedBtBPair   = false;      // false = normal case (single particle), true = back-to-back pair of particles
 
     std::vector<std::pair<double, double>> EnergySpectrum;
     bool         RangeBasedEnergies = false;
 
     bool    configureEnergySampler();
     double  generateEnergy() const;
+
+    bool    isDirectDeposition() const;
 
 #ifdef JSON11
     bool    readFromJson(const json11::Json::object & json);  // !!!***

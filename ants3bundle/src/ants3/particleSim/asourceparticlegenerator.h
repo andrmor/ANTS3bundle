@@ -56,17 +56,16 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
-    std::vector<AParticleRecord> GeneratedParticles;
-
     void   updateLimitedToMat();  // !!!*** implementation for Geant4
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
     size_t selectParticle(int iSource) const;
     bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
+    void   generateDirection(size_t iSource, bool forceIsotropic, double * direction) const;
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex = -1); // !!!*** override for secondaries to uniform!
+    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
 
 };
 
