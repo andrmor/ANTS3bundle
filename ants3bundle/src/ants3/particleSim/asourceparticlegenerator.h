@@ -56,12 +56,12 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
-    void   updateLimitedToMat();  // !!!*** implementation for Geant4
+    void   updateLimitedToMat();
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
     size_t selectParticle(int iSource) const;
-    bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
+    bool   selectPosition(int iSource, double * R) const;
     void   generateDirection(size_t iSource, bool forceIsotropic, double * direction) const;
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
