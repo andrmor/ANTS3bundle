@@ -1364,6 +1364,23 @@ In conract, when not checked, the distribution values are assumed to be measured
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbLinkingOpposite">
+          <property name="toolTip">
+           <string>Intended usage are annihilation gammas</string>
+          </property>
+          <property name="text">
+           <string>Generate back-to-back pair</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Line" name="line_10">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -1486,26 +1503,6 @@ In conract, when not checked, the distribution values are assumed to be measured
              </item>
             </layout>
            </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_30">
-             <property name="leftMargin">
-              <number>20</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QCheckBox" name="cbLinkingOpposite">
-               <property name="toolTip">
-                <string>Intended usage are annihilation gammas</string>
-               </property>
-               <property name="text">
-                <string>Generate back-to-back pair</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
           </layout>
          </widget>
         </item>
@@ -1572,6 +1569,8 @@ In conract, when not checked, the distribution values are assumed to be measured
        <zorder>line_10</zorder>
        <zorder>frStatWeight</zorder>
        <zorder>verticalSpacer_2</zorder>
+       <zorder>cbLinkingOpposite</zorder>
+       <zorder>line_8</zorder>
       </widget>
      </item>
     </layout>
