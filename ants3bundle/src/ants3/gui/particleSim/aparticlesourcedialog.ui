@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>787</height>
+    <height>791</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1144,44 +1144,31 @@ If material with this name does not exist, this limitation is not applied.</stri
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_30">
              <property name="topMargin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="labStatWeight">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Statistical weight:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
+              <widget class="QComboBox" name="comboBox">
+               <item>
+                <property name="text">
+                 <string>Independent particle</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked: parent generated</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked: parent NOT generated</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="ledGunParticleWeight">
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_20">
+              <spacer name="horizontalSpacer_22">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1195,7 +1182,183 @@ If material with this name does not exist, this limitation is not applied.</stri
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QStackedWidget" name="swParticleType">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="currentIndex">
+              <number>1</number>
+             </property>
+             <widget class="QWidget" name="page_10">
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <property name="leftMargin">
+                <number>20</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="labStatWeight">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Statistical weight:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="ledGunParticleWeight">
+                 <property name="maximumSize">
+                  <size>
+                   <width>75</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_20">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>28</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="page_11">
+              <layout class="QVBoxLayout" name="verticalLayout_5">
+               <property name="leftMargin">
+                <number>20</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_20">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_153">
+                   <property name="text">
+                    <string>Linked to particle #</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="sbLinkedTo"/>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_17">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_19">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_152">
+                   <property name="text">
+                    <string>With probability:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="ledLinkingProbability">
+                   <property name="maximumSize">
+                    <size>
+                     <width>75</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_21">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbLinkingOpposite">
+          <property name="toolTip">
+           <string>Intended usage are annihilation gammas</string>
+          </property>
+          <property name="text">
+           <string>Generate back-to-back pair</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -1364,36 +1527,9 @@ In conract, when not checked, the distribution values are assumed to be measured
          </layout>
         </item>
         <item>
-         <widget class="Line" name="line_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbLinkingOpposite">
-          <property name="toolTip">
-           <string>Intended usage are annihilation gammas</string>
-          </property>
-          <property name="text">
-           <string>Generate back-to-back pair</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="Line" name="line_10">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbLinkedParticle">
-          <property name="text">
-           <string>Linked particle</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1427,82 +1563,6 @@ In conract, when not checked, the distribution values are assumed to be measured
            <property name="bottomMargin">
             <number>0</number>
            </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_20">
-             <property name="leftMargin">
-              <number>20</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_153">
-               <property name="text">
-                <string>Linked to particle #</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="sbLinkedTo"/>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_17">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_19">
-             <property name="leftMargin">
-              <number>20</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_152">
-               <property name="text">
-                <string>With probability:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="ledLinkingProbability">
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_21">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
           </layout>
          </widget>
         </item>
@@ -1534,19 +1594,6 @@ In conract, when not checked, the distribution values are assumed to be measured
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -1560,17 +1607,14 @@ In conract, when not checked, the distribution values are assumed to be measured
          </spacer>
         </item>
        </layout>
-       <zorder>cbLinkedParticle</zorder>
        <zorder>fLinkedParticle</zorder>
-       <zorder>frSecondary</zorder>
        <zorder>label_11</zorder>
        <zorder>verticalSpacer</zorder>
        <zorder>line_2</zorder>
        <zorder>line_10</zorder>
        <zorder>frStatWeight</zorder>
-       <zorder>verticalSpacer_2</zorder>
        <zorder>cbLinkingOpposite</zorder>
-       <zorder>line_8</zorder>
+       <zorder>frSecondary</zorder>
       </widget>
      </item>
     </layout>
@@ -2208,8 +2252,8 @@ In conract, when not checked, the distribution values are assumed to be measured
      <y>120</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>119</y>
+     <x>551</x>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2256,8 +2300,8 @@ In conract, when not checked, the distribution values are assumed to be measured
      <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>439</x>
-     <y>120</y>
+     <x>551</x>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -2380,8 +2424,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>452</y>
+     <x>488</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -2396,8 +2440,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>539</x>
-     <y>602</y>
+     <x>546</x>
+     <y>444</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2412,8 +2456,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>423</x>
-     <y>463</y>
+     <x>429</x>
+     <y>511</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2428,8 +2472,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>492</x>
-     <y>397</y>
+     <x>500</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2620,8 +2664,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>261</y>
+     <x>382</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
      <x>496</x>

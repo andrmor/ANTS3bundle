@@ -35,9 +35,22 @@ private slots:
     void on_pbGunRemove_clicked();
     void on_lwGunParticles_currentRowChanged(int currentRow);
     void on_cobUnits_activated(int index);
-    void on_cbLinkedParticle_toggled(bool checked);
     void on_pbUpdateRecord_clicked();
-    void on_cbLinkedParticle_clicked(bool checked);
+    /*
+    void on_cbLinkedParticle_clicked(bool checked)
+    {
+        if (checked)
+        {
+            if (ui->lwGunParticles->currentRow() == 0)
+            {
+                ui->cbLinkedParticle->setChecked(false);
+                guitools::message("First particle cannot be linked", this);
+                return;
+            }
+        }
+        on_pbUpdateRecord_clicked();
+    }
+    */
     void on_sbLinkedTo_editingFinished();
     void on_ledLinkingProbability_editingFinished();
     void on_pbGunShowSpectrum_clicked();

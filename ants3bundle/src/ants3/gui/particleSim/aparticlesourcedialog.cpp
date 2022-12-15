@@ -240,7 +240,7 @@ void AParticleSourceDialog::on_pbGunAddNew_clicked()
     AGunParticle tmp;
     tmp.Particle = ui->leGunParticle->text().toLatin1().data();
     tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-    tmp.Energy = ui->ledGunEnergy->text().toDouble();
+    tmp.FixedEnergy = ui->ledGunEnergy->text().toDouble();
     LocalRec.Particles.push_back(tmp);
 
     updateListWidget();
@@ -278,19 +278,19 @@ void AParticleSourceDialog::updateListWidget()
     int counter = 0;
     for (const AGunParticle & gps : LocalRec.Particles)
     {
-        bool Individual = gps.Individual;
+        bool Independent = (gps.ParticleType == AGunParticle::Independent);
 
         QString str, str1;
-        if (Individual) str = "";
+        if (Independent) str = "";
         else str = ">";
         str1.setNum(counter++);
         str += str1 + "> ";
         str += QString(gps.Particle.data());
         if (gps.UseFixedEnergy)
-             str += QString(" E=%1").arg(gps.Energy);
+             str += QString(" E=%1").arg(gps.FixedEnergy);
         else str += " E=spec";
 
-        if (Individual)
+        if (Independent)
         {
             str += " W=";
             str1.setNum(gps.StatWeight);
@@ -298,11 +298,12 @@ void AParticleSourceDialog::updateListWidget()
         }
         else
         {
-            str += " Link:";
+            if (gps.ParticleType == AGunParticle::Linked_IfGenerated) str += " Link:";
+            else str += " IfNotLink:";
             str += QString::number(gps.LinkedTo);
             str += " P=";
             str += QString::number(gps.LinkedProb);
-            if (gps.LinkedBtBPair) str += " BtB pair";
+            if (gps.BtBPair) str += " BtB pair";
         }
         ui->lwGunParticles->addItem(str);
     }
@@ -328,7 +329,7 @@ void AParticleSourceDialog::updateParticleInfo()
         ui->ledGunParticleWeight->setText(str);
 
         int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits.data());
-        double energy = gRec.Energy;
+        double energy = gRec.FixedEnergy;
         if (iPrefUnits > -1)
         {
             ui->cobUnits->setCurrentIndex(iPrefUnits);
@@ -340,12 +341,12 @@ void AParticleSourceDialog::updateParticleInfo()
         else ui->cobUnits->setCurrentText("keV");
         ui->ledGunEnergy->setText( QString::number(energy) );
 
-        ui->cbLinkedParticle->setChecked(!gRec.Individual);
-        ui->frSecondary->setVisible(!gRec.Individual);
+// !!!***       ui->cbLinkedParticle->setChecked(!gRec.Individual);
+// !!!***        ui->frSecondary->setVisible(!gRec.Individual);
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
-        ui->cbLinkingOpposite->setChecked(gRec.LinkedBtBPair);
+        ui->cbLinkingOpposite->setChecked(gRec.BtBPair);
 
         bool bFix = gRec.UseFixedEnergy;
         ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
@@ -374,12 +375,6 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
     if (iPart == -1) return;
     LocalRec.Particles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
     updateParticleInfo();
-}
-
-void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
-{
-    ui->fLinkedParticle->setVisible(checked);
-    ui->frStatWeight->setVisible(!checked);
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -449,12 +444,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         else if (p.PreferredUnits == "keV") ;
         else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
         else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
-        p.Energy = energy;
+        p.FixedEnergy = energy;
         p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
-        p.Individual = !ui->cbLinkedParticle->isChecked();
+// !!!***        p.Individual = !ui->cbLinkedParticle->isChecked();
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
-        p.LinkedBtBPair = ui->cbLinkingOpposite->isChecked();
+        p.BtBPair = ui->cbLinkingOpposite->isChecked();
     }
 
     int curRow = ui->lwGunParticles->currentRow();
@@ -471,20 +466,6 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         AParticleSourcePlotter::plotSource(LocalRec);
         emit requestShowSource();
     }
-}
-
-void AParticleSourceDialog::on_cbLinkedParticle_clicked(bool checked)
-{
-    if (checked)
-    {
-        if (ui->lwGunParticles->currentRow() == 0)
-        {
-            ui->cbLinkedParticle->setChecked(false);
-            guitools::message("First particle cannot be linked", this);
-            return;
-        }
-    }
-    on_pbUpdateRecord_clicked();
 }
 
 void AParticleSourceDialog::on_sbLinkedTo_editingFinished()

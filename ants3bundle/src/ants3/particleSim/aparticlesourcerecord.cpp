@@ -19,7 +19,7 @@ bool AGunParticle::configureEnergySampler()
 
 double AGunParticle::generateEnergy() const
 {
-    if (UseFixedEnergy) return Energy;
+    if (UseFixedEnergy) return FixedEnergy;
     return _EnergySampler.getRandom();
 }
 
@@ -36,20 +36,31 @@ bool AGunParticle::isDirectDeposition() const
 void AGunParticle::writeToJson(QJsonObject & json) const
 {
     json["Particle"]           = QString(Particle.data());
+
+    QString str;
+    switch (ParticleType)
+    {
+    case Independent           : str = "Independent";           break;
+    case Linked_IfGenerated    : str = "Linked_IfGenerated";    break;
+    case Linked_IfNotGenerated : str = "Linked_IfNotGenerated"; break;
+    default: qCritical() << "Not implemented AGunParticle type in writeToJson!"; exit(111);
+    }
+    json["ParticleType"]       = str;
+
+    json["BtBPair"]            = BtBPair;
+
     json["StatWeight"]         = StatWeight;
-    json["Individual"]         = Individual;
     json["LinkedTo"]           = LinkedTo;
     json["LinkingProbability"] = LinkedProb;
-    json["LinkedBtBPair"]      = LinkedBtBPair;
-    json["Energy"]             = Energy;
-    json["UseFixedEnergy"]     = UseFixedEnergy;
-    json["RangeBasedEnergies"] = RangeBasedEnergies;
 
+    json["UseFixedEnergy"]     = UseFixedEnergy;
+    json["FixedEnergy"]        = FixedEnergy;
+    json["PreferredUnits"] = QString(PreferredUnits.data());
     QJsonArray ar;
         jstools::writeDPairVectorToArray(EnergySpectrum, ar);
     json["EnergySpectrum"] = ar;
+    json["RangeBasedEnergies"] = RangeBasedEnergies;
 
-    json["PreferredUnits"] = QString(PreferredUnits.data());
 }
 #endif
 
@@ -59,14 +70,27 @@ bool AGunParticle::readFromJson(const json11::Json::object & json)
 bool AGunParticle::readFromJson(const QJsonObject & json)
 #endif
 {
-    jstools::parseJson(json, "Particle",           Particle);
+    jstools::parseJson(json, "Particle",     Particle);
+
+    std::string str;
+    jstools::parseJson(json, "ParticleType", str );
+    if      (str == "Independent")           ParticleType = EType::Independent;
+    else if (str == "Linked_IfGenerated")    ParticleType = EType::Linked_IfGenerated;
+    else if (str == "Linked_IfNotGenerated") ParticleType = EType::Linked_IfNotGenerated;
+    else
+    {
+        // !!!*** generate error
+        // "Unknown AGunParticle type in readFromJson, setting to EType::Independent";
+        ParticleType = EType::Independent;
+    }
+
+    jstools::parseJson(json, "BtBPair",            BtBPair );
+
     jstools::parseJson(json, "StatWeight",         StatWeight );
-    jstools::parseJson(json, "Individual",         Individual );
     jstools::parseJson(json, "LinkedTo",           LinkedTo ); //linked always to previously already defined particles!
     jstools::parseJson(json, "LinkingProbability", LinkedProb );
-    jstools::parseJson(json, "LinkedBtBPair",      LinkedBtBPair );
 
-    jstools::parseJson(json, "Energy",             Energy );
+    jstools::parseJson(json, "FixedEnergy",        FixedEnergy );
     jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
 
     jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
@@ -345,7 +369,7 @@ std::string AParticleSourceRecord::check() const
     for (int ip = 0; ip < numParts; ip++)
     {
         const AGunParticle & gp = Particles.at(ip);
-        if (gp.Individual)
+        if (gp.ParticleType == AGunParticle::Independent)
         {
             numIndParts++;
             if (Particles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);
@@ -357,13 +381,13 @@ std::string AParticleSourceRecord::check() const
             if (ip <  gp.LinkedTo) return "Invalid linking for particle #" + std::to_string(ip);
         }
 
-        if (gp.LinkedBtBPair)
+        if (gp.BtBPair)
         {
             // !!!*** tweak error message
             if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + ") cannot be set \"LinkedBtBPair\" to one representing direct deposition (\"-\")";
         }
 
-        if (gp.Energy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
+        if (gp.FixedEnergy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
 
         if (!gp.UseFixedEnergy)
         {

@@ -17,16 +17,21 @@ class G4ParticleDefinition;
 // !!!*** add check method (check energy spectrum, values are positive, add: LinkedBtBPair cannot be for "-")
 struct AGunParticle
 {
-    std::string  Particle        = "geantino";
-    double       StatWeight      = 1.0;
-    bool         UseFixedEnergy  = true;
-    double       Energy          = 100.0;      // in keV
-    std::string  PreferredUnits  = "keV";
-    bool         Individual      = true;       // true = individual particle; false = linked
-    int          LinkedTo        = 0;          // index of the "parent" particle this one is following
-    double       LinkedProb      = 0;          // probability to be emitted after the parent particle
-    bool         LinkedBtBPair   = false;      // false = normal case (single particle), true = back-to-back pair of particles
+    enum EType {Independent, Linked_IfGenerated, Linked_IfNotGenerated};
 
+    std::string  Particle        = "geantino";
+
+    EType        ParticleType    = Independent;
+
+    double       StatWeight      = 1.0;
+    int          LinkedTo        = 0;          // index of the "parent" particle
+    double       LinkedProb      = 0;          // probability to be emitted if the parent particle is generated / not_generated
+
+    bool         BtBPair         = false;      // false = normal case (single particle), true = back-to-back pair of identical particles
+
+    bool         UseFixedEnergy  = true;
+    double       FixedEnergy     = 100.0;   // in keV
+    std::string  PreferredUnits  = "keV";
     std::vector<std::pair<double, double>> EnergySpectrum;
     bool         RangeBasedEnergies = false;
 
@@ -38,8 +43,8 @@ struct AGunParticle
 #ifdef JSON11
     bool    readFromJson(const json11::Json::object & json);  // !!!***
 #else
-    void    writeToJson(QJsonObject & json) const;   // !!!***
     bool    readFromJson(const QJsonObject & json);  // !!!***
+    void    writeToJson(QJsonObject & json) const;   // !!!***
 #endif
 
     //run-time

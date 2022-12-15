@@ -50,7 +50,7 @@ bool ASourceParticleGenerator::init()
     for (int isource = 0; isource<NumSources; isource++)
     {
         for (const AGunParticle & gp : Settings.SourceData[isource].Particles)
-            if (gp.Individual)
+            if (gp.ParticleType == AGunParticle::Independent)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
 
@@ -65,14 +65,14 @@ bool ASourceParticleGenerator::init()
         for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
             LinkedPartiles[iSource][iParticle].clear();
-            if (!Settings.SourceData[iSource].Particles[iParticle].Individual)
-                continue; //nothing to do for non-individual particles
+            if (Settings.SourceData[iSource].Particles[iParticle].ParticleType != AGunParticle::Independent)
+                continue; //nothing to do for dependent particles
 
-            //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
+            //every independent particle defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip = iParticle + 1; ip < numParts; ip++)
-                if (!Settings.SourceData[iSource].Particles[ip].Individual) //only looking for non-individuals
+                if (Settings.SourceData[iSource].Particles[ip].ParticleType != AGunParticle::Independent) //only looking for dependent
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
@@ -251,7 +251,7 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(iSource);
     for ( ; iParticle < Source.Particles.size() - 1; iParticle++)
     {
-        if (Source.Particles[iParticle].Individual)
+        if (Source.Particles[iParticle].ParticleType == AGunParticle::Independent)
         {
             if (Source.Particles[iParticle].StatWeight >= rnd) break; //this one
             rnd -= Source.Particles[iParticle].StatWeight;
@@ -294,10 +294,21 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             const int thisParticle = ThisLP[ip].iParticle;
             const int linkedTo     = ThisLP[ip].LinkedTo;
 
-            if (!ThisLP[linkedTo].bWasGenerated) // parent was not generated
+            if (ThisLP[linkedTo].bWasGenerated) // parent was generated
             {
-                ThisLP[ip].bWasGenerated = false;
-                continue;
+                if (Source.Particles[thisParticle].ParticleType == AGunParticle::Linked_IfNotGenerated)
+                {
+                    ThisLP[ip].bWasGenerated = false;
+                    continue;
+                }
+            }
+            else // parent was NOT generated
+            {
+                if (Source.Particles[thisParticle].ParticleType == AGunParticle::Linked_IfGenerated)
+                {
+                    ThisLP[ip].bWasGenerated = false;
+                    continue;
+                }
             }
 
             const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
@@ -310,7 +321,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             if (Source.UseCutOff && Source.Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
             {
                 double inCutoffProbability = CollimationProbability[iSource];
-                if (Source.Particles[thisParticle].LinkedBtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
+                if (Source.Particles[thisParticle].BtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
                 if (ARandomHub::getInstance().uniform() > inCutoffProbability)
                 {
                     // did not pass cut-off
@@ -463,7 +474,7 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
         generateDirection(iSource, forceIsotropic, particle.v);
         handler(particle);
 
-        if (gp.LinkedBtBPair)
+        if (gp.BtBPair)
         {
             for (int i = 0; i < 3; i++) particle.v[i] = -particle.v[i];
             handler(particle);
