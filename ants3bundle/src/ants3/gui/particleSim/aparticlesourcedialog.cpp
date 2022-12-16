@@ -430,11 +430,22 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.UseCutOff = ui->cbAngularCutoff->isChecked();
     LocalRec.CutOff = ui->ledAngularCutoff->text().toDouble();
 
-    LocalRec.TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
+    switch (ui->cobTimeAverageMode->currentIndex())
+    {
+    case 0  : LocalRec.TimeAverageMode = AParticleSourceRecord::Single; break;
+    case 1  : LocalRec.TimeAverageMode = AParticleSourceRecord::Train;  break;
+    default : ; // !!!*** error
+    }
     LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
     LocalRec.TimeAverageStart = ui->ledTimeAverageStart->text().toDouble();
     LocalRec.TimeAveragePeriod = ui->ledTimeAveragePeriod->text().toDouble();
-    LocalRec.TimeSpreadMode = ui->cobTimeSpreadMode->currentIndex();
+    switch (ui->cobTimeSpreadMode->currentIndex())
+    {
+    case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;      break;
+    case 1  : LocalRec.TimeSpreadMode = AParticleSourceRecord::GaussSpread;   break;
+    case 2  : LocalRec.TimeSpreadMode = AParticleSourceRecord::UniformSpread; break;
+    default : ; // !!!*** error
+    }
     LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
     LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
 
@@ -468,7 +479,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     int curRow = ui->lwGunParticles->currentRow();
     updateListWidget();
-    if ( curRow < 0 && curRow >= ui->lwGunParticles->count() ) curRow = 0;
+    if (curRow < 0 && curRow >= ui->lwGunParticles->count()) curRow = 0;
     ui->lwGunParticles->setCurrentRow(curRow);
     updateParticleInfo();
     updateColorLimitingMat();

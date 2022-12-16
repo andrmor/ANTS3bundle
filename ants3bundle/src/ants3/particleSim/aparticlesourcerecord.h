@@ -56,8 +56,14 @@ struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
     enum EAngularMode {UniformAngular, FixedDirection, GaussDispersion, CustomAngular};
+    enum EPulseMode {Single, Train};
+    enum ESpreadMode {NoSpread, GaussSpread, UniformSpread};
 
     std::string Name  = "No_name";
+
+    // Relative activity
+    double      Activity = 1.0;
+
     EShape      Shape = Point;
 
     // Position
@@ -88,15 +94,12 @@ struct AParticleSourceRecord
     bool        MaterialLimited = false;
     std::string LimtedToMatName;
 
-    // Relative activity
-    double      Activity = 1.0;
-
     // Time
-    int         TimeAverageMode = 0;  // !!!*** to enum
+    EPulseMode  TimeAverageMode = Single;
     double      TimeAverage = 0;
     double      TimeAverageStart = 0;
     double      TimeAveragePeriod = 10.0;
-    int         TimeSpreadMode = 0;  // !!!*** to enum
+    ESpreadMode TimeSpreadMode = NoSpread;
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;
 

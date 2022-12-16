@@ -1,10 +1,10 @@
 #include "aparticlesourcerecord.h"
 
 #ifdef JSON11
-// already in the header
+    // already in the header
 #else
-#include "ajsontools.h"
-#include "afiletools.h"
+    #include "ajsontools.h"
+    #include "afiletools.h"
 #endif
 
 using JsonArray =
@@ -167,11 +167,11 @@ void AParticleSourceRecord::clear()
 
     Activity = 1.0;
 
-    TimeAverageMode   = 0;
+    TimeAverageMode   = Single;
     TimeAverage       = 0;
     TimeAverageStart  = 0;
     TimeAveragePeriod = 10.0;
-    TimeSpreadMode    = 0;
+    TimeSpreadMode    = NoSpread;
     TimeSpreadSigma   = 50.0;
     TimeSpreadWidth   = 100.0;
 
@@ -235,23 +235,44 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     json["MaterialLimited"] = MaterialLimited;
     json["LimitedToMaterial"] = QString(LimtedToMatName.data());
 
-    json["TimeAverageMode"]   = TimeAverageMode;
-    json["TimeAverage"]       = TimeAverage;
-    json["TimeAverageStart"]  = TimeAverageStart;
-    json["TimeAveragePeriod"] = TimeAveragePeriod;
-    json["TimeSpreadMode"]    = TimeSpreadMode;
-    json["TimeSpreadSigma"]   = TimeSpreadSigma;
-    json["TimeSpreadWidth"]   = TimeSpreadWidth;
-
-    //particles
-    QJsonArray jParticleEntries;
-    for (const AGunParticle & gp : Particles)
+    // Time properties
     {
         QJsonObject js;
-            gp.writeToJson(js);
-        jParticleEntries.append(js);
+            QString str;
+                switch (TimeAverageMode)
+                {
+                case Single : str = "Single"; break;
+                case Train  : str = "Train";  break;
+                default : qCritical() << "Not implemented TimeAverageMode in AParticleSourceRecord::writeToJson"; exit(111);
+                }
+            js["AverageMode"]   = str;
+            js["Average"]       = TimeAverage;
+            js["AverageStart"]  = TimeAverageStart;
+            js["AveragePeriod"] = TimeAveragePeriod;
+                switch (TimeSpreadMode)
+                {
+                case NoSpread      : str = "NoSpread";      break;
+                case GaussSpread   : str = "GaussSpread";   break;
+                case UniformSpread : str = "UniformSpread"; break;
+                default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord::writeToJson"; exit(111);
+                }
+            js["SpreadMode"]    = str;
+            js["SpreadSigma"]   = TimeSpreadSigma;
+            js["SpreadWidth"]   = TimeSpreadWidth;
+        json["Time"] = js;
     }
-    json["Particles"] = jParticleEntries;
+
+    // Particles
+    {
+        QJsonArray ar;
+            for (const AGunParticle & gp : Particles)
+            {
+                QJsonObject js;
+                    gp.writeToJson(js);
+                ar.append(js);
+            }
+        json["Particles"] = ar;
+    }
 }
 #endif
 
@@ -309,13 +330,27 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             configureAngularSampler();
     }
 
-    jstools::parseJson(json, "TimeAverageMode",   TimeAverageMode);
-    jstools::parseJson(json, "TimeAverage",       TimeAverage);
-    jstools::parseJson(json, "TimeAverageStart",  TimeAverageStart);
-    jstools::parseJson(json, "TimeAveragePeriod", TimeAveragePeriod);
-    jstools::parseJson(json, "TimeSpreadMode",    TimeSpreadMode);
-    jstools::parseJson(json, "TimeSpreadSigma",   TimeSpreadSigma);
-    jstools::parseJson(json, "TimeSpreadWidth",   TimeSpreadWidth);
+    // Time properties
+    {
+        JsonObject js;
+        jstools::parseJson(json, "Time", js);
+
+        std::string str;
+        jstools::parseJson(js, "AverageMode", str);
+            if      (str == "Single") TimeAverageMode = Single;
+            else if (str == "Train")  TimeAverageMode = Train;
+            else ; // !!!*** error reporting
+        jstools::parseJson(js, "Average",       TimeAverage);
+        jstools::parseJson(js, "AverageStart",  TimeAverageStart);
+        jstools::parseJson(js, "AveragePeriod", TimeAveragePeriod);
+        jstools::parseJson(js, "SpreadMode", str);
+            if      (str == "NoSpread")      TimeSpreadMode = NoSpread;
+            else if (str == "GaussSpread")   TimeSpreadMode = GaussSpread;
+            else if (str == "UniformSpread") TimeSpreadMode = UniformSpread;
+            else ; // !!!*** error reporting
+        jstools::parseJson(js, "SpreadSigma",   TimeSpreadSigma);
+        jstools::parseJson(js, "SpreadWidth",   TimeSpreadWidth);
+    }
 
     jstools::parseJson(json, "MaterialLimited", MaterialLimited);
     jstools::parseJson(json, "LimitedToMaterial", LimtedToMatName);
@@ -325,13 +360,6 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
     const int numGP = jGunPartArr.size();
     for (int ip = 0; ip < numGP; ip++)
     {
-/*
-#ifdef JSON11
-        json11::Json::object jThisGunPart = jGunPartArr[ip].object_items();
-#else
-        QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
-#endif
-*/
         JsonObject js;
         jstools::arrayElementToObject(jGunPartArr, ip, js);
 

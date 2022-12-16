@@ -261,6 +261,7 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
     return iParticle;
 }
 
+#include <iostream>
 //after any operation with sources (add, remove), init should be called before the first use!
 bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent)
 {

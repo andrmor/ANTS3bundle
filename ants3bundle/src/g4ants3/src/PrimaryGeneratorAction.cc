@@ -31,7 +31,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event * anEvent)
         GeantParticleGun->SetParticlePosition({particle.r[0], particle.r[1], particle.r[2]}); //position in millimeters - no need units
         GeantParticleGun->SetParticleMomentumDirection({particle.v[0], particle.v[1], particle.v[2]});
         GeantParticleGun->SetParticleEnergy(particle.energy * keV);
-        GeantParticleGun->SetParticleTime(particle.time); //in ns - no need units
+        GeantParticleGun->SetParticleTime(particle.time * ns);
 
         GeantParticleGun->GeneratePrimaryVertex(anEvent);
         incrementPredictedTrackID();
