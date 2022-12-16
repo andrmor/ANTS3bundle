@@ -13,13 +13,10 @@
 #include <QDoubleValidator>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QSettings>
 
 #include "TH1D.h"
 #include "TGraph.h"
-
-// save to make persistent?
-static bool ShowStatistics = false;
-static int  NumInStatistics = 1000;
 
 AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent) :
     QDialog(parent),
@@ -98,8 +95,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     ui->pbAbort->setVisible(false);
 
-    ui->cbShowStatistics->setChecked(ShowStatistics);
-    ui->sbGunTestEvents->setValue(NumInStatistics);
+    restorePersistentSettings();
 
     // !!!*** export / import source
 //    QMenuBar* mb = new QMenuBar(this);
@@ -111,21 +107,16 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
 AParticleSourceDialog::~AParticleSourceDialog()
 {
-    ShowStatistics = ui->cbShowStatistics->isChecked();
-    NumInStatistics = ui->sbGunTestEvents->value();
-
+    storePersistentSettings();
     delete ui;
 }
 
-/*
-#include <QSettings>
 void AParticleSourceDialog::storePersistentSettings()
 {
     QSettings settings;
     settings.beginGroup("ParticleSourceDialog");
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("visible", isVisible());
-    settings.setValue("maximized", isMaximized());
+    settings.setValue("ShowStatistics",  ui->cbShowStatistics->isChecked());
+    settings.setValue("NumInStatistics", ui->sbGunTestEvents->value());
     settings.endGroup();
 }
 
@@ -133,17 +124,12 @@ void AParticleSourceDialog::restorePersistentSettings()
 {
     QSettings settings;
     settings.beginGroup("ParticleSourceDialog");
-    restoreGeometry(settings.value("geometry").toByteArray());
-    bool bVisible = settings.value("visible", false).toBool();
-    bool bmax = settings.value("maximized", false).toBool();
-    if (bVisible)
-    {
-        if (bmax) showMaximized();
-        else      showNormal();
-    }
+    bool ShowStatistics = settings.value("ShowStatistics", false).toBool();
+    ui->cbShowStatistics->setChecked(ShowStatistics);
+    int NumInStatistics = settings.value("NumInStatistics", 1000).toInt();
+    ui->sbGunTestEvents->setValue(NumInStatistics);
     settings.endGroup();
 }
-*/
 
 AParticleSourceRecord & AParticleSourceDialog::getResult()
 {
@@ -211,21 +197,14 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     QVector<QString> s;
     switch (index)
     {
-      case 0: s <<""<<""<<"";
-        break;
-      case 1: s <<"Length:"<<""<<"";
-        break;
-      case 2: s <<"SizeX:"<<"SizeY:"<<"";
-        break;
-      case 3: s <<"Diameter:"<<""<<"";
-        break;
-      case 4: s <<"SizeX:"<<"SizeY:"<<"SizeZ:";
-        break;
-      case 5: s <<"Diameter:"<<""<<"Height:";
-        break;
-      default:
-        qWarning() << "Unknown source type!";
-        s <<""<<""<<"";
+    default: qWarning() << "Unknown source type!";
+            s << ""          << ""       << "";        break;
+    case 0: s << ""          << ""       << "";        break;
+    case 1: s << "Length:"   << ""       << "";        break;
+    case 2: s << "SizeX:"    << "SizeY:" << "";        break;
+    case 3: s << "Diameter:" << ""       << "";        break;
+    case 4: s << "SizeX:"    << "SizeY:" << "SizeZ:";  break;
+    case 5: s << "Diameter:" << ""       << "Height:"; break;
     }
     ui->lGun1DSize->setText(s[0]);
     ui->lGun2DSize->setText(s[1]);

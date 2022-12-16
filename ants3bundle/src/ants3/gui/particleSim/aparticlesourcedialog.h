@@ -70,6 +70,8 @@ private:
     void updateColorLimitingMat();
     void updateCustomAngularButtons();
     void updateDirectionVisibility();
+    void storePersistentSettings();
+    void restorePersistentSettings();
 };
 
 #endif // APARTICLESOURCEDIALOG_H
