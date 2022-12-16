@@ -38,14 +38,14 @@ void AGunParticle::writeToJson(QJsonObject & json) const
     json["Particle"]           = QString(Particle.data());
 
     QString str;
-    switch (ParticleType)
+    switch (GenerationType)
     {
     case Independent           : str = "Independent";           break;
     case Linked_IfGenerated    : str = "Linked_IfGenerated";    break;
     case Linked_IfNotGenerated : str = "Linked_IfNotGenerated"; break;
     default: qCritical() << "Not implemented AGunParticle type in writeToJson!"; exit(111);
     }
-    json["ParticleType"]       = str;
+    json["GenerationType"]     = str;
 
     json["BtBPair"]            = BtBPair;
 
@@ -73,15 +73,15 @@ bool AGunParticle::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Particle",     Particle);
 
     std::string str;
-    jstools::parseJson(json, "ParticleType", str );
-    if      (str == "Independent")           ParticleType = EType::Independent;
-    else if (str == "Linked_IfGenerated")    ParticleType = EType::Linked_IfGenerated;
-    else if (str == "Linked_IfNotGenerated") ParticleType = EType::Linked_IfNotGenerated;
+    jstools::parseJson(json, "GenerationType", str );
+    if      (str == "Independent")           GenerationType = EType::Independent;
+    else if (str == "Linked_IfGenerated")    GenerationType = EType::Linked_IfGenerated;
+    else if (str == "Linked_IfNotGenerated") GenerationType = EType::Linked_IfNotGenerated;
     else
     {
         // !!!*** generate error
         // "Unknown AGunParticle type in readFromJson, setting to EType::Independent";
-        ParticleType = EType::Independent;
+        GenerationType = EType::Independent;
     }
 
     jstools::parseJson(json, "BtBPair",            BtBPair );
@@ -369,7 +369,7 @@ std::string AParticleSourceRecord::check() const
     for (int ip = 0; ip < numParts; ip++)
     {
         const AGunParticle & gp = Particles.at(ip);
-        if (gp.ParticleType == AGunParticle::Independent)
+        if (gp.GenerationType == AGunParticle::Independent)
         {
             numIndParts++;
             if (Particles.at(ip).StatWeight < 0) return "Negative statistical weight for particle #" + std::to_string(ip);

@@ -21,7 +21,7 @@ struct AGunParticle
 
     std::string  Particle        = "geantino";
 
-    EType        ParticleType    = Independent;
+    EType        GenerationType  = Independent;
 
     double       StatWeight      = 1.0;
     int          LinkedTo        = 0;          // index of the "parent" particle

@@ -50,7 +50,7 @@ bool ASourceParticleGenerator::init()
     for (int isource = 0; isource<NumSources; isource++)
     {
         for (const AGunParticle & gp : Settings.SourceData[isource].Particles)
-            if (gp.ParticleType == AGunParticle::Independent)
+            if (gp.GenerationType == AGunParticle::Independent)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
 
@@ -65,14 +65,14 @@ bool ASourceParticleGenerator::init()
         for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
             LinkedPartiles[iSource][iParticle].clear();
-            if (Settings.SourceData[iSource].Particles[iParticle].ParticleType != AGunParticle::Independent)
+            if (Settings.SourceData[iSource].Particles[iParticle].GenerationType != AGunParticle::Independent)
                 continue; //nothing to do for dependent particles
 
             //every independent particle defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip = iParticle + 1; ip < numParts; ip++)
-                if (Settings.SourceData[iSource].Particles[ip].ParticleType != AGunParticle::Independent) //only looking for dependent
+                if (Settings.SourceData[iSource].Particles[ip].GenerationType != AGunParticle::Independent) //only looking for dependent
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
@@ -251,7 +251,7 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(iSource);
     for ( ; iParticle < Source.Particles.size() - 1; iParticle++)
     {
-        if (Source.Particles[iParticle].ParticleType == AGunParticle::Independent)
+        if (Source.Particles[iParticle].GenerationType == AGunParticle::Independent)
         {
             if (Source.Particles[iParticle].StatWeight >= rnd) break; //this one
             rnd -= Source.Particles[iParticle].StatWeight;
@@ -296,7 +296,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
 
             if (ThisLP[linkedTo].bWasGenerated) // parent was generated
             {
-                if (Source.Particles[thisParticle].ParticleType == AGunParticle::Linked_IfNotGenerated)
+                if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
                 {
                     ThisLP[ip].bWasGenerated = false;
                     continue;
@@ -304,7 +304,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             }
             else // parent was NOT generated
             {
-                if (Source.Particles[thisParticle].ParticleType == AGunParticle::Linked_IfGenerated)
+                if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfGenerated)
                 {
                     ThisLP[ip].bWasGenerated = false;
                     continue;

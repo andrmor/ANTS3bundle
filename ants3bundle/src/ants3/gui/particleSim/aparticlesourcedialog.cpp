@@ -117,6 +117,34 @@ AParticleSourceDialog::~AParticleSourceDialog()
     delete ui;
 }
 
+/*
+#include <QSettings>
+void AParticleSourceDialog::storePersistentSettings()
+{
+    QSettings settings;
+    settings.beginGroup("ParticleSourceDialog");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("visible", isVisible());
+    settings.setValue("maximized", isMaximized());
+    settings.endGroup();
+}
+
+void AParticleSourceDialog::restorePersistentSettings()
+{
+    QSettings settings;
+    settings.beginGroup("ParticleSourceDialog");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    bool bVisible = settings.value("visible", false).toBool();
+    bool bmax = settings.value("maximized", false).toBool();
+    if (bVisible)
+    {
+        if (bmax) showMaximized();
+        else      showNormal();
+    }
+    settings.endGroup();
+}
+*/
+
 AParticleSourceRecord & AParticleSourceDialog::getResult()
 {
     return LocalRec;
@@ -150,7 +178,7 @@ void AParticleSourceDialog::on_pbAccept_clicked()
 {
     std::string err = LocalRec.check();
     if (err.empty()) accept();
-    else guitools::message(QString(err.data()), this);
+    else guitools::message(err.data(), this);
 }
 
 void AParticleSourceDialog::on_pbReject_clicked()
@@ -277,7 +305,7 @@ void AParticleSourceDialog::updateListWidget()
     int counter = 0;
     for (const AGunParticle & gps : LocalRec.Particles)
     {
-        bool Independent = (gps.ParticleType == AGunParticle::Independent);
+        bool Independent = (gps.GenerationType == AGunParticle::Independent);
 
         QString str, str1;
         if (Independent) str = "";
@@ -297,7 +325,7 @@ void AParticleSourceDialog::updateListWidget()
         }
         else
         {
-            if (gps.ParticleType == AGunParticle::Linked_IfGenerated) str += " Link:";
+            if (gps.GenerationType == AGunParticle::Linked_IfGenerated) str += " Link:";
             else str += " IfNotLink:";
             str += QString::number(gps.LinkedTo);
             str += " P=";
@@ -340,8 +368,14 @@ void AParticleSourceDialog::updateParticleInfo()
         else ui->cobUnits->setCurrentText("keV");
         ui->ledGunEnergy->setText( QString::number(energy) );
 
-        ui->frIndependent->setVisible(gRec.ParticleType == AGunParticle::Independent);
-        ui->frLinked->setVisible(gRec.ParticleType != AGunParticle::Independent);
+        int index = 0;
+        if      (gRec.GenerationType == AGunParticle::Independent)           index = 0;
+        else if (gRec.GenerationType == AGunParticle::Linked_IfGenerated)    index = 1;
+        else if (gRec.GenerationType == AGunParticle::Linked_IfNotGenerated) index = 2;
+        else qWarning() << "Not implemented particle generation type";
+        ui->cobGenerationType->setCurrentIndex(index);
+        ui->frIndependent->setVisible(gRec.GenerationType == AGunParticle::Independent);
+        ui->frLinked->setVisible(gRec.GenerationType != AGunParticle::Independent);
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
@@ -441,7 +475,13 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
         p.FixedEnergy = energy;
         p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
-// !!!***        p.Individual = !ui->cbLinkedParticle->isChecked();
+        switch (ui->cobGenerationType->currentIndex())
+        {
+        case 0: p.GenerationType = AGunParticle::Independent; break;
+        case 1: p.GenerationType = AGunParticle::Linked_IfGenerated; break;
+        case 2: p.GenerationType = AGunParticle::Linked_IfNotGenerated; break;
+        default: guitools::message("Non-implemented generation type for the particle!", this);
+        }
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
         p.BtBPair = ui->cbLinkingOpposite->isChecked();
@@ -449,8 +489,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     int curRow = ui->lwGunParticles->currentRow();
     updateListWidget();
-    if ( curRow < 0 && curRow >= ui->lwGunParticles->count() )
-        curRow = 0;
+    if ( curRow < 0 && curRow >= ui->lwGunParticles->count() ) curRow = 0;
     ui->lwGunParticles->setCurrentRow(curRow);
     updateParticleInfo();
     updateColorLimitingMat();
@@ -555,11 +594,6 @@ void AParticleSourceDialog::updateCustomAngularButtons()
     ui->pbDeleteAngular->setEnabled(distrLoaded);
 }
 
-void AParticleSourceDialog::on_leGunParticle_editingFinished()
-{
-    on_pbUpdateRecord_clicked();
-}
-
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 {
     AParticleSourcePlotter::clearTracks();
@@ -634,10 +668,3 @@ void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
 {
     updateDirectionVisibility();
 }
-
-void AParticleSourceDialog::on_cobGenerationType_currentIndexChanged(int index)
-{
-    ui->frIndependent->setVisible(index == 0);
-    ui->frLinked->setVisible(index != 0);
-}
-
