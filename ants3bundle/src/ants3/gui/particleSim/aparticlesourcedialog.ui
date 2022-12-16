@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>791</height>
+    <height>767</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1044,7 +1044,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>260</width>
          <height>16777215</height>
         </size>
        </property>
@@ -1101,7 +1101,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          </layout>
         </item>
         <item>
-         <widget class="QFrame" name="frStatWeight">
+         <widget class="QFrame" name="frParticleInfo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -1144,180 +1144,64 @@ If material with this name does not exist, this limitation is not applied.</stri
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_30">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Energy:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>3</number>
+             </property>
+             <property name="leftMargin">
+              <number>15</number>
+             </property>
              <property name="topMargin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="comboBox">
+              <widget class="QComboBox" name="cobEnergy">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <item>
                 <property name="text">
-                 <string>Independent particle</string>
+                 <string>Fixed</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Linked: parent generated</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Linked: parent NOT generated</string>
+                 <string>Distribution</string>
                 </property>
                </item>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_22">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QStackedWidget" name="swEnergy">
+               <property name="currentIndex">
+                <number>1</number>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QStackedWidget" name="swParticleType">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="currentIndex">
-              <number>1</number>
-             </property>
-             <widget class="QWidget" name="page_10">
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <property name="leftMargin">
-                <number>20</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="labStatWeight">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Statistical weight:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="ledGunParticleWeight">
-                 <property name="maximumSize">
-                  <size>
-                   <width>75</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_20">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>28</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="page_11">
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="leftMargin">
-                <number>20</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_20">
+               <widget class="QWidget" name="page_12">
+                <layout class="QHBoxLayout" name="horizontalLayout_18">
                  <property name="leftMargin">
                   <number>0</number>
                  </property>
-                 <item>
-                  <widget class="QLabel" name="label_153">
-                   <property name="text">
-                    <string>Linked to particle #</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="sbLinkedTo"/>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_17">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_19">
-                 <property name="leftMargin">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="label_152">
-                   <property name="text">
-                    <string>With probability:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ledLinkingProbability">
+                  <widget class="QLineEdit" name="ledGunEnergy">
                    <property name="maximumSize">
                     <size>
                      <width>75</width>
@@ -1325,102 +1209,201 @@ If material with this name does not exist, this limitation is not applied.</stri
                     </size>
                    </property>
                    <property name="text">
-                    <string>1</string>
+                    <string>100</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer_21">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
+                  <widget class="QComboBox" name="cobUnits">
+                   <item>
+                    <property name="text">
+                     <string>MeV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>keV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>eV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>meV</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
                 </layout>
-               </item>
-              </layout>
-             </widget>
+               </widget>
+               <widget class="QWidget" name="page_13">
+                <layout class="QHBoxLayout" name="horizontalLayout_17">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QPushButton" name="pbGunShowSpectrum">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>35</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbGunLoadSpectrum">
+                   <property name="minimumSize">
+                    <size>
+                     <width>35</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Format: two columns, first is the energy in keV, second is the probability</string>
+                   </property>
+                   <property name="text">
+                    <string>Load</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbDeleteSpectrum">
+                   <property name="maximumSize">
+                    <size>
+                     <width>18</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_31">
+             <property name="leftMargin">
+              <number>15</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="cbRangeBaseEnergyData">
+               <property name="toolTip">
+                <string>Affects only distribution with non-uniform step.
+When checked, the values are assumed to to be collected for the entire corresponding range.
+In conract, when not checked, the distribution values are assumed to be measured for fixed energies.</string>
+               </property>
+               <property name="text">
+                <string>Range-based data</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbLinkingOpposite">
-          <property name="toolTip">
-           <string>Intended usage are annihilation gammas</string>
-          </property>
-          <property name="text">
-           <string>Generate back-to-back pair</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Energy:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="spacing">
-           <number>3</number>
-          </property>
-          <property name="leftMargin">
-           <number>20</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QComboBox" name="cobEnergy">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>Fixed</string>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_30">
+             <property name="topMargin">
+              <number>0</number>
              </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Distribution</string>
+             <item>
+              <widget class="QComboBox" name="cobGenerationType">
+               <item>
+                <property name="text">
+                 <string>Independent particle</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked -&gt; parent generated</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked -&gt; parent NOT generated</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="frIndependent">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
              </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_17">
-              <property name="spacing">
-               <number>1</number>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="leftMargin">
+               <number>15</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <widget class="QLineEdit" name="ledGunEnergy">
+               <widget class="QLabel" name="labStatWeight">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Statistical weight:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="ledGunParticleWeight">
                 <property name="maximumSize">
                  <size>
                   <width>75</width>
@@ -1428,168 +1411,142 @@ If material with this name does not exist, this limitation is not applied.</stri
                  </size>
                 </property>
                 <property name="text">
-                 <string>100</string>
+                 <string>1</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="cobUnits">
-                <item>
-                 <property name="text">
-                  <string>MeV</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>keV</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>eV</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>meV</string>
-                 </property>
-                </item>
-               </widget>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>33</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <property name="spacing">
-               <number>1</number>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="frLinked">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="leftMargin">
+               <number>15</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <widget class="QPushButton" name="pbGunShowSpectrum">
-                <property name="enabled">
-                 <bool>false</bool>
+               <layout class="QHBoxLayout" name="horizontalLayout_20">
+                <property name="leftMargin">
+                 <number>0</number>
                 </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>35</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Show</string>
-                </property>
-               </widget>
+                <item>
+                 <widget class="QLabel" name="label_153">
+                  <property name="text">
+                   <string>Linked to particle #</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="sbLinkedTo"/>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_17">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
-               <widget class="QPushButton" name="pbGunLoadSpectrum">
-                <property name="minimumSize">
-                 <size>
-                  <width>35</width>
-                  <height>0</height>
-                 </size>
+               <layout class="QHBoxLayout" name="horizontalLayout_19">
+                <property name="leftMargin">
+                 <number>0</number>
                 </property>
-                <property name="toolTip">
-                 <string>Format: two columns, first is the energy in keV, second is the probability</string>
-                </property>
-                <property name="text">
-                 <string>Load</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbDeleteSpectrum">
-                <property name="maximumSize">
-                 <size>
-                  <width>18</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>X</string>
-                </property>
-               </widget>
+                <item>
+                 <widget class="QLabel" name="label_152">
+                  <property name="text">
+                   <string>With probability:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="ledLinkingProbability">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_21">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbRangeBaseEnergyData">
-              <property name="toolTip">
-               <string>Affects only distribution with non-uniform step.
-When checked, the values are assumed to to be collected for the entire corresponding range.
-In conract, when not checked, the distribution values are assumed to be measured for fixed energies.</string>
-              </property>
-              <property name="text">
-               <string>Range-based data</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line_10">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="frSecondary">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="fLinkedParticle">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <property name="spacing">
-            <number>2</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbLinkingOpposite">
+             <property name="toolTip">
+              <string>Intended usage are annihilation gammas</string>
+             </property>
+             <property name="text">
+              <string>Generate back-to-back pair</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -1607,14 +1564,8 @@ In conract, when not checked, the distribution values are assumed to be measured
          </spacer>
         </item>
        </layout>
-       <zorder>fLinkedParticle</zorder>
-       <zorder>label_11</zorder>
        <zorder>verticalSpacer</zorder>
-       <zorder>line_2</zorder>
-       <zorder>line_10</zorder>
-       <zorder>frStatWeight</zorder>
-       <zorder>cbLinkingOpposite</zorder>
-       <zorder>frSecondary</zorder>
+       <zorder>frParticleInfo</zorder>
       </widget>
      </item>
     </layout>
@@ -2424,8 +2375,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>488</x>
-     <y>490</y>
+     <x>486</x>
+     <y>543</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -2441,7 +2392,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>546</x>
-     <y>444</y>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2457,7 +2408,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>429</x>
-     <y>511</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2472,8 +2423,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>500</x>
-     <y>418</y>
+     <x>516</x>
+     <y>443</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2489,11 +2440,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>227</x>
-     <y>672</y>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
-     <x>508</x>
-     <y>672</y>
+     <x>511</x>
+     <y>630</y>
     </hint>
    </hints>
   </connection>
@@ -2505,11 +2456,11 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>158</x>
-     <y>700</y>
+     <y>658</y>
     </hint>
     <hint type="destinationlabel">
      <x>374</x>
-     <y>700</y>
+     <y>658</y>
     </hint>
    </hints>
   </connection>
@@ -2521,7 +2472,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>227</x>
-     <y>672</y>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2537,7 +2488,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>307</x>
-     <y>672</y>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2553,7 +2504,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>262</x>
-     <y>675</y>
+     <y>633</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2569,7 +2520,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>315</x>
-     <y>675</y>
+     <y>633</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2585,7 +2536,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>158</x>
-     <y>700</y>
+     <y>658</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2601,7 +2552,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>238</x>
-     <y>703</y>
+     <y>661</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2617,7 +2568,7 @@ In conract, when not checked, the distribution values are assumed to be measured
    <hints>
     <hint type="sourcelabel">
      <x>238</x>
-     <y>703</y>
+     <y>661</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>

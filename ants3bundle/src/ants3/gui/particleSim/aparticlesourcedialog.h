@@ -70,6 +70,8 @@ private slots:
 
     void on_cbAngularCutoff_toggled(bool checked);
 
+    void on_cobGenerationType_currentIndexChanged(int index);
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);

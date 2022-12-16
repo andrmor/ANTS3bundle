@@ -86,7 +86,6 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
     ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
 
-    ui->frSecondary->setVisible(false);
     updateListWidget();
     updateColorLimitingMat();
     if ( !Rec.Particles.empty() )
@@ -341,23 +340,19 @@ void AParticleSourceDialog::updateParticleInfo()
         else ui->cobUnits->setCurrentText("keV");
         ui->ledGunEnergy->setText( QString::number(energy) );
 
-// !!!***       ui->cbLinkedParticle->setChecked(!gRec.Individual);
-// !!!***        ui->frSecondary->setVisible(!gRec.Individual);
+        ui->frIndependent->setVisible(gRec.ParticleType == AGunParticle::Independent);
+        ui->frLinked->setVisible(gRec.ParticleType != AGunParticle::Independent);
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
         ui->cbLinkingOpposite->setChecked(gRec.BtBPair);
 
         bool bFix = gRec.UseFixedEnergy;
-        ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
-        ui->pbGunShowSpectrum->setVisible(!bFix);
+        ui->cobEnergy->setCurrentIndex(bFix ? 0 : 1);
+        ui->swEnergy->setCurrentIndex(bFix ? 0 : 1);
         ui->pbGunShowSpectrum->setEnabled(!gRec.EnergySpectrum.empty());
-        ui->pbGunLoadSpectrum->setVisible(!bFix);
-        ui->pbDeleteSpectrum->setVisible(!bFix);
         ui->cbRangeBaseEnergyData->setVisible(!bFix);
         ui->cbRangeBaseEnergyData->setChecked(gRec.RangeBasedEnergies);
-        ui->ledGunEnergy->setVisible(bFix);
-        ui->cobUnits->setVisible(bFix);
     }
     else ui->fGunParticle->setEnabled(false);
 }
@@ -437,7 +432,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
         p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-        p.UseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
+        p.UseFixedEnergy = (ui->cobEnergy->currentIndex() == 0);
         p.PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
         double energy = ui->ledGunEnergy->text().toDouble();
         if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
@@ -638,5 +633,11 @@ void AParticleSourceDialog::updateDirectionVisibility()
 void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
 {
     updateDirectionVisibility();
+}
+
+void AParticleSourceDialog::on_cobGenerationType_currentIndexChanged(int index)
+{
+    ui->frIndependent->setVisible(index == 0);
+    ui->frLinked->setVisible(index != 0);
 }
 
