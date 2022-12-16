@@ -17,6 +17,8 @@ namespace jstools
     bool parseJson(const json11::Json & json, const std::string & key, json11::Json::object & var);
 
     bool readDPairVectorFromArray(const json11::Json::array & ar, std::vector<std::pair<double, double>> & vec);
+
+    void arrayElementToObject(const json11::Json::array & array, size_t index, json11::Json::object & object);
 }
 
 #endif // jstools_h

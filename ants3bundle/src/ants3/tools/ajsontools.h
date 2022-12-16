@@ -33,6 +33,8 @@ bool        parseJson(const QJsonObject &json, const QString &key, QJsonObject &
 QJsonArray  vectorQStringsToJsonArray(const std::vector<QString> & vec);
 bool        parseJson(const QJsonObject & json, const QString & key, std::vector<QString> & vec);
 
+void        arrayElementToObject(const QJsonArray & array, size_t index, QJsonObject & object);
+
 void        writeDPairVectorToArray(const std::vector<std::pair<double, double>> & vec, QJsonArray & ar);
 bool        readDPairVectorFromArray(const QJsonArray & ar, std::vector<std::pair<double, double>> & vec);
 

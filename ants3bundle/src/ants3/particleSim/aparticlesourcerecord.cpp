@@ -7,6 +7,20 @@
 #include "afiletools.h"
 #endif
 
+using JsonArray =
+#ifdef JSON11
+    json11::Json::array;
+#else
+    QJsonArray;
+#endif
+
+using JsonObject =
+#ifdef JSON11
+    json11::Json::object;
+#else
+    QJsonObject;
+#endif
+
 bool AGunParticle::configureEnergySampler()
 {
     if (EnergySpectrum.empty())
@@ -35,77 +49,88 @@ bool AGunParticle::isDirectDeposition() const
 #ifndef JSON11
 void AGunParticle::writeToJson(QJsonObject & json) const
 {
-    json["Particle"]           = QString(Particle.data());
+    json["Particle"] = QString(Particle.data());
 
-    QString str;
-    switch (GenerationType)
+    // Generation properties
     {
-    case Independent           : str = "Independent";           break;
-    case Linked_IfGenerated    : str = "Linked_IfGenerated";    break;
-    case Linked_IfNotGenerated : str = "Linked_IfNotGenerated"; break;
-    default: qCritical() << "Not implemented AGunParticle type in writeToJson!"; exit(111);
+        JsonObject js;
+
+            QString str;
+                switch (GenerationType)
+                {
+                case Independent           : str = "Independent";           break;
+                case Linked_IfGenerated    : str = "Linked_IfGenerated";    break;
+                case Linked_IfNotGenerated : str = "Linked_IfNotGenerated"; break;
+                default: qCritical() << "Not implemented AGunParticle type in writeToJson!"; exit(111);
+                }
+            js["Type"] = str;
+            js["BtBPair"]            = BtBPair;
+            js["StatWeight"]         = StatWeight;
+            js["LinkedTo"]           = LinkedTo;
+            js["LinkingProbability"] = LinkedProb;
+
+        json["Generation"] = js;
     }
-    json["GenerationType"]     = str;
 
-    json["BtBPair"]            = BtBPair;
+    // Energy properties
+    {
+        JsonObject js;
 
-    json["StatWeight"]         = StatWeight;
-    json["LinkedTo"]           = LinkedTo;
-    json["LinkingProbability"] = LinkedProb;
+            js["UseFixedEnergy"]     = UseFixedEnergy;
+            js["FixedEnergy"]        = FixedEnergy;
+            js["PreferredUnits"] = QString(PreferredUnits.data());
+            QJsonArray ar;
+                jstools::writeDPairVectorToArray(EnergySpectrum, ar);
+            js["EnergySpectrum"] = ar;
+            js["RangeBasedEnergies"] = RangeBasedEnergies;
 
-    json["UseFixedEnergy"]     = UseFixedEnergy;
-    json["FixedEnergy"]        = FixedEnergy;
-    json["PreferredUnits"] = QString(PreferredUnits.data());
-    QJsonArray ar;
-        jstools::writeDPairVectorToArray(EnergySpectrum, ar);
-    json["EnergySpectrum"] = ar;
-    json["RangeBasedEnergies"] = RangeBasedEnergies;
-
+        json["Energy"] = js;
+    }
 }
 #endif
 
-#ifdef JSON11
-bool AGunParticle::readFromJson(const json11::Json::object & json)
-#else
-bool AGunParticle::readFromJson(const QJsonObject & json)
-#endif
+bool AGunParticle::readFromJson(const JsonObject & json)
 {
-    jstools::parseJson(json, "Particle",     Particle);
+    jstools::parseJson(json, "Particle", Particle);
 
-    std::string str;
-    jstools::parseJson(json, "GenerationType", str );
-    if      (str == "Independent")           GenerationType = EType::Independent;
-    else if (str == "Linked_IfGenerated")    GenerationType = EType::Linked_IfGenerated;
-    else if (str == "Linked_IfNotGenerated") GenerationType = EType::Linked_IfNotGenerated;
-    else
+    // Generation properties
     {
-        // !!!*** generate error
-        // "Unknown AGunParticle type in readFromJson, setting to EType::Independent";
-        GenerationType = EType::Independent;
+        JsonObject js;
+        jstools::parseJson(json, "Generation", js);
+
+            std::string str;
+            jstools::parseJson(js, "Type", str);
+            if      (str == "Independent")           GenerationType = EType::Independent;
+            else if (str == "Linked_IfGenerated")    GenerationType = EType::Linked_IfGenerated;
+            else if (str == "Linked_IfNotGenerated") GenerationType = EType::Linked_IfNotGenerated;
+            else
+            {
+                // !!!*** generate error
+                // "Unknown AGunParticle type in readFromJson, setting to EType::Independent";
+                GenerationType = EType::Independent;
+            }
+            jstools::parseJson(js, "BtBPair",            BtBPair);
+            jstools::parseJson(js, "StatWeight",         StatWeight);
+            jstools::parseJson(js, "LinkedTo",           LinkedTo);
+            jstools::parseJson(js, "LinkingProbability", LinkedProb);
     }
 
-    jstools::parseJson(json, "BtBPair",            BtBPair );
+    // Energy properties
+    {
+        JsonObject js;
+        jstools::parseJson(json, "Energy", js);
 
-    jstools::parseJson(json, "StatWeight",         StatWeight );
-    jstools::parseJson(json, "LinkedTo",           LinkedTo ); //linked always to previously already defined particles!
-    jstools::parseJson(json, "LinkingProbability", LinkedProb );
+            jstools::parseJson(js, "FixedEnergy",        FixedEnergy );
+            jstools::parseJson(js, "PreferredUnits",     PreferredUnits);
+            jstools::parseJson(js, "UseFixedEnergy",     UseFixedEnergy );
+            jstools::parseJson(js, "RangeBasedEnergies", RangeBasedEnergies );
 
-    jstools::parseJson(json, "FixedEnergy",        FixedEnergy );
-    jstools::parseJson(json, "PreferredUnits",     PreferredUnits);
+            JsonArray ar;
+                jstools::parseJson(js, "EnergySpectrum", ar);
+            jstools::readDPairVectorFromArray(ar, EnergySpectrum);
 
-    jstools::parseJson(json, "UseFixedEnergy",     UseFixedEnergy );
-    jstools::parseJson(json, "RangeBasedEnergies", RangeBasedEnergies );
-
-#ifdef JSON11
-    json11::Json::array ar;
-#else
-    QJsonArray ar;
-#endif
-    jstools::parseJson(json, "EnergySpectrum", ar);
-    jstools::readDPairVectorFromArray(ar, EnergySpectrum);
-
-    bool ok = configureEnergySampler(); // !!!*** dublicated here -> it is checked by the check() method of the particle source
-    if (!ok && !UseFixedEnergy) return false;//("Failed to build energy histogram for particle " + particle.Particle + " of source " + source.Name);
+            configureEnergySampler();
+    }
 
     return true;
 }
@@ -230,11 +255,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 }
 #endif
 
-#ifdef JSON11
-bool AParticleSourceRecord::readFromJson(const json11::Json::object & json)
-#else
-bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
-#endif
+bool AParticleSourceRecord::readFromJson(const JsonObject & json)
 {
     clear();
 
@@ -266,30 +287,26 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
 
     // Angular properties
     {
-#ifdef JSON11
-    json11::Json::object js;
-    json11::Json::array ar;
-#else
-    QJsonObject js;
-    QJsonArray ar;
-#endif
-    jstools::parseJson(json, "Angular", js);
-        std::string str;
-        jstools::parseJson(js, "Mode", str);
-        if      (str == "Uniform") AngularMode = UniformAngular;
-        else if (str == "Fixed")   AngularMode = FixedDirection;
-        else if (str == "Gauss")   AngularMode = GaussDispersion;
-        else if (str == "Custom")  AngularMode = CustomAngular;
-        // !!!*** error if not found
+        JsonObject js;
+        jstools::parseJson(json, "Angular", js);
 
-        jstools::parseJson(js, "Phi",       DirectionPhi);
-        jstools::parseJson(js, "Theta",     DirectionTheta);
-        jstools::parseJson(js, "UseCutOff", UseCutOff);
-        jstools::parseJson(js, "CutOff",    CutOff);
-        jstools::parseJson(js, "Sigma",     DispersionSigma);
-        jstools::parseJson(js, "CustomDistribution", ar);
-        jstools::readDPairVectorFromArray(ar, AngularDistribution);
-        configureAngularSampler();
+            std::string str;
+            jstools::parseJson(js, "Mode", str);
+            if      (str == "Uniform") AngularMode = UniformAngular;
+            else if (str == "Fixed")   AngularMode = FixedDirection;
+            else if (str == "Gauss")   AngularMode = GaussDispersion;
+            else if (str == "Custom")  AngularMode = CustomAngular;
+            // !!!*** error if not found
+
+            jstools::parseJson(js, "Phi",       DirectionPhi);
+            jstools::parseJson(js, "Theta",     DirectionTheta);
+            jstools::parseJson(js, "UseCutOff", UseCutOff);
+            jstools::parseJson(js, "CutOff",    CutOff);
+            jstools::parseJson(js, "Sigma",     DispersionSigma);
+            JsonArray ar;
+                jstools::parseJson(js, "CustomDistribution", ar);
+            jstools::readDPairVectorFromArray(ar, AngularDistribution);
+            configureAngularSampler();
     }
 
     jstools::parseJson(json, "TimeAverageMode",   TimeAverageMode);
@@ -303,24 +320,23 @@ bool AParticleSourceRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "MaterialLimited", MaterialLimited);
     jstools::parseJson(json, "LimitedToMaterial", LimtedToMatName);
 
-#ifdef JSON11
-    json11::Json::array jGunPartArr;
-#else
-    QJsonArray jGunPartArr;
-#endif
-    jstools::parseJson(json, "Particles", jGunPartArr);
+    JsonArray jGunPartArr;
+        jstools::parseJson(json, "Particles", jGunPartArr);
     const int numGP = jGunPartArr.size();
     for (int ip = 0; ip < numGP; ip++)
     {
-
+/*
 #ifdef JSON11
         json11::Json::object jThisGunPart = jGunPartArr[ip].object_items();
 #else
         QJsonObject jThisGunPart = jGunPartArr[ip].toObject();
 #endif
+*/
+        JsonObject js;
+        jstools::arrayElementToObject(jGunPartArr, ip, js);
 
         AGunParticle gp;
-        bool bOK = gp.readFromJson(jThisGunPart);
+        bool bOK = gp.readFromJson(js);
         if (!bOK) return false;
         Particles.push_back(gp);
     }

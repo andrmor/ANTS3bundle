@@ -250,3 +250,8 @@ bool jstools::parseJson(const QJsonObject &json, const QString &key, std::vector
     }
     else return false;
 }
+
+void jstools::arrayElementToObject(const QJsonArray & array, size_t index, QJsonObject & object)
+{
+    object = array[index].toObject();
+}

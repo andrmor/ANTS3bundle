@@ -57,6 +57,7 @@ bool jstools::parseJson(const json11::Json & json, const std::string & key, json
 bool jstools::readDPairVectorFromArray(const json11::Json::array & ar, std::vector<std::pair<double, double>> & vec)
 {
     vec.clear();
+    if (ar.empty()) return true;
 
     const int size = ar.size();
     for (int i = 0; i < size; i++)
@@ -71,4 +72,9 @@ bool jstools::readDPairVectorFromArray(const json11::Json::array & ar, std::vect
         vec.emplace_back(jar[0].number_value(), jar[1].number_value());
     }
     return true;
+}
+
+void jstools::arrayElementToObject(const json11::Json::array & array, size_t index, json11::Json::object & object)
+{
+    object = array[index].object_items();
 }
