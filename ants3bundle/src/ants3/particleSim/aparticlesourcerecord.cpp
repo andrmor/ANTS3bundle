@@ -249,14 +249,26 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             js["AveragePeriod"] = TimeAveragePeriod;
                 switch (TimeSpreadMode)
                 {
-                case NoSpread      : str = "NoSpread";      break;
-                case GaussSpread   : str = "GaussSpread";   break;
-                case UniformSpread : str = "UniformSpread"; break;
+                case NoSpread          : str = "None";        break;
+                case GaussianSpread    : str = "Gaussian";    break;
+                case UniformSpread     : str = "Uniform";     break;
+                case ExponentialSpread : str = "Exponential"; break;
                 default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord::writeToJson"; exit(111);
                 }
-            js["SpreadMode"]    = str;
-            js["SpreadSigma"]   = TimeSpreadSigma;
-            js["SpreadWidth"]   = TimeSpreadWidth;
+            js["SpreadMode"]     = str;
+            js["SpreadSigma"]    = TimeSpreadSigma;
+            js["SpreadWidth"]    = TimeSpreadWidth;
+            js["SpreadHalfLife"] = TimeSpreadHalfLife;
+                switch (TimeHalfLifePrefUnit)
+                {
+                case ns  : str = "ns";  break;
+                case us  : str = "us";  break;
+                case ms  : str = "ms";  break;
+                case s   : str = "s";   break;
+                case min : str = "min"; break;
+                case h   : str = "h";   break;
+                }
+            js["HalfLifePreferUnit"] = str;
         json["Time"] = js;
     }
 
@@ -378,13 +390,23 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             jstools::parseJson(js, "AveragePeriod", TimeAveragePeriod);
 
             jstools::parseJson(js, "SpreadMode", str);
-            if      (str == "NoSpread")      TimeSpreadMode = NoSpread;
-            else if (str == "GaussSpread")   TimeSpreadMode = GaussSpread;
-            else if (str == "UniformSpread") TimeSpreadMode = UniformSpread;
+            if      (str == "None")        TimeSpreadMode = NoSpread;
+            else if (str == "Gaussian")    TimeSpreadMode = GaussianSpread;
+            else if (str == "Uniform")     TimeSpreadMode = UniformSpread;
+            else if (str == "Exponential") TimeSpreadMode = ExponentialSpread;
             else ; // !!!*** error reporting
 
-            jstools::parseJson(js, "SpreadSigma",   TimeSpreadSigma);
-            jstools::parseJson(js, "SpreadWidth",   TimeSpreadWidth);
+            jstools::parseJson(js, "SpreadSigma",    TimeSpreadSigma);
+            jstools::parseJson(js, "SpreadWidth",    TimeSpreadWidth);
+            jstools::parseJson(js, "SpreadHalfLife", TimeSpreadHalfLife);
+            jstools::parseJson(js, "HalfLifePreferUnit", str);
+            if      (str == "ns")  TimeHalfLifePrefUnit = ns;
+            else if (str == "us")  TimeHalfLifePrefUnit = us;
+            else if (str == "ms")  TimeHalfLifePrefUnit = ms;
+            else if (str == "s")   TimeHalfLifePrefUnit = s;
+            else if (str == "min") TimeHalfLifePrefUnit = min;
+            else if (str == "h")   TimeHalfLifePrefUnit = h;
+            else ; // !!!*** error
     }
 
     // Particles

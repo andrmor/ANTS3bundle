@@ -230,13 +230,17 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
     switch (Source.TimeSpreadMode)
     {
     default:
-    case 0:
+    case 0 :
         break;
-    case 1:
+    case 1 :
         time = ARandomHub::getInstance().gauss(time, Source.TimeSpreadSigma);
         break;
-    case 2:
+    case 2 :
         time += (-0.5 * Source.TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source.TimeSpreadWidth);
+        break;
+    case 3 :
+        constexpr double ln2 = std::log(2.0);
+        time += ARandomHub::getInstance().exp(Source.TimeSpreadHalfLife / ln2);
         break;
     }
 

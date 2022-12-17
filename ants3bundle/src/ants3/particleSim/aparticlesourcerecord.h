@@ -57,7 +57,8 @@ struct AParticleSourceRecord
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
     enum EAngularMode {UniformAngular, FixedDirection, GaussDispersion, CustomAngular};
     enum EPulseMode {Single, Train};
-    enum ESpreadMode {NoSpread, GaussSpread, UniformSpread};
+    enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
+    enum ETimeUnits {ns, us, ms, s, min, h};
 
     std::string Name  = "No_name";
 
@@ -102,6 +103,8 @@ struct AParticleSourceRecord
     ESpreadMode TimeSpreadMode = NoSpread;
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;
+    double      TimeSpreadHalfLife = 100.0; // in ns
+    ETimeUnits  TimeHalfLifePrefUnit = ns;
 
     // Particles
     std::vector<AGunParticle> Particles;

@@ -1789,12 +1789,17 @@ In conract, when not checked, the distribution values are assumed to be measured
        </item>
        <item>
         <property name="text">
-         <string>Gauss</string>
+         <string>Gaussian</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Uniform</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Exponential</string>
         </property>
        </item>
       </widget>
@@ -1811,13 +1816,13 @@ In conract, when not checked, the distribution values are assumed to be measured
         <enum>QFrame::NoFrame</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_3"/>
        <widget class="QWidget" name="page_5">
         <layout class="QHBoxLayout" name="horizontalLayout_21">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1873,7 +1878,7 @@ In conract, when not checked, the distribution values are assumed to be measured
        <widget class="QWidget" name="page_4">
         <layout class="QHBoxLayout" name="horizontalLayout_22">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1923,6 +1928,79 @@ In conract, when not checked, the distribution values are assumed to be measured
             </size>
            </property>
           </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_10">
+        <layout class="QHBoxLayout" name="horizontalLayout_32">
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>Half-time:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledTimeSpreadHalfLife">
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cobPreferedHalfLifeUnits">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -2551,8 +2629,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>694</y>
+     <x>288</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2567,8 +2645,8 @@ In conract, when not checked, the distribution values are assumed to be measured
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>694</y>
+     <x>312</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2669,6 +2747,54 @@ In conract, when not checked, the distribution values are assumed to be measured
     <hint type="destinationlabel">
      <x>530</x>
      <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledTimeSpreadHalfLife</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>297</x>
+     <y>677</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>swTimeSpread</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>370</x>
+     <y>679</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>495</x>
+     <y>108</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobPreferedHalfLifeUnits</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>679</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>111</y>
     </hint>
    </hints>
   </connection>

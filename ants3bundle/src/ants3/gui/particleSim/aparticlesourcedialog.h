@@ -74,6 +74,8 @@ private:
     void updateDirectionVisibility();
     void storePersistentSettings();
     void restorePersistentSettings();
+    void updateHalfLifeIndication();
+    void updateHalfLife();
 };
 
 #endif // APARTICLESOURCEDIALOG_H
