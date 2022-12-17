@@ -82,7 +82,7 @@ struct AParticleSourceRecord
     double      Size3 = 10.0;
 
     // Angular properties
-    EAngularMode AngularMode;
+    EAngularMode AngularMode = UniformAngular;
     double       DirectionPhi   = 0;
     double       DirectionTheta = 0;
     bool         UseCutOff = false;

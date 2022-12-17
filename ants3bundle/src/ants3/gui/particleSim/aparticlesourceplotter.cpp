@@ -11,8 +11,6 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
 {
     TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;
 
-    const int    index = p.Shape;
-
     const double X0 = p.X0;
     const double Y0 = p.Y0;
     const double Z0 = p.Z0;
@@ -28,7 +26,14 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
     const double CollPhi   = p.DirectionPhi   * pi / 180.0;
     const double CollTheta = p.DirectionTheta * pi / 180.0;
 
-    const double Spread = p.CutOff * pi / 180.0;
+    double Spread;
+    switch (p.AngularMode)
+    {
+    case AParticleSourceRecord::UniformAngular  : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : pi); break;
+    case AParticleSourceRecord::FixedDirection  : Spread = 0;                                          break;
+    case AParticleSourceRecord::GaussDispersion : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : 0);  break;
+    case AParticleSourceRecord::CustomAngular   : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : pi); break;
+    }
 
     //calculating unit vector along 1D direction
     TVector3 VV(sin(Theta)*sin(Phi), sin(Theta)*cos(Phi), cos(Theta));
@@ -44,16 +49,16 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
         V[i].RotateY(Theta);
         V[i].RotateZ(Psi);
     }
-    switch (index)
+    switch (p.Shape)
     {
-    case 0:
+    case AParticleSourceRecord::Point :
     {
-        gGeoManager->SetCurrentPoint(X0,Y0,Z0);
-        gGeoManager->DrawCurrentPoint(9);
+        //gGeoManager->SetCurrentPoint(X0,Y0,Z0);
+        //gGeoManager->DrawCurrentPoint(9);
         break;
     }
-    case (1):
-    { //linear source
+    case (AParticleSourceRecord::Line):
+    {
         Int_t track_index = gGeoManager->AddTrack(1,22);
         TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
         track->AddPoint(X0+VV[0]*size1, Y0+VV[1]*size1, Z0+VV[2]*size1, 0);
@@ -62,8 +67,8 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
         track->SetLineColor(9);
         break;
     }
-    case (2):
-    { //area source - square
+    case (AParticleSourceRecord::Rectangle):
+    {
         Int_t track_index = gGeoManager->AddTrack(1,22);
         TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
         track->AddPoint(X0-V[0][0]-V[1][0], Y0-V[0][1]-V[1][1], Z0-V[0][2]-V[1][2], 0);
@@ -75,8 +80,8 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
         track->SetLineColor(9);
         break;
     }
-    case (3):
-    { //area source - round
+    case (AParticleSourceRecord::Round):
+    {
         Int_t track_index = gGeoManager->AddTrack(1,22);
         TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
         TVector3 Circ;
@@ -95,8 +100,8 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
         break;
     }
 
-    case (4):
-    { //volume source - box
+    case (AParticleSourceRecord::Box):
+    {
         for (int i=0; i<3; i++)
             for (int j=0; j<3; j++)
             {
@@ -121,8 +126,8 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
             }
         break;
     }
-    case(5):
-    { //volume source - cylinder
+    case (AParticleSourceRecord::Cylinder):
+    {
         TVector3 Circ;
         Int_t track_index = gGeoManager->AddTrack(1,22);
         TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
