@@ -660,8 +660,7 @@ void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
     updateDirectionVisibility();
 }
 
-void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &arg1)
+void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &)
 {
     updateColorLimitingMat();
 }
-
