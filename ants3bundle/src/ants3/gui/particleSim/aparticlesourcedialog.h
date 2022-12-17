@@ -50,6 +50,8 @@ private slots:
     void on_pbLoadAngular_clicked();
     void on_pbDeleteAngular_clicked();
 
+    void on_leSourceLimitMaterial_textEdited(const QString &arg1);
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);

@@ -181,33 +181,34 @@ void AParticleSourceRecord::clear()
 #ifndef JSON11
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
-    json["Name"] = QString(Name.data());
-
-    QString str;
-    switch (Shape)
-    {
-    case Point     : str = "point";     break;
-    case Line      : str = "line";      break;
-    case Rectangle : str = "rectangle"; break;
-    case Round     : str = "round";     break;
-    case Box       : str = "box";       break;
-    case Cylinder  : str = "cylinder";  break;
-    }
-    json["Shape"] = str;
-
+    json["Name"]     = QString(Name.data());
     json["Activity"] = Activity;
 
-    json["X"] = X0;
-    json["Y"] = Y0;
-    json["Z"] = Z0;
-
-    json["Size1"] = Size1;
-    json["Size2"] = Size2;
-    json["Size3"] = Size3;
-
-    json["Phi"]   = Phi;
-    json["Theta"] = Theta;
-    json["Psi"]   = Psi;
+    // Spatial properties
+    {
+        QJsonObject js;
+            QString str;
+                switch (Shape)
+                {
+                case Point     : str = "Point";     break;
+                case Line      : str = "Line";      break;
+                case Rectangle : str = "Rectangle"; break;
+                case Round     : str = "Round";     break;
+                case Box       : str = "Box";       break;
+                case Cylinder  : str = "Cylinder";  break;
+                }
+            js["Shape"] = str;
+            js["Position"] = QJsonArray{X0, Y0, Z0};
+            js["Size1"] = Size1;
+            js["Size2"] = Size2;
+            js["Size3"] = Size3;
+            js["Orientation"] = QJsonArray{Phi, Theta, Psi};
+            QJsonObject mjs;
+                mjs["Enabled"] = MaterialLimited;
+                mjs["Material"] = QString(LimtedToMatName.data());
+            js["MaterialLimited"] = mjs;
+        json["Spatial"] = js;
+    }
 
     // Angular properties
     {
@@ -231,9 +232,6 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             js["CustomDistribution"] = ar;
         json["Angular"] = js;
     }
-
-    json["MaterialLimited"] = MaterialLimited;
-    json["LimitedToMaterial"] = QString(LimtedToMatName.data());
 
     // Time properties
     {
@@ -280,31 +278,65 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
 {
     clear();
 
-    jstools::parseJson(json, "Name", Name);
-
-    std::string tmp;
-    jstools::parseJson(json, "Shape", tmp);
-    if      (tmp == "point")     Shape = Point;
-    else if (tmp == "line")      Shape = Line;
-    else if (tmp == "rectangle") Shape = Rectangle;
-    else if (tmp == "round")     Shape = Round;
-    else if (tmp == "box")       Shape = Box;
-    else if (tmp == "cylinder")  Shape = Cylinder;
-    // !!!*** error if not found
-
+    jstools::parseJson(json, "Name",     Name);
     jstools::parseJson(json, "Activity", Activity);
 
-    jstools::parseJson(json, "X", X0);
-    jstools::parseJson(json, "Y", Y0);
-    jstools::parseJson(json, "Z", Z0);
+    // Spatial properties
+    {
+        JsonObject js;
+        jstools::parseJson(json, "Spatial", js);
 
-    jstools::parseJson(json, "Size1", Size1);
-    jstools::parseJson(json, "Size2", Size2);
-    jstools::parseJson(json, "Size3", Size3);
+            std::string str;
+            jstools::parseJson(js, "Shape", str);
+            if      (str == "Point")     Shape = Point;
+            else if (str == "Line")      Shape = Line;
+            else if (str == "Rectangle") Shape = Rectangle;
+            else if (str == "Round")     Shape = Round;
+            else if (str == "Box")       Shape = Box;
+            else if (str == "Cylinder")  Shape = Cylinder;
+            else ; // !!!*** error
 
-    jstools::parseJson(json, "Phi",   Phi);
-    jstools::parseJson(json, "Theta", Theta);
-    jstools::parseJson(json, "Psi",   Psi);
+            JsonArray pjs;
+            jstools::parseJson(js, "Position", pjs);
+                if (pjs.size() == 3)
+                {
+#ifdef JSON11
+                    X0 = pjs[0].number_value();
+                    Y0 = pjs[1].number_value();
+                    Z0 = pjs[2].number_value();
+#else
+                    X0 = pjs[0].toDouble();
+                    Y0 = pjs[1].toDouble();
+                    Z0 = pjs[2].toDouble();
+#endif
+                }
+                else ; // !!!*** error
+
+            jstools::parseJson(js, "Size1", Size1);
+            jstools::parseJson(js, "Size2", Size2);
+            jstools::parseJson(js, "Size3", Size3);
+
+            JsonArray ojs;
+            jstools::parseJson(js, "Orientation", ojs);
+                if (ojs.size() == 3)
+                {
+#ifdef JSON11
+                    Phi   = ojs[0].number_value();
+                    Theta = ojs[1].number_value();
+                    Psi   = ojs[2].number_value();
+#else
+                    Phi   = ojs[0].toDouble();
+                    Theta = ojs[1].toDouble();
+                    Psi   = ojs[2].toDouble();
+#endif
+                }
+                else ; // !!!*** error
+
+            JsonObject mjs;
+            jstools::parseJson(js, "MaterialLimited", mjs);
+                jstools::parseJson(mjs, "Enabled", MaterialLimited);
+                jstools::parseJson(mjs, "Material", LimtedToMatName);
+    }
 
     // Angular properties
     {
@@ -335,39 +367,44 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
         JsonObject js;
         jstools::parseJson(json, "Time", js);
 
-        std::string str;
-        jstools::parseJson(js, "AverageMode", str);
+            std::string str;
+            jstools::parseJson(js, "AverageMode", str);
             if      (str == "Single") TimeAverageMode = Single;
             else if (str == "Train")  TimeAverageMode = Train;
             else ; // !!!*** error reporting
-        jstools::parseJson(js, "Average",       TimeAverage);
-        jstools::parseJson(js, "AverageStart",  TimeAverageStart);
-        jstools::parseJson(js, "AveragePeriod", TimeAveragePeriod);
-        jstools::parseJson(js, "SpreadMode", str);
+
+            jstools::parseJson(js, "Average",       TimeAverage);
+            jstools::parseJson(js, "AverageStart",  TimeAverageStart);
+            jstools::parseJson(js, "AveragePeriod", TimeAveragePeriod);
+
+            jstools::parseJson(js, "SpreadMode", str);
             if      (str == "NoSpread")      TimeSpreadMode = NoSpread;
             else if (str == "GaussSpread")   TimeSpreadMode = GaussSpread;
             else if (str == "UniformSpread") TimeSpreadMode = UniformSpread;
             else ; // !!!*** error reporting
-        jstools::parseJson(js, "SpreadSigma",   TimeSpreadSigma);
-        jstools::parseJson(js, "SpreadWidth",   TimeSpreadWidth);
+
+            jstools::parseJson(js, "SpreadSigma",   TimeSpreadSigma);
+            jstools::parseJson(js, "SpreadWidth",   TimeSpreadWidth);
     }
 
-    jstools::parseJson(json, "MaterialLimited", MaterialLimited);
-    jstools::parseJson(json, "LimitedToMaterial", LimtedToMatName);
-
-    JsonArray jGunPartArr;
-        jstools::parseJson(json, "Particles", jGunPartArr);
-    const int numGP = jGunPartArr.size();
-    for (int ip = 0; ip < numGP; ip++)
+    // Particles
     {
-        JsonObject js;
-        jstools::arrayElementToObject(jGunPartArr, ip, js);
+        JsonArray ar;
+        jstools::parseJson(json, "Particles", ar);
 
-        AGunParticle gp;
-        bool bOK = gp.readFromJson(js);
-        if (!bOK) return false;
-        Particles.push_back(gp);
+            const int numGP = ar.size();
+            for (int ip = 0; ip < numGP; ip++)
+            {
+                JsonObject js;
+                jstools::arrayElementToObject(ar, ip, js);
+
+                AGunParticle gp;
+                bool bOK = gp.readFromJson(js);
+                if (!bOK) return false;
+                Particles.push_back(gp);
+            }
     }
+
     return true;
 }
 

@@ -82,11 +82,11 @@ struct AParticleSourceRecord
     double      Size3 = 10.0;
 
     // Angular properties
-    EAngularMode AngularMode = UniformAngular;
-    double       DirectionPhi   = 0;
-    double       DirectionTheta = 0;
-    bool         UseCutOff = false;
-    double       CutOff = 45.0;
+    EAngularMode AngularMode     = UniformAngular;
+    double       DirectionPhi    = 0;
+    double       DirectionTheta  = 0;
+    bool         UseCutOff       = false;
+    double       CutOff          = 45.0;
     double       DispersionSigma = 1.0;
     std::vector<std::pair<double, double>> AngularDistribution;
 

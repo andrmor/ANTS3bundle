@@ -181,6 +181,7 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(LocalRec);
+    settings.SourceData.back().Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
     ui->pbAbort->setVisible(true);
@@ -658,3 +659,9 @@ void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
 {
     updateDirectionVisibility();
 }
+
+void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &arg1)
+{
+    updateColorLimitingMat();
+}
+
