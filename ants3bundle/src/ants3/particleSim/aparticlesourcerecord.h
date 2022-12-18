@@ -55,7 +55,7 @@ struct AGunParticle
 struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
-    enum EAngularMode {UniformAngular, FixedDirection, GaussDispersion, CustomAngular};
+    enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
     enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};
     enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
     enum ETimeUnits {ns, us, ms, s, min, h};
@@ -84,7 +84,7 @@ struct AParticleSourceRecord
     std::string LimtedToMatName;
 
     // Angular properties
-    EAngularMode AngularMode     = UniformAngular;
+    EAngularMode AngularMode     = Isotropic;
     double       DirectionPhi    = 0;
     double       DirectionTheta  = 0;
     bool         UseCutOff       = false;
@@ -94,9 +94,9 @@ struct AParticleSourceRecord
 
     // Time
     EOffsetMode TimeOffsetMode = FixedOffset;
-    double      TimeAverage = 0;
-    double      TimeAverageStart = 0;
-    double      TimeAveragePeriod = 10.0;
+    double      TimeFixedOffset = 0;
+    double      TimeByEventStart = 0;
+    double      TimeByEventPeriod = 10.0;
     ESpreadMode TimeSpreadMode = NoSpread;
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;

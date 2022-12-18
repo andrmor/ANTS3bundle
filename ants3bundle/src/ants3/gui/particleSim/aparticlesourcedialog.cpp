@@ -56,7 +56,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     int index = 0;
     switch (Rec.AngularMode)
     {
-    case AParticleSourceRecord::UniformAngular  : index = 0; break;
+    case AParticleSourceRecord::Isotropic  : index = 0; break;
     case AParticleSourceRecord::FixedDirection  : index = 1; break;
     case AParticleSourceRecord::GaussDispersion : index = 2; break;
     case AParticleSourceRecord::CustomAngular   : index = 3; break;
@@ -83,9 +83,9 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
     }
     ui->cobTimeAverageMode->setCurrentIndex(index);
-    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeAverage) );
-    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeAverageStart) );
-    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeAveragePeriod) );
+    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
+    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
+    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
     ui->cbTimeCustomRanged->setChecked(Rec.TimeRangeBased);
     updateTimeButtons();
     index = 0;
@@ -436,13 +436,13 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobAngularMode->currentIndex())
     {
-    case 0 : LocalRec.AngularMode = AParticleSourceRecord::UniformAngular;  break;
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord::Isotropic;  break;
     case 1 : LocalRec.AngularMode = AParticleSourceRecord::FixedDirection;  break;
     case 2 : LocalRec.AngularMode = AParticleSourceRecord::GaussDispersion; break;
     case 3 : LocalRec.AngularMode = AParticleSourceRecord::CustomAngular;   break;
     default:
         qWarning() << "Unknown angular mode!";
-        LocalRec.AngularMode = AParticleSourceRecord::UniformAngular;
+        LocalRec.AngularMode = AParticleSourceRecord::Isotropic;
     }
     LocalRec.DispersionSigma = ui->ledAngularSigma->text().toDouble();
     LocalRec.DirectionPhi = ui->ledGunCollPhi->text().toDouble();
@@ -457,9 +457,9 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord::CustomDistributionOffset; break;
     default : ; // !!!*** error
     }
-    LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
-    LocalRec.TimeAverageStart = ui->ledTimeAverageStart->text().toDouble();
-    LocalRec.TimeAveragePeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
+    LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
+    LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
     switch (ui->cobTimeSpreadMode->currentIndex())
     {
     case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;          break;

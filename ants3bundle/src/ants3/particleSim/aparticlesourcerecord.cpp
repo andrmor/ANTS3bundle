@@ -158,7 +158,7 @@ void AParticleSourceRecord::clear()
     MaterialLimited = false;
     LimtedToMatName = "";
 
-    AngularMode     = UniformAngular;
+    AngularMode     = Isotropic;
     DirectionPhi    = 0;
     DirectionTheta  = 0;
     UseCutOff       = false;
@@ -167,9 +167,9 @@ void AParticleSourceRecord::clear()
     AngularDistribution.clear();
 
     TimeOffsetMode    = FixedOffset;
-    TimeAverage       = 0;
-    TimeAverageStart  = 0;
-    TimeAveragePeriod = 10.0;
+    TimeFixedOffset       = 0;
+    TimeByEventStart  = 0;
+    TimeByEventPeriod = 10.0;
     TimeSpreadMode    = NoSpread;
     TimeSpreadSigma   = 50.0;
     TimeSpreadWidth   = 100.0;
@@ -217,7 +217,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             QString str;
             switch (AngularMode)
             {
-            case UniformAngular  : str = "Uniform"; break;
+            case Isotropic       : str = "Isotropic"; break;
             case FixedDirection  : str = "Fixed";   break;
             case GaussDispersion : str = "Gauss";   break;
             case CustomAngular   : str = "Custom";  break;
@@ -246,9 +246,9 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord::writeToJson"; exit(111);
                 }
             js["OffsetMode"]    = str;
-            js["Average"]       = TimeAverage;
-            js["AverageStart"]  = TimeAverageStart;
-            js["AveragePeriod"] = TimeAveragePeriod;
+            js["FixedOffset"]   = TimeFixedOffset;
+            js["ByEventStart"]  = TimeByEventStart;
+            js["ByEventPeriod"] = TimeByEventPeriod;
                 switch (TimeSpreadMode)
                 {
                 case NoSpread          : str = "None";        break;
@@ -363,10 +363,10 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
 
             std::string str;
             jstools::parseJson(js, "Mode", str);
-            if      (str == "Uniform") AngularMode = UniformAngular;
-            else if (str == "Fixed")   AngularMode = FixedDirection;
-            else if (str == "Gauss")   AngularMode = GaussDispersion;
-            else if (str == "Custom")  AngularMode = CustomAngular;
+            if      (str == "Isotropic") AngularMode = Isotropic;
+            else if (str == "Fixed")     AngularMode = FixedDirection;
+            else if (str == "Gauss")     AngularMode = GaussDispersion;
+            else if (str == "Custom")    AngularMode = CustomAngular;
             // !!!*** error if not found
 
             jstools::parseJson(js, "Phi",       DirectionPhi);
@@ -392,9 +392,9 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else if (str == "Custom")       TimeOffsetMode = CustomDistributionOffset;
             else ; // !!!*** error reporting
 
-            jstools::parseJson(js, "Average",       TimeAverage);
-            jstools::parseJson(js, "AverageStart",  TimeAverageStart);
-            jstools::parseJson(js, "AveragePeriod", TimeAveragePeriod);
+            jstools::parseJson(js, "FixedOffset",   TimeFixedOffset);
+            jstools::parseJson(js, "ByEventStart",  TimeByEventStart);
+            jstools::parseJson(js, "ByEventPeriod", TimeByEventPeriod);
 
             jstools::parseJson(js, "SpreadMode", str);
             if      (str == "None")        TimeSpreadMode = NoSpread;
@@ -465,7 +465,7 @@ std::string AParticleSourceRecord::check() const
 
     switch (AngularMode)
     {
-    case UniformAngular : break;
+    case Isotropic : break;
     case FixedDirection : break;
     case GaussDispersion :
         if (DispersionSigma < 0) return "Dispersion sigma cannot be negative";

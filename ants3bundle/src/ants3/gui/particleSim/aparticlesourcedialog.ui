@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>767</height>
+    <height>791</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -21,7 +21,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <property name="spacing">
-    <number>2</number>
+    <number>3</number>
    </property>
    <property name="leftMargin">
     <number>5</number>
@@ -106,7 +106,7 @@
      <item>
       <widget class="QComboBox" name="cobGunSourceType">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -155,7 +155,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>60</width>
          <height>20</height>
         </size>
        </property>
@@ -298,7 +298,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <property name="leftMargin">
-      <number>0</number>
+      <number>15</number>
      </property>
      <item>
       <widget class="QCheckBox" name="cbSourceLimitmat">
@@ -605,7 +605,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       <widget class="QComboBox" name="cobAngularMode">
        <item>
         <property name="text">
-         <string>Uniform distribution</string>
+         <string>Isotropic</string>
         </property>
        </item>
        <item>
@@ -615,7 +615,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        </item>
        <item>
         <property name="text">
-         <string>Gaussian divergence</string>
+         <string>Fixed with Gaussian divergence</string>
         </property>
        </item>
        <item>
@@ -660,7 +660,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page_7">
         <layout class="QHBoxLayout" name="horizontalLayout_27">
          <property name="leftMargin">
-          <number>20</number>
+          <number>5</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -713,7 +713,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page_8">
         <layout class="QHBoxLayout" name="horizontalLayout_16">
          <property name="leftMargin">
-          <number>20</number>
+          <number>5</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -882,7 +882,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <widget class="QLabel" name="label_22">
           <property name="text">
-           <string>deg    </string>
+           <string>deg  </string>
           </property>
          </widget>
         </item>

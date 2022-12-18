@@ -29,7 +29,7 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
     double Spread;
     switch (p.AngularMode)
     {
-    case AParticleSourceRecord::UniformAngular  : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : pi); break;
+    case AParticleSourceRecord::Isotropic  : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : pi); break;
     case AParticleSourceRecord::FixedDirection  : Spread = 0;                                          break;
     case AParticleSourceRecord::GaussDispersion : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : 0);  break;
     case AParticleSourceRecord::CustomAngular   : Spread = (p.UseCutOff ? p.CutOff * pi / 180.0 : pi); break;

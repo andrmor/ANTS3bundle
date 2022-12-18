@@ -166,7 +166,7 @@ void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotr
 {
     const AParticleSourceRecord & src = Settings.SourceData[iSource];
 
-    if (src.AngularMode == AParticleSourceRecord::UniformAngular || forceIsotropic)
+    if (src.AngularMode == AParticleSourceRecord::Isotropic || forceIsotropic)
     {
         //generating random direction inside the collimation cone
         const double spread   = (src.UseCutOff ? src.CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
@@ -226,8 +226,8 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
     switch (Source.TimeOffsetMode)
     {
     default:
-    case AParticleSourceRecord::FixedOffset              : time = Source.TimeAverage;                                          break;
-    case AParticleSourceRecord::ByEventIndexOffset       : time = Source.TimeAverageStart + iEvent * Source.TimeAveragePeriod; break;
+    case AParticleSourceRecord::FixedOffset              : time = Source.TimeFixedOffset;                                          break;
+    case AParticleSourceRecord::ByEventIndexOffset       : time = Source.TimeByEventStart + iEvent * Source.TimeByEventPeriod; break;
     case AParticleSourceRecord::CustomDistributionOffset : time = Source._TimeSampler.getRandom();                             break;
     }
 
