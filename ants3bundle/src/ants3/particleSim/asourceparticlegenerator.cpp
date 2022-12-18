@@ -223,22 +223,26 @@ void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotr
 double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source, int iEvent)
 {
     double time;
-
-    if (Source.TimeAverageMode == 0) time = Source.TimeAverage;
-    else                             time = Source.TimeAverageStart + iEvent * Source.TimeAveragePeriod;
+    switch (Source.TimeOffsetMode)
+    {
+    default:
+    case AParticleSourceRecord::FixedOffset              : time = Source.TimeAverage;                                          break;
+    case AParticleSourceRecord::ByEventIndexOffset       : time = Source.TimeAverageStart + iEvent * Source.TimeAveragePeriod; break;
+    case AParticleSourceRecord::CustomDistributionOffset : time = Source._TimeSampler.getRandom();                             break;
+    }
 
     switch (Source.TimeSpreadMode)
     {
     default:
-    case 0 :
+    case AParticleSourceRecord::NoSpread :
         break;
-    case 1 :
+    case AParticleSourceRecord::GaussianSpread :
         time = ARandomHub::getInstance().gauss(time, Source.TimeSpreadSigma);
         break;
-    case 2 :
+    case AParticleSourceRecord::UniformSpread :
         time += (-0.5 * Source.TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source.TimeSpreadWidth);
         break;
-    case 3 :
+    case AParticleSourceRecord::ExponentialSpread :
         constexpr double ln2 = std::log(2.0);
         time += ARandomHub::getInstance().exp(Source.TimeSpreadHalfLife / ln2);
         break;
@@ -265,7 +269,6 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
     return iParticle;
 }
 
-#include <iostream>
 //after any operation with sources (add, remove), init should be called before the first use!
 bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent)
 {

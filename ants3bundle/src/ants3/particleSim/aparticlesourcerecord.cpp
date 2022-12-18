@@ -139,8 +139,9 @@ bool AGunParticle::readFromJson(const JsonObject & json)
 
 void AParticleSourceRecord::clear()
 {
-    Name  = "No_name";
-    Shape = Point;
+    Name     = "No_name";
+    Activity = 1.0;
+    Shape    = Point;
 
     X0    = 0;
     Y0    = 0;
@@ -154,26 +155,26 @@ void AParticleSourceRecord::clear()
     Size2 = 10.0;
     Size3 = 10.0;
 
-    AngularMode = UniformAngular;
-    DirectionPhi   = 0;
-    DirectionTheta = 0;
-    UseCutOff = false;
-    CutOff    = 45.0;
+    MaterialLimited = false;
+    LimtedToMatName = "";
+
+    AngularMode     = UniformAngular;
+    DirectionPhi    = 0;
+    DirectionTheta  = 0;
+    UseCutOff       = false;
+    CutOff          = 45.0;
     DispersionSigma = 5.0;
     AngularDistribution.clear();
 
-    MaterialLimited = false;
-    LimtedToMatName.clear();
-
-    Activity = 1.0;
-
-    TimeAverageMode   = Single;
+    TimeOffsetMode    = FixedOffset;
     TimeAverage       = 0;
     TimeAverageStart  = 0;
     TimeAveragePeriod = 10.0;
     TimeSpreadMode    = NoSpread;
     TimeSpreadSigma   = 50.0;
     TimeSpreadWidth   = 100.0;
+    TimeRangeBased    = false;
+    TimeDistribution.clear();
 
     Particles.clear();
 }
@@ -237,13 +238,14 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     {
         QJsonObject js;
             QString str;
-                switch (TimeAverageMode)
+                switch (TimeOffsetMode)
                 {
-                case Single : str = "Single"; break;
-                case Train  : str = "Train";  break;
-                default : qCritical() << "Not implemented TimeAverageMode in AParticleSourceRecord::writeToJson"; exit(111);
+                case FixedOffset              : str = "Fixed";        break;
+                case ByEventIndexOffset       : str = "ByEventIndex"; break;
+                case CustomDistributionOffset : str = "Custom";       break;
+                default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord::writeToJson"; exit(111);
                 }
-            js["AverageMode"]   = str;
+            js["OffsetMode"]    = str;
             js["Average"]       = TimeAverage;
             js["AverageStart"]  = TimeAverageStart;
             js["AveragePeriod"] = TimeAveragePeriod;
@@ -269,6 +271,10 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case h   : str = "h";   break;
                 }
             js["HalfLifePreferUnit"] = str;
+            js["RangeBasedData"]     = TimeRangeBased;
+            QJsonArray ar;
+                jstools::writeDPairVectorToArray(TimeDistribution, ar);
+            js["CustomDistribution"] = ar;
         json["Time"] = js;
     }
 
@@ -380,9 +386,10 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
         jstools::parseJson(json, "Time", js);
 
             std::string str;
-            jstools::parseJson(js, "AverageMode", str);
-            if      (str == "Single") TimeAverageMode = Single;
-            else if (str == "Train")  TimeAverageMode = Train;
+            jstools::parseJson(js, "OffsetMode", str);
+            if      (str == "Fixed")        TimeOffsetMode = FixedOffset;
+            else if (str == "ByEventIndex") TimeOffsetMode = ByEventIndexOffset;
+            else if (str == "Custom")       TimeOffsetMode = CustomDistributionOffset;
             else ; // !!!*** error reporting
 
             jstools::parseJson(js, "Average",       TimeAverage);
@@ -407,6 +414,11 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else if (str == "min") TimeHalfLifePrefUnit = min;
             else if (str == "h")   TimeHalfLifePrefUnit = h;
             else ; // !!!*** error
+            jstools::parseJson(js, "RangeBasedData", TimeRangeBased);
+            JsonArray ar;
+                jstools::parseJson(js, "CustomDistribution", ar);
+            jstools::readDPairVectorFromArray(ar, TimeDistribution);
+            configureTimeSampler();
     }
 
     // Particles
@@ -514,4 +526,14 @@ bool AParticleSourceRecord::configureAngularSampler()
         return false;
     }
     return _AngularSampler.configure(AngularDistribution, false);
+}
+
+bool AParticleSourceRecord::configureTimeSampler()
+{
+    if (TimeDistribution.empty())
+    {
+        _TimeSampler.clear();
+        return false;
+    }
+    return _TimeSampler.configure(TimeDistribution, TimeRangeBased);
 }

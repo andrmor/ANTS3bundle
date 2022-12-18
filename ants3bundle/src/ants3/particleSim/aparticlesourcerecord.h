@@ -1,4 +1,4 @@
-#ifndef APARTICLESOURCERECORD_H
+﻿#ifndef APARTICLESOURCERECORD_H
 #define APARTICLESOURCERECORD_H
 
 #include "ahistogram.h"
@@ -56,16 +56,13 @@ struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
     enum EAngularMode {UniformAngular, FixedDirection, GaussDispersion, CustomAngular};
-    enum EPulseMode {Single, Train};
+    enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};
     enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
     enum ETimeUnits {ns, us, ms, s, min, h};
 
-    std::string Name  = "No_name";
-
-    // Relative activity
+    std::string Name     = "No_name";
     double      Activity = 1.0;
-
-    EShape      Shape = Point;
+    EShape      Shape    = Point;
 
     // Position
     double      X0    = 0;
@@ -82,6 +79,10 @@ struct AParticleSourceRecord
     double      Size2 = 10.0;
     double      Size3 = 10.0;
 
+    // Limit to material
+    bool        MaterialLimited = false;
+    std::string LimtedToMatName;
+
     // Angular properties
     EAngularMode AngularMode     = UniformAngular;
     double       DirectionPhi    = 0;
@@ -91,12 +92,8 @@ struct AParticleSourceRecord
     double       DispersionSigma = 1.0;
     std::vector<std::pair<double, double>> AngularDistribution;
 
-    // Limit to material
-    bool        MaterialLimited = false;
-    std::string LimtedToMatName;
-
     // Time
-    EPulseMode  TimeAverageMode = Single;
+    EOffsetMode TimeOffsetMode = FixedOffset;
     double      TimeAverage = 0;
     double      TimeAverageStart = 0;
     double      TimeAveragePeriod = 10.0;
@@ -105,6 +102,8 @@ struct AParticleSourceRecord
     double      TimeSpreadWidth = 100.0;
     double      TimeSpreadHalfLife = 100.0; // in ns
     ETimeUnits  TimeHalfLifePrefUnit = ns;
+    std::vector<std::pair<double, double>> TimeDistribution;
+    bool        TimeRangeBased = false;
 
     // Particles
     std::vector<AGunParticle> Particles;
@@ -123,9 +122,11 @@ struct AParticleSourceRecord
     std::string check() const;  // !!!*** check energy spectrum
 
     bool configureAngularSampler();
+    bool configureTimeSampler();
 
     // run-time
     ARandomSampler _AngularSampler;
+    ARandomSampler _TimeSampler;
 };
 
 #endif // APARTICLESOURCERECORD_H

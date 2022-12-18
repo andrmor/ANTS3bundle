@@ -75,16 +75,19 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
 
     index = 0;
-    switch (Rec.TimeAverageMode)
+    switch (Rec.TimeOffsetMode)
     {
-    case AParticleSourceRecord::Single : index = 0; break;
-    case AParticleSourceRecord::Train  : index = 1; break;
-    default : guitools::message("Unknown TimeAverageMode, setting to Single!", this);
+    case AParticleSourceRecord::FixedOffset              : index = 0; break;
+    case AParticleSourceRecord::ByEventIndexOffset       : index = 1; break;
+    case AParticleSourceRecord::CustomDistributionOffset : index = 2; break;
+    default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
     }
     ui->cobTimeAverageMode->setCurrentIndex(index);
     ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeAverage) );
     ui->ledTimeAverageStart->setText( QString::number(Rec.TimeAverageStart) );
     ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeAveragePeriod) );
+    ui->cbTimeCustomRanged->setChecked(Rec.TimeRangeBased);
+    updateTimeButtons();
     index = 0;
     switch (Rec.TimeSpreadMode)
     {
@@ -449,8 +452,9 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobTimeAverageMode->currentIndex())
     {
-    case 0  : LocalRec.TimeAverageMode = AParticleSourceRecord::Single; break;
-    case 1  : LocalRec.TimeAverageMode = AParticleSourceRecord::Train;  break;
+    case 0  : LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;              break;
+    case 1  : LocalRec.TimeOffsetMode = AParticleSourceRecord::ByEventIndexOffset;       break;
+    case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord::CustomDistributionOffset; break;
     default : ; // !!!*** error
     }
     LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
@@ -538,7 +542,8 @@ void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
     int particle = ui->lwGunParticles->currentRow();
     TGraph * gr = AGraphBuilder::graph(LocalRec.Particles[particle].EnergySpectrum);
     AGraphBuilder::configure(gr, "Energy distribution", "Energy, keV", "");
-    emit requestDraw(gr, "APL", true, true);
+    const QString opt = (LocalRec.Particles[particle].RangeBasedEnergies ? "AP" : "APL");
+    emit requestDraw(gr, opt, true, true);
 }
 
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
@@ -601,6 +606,13 @@ void AParticleSourceDialog::updateCustomAngularButtons()
     const bool distrLoaded = !LocalRec.AngularDistribution.empty();
     ui->pbShowAngular->setEnabled(distrLoaded);
     ui->pbDeleteAngular->setEnabled(distrLoaded);
+}
+
+void AParticleSourceDialog::updateTimeButtons()
+{
+    const bool distrLoaded = !LocalRec.TimeDistribution.empty();
+    ui->pbTimeCustomShow->setEnabled(distrLoaded);
+    ui->pbTimeCustomDelete->setEnabled(distrLoaded);
 }
 
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
@@ -719,3 +731,46 @@ void AParticleSourceDialog::updateHalfLife()
     LocalRec.TimeHalfLifePrefUnit = e;
     LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
 }
+
+void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.TimeDistribution);
+    AGraphBuilder::configure(gr, "Time offset distribution", "Time, ns", "");
+    const QString opt = (LocalRec.TimeRangeBased ? "AP" : "APL");
+    emit requestDraw(gr, opt, true, true);
+}
+
+void AParticleSourceDialog::on_pbTimeCustomLoad_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load custom distribution of time offsets", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.TimeDistribution, true);
+    if (!err.isEmpty())
+    {
+        LocalRec.TimeDistribution.clear();
+        guitools::message(err, this);
+    }
+
+    bool ok = LocalRec.configureTimeSampler();
+    if (!ok)
+    {
+        LocalRec.TimeDistribution.clear();
+        guitools::message("Bad time offset distribution", this); // !!!*** use a generic check! (todo)
+    }
+
+    updateTimeButtons();
+}
+
+void AParticleSourceDialog::on_pbTimeCustomDelete_clicked()
+{
+    LocalRec.TimeDistribution.clear();
+    updateTimeButtons();
+}
+
+void AParticleSourceDialog::on_cbTimeCustomRanged_clicked(bool checked)
+{
+    LocalRec.TimeRangeBased = checked;
+    LocalRec._TimeSampler.configure(LocalRec.TimeDistribution, LocalRec.TimeRangeBased);
+}
+
