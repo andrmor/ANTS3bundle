@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <string>
 
 class AHistogram1D
 {
@@ -59,11 +60,11 @@ private:
 class ARandomSampler
 {
 public:
-    bool configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData);
-    bool isReady() const {return !SumBins.empty();}
-    void clear();
+    void        clear();
+    std::string configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData); // returns error string or empty
+    bool        isReady() const {return !SumBins.empty();}
 
-    double getRandom() const; // if not configured or error during configure -> always returns 0
+    double      getRandom() const; // if not configured or error during configure -> always returns 0
 
 private:
     std::vector<double> LeftBounds;

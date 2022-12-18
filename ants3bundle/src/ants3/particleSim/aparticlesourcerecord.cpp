@@ -21,13 +21,10 @@ using JsonObject =
     QJsonObject;
 #endif
 
-bool AGunParticle::configureEnergySampler()
+std::string AGunParticle::configureEnergySampler()
 {
-    if (EnergySpectrum.empty())
-    {
-        _EnergySampler.clear();
-        return false;
-    }
+    _EnergySampler.clear();
+    if (UseFixedEnergy) return "";
     return _EnergySampler.configure(EnergySpectrum, RangeBasedEnergies);
 }
 
@@ -129,7 +126,7 @@ bool AGunParticle::readFromJson(const JsonObject & json)
                 jstools::parseJson(js, "EnergySpectrum", ar);
             jstools::readDPairVectorFromArray(ar, EnergySpectrum);
 
-            configureEnergySampler();
+            configureEnergySampler(); // !!!*** error handling
     }
 
     return true;
@@ -377,7 +374,7 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             JsonArray ar;
                 jstools::parseJson(js, "CustomDistribution", ar);
             jstools::readDPairVectorFromArray(ar, AngularDistribution);
-            configureAngularSampler();
+            configureAngularSampler(); // !!!*** error handling
     }
 
     // Time properties
@@ -418,7 +415,7 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             JsonArray ar;
                 jstools::parseJson(js, "CustomDistribution", ar);
             jstools::readDPairVectorFromArray(ar, TimeDistribution);
-            configureTimeSampler();
+            configureTimeSampler(); // !!!*** error handling
     }
 
     // Particles
@@ -518,22 +515,16 @@ std::string AParticleSourceRecord::check() const
     return "";
 }
 
-bool AParticleSourceRecord::configureAngularSampler()
+std::string AParticleSourceRecord::configureAngularSampler()
 {
-    if (AngularDistribution.empty())
-    {
-        _AngularSampler.clear();
-        return false;
-    }
+    _AngularSampler.clear();
+    if (AngularMode != CustomAngular) return "";
     return _AngularSampler.configure(AngularDistribution, false);
 }
 
-bool AParticleSourceRecord::configureTimeSampler()
+std::string AParticleSourceRecord::configureTimeSampler()
 {
-    if (TimeDistribution.empty())
-    {
-        _TimeSampler.clear();
-        return false;
-    }
+    _TimeSampler.clear();
+    if (TimeOffsetMode != CustomDistributionOffset) return "";
     return _TimeSampler.configure(TimeDistribution, TimeRangeBased);
 }

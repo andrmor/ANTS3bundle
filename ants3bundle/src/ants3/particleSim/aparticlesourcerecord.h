@@ -35,7 +35,7 @@ struct AGunParticle
     std::vector<std::pair<double, double>> EnergySpectrum;
     bool         RangeBasedEnergies = false;
 
-    bool    configureEnergySampler();
+    std::string  configureEnergySampler();
     double  generateEnergy() const;
 
     bool    isDirectDeposition() const;
@@ -121,8 +121,8 @@ struct AParticleSourceRecord
 
     std::string check() const;  // !!!*** check energy spectrum
 
-    bool configureAngularSampler();
-    bool configureTimeSampler();
+    std::string configureAngularSampler();
+    std::string configureTimeSampler();
 
     // run-time
     ARandomSampler _AngularSampler;

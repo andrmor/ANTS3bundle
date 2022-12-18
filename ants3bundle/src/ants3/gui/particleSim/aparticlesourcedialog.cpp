@@ -383,7 +383,8 @@ void AParticleSourceDialog::updateParticleInfo()
         bool bFix = gRec.UseFixedEnergy;
         ui->cobEnergy->setCurrentIndex(bFix ? 0 : 1);
         ui->swEnergy->setCurrentIndex(bFix ? 0 : 1);
-        ui->pbGunShowSpectrum->setEnabled(!gRec.EnergySpectrum.empty());
+        ui->pbGunShowSpectrum->setDisabled(gRec.EnergySpectrum.empty());
+        ui->pbDeleteSpectrum->setDisabled(gRec.EnergySpectrum.empty());
         ui->cbRangeBaseEnergyData->setVisible(!bFix);
         ui->cbRangeBaseEnergyData->setChecked(gRec.RangeBasedEnergies);
     }
@@ -472,6 +473,9 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
     updateHalfLife();
 
+    LocalRec.configureAngularSampler();
+    LocalRec.configureTimeSampler();
+
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
     {
@@ -498,6 +502,8 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
         p.BtBPair = ui->cbLinkingOpposite->isChecked();
+
+        p.configureEnergySampler();
     }
 
     int curRow = ui->lwGunParticles->currentRow();
@@ -548,28 +554,19 @@ void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
 
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 {
-    QString fileName = guitools::dialogLoadFile(this, "Load energy spectrum", "");
+    const QString fileName = guitools::dialogLoadFile(this, "Load energy spectrum", "");
     if (fileName.isEmpty()) return;
 
-    int iPart = ui->lwGunParticles->currentRow();
-    QString err = ftools::loadPairs(fileName, LocalRec.Particles[iPart].EnergySpectrum, true);
+    const int iParticle = ui->lwGunParticles->currentRow();
+    AGunParticle & Particle = LocalRec.Particles[iParticle];
+    QString err = ftools::loadPairs(fileName, Particle.EnergySpectrum, true);
+    if (err.isEmpty())
+        err = QString(Particle.configureEnergySampler().data());
     if (!err.isEmpty())
     {
-        LocalRec.Particles[iPart].EnergySpectrum.clear();
-        LocalRec.Particles[iPart].UseFixedEnergy = true;
-
+        Particle.EnergySpectrum.clear();
         guitools::message(err, this);
     }
-
-    bool ok = LocalRec.Particles[iPart].configureEnergySampler();
-    if (!ok)
-    {
-        LocalRec.Particles[iPart].EnergySpectrum.clear();
-        LocalRec.Particles[iPart].UseFixedEnergy = true;
-
-        guitools::message("bad spectrum", this); // !!!*** use a generic check! (todo)
-    }
-
     updateParticleInfo();
 }
 
@@ -649,23 +646,17 @@ void AParticleSourceDialog::on_pbShowAngular_clicked()
 
 void AParticleSourceDialog::on_pbLoadAngular_clicked()
 {
-    QString fileName = guitools::dialogLoadFile(this, "Load angular distribution", "");
+    const QString fileName = guitools::dialogLoadFile(this, "Load angular distribution", "");
     if (fileName.isEmpty()) return;
 
     QString err = ftools::loadPairs(fileName, LocalRec.AngularDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureAngularSampler().data());
     if (!err.isEmpty())
     {
         LocalRec.AngularDistribution.clear();
         guitools::message(err, this);
     }
-
-    bool ok = LocalRec.configureAngularSampler();
-    if (!ok)
-    {
-        LocalRec.AngularDistribution.clear();
-        guitools::message("bad angular", this); // !!!*** use a generic check! (todo)
-    }
-
     updateCustomAngularButtons();
 }
 
@@ -742,23 +733,17 @@ void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
 
 void AParticleSourceDialog::on_pbTimeCustomLoad_clicked()
 {
-    QString fileName = guitools::dialogLoadFile(this, "Load custom distribution of time offsets", "");
+    const QString fileName = guitools::dialogLoadFile(this, "Load custom distribution of time offsets", "");
     if (fileName.isEmpty()) return;
 
     QString err = ftools::loadPairs(fileName, LocalRec.TimeDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureTimeSampler().data());
     if (!err.isEmpty())
     {
         LocalRec.TimeDistribution.clear();
         guitools::message(err, this);
     }
-
-    bool ok = LocalRec.configureTimeSampler();
-    if (!ok)
-    {
-        LocalRec.TimeDistribution.clear();
-        guitools::message("Bad time offset distribution", this); // !!!*** use a generic check! (todo)
-    }
-
     updateTimeButtons();
 }
 
@@ -773,4 +758,3 @@ void AParticleSourceDialog::on_cbTimeCustomRanged_clicked(bool checked)
     LocalRec.TimeRangeBased = checked;
     LocalRec._TimeSampler.configure(LocalRec.TimeDistribution, LocalRec.TimeRangeBased);
 }
-

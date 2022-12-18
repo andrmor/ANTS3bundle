@@ -359,12 +359,12 @@ bool AHistogram3Dfixed::getVoxel(const std::array<double,3> & pos, std::array<in
 
 // ---
 
-bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & data, bool RangeBasedData)
+std::string ARandomSampler::configure(const std::vector<std::pair<double, double>> & data, bool RangeBasedData)
 {
     clear();
 
     const size_t dataSize = data.size();
-    if (dataSize < 2) return false;
+    if (dataSize < 2) return "Data should contain at least two points";
 
     LeftBounds.resize(dataSize);
     Values.resize(dataSize);
@@ -374,18 +374,19 @@ bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & da
     for (size_t i = 0; i < dataSize; i++)
     {
         const double x = data[i].first;
-        if (i != 0 && x <= data[i-1].first) // only continuously increasing bin bounds
+        if (x < 0) return "Bin bounds cannot be negative";
+        if (i != 0 && x <= data[i-1].first)
         {
             clear();
-            return false;
+            return "Data should have continuously increasing bin bounds";
         }
         LeftBounds[i] = x;
 
         const double val = data[i].second;
-        if (val < 0) // non-negative values
+        if (val < 0)
         {
             clear();
-            return false;
+            return "Data values cannot be negative";
         }
         Values[i] = val;
 
@@ -394,13 +395,13 @@ bool ARandomSampler::configure(const std::vector<std::pair<double, double>> & da
         else                sum += Values[i] * (data[i+1].first - data[i].first);
     }
 
-    if (SumBins.back() == 0) // integral cannot be zero
+    if (SumBins.back() <= 0)
     {
         clear();
-        return false;
+        return "Data integral should be positive";
     }
 
-    return true;
+    return "";
 }
 
 void ARandomSampler::clear()
