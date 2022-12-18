@@ -88,6 +88,8 @@ private:
     void restorePersistentSettings();
     void updateHalfLifeIndication();
     void updateHalfLife();
+    void updateFixedEnergyIndication(const AGunParticle & gRec);
+    void updateFixedEnergy();
 };
 
 #endif // APARTICLESOURCEDIALOG_H

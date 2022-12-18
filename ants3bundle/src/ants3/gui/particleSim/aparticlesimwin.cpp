@@ -578,9 +578,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
             iBin++;
         }
         histSeen->SetMinimum(0);
-
-        emit requestDraw(histSeen, "hist", true, true);    emit requestAddToBasket("Seen particles");
-        emit requestDraw(histTime, "hist", false, true);   emit requestAddToBasket("Time");
+        emit requestDraw(histSeen,   "hist", true,  true); emit requestAddToBasket("Seen particles");
+        emit requestDraw(histTime,   "hist", false, true); emit requestAddToBasket("Time");
         emit requestDraw(histEnergy, "hist", false, true); emit requestAddToBasket("Energy");
     }
 }

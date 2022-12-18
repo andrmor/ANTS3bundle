@@ -18,6 +18,7 @@ class G4ParticleDefinition;
 struct AGunParticle
 {
     enum EType {Independent, Linked_IfGenerated, Linked_IfNotGenerated};
+    enum EEneryUnits {meV, eV, keV, MeV};
 
     std::string  Particle        = "geantino";
 
@@ -30,8 +31,8 @@ struct AGunParticle
     bool         BtBPair         = false;      // false = normal case (single particle), true = back-to-back pair of identical particles
 
     bool         UseFixedEnergy  = true;
-    double       FixedEnergy     = 100.0;   // in keV
-    std::string  PreferredUnits  = "keV";
+    double       FixedEnergy     = 100.0;      // in keV
+    EEneryUnits  PreferredUnits  = keV;
     std::vector<std::pair<double, double>> EnergySpectrum;
     bool         RangeBasedEnergies = false;
 

@@ -104,6 +104,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     updateListWidget();
     updateColorLimitingMat();
+
     if ( !Rec.Particles.empty() )
     {
         ui->lwGunParticles->setCurrentRow(0);
@@ -354,18 +355,7 @@ void AParticleSourceDialog::updateParticleInfo()
         str.setNum(gRec.StatWeight);
         ui->ledGunParticleWeight->setText(str);
 
-        int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits.data());
-        double energy = gRec.FixedEnergy;
-        if (iPrefUnits > -1)
-        {
-            ui->cobUnits->setCurrentIndex(iPrefUnits);
-            if      (gRec.PreferredUnits == "MeV") energy *= 1.0e-3;
-            else if (gRec.PreferredUnits == "keV") ;
-            else if (gRec.PreferredUnits == "eV") energy *= 1.0e3;
-            else if (gRec.PreferredUnits == "meV") energy *= 1.0e6;
-        }
-        else ui->cobUnits->setCurrentText("keV");
-        ui->ledGunEnergy->setText( QString::number(energy) );
+        updateFixedEnergyIndication(gRec);
 
         int index = 0;
         if      (gRec.GenerationType == AGunParticle::Independent)           index = 0;
@@ -400,10 +390,7 @@ void AParticleSourceDialog::on_lwGunParticles_currentRowChanged(int)
 
 void AParticleSourceDialog::on_cobUnits_activated(int)
 {
-    int iPart = ui->lwGunParticles->currentRow();
-    if (iPart == -1) return;
-    LocalRec.Particles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
-    updateParticleInfo();
+    updateFixedEnergy();
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -488,13 +475,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
         p.UseFixedEnergy = (ui->cobEnergy->currentIndex() == 0);
-        p.PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
-        double energy = ui->ledGunEnergy->text().toDouble();
-        if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
-        else if (p.PreferredUnits == "keV") ;
-        else if (p.PreferredUnits == "eV")  energy *= 1.0e-3;
-        else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
-        p.FixedEnergy = energy;
+        updateFixedEnergy();
         p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
         switch (ui->cobGenerationType->currentIndex())
         {
@@ -709,7 +690,6 @@ void AParticleSourceDialog::updateHalfLifeIndication()
         index = 0; factor = 1.0;
     }
     ui->cobPreferedHalfLifeUnits->setCurrentIndex(index);
-
     ui->ledTimeSpreadHalfLife->setText(QString::number(LocalRec.TimeSpreadHalfLife / factor));
 }
 
@@ -731,6 +711,44 @@ void AParticleSourceDialog::updateHalfLife()
     }
     LocalRec.TimeHalfLifePrefUnit = e;
     LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
+}
+
+void AParticleSourceDialog::updateFixedEnergyIndication(const AGunParticle & gRec)
+{
+    int index = 0;
+    double factor = 1.0;
+    switch (gRec.PreferredUnits)
+    {
+    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    default :
+        qWarning() << "Not implemented PreferredUnits -> assuming keV";
+        index = 1; factor = 1.0; break;
+    }
+    ui->cobUnits->setCurrentIndex(index);
+    ui->ledGunEnergy->setText( QString::number(gRec.FixedEnergy * factor) );
+}
+
+void AParticleSourceDialog::updateFixedEnergy()
+{
+    int iPart = ui->lwGunParticles->currentRow();
+    if (iPart == -1) return;
+    AGunParticle & p = LocalRec.Particles[iPart];
+    double factor = 1.0;
+    switch (ui->cobUnits->currentIndex())
+    {
+    case 0 : p.PreferredUnits = AGunParticle::MeV; factor = 1e-3; break;
+    case 1 : p.PreferredUnits = AGunParticle::keV; factor = 1.0;  break;
+    case 2 : p.PreferredUnits = AGunParticle::eV;  factor = 1e3;  break;
+    case 3 : p.PreferredUnits = AGunParticle::meV; factor = 1e6;  break;
+    default:
+        qWarning() << "Not implemented PreferredUnits in updateFixedEnergy()";
+        p.PreferredUnits = AGunParticle::keV;
+    }
+    p.FixedEnergy = ui->ledGunEnergy->text().toDouble() / factor;
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbTimeCustomShow_clicked()

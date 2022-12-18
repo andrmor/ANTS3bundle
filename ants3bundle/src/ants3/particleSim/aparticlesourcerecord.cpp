@@ -75,7 +75,16 @@ void AGunParticle::writeToJson(QJsonObject & json) const
 
             js["UseFixedEnergy"]     = UseFixedEnergy;
             js["FixedEnergy"]        = FixedEnergy;
-            js["PreferredUnits"] = QString(PreferredUnits.data());
+            QString str;
+            switch (PreferredUnits)
+            {
+            case meV : str = "meV"; break;
+            case eV  : str = "eV";  break;
+            case keV : str = "keV"; break;
+            case MeV : str = "MeV"; break;
+            default: qCritical() << "Not implemented PreferredUnits"; exit(111);
+            }
+            js["PreferredUnits"] = str;
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(EnergySpectrum, ar);
             js["EnergySpectrum"] = ar;
@@ -117,10 +126,16 @@ bool AGunParticle::readFromJson(const JsonObject & json)
         JsonObject js;
         jstools::parseJson(json, "Energy", js);
 
-            jstools::parseJson(js, "FixedEnergy",        FixedEnergy );
-            jstools::parseJson(js, "PreferredUnits",     PreferredUnits);
-            jstools::parseJson(js, "UseFixedEnergy",     UseFixedEnergy );
-            jstools::parseJson(js, "RangeBasedEnergies", RangeBasedEnergies );
+            jstools::parseJson(js, "FixedEnergy", FixedEnergy);
+            std::string str;
+            jstools::parseJson(js, "PreferredUnits", str);
+            if      (str == "meV") PreferredUnits = meV;
+            else if (str == "eV")  PreferredUnits = eV;
+            else if (str == "keV") PreferredUnits = keV;
+            else if (str == "MeV") PreferredUnits = MeV;
+            else ;// !!!*** error handling
+            jstools::parseJson(js, "UseFixedEnergy",     UseFixedEnergy);
+            jstools::parseJson(js, "RangeBasedEnergies", RangeBasedEnergies);
 
             JsonArray ar;
                 jstools::parseJson(js, "EnergySpectrum", ar);
