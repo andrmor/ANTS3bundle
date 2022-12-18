@@ -456,7 +456,9 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 0  : LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;              break;
     case 1  : LocalRec.TimeOffsetMode = AParticleSourceRecord::ByEventIndexOffset;       break;
     case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord::CustomDistributionOffset; break;
-    default : ; // !!!*** error
+    default :
+        qWarning() << "Unknown time offset mode!";
+        LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;
     }
     LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
     LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
@@ -467,7 +469,9 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 1  : LocalRec.TimeSpreadMode = AParticleSourceRecord::GaussianSpread;    break;
     case 2  : LocalRec.TimeSpreadMode = AParticleSourceRecord::UniformSpread;     break;
     case 3  : LocalRec.TimeSpreadMode = AParticleSourceRecord::ExponentialSpread; break;
-    default : ; // !!!*** error
+    default :
+        qWarning() << "Unknown time spread mode!";
+        LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;
     }
     LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
     LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
@@ -476,7 +480,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();
 
-    int iPart = ui->lwGunParticles->currentRow();
+    const int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
     {
         AGunParticle & p = LocalRec.Particles[iPart];
@@ -488,16 +492,18 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         double energy = ui->ledGunEnergy->text().toDouble();
         if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
         else if (p.PreferredUnits == "keV") ;
-        else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
+        else if (p.PreferredUnits == "eV")  energy *= 1.0e-3;
         else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
         p.FixedEnergy = energy;
         p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
         switch (ui->cobGenerationType->currentIndex())
         {
-        case 0: p.GenerationType = AGunParticle::Independent; break;
-        case 1: p.GenerationType = AGunParticle::Linked_IfGenerated; break;
-        case 2: p.GenerationType = AGunParticle::Linked_IfNotGenerated; break;
-        default: guitools::message("Non-implemented generation type for the particle!", this);
+        case 0 : p.GenerationType = AGunParticle::Independent; break;
+        case 1 : p.GenerationType = AGunParticle::Linked_IfGenerated; break;
+        case 2 : p.GenerationType = AGunParticle::Linked_IfNotGenerated; break;
+        default :
+            qWarning() << "Non-implemented generation type for the particle!";
+            p.GenerationType = AGunParticle::Independent;
         }
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
@@ -698,7 +704,9 @@ void AParticleSourceDialog::updateHalfLifeIndication()
     case AParticleSourceRecord::s   : index = 3; factor = 1e9;    break;
     case AParticleSourceRecord::min : index = 4; factor = 60e9;   break;
     case AParticleSourceRecord::h   : index = 5; factor = 3600e9; break;
-    default : guitools::message("Not impelmented AParticleSourceRecord::TimeHalfLifePrefUnit enum value", this);
+    default :
+        qWarning() << "Not impelmented AParticleSourceRecord::TimeHalfLifePrefUnit enum value";
+        index = 0; factor = 1.0;
     }
     ui->cobPreferedHalfLifeUnits->setCurrentIndex(index);
 
@@ -717,7 +725,9 @@ void AParticleSourceDialog::updateHalfLife()
     case 3 : e = AParticleSourceRecord::s;   factor = 1e9;    break;
     case 4 : e = AParticleSourceRecord::min; factor = 60e9;   break;
     case 5 : e = AParticleSourceRecord::h;   factor = 3600e9; break;
-    default : guitools::message("Not implemented AParticleSourceRecord::TimeHalfLifePrefUnit value for ui->cobPreferedHalfLifeUnits", this);
+    default :
+        qWarning() << "Not implemented AParticleSourceRecord::TimeHalfLifePrefUnit value for ui->cobPreferedHalfLifeUnits";
+        e = AParticleSourceRecord::ns; factor = 1.0;
     }
     LocalRec.TimeHalfLifePrefUnit = e;
     LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
