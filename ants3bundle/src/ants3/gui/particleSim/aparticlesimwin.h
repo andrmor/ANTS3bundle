@@ -3,6 +3,8 @@
 
 #include "aguiwindow.h"
 
+#include <map>
+
 class AParticleSimSettings;
 class AG4SimulationSettings;
 class QListWidgetItem;
@@ -14,6 +16,7 @@ class TObject;
 class AMonitorHub;
 class ACalorimeterHub;
 class TH1D;
+class AParticleRecord;
 
 namespace Ui {
 class AParticleSimWin;
@@ -169,6 +172,7 @@ private:
 
     TH1D * histEnergy = nullptr;
     TH1D * histTime = nullptr;
+    std::map<std::string, int> SeenParticles;
 
     void updateG4Gui();
     void updateSimGui();
@@ -202,7 +206,7 @@ private:
     int  findEventWithFilters(int currentEv, bool bUp);
     double getCalorimeterEnergyFactor();
 
-    void addStatistics(double energy, double time);
+    void addStatistics(const AParticleRecord & p);
 
 private slots:
     void testParticleGun(AParticleGun * Gun, int numParticles, bool fillStatistics);

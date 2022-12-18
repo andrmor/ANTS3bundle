@@ -535,13 +535,13 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
     {
         delete histTime;   histTime = new TH1D("", "Time", 100,0,0);     histTime->GetXaxis()->SetTitle("Time, ns");
         delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0); histEnergy->GetXaxis()->SetTitle("Energy, keV");
-
+        SeenParticles.clear();
     }
 
     auto handler = [&numTracks, Length, fillStatistics, this](const AParticleRecord & particle)
     {
         //qDebug() << particle.particle.data();
-        if (fillStatistics) addStatistics(particle.energy, particle.time);
+        if (fillStatistics) addStatistics(particle);
 
         if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
@@ -567,6 +567,19 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
 
     if (fillStatistics)
     {
+        const size_t numParticles = SeenParticles.size();
+        TH1D * histSeen = new TH1D("", "Seen particles", numParticles, 0, numParticles);
+        TAxis * axis = histSeen->GetXaxis();
+        int iBin = 1;
+        for (auto const & pair : SeenParticles)
+        {
+            histSeen->SetBinContent(iBin, pair.second);
+            axis->SetBinLabel(iBin, pair.first.data());
+            iBin++;
+        }
+        histSeen->SetMinimum(0);
+
+        emit requestDraw(histSeen, "hist", true, true);    emit requestAddToBasket("Seen particles");
         emit requestDraw(histTime, "hist", false, true);   emit requestAddToBasket("Time");
         emit requestDraw(histEnergy, "hist", false, true); emit requestAddToBasket("Energy");
     }
@@ -2147,11 +2160,11 @@ double AParticleSimWin::getCalorimeterEnergyFactor()
     return factor;
 }
 
-void AParticleSimWin::addStatistics(double energy, double time)
+void AParticleSimWin::addStatistics(const AParticleRecord & p)
 {
-    //qDebug() << energy << time;
-    histTime->Fill(time, 1);
-    histEnergy->Fill(energy, 1);
+    histTime->Fill(p.time, 1);
+    histEnergy->Fill(p.energy, 1);
+    SeenParticles[p.particle]++;
 }
 
 void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
