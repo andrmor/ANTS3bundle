@@ -1,8 +1,39 @@
+// implementation of rotations is taken from https://root.cern.ch/doc/master/TVector3_8cxx_source.html#l00263
+
 #include "avector.h"
 
 #include <cmath>
 
-// implementation of rotations is taken from https://root.cern.ch/doc/master/TVector3_8cxx_source.html#l00263
+AVector2::AVector2(const double * pos)
+{
+    for (int i = 0; i < 2; i++) r[i] = pos[i];
+}
+
+AVector3::AVector3(const double * pos)
+{
+    for (int i = 0; i < 3; i++) r[i] = pos[i];
+}
+
+double AVector3::mag2() const
+{
+    double mag2 = 0;
+    for (int i = 0; i < 3; i++) mag2 += r[i] * r[i];
+    return mag2;
+}
+
+double AVector3::dot(const AVector3 & vec) const
+{
+    double dot = 0;
+    for (int i = 0; i < 3; i++) dot += r[i] * vec[i];
+    return dot;
+}
+
+AVector3::AVector3(double x, double y, double z)
+{
+    r[0] = x;
+    r[1] = y;
+    r[2] = z;
+}
 
 void AVector3::rotateX(double angle)
 {
@@ -59,6 +90,17 @@ void AVector3::rotateUz(const AVector3 & NewUzVector)
     {
         r[0] = -r[0]; r[2] = -r[2]; // phi=0  teta=pi
     }
-    else
-    {};
+}
+
+double AVector3::angle(const AVector3 & vec) const
+{
+       double ptot2 = mag2() * vec.mag2();
+       if (ptot2 <= 0) return 0.0;
+       else
+       {
+          double arg = dot(vec) / sqrt(ptot2);
+          if (arg >  1.0) arg =  1.0;
+          if (arg < -1.0) arg = -1.0;
+          return acos(arg);
+       }
 }

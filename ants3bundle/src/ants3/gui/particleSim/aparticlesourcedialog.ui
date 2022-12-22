@@ -691,7 +691,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <item>
           <widget class="QLabel" name="label_19">
            <property name="text">
-            <string>mm</string>
+            <string>deg</string>
            </property>
           </widget>
          </item>

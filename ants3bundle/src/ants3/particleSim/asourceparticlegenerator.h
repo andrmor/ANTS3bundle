@@ -36,8 +36,11 @@ public:
     bool init() override; // !!! has to be called before the first use of GenerateEvent()!
     bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
 
-private:
+    AVector3 getCollimationDirection(int iSource) const {return CollimationDirection[iSource];}
+
     const ASourceGeneratorSettings & Settings;
+
+private:
     ARandomHub & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
@@ -45,6 +48,7 @@ private:
 
     double TotalActivity = 0;
 
+    // consider moving to settings !!!***
     std::vector<double>   TotalParticleWeight;
     std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi

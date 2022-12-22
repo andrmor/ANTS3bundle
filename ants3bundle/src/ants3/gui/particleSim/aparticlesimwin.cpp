@@ -508,23 +508,38 @@ void AParticleSimWin::on_pbGunTest_clicked()
 //    WindowNavigator->BusyOff();  // <--
 }
 
-void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool fillStatistics)
+void AParticleSimWin::configureAngleStat(AParticleGun * gun)
+{
+    CollectAngle = false;
+    const ASourceParticleGenerator * ps = dynamic_cast<const ASourceParticleGenerator*>(gun);
+    if (!ps) return;
+
+    if (ps->Settings.getNumSources() > 1) return;
+
+    const AParticleSourceRecord & sr = ps->Settings.SourceData.front();
+    if (!sr.isDirectional()) return;
+
+    CollectAngle = true;
+    SourceStatDirection = ps->getCollimationDirection(0);
+}
+
+void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics)
 {
     AErrorHub::clear();
 
-    if (!Gun)
+    if (!gun)
     {
         guitools::message("Particle gun is not defined", this);
         return;
     }
 
-    bool bOK = Gun->init();
+    bool bOK = gun->init();
     if (!bOK)
     {
         guitools::message( QString("Failed to initialize particle gun!\n%0").arg(AErrorHub::getError().data()), this);
         return;
     }
-    Gun->setStartEvent(0);
+    gun->setStartEvent(0);
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
@@ -533,8 +548,10 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
     int numTracks = 0;
     if (fillStatistics)
     {
-        delete histTime;   histTime = new TH1D("", "Time", 100,0,0);     histTime->GetXaxis()->SetTitle("Time, ns");
+        delete histTime;   histTime   = new TH1D("", "Time", 100,0,0);   histTime->GetXaxis()->SetTitle("Time, ns");
         delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0); histEnergy->GetXaxis()->SetTitle("Energy, keV");
+        delete histAngle;  histAngle  = new TH1D("", "Angle", 181,0,181);  histAngle->GetXaxis()->SetTitle("Angle, degrees");
+        configureAngleStat(gun);
         SeenParticles.clear();
     }
 
@@ -557,7 +574,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
-        bool bOK = Gun->generateEvent(handler, iRun);
+        bool bOK = gun->generateEvent(handler, iRun);
         //if (!bOK || numTracks > 10000) break;
         if (!bOK) break;
     }
@@ -580,6 +597,10 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles, bool
         histSeen->SetMinimum(0);
         emit requestDraw(histSeen,   "hist", true,  true); emit requestAddToBasket("Seen particles");
         emit requestDraw(histTime,   "hist", false, true); emit requestAddToBasket("Time");
+        if (CollectAngle)
+        {
+            emit requestDraw(histAngle, "hist", false, true); emit requestAddToBasket("Angle");
+        }
         emit requestDraw(histEnergy, "hist", false, true); emit requestAddToBasket("Energy");
     }
 }
@@ -2163,6 +2184,11 @@ void AParticleSimWin::addStatistics(const AParticleRecord & p)
 {
     histTime->Fill(p.time, 1);
     histEnergy->Fill(p.energy, 1);
+    if (CollectAngle)
+    {
+        AVector3 particleDir(p.v);
+        histAngle->Fill(particleDir.angle(SourceStatDirection)*180.0/3.1415926535, 1);
+    }
     SeenParticles[p.particle]++;
 }
 

@@ -18,7 +18,7 @@ public:
 
     virtual void setStartEvent(int) {} // for 'from file' generator
 
-    bool        AbortRequested = false;
+    bool         AbortRequested = false;
 };
 
 #endif // APARTICLEGUN_H

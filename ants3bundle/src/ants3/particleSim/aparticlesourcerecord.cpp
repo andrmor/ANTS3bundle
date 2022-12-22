@@ -468,6 +468,18 @@ std::string AParticleSourceRecord::getShapeString() const
     return "UnknownShape";
 }
 
+bool AParticleSourceRecord::isDirectional() const
+{
+    switch (AngularMode)
+    {
+    case Isotropic       : return UseCutOff;
+    case FixedDirection  : return true;
+    case GaussDispersion : return true;
+    case CustomAngular   : return true;
+    default              : return false;
+    }
+}
+
 std::string AParticleSourceRecord::check() const
 {
     const int numParts = Particles.size();

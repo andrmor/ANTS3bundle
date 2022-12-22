@@ -2,6 +2,7 @@
 #define APARTICLESIMWIN_H
 
 #include "aguiwindow.h"
+#include "avector.h"
 
 #include <map>
 
@@ -171,6 +172,9 @@ private:
     QString LastFile_Calorimeters;
 
     TH1D * histEnergy = nullptr;
+    TH1D * histAngle = nullptr;
+    bool   CollectAngle = false;
+    AVector3 SourceStatDirection = {0,0,1.0};
     TH1D * histTime = nullptr;
     std::map<std::string, int> SeenParticles;
 
@@ -207,9 +211,10 @@ private:
     double getCalorimeterEnergyFactor();
 
     void addStatistics(const AParticleRecord & p);
+    void configureAngleStat(AParticleGun * gun);
 
 private slots:
-    void testParticleGun(AParticleGun * Gun, int numParticles, bool fillStatistics);
+    void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
     void onProgressReceived(double progress);
     void on_cbPTHistVolVsTime_toggled(bool checked);
     void on_pbUpdateIcon_clicked();

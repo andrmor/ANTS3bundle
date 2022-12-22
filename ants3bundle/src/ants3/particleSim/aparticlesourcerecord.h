@@ -119,6 +119,7 @@ struct AParticleSourceRecord
 #endif
 
     std::string getShapeString() const;
+    bool        isDirectional() const;
 
     std::string check() const;  // !!!*** check energy spectrum
 
