@@ -116,13 +116,6 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbAbort->setVisible(false);
 
     restorePersistentSettings();
-
-    // !!!*** export / import source
-//    QMenuBar* mb = new QMenuBar(this);
-//    QMenu* fileMenu = mb->addMenu("&File");
-//    fileMenu->addAction("Load source", this, &AParticleSourceDialog::loadSource);
-//    fileMenu->addAction("Save source", this, &AParticleSourceDialog::saveSource);
-//    layout()->setMenuBar(mb);
 }
 
 AParticleSourceDialog::~AParticleSourceDialog()

@@ -227,6 +227,10 @@ private slots:
     void on_leMonitorsFileName_editingFinished();
     void on_leCalorimetersFileName_editingFinished();
 
+    void on_pbSaveParticleSource_clicked();
+
+    void on_pbLoadParticleSource_clicked();
+
 signals:
     void killSourceDialog();
 };

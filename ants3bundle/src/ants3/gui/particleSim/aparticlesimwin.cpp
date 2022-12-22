@@ -2350,3 +2350,63 @@ void AParticleSimWin::clearResultsGuiCalorimeters()
 {
     updateCalorimeterGui();
 }
+
+void AParticleSimWin::on_pbSaveParticleSource_clicked()
+{
+    const int iSource = ui->lwDefinedParticleSources->currentRow();
+    if (iSource == -1)
+    {
+        guitools::message("Select a source to export", this);
+        return;
+    }
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    const int numSources = SourceGenSettings.getNumSources();
+    if (iSource >= numSources)
+    {
+        guitools::message("Error - bad source index!", this);
+        return;
+    }
+
+    const AParticleSourceRecord & source = SimSet.SourceGenSettings.SourceData[iSource];
+
+    QString fileName = guitools::dialogSaveFile(this, "Save source " + QString(source.Name.data()) + " to file", "Json files (*.json)");
+    if (fileName.isEmpty()) return;
+    if (!fileName.endsWith(".json")) fileName += ".json";
+    QJsonObject json;
+    source.writeToJson(json);
+    bool ok = jstools::saveJsonToFile(json, fileName);
+    if (!ok) guitools::message("Failed to open file for saving: " + fileName);
+}
+
+void AParticleSimWin::on_pbLoadParticleSource_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Import particle source file", "Json files (*.json);;All files (*)");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
+    {
+        guitools::message("Cannot open file: " + fileName, this);
+        return;
+    }
+
+    AParticleSourceRecord s;
+    ok = s.readFromJson(json);
+    if (!ok)
+    {
+        guitools::message("Error in imported source", this);
+        return;
+    }
+
+    QString err(s.check().data());
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    SimSet.SourceGenSettings.SourceData.push_back(s);
+    updateSourceList();
+    ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
+}

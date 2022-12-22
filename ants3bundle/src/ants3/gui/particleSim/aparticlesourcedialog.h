@@ -21,7 +21,7 @@ public:
     explicit AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent);
     ~AParticleSourceDialog();
 
-    AParticleSourceRecord & getResult(); //transfers ownership
+    AParticleSourceRecord & getResult();
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -44,7 +44,7 @@ private slots:
     void on_pbGunShowSpectrum_clicked();
     void on_pbGunLoadSpectrum_clicked();
     void on_pbDeleteSpectrum_clicked();
-    void on_cbRangeBaseEnergyData_clicked(); // !!!*** dublicate code (on Load Spectrum uses the same check-up!)
+    void on_cbRangeBaseEnergyData_clicked();
 
     void on_pbShowSource_clicked(bool checked);
     void on_pbHelpParticle_clicked();
