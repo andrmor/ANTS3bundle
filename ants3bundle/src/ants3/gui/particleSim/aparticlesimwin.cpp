@@ -2152,7 +2152,7 @@ void AParticleSimWin::updateCalorimeterGui()
         if (Cal)
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            double total = Cal->Stats[0] * getCalorimeterEnergyFactor();
+            double total = Cal->getTotalEnergy() * getCalorimeterEnergyFactor();
             ui->leCalorimetersTotal->setText( QString::number(total) );
             ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
             ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
@@ -2194,7 +2194,6 @@ void AParticleSimWin::addStatistics(const AParticleRecord & p)
 
 void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
 {
-    //ui->labCalorimeterUnits->setText(arg1);
     updateCalorimeterGui();
 }
 
@@ -2251,7 +2250,8 @@ void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
 
     const int numDim = p.getNumDimensions();
     const double energyFactor = getCalorimeterEnergyFactor();
-    const TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
+    TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
+    eu += " per bin";
 
     switch (numDim)
     {

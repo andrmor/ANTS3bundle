@@ -37,15 +37,15 @@ struct AGunParticle
     bool         RangeBasedEnergies = false;
 
     std::string  configureEnergySampler();
-    double  generateEnergy() const;
+    double       generateEnergy() const;
 
-    bool    isDirectDeposition() const;
+    bool         isDirectDeposition() const;
 
 #ifdef JSON11
-    bool    readFromJson(const json11::Json::object & json);  // !!!***
+    bool         readFromJson(const json11::Json::object & json);  // !!!***
 #else
-    bool    readFromJson(const QJsonObject & json);  // !!!***
-    void    writeToJson(QJsonObject & json) const;   // !!!***
+    bool         readFromJson(const QJsonObject & json);  // !!!***
+    void         writeToJson(QJsonObject & json) const;   // !!!***
 #endif
 
     //run-time

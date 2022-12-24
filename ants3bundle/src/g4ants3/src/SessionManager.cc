@@ -1,5 +1,8 @@
 #include "SessionManager.hh"
 #include "arandomg4hub.h"
+#include "asourceparticlegenerator.h"
+#include "afileparticlegenerator.h"
+#include "aerrorhub.h"
 
 #include <iostream>
 #include <sstream>
@@ -7,6 +10,7 @@
 #include <iomanip>
 #include <map>
 
+#include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
@@ -61,37 +65,27 @@ void SessionManager::startSession()
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 }
 
-#include "asourceparticlegenerator.h"
-#include "afileparticlegenerator.h"
 void SessionManager::prepareParticleGun()
 {
     switch (Settings.GenerationMode)
     {
     case AParticleSimSettings::Sources :
-        {
-            for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
-                for (AGunParticle & particle : source.Particles)
-                    particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
-            ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
-        }
+        for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
+            for (AGunParticle & particle : source.Particles)
+                particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+        ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
         break;
     case AParticleSimSettings::File :
-        {
-            Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
-            //qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Settings.FileGenSettings.FileName.data();
-            ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
-        }
+        Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
+        ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
         break;
     default :
-        {
-            terminateSession("Unknown or not-implemented primary generation mode");
-        }
+        terminateSession("Unknown or not-implemented primary generation mode");
     }
 
     bool ok = ParticleGenerator->init();
-    //qDebug() << "Particle gun init:" << ok;
-
-    if (ok) ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
+    if (!ok) terminateSession(AErrorHub::getError());
+    ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
 }
 
 void SessionManager::terminateSession(const std::string & ReturnMessage)
@@ -656,7 +650,9 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
 
     json11::Json::object json = jo.object_items();
 
+    AErrorHub::clear();
     Settings.readFromJson(json);
+    if (AErrorHub::isError()) terminateSession(AErrorHub::getError());
 
     if (Settings.RunSet.Receipt.empty())
         terminateSession("File name for receipt was not provided");
@@ -826,7 +822,6 @@ void SessionManager::storeCalorimeterData()
     outStream.close();
 }
 
-#include "G4SystemOfUnits.hh"
 G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & particleName)
 {
     if (particleName == "-") return nullptr;

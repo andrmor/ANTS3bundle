@@ -3930,7 +3930,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                   <widget class="QPushButton" name="pbShowMonitorProperties">
                    <property name="minimumSize">
                     <size>
-                     <width>200</width>
+                     <width>250</width>
                      <height>22</height>
                     </size>
                    </property>
@@ -4255,50 +4255,86 @@ If checked, only &quot;creation&quot; is considered!</string>
              </layout>
             </item>
             <item alignment="Qt::AlignHCenter">
+             <widget class="QPushButton" name="pbShowCalorimeterSettings">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Show calorimeter settings</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item alignment="Qt::AlignHCenter">
              <widget class="QFrame" name="frCalorimeter">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_33">
                <item>
-                <widget class="QPushButton" name="pbShowCalorimeterSettings">
-                 <property name="text">
-                  <string>Show calorimeter settings</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_6">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_54">
-                 <item>
-                  <widget class="QLabel" name="label_43">
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_44">
                    <property name="text">
-                    <string>Energy units:</string>
+                    <string>Total energy:</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="leCalorimetersTotal">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_48">
+                   <property name="text">
+                    <string>Entries:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="leCalorimetersEntries">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
                   <widget class="QComboBox" name="cobCalorimeterEnergyUnits">
                    <item>
                     <property name="text">
@@ -4325,61 +4361,14 @@ If checked, only &quot;creation&quot; is considered!</string>
                 </layout>
                </item>
                <item>
-                <widget class="Line" name="line_11">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_44">
-                   <property name="text">
-                    <string>Total energy:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersTotal">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QLabel" name="labCalorimeterUnits">
-                   <property name="text">
-                    <string>MeV</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_48">
-                   <property name="text">
-                    <string>Entries:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersEntries">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
                 <widget class="QPushButton" name="pbCalorimetersShowDistribution">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Show distribution</string>
+                  <string>Show distribution vs energy</string>
                  </property>
                 </widget>
                </item>
@@ -4401,7 +4390,7 @@ If checked, only &quot;creation&quot; is considered!</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>219</height>
+                <height>250</height>
                </size>
               </property>
              </spacer>
