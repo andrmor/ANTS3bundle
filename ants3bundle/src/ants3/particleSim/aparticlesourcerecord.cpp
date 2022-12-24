@@ -489,19 +489,31 @@ std::string AParticleSourceRecord::check() const
 
     switch (AngularMode)
     {
-    case Isotropic : break;
-    case FixedDirection : break;
+    case Isotropic       : break;
+    case FixedDirection  : break;
     case GaussDispersion :
         if (DispersionSigma < 0) return "Dispersion sigma cannot be negative";
         break;
-    case CustomAngular :
-        if (AngularDistribution.size() < 2) return "Custom angular distribution data should contain at least two data points";
-        // !!!*** other checks
+    case CustomAngular   :
         if (!_AngularSampler.isReady()) return "Angular sampler is not ready: Check angular distribution";
         break;
     }
+    if (UseCutOff && CutOff < 0) return "Negative cut-off angle";
 
-    if (UseCutOff && CutOff < 0) return "Negative cutt-off angle";
+    if (TimeOffsetMode == AParticleSourceRecord::CustomDistributionOffset)
+    {
+        if (!_TimeSampler.isReady()) return "Time sampler is not ready: Check custom time offset distribution";
+    }
+    switch (TimeSpreadMode)
+    {
+    case GaussianSpread :
+        if (TimeSpreadSigma < 0) return "Time spread sigma cannot be negative";
+        break;
+    case ExponentialSpread :
+        if (TimeHalfLifePrefUnit <= 0) return "Half-life should be positive";
+        break;
+    default : break;
+    }
 
     int    numIndParts   = 0;
     double totPartWeight = 0;
@@ -522,16 +534,15 @@ std::string AParticleSourceRecord::check() const
 
         if (gp.BtBPair)
         {
-            // !!!*** tweak error message
-            if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + ") cannot be set \"LinkedBtBPair\" to one representing direct deposition (\"-\")";
+            if (Particles[gp.LinkedTo].Particle == "-") return "Particle (#" + std::to_string(ip) + "): direct deposition (\"-\" particle) cannot be set to \"BtBPair\"";
         }
 
-        if (gp.FixedEnergy <= 0) return "Energy <= 0 for particle #" + std::to_string(ip);
-
-        if (!gp.UseFixedEnergy)
+        if (gp.UseFixedEnergy)
         {
-            if (gp.EnergySpectrum.size() < 2) return "Energy spectrum should have at least 2 points";
-            // !!!*** make full error check
+            if (gp.FixedEnergy < 0) return "Negative energy is set for particle #" + std::to_string(ip);
+        }
+        else
+        {
             if (!gp._EnergySampler.isReady()) return "Energy sampler is not ready: Check energy spectrum";
         }
     }
