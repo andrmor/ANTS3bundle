@@ -52,6 +52,7 @@ private:
     void fitPanel(ADrawObject &obj);
     void scale(ADrawObject &obj);
     void scaleIntegralToUnity(ADrawObject &obj);
+    void scaleToUnity(ADrawObject &obj);
     void scaleCDR(ADrawObject &obj);
     void scaleAllSameMax();
     void shift(ADrawObject &obj);
@@ -79,6 +80,7 @@ private:
 
     bool canScale(ADrawObject &obj);
     void doScale(ADrawObject &obj, double sf);
+    bool getDrawMax(ADrawObject &obj, double &max);
     void copyAxisProperties(TGaxis & grAxis, TAxis  & axis);
     void copyAxisProperties(TAxis  & axis,   TGaxis & grAxis);
     const QString generateOptionForSecondaryAxis(int axisIndex, double u1, double u2);

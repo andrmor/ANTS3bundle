@@ -153,7 +153,8 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
 
     QMenu * scaleMenu =     Menu.addMenu("Scale / shift"); scaleMenu->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
         QAction * scaleA =      scaleMenu->addAction("Scale");
-        QAction * scaleTo1 =    scaleMenu->addAction("Scale integral to unity");
+        QAction * scaleTo1    = scaleMenu->addAction("Scale max to unity");
+        QAction * scaleIntTo1 = scaleMenu->addAction("Scale integral to unity");
         QAction * scaleCDRA =   scaleMenu->addAction("Scale: click-drag-release");
         scaleMenu->addSeparator();
         QAction * shiftA =      scaleMenu->addAction("Shift X scale");
@@ -235,7 +236,8 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
    else if (si == delA)         remove(index);
    else if (si == setAttrib)    setAttributes(index);
    else if (si == scaleA)       scale(obj);
-   else if (si == scaleTo1)     scaleIntegralToUnity(obj);
+   else if (si == scaleTo1)     scaleToUnity(obj);
+   else if (si == scaleIntTo1)  scaleIntegralToUnity(obj);
    else if (si == scaleCDRA)    scaleCDR(obj);
    else if (si == integralA)    drawIntegral(obj);
    else if (si == fractionA)    fraction(obj);
@@ -549,7 +551,7 @@ void ADrawExplorerWidget::scale(ADrawObject &obj)
     doScale(obj, sf);
 }
 
-void ADrawExplorerWidget::scaleIntegralToUnity(ADrawObject &obj)
+void ADrawExplorerWidget::scaleIntegralToUnity(ADrawObject & obj)
 {
     if (!canScale(obj)) return;
     double factor = 1.0;
@@ -576,6 +578,15 @@ void ADrawExplorerWidget::scaleIntegralToUnity(ADrawObject &obj)
     doScale(obj, factor);
 }
 
+void ADrawExplorerWidget::scaleToUnity(ADrawObject & obj)
+{
+    if (!canScale(obj)) return;
+
+    double thisMax = 0;
+    getDrawMax(obj, thisMax);
+    if (thisMax != 0) doScale(obj, 1.0/thisMax);
+}
+
 void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
 {
     if (!canScale(obj)) return;
@@ -600,7 +611,7 @@ void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
     doScale(obj, sf);
 }
 
-bool getDrawMax(ADrawObject & obj, double & max)
+bool ADrawExplorerWidget::getDrawMax(ADrawObject & obj, double & max)
 {
     max = 0;
 
@@ -614,7 +625,6 @@ bool getDrawMax(ADrawObject & obj, double & max)
     TH1 * h = dynamic_cast<TH1*>(obj.Pointer);
     if (!h) return false;
 
-    //if (h) max = h->GetMaximum();  //problem with underflow/overflow bins?
     int numBins = h->GetNbinsX();
     if (numBins == 0) return false;
     max = h->GetBinContent(1); //underflow/overflow bins are #0 and #(numBins+1)
@@ -634,21 +644,13 @@ void ADrawExplorerWidget::scaleAllSameMax()
     ADrawObject & mainObj = DrawObjects[0];
     if (!canScale(mainObj)) return;
 
-    //double max = 0;
-    //bool bExtractable = getDrawMax(mainObj, max);
-    //if (!bExtractable) return;
-
-    //for (int i=1; i<size; i++)
     for (int i=0; i<size; i++)
     {
         ADrawObject & obj = DrawObjects[i];
 
         double thisMax = 0;
         getDrawMax(obj, thisMax);
-        qDebug() << i << thisMax;
         if (thisMax == 0) continue;
-
-        //doScale(obj, max/thisMax);
         doScale(obj, 1.0/thisMax);
     }
 }

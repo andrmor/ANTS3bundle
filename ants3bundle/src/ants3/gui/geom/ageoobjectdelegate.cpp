@@ -238,9 +238,9 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         cbOffX = new QCheckBox("Off");
         cbOffY = new QCheckBox("Off");
         cbOffZ = new QCheckBox("Off");
-        gl->addWidget(new QLabel("X"),      0, 1, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Y"),      0, 2, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Z"),      0, 3, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local X"), 0, 1, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local Y"), 0, 2, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local Z"), 0, 3, Qt::AlignHCenter);
         gl->addWidget(new QLabel("Bins"),   1, 0);
         gl->addWidget(leiCalBinsX,          1, 1);
         gl->addWidget(leiCalBinsY,          1, 2);
