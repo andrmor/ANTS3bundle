@@ -112,6 +112,7 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -307,6 +308,7 @@ HEADERS += \
     gui/materials/amatwin.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/particleSim/aworldsizewarningdialog.h \
     gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
@@ -493,6 +495,7 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/atrackdrawdialog.ui \
+        gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \

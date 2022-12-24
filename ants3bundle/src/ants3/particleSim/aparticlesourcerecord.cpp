@@ -482,10 +482,28 @@ bool AParticleSourceRecord::isDirectional() const
 
 std::string AParticleSourceRecord::check() const
 {
-    const int numParts = Particles.size();
-    if (numParts == 0) return "No particles defined";
-
     if (Activity < 0)  return "Negative activity";
+
+    switch (Shape)
+    {
+    case Point     :
+        break;
+    case Line      :
+        if (Size1 <= 0) return "Source length should be positive";
+        break;
+    case Rectangle :
+        if (Size1 <= 0 || Size2 <= 0) return "Both sizes should be positive";
+        break;
+    case Round     :
+        if (Size1 <= 0) return "Diameter should be positive";
+        break;
+    case Box       :
+        if (Size1 <= 0 || Size2 <= 0 || Size3 <= 0) return "All three sizes should be positive";
+        break;
+    case Cylinder  :
+        if (Size1 <= 0 || Size2 <= 0) return "Diameter and height should be positive";
+        break;
+    }
 
     switch (AngularMode)
     {
@@ -515,6 +533,8 @@ std::string AParticleSourceRecord::check() const
     default : break;
     }
 
+    const int numParts = Particles.size();
+    if (numParts == 0) return "No particles defined";
     int    numIndParts   = 0;
     double totPartWeight = 0;
     for (int ip = 0; ip < numParts; ip++)

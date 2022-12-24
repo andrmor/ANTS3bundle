@@ -738,7 +738,8 @@ Format: Volume_name  Step_in_mm</string>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Show</string>
+                   <string>Show all
+sources</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>

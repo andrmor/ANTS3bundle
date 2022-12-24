@@ -93,7 +93,6 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
     connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
     connect(PartSimWin, &AParticleSimWin::requestAddToBasket,  GraphWin, &GraphWindowClass::addCurrentToBasket);
-
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * SH = &AScriptHub::getInstance();

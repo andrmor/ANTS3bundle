@@ -18,6 +18,7 @@ class AMonitorHub;
 class ACalorimeterHub;
 class TH1D;
 class AParticleRecord;
+class AParticleSourceRecord;
 
 namespace Ui {
 class AParticleSimWin;
@@ -178,6 +179,8 @@ private:
     TH1D * histTime = nullptr;
     std::map<std::string, int> SeenParticles;
 
+    bool IgnoreWorldSizeWarning = false;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -212,6 +215,7 @@ private:
 
     void addStatistics(const AParticleRecord & p);
     void configureAngleStat(AParticleGun * gun);
+    void checkWorldSize(AParticleSourceRecord & ps);
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);

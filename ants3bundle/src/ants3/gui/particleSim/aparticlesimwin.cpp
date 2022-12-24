@@ -289,30 +289,64 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     updateSourceList();
     if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-//  !!!*** update world size
-//        double XYm = 0;
-//        double  Zm = 0;
-//        for (int isource = 0; isource < numSources; isource++)
-//        {
-//            double msize =   ps->size1;
-//            UpdateMax(msize, ps->size2);
-//            UpdateMax(msize, ps->size3);
+    checkWorldSize(ps);
+}
 
-//            UpdateMax(XYm, fabs(ps->X0)+msize);
-//            UpdateMax(XYm, fabs(ps->Y0)+msize);
-//            UpdateMax(Zm,  fabs(ps->Z0)+msize);
-//        }
+#include "aworldsizewarningdialog.h"
+void AParticleSimWin::checkWorldSize(AParticleSourceRecord & ps)
+{
+    if (IgnoreWorldSizeWarning) return;
 
-//        double currXYm = Detector->Sandwich->getWorldSizeXY();
-//        double  currZm = Detector->Sandwich->getWorldSizeZ();
-//        if (XYm > currXYm || Zm > currZm)
-//        {
-//            //need to override
-//            Detector->Sandwich->setWorldSizeFixed(true);
-//            Detector->Sandwich->setWorldSizeXY( std::max(1.05*XYm, currXYm) );
-//            Detector->Sandwich->setWorldSizeZ ( std::max(1.05*Zm,  currZm) );
-//            ReconstructDetector();
-//        }
+    AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    const double wXY = GeoHub.getWorldSizeXY();
+    const double wZ  = GeoHub.getWorldSizeZ();
+    double maxXY = std::max(abs(ps.X0), abs(ps.Y0));
+    double maxZ  = abs(ps.Z0);
+    switch (ps.Shape)
+    {
+    case AParticleSourceRecord::Point :
+        break;
+    case AParticleSourceRecord::Line :
+        maxXY += 0.5 * ps.Size1;
+        maxZ  += 0.5 * ps.Size1;
+        break;
+    case AParticleSourceRecord::Rectangle :
+        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
+        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
+        break;
+    case AParticleSourceRecord::Round :
+        maxXY += 0.5 * ps.Size1;
+        maxZ  += 0.5 * ps.Size1;
+        break;
+    case AParticleSourceRecord::Box :
+        maxXY += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
+        maxZ  += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
+        break;
+    case AParticleSourceRecord::Cylinder :
+        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
+        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
+        break;
+    }
+
+    maxXY *= 1.1;
+    maxZ  *= 1.1;
+
+    if (maxXY > wXY || maxZ > wZ)
+    {
+        AWorldSizeWarningDialog d( std::max(maxXY, wXY), std::max(maxZ, wZ), this);
+        d.exec();
+        switch (d.Result)
+        {
+        case AWorldSizeWarningDialog::OK :
+            break;
+        case AWorldSizeWarningDialog::Goto :
+            emit requestShowGeoObjectDelegate("World", true);
+            break;
+        case AWorldSizeWarningDialog::DontBother :
+            IgnoreWorldSizeWarning = true;
+            break;
+        }
+    }
 }
 
 void AParticleSimWin::on_pbAddSource_clicked()
