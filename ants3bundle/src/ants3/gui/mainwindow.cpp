@@ -435,21 +435,24 @@ void MainWindow::closeEvent(QCloseEvent *)
     qDebug() << "\n<MainWindow shutdown initiated";
     clearFocus();
 
-    qDebug()<<"<Saving position/status of all windows";
+    qDebug() << "<Saving position/status of all windows";
     saveWindowGeometries();
 
     qDebug() << "<Preparing graph window for shutdown";
     GraphWin->close();
     GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
 
-    //saving ANTS master-configuration file
+    qDebug() << "<Saving JavaScript scipts";
     JScriptWin->WriteToJson();
 #ifdef ANTS3_PYTHON
+    qDebug() << "<Saving Python scripts";
     PythonWin->WriteToJson();
 #endif
+
+    qDebug() << "<Saving global settings";
     A3Global::getInstance().saveConfig();
 
-    qDebug()<<"<Saving ANTS configuration";
+    qDebug() << "<Saving current configuration";
     AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
     qDebug() << "<Stopping Root update timer-based cycle";
