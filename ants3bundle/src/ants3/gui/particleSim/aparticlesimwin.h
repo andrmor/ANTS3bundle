@@ -216,6 +216,7 @@ private:
     void addStatistics(const AParticleRecord & p);
     void configureAngleStat(AParticleGun * gun);
     void checkWorldSize(AParticleSourceRecord & ps);
+    bool isTrackingDataFileExists();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);

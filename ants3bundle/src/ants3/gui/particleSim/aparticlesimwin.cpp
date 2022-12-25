@@ -1107,8 +1107,27 @@ void AParticleSimWin::on_cbEVhideTransPrim_clicked()
     EV_showTree();
 }
 
+bool AParticleSimWin::isTrackingDataFileExists()
+{
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+    if (fileName.isEmpty())
+    {
+        guitools::message("File name with tracking data is not configured!", this);
+        return false;
+    }
+    if (!QFileInfo::exists(fileName))
+    {
+        guitools::message("Configured file with tracking data not found!", this);
+        return false;
+    }
+    return true;
+}
+
 void AParticleSimWin::on_pbEventView_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     EV_showTree();
 
     if (ui->cbEVtracks->isChecked())
@@ -1148,6 +1167,8 @@ void AParticleSimWin::on_pbEventView_clicked()
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     setEnabled(false);
     qApp->processEvents();
 
@@ -1990,10 +2011,10 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
 
 void AParticleSimWin::on_pbPreviousEvent_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     int curEv = ui->sbShowEvent->value();
     if (curEv == 0) return;
-//    ui->sbShowEvent->setValue(curEv - 1);
-//    on_pbEventView_clicked();
     int ev = findEventWithFilters(curEv, false);
     if (ev == -1)
         guitools::message("Cannot find events according to the selected criteria", this);
@@ -2006,8 +2027,7 @@ void AParticleSimWin::on_pbPreviousEvent_clicked()
 
 void AParticleSimWin::on_pbNextEvent_clicked()
 {
-    //ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
-    //on_pbEventView_clicked();
+    if (!isTrackingDataFileExists()) return;
 
     int curEv = ui->sbShowEvent->value();
     int ev = findEventWithFilters(curEv, true);
