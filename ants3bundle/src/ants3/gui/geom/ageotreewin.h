@@ -64,7 +64,6 @@ private:
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
 
-  bool    GDMLtoTGeo(const QString &fileName);
   void    updateGeoConstsIndication();
   void    reportGeometryConflicts();
 

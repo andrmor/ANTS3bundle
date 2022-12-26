@@ -80,6 +80,8 @@ public:
     QString      exportToGDML(const QString & fileName) const;
     QString      exportToROOT(const QString & fileName) const;
 
+    QString      importGDML(const QString & fileName);
+
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
 
@@ -111,6 +113,7 @@ private:
     void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
+    QString readGDMLtoTGeo(const QString & fileName);
 };
 
 #endif // AGEOMETRYHUB_H
