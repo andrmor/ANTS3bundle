@@ -504,6 +504,9 @@ void MainWindow::loadWindowGeometries()
 #include "aphotonsimhub.h"
 void MainWindow::on_pbNew_clicked()
 {
+    bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
+    if (!ok) return;
+
     AMaterialHub::getInstance().clear();
 
     ASensorHub::getInstance().clear();
