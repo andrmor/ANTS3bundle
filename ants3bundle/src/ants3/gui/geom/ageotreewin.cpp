@@ -574,28 +574,23 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
 }
 
 
-void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
-                       AMaterialHub* mp, const QString PMtemplate,
-                       TGeoNavigator* navi, TString path)
+void readGeoObjectTree(AGeoObject * obj, const TGeoNode * node)
 {
     obj->Name = node->GetName();
-    //qDebug() << "\nNode name:"<<obj->Name<<"Num nodes:"<<node->GetNdaughters();
-    path += node->GetName();
 
-    //material
-    QString mat = node->GetVolume()->GetMaterial()->GetName();
-
+    // Material
+    const QString mat = node->GetVolume()->GetMaterial()->GetName();
 //    obj->Material = mp->FindMaterial(mat);  // !!!***
     obj->Material = 0;
 
     obj->color = obj->Material+1;
     obj->fExpanded = true;
 
-    //shape
-    TGeoShape* Tshape = node->GetVolume()->GetShape();
-    QString Sshape = Tshape->ClassName();
+    // Shape
+    TGeoShape * Tshape = node->GetVolume()->GetShape();
+    const QString Sshape = Tshape->ClassName();
     //qDebug() << "TGeoShape:"<<Sshape;
-    AGeoShape* Ashape = AGeoShape::GeoShapeFactory(Sshape);
+    AGeoShape * Ashape = AGeoShape::GeoShapeFactory(Sshape);
     bool fOK = false;
     if (!Ashape) qWarning() << "TGeoShape was not recognized - using box";
     else
@@ -610,13 +605,11 @@ void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
             TGeoCompositeShape* tshape = static_cast<TGeoCompositeShape*>(Tshape);
 
             //AGeoObj converted to composite type:
-            delete obj->Type;
-            obj->Type = new ATypeCompositeObject();
+            delete obj->Type; obj->Type = new ATypeCompositeObject();
             //creating container for logical objects:
             AGeoObject* logicals = new AGeoObject();
             logicals->Name = "CompositeSet_"+obj->Name;
-            delete logicals->Type;
-            logicals->Type = new ATypeCompositeContainerObject();
+            delete logicals->Type; logicals->Type = new ATypeCompositeContainerObject();
             obj->addObjectFirst(logicals);
 
             QVector<AGeoObject*> AllLogicalObjects;
@@ -655,55 +648,10 @@ void readGeoObjectTree(AGeoObject* obj, const TGeoNode* node,
         QString name = daugtherNode->GetName();
         //qDebug() << i<< name;
 
-
-        if (name.startsWith(PMtemplate))
-        {
-            //qDebug() << "  Found PM!";
-            //qDebug() << "  path:"<<path+"/"+daugtherNode->GetName();
-            navi->cd(path+"/"+daugtherNode->GetName());
-            //qDebug() << navi->GetCurrentNode()->GetName();
-            double PosLocal[3] = {0,0,0};
-            double PosGlobal[3];
-            navi->LocalToMaster(PosLocal, PosGlobal);
-
-            double VecLocalX[3] = {1,0,0};
-            double VecLocalY[3] = {0,1,0};
-            double VecLocalZ[3] = {0,0,1};
-            double VecGlobal[3];
-            TMatrixD rm(3,3);
-            navi->LocalToMasterVect(VecLocalX, VecGlobal);
-            for (int i=0; i<3; i++) rm(i,0) = VecGlobal[i];
-            navi->LocalToMasterVect(VecLocalY, VecGlobal);
-            for (int i=0; i<3; i++) rm(i,1) = VecGlobal[i];
-            navi->LocalToMasterVect(VecLocalZ, VecGlobal);
-            for (int i=0; i<3; i++) rm(i,2) = VecGlobal[i];
-
-            TVector3 eu = euler(rm);
-            double radToGrad = 180.0/TMath::Pi();
-            double phi = eu[0]*radToGrad;
-            double theta = eu[1]*radToGrad;
-            double psi = eu[2]*radToGrad;
-
-            TGeoVolume* vol = daugtherNode->GetVolume();
-
-            /*   // !!!***
-            for (int PmType = 0;PmType<Detector->PMs->countPMtypes(); PmType++)
-                if (vol == Detector->PMs->getType(PmType)->tmpVol)
-                {
-                     //qDebug() << " Registering as type:"<<PmType;
-                     Detector->PMarrays[0].PositionsAnglesTypes.append(APmPosAngTypeRecord(PosGlobal[0], PosGlobal[1], PosGlobal[2],
-                                                                                           phi, theta, psi, PmType));
-                     break;
-                }
-            */
-        }
-        else
-        {
-            //not a PM
-            AGeoObject* inObj = new AGeoObject(name);
-            obj->addObjectLast(inObj);
-            readGeoObjectTree(inObj, daugtherNode, mp, PMtemplate, navi, path+"/");
-        }
+        //not a PM
+        AGeoObject* inObj = new AGeoObject(name);
+        obj->addObjectLast(inObj);
+        readGeoObjectTree(inObj, daugtherNode);
     }    
 }
 
@@ -1144,20 +1092,16 @@ void AGeoTreeWin::on_pbSaveTGeo_clicked()
 void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
 {
     /*
-    QString fileName = QFileDialog::getOpenFileName(this, "Load GDML file", MW->GlobSet.LastOpenDir, "GDML files (*.gdml)");
+    QString fileName = guitools::dialogLoadFile(this, "Load GDML file", "GDML files (*.gdml)");
     if (fileName.isEmpty()) return;
-    MW->GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
     QFileInfo fi(fileName);
     if (fi.suffix() != "gdml")
-      {
+    {
         guitools::message("Only GDML files are accepted!", this);
         return;
-      }
+    }
 
     MW->Config->LoadConfig(MW->GlobSet.ExamplesDir + "/Empty.json");
-
-    QString PMtemplate = ui->lePMtemplate->text();
-    if (PMtemplate.isEmpty()) PMtemplate = "_.._#"; //clumsy, but otherwise propagate changes to readGeoObjectTree
 
     delete Detector->GeoManager; Detector->GeoManager = nullptr;
     GDMLtoTGeo(fileName.toLatin1());
@@ -1191,53 +1135,6 @@ void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
     QJsonObject mats;
     tmpMats.writeToJson(mats);
     Detector->MpCollection->readFromJson(mats);
-
-    //==== PM types ====
-    Detector->PMs->clearPMtypes();
-    Detector->PMarrays[0].Regularity = 2;
-    Detector->PMarrays[0].fActive = true;
-    Detector->PMarrays[1].fActive = false;
-    Detector->PMarrays[0].PositionsAnglesTypes.clear();
-    Detector->PMarrays[1].PositionsAnglesTypes.clear();
-    int counter = 0;
-    for (int i=0; i<size; i++)
-    {
-        TGeoVolume* vol = (TGeoVolume*)list->At(i);
-        QString Vname = vol->GetName();
-        if (!Vname.startsWith(PMtemplate)) continue;
-
-        QString PMshape = vol->GetShape()->ClassName();
-        qDebug() << "Found new PM type:"<<Vname<<"Shape:"<<PMshape;
-        APmType *type = new APmType();
-        type->Name = PMtemplate + QString::number(counter);
-        type->MaterialIndex = tmpMats.FindMaterial(vol->GetMaterial()->GetName());
-        type->tmpVol = vol;
-        if (PMshape=="TGeoBBox")
-        {
-            TGeoBBox* b = static_cast<TGeoBBox*>(vol->GetShape());
-            type->SizeX = 2.0*b->GetDX();
-            type->SizeY = 2.0*b->GetDY();
-            type->SizeZ = 2.0*b->GetDZ();
-            type->Shape = 0;
-        }
-        else if (PMshape=="TGeoTube" || PMshape=="TGeoTubeSeg")
-        {
-            TGeoTube* b = static_cast<TGeoTube*>(vol->GetShape());
-            type->SizeX = 2.0*b->GetRmax();
-            type->SizeZ = 2.0*b->GetDz();
-            type->Shape = 1;
-        }
-        else
-        {
-            qWarning() << "non-implemented sensor shape:"<<PMshape<<" - making cylinder";
-            type->SizeX = 12.3456789;
-            type->SizeZ = 12.3456789;
-            type->Shape = 1;
-        }
-        Detector->PMs->appendNewPMtype(type);
-        counter++;
-    }
-    if (counter==0) Detector->PMs->appendNewPMtype(new APmType()); //maybe there are no PMs in the file or template error
 
     //==== geometry ====
     qDebug() << "Processing geometry";

@@ -167,9 +167,9 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     createBottomButtons();
     lMF->addWidget(frBottomButtons);
 
-  frMainFrame->setLayout(lMF);
+    frMainFrame->setLayout(lMF);
 
-  ListOfShapesForTransform << "Box"
+    ListOfShapesForTransform << "Box"
        << "Tube" << "Tube segment" << "Tube segment cut" << "Tube elliptical"
        << "Trap" << "Trap2"
        << "Polycone"
