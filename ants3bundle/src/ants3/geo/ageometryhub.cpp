@@ -62,6 +62,10 @@ void AGeometryHub::clearWorld()
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
+    setWorldSizeFixed(false);
+    setWorldSizeXY(500);
+    setWorldSizeZ(500);
+
     clearMonitors();
     AGridHub::getInstance().clear();
 }

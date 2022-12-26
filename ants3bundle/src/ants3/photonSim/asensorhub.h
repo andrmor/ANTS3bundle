@@ -69,6 +69,7 @@ public:
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
+    void    clear();
 
     double  getMaxQE(bool bWaveRes) const;
 

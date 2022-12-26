@@ -2,9 +2,6 @@
 #include "ajsontools.h"
 #include "aparticlesourcerecord.h"
 
-//#include <QDebug>
-//#include <QFileInfo>
-
 void AParticleSimSettings::clearSettings()
 {
     GenerationMode = Sources;
@@ -19,7 +16,6 @@ void AParticleSimSettings::clearSettings()
 
     SourceGenSettings.clear();
     FileGenSettings.clear();
-//    ScriptGenSettings.clear();
 
     G4Set.clear();
     RunSet.clear();
@@ -151,33 +147,4 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
         jstools::parseJson(json, "GenerationFromFile", js);
         FileGenSettings.readFromJson(js);
     }
-
-/*
-    // script
-    {
-        QJsonObject js;
-        jstools::parseJson(json, "GenerationFromScript", js);
-        ScriptGenSettings.readFromJson(js);
-    }
-*/
 }
-
-// ------------------------------------
-/*
-void AScriptGenSettings::writeToJson(QJsonObject & json) const
-{
-    json["Script"] = Script;
-}
-
-void AScriptGenSettings::readFromJson(const QJsonObject & json)
-{
-    clear();
-
-    jstools::parseJson(json, "Script", Script);
-}
-
-void AScriptGenSettings::clear()
-{
-    Script.clear();
-}
-*/

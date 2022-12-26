@@ -29,6 +29,8 @@ public:
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    void clear();
 };
 
 #endif // APARTICLESIMHUB_H

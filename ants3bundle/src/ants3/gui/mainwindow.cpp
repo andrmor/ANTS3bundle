@@ -4,6 +4,7 @@
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "guitools.h"
+#include "ajsontools.h"
 #include "afiletools.h"
 #include "ageotreewin.h"
 #include "ageometrywindow.h"
@@ -364,7 +365,6 @@ void MainWindow::on_actionExit_triggered()
 
 // ---
 
-#include "ajsontools.h"
 void MainWindow::updateAllGuiFromConfig()
 {
     updateGui();
@@ -496,3 +496,35 @@ void MainWindow::loadWindowGeometries()
 
     for (auto * w : wins) w->restoreGeomStatus();
 }
+
+#include "amaterialhub.h"
+#include "asensorhub.h"
+#include "ainterfacerulehub.h"
+#include "aparticlesimhub.h"
+#include "aphotonsimhub.h"
+void MainWindow::on_pbNew_clicked()
+{
+    AMaterialHub::getInstance().clear();
+
+    ASensorHub::getInstance().clear();
+
+    AInterfaceRuleHub::getInstance().clearRules();
+
+    AParticleSimHub::getInstance().clear();
+
+    APhotonSimHub::getInstance().clear();
+
+    // Reconstruction
+    // LRFs
+
+    AGeometryHub::getInstance().clearWorld();
+    onRebuildGeometryRequested();
+
+    Config.ConfigName = "";
+    Config.ConfigDescription = "";
+
+    AConfig::getInstance().updateJSONfromConfig();
+
+    updateAllGuiFromConfig();
+}
+

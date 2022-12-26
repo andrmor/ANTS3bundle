@@ -241,6 +241,16 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
     return err;
 }
 
+void ASensorHub::clear()
+{
+    LoadedModelAssignment.clear();
+    clearSensors();
+
+    Models.clear();
+    Models.resize(1);
+    Models.front().Name = "Ideal";
+}
+
 double ASensorHub::getMaxQE(bool bWaveRes) const
 {
     double maxQE = 0;

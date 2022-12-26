@@ -280,6 +280,12 @@ QString AMaterialHub::readFromJson(const QJsonObject & json)
     return "";
 }
 
+void AMaterialHub::clear()
+{
+    clearMaterials();
+    addNewMaterial("Vacuum", true);
+}
+
 void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!
 {
     addNewMaterial();

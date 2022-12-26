@@ -21,6 +21,14 @@ void AWaveResSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Step",    Step);
 }
 
+void AWaveResSettings::clear()
+{
+    Enabled = false;
+    From = 200.0;
+    To   = 800.0;
+    Step = 5.0;
+}
+
 int AWaveResSettings::countNodes() const
 {
     if (Step == 0) return 1;
@@ -308,6 +316,12 @@ void APhotOptSettings::readFromJson(const QJsonObject &json)
     jstools::parseJson(json, "CheckQeBeforeTracking", CheckQeBeforeTracking);
 }
 
+void APhotOptSettings::clear()
+{
+    MaxPhotonTransitions  = 500;
+    CheckQeBeforeTracking = false;
+}
+
 // ---
 
 void ASingleSettings::clearSettings()
@@ -529,6 +543,18 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
     return "";
 }
 
+void APhotonBombsSettings::clear()
+{
+    GenerationMode = EBombGen::Single;
+
+    SingleSettings.clearSettings();
+    GridSettings.clearSettings();
+    FloodSettings.clearSettings();
+    BombFileSettings.clear();
+
+    AdvancedSettings.clear();
+}
+
 // ---
 
 void APhotSimRunSettings::writeToJson(QJsonObject & json) const
@@ -605,6 +631,46 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveMonitors",          SaveMonitors);
     jstools::parseJson(json, "FileNameMonitors",      FileNameMonitors);
+}
+
+void APhotSimRunSettings::clear()
+{
+    Seed = 0;
+
+    EventFrom = 0;
+    EventTo   = 0;
+
+    OutputDirectory.clear();
+    BinaryFormat = false;
+
+    SaveSensorSignals     = true;
+    FileNameSensorSignals = "SensorSignals.txt";
+
+    SaveSensorLog         = false;
+    FileNameSensorLog     = "SensorLog.dat";
+    SensorLogTime         = true;
+    SensorLogXY           = false;
+    SensorLogAngle        = false;
+    SensorLogWave         = false;
+
+    SavePhotonBombs       = true;
+    FileNamePhotonBombs   = "PhotonBombs.txt";
+
+    SaveTracks            = true;
+    MaxTracks             = 1000;
+    FileNameTracks        = "PhotonTracks.txt";
+
+    SaveStatistics        = true;
+    FileNameStatistics    = "PhotonStatistics.json";
+    UpperTimeLimit        = 100;
+
+    SavePhotonLog         = true;
+    FileNamePhotonLog     = "PhotonLog.txt";
+
+    SaveMonitors          = true;
+    FileNameMonitors      = "PhotonMonitors.txt";
+
+    LogSet.clear();
 }
 
 // ---
@@ -719,6 +785,20 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
     }
 
     return "";
+}
+
+void APhotonSimSettings::clear()
+{
+    SimType = EPhotSimType::PhotonBombs;
+
+    BombSet.clear();
+    DepoSet.clear();
+    PhotFileSet.clear();
+
+    WaveSet.clear();
+    OptSet.clear();
+
+    RunSet.clear();
 }
 
 // ---- Depo ----
@@ -936,4 +1016,15 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         jstools::parseJson(js, "Material",        Material);
         jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
     }
+}
+
+void APhotonLogSettings::clear()
+{
+    Save     = false;
+    FileName = "PhotonLog.txt";
+
+    MustNotInclude_Processes.clear();
+    MustInclude_Processes.clear();
+    MustNotInclude_Volumes.clear();
+    MustInclude_Volumes.clear();
 }

@@ -37,6 +37,8 @@ public:
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
+    void    clear();
+
     void    generateGeoMedia();
     void    updateRuntimeProperties();
 

@@ -89,6 +89,8 @@ private slots:
     void on_pbGlobSet_clicked();
     void on_pbPython_clicked();
 
+    void on_pbNew_clicked();
+
 protected:
     void closeEvent(QCloseEvent * event);
 

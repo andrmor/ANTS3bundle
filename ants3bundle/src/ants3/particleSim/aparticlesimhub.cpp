@@ -25,3 +25,8 @@ void AParticleSimHub::readFromJson(const QJsonObject &json)
     jstools::parseJson(json, "ParticleSim", js);
     Settings.readFromJson(js);
 }
+
+void AParticleSimHub::clear()
+{
+    Settings.clearSettings();
+}

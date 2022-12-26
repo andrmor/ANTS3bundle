@@ -31,6 +31,8 @@ public:
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);
 
+    void   clear();
+
     int    countNodes() const;
     double toWavelength(int index) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
@@ -54,11 +56,13 @@ public:
 class APhotOptSettings
 {
 public:
-    int    MaxPhotonTransitions = 500;
-    bool   CheckQeBeforeTracking   = false;
+    int    MaxPhotonTransitions  = 500;
+    bool   CheckQeBeforeTracking = false;
 
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);
+
+    void   clear();
 };
 
 typedef std::pair<double, double> ADPair;
@@ -183,7 +187,7 @@ class APhotonBombsSettings
 public:
     APhotonsPerBombSettings PhotonsPerBomb;
 
-    EBombGen         GenerationMode = EBombGen::Single;
+    EBombGen          GenerationMode = EBombGen::Single;
 
     ASingleSettings   SingleSettings;
     AGridSettings     GridSettings;
@@ -194,18 +198,22 @@ public:
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    clear();
 };
 
 class APhotonLogSettings   // !!!*** to RunSettings?
 {
 public:
-    bool Save        = true;
+    bool    Save     = false;
     QString FileName = "PhotonLog.txt";
 
     std::set<int>        MustNotInclude_Processes; // v.fast
     std::vector<int>     MustInclude_Processes;    // slow
     std::set<TString>    MustNotInclude_Volumes;   // fast
     std::vector<TString> MustInclude_Volumes;      // v.slow
+
+    void clear();
 };
 
 class APhotSimRunSettings
@@ -250,6 +258,8 @@ public:
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    void clear();
 };
 
 class APhotonDepoSettings : public AFileSettingsBase
@@ -289,6 +299,8 @@ public:
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    clear();
 };
 
 #endif // APHOTONSIMSETTINGS_H

@@ -25,3 +25,8 @@ QString APhotonSimHub::readFromJson(const QJsonObject & json)
 
     return ErrorString;
 }
+
+void APhotonSimHub::clear()
+{
+    Settings.clear();
+}
