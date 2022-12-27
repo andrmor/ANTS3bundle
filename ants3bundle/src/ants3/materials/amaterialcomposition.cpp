@@ -237,7 +237,7 @@ void AMaterialComposition::updateMassRelatedPoperties()
     computeCompositionByMass();
 }
 
-const QString AMaterialComposition::checkForErrors() const
+QString AMaterialComposition::checkForErrors() const
 {
     for (const AChemicalElement& el : ElementComposition)
     {
@@ -319,7 +319,69 @@ int AMaterialComposition::getNumberInJointIsotopeList(int iElement, int iIsotope
     return -1;
 }
 
-const QString AMaterialComposition::print() const
+void AMaterialComposition::import(TGeoMaterial *mat)
+{
+    //qDebug() << mat->GetName() << mat->IsMixture();
+    const int numElements = mat->GetNelements();
+    double A, Z, W;
+
+    double numAtoms = 0;
+    for (int iEl = 0; iEl < numElements; iEl++)
+    {
+        mat->GetElementProp(A, Z, W, iEl);
+        numAtoms += W / A;
+    }
+
+    clear();
+    for (int iEl = 0; iEl < numElements; iEl++)
+    {
+        mat->GetElementProp(A, Z, W, iEl);
+        //qDebug() << A << Z << W;
+
+        AIsotopeAbundanceHandler & ias = AIsotopeAbundanceHandler::getInstance();
+        const QString symbol = ias.getSymbol(Z);
+        const double molarFraction = (numElements == 1 ? 1.0 : W / A / numAtoms);
+
+        AChemicalElement ele(symbol, molarFraction);
+        TGeoElement * geoEl = mat->GetElement(iEl);
+        int numIso = geoEl->GetNisotopes();
+        //qDebug() << "   num iso:" << numIso;
+        if (numIso == 0)
+        {
+            // natural
+            QString error = ias.fillIsotopesWithNaturalAbundances(ele);
+            if (!error.isEmpty())
+            {
+                qCritical() << error;
+                exit(222);
+            }
+        }
+        else
+        {
+            for (int iIso = 0; iIso < numIso; iIso++)
+            {
+                TGeoIsotope * geoIso = geoEl->GetIsotope(iIso);
+                ele.Isotopes.push_back( AIsotope(symbol, geoIso->GetA(), geoEl->GetRelativeAbundance(iIso)) );
+            }
+        }
+
+        ElementComposition.push_back(ele);
+
+        if (!ElementCompositionString.isEmpty()) ElementCompositionString += " + ";
+        ElementCompositionString += symbol;
+        if (numElements != 1)
+        {
+            ElementCompositionString += ':';
+            ElementCompositionString += QString::number(molarFraction, 'g', 4);
+        }
+    }
+
+    updateMassRelatedPoperties();
+
+    //qDebug() << "--->" << ElementCompositionString << ComputedCompositionByMass;
+}
+
+QString AMaterialComposition::print() const
 {
     QString str = "Composition:" + ElementCompositionString + "\n";
     for (const AChemicalElement& el : ElementComposition)

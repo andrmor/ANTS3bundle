@@ -103,6 +103,8 @@ public:
 
     QString checkMaterial() const;
 
+    void    importComposition(TGeoMaterial * mat);
+
     //run-time properties
     TGeoMaterial  * GeoMat = nullptr; // handled by TGeoManager
     TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager

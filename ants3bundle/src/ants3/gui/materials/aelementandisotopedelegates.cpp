@@ -64,7 +64,7 @@ AIsotopeDelegate::AIsotopeDelegate(AChemicalElement *element, int isotopeIndexIn
         leiMass->setMinimumWidth(50);
         lay->addWidget(leiMass);
         lay->addWidget(new QLabel("   "));
-        ledAbund = new QLineEdit( QString::number(element->Isotopes.at(isotopeIndexInElement).Abundancy, 'g', 4) );
+        ledAbund = new QLineEdit( QString::number(element->Isotopes.at(isotopeIndexInElement).Abundancy, 'g', 6) );
         ledAbund->setMinimumWidth(50);
         lay->addWidget(ledAbund);
         lay->addWidget(new QLabel("%") );

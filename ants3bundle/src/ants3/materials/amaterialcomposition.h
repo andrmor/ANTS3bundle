@@ -36,14 +36,15 @@ public:
     int getNumberInJointIsotopeList(int iElement, int iIsotope);
     double getMeanAtomMass() const {return MeanAtomMass;}
 
-    const QString print() const;
+    void import(TGeoMaterial * mat);
+
+    QString print() const;
 
     void writeToJson(QJsonObject& json) const;
     const QJsonObject writeToJson() const;
     void readFromJson(const QJsonObject& json);
 
-
-    const QString checkForErrors() const; //returns empty string if OK
+    QString checkForErrors() const; //returns empty string if OK
 
     TGeoMaterial* generateTGeoMaterial(const QString& MatName, const double& density) const; //does not own!
 

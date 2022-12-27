@@ -626,3 +626,8 @@ QString AMaterial::checkMaterial() const
 
     return "";
 }
+
+void AMaterial::importComposition(TGeoMaterial * mat)
+{
+    ChemicalComposition.import(mat);
+}

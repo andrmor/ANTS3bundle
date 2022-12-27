@@ -1363,9 +1363,9 @@ void readGeoObjectTree(AGeoObject * obj, const TGeoNode * node)
     obj->Name = node->GetName();
 
     // Material
-    const QString mat = node->GetVolume()->GetMaterial()->GetName();
-//    obj->Material = mp->FindMaterial(mat);  // !!!***
-    obj->Material = 0;
+    //const QString mat = node->GetVolume()->GetMaterial()->GetName();
+    //qDebug() << mat << node->GetVolume()->GetMaterial()->GetIndex();
+    obj->Material = node->GetVolume()->GetMaterial()->GetIndex();
 
     obj->color = obj->Material+1;
     obj->fExpanded = true;
@@ -1447,30 +1447,8 @@ QString AGeometryHub::importGDML(const QString & fileName)
     const TGeoNode * top = GeoManager->GetTopNode();
     //ShowNodes(top, 0);
 
-    //==== materials ====
-    /*
-    AMaterialParticleCollection tmpMats;
-    TObjArray* list = Detector->GeoManager->GetListOfVolumes();
-    int size = list->GetEntries();
-    qDebug() << "  Number of defined volumes:"<<size;
-    for (int i=0; i<size; i++)
-    {
-        TGeoVolume* vol = (TGeoVolume*)list->At(i);
-        QString MatName = vol->GetMaterial()->GetName();
-        int iMat = tmpMats.FindMaterial(MatName);
-        if (iMat == -1)
-        {
-          tmpMats.AddNewMaterial(MatName);
-          qDebug() << "Added mat:"<<MatName;
-        }
-    }
-    QJsonObject mats;
-    tmpMats.writeToJson(mats);
-    Detector->MpCollection->readFromJson(mats);
-    */
+    AMaterialHub::getInstance().importMaterials(GeoManager->GetListOfMaterials());
 
-    //==== geometry ====
-    qDebug() << "Processing geometry";
     clearWorld();
     readGeoObjectTree(World, top);
     World->makeItWorld();

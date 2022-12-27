@@ -12,6 +12,7 @@
 
 class ATracerStateful;
 class AGeoObject;
+class TList;
 
 class AMaterialHub : public QObject
 {
@@ -70,6 +71,8 @@ public:
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
+
+    void    importMaterials(TList * matList);
 
 private:
     void    removeMaterial(int iMat); // !!!*** propagate to PhotonSources!

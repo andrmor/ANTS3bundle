@@ -188,6 +188,8 @@ void MainWindow::onRebuildGeometryRequested()
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoTreeWin->updateGui();
+    MatWin->updateGui();
+    RuleWin->updateGui();
     emit GeoTreeWin->requestClearGeoMarkers(0);
     GeoWin->ShowGeometry();
 }

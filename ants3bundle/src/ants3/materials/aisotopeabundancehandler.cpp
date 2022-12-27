@@ -16,20 +16,19 @@ AIsotopeAbundanceHandler &AIsotopeAbundanceHandler::getInstance()
 
 AIsotopeAbundanceHandler::AIsotopeAbundanceHandler()
 {
-    QVector<QString> all;
-    all << "H"<<"He"<<"Li"<<"Be"<<"B"<<"C"<<"N"<<"O"<<"F"<<"Ne"<<"Na"<<"Mg"<<"Al"<<"Si"<<"P"<<"S"<<"Cl"<<"Ar"<<"K"<<"Ca"<<"Sc"<<"Ti"<<"V"<<"Cr"<<"Mn"<<"Fe"<<"Co"<<"Ni"<<"Cu"<<"Zn"<<"Ga"<<"Ge"<<"As"<<"Se"<<"Br"<<"Kr"<<"Rb"<<"Sr"<<"Y"<<"Zr"<<"Nb"<<"Mo"<<"Tc"<<"Ru"<<"Rh"<<"Pd"<<"Ag"<<"Cd"<<"In"<<"Sn"<<"Sb"<<"Te"<<"I"<<"Xe"<<"Cs"<<"Ba"<<"La"<<"Ce"<<"Pr"<<"Nd"<<"Pm"<<"Sm"<<"Eu"<<"Gd"<<"Tb"<<"Dy"<<"Ho"<<"Er"<<"Tm"<<"Yb"<<"Lu"<<"Hf"<<"Ta"<<"W"<<"Re"<<"Os"<<"Ir"<<"Pt"<<"Au"<<"Hg"<<"Tl"<<"Pb"<<"Bi"<<"Po"<<"At"<<"Rn"<<"Fr"<<"Ra"<<"Ac"<<"Th"<<"Pa"<<"U"<<"Np"<<"Pu"<<"Am"<<"Cm"<<"Bk"<<"Cf"<<"Es";
-    all << "Fm"<<"Md"<<"No"<<"Lr"<<"Rf"<<"Db"<<"Sg"<<"Bh"<<"Hs";
+    ElementsByZ << "H"<<"He"<<"Li"<<"Be"<<"B"<<"C"<<"N"<<"O"<<"F"<<"Ne"<<"Na"<<"Mg"<<"Al"<<"Si"<<"P"<<"S"<<"Cl"<<"Ar"<<"K"<<"Ca"<<"Sc"<<"Ti"<<"V"<<"Cr"<<"Mn"<<"Fe"<<"Co"<<"Ni"<<"Cu"<<"Zn"<<"Ga"<<"Ge"<<"As"<<"Se"<<"Br"<<"Kr"<<"Rb"<<"Sr"<<"Y"<<"Zr"<<"Nb"<<"Mo"<<"Tc"<<"Ru"<<"Rh"<<"Pd"<<"Ag"<<"Cd"<<"In"<<"Sn"<<"Sb"<<"Te"<<"I"<<"Xe"<<"Cs"<<"Ba"<<"La"<<"Ce"<<"Pr"<<"Nd"<<"Pm"<<"Sm"<<"Eu"<<"Gd"<<"Tb"<<"Dy"<<"Ho"<<"Er"<<"Tm"<<"Yb"<<"Lu"<<"Hf"<<"Ta"<<"W"<<"Re"<<"Os"<<"Ir"<<"Pt"<<"Au"<<"Hg"<<"Tl"<<"Pb"<<"Bi"<<"Po"<<"At"<<"Rn"<<"Fr"<<"Ra"<<"Ac"<<"Th"<<"Pa"<<"U"<<"Np"<<"Pu"<<"Am"<<"Cm"<<"Bk"<<"Cf"<<"Es";
+    ElementsByZ << "Fm"<<"Md"<<"No"<<"Lr"<<"Rf"<<"Db"<<"Sg"<<"Bh"<<"Hs";
 
-    for (const QString& s : qAsConst(all))
+    for (const QString& s : qAsConst(ElementsByZ))
         AllPossibleElements << s;
 
-    for (int i=0; i<all.size(); i++)
-        SymbolToNumber.insert(all[i], i+1);
+    for (int i=0; i<ElementsByZ.size(); i++)
+        SymbolToNumber.insert(ElementsByZ[i], i+1);
 
     loadNaturalAbunances();
 }
 
-const QStringList AIsotopeAbundanceHandler::getListOfElements() const
+QStringList AIsotopeAbundanceHandler::getListOfElements() const
 {
     return SymbolToNumber.keys();
 }
@@ -37,6 +36,16 @@ const QStringList AIsotopeAbundanceHandler::getListOfElements() const
 int AIsotopeAbundanceHandler::getZ(const QString &Symbol) const
 {
     return SymbolToNumber[Symbol];
+}
+
+QString AIsotopeAbundanceHandler::getSymbol(int Z) const
+{
+    if (Z < 1 || Z > ElementsByZ.size())
+    {
+        qCritical() << "Bad Z value of" << Z << "in getSymbol()";
+        exit(222);
+    }
+    return ElementsByZ[Z-1];
 }
 
 void AIsotopeAbundanceHandler::loadNaturalAbunances()

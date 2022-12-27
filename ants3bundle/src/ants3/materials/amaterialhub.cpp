@@ -242,6 +242,27 @@ QString AMaterialHub::CheckMaterial(int iMat) const
     return CheckMaterial(Materials[iMat]);
 }
 
+void AMaterialHub::importMaterials(TList * matList)
+{
+    clearMaterials();
+
+    const int size = matList->GetEntries();
+    for (int i = 0; i < size; i++)
+    {
+        TGeoMaterial * tmat = (TGeoMaterial*)matList->At(i);
+
+        addNewMaterial(true);
+        AMaterial & amat = *Materials.back();
+
+        amat.name = tmat->GetName();
+        amat.density = tmat->GetDensity();
+        amat.temperature = tmat->GetTemperature();
+        amat.importComposition(tmat);
+    }
+
+    if (countMaterials() == 0) addNewMaterial("Vacuum", true); // !!!*** error?
+}
+
 void AMaterialHub::writeToJson(QJsonObject & json) const
 {
     QJsonArray ar;

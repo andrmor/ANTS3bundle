@@ -2,6 +2,7 @@
 #define AISOTOPEABUNDANCEHANDLER_H
 
 #include <QSet>
+#include <QVector>
 #include <QMap>
 #include <QString>
 #include <QPair>
@@ -27,14 +28,16 @@ public:
     bool isNaturalAbundanceTableEmpty() const {return NaturalAbundancies.isEmpty();}
     bool isElementExist(const QString& elSymbol) const {return AllPossibleElements.contains(elSymbol);}
 
-    const QStringList getListOfElements() const;
+    QStringList getListOfElements() const;
     int getZ(const QString & Symbol) const;
+    QString getSymbol(int Z) const;
 
     const QString fillIsotopesWithNaturalAbundances(AChemicalElement & element) const;
 
     TGeoElement* generateTGeoElement(const AChemicalElement *el, const TString &matName) const; //does not own!
 
 private:
+    QVector<QString> ElementsByZ;
     QSet<QString> AllPossibleElements; //set with all possible element symbols until and including Einsteinium Es (99)
     QMap<QString, int> SymbolToNumber;
 

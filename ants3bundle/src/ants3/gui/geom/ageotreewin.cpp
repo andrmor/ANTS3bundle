@@ -878,11 +878,11 @@ void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
         return;
     }
 
-    //AMaterialHub::getInstance().clear();
     AGeometryHub::getInstance().clearWorld();
 
     QString err = Geometry.importGDML(fileName);
     Geometry.writeToJson(AConfig::getInstance().JSON);
+    MaterialHub.writeToJson(AConfig::getInstance().JSON);
     emit requestRebuildGeometry();
     if (!err.isEmpty()) guitools::message(err, this);
 }
