@@ -1444,8 +1444,8 @@ QString AGeometryHub::importGDML(const QString & fileName)
     QString err = readGDMLtoTGeo(fileName.toLatin1());
     if (!err.isEmpty()) return err;
 
-    const TGeoNode* top = GeoManager->GetTopNode();
-    //ShowNodes(top, 0); //just qDebug output
+    const TGeoNode * top = GeoManager->GetTopNode();
+    //ShowNodes(top, 0);
 
     //==== materials ====
     /*
@@ -1473,7 +1473,7 @@ QString AGeometryHub::importGDML(const QString & fileName)
     qDebug() << "Processing geometry";
     clearWorld();
     readGeoObjectTree(World, top);
-//    World->makeItWorld(); //just to reset the name
+    World->makeItWorld();
     AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
     if (wb)
     {
@@ -1482,10 +1482,9 @@ QString AGeometryHub::importGDML(const QString & fileName)
     }
     setWorldSizeFixed(wb);
 
-    //GeoManager->FindNode(0,0,0);
+    //GeoManager->FindNode(0,0,0); // need?
 
-//  writeToJson(MW->Config->JSON);
-    //SaveJsonToFile(MW->Config->JSON, "D:/temp/CONFIGJSON.json");
+    return "";
 }
 
 QString AGeometryHub::generateStandaloneObjectName(const AGeoShape * shape) const

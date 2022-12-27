@@ -151,6 +151,8 @@ public:
 
   bool isGoodContainerForInstance() const;
 
+  void makeItWorld();
+
   //service propertie
   QString tmpContName;   //used only during load
   bool fExpanded = true; //gui only: expand status in the tree view

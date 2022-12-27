@@ -866,6 +866,7 @@ void AGeoTreeWin::on_pbSaveTGeo_clicked()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
+#include "aconfig.h"
 void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load GDML file", "GDML files (*.gdml)");
@@ -881,6 +882,7 @@ void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
     AGeometryHub::getInstance().clearWorld();
 
     QString err = Geometry.importGDML(fileName);
+    Geometry.writeToJson(AConfig::getInstance().JSON);
     emit requestRebuildGeometry();
     if (!err.isEmpty()) guitools::message(err, this);
 }

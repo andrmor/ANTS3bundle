@@ -43,7 +43,7 @@ public:
 
     const TString IndexSeparator = "_-_";
 
-    void         populateGeoManager();   // emit signal?
+    void         populateGeoManager();
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);
@@ -66,7 +66,6 @@ public:
     void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot
     void         changeLineWidthOfVolumes(int delta);
 
-    //World size-related   !!!*** still need?
     bool         isWorldSizeFixed() const;
     void         setWorldSizeFixed(bool bFlag);
     double       getWorldSizeXY() const;
@@ -74,7 +73,7 @@ public:
     double       getWorldSizeZ() const;
     void         setWorldSizeZ(double size);
 
-    int          checkGeometryForConflicts();  // !!!*** to geom hub
+    int          checkGeometryForConflicts();
     QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
     QString      exportToGDML(const QString & fileName) const;

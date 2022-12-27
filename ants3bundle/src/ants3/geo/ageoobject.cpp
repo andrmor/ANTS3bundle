@@ -1386,6 +1386,12 @@ bool AGeoObject::isGoodContainerForInstance() const
     return false;
 }
 
+void AGeoObject::makeItWorld()
+{
+    Name = "World";
+    delete Type; Type = new ATypeWorldObject();
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {
