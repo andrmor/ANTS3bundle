@@ -1392,6 +1392,11 @@ void AGeoObject::makeItWorld()
     delete Type; Type = new ATypeWorldObject();
 }
 
+void AGeoObject::scale(double factor)
+{
+
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {
