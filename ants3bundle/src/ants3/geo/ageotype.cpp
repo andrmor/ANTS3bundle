@@ -174,6 +174,13 @@ void ATypeArrayObject::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateIntParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) errorStr += " in Start Index\n";
 }
 
+void ATypeArrayObject::scale(double factor)
+{
+    stepX *= factor;
+    stepY *= factor;
+    stepZ *= factor;
+}
+
 bool ATypeArrayObject::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     if (strNumX .contains(nameRegExp)) return true;
@@ -305,6 +312,11 @@ void ATypeCircularArrayObject::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateIntParameter(errorStr, strStartIndex,  startIndex,  false, true);            if (!ok) errorStr += " in Start Index\n";
 }
 
+void ATypeCircularArrayObject::scale(double factor)
+{
+    radius *= factor;
+}
+
 // ---
 
 ATypeHexagonalArrayObject::ATypeHexagonalArrayObject() {pType = &HexagonalArray;}
@@ -385,6 +397,11 @@ void ATypeHexagonalArrayObject::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateIntParameter   (errorStr, strNumX,       NumX,       true,  true);        if (!ok) errorStr += " in X Numberx\n";
     ok = GC.updateIntParameter   (errorStr, strNumY,       NumY,       true,  true);        if (!ok) errorStr += " in Y Number\n";
     ok = GC.updateIntParameter   (errorStr, strStartIndex, startIndex, false, true);        if (!ok) errorStr += " in Start Index\n";
+}
+
+void ATypeHexagonalArrayObject::scale(double factor)
+{
+    Step *= factor;
 }
 
 // ---

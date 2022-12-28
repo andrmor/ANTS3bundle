@@ -19,6 +19,8 @@ class TGeoRotation;
 class QRegularExpression;
 class ACalorimeterProperties;
 
+// !!!*** avoid dynamic_cast, refactor to use e.g. isMonitor()
+
 class AGeoObject
 {
 public:
@@ -104,7 +106,7 @@ public:
   bool isStackReference() const;
   AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
   void updateStack();  //called on one object of the set - it is used to calculate positions of other members!
-  void updateAllStacks();
+  void updateAllStacks(); // !!!*** isStack
 
   // the following checks are always done DOWN the chain
   // for global effect, the check has to be performed on World (Top) object
