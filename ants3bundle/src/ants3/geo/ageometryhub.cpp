@@ -224,6 +224,8 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
             qWarning() << err;
             return false;
         }
+
+        // !!!*** scaled processing?
     }
 
     obj->refreshShapeCompositeMembers();
@@ -254,11 +256,14 @@ void AGeometryHub::populateGeoManager()
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
+    World->updateAllMonitors();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
     GeoManager->SetMaxVisNodes(100000);
+
+    World->scaleRecursive(0.1);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
@@ -490,21 +495,6 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         vol = parent; // group objects are pure virtual, pass the volume of the parent
     else
     {
-        if (obj->Type->isMonitor())
-        {
-            obj->updateMonitorShape();
-
-            if (obj->Container) obj->Material = obj->Container->getMaterial();
-            else
-            {
-                QString err = "Error: Monitor without container: " + obj->Name;
-                AErrorHub::addQError(err);
-                qWarning() << err;
-                return;
-            }
-        }
-        // No need special init for calorimeters
-
         if (obj->Type->isComposite())
         {
             bool ok = processCompositeObject(obj);

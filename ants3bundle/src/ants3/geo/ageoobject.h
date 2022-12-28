@@ -47,7 +47,7 @@ public:
   AGeoObject * Container = nullptr;
   std::vector<AGeoObject*> HostedObjects;
 
-  //visualization properties
+  // visualization properties
   int color = 1;
   int style = 1;
   int width = 1;
@@ -67,7 +67,7 @@ public:
   const AGeoObject * isGeoConstInUseRecursive(const QRegularExpression & nameRegExp) const;
   void replaceGeoConstNameRecursive(const QRegularExpression & nameRegExp, const QString & newName);
 
-  //json for a single object
+  // json for a single object
   void writeToJson(QJsonObject & json) const;
   void readFromJson(const QJsonObject & json);
 
@@ -78,7 +78,7 @@ public:
   void writeAllToJarr(QJsonArray & jarr);
   QString readAllFromJarr(AGeoObject * World, const QJsonArray & jarr);  // returns "" if no errors   !!!*** AErrorHub?
 
-  //for composite
+  // composites
   AGeoObject* getContainerWithLogical();
   const AGeoObject* getContainerWithLogical() const;
   bool isCompositeMemeber() const;
@@ -88,18 +88,18 @@ public:
   void removeCompositeStructure();
   void updateNameOfLogicalMember(const QString & oldName, const QString & newName);
 
-  //for grids
+  // grids
   AGeoObject * getGridElement();
   void  updateGridElementShape();
 
-  //for monitor -> TODO: remove from here
-  void updateMonitorShape();
+  // monitors
+  void updateAllMonitors();
   const AMonitorConfig * getMonitorConfig() const; //returns nullptr if obj is not a monitor
 
-  // for calorimeters
+  // calorimeters
   const ACalorimeterProperties * getCalorimeterProperties() const;
 
-  //for stacks
+  // stacks
   bool isStackMember() const;
   bool isStackReference() const;
   AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
@@ -153,9 +153,11 @@ public:
 
   void makeItWorld();
 
+  void scaleRecursive(double factor);         // used only during population of TGeoManager as it ignores txt position/size parameters
+
   //service propertie
-  QString tmpContName;   //used only during load
-  bool fExpanded = true; //gui only: expand status in the tree view
+  QString tmpContName;               // used only during load
+  bool fExpanded = true;             // gui only: expand status in the tree view
   TGeoRotation * TrueRot = nullptr;  // used only during population of TGeoManager
   double TruePos[3];                 // used only during population of TGeoManager
 
