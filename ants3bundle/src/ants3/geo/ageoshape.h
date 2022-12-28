@@ -176,6 +176,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     QString BaseShapeGenerationString;
 
     double scaleX = 1.0;

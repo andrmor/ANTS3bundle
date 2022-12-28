@@ -4042,6 +4042,11 @@ bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoScaledShape::scale(double factor)
+{
+    if (BaseShape) BaseShape->scale(factor);
+}
+
 QString AGeoTorus::getHelp() const
 {
     return QString()+ "Torus segment:\n"

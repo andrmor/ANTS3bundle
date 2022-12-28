@@ -263,7 +263,7 @@ void AGeometryHub::populateGeoManager()
     GeoManager->SetVerboseLevel(0);
     GeoManager->SetMaxVisNodes(100000);
 
-    World->scaleRecursive(0.1);
+    //World->scaleRecursive(0.1);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
