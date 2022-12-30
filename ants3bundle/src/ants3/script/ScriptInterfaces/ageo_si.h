@@ -11,6 +11,7 @@
 
 class AGeoObject;
 class DetectorClass;
+class AGeometryHub;
 
 class AGeo_SI : public AScriptInterface
 {
@@ -85,6 +86,9 @@ public slots:
 
     void setEnabled(QString ObjectOrWildcard, bool flag);
 
+    void exportToGDML(QString fileName);
+    void exportToROOT(QString fileName);
+
 // !!!*** to AMaterial_SI
     /*
     QString getMaterialName(int materialIndex);
@@ -100,7 +104,8 @@ signals:
     void requestUpdateGeoGui();
 
 private:
-    AGeoObject * World = nullptr;
+    AGeometryHub & GeoHub;
+
     const QString ProrotypeContainerName = "_#_Prototype_#_";
 
     void clearGeoObjects();

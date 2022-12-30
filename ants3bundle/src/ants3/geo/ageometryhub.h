@@ -76,9 +76,9 @@ public:
     int          checkGeometryForConflicts();
     QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
-    QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
-    QString      exportToROOT(const QString & fileName) const;  // old system
-    QString      exportGeometry(const QString &fileName);       // new system based on geometry scaling
+    //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
+    //QString      exportToROOT(const QString & fileName) const;  // old system
+    QString      exportGeometry(const QString & fileName);      // new system based on geometry scaling
 
     QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
     QString      importGeometry(const QString & fileName);      // new system based on geometry scaling

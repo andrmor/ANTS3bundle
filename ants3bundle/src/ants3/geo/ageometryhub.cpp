@@ -1165,6 +1165,7 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
     return (res == 0 ? "Failed to export to file "+fileName : "");
 }
 
+/*
 QString AGeometryHub::exportToGDML(const QString & fileName) const
 {
     QFileInfo fi(fileName);
@@ -1206,6 +1207,7 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
 
     return "";
 }
+*/
 
 //#include "a3global.h"
 QString AGeometryHub::readGDMLtoTGeo(const QString & fileName)

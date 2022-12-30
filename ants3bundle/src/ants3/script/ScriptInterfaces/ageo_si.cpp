@@ -10,7 +10,8 @@
 
 #include <array>
 
-AGeo_SI::AGeo_SI()
+AGeo_SI::AGeo_SI() :
+    AScriptInterface(), GeoHub(AGeometryHub::getInstance())
 {
     Description = "Allows to configure detector geometry. Based on CERN ROOT TGeoManager";
 
@@ -1031,6 +1032,31 @@ void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
             if (!obj->isWorld())
                 obj->fActive = flag;
         }
+    }
+}
+
+#include <QFileInfo>
+void AGeo_SI::exportToGDML(QString fileName)
+{
+    if (QFileInfo(fileName).suffix() != "gdml")
+        abort("File suffix should be \"gdml\"");
+    else
+    {
+        //QString err = GeoHub.exportToGDML(FileName);
+        QString err = GeoHub.exportGeometry(fileName);
+        if (!err.isEmpty()) abort(err);
+    }
+}
+
+void AGeo_SI::exportToROOT(QString fileName)
+{
+    if (QFileInfo(fileName).suffix() != "root")
+        abort("File suffix should be \"root\"");
+    else
+    {
+        //QString err = GeoHub.exportToROOT(fileName);
+        QString err = GeoHub.exportGeometry(fileName);
+        if (!err.isEmpty()) abort(err);
     }
 }
 

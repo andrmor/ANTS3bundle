@@ -344,13 +344,13 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
 
     const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
     Request.CommonFiles.push_back(LocalGdmlName);
-    QString err = Geometry.exportToGDML(LocalGdmlName);
+    //QString err = Geometry.exportToGDML(LocalGdmlName);
+    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName);
 
-    // refactor !!!***
     if (err.isEmpty()) return true;
     else
     {
-        AErrorHub::addError(err.toLatin1().data());
+        AErrorHub::addQError(err);
         return false;
     }
 }

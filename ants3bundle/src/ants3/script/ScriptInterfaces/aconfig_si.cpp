@@ -74,20 +74,6 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     return false;
 }
 
-void AConfig_SI::exportToGDML(QString FileName)
-{
-    QString err = AGeometryHub::getInstance().exportToGDML(FileName);
-    if (err.isEmpty()) return;
-    abort(err);
-}
-
-void AConfig_SI::exportToROOT(QString FileName)
-{
-    QString err = AGeometryHub::getInstance().exportToROOT(FileName);
-    if (err.isEmpty()) return;
-    abort(err);
-}
-
 bool AConfig_SI::replace(QString Key, QVariant Value)
 {
     if (!bGuiThread)

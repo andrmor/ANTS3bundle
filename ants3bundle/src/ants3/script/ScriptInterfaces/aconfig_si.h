@@ -31,9 +31,6 @@ public slots:
     QVariantMap getConfig() const;
     bool        setConfig(QVariantMap ConfigObject);
 
-    void        exportToGDML(QString FileName);  // !!!*** to geometry?
-    void        exportToROOT(QString FileName);  // !!!*** to geometry?
-
     bool        replace(QString Key, QVariant Value);
     QVariant    getKeyValue(QString Key);
 
