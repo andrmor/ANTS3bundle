@@ -55,6 +55,7 @@ void AMonitorSettings::initFromHub()
         Monitors.push_back(r);
     }
 }
+
 void AMonitorSettings::writeToJson(QJsonObject & json) const
 {
     json["Enabled"] = Enabled;
@@ -70,6 +71,14 @@ void AMonitorSettings::writeToJson(QJsonObject & json) const
     json["Monitors"] = arMon;
 }
 #endif
+
+void AMonitorSettings::clear()
+{
+    Enabled         = false;
+    FileName = "ParticleMonitors.json";
+
+    Monitors.clear();
+}
 
 #ifdef JSON11
 void AMonitorSettings::readFromJson(const json11::Json::object & json)

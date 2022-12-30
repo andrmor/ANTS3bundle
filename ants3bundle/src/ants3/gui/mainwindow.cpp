@@ -504,6 +504,7 @@ void MainWindow::loadWindowGeometries()
 #include "ainterfacerulehub.h"
 #include "aparticlesimhub.h"
 #include "aphotonsimhub.h"
+#include "ageoconsts.h"
 void MainWindow::on_pbNew_clicked()
 {
     bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
@@ -522,6 +523,7 @@ void MainWindow::on_pbNew_clicked()
     // Reconstruction
     // LRFs
 
+    AGeoConsts::getInstance().clearConstants();
     AGeometryHub::getInstance().clearWorld();
     onRebuildGeometryRequested();
 

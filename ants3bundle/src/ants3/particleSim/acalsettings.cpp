@@ -317,3 +317,11 @@ void ACalSettings::initFromHub()
     }
 }
 #endif
+
+void ACalSettings::clear()
+{
+    Enabled         = false;
+    FileName = "Calorimeters.json";
+
+    Calorimeters.clear();
+}

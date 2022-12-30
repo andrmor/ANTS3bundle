@@ -174,14 +174,29 @@ void AParticleRunSettings::clear()
 
     Seed = 0;
 
-    SaveTrackingHistory = true;
+    SaveTrackingHistory = false;
     FileNameTrackingHistory = "TrackingData.txt";
+
+    SaveDeposition = false;
+    FileNameDeposition = "Deposition.dat";
+
+    SaveSettings.clear();
+
+    MonitorSettings.clear();
+
+    CalorimeterSettings.clear();
 
     AsciiOutput    = true;
     AsciiPrecision = 6;
 
-
+    EventFrom = 0;
+    EventTo   = 0;
 
     Materials.clear();
+
+    GDML = "";
+    Receipt = "";
+
+    GuiMode = false;
 }
 

@@ -69,6 +69,7 @@ void AGeometryHub::clearWorld()
     setWorldSizeZ(500);
 
     clearMonitors();
+    ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
 }
 
