@@ -601,25 +601,6 @@ void AGeoObject::updateGridElementShape()
         Shape = new AGeoPolygon(6, GE->dz, GE->size1, GE->size1);
 }
 
-void AGeoObject::updateMonitorShape()
-{
-    if (!Type->isMonitor())
-    {
-        QString err = "Attempt to update monitor shape for a non-monitor object" + Name;
-        qWarning() << err;
-        AErrorHub::addQError(err);
-        return;
-    }
-
-    ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
-
-    delete Shape;
-    if (mon->config.shape == 0) //rectangular
-        Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
-    else //round
-        Shape = new AGeoTube(0, mon->config.size1, mon->config.dz);
-}
-
 const AMonitorConfig * AGeoObject::getMonitorConfig() const
 {
     if (!Type) return nullptr;
@@ -1000,6 +981,24 @@ void AGeoObject::updateAllStacks()
     }
 
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
+}
+
+void AGeoObject::updateAllMonitors()
+{
+    if (Type && Type->isMonitor())
+    {
+        ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
+
+        delete Shape;
+        if (mon->config.shape == 0)
+            Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
+        else
+            Shape = new AGeoTube(0, mon->config.size1, mon->config.dz);
+
+        if (Container) Material = Container->getMaterial();
+    }
+
+    for (AGeoObject * obj : HostedObjects) obj->updateAllMonitors();
 }
 
 void AGeoObject::removeHostedObject(AGeoObject *obj)
@@ -1390,6 +1389,16 @@ void AGeoObject::makeItWorld()
 {
     Name = "World";
     delete Type; Type = new ATypeWorldObject();
+}
+
+void AGeoObject::scaleRecursive(double factor)
+{
+    for (size_t i = 0; i < 3; i++) Position[i] *= factor;
+
+    Shape->scale(factor);
+    Type->scale(factor);
+
+    for (AGeoObject * obj : HostedObjects) obj->scaleRecursive(factor);
 }
 
 #include <QRandomGenerator>

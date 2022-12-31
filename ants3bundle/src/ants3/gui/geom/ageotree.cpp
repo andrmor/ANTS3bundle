@@ -488,7 +488,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       prototypeA->setEnabled(true);
   }
 
-  if (!obj->isGoodContainerForInstance()) addInstanceMenu->setEnabled(false);
+  if (!obj || !obj->isGoodContainerForInstance()) addInstanceMenu->setEnabled(false);
 
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;

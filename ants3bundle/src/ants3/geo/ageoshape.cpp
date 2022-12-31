@@ -287,12 +287,12 @@ bool AGeoBox::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
-/*
-AGeoShape * AGeoBox::clone() const
+void AGeoBox::scale(double factor)
 {
-    return new AGeoBox(dx, dy, dz);
+    dx *= factor;
+    dy *= factor;
+    dz *= factor;
 }
-*/
 
 // ====== PARA ======
 QString AGeoPara::getHelp() const
@@ -486,6 +486,13 @@ bool AGeoPara::readFromTShape(TGeoShape *Tshape)
     phi = p->GetPhi();
 
     return true;
+}
+
+void AGeoPara::scale(double factor)
+{
+    dx *= factor;
+    dy *= factor;
+    dz  *= factor;
 }
 
 AGeoComposite::AGeoComposite(const QStringList members, QString GenerationString) :
@@ -775,6 +782,11 @@ bool AGeoSphere::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoSphere::scale(double factor)
+{
+    rmin *= factor;
+    rmax *= factor;
+}
 
 QString AGeoTubeSeg::getHelp() const
 {
@@ -955,6 +967,12 @@ bool AGeoTubeSeg::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoTubeSeg::scale(double factor)
+{
+    rmin *= factor;
+    rmax *= factor;
+    dz   *= factor;
+}
 
 QString AGeoCtub::getHelp() const
 {
@@ -1351,6 +1369,13 @@ bool AGeoTube::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoTube::scale(double factor)
+{
+    rmin *= factor;
+    rmax *= factor;
+    dz   *= factor;
+}
+
 // ---  Trd1  ---
 QString AGeoTrd1::getHelp() const
 {
@@ -1517,6 +1542,14 @@ bool AGeoTrd1::readFromTShape(TGeoShape *Tshape)
     dz = s->GetDz();
 
     return true;
+}
+
+void AGeoTrd1::scale(double factor)
+{
+    dx1 *= factor;
+    dx2 *= factor;
+    dy  *= factor;
+    dz  *= factor;
 }
 
 // ---  Trd2  ---
@@ -1699,6 +1732,15 @@ bool AGeoTrd2::readFromTShape(TGeoShape *Tshape)
     dz = s->GetDz();
 
     return true;
+}
+
+void AGeoTrd2::scale(double factor)
+{
+    dx1 *= factor;
+    dx2 *= factor;
+    dy1 *= factor;
+    dy2 *= factor;
+    dz  *= factor;
 }
 
 // --- GeoPgon ---
@@ -2262,6 +2304,13 @@ bool AGeoParaboloid::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoParaboloid::scale(double factor)
+{
+    rlo *= factor;
+    rhi *= factor;
+    dz  *= factor;
+}
+
 QString AGeoCone::getHelp() const
 {
     return "Cone with the following parameters:\n"
@@ -2462,6 +2511,15 @@ bool AGeoCone::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoCone::scale(double factor)
+{
+    dz    *= factor;
+    rminL *= factor;
+    rmaxL *= factor;
+    rminU *= factor;
+    rmaxU *= factor;
+}
+
 QString AGeoEltu::getHelp() const
 {
     return "An elliptical tube is defined by the two semi-axes a and b. It ranges from –dz to +dz in Z direction.";
@@ -2607,6 +2665,13 @@ bool AGeoEltu::readFromTShape(TGeoShape *Tshape)
     dz = s->GetDz();
 
     return true;
+}
+
+void AGeoEltu::scale(double factor)
+{
+    a  *= factor;
+    b  *= factor;
+    dz *= factor;
 }
 
 AGeoArb8::AGeoArb8(double dz, std::array<std::pair<double, double>, 8> NodesList) :
@@ -2932,6 +2997,17 @@ bool AGeoArb8::checkPointsForArb8(std::array<std::pair<double, double>,8> nodes)
     return checkPointsArb8(nodes, false);
 }
 
+void AGeoArb8::scale(double factor)
+{
+    dz  *= factor;
+
+    for (std::pair<double, double> & pair : Vertices)
+    {
+        pair.first  *= factor;
+        pair.second *= factor;
+    }
+}
+
 void AGeoArb8::init()
 {
     Vertices[0] = {-20,20};
@@ -3217,6 +3293,10 @@ bool AGeoPcon::readFromTShape(TGeoShape *Tshape)
     return true;
 }
 
+void AGeoPcon::scale(double factor)
+{
+    for (APolyCGsection & sec : Sections) sec.scale(factor);
+}
 
 bool APolyCGsection::updateShape(QString &errorStr)
 {
@@ -3361,6 +3441,13 @@ bool APolyCGsection::operator ==(const APolyCGsection &section) const
     if ((z == section.z) && (rmin == section.rmin) && (rmax == section.rmax))
         return true;
     return false;
+}
+
+void APolyCGsection::scale(double factor)
+{
+    z    *= factor;
+    rmin *= factor;
+    rmax *= factor;
 }
 
 // --- GeoPolygon ---
@@ -3579,6 +3666,15 @@ void AGeoPolygon::readFromJson(const QJsonObject &json)
     if (!jstools::parseJson(json, "str2rmaxL", str2rmaxL)) str2rmaxL.clear();
     if (!jstools::parseJson(json, "str2rminU", str2rminU)) str2rminU.clear();
     if (!jstools::parseJson(json, "str2rmaxU", str2rmaxU)) str2rmaxU.clear();
+}
+
+void AGeoPolygon::scale(double factor)
+{
+    rminL *= factor;
+    rmaxL *= factor;
+    rminU *= factor;
+    rmaxU *= factor;
+    dz    *= factor;
 }
 
 AGeoScaledShape::AGeoScaledShape(QString ShapeGenerationString, double scaleX, double scaleY, double scaleZ) :
@@ -3944,6 +4040,11 @@ bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
     BaseShapeGenerationString = AShape->getGenerationString();
     delete AShape;
     return true;
+}
+
+void AGeoScaledShape::scale(double factor)
+{
+    if (BaseShape) BaseShape->scale(factor);
 }
 
 QString AGeoTorus::getHelp() const

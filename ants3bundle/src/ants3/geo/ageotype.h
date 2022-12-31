@@ -43,6 +43,8 @@ public:
 
     virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
+    virtual void scale(double /*factor*/) {}
+
 protected:
     const QString * pType = nullptr;
 
@@ -138,6 +140,8 @@ public:
 
     void introduceGeoConstValues(QString & errorStr) override;
 
+    void scale(double factor) override;
+
     bool bCenterSymmetric = true;
     int numX = 2;
     int numY = 2;
@@ -166,6 +170,8 @@ public:
 
     void introduceGeoConstValues(QString & errorStr) override;
 
+    void scale(double factor) override;
+
     int    num         = 6;
     double angularStep = 30.0; //in degrees
     double radius      = 100.0;
@@ -187,6 +193,8 @@ public:
     void readFromJson(const QJsonObject & json) override;
 
     void introduceGeoConstValues(QString & errorStr) override;
+
+    void scale(double factor) override;
 
     double     Step         = 30.0;
     EShapeMode Shape        = Hexagonal;
@@ -212,6 +220,8 @@ public:
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
     void introduceGeoConstValues(QString & errorStr) override;
+
+    // no scaling! otherwise applied twice
 
     AMonitorConfig config;
 

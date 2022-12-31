@@ -47,6 +47,8 @@ public:
 #endif
 
     std::vector<AMonSetRecord> Monitors;
+
+    void clear();
 };
 
 #endif // AMONITORSETTINGS_H

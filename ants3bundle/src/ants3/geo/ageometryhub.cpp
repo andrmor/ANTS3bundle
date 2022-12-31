@@ -12,8 +12,10 @@
 #include "agridhub.h"
 #include "acalorimeterhub.h"
 #include "aerrorhub.h"
+#include "afiletools.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -67,6 +69,7 @@ void AGeometryHub::clearWorld()
     setWorldSizeZ(500);
 
     clearMonitors();
+    ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
 }
 
@@ -224,6 +227,8 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
             qWarning() << err;
             return false;
         }
+
+        // !!!*** scaled processing?
     }
 
     obj->refreshShapeCompositeMembers();
@@ -254,11 +259,14 @@ void AGeometryHub::populateGeoManager()
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
+    World->updateAllMonitors();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
     GeoManager->SetMaxVisNodes(100000);
+
+    if (DoScaling) World->scaleRecursive(ScalingFactor);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
@@ -490,21 +498,6 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         vol = parent; // group objects are pure virtual, pass the volume of the parent
     else
     {
-        if (obj->Type->isMonitor())
-        {
-            obj->updateMonitorShape();
-
-            if (obj->Container) obj->Material = obj->Container->getMaterial();
-            else
-            {
-                QString err = "Error: Monitor without container: " + obj->Name;
-                AErrorHub::addQError(err);
-                qWarning() << err;
-                return;
-            }
-        }
-        // No need special init for calorimeters
-
         if (obj->Type->isComposite())
         {
             bool ok = processCompositeObject(obj);
@@ -1149,8 +1142,31 @@ int AGeometryHub::checkGeometryForConflicts()
     return overlapCount;
 }
 
-#include <QFileInfo>
-#include "afiletools.h"
+QString AGeometryHub::exportGeometry(const QString & fileName)
+{
+    QFileInfo fi(fileName);
+    const QString suffix = fi.suffix();
+    if (!suffix.compare("gdml", Qt::CaseInsensitive))
+        if (!suffix.compare("root", Qt::CaseInsensitive))
+            return "File name should have .gdml or .root suffix";
+
+    QJsonObject json;
+    writeToJson(json);
+    DoScaling = true;
+    ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
+    populateGeoManager();
+
+    GeoManager->SetName("geometry");
+    int res = GeoManager->Export(fileName.toLocal8Bit().data());
+
+    DoScaling = false;
+    readFromJson(json);
+    populateGeoManager();
+
+    return (res == 0 ? "Failed to export to file "+fileName : "");
+}
+
+/*
 QString AGeometryHub::exportToGDML(const QString & fileName) const
 {
     QFileInfo fi(fileName);
@@ -1192,6 +1208,7 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
 
     return "";
 }
+*/
 
 //#include "a3global.h"
 QString AGeometryHub::readGDMLtoTGeo(const QString & fileName)
@@ -1461,6 +1478,39 @@ QString AGeometryHub::importGDML(const QString & fileName)
     setWorldSizeFixed(wb);
 
     //GeoManager->FindNode(0,0,0); // need?
+
+    return "";
+}
+
+QString AGeometryHub::importGeometry(const QString &fileName)
+{
+    delete GeoManager; GeoManager = nullptr;
+    GeoManager = TGeoManager::Import(fileName.toLocal8Bit());
+
+    if (!GeoManager || !GeoManager->IsClosed())
+    {
+        GeoManager = new TGeoManager();
+        return "Load GDML failed!"; // needs rebuild!
+    }
+    qDebug() << "--> tmp GeoManager loaded from GDML file";
+
+    const TGeoNode * top = GeoManager->GetTopNode();
+    //ShowNodes(top, 0);
+
+    AMaterialHub::getInstance().importMaterials(GeoManager->GetListOfMaterials());
+
+    clearWorld();
+    readGeoObjectTree(World, top);
+    World->makeItWorld();
+    AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
+    if (wb)
+    {
+        setWorldSizeXY( std::max(wb->dx, wb->dy) );
+        setWorldSizeZ(wb->dz);
+    }
+    setWorldSizeFixed(wb);
+
+    World->scaleRecursive(10.0);  // 1[cm] becomes 10[mm]
 
     return "";
 }

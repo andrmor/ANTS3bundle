@@ -860,8 +860,13 @@ void AGeoTreeWin::on_pbSaveTGeo_clicked()
     if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".gdml";
 
     QString err;
+    /*
+    // old system
     if (QFileInfo(fileName).suffix() == "root") err = Geometry.exportToROOT(fileName);
     else                                        err = Geometry.exportToGDML(fileName);
+    */
+    // new system
+    err = Geometry.exportGeometry(fileName);
 
     if (!err.isEmpty()) guitools::message(err, this);
 }
@@ -880,7 +885,9 @@ void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
 
     AGeometryHub::getInstance().clearWorld();
 
-    QString err = Geometry.importGDML(fileName);
+    //QString err = Geometry.importGDML(fileName);   // old system based on replace in file
+    QString err = Geometry.importGeometry(fileName); // new system based on scaling
+
     Geometry.writeToJson(AConfig::getInstance().JSON);
     MaterialHub.writeToJson(AConfig::getInstance().JSON);
     emit requestRebuildGeometry();

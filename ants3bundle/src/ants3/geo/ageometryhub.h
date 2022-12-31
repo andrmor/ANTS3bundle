@@ -76,10 +76,12 @@ public:
     int          checkGeometryForConflicts();
     QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
-    QString      exportToGDML(const QString & fileName) const;
-    QString      exportToROOT(const QString & fileName) const;
+    //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
+    //QString      exportToROOT(const QString & fileName) const;  // old system
+    QString      exportGeometry(const QString & fileName);      // new system based on geometry scaling
 
-    QString      importGDML(const QString & fileName);
+    QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
+    QString      importGeometry(const QString & fileName);      // new system based on geometry scaling
 
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
@@ -113,6 +115,10 @@ private:
     bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
     QString readGDMLtoTGeo(const QString & fileName);
+
+private:
+    bool   DoScaling = false;
+    double ScalingFactor = 1.0;
 };
 
 #endif // AGEOMETRYHUB_H

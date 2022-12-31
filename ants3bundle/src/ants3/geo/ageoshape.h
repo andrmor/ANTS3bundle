@@ -51,6 +51,8 @@ public:
 
     virtual AGeoShape * clone() const; // uses GeoShapeFactory and save/load to/from json
 
+    virtual void scale(double factor) {} // !!!*** = 0
+
 protected:
     bool    extractParametersFromString(QString GenerationString, QStringList& parameters, int numParameters);
 
@@ -92,7 +94,7 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
-    //AGeoShape * clone() const override;
+    void scale(double factor) override;
 
     double      dx,     dy,     dz;
     QString str2dx, str2dy, str2dz;
@@ -129,6 +131,8 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
 
     double      rmin,     rmax,     dz;
     QString str2rmin, str2rmax, str2dz;
@@ -172,6 +176,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     QString BaseShapeGenerationString;
 
     double scaleX = 1.0;
@@ -211,6 +217,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     double rlo, rhi, dz;
     QString str2rlo, str2rhi, str2dz;
 };
@@ -248,6 +256,8 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
 
     double dz;
     double rminL, rmaxL, rminU, rmaxU;
@@ -323,6 +333,8 @@ public:
 
     bool readFromTShape(TGeoShape* /*Tshape*/) override { return false; } //it is not a base root class, so not valid for import from GDML
 
+    void scale(double factor) override;
+
     int nedges;
     double dphi, dz;
     double rminL, rmaxL, rminU, rmaxU;
@@ -348,6 +360,8 @@ struct APolyCGsection
     void writeToJson(QJsonObject& json) const;
     void readFromJson(const QJsonObject& json);
     bool operator ==( const APolyCGsection &section1) const;
+
+    void scale(double factor);
 };
 
 class AGeoPcon : public AGeoShape
@@ -378,6 +392,8 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
 
     double phi, dphi;
     QString strPhi, strdPhi;
@@ -447,6 +463,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     double dx1, dx2, dy, dz;
     QString str2dx1, str2dx2, str2dy, str2dz;
 };
@@ -483,6 +501,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     double dx1, dx2, dy1, dy2, dz;
     QString str2dx1, str2dx2, str2dy1, str2dy2, str2dz;
 };
@@ -517,6 +537,8 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
 
     double      rmin,     rmax,     dz,    phi1,    phi2;
     QString str2rmin, str2rmax, str2dz, strPhi1, strPhi2;
@@ -596,6 +618,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     double a, b, dz;
     QString str2a, str2b, str2dz;
 };
@@ -633,6 +657,8 @@ public:
 
     bool readFromTShape(TGeoShape* Tshape) override;
 
+    void scale(double factor) override;
+
     double      rmin,     rmax,    theta1,    theta2,    phi1,    phi2;
     QString str2rmin, str2rmax, strTheta1, strTheta2, strPhi1, strPhi2;
 };
@@ -667,6 +693,8 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
 
     double dx, dy, dz;
     double alpha, theta, phi;
@@ -704,6 +732,8 @@ public:
     bool readFromTShape(TGeoShape* Tshape) override;
 
     static bool checkPointsForArb8(std::array<std::pair<double, double>, 8> nodes );
+
+    void scale(double factor) override;
 
     double dz;
     QString str2dz;
@@ -773,6 +803,13 @@ public:
     void readFromJson(const QJsonObject& json) override;
 
     bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override
+    {
+        R    *= factor;
+        Rmin *= factor;
+        Rmax *= factor;
+    }
 
     double R = 100.0;
     double Rmin = 0, Rmax = 20.0;

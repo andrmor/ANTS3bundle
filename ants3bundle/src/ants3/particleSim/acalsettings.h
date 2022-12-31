@@ -79,6 +79,8 @@ public:
 #endif
 
     std::vector<ACalSetRecord> Calorimeters;
+
+    void clear();
 };
 
 #endif // ACALSETTINGS_H
