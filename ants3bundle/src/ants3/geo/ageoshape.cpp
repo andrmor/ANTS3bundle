@@ -481,9 +481,13 @@ bool AGeoPara::readFromTShape(TGeoShape *Tshape)
     dx = p->GetDX();
     dy = p->GetDY();
     dz = p->GetDZ();
+
     alpha = p->GetAlpha();
     theta = p->GetTheta();
     phi = p->GetPhi();
+
+    dy = dy - dz * fabs(p->GetTyz());
+    dx = dx - dy * fabs(p->GetTxy()) - dz * fabs(p->GetTxz());
 
     return true;
 }
@@ -1202,9 +1206,9 @@ bool AGeoCtub::readFromTShape(TGeoShape *Tshape)
     nxlow = s->GetNlow()[0];
     nylow = s->GetNlow()[1];
     nzlow = s->GetNlow()[2];
-    nxhi = s->GetNlow()[0];
-    nyhi = s->GetNlow()[1];
-    nzhi = s->GetNlow()[2];
+    nxhi = s->GetNhigh()[0];
+    nyhi = s->GetNhigh()[1];
+    nzhi = s->GetNhigh()[2];
 
     return true;
 }

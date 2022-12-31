@@ -4,6 +4,7 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "aerrorhub.h"
+#include "arandomhub.h"
 
 #include <QDebug>
 #include <QStandardPaths>
@@ -11,6 +12,7 @@
 
 #include "TH1D.h"
 #include "TRandom2.h"
+#include "TGeoMaterial.h"
 
 #include <cmath>
 
@@ -90,6 +92,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
 void AMaterial::generateTGeoMat()
 {
     GeoMat = ChemicalComposition.generateTGeoMaterial(name.toLocal8Bit().data(), density);
+    GeoMat->SetTemperature(temperature);
 }
 
 double AMaterial::FT(double td, double tr, double t) const
@@ -106,7 +109,6 @@ double bi_exp(double t, double tau1,double tau2)
     return exp(-1.0*t/tau2)*(1.0-exp(-1.0*t/tau1))/tau2/tau2*(tau1+tau2);
 }
 
-#include "arandomhub.h"
 double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 {
     //select decay time component
