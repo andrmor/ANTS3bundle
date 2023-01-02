@@ -20,6 +20,7 @@ class AScriptWindow;
 class AGlobSetWindow;
 class ADemoWindow; // tmp
 class QTimer;
+class A3Global;
 
 class MainWindow : public AGuiWindow
 {
@@ -32,7 +33,8 @@ public:
     void updateGui();
 
 private:
-    AConfig          & Config;
+    AConfig           & Config;
+    A3Global          & GlobSet;
 
     Ui::MainWindow    * ui = nullptr;
 
@@ -70,6 +72,8 @@ private slots:
     void on_actionQuickLoad_slot_2_triggered();
     void on_actionQuickLoad_slot_3_triggered();
     void on_actionExit_triggered();
+
+    // Buttons
     void on_pbGeometry_clicked();
     void on_pbGeoWin_clicked();
     void on_pbMaterials_clicked();
@@ -91,12 +95,18 @@ private slots:
 
     void on_pbNew_clicked();
 
+    void on_actionQuickLoad_slot_1_hovered();
+    void on_actionQuickLoad_slot_2_hovered();
+    void on_actionQuickLoad_slot_3_hovered();
+    void on_actionLoad_last_config_hovered();
+
 protected:
     void closeEvent(QCloseEvent * event);
 
 private:
     void saveWindowGeometries();
     void loadWindowGeometries();
+    QString getQuickLoadMessage(int index);
 };
 
 #endif // MAINWINDOW_H

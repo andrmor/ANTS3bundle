@@ -76,6 +76,8 @@ public:
     void    saveConfig();
     void    loadConfig();
 
+    QString getQuickFileName(int index) const;
+
 private:
     const QString ConfigFileName = "globalconfig.json";
 };

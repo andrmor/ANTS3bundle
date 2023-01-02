@@ -484,7 +484,7 @@ bool AGeoPara::readFromTShape(TGeoShape *Tshape)
 
     alpha = p->GetAlpha();
     theta = p->GetTheta();
-    phi = p->GetPhi();
+    phi   = p->GetPhi();
 
     dy = dy - dz * fabs(p->GetTyz());
     dx = dx - dy * fabs(p->GetTxy()) - dz * fabs(p->GetTxz());

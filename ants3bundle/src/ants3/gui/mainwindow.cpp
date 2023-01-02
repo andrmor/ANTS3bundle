@@ -32,6 +32,7 @@
 MainWindow::MainWindow() :
     AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
+    GlobSet(A3Global::getInstance()),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -145,17 +146,11 @@ MainWindow::MainWindow() :
     RootUpdateTimer->start();
     qDebug()<<">Timer to refresh Root events started";
 
-  // Config load explorer -> tips
-    // TODO !!!***
-    /*
     QString mss = ui->menuFile->styleSheet();
     mss += "; QMenu::tooltip {wakeDelay: 1;}";
     ui->menuFile->setStyleSheet(mss);
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
-    void MainWindow::on_actionQuick_save_1_hovered()
-    {ui->actionQuick_save_1->setToolTip(ELwindow->getQuickSlotMessage(1));}
-    */
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
@@ -315,7 +310,7 @@ void MainWindow::on_actionLoad_configuration_triggered()
 
 void MainWindow::on_actionLoad_last_config_triggered()
 {
-    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave0.json";
+    const QString fileName = GlobSet.getQuickFileName(0);
     if (!QFile::exists(fileName)) return;
 
     AConfig::getInstance().load(fileName);
@@ -323,41 +318,41 @@ void MainWindow::on_actionLoad_last_config_triggered()
 
 void MainWindow::on_actionQuickSave_slot_1_triggered()
 {
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave1.json");
+    Config.save(GlobSet.getQuickFileName(1));
 }
 
 void MainWindow::on_actionQuickSave_slot_2_triggered()
 {
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave2.json");
+    Config.save(GlobSet.getQuickFileName(2));
 }
 
 void MainWindow::on_actionQuickSave_slot_3_triggered()
 {
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave3.json");
+    Config.save(GlobSet.getQuickFileName(1));
 }
 
 void MainWindow::on_actionQuickLoad_slot_1_triggered()
 {
-    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave1.json";
+    const QString fileName = GlobSet.getQuickFileName(1);
     if (!QFile::exists(fileName)) return;
 
-    AConfig::getInstance().load(fileName);
+    Config.load(fileName);
 }
 
 void MainWindow::on_actionQuickLoad_slot_2_triggered()
 {
-    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave2.json";
+    const QString fileName = GlobSet.getQuickFileName(2);
     if (!QFile::exists(fileName)) return;
 
-    AConfig::getInstance().load(fileName);
+    Config.load(fileName);
 }
 
 void MainWindow::on_actionQuickLoad_slot_3_triggered()
 {
-    const QString fileName = A3Global::getInstance().QuicksaveDir + "/QuickSave3.json";
+    const QString fileName = GlobSet.getQuickFileName(3);
     if (!QFile::exists(fileName)) return;
 
-    AConfig::getInstance().load(fileName);
+    Config.load(fileName);
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -535,3 +530,64 @@ void MainWindow::on_pbNew_clicked()
     updateAllGuiFromConfig();
 }
 
+void MainWindow::on_actionQuickLoad_slot_1_hovered()
+{
+    ui->actionQuickLoad_slot_1->setToolTip(getQuickLoadMessage(1));
+}
+
+void MainWindow::on_actionQuickLoad_slot_2_hovered()
+{
+    ui->actionQuickLoad_slot_2->setToolTip(getQuickLoadMessage(2));
+}
+
+void MainWindow::on_actionQuickLoad_slot_3_hovered()
+{
+    ui->actionQuickLoad_slot_3->setToolTip(getQuickLoadMessage(3));
+}
+
+void MainWindow::on_actionLoad_last_config_hovered()
+{
+    ui->actionLoad_last_config->setToolTip(getQuickLoadMessage(0));
+}
+
+#include <QFileInfo>
+QString MainWindow::getQuickLoadMessage(int index)
+{
+    QString txt;
+    if ((index < 0) || index > 3) return txt;
+    const QString fileName = GlobSet.getQuickFileName(index);
+    if (fileName.isEmpty()) return txt;
+    QFile file(fileName);
+    if (!file.exists()) return txt;
+
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return txt;
+
+    QString name, desc;
+    QTextStream in(&file);
+    for (int iLine = 0; iLine < 10; iLine++) // asssuming the needed lines are on top of the file!
+    {
+        const QString line = in.readLine().simplified();
+        const QStringList sl = line.split(':', Qt::SkipEmptyParts);
+        if (sl.size() < 2) continue;
+        if      (sl[0] == "\"ConfigName\"")
+        {
+            name = sl[1].simplified();
+            name.remove(0, 1);
+            name.chop(2);
+        }
+        else if (sl[0] == "\"ConfigDescription\"")
+        {
+            desc = sl[1].simplified();
+            desc.remove(0, 1);
+            desc.chop(2);
+        }
+    }
+    file.close();
+
+    QString ret = name + '\n' + desc;
+    if (ret == '\n') ret.clear();
+
+    ret += '\n';
+    ret += QFileInfo(fileName).lastModified().toString();
+    return ret;
+}

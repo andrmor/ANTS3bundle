@@ -166,3 +166,8 @@ void A3Global::loadConfig()
 
     jstools::parseJson(js, "TrackVisAttributes", TrackVisAttributes);
 }
+
+QString A3Global::getQuickFileName(int index) const
+{
+    return QString("%0/QuickSave%1.json").arg(QuicksaveDir).arg(index);
+}
