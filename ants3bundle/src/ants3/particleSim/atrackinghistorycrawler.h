@@ -345,7 +345,7 @@ public:
 class ATrackingHistoryCrawler
 {
 public:
-    ATrackingHistoryCrawler(const QString & fileName, bool binary) : FileName(fileName), bBinary(binary) {}
+    ATrackingHistoryCrawler(const QString & fileName) : FileName(fileName) {}
 
     void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
 
@@ -357,7 +357,6 @@ private:
     void findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector &opt, AHistorySearchProcessor & processor) const;
 
     QString FileName;
-    bool    bBinary;
 
     bool bAbortRequested = false;
 

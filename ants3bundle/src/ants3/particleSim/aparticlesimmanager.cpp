@@ -473,12 +473,9 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
                                          bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
                                          const int MaxTracks, int LimitToEvent)
 {
-    // binary or ascii !!!***
-    bool bBinary = true;
-
     Geometry.GeoManager->ClearTracks();
 
-    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
 
     const QSet<QString> LimitTo(LimitToParticles.begin(), LimitToParticles.end());
@@ -491,6 +488,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     int iTrack = 0;
     while (iTrack < MaxTracks)
     {
+//       qDebug() << iTrack;
         if (LimitToEvent >= 0)
         {
             if (iEvent < LimitToEvent)
@@ -507,6 +505,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
         if (!ok)
         {
+//           qDebug() << tdi.ErrorString;
             if (tdi.isEndReached()) return "";
             return tdi.ErrorString;
         }
@@ -524,10 +523,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
 QString AParticleSimManager::fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record)
 {
-    // binary or ascii !!!***
-    bool bBinary = false;
-
-    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
 
     bool ok = tdi.extractEvent(iEvent, record);
     if (!ok) return tdi.ErrorString;

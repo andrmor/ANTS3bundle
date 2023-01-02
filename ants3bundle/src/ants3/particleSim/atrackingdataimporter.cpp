@@ -12,9 +12,11 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
-ATrackingDataImporter::ATrackingDataImporter(const QString & fileName, bool binary) :
-    FileName(fileName), bBinaryInput(binary)
+ATrackingDataImporter::ATrackingDataImporter(const QString & fileName) :
+    FileName(fileName)
 {
+    bBinaryInput = !isAscii();
+
     prepareImportResources(FileName);
 
     CurrentStatus = Initialization;
@@ -24,6 +26,19 @@ ATrackingDataImporter::ATrackingDataImporter(const QString & fileName, bool bina
 ATrackingDataImporter::~ATrackingDataImporter()
 {
     clearImportResources();
+}
+
+bool ATrackingDataImporter::isAscii()
+{
+    QFile file(FileName);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return true;
+
+    QTextStream stream(&file);
+    const QString first = stream.read(1);
+    file.close();
+
+    if (first == "#") return true;
+    return false;
 }
 
 bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * EventRecord)

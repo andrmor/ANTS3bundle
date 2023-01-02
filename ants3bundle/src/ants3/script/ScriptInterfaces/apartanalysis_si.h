@@ -30,7 +30,7 @@ public:
     //void ForceStop() override;
 
 public slots:
-    void configure(QString fileName, bool binary, int numThreads = -1);
+    void configure(QString fileName, int numThreads = -1);
 
     void clearCriteria();
     void setParticle(QString particleName);
@@ -70,7 +70,6 @@ public slots:
 
 private:
     QString FileName;
-    bool    bBinaryFile;
     int     NumThreads = -1;
 
     ATrackingHistoryCrawler * Crawler  = nullptr;

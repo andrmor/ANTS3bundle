@@ -21,10 +21,9 @@ APartAnalysis_SI::~APartAnalysis_SI()
     delete Crawler;
 }
 
-void APartAnalysis_SI::configure(QString fileName, bool binary, int numThreads)
+void APartAnalysis_SI::configure(QString fileName, int numThreads)
 {
     FileName    = fileName;
-    bBinaryFile = binary;
     NumThreads  = numThreads;
 }
 
@@ -162,8 +161,7 @@ bool APartAnalysis_SI::initCrawler()
         return false;
     }
 
-    delete Crawler;
-    Crawler = new ATrackingHistoryCrawler(FileName, bBinaryFile);
+    delete Crawler; Crawler = new ATrackingHistoryCrawler(FileName);
     return true;
 }
 

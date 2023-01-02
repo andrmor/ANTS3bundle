@@ -16,7 +16,7 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 
     if (numThreads < 1)
     {
-        ATrackingDataImporter imp(FileName, bBinary);
+        ATrackingDataImporter imp(FileName);
 
         processor.beforeSearch();
 
@@ -45,7 +45,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 {
     processor.beforeSearch();
 
-    ATrackingDataImporter dataImporter(FileName, bBinary);
+    ATrackingDataImporter dataImporter(FileName);
     AThreadPool pool(numThreads);
     AHistorySearchProcessor * pProcessorForCloning = processor.clone();
 
@@ -63,7 +63,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
         pool.addJob(
                     [&processor, pProcessorForCloning, &criteria, position, iEvent, this]()
                     {
-                        ATrackingDataImporter localDataImporter(FileName, bBinary);
+                        ATrackingDataImporter localDataImporter(FileName);
                         localDataImporter.setPositionInFile(position);
 
                         AEventTrackingRecord * event = AEventTrackingRecord::create();

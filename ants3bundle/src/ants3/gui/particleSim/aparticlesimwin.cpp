@@ -1177,7 +1177,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     qApp->processEvents();
 
     AFindRecordSelector Opt;
-    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
+    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
 
     Opt.bParticle = ui->cbPTHistParticle->isChecked();
     Opt.Particle = ui->lePTHistParticle->text();

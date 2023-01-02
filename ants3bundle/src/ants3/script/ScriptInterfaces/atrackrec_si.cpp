@@ -18,12 +18,11 @@ ATrackRec_SI::~ATrackRec_SI()
     delete Importer; Importer = nullptr;
 }
 
-void ATrackRec_SI::open(QString fileName, bool binary)
+void ATrackRec_SI::open(QString fileName)
 {
     FileName = fileName;
-    bBinaryFile = binary;
 
-    delete Importer; Importer = new ATrackingDataImporter(FileName, bBinaryFile);
+    delete Importer; Importer = new ATrackingDataImporter(FileName);
     if (!Importer->ErrorString.isEmpty())
     {
         abort("Error accessing the tracking history file:\n" + Importer->ErrorString);

@@ -22,7 +22,7 @@ struct AImporterEventStart
 class ATrackingDataImporter
 {
 public:
-    ATrackingDataImporter(const QString & fileName, bool binary);
+    ATrackingDataImporter(const QString & fileName);
     ~ATrackingDataImporter();
 
     bool extractEvent(int iEvent, AEventTrackingRecord * EventRecord);
@@ -110,7 +110,7 @@ private:
     ATrackingStepData * createHistoryStep() const;
     void readSecondaries();
     void readString(std::string & str) const;
-
+    bool isAscii();
 };
 
 #endif // ATRACKINGDATAIMPORTER_H
