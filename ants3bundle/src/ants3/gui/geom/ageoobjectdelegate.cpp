@@ -85,7 +85,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     hbs->setContentsMargins(2,0,2,0);
         hbs->addStretch();
         cbScale = new QCheckBox("Scale");
-        cbScale->setToolTip("Use scaling only if it really necessary, e.g. to make ellipsoid from a sphere");
+        cbScale->setToolTip("NOT compatible with Geant4!\nUse scaling only if it is unavoidable, e.g. to make ellipsoid from a sphere");
         connect(cbScale, &QCheckBox::clicked, this, &AGeoObjectDelegate::onScaleToggled);
         connect(cbScale, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
         hbs->addWidget(cbScale);

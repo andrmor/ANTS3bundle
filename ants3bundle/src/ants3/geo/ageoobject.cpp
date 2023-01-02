@@ -3,15 +3,13 @@
 #include "ageotype.h"
 #include "ageospecial.h"
 #include "ajsontools.h"
-//        #include "agridelementrecord.h"
 #include "ageoconsts.h"
 #include "aerrorhub.h"
 
 #include <cmath>
 
-#include <QRegularExpression>
 #include <QDebug>
-#include <QVariantList>
+#include <QRegularExpression>
 
 void AGeoObject::constructorInit()
 {
@@ -822,8 +820,8 @@ bool AGeoObject::suicide()
     //cannot remove logicals used by composite (and the logicals container itself); the composite kills itself!
     if (Type->isCompositeContainer()) return false;
     if (isInUseByComposite()) return false;
-    //cannot remove grid elementary - it is deleted when grid bulk is deleted
-    if (Type->isGridElement()) return false;
+
+    //if (Type->isGridElement()) return false; //in ants2: cannot remove grid elementary - it is deleted when grid bulk is deleted
 
     //qDebug() << "!!--Suicide triggered for object:"<<Name;
     AGeoObject * ObjectContainer = Container;
