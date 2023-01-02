@@ -75,7 +75,7 @@ void AParticleSimManager::simulate(int numLocalProc)
 
     processReply(Reply);
 
-    if (!AErrorHub::isError()) mergeOutput();
+    if (!AErrorHub::isError()) mergeOutput(!SimSet.RunSet.AsciiOutput);
 }
 
 void AParticleSimManager::processReply(const QJsonObject & Reply)
@@ -387,20 +387,20 @@ void AParticleSimManager::checkDirectories()
 
 #include "amonitorhub.h"
 #include "acalorimeterhub.h"
-void AParticleSimManager::mergeOutput()
+void AParticleSimManager::mergeOutput(bool binary)
 {
     qDebug() << "Merging output files...";
 
     const QString & OutputDir(SimSet.RunSet.OutputDirectory.data());
 
     if (SimSet.RunSet.SaveTrackingHistory)
-        HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+        HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data(), binary);
 
     if (SimSet.RunSet.SaveDeposition)
-        DepositionFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameDeposition.data());
+        DepositionFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameDeposition.data(), binary);
 
     if (SimSet.RunSet.SaveSettings.Enabled)
-        ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
+        ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data(), binary);
 
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     //MonitorHub.clearData(AMonitorHub::Particle);
@@ -474,9 +474,9 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
                                          const int MaxTracks, int LimitToEvent)
 {
     // binary or ascii !!!***
-    bool bBinary = false;
+    bool bBinary = true;
 
-    gGeoManager->ClearTracks();
+    Geometry.GeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;

@@ -76,7 +76,7 @@ private:
     bool configureParticleGun();
 
     void removeOutputFiles();
-    void mergeOutput();
+    void mergeOutput(bool binary);
     void processReply(const QJsonObject & Reply);
 };
 

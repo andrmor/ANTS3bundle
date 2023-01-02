@@ -12,7 +12,7 @@ public:
 
     void                 add(const QString & fileName);
 
-    void                 mergeToFile(const QString & fileName) const; // returns error, empty if all is ok
+    void                 mergeToFile(const QString & fileName, bool binary = false) const; // returns error, empty if all is ok
 
     const int            BufferSize = 1000;      // initially reserved max number of character in line
     std::vector<QString> FilesToMerge;
