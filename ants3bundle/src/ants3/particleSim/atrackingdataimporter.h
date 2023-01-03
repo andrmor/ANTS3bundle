@@ -67,7 +67,7 @@ private:
 
     //resources for binary input
     std::ifstream * inStream = nullptr;
-    char          binHeader;
+    unsigned char binHeader;
     int           BtrackId;
     int           BparentTrackId;
     std::string   BparticleName = "______________________________________________________"; //reserve long

@@ -755,8 +755,8 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leTrackingDataFile->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
     {
-        on_pbShowTracks_clicked();
         EV_showTree();
+        on_pbShowTracks_clicked();
     }
 
     //monitors

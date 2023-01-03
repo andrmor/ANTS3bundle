@@ -1,7 +1,5 @@
 #include "atrackingdataimporter.h"
 #include "aeventtrackingrecord.h"
-//#include "atrackrecords.h"
-//#include "atrackbuildoptions.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -15,12 +13,15 @@
 ATrackingDataImporter::ATrackingDataImporter(const QString & fileName) :
     FileName(fileName)
 {
+    //qDebug() << " DI--> Init";
     bBinaryInput = !isAscii();
+    //qDebug() << " DI--> Binary?" << bBinaryInput;
 
     prepareImportResources(FileName);
 
     CurrentStatus = Initialization;
-    processFile();
+    bool ok = processFile();
+    //qDebug() << " DI--> Init result:" << ok << "Current status should be 1:" << int(CurrentStatus);
 }
 
 ATrackingDataImporter::~ATrackingDataImporter()
@@ -46,6 +47,7 @@ bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * Even
     ErrorString.clear();
     CurrentEventRecord = EventRecord;
 
+    //qDebug() << " DI--> Asked to get event #" << iEvent << " Currently at:" << CurrentEvent;
     if (iEvent == CurrentEvent) return readCurrentEvent();
 
     if (iEvent < 0)
@@ -82,6 +84,7 @@ bool ATrackingDataImporter::gotoEvent(int iEvent)
 
 bool ATrackingDataImporter::readCurrentEvent()
 {
+    //qDebug() << " DI-->Reading current event..." << ErrorString ;
     CurrentEventRecord->clear();
     return processFile();
 }
@@ -106,6 +109,7 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
 
         if      (isNewEvent())
         {
+            //qDebug() << " DI--> New event detected";
             processNewEvent(SeekMode);
             if (SeekMode && CurrentEvent != SeekEvent) continue;
             else break;
@@ -138,7 +142,7 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
 bool ATrackingDataImporter::isEndReached() const
 {
     if (bBinaryInput)
-        return inStream->tellg();
+        return inStream->eof();
     else
         return inTextStream->atEnd();
 }
@@ -179,6 +183,7 @@ void ATrackingDataImporter::readBuffer()
     {
         // EE - new event, F0 - new track, F8 - trasnportation step, FF - non-transport step
         *inStream >> binHeader;
+        //qDebug() << "    header-->" << QString::number(binHeader, 16);
         if (inStream->eof()) return; //this is the proper way to reach end of file
         if (inStream->fail())
             ErrorString = "Error in header char input";
@@ -194,7 +199,7 @@ bool ATrackingDataImporter::isNewEvent()
     if (bBinaryInput)
     {
         // EE - new event, F0 - new track, F8 - trasnportation step, FF - non-transport step
-        return (binHeader == char(0xEE));
+        return (binHeader == 0xEE);
     }
     else
         return currentLine.startsWith('#');
@@ -207,7 +212,7 @@ bool ATrackingDataImporter::isNewTrack()
     if (bBinaryInput)
     {
         // EE - new event, F0 - new track, F8 - trasnportation step, FF - non-transport step
-        return (binHeader == char(0xF0));
+        return (binHeader == 0xF0);
     }
     else
         return currentLine.startsWith('>');
@@ -246,23 +251,22 @@ void ATrackingDataImporter::clearImportResources()
 
 int ATrackingDataImporter::extractEventId()
 {
+    int evId;
     if (bBinaryInput)
     {
-        int evId;
         inStream->read((char*)&evId, sizeof(int));
         if (inStream->fail()) ErrorString = "Error in header char input";
-        //qDebug() << "Event id:" << evId << "  error?" << !Error.isEmpty();
-        return evId;
+        //qDebug() << " DI--> Extracted id of the event:" << evId << "  error?" << !ErrorString.isEmpty();
     }
     else
     {
-        //qDebug() << "EV-->"<<currentLine;
+        //qDebug() << "DI-->"<<currentLine;
         currentLine.remove(0, 1);
         bool bOK = false;
-        int evId = currentLine.toInt(&bOK);
+        evId = currentLine.toInt(&bOK);
         if (!bOK) ErrorString = "Error in conversion of event number to integer";
-        return evId;
     }
+    return evId;
 }
 
 void ATrackingDataImporter::readNewTrack(bool SeekMode)
@@ -397,14 +401,14 @@ void ATrackingDataImporter::readNewStep(bool SeekMode)
         // format for "T" processes:
         // bin:   [FF or F8] ProcName0 X Y Z Time KinE DirectDepoE iMatTo VolNameTo0 VolIndexTo numSec [secondaries]
         // for non-"T" process, iMatTo VolNameTo  VolIndexTo are absent
-        if (binHeader == char(0xF8) || binHeader == char(0xFF))  //transport or non-transport
+        if (binHeader == 0xF8 || binHeader == 0xFF)  //transport or non-transport
         {
             readString(BprocessName);
             inStream->read((char*)Bpos,           3*sizeof(double));
             inStream->read((char*)&Btime,           sizeof(double));
             inStream->read((char*)&BkinEnergy,      sizeof(double));
             inStream->read((char*)&BdepoEnergy,     sizeof(double));
-            if (binHeader == char(0xF8))
+            if (binHeader == 0xF8)
             {
                 inStream->read((char*)&BnextMat,      sizeof(int));
                 readString(BnextVolName);
@@ -563,7 +567,7 @@ void ATrackingDataImporter::readSecondaries()
 bool ATrackingDataImporter::isTransportationStep() const
 {
     if (bBinaryInput)
-        return (binHeader == char(0xF8));
+        return (binHeader == 0xF8);
     else
     {
         return (inputSL.at(0) == "T");
@@ -624,6 +628,7 @@ void ATrackingDataImporter::processNewTrack(bool SeekMode)
         return;
     }
 
+    //qDebug() << " DI-->Reading new track";
     readNewTrack(SeekMode);
     if (!ErrorString.isEmpty()) return;
 

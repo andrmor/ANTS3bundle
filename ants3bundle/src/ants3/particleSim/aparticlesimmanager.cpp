@@ -475,7 +475,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 {
     Geometry.GeoManager->ClearTracks();
 
-    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
+    ATrackingDataImporter tdi(fileName);
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
 
     const QSet<QString> LimitTo(LimitToParticles.begin(), LimitToParticles.end());
@@ -488,7 +488,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     int iTrack = 0;
     while (iTrack < MaxTracks)
     {
-//       qDebug() << iTrack;
+        //qDebug() << "TB--> Event:" << iEvent << "Track index:" << iTrack;
         if (LimitToEvent >= 0)
         {
             if (iEvent < LimitToEvent)
@@ -500,12 +500,13 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
             if (iEvent > LimitToEvent) break;
         }
 
+        //qDebug() << "TB--> Asking extractor for event #" << iEvent;
         bool ok = tdi.extractEvent(iEvent, record);
         iEvent++;
 
         if (!ok)
         {
-//           qDebug() << tdi.ErrorString;
+            //qDebug() << tdi.ErrorString << tdi.isEndReached();
             if (tdi.isEndReached()) return "";
             return tdi.ErrorString;
         }
