@@ -174,6 +174,7 @@ SOURCES += \
     script/ScriptInterfaces/agraphwin_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
     script/ScriptInterfaces/aparticlesim_si.cpp \
+    script/ScriptInterfaces/arootstyle_si.cpp \
     script/ScriptInterfaces/asensor_si.cpp \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
@@ -371,6 +372,7 @@ HEADERS += \
     script/ScriptInterfaces/agraphwin_si.h \
     script/ScriptInterfaces/amsg_si.h \
     script/ScriptInterfaces/aparticlesim_si.h \
+    script/ScriptInterfaces/arootstyle_si.h \
     script/ScriptInterfaces/asensor_si.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \

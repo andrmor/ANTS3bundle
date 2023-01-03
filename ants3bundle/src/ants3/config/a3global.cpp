@@ -44,24 +44,11 @@ A3Global::A3Global()
     }
 }
 
+#include "TStyle.h"
 void A3Global::init()
 {
     qDebug() << "Init of global config";
-/*
-#ifdef GUI
-    if (!RootStyleScript.isEmpty())
-    {
-        //running root TStyle script
-        AJavaScriptManager* SM = new AJavaScriptManager(0);
-        AGStyle_SI* GStyleInterface  = new  AGStyle_SI(); //deleted by the SM
-        SM->RegisterInterfaceAsGlobal(GStyleInterface);
-        SM->Evaluate(RootStyleScript);
-        SM->deleteLater();
-    }
     gStyle->SetOptTitle(0);  // disables drawing of the title of ROOT histograms / graphs
-#endif
-*/
-
 }
 
 #include "aerrorhub.h"

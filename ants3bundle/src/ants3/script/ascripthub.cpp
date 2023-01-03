@@ -23,6 +23,7 @@
 #include "ageo_si.h"
 #include "asensor_si.h"
 #include "aparticlesim_si.h"
+#include "arootstyle_si.h"
 
 AScriptHub & AScriptHub::getInstance()
 {
@@ -113,6 +114,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new AGraph_SI(),        "graph");
     addCommonInterface(new AHist_SI(),         "hist");
     addCommonInterface(new ATree_SI(),         "tree");
+    addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new ADemo_SI(),         "demo");
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");

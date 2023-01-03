@@ -6,7 +6,7 @@
 class A3Global;
 class MainWindow;
 class ANetworkModule;
-class AGStyle_SI;
+class ARootStyle_SI;
 
 namespace Ui {
 class AGlobSetWindow;
@@ -23,7 +23,7 @@ public:
     void updateGui();
     void setTab(int iTab);
 
-    AGStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
+    ARootStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
 
 protected:
     bool event(QEvent *event);

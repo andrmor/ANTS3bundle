@@ -2,7 +2,6 @@
 #define A3GLOBAL_H
 
 #include <QString>
-//#include <QStringList>
 #include <QJsonObject>
 
 class A3Global final
@@ -21,8 +20,6 @@ private:
     A3Global& operator=(A3Global&&)      = delete;
 
 public:
-    // !!!*** need renaming
-
     // Dirs
     QString ExchangeDir;   // can be changed, therefore it is saved
     QString ExecutableDir;
@@ -44,10 +41,10 @@ public:
     // Script window
     QJsonObject JavaScriptJson;
     QJsonObject PythonJson;
-    QString SW_FontFamily; //empty => Qt standard settings will be used
-    int SW_FontSize = 12;
-    int SW_FontWeight = false;
-    bool SW_Italic = false;
+    QString SW_FontFamily;         //empty => Qt standard settings will be used
+    int     SW_FontSize   = 12;
+    int     SW_FontWeight = false;
+    bool    SW_Italic     = false;
 
     /*
     bool RecTreeSave_IncludePMsignals = true;
