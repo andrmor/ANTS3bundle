@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>371</height>
+    <height>376</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -200,6 +200,15 @@
          <height>0</height>
         </size>
        </property>
+       <property name="whatsThis">
+        <string>Ascii:
+#EventIndex
+particle_name Energy[keV] X[mm] Y[mm] Z[mm] DirX DirY DirZ Time[ns]
+
+Binary:
+0xEE EventIndex(int)
+0xFF particle_name(0-term string) Energy[keV](double) X(double) Y(double) Z(double) DirX(double) DirY(double) DirZ(double) Time[ns](double)</string>
+       </property>
        <property name="text">
         <string>Save particles</string>
        </property>
@@ -383,6 +392,15 @@
          <width>125</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Ascii:
+#EventIndex
+particle_name matId DepoEnergy[keV] X[mm] Y[mm] Z[mm] Time[ns]
+
+Binary:
+0xEE EventIndex(int)
+0xFF particle_name(0-term string) matId(int) DepoEnergy[keV](double) X(double) Y(double) Z(double) Time[ns](double)</string>
        </property>
        <property name="text">
         <string>Deposition</string>
