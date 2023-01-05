@@ -29,7 +29,7 @@ public:
 
     int getTotalEnergy() const;
 
-    QString Name = "Undefined";
+    //QString Name = "Undefined";
     ACalorimeterProperties Properties;
 
     ATH3D * Deposition = nullptr;

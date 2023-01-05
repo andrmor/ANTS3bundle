@@ -485,8 +485,6 @@ void AParticleSimWin::updateGeneralControlInResults()
 {
     updateMonitorGui();
     updateCalorimeterGui();
-
-    // !!!*** sensor map?
 }
 
 void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem *)
@@ -494,13 +492,12 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
     on_pbEditParticleSource_clicked();
 }
 
-#include "TGeoManager.h"
 #include "afileparticlegenerator.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
 //    WindowNavigator->BusyOn();   // -->   !!!***
 
-    gGeoManager->ClearTracks();
+    AParticleSourcePlotter::clearTracks();
 
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
@@ -557,6 +554,7 @@ void AParticleSimWin::configureAngleStat(AParticleGun * gun)
     SourceStatDirection = ps->getCollimationDirection(0);
 }
 
+#include "TGeoManager.h"
 void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics)
 {
     AErrorHub::clear();
@@ -653,7 +651,7 @@ void AParticleSimWin::disableGui(bool flag)
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
-    gGeoManager->ClearTracks();
+    AParticleSourcePlotter::clearTracks();
     emit requestClearMarkers(0);
 
     if (checked)
@@ -2210,7 +2208,7 @@ void AParticleSimWin::updateCalorimeterGui()
         if (Cal)
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            double total = Cal->getTotalEnergy() * getCalorimeterEnergyFactor();
+            const double total = Cal->getTotalEnergy() * getCalorimeterEnergyFactor();
             ui->leCalorimetersTotal->setText( QString::number(total) );
             ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
             ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);

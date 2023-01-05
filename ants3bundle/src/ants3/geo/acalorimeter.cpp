@@ -34,7 +34,7 @@ int ACalorimeter::getTotalEnergy() const
     return Stats[0];
 }
 
-bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
+bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj)
 {
     const ACalorimeterProperties * props = geoObj->getCalorimeterProperties();
     if (!props)
@@ -45,12 +45,12 @@ bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
 
     Properties = *props;
 
-    Name = geoObj->Name;
+    //Name = geoObj->Name;
 
     return true;
 }
 
-void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const // !!!*** TODO
+void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const
 {
     json["CalorimeterIndex"] = index;
 

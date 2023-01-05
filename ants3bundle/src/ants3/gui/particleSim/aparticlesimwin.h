@@ -238,7 +238,6 @@ private slots:
     void on_leCalorimetersFileName_editingFinished();
 
     void on_pbSaveParticleSource_clicked();
-
     void on_pbLoadParticleSource_clicked();
 
 signals:
