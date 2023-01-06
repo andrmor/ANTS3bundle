@@ -226,7 +226,7 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
     switch (Source.TimeOffsetMode)
     {
     default:
-    case AParticleSourceRecord::FixedOffset              : time = Source.TimeFixedOffset;                                          break;
+    case AParticleSourceRecord::FixedOffset              : time = Source.TimeFixedOffset;                                      break;
     case AParticleSourceRecord::ByEventIndexOffset       : time = Source.TimeByEventStart + iEvent * Source.TimeByEventPeriod; break;
     case AParticleSourceRecord::CustomDistributionOffset : time = Source._TimeSampler.getRandom();                             break;
     }
@@ -237,10 +237,10 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
     case AParticleSourceRecord::NoSpread :
         break;
     case AParticleSourceRecord::GaussianSpread :
-        time = ARandomHub::getInstance().gauss(time, Source.TimeSpreadSigma);
+        time += ARandomHub::getInstance().gauss(0, Source.TimeSpreadSigma);
         break;
     case AParticleSourceRecord::UniformSpread :
-        time += (-0.5 * Source.TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source.TimeSpreadWidth);
+        time += Source.TimeSpreadWidth * (ARandomHub::getInstance().uniform() - 0.5);
         break;
     case AParticleSourceRecord::ExponentialSpread :
         constexpr double ln2 = std::log(2.0);

@@ -528,7 +528,7 @@ std::string AParticleSourceRecord::check() const
         if (TimeSpreadSigma < 0) return "Time spread sigma cannot be negative";
         break;
     case ExponentialSpread :
-        if (TimeHalfLifePrefUnit <= 0) return "Half-life should be positive";
+        if (TimeSpreadHalfLife <= 0) return "Half-life should be positive";
         break;
     default : break;
     }
