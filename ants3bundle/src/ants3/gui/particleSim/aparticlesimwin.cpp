@@ -690,7 +690,7 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 void AParticleSimWin::on_pbSimulate_clicked()
 {
     A3Global::getInstance().saveConfig();
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json", false);
 
     clearResultsGui();
 

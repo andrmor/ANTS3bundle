@@ -27,7 +27,7 @@ private:
 public:
     AParticleSimSettings  Settings;
 
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool saveRunSet) const;
     void readFromJson(const QJsonObject & json);
 
     void clear();

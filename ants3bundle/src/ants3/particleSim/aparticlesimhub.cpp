@@ -12,10 +12,10 @@ const AParticleSimHub &AParticleSimHub::getConstInstance()
     return getInstance();
 }
 
-void AParticleSimHub::writeToJson(QJsonObject &json) const
+void AParticleSimHub::writeToJson(QJsonObject & json, bool saveRunSet) const
 {
     QJsonObject js;
-    Settings.writeToJson(js);
+    Settings.writeToJson(js, saveRunSet);
     json["ParticleSim"] = js;
 }
 

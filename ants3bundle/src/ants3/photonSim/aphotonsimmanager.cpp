@@ -416,8 +416,8 @@ void APhotonSimManager::makeWorkerConfigFile(A3NodeWorkerConfig & Worker, APhoto
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
 
     QJsonObject json;
-    AConfig::getInstance().writeToJson(json);
-    WorkSet.writeToJson(json);
+    AConfig::getInstance().writeToJson(json, true);
+    WorkSet.writeToJson(json, true);
     QString ConfigFN = QString("config-%0.json").arg(iProcess);
     jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
     Worker.ConfigFile = ConfigFN;

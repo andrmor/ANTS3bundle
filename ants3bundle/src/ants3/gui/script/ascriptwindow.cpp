@@ -706,7 +706,7 @@ void AScriptWindow::onJsonTWCollapsed(QTreeWidgetItem *item)
 void AScriptWindow::updateJsonTree()
 {
     AConfig & Config = AConfig::getInstance();
-    Config.updateJSONfromConfig();
+    Config.updateJSONfromConfig(false);
 
     trwJson->clear();
 

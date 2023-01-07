@@ -290,7 +290,7 @@ void MainWindow::on_actionSave_configuration_triggered()
     if (fileName.isEmpty()) return;
     if (!fileName.endsWith(".json")) fileName += ".json";
 
-    QString err = Config.save(fileName);
+    QString err = Config.save(fileName, false);
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
@@ -318,17 +318,17 @@ void MainWindow::on_actionLoad_last_config_triggered()
 
 void MainWindow::on_actionQuickSave_slot_1_triggered()
 {
-    Config.save(GlobSet.getQuickFileName(1));
+    Config.save(GlobSet.getQuickFileName(1), false);
 }
 
 void MainWindow::on_actionQuickSave_slot_2_triggered()
 {
-    Config.save(GlobSet.getQuickFileName(2));
+    Config.save(GlobSet.getQuickFileName(2), false);
 }
 
 void MainWindow::on_actionQuickSave_slot_3_triggered()
 {
-    Config.save(GlobSet.getQuickFileName(1));
+    Config.save(GlobSet.getQuickFileName(1), false);
 }
 
 void MainWindow::on_actionQuickLoad_slot_1_triggered()
@@ -450,7 +450,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     A3Global::getInstance().saveConfig();
 
     qDebug() << "<Saving current configuration";
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json", false);
 
     qDebug() << "<Stopping Root update timer-based cycle";
     RootUpdateTimer->stop();
@@ -525,7 +525,7 @@ void MainWindow::on_pbNew_clicked()
     Config.ConfigName = "";
     Config.ConfigDescription = "";
 
-    AConfig::getInstance().updateJSONfromConfig();
+    AConfig::getInstance().updateJSONfromConfig(false);
 
     updateAllGuiFromConfig();
 }

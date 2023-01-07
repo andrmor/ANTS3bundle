@@ -42,7 +42,7 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json, bool minimal = false) const;
+    void writeToJson(QJsonObject & json, bool saveRunSet) const;
     void readFromJson(const QJsonObject & json);  // !!!*** add error handling!
 #endif
 

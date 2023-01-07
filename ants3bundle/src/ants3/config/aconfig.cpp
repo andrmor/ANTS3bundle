@@ -27,12 +27,12 @@ AConfig::AConfig()
         lines += QString("%0-abcdef\n").arg(i);
 }
 
-void AConfig::updateJSONfromConfig()
+void AConfig::updateJSONfromConfig(bool saveRunSet)
 {
     // if gui is present, save gui settings
     emit requestSaveGuiSettings();
 
-    writeToJson(JSON);
+    writeToJson(JSON, saveRunSet);
 }
 
 QString AConfig::updateConfigFromJSON()
@@ -49,16 +49,16 @@ QString AConfig::load(const QString & fileName)
     return readFromJson(json);
 }
 
-QString AConfig::save(const QString & fileName)
+QString AConfig::save(const QString & fileName, bool saveRunSet)
 {
-    updateJSONfromConfig();
+    updateJSONfromConfig(saveRunSet);
 
     bool ok = jstools::saveJsonToFile(JSON, fileName);
     if (ok) return "";
     else    return "Cannot open file to save config:\n" + fileName;
 }
 
-void AConfig::writeToJson(QJsonObject & json) const
+void AConfig::writeToJson(QJsonObject & json, bool saveRunSet) const
 {
     json["ConfigName"]        = ConfigName;
     json["ConfigDescription"] = ConfigDescription;
@@ -68,8 +68,8 @@ void AConfig::writeToJson(QJsonObject & json) const
     AInterfaceRuleHub::getInstance().writeToJson(json);
     ASensorHub::getConstInstance().writeToJson(json);
 
-    APhotonSimHub::getConstInstance().writeToJson(json);
-    AParticleSimHub::getConstInstance().writeToJson(json);
+    APhotonSimHub::getConstInstance().writeToJson(json, saveRunSet);
+    AParticleSimHub::getConstInstance().writeToJson(json, saveRunSet);
 
     // Reconstruction
     // LRFs

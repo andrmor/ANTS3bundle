@@ -675,7 +675,7 @@ void APhotSimRunSettings::clear()
 
 // ---
 
-void APhotonSimSettings::writeToJson(QJsonObject & json) const
+void APhotonSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) const
 {
     QJsonObject jsSim;
     // Wave
@@ -719,6 +719,7 @@ void APhotonSimSettings::writeToJson(QJsonObject & json) const
         jsSim["PhotonFile"] = js;
     }
     //Run
+    if (saveRunSet)
     {
         QJsonObject js;
         RunSet.writeToJson(js);

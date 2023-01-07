@@ -297,7 +297,7 @@ public:
 
     APhotSimRunSettings  RunSet;
 
-    void    writeToJson(QJsonObject & json) const;
+    void    writeToJson(QJsonObject & json, bool saveRunSet) const;
     QString readFromJson(const QJsonObject & json);
 
     void    clear();

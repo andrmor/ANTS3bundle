@@ -22,9 +22,10 @@ void AParticleSimSettings::clearSettings()
 }
 
 #ifndef JSON11
-void AParticleSimSettings::writeToJson(QJsonObject & json, bool minimal) const
+void AParticleSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) const
 {
     //Run settings -> modified by the simulation manager for each process!
+    if (saveRunSet)
     {
         QJsonObject js;
         RunSet.writeToJson(js);
@@ -55,28 +56,19 @@ void AParticleSimSettings::writeToJson(QJsonObject & json, bool minimal) const
     json["ClusterMergeRadius"] = ClusterRadius;
     json["ClusterMergeTime"] = ClusterTime;
 
-    if (!minimal || GenerationMode == Sources)
+    if (!saveRunSet || GenerationMode == Sources)
     {
         QJsonObject js;
             SourceGenSettings.writeToJson(js);
         json["GenerationFromSources"] = js;
     }
 
-    if (!minimal || GenerationMode == File)
+    if (!saveRunSet || GenerationMode == File)
     {
         QJsonObject js;
             FileGenSettings.writeToJson(js);
         json["GenerationFromFile"] = js;
     }
-
-/*
-    if (!minimal || GenerationMode == Script)
-    {
-        QJsonObject js;
-            ScriptGenSettings.writeToJson(js);
-        json["GenerationFromScript"] = js;
-    }
-*/
 }
 #endif
 
