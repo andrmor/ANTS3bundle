@@ -1,5 +1,5 @@
 #include "aserverdelegate.h"
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -15,7 +15,7 @@
 
 #include <QDebug>
 
-AServerDelegate::AServerDelegate(A3FarmNodeRecord * modelRecord) : QFrame(), modelRecord(modelRecord)
+AServerDelegate::AServerDelegate(AFarmNodeRecord * modelRecord) : QFrame(), modelRecord(modelRecord)
 {
     setFrameShape(QFrame::NoFrame);
 
@@ -127,25 +127,25 @@ void AServerDelegate::updateGui()
 {
     switch (modelRecord->Status)
     {
-    case A3FarmNodeRecord::Unknown:
+    case AFarmNodeRecord::Unknown:
         setIcon(0);
 //        pbProgress->setEnabled(false);
 //        pbProgress->setValue(0);
         break;
-    case A3FarmNodeRecord::Connecting:
+    case AFarmNodeRecord::Connecting:
         setIcon(0);
 //        pbProgress->setEnabled(true);
         break;
-    case A3FarmNodeRecord::Available:
+    case AFarmNodeRecord::Available:
         setIcon(1);
 //        pbProgress->setEnabled(true);
         break;
-    case A3FarmNodeRecord::NotResponding:
+    case AFarmNodeRecord::NotResponding:
         setIcon(2);
 //        pbProgress->setEnabled(false);
 //        pbProgress->setValue(0);
         break;
-    case A3FarmNodeRecord::Busy:
+    case AFarmNodeRecord::Busy:
         setIcon(3);
 //        pbProgress->setEnabled(false);
 //        pbProgress->setValue(0);

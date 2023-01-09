@@ -4,7 +4,7 @@
 #include "asourceparticlegenerator.h"
 #include "afileparticlegenerator.h"
 #include "ageometryhub.h"
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "a3workdistrconfig.h"
 #include "adispatcherinterface.h"
 #include "a3global.h"
@@ -55,7 +55,7 @@ void AParticleSimManager::simulate(int numLocalProc)
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
     // configure number of local/remote processes to run
-    std::vector<A3FarmNodeRecord> RunPlan;
+    std::vector<AFarmNodeRecord> RunPlan;
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
@@ -181,7 +181,7 @@ int AParticleSimManager::getNumberEvents() const
     return numEvents;
 }
 
-bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "g4ants3";
 
@@ -205,7 +205,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
     int iEvent = 0;
     int iProcess = 0;
-    for (const A3FarmNodeRecord & r : RunPlan)   // per node server
+    for (const AFarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;

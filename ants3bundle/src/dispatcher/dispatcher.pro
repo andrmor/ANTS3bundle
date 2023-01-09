@@ -29,6 +29,7 @@ INCLUDEPATH += ../ants3/config
 INCLUDEPATH += ../ants3/tools
 
 SOURCES += main.cpp \
+    ../ants3/farm/afarmnoderecord.cpp \
     a3dispatcher.cpp \
     a3processhandler.cpp \
     ../ants3/dispatch/a3workdistrconfig.cpp \
@@ -39,7 +40,7 @@ HEADERS += \
     a3dispatcher.h \
     a3processhandler.h \
     ../ants3/dispatch/a3workdistrconfig.h \
-    ../ants3/farm/a3farmnoderecord.h \
+    ../ants3/farm/afarmnoderecord.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h
 

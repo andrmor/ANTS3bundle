@@ -1,15 +1,17 @@
-#ifndef A3FARMNODERECORD_H
-#define A3FARMNODERECORD_H
+#ifndef AFARMNODERECORD_H
+#define AFARMNODERECORD_H
 
 #include <QString>
 
 #include <vector>
 
-class A3FarmNodeRecord
+class QJsonObject;
+
+class AFarmNodeRecord
 {
 public:
-    A3FarmNodeRecord(QString Address, int Port, int Cores) : Address(Address), Port(Port), Processes(Cores) {}
-    A3FarmNodeRecord(){}
+    AFarmNodeRecord(QString Address, int Port, int Cores) : Address(Address), Port(Port), Processes(Cores) {}
+    AFarmNodeRecord(){}
 
     enum EStatus {Unknown, Connecting, Available, NotResponding, Busy};
 
@@ -19,11 +21,14 @@ public:
     int     Processes   = 1;
     double  SpeedFactor = 1.0;
     bool    Enabled     = true;
-    EStatus Status      = Unknown;
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     //runtime
+    EStatus Status      = Unknown;
     bool    Checked     = false;
     std::vector<int> Split;
 };
 
-#endif // A3FARMNODERECORD_H
+#endif // AFARMNODERECORD_H

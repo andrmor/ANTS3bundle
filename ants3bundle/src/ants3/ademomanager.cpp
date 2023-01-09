@@ -36,7 +36,7 @@ bool ADemoManager::run(int numLocalProc)
         return false;
     }
 
-    std::vector<A3FarmNodeRecord> RunPlan;
+    std::vector<AFarmNodeRecord> RunPlan;
     QString err = Dispatch.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
     {
@@ -44,7 +44,7 @@ bool ADemoManager::run(int numLocalProc)
         return false;
     }
     qDebug() << "Obtained run plan over local/farm nodes:";
-    for (A3FarmNodeRecord & r : RunPlan) qDebug() << r.Address << r.Split;
+    for (AFarmNodeRecord & r : RunPlan) qDebug() << r.Address << r.Split;
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
@@ -75,7 +75,7 @@ void ADemoManager::abort()
     bAborted = true;
 }
 
-bool ADemoManager::configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool ADemoManager::configure(std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "demo"; // name of the corresponding executable
 
@@ -87,7 +87,7 @@ bool ADemoManager::configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDist
     int iEvent = 0;
     int iProcess = 0;
     OutputFiles.clear();
-    for (A3FarmNodeRecord & r : RunPlan)
+    for (AFarmNodeRecord & r : RunPlan)
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;

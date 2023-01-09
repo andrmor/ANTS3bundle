@@ -1,7 +1,7 @@
 #ifndef APARTICLESIMMANAGER_H
 #define APARTICLESIMMANAGER_H
 
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "afilemerger.h"
 
 #include <QObject>
@@ -68,7 +68,7 @@ private:
     void checkDirectories();
     void checkG4Settings();
 
-    bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     void configureMaterials();
     void configureMonitors();

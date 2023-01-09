@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QFrame>
 
-class A3FarmNodeRecord;
+class AFarmNodeRecord;
 class QLineEdit;
 class QCheckBox;
 class QSpinBox;
@@ -16,12 +16,12 @@ class AServerDelegate : public QFrame
 {
     Q_OBJECT
 public:
-    AServerDelegate(A3FarmNodeRecord * modelRecord = nullptr);
+    AServerDelegate(AFarmNodeRecord * modelRecord = nullptr);
 
     void updateGui();
 
 private:
-    A3FarmNodeRecord * modelRecord;
+    AFarmNodeRecord * modelRecord;
 
     QLabel    * labStatus;
     QLineEdit * leName;

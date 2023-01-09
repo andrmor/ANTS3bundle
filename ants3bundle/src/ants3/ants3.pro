@@ -100,6 +100,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     geo/agridhub.cpp \
@@ -296,6 +297,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    farm/afarmnoderecord.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
     geo/agridelementrecord.h \
@@ -476,7 +478,6 @@ HEADERS += \
     materials/amaterialcomposition.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \
-    farm/a3farmnoderecord.h \
     tools/aerrorhub.h \
     tools/ageowriter.h \
     tools/ahistogram.h \

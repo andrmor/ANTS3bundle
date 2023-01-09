@@ -40,7 +40,7 @@ void ARemoteWindow::updateGui()
 {
     clear();
 
-    for (A3FarmNodeRecord * node : FarmHub.getNodes())
+    for (AFarmNodeRecord * node : FarmHub.getNodes())
         addNewNodeDelegate(node);
 
     ui->cbUseLocal->setChecked(FarmHub.UseLocal);
@@ -58,7 +58,7 @@ void ARemoteWindow::onBusy(bool flag)
     ui->lwServers->setDisabled(flag);
 }
 
-void ARemoteWindow::addNewNodeDelegate(A3FarmNodeRecord * record)
+void ARemoteWindow::addNewNodeDelegate(AFarmNodeRecord * record)
 {
     AServerDelegate* delegate = new AServerDelegate(record);
     Delegates.push_back(delegate);
