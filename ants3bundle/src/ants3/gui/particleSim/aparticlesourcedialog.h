@@ -63,14 +63,11 @@ private slots:
     void on_pbTimeCustomDelete_clicked();
     void on_cbTimeCustomRanged_clicked(bool checked);
 
-    void on_pbAbort_clicked();
-
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
     void requestShowSource();
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
-    void requestAbort();
 
 private:
     AParticleSourceRecord         LocalRec;

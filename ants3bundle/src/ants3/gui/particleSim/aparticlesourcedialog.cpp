@@ -113,8 +113,6 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
 
     on_cobGunSourceType_currentIndexChanged(ui->cobGunSourceType->currentIndex());
 
-    ui->pbAbort->setVisible(false);
-
     restorePersistentSettings();
 }
 
@@ -187,8 +185,6 @@ void AParticleSourceDialog::on_pbReject_clicked()
 
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
-    ui->pbGunTest->setEnabled(false); //-->
-
     AParticleSourcePlotter::clearTracks();
     if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
@@ -197,23 +193,26 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
     settings.SourceData.back().Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
-    ui->pbAbort->setVisible(true);
-
     auto abort = [&gun]{gun.AbortRequested = true;};
-    QObject host;
+    QDialog D(this);
+    D.setWindowTitle("Particle generator");
+    D.setMinimumWidth(250);
+    QHBoxLayout * lay = new QHBoxLayout(&D);
+    lay->addWidget(new QLabel("Generating..."));
+    QPushButton * pb = new QPushButton("Abort");
+    lay->addWidget(pb);
+    connect(pb, &QPushButton::clicked, &D, &QDialog::reject);
+    connect(&D, &QDialog::rejected, &D, abort); // react both to close and button click
+    D.setModal(true);
+    D.move(mapToGlobal(ui->pbGunTest->pos()));
 
-    connect(this, &AParticleSourceDialog::requestAbort, &host, abort);
+    this->setDisabled(true);   //-->
+    D.setEnabled(true);
+    D.show();
 
     emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
-    ui->pbAbort->setVisible(false);
-
-    ui->pbGunTest->setEnabled(true);  // <--
-}
-
-void AParticleSourceDialog::on_pbAbort_clicked()
-{
-    emit requestAbort();
+    this->setDisabled(false);  // <--
 }
 
 void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
