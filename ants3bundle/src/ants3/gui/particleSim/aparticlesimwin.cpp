@@ -495,17 +495,6 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
 #include "afileparticlegenerator.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
-//    WindowNavigator->BusyOn();   // -->   !!!***
-
-    AParticleSourcePlotter::clearTracks();
-
-    if (ui->cobParticleGenerationMode->currentIndex() == 0)
-    {
-        if (ui->pbGunShowSource->isChecked())
-            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(s);
-    }
-
     AParticleGun * pg = nullptr;
     switch (ui->cobParticleGenerationMode->currentIndex())
     {
@@ -514,29 +503,39 @@ void AParticleSimWin::on_pbGunTest_clicked()
         break;
     case 1:
         pg = SimManager.Generator_File;
-        SimManager.Generator_File->checkFile(false);
+        SimManager.Generator_File->checkFile(false);  // !!!*** error?
         break;
     default:
         guitools::message("This generation mode is not implemented!", this);
-//        WindowNavigator->BusyOff(); // <--
         return;
     }
+
+    AParticleSourcePlotter::clearTracks();
+    if (ui->cobParticleGenerationMode->currentIndex() == 0)
+    {
+        if (ui->pbGunShowSource->isChecked())
+            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
+                AParticleSourcePlotter::plotSource(s);
+    }
+
+    emit requestBusyStatus(true);   // -->   !!!***
+onBusyStatusChange(true);
 
     ui->pbAbort->setEnabled(true);
     QFont font = ui->pbAbort->font();
     font.setBold(true);
     ui->pbAbort->setFont(font);
+    QApplication::processEvents();
 
     testParticleGun(pg, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
-    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
-
     ui->pbAbort->setEnabled(false);
-    ui->pbAbort->setText("stop");
     font.setBold(false);
     ui->pbAbort->setFont(font);
+    emit requestBusyStatus(false);  // <--  !!!***
+onBusyStatusChange(false);
 
-//    WindowNavigator->BusyOff();  // <--
+    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 }
 
 void AParticleSimWin::configureAngleStat(AParticleGun * gun)
@@ -610,6 +609,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         //if (!bOK || numTracks > 10000) break;
         if (!bOK) break;
     }
+
+    if (gun->AbortRequested) return;
 
     emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
@@ -741,6 +742,26 @@ void AParticleSimWin::updateResultsGui()
             updateCalorimeterGui(); // data will be already loaded for merging
         }
     }
+}
+
+void AParticleSimWin::onBusyStatusChange(bool busy)
+{
+    bool bEnable = !busy;
+
+    ui->tabGeant4->setEnabled(bEnable);
+    ui->tabResults->setEnabled(bEnable);
+
+    ui->swParticleGenerationMode->setEnabled(bEnable);
+
+    ui->cobParticleGenerationMode->setEnabled(bEnable);
+    ui->pbGunTest->setEnabled(bEnable);
+    ui->sbGunTestEvents->setEnabled(bEnable);
+    ui->cbShowStatistics->setEnabled(bEnable);
+
+    ui->sbEvents->setEnabled(bEnable);
+    ui->pbConfigureOutput->setEnabled(bEnable);
+    ui->pbSimulate->setEnabled(bEnable);
+    ui->cbAutoLoadResults->setEnabled(bEnable);
 }
 
 void AParticleSimWin::on_pbLoadAllResults_clicked()
@@ -2492,3 +2513,11 @@ void AParticleSimWin::on_pbLoadParticleSource_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 }
+
+void AParticleSimWin::on_pbAbort_clicked()
+{
+    //emit requestAbort();
+    SimManager.Generator_Sources->AbortRequested = true;
+    SimManager.Generator_File->AbortRequested = true;
+}
+

@@ -17,9 +17,10 @@
     #include "G4Material.hh"
     #include "G4NistManager.hh"
 #else
-    #include "TGeoManager.h"
+    #include <QApplication>
     #include "amaterialhub.h"
     #include "arandomhub.h"
+    #include "TGeoManager.h"
 #endif
 
 ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGeneratorSettings & settings) :
@@ -154,6 +155,7 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 
             TGeoNode * node = gGeoManager->FindNode(R[0], R[1], R[2]);
             if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[iSource]) break;
+            QApplication::processEvents();
         }
         while (attempts-- != 0);
     }
@@ -191,7 +193,13 @@ void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotr
         if (src.UseCutOff)
         {
             while (angle > src.CutOff)
+            {
                 angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+#ifndef GEANT4
+                QApplication::processEvents();
+                if (AbortRequested) break;
+#endif
+            }
         }
 
         AVector3 K1(0, 0, 1.0);
@@ -208,7 +216,13 @@ void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotr
         if (src.UseCutOff)
         {
             while (angle > src.CutOff)
+            {
                 angle = src._AngularSampler.getRandom();
+#ifndef GEANT4
+                QApplication::processEvents();
+                if (AbortRequested) break;
+#endif
+            }
         }
 
         AVector3 K1(0, 0, 1.0);
@@ -342,6 +356,10 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
 
             addGeneratedParticle(iSource, thisParticle, position, time, true, handler);
         }
+
+#ifndef GEANT4
+            if (AbortRequested) return false;
+#endif
     }
 
     return true;

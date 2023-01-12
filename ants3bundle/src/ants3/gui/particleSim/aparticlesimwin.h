@@ -35,6 +35,7 @@ public:
 public slots:
     void updateGui();
     void updateResultsGui();
+    void onBusyStatusChange(bool busy);
 
 private slots:
     // auto-updates
@@ -135,6 +136,8 @@ signals:
     void requestAddMarker(const double *);
     void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
     void requestConfigureExchangeDir();
+    void killSourceDialog();
+    void requestBusyStatus(bool flag);
 
 private:
     AParticleSimSettings  & SimSet;
@@ -240,8 +243,7 @@ private slots:
     void on_pbSaveParticleSource_clicked();
     void on_pbLoadParticleSource_clicked();
 
-signals:
-    void killSourceDialog();
+    void on_pbAbort_clicked();
 };
 
 #endif // APARTICLESIMWIN_H
