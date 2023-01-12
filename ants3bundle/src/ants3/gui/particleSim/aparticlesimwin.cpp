@@ -2518,5 +2518,6 @@ void AParticleSimWin::on_pbAbort_clicked()
 {
     SimManager.Generator_Sources->AbortRequested = true;
     SimManager.Generator_File->AbortRequested = true;
+    SimManager.abort();
 }
 

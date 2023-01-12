@@ -78,6 +78,12 @@ void AParticleSimManager::simulate(int numLocalProc)
     if (!AErrorHub::isError()) mergeOutput(!SimSet.RunSet.AsciiOutput);
 }
 
+void AParticleSimManager::abort()
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    Dispatcher.abortTask();
+}
+
 void AParticleSimManager::processReply(const QJsonObject & Reply)
 {
     //qDebug() << "<<<<<<<--------------->>>>>>>>";
