@@ -199,11 +199,21 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
 
     ui->pbAbort->setVisible(true);
 
+    auto abort = [&gun]{gun.AbortRequested = true;};
+    QObject host;
+
+    connect(this, &AParticleSourceDialog::requestAbort, &host, abort);
+
     emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
     ui->pbAbort->setVisible(false);
 
     ui->pbGunTest->setEnabled(true);  // <--
+}
+
+void AParticleSourceDialog::on_pbAbort_clicked()
+{
+    emit requestAbort();
 }
 
 void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)

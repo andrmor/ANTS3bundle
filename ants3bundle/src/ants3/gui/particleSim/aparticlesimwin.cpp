@@ -2516,7 +2516,6 @@ void AParticleSimWin::on_pbLoadParticleSource_clicked()
 
 void AParticleSimWin::on_pbAbort_clicked()
 {
-    //emit requestAbort();
     SimManager.Generator_Sources->AbortRequested = true;
     SimManager.Generator_File->AbortRequested = true;
 }
