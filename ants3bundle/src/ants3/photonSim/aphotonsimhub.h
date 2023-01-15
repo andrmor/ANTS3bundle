@@ -26,7 +26,7 @@ private:
 public:
     APhotonSimSettings Settings;
 
-    void    writeToJson(QJsonObject & json, bool saveRunSet) const;
+    void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);
 
     void    clear();

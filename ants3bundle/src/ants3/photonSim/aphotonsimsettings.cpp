@@ -557,12 +557,15 @@ void APhotonBombsSettings::clear()
 
 // ---
 
-void APhotSimRunSettings::writeToJson(QJsonObject & json) const
+void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 {
     json["Seed"]                  = Seed;
 
-    json["EventFrom"]             = EventFrom;
-    json["EventTo"]               = EventTo;
+    if (addRuntimeExport)
+    {
+        json["EventFrom"]             = EventFrom;
+        json["EventTo"]               = EventTo;
+    }
 
     json["OutputDirectory"]       = OutputDirectory;
     json["BinaryFormat"]          = BinaryFormat;
@@ -675,7 +678,7 @@ void APhotSimRunSettings::clear()
 
 // ---
 
-void APhotonSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) const
+void APhotonSimSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 {
     QJsonObject jsSim;
     // Wave
@@ -719,10 +722,9 @@ void APhotonSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) const
         jsSim["PhotonFile"] = js;
     }
     //Run
-    if (saveRunSet)
     {
         QJsonObject js;
-        RunSet.writeToJson(js);
+        RunSet.writeToJson(js, addRuntimeExport);
         jsSim["Run"] = js;
     }
 

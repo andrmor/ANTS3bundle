@@ -303,7 +303,7 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
         SensHub.exitPersistentMode();
 
         AConfig & Config = AConfig::getInstance();
-        Config.updateJSONfromConfig(false);
+        Config.updateJSONfromConfig();
         Config.updateConfigFromJSON();
     }
 }

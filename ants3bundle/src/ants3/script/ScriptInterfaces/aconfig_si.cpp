@@ -46,7 +46,7 @@ bool AConfig_SI::load(QString FileName)
 
 bool AConfig_SI::save(QString FileName)
 {
-    QString err = Config.save(FileName, false);
+    QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
     abort("Failed to save config to file " + FileName + " -->\n" + err);
     return false;

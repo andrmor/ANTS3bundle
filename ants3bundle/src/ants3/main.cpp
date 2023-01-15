@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     AMaterialHub::getInstance().addNewMaterial("Vacuum", true);
 
     // should be last line in initialization!
-    AConfig::getInstance().updateJSONfromConfig(false);
+    AConfig::getInstance().updateJSONfromConfig();
 
 #ifdef GUI
     if (argc == 1)

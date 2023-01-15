@@ -41,7 +41,7 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool includeG4ants3Set) const;
     void readFromJson(const QJsonObject & json);
     void initFromHub();
 #endif

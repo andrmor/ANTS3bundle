@@ -49,7 +49,7 @@ void ASaveParticlesSettings::readFromJson(const QJsonObject & json)
 // ---
 
 #ifndef JSON11
-void AParticleRunSettings::writeToJson(QJsonObject &json) const
+void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 {
     json["OutputDirectory"]      = QString(OutputDirectory.data());
 
@@ -64,38 +64,41 @@ void AParticleRunSettings::writeToJson(QJsonObject &json) const
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
 
-    json["EventFrom"]            = EventFrom;
-    json["EventTo"]              = EventTo;
-
-    QJsonArray matAr;
-        for (const auto & mat : Materials) matAr.push_back(mat.data());
-    json["Materials"]            = matAr;
-
-    json["GDML"]                 = QString(GDML.data());
-    json["Receipt"]              = QString(Receipt.data());
-
-    json["GuiMode"]              = false;
-
-    QJsonArray nistAr;
-        for (const auto & mat : MaterialsFromNist)
-        {
-            QJsonArray el;
-            el << QString(mat.first.data()) << QString(mat.second.data());
-            nistAr.push_back(el);
-        }
-    json["MaterialsFromNist"]    = nistAr;
-
     QJsonObject sjs;
         SaveSettings.writeToJson(sjs);
     json["SaveParticles"] = sjs;
 
     QJsonObject mjs;
-        MonitorSettings.writeToJson(mjs);
+        MonitorSettings.writeToJson(mjs, includeG4ants3Set);
     json["MonitorSettings"] = mjs;
 
     QJsonObject cjs;
-        CalorimeterSettings.writeToJson(cjs);
+        CalorimeterSettings.writeToJson(cjs, includeG4ants3Set);
     json["CalorimeterSettings"] = cjs;
+
+    if (includeG4ants3Set)
+    {
+        json["EventFrom"]            = EventFrom;
+        json["EventTo"]              = EventTo;
+
+        QJsonArray matAr;
+            for (const auto & mat : Materials) matAr.push_back(mat.data());
+        json["Materials"]            = matAr;
+
+        QJsonArray nistAr;
+            for (const auto & mat : MaterialsFromNist)
+            {
+                QJsonArray el;
+                el << QString(mat.first.data()) << QString(mat.second.data());
+                nistAr.push_back(el);
+            }
+        json["MaterialsFromNist"]    = nistAr;
+
+        json["GDML"]                 = QString(GDML.data());
+        json["Receipt"]              = QString(Receipt.data());
+
+        json["GuiMode"]              = false; // to be changed by hand in the file if tests are required
+    }
 }
 #endif
 

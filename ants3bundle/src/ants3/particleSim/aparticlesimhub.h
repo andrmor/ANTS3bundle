@@ -27,7 +27,7 @@ private:
 public:
     AParticleSimSettings  Settings;
 
-    void writeToJson(QJsonObject & json, bool saveRunSet) const;
+    void writeToJson(QJsonObject & json, bool exportSimulation) const; // export mode adds g4ants3 settings which are only initialized during simulation initialization phase!
     void readFromJson(const QJsonObject & json);
 
     void clear();

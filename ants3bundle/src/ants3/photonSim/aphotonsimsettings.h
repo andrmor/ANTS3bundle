@@ -256,7 +256,7 @@ public:
 
     APhotonLogSettings LogSet;
 
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     void readFromJson(const QJsonObject & json);
 
     void clear();
@@ -297,7 +297,7 @@ public:
 
     APhotSimRunSettings  RunSet;
 
-    void    writeToJson(QJsonObject & json, bool saveRunSet) const;
+    void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);
 
     void    clear();

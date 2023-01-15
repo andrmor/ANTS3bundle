@@ -24,10 +24,9 @@ public:
     EGenMode GenerationMode = Sources;
     int      Events         = 1;
 
-    bool    bDoS1           = true;  // !!!*** to run settings?
-    bool    bDoS2           = false; // !!!*** to run settings?
-
-    bool    bIgnoreNoDepo   = false; // !!!*** ?
+    //bool    bDoS1           = true;
+    //bool    bDoS2           = false;
+    //bool    bIgnoreNoDepo   = false;
 
     bool    bClusterMerge   = false; // !!!*** to photon from depo settings
     double  ClusterRadius   = 0.1;   // !!!*** to photon from depo settings
@@ -42,7 +41,7 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json, bool saveRunSet) const;
+    void writeToJson(QJsonObject & json, bool exportSimulation) const;
     void readFromJson(const QJsonObject & json);  // !!!*** add error handling!
 #endif
 

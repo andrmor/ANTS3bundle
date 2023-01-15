@@ -258,19 +258,22 @@ void ACalSetRecord::readFromJson(const QJsonObject & json)
 // ---
 
 #ifndef JSON11
-void ACalSettings::writeToJson(QJsonObject & json) const
+void ACalSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 {
     json["Enabled"] = Enabled;
     json["FileName"] = FileName.data();
 
-    QJsonArray ar;
-    for (const ACalSetRecord & c : Calorimeters)
+    if (includeG4ants3Set)
     {
-        QJsonObject js;
-        c.writeToJson(js);
-        ar.append(js);
+        QJsonArray ar;
+        for (const ACalSetRecord & c : Calorimeters)
+        {
+            QJsonObject js;
+            c.writeToJson(js);
+            ar.append(js);
+        }
+        json["Calorimeters"] = ar;
     }
-    json["Calorimeters"] = ar;
 }
 #endif
 

@@ -47,14 +47,14 @@ public:
     QString     to   = "B";
     QString     lines;
 
-    void    updateJSONfromConfig(bool saveRunSet);
+    void    updateJSONfromConfig();
     QString updateConfigFromJSON();
 
     QString load(const QString & fileName);
-    QString save(const QString & fileName, bool saveRunSet);
+    QString save(const QString & fileName);
 
-    void    writeToJson(QJsonObject & json, bool saveRunSet) const;  // !!!*** privat?
-    QString readFromJson(const QJsonObject & json); // !!!*** privat?
+    void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
+    QString readFromJson(const QJsonObject & json);
 
 private:
     QString tryReadFromJson(const QJsonObject & json); // !!!***

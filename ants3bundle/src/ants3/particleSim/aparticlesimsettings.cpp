@@ -5,11 +5,11 @@
 void AParticleSimSettings::clearSettings()
 {
     GenerationMode = Sources;
-    Events     = 1;
+    Events         = 1;
 
-    bDoS1          = true;
-    bDoS2          = false;
-    bIgnoreNoDepo  = false;
+    //bDoS1          = true;
+    //bDoS2          = false;
+    //bIgnoreNoDepo  = false;
     bClusterMerge  = false;
     ClusterRadius  = 0.1;
     ClusterTime    = 1.0;
@@ -22,13 +22,12 @@ void AParticleSimSettings::clearSettings()
 }
 
 #ifndef JSON11
-void AParticleSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) const
+void AParticleSimSettings::writeToJson(QJsonObject & json, bool exportSimulation) const
 {
-    //Run settings -> modified by the simulation manager for each process!
-    if (saveRunSet)
+    //Run settings during exportSimulation -> modified by the simulation manager for each process!
     {
         QJsonObject js;
-        RunSet.writeToJson(js);
+        RunSet.writeToJson(js, exportSimulation);
         json["RunSettings"] = js;
     }
 
@@ -49,21 +48,21 @@ void AParticleSimSettings::writeToJson(QJsonObject & json, bool saveRunSet) cons
     json["ParticleGenerationMode"] = s;
     json["Events"] = Events;
 
-    json["DoS1"] = bDoS1;
-    json["DoS2"] = bDoS2;
-    json["IgnoreNoDepoEvents"] = bIgnoreNoDepo;
+    //json["DoS1"] = bDoS1;
+    //json["DoS2"] = bDoS2;
+    //json["IgnoreNoDepoEvents"] = bIgnoreNoDepo;
     json["ClusterMerge"] = bClusterMerge;
     json["ClusterMergeRadius"] = ClusterRadius;
     json["ClusterMergeTime"] = ClusterTime;
 
-    if (!saveRunSet || GenerationMode == Sources)
+    if (!exportSimulation || GenerationMode == Sources)
     {
         QJsonObject js;
             SourceGenSettings.writeToJson(js);
         json["GenerationFromSources"] = js;
     }
 
-    if (!saveRunSet || GenerationMode == File)
+    if (!exportSimulation || GenerationMode == File)
     {
         QJsonObject js;
             FileGenSettings.writeToJson(js);
@@ -111,9 +110,9 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "Events", Events);
 
-    jstools::parseJson(json, "DoS1", bDoS1);
-    jstools::parseJson(json, "DoS2", bDoS2);
-    jstools::parseJson(json, "IgnoreNoDepoEvents", bIgnoreNoDepo);
+    //jstools::parseJson(json, "DoS1", bDoS1);
+    //jstools::parseJson(json, "DoS2", bDoS2);
+    //jstools::parseJson(json, "IgnoreNoDepoEvents", bIgnoreNoDepo);
     jstools::parseJson(json, "ClusterMerge", bClusterMerge);
     jstools::parseJson(json, "ClusterMergeRadius", ClusterRadius);
     jstools::parseJson(json, "ClusterMergeTime", ClusterTime);

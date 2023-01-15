@@ -691,7 +691,7 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
 void AParticleSimWin::on_pbSimulate_clicked()
 {
     A3Global::getInstance().saveConfig();
-    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json", false);
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
     clearResultsGui();
 
@@ -701,7 +701,7 @@ void AParticleSimWin::on_pbSimulate_clicked()
 
     if (SimManager.isAborted())
     {
-        // need any gui update? e.g. progress bar?
+        ui->progbSim->setValue(0);
         return;
     }
 
