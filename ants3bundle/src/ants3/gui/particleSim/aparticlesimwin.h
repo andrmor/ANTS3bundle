@@ -221,6 +221,9 @@ private:
     void checkWorldSize(AParticleSourceRecord & ps);
     bool isTrackingDataFileExists();
 
+    void findInBulk();
+    void findInTransitions();
+
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
     void onProgressReceived(double progress);

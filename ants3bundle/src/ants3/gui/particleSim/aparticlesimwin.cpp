@@ -1201,6 +1201,19 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     setEnabled(false);
     qApp->processEvents();
 
+    int Selector = ui->twPTHistType->currentIndex();
+    if (Selector == 0) findInBulk();
+    else               findInTransitions();
+
+    QTextCursor txtCursor = ui->ptePTHist->textCursor();
+    txtCursor.setPosition(0);
+    ui->ptePTHist->setTextCursor(txtCursor);
+
+    setEnabled(true);
+}
+
+void AParticleSimWin::findInBulk()
+{
     AFindRecordSelector Opt;
     ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
 
@@ -1220,209 +1233,244 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
 
     int NumThreads = ui->sbNumThreadsStatistics->value();
 
-    int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
-    if (Selector == 0)
+    Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
+    Opt.Material = ui->cobPTHistVolMat->currentIndex();
+    Opt.bVolume = ui->cbPTHistVolVolume->isChecked();
+    Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
+    Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
+    Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
+
+    int What = ui->cobPTHistVolRequestWhat->currentIndex();
+    switch (What)
     {
-        Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
-        Opt.Material = ui->cobPTHistVolMat->currentIndex();
-        Opt.bVolume = ui->cbPTHistVolVolume->isChecked();
-        Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
-        Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
-        Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
-
-        int What = ui->cobPTHistVolRequestWhat->currentIndex();
-        switch (What)
+    case 0:
+      {
+        AHistorySearchProcessor_findParticles p;
+        Crawler.find(Opt, p, NumThreads);
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Particle and number of times:\n");
+        std::vector<std::pair<QString,int>> vec;
+        p.getResults(vec);
+        for (const auto & pair : vec)
+            ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+        break;
+      }
+    case 1:
+      {
+        int mode = ui->cobPTHistVolPlus->currentIndex();
+        if (mode < 0 || mode > 2)
         {
-        case 0:
-          {
-            AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p, NumThreads);
-            ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Particle and number of times:\n");
-            std::vector<std::pair<QString,int>> vec;
-            p.getResults(vec);
-            for (const auto & pair : vec)
-                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-            break;
-          }
-        case 1:
-          {
-            int mode = ui->cobPTHistVolPlus->currentIndex();
-            if (mode < 0 || mode > 2)
-            {
-                guitools::message("Unknown process selection mode", this);
-                setEnabled(true);
-                return;
-            }
+            guitools::message("Unknown process selection mode", this);
+            setEnabled(true);
+            return;
+        }
 
-            AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
-            AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
+        AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
+        AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
+        Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Process and number of times:\n");
+        std::vector<std::pair<QString,int>> vec;
+        p.getResults(vec);
+        for (const auto & pair : vec)
+            ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+
+        selectedModeForProcess = mode;
+        break;
+      }
+    case 2:
+      {
+        AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
+        Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+
+        if (p.Hist->GetEntries() == 0)
+            guitools::message("No trajectories found", this);
+        else
+        {
+            emit requestDraw(p.Hist, "hist", true, true);
+            p.Hist = nullptr;
+        }
+        binsDistance = bins;
+        fromDistance = from;
+        toDistance = to;
+
+        break;
+      }
+    case 3:
+      {
+        int mode = ui->cobPTHistVolPlus->currentIndex();
+        if (mode < 0 || mode > 2)
+        {
+            guitools::message("Unknown energy deposition collection mode", this);
+            setEnabled(true);
+            return;
+        }
+        AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
+
+        if (ui->cbPTHistVolVsTime->isChecked())
+        {
+            AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
             Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
-            ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Process and number of times:\n");
-            std::vector<std::pair<QString,int>> vec;
-            p.getResults(vec);
-            for (const auto & pair : vec)
-                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-
-            selectedModeForProcess = mode;
-            break;
-          }
-        case 2:
-          {
-            AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
+            if (p.Hist2D->GetEntries() == 0)
+                guitools::message("No deposition detected", this);
+            else
+            {
+                emit requestDraw(p.Hist2D, "colz", true, true);
+                p.Hist2D = nullptr;
+            }
+            binsTime = bins2;
+            fromTime = from2;
+            toTime   = to2;
+        }
+        else
+        {
+            AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
             Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
 
             if (p.Hist->GetEntries() == 0)
-                guitools::message("No trajectories found", this);
+                guitools::message("No deposition detected", this);
             else
             {
                 emit requestDraw(p.Hist, "hist", true, true);
                 p.Hist = nullptr;
             }
-            binsDistance = bins;
-            fromDistance = from;
-            toDistance = to;
+        }
+        selectedModeForEnergyDepo = mode;
+        binsEnergy = bins;
+        fromEnergy = from;
+        toEnergy = to;
+        break;
+      }
+    case 4:
+     {
+        AHistorySearchProcessor_getDepositionStats * p = nullptr;
+        if (ui->cbLimitTimeWindow->isChecked())
+        {
+            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
+            Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
+        }
+        else
+        {
+            p = new AHistorySearchProcessor_getDepositionStats();
+            Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
+        }
 
-            break;
-          }
-        case 3:
-          {
-            int mode = ui->cobPTHistVolPlus->currentIndex();
-            if (mode < 0 || mode > 2)
-            {
-                guitools::message("Unknown energy deposition collection mode", this);
-                setEnabled(true);
-                return;
-            }
-            AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Deposition statistics:\n");
 
-            if (ui->cbPTHistVolVsTime->isChecked())
-            {
-                AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+        std::vector< std::tuple<QString,double,double,int,double,double> > data;
+        const double sum = p->getResults(data);
 
-                if (p.Hist2D->GetEntries() == 0)
-                    guitools::message("No deposition detected", this);
-                else
-                {
-                    emit requestDraw(p.Hist2D, "colz", true, true);
-                    p.Hist2D = nullptr;
-                }
-                binsTime = bins2;
-                fromTime = from2;
-                toTime   = to2;
-            }
-            else
-            {
-                AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+        for (const auto & el : data)
+        {
+            QString str = QString("%1\t%2 keV (%3%)\t#: %4")
+                          .arg(std::get<0>(el))
+                          .arg(std::get<1>(el))
+                          .arg( QString::number(std::get<2>(el), 'g', 4) )
+                          .arg(std::get<3>(el));
 
-                if (p.Hist->GetEntries() == 0)
-                    guitools::message("No deposition detected", this);
-                else
-                {
-                    emit requestDraw(p.Hist, "hist", true, true);
-                    p.Hist = nullptr;
-                }
-            }
-            selectedModeForEnergyDepo = mode;
-            binsEnergy = bins;
-            fromEnergy = from;
-            toEnergy = to;
-            break;
-          }
-        case 4:
-         {
-            AHistorySearchProcessor_getDepositionStats * p = nullptr;
-            if (ui->cbLimitTimeWindow->isChecked())
-            {
-                p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
-            }
-            else
-            {
-                p = new AHistorySearchProcessor_getDepositionStats();
-                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
-            }
+            if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
+            if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
 
+            ui->ptePTHist->appendPlainText(str);
+        }
+        ui->ptePTHist->appendPlainText("\n---------\n");
+        ui->ptePTHist->appendPlainText(QString("sum of all listed depositions: %1 keV").arg(sum));
+        delete p;
+        break;
+     }
+    case 5:
+        {
+            AHistorySearchProcessor_findHadronicChannels p;
+            Crawler.find(Opt, p, NumThreads);
             ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Deposition statistics:\n");
-
-            std::vector< std::tuple<QString,double,double,int,double,double> > data;
-            const double sum = p->getResults(data);
-
-            for (const auto & el : data)
-            {
-                QString str = QString("%1\t%2 keV (%3%)\t#: %4")
-                              .arg(std::get<0>(el))
-                              .arg(std::get<1>(el))
-                              .arg( QString::number(std::get<2>(el), 'g', 4) )
-                              .arg(std::get<3>(el));
-
-                if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
-                if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
-
-                ui->ptePTHist->appendPlainText(str);
-            }
-            ui->ptePTHist->appendPlainText("\n---------\n");
-            ui->ptePTHist->appendPlainText(QString("sum of all listed depositions: %1 keV").arg(sum));
-            delete p;
+            ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
             break;
-         }
-        case 5:
+        }
+    default:
+        qWarning() << "Unknown type of volume request";
+    }
+}
+
+void AParticleSimWin::findInTransitions()
+{
+    AFindRecordSelector Opt;
+    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
+
+    Opt.bParticle = ui->cbPTHistParticle->isChecked();
+    Opt.Particle = ui->lePTHistParticle->text();
+    Opt.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
+    Opt.bSecondary = ui->cbPTHistOnlySec->isChecked();
+    Opt.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
+
+    Opt.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
+    Opt.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
+    Opt.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
+    Opt.bEscaping = ui->cbPTHistEscaping->isChecked();
+    Opt.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
+    Opt.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
+    Opt.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
+
+    Opt.bToMat = ui->cbPTHistVolMatTo->isChecked();
+    Opt.ToMat = ui->cobPTHistVolMatTo->currentIndex();
+    Opt.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
+    Opt.bCreated = ui->cbPTHistCreated->isChecked();
+    Opt.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
+    Opt.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
+    Opt.ToVolIndex = ui->sbPTHistVolIndexTo->value();
+
+    int    bins = ui->sbPTHistBinsX->value();
+    double from = ui->ledPTHistFromX->text().toDouble();
+    double to   = ui->ledPTHistToX  ->text().toDouble();
+
+    int    bins2 = ui->sbPTHistBinsY->value();
+    double from2 = ui->ledPTHistFromY->text().toDouble();
+    double to2   = ui->ledPTHistToY  ->text().toDouble();
+
+    int NumThreads = ui->sbNumThreadsStatistics->value();
+
+    QString what = ui->lePTHistBordWhat->text();
+    QString vsWhat = ui->lePTHistBordVsWhat->text();
+    QString andVsWhat = ui->lePTHistBordAndVsWhat->text();
+    QString cuts = ui->lePTHistBordCuts->text();
+
+    bool bVs = ui->cbPTHistBordVs->isChecked();
+    bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
+    bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
+
+    if (!bVs)
+    {
+        //1D stat
+        AHistorySearchProcessor_Border p(what, cuts, bins, from, to);
+        if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+        else
+        {
+            Crawler.find(Opt, p, NumThreads);
+            if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
+            else
             {
-                AHistorySearchProcessor_findHadronicChannels p;
-                Crawler.find(Opt, p, NumThreads);
-                ui->ptePTHist->clear();
-                ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
-                std::vector<std::pair<QString,int>> vec;
-                p.getResults(vec);
-                for (const auto & pair : vec)
-                    ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-                break;
+                emit requestDraw(p.Hist1D, "hist", true, true);
+                p.Hist1D = nullptr;
             }
-        default:
-            qWarning() << "Unknown type of volume request";
         }
     }
     else
     {
-        //Border
-        Opt.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
-        Opt.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
-        Opt.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
-        Opt.bEscaping = ui->cbPTHistEscaping->isChecked();
-        Opt.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
-        Opt.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
-        Opt.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
-
-        Opt.bToMat = ui->cbPTHistVolMatTo->isChecked();
-        Opt.ToMat = ui->cobPTHistVolMatTo->currentIndex();
-        Opt.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
-        Opt.bCreated = ui->cbPTHistCreated->isChecked();
-        Opt.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
-        Opt.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
-        Opt.ToVolIndex = ui->sbPTHistVolIndexTo->value();
-
-        QString what = ui->lePTHistBordWhat->text();
-        QString vsWhat = ui->lePTHistBordVsWhat->text();
-        QString andVsWhat = ui->lePTHistBordAndVsWhat->text();
-        QString cuts = ui->lePTHistBordCuts->text();
-
-        bool bVs = ui->cbPTHistBordVs->isChecked();
-        bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
-        bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
-
-        if (!bVs)
+        // "vs" is activated
+        if (!bVsVs && bAveraged)
         {
-            //1D stat
-            AHistorySearchProcessor_Border p(what, cuts, bins, from, to);
+            //1D vs
+            AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to);
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, NumThreads);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1431,75 +1479,49 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 }
             }
         }
-        else
+        else if (!bVsVs && !bAveraged)
         {
-            // "vs" is activated
-            if (!bVsVs && bAveraged)
+            //2D stat
+            AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to, bins2, from2, to2);
+            if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+            else
             {
-                //1D vs
-                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist1D, "hist", true, true);
-                        p.Hist1D = nullptr;
-                    }
+                    emit requestDraw(p.Hist2D, "colz", true, true);
+                    p.Hist2D = nullptr;
                 }
             }
-            else if (!bVsVs && !bAveraged)
-            {
-                //2D stat
-                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to, bins2, from2, to2);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
-                else
-                {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist2D, "colz", true, true);
-                        p.Hist2D = nullptr;
-                    }
-                }
-                binsB2 = bins2;
-                fromB2 = from2;
-                toB2 = to2;
-            }
-            else if (bVsVs)
-            {
-                //2D vsvs
-                AHistorySearchProcessor_Border p(what, vsWhat, andVsWhat, cuts, bins, from, to, bins2, from2, to2);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
-                else
-                {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist2D, "colz", true, true);
-                        p.Hist2D = nullptr;
-                    }
-                }
-                binsB2 = bins2;
-                fromB2 = from2;
-                toB2 = to2;
-            }
-            else guitools::message("Unexpected mode!", this);
+            binsB2 = bins2;
+            fromB2 = from2;
+            toB2 = to2;
         }
-        binsB1 = bins;
-        fromB1 = from;
-        toB1 = to;
+        else if (bVsVs)
+        {
+            //2D vsvs
+            AHistorySearchProcessor_Border p(what, vsWhat, andVsWhat, cuts, bins, from, to, bins2, from2, to2);
+            if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+            else
+            {
+                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
+                else
+                {
+                    emit requestDraw(p.Hist2D, "colz", true, true);
+                    p.Hist2D = nullptr;
+                }
+            }
+            binsB2 = bins2;
+            fromB2 = from2;
+            toB2 = to2;
+        }
+        else guitools::message("Unexpected mode!", this);
     }
-
-    QTextCursor txtCursor = ui->ptePTHist->textCursor();
-    txtCursor.setPosition(0);
-    ui->ptePTHist->setTextCursor(txtCursor);
-
-    setEnabled(true);
+    binsB1 = bins;
+    fromB1 = from;
+    toB1 = to;
 }
 
 void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)

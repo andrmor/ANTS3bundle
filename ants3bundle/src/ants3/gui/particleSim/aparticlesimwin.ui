@@ -3170,7 +3170,7 @@ and any mathematical/logical operations
 See ROOT TFormula description</string>
                           </property>
                           <property name="text">
-                           <string>Energy * 1e-6</string>
+                           <string>Energy * 1e-3</string>
                           </property>
                          </widget>
                         </item>
