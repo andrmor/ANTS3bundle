@@ -159,6 +159,11 @@ void ADispatcherInterface::abortTask()
     Dispatcher->abortExecution();
 }
 
+bool ADispatcherInterface::isAborted() const
+{
+    return bAbortRequested;
+}
+
 void ADispatcherInterface::onProgressReceived(double progress)
 {
     double val = (NumEvents == 0 ? 0 : progress / NumEvents);

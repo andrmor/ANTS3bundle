@@ -84,6 +84,12 @@ void AParticleSimManager::abort()
     Dispatcher.abortTask();
 }
 
+bool AParticleSimManager::isAborted() const
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    return Dispatcher.isAborted();
+}
+
 void AParticleSimManager::processReply(const QJsonObject & Reply)
 {
     //qDebug() << "<<<<<<<--------------->>>>>>>>";

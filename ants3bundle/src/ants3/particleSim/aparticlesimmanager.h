@@ -44,7 +44,9 @@ public:
     AParticleGun             * ParticleGun       = nullptr; // alias pointing to one of the generators above
 
     void simulate(int numLocalProc = -1);
+
     void abort();
+    bool isAborted() const;
 
     QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
                         bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,

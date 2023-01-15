@@ -699,6 +699,12 @@ void AParticleSimWin::on_pbSimulate_clicked()
     SimManager.simulate();
     disableGui(false);
 
+    if (SimManager.isAborted())
+    {
+        // need any gui update? e.g. progress bar?
+        return;
+    }
+
     if (AErrorHub::isError())
     {
         guitools::message(AErrorHub::getQError(), this);

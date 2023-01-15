@@ -36,7 +36,7 @@ public:
     void        waitForReply();
 
     void        abortTask();
-
+    bool        isAborted() const;
 
 public slots:
     void        aboutToQuit();
@@ -56,7 +56,7 @@ protected:
     QJsonObject    Reply;
     std::mutex     ReplyMutex;
 
-    bool           bAbortRequested = false; // !!!*** need?
+    bool           bAbortRequested = false;
 
 private:
     void clearOutputFiles(const A3WorkDistrConfig & Request);
