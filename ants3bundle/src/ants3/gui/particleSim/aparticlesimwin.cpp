@@ -1232,6 +1232,8 @@ void AParticleSimWin::findInBulk()
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
     int NumThreads = ui->sbNumThreadsStatistics->value();
+    int NumEventsPerThread = ui->ledEventsPerThread->text().toDouble();
+    if (NumEventsPerThread < 1.0) NumEventsPerThread = 1.0;
 
     Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
     Opt.Material = ui->cobPTHistVolMat->currentIndex();
@@ -1246,7 +1248,7 @@ void AParticleSimWin::findInBulk()
     case 0:
       {
         AHistorySearchProcessor_findParticles p;
-        Crawler.find(Opt, p, NumThreads);
+        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
         ui->ptePTHist->clear();
         ui->ptePTHist->appendPlainText("Particle and number of times:\n");
         std::vector<std::pair<QString,int>> vec;
@@ -1267,7 +1269,7 @@ void AParticleSimWin::findInBulk()
 
         AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
         AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-        Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
 
         ui->ptePTHist->clear();
         ui->ptePTHist->appendPlainText("Process and number of times:\n");
@@ -1282,7 +1284,7 @@ void AParticleSimWin::findInBulk()
     case 2:
       {
         AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-        Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
 
         if (p.Hist->GetEntries() == 0)
             guitools::message("No trajectories found", this);
@@ -1311,7 +1313,7 @@ void AParticleSimWin::findInBulk()
         if (ui->cbPTHistVolVsTime->isChecked())
         {
             AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
 
             if (p.Hist2D->GetEntries() == 0)
                 guitools::message("No deposition detected", this);
@@ -1327,7 +1329,7 @@ void AParticleSimWin::findInBulk()
         else
         {
             AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
 
             if (p.Hist->GetEntries() == 0)
                 guitools::message("No deposition detected", this);
@@ -1349,12 +1351,12 @@ void AParticleSimWin::findInBulk()
         if (ui->cbLimitTimeWindow->isChecked())
         {
             p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-            Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
+            Crawler.find(Opt, *p, NumThreads, NumEventsPerThread);
         }
         else
         {
             p = new AHistorySearchProcessor_getDepositionStats();
-            Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
+            Crawler.find(Opt, *p, NumThreads, NumEventsPerThread);
         }
 
         ui->ptePTHist->clear();
@@ -1384,7 +1386,7 @@ void AParticleSimWin::findInBulk()
     case 5:
         {
             AHistorySearchProcessor_findHadronicChannels p;
-            Crawler.find(Opt, p, NumThreads);
+            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
             std::vector<std::pair<QString,int>> vec;
@@ -1434,6 +1436,8 @@ void AParticleSimWin::findInTransitions()
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
     int NumThreads = ui->sbNumThreadsStatistics->value();
+    int NumEventsPerThread = ui->ledEventsPerThread->text().toDouble();
+    if (NumEventsPerThread < 1.0) NumEventsPerThread = 1.0;
 
     QString what = ui->lePTHistBordWhat->text();
     QString vsWhat = ui->lePTHistBordVsWhat->text();
@@ -1451,7 +1455,7 @@ void AParticleSimWin::findInTransitions()
         if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
         else
         {
-            Crawler.find(Opt, p, NumThreads);
+            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
             if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
             else
             {
@@ -1470,7 +1474,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1486,7 +1490,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
                 if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1505,7 +1509,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
+                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
                 if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -2549,3 +2553,13 @@ void AParticleSimWin::on_pbAbort_clicked()
     SimManager.abort();
 }
 
+void AParticleSimWin::on_ledEventsPerThread_editingFinished()
+{
+    bool ok;
+    double numEv = ui->ledEventsPerThread->text().toDouble(&ok);
+    if (!ok || numEv < 1.0)
+    {
+        ui->ledEventsPerThread->setText("1");
+        guitools::message("Number of events per chunk should be at least one", this);
+    }
+}

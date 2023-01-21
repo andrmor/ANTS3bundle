@@ -30,7 +30,7 @@ public:
     //void ForceStop() override;
 
 public slots:
-    void configure(QString fileName, int numThreads = -1);
+    void configure(QString fileName, int numThreads = -1, int eventsPerThread = 1);
 
     void clearCriteria();
     void setParticle(QString particleName);
@@ -71,6 +71,7 @@ public slots:
 private:
     QString FileName;
     int     NumThreads = -1;
+    int     EventsPerThreads = 1;
 
     ATrackingHistoryCrawler * Crawler  = nullptr;
     AFindRecordSelector     * Criteria = nullptr;

@@ -21,10 +21,11 @@ APartAnalysis_SI::~APartAnalysis_SI()
     delete Crawler;
 }
 
-void APartAnalysis_SI::configure(QString fileName, int numThreads)
+void APartAnalysis_SI::configure(QString fileName, int numThreads, int eventsPerThread)
 {
-    FileName    = fileName;
-    NumThreads  = numThreads;
+    FileName         = fileName;
+    NumThreads       = numThreads;
+    EventsPerThreads = eventsPerThread;
 }
 
 void APartAnalysis_SI::clearCriteria()
@@ -173,7 +174,7 @@ QVariantList APartAnalysis_SI::findParticles()
     if (!ok) return vl;
 
     AHistorySearchProcessor_findParticles p;
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     for (const auto & pair : p.FoundParticles)
     {
@@ -201,7 +202,7 @@ QVariantList APartAnalysis_SI::findProcesses(int All0_WithDepo1_TrackEnd2, bool 
     AHistorySearchProcessor_findProcesses::SelectionMode mode = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(All0_WithDepo1_TrackEnd2);
 
     AHistorySearchProcessor_findProcesses p(mode, onlyHadronic, targetIsotopeStartsFrom);
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     for (const auto & pair : p.FoundProcesses)
     {
@@ -219,7 +220,7 @@ QVariantList APartAnalysis_SI::findDepE(AHistorySearchProcessor_findDepositedEne
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     int numBins = p.Hist->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -257,7 +258,7 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats()
     if (!ok) return vl;
 
     AHistorySearchProcessor_getDepositionStats p;
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     for (const auto & dat : p.DepoData)
     {
@@ -279,7 +280,7 @@ QVariantList APartAnalysis_SI::findDepositedEnergyStats(double timeFrom, double 
     if (!ok) return vl;
 
     AHistorySearchProcessor_getDepositionStatsTimeAware p(timeFrom, timeTo);
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     for (const auto & dat : p.DepoData)
     {
@@ -301,7 +302,7 @@ QVariantList APartAnalysis_SI::findTravelledDistances(int bins, double from, dou
     if (!ok) return vl;
 
     AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     int numBins = p.Hist->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -321,7 +322,7 @@ QVariantList APartAnalysis_SI::findhadronicChannels()
     if (!ok) return vl;
 
     AHistorySearchProcessor_findHadronicChannels p;
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     std::vector<std::pair<QString,int>> vec;
     p.getResults(vec);
@@ -343,7 +344,7 @@ const QVariantList APartAnalysis_SI::findOB_1D(AHistorySearchProcessor_Border & 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     int numBins = p.Hist1D->GetXaxis()->GetNbins();
     for (int iBin=1; iBin<numBins+1; iBin++)
@@ -386,7 +387,7 @@ const QVariantList APartAnalysis_SI::findOB_2D(AHistorySearchProcessor_Border & 
     bool ok = initCrawler();
     if (!ok) return vl;
 
-    Crawler->find(*Criteria, p, NumThreads);
+    Crawler->find(*Criteria, p, NumThreads, EventsPerThreads);
 
     int numX = p.Hist2D->GetXaxis()->GetNbins();
     int numY = p.Hist2D->GetYaxis()->GetNbins();

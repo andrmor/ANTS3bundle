@@ -247,6 +247,7 @@ private slots:
     void on_pbLoadParticleSource_clicked();
 
     void on_pbAbort_clicked();
+    void on_ledEventsPerThread_editingFinished();
 };
 
 #endif // APARTICLESIMWIN_H

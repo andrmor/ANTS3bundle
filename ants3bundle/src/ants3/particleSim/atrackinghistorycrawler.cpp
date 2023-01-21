@@ -10,7 +10,7 @@
 #include "TFormula.h"
 
 #include "atrackingdataimporter.h"
-void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
+void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread)
 {
     // !!!*** add error control
 
@@ -37,22 +37,22 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
         }
         processor.afterSearch();
     }
-    else findMultithread(criteria, processor, numThreads);
+    else findMultithread(criteria, processor, numThreads, eventsPerThread);
 }
 
 #include "athreadpool.h"
-void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads)
+void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread)
 {
     processor.beforeSearch();
 
     ATrackingDataImporter dataImporter(FileName);
     AThreadPool pool(numThreads);
-    AHistorySearchProcessor * pProcessorForCloning = processor.clone();
+    const AHistorySearchProcessor * pProcessorForCloning = processor.clone();
 
     int iEvent = 0;
     while (true)
     {
-        //qDebug() << "-------------Event #" << iEv;
+        qDebug() << "-------------Event #" << iEvent;
         bool ok = dataImporter.gotoEvent(iEvent);
         if (!ok) break;
 
@@ -61,23 +61,29 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
         while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
 
         pool.addJob(
-                    [&processor, pProcessorForCloning, &criteria, position, iEvent, this]()
+                    [&processor, &pProcessorForCloning, &criteria, position, iEvent, eventsPerThread, this]()
                     {
                         ATrackingDataImporter localDataImporter(FileName);
                         localDataImporter.setPositionInFile(position);
 
                         AEventTrackingRecord * event = AEventTrackingRecord::create();
-                        localDataImporter.extractEvent(iEvent, event);
 
                         AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
                         localProcessor->beforeSearch();
-                        localProcessor->onNewEvent();
 
-                        const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
-                        for (const AParticleTrackingRecord * p : prim)
-                            findRecursive(*p, criteria, *localProcessor);
+                        for (int iChunk = 0; iChunk < eventsPerThread; iChunk++)
+                        {
+                            localDataImporter.extractEvent(iEvent, event);
 
-                        localProcessor->onEventEnd();
+                            localProcessor->onNewEvent();
+
+                            const std::vector<AParticleTrackingRecord *> & prim = event->getPrimaryParticleRecords();
+                            for (const AParticleTrackingRecord * p : prim)
+                                findRecursive(*p, criteria, *localProcessor);
+
+                            localProcessor->onEventEnd();
+                        }
+
                         localProcessor->afterSearch();
 
                         {
@@ -89,7 +95,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                         delete event;
                     } );
 
-        iEvent++;
+        iEvent += eventsPerThread;
     }
 
     while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::milliseconds(1));}
@@ -317,7 +323,7 @@ void AHistorySearchProcessor_findParticles::onTrackEnd(bool)
     }
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findParticles::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findParticles::clone() const
 {
     return new AHistorySearchProcessor_findParticles(*this);
 }
@@ -433,7 +439,7 @@ void AHistorySearchProcessor_findDepositedEnergy::onEventEnd()
     if (Mode == OverEvent) fillHistogram();
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergy::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergy::clone() const
 {
     AHistorySearchProcessor_findDepositedEnergy * pr = new AHistorySearchProcessor_findDepositedEnergy(*this);
 
@@ -490,7 +496,7 @@ AHistorySearchProcessor_findDepositedEnergyTimed::~AHistorySearchProcessor_findD
     delete Hist2D;
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergyTimed::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findDepositedEnergyTimed::clone() const
 {
     AHistorySearchProcessor_findDepositedEnergyTimed * pr = new AHistorySearchProcessor_findDepositedEnergyTimed(*this);
 
@@ -598,7 +604,7 @@ void AHistorySearchProcessor_findTravelledDistances::onTrackEnd(bool)
     Distance = 0;
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findTravelledDistances::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findTravelledDistances::clone() const
 {
     AHistorySearchProcessor_findTravelledDistances * pr = new AHistorySearchProcessor_findTravelledDistances(*this);
 
@@ -658,7 +664,7 @@ void AHistorySearchProcessor_findProcesses::onTransitionIn(const ATrackingStepDa
     }
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findProcesses::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findProcesses::clone() const
 {
     return new AHistorySearchProcessor_findProcesses(*this);
 }
@@ -883,7 +889,7 @@ void AHistorySearchProcessor_findHadronicChannels::onLocalStep(const ATrackingSt
     else                      ++(it->second);
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_findHadronicChannels::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_findHadronicChannels::clone() const
 {
     return new AHistorySearchProcessor_findHadronicChannels(*this);
 }
@@ -1184,7 +1190,7 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
     }
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_Border::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_Border::clone() const
 {
     AHistorySearchProcessor_Border * p = new AHistorySearchProcessor_Border(*this);
 
@@ -1319,7 +1325,7 @@ void AHistorySearchProcessor_getDepositionStats::onTransitionOut(const ATracking
     onLocalStep(tr);
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStats::clone() const
 {
     return new AHistorySearchProcessor_getDepositionStats(*this);
 }
@@ -1388,7 +1394,7 @@ void AHistorySearchProcessor_getDepositionStatsTimeAware::onTransitionOut(const 
     onLocalStep(tr);
 }
 
-AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStatsTimeAware::clone()
+AHistorySearchProcessor * AHistorySearchProcessor_getDepositionStatsTimeAware::clone() const
 {
     return new AHistorySearchProcessor_getDepositionStatsTimeAware(*this);
 }

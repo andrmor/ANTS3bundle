@@ -39,7 +39,7 @@ public:
     virtual void onTrackEnd(bool /*bMaster*/){} // flag is the value returned by onNewTrack()
     virtual void onEventEnd(){}
 
-    virtual AHistorySearchProcessor * clone() = 0;
+    virtual AHistorySearchProcessor * clone() const = 0;
 
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
@@ -58,7 +58,7 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -83,7 +83,7 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override;
     void onTransitionIn (const ATrackingStepData & tr) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -107,7 +107,7 @@ public:
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -140,7 +140,7 @@ public:
     void onTrackEnd(bool bMaster) override;
     void onEventEnd() override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -163,7 +163,7 @@ public:
                                                      int binsT, double fromT, double toT);
     ~AHistorySearchProcessor_findDepositedEnergyTimed();
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -197,7 +197,7 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -220,7 +220,7 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
 private:
     float timeFrom;
@@ -239,7 +239,7 @@ public:
     void onTransitionIn (const ATrackingStepData & tr) override; // "from" step
     void onTrackEnd(bool) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -274,7 +274,7 @@ public:
     // direction info can be [0,0,0] !!!
     void onTransition(const ATrackingStepData & fromfromTr, const ATrackingStepData & fromTr) override; // "from" step
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override; // !!!*** merge statistics of histograms
 
@@ -347,7 +347,7 @@ class ATrackingHistoryCrawler
 public:
     ATrackingHistoryCrawler(const QString & fileName) : FileName(fileName) {}
 
-    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
+    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
 
     void abort() {bAbortRequested = true;}
 
@@ -362,7 +362,7 @@ private:
 
     std::mutex CrawlerMutex;
 
-    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H
