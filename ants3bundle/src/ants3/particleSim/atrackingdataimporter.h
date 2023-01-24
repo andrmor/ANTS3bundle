@@ -59,14 +59,10 @@ private:
 
     int FileEndEvent = -1;
 
-    //resources for ascii input
-    QFile *       inTextFile = nullptr;
-    QTextStream * inTextStream = nullptr;
-    QString       currentLine;
-    QStringList   inputSL;
-
-    //resources for binary input
+    //resources for input
     std::ifstream * inStream = nullptr;
+    std::string   currentLine;
+    std::vector<std::string> inputSL; // !!!*** temporary, to be replaced with the approach used for binary
     unsigned char binHeader;
     int           BtrackId;
     int           BparentTrackId;
@@ -111,6 +107,7 @@ private:
     void readSecondaries();
     void readString(std::string & str) const;
     bool isAscii();
+    void toStringVector(const std::string & line, std::vector<std::string> & vec) const;
 };
 
 #endif // ATRACKINGDATAIMPORTER_H

@@ -1,11 +1,10 @@
 #include "atrackingdataimporter.h"
 #include "aeventtrackingrecord.h"
 
-#include <QFile>
-#include <QTextStream>
 #include <QDebug>
 
 #include <fstream>
+#include <sstream>
 
 #include "TGeoManager.h"
 #include "TGeoNode.h"
@@ -29,7 +28,9 @@ ATrackingDataImporter::~ATrackingDataImporter()
     clearImportResources();
 }
 
-bool ATrackingDataImporter::isAscii()
+#include <QFile>
+#include <QTextStream>
+bool ATrackingDataImporter::isAscii() // !!!***
 {
     QFile file(FileName);
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) return true;
@@ -40,6 +41,23 @@ bool ATrackingDataImporter::isAscii()
 
     if (first == "#") return true;
     return false;
+}
+
+void ATrackingDataImporter::toStringVector(const std::string & line, std::vector<std::string> & vec) const
+{
+    vec.clear();
+    std::stringstream ss(line);
+    std::string s;
+    while (getline(ss, s, ' '))
+        vec.push_back(s);
+
+    if (ss.eof()) return;
+
+    if (ss.fail())
+    {
+        qCritical() << "Unexpected format of a line"; // !!!***
+        exit(2111);
+    }
 }
 
 bool ATrackingDataImporter::extractEvent(int iEvent, AEventTrackingRecord * EventRecord)
@@ -73,8 +91,7 @@ bool ATrackingDataImporter::gotoEvent(int iEvent)
 
     if (iEvent < CurrentEvent)
     {
-        if (bBinaryInput) inStream->seekg(0);
-        else inTextStream->seek(0);
+        inStream->seekg(0);
         CurrentEvent = -1;
     }
 
@@ -104,7 +121,7 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
         }
         else
         {
-            if (currentLine.isEmpty()) continue;
+            if (currentLine.empty()) continue;  // !!!*** merge with binary?
         }
 
         if      (isNewEvent())
@@ -141,30 +158,21 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
 
 bool ATrackingDataImporter::isEndReached() const
 {
-    if (bBinaryInput)
-        return inStream->eof();
-    else
-        return inTextStream->atEnd();
+    return inStream->eof();
 }
 
 AImporterEventStart ATrackingDataImporter::getEventStart() const
 {
     AImporterEventStart es;
-
     es.CurrentEvent = CurrentEvent;
-
-    if (bBinaryInput) es.Position = inStream->tellg();
-    else              es.Position = inTextStream->pos();
-
+    es.Position = inStream->tellg();
     return es;
 }
 
 void ATrackingDataImporter::setPositionInFile(const AImporterEventStart & es)
 {
     CurrentEvent = es.CurrentEvent;
-
-    if (bBinaryInput) inStream->seekg(es.Position);//, std::ios_base::beg);
-    else              inTextStream->seek(es.Position);
+    inStream->seekg(es.Position);//, std::ios_base::beg);
 }
 
 int ATrackingDataImporter::countEvents()
@@ -189,7 +197,8 @@ void ATrackingDataImporter::readBuffer()
             ErrorString = "Error in header char input";
     }
     else
-        currentLine = inTextStream->readLine();
+        //currentLine = inTextStream->readLine();
+        std::getline(*inStream, currentLine);
 }
 
 bool ATrackingDataImporter::isNewEvent()
@@ -202,7 +211,8 @@ bool ATrackingDataImporter::isNewEvent()
         return (binHeader == 0xEE);
     }
     else
-        return currentLine.startsWith('#');
+        //return currentLine.startsWith('#');
+        return currentLine[0] == '#';
 }
 
 bool ATrackingDataImporter::isNewTrack()
@@ -215,38 +225,25 @@ bool ATrackingDataImporter::isNewTrack()
         return (binHeader == 0xF0);
     }
     else
-        return currentLine.startsWith('>');
+        //return currentLine.startsWith('>');
+        return currentLine[0] == '>'; // !!!*** case currentLine is empty!
 }
 
 void ATrackingDataImporter::prepareImportResources(const QString & FileName)
 {
-    if (bBinaryInput)
-    {
-        inStream = new std::ifstream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+    if (bBinaryInput) inStream = new std::ifstream(FileName.toLatin1().data(), std::ios::in | std::ios::binary);
+    else              inStream = new std::ifstream(FileName.toLatin1().data());
 
-        if (!inStream->is_open())
-        {
-            ErrorString = "Failed to open file " + FileName;
-            return;
-        }
-    }
-    else
+    if (!inStream->is_open())
     {
-        inTextFile = new QFile(FileName);
-        if (!inTextFile->open(QIODevice::ReadOnly | QFile::Text))
-        {
-            ErrorString = "Failed to open file " + FileName;
-            return;
-        }
-        inTextStream = new QTextStream(inTextFile);
+        ErrorString = "Failed to open file " + FileName;
+        return;
     }
 }
 
 void ATrackingDataImporter::clearImportResources()
 {
-    delete inTextStream; inTextStream = nullptr;
-    delete inTextFile;   inTextFile = nullptr;
-    delete inStream;     inStream = nullptr;
+    delete inStream; inStream = nullptr;
 }
 
 int ATrackingDataImporter::extractEventId()
@@ -261,10 +258,12 @@ int ATrackingDataImporter::extractEventId()
     else
     {
         //qDebug() << "DI-->"<<currentLine;
-        currentLine.remove(0, 1);
-        bool bOK = false;
-        evId = currentLine.toInt(&bOK);
-        if (!bOK) ErrorString = "Error in conversion of event number to integer";
+        //currentLine.remove(0, 1);
+        currentLine.erase(currentLine.begin());
+        //bool bOK = false;
+        //evId = currentLine.toInt(&bOK);
+        //if (!bOK) ErrorString = "Error in conversion of event number to integer";
+        evId = std::stoi(currentLine);
     }
     return evId;
 }
@@ -298,12 +297,14 @@ void ATrackingDataImporter::readNewTrack(bool SeekMode)
 
         if (SeekMode) return;
 
-        currentLine.remove(0, 1);
+        //currentLine.remove(0, 1);
+        currentLine.erase(currentLine.begin());
+
         //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
         //   0           1           2         3 4 5   6  7   8     9       10
-        inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
-        if (inputSL.size() != 11)
-            ErrorString = "Bad format in new track line";
+        //inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
+        toStringVector(currentLine, inputSL);
+        if (inputSL.size() != 11) ErrorString = "Bad format in new track line";
     }
 }
 
@@ -313,7 +314,8 @@ bool ATrackingDataImporter::isPrimaryRecord() const
         return (BparentTrackId == 0);
     else
     {
-        int parTrIndex = inputSL.at(1).toInt();
+        //int parTrIndex = inputSL[1].toInt();
+        int parTrIndex = std::stoi(inputSL[1]);
         return (parTrIndex == 0);
     }
 }
@@ -338,16 +340,17 @@ AParticleTrackingRecord * ATrackingDataImporter::createAndInitParticleTrackingRe
     {
         //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
         //   0           1           2         3 4 5   6  7   8     9       10
-        r = AParticleTrackingRecord::create(inputSL.at(2));
+        r = AParticleTrackingRecord::create(inputSL[2].data());
 
-        ATransportationStepData * step = new ATransportationStepData(inputSL.at(3).toFloat(), // X
-                                                                     inputSL.at(4).toFloat(), // Y
-                                                                     inputSL.at(5).toFloat(), // Z
-                                                                     inputSL.at(6).toFloat(), // time
-                                                                     inputSL.at(7).toFloat(), // E
+        ATransportationStepData * step = new ATransportationStepData(std::stof(inputSL[3]), // X
+                                                                     std::stof(inputSL[4]), // Y
+                                                                     std::stof(inputSL[5]), // Z
+                                                                     std::stof(inputSL[6]), // time
+                                                                     std::stof(inputSL[7]), // E
                                                                      0,                       // depoE
                                                                      "C");                    // process = 'C' which is "Creation"
-        step->setVolumeInfo(inputSL.at(9), inputSL.at(10).toInt(), inputSL.at(8).toInt());
+        //step->setVolumeInfo(inputSL.at(9), inputSL.at(10).toInt(), inputSL.at(8).toInt());
+        step->setVolumeInfo(inputSL[9].data(), std::stoi(inputSL[10]), std::stoi(inputSL[8]));
         r->addStep(step);
     }
 
@@ -359,7 +362,7 @@ int ATrackingDataImporter::getNewTrackIndex() const
     if (bBinaryInput)
         return BtrackId;
     else
-        return inputSL.at(0).toInt();
+        return std::stoi(inputSL[0]);
 }
 
 void ATrackingDataImporter::updatePromisedSecondary(AParticleTrackingRecord *secrec)
@@ -381,15 +384,15 @@ void ATrackingDataImporter::updatePromisedSecondary(AParticleTrackingRecord *sec
     {
         //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
         //   0           1           2         3 4 5   6  7   8     9       10
-        secrec->updatePromisedSecondary(inputSL.at(2),            // p_name
-                                        inputSL.at(7).toFloat(),  // E
-                                        inputSL.at(3).toFloat(),  // X
-                                        inputSL.at(4).toFloat(),  // Y
-                                        inputSL.at(5).toFloat(),  // Z
-                                        inputSL.at(6).toFloat(),  // time
-                                        inputSL.at(9),            //VolName
-                                        inputSL.at(10).toInt(),   //VolIndex
-                                        inputSL.at(8).toInt()     //MatIndex
+        secrec->updatePromisedSecondary(inputSL[2].data(),            // p_name
+                                        std::stof(inputSL[7]),  // E
+                                        std::stof(inputSL[3]),  // X
+                                        std::stof(inputSL[4]),  // Y
+                                        std::stof(inputSL[5]),  // Z
+                                        std::stof(inputSL[6]),  // time
+                                        inputSL[9].data(),            //VolName
+                                        std::stoi(inputSL[10]),   //VolIndex
+                                        std::stoi(inputSL[8])     //MatIndex
                                         );
     }
 }
@@ -444,13 +447,14 @@ void ATrackingDataImporter::readNewStep(bool SeekMode)
 
         if (SeekMode) return;
 
-        inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
+        //inputSL = currentLine.split(' ', Qt::SkipEmptyParts);
+        toStringVector(currentLine, inputSL);
         if (inputSL.size() < 7)
         {
             ErrorString = "Bad format in step line";
             return;
         }
-        if (inputSL.first() == "T" && inputSL.size() < 10)
+        if (inputSL.front() == "T" && inputSL.size() < 10)
         {
             ErrorString = "Bad format in tracking line (transportation step)";
             return;
@@ -502,15 +506,15 @@ ATrackingStepData *ATrackingDataImporter::createHistoryTransportationStep() cons
         // ProcName X Y Z Time KinE DirectDepoE iMatTo VolNameTo VolIndexTo [secondaries]
         //     0    1 2 3   4    5      6          7       8           9         ...
 
-        step = new ATransportationStepData(inputSL.at(1).toFloat(), // X
-                                           inputSL.at(2).toFloat(), // Y
-                                           inputSL.at(3).toFloat(), // Z
-                                           inputSL.at(4).toFloat(), // time
-                                           inputSL.at(5).toFloat(), // energy
-                                           inputSL.at(6).toFloat(), // depoE
-                                           inputSL.at(0));          // pr
+        step = new ATransportationStepData(std::stof(inputSL[1]), // X
+                                           std::stof(inputSL[2]), // Y
+                                           std::stof(inputSL[3]), // Z
+                                           std::stof(inputSL[4]), // time
+                                           std::stof(inputSL[5]), // energy
+                                           std::stof(inputSL[6]), // depoE
+                                           inputSL[0].data());    // pr
 
-        step->setVolumeInfo(inputSL.at(8), inputSL.at(9).toInt(), inputSL.at(7).toInt());
+        step->setVolumeInfo(inputSL[8].data(), std::stoi(inputSL[9]), std::stof(inputSL[7]));
     }
 
     return step;
@@ -535,13 +539,13 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
         // ProcName X Y Z Time KinE DirectDepoE [secondaries]
         //     0    1 2 3   4    5      6           ...
 
-        step = new ATrackingStepData(inputSL.at(1).toFloat(), // X
-                                     inputSL.at(2).toFloat(), // Y
-                                     inputSL.at(3).toFloat(), // Z
-                                     inputSL.at(4).toFloat(), // time
-                                     inputSL.at(5).toFloat(), // energy
-                                     inputSL.at(6).toFloat(), // depoE
-                                     inputSL.at(0));          // pr
+        step = new ATrackingStepData(std::stof(inputSL[1]), // X
+                                     std::stof(inputSL[2]), // Y
+                                     std::stof(inputSL[3]), // Z
+                                     std::stof(inputSL[4]), // time
+                                     std::stof(inputSL[5]), // energy
+                                     std::stof(inputSL[6]), // depoE
+                                     inputSL[0].data());          // pr
     }
 
     step->extractTargetIsotope();
@@ -560,7 +564,7 @@ void ATrackingDataImporter::readSecondaries()
         BsecVec.clear();
         const int secIndex = (inputSL.at(0) == "T" ? 10 : 7);
         for (int i = secIndex; i < inputSL.size(); i++)
-            BsecVec.push_back( inputSL.at(i).toInt() );
+            BsecVec.push_back( std::stoi(inputSL[i]) );
     }
 }
 
