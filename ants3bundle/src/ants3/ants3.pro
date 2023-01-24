@@ -111,6 +111,7 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/materials/amatwin.cpp \
+    gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
@@ -309,6 +310,7 @@ HEADERS += \
     gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
     gui/materials/amatwin.h \
+    gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
     gui/particleSim/aworldsizewarningdialog.h \
@@ -497,6 +499,7 @@ HEADERS += \
 FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \

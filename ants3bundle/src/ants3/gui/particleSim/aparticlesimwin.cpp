@@ -1212,6 +1212,7 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     setEnabled(true);
 }
 
+#include "aeventsdonedialog.h"
 void AParticleSimWin::findInBulk()
 {
     AFindRecordSelector Opt;
@@ -1241,6 +1242,13 @@ void AParticleSimWin::findInBulk()
     Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
     Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
     Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
+
+    AEventsDoneDialog dialog(this);
+    connect(&Crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &Crawler, &ATrackingHistoryCrawler::abort);
+    dialog.setModal(Qt::ApplicationModal);
+    dialog.show();
+    QApplication::processEvents();
 
     int What = ui->cobPTHistVolRequestWhat->currentIndex();
     switch (What)

@@ -342,13 +342,17 @@ public:
 };
 
 // !!!*** abort for multithreaded!
-class ATrackingHistoryCrawler
+#include <QObject>
+class ATrackingHistoryCrawler : public QObject
 {
+    Q_OBJECT
+
 public:
-    ATrackingHistoryCrawler(const QString & fileName) : FileName(fileName) {}
+    ATrackingHistoryCrawler(const QString & fileName) : QObject(), FileName(fileName) {}
 
     void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
 
+public slots:
     void abort() {bAbortRequested = true;}
 
 private:
@@ -361,8 +365,12 @@ private:
     bool bAbortRequested = false;
 
     std::mutex CrawlerMutex;
+    int NumEventsProcessed = 0;
 
     void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
+
+signals:
+    void reportProgress(int numEventsDone);
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

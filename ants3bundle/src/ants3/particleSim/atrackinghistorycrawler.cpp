@@ -41,24 +41,35 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 }
 
 #include "athreadpool.h"
+#include <QApplication>
+#include <QTimer>
 void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread)
 {
+    NumEventsProcessed = 0;
+
     processor.beforeSearch();
 
     ATrackingDataImporter dataImporter(FileName);
     AThreadPool pool(numThreads);
     const AHistorySearchProcessor * pProcessorForCloning = processor.clone();
 
+    // possible improvement: set binarity in the constructor optional parameter, so there is no need to check the file
+
+    QTimer Timer(this);
+    Timer.setInterval(250);
+    connect(&Timer, &QTimer::timeout, this, [this](){emit reportProgress(NumEventsProcessed);});
+    Timer.start();
+
     int iEvent = 0;
     while (true)
     {
-        qDebug() << "-------------Event #" << iEvent;
+        //qDebug() << "-------------Event #" << iEvent;
         bool ok = dataImporter.gotoEvent(iEvent);
         if (!ok) break;
 
         const AImporterEventStart position = dataImporter.getEventStart();
 
-        //while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
+        //while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1)); <- makes it slower
 
         pool.addJob(
                     [&processor, &pProcessorForCloning, &criteria, position, iEvent, eventsPerThread, this]()
@@ -89,6 +100,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                         {
                             std::lock_guard<std::mutex> lock(CrawlerMutex);
                             processor.mergeResuts(*localProcessor);
+                            NumEventsProcessed += eventsPerThread;
                         }
 
                         delete localProcessor;
@@ -96,8 +108,17 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                     } );
 
         iEvent += eventsPerThread;
+        QApplication::processEvents();
+        if (bAbortRequested) break;
     }
-    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::milliseconds(1));}
+
+    while (!pool.isIdle())
+    {
+        QApplication::processEvents();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    Timer.stop();
 }
 
 void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector & opt, AHistorySearchProcessor & processor) const
