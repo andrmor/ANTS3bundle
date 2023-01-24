@@ -115,14 +115,14 @@ bool ATrackingDataImporter::processFile(bool SeekMode)
         if (!ErrorString.isEmpty()) return false;
 
         readBuffer();
-        if (bBinaryInput)
-        {
+        //if (bBinaryInput)
+        //{
             if (inStream->eof()) break;
-        }
-        else
-        {
-            if (currentLine.empty()) continue;  // !!!*** merge with binary?
-        }
+        //}
+        //else
+        //{
+        //    if (currentLine.empty()) continue;  // !!!*** merge with binary?
+        //}
 
         if      (isNewEvent())
         {
