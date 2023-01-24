@@ -70,6 +70,8 @@ bool AThreadPool::isFull()
 
 bool AThreadPool::isIdle()
 {
+    if (!Jobs.empty()) return false; // fast
+
     std::lock_guard<std::mutex> lock(Mutex);
     return NumBusyThreads == 0;
 }

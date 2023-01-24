@@ -58,11 +58,12 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 
         const AImporterEventStart position = dataImporter.getEventStart();
 
-        while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
+        //while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1));
 
         pool.addJob(
                     [&processor, &pProcessorForCloning, &criteria, position, iEvent, eventsPerThread, this]()
                     {
+            // /*
                         ATrackingDataImporter localDataImporter(FileName);
                         localDataImporter.setPositionInFile(position);
 
@@ -93,6 +94,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 
                         delete localProcessor;
                         delete event;
+           //   */
                     } );
 
         iEvent += eventsPerThread;
