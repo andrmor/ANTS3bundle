@@ -120,34 +120,6 @@ void APartAnalysis_SI::setOnlyEscaping()
     Criteria->bCreated = false;
 }
 
-#include "athreadpool.h"
-#include "arandomhub.h"
-void APartAnalysis_SI::test(int numThreads)
-{
-    AThreadPool pool(numThreads);
-
-    for(int i = 0; i < 8; ++i)
-    {
-        //qDebug() << "preparing job #" << i;
-// ?        while (pool.isFull()) {std::this_thread::sleep_for(std::chrono::microseconds(1));}
-        qDebug() << "Adding job to pool: #" << i;
-
-        pool.addJob([i]()
-        {
-            qDebug() << "  -->" << i;
-            std::this_thread::sleep_for(std::chrono::seconds(2) + ARandomHub::getInstance().uniform()*std::chrono::seconds(3));
-            qDebug() << "     <--" << i;
-        });
-    }
-
-    qDebug() << "Waiting for jobs to finish...";
-    while (!pool.isIdle()) {std::this_thread::sleep_for(std::chrono::microseconds(1000));}
-
-    qDebug() << "Done!";
-}
-
-// ---
-
 bool APartAnalysis_SI::initCrawler()
 {
     if (FileName.isEmpty())

@@ -50,8 +50,6 @@ public slots:
     void setOnlyCreated();
     void setOnlyEscaping();
 
-    void test(int numThreads);
-
     QVariantList findParticles();
     QVariantList findProcesses(int All0_WithDepo1_TrackEnd2 = 0, bool onlyHadronic = false, QString targetIsotopeStartsFrom = "");
     QVariantList findDepositedEnergies(int bins, double from, double to);
