@@ -103,12 +103,15 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                                 if (bAbortRequested) break;
                             }
 
-                            localProcessor->onEventEnd();
-                            if (bAbortRequested) break;
+                            if (!bAbortRequested)
+                                localProcessor->onEventEnd();
+                            else
+                                break;
                         }
 
                         localProcessor->afterSearch();
 
+                        if (!bAbortRequested)
                         {
                             std::lock_guard<std::mutex> lock(CrawlerMutex);
                             processor.mergeResuts(*localProcessor);
@@ -119,12 +122,12 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                         delete event;
                     } );
 
-        iEvent += eventsPerThread;
         QApplication::processEvents();
         if (bAbortRequested) break;
+        iEvent += eventsPerThread;
     }
 
-    while (!pool.isIdle())
+    while (!pool.isIdle() && !bAbortRequested)
     {
         QApplication::processEvents();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
