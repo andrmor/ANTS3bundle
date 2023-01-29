@@ -1246,7 +1246,7 @@ void AParticleSimWin::findInBulk()
     AEventsDoneDialog dialog(this);
     connect(&Crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
     connect(&dialog, &AEventsDoneDialog::rejected, &Crawler, &ATrackingHistoryCrawler::abort);
-    dialog.setModal(Qt::ApplicationModal);
+    dialog.setModal(true);
     dialog.show();
     QApplication::processEvents();
 

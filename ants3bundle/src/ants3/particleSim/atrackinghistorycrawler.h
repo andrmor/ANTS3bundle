@@ -367,6 +367,7 @@ private:
     std::mutex CrawlerMutex;
     int NumEventsProcessed = 0;
 
+    void findSingleThread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor);
     void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
 
 signals:
