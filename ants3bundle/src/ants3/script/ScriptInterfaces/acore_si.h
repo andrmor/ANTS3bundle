@@ -38,7 +38,7 @@ public slots:
 
     // Time
     void    sleep(int ms);
-    double  getTimeMark();
+    double  getTimeMarkMilliseconds();
     QString getDateTimeStamp();
 
     // Basic io

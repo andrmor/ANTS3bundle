@@ -25,17 +25,20 @@ public:
     AScriptInterface * cloneBase() const {return new AHist_SI();}
 
 public slots:
-    void           new1D(QString HistName, int bins, double start, double stop);
-    void           new2D(QString HistName, int binsX, double startX, double stopX,   int binsY, double startY, double stopY);
-    void           new3D(QString HistName, int binsX, double startX, double stopX,
+    void           new1D(QString histName, int bins, double start, double stop);
+    void           new2D(QString histName, int binsX, double startX, double stopX,   int binsY, double startY, double stopY);
+    void           new3D(QString histName, int binsX, double startX, double stopX,
                            int binsY, double startY, double stopY,
                            int binsZ, double startZ, double stopZ);
 
-    //void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
-    void           fill(QString HistName, double val, double weight);
-    void           fill(QString HistName, double x, double y, double weight);
-    void           fill(QString HistName, double x, double y, double z, double weight);
+    void           fill(QString histName, double val, double weight);
+    void           fill(QString histName, double x, double y, double weight);
+    void           fill(QString histName, double x, double y, double z, double weight);
+
+    void           fillArr(QString histName, QVariantList array);
+    //void           fillArr(QString histName, QVariantList array1, QVariantList array2);
+    //void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3);
 
     void           FillArr(QString HistName, QVariantList XY_Array);
     void           FillArr(QString HistName, const QVariantList X_Array, const QVariantList Y_Array);
@@ -82,8 +85,8 @@ public slots:
     void           ApplyMedianFilter(const QString& HistName, int span);
     void           ApplyMedianFilter(const QString& HistName, int spanLeft, int spanRight);
 
-    const QVariant FitGauss(const QString& HistName, const QString options = "");
-    const QVariant FitGaussWithInit(const QString& HistName, const QVariant InitialParValues, const QString options = "");
+    QVariant       FitGauss(const QString& HistName, const QString options = "");
+    QVariant       FitGaussWithInit(const QString& HistName, const QVariant InitialParValues, const QString options = "");
 
     QVariantList   findPeaks(const QString& HistName, double sigma, double threshold);
 
@@ -94,6 +97,8 @@ public slots:
 
     bool           Delete(const QString& HistName);
     void           DeleteAllHist();
+
+    void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
 signals:
     void           RequestDraw(TObject* obj, QString options, bool fFocus);

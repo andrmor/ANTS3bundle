@@ -29,9 +29,13 @@ public:
     void SetXLabelProperties(double size, double offset);
     void SetYLabelProperties(double size, double offset);
 
-    void Fill(double val, double weight);
-    void Fill2D(double x, double y, double weight);
-    void Fill3D(double x, double y, double z, double weight);
+    void fill1D(double x, double weight);
+    void fill2D(double x, double y, double weight);
+    void fill3D(double x, double y, double z, double weight);
+
+    void fill1D(const std::vector<double> & x, const std::vector<double> & weight);
+    void fill2D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & weight);
+    void fill3D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & z, const std::vector<double> & weight);
 
     void FillArr(const QVector<double>& val, const QVector<double>& weight);
     void Fill2DArr(const QVector<double>& x, const QVector<double>& y, const QVector<double>& weight);

@@ -126,7 +126,7 @@ void ACore_SI::sleep(int ms)
     while (t.elapsed() < ms);
 }
 
-double ACore_SI::getTimeMark()
+double ACore_SI::getTimeMarkMilliseconds()
 {
     return QDateTime::currentMSecsSinceEpoch();
 }

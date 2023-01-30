@@ -139,34 +139,31 @@ void ARootHistRecord::SetYLabelProperties(double size, double offset)
     }
 }
 
-void ARootHistRecord::Fill(double val, double weight)
+void ARootHistRecord::fill1D(double x, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH1D")
     {
+        QMutexLocker locker(&Mutex);
         TH1D* h = static_cast<TH1D*>(Object);
-        h->Fill(val, weight);
+        h->Fill(x, weight);
     }
 }
 
-void ARootHistRecord::Fill2D(double x, double y, double weight)
+void ARootHistRecord::fill2D(double x, double y, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH2D")
     {
+        QMutexLocker locker(&Mutex);
         TH2D* h = static_cast<TH2D*>(Object);
         h->Fill(x, y, weight);
     }
 }
 
-void ARootHistRecord::Fill3D(double x, double y, double z, double weight)
+void ARootHistRecord::fill3D(double x, double y, double z, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH3D")
     {
+        QMutexLocker locker(&Mutex);
         TH3D * h = static_cast<TH3D*>(Object);
         h->Fill(x, y, z, weight);
     }
@@ -182,6 +179,39 @@ void ARootHistRecord::FillArr(const QVector<double>& val, const QVector<double>&
 
         for (int i=0; i<val.size(); i++)
             h->Fill(val.at(i), weight.at(i));
+    }
+}
+
+void ARootHistRecord::fill1D(const std::vector<double> & x, const std::vector<double> & weight)
+{
+    if (x.size() == weight.size() && Type == "TH1D")
+    {
+        QMutexLocker locker(&Mutex);
+        TH1D * h = static_cast<TH1D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], weight[i]);
+    }
+}
+
+void ARootHistRecord::fill2D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & weight)
+{
+    if (x.size() == weight.size() && y.size() == weight.size() && Type == "TH2D")
+    {
+        QMutexLocker locker(&Mutex);
+        TH2D * h = static_cast<TH2D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], y[i], weight[i]);
+    }
+}
+
+void ARootHistRecord::fill3D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & z, const std::vector<double> & weight)
+{
+    if (x.size() == weight.size() && y.size() == weight.size() && z.size() == weight.size() && Type == "TH3D")
+    {
+        QMutexLocker locker(&Mutex);
+        TH3D * h = static_cast<TH3D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], y[i], z[i], weight[i]);
     }
 }
 
