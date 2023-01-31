@@ -26,8 +26,8 @@ public:
 
     // Protected by Mutex
     void     addPoint(double x, double y, double errorX = 0, double errorY = 0);
-    void     AddPoints(const QVector<double> &xArr, const QVector<double> &yArr);
-    void     AddPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr);
+    void     addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr);
+    void     addPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr);
     void     sort();
     void     setYRange(double min, double max);
     void     setMinimum(double min);

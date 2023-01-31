@@ -108,27 +108,22 @@ void ARootGraphRecord::addPoint(double x, double y, double errorX, double errorY
     }
 }
 
-void ARootGraphRecord::AddPoints(const QVector<double>& xArr, const QVector<double>& yArr)
+void ARootGraphRecord::addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr)
 {
-    if (xArr.size() != yArr.size()) return;
-
     QMutexLocker locker(&Mutex);
 
-    if (Type == "TGraph")
+    const size_t size = xArr.size();
+    if (size != yArr.size()) return;
+
+    TGraph * g = dynamic_cast<TGraph*>(Object);
+    if (g)
     {
-        TGraph* g = dynamic_cast<TGraph*>(Object);
-        if (g)
-        {
-            for (int i=0; i<xArr.size(); i++)
-            {
-                //  qDebug() << i << xArr.at(i)<<yArr.at(i);
-                g->SetPoint(g->GetN(), xArr.at(i), yArr.at(i));
-            }
-        }
+        for (size_t i = 0; i < size; i++)
+            g->SetPoint(g->GetN(), xArr[i], yArr[i]);
     }
 }
 
-void ARootGraphRecord::AddPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr)
+void ARootGraphRecord::addPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr)
 {
     if (xArr.size() != yArr.size() || xArr.size() != xErrArr.size() || xArr.size() != yErrArr.size()) return;
 

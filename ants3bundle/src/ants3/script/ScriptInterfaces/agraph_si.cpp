@@ -166,41 +166,39 @@ void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
     else    r->AddPoint2D(x, y, z);
 }
 
-void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy)
+void AGraph_SI::addPoints(QString GraphName, QVariantList xArray, QVariantList yArray)
 {
-    if (vx.isEmpty() || vx.size() != vy.size())
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
+    if (!r)
     {
-        abort("Empty array or mismatch in array sizes in AddPoints for graph " + GraphName);
+        abort("Graph " + GraphName + " not found!");
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
+    const int num = xArray.size();
+    if (num != yArray.size())
     {
-        QVector<double> xArr(vx.size());
-        QVector<double> yArr(vx.size());
-        bool bValidX, bValidY;
-
-        for (int i=0; i<vx.size(); i++)
-        {
-            double x = vx.at(i).toDouble(&bValidX);
-            double y = vy.at(i).toDouble(&bValidY);
-            if (bValidX && bValidY)
-            {
-                //  qDebug() << i << x << y;
-                xArr[i] = x;
-                yArr[i] = y;
-            }
-            else
-            {
-                abort("Not numeric value found in AddPoints() for " + GraphName);
-                return;
-            }
-        }
-        r->AddPoints(xArr, yArr);
+        abort("addPoints: mismatch in array sizes for graph " + GraphName);
+        return;
     }
+    if (num == 0) return;
+
+
+    std::vector<double> xArr(num);
+    std::vector<double> yArr(num);
+    bool ok1, ok2;
+    for (int i = 0; i < num; i++)
+    {
+        xArr[i] = xArray[i].toDouble(&ok1);
+        yArr[i] = yArray[i].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            if (!ok1) abort("addPoints: bad format of xArray for graph " + GraphName);
+            else      abort("addPoints: bad format of yArray for graph " + GraphName);
+            return;
+        }
+    }
+    r->addPoints(xArr, yArr);
 }
 
 void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, QVariantList vEx, QVariantList vEy)
@@ -242,7 +240,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, Q
                 return;
             }
         }
-        r->AddPoints(xArr, yArr, xErrArr, yErrArr);
+        r->addPoints(xArr, yArr, xErrArr, yErrArr);
     }
 }
 
@@ -318,7 +316,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList array)
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
-        r->AddPoints(xArr, yArr, xErrArr, yErrArr);
+        r->addPoints(xArr, yArr, xErrArr, yErrArr);
 }
 
 void AGraph_SI::setYRange(QString graphName, double min, double max)
