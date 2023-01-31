@@ -4,11 +4,10 @@
 #include "ascriptinterface.h"
 
 #include <QString>
-#include <QVariant>
 #include <QVariantList>
 
-class AScriptObjStore;
 class TObject;
+class ARootObjCollection;
 
 class AGraph_SI : public AScriptInterface
 {
@@ -25,11 +24,10 @@ public:
     AScriptInterface * cloneBase() const {return new AGraph_SI();}
 
 public slots:
-    void new1D(QString GraphName);
-    void new1DErr(QString GraphName);
-    void new2D(QString GraphName);
+    void new1D(QString graphName);
+    void new1DErr(QString graphName);
+    void new2D(QString graphName);
 
-    //void configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
     void addPoint(QString GraphName, double x, double y);
     void addPoint(QString GraphName, double x, double y, double errorY);
@@ -67,12 +65,15 @@ public slots:
     bool remove(QString GraphName);
     void removeAllGraph();
 
+    void configureAbortIfAlreadyExists(bool flag) {AbortIfExists = flag;}
+
 signals:
-    void RequestDraw(TObject * obj, QString options, bool fFocus);
+    void requestDraw(TObject * obj, QString options, bool fFocus);
 
 private:
-    AScriptObjStore & ObjectStore;
-    bool              bAbortIfExists = false;
+    ARootObjCollection & Graphs;
+
+    bool AbortIfExists = false;
 
 };
 

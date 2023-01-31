@@ -4,11 +4,10 @@
 #include "ascriptinterface.h"
 
 #include <QString>
-#include <QVariant>
 #include <QVariantList>
 
-class AScriptObjStore;
 class TObject;
+class ARootObjCollection;
 
 class AHist_SI : public AScriptInterface
 {
@@ -92,15 +91,15 @@ public slots:
     bool           remove(QString histName);
     void           removeAll();
 
-    void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
+    void           configureAbortIfAlreadyExists(bool flag) {AbortIfExists = flag;}
 
 signals:
     void           requestDraw(TObject * obj, QString options, bool fFocus);
 
 private:
-    AScriptObjStore & TmpHub;
+    ARootObjCollection & Hists;
 
-    bool           bAbortIfExists = false;
+    bool           AbortIfExists = false;
 
 };
 

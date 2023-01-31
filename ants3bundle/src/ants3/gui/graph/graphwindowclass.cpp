@@ -226,7 +226,7 @@ void GraphWindowClass::connectScriptUnitDrawRequests(const std::vector<AScriptIn
         }
     }
 
-    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
+    if (graphInter) connect(graphInter, &AGraph_SI::requestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
     if (histInter)  connect(histInter,  &AHist_SI::requestDraw,     this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
     if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }

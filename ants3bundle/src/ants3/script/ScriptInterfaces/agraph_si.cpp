@@ -13,7 +13,7 @@
 #include "TKey.h"
 
 AGraph_SI::AGraph_SI()
-    : ObjectStore(AScriptObjStore::getInstance())
+    : Graphs(AScriptObjStore::getInstance().Graphs)
 {
     Description = "CERN ROOT graphs";
 
@@ -45,7 +45,7 @@ AGraph_SI::AGraph_SI()
 //    AScriptInterface(other),
 //    TmpHub(other.TmpHub) {}
 
-void AGraph_SI::new1D(QString GraphName)
+void AGraph_SI::new1D(QString graphName)
 {
     if (!bGuiThread)
     {
@@ -54,13 +54,13 @@ void AGraph_SI::new1D(QString GraphName)
     }
 
     TGraph* gr = new TGraph();
-    ARootGraphRecord* rec = new ARootGraphRecord(gr, GraphName, "TGraph");
-    bool bOK = ObjectStore.Graphs.append(GraphName, rec, bAbortIfExists);
+    ARootGraphRecord* rec = new ARootGraphRecord(gr, graphName, "TGraph");
+    bool bOK = Graphs.append(graphName, rec, AbortIfExists);
     if (!bOK)
     {
         delete gr;
         delete rec;
-        abort("Graph "+GraphName+" already exists!");
+        abort("Graph "+graphName+" already exists!");
     }
     else
     {
@@ -69,7 +69,7 @@ void AGraph_SI::new1D(QString GraphName)
     }
 }
 
-void AGraph_SI::new1DErr(QString GraphName)
+void AGraph_SI::new1DErr(QString graphName)
 {
     if (!bGuiThread)
     {
@@ -78,13 +78,13 @@ void AGraph_SI::new1DErr(QString GraphName)
     }
 
     TGraphErrors * gr = new TGraphErrors();
-    ARootGraphRecord* rec = new ARootGraphRecord(gr, GraphName, "TGraphErrors");
-    bool bOK = ObjectStore.Graphs.append(GraphName, rec, bAbortIfExists);
+    ARootGraphRecord* rec = new ARootGraphRecord(gr, graphName, "TGraphErrors");
+    bool bOK = Graphs.append(graphName, rec, AbortIfExists);
     if (!bOK)
     {
         delete gr;
         delete rec;
-        abort("Graph "+GraphName+" already exists!");
+        abort("Graph "+graphName+" already exists!");
     }
     else
     {
@@ -93,7 +93,7 @@ void AGraph_SI::new1DErr(QString GraphName)
     }
 }
 
-void AGraph_SI::new2D(QString GraphName)
+void AGraph_SI::new2D(QString graphName)
 {
     if (!bGuiThread)
     {
@@ -102,13 +102,13 @@ void AGraph_SI::new2D(QString GraphName)
     }
 
     TGraph2D * gr = new TGraph2D();
-    ARootGraphRecord* rec = new ARootGraphRecord(gr, GraphName, "TGraph2D");
-    bool bOK = ObjectStore.Graphs.append(GraphName, rec, bAbortIfExists);
+    ARootGraphRecord* rec = new ARootGraphRecord(gr, graphName, "TGraph2D");
+    bool bOK = Graphs.append(graphName, rec, AbortIfExists);
     if (!bOK)
     {
         delete gr;
         delete rec;
-        abort("Graph "+GraphName+" already exists!");
+        abort("Graph "+graphName+" already exists!");
     }
     else
     {
@@ -119,7 +119,7 @@ void AGraph_SI::new2D(QString GraphName)
 
 void AGraph_SI::setMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -128,7 +128,7 @@ void AGraph_SI::setMarkerProperties(QString GraphName, int MarkerColor, int Mark
 
 void AGraph_SI::setLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -137,7 +137,7 @@ void AGraph_SI::setLineProperties(QString GraphName, int LineColor, int LineStyl
 
 void AGraph_SI::setTitles(QString GraphName, QString X_Title, QString Y_Title, QString GraphTitle)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -146,7 +146,7 @@ void AGraph_SI::setTitles(QString GraphName, QString X_Title, QString Y_Title, Q
 
 void AGraph_SI::addPoint(QString GraphName, double x, double y)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -155,7 +155,7 @@ void AGraph_SI::addPoint(QString GraphName, double x, double y)
 
 void AGraph_SI::addPoint(QString GraphName, double x, double y, double errorY)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -164,7 +164,7 @@ void AGraph_SI::addPoint(QString GraphName, double x, double y, double errorY)
 
 void AGraph_SI::addPoint(QString GraphName, double x, double y, double errorX, double errorY)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -179,7 +179,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -216,7 +216,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, Q
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -258,7 +258,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, Q
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -361,7 +361,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList v)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -370,7 +370,7 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList v)
 
 void AGraph_SI::addPoint2D(QString GraphName, double x, double y, double z)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -379,7 +379,7 @@ void AGraph_SI::addPoint2D(QString GraphName, double x, double y, double z)
 
 void AGraph_SI::setYRange(QString GraphName, double min, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -388,7 +388,7 @@ void AGraph_SI::setYRange(QString GraphName, double min, double max)
 
 void AGraph_SI::setMinimum(QString GraphName, double min)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -397,7 +397,7 @@ void AGraph_SI::setMinimum(QString GraphName, double min)
 
 void AGraph_SI::setMaximum(QString GraphName, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -406,7 +406,7 @@ void AGraph_SI::setMaximum(QString GraphName, double max)
 
 void AGraph_SI::setXRange(QString GraphName, double min, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -415,7 +415,7 @@ void AGraph_SI::setXRange(QString GraphName, double min, double max)
 
 void AGraph_SI::setXDivisions(QString GraphName, int numDiv)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -424,7 +424,7 @@ void AGraph_SI::setXDivisions(QString GraphName, int numDiv)
 
 void AGraph_SI::setYDivisions(QString GraphName, int numDiv)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -433,7 +433,7 @@ void AGraph_SI::setYDivisions(QString GraphName, int numDiv)
 
 void AGraph_SI::sort(QString GraphName)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -448,13 +448,13 @@ void AGraph_SI::draw(QString GraphName, QString options)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
     {
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
-        emit RequestDraw(copy, options, true);
+        emit requestDraw(copy, options, true);
         r->LastDrawOption = options;
     }
 }
@@ -492,7 +492,7 @@ void AGraph_SI::loadTGraph(QString NewGraphName, QString FileName)
     else
     {
         ARootGraphRecord* rec = new ARootGraphRecord(g, NewGraphName, "TGraph");
-        bool bOK = ObjectStore.Graphs.append(NewGraphName, rec, bAbortIfExists);
+        bool bOK = Graphs.append(NewGraphName, rec, AbortIfExists);
         if (!bOK)
         {
             delete g;
@@ -520,7 +520,7 @@ void AGraph_SI::saveRoot(QString GraphName, QString FileName)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -531,7 +531,7 @@ QVariantList AGraph_SI::getPoints(QString GraphName)
 {
     QVariantList res;
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(ObjectStore.Graphs.getRecord(GraphName));
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
         abort("Graph "+GraphName+" not found!");
     else
@@ -556,7 +556,7 @@ bool AGraph_SI::remove(QString GraphName)
         return false;
     }
 
-    return ObjectStore.Graphs.remove(GraphName);
+    return Graphs.remove(GraphName);
 }
 
 void AGraph_SI::removeAllGraph()
@@ -564,5 +564,5 @@ void AGraph_SI::removeAllGraph()
     if (!bGuiThread)
         abort("Threads cannot create/delete/draw graphs!");
     else
-        ObjectStore.Graphs.clear();
+        Graphs.clear();
 }

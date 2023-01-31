@@ -24,7 +24,7 @@
 
 //----------------- HIST  -----------------
 AHist_SI::AHist_SI()
-    : TmpHub(AScriptObjStore::getInstance())
+    : Hists(AScriptObjStore::getInstance().Hists)
 {
     Description = "CERN ROOT histograms";
 
@@ -50,7 +50,7 @@ void AHist_SI::new1D(QString histName, int bins, double start, double stop)
     TH1D* hist = new TH1D("", histName.toLatin1().data(), bins, start, stop);
     ARootHistRecord* rec = new ARootHistRecord(hist, histName, "TH1D");
 
-    bool bOK = TmpHub.Hists.append(histName, rec, bAbortIfExists);
+    bool bOK = Hists.append(histName, rec, AbortIfExists);
     if (!bOK)
     {
         delete rec;
@@ -73,7 +73,7 @@ void AHist_SI::new2D(QString histName, int binsX, double startX, double stopX,  
     TH2D* hist = new TH2D("", histName.toLatin1().data(), binsX, startX, stopX, binsY, startY, stopY);
     ARootHistRecord* rec = new ARootHistRecord(hist, histName, "TH2D");
 
-    bool bOK = TmpHub.Hists.append(histName, rec, bAbortIfExists);
+    bool bOK = Hists.append(histName, rec, AbortIfExists);
     if (!bOK)
     {
         delete rec;
@@ -96,7 +96,7 @@ void AHist_SI::new3D(QString histName, int binsX, double startX, double stopX, i
     TH3D * hist = new TH3D("", histName.toLatin1().data(), binsX, startX, stopX, binsY, startY, stopY, binsZ, startZ, stopZ);
     ARootHistRecord* rec = new ARootHistRecord(hist, histName, "TH3D");
 
-    bool bOK = TmpHub.Hists.append(histName, rec, bAbortIfExists);
+    bool bOK = Hists.append(histName, rec, AbortIfExists);
     if (!bOK)
     {
         delete rec;
@@ -116,7 +116,7 @@ void AHist_SI::setXCustomLabels(QString histName, QVariantList textLabels)
         return;
     }
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else
     {
@@ -129,56 +129,56 @@ void AHist_SI::setXCustomLabels(QString histName, QVariantList textLabels)
 
 void AHist_SI::setTitle(QString histName, QString title)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setTitle(title);
 }
 
 void AHist_SI::setAxisTitles(QString histName, QString x_Title, QString y_Title, QString z_Title)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setAxisTitles(x_Title, y_Title, z_Title);
 }
 
 void AHist_SI::setLineProperties(QString histName, int lineColor, int lineStyle, int lineWidth)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setLineProperties(lineColor, lineStyle, lineWidth);
 }
 
 void AHist_SI::setMarkerProperties(QString histName, int markerColor, int markerStyle, double markerSize)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setMarkerProperties(markerColor, markerStyle, markerSize);
 }
 
 void AHist_SI::setFillColor(QString histName, int color)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setFillColor(color);
 }
 
 void AHist_SI::setMaximum(QString histName, double max)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setMax(max);
 }
 
 void AHist_SI::setMinimum(QString histName, double min)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setMin(min);
 }
 
 double AHist_SI::getMaximum(QString histName)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -189,7 +189,7 @@ double AHist_SI::getMaximum(QString histName)
 
 double AHist_SI::getMinimum(QString histName)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -200,35 +200,35 @@ double AHist_SI::getMinimum(QString histName)
 
 void AHist_SI::setXDivisions(QString histName, int primary, int secondary, int tertiary, bool canOptimize)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setXDivisions(primary, secondary, tertiary, canOptimize);
 }
 
 void AHist_SI::setYDivisions(QString histName, int primary, int secondary, int tertiary, bool canOptimize)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setYDivisions(primary, secondary, tertiary, canOptimize);
 }
 
 void AHist_SI::setXLabelProperties(QString histName, double size, double offset)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setXLabelProperties(size, offset);
 }
 
 void AHist_SI::setYLabelProperties(QString histName, double size, double offset)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setYLabelProperties(size, offset);
 }
 
 void AHist_SI::fill(QString histName, double val, double weight)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r || r->getType() != "TH1D")
         abort("1D histogram " + histName + " not found!");
     else
@@ -237,7 +237,7 @@ void AHist_SI::fill(QString histName, double val, double weight)
 
 void AHist_SI::fill(QString histName, double x, double y, double weight)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r || r->getType() != "TH2D")
         abort("2D histogram " + histName + " not found!");
     else
@@ -246,7 +246,7 @@ void AHist_SI::fill(QString histName, double x, double y, double weight)
 
 void AHist_SI::fill(QString histName, double x, double y, double z, double weight)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r || r->getType() != "TH3D")
         abort("3D histogram " + histName + " not found!");
     else
@@ -257,7 +257,7 @@ void AHist_SI::fillArr(QString histName, QVariantList array)
 {
     if (array.empty()) return;
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) return;
 
     const int numPoints = array.size();
@@ -428,7 +428,7 @@ void AHist_SI::fillArr(QString histName, QVariantList array1, QVariantList array
         return;
     }
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) return;
 
     if (r->getType() == "TH1D")
@@ -480,7 +480,7 @@ void AHist_SI::fillArr(QString histName, QVariantList array1, QVariantList array
         return;
     }
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) return;
 
     if (r->getType() == "TH2D")
@@ -536,7 +536,7 @@ void AHist_SI::fillArr(QString histName, QVariantList array1, QVariantList array
         return;
     }
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) return;
 
     if (r->getType() == "TH3D")
@@ -565,7 +565,7 @@ void AHist_SI::fillArr(QString histName, QVariantList array1, QVariantList array
 
 void AHist_SI::smooth(QString histName, int times)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else
     {
@@ -576,7 +576,7 @@ void AHist_SI::smooth(QString histName, int times)
 
 void AHist_SI::smear(QString histName, double sigma)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else
     {
@@ -597,7 +597,7 @@ void AHist_SI::applyMedianFilter(QString histName, int span)
 
 void AHist_SI::applyMedianFilter(QString histName, int spanLeft, int spanRight)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
         abort("Histogram " + histName + " not found!");
     else
@@ -609,8 +609,8 @@ void AHist_SI::applyMedianFilter(QString histName, int spanLeft, int spanRight)
 
 void AHist_SI::divideByHistogram(QString histName, QString histToDivideWith)
 {
-    ARootHistRecord * r1 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
-    ARootHistRecord * r2 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histToDivideWith));
+    ARootHistRecord * r1 = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    ARootHistRecord * r2 = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histToDivideWith));
     if (!r1)
     {
         abort("Histogram " + histName + " not found!");
@@ -631,7 +631,7 @@ void AHist_SI::divideByHistogram(QString histName, QString histToDivideWith)
 QVariantList AHist_SI::fitGauss(QString histName, QString options)
 {
     QVariantList vl;
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -655,7 +655,7 @@ QVariantList AHist_SI::fitGauss(QString histName, QString options)
 QVariantList AHist_SI::fitGaussWithInit(QString histName, QVariantList initialParameterValues, QString options)
 {
     QVariantList vl;
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -701,7 +701,7 @@ QVariantList AHist_SI::findPeaks(QString histName, double sigma, double threshol
         abort("hist.FindPeaks() : Sigma should be positive");
         return vl;
     }
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -715,7 +715,7 @@ QVariantList AHist_SI::findPeaks(QString histName, double sigma, double threshol
 
 int AHist_SI::getNumberEntries(QString histName)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -726,14 +726,14 @@ int AHist_SI::getNumberEntries(QString histName)
 
 void AHist_SI::setNumberEntries(QString histName, int numEntries)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else r->setEntries(numEntries);
 }
 
 double AHist_SI::getIntegral(QString histName, bool multiplyByBinWidth)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -744,7 +744,7 @@ double AHist_SI::getIntegral(QString histName, bool multiplyByBinWidth)
 
 double AHist_SI::getRandom(QString histName)
 {
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -757,7 +757,7 @@ QVariantList AHist_SI::getRandomArray(QString histName, int numRandoms)
 {
     QVariantList vl;
 
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -772,7 +772,7 @@ QVariantList AHist_SI::getRandomArray(QString histName, int numRandoms)
 QVariantList AHist_SI::getStatistics(QString histName)
 {
     QVariantList vl;
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
         abort("Histogram " + histName + " not found!");
     else
@@ -795,14 +795,14 @@ QVariantList AHist_SI::getStatistics(QString histName)
 
 void AHist_SI::scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->Scale(scaleIntegralTo, dividedByBinWidth);
 }
 
 void AHist_SI::save(QString histName, QString fileName)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->save(fileName);
 }
@@ -815,8 +815,8 @@ void AHist_SI::load(QString histName, QString fileName, QString histNameInFile)
         return;
     }
 
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
-    if (r && bAbortIfExists)
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (r && AbortIfExists)
     {
         abort("Histogram " + histName + " already exists!");
         return;
@@ -873,7 +873,7 @@ void AHist_SI::load(QString histName, QString fileName, QString histNameInFile)
     }
     else
     {
-        bool bOK = TmpHub.Hists.append(histName, rec, false);
+        bool bOK = Hists.append(histName, rec, false);
         if (!bOK)
         {
             delete rec;
@@ -890,13 +890,13 @@ bool AHist_SI::remove(QString histName)
         return false;
     }
 
-    return TmpHub.Hists.remove(histName);
+    return Hists.remove(histName);
 }
 
 void AHist_SI::removeAll()
 {
     if (!bGuiThread) abort("Threads cannot create/delete/draw histograms!");
-    else             TmpHub.Hists.clear();
+    else             Hists.clear();
 }
 
 void AHist_SI::draw(QString HistName, QString options)
@@ -907,7 +907,7 @@ void AHist_SI::draw(QString HistName, QString options)
         return;
     }
 
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(HistName));
     if (!r)
         abort("Histogram " + HistName + " not found!");
     else
@@ -927,7 +927,7 @@ void AHist_SI::draw(QString HistName, QString options)
 QVariantList AHist_SI::getContent(QString histName)
 {
     QVariantList vl;
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
     {
         abort("Histogram " + histName + " not found!");
@@ -984,7 +984,7 @@ QVariantList AHist_SI::getContent(QString histName)
 double AHist_SI::getNumberUnderflows(QString histName)
 {
     double val = 0;
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else
     {
@@ -997,7 +997,7 @@ double AHist_SI::getNumberUnderflows(QString histName)
 double AHist_SI::getNumberOverflows(QString histName)
 {
     double val = 0;
-    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else
     {
