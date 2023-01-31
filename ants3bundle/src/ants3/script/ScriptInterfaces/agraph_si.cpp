@@ -147,23 +147,23 @@ void AGraph_SI::setAxisTitles(QString graphName, QString x_Title, QString y_Titl
 
 void AGraph_SI::addPoint(QString graphName, double x, double y)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r) abort("Graph " + graphName + " not found!");
     else    r->addPoint(x, y);
 }
 
-void AGraph_SI::addPoint(QString graphName, double x, double y, double errorY)
-{
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
-    if (!r) abort("Graph " + graphName + " not found!");
-    else    r->addPoint(x, y, 0, errorY);
-}
-
 void AGraph_SI::addPoint(QString graphName, double x, double y, double errorX, double errorY)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r) abort("Graph " + graphName + " not found!");
     else    r->addPoint(x, y, errorX, errorY);
+}
+
+void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
+{
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->AddPoint2D(x, y, z);
 }
 
 void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy)
@@ -200,48 +200,6 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy)
             }
         }
         r->AddPoints(xArr, yArr);
-    }
-}
-
-void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, QVariantList vEy)
-{
-    if (vx.isEmpty() || vx.size() != vy.size() || vx.size() != vEy.size())
-    {
-        abort("Empty array or mismatch in array sizes in AddPoints for graph " + GraphName);
-        return;
-    }
-
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-    {
-        QVector<double> xArr(vx.size());
-        QVector<double> yArr(vx.size());
-        QVector<double> xErrArr(vx.size());
-        QVector<double> yErrArr(vx.size());
-
-        bool bValidX, bValidY, bValidYerr;
-
-        for (int i=0; i<vx.size(); i++)
-        {
-            double x    = vx.at(i).toDouble(&bValidX);
-            double y    = vy.at(i).toDouble(&bValidY);
-            double yerr = vEy.at(i).toDouble(&bValidYerr);
-            if (bValidX && bValidY && bValidYerr)
-            {
-                xArr[i] = x;
-                yArr[i] = y;
-                xErrArr[i] = 0;
-                yErrArr[i] = yerr;
-            }
-            else
-            {
-                abort("Not numeric value found in AddPoints() for " + GraphName);
-                return;
-            }
-        }
-        r->AddPoints(xArr, yArr, xErrArr, yErrArr);
     }
 }
 
@@ -288,29 +246,29 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, Q
     }
 }
 
-void AGraph_SI::addPoints(QString GraphName, QVariantList v)
+void AGraph_SI::addPoints(QString GraphName, QVariantList array)
 {
-    if (v.isEmpty())
+    if (array.isEmpty())
     {
         abort("Empty array in AddPoints for graph " + GraphName);
         return;
     }
 
     bool bOK = false;
-    v.at(0).toDouble(&bOK);
+    array.at(0).toDouble(&bOK);
     if (bOK)
     {
         QVariantList vl;
-        for (int i=0; i<v.size(); i++) vl << i;
-        addPoints(GraphName, vl, v);
+        for (int i=0; i<array.size(); i++) vl << i;
+        addPoints(GraphName, vl, array);
         return;
     }
 
     bool bError = false;
     bool bValidX, bValidY, bValidErrX, bValidErrY;
-    QVector<double> xArr(v.size()), yArr(v.size()), xErrArr(v.size()), yErrArr(v.size());
+    QVector<double> xArr(array.size()), yArr(array.size()), xErrArr(array.size()), yErrArr(array.size());
 
-    const QVariantList vFirst = v.at(0).toList();
+    const QVariantList vFirst = array.at(0).toList();
     const int length = vFirst.size();
     if (length < 2 || length > 4)
     {
@@ -318,9 +276,9 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList v)
         return;
     }
 
-    for (int i=0; i<v.size(); i++)
+    for (int i=0; i<array.size(); i++)
     {
-        const QVariantList vxy = v.at(i).toList();
+        const QVariantList vxy = array.at(i).toList();
         if (vxy.size() < length)
         {
             bError = true;
@@ -361,15 +319,6 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList v)
         abort("Graph "+GraphName+" not found!");
     else
         r->AddPoints(xArr, yArr, xErrArr, yErrArr);
-}
-
-void AGraph_SI::addPoint2D(QString GraphName, double x, double y, double z)
-{
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->AddPoint2D(x, y, z);
 }
 
 void AGraph_SI::setYRange(QString graphName, double min, double max)

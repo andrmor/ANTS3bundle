@@ -29,15 +29,13 @@ public slots:
     void new2D(QString graphName);
 
     void addPoint(QString graphName, double x, double y);
-    void addPoint(QString graphName, double x, double y, double errorY);
     void addPoint(QString graphName, double x, double y, double errorX, double errorY);
+    void addPoint(QString graphName, double x, double y, double z);
 
-    void addPoint2D(QString GraphName, double x, double y, double z); // refactor addPoint(QString GraphName, double x, double y, double errorY_or_z);
-
+    void addPoints(QString GraphName, QVariantList array);  // !!!*** make usable for all types
     void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray);
-    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList yErrArray);
     void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
-    void addPoints(QString GraphName, QVariantList xyArray);
+    //void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList zArray); !!!***
 
     void draw(QString graphName, QString options = "APL");
 
