@@ -214,7 +214,7 @@ void ARootHistRecord::setMin(double min)
     if (h) h->SetMinimum(min);
 }
 
-void ARootHistRecord::Save(const QString &fileName) const
+void ARootHistRecord::save(const QString &fileName) const
 {
     QMutexLocker locker(&Mutex);
 
@@ -236,23 +236,22 @@ void ARootHistRecord::Save(const QString &fileName) const
     }
 }
 
-bool ARootHistRecord::Divide(ARootHistRecord *other)
+bool ARootHistRecord::divide(ARootHistRecord * other)
 {
     other->externalLock();
     QMutexLocker locker(&Mutex);
 
-    TH1* h1 = dynamic_cast<TH1*>(Object);
-    TH1* h2 = dynamic_cast<TH1*>(other->GetObject());
+    TH1 * h1 = dynamic_cast<TH1*>(Object);
+    TH1 * h2 = dynamic_cast<TH1*>(other->GetObject());
 
-    bool bOK = false;
-    if (h1 && h2)
-        bOK = h1->Divide(h2);
+    bool ok = false;
+    if (h1 && h2) ok = h1->Divide(h2);
 
     other->externalUnlock();
-    return bOK;
+    return ok;
 }
 
-void ARootHistRecord::Smooth(int times)
+void ARootHistRecord::smooth(int times)
 {
     QMutexLocker locker(&Mutex);
 
@@ -268,7 +267,7 @@ void ARootHistRecord::Smooth(int times)
     }
 }
 
-void ARootHistRecord::Smear(double sigma)
+void ARootHistRecord::smear(double sigma)
 {
     QMutexLocker locker(&Mutex);
 
@@ -323,7 +322,7 @@ void ARootHistRecord::Scale(double ScaleIntegralTo, bool bDividedByBinWidth)
     }
 }
 
-bool ARootHistRecord::MedianFilter(int span, int spanRight)
+bool ARootHistRecord::medianFilter(int span, int spanRight)
 {
     QMutexLocker locker(&Mutex);
 
@@ -557,30 +556,6 @@ bool ARootHistRecord::is3D() const
     return Type.startsWith("TH3");
 }
 
-QVector<double> ARootHistRecord::FitGaussWithInit(const QVector<double> &InitialParValues, const QString options)
-{
-    QMutexLocker locker(&Mutex);
-
-    QVector<double> res;
-
-    if (InitialParValues.size() != 3) return res;
-    if (Type.startsWith("TH1"))
-    {
-        TH1* h = static_cast<TH1*>(Object);
-
-        TF1 *f1 = new TF1("f1","[0]*exp(-0.5*((x-[1])/[2])^2)");
-        f1->SetParameters(InitialParValues.at(0), InitialParValues.at(1), InitialParValues.at(2));
-
-        int status = h->Fit(f1, options.toLatin1());
-        if (status == 0)
-        {
-            for (int i=0; i<3; i++) res << f1->GetParameter(i);
-            for (int i=0; i<3; i++) res << f1->GetParError(i);
-        }
-    }
-    return res;
-}
-
 std::vector<double> ARootHistRecord::findPeaks(double sigma, double threshold)
 {
     QMutexLocker locker(&Mutex);
@@ -597,21 +572,41 @@ std::vector<double> ARootHistRecord::findPeaks(double sigma, double threshold)
     return res;
 }
 
-QVector<double> ARootHistRecord::FitGauss(const QString &options)
+std::vector<double> ARootHistRecord::fitGauss(const QString & options)
 {
     QMutexLocker locker(&Mutex);
 
-    QVector<double> res;
-    if (Type.startsWith("TH1"))
+    std::vector<double> res;
+    if (!Type.startsWith("TH1")) return res;
+
+    TH1 * h  = static_cast<TH1*>(Object);
+    TF1 * f1 = new TF1("f1", "gaus");
+    int status = h->Fit(f1, options.toLatin1().data());
+    if (status == 0)
     {
-        TH1* h = static_cast<TH1*>(Object);
-        TF1 *f1 = new TF1("f1", "gaus");
-        int status = h->Fit(f1, options.toLatin1().data());
-        if (status == 0)
-        {
-            for (int i=0; i<3; i++) res << f1->GetParameter(i);
-            for (int i=0; i<3; i++) res << f1->GetParError(i);
-        }
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParameter(i) );
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParError(i) );
+    }
+    return res;
+}
+
+std::vector<double> ARootHistRecord::fitGaussWithInit(const std::vector<double> & initialParValues, const QString & options)
+{
+    QMutexLocker locker(&Mutex);
+
+    std::vector<double> res;
+    if (initialParValues.size() != 3) return res;
+    if (!Type.startsWith("TH1")) return res;
+
+    TH1 * h  = static_cast<TH1*>(Object);
+    TF1 * f1 = new TF1("f1","[0]*exp(-0.5*((x-[1])/[2])^2)");
+    f1->SetParameters(initialParValues[0], initialParValues[1], initialParValues[2]);
+
+    int status = h->Fit(f1, options.toLatin1());
+    if (status == 0)
+    {
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParameter(i) );
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParError(i) );
     }
     return res;
 }

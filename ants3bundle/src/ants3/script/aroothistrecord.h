@@ -40,14 +40,14 @@ public:
     void setMax(double max);
     void setMin(double min);
 
-    void Save(const QString & fileName) const;
+    void save(const QString & fileName) const;
 
-    bool Divide(ARootHistRecord* other);
+    bool divide(ARootHistRecord* other);
 
-    void   Smooth(int times);
-    void   Smear(double sigma);
+    void   smooth(int times);
+    void   smear(double sigma);
     void   Scale(double ScaleIntegralTo, bool bDividedByBinWidth = false);
-    bool   MedianFilter(int span, int spanRight = -1);
+    bool   medianFilter(int span, int spanRight = -1);
 
     double getIntegral(bool bMultipliedByBinWidth = false);
     int    getEntries();
@@ -67,8 +67,8 @@ public:
     bool   is2D() const;
     bool   is3D() const;
 
-    QVector<double> FitGauss(const QString& options = "");
-    QVector<double> FitGaussWithInit(const QVector<double>& InitialParValues, const QString options = "");
+    std::vector<double> fitGauss(const QString & options = "");
+    std::vector<double> fitGaussWithInit(const std::vector<double> & initialParValues, const QString & options = "");
     std::vector<double> findPeaks(double sigma, double threshold);
 
 };

@@ -563,23 +563,21 @@ void AHist_SI::fillArr(QString histName, QVariantList array1, QVariantList array
     else abort("fillArr with four array arguments: applicable only to 3D histograms (not valid for " + histName + ")");
 }
 
-void AHist_SI::Smooth(const QString &HistName, int times)
+void AHist_SI::smooth(QString histName, int times)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
-    if (!r)
-        abort("Histogram " + HistName + " not found!");
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    if (!r) abort("Histogram " + histName + " not found!");
     else
     {
-        r->Smooth(times);
-        if (bGuiThread) emit RequestDraw(0, "", true); //to update
+        r->smooth(times);
+        if (bGuiThread) emit requestDraw(0, "", true); //to update
     }
 }
 
-void AHist_SI::Smear(const QString &HistName, double sigma)
+void AHist_SI::smear(QString histName, double sigma)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
-    if (!r)
-        abort("Histogram " + HistName + " not found!");
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    if (!r) abort("Histogram " + histName + " not found!");
     else
     {
         if (r->getType() != "TH1D")
@@ -587,131 +585,109 @@ void AHist_SI::Smear(const QString &HistName, double sigma)
             abort("Smear is implemented only for TH1D");
             return;
         }
-        r->Smear(sigma);
-        if (bGuiThread) emit RequestDraw(0, "", true); //to update
+        r->smear(sigma);
+        if (bGuiThread) emit requestDraw(0, "", true); //to update
     }
 }
 
-void AHist_SI::ApplyMedianFilter(const QString &HistName, int span)
+void AHist_SI::applyMedianFilter(QString histName, int span)
 {
-    ApplyMedianFilter(HistName, span, -1);
+    applyMedianFilter(histName, span, -1);
 }
 
-void AHist_SI::ApplyMedianFilter(const QString &HistName, int spanLeft, int spanRight)
+void AHist_SI::applyMedianFilter(QString histName, int spanLeft, int spanRight)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
     if (!r)
-        abort("Histogram " + HistName + " not found!");
+        abort("Histogram " + histName + " not found!");
     else
     {
-        bool bOK = r->MedianFilter(spanLeft, spanRight);
-        if (!bOK) abort("Failed - Median filter is currently implemented only for 1D histograms (TH1)");
+        bool ok = r->medianFilter(spanLeft, spanRight);
+        if (!ok) abort("Failed - median filter is currently implemented only for 1D histograms (TH1)");
     }
 }
 
-void AHist_SI::Divide(const QString &HistName, const QString &HistToDivideWith)
+void AHist_SI::divideByHistogram(QString histName, QString histToDivideWith)
 {
-    ARootHistRecord* r1 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
-    ARootHistRecord* r2 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistToDivideWith));
+    ARootHistRecord * r1 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    ARootHistRecord * r2 = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histToDivideWith));
     if (!r1)
     {
-        abort("Histogram " + HistName + " not found!");
+        abort("Histogram " + histName + " not found!");
         return;
     }
     if (!r2)
     {
-        abort("Histogram " + HistToDivideWith + " not found!");
+        abort("Histogram " + histToDivideWith + " not found!");
         return;
     }
     else
     {
-        bool bOK = r1->Divide(r2);
-        if (!bOK) abort("Histogram division failed: " + HistName + " by " + HistToDivideWith);
+        bool bOK = r1->divide(r2);
+        if (!bOK) abort("Histogram division failed: " + histName + " by " + histToDivideWith);
     }
 }
 
-QVariant ReturnNanArray(int num)
+QVariantList AHist_SI::fitGauss(QString histName, QString options)
 {
-    QJsonArray ar;
-    for (int i=0; i<num; i++) ar << std::numeric_limits<double>::quiet_NaN();
-    QJsonValue jv = ar;
-    QVariant res = jv.toVariant();
-    return res;
-}
-
-QVariant AHist_SI::FitGauss(const QString &HistName, const QString options)
-{
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    QVariantList vl;
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
     if (!r)
     {
-        abort("Histogram " + HistName + " not found!");
-        return ReturnNanArray(6);
+        abort("Histogram " + histName + " not found!");
+        return vl;
     }
-    else
+
+    if (!r->getType().startsWith("TH1"))
     {
-        const QVector<double> vec = r->FitGauss(options);
-        if (vec.isEmpty()) return ReturnNanArray(6);
-
-        if (bGuiThread) emit RequestDraw(0, "", true); //to update
-
-        QJsonArray ar;
-        for (int i=0; i<6; i++) ar << vec.at(i);
-
-        QJsonValue jv = ar;
-        QVariant res = jv.toVariant();
-        return res;
+        abort("Gaussian fit is implemented only for 1D histograms");
+        return vl;
     }
+
+    std::vector<double> vec = r->fitGauss(options);
+
+    if (!vec.empty() && bGuiThread) emit requestDraw(0, "", true); //to update
+
+    for (double d : vec) vl << d;
+    return vl;
 }
 
-QVariant AHist_SI::FitGaussWithInit(const QString &HistName, const QVariant InitialParValues, const QString options)
+QVariantList AHist_SI::fitGaussWithInit(QString histName, QVariantList initialParameterValues, QString options)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    QVariantList vl;
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
     if (!r)
     {
-        abort("Histogram " + HistName + " not found!");
-        return ReturnNanArray(6);
+        abort("Histogram " + histName + " not found!");
+        return vl;
     }
 
-    QString type = InitialParValues.typeName();
-    if (type != "QVariantList")
+    std::vector<double> in(3);
+    if (initialParameterValues.size() != 3)
     {
-        abort("InitialParValues has to be an array of three numeric values");
-        return ReturnNanArray(6);
+        abort("fitGaussWithInit: initialParameterValues argument has to be an array of Scaling, Mean and Sigma values");
+        return vl;
     }
-
-    QVariantList vl = InitialParValues.toList();
-    QVector<double> in(3);
-    if (vl.size() != 3)
+    bool ok;
+    for (int i = 0; i < 3; i++)
     {
-        abort("InitialParValues has to be an array of three numeric values");
-        return ReturnNanArray(6);
-    }
-    bool bOK;
-    for (int i=0; i<3; i++)
-    {
-        double d = vl.at(i).toDouble(&bOK);
-        if (!bOK)
+        in[i] = initialParameterValues[i].toDouble(&ok);
+        if (!ok)
         {
-            abort("InitialParValues has to be an array of three numeric values");
-            return ReturnNanArray(6);
+            abort("fitGaussWithInit: initialParameterValues argument has to be an array of Scaling, Mean and Sigma values");
+            return vl;
         }
-        in[i] = d;
     }
 
-    const QVector<double> vec = r->FitGaussWithInit(in, options);
-    if (vec.isEmpty()) return ReturnNanArray(6);
+    std::vector<double> vec = r->fitGaussWithInit(in, options);
 
-    if (bGuiThread) emit RequestDraw(0, "", true); //to update
+    if (!vec.empty() && bGuiThread) emit requestDraw(0, "", true); //to update
 
-    QJsonArray ar;
-    for (int i=0; i<6; i++) ar << vec.at(i);
-
-    QJsonValue jv = ar;
-    QVariant res = jv.toVariant();
-    return res;
+    for (double d : vec) vl << d;
+    return vl;
 }
 
-QVariantList AHist_SI::findPeaks(const QString &HistName, double sigma, double threshold)
+QVariantList AHist_SI::findPeaks(QString histName, double sigma, double threshold)
 {
     QVariantList vl;
 
@@ -725,15 +701,15 @@ QVariantList AHist_SI::findPeaks(const QString &HistName, double sigma, double t
         abort("hist.FindPeaks() : Sigma should be positive");
         return vl;
     }
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
     if (!r)
     {
-        abort("Histogram " + HistName + " not found!");
+        abort("Histogram " + histName + " not found!");
         return vl;
     }
 
     const std::vector<double> vec = r->findPeaks(sigma, threshold);
-    for (const double& d : vec) vl << d;
+    for (const double & d : vec) vl << d;
     return vl;
 }
 
@@ -817,23 +793,21 @@ QVariantList AHist_SI::getStatistics(QString histName)
     return vl;
 }
 
-void AHist_SI::Scale(const QString& HistName, double ScaleIntegralTo, bool DividedByBinWidth)
+void AHist_SI::scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
-    if (!r)
-        abort("Histogram " + HistName + " not found!");
-    else
-        r->Scale(ScaleIntegralTo, DividedByBinWidth);
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    if (!r) abort("Histogram " + histName + " not found!");
+    else    r->Scale(scaleIntegralTo, dividedByBinWidth);
 }
 
-void AHist_SI::Save(const QString &HistName, const QString& fileName)
+void AHist_SI::save(QString histName, QString fileName)
 {
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
-    if (!r) abort("Histogram " + HistName + " not found!");
-    else    r->Save(fileName);
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
+    if (!r) abort("Histogram " + histName + " not found!");
+    else    r->save(fileName);
 }
 
-void AHist_SI::Load(const QString &HistName, const QString &fileName, const QString histNameInFile)
+void AHist_SI::load(QString histName, QString fileName, QString histNameInFile)
 {
     if (!bGuiThread)
     {
@@ -841,10 +815,10 @@ void AHist_SI::Load(const QString &HistName, const QString &fileName, const QStr
         return;
     }
 
-    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(HistName));
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(TmpHub.Hists.getRecord(histName));
     if (r && bAbortIfExists)
     {
-        abort("Histogram " + HistName + " already exists!");
+        abort("Histogram " + histName + " already exists!");
         return;
     }
 
@@ -873,7 +847,7 @@ void AHist_SI::Load(const QString &HistName, const QString &fileName, const QStr
         if (Type == "TH1D")
         {
             TH1D * hist = (TH1D*)key->ReadObj();
-            rec = new ARootHistRecord(hist, HistName, "TH1D");
+            rec = new ARootHistRecord(hist, histName, "TH1D");
             hist->GetYaxis()->SetTitleOffset(1.30f);
             break;
         }
@@ -882,7 +856,7 @@ void AHist_SI::Load(const QString &HistName, const QString &fileName, const QStr
         else if (Type == "TH2D")
         {
             TH2D * hist = (TH2D*)key->ReadObj();
-            rec = new ARootHistRecord(hist, HistName, "TH2D");
+            rec = new ARootHistRecord(hist, histName, "TH2D");
             //hist->GetYaxis()->SetTitleOffset(1.30f);
             break;
         }
@@ -899,7 +873,7 @@ void AHist_SI::Load(const QString &HistName, const QString &fileName, const QStr
     }
     else
     {
-        bool bOK = TmpHub.Hists.append(HistName, rec, false);
+        bool bOK = TmpHub.Hists.append(histName, rec, false);
         if (!bOK)
         {
             delete rec;
@@ -908,7 +882,7 @@ void AHist_SI::Load(const QString &HistName, const QString &fileName, const QStr
     }
 }
 
-bool AHist_SI::Delete(const QString &HistName)
+bool AHist_SI::remove(QString histName)
 {
     if (!bGuiThread)
     {
@@ -916,15 +890,13 @@ bool AHist_SI::Delete(const QString &HistName)
         return false;
     }
 
-    return TmpHub.Hists.remove(HistName);
+    return TmpHub.Hists.remove(histName);
 }
 
-void AHist_SI::DeleteAllHist()
+void AHist_SI::removeAll()
 {
-    if (!bGuiThread)
-        abort("Threads cannot create/delete/draw histograms!");
-    else
-        TmpHub.Hists.clear();
+    if (!bGuiThread) abort("Threads cannot create/delete/draw histograms!");
+    else             TmpHub.Hists.clear();
 }
 
 void AHist_SI::draw(QString HistName, QString options)
@@ -948,7 +920,7 @@ void AHist_SI::draw(QString HistName, QString options)
         }
 
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
-        emit RequestDraw(copy, options, true);
+        emit requestDraw(copy, options, true);
     }
 }
 

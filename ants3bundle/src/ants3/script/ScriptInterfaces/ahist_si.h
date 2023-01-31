@@ -73,31 +73,29 @@ public slots:
     QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
     void           setNumberEntries(QString histName, int numEntries);
 
-    void           Scale(const QString& HistName, double ScaleIntegralTo, bool DividedByBinWidth = false);
-    void           Divide(const QString& HistName, const QString& HistToDivideWith);
+    void           scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth = false);
+    void           divideByHistogram(QString histName, QString histToDivideWith);
 
-    void           Smooth(const QString& HistName, int times);
-    void           Smear(const QString& HistName, double sigma);
+    void           applyMedianFilter(QString histName, int span);
+    void           applyMedianFilter(QString histName, int spanLeft, int spanRight);
+    void           smooth(QString histName, int times);
+    void           smear(QString histName, double sigma); // !!!*** not general! work on the algorithm
 
-    void           ApplyMedianFilter(const QString& HistName, int span);
-    void           ApplyMedianFilter(const QString& HistName, int spanLeft, int spanRight);
+    QVariantList   fitGauss(QString histName, QString options = "");
+    QVariantList   fitGaussWithInit(QString histName, QVariantList initialParameterValues, QString options = "");
 
-    QVariant       FitGauss(const QString& HistName, const QString options = "");
-    QVariant       FitGaussWithInit(const QString& HistName, const QVariant InitialParValues, const QString options = "");
+    QVariantList   findPeaks(QString histName, double sigma, double threshold);
 
-    QVariantList   findPeaks(const QString& HistName, double sigma, double threshold);
+    void           save(QString histName, QString fileName);
+    void           load(QString histName, QString fileName, QString histNameInFile = "");
 
-
-    void           Save(const QString& HistName, const QString &fileName);
-    void           Load(const QString& HistName, const QString &fileName, const QString histNameInFile = "");
-
-    bool           Delete(const QString& HistName);
-    void           DeleteAllHist();
+    bool           remove(QString histName);
+    void           removeAll();
 
     void           configureAbortIfAlreadyExists(bool flag) {bAbortIfExists = flag;}
 
 signals:
-    void           RequestDraw(TObject* obj, QString options, bool fFocus);
+    void           requestDraw(TObject * obj, QString options, bool fFocus);
 
 private:
     AScriptObjStore & TmpHub;
