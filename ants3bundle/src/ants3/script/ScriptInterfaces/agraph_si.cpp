@@ -117,58 +117,53 @@ void AGraph_SI::new2D(QString graphName)
     }
 }
 
-void AGraph_SI::setMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize)
+void AGraph_SI::setMarkerProperties(QString graphName, int color, int style, double size)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetMarkerProperties(MarkerColor, MarkerStyle, MarkerSize);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setMarkerProperties(color, style, size);
 }
 
-void AGraph_SI::setLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth)
+void AGraph_SI::setLineProperties(QString graphName, int color, int style, int width)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetLineProperties(LineColor, LineStyle, LineWidth);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setLineProperties(color, style, width);
 }
 
-void AGraph_SI::setTitles(QString GraphName, QString X_Title, QString Y_Title, QString GraphTitle)
+void AGraph_SI::setTitle(QString graphName, QString graphTitle)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetTitles(X_Title, Y_Title, GraphTitle);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setTitle(graphTitle);
 }
 
-void AGraph_SI::addPoint(QString GraphName, double x, double y)
+void AGraph_SI::setAxisTitles(QString graphName, QString x_Title, QString y_Title)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->AddPoint(x, y);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setAxisTitles(x_Title, y_Title);
 }
 
-void AGraph_SI::addPoint(QString GraphName, double x, double y, double errorY)
+void AGraph_SI::addPoint(QString graphName, double x, double y)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->AddPoint(x, y, 0, errorY);
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->addPoint(x, y);
 }
 
-void AGraph_SI::addPoint(QString GraphName, double x, double y, double errorX, double errorY)
+void AGraph_SI::addPoint(QString graphName, double x, double y, double errorY)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->AddPoint(x, y, errorX, errorY);
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->addPoint(x, y, 0, errorY);
+}
+
+void AGraph_SI::addPoint(QString graphName, double x, double y, double errorX, double errorY)
+{
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->addPoint(x, y, errorX, errorY);
 }
 
 void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy)
@@ -377,70 +372,56 @@ void AGraph_SI::addPoint2D(QString GraphName, double x, double y, double z)
         r->AddPoint2D(x, y, z);
 }
 
-void AGraph_SI::setYRange(QString GraphName, double min, double max)
+void AGraph_SI::setYRange(QString graphName, double min, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetYRange(min, max);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setYRange(min, max);
 }
 
-void AGraph_SI::setMinimum(QString GraphName, double min)
+void AGraph_SI::setMinimum(QString graphName, double min)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetMinimum(min);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setMinimum(min);
 }
 
-void AGraph_SI::setMaximum(QString GraphName, double max)
+void AGraph_SI::setMaximum(QString graphName, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetMaximum(max);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setMaximum(max);
 }
 
-void AGraph_SI::setXRange(QString GraphName, double min, double max)
+void AGraph_SI::setXRange(QString graphName, double min, double max)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetXRange(min, max);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setXRange(min, max);
 }
 
-void AGraph_SI::setXDivisions(QString GraphName, int numDiv)
+void AGraph_SI::setXDivisions(QString graphName, int numDiv)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetXDivisions(numDiv);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setXDivisions(numDiv);
 }
 
-void AGraph_SI::setYDivisions(QString GraphName, int numDiv)
+void AGraph_SI::setYDivisions(QString graphName, int numDiv)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->SetYDivisions(numDiv);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->setYDivisions(numDiv);
 }
 
-void AGraph_SI::sort(QString GraphName)
+void AGraph_SI::sort(QString graphName)
 {
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->Sort();
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->sort();
 }
 
-void AGraph_SI::draw(QString GraphName, QString options)
+void AGraph_SI::draw(QString graphName, QString options)
 {
     if (!bGuiThread)
     {
@@ -448,9 +429,8 @@ void AGraph_SI::draw(QString GraphName, QString options)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
     else
     {
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
@@ -459,8 +439,7 @@ void AGraph_SI::draw(QString GraphName, QString options)
     }
 }
 
-
-void AGraph_SI::loadTGraph(QString NewGraphName, QString FileName)
+void AGraph_SI::load(QString NewGraphName, QString FileName)
 {
     if (!bGuiThread)
     {
@@ -512,7 +491,7 @@ void AGraph_SI::loadTGraph(QString NewGraphName, QString FileName)
     delete f;
 }
 
-void AGraph_SI::saveRoot(QString GraphName, QString FileName)
+void AGraph_SI::save(QString graphName, QString fileName)
 {
     if (!bGuiThread)
     {
@@ -520,11 +499,9 @@ void AGraph_SI::saveRoot(QString GraphName, QString FileName)
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->ExportRoot(FileName);
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r) abort("Graph " + graphName + " not found!");
+    else    r->exportRoot(fileName);
 }
 
 QVariantList AGraph_SI::getPoints(QString GraphName)
@@ -548,7 +525,7 @@ QVariantList AGraph_SI::getPoints(QString GraphName)
     return res;
 }
 
-bool AGraph_SI::remove(QString GraphName)
+bool AGraph_SI::remove(QString graphName)
 {
     if (!bGuiThread)
     {
@@ -556,13 +533,11 @@ bool AGraph_SI::remove(QString GraphName)
         return false;
     }
 
-    return Graphs.remove(GraphName);
+    return Graphs.remove(graphName);
 }
 
-void AGraph_SI::removeAllGraph()
+void AGraph_SI::removeAll()
 {
-    if (!bGuiThread)
-        abort("Threads cannot create/delete/draw graphs!");
-    else
-        Graphs.clear();
+    if (!bGuiThread) abort("Threads cannot create/delete/draw graphs!");
+    else             Graphs.clear();
 }

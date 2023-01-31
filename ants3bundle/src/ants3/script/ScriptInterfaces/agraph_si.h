@@ -28,10 +28,9 @@ public slots:
     void new1DErr(QString graphName);
     void new2D(QString graphName);
 
-
-    void addPoint(QString GraphName, double x, double y);
-    void addPoint(QString GraphName, double x, double y, double errorY);
-    void addPoint(QString GraphName, double x, double y, double errorX, double errorY);
+    void addPoint(QString graphName, double x, double y);
+    void addPoint(QString graphName, double x, double y, double errorY);
+    void addPoint(QString graphName, double x, double y, double errorX, double errorY);
 
     void addPoint2D(QString GraphName, double x, double y, double z); // refactor addPoint(QString GraphName, double x, double y, double errorY_or_z);
 
@@ -40,30 +39,30 @@ public slots:
     void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
     void addPoints(QString GraphName, QVariantList xyArray);
 
-    void draw(QString GraphName, QString options = "APL");
+    void draw(QString graphName, QString options = "APL");
 
-    void setMarkerProperties(QString GraphName, int MarkerColor, int MarkerStyle, double MarkerSize);
-    void setLineProperties(QString GraphName, int LineColor, int LineStyle, int LineWidth);
-    void setTitles(QString GraphName, QString X_Title, QString Y_Title, QString GraphTitle = "");
+    void setMarkerProperties(QString graphName, int color, int style, double size);
+    void setLineProperties(QString graphName, int color, int style, int width);
 
-    void setYRange(QString GraphName, double min, double max);
-    void setMinimum(QString GraphName, double min);
-    void setMaximum(QString GraphName, double max);
-    void setXRange(QString GraphName, double min, double max);
-    void setXDivisions(QString GraphName, int numDiv);
-    void setYDivisions(QString GraphName, int numDiv);
+    void setTitle(QString graphName, QString graphTitle);
+    void setAxisTitles(QString graphName, QString x_Title, QString y_Title);
 
-    void sort(QString GraphName);
+    void setYRange(QString graphName, double min, double max);
+    void setMinimum(QString graphName, double min);
+    void setMaximum(QString graphName, double max);
+    void setXRange(QString graphName, double min, double max);
+    void setXDivisions(QString graphName, int numDiv);
+    void setYDivisions(QString graphName, int numDiv);
+
+    void sort(QString graphName);
 
     QVariantList getPoints(QString GraphName);  // !!!*** make more general: for TGraphErrors and TGraph2D
 
-    void loadTGraph(QString NewGraphName, QString FileName); // !!!*** add for TGraphErrors and TGraph2D
-    void saveRoot(QString GraphName, QString FileName);
+    void load(QString NewGraphName, QString FileName); // !!!*** add for TGraphErrors and TGraph2D
+    void save(QString graphName, QString fileName);
 
-    //void ImportFromBasket(const QString& NewGraphName, const QString& BasketName, int index = 0);
-
-    bool remove(QString GraphName);
-    void removeAllGraph();
+    bool remove(QString graphName);
+    void removeAll();
 
     void configureAbortIfAlreadyExists(bool flag) {AbortIfExists = flag;}
 

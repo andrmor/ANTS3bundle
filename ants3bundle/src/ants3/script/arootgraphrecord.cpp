@@ -59,35 +59,35 @@ TObject *ARootGraphRecord::GetObject()
     return Object;
 }
 
-void ARootGraphRecord::SetMarkerProperties(int markerColor, int markerStyle, double markerSize)
+void ARootGraphRecord::setMarkerProperties(int markerColor, int markerStyle, double markerSize)
 {
     MarkerColor = markerColor, MarkerStyle = markerStyle, MarkerSize = markerSize;
 }
 
-void ARootGraphRecord::SetLineProperties(int lineColor, int lineStyle, int lineWidth)
+void ARootGraphRecord::setLineProperties(int lineColor, int lineStyle, int lineWidth)
 {
     LineColor = lineColor,   LineStyle = lineStyle,    LineWidth = lineWidth;
 }
 
-void ARootGraphRecord::SetTitles(const QString &titleX, const QString &titleY, const QString graphTitle)
+void ARootGraphRecord::setTitle(QString graphTitle)
 {
-    TitleX = titleX; TitleY = titleY;
-
     QMutexLocker locker(&Mutex);
 
-    if (!graphTitle.isEmpty())
+    TGraph * g = dynamic_cast<TGraph*>(Object);
+    if (g)
     {
-        TGraph* g = dynamic_cast<TGraph*>(Object);
-        if (g)
-        {
-            Title = graphTitle;
-            g->SetTitle(graphTitle.toLatin1().data());
-            g->SetName(graphTitle.toLatin1().data());
-        }
+        Title = graphTitle;
+        g->SetTitle(graphTitle.toLatin1().data());
+        g->SetName(graphTitle.toLatin1().data());
     }
 }
 
-void ARootGraphRecord::AddPoint(double x, double y, double errorX, double errorY)
+void ARootGraphRecord::setAxisTitles(const QString & titleX, const QString & titleY)
+{
+    TitleX = titleX; TitleY = titleY;
+}
+
+void ARootGraphRecord::addPoint(double x, double y, double errorX, double errorY)
 {
     QMutexLocker locker(&Mutex);
 
@@ -161,7 +161,7 @@ void ARootGraphRecord::AddPoints(const QVector<double> &xArr, const QVector<doub
     }
 }
 
-void ARootGraphRecord::Sort()
+void ARootGraphRecord::sort()
 {
     QMutexLocker locker(&Mutex);
 
@@ -172,7 +172,7 @@ void ARootGraphRecord::Sort()
     }
 }
 
-void ARootGraphRecord::SetYRange(double min, double max)
+void ARootGraphRecord::setYRange(double min, double max)
 {
     QMutexLocker locker(&Mutex);
 
@@ -187,7 +187,7 @@ void ARootGraphRecord::SetYRange(double min, double max)
     }
 }
 
-void ARootGraphRecord::SetMinimum(double min)
+void ARootGraphRecord::setMinimum(double min)
 {
     QMutexLocker locker(&Mutex);
 
@@ -202,7 +202,7 @@ void ARootGraphRecord::SetMinimum(double min)
     }
 }
 
-void ARootGraphRecord::SetMaximum(double max)
+void ARootGraphRecord::setMaximum(double max)
 {
     QMutexLocker locker(&Mutex);
 
@@ -214,7 +214,7 @@ void ARootGraphRecord::SetMaximum(double max)
     }
 }
 
-void ARootGraphRecord::SetXRange(double min, double max)
+void ARootGraphRecord::setXRange(double min, double max)
 {
     QMutexLocker locker(&Mutex);
 
@@ -229,7 +229,7 @@ void ARootGraphRecord::SetXRange(double min, double max)
     }
 }
 
-void ARootGraphRecord::SetXDivisions(int numDiv)
+void ARootGraphRecord::setXDivisions(int numDiv)
 {
     QMutexLocker locker(&Mutex);
 
@@ -241,7 +241,7 @@ void ARootGraphRecord::SetXDivisions(int numDiv)
     }
 }
 
-void ARootGraphRecord::SetYDivisions(int numDiv)
+void ARootGraphRecord::setYDivisions(int numDiv)
 {
     QMutexLocker locker(&Mutex);
 
@@ -283,7 +283,7 @@ const std::vector<std::pair<double, double>> ARootGraphRecord::GetPoints()
     return res;
 }
 
-void ARootGraphRecord::ExportRoot(const QString &fileName)
+void ARootGraphRecord::exportRoot(const QString &fileName)
 {
     QMutexLocker locker(&Mutex);
 
