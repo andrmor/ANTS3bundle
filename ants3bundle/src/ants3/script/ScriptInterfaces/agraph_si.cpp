@@ -166,26 +166,24 @@ void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
     else    r->AddPoint2D(x, y, z);
 }
 
-void AGraph_SI::addPoints(QString GraphName, QVariantList xArray, QVariantList yArray)
+void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray)
 {
-    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r)
     {
-        abort("Graph " + GraphName + " not found!");
+        abort("Graph " + graphName + " not found!");
         return;
     }
 
     const int num = xArray.size();
     if (num != yArray.size())
     {
-        abort("addPoints: mismatch in array sizes for graph " + GraphName);
+        abort("addPoints: mismatch in array sizes for graph " + graphName);
         return;
     }
     if (num == 0) return;
 
-
-    std::vector<double> xArr(num);
-    std::vector<double> yArr(num);
+    std::vector<double> xArr(num), yArr(num);
     bool ok1, ok2;
     for (int i = 0; i < num; i++)
     {
@@ -193,130 +191,189 @@ void AGraph_SI::addPoints(QString GraphName, QVariantList xArray, QVariantList y
         yArr[i] = yArray[i].toDouble(&ok2);
         if (!ok1 || !ok2)
         {
-            if (!ok1) abort("addPoints: bad format of xArray for graph " + GraphName);
-            else      abort("addPoints: bad format of yArray for graph " + GraphName);
+            if (!ok1) abort("addPoints: bad format of xArray for graph " + graphName);
+            else      abort("addPoints: bad format of yArray for graph " + graphName);
             return;
         }
     }
     r->addPoints(xArr, yArr);
 }
 
-void AGraph_SI::addPoints(QString GraphName, QVariantList vx, QVariantList vy, QVariantList vEx, QVariantList vEy)
+void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray)
 {
-    if (vx.isEmpty() || vx.size() != vy.size() || vx.size() != vEx.size() || vx.size() != vEy.size())
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r)
     {
-        abort("Empty array or mismatch in array sizes in AddPoints for graph " + GraphName);
+        abort("Graph " + graphName + " not found!");
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
+    const int num = xArray.size();
+    if (num != yArray.size() || num != xErrArray.size() || num != yErrArray.size())
     {
-        QVector<double> xArr(vx.size());
-        QVector<double> yArr(vx.size());
-        QVector<double> xErrArr(vx.size());
-        QVector<double> yErrArr(vx.size());
-
-        bool bValidX, bValidY, bValidXerr, bValidYerr;
-
-        for (int i=0; i<vx.size(); i++)
-        {
-            double x    = vx.at(i).toDouble(&bValidX);
-            double y    = vy.at(i).toDouble(&bValidY);
-            double xerr = vEx.at(i).toDouble(&bValidXerr);
-            double yerr = vEy.at(i).toDouble(&bValidYerr);
-            if (bValidX && bValidY && bValidXerr && bValidYerr)
-            {
-                xArr[i] = x;
-                yArr[i] = y;
-                xErrArr[i] = xerr;
-                yErrArr[i] = yerr;
-            }
-            else
-            {
-                abort("Not numeric value found in AddPoints() for " + GraphName);
-                return;
-            }
-        }
-        r->addPoints(xArr, yArr, xErrArr, yErrArr);
+        abort("addPoints: mismatch in array sizes for graph " + graphName);
+        return;
     }
+    if (num == 0) return;
+
+    std::vector<double> xArr(num), yArr(num), xErArr(num), yErArr(num);
+    bool ok1, ok2, ok3, ok4;
+
+    for (int i = 0; i < num; i++)
+    {
+        xArr[i] = xArray[i].toDouble(&ok1);
+        yArr[i] = yArray[i].toDouble(&ok2);
+        xErArr[i] = xErrArray[i].toDouble(&ok3);
+        yErArr[i] = yErrArray[i].toDouble(&ok4);
+        if (!ok1 || !ok2 || !ok3 || !ok4)
+        {
+            if      (!ok1) abort("addPoints: bad format of xArray for graph " + graphName);
+            else if (!ok2) abort("addPoints: bad format of yArray for graph " + graphName);
+            else if (!ok3) abort("addPoints: bad format of xErrArray for graph " + graphName);
+            else           abort("addPoints: bad format of yErrArray for graph " + graphName);
+            return;
+        }
+    }
+    ARootObjBase::EStatus res = r->addPoints(xArr, yArr, xErArr, yErArr);
+    if (res != ARootObjBase::OK)
+        abort("addPoints with four array arguments is applicable only to graphs with errors");
 }
 
-void AGraph_SI::addPoints(QString GraphName, QVariantList array)
+void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray, QVariantList zArray)
 {
-    if (array.isEmpty())
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r)
     {
-        abort("Empty array in AddPoints for graph " + GraphName);
+        abort("Graph " + graphName + " not found!");
         return;
     }
 
-    bool bOK = false;
-    array.at(0).toDouble(&bOK);
-    if (bOK)
+    const int num = xArray.size();
+    if (num != yArray.size() || num != zArray.size())
+    {
+        abort("addPoints: mismatch in array sizes for graph " + graphName);
+        return;
+    }
+    if (num == 0) return;
+
+    std::vector<double> xArr(num), yArr(num), zArr(num);
+    bool ok1, ok2, ok3;
+
+    for (int i = 0; i < num; i++)
+    {
+        xArr[i] = xArray[i].toDouble(&ok1);
+        yArr[i] = yArray[i].toDouble(&ok2);
+        zArr[i] = zArray[i].toDouble(&ok3);
+        if (!ok1 || !ok2 || !ok3)
+        {
+            if      (!ok1) abort("addPoints: bad format of xArray for graph " + graphName);
+            else if (!ok2) abort("addPoints: bad format of yArray for graph " + graphName);
+            else           abort("addPoints: bad format of zArray for graph " + graphName);
+            return;
+        }
+    }
+    ARootObjBase::EStatus res = r->addPoints(xArr, yArr, zArr);
+    if (res != ARootObjBase::OK)
+        abort("addPoints with three array arguments is applicable only to 2D graphs");
+}
+
+void AGraph_SI::addPoints(QString graphName, QVariantList array)
+{
+    if (array.isEmpty()) return;
+
+    const int size = array.size();
+
+    bool ok;
+    array.front().toDouble(&ok);
+    if (ok)
     {
         QVariantList vl;
-        for (int i=0; i<array.size(); i++) vl << i;
-        addPoints(GraphName, vl, array);
+        for (int i = 0; i < size; i++) vl << i;
+        addPoints(graphName, vl, array);
         return;
     }
 
+    const int numDim = array.front().toList().size();
+    if (numDim < 2 || numDim > 4)
+    {
+        abort("addPoints with one array argument: each element should be Y or [X,Y] or [X,Y,Xerr,Yerr] or [x,y,z]" + graphName);
+        return;
+    }
+
+    std::vector<double> xArr(size), yArr(size), zArr, xErrArr, yErrArr;
+    if (numDim == 3) zArr.resize(size);
+    if (numDim == 4)
+    {
+        xErrArr.resize(size);
+        yErrArr.resize(size);
+    }
+
+    bool ok1, ok2, ok3 = true, ok4 = true;
     bool bError = false;
-    bool bValidX, bValidY, bValidErrX, bValidErrY;
-    QVector<double> xArr(array.size()), yArr(array.size()), xErrArr(array.size()), yErrArr(array.size());
-
-    const QVariantList vFirst = array.at(0).toList();
-    const int length = vFirst.size();
-    if (length < 2 || length > 4)
+    for (int i = 0; i < size; i++)
     {
-        abort("Invalid array in addPoints() for graph: each entry should be X,Y  [or X,Y,Xerr or X,Y,Xerr,Yerr for TGraphError]" + GraphName);
-        return;
-    }
-
-    for (int i=0; i<array.size(); i++)
-    {
-        const QVariantList vxy = array.at(i).toList();
-        if (vxy.size() < length)
+        const QVariantList vl = array[i].toList();
+        if (vl.size() != numDim)
         {
             bError = true;
             break;
         }
-        double x = vxy.at(0).toDouble(&bValidX);
-        double y = vxy.at(1).toDouble(&bValidY);
-        double xErr = 0; bValidErrX = true;
-        double yErr = 0; bValidErrY = true;
-        if (length == 3) yErr = vxy.at(2).toDouble(&bValidErrY);
-        if (length == 4)
-        {
-            xErr = vxy.at(2).toDouble(&bValidErrX);
-            yErr = vxy.at(3).toDouble(&bValidErrY);
-        }
-
-        if (bValidX && bValidY && bValidErrX && bValidErrY)
-        {
-            xArr[i] = x;
-            yArr[i] = y;
-            xErrArr[i] = xErr;
-            yErrArr[i] = yErr;
-        }
-        else
+        xArr[i] = vl[0].toDouble(&ok1);
+        yArr[i] = vl[1].toDouble(&ok2);
+        if (!ok1 || !ok2)
         {
             bError = true;
             break;
+        }
+        if (numDim == 3)
+        {
+            zArr[i] = vl[2].toDouble(&ok3);
+            if (!ok3)
+            {
+                bError = true;
+                break;
+            }
+        }
+        if (numDim == 4)
+        {
+            xErrArr[i] = vl[2].toDouble(&ok3);
+            yErrArr[i] = vl[3].toDouble(&ok4);
+            {
+                if (!ok3 || !ok4)
+                {
+                    bError = true;
+                    break;
+                }
+            }
         }
     }
     if (bError)
     {
-        abort("Invalid array in AddPoints() for graph " + GraphName);
+        abort("AddPoints with one array argument: invalid format for graph " + graphName);
         return;
     }
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
-    if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
-        r->addPoints(xArr, yArr, xErrArr, yErrArr);
+    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (r)
+    {
+        ARootObjBase::EStatus res;
+        switch (numDim)
+        {
+        case 2 :
+            res = r->addPoints(xArr, yArr);
+            if (res != ARootObjBase::OK) abort("addPoints with one array argument [x,y] is applicable only to 1D graphs");
+            break;
+        case 3 :
+            res = r->addPoints(xArr, yArr, yArr);
+            if (res != ARootObjBase::OK) abort("addPoints with one array argument [x,y,z] is applicable only to 2D graphs");
+            break;
+        case 4 :
+            res = r->addPoints(xArr, yArr, xErrArr, yErrArr);
+            if (res != ARootObjBase::OK) abort("addPoints with one array argument [x,y,xErr,yErr] is applicable only to 1D error graphs");
+            break;
+        }
+    }
+    else abort("Graph " + graphName + " not found!");
 }
 
 void AGraph_SI::setYRange(QString graphName, double min, double max)

@@ -32,10 +32,10 @@ public slots:
     void addPoint(QString graphName, double x, double y, double errorX, double errorY);
     void addPoint(QString graphName, double x, double y, double z);
 
-    void addPoints(QString GraphName, QVariantList array);  // !!!*** make usable for all types
-    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray);
-    void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
-    //void addPoints(QString GraphName, QVariantList xArray, QVariantList yArray, QVariantList zArray); !!!***
+    void addPoints(QString graphName, QVariantList array);
+    void addPoints(QString graphName, QVariantList xArray, QVariantList yArray);
+    void addPoints(QString graphName, QVariantList xArray, QVariantList yArray, QVariantList xErrArray, QVariantList yErrArray);
+    void addPoints(QString graphName, QVariantList xArray, QVariantList yArray, QVariantList zArray);
 
     void draw(QString graphName, QString options = "APL");
 

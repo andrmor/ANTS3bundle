@@ -108,52 +108,60 @@ void ARootGraphRecord::addPoint(double x, double y, double errorX, double errorY
     }
 }
 
-void ARootGraphRecord::addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr)
+ARootObjBase::EStatus ARootGraphRecord::addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr)
 {
     QMutexLocker locker(&Mutex);
 
     const size_t size = xArr.size();
-    if (size != yArr.size()) return;
+    if (size != yArr.size()) return ARootObjBase::DataMimatch;
 
     TGraph * g = dynamic_cast<TGraph*>(Object);
     if (g)
     {
         for (size_t i = 0; i < size; i++)
             g->SetPoint(g->GetN(), xArr[i], yArr[i]);
+        return ARootObjBase::OK;
     }
+    else return ARootObjBase::NotApplicable;
 }
 
-void ARootGraphRecord::addPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr)
+ARootObjBase::EStatus ARootGraphRecord::addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr, const std::vector<double> & xErrArr, const std::vector<double> & yErrArr)
 {
-    if (xArr.size() != yArr.size() || xArr.size() != xErrArr.size() || xArr.size() != yErrArr.size()) return;
-
     QMutexLocker locker(&Mutex);
 
-    if (Type == "TGraph")
+    if (xArr.size() != yArr.size() || xArr.size() != xErrArr.size() || xArr.size() != yErrArr.size()) return ARootObjBase::DataMimatch;
+
+    TGraphErrors * g = dynamic_cast<TGraphErrors*>(Object);
+    if (g)
     {
-        TGraph* g = dynamic_cast<TGraph*>(Object);
-        if (g)
+        for (size_t i = 0; i < xArr.size(); i++)
         {
-            for (int i=0; i<xArr.size(); i++)
-            {
-                //  qDebug() << i << xArr.at(i)<<yArr.at(i);
-                g->SetPoint(g->GetN(), xArr.at(i), yArr.at(i));
-            }
+            const int iBin = g->GetN();
+            g->SetPoint(iBin, xArr[i], yArr[i]);
+            g->SetPointError(iBin, xErrArr[i], yErrArr[i]);
         }
+        return ARootObjBase::OK;
     }
-    else if (Type == "TGraphErrors")
+    else return ARootObjBase::NotApplicable;
+}
+
+ARootObjBase::EStatus ARootGraphRecord::addPoints(const std::vector<double> &xArr, const std::vector<double> &yArr, const std::vector<double> &zArr)
+{
+    QMutexLocker locker(&Mutex);
+
+    if (xArr.size() != yArr.size() || xArr.size() != zArr.size()) return ARootObjBase::DataMimatch;
+
+    TGraph2D * g = dynamic_cast<TGraph2D*>(Object);
+    if (g)
     {
-        TGraphErrors* g = dynamic_cast<TGraphErrors*>(Object);
-        if (g)
+        for (size_t i = 0; i < xArr.size(); i++)
         {
-            for (int i=0; i<xArr.size(); i++)
-            {
-                const int iBin = g->GetN();
-                g->SetPoint(iBin, xArr.at(i), yArr.at(i));
-                g->SetPointError(iBin, xErrArr.at(i), yErrArr.at(i));
-            }
+            const int iBin = g->GetN();
+            g->SetPoint(iBin, xArr[i], yArr[i], zArr[i]);
         }
+        return ARootObjBase::OK;
     }
+    else return ARootObjBase::NotApplicable;
 }
 
 void ARootGraphRecord::sort()
