@@ -443,7 +443,7 @@ void AGraph_SI::draw(QString graphName, QString options)
     }
 }
 
-void AGraph_SI::load(QString NewGraphName, QString FileName)
+void AGraph_SI::load(QString graphName, QString fileName, QString graphNameInFile)
 {
     if (!bGuiThread)
     {
@@ -451,48 +451,72 @@ void AGraph_SI::load(QString NewGraphName, QString FileName)
         return;
     }
 
-    TFile* f = new TFile(FileName.toLocal8Bit().data());
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (r && AbortIfExists)
+    {
+        abort("Graph " + graphName + " already exists!");
+        return;
+    }
+
+    TFile * f = new TFile(fileName.toLocal8Bit().data());
     if (!f)
     {
-        abort("Cannot open file " + FileName);
+        abort("Cannot open file " + fileName);
         return;
     }
 
     const int numKeys = f->GetListOfKeys()->GetEntries();
 
-    TGraph* g = 0;
-    for (int ikey = 0; ikey < numKeys; ikey++)
+    ARootGraphRecord * rec = nullptr;
+    bool bFound = false;
+    for (int i = 0; i < numKeys; i++)
     {
-        TKey *key = (TKey*)f->GetListOfKeys()->At(ikey);
-        qDebug() << "Key->  name:" << key->GetName() << " class:" << key->GetClassName() <<" title:"<< key->GetTitle();
+        TKey * key = (TKey*)f->GetListOfKeys()->At(i);
+        QString Type = key->GetClassName();
+        QString Name = key->GetName();
+        qDebug() << i << Type << Name;
 
-        const QString Type = key->GetClassName();
-        if (Type != "TGraph") continue;
-        g = dynamic_cast<TGraph*>(key->ReadObj());
-        if (g) break;
-    }
-    if (!g) abort(FileName + " does not contain TGraphs");
-    else
-    {
-        ARootGraphRecord* rec = new ARootGraphRecord(g, NewGraphName, "TGraph");
-        bool bOK = Graphs.append(NewGraphName, rec, AbortIfExists);
-        if (!bOK)
-        {
-            delete g;
-            delete rec;
-            abort("Graph "+NewGraphName+" already exists!");
-        }
-        else
-        {
-            qDebug() << "Draw opt:"<<g->GetDrawOption() << g->GetOption();
-            //g->Dump();
-            g->SetFillColor(0);
-            g->SetFillStyle(0);
-        }
-    }
+        if (!graphNameInFile.isEmpty() && Name != graphNameInFile) continue;
+        bFound = true;
 
+        if (Type == "TGraph")
+        {
+            TGraph * g = (TGraph*)key->ReadObj();
+            rec = new ARootGraphRecord(g, graphName, "TGraph");
+            break;
+        }
+        else if (Type == "TGraphErrors")
+        {
+            TGraphErrors * ge = (TGraphErrors*)key->ReadObj();
+            rec = new ARootGraphRecord(ge, graphName, "TGraphErrors");
+            break;
+        }
+        else if (Type == "TGraph2D")
+        {
+            TGraph2D * hist = (TGraph2D*)key->ReadObj();
+            rec = new ARootGraphRecord(hist, graphName, "TGraph2D");
+            break;
+        }
+    }
     f->Close();
     delete f;
+
+    if (!rec)
+    {
+        if (!graphNameInFile.isEmpty() && !bFound)
+            abort("Graph with name " + graphNameInFile + " not found in file " + fileName);
+        else
+            abort("Error loading graph.\nCurrently supported graph types are TGraph, TGraphError and TGraph2D");
+    }
+    else
+    {
+        bool bOK = Graphs.append(graphName, rec, false);
+        if (!bOK)
+        {
+            delete rec;
+            abort("Load graph from file " + fileName + " failed!");
+        }
+    }
 }
 
 void AGraph_SI::save(QString graphName, QString fileName)

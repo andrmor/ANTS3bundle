@@ -56,7 +56,7 @@ public slots:
 
     QVariantList getData(QString GraphName);
 
-    void load(QString NewGraphName, QString FileName); // !!!*** add for TGraphErrors and TGraph2D
+    void load(QString graphName, QString fileName, QString graphNameInFile = "");
     void save(QString graphName, QString fileName);
 
     bool remove(QString graphName);

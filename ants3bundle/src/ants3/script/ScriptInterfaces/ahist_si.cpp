@@ -860,6 +860,12 @@ void AHist_SI::load(QString histName, QString fileName, QString histNameInFile)
             //hist->GetYaxis()->SetTitleOffset(1.30f);
             break;
         }
+        else if (Type == "TH3D")
+        {
+            TH3D * hist = (TH3D*)key->ReadObj();
+            rec = new ARootHistRecord(hist, histName, "TH3D");
+            break;
+        }
     }
     f->Close();
     delete f;
@@ -869,7 +875,7 @@ void AHist_SI::load(QString histName, QString fileName, QString histNameInFile)
         if (!histNameInFile.isEmpty() && !bFound)
             abort("Histogram with name " + histNameInFile + " not found in file " + fileName);
         else
-            abort("Error loading histogram.\nNote that currently supported histogram types are TH1D and TH2D");
+            abort("Error loading histogram.\nNote that currently supported histogram types are TH1D, TH2D and TH3D");
     }
     else
     {
