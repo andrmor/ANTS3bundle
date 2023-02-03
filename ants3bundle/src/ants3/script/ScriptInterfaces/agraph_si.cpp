@@ -163,7 +163,7 @@ void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
 {
     ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r) abort("Graph " + graphName + " not found!");
-    else    r->AddPoint2D(x, y, z);
+    else    r->addPoint2D(x, y, z);
 }
 
 void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray)
@@ -508,22 +508,29 @@ void AGraph_SI::save(QString graphName, QString fileName)
     else    r->exportRoot(fileName);
 }
 
-QVariantList AGraph_SI::getPoints(QString GraphName)
+QVariantList AGraph_SI::getData(QString GraphName)
 {
     QVariantList res;
 
-    ARootGraphRecord* r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(GraphName));
     if (!r)
-        abort("Graph "+GraphName+" not found!");
-    else
     {
-        const std::vector<std::pair<double, double>> vec = r->GetPoints();
-        for (const auto & pair : vec)
-        {
-            QVariantList el;
-            el << pair.first << pair.second;
-            res.push_back(el); // creates nested array!
-        }
+        abort("Graph " + GraphName + " not found!");
+        return res;
+    }
+
+    std::vector<double> x, y, z, errx, erry;
+    r->getData(x, y, z, errx, erry);
+    const bool bHaveZ   = !z.empty();
+    const bool bHaveErr = !errx.empty();
+    const size_t size = x.size();
+    for (size_t i = 0; i < size; i++)
+    {
+        QVariantList el;
+        el << x[i] << y[i];
+        if (bHaveZ) el << z[i];
+        if (bHaveErr) el << errx[i] << erry[i];
+        res.push_back(el);
     }
 
     return res;

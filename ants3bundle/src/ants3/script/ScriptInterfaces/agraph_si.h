@@ -54,7 +54,7 @@ public slots:
 
     void sort(QString graphName);
 
-    QVariantList getPoints(QString GraphName);  // !!!*** make more general: for TGraphErrors and TGraph2D
+    QVariantList getData(QString GraphName);
 
     void load(QString NewGraphName, QString FileName); // !!!*** add for TGraphErrors and TGraph2D
     void save(QString graphName, QString fileName);

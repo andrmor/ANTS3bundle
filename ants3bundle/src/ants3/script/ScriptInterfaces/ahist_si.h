@@ -60,7 +60,7 @@ public slots:
     void           setYLabelProperties(QString histName, double size, double offset);
     void           setXCustomLabels(QString histName, QVariantList textLabels);
 
-    QVariantList   getContent(QString histName);
+    QVariantList   getData(QString histName);
     int            getNumberEntries(QString histName);
     double         getNumberUnderflows(QString histName); // !!!*** 2D
     double         getNumberOverflows(QString histName);  // !!!*** 2D

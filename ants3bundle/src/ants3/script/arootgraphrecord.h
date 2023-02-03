@@ -26,6 +26,7 @@ public:
 
     // Protected by Mutex
     void     addPoint(double x, double y, double errorX = 0, double errorY = 0);
+    void     addPoint2D(double x, double y, double z);
     EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr);
     EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr, const std::vector<double> & xErrArr, const std::vector<double> & yErrArr);
     EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr, const std::vector<double> & zArr);
@@ -37,9 +38,8 @@ public:
     void     setXDivisions(int numDiv);
     void     setYDivisions(int numDiv);
 
-    void     AddPoint2D(double x, double y, double z);
-
-    const std::vector<std::pair<double, double>> GetPoints(); // !!!*** make more general
+    void     getData(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z,
+                     std::vector<double> & errx, std::vector<double> & erry);
 
     void     exportRoot(const QString & fileName);
 

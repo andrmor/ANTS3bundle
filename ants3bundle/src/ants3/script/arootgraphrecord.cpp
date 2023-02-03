@@ -256,7 +256,7 @@ void ARootGraphRecord::setYDivisions(int numDiv)
     }
 }
 
-void ARootGraphRecord::AddPoint2D(double x, double y, double z)
+void ARootGraphRecord::addPoint2D(double x, double y, double z)
 {
     QMutexLocker locker(&Mutex);
 
@@ -267,23 +267,50 @@ void ARootGraphRecord::AddPoint2D(double x, double y, double z)
     }
 }
 
-const std::vector<std::pair<double, double>> ARootGraphRecord::GetPoints()
+void ARootGraphRecord::getData(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z,
+                               std::vector<double> & errx, std::vector<double> & erry)
 {
     QMutexLocker locker(&Mutex);
 
-    std::vector<std::pair<double, double>> res;
-    if (Type == "TGraph" || Type == "TGraphErrors")
+    if (Type == "TGraph")
     {
-        TGraph* g = dynamic_cast<TGraph*>(Object);
+        TGraph * g = dynamic_cast<TGraph*>(Object);
         if (g)
         {
             const int numPoints = g->GetN();
-            res.resize(numPoints);
-            for (int ip = 0; ip < numPoints; ip++)
-                g->GetPoint(ip, res[ip].first, res[ip].second);
+            x.resize(numPoints);
+            y.resize(numPoints);
+            for (int ip = 0; ip < numPoints; ip++) g->GetPoint(ip, x[ip], y[ip]);
         }
     }
-    return res;
+    else if (Type == "TGraphErrors")
+    {
+        TGraphErrors * g = dynamic_cast<TGraphErrors*>(Object);
+        if (g)
+        {
+            const int numPoints = g->GetN();
+            x.resize(numPoints); y.resize(numPoints);
+            errx.resize(numPoints); erry.resize(numPoints);
+            for (int ip = 0; ip < numPoints; ip++)
+            {
+                g->GetPoint(ip, x[ip], y[ip]);
+                errx[ip] = g->GetErrorX(ip);
+                erry[ip] = g->GetErrorY(ip);
+            }
+        }
+    }
+    else if (Type == "TGraph2D")
+    {
+        TGraph2D * g = dynamic_cast<TGraph2D*>(Object);
+        if (g)
+        {
+            const int numPoints = g->GetN();
+            x.resize(numPoints);
+            y.resize(numPoints);
+            z.resize(numPoints);
+            for (int ip = 0; ip < numPoints; ip++) g->GetPoint(ip, x[ip], y[ip], z[ip]);
+        }
+    }
 }
 
 void ARootGraphRecord::exportRoot(const QString &fileName)

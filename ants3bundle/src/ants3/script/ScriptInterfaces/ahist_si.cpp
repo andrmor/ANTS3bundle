@@ -924,7 +924,7 @@ void AHist_SI::draw(QString HistName, QString options)
     }
 }
 
-QVariantList AHist_SI::getContent(QString histName)
+QVariantList AHist_SI::getData(QString histName)
 {
     QVariantList vl;
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
