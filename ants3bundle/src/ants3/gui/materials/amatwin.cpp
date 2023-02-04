@@ -444,14 +444,12 @@ void AMatWin::on_pbLoadPrimSpectrum_clicked()
 
 void AMatWin::on_pbShowPrimSpectrum_clicked()
 {
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
-    MW->GraphWindow->configureGraph(g, "Emission spectrum",
-                                    "Wavelength, nm", "Emission probability, a.u.",
-                                    2, 20, 1,
-                                    2, 1,  1);
-    MW->GraphWindow->Draw(g, "APL");
-*/
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
+    AGraphBuilder::configure(g, "Emission spectrum",
+                                "Wavelength, nm", "Emission probability, a.u.",
+                                2, 20, 1,
+                                2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
 
 void AMatWin::on_pbDeletePrimSpectrum_clicked()
@@ -485,14 +483,12 @@ void AMatWin::on_pbLoadSecSpectrum_clicked()
 
 void AMatWin::on_pbShowSecSpectrum_clicked()
 {
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
-    MW->GraphWindow->configureGraph(g, "Emission spectrum",
-                                    "Wavelength, nm", "Emission probability, a.u.",
-                                    2, 20, 1,
-                                    2, 1,  1);
-    MW->GraphWindow->Draw(g, "APL");
-*/
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
+    AGraphBuilder::configure(g, "Emission spectrum",
+                                "Wavelength, nm", "Emission probability, a.u.",
+                                2, 20, 1,
+                                2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
 
 void AMatWin::on_pbDeleteSecSpectrum_clicked()
@@ -566,14 +562,12 @@ void AMatWin::on_pbLoadABSlambda_clicked()
 
 void AMatWin::on_pbShowABSlambda_clicked()
 {
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
-    MW->GraphWindow->configureGraph(g, "Attenuation coefficient",
-                                    "Wavelength, nm", "Attenuation coefficient, mm^{-1}",
-                                    2, 20, 1,
-                                    2, 1,  1);
-    MW->GraphWindow->Draw(g, "APL");
-*/
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
+    AGraphBuilder::configure(g, "Attenuation coefficient",
+                                "Wavelength, nm", "Attenuation coefficient, mm^{-1}",
+                                2, 20, 1,
+                                2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
 
 void AMatWin::on_pbDeleteABSlambda_clicked()
@@ -588,14 +582,12 @@ void AMatWin::on_pbDeleteABSlambda_clicked()
 
 void AMatWin::on_pbShowReemProbLambda_clicked()
 {
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
-    MW->GraphWindow->configureGraph(g, "Reemission probability",
-                                    "Wavelength, nm", "Reemission probability",
-                                    2, 20, 1,
-                                    2, 1,  1);
-    MW->GraphWindow->Draw(g, "APL");
-*/
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
+    AGraphBuilder::configure(g, "Attenuation coefficient",
+                                "Wavelength, nm", "Reemission probability",
+                                2, 20, 1,
+                                2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
 
 void AMatWin::on_pbLoadReemisProbLambda_clicked()
@@ -1076,21 +1068,20 @@ void AMatWin::on_pbPriThelp_clicked()
     guitools::message(s, this);
 }
 
+#include "arandomhub.h"
 void AMatWin::on_pbPriT_test_clicked()
 {
-    /*
     tmpMaterial.updateRuntimeProperties(); //to update sum of stat weights
 
-    TH1D* h = new TH1D("h1", "", 1000, 0, 0);
-    for (int i=0; i<1000000; i++)
-        h->Fill( tmpMaterial.GeneratePrimScintTime(Detector->RandGen) );
+    TH1D * h = new TH1D("h1", "", 1000, 0, 0);
+    for (int i = 0; i < 1000000; i++)
+        h->Fill( tmpMaterial.generatePrimScintTime(ARandomHub::getInstance()));
 
     h->GetXaxis()->SetTitle("Time, ns");
-    TString title = "Emission for ";
+    TString title = "Time spectrum for ";
     title += tmpMaterial.name.toLatin1().data();
     h->SetTitle(title);
-    MW->GraphWindow->Draw(h);
-*/
+    emit requestDraw(h, "hist", true, true);
 }
 
 void AMatWin::on_pbSecScintHelp_clicked()
