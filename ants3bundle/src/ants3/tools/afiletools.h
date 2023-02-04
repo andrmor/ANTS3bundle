@@ -5,6 +5,7 @@
 #include <QVector>
 
 #include <vector>
+#include <complex>
 
 namespace ftools
 {
@@ -14,6 +15,7 @@ namespace ftools
     QString mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName); //returns error string, otherwise ""
 
     QString loadPairs(const QString & fileName, std::vector<std::pair<double,double>> & data, bool enforceIncreasing = false);
+    QString loadDoubleComplexPairs(const QString & fileName, std::vector<std::pair<double,std::complex<double>>> & data, bool enforceIncreasing = false);
 
     // assume file's row is y and column is x  Top line will be the row with y-index of 0
     QString loadMatrix(const QString & fileName, std::vector<std::vector<double>> & data);

@@ -375,7 +375,6 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.Dielectric = (ui->cobNAbsOrComplex->currentIndex() == 0);
     tmpMaterial.ReN = ui->ledReN->text().toDouble();
     tmpMaterial.ImN = ui->ledImN->text().toDouble();
-    //tmpMaterial.ComplexEffectiveWave = ui->ledComplexWave->text().toDouble();
 
     tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
@@ -1134,7 +1133,6 @@ void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
 #include <QDesktopServices>
 void AMatWin::on_pbListGeant4Materials_clicked()
 {
-    //QDesktopServices::openUrl(QUrl("file:///C:/Documents and Settings/All Users/Desktop", QUrl::TolerantMode));
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
 }
 
@@ -1253,9 +1251,57 @@ void AMatWin::on_pbCancel_clicked()
     switchToMaterial(ui->cobActiveMaterials->currentIndex());
 }
 
-//void AMatWin::on_ledComplexWave_editingFinished()
-//{
-//    double wave = ui->ledComplexWave->text().toDouble();
-//    if (wave > 0) tmpMaterial.ComplexEffectiveWave = wave;
-//    else guitools::message("Wavelength should be positive!", this);
-//}
+void AMatWin::on_pbShowComplexN_clicked()
+{
+    TGraph * gre = AGraphBuilder::graph(tmpMaterial.ComplexN, true);
+    AGraphBuilder::configure(gre, "Real",
+                                  "Wavelength, nm", "",
+                                  2, 20, 1,
+                                  2, 1,  1);
+
+    double xminre, yminre, xmaxre, ymaxre;
+    gre->ComputeRange(xminre, yminre, xmaxre, ymaxre);
+
+    TGraph * gim = AGraphBuilder::graph(tmpMaterial.ComplexN, false);
+    AGraphBuilder::configure(gim, "Imaginary",
+                                  "Wavelength, nm", "",
+                                  3, 21, 1,
+                                  3, 9,  1);
+    double xminim, yminim, xmaxim, ymaxim;
+    gim->ComputeRange(xminim, yminim, xmaxim, ymaxim);
+
+    double min = std::min(yminre, yminim);
+    double max = std::max(ymaxre, ymaxim);
+
+    gre->SetMaximum(max*1.05);
+    gre->SetMinimum(min - 0.05*fabs(min));
+
+    emit requestDraw(gre, "APL", true, true);
+    emit requestDraw(gim, "PLsame", true, true);
+}
+void AMatWin::on_pbLoadComplexN_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load complex refractive index vs wavelength", GlobSet.LastLoadDir, "Data files (*.dat *.txt);;All files (*.*)");
+    if (fileName.isEmpty()) return;
+    GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
+
+    QString err = ftools::loadDoubleComplexPairs(fileName, tmpMaterial.ComplexN, true);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    bool bHaveData = !tmpMaterial.ComplexN.empty();
+    ui->pbShowComplexN->setEnabled(bHaveData);
+    ui->pbDeleteComplexN->setEnabled(bHaveData);
+    setWasModified(true);
+}
+void AMatWin::on_pbDeleteComplexN_clicked()
+{
+    tmpMaterial.ComplexN.clear();
+
+    ui->pbShowComplexN->setEnabled(false);
+    ui->pbDeleteComplexN->setEnabled(false);
+    setWasModified(true);
+}

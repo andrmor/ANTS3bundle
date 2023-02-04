@@ -47,35 +47,38 @@ private slots:
     void on_cobActiveMaterials_activated(int index);
     void on_pbUpdateTmpMaterial_clicked();
     void on_pbLoadPrimSpectrum_clicked();
-    void on_pbShowPrimSpectrum_clicked();  // !!!***
+    void on_pbShowPrimSpectrum_clicked();
     void on_pbDeletePrimSpectrum_clicked();
     void on_pbLoadSecSpectrum_clicked();
-    void on_pbShowSecSpectrum_clicked();   // !!!***
+    void on_pbShowSecSpectrum_clicked();
     void on_pbDeleteSecSpectrum_clicked();
     void on_pbLoadNlambda_clicked();
-    void on_pbShowNlambda_clicked();       // !!!***
+    void on_pbShowNlambda_clicked();
     void on_pbDeleteNlambda_clicked();
     void on_pbLoadABSlambda_clicked();
-    void on_pbShowABSlambda_clicked();    // !!!***
+    void on_pbShowABSlambda_clicked();
     void on_pbDeleteABSlambda_clicked();
     void on_pbWasModified_clicked();
     void on_ledRayleighWave_editingFinished();
     void on_ledRayleigh_editingFinished();
     void on_pbRemoveRayleigh_clicked();
-    void on_pbShowUsage_clicked();       // !!!***
+    void on_pbShowUsage_clicked();
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
     void on_cbShowIsotopes_clicked();
     void on_pbMaterialInfo_clicked();
     void on_trwChemicalComposition_doubleClicked(const QModelIndex &index);
-    void on_pbShowReemProbLambda_clicked();     // !!!***
+    void on_pbShowReemProbLambda_clicked();
     void on_pbLoadReemisProbLambda_clicked();
     void on_pbDeleteReemisProbLambda_clicked();
     void on_lePriT_editingFinished();
     void on_pbPriThelp_clicked();
-    void on_pbPriT_test_clicked(); // !!!***
+    void on_pbPriT_test_clicked();
     void on_pbSecScintHelp_clicked();
     void on_pbListGeant4Materials_clicked();
+    void on_pbShowComplexN_clicked();
+    void on_pbLoadComplexN_clicked();
+    void on_pbDeleteComplexN_clicked();
 
     //user or code controlled change - safe or only GUI
     void on_ledRayleigh_textChanged(const QString &arg1);
@@ -88,8 +91,6 @@ private slots:
 //    void on_actionLoad_from_material_library_triggered();   !!!***
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
-
-    //void on_ledComplexWave_editingFinished();
 
 private:
     AGeometryHub & Geometry;
