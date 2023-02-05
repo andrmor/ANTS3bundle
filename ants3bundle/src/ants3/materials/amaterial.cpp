@@ -1,6 +1,5 @@
 #include "amaterial.h"
 #include "achemicalelement.h"
-//#include "acommonfunctions.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "aerrorhub.h"
@@ -43,8 +42,8 @@ double AMaterial::getIntrinsicEnergyResolution(int iParticle) const
 
 double AMaterial::getRefractiveIndex(int iWave) const
 {
-    if (iWave == -1 || nWaveBinned.isEmpty()) return RefIndex;
-    return nWaveBinned[iWave];
+    if (iWave == -1 || refIndex_WaveBinned.empty()) return RefIndex;
+    return refIndex_WaveBinned[iWave];
 }
 
 const std::complex<double> & AMaterial::getComplexRefractiveIndex(int iWave) const
@@ -91,7 +90,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
 
 void AMaterial::generateTGeoMat()
 {
-    GeoMat = ChemicalComposition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
+    GeoMat = Composition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
     GeoMat->SetTemperature(Temperature);
 }
 
@@ -177,7 +176,7 @@ void AMaterial::updateRuntimeProperties()
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
-    nWaveBinned.clear();
+    refIndex_WaveBinned.clear();
     absWaveBinned.clear();
     RefIndex_Comlex_WaveBinned.clear();
     //Abs_FromComplex_WaveBinned.clear();
@@ -190,10 +189,10 @@ void AMaterial::updateRuntimeProperties()
     {
         if (Dielectric)
         {
-            if (nWave_lambda.size() > 0)
+            if (!RefIndex_Wave.empty())
             {
-                WaveSet.toStandardBins(&nWave_lambda, &nWave, &nWaveBinned);
-                for (const double & d : nWaveBinned) RefIndex_Comlex_WaveBinned.push_back({d, 0});
+                WaveSet.toStandardBins(RefIndex_Wave, refIndex_WaveBinned);
+                for (double d : refIndex_WaveBinned) RefIndex_Comlex_WaveBinned.push_back({d, 0}); // !!!*** still need?
             }
             if (absWave_lambda.size() > 0) WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
         }
@@ -280,9 +279,8 @@ void AMaterial::clear()
 
     rayleighBinned.clear();
 
-    nWave_lambda.clear();
-    nWave.clear();
-    nWaveBinned.clear();
+    RefIndex_Wave.clear();
+    refIndex_WaveBinned.clear();
 
     absWave_lambda.clear();
     absWave.clear();
@@ -319,7 +317,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["Density"]     = Density;
     json["Temperature"] = Temperature;
 
-    json["Composition"] = ChemicalComposition.writeToJson();
+    json["Composition"] = Composition.writeToJson();
 
     json["RefIndex"]    = RefIndex;
     json["AbsCoeff"]    = AbsCoeff;
@@ -379,13 +377,13 @@ void AMaterial::writeToJson(QJsonObject & json) const
 
     json["Comments"] = Comments;
 
-    /*
     {
         QJsonArray ar;
-        writeTwoQVectorsToJArray(nWave_lambda, nWave, ar);
-        json["RefractiveIndexWave"] = ar;
+        jstools::writeDPairVectorToArray(RefIndex_Wave, ar);
+        json["RefIndexWave"] = ar;
     }
 
+    /*
     {
         QJsonArray ar;
         writeTwoQVectorsToJArray(absWave_lambda, absWave, ar);
@@ -430,7 +428,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Temperature", Temperature);
 
     QJsonObject ccjson = json["Composition"].toObject();
-    ChemicalComposition.readFromJson(ccjson);
+    Composition.readFromJson(ccjson);
 
     jstools::parseJson(json, "RefIndex", RefIndex);
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
@@ -509,13 +507,13 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
     jstools::parseJson(json, "NistMaterial",     NistMaterial);
 
-/*
     //wavelength-resolved data
-    if (json.contains("RefractiveIndexWave"))
+    if (json.contains("RefIndexWave"))
     {
-        QJsonArray ar = json["RefractiveIndexWave"].toArray();
-        readTwoQVectorsFromJArray(ar, nWave_lambda, nWave);
+        QJsonArray ar = json["RefIndexWave"].toArray();
+        jstools::readDPairVectorFromArray(ar, RefIndex_Wave);
     }
+    /*
     if (json.contains("BulkAbsorptionWave"))
     {
         QJsonArray ar = json["BulkAbsorptionWave"].toArray();
@@ -552,7 +550,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 
 QString AMaterial::checkMaterial() const
 {
-    const QString errInComposition = ChemicalComposition.checkForErrors();
+    const QString errInComposition = Composition.checkForErrors();
     if (!errInComposition.isEmpty())
         return Name + ": " + errInComposition;
 
@@ -564,5 +562,5 @@ QString AMaterial::checkMaterial() const
 
 void AMaterial::importComposition(TGeoMaterial * mat)
 {
-    ChemicalComposition.import(mat);
+    Composition.import(mat);
 }

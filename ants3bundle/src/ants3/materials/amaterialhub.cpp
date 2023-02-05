@@ -125,7 +125,7 @@ void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
     AMaterial * m = new AMaterial;
 
-    m->ChemicalComposition.setCompositionString("H");
+    m->Composition.setCompositionString("H");
     m->Density = 1e-25;
 
     AInterfaceRuleHub::getInstance().onMaterialAdded();
@@ -363,7 +363,7 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         if (mat->UseNistMaterial && mat->NistMaterial.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
-        if (!mat->ChemicalComposition.isDefined() && !mat->UseNistMaterial)
+        if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
             Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
     }
 }

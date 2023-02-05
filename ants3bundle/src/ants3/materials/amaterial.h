@@ -24,12 +24,11 @@ public:
     double  Density;              // in g/cm3
     double  Temperature = 298.0;  // in K
 
-    double  RefIndex;             // refractive index for wave=-1 (or wavelength unresolved)
-    bool    Dielectric = true;
-    std::complex<double> RefIndexComplex = {1.0, 0};
-    //double  ReN = 1.0;
-    //double  ImN = 0;
-    std::vector<std::pair<double,std::complex<double>>> RefIndexComplex_Wave; // {Wave[nm], ComplexRefractiveIndex}
+    bool    Dielectric = true;    // not dielectric = metal = use complex refractive index on reflectionfrom doelectric
+    double                                              RefIndex;                   // for wave=-1 or wavelength unresolved sim
+    std::vector<std::pair<double,double>>               RefIndex_Wave;              // {wave[nm], RefIndex}
+    std::complex<double>                                RefIndexComplex = {1.0, 0};
+    std::vector<std::pair<double,std::complex<double>>> RefIndexComplex_Wave;       // {Wave[nm], ComplexRefractiveIndex}
 
     double  AbsCoeff;             // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
 
@@ -40,6 +39,7 @@ public:
 
     double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
     double IntrEnResDefault = 0;
+
     std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
     std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}
 
@@ -54,7 +54,7 @@ public:
     QString Comments;
     std::vector<QString> Tags; // used in material library
 
-    AMaterialComposition ChemicalComposition;
+    AMaterialComposition Composition;
 
     bool    UseNistMaterial = false;
     QString NistMaterial;
@@ -64,16 +64,12 @@ public:
     double IntrEnergyRes = 0; // intrinsic energy resolution
     */
 
-    // !!!*** to std::vector<std::pair>
-    QVector<double> nWave_lambda;
-    QVector<double> nWave;
 
+    // !!!*** to std::vector<std::pair>
     QVector<double> absWave_lambda;
     QVector<double> absWave;
-
     QVector<double> reemisProbWave;
     QVector<double> reemisProbWave_lambda;
-
     QVector<double> PrimarySpectrum_lambda;
     QVector<double> PrimarySpectrum;
     QVector<double> SecondarySpectrum_lambda;
@@ -112,7 +108,7 @@ public:
     TH1D          * PrimarySpectrumHist = nullptr;
     TH1D          * SecondarySpectrumHist = nullptr;
     QVector<double> rayleighBinned;//regular step (WaveStep step, WaveNodes bins)
-    QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
+    std::vector<double> refIndex_WaveBinned; //regular step (WaveStep step, WaveNodes bins)
     QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
     QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
       // complex refraction index-related

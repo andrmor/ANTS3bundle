@@ -183,7 +183,7 @@ void AMatWin::updateWaveButtons()
     ui->pbShowSecSpectrum->setEnabled(bSecSpec);
     ui->pbDeleteSecSpectrum->setEnabled(bSecSpec);
 
-    bool bN = (tmpMaterial.nWave_lambda.size() > 0);
+    bool bN = (tmpMaterial.RefIndex_Wave.size() > 0);
     ui->pbShowNlambda->setEnabled(bN);
     ui->pbDeleteNlambda->setEnabled(bN);
 
@@ -265,8 +265,8 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledDensity->setText( QString::number(tmpMaterial.Density) );
     ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
 
-    ui->leChemicalComposition->setText( tmpMaterial.ChemicalComposition.getCompositionString() );
-    ui->leCompositionByWeight->setText( tmpMaterial.ChemicalComposition.getCompositionByWeightString() );
+    ui->leChemicalComposition->setText( tmpMaterial.Composition.getCompositionString() );
+    ui->leCompositionByWeight->setText( tmpMaterial.Composition.getCompositionByWeightString() );
     ShowTreeWithChemicalComposition();
 
     ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
@@ -350,7 +350,7 @@ void AMatWin::updateTmpMaterialGui()
 
 void AMatWin::updateWarningIcons()
 {
-    if (tmpMaterial.ChemicalComposition.countElements() == 0)
+    if (tmpMaterial.Composition.countElements() == 0)
     {
         QPixmap pm(QSize(16,16));
         pm.fill(Qt::transparent);
@@ -504,14 +504,14 @@ void AMatWin::on_pbLoadNlambda_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.nWave_lambda, &tmpMaterial.nWave);  //cleans previous data too
+    QString err = ftools::loadPairs(fileName, tmpMaterial.RefIndex_Wave);  //cleans previous data too
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.nWave_lambda.isEmpty();
+    bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
     ui->pbShowNlambda->setEnabled(bHaveData);
     ui->pbDeleteNlambda->setEnabled(bHaveData);
     setWasModified(true);
@@ -519,7 +519,7 @@ void AMatWin::on_pbLoadNlambda_clicked()
 
 void AMatWin::on_pbShowNlambda_clicked()
 {
-    TGraph * g = AGraphBuilder::graph(tmpMaterial.nWave_lambda, tmpMaterial.nWave);
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.RefIndex_Wave);
     AGraphBuilder::configure(g, "Refractive index",
                                 "Wavelength, nm", "Refractive index",
                                 2, 20, 1,
@@ -529,8 +529,7 @@ void AMatWin::on_pbShowNlambda_clicked()
 
 void AMatWin::on_pbDeleteNlambda_clicked()
 {
-    tmpMaterial.nWave_lambda.clear();
-    tmpMaterial.nWave.clear();
+    tmpMaterial.RefIndex_Wave.clear();
 
     ui->pbShowNlambda->setEnabled(false);
     ui->pbDeleteNlambda->setEnabled(false);
@@ -783,7 +782,7 @@ tmpMaterial.readFromJson(js);
 void AMatWin::onAddIsotope(AChemicalElement *element)
 {
     element->Isotopes << AIsotope(element->Symbol, 777, 0);
-    tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
+    tmpMaterial.Composition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
     setWasModified(true);
@@ -798,7 +797,7 @@ void AMatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInEleme
     }
     element->Isotopes.removeAt(isotopeIndexInElement);
 
-    tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
+    tmpMaterial.Composition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
     setWasModified(true);
@@ -806,7 +805,7 @@ void AMatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInEleme
 
 void AMatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
 {
-    tmpMaterial.ChemicalComposition.updateMassRelatedPoperties();
+    tmpMaterial.Composition.updateMassRelatedPoperties();
 
     updateTmpMaterialGui();
     setWasModified(true);
@@ -828,7 +827,7 @@ void AMatWin::modifyChemicalComposition()
 
     QVBoxLayout* L = new QVBoxLayout();
     QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionString(), this);
+    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionString(), this);
     le->setMinimumSize(400,25);
     QPushButton* pb = new QPushButton("Confirm", this);
     l->addWidget(le);
@@ -843,7 +842,7 @@ void AMatWin::modifyChemicalComposition()
 
     while (d->exec() != 0)
     {
-        AMaterialComposition& mc = tmpMaterial.ChemicalComposition;
+        AMaterialComposition& mc = tmpMaterial.Composition;
         QString error = mc.setCompositionString(le->text(), true);
         if (!error.isEmpty())
         {
@@ -868,7 +867,7 @@ void AMatWin::modifyByWeight()
 
     QVBoxLayout* L = new QVBoxLayout();
     QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.ChemicalComposition.getCompositionByWeightString(), this);
+    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionByWeightString(), this);
     le->setMinimumSize(400,25);
     QPushButton* pb = new QPushButton("Confirm", this);
     l->addWidget(le);
@@ -885,7 +884,7 @@ void AMatWin::modifyByWeight()
 
     while (d->exec() != 0)
     {
-        AMaterialComposition& mc = tmpMaterial.ChemicalComposition;
+        AMaterialComposition& mc = tmpMaterial.Composition;
         QString error = mc.setCompositionByWeightString(le->text());
         if (!error.isEmpty())
         {
@@ -911,9 +910,9 @@ void AMatWin::ShowTreeWithChemicalComposition()
 
     bool bShowIsotopes = ui->cbShowIsotopes->isChecked();
 
-    for (int i=0; i<tmpMaterial.ChemicalComposition.countElements(); i++)
+    for (int i=0; i<tmpMaterial.Composition.countElements(); i++)
     {
-        AChemicalElement* el = tmpMaterial.ChemicalComposition.getElement(i);
+        AChemicalElement* el = tmpMaterial.Composition.getElement(i);
 
         //new element
         AChemicalElementDelegate* elDel = new AChemicalElementDelegate(el, &bClearInProgress, ui->cbShowIsotopes->isChecked());
@@ -965,7 +964,7 @@ void AMatWin::on_pbMaterialInfo_clicked()
         return;
     }
 
-    double MAM = tmpMaterial.ChemicalComposition.getMeanAtomMass();
+    double MAM = tmpMaterial.Composition.getMeanAtomMass();
     QString str = "Mean atom mass: " + QString::number(MAM, 'g', 4) + " a.u.\n";
     double AtDens = tmpMaterial.Density / MAM / 1.66054e-24;
     str += "Atom density: " + QString::number(AtDens, 'g', 4) + " cm-3\n";
