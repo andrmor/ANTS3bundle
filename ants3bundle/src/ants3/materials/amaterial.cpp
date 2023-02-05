@@ -43,13 +43,13 @@ double AMaterial::getIntrinsicEnergyResolution(int iParticle) const
 
 double AMaterial::getRefractiveIndex(int iWave) const
 {
-    if (iWave == -1 || nWaveBinned.isEmpty()) return n;
+    if (iWave == -1 || nWaveBinned.isEmpty()) return RefIndex;
     return nWaveBinned[iWave];
 }
 
 const std::complex<double> & AMaterial::getComplexRefractiveIndex(int iWave) const
 {
-    if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) return RefIndex_Complex;
+    if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) return RefIndexComplex;
     return RefIndex_Comlex_WaveBinned[iWave];
 }
 
@@ -58,7 +58,7 @@ double AMaterial::getAbsorptionCoefficient(int iWave) const
     if (Dielectric)
     {
         //qDebug() << iWave << absWaveBinned.size();
-        if (iWave == -1 || absWaveBinned.isEmpty()) return abs;
+        if (iWave == -1 || absWaveBinned.isEmpty()) return AbsCoeff;
         return absWaveBinned[iWave];
     }
     else
@@ -72,7 +72,7 @@ double AMaterial::getAbsorptionCoefficient(int iWave) const
 double AMaterial::getReemissionProbability(int iWave) const
 {
     //qDebug() << "reemis->" << iWave << ( reemissionProbBinned.size() > 0 ? reemissionProbBinned.at(iWave) : reemissionProb );
-    if (iWave == -1 || reemissionProbBinned.isEmpty()) return reemissionProb;
+    if (iWave == -1 || reemissionProbBinned.isEmpty()) return ReemissionProb;
     return reemissionProbBinned[iWave];
 }
 
@@ -82,7 +82,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
     if (Dielectric) refIndexReal = getRefractiveIndex(iWave);
     else
     {
-        if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) refIndexReal = ReN;
+        if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) refIndexReal = RefIndexComplex.real();
         else refIndexReal = RefIndex_Comlex_WaveBinned[iWave].real();
     }
 
@@ -91,8 +91,8 @@ double AMaterial::getSpeedOfLight(int iWave) const
 
 void AMaterial::generateTGeoMat()
 {
-    GeoMat = ChemicalComposition.generateTGeoMaterial(name.toLocal8Bit().data(), density);
-    GeoMat->SetTemperature(temperature);
+    GeoMat = ChemicalComposition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
+    GeoMat->SetTemperature(Temperature);
 }
 
 double AMaterial::FT(double td, double tr, double t) const
@@ -172,8 +172,7 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 #include "aphotonsimhub.h"
 void AMaterial::updateRuntimeProperties()
 {
-    RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
-
+    //RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
     //if (!Dielectric) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
@@ -200,9 +199,9 @@ void AMaterial::updateRuntimeProperties()
         }
         else
         {
-            if (!ComplexN.empty())
+            if (!RefIndexComplex_Wave.empty())
             {
-                WaveSet.toStandardBins(ComplexN, RefIndex_Comlex_WaveBinned);
+                WaveSet.toStandardBins(RefIndexComplex_Wave, RefIndex_Comlex_WaveBinned);
                 for (auto & cri : RefIndex_Comlex_WaveBinned)
                     if (cri.imag() > 0) cri = std::conj(cri);
 
@@ -217,10 +216,10 @@ void AMaterial::updateRuntimeProperties()
         if (reemisProbWave_lambda.size() > 0)
             WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
 
-        if (rayleighMFP != 0)
+        if (RayleighMFP != 0)
         {
-            double baseWave4 = rayleighWave * rayleighWave * rayleighWave * rayleighWave;
-            double base = rayleighMFP / baseWave4;
+            double baseWave4 = RayleighWave * RayleighWave * RayleighWave * RayleighWave;
+            double base = RayleighMFP / baseWave4;
             for (int i = 0; i < WaveNodes; i++)
             {
                 double wave  = WaveSet.From + WaveSet.Step * i;
@@ -261,19 +260,17 @@ void AMaterial::updateRuntimeProperties()
 
 void AMaterial::clear()
 {
-    name = "Undefined";
-    n = 1.0;
-    density = abs = rayleighMFP = reemissionProb = 0;
-    temperature = 298.0;
+    Name = "Undefined";
+    RefIndex = 1.0;
+    Density = AbsCoeff = RayleighMFP = ReemissionProb = 0;
+    Temperature = 298.0;
     e_driftVelocity = W = SecYield = SecScintDecayTime = e_diffusion_L = e_diffusion_T = 0;
-    rayleighWave = 500.0;
+    RayleighWave = 500.0;
     Comments = "";
 
     Dielectric = true;
-    ReN = 1.0;
-    ImN = 0;
-    //ComplexEffectiveWave = 500.0;
-    ComplexN.clear();
+    RefIndexComplex = {1.0, 0};
+    RefIndexComplex_Wave.clear();
     RefIndex_Comlex_WaveBinned.clear();
 
     PriScint_Decay.clear();
@@ -318,28 +315,34 @@ void AMaterial::clearDynamicProperties()
 
 void AMaterial::writeToJson(QJsonObject & json) const
 {
-    json["*MaterialName"] = name;
-    json["Density"] = density;
-    json["Temperature"] = temperature;
-    json["ChemicalComposition"] = ChemicalComposition.writeToJson();
-    json["RefractiveIndex"] = n;
-    json["BulkAbsorption"] = abs;
-    json["RayleighMFP"] = rayleighMFP;
-    json["RayleighWave"] = rayleighWave;
-    json["ReemissionProb"] = reemissionProb;
+    json["*Name"]       = Name;
+    json["Density"]     = Density;
+    json["Temperature"] = Temperature;
+
+    json["Composition"] = ChemicalComposition.writeToJson();
+
+    json["RefIndex"]    = RefIndex;
+    json["AbsCoeff"]    = AbsCoeff;
+    json["RayleighMFP"] = RayleighMFP;
+    json["RayleighWave"] = RayleighWave;
+
+    json["ReemissionProb"] = ReemissionProb;
 
     json["Dielectric"] = Dielectric;
-    json["ReN"] = ReN;
-    json["ImN"] = ImN;
     {
         QJsonArray ar;
-        for (const auto & rec : ComplexN)
+        ar << RefIndexComplex.real() << RefIndexComplex.imag();
+        json["RefIndexComplex"] = ar;
+    }
+    {
+        QJsonArray ar;
+        for (const auto & rec : RefIndexComplex_Wave)
         {
             QJsonArray el;
             el << rec.first << rec.second.real() << rec.second.imag();
             ar.append(el);
         }
-        json["ComplexN"] = ar;
+        json["RefIndexComplex_Wave"] = ar;
     }
 
     json["PhotonYieldDefault"] = PhotonYieldDefault;
@@ -414,31 +417,42 @@ void AMaterial::writeToJson(QJsonObject & json) const
         json["*Tags"] = ar;
     }
 
-    json["UseNistMaterial"] = bG4UseNistMaterial;
-    json["NistMaterial"]    = G4NistMaterial;
+    json["UseNistMaterial"] = UseNistMaterial;
+    json["NistMaterial"]    = NistMaterial;
 }
 
 bool AMaterial::readFromJson(const QJsonObject & json)
 {
     clear();
 
-    jstools::parseJson(json, "*MaterialName", name);
-    jstools::parseJson(json, "Density", density);
-    jstools::parseJson(json, "Temperature", temperature);
-    QJsonObject ccjson = json["ChemicalComposition"].toObject();
+    jstools::parseJson(json, "*Name", Name);
+    jstools::parseJson(json, "Density", Density);
+    jstools::parseJson(json, "Temperature", Temperature);
+
+    QJsonObject ccjson = json["Composition"].toObject();
     ChemicalComposition.readFromJson(ccjson);
-    jstools::parseJson(json, "RefractiveIndex", n);
-    jstools::parseJson(json, "BulkAbsorption", abs);
-    jstools::parseJson(json, "RayleighMFP", rayleighMFP);
-    jstools::parseJson(json, "RayleighWave", rayleighWave);
-    jstools::parseJson(json, "ReemissionProb", reemissionProb);
+
+    jstools::parseJson(json, "RefIndex", RefIndex);
+    jstools::parseJson(json, "AbsCoeff", AbsCoeff);
+    jstools::parseJson(json, "RayleighMFP", RayleighMFP);
+    jstools::parseJson(json, "RayleighWave", RayleighWave);
+    jstools::parseJson(json, "ReemissionProb", ReemissionProb);
 
     jstools::parseJson(json, "Dielectric", Dielectric);
-    jstools::parseJson(json, "ReN", ReN);
-    jstools::parseJson(json, "ImN", ImN);
     {
         QJsonArray ar;
-        jstools::parseJson(json, "ComplexN", ar);
+        jstools::parseJson(json, "RefIndexComplex", ar);
+        if (ar.size() != 2) AErrorHub::addError("Bad size of complex refractive index record");
+        else
+        {
+            const double real = ar[0].toDouble(-1e99);
+            const double imag = ar[1].toDouble(-1e99);
+            RefIndexComplex = {real, imag};
+        }
+    }
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "RefIndexComplex_Wave", ar);
         for (int i = 0; i < ar.size(); i++)
         {
             QJsonArray el = ar[i].toArray();
@@ -455,7 +469,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
                 AErrorHub::addError("Convertion to double error for a record of complex N");
                 continue;
             }
-            ComplexN.push_back( {wave, {real, imag}} );
+            RefIndexComplex_Wave.push_back( {wave, {real, imag}} );
         }
     }
 
@@ -492,8 +506,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ElDiffusionL",     e_diffusion_L);
     jstools::parseJson(json, "ElDiffusionT",     e_diffusion_T);
     jstools::parseJson(json, "Comments",         Comments);
-    jstools::parseJson(json, "UseNistMaterial",  bG4UseNistMaterial);
-    jstools::parseJson(json, "NistMaterial",     G4NistMaterial);
+    jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
+    jstools::parseJson(json, "NistMaterial",     NistMaterial);
 
 /*
     //wavelength-resolved data
@@ -524,7 +538,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     }
 
 */
-    if (json.contains("*Tags"))
+    if (json.contains("Tags"))
     {
         QJsonArray ar = json["*Tags"].toArray();
         for (int i = 0; i < ar.size(); i++) Tags.push_back(ar[i].toString());
@@ -540,10 +554,10 @@ QString AMaterial::checkMaterial() const
 {
     const QString errInComposition = ChemicalComposition.checkForErrors();
     if (!errInComposition.isEmpty())
-        return name + ": " + errInComposition;
+        return Name + ": " + errInComposition;
 
-    if (density <= 0) return name + ": Non-positive density";
-    if (temperature <= 0) return name + ": Non-positive temperature";
+    if (Density <= 0) return Name + ": Non-positive density";
+    if (Temperature <= 0) return Name + ": Non-positive temperature";
 
     return "";
 }

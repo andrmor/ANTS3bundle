@@ -247,8 +247,8 @@ QString AInterfaceRuleHub::checkAll()
             QString es = r->checkOverrideData();
             if (!es.isEmpty())
             {
-                const QString matFrom = MatHub[r->getMaterialFrom()]->name;
-                const QString matTo   = MatHub[r->getMaterialTo()]  ->name;
+                const QString matFrom = MatHub[r->getMaterialFrom()]->Name;
+                const QString matTo   = MatHub[r->getMaterialTo()]  ->Name;
                 err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + err;
             }
         }

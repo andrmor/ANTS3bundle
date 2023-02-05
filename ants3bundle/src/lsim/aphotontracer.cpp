@@ -593,11 +593,11 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     //prepare Rayleigh
     bool DoRayleigh;
     double RayleighPath;
-    if (MaterialFrom->rayleighMFP == 0) DoRayleigh = false;      // == 0 - means undefined
+    if (MaterialFrom->RayleighMFP == 0) DoRayleigh = false;      // == 0 - means undefined
     else
     {
         double RayleighMFP;
-        if (Photon.waveIndex == -1) RayleighMFP = MaterialFrom->rayleighMFP;
+        if (Photon.waveIndex == -1) RayleighMFP = MaterialFrom->RayleighMFP;
         else RayleighMFP = MaterialFrom->rayleighBinned[Photon.waveIndex];
 
         RayleighPath = -RayleighMFP * log(RandomHub.uniform());

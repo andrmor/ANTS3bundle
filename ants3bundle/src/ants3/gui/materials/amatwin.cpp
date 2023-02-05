@@ -191,7 +191,7 @@ void AMatWin::updateWaveButtons()
     ui->pbShowABSlambda->setEnabled(bA);
     ui->pbDeleteABSlambda->setEnabled(bA);
 
-    bool bCompexN = (!tmpMaterial.ComplexN.empty());
+    bool bCompexN = (!tmpMaterial.RefIndexComplex_Wave.empty());
     ui->pbShowComplexN->setEnabled(bCompexN);
     ui->pbDeleteComplexN->setEnabled(bCompexN);
 
@@ -260,33 +260,32 @@ void AMatWin::configureG4Materials()
 
 void AMatWin::updateTmpMaterialGui()
 {
-    ui->leName->setText(tmpMaterial.name);
+    ui->leName->setText(tmpMaterial.Name);
 
-    ui->ledDensity->setText( QString::number(tmpMaterial.density) );
-    ui->ledT->setText( QString::number(tmpMaterial.temperature) );
+    ui->ledDensity->setText( QString::number(tmpMaterial.Density) );
+    ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
 
     ui->leChemicalComposition->setText( tmpMaterial.ChemicalComposition.getCompositionString() );
     ui->leCompositionByWeight->setText( tmpMaterial.ChemicalComposition.getCompositionByWeightString() );
     ShowTreeWithChemicalComposition();
 
-    ui->cbG4Material->setChecked(tmpMaterial.bG4UseNistMaterial);
-    ui->leG4Material->setText(tmpMaterial.G4NistMaterial);
+    ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
+    ui->leG4Material->setText(tmpMaterial.NistMaterial);
     updateG4RelatedGui();
 
-    ui->ledN->setText( QString::number(tmpMaterial.n) );
-    ui->ledAbs->setText( QString::number(tmpMaterial.abs) );
+    ui->ledN->setText( QString::number(tmpMaterial.RefIndex) );
+    ui->ledAbs->setText( QString::number(tmpMaterial.AbsCoeff) );
 
     ui->cobNAbsOrComplex->setCurrentIndex(tmpMaterial.Dielectric ? 0 : 1);
-    ui->ledReN->setText(QString::number(tmpMaterial.ReN));
-    ui->ledImN->setText(QString::number(tmpMaterial.ImN));
-    //ui->ledComplexWave->setText(QString::number(tmpMaterial.ComplexEffectiveWave));
+    ui->ledReN->setText(QString::number(tmpMaterial.RefIndexComplex.real()));
+    ui->ledImN->setText(QString::number(tmpMaterial.RefIndexComplex.imag()));
 
-    ui->ledReemissionProbability->setText( QString::number(tmpMaterial.reemissionProb) );
+    ui->ledReemissionProbability->setText( QString::number(tmpMaterial.ReemissionProb) );
 
-    QString s = ( tmpMaterial.rayleighMFP > 0 ? QString::number(tmpMaterial.rayleighMFP)
+    QString s = ( tmpMaterial.RayleighMFP > 0 ? QString::number(tmpMaterial.RayleighMFP)
                                               : "" );
     ui->ledRayleigh->setText(s);
-    ui->ledRayleighWave->setText( QString::number(tmpMaterial.rayleighWave) );
+    ui->ledRayleighWave->setText( QString::number(tmpMaterial.RayleighWave) );
 
     //decay time
     if ( tmpMaterial.PriScint_Decay.empty() )
@@ -365,16 +364,15 @@ void AMatWin::updateWarningIcons()
 
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
-    tmpMaterial.name = ui->leName->text();
-    tmpMaterial.density = ui->ledDensity->text().toDouble();
-    tmpMaterial.temperature = ui->ledT->text().toDouble();
-    tmpMaterial.n = ui->ledN->text().toDouble();
-    tmpMaterial.abs = ui->ledAbs->text().toDouble();
-    tmpMaterial.reemissionProb = ui->ledReemissionProbability->text().toDouble();
+    tmpMaterial.Name = ui->leName->text();
+    tmpMaterial.Density = ui->ledDensity->text().toDouble();
+    tmpMaterial.Temperature = ui->ledT->text().toDouble();
+    tmpMaterial.RefIndex = ui->ledN->text().toDouble();
+    tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
+    tmpMaterial.ReemissionProb = ui->ledReemissionProbability->text().toDouble();
 
     tmpMaterial.Dielectric = (ui->cobNAbsOrComplex->currentIndex() == 0);
-    tmpMaterial.ReN = ui->ledReN->text().toDouble();
-    tmpMaterial.ImN = ui->ledImN->text().toDouble();
+    tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };
 
     tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
@@ -394,8 +392,8 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     for (const QString & s : slTags)
         tmpMaterial.Tags.push_back(s.simplified());
 
-    tmpMaterial.bG4UseNistMaterial = ui->cbG4Material->isChecked();
-    tmpMaterial.G4NistMaterial = ui->leG4Material->text();
+    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
+    tmpMaterial.NistMaterial = ui->leG4Material->text();
 }
 
 void AMatWin::setMaterial(int index)
@@ -666,7 +664,7 @@ void AMatWin::on_ledRayleighWave_editingFinished()
         ui->ledRayleighWave->setText("500");
     }
 
-    tmpMaterial.rayleighWave = wave;
+    tmpMaterial.RayleighWave = wave;
 }
 
 void AMatWin::on_ledRayleigh_textChanged(const QString &arg1)
@@ -680,19 +678,19 @@ void AMatWin::on_ledRayleigh_editingFinished()
     double ray;
     if (ui->ledRayleigh->text() == "") ray = 0;
     else ray = ui->ledRayleigh->text().toDouble();
-    tmpMaterial.rayleighMFP = ray;
+    tmpMaterial.RayleighMFP = ray;
 }
 
 void AMatWin::on_pbRemoveRayleigh_clicked()
 {
     ui->ledRayleigh->setText("");
-    tmpMaterial.rayleighMFP = 0;
+    tmpMaterial.RayleighMFP = 0;
     setWasModified(true);
 }
 
 void AMatWin::on_pbShowUsage_clicked()
 {
-    QString name = tmpMaterial.name;
+    QString name = tmpMaterial.Name;
     int index = ui->cobActiveMaterials->currentIndex();
 
     bool flagFound = false;
@@ -969,7 +967,7 @@ void AMatWin::on_pbMaterialInfo_clicked()
 
     double MAM = tmpMaterial.ChemicalComposition.getMeanAtomMass();
     QString str = "Mean atom mass: " + QString::number(MAM, 'g', 4) + " a.u.\n";
-    double AtDens = tmpMaterial.density / MAM / 1.66054e-24;
+    double AtDens = tmpMaterial.Density / MAM / 1.66054e-24;
     str += "Atom density: " + QString::number(AtDens, 'g', 4) + " cm-3\n";
     guitools::message(str, this);
 }
@@ -1082,7 +1080,7 @@ void AMatWin::on_pbPriT_test_clicked()
 
     h->GetXaxis()->SetTitle("Time, ns");
     TString title = "Time spectrum for ";
-    title += tmpMaterial.name.toLatin1().data();
+    title += tmpMaterial.Name.toLatin1().data();
     h->SetTitle(title);
     emit requestDraw(h, "hist", true, true);
 }
@@ -1198,12 +1196,12 @@ void AMatWin::on_pbClone_clicked()
         if (res == QMessageBox::Cancel) return;
     }
 
-    QString matName = tmpMaterial.name + "_c";
+    QString matName = tmpMaterial.Name + "_c";
     int iCounter = 1;
     while (MatHub.findMaterial(matName) != -1)
-        matName = QString("%0_c%1").arg(tmpMaterial.name).arg(iCounter++);
+        matName = QString("%0_c%1").arg(tmpMaterial.Name).arg(iCounter++);
 
-    tmpMaterial.name = matName;
+    tmpMaterial.Name = matName;
     MatHub.copyToMaterials(tmpMaterial);
 
     emit requestRebuildDetector();
@@ -1220,7 +1218,7 @@ void AMatWin::on_pbAcceptChanges_clicked()
     const int iMat = ui->cobActiveMaterials->currentIndex();
     const QString oldName = ui->cobActiveMaterials->currentText();
 
-    tmpMaterial.name = oldName;
+    tmpMaterial.Name = oldName;
     MatHub.copyToMaterials(tmpMaterial);
 
     if (newName != oldName)
@@ -1257,7 +1255,7 @@ void AMatWin::on_pbCancel_clicked()
 
 void AMatWin::on_pbShowComplexN_clicked()
 {
-    TGraph * gre = AGraphBuilder::graph(tmpMaterial.ComplexN, true);
+    TGraph * gre = AGraphBuilder::graph(tmpMaterial.RefIndexComplex_Wave, true);
     AGraphBuilder::configure(gre, "Real",
                                   "Wavelength, nm", "",
                                   2, 20, 1,
@@ -1266,7 +1264,7 @@ void AMatWin::on_pbShowComplexN_clicked()
     double xminre, yminre, xmaxre, ymaxre;
     gre->ComputeRange(xminre, yminre, xmaxre, ymaxre);
 
-    TGraph * gim = AGraphBuilder::graph(tmpMaterial.ComplexN, false);
+    TGraph * gim = AGraphBuilder::graph(tmpMaterial.RefIndexComplex_Wave, false);
     AGraphBuilder::configure(gim, "Imaginary",
                                   "Wavelength, nm", "",
                                   3, 21, 1,
@@ -1289,21 +1287,21 @@ void AMatWin::on_pbLoadComplexN_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleComplexPairs(fileName, tmpMaterial.ComplexN, true);
+    QString err = ftools::loadDoubleComplexPairs(fileName, tmpMaterial.RefIndexComplex_Wave, true);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.ComplexN.empty();
+    bool bHaveData = !tmpMaterial.RefIndexComplex_Wave.empty();
     ui->pbShowComplexN->setEnabled(bHaveData);
     ui->pbDeleteComplexN->setEnabled(bHaveData);
     setWasModified(true);
 }
 void AMatWin::on_pbDeleteComplexN_clicked()
 {
-    tmpMaterial.ComplexN.clear();
+    tmpMaterial.RefIndexComplex_Wave.clear();
 
     ui->pbShowComplexN->setEnabled(false);
     ui->pbDeleteComplexN->setEnabled(false);

@@ -75,20 +75,20 @@ void AMaterialHub::updateRuntimeProperties()
 QString AMaterialHub::getMaterialName(int matIndex) const
 {
     if (matIndex < 0 || matIndex >= (int)Materials.size()) return "";
-    return Materials[matIndex]->name;
+    return Materials[matIndex]->Name;
 }
 
 QStringList AMaterialHub::getListOfMaterialNames() const
 {
     QStringList l;
-    for (AMaterial * m : Materials) l << m->name;
+    for (AMaterial * m : Materials) l << m->Name;
     return l;
 }
 
 std::vector<std::string> AMaterialHub::getMaterialNames() const
 {
     std::vector<std::string> v;
-    for (const AMaterial * m : Materials) v.push_back(m->name.toLatin1().data());
+    for (const AMaterial * m : Materials) v.push_back(m->Name.toLatin1().data());
     return v;
 }
 
@@ -96,8 +96,8 @@ std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFrom
 {
     std::vector<std::pair<std::string, std::string>> v;
     for (const AMaterial * m : Materials)
-        if (m->bG4UseNistMaterial)
-            v.push_back( {m->name.toLatin1().data(), m->G4NistMaterial.toLatin1().data()} );
+        if (m->UseNistMaterial)
+            v.push_back( {m->Name.toLatin1().data(), m->NistMaterial.toLatin1().data()} );
     return v;
 }
 
@@ -107,7 +107,7 @@ void AMaterialHub::generateGeoMedia()
     {
         AMaterial * mat = Materials[iMat];
         mat->generateTGeoMat();
-        mat->GeoMed = new TGeoMedium(mat->name.toLocal8Bit().data(), iMat, mat->GeoMat);
+        mat->GeoMed = new TGeoMedium(mat->Name.toLocal8Bit().data(), iMat, mat->GeoMat);
     }
 }
 
@@ -126,7 +126,7 @@ void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
     AMaterial * m = new AMaterial;
 
     m->ChemicalComposition.setCompositionString("H");
-    m->density = 1e-25;
+    m->Density = 1e-25;
 
     AInterfaceRuleHub::getInstance().onMaterialAdded();
 
@@ -138,7 +138,7 @@ void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 void AMaterialHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
 {
     addNewMaterial(true);
-    Materials.back()->name = name;
+    Materials.back()->Name = name;
     ensureMatNameIsUnique(Materials.back());
 
     if (!fSuppressChangedSignal) emit materialsChanged();
@@ -174,7 +174,7 @@ double AMaterialHub::getS1IntrEnRes(int iMat, const QString & particle) const
 
 void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
 {
-    const QString name = tmpMaterial.name;
+    const QString name = tmpMaterial.Name;
     int index = findMaterial(name);
     if (index == -1)
     {
@@ -199,7 +199,7 @@ int AMaterialHub::findMaterial(const QString & name) const
     const int size = Materials.size();
 
     for (int index = 0; index < size; index++)
-        if (name == Materials[index]->name) return index;
+        if (name == Materials[index]->Name) return index;
 
     return -1;
 }
@@ -254,9 +254,9 @@ void AMaterialHub::importMaterials(TList * matList)
         addNewMaterial(true);
         AMaterial & amat = *Materials.back();
 
-        amat.name = tmat->GetName();
-        amat.density = tmat->GetDensity();
-        amat.temperature = tmat->GetTemperature();
+        amat.Name = tmat->GetName();
+        amat.Density = tmat->GetDensity();
+        amat.Temperature = tmat->GetTemperature();
         amat.importComposition(tmat);
     }
 
@@ -321,9 +321,9 @@ void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is 
 bool AMaterialHub::renameMaterial(int iMat, const QString & newName)
 {
     for (const AMaterial * m : Materials)
-        if (newName == m->name) return false;
+        if (newName == m->Name) return false;
 
-    Materials[iMat]->name = newName;
+    Materials[iMat]->Name = newName;
 
     emit materialsChanged();
     return true;
@@ -331,7 +331,7 @@ bool AMaterialHub::renameMaterial(int iMat, const QString & newName)
 
 void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
 {
-    QString name = mat->name;
+    QString name = mat->Name;
     bool fFound;
     do
     {
@@ -339,7 +339,7 @@ void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
         for (const AMaterial * m : Materials)
         {
             if (m == mat) continue;
-            if (m->name == name)
+            if (m->Name == name)
             {
                 fFound = true;
                 name += "*";
@@ -348,7 +348,7 @@ void AMaterialHub::ensureMatNameIsUnique(AMaterial * mat)
         }
     }
     while (fFound);
-    mat->name = name;
+    mat->Name = name;
 }
 
 void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
@@ -361,9 +361,9 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         const AMaterial * mat = Materials[iM];
 
-        if (mat->bG4UseNistMaterial && mat->G4NistMaterial.isEmpty())
-            Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->name);
-        if (!mat->ChemicalComposition.isDefined() && !mat->bG4UseNistMaterial)
-            Errors += QString("\nComposition not defined for material %1\n").arg(mat->name);
+        if (mat->UseNistMaterial && mat->NistMaterial.isEmpty())
+            Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
+        if (!mat->ChemicalComposition.isDefined() && !mat->UseNistMaterial)
+            Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
     }
 }
