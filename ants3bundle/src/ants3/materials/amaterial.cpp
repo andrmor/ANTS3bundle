@@ -111,21 +111,19 @@ double bi_exp(double t, double tau1,double tau2)
 
 double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 {
-    //select decay time component
     double DecayTime = 0;
-    if (PriScint_Decay.size() == 1)
-        DecayTime = PriScint_Decay.first().value;
+    if (PriScint_Decay.size() == 1) DecayTime = PriScint_Decay.front().first;
     else
     {
         //selecting decay time component
         const double generatedStatWeight = _PrimScintSumStatWeight_Decay * Random.uniform();
         double cumulativeStatWeight = 0;
-        for (int i=0; i<PriScint_Decay.size(); i++)
+        for (size_t i = 0; i < PriScint_Decay.size(); i++)
         {
-            cumulativeStatWeight += PriScint_Decay[i].statWeight;
+            cumulativeStatWeight += PriScint_Decay[i].second;
             if (generatedStatWeight < cumulativeStatWeight)
             {
-                DecayTime = PriScint_Decay[i].value;
+                DecayTime = PriScint_Decay[i].first;
                 break;
             }
         }
@@ -134,21 +132,19 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
     if (DecayTime == 0)
         return 0; // decay time is 0 -> rise time is ignored
 
-    //select rise time component
     double RiseTime = 0;
-    if (PriScint_Raise.size() == 1)
-        RiseTime = PriScint_Raise.first().value;
+    if (PriScint_Raise.size() == 1) RiseTime = PriScint_Raise.front().first;
     else
     {
         //selecting raise time component
         const double generatedStatWeight = _PrimScintSumStatWeight__Raise * Random.uniform();
         double cumulativeStatWeight = 0;
-        for (int i=0; i<PriScint_Raise.size(); i++)
+        for (size_t i = 0; i < PriScint_Raise.size(); i++)
         {
-            cumulativeStatWeight += PriScint_Raise[i].statWeight;
+            cumulativeStatWeight += PriScint_Raise[i].second;
             if (generatedStatWeight < cumulativeStatWeight)
             {
-                RiseTime = PriScint_Raise[i].value;
+                RiseTime = PriScint_Raise[i].first;
                 break;
             }
         }
@@ -257,10 +253,10 @@ void AMaterial::updateRuntimeProperties()
     //updating sum stat weights for primary scintillation time generator
     _PrimScintSumStatWeight_Decay = 0;
     _PrimScintSumStatWeight__Raise = 0;
-    for (const APair_ValueAndWeight& pair : PriScint_Decay)
-        _PrimScintSumStatWeight_Decay += pair.statWeight;
-    for (const APair_ValueAndWeight& pair : PriScint_Raise)
-        _PrimScintSumStatWeight__Raise += pair.statWeight;
+    for (const auto & pair : PriScint_Decay)
+        _PrimScintSumStatWeight_Decay += pair.second;
+    for (const auto & pair : PriScint_Raise)
+        _PrimScintSumStatWeight__Raise += pair.second;
 }
 
 void AMaterial::clear()
@@ -281,9 +277,9 @@ void AMaterial::clear()
     RefIndex_Comlex_WaveBinned.clear();
 
     PriScint_Decay.clear();
-    PriScint_Decay << APair_ValueAndWeight(0, 1.0);
+    PriScint_Decay.push_back( {0, 1.0} );
     PriScint_Raise.clear();
-    PriScint_Raise << APair_ValueAndWeight(0, 1.0);
+    PriScint_Raise.push_back( {0, 1.0} );
 
     rayleighBinned.clear();
 
@@ -335,7 +331,6 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["Dielectric"] = Dielectric;
     json["ReN"] = ReN;
     json["ImN"] = ImN;
-    //json["ComplexEffectiveWave"] = ComplexEffectiveWave;
     {
         QJsonArray ar;
         for (const auto & rec : ComplexN)
@@ -352,22 +347,22 @@ void AMaterial::writeToJson(QJsonObject & json) const
 
     {
         QJsonArray ar;
-        for (const APair_ValueAndWeight& pair : PriScint_Decay)
+        for (const auto & pair : PriScint_Decay)
         {
             QJsonArray el;
-            el << pair.value << pair.statWeight;
-            ar.append(el);
+            el << pair.first << pair.second;
+            ar.push_back(el);
         }
         json["PrimScintDecay"] = ar;
     }
 
     {
         QJsonArray ar;
-        for (const APair_ValueAndWeight& pair : PriScint_Raise)
+        for (const auto & pair : PriScint_Raise)
         {
             QJsonArray el;
-            el << pair.value << pair.statWeight;
-            ar.append(el);
+            el << pair.first << pair.second;
+            ar.push_back(el);
         }
         json["PrimScintRaise"] = ar;
     }
@@ -412,43 +407,35 @@ void AMaterial::writeToJson(QJsonObject & json) const
         json["SecScintSpectrum"] = ar;
     }
 
+    */
     {
         QJsonArray ar;
         for (const QString & s : Tags) ar.append(s);
         json["*Tags"] = ar;
     }
-    */
 
-    json["bG4UseNistMaterial"] = bG4UseNistMaterial;
-    json["G4NistMaterial"]     = G4NistMaterial;
+    json["UseNistMaterial"] = bG4UseNistMaterial;
+    json["NistMaterial"]    = G4NistMaterial;
 }
 
 bool AMaterial::readFromJson(const QJsonObject & json)
 {
     clear();
 
-    //general data
     jstools::parseJson(json, "*MaterialName", name);
     jstools::parseJson(json, "Density", density);
-    temperature = 298.0; //compatibility
     jstools::parseJson(json, "Temperature", temperature);
-    if (json.contains("ChemicalComposition"))
-    {
-        QJsonObject ccjson = json["ChemicalComposition"].toObject();
-        ChemicalComposition.readFromJson(ccjson);
-    }
-    else ChemicalComposition.clear();
+    QJsonObject ccjson = json["ChemicalComposition"].toObject();
+    ChemicalComposition.readFromJson(ccjson);
     jstools::parseJson(json, "RefractiveIndex", n);
     jstools::parseJson(json, "BulkAbsorption", abs);
     jstools::parseJson(json, "RayleighMFP", rayleighMFP);
     jstools::parseJson(json, "RayleighWave", rayleighWave);
     jstools::parseJson(json, "ReemissionProb", reemissionProb);
-    //PhotonYieldDefault for compatibility at the end
 
     jstools::parseJson(json, "Dielectric", Dielectric);
     jstools::parseJson(json, "ReN", ReN);
     jstools::parseJson(json, "ImN", ImN);
-    //jstools::parseJson(json, "ComplexEffectiveWave", ComplexEffectiveWave);
     {
         QJsonArray ar;
         jstools::parseJson(json, "ComplexN", ar);
@@ -472,97 +459,30 @@ bool AMaterial::readFromJson(const QJsonObject & json)
         }
     }
 
-    if (json.contains("PrimScint_Tau")) //compatibility
-    {
-        double tau = json["PrimScint_Tau"].toDouble();
-        PriScint_Decay.clear();
-        PriScint_Decay << APair_ValueAndWeight(tau, 1.0);
-    }
-    if (json.contains("PrimScint_Decay")) //compatibility
     {
         PriScint_Decay.clear();
-        if (json["PrimScint_Decay"].isArray())
+        QJsonArray ar = json["PrimScintDecay"].toArray();
+        for (int i = 0; i < ar.size(); i++)
         {
-            QJsonArray ar = json["PrimScint_Decay"].toArray();
-            for (int i=0; i<ar.size(); i++)
-            {
-                QJsonArray el = ar[i].toArray();
-                if (el.size() == 2)
-                    PriScint_Decay << APair_ValueAndWeight(el[1].toDouble(), el[0].toDouble());
-                else
-                    qWarning() << "Bad size of decay time pair, skipping!";
-            }
+            QJsonArray el = ar[i].toArray();
+            if (el.size() == 2) PriScint_Decay.push_back( {el[0].toDouble(), el[1].toDouble()} );
+            else
+                qWarning() << "Bad size of decay time pair, skipping!";
         }
-        else
-        {
-            double tau = json["PrimScint_Decay"].toDouble();
-            PriScint_Decay << APair_ValueAndWeight(tau, 1.0);
-        }
+        if (PriScint_Decay.empty()) PriScint_Decay.push_back({0,1.0});
     }
-    if (json.contains("PrimScint_Raise")) //compatibility
+
     {
         PriScint_Raise.clear();
-        if (json["PrimScint_Raise"].isArray())
+        QJsonArray ar = json["PrimScintRaise"].toArray();
+        for (int i = 0; i < ar.size(); i++)
         {
-            QJsonArray ar = json["PrimScint_Raise"].toArray();
-            for (int i=0; i<ar.size(); i++)
-            {
-                QJsonArray el = ar[i].toArray();
-                if (el.size() == 2)
-                    PriScint_Raise << APair_ValueAndWeight(el[1].toDouble(), el[0].toDouble());
-                else
-                    qWarning() << "Bad size of raise time pair, skipping!";
-            }
+            QJsonArray el = ar[i].toArray();
+            if (el.size() == 2) PriScint_Raise.push_back( {el[0].toDouble(), el[1].toDouble()} );
+            else
+                qWarning() << "Bad size of raise time pair, skipping!";
         }
-        else
-        {
-            //compatibility
-            double tau = json["PrimScint_Raise"].toDouble();
-            PriScint_Raise << APair_ValueAndWeight(tau, 1.0);
-        }
-    }
-    if (json.contains("PrimScintDecay"))
-    {
-        PriScint_Decay.clear();
-        if (json["PrimScintDecay"].isArray())
-        {
-            QJsonArray ar = json["PrimScintDecay"].toArray();
-            for (int i=0; i<ar.size(); i++)
-            {
-                QJsonArray el = ar[i].toArray();
-                if (el.size() == 2)
-                    PriScint_Decay << APair_ValueAndWeight(el[0].toDouble(), el[1].toDouble());
-                else
-                    qWarning() << "Bad size of decay time pair, skipping!";
-            }
-        }
-        else
-        {
-            double tau = json["PrimScintDecay"].toDouble();
-            PriScint_Decay << APair_ValueAndWeight(tau, 1.0);
-        }
-    }
-    if (json.contains("PrimScintRaise"))
-    {
-        PriScint_Raise.clear();
-        if (json["PrimScintRaise"].isArray())
-        {
-            QJsonArray ar = json["PrimScintRaise"].toArray();
-            for (int i=0; i<ar.size(); i++)
-            {
-                QJsonArray el = ar[i].toArray();
-                if (el.size() == 2)
-                    PriScint_Raise << APair_ValueAndWeight(el[0].toDouble(), el[1].toDouble());
-                else
-                    qWarning() << "Bad size of raise time pair, skipping!";
-            }
-        }
-        else
-        {
-            //compatibility
-            double tau = json["PrimScintRaise"].toDouble();
-            PriScint_Raise << APair_ValueAndWeight(tau, 1.0);
-        }
+        if (PriScint_Raise.empty()) PriScint_Raise.push_back({0,1.0});
     }
 
     jstools::parseJson(json, "W",                W);
@@ -572,8 +492,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ElDiffusionL",     e_diffusion_L);
     jstools::parseJson(json, "ElDiffusionT",     e_diffusion_T);
     jstools::parseJson(json, "Comments",         Comments);
-    jstools::parseJson(json, "bG4UseNistMaterial", bG4UseNistMaterial);
-    jstools::parseJson(json, "G4NistMaterial",   G4NistMaterial);
+    jstools::parseJson(json, "UseNistMaterial",  bG4UseNistMaterial);
+    jstools::parseJson(json, "NistMaterial",     G4NistMaterial);
 
 /*
     //wavelength-resolved data
@@ -603,13 +523,12 @@ bool AMaterial::readFromJson(const QJsonObject & json)
         readTwoQVectorsFromJArray(ar, SecondarySpectrum_lambda, SecondarySpectrum);
     }
 
-    Tags.clear();
+*/
     if (json.contains("*Tags"))
     {
         QJsonArray ar = json["*Tags"].toArray();
-        for (int i=0; i<ar.size(); i++) Tags << ar[i].toString();
+        for (int i = 0; i < ar.size(); i++) Tags.push_back(ar[i].toString());
     }
-*/
 
     jstools::parseJson(json, "PhotonYieldDefault",   PhotonYieldDefault);
     jstools::parseJson(json, "IntrEnergyResDefault", IntrEnResDefault);

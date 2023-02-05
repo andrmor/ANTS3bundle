@@ -118,7 +118,7 @@ private:
     void updateActionButtons();
     void updateWaveButtons();
     void ShowTreeWithChemicalComposition();
-    bool parseDecayOrRaiseTime(bool doParseDecay);
+    bool parseDecayOrRaiseTime(bool decay_or_raise);
     void updateWarningIcons();
     void updateG4RelatedGui();
     void configureG4Materials();

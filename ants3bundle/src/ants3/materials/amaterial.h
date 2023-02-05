@@ -13,7 +13,6 @@ class QJsonObject;
 class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
-class APair_ValueAndWeight;
 class ARandomHub;
 
 class AMaterial
@@ -34,8 +33,8 @@ public:
     double e_diffusion_T = 0; //in mm2/ns
     double e_diffusion_L = 0; //in mm2/ns
     double SecYield;  // ph per secondary electron
-    QVector<APair_ValueAndWeight> PriScint_Decay;
-    QVector<APair_ValueAndWeight> PriScint_Raise;
+    std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
+    std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}
 
     bool   Dielectric = true;
     //complex refractive index
@@ -53,11 +52,11 @@ public:
     double SecScintDecayTime;
     QString Comments;
 
-    QVector<QString> Tags; // used in material library     !!!*** to std::vector
+    std::vector<QString> Tags; // used in material library
 
     AMaterialComposition ChemicalComposition;
 
-    bool    bG4UseNistMaterial = false;  // !!!*** empty if false:
+    bool    bG4UseNistMaterial = false;
     QString G4NistMaterial;
 
     /* make it possible to define for diffrent particles!
@@ -99,7 +98,7 @@ public:
     double  getSpeedOfLight(int iWave = -1) const;
 
     void    writeToJson (QJsonObject & json) const;
-    bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
+    bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor add error control
 
     QString checkMaterial() const;
 
@@ -124,16 +123,6 @@ public:
 
 private:
     double FT(double td, double tr, double t) const;
-};
-
-class APair_ValueAndWeight   // !!!*** AVector2 and AVector3
-{
-public:
-    double value;
-    double statWeight;
-
-    APair_ValueAndWeight(double value, double statWeight) : value(value), statWeight(statWeight) {}
-    APair_ValueAndWeight() {}
 };
 
 #endif // AMATERIAL_H

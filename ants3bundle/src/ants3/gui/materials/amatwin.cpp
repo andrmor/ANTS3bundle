@@ -289,18 +289,18 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledRayleighWave->setText( QString::number(tmpMaterial.rayleighWave) );
 
     //decay time
-    if ( tmpMaterial.PriScint_Decay.isEmpty() )
+    if ( tmpMaterial.PriScint_Decay.empty() )
         s = "0";
     else if (tmpMaterial.PriScint_Decay.size() == 1)
-        s = QString::number( tmpMaterial.PriScint_Decay.first().value );
+        s = QString::number( tmpMaterial.PriScint_Decay.front().first );
     else
     {
         s.clear();
-        for (const APair_ValueAndWeight & pair : qAsConst(tmpMaterial.PriScint_Decay))
+        for (const auto & pair : tmpMaterial.PriScint_Decay)
         {
-            s += QString::number(pair.value);
+            s += QString::number(pair.first);
             s += ":";
-            s += QString::number(pair.statWeight);
+            s += QString::number(pair.second);
             s += " & ";
         }
         s.chop(3);
@@ -308,18 +308,18 @@ void AMatWin::updateTmpMaterialGui()
     ui->lePriT->setText(s);
 
     //rise time
-    if ( tmpMaterial.PriScint_Raise.isEmpty() )
+    if ( tmpMaterial.PriScint_Raise.empty() )
         s = "0";
     else if (tmpMaterial.PriScint_Raise.size() == 1)
-        s = QString::number(tmpMaterial.PriScint_Raise.first().value);
+        s = QString::number(tmpMaterial.PriScint_Raise.front().first);
     else
     {
         s.clear();
-        for (const APair_ValueAndWeight& pair : qAsConst(tmpMaterial.PriScint_Raise))
+        for (const auto & pair : tmpMaterial.PriScint_Raise)
         {
-            s += QString::number(pair.value);
+            s += QString::number(pair.first);
             s += ":";
-            s += QString::number(pair.statWeight);
+            s += QString::number(pair.second);
             s += " & ";
         }
         s.chop(3);
@@ -392,7 +392,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     const QStringList slTags = ui->leTags->text().split(',', Qt::SkipEmptyParts);
     tmpMaterial.Tags.clear();
     for (const QString & s : slTags)
-        tmpMaterial.Tags << s.simplified();
+        tmpMaterial.Tags.push_back(s.simplified());
 
     tmpMaterial.bG4UseNistMaterial = ui->cbG4Material->isChecked();
     tmpMaterial.G4NistMaterial = ui->leG4Material->text();
@@ -995,24 +995,23 @@ void AMatWin::on_lePriT_raise_editingFinished()
     parseDecayOrRaiseTime(false);
 }
 
-bool AMatWin::parseDecayOrRaiseTime(bool doParseDecay)
+bool AMatWin::parseDecayOrRaiseTime(bool decay_or_raise)
 {
-    QString s = ( doParseDecay ? ui->lePriT->text() : ui->lePriT_raise->text() );
+    QString s = ( decay_or_raise ? ui->lePriT->text() : ui->lePriT_raise->text() );
     s = s.simplified();
 
-    QVector<APair_ValueAndWeight> & vec =
-            ( doParseDecay ? tmpMaterial.PriScint_Decay : tmpMaterial.PriScint_Raise);
+    std::vector<std::pair<double,double>> & vec = ( decay_or_raise ? tmpMaterial.PriScint_Decay : tmpMaterial.PriScint_Raise);
 
     vec.clear();
     bool bErrorDetected = false;
 
     bool bSingle;
     double tau = s.toDouble(&bSingle);
-    if (bSingle)
-        vec << APair_ValueAndWeight(tau, 1.0);
+    if (bSingle) vec.push_back( {tau, 1.0} );
     else
     {
-        const QStringList sl = s.split('&', Qt::SkipEmptyParts);
+        //const QStringList sl = s.split('&', Qt::SkipEmptyParts);
+        const QStringList sl = s.split(QRegularExpression("(\\&|\\+)"), Qt::SkipEmptyParts);
 
         for (const QString & sr : sl)
         {
@@ -1023,7 +1022,7 @@ bool AMatWin::parseDecayOrRaiseTime(bool doParseDecay)
                 double tau    = oneTau.at(0).toDouble(&bOK1);
                 double weight = oneTau.at(1).toDouble(&bOK2);
                 if (bOK1 && bOK2)
-                    vec << APair_ValueAndWeight(tau, weight);
+                    vec.push_back( {tau, weight} );
                 else
                 {
                     bErrorDetected = true;
@@ -1032,21 +1031,26 @@ bool AMatWin::parseDecayOrRaiseTime(bool doParseDecay)
             }
             else bErrorDetected = true;
         }
-        if (vec.isEmpty()) bErrorDetected = true;
+        if (vec.empty()) bErrorDetected = true;
     }
 
     if (bErrorDetected)
     {
         bMessageLock = true;
-        QString s = ( doParseDecay ? "Decay" : "Raise" );
+        QString s = ( decay_or_raise ? "Decay" : "Raise" );
         s += " time format error:\n\nUse a single double value of the time constant or,\n"
              "to define several exponential components, use this format:\n"
              "\n time_constant1 : stat_weight1  &  time_constant2 : stat_weight2  &  ...\ne.g., 25.5 : 0.25  &  250 : 0.75\n";
         guitools::message(s, this);
         bMessageLock = false;
+        if (decay_or_raise) ui->lePriT->setFocus();
+        else                ui->lePriT_raise->setFocus();
     }
     else
-        on_pbUpdateTmpMaterial_clicked();
+    {
+        //on_pbUpdateTmpMaterial_clicked();
+        setWasModified(true);
+    }
 
     return !bErrorDetected;
 }
