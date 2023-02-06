@@ -175,28 +175,29 @@ void AMatWin::on_cobActiveMaterials_activated(int index)
 
 void AMatWin::updateWaveButtons()
 {   
-    bool bPrimSpec = (tmpMaterial.PrimarySpectrum_lambda.size() > 0);
+    bool bPrimSpec = !tmpMaterial.PrimarySpectrum.empty();
     ui->pbShowPrimSpectrum->setEnabled(bPrimSpec);
     ui->pbDeletePrimSpectrum->setEnabled(bPrimSpec);
 
-    bool bSecSpec = (tmpMaterial.SecondarySpectrum_lambda.size() > 0);
+    bool bSecSpec = !tmpMaterial.SecondarySpectrum.empty();
     ui->pbShowSecSpectrum->setEnabled(bSecSpec);
     ui->pbDeleteSecSpectrum->setEnabled(bSecSpec);
 
-    bool bN = (tmpMaterial.RefIndex_Wave.size() > 0);
+    bool bN = !tmpMaterial.RefIndex_Wave.empty();
     ui->pbShowNlambda->setEnabled(bN);
     ui->pbDeleteNlambda->setEnabled(bN);
 
-    bool bA = (tmpMaterial.absWave_lambda.size() > 0);
+    bool bA = !tmpMaterial.AbsCoeff_Wave.empty();
     ui->pbShowABSlambda->setEnabled(bA);
     ui->pbDeleteABSlambda->setEnabled(bA);
 
-    bool bCompexN = (!tmpMaterial.RefIndexComplex_Wave.empty());
+    bool bCompexN = !tmpMaterial.RefIndexComplex_Wave.empty();
     ui->pbShowComplexN->setEnabled(bCompexN);
     ui->pbDeleteComplexN->setEnabled(bCompexN);
 
-    ui->pbShowReemProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
-    ui->pbDeleteReemisProbLambda->setEnabled( !tmpMaterial.reemisProbWave_lambda.isEmpty() );
+    bool bR = !tmpMaterial.ReemissionProb_Wave.empty();
+    ui->pbShowReemProbLambda->setEnabled(bR);
+    ui->pbDeleteReemisProbLambda->setEnabled(bR);
 }
 
 void AMatWin::updateG4RelatedGui()
@@ -332,8 +333,8 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledEDiffL->setText( QString::number(tmpMaterial.e_diffusion_L) );
     ui->ledEDiffT->setText( QString::number(tmpMaterial.e_diffusion_T) );
 
-    ui->ledPrimaryYield->setText(QString::number(tmpMaterial.PhotonYieldDefault));
-    ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.IntrEnResDefault));
+    ui->ledPrimaryYield->setText(QString::number(tmpMaterial.PhotonYield));
+    ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.IntrEnergyRes));
 
     ui->pteComments->clear();
     ui->pteComments->appendPlainText(tmpMaterial.Comments);
@@ -374,7 +375,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.Dielectric = (ui->cobNAbsOrComplex->currentIndex() == 0);
     tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };
 
-    tmpMaterial.PhotonYieldDefault = ui->ledPrimaryYield->text().toDouble();
+    tmpMaterial.PhotonYield = ui->ledPrimaryYield->text().toDouble();
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
@@ -416,7 +417,7 @@ void AMatWin::on_ledIntEnergyRes_editingFinished()
         return;
     }
 
-    tmpMaterial.IntrEnResDefault = newVal;
+    tmpMaterial.IntrEnergyRes = newVal;
     setWasModified(true);
 }
 
@@ -426,14 +427,14 @@ void AMatWin::on_pbLoadPrimSpectrum_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.PrimarySpectrum_lambda, &tmpMaterial.PrimarySpectrum);  //cleans previous data
+    QString err = ftools::loadPairs(fileName, tmpMaterial.PrimarySpectrum);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.PrimarySpectrum_lambda.isEmpty();
+    bool bHaveData = !tmpMaterial.PrimarySpectrum.empty();
     ui->pbShowPrimSpectrum->setEnabled(bHaveData);
     ui->pbDeletePrimSpectrum->setEnabled(bHaveData);
     setWasModified(true);
@@ -441,8 +442,8 @@ void AMatWin::on_pbLoadPrimSpectrum_clicked()
 
 void AMatWin::on_pbShowPrimSpectrum_clicked()
 {
-    TGraph * g = AGraphBuilder::graph(tmpMaterial.PrimarySpectrum_lambda, tmpMaterial.PrimarySpectrum);
-    AGraphBuilder::configure(g, "Emission spectrum",
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.PrimarySpectrum);
+    AGraphBuilder::configure(g, "PrimaryScint spectrum",
                                 "Wavelength, nm", "Emission probability, a.u.",
                                 2, 20, 1,
                                 2, 1,  1);
@@ -451,7 +452,6 @@ void AMatWin::on_pbShowPrimSpectrum_clicked()
 
 void AMatWin::on_pbDeletePrimSpectrum_clicked()
 {
-    tmpMaterial.PrimarySpectrum_lambda.clear();
     tmpMaterial.PrimarySpectrum.clear();
 
     ui->pbShowPrimSpectrum->setEnabled(false);
@@ -465,14 +465,14 @@ void AMatWin::on_pbLoadSecSpectrum_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.SecondarySpectrum_lambda, &tmpMaterial.SecondarySpectrum);  //cleans previous data
+    QString err = ftools::loadPairs(fileName, tmpMaterial.SecondarySpectrum);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.SecondarySpectrum_lambda.isEmpty();
+    bool bHaveData = !tmpMaterial.SecondarySpectrum.empty();
     ui->pbShowSecSpectrum->setEnabled(bHaveData);
     ui->pbDeleteSecSpectrum->setEnabled(bHaveData);
     setWasModified(true);
@@ -480,8 +480,8 @@ void AMatWin::on_pbLoadSecSpectrum_clicked()
 
 void AMatWin::on_pbShowSecSpectrum_clicked()
 {
-    TGraph * g = AGraphBuilder::graph(tmpMaterial.SecondarySpectrum_lambda, tmpMaterial.SecondarySpectrum);
-    AGraphBuilder::configure(g, "Emission spectrum",
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.SecondarySpectrum);
+    AGraphBuilder::configure(g, "SecScint spectrum",
                                 "Wavelength, nm", "Emission probability, a.u.",
                                 2, 20, 1,
                                 2, 1,  1);
@@ -490,7 +490,6 @@ void AMatWin::on_pbShowSecSpectrum_clicked()
 
 void AMatWin::on_pbDeleteSecSpectrum_clicked()
 {
-    tmpMaterial.SecondarySpectrum_lambda.clear();
     tmpMaterial.SecondarySpectrum.clear();
 
     ui->pbShowSecSpectrum->setEnabled(false);
@@ -543,14 +542,14 @@ void AMatWin::on_pbLoadABSlambda_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.absWave_lambda, &tmpMaterial.absWave);  //cleans previous data too
+    QString err = ftools::loadPairs(fileName, tmpMaterial.AbsCoeff_Wave);  //cleans previous data too
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.absWave_lambda.isEmpty();
+    bool bHaveData = !tmpMaterial.AbsCoeff_Wave.empty();
     ui->pbShowABSlambda->setEnabled(bHaveData);
     ui->pbDeleteABSlambda->setEnabled(bHaveData);
     setWasModified(true);
@@ -558,7 +557,7 @@ void AMatWin::on_pbLoadABSlambda_clicked()
 
 void AMatWin::on_pbShowABSlambda_clicked()
 {
-    TGraph * g = AGraphBuilder::graph(tmpMaterial.absWave_lambda, tmpMaterial.absWave);
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.AbsCoeff_Wave);
     AGraphBuilder::configure(g, "Attenuation coefficient",
                                 "Wavelength, nm", "Attenuation coefficient, mm^{-1}",
                                 2, 20, 1,
@@ -568,8 +567,7 @@ void AMatWin::on_pbShowABSlambda_clicked()
 
 void AMatWin::on_pbDeleteABSlambda_clicked()
 {
-    tmpMaterial.absWave_lambda.clear();
-    tmpMaterial.absWave.clear();
+    tmpMaterial.AbsCoeff_Wave.clear();
 
     ui->pbShowABSlambda->setEnabled(false);
     ui->pbDeleteABSlambda->setEnabled(false);
@@ -578,8 +576,8 @@ void AMatWin::on_pbDeleteABSlambda_clicked()
 
 void AMatWin::on_pbShowReemProbLambda_clicked()
 {
-    TGraph * g = AGraphBuilder::graph(tmpMaterial.reemisProbWave_lambda, tmpMaterial.reemisProbWave);
-    AGraphBuilder::configure(g, "Attenuation coefficient",
+    TGraph * g = AGraphBuilder::graph(tmpMaterial.ReemissionProb_Wave);
+    AGraphBuilder::configure(g, "Reemission probability",
                                 "Wavelength, nm", "Reemission probability",
                                 2, 20, 1,
                                 2, 1,  1);
@@ -592,14 +590,14 @@ void AMatWin::on_pbLoadReemisProbLambda_clicked()
     if (fileName.isEmpty()) return;
     GlobSet.LastLoadDir = QFileInfo(fileName).absolutePath();
 
-    QString err = ftools::loadDoubleVectorsFromFile(fileName, &tmpMaterial.reemisProbWave_lambda, &tmpMaterial.reemisProbWave);  //cleans previous data too
+    QString err = ftools::loadPairs(fileName, tmpMaterial.ReemissionProb_Wave);  //cleans previous data too
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    bool bHaveData = !tmpMaterial.reemisProbWave_lambda.isEmpty();
+    bool bHaveData = !tmpMaterial.ReemissionProb_Wave.empty();
     ui->pbShowReemProbLambda->setEnabled(bHaveData);
     ui->pbDeleteReemisProbLambda->setEnabled(bHaveData);
     setWasModified(true);
@@ -607,8 +605,7 @@ void AMatWin::on_pbLoadReemisProbLambda_clicked()
 
 void AMatWin::on_pbDeleteReemisProbLambda_clicked()
 {
-    tmpMaterial.reemisProbWave_lambda.clear();
-    tmpMaterial.reemisProbWave.clear();
+    tmpMaterial.ReemissionProb_Wave.clear();
 
     ui->pbShowReemProbLambda->setEnabled(false);
     ui->pbDeleteReemisProbLambda->setEnabled(false);

@@ -107,7 +107,7 @@ void AMaterialHub::generateGeoMedia()
     {
         AMaterial * mat = Materials[iMat];
         mat->generateTGeoMat();
-        mat->GeoMed = new TGeoMedium(mat->Name.toLocal8Bit().data(), iMat, mat->GeoMat);
+        mat->_GeoMed = new TGeoMedium(mat->Name.toLocal8Bit().data(), iMat, mat->_GeoMat);
     }
 }
 
@@ -161,7 +161,7 @@ void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
 double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
 {
     if (iMat < 0 || iMat >= (int)Materials.size()) return 0;
-    return Materials[iMat]->PhotonYieldDefault;
+    return Materials[iMat]->PhotonYield;
     //if (particle.isEmpty()) return Materials[iMat]->PhotonYieldDefault;
     //else return ***;
 }
@@ -169,7 +169,7 @@ double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
 double AMaterialHub::getS1IntrEnRes(int iMat, const QString & particle) const
 {
     if (iMat < 0 || iMat >= (int)Materials.size()) return 0;
-    return Materials[iMat]->IntrEnResDefault;
+    return Materials[iMat]->IntrEnergyRes;
 }
 
 void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)

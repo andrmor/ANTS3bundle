@@ -20,36 +20,16 @@ AMaterial::AMaterial()
     clear();
 }
 
-/*
-double AMaterial::getPhotonYield(int iParticle) const
-{
-    if (iParticle < 0 || iParticle >= MatParticle.size()) return PhotonYieldDefault;
-
-    const double & py = MatParticle.at(iParticle).PhYield;
-    if (py == -1) return PhotonYieldDefault;
-    return py;
-}
-
-double AMaterial::getIntrinsicEnergyResolution(int iParticle) const
-{
-    if (iParticle < 0 || iParticle >= MatParticle.size()) return IntrEnResDefault;
-
-    const double & er = MatParticle.at(iParticle).IntrEnergyRes;
-    if (er == -1) return IntrEnResDefault;
-    return er;
-}
-*/
-
 double AMaterial::getRefractiveIndex(int iWave) const
 {
-    if (iWave == -1 || refIndex_WaveBinned.empty()) return RefIndex;
-    return refIndex_WaveBinned[iWave];
+    if (iWave == -1 || _RefIndex_WaveBinned.empty()) return RefIndex;
+    return _RefIndex_WaveBinned[iWave];
 }
 
 const std::complex<double> & AMaterial::getComplexRefractiveIndex(int iWave) const
 {
-    if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) return RefIndexComplex;
-    return RefIndex_Comlex_WaveBinned[iWave];
+    if (iWave == -1 || _RefIndex_Comlex_WaveBinned.empty()) return RefIndexComplex;
+    return _RefIndex_Comlex_WaveBinned[iWave];
 }
 
 double AMaterial::getAbsorptionCoefficient(int iWave) const
@@ -57,8 +37,8 @@ double AMaterial::getAbsorptionCoefficient(int iWave) const
     if (Dielectric)
     {
         //qDebug() << iWave << absWaveBinned.size();
-        if (iWave == -1 || absWaveBinned.isEmpty()) return AbsCoeff;
-        return absWaveBinned[iWave];
+        if (iWave == -1 || _AbsCoeff_WaveBinned.empty()) return AbsCoeff;
+        return _AbsCoeff_WaveBinned[iWave];
     }
     else
     {
@@ -71,8 +51,8 @@ double AMaterial::getAbsorptionCoefficient(int iWave) const
 double AMaterial::getReemissionProbability(int iWave) const
 {
     //qDebug() << "reemis->" << iWave << ( reemissionProbBinned.size() > 0 ? reemissionProbBinned.at(iWave) : reemissionProb );
-    if (iWave == -1 || reemissionProbBinned.isEmpty()) return ReemissionProb;
-    return reemissionProbBinned[iWave];
+    if (iWave == -1 || _ReemissionProb_WaveBinned.empty()) return ReemissionProb;
+    return _ReemissionProb_WaveBinned[iWave];
 }
 
 double AMaterial::getSpeedOfLight(int iWave) const
@@ -81,8 +61,8 @@ double AMaterial::getSpeedOfLight(int iWave) const
     if (Dielectric) refIndexReal = getRefractiveIndex(iWave);
     else
     {
-        if (iWave == -1 || RefIndex_Comlex_WaveBinned.empty()) refIndexReal = RefIndexComplex.real();
-        else refIndexReal = RefIndex_Comlex_WaveBinned[iWave].real();
+        if (iWave == -1 || _RefIndex_Comlex_WaveBinned.empty()) refIndexReal = RefIndexComplex.real();
+        else refIndexReal = _RefIndex_Comlex_WaveBinned[iWave].real();
     }
 
     return c_in_vac / refIndexReal;
@@ -90,8 +70,8 @@ double AMaterial::getSpeedOfLight(int iWave) const
 
 void AMaterial::generateTGeoMat()
 {
-    GeoMat = Composition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
-    GeoMat->SetTemperature(Temperature);
+    _GeoMat = Composition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
+    _GeoMat->SetTemperature(Temperature);
 }
 
 double AMaterial::FT(double td, double tr, double t) const
@@ -176,14 +156,13 @@ void AMaterial::updateRuntimeProperties()
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     const int WaveNodes = WaveSet.countNodes();
-    refIndex_WaveBinned.clear();
-    absWaveBinned.clear();
-    RefIndex_Comlex_WaveBinned.clear();
-    //Abs_FromComplex_WaveBinned.clear();
-    rayleighBinned.clear();
-    reemissionProbBinned.clear();
-    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
-    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
+    _RefIndex_WaveBinned.clear();
+    _AbsCoeff_WaveBinned.clear();
+    _RefIndex_Comlex_WaveBinned.clear();
+    _Rayleigh_WaveBinned.clear();
+    _ReemissionProb_WaveBinned.clear();
+    delete _PrimarySpectrumHist;   _PrimarySpectrumHist   = nullptr;
+    delete _SecondarySpectrumHist; _SecondarySpectrumHist = nullptr;
 
     if (WaveSet.Enabled)
     {
@@ -191,17 +170,17 @@ void AMaterial::updateRuntimeProperties()
         {
             if (!RefIndex_Wave.empty())
             {
-                WaveSet.toStandardBins(RefIndex_Wave, refIndex_WaveBinned);
-                for (double d : refIndex_WaveBinned) RefIndex_Comlex_WaveBinned.push_back({d, 0}); // !!!*** still need?
+                WaveSet.toStandardBins(RefIndex_Wave, _RefIndex_WaveBinned);
+                for (double d : _RefIndex_WaveBinned) _RefIndex_Comlex_WaveBinned.push_back({d, 0}); // !!!*** still need?
             }
-            if (absWave_lambda.size() > 0) WaveSet.toStandardBins(&absWave_lambda, &absWave, &absWaveBinned);
+            if (!AbsCoeff_Wave.empty()) WaveSet.toStandardBins(AbsCoeff_Wave, _AbsCoeff_WaveBinned);
         }
         else
         {
             if (!RefIndexComplex_Wave.empty())
             {
-                WaveSet.toStandardBins(RefIndexComplex_Wave, RefIndex_Comlex_WaveBinned);
-                for (auto & cri : RefIndex_Comlex_WaveBinned)
+                WaveSet.toStandardBins(RefIndexComplex_Wave, _RefIndex_Comlex_WaveBinned);
+                for (auto & cri : _RefIndex_Comlex_WaveBinned)
                     if (cri.imag() > 0) cri = std::conj(cri);
 
                 //for (size_t i = 0; i < RefIndex_Comlex_WaveBinned.size(); i++)
@@ -212,8 +191,8 @@ void AMaterial::updateRuntimeProperties()
             }
         }
 
-        if (reemisProbWave_lambda.size() > 0)
-            WaveSet.toStandardBins(&reemisProbWave_lambda, &reemisProbWave, &reemissionProbBinned);
+        if (!ReemissionProb_Wave.empty())
+            WaveSet.toStandardBins(ReemissionProb_Wave, _ReemissionProb_WaveBinned);
 
         if (RayleighMFP != 0)
         {
@@ -223,38 +202,34 @@ void AMaterial::updateRuntimeProperties()
             {
                 double wave  = WaveSet.From + WaveSet.Step * i;
                 double wave4 = wave * wave * wave * wave;
-                rayleighBinned.append(base * wave4);
+                _Rayleigh_WaveBinned.push_back(base * wave4);
             }
         }
 
-        if (PrimarySpectrum_lambda.size() > 0)
+        if (!PrimarySpectrum.empty())
         {
-            QVector<double> y;
-            WaveSet.toStandardBins(&PrimarySpectrum_lambda, &PrimarySpectrum, &y);
-            TString name = "PrimScSp";
-            PrimarySpectrumHist = new TH1D(name,"Primary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
-            for (int j = 1; j<WaveNodes+1; j++)  PrimarySpectrumHist->SetBinContent(j, y[j-1]);
-            PrimarySpectrumHist->GetIntegral(); //to make thread safe
+            delete _PrimarySpectrumHist; _PrimarySpectrumHist = new TH1D("", "Primary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
+            std::vector<double> y;
+            WaveSet.toStandardBins(PrimarySpectrum, y);
+            for (int j = 1; j < WaveNodes + 1; j++)  _PrimarySpectrumHist->SetBinContent(j, y[j-1]);
+            _PrimarySpectrumHist->GetIntegral(); //to make thread safe
         }
 
-        if (SecondarySpectrum_lambda.size() > 0)
+        if (!SecondarySpectrum.empty())
         {
-            QVector<double> y;
-            WaveSet.toStandardBins(&SecondarySpectrum_lambda, &SecondarySpectrum, &y);
-            TString name = "SecScSp";
-            SecondarySpectrumHist = new TH1D(name,"Secondary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
-            for (int j = 1; j<WaveNodes+1; j++)  SecondarySpectrumHist->SetBinContent(j, y[j-1]);
-            SecondarySpectrumHist->GetIntegral(); //to make thread safe
+            delete _SecondarySpectrumHist; _SecondarySpectrumHist = new TH1D("","Secondary scintillation", WaveNodes, WaveSet.From, WaveSet.To);
+            std::vector<double> y;
+            WaveSet.toStandardBins(SecondarySpectrum, y);
+            for (int j = 1; j<WaveNodes+1; j++)  _SecondarySpectrumHist->SetBinContent(j, y[j-1]);
+            _SecondarySpectrumHist->GetIntegral(); //to make thread safe
         }
     }
 
     //updating sum stat weights for primary scintillation time generator
     _PrimScintSumStatWeight_Decay = 0;
     _PrimScintSumStatWeight__Raise = 0;
-    for (const auto & pair : PriScint_Decay)
-        _PrimScintSumStatWeight_Decay += pair.second;
-    for (const auto & pair : PriScint_Raise)
-        _PrimScintSumStatWeight__Raise += pair.second;
+    for (const auto & pair : PriScint_Decay) _PrimScintSumStatWeight_Decay += pair.second;
+    for (const auto & pair : PriScint_Raise) _PrimScintSumStatWeight__Raise += pair.second;
 }
 
 void AMaterial::clear()
@@ -270,45 +245,41 @@ void AMaterial::clear()
     Dielectric = true;
     RefIndexComplex = {1.0, 0};
     RefIndexComplex_Wave.clear();
-    RefIndex_Comlex_WaveBinned.clear();
+    _RefIndex_Comlex_WaveBinned.clear();
 
     PriScint_Decay.clear();
     PriScint_Decay.push_back( {0, 1.0} );
     PriScint_Raise.clear();
     PriScint_Raise.push_back( {0, 1.0} );
 
-    rayleighBinned.clear();
+    _Rayleigh_WaveBinned.clear();
 
     RefIndex_Wave.clear();
-    refIndex_WaveBinned.clear();
+    _RefIndex_WaveBinned.clear();
 
-    absWave_lambda.clear();
-    absWave.clear();
-    absWaveBinned.clear();
+    AbsCoeff_Wave.clear();
+    _AbsCoeff_WaveBinned.clear();
 
-    reemisProbWave.clear();
-    reemisProbWave_lambda.clear();
-    reemissionProbBinned.clear();
+    ReemissionProb_Wave.clear();
+    _ReemissionProb_WaveBinned.clear();
 
-    PrimarySpectrum_lambda.clear();
     PrimarySpectrum.clear();
 
-    SecondarySpectrum_lambda.clear();
     SecondarySpectrum.clear();
 
-    PhotonYieldDefault = 0;
-    IntrEnResDefault = 0;
+    PhotonYield = 0;
+    IntrEnergyRes = 0;
 
-    GeoMat = nullptr; //if created, will be deleted by TGeoManager
-    GeoMed = nullptr; //if created, will be deleted by TGeoManager
+    _GeoMat = nullptr; //if created, will be deleted by TGeoManager
+    _GeoMed = nullptr; //if created, will be deleted by TGeoManager
 
     clearDynamicProperties();
 }
 
 void AMaterial::clearDynamicProperties()
 {
-    delete PrimarySpectrumHist;   PrimarySpectrumHist   = nullptr;
-    delete SecondarySpectrumHist; SecondarySpectrumHist = nullptr;
+    delete _PrimarySpectrumHist;   _PrimarySpectrumHist   = nullptr;
+    delete _SecondarySpectrumHist; _SecondarySpectrumHist = nullptr;
 }
 
 void AMaterial::writeToJson(QJsonObject & json) const
@@ -343,8 +314,8 @@ void AMaterial::writeToJson(QJsonObject & json) const
         json["RefIndexComplex_Wave"] = ar;
     }
 
-    json["PhotonYieldDefault"] = PhotonYieldDefault;
-    json["IntrEnergyResDefault"] = IntrEnResDefault;
+    json["PhotonYield"] = PhotonYield;
+    json["IntrEnergyRes"] = IntrEnergyRes;
 
     {
         QJsonArray ar;
@@ -383,36 +354,34 @@ void AMaterial::writeToJson(QJsonObject & json) const
         json["RefIndexWave"] = ar;
     }
 
-    /*
     {
         QJsonArray ar;
-        writeTwoQVectorsToJArray(absWave_lambda, absWave, ar);
+        jstools::writeDPairVectorToArray(AbsCoeff_Wave, ar);
         json["BulkAbsorptionWave"] = ar;
     }
 
     {
         QJsonArray ar;
-        writeTwoQVectorsToJArray(reemisProbWave_lambda, reemisProbWave, ar);
+        jstools::writeDPairVectorToArray(ReemissionProb_Wave, ar);
         json["ReemissionProbabilityWave"] = ar;
     }
 
     {
         QJsonArray ar;
-        writeTwoQVectorsToJArray(PrimarySpectrum_lambda, PrimarySpectrum, ar);
+        jstools::writeDPairVectorToArray(PrimarySpectrum, ar);
         json["PrimScintSpectrum"] = ar;
     }
 
     {
         QJsonArray ar;
-        writeTwoQVectorsToJArray(SecondarySpectrum_lambda, SecondarySpectrum, ar);
+        jstools::writeDPairVectorToArray(SecondarySpectrum, ar);
         json["SecScintSpectrum"] = ar;
     }
 
-    */
     {
         QJsonArray ar;
         for (const QString & s : Tags) ar.append(s);
-        json["*Tags"] = ar;
+        json["Tags"] = ar;
     }
 
     json["UseNistMaterial"] = UseNistMaterial;
@@ -435,6 +404,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "RayleighMFP", RayleighMFP);
     jstools::parseJson(json, "RayleighWave", RayleighWave);
     jstools::parseJson(json, "ReemissionProb", ReemissionProb);
+
+    jstools::parseJson(json, "PhotonYield",   PhotonYield);
+    jstools::parseJson(json, "IntrEnergyRes", IntrEnergyRes);
 
     jstools::parseJson(json, "Dielectric", Dielectric);
     {
@@ -507,43 +479,33 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
     jstools::parseJson(json, "NistMaterial",     NistMaterial);
 
-    //wavelength-resolved data
-    if (json.contains("RefIndexWave"))
     {
         QJsonArray ar = json["RefIndexWave"].toArray();
         jstools::readDPairVectorFromArray(ar, RefIndex_Wave);
     }
-    /*
-    if (json.contains("BulkAbsorptionWave"))
+
     {
         QJsonArray ar = json["BulkAbsorptionWave"].toArray();
-        readTwoQVectorsFromJArray(ar, absWave_lambda, absWave);
+        jstools::readDPairVectorFromArray(ar, AbsCoeff_Wave);
     }
-    if (json.contains("ReemissionProbabilityWave"))
+
     {
         QJsonArray ar = json["ReemissionProbabilityWave"].toArray();
-        readTwoQVectorsFromJArray(ar, reemisProbWave_lambda, reemisProbWave);
+        jstools::readDPairVectorFromArray(ar, ReemissionProb_Wave);
     }
-    if (json.contains("PrimScintSpectrum"))
+
     {
         QJsonArray ar = json["PrimScintSpectrum"].toArray();
-        readTwoQVectorsFromJArray(ar, PrimarySpectrum_lambda, PrimarySpectrum);
+        jstools::readDPairVectorFromArray(ar, PrimarySpectrum);
     }
-    if (json.contains("SecScintSpectrum"))
+
     {
         QJsonArray ar = json["SecScintSpectrum"].toArray();
-        readTwoQVectorsFromJArray(ar, SecondarySpectrum_lambda, SecondarySpectrum);
+        jstools::readDPairVectorFromArray(ar, SecondarySpectrum);
     }
 
-*/
-    if (json.contains("Tags"))
-    {
-        QJsonArray ar = json["*Tags"].toArray();
-        for (int i = 0; i < ar.size(); i++) Tags.push_back(ar[i].toString());
-    }
-
-    jstools::parseJson(json, "PhotonYieldDefault",   PhotonYieldDefault);
-    jstools::parseJson(json, "IntrEnergyResDefault", IntrEnResDefault);
+    QJsonArray ar = json["Tags"].toArray();
+    for (int i = 0; i < ar.size(); i++) Tags.push_back(ar[i].toString());
 
     return true;
 }

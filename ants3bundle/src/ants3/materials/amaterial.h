@@ -2,7 +2,6 @@
 #define AMATERIAL_H
 
 #include <QString>
-#include <QVector>
 
 #include <vector>
 #include <complex>
@@ -24,25 +23,29 @@ public:
     double  Density;              // in g/cm3
     double  Temperature = 298.0;  // in K
 
-    bool    Dielectric = true;    // not dielectric = metal = use complex refractive index on reflectionfrom doelectric
+    bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
     double                                              RefIndex;                   // for wave=-1 or wavelength unresolved sim
     std::vector<std::pair<double,double>>               RefIndex_Wave;              // {wave[nm], RefIndex}
     std::complex<double>                                RefIndexComplex = {1.0, 0};
     std::vector<std::pair<double,std::complex<double>>> RefIndexComplex_Wave;       // {Wave[nm], ComplexRefractiveIndex}
 
-    double  AbsCoeff;             // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
+    double                                AbsCoeff;       // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
+    std::vector<std::pair<double,double>> AbsCoeff_Wave;
 
     double  RayleighMFP = 0;      // in mm -> 0 - no Rayleigh scattering
     double  RayleighWave;         // in nm
 
     double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters)
+    std::vector<std::pair<double,double>> ReemissionProb_Wave;
 
-    double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
-    double IntrEnResDefault = 0;
+    double PhotonYield = 0;   //make it possible to define different value for different particle names
+    double IntrEnergyRes = 0;
 
+    std::vector<std::pair<double,double>> PrimarySpectrum;
     std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
     std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}
 
+    std::vector<std::pair<double,double>> SecondarySpectrum;
     double SecScintDecayTime;
 
     double e_driftVelocity;
@@ -58,22 +61,6 @@ public:
 
     bool    UseNistMaterial = false;
     QString NistMaterial;
-
-    /* make it possible to define for diffrent particles!
-    double PhYield = 0;         // Photon yield of the primary scintillation
-    double IntrEnergyRes = 0; // intrinsic energy resolution
-    */
-
-
-    // !!!*** to std::vector<std::pair>
-    QVector<double> absWave_lambda;
-    QVector<double> absWave;
-    QVector<double> reemisProbWave;
-    QVector<double> reemisProbWave_lambda;
-    QVector<double> PrimarySpectrum_lambda;
-    QVector<double> PrimarySpectrum;
-    QVector<double> SecondarySpectrum_lambda;
-    QVector<double> SecondarySpectrum;
 
     void    clear();
     void    clearDynamicProperties();
@@ -96,26 +83,26 @@ public:
     void    writeToJson (QJsonObject & json) const;
     bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor add error control
 
-    QString checkMaterial() const;
+    QString checkMaterial() const; // !!!***
 
     void    importComposition(TGeoMaterial * mat);
 
-    //run-time properties
-    TGeoMaterial  * GeoMat = nullptr; // handled by TGeoManager
-    TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager
-    double          _PrimScintSumStatWeight_Decay;
-    double          _PrimScintSumStatWeight__Raise;
-    TH1D          * PrimarySpectrumHist = nullptr;
-    TH1D          * SecondarySpectrumHist = nullptr;
-    QVector<double> rayleighBinned;//regular step (WaveStep step, WaveNodes bins)
-    std::vector<double> refIndex_WaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
-      // complex refraction index-related
-    //std::complex<double> RefIndex_Complex;                        // also computed for purely real index!
-    std::vector<std::complex<double>> RefIndex_Comlex_WaveBinned; // also computed for purely real index!
-    //double Abs_FromComplex;                                       // only for complex case
-    //std::vector<double> Abs_FromComplex_WaveBinned;               // only for comlex case
+  // --- run-time properties ---
+    TGeoMaterial  * _GeoMat = nullptr;
+    TGeoMedium    * _GeoMed = nullptr;
+    TH1D          * _PrimarySpectrumHist = nullptr;
+    TH1D          * _SecondarySpectrumHist = nullptr;
+    double          _PrimScintSumStatWeight_Decay = 0;
+    double          _PrimScintSumStatWeight__Raise = 0;
+
+    //regular step (WaveStep step, WaveNodes bins)
+    std::vector<double> _Rayleigh_WaveBinned;
+    std::vector<double> _RefIndex_WaveBinned;
+    std::vector<double> _AbsCoeff_WaveBinned;
+    std::vector<double> _ReemissionProb_WaveBinned;
+
+    std::vector<std::complex<double>> _RefIndex_Comlex_WaveBinned; // also computed for purely real index! - still need? !!!***
+  // ---
 
 private:
     double FT(double td, double tr, double t) const;

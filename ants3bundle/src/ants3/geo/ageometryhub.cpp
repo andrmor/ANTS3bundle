@@ -283,7 +283,7 @@ void AGeometryHub::populateGeoManager()
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     MatHub.generateGeoMedia();
 
-    Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+    Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
     GeoManager->SetTopVolume(Top);
     GeoManager->SetTopVisible(true);
 
@@ -505,7 +505,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         }
 
         AMaterialHub & MatHub = AMaterialHub::getInstance();
-        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), MatHub[obj->Material]->GeoMed);
+        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), MatHub[obj->Material]->_GeoMed);
 
         TGeoRotation * lRot = nullptr;
         if (obj->TrueRot)

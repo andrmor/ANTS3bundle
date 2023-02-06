@@ -598,7 +598,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     {
         double RayleighMFP;
         if (Photon.waveIndex == -1) RayleighMFP = MaterialFrom->RayleighMFP;
-        else RayleighMFP = MaterialFrom->rayleighBinned[Photon.waveIndex];
+        else RayleighMFP = MaterialFrom->_Rayleigh_WaveBinned[Photon.waveIndex];
 
         RayleighPath = -RayleighMFP * log(RandomHub.uniform());
         if (RayleighPath < Step) DoRayleigh = true;
@@ -640,7 +640,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                 if (RandomHub.uniform() < reemissionProb)
                 {
                     //qDebug() << "Waveshifting! Original index:"<<p.waveIndex;
-                    if (Photon.waveIndex!=-1 && MatHub[MatIndexFrom]->PrimarySpectrumHist)
+                    if (Photon.waveIndex!=-1 && MatHub[MatIndexFrom]->_PrimarySpectrumHist)
                     {
                         double wavelength;
                         int waveIndex;
@@ -649,7 +649,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                         {
                             attempts++;
                             if (attempts > 9) return EBulkProcessResult::Absorbed;  // ***!!! absolute number
-                            wavelength = MatHub[MatIndexFrom]->PrimarySpectrumHist->GetRandom();
+                            wavelength = MatHub[MatIndexFrom]->_PrimarySpectrumHist->GetRandom();
                             //qDebug() << "   "<<wavelength << " MatIndexFrom:"<< MatIndexFrom;
                             waveIndex = SimSet.WaveSet.toIndexFast(wavelength); // !!!*** before was round here:
                             //waveIndex = round( (wavelength - SimSet->WaveFrom)/SimSet->WaveStep );
