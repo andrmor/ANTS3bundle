@@ -78,7 +78,7 @@ bool AS2Generator::doDrift(double & time)
 void AS2Generator::generateLight(double * xyPosition, double time)
 {
     const int    MatIndexSecScint = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
-    const double PhotonsPerElectron = MatHub[MatIndexSecScint]->SecYield;
+    const double PhotonsPerElectron = MatHub[MatIndexSecScint]->SecScintPhotonYield;
     const double Zstart = GeoManager->GetCurrentPoint()[2];
 
     GeoManager->FindNextBoundary();

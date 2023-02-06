@@ -326,12 +326,12 @@ void AMatWin::updateTmpMaterialGui()
     }
     ui->lePriT_raise->setText(s);
 
-    ui->ledW->setText( QString::number(tmpMaterial.W*1000.0) );  //keV->eV
-    ui->ledSecYield->setText( QString::number(tmpMaterial.SecYield) );
+    ui->ledW->setText( QString::number(tmpMaterial.W*1000.0) );  // keV->eV
+    ui->ledSecYield->setText( QString::number(tmpMaterial.SecScintPhotonYield) );
     ui->ledSecT->setText( QString::number(tmpMaterial.SecScintDecayTime) );
-    ui->ledEDriftVelocity->setText( QString::number(tmpMaterial.e_driftVelocity) );
-    ui->ledEDiffL->setText( QString::number(tmpMaterial.e_diffusion_L) );
-    ui->ledEDiffT->setText( QString::number(tmpMaterial.e_diffusion_T) );
+    ui->ledEDriftVelocity->setText( QString::number(tmpMaterial.ElDriftVelocity) );
+    ui->ledEDiffL->setText( QString::number(tmpMaterial.ElDiffusionL) );
+    ui->ledEDiffT->setText( QString::number(tmpMaterial.ElDiffusionT) );
 
     ui->ledPrimaryYield->setText(QString::number(tmpMaterial.PhotonYield));
     ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.IntrEnergyRes));
@@ -379,12 +379,12 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
-    tmpMaterial.SecYield = ui->ledSecYield->text().toDouble();
+    tmpMaterial.SecScintPhotonYield = ui->ledSecYield->text().toDouble();
     tmpMaterial.SecScintDecayTime = ui->ledSecT->text().toDouble();
-    tmpMaterial.e_driftVelocity = ui->ledEDriftVelocity->text().toDouble();
+    tmpMaterial.ElDriftVelocity = ui->ledEDriftVelocity->text().toDouble();
 
-    tmpMaterial.e_diffusion_L = ui->ledEDiffL->text().toDouble();
-    tmpMaterial.e_diffusion_T = ui->ledEDiffT->text().toDouble();
+    tmpMaterial.ElDiffusionL = ui->ledEDiffL->text().toDouble();
+    tmpMaterial.ElDiffusionT = ui->ledEDiffT->text().toDouble();
 
     tmpMaterial.Comments = ui->pteComments->document()->toPlainText();
 

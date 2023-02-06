@@ -39,7 +39,7 @@ AMaterialHub::~AMaterialHub()
 
 double AMaterialHub::getDriftSpeed(int iMat) const
 {
-    return 0.01 * Materials[iMat]->e_driftVelocity; //given in cm/us - returns in mm/ns
+    return 0.01 * Materials[iMat]->ElDriftVelocity; //given in cm/us - returns in mm/ns
 }
 
 double AMaterialHub::getDiffusionSigmaTime(int iMat, double length_mm) const
@@ -47,10 +47,10 @@ double AMaterialHub::getDiffusionSigmaTime(int iMat, double length_mm) const
     //sqrt(2Dl/v^3)
     //https://doi.org/10.1016/j.nima.2016.01.094
     const AMaterial * m = Materials[iMat];
-    if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
+    if (m->ElDriftVelocity == 0 || m->ElDiffusionL == 0) return 0;
 
-    const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
-    const double d = m->e_diffusion_L; //now in mm^2/ns
+    const double v = 0.01 * m->ElDriftVelocity; // in mm/ns <- from cm/us
+    const double d = m->ElDiffusionL; //now in mm^2/ns
 
     return sqrt(2.0 * d * length_mm / v) / v; // in ns
 }
@@ -59,10 +59,10 @@ double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) con
 {
     //sqrt(2Dl/v)
     const AMaterial * m = Materials[iMat];
-    if (m->e_driftVelocity == 0 || m->e_diffusion_L == 0) return 0;
+    if (m->ElDriftVelocity == 0 || m->ElDiffusionL == 0) return 0;
 
-    const double v = 0.01 * m->e_driftVelocity; // in mm/ns <- from cm/us
-    const double d = m->e_diffusion_T; //now in mm^2/ns
+    const double v = 0.01 * m->ElDriftVelocity; // in mm/ns <- from cm/us
+    const double d = m->ElDiffusionT; //now in mm^2/ns
 
     return sqrt(2.0 * d * length_mm / v); // in mm
 }

@@ -238,7 +238,7 @@ void AMaterial::clear()
     RefIndex = 1.0;
     Density = AbsCoeff = RayleighMFP = ReemissionProb = 0;
     Temperature = 298.0;
-    e_driftVelocity = W = SecYield = SecScintDecayTime = e_diffusion_L = e_diffusion_T = 0;
+    ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
     Comments = "";
 
@@ -340,11 +340,11 @@ void AMaterial::writeToJson(QJsonObject & json) const
     }
 
     json["W"] = W;
-    json["SecScint_PhYield"] = SecYield;
+    json["SecScint_PhYield"] = SecScintPhotonYield;
     json["SecScint_Tau"] = SecScintDecayTime;
-    json["ElDriftVelo"] = e_driftVelocity;
-    json["ElDiffusionL"] = e_diffusion_L;
-    json["ElDiffusionT"] = e_diffusion_T;
+    json["ElDriftVelo"] = ElDriftVelocity;
+    json["ElDiffusionL"] = ElDiffusionL;
+    json["ElDiffusionT"] = ElDiffusionT;
 
     json["Comments"] = Comments;
 
@@ -470,11 +470,11 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     }
 
     jstools::parseJson(json, "W",                W);
-    jstools::parseJson(json, "SecScint_PhYield", SecYield);
+    jstools::parseJson(json, "SecScint_PhYield", SecScintPhotonYield);
     jstools::parseJson(json, "SecScint_Tau",     SecScintDecayTime);
-    jstools::parseJson(json, "ElDriftVelo",      e_driftVelocity);
-    jstools::parseJson(json, "ElDiffusionL",     e_diffusion_L);
-    jstools::parseJson(json, "ElDiffusionT",     e_diffusion_T);
+    jstools::parseJson(json, "ElDriftVelo",      ElDriftVelocity);
+    jstools::parseJson(json, "ElDiffusionL",     ElDiffusionL);
+    jstools::parseJson(json, "ElDiffusionT",     ElDiffusionT);
     jstools::parseJson(json, "Comments",         Comments);
     jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
     jstools::parseJson(json, "NistMaterial",     NistMaterial);

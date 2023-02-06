@@ -20,9 +20,15 @@ public:
     AMaterial();
 
     QString Name;
-    double  Density;              // in g/cm3
-    double  Temperature = 298.0;  // in K
 
+    // composition
+    AMaterialComposition Composition;
+    double               Density;                 // in g/cm3
+    bool                 UseNistMaterial = false;
+    QString              NistMaterial;
+    double               Temperature = 298.0;     // in K
+
+    // optics
     bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
     double                                              RefIndex;                   // for wave=-1 or wavelength unresolved sim
     std::vector<std::pair<double,double>>               RefIndex_Wave;              // {wave[nm], RefIndex}
@@ -32,35 +38,31 @@ public:
     double                                AbsCoeff;       // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
     std::vector<std::pair<double,double>> AbsCoeff_Wave;
 
-    double  RayleighMFP = 0;      // in mm -> 0 - no Rayleigh scattering
+    double  RayleighMFP = 0;      // in mm    if =0 => no Rayleigh scattering
     double  RayleighWave;         // in nm
 
-    double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters)
+    double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters, uses PrimaryScint data)
     std::vector<std::pair<double,double>> ReemissionProb_Wave;
 
-    double PhotonYield = 0;   //make it possible to define different value for different particle names
+    // primary scintillation
+    double PhotonYield = 0;
     double IntrEnergyRes = 0;
-
     std::vector<std::pair<double,double>> PrimarySpectrum;
     std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
     std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}
 
+    // secondary scintillation
+    double W;                     // energy per pair in keV
+    double ElDriftVelocity;
+    double ElDiffusionT = 0;      // in mm2/ns
+    double ElDiffusionL = 0;      // in mm2/ns
+    double SecScintPhotonYield;   // ph per secondary electron
     std::vector<std::pair<double,double>> SecondarySpectrum;
-    double SecScintDecayTime;
+    double SecScintDecayTime;     // !!!*** reuse system of prim scint timing
 
-    double e_driftVelocity;
-    double W; //default W
-    double e_diffusion_T = 0; //in mm2/ns
-    double e_diffusion_L = 0; //in mm2/ns
-    double SecYield;  // ph per secondary electron
-
+    // misc
     QString Comments;
     std::vector<QString> Tags; // used in material library
-
-    AMaterialComposition Composition;
-
-    bool    UseNistMaterial = false;
-    QString NistMaterial;
 
     void    clear();
     void    clearDynamicProperties();
