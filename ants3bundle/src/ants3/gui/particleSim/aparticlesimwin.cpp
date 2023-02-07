@@ -1456,6 +1456,13 @@ void AParticleSimWin::findInTransitions()
     bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
     bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
 
+    AEventsDoneDialog dialog(this);
+    connect(&Crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &Crawler, &ATrackingHistoryCrawler::abort);
+    dialog.setModal(true);
+    dialog.show();
+    QApplication::processEvents();
+
     if (!bVs)
     {
         //1D stat
