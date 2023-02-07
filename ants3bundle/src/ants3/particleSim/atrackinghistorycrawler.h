@@ -341,7 +341,6 @@ public:
 
 };
 
-// !!!*** abort for multithreaded!
 #include <QObject>
 class ATrackingHistoryCrawler : public QObject
 {

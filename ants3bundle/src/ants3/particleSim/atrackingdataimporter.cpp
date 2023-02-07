@@ -544,7 +544,7 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
                                      std::stof(inputSL[3]), // Z
                                      std::stof(inputSL[4]), // time
                                      std::stof(inputSL[5]), // energy
-                                     std::stof(inputSL[6]), // depoE
+                                     std::stod(inputSL[6]), // depoE  !!!*** stof can throw out_of_range for e.g. 2.4e-303
                                      inputSL[0].data());          // pr
     }
 

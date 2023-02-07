@@ -60,7 +60,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
 {
     NumEventsProcessed = 0;
 
-    //processor.beforeSearch();
+    processor.beforeSearch();
 
     ATrackingDataImporter dataImporter(FileName);
     AThreadPool pool(numThreads);
@@ -80,7 +80,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
         //while (pool.isFull()) std::this_thread::sleep_for(std::chrono::microseconds(1)); <- makes it slower
 
         pool.addJob(
-                    [&processor, &pProcessorForCloning, &criteria, position, iEvent, eventsPerThread, this]()
+                    [&processor, pProcessorForCloning, &criteria, position, iEvent, eventsPerThread, this]()
                     {
                         ATrackingDataImporter localDataImporter(FileName);
                         localDataImporter.setPositionInFile(position);
@@ -88,7 +88,7 @@ void ATrackingHistoryCrawler::findMultithread(const AFindRecordSelector & criter
                         AEventTrackingRecord * event = AEventTrackingRecord::create();
 
                         AHistorySearchProcessor * localProcessor = pProcessorForCloning->clone(); // acceptable: they are light-weight
-                        localProcessor->beforeSearch();
+                        //localProcessor->beforeSearch();
 
                         for (int iChunk = 0; iChunk < eventsPerThread; iChunk++)
                         {
@@ -1120,6 +1120,7 @@ AHistorySearchProcessor_Border::~AHistorySearchProcessor_Border()
 {
     delete formulaWhat1;
     delete formulaWhat2;
+    delete formulaWhat3;
     delete formulaCuts;
     delete Hist1D;
     delete Hist2D;
@@ -1226,8 +1227,9 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
 AHistorySearchProcessor * AHistorySearchProcessor_Border::clone() const
 {
     AHistorySearchProcessor_Border * p = new AHistorySearchProcessor_Border(*this);
-
+qDebug() << "->" << formulaWhat1->IsValid();
     p->formulaWhat1 = ( formulaWhat1 ? new TFormula(*formulaWhat1) : nullptr);
+qDebug() << "<-" << p->formulaWhat1->IsValid();
     p->formulaWhat2 = ( formulaWhat2 ? new TFormula(*formulaWhat2) : nullptr);
     p->formulaWhat3 = ( formulaWhat3 ? new TFormula(*formulaWhat3) : nullptr);
     p->formulaCuts  = ( formulaCuts  ? new TFormula(*formulaCuts)  : nullptr);
