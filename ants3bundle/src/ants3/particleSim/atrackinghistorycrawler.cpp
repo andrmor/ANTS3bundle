@@ -338,6 +338,11 @@ bool AHistorySearchProcessor_findParticles::onNewTrack(const AParticleTrackingRe
     return false;
 }
 
+void AHistorySearchProcessor_findParticles::onTransitionIn(const ATrackingStepData & )
+{
+    bConfirmed = true;
+}
+
 void AHistorySearchProcessor_findParticles::onLocalStep(const ATrackingStepData & )
 {
     bConfirmed = true;

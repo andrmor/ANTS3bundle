@@ -55,6 +55,7 @@ class AHistorySearchProcessor_findParticles : public AHistorySearchProcessor
 {
 public:
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
+    void onTransitionIn (const ATrackingStepData & tr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
 
