@@ -41,7 +41,7 @@ public:
     QString print() const;
 
     void writeToJson(QJsonObject& json) const;
-    const QJsonObject writeToJson() const;
+    QJsonObject writeToJson() const;
     void readFromJson(const QJsonObject& json);
 
     QString checkForErrors() const; //returns empty string if OK

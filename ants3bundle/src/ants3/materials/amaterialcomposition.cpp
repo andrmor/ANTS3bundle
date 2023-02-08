@@ -411,7 +411,7 @@ void AMaterialComposition::writeToJson(QJsonObject &json) const
     json["ElementComposition"] = ar;
 }
 
-const QJsonObject AMaterialComposition::writeToJson() const
+QJsonObject AMaterialComposition::writeToJson() const
 {
     QJsonObject js;
     writeToJson(js);

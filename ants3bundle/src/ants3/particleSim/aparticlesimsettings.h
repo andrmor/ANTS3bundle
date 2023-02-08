@@ -28,9 +28,9 @@ public:
     //bool    bDoS2           = false;
     //bool    bIgnoreNoDepo   = false;
 
-    bool    bClusterMerge   = false; // !!!*** to photon from depo settings
-    double  ClusterRadius   = 0.1;   // !!!*** to photon from depo settings
-    double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
+    bool    bClusterMerge   = false;
+    double  ClusterRadius   = 0.1;
+    double  ClusterTime     = 1.0;
 
     ASourceGeneratorSettings SourceGenSettings;
     AFileGeneratorSettings   FileGenSettings;

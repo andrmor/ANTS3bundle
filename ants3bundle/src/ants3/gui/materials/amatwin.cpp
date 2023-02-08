@@ -366,7 +366,10 @@ void AMatWin::updateWarningIcons()
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
+
     tmpMaterial.Density = ui->ledDensity->text().toDouble();
+    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
+    tmpMaterial.NistMaterial = ui->leG4Material->text();
     tmpMaterial.Temperature = ui->ledT->text().toDouble();
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();

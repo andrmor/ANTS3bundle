@@ -83,7 +83,7 @@ public:
     double  getSpeedOfLight(int iWave = -1) const;
 
     void    writeToJson (QJsonObject & json) const;
-    bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor add error control
+    bool    readFromJson(const QJsonObject & json);    // !!!*** TODO refactor add error control
 
     QString checkMaterial() const; // !!!***
 

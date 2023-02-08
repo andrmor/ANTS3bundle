@@ -284,11 +284,14 @@ void AMaterial::clearDynamicProperties()
 
 void AMaterial::writeToJson(QJsonObject & json) const
 {
-    json["*Name"]       = Name;
-    json["Density"]     = Density;
-    json["Temperature"] = Temperature;
+    json["*Name"]           = Name;
 
-    json["Composition"] = Composition.writeToJson();
+    json["Composition"]     = Composition.writeToJson();
+    json["Density"]         = Density;
+    json["UseNistMaterial"] = UseNistMaterial;
+    json["NistMaterial"]    = NistMaterial;
+    json["Temperature"]     = Temperature;
+
 
     json["RefIndex"]    = RefIndex;
     json["AbsCoeff"]    = AbsCoeff;
@@ -383,9 +386,6 @@ void AMaterial::writeToJson(QJsonObject & json) const
         for (const QString & s : Tags) ar.append(s);
         json["Tags"] = ar;
     }
-
-    json["UseNistMaterial"] = UseNistMaterial;
-    json["NistMaterial"]    = NistMaterial;
 }
 
 bool AMaterial::readFromJson(const QJsonObject & json)
@@ -393,11 +393,12 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     clear();
 
     jstools::parseJson(json, "*Name", Name);
-    jstools::parseJson(json, "Density", Density);
-    jstools::parseJson(json, "Temperature", Temperature);
-
     QJsonObject ccjson = json["Composition"].toObject();
     Composition.readFromJson(ccjson);
+    jstools::parseJson(json, "Density", Density);
+    jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
+    jstools::parseJson(json, "NistMaterial",     NistMaterial);
+    jstools::parseJson(json, "Temperature", Temperature);
 
     jstools::parseJson(json, "RefIndex", RefIndex);
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
@@ -476,8 +477,6 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ElDiffusionL",     ElDiffusionL);
     jstools::parseJson(json, "ElDiffusionT",     ElDiffusionT);
     jstools::parseJson(json, "Comments",         Comments);
-    jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
-    jstools::parseJson(json, "NistMaterial",     NistMaterial);
 
     {
         QJsonArray ar = json["RefIndexWave"].toArray();

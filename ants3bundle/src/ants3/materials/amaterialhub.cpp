@@ -178,11 +178,11 @@ void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
     int index = findMaterial(name);
     if (index == -1)
     {
-        qDebug() << "MatHub-> New material: " << name;
+        //qDebug() << "MatHub-> New material: " << name;
         addNewMaterial(true);
         index = Materials.size() - 1;
     }
-    else qDebug() << "MatHub-> Material " + name + " already defined; index = " << index;
+    //else qDebug() << "MatHub-> Material " + name + " already defined; index = " << index;
 
     //do not copy dynamic properties!
     QJsonObject js;
