@@ -512,6 +512,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 
 QString AMaterial::checkMaterial() const
 {
+    if (Name.isEmpty()) return "Empty material name!";
     const QString errInComposition = Composition.checkForErrors();
     if (!errInComposition.isEmpty())
         return Name + ": " + errInComposition;

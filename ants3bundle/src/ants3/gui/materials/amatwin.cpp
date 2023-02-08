@@ -624,12 +624,19 @@ void AMatWin::on_leName_editingFinished()
     name.replace(".","_");
     ui->leName->setText(name);
 
-    if ( (name.at(0) >= QChar('a') && name.at(0) <= QChar('z')) || (name.at(0) >= QChar('A') && name.at(0) <= QChar('Z'))) ;//ok
+    if (name.isEmpty())
+    {
+        guitools::message("Name cannot be empty!", this);
+        return;
+    }
+
+    QChar first = name[0];
+    if ( (first >= QChar('a') && first <= QChar('z')) || (first >= QChar('A') && first <= QChar('Z'))) ;//ok
     else
     {
-        name.remove(0,1);
-        name.insert(0, "A");
-        ui->leName->setText(name);
+        //name.remove(0,1);
+        //name.insert(0, "Mat");
+        //ui->leName->setText(name);
         guitools::message("Name should start with an alphabetic character!", this);
         return;
     }
@@ -763,11 +770,10 @@ void AMatWin::on_actionLoad_material_triggered()
     }
     js = json["Material"].toObject();
 
-tmpMaterial.readFromJson(js);
+    tmpMaterial.readFromJson(js);
 
     setWasModified(true);
     updateWaveButtons();
-    //  MW->ListActiveParticles();
 
     ui->cobActiveMaterials->setCurrentIndex(-1); //to avoid confusion (and update is disabled for -1)
     LastShownMaterial = -1;
@@ -1211,11 +1217,8 @@ void AMatWin::on_pbAcceptChanges_clicked()
     if (!ok) return;
 
     const QString newName = ui->leName->text();
-    const int iMat = ui->cobActiveMaterials->currentIndex();
-    const QString oldName = ui->cobActiveMaterials->currentText();
-
-    tmpMaterial.Name = oldName;
-    MatHub.copyToMaterials(tmpMaterial);
+    const int iMat = ui->cobActiveMaterials->currentIndex();       // -1    if material was just loaded
+    const QString oldName = ui->cobActiveMaterials->currentText(); // empty if material was just loaded
 
     if (newName != oldName)
     {
@@ -1225,7 +1228,13 @@ void AMatWin::on_pbAcceptChanges_clicked()
             guitools::message("Material with this name already exists!", this);
             return;
         }
+    }
 
+    if (!oldName.isEmpty()) tmpMaterial.Name = oldName;
+    MatHub.copyToMaterials(tmpMaterial);
+
+    if (iMat != -1 && newName != oldName)
+    {
         ok = MatHub.renameMaterial(iMat, newName);
         if (!ok)
         {
@@ -1236,7 +1245,7 @@ void AMatWin::on_pbAcceptChanges_clicked()
 
     emit requestRebuildDetector();
 
-    switchToMaterial(iMat);
+    switchToMaterial(iMat == -1 ? MatHub.countMaterials()-1 : iMat);
 }
 
 void AMatWin::on_pbCancel_clicked()
