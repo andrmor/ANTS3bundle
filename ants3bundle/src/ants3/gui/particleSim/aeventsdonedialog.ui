@@ -45,7 +45,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Use &quot;Number of threads&quot; and &quot;ev/thr&quot; to optimize speed</string>
+      <string>Adjust number of threads and ev/thr to optimize speed</string>
      </property>
     </widget>
    </item>

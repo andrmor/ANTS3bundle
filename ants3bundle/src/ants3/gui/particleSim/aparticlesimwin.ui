@@ -78,7 +78,6 @@
            <widget class="QLineEdit" name="lePhysicsList">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -455,7 +454,6 @@ Format: Volume_name  Step_in_mm</string>
            <widget class="QLabel" name="label_45">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -475,7 +473,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -514,7 +511,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -543,7 +539,6 @@ Format: Volume_name  Step_in_mm</string>
             </property>
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -572,7 +567,6 @@ Format: Volume_name  Step_in_mm</string>
          <widget class="QStackedWidget" name="swParticleGenerationMode">
           <property name="font">
            <font>
-            <weight>50</weight>
             <bold>false</bold>
             <kerning>true</kerning>
            </font>
@@ -609,7 +603,6 @@ Format: Volume_name  Step_in_mm</string>
                <widget class="QLabel" name="label_76">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -649,7 +642,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbAddSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -676,7 +668,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbRemoveSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -703,7 +694,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbSaveParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -717,7 +707,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbLoadParticleSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -744,7 +733,6 @@ Format: Volume_name  Step_in_mm</string>
                  <widget class="QPushButton" name="pbGunShowSource">
                   <property name="font">
                    <font>
-                    <weight>50</weight>
                     <bold>false</bold>
                     <kerning>true</kerning>
                    </font>
@@ -784,7 +772,6 @@ sources</string>
                <widget class="QCheckBox" name="cbGunAllowMultipleEvents">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                   <kerning>true</kerning>
                  </font>
@@ -840,7 +827,6 @@ sources</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -861,7 +847,6 @@ sources</string>
                   <widget class="QLabel" name="labPartPerEvent">
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -884,7 +869,6 @@ sources</string>
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
                      <bold>false</bold>
                      <kerning>true</kerning>
                     </font>
@@ -1144,7 +1128,6 @@ sources</string>
            <widget class="QLabel" name="labEventsPS">
             <property name="font">
              <font>
-              <weight>50</weight>
               <bold>false</bold>
               <kerning>true</kerning>
              </font>
@@ -1214,7 +1197,6 @@ sources</string>
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -1634,7 +1616,6 @@ sources</string>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -2227,7 +2208,6 @@ sources</string>
                    <widget class="QLabel" name="label_14">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -2279,7 +2259,6 @@ sources</string>
                    <widget class="QPushButton" name="pbEventView">
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -2630,84 +2609,62 @@ sources</string>
                      </widget>
                     </item>
                     <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_51">
-                      <property name="topMargin">
-                       <number>0</number>
+                     <layout class="QHBoxLayout" name="horizontalLayout_54">
+                      <property name="spacing">
+                       <number>3</number>
                       </property>
                       <item>
-                       <spacer name="horizontalSpacer_62">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_10">
-                        <property name="toolTip">
-                         <string>Large values may lead to very high memory consumption!</string>
-                        </property>
+                       <widget class="QCheckBox" name="cbPTHistTime">
                         <property name="text">
-                         <string>Number of threads:</string>
+                         <string>Time from</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSpinBox" name="sbNumThreadsStatistics">
-                        <property name="toolTip">
-                         <string>Large values may lead to very high memory consumption!</string>
+                       <widget class="QLineEdit" name="lePTHistTimeFrom">
+                        <property name="enabled">
+                         <bool>false</bool>
                         </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="value">
-                         <number>0</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_43">
-                        <property name="text">
-                         <string>ev/thr:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="ledEventsPerThread">
                         <property name="maximumSize">
                          <size>
-                          <width>50</width>
+                          <width>80</width>
                           <height>16777215</height>
                          </size>
                         </property>
-                        <property name="toolTip">
-                         <string>Events allocated to a thread each time</string>
-                        </property>
                         <property name="text">
-                         <string>1</string>
+                         <string>0</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <spacer name="horizontalSpacer_20">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
+                       <widget class="QLabel" name="label_49">
+                        <property name="text">
+                         <string>to</string>
                         </property>
-                        <property name="sizeHint" stdset="0">
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLineEdit" name="lePTHistTimeTo">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="maximumSize">
                          <size>
-                          <width>40</width>
-                          <height>20</height>
+                          <width>80</width>
+                          <height>16777215</height>
                          </size>
                         </property>
-                       </spacer>
+                        <property name="text">
+                         <string>1e99</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_50">
+                        <property name="text">
+                         <string>ns</string>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </item>
@@ -2749,7 +2706,7 @@ sources</string>
                    </size>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_3">
                    <attribute name="title">
@@ -2804,7 +2761,6 @@ sources</string>
                        <widget class="QComboBox" name="cobPTHistVolRequestWhat">
                         <property name="font">
                          <font>
-                          <weight>75</weight>
                           <bold>true</bold>
                          </font>
                         </property>
@@ -3724,13 +3680,12 @@ If checked, only &quot;creation&quot; is considered!</string>
                    <widget class="QPushButton" name="pbPTHistRequest">
                     <property name="minimumSize">
                      <size>
-                      <width>200</width>
+                      <width>150</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="font">
                      <font>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -3740,17 +3695,60 @@ If checked, only &quot;creation&quot; is considered!</string>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_45">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <layout class="QHBoxLayout" name="horizontalLayout_51">
+                    <property name="topMargin">
+                     <number>0</number>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
+                    <item>
+                     <widget class="QLabel" name="label_10">
+                      <property name="toolTip">
+                       <string>Large values may lead to very high memory consumption!</string>
+                      </property>
+                      <property name="text">
+                       <string>threads:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="sbNumThreadsStatistics">
+                      <property name="toolTip">
+                       <string>Large values may lead to very high memory consumption!</string>
+                      </property>
+                      <property name="minimum">
+                       <number>0</number>
+                      </property>
+                      <property name="maximum">
+                       <number>100</number>
+                      </property>
+                      <property name="value">
+                       <number>0</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_43">
+                      <property name="text">
+                       <string>ev/thr:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ledEventsPerThread">
+                      <property name="maximumSize">
+                       <size>
+                        <width>50</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Events allocated to a thread each time</string>
+                      </property>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </item>
@@ -4411,7 +4409,6 @@ If checked, only &quot;creation&quot; is considered!</string>
                 <widget class="QPushButton" name="pbCalorimetersShowDistribution">
                  <property name="font">
                   <font>
-                   <weight>75</weight>
                    <bold>true</bold>
                   </font>
                  </property>
@@ -4459,7 +4456,7 @@ If checked, only &quot;creation&quot; is considered!</string>
      <x>0</x>
      <y>0</y>
      <width>594</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -4491,12 +4488,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>200</y>
+     <x>541</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>208</y>
+     <x>126</x>
+     <y>718</y>
     </hint>
    </hints>
   </connection>
@@ -4507,12 +4504,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>549</x>
+     <y>441</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4523,12 +4520,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4539,12 +4536,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>189</y>
+     <x>382</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4555,12 +4552,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4571,12 +4568,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>416</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4587,12 +4584,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>549</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4603,12 +4600,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>416</x>
+     <y>467</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4619,12 +4616,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>238</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4635,12 +4632,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4651,12 +4648,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>192</y>
+     <x>228</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4667,12 +4664,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>192</y>
+     <x>309</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4683,12 +4680,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>238</x>
+     <y>461</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4699,12 +4696,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>187</y>
+     <x>132</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>186</y>
+     <x>315</x>
+     <y>210</y>
     </hint>
    </hints>
   </connection>
@@ -4715,12 +4712,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>214</y>
+     <x>200</x>
+     <y>447</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>415</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>
@@ -4731,12 +4728,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>215</y>
+     <x>200</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>215</y>
+     <x>415</x>
+     <y>475</y>
     </hint>
    </hints>
   </connection>
@@ -4747,12 +4744,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>216</y>
+     <x>200</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>415</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>
@@ -4763,12 +4760,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>214</y>
+     <x>66</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>214</y>
+     <x>243</x>
+     <y>430</y>
     </hint>
    </hints>
   </connection>
@@ -4779,12 +4776,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>216</y>
+     <x>66</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>216</y>
+     <x>243</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -4795,12 +4792,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>218</y>
+     <x>66</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>218</y>
+     <x>243</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -4811,12 +4808,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>214</y>
+     <x>415</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>557</x>
+     <y>430</y>
     </hint>
    </hints>
   </connection>
@@ -4827,12 +4824,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>415</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>557</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -4843,12 +4840,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>218</y>
+     <x>415</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>218</y>
+     <x>557</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -4859,12 +4856,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>118</x>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>232</y>
+     <x>479</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -4875,12 +4872,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>118</x>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
-     <x>72</x>
-     <y>232</y>
+     <x>332</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -4891,12 +4888,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>202</y>
+     <x>122</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>202</y>
+     <x>499</x>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -4907,12 +4904,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>180</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -4923,12 +4920,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>555</x>
+     <y>616</y>
     </hint>
    </hints>
   </connection>
@@ -4939,12 +4936,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>180</x>
+     <y>642</y>
     </hint>
    </hints>
   </connection>
@@ -4955,12 +4952,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>555</x>
+     <y>640</y>
     </hint>
    </hints>
   </connection>
@@ -4971,12 +4968,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>67</x>
+     <y>690</y>
     </hint>
     <hint type="destinationlabel">
-     <x>83</x>
-     <y>211</y>
+     <x>178</x>
+     <y>691</y>
     </hint>
    </hints>
   </connection>
@@ -4987,12 +4984,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>60</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>212</y>
+     <x>163</x>
+     <y>739</y>
     </hint>
    </hints>
   </connection>
@@ -5003,12 +5000,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>375</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>212</y>
+     <x>478</x>
+     <y>739</y>
     </hint>
    </hints>
   </connection>
@@ -5019,12 +5016,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5035,12 +5032,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5051,12 +5048,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>67</x>
+     <y>690</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5067,12 +5064,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>60</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5083,12 +5080,44 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>375</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbPTHistTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lePTHistTimeFrom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>262</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbPTHistTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lePTHistTimeTo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>477</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>

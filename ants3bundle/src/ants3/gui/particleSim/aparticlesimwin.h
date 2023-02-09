@@ -19,6 +19,8 @@ class ACalorimeterHub;
 class TH1D;
 class AParticleRecord;
 class AParticleSourceRecord;
+class ATrackingHistoryCrawler;
+class AFindRecordSelector;
 
 namespace Ui {
 class AParticleSimWin;
@@ -221,8 +223,8 @@ private:
     void checkWorldSize(AParticleSourceRecord & ps);
     bool isTrackingDataFileExists();
 
-    void findInBulk();
-    void findInTransitions();
+    void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
+    void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);

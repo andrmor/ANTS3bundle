@@ -1191,6 +1191,7 @@ void AParticleSimWin::on_pbEventView_clicked()
 // --- Statistics ---
 
 #include "atrackinghistorycrawler.h"
+#include "aeventsdonedialog.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -1199,11 +1200,33 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     if (!isTrackingDataFileExists()) return;
 
     setEnabled(false);
-    qApp->processEvents();
+
+    ATrackingHistoryCrawler crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
+
+    AEventsDoneDialog dialog(this);
+    connect(&crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &crawler, &ATrackingHistoryCrawler::abort);
+    dialog.setModal(true);
+    dialog.show();
+    QApplication::processEvents();
+
+    AFindRecordSelector options;
+    options.bParticle = ui->cbPTHistParticle->isChecked();
+    options.Particle = ui->lePTHistParticle->text();
+    options.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
+    options.bSecondary = ui->cbPTHistOnlySec->isChecked();
+    options.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
+    options.bTime = ui->cbPTHistTime->isChecked();
+    options.TimeFrom = ui->lePTHistTimeFrom->text().toDouble();
+    options.TimeTo = ui->lePTHistTimeTo->text().toDouble();
+
+    int numThreads = ui->sbNumThreadsStatistics->value();
+    int numEventsPerThread = ui->ledEventsPerThread->text().toDouble();
+    if (numEventsPerThread < 1.0) numEventsPerThread = 1.0;
 
     int Selector = ui->twPTHistType->currentIndex();
-    if (Selector == 0) findInBulk();
-    else               findInTransitions();
+    if (Selector == 0) findInBulk(crawler, options, numThreads, numEventsPerThread);
+    else               findInTransitions(crawler, options, numThreads, numEventsPerThread);
 
     QTextCursor txtCursor = ui->ptePTHist->textCursor();
     txtCursor.setPosition(0);
@@ -1212,18 +1235,8 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     setEnabled(true);
 }
 
-#include "aeventsdonedialog.h"
-void AParticleSimWin::findInBulk()
+void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread)
 {
-    AFindRecordSelector Opt;
-    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
-
-    Opt.bParticle = ui->cbPTHistParticle->isChecked();
-    Opt.Particle = ui->lePTHistParticle->text();
-    Opt.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
-    Opt.bSecondary = ui->cbPTHistOnlySec->isChecked();
-    Opt.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
-
     int    bins = ui->sbPTHistBinsX->value();
     double from = ui->ledPTHistFromX->text().toDouble();
     double to   = ui->ledPTHistToX  ->text().toDouble();
@@ -1232,23 +1245,12 @@ void AParticleSimWin::findInBulk()
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
-    int NumThreads = ui->sbNumThreadsStatistics->value();
-    int NumEventsPerThread = ui->ledEventsPerThread->text().toDouble();
-    if (NumEventsPerThread < 1.0) NumEventsPerThread = 1.0;
-
-    Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
-    Opt.Material = ui->cobPTHistVolMat->currentIndex();
-    Opt.bVolume = ui->cbPTHistVolVolume->isChecked();
-    Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
-    Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
-    Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
-
-    AEventsDoneDialog dialog(this);
-    connect(&Crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
-    connect(&dialog, &AEventsDoneDialog::rejected, &Crawler, &ATrackingHistoryCrawler::abort);
-    dialog.setModal(true);
-    dialog.show();
-    QApplication::processEvents();
+    options.bMaterial = ui->cbPTHistVolMat->isChecked();
+    options.Material = ui->cobPTHistVolMat->currentIndex();
+    options.bVolume = ui->cbPTHistVolVolume->isChecked();
+    options.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
+    options.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
+    options.VolumeIndex = ui->sbPTHistVolIndex->value();
 
     int What = ui->cobPTHistVolRequestWhat->currentIndex();
     switch (What)
@@ -1256,7 +1258,7 @@ void AParticleSimWin::findInBulk()
     case 0:
       {
         AHistorySearchProcessor_findParticles p;
-        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+        crawler.find(options, p, numThreads, numEventsPerThread);
         ui->ptePTHist->clear();
         ui->ptePTHist->appendPlainText("Particle and number of times:\n");
         std::vector<std::pair<QString,int>> vec;
@@ -1277,7 +1279,7 @@ void AParticleSimWin::findInBulk()
 
         AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
         AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+        crawler.find(options, p, numThreads, numEventsPerThread);
 
         ui->ptePTHist->clear();
         ui->ptePTHist->appendPlainText("Process and number of times:\n");
@@ -1292,7 +1294,7 @@ void AParticleSimWin::findInBulk()
     case 2:
       {
         AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-        Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+        crawler.find(options, p, numThreads, numEventsPerThread);
 
         if (p.Hist->GetEntries() == 0)
             guitools::message("No trajectories found", this);
@@ -1321,7 +1323,7 @@ void AParticleSimWin::findInBulk()
         if (ui->cbPTHistVolVsTime->isChecked())
         {
             AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+            crawler.find(options, p, numThreads, numEventsPerThread);
 
             if (p.Hist2D->GetEntries() == 0)
                 guitools::message("No deposition detected", this);
@@ -1337,7 +1339,7 @@ void AParticleSimWin::findInBulk()
         else
         {
             AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+            crawler.find(options, p, numThreads, numEventsPerThread);
 
             if (p.Hist->GetEntries() == 0)
                 guitools::message("No deposition detected", this);
@@ -1359,12 +1361,12 @@ void AParticleSimWin::findInBulk()
         if (ui->cbLimitTimeWindow->isChecked())
         {
             p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-            Crawler.find(Opt, *p, NumThreads, NumEventsPerThread);
+            crawler.find(options, *p, numThreads, numEventsPerThread);
         }
         else
         {
             p = new AHistorySearchProcessor_getDepositionStats();
-            Crawler.find(Opt, *p, NumThreads, NumEventsPerThread);
+            crawler.find(options, *p, numThreads, numEventsPerThread);
         }
 
         ui->ptePTHist->clear();
@@ -1394,7 +1396,7 @@ void AParticleSimWin::findInBulk()
     case 5:
         {
             AHistorySearchProcessor_findHadronicChannels p;
-            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+            crawler.find(options, p, numThreads, numEventsPerThread);
             ui->ptePTHist->clear();
             ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
             std::vector<std::pair<QString,int>> vec;
@@ -1408,32 +1410,23 @@ void AParticleSimWin::findInBulk()
     }
 }
 
-void AParticleSimWin::findInTransitions()
+void AParticleSimWin::findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread)
 {
-    AFindRecordSelector Opt;
-    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
+    options.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
+    options.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
+    options.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
+    options.bEscaping = ui->cbPTHistEscaping->isChecked();
+    options.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
+    options.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
+    options.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
 
-    Opt.bParticle = ui->cbPTHistParticle->isChecked();
-    Opt.Particle = ui->lePTHistParticle->text();
-    Opt.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
-    Opt.bSecondary = ui->cbPTHistOnlySec->isChecked();
-    Opt.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
-
-    Opt.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
-    Opt.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
-    Opt.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
-    Opt.bEscaping = ui->cbPTHistEscaping->isChecked();
-    Opt.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
-    Opt.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
-    Opt.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
-
-    Opt.bToMat = ui->cbPTHistVolMatTo->isChecked();
-    Opt.ToMat = ui->cobPTHistVolMatTo->currentIndex();
-    Opt.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
-    Opt.bCreated = ui->cbPTHistCreated->isChecked();
-    Opt.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
-    Opt.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
-    Opt.ToVolIndex = ui->sbPTHistVolIndexTo->value();
+    options.bToMat = ui->cbPTHistVolMatTo->isChecked();
+    options.ToMat = ui->cobPTHistVolMatTo->currentIndex();
+    options.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
+    options.bCreated = ui->cbPTHistCreated->isChecked();
+    options.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
+    options.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
+    options.ToVolIndex = ui->sbPTHistVolIndexTo->value();
 
     int    bins = ui->sbPTHistBinsX->value();
     double from = ui->ledPTHistFromX->text().toDouble();
@@ -1442,10 +1435,6 @@ void AParticleSimWin::findInTransitions()
     int    bins2 = ui->sbPTHistBinsY->value();
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
-
-    int NumThreads = ui->sbNumThreadsStatistics->value();
-    int NumEventsPerThread = ui->ledEventsPerThread->text().toDouble();
-    if (NumEventsPerThread < 1.0) NumEventsPerThread = 1.0;
 
     QString what = ui->lePTHistBordWhat->text();
     QString vsWhat = ui->lePTHistBordVsWhat->text();
@@ -1456,13 +1445,6 @@ void AParticleSimWin::findInTransitions()
     bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
     bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
 
-    AEventsDoneDialog dialog(this);
-    connect(&Crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
-    connect(&dialog, &AEventsDoneDialog::rejected, &Crawler, &ATrackingHistoryCrawler::abort);
-    dialog.setModal(true);
-    dialog.show();
-    QApplication::processEvents();
-
     if (!bVs)
     {
         //1D stat
@@ -1470,7 +1452,7 @@ void AParticleSimWin::findInTransitions()
         if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
         else
         {
-            Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+            crawler.find(options, p, numThreads, numEventsPerThread);
             if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
             else
             {
@@ -1489,7 +1471,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+                crawler.find(options, p, numThreads, numEventsPerThread);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1505,7 +1487,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+                crawler.find(options, p, numThreads, numEventsPerThread);
                 if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1524,7 +1506,7 @@ void AParticleSimWin::findInTransitions()
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, NumThreads, NumEventsPerThread);
+                crawler.find(options, p, numThreads, numEventsPerThread);
                 if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {

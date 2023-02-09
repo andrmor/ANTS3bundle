@@ -306,40 +306,44 @@ class AFindRecordSelector
 {
 public:
   //track level
-    bool bParticle = false;
+    bool    bParticle = false;
     QString Particle;
-    bool bPrimary = false;
-    bool bSecondary = false;
-    bool bLimitToFirstInteractionOfPrimary = false;
+    bool    bPrimary = false;
+    bool    bSecondary = false;
+    bool    bLimitToFirstInteractionOfPrimary = false;
+
+  //time
+    bool    bTime = false;
+    float   TimeFrom = 0;
+    float   TimeTo   = 1e99;
 
   //transportation
     //from
-    bool bFromMat = false;
-    bool bFromVolume = false;
-    bool bFromVolIndex = false;
-    bool bEscaping = false;
-    int  FromMat = 0;
+    bool    bFromMat = false;
+    bool    bFromVolume = false;
+    bool    bFromVolIndex = false;
+    bool    bEscaping = false;
+    int     FromMat = 0;
     TString FromVolume;
-    int  FromVolIndex = 0;
+    int     FromVolIndex = 0;
     //to
-    bool bToMat = false;
-    bool bToVolume = false;
-    bool bToVolIndex = false;
-    bool bCreated = false;
-    int  ToMat = 0;
+    bool    bToMat = false;
+    bool    bToVolume = false;
+    bool    bToVolIndex = false;
+    bool    bCreated = false;
+    int     ToMat = 0;
     TString ToVolume;
-    int  ToVolIndex = 0;
+    int     ToVolIndex = 0;
 
   //step level
-    bool bMaterial = false;
-    int Material = 0;
+    bool    bMaterial = false;
+    int     Material = 0;
 
-    bool bVolume = false;
+    bool    bVolume = false;
     TString Volume;
 
-    bool bVolumeIndex = false;
-    int VolumeIndex = 0;
-
+    bool    bVolumeIndex = false;
+    int     VolumeIndex = 0;
 };
 
 #include <QObject>

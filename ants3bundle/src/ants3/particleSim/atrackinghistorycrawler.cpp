@@ -27,7 +27,7 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
 }
 
 // !!!*** add error control
-void ATrackingHistoryCrawler::findSingleThread(const AFindRecordSelector &criteria, AHistorySearchProcessor &processor)
+void ATrackingHistoryCrawler::findSingleThread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor)
 {
     ATrackingDataImporter imp(FileName);
 
@@ -142,6 +142,16 @@ void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, 
         if      (opt.bParticle  && opt.Particle != pr.ParticleName) bDoTrack = false;
         else if (opt.bPrimary   && pr.getSecondaryOf() ) bDoTrack = false;
         else if (opt.bSecondary && !pr.getSecondaryOf() ) bDoTrack = false;
+    }
+
+    if (opt.bTime && bDoTrack)
+    {
+        const std::vector<ATrackingStepData *> & steps = pr.getSteps();
+        if (!steps.empty())
+        {
+            const float & Time = steps.front()->Time;
+            if (Time < opt.TimeFrom || Time > opt.TimeTo) bDoTrack = false;
+        }
     }
 
     bool bInlineTrackingOfSecondaries = processor.isInlineSecondaryProcessing();
