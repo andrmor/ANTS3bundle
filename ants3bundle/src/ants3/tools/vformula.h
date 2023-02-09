@@ -1,6 +1,8 @@
 #ifndef VFORMULA_H
 #define VFORMULA_H
 
+// https://github.com/vovasolo/vformula
+
 #include <stack>
 #include <vector>
 #include <string>
@@ -8,8 +10,7 @@
 #include <iostream>
 
 /*
-The provided expression is translated first into series of commands in postfix order for a simple stack-based
-evaluator.
+The provided expression is translated first into series of commands in postfix order for a simple stack-based evaluator.
 
 Possible values of CmdType and associated actions:
 0  CmdNop: no operation (for debugging)
@@ -21,67 +22,30 @@ Possible values of CmdType and associated actions:
 6  CmdReturn: stop execution, return top of the stack
 */
 
-enum TokenType {
-    TokNull = 0,
-    TokNumber,
-    TokConst,
-    TokVar,
-    TokFunc,
-    TokOper,
-    TokUnary,
-    TokOpen,
-    TokClose,
-    TokComma,
-    TokEnd,
-    TokError
-};
-
-struct Token {
-    TokenType type;
-    std::string string;
-    int addr;
-    int args;
-    Token(TokenType t, std::string s, int a=0) : type(t), string(s), addr(a) {;}
-};
-
-struct MyStack {
-    double s[256];
-    double *ptr = s;
-    inline double &top() {return *ptr;}
-    inline void pop() {ptr--;}
-    inline void push(double val) {*(++ptr)=val;}
-    inline int size() {return ptr-s;}
-};
-/*
-struct MyStack {
-    double s[256];
-    double *ptr = s+255;
-    inline double &top() {return *ptr;}
-    inline void pop() {ptr++;}
-    inline void push(double val) {*(--ptr)=val;}
-    inline int size() {return s-ptr+255;}
-};
-*/
-struct Cmdaddr{
-    unsigned short cmd;
-    unsigned short addr;
-    Cmdaddr(int c, int a) : cmd(c), addr(a) {;}
-};
-
 class VFormula
 {
 public:
     typedef void (VFormula::*FuncPtr)();
 
-    enum CmdType {
-        CmdNop = 0,
-        CmdOper,
-        CmdFunc,
-        CmdReadConst,
-        CmdReadVar,
-        CmdWriteVar,
-        CmdReturn
+    enum TokenType {TokNull = 0, TokNumber, TokConst, TokVar, TokFunc, TokOper, TokUnary, TokOpen, TokClose, TokComma, TokEnd, TokError};
+
+    struct Token
+    {
+        TokenType type;
+        std::string string;
+        int addr;
+        int args;
+        Token(TokenType t, std::string s, int a=0) : type(t), string(s), addr(a) {}
     };
+
+    struct Cmdaddr
+    {
+        unsigned short cmd;
+        unsigned short addr;
+        Cmdaddr(int c, int a) : cmd(c), addr(a) {}
+    };
+
+    enum CmdType {CmdNop = 0, CmdOper, CmdFunc, CmdReadConst, CmdReadVar, CmdWriteVar, CmdReturn};
 
 // Evaluator memory
     std::vector <Cmdaddr> Command; // expression translated to commands in postfix order
@@ -90,14 +54,13 @@ public:
     std::vector <FuncPtr> Func;  // vector of function pointers
     std::vector <FuncPtr> Oper;  // vector of operator pointers
     std::stack <double> Stack;   // evaluator stack
-//    MyStack Stack;
 
     void Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
     void Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
     void Mul() {double tmp = Stack.top(); Stack.pop(); Stack.top() *= tmp;}
     void Div() {double tmp = Stack.top(); Stack.pop(); Stack.top() /= tmp;}
     void Neg() {Stack.top() = -Stack.top();}
-    void Nop() {;}
+    void Nop() {}
     void Pow() {double tmp = Stack.top(); Stack.pop(); Stack.top() = pow(Stack.top(), tmp);}
     void Pow2() {double tmp = Stack.top(); Stack.top() = tmp*tmp;}
     void Pow3() {double tmp = Stack.top(); Stack.top() = tmp*tmp*tmp;}
@@ -143,7 +106,7 @@ public:
     std::stack <Token> OpStack;  // parser stack
 
     VFormula();
-    virtual ~VFormula() {;}
+    virtual ~VFormula() {}
 
     bool FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr);
 

@@ -223,7 +223,7 @@ void VFormula::PrintOFMap()
         std::cout << FuncName[i] << " : " << FuncMnem[i] << std::endl;
 }
 
-Token VFormula::GetNextToken()
+VFormula::Token VFormula::GetNextToken()
 {
 // skip spaces
     while (TokPos < Expr.size() && Expr[TokPos] == ' ')
