@@ -25,9 +25,16 @@ Possible values of CmdType and associated actions:
 class VFormula
 {
 public:
-    typedef void (VFormula::*FuncPtr)();
+    VFormula();
+    virtual ~VFormula() {}
+
+    void setVariables(const std::vector<std::string> & variables);
+
+    double eval(const std::vector<double> & varValues);
+
 
     enum TokenType {TokNull = 0, TokNumber, TokConst, TokVar, TokFunc, TokOper, TokUnary, TokOpen, TokClose, TokComma, TokEnd, TokError};
+    enum CmdType   {CmdNop = 0, CmdOper, CmdFunc, CmdReadConst, CmdReadVar, CmdWriteVar, CmdReturn};
 
     struct Token
     {
@@ -45,15 +52,14 @@ public:
         Cmdaddr(int c, int a) : cmd(c), addr(a) {}
     };
 
-    enum CmdType {CmdNop = 0, CmdOper, CmdFunc, CmdReadConst, CmdReadVar, CmdWriteVar, CmdReturn};
-
 // Evaluator memory
+    typedef void (VFormula::*FuncPtr)();
     std::vector <Cmdaddr> Command; // expression translated to commands in postfix order
-    std::vector <double> Const;  // vector of constants
-    std::vector <double> Var;    // vector of variables
-    std::vector <FuncPtr> Func;  // vector of function pointers
-    std::vector <FuncPtr> Oper;  // vector of operator pointers
-    std::stack <double> Stack;   // evaluator stack
+    std::vector <double>  Const;    // vector of constants
+    std::vector <double>  Var;      // vector of variables
+    std::vector <FuncPtr> Func;    // vector of function pointers
+    std::vector <FuncPtr> Oper;    // vector of operator pointers
+    std::stack  <double>  Stack;    // evaluator stack
 
     void Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
     void Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
@@ -105,9 +111,6 @@ public:
     std::vector <int> OperArgs;  // number of arguments to take, position corresponds to position in Oper
     std::stack <Token> OpStack;  // parser stack
 
-    VFormula();
-    virtual ~VFormula() {}
-
     bool FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr);
 
     size_t AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args=2);
@@ -134,23 +137,27 @@ public:
     void VFail(int pos, std::string msg);
     bool Validate();
     double Eval();
-    double Eval(double x);
+    /*
+    double Eval(double x)
+    {
+        Var[0] = x;
+        return Eval();
+    }
+    */
 
+    size_t GetFailPos() const {return failpos;}
     std::string GetErrorString() {return ErrorString;}
-
-//    bool SetVar(std::string name, double val); // returns true if var with this name exists
 
 private:
     std::string Expr;
-    size_t TokPos = 0; // current token position in Expr
-    Token LastToken = Token(TokNull, "");
-    size_t CmdPos = 0;
+    bool        valid = true; // result of the code validity check
+    size_t      TokPos = 0; // current token position in Expr
+    Token       LastToken = Token(TokNull, "");
+    size_t      CmdPos = 0;
+    size_t      pow2, pow3; // positions of the fast square and cube functions
+    size_t      neg, nop; // position of the sign inverse and nop functions
+    size_t      failpos; // position in the code at which validation failed
     std::string ErrorString;
-    size_t pow2, pow3; // positions of the fast square and cube functions
-    size_t neg, nop; // position of the sign inverse and nop functions
-    bool valid = true; // result of the code validity check
-public:
-    size_t failpos; // position in the code at which validation failed
 };
 
 #endif // VFORMULA_H

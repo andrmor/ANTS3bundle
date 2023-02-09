@@ -55,6 +55,16 @@ VFormula::VFormula()
     AddVariable("z", 0.);
 }
 
+void VFormula::setVariables(const std::vector<std::string> & variables)
+{
+    VarName = variables;
+}
+
+double VFormula::eval(const std::vector<double> & varValues)
+{
+    if (varValues.size() != VarName.size()) throw std::range_error("Mismatch in variable arrays: names and values");
+}
+
 void VFormula::Gaus()
 {
     double sigma = Stack.top();
@@ -77,11 +87,7 @@ void VFormula::Pol2()
     Stack.top() = (a2*t+a1)*t+a0;
 }
 
-double VFormula::Eval(double x)
-{
-    Var[0] = x;
-    return Eval();
-}
+
 
 double VFormula::Eval()
 {

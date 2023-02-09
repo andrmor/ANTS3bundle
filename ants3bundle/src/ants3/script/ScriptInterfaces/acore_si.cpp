@@ -92,13 +92,16 @@ QVariant ACore_SI::test(QVariant in)
 #include "vformula.h"
 double ACore_SI::form(QString e, double val)
 {
-    VFormula p;
-    bool status = p.ParseExpr(e.toLatin1().data());
+    VFormula p1;
+
+    bool status = p1.ParseExpr(e.toLatin1().data());
     if (!status)
     {
         abort("Parse error!");
         return 0;
     }
+
+    VFormula p(p1);
 
     std::cout << "\n----------Map------------\n";
     p.PrintCVMap();
@@ -108,7 +111,7 @@ double ACore_SI::form(QString e, double val)
     status = p.Validate();
     if (!status)
     {
-        abort("Validation error!\n" + QString::number(p.failpos) + " : " + p.GetErrorString().data());
+        abort("Validation error!\n" + QString::number(p.GetFailPos()) + " : " + p.GetErrorString().data());
         return 0;
     }
 
