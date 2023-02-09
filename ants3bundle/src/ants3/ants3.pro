@@ -291,7 +291,8 @@ SOURCES += \
     tools/arandomhub.cpp \
     tools/ath.cpp \
     tools/athreadpool.cpp \
-    tools/avector.cpp
+    tools/avector.cpp \
+    tools/vformula.cpp
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
@@ -494,7 +495,8 @@ HEADERS += \
     tools/arandomhub.h \
     tools/ath.h \
     tools/athreadpool.h \
-    tools/avector.h
+    tools/avector.h \
+    tools/vformula.h
 
 FORMS += \
         gui/geom/ashownumbersdialog.ui \

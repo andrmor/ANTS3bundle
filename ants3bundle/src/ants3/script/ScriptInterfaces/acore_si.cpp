@@ -89,6 +89,80 @@ QVariant ACore_SI::test(QVariant in)
     return in;
 }
 
+#include "vformula.h"
+double ACore_SI::form(QString e, double val)
+{
+    VFormula p;
+//    std::string e("1/(exp((x-3)/2)+exp((3-x)/2))");
+//    std::string e("-1+pol2(-x,2+sin(x+pi/2),-3,4)");
+//    std::string e("1+pol2(-x,2,-3,4)");
+//    std::string e("x+1+2+3+4+5+6+7+8+9+10");
+//    std::string e("x+(1+(2+(3+(4+(5+(6+(7+(8+(9+10)))))))))");
+//    std::string e("1+atan2(1,1)/pi");
+//    std::string e("sin(pi/4)-sqrt(2)/2");
+//    std::string e("asin(sin(pi*0.45))/pi");
+//    std::string e("0.5/cosh((x-3)/2)");
+//    std::string e("sqrt(x^2+y^2)");
+//    std::string e("2^2.000001^3.00001-2^2^3");
+//    std::string e("2/-2/-2");
+
+//    p.ParseExpr("sin(pi/4)-sqrt(2)/2");
+//      p.ParseExpr("10*10+15");
+//    p.ParseExpr("1");
+//    p.ParseExpr("exp(0-(x-3)*(x-3))/2");
+//    p.ParseExpr("1/(exp((x-3)/2)+exp((3-x)/2))");
+//    p.ParseExpr("0.5/cosh((x-3)/2)");
+
+//    std::cout << "sizeof(Cmdaddr) = " << sizeof(Cmdaddr) << std::endl;
+
+    bool status = p.ParseExpr(e.toLatin1().data());
+    if (!status)
+    {
+        abort("Parse error!");
+        return 0;
+    }
+
+    std::cout << "\n----------Map------------\n";
+    p.PrintCVMap();
+    std::cout << "\n---------Program---------\n";
+    p.PrintPrg();
+
+    status = p.Validate();
+    if (!status)
+    {
+        qDebug() << "Validation failed at " << p.failpos << " : " << p.GetErrorString().data();
+        abort("Validation error!");
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nCode validation OK\n";
+    }
+
+    //std::cout << "\n-----------Eval----------\n";
+    //std::cout << p.Eval(6) << std::endl;
+    double res = p.Eval(val);
+    std::cout << p.Stack.size() << " elements left in the stack\n\n";
+
+    /*
+// timed run
+    std::cout << "Timed run\n";
+    auto start = std::chrono::high_resolution_clock::now();
+
+//  Code to be timed
+    double sum =  0.;
+    for (int i=0; i<10000000; i++) {
+        sum += p.Eval(6);
+    }
+    std::cout << sum << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end - start;
+    std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
+    */
+    return res;
+}
+
 /*
 int ACore_SI::fun(int i)
 {
