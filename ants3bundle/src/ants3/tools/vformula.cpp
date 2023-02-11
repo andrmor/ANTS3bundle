@@ -49,20 +49,6 @@ VFormula::VFormula()
     AddFunction("pol2", &VFormula::Pol2, "POL2", 4);
 
     AddConstant("pi", M_PI);
-
-    AddVariable("x", 0.);
-    AddVariable("y", 0.);
-    AddVariable("z", 0.);
-}
-
-void VFormula::setVariables(const std::vector<std::string> & variables)
-{
-    VarName = variables;
-}
-
-double VFormula::eval(const std::vector<double> & varValues)
-{
-    if (varValues.size() != VarName.size()) throw std::range_error("Mismatch in variable arrays: names and values");
 }
 
 void VFormula::Gaus()
@@ -87,15 +73,22 @@ void VFormula::Pol2()
     Stack.top() = (a2*t+a1)*t+a0;
 }
 
-
-
-double VFormula::Eval()
+void VFormula::setVariableNames(const std::vector<std::string> & variables)
 {
-    size_t codelen = Command.size();
-    for (size_t i=0; i<codelen; i++) {
-        unsigned short cmd = Command[i].cmd;
+    VarNames = variables;
+}
+
+double VFormula::eval(const std::vector<double> & varValues)
+{
+    if (varValues.size() != VarNames.size()) throw std::range_error("Mismatch in variable arrays: names and values");
+
+    const size_t codelen = Command.size();
+    for (size_t i = 0; i < codelen; i++)
+    {
+        unsigned short cmd  = Command[i].cmd;
         unsigned short addr = Command[i].addr;
-        switch (cmd) {
+        switch (cmd)
+        {
             case CmdOper:
                 (this->*Oper[addr])();
                 break;
@@ -106,25 +99,30 @@ double VFormula::Eval()
                 Stack.push(Const[addr]);
                 break;
             case CmdReadVar:
-                Stack.push(Var[addr]);
+                Stack.push(varValues[addr]);
                 break;
             case CmdReturn:
                 double result = Stack.top();
                 Stack.pop();
-                return result;
+                if (Stack.empty()) return result;
+                ErrorString += "\nStack not empty on return!";
+                return nan("");
         }
     }
-    return nan(""); // should never reach this spot
+    return nan(""); // can reach this step only on error
 }
 
-void VFormula::VFail(int pos, std::string msg)
+void VFormula::VFail(int pos, const std::string & msg)
 {
     valid = false;
     failpos = pos;
+
     ErrorString = msg;
+    ErrorString += "\nFail position: ";
+    ErrorString += pos;
 }
 
-bool VFormula::Validate()
+bool VFormula::validate()
 {
     valid = true;
     size_t codelen = Command.size();
@@ -151,7 +149,7 @@ bool VFormula::Validate()
                 stkptr = stkptr + 1;
                 break;
             case CmdReadVar:
-                if (addr >= Var.size())
+                if (addr >= VarNames.size())
                     VFail(i, "Variable out of range");
                 stkptr = stkptr + 1;
                 break;
@@ -170,26 +168,31 @@ bool VFormula::Validate()
     return valid;
 }
 
-bool VFormula::ParseExpr(std::string expr)
+bool VFormula::parse(const std::string & expr)
 {
     Expr = expr;
     TokPos = 0;
     LastToken = Token(TokNull, "");
     Command.clear();
     bool status = ShuntingYard();
-    if (!status) {
-        std::cout << std::string(TokPos-1, ' ') << "^" << std::endl;
-        std::cout << "Parsing failed at position " << TokPos << ": ";
+    if (!status)
+    {
+        std::string err = std::string(TokPos-1, ' ') + "^";
+        err += "\nParsing failed at position ";
+        err += TokPos;
+        err += ":\n";
+        ErrorString += err;
         std::cout << ErrorString << std::endl;
         return false;
     }
     return true;
 }
 
-void VFormula::PrintPrg()
+void VFormula::printPrg()
 {
     char buf[32];
-    for (auto cmd : Command) {
+    for (auto cmd : Command)
+    {
         int c = cmd.cmd;
         int i = cmd.addr;
         sprintf(buf, "%02d:%02d ", c, i);
@@ -199,34 +202,34 @@ void VFormula::PrintPrg()
         else if (c == CmdFunc)
             std::cout << buf << "\tFun\t" << FuncMnem[i] << std::endl;
         else if (c == CmdReadConst) {
-            if (ConstName[i].size() == 0)
+            if (ConstNames[i].size() == 0)
                 std::cout << buf << "\tCon\t" << Const[i] << std::endl;
             else
-                std::cout << buf << "\tCon\t" << ConstName[i] << "=" << Const[i] << std::endl;
+                std::cout << buf << "\tCon\t" << ConstNames[i] << "=" << Const[i] << std::endl;
         }
         else if (c == CmdReadVar)
-            std::cout << buf << "\tVar\t" << VarName[i] << "=" << Var[i] << std::endl;
+            std::cout << buf << "\tVar\t" << VarNames[i] /*<< "=" << Var[i]*/ << std::endl;
     }
 }
 
-void VFormula::PrintCVMap()
+void VFormula::printCVMap()
 {
     std::cout << "Constants\n";
-    for (size_t i=0; i<ConstName.size(); i++)
-        std::cout << ConstName[i] << " : " << Const[i] << std::endl;
+    for (size_t i=0; i<ConstNames.size(); i++)
+        std::cout << ConstNames[i] << " : " << Const[i] << std::endl;
     std::cout << "Variables\n";
-    for (size_t i=0; i<VarName.size(); i++)
-        std::cout << VarName[i] << " : " << Var[i] << std::endl;
+    for (size_t i=0; i<VarNames.size(); i++)
+        std::cout << VarNames[i] /*<< " : " << Var[i]*/ << std::endl;
 }
 
-void VFormula::PrintOFMap()
+void VFormula::printOFMap()
 {
     std::cout << "Operators\n";
     for (size_t i=0; i<OperName.size(); i++)
         std::cout << OperName[i] << " : " << OperMnem[i] << std::endl;
     std::cout << "Functions\n";
-    for (size_t i=0; i<FuncName.size(); i++)
-        std::cout << FuncName[i] << " : " << FuncMnem[i] << std::endl;
+    for (size_t i=0; i<FuncNames.size(); i++)
+        std::cout << FuncNames[i] << " : " << FuncMnem[i] << std::endl;
 }
 
 VFormula::Token VFormula::GetNextToken()
@@ -277,13 +280,13 @@ VFormula::Token VFormula::GetNextToken()
 
     // now check if it is a known symbol
         size_t addr;
-        if (FindSymbol(ConstName, symbol, &addr))
+        if (FindSymbol(ConstNames, symbol, &addr))
             return Token(TokConst, symbol, addr);
 
-        if (FindSymbol(VarName, symbol, &addr))
+        if (FindSymbol(VarNames, symbol, &addr))
             return Token(TokVar, symbol, addr);
 
-        if (FindSymbol(FuncName, symbol, &addr)) {
+        if (FindSymbol(FuncNames, symbol, &addr)) {
             if (Expr[TokPos] != '(') {
                 TokPos -= len;
                 return Token(TokError, std::string("Known function ")+symbol+" without ()");
@@ -453,7 +456,7 @@ bool VFormula::CheckSyntax(Token token)
     return true;
 }
 
-bool VFormula::FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr)
+bool VFormula::FindSymbol(std::vector<std::string> & namevec, std::string symbol, size_t *addr)
 {
     std::vector <std::string> :: iterator itr;
 
@@ -461,7 +464,7 @@ bool VFormula::FindSymbol(std::vector <std::string> &namevec, std::string symbol
     if (itr == namevec.end())
         return false;
 
-    *addr = itr-namevec.begin();
+    *addr = itr - namevec.begin();
     return true;
 }
 
@@ -477,7 +480,7 @@ size_t VFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, i
 
 size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args)
 {
-    FuncName.push_back(name);
+    FuncNames.push_back(name);
     FuncMnem.push_back(mnem);
     FuncArgs.push_back(args);
     Func.push_back(ptr);
@@ -487,60 +490,22 @@ size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, in
 size_t VFormula::AddConstant(std::string name, double val)
 {
     size_t addr;
-    if (name.size() == 0) { // if automatically generated (empty name)
+    if (name.empty())
+    {
+        // if automatically generated (empty name)
         std::vector <double> :: iterator itr = std::find(Const.begin(), Const.end(), val);
         if (itr != Const.end()) // if a constant with the same value already exists
-            return itr-Const.begin(); // use it
-    } else if (FindSymbol(ConstName, name, &addr)) { // if the constant with this name already exists - update it
-        Var[addr] = val;
+            return itr - Const.begin(); // use it
+    }
+    else if (FindSymbol(ConstNames, name, &addr))
+    {
+        // if the constant with this name already exists - update it
+        Const[addr] = val; // !!!***FIX: here was Var[addr] = val;
         return addr;
     }
-// otherwise create a new one
-    ConstName.push_back(name);
+
+    // otherwise create a new one
+    ConstNames.push_back(name);
     Const.push_back(val);
     return Const.size()-1;
-}
-
-size_t VFormula::AddVariable(std::string name, double val)
-{
-// if the variable with this name already exists - update it
-    size_t addr;
-    if (FindSymbol(VarName, name, &addr)) {
-        Var[addr] = val;
-        return addr;
-    }
-// otherwise create a new one
-    VarName.push_back(name);
-    Var.push_back(val);
-    return Var.size()-1;
-}
-
-double VFormula::GetConstant(std::string name)
-{
-    size_t addr;
-    return FindSymbol(ConstName, name, &addr) ? Const[addr] : nan("");
-}
-
-double VFormula::GetVariable(std::string name)
-{
-    size_t addr;
-    return FindSymbol(VarName, name, &addr) ? Var[addr] : nan("");
-}
-
-bool VFormula::SetConstant(std::string name, double val)
-{
-    size_t addr;
-    bool status = FindSymbol(ConstName, name, &addr);
-    if (status)
-        Const[addr] = val;
-    return status;
-}
-
-bool VFormula::SetVariable(std::string name, double val)
-{
-    size_t addr;
-    bool status = FindSymbol(VarName, name, &addr);
-    if (status)
-        Var[addr] = val;
-    return status;
 }

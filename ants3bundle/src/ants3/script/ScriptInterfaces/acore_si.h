@@ -26,7 +26,7 @@ public slots:
     void    abort(QString message);
 
     QVariant test(QVariant in);
-    double form(QString e, double val);
+    double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
 
     int fun(int i, int j, int k);
     //int fun(int i);

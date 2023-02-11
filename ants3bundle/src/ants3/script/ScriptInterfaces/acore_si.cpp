@@ -90,33 +90,45 @@ QVariant ACore_SI::test(QVariant in)
 }
 
 #include "vformula.h"
-double ACore_SI::form(QString e, double val)
+double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
 {
     VFormula p1;
 
-    bool status = p1.ParseExpr(e.toLatin1().data());
-    if (!status)
+    std::vector<std::string> names;
+    for (int i = 0; i < varNames.size(); i++) names.push_back(std::string(varNames[i].toString().toLatin1()));
+    p1.setVariableNames(names);
+
+    bool ok = p1.parse(formula.toLatin1().data());
+    if (!ok)
     {
-        abort("Parse error!");
+        abort("VFormula parse error!\n" + QString(p1.getErrorString().data()));
         return 0;
     }
 
     VFormula p(p1);
 
     std::cout << "\n----------Map------------\n";
-    p.PrintCVMap();
+    p.printCVMap();
     std::cout << "\n---------Program---------\n";
-    p.PrintPrg();
+    p.printPrg();
 
-    status = p.Validate();
-    if (!status)
+    ok = p.validate();
+    if (!ok)
     {
-        abort("Validation error!\n" + QString::number(p.GetFailPos()) + " : " + p.GetErrorString().data());
+        abort("VFormula validation error!\n" + QString(p.getErrorString().data()));
         return 0;
     }
 
-    double res = p.Eval(val);
-    qDebug() << p.Stack.size() << " elements left in the stack\n\n";
+    std::vector<double> values;
+    for (int i = 0; i < varValues.size(); i++) values.push_back(varValues[i].toDouble());
+
+    double res = p.eval(values);
+
+    if (!p.getErrorString().empty())
+    {
+        abort("VFormula eval error!\n" + QString(p.getErrorString().data()));
+        return 0;
+    }
 
     /*
 // timed run

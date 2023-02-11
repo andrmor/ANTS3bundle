@@ -28,11 +28,20 @@ public:
     VFormula();
     virtual ~VFormula() {}
 
-    void setVariables(const std::vector<std::string> & variables);
+    void   setVariableNames(const std::vector<std::string> & variables);
+    bool   parse(const std::string & expr);
+    bool   validate();
 
     double eval(const std::vector<double> & varValues);
 
+    const std::string & getErrorString() {return ErrorString;}
 
+    // diagnostics
+    void printCVMap();
+    void printOFMap();
+    void printPrg();
+
+protected:
     enum TokenType {TokNull = 0, TokNumber, TokConst, TokVar, TokFunc, TokOper, TokUnary, TokOpen, TokClose, TokComma, TokEnd, TokError};
     enum CmdType   {CmdNop = 0, CmdOper, CmdFunc, CmdReadConst, CmdReadVar, CmdWriteVar, CmdReturn};
 
@@ -56,7 +65,7 @@ public:
     typedef void (VFormula::*FuncPtr)();
     std::vector <Cmdaddr> Command; // expression translated to commands in postfix order
     std::vector <double>  Const;    // vector of constants
-    std::vector <double>  Var;      // vector of variables
+    std::vector <double>  VarLocal;      // vector of variables
     std::vector <FuncPtr> Func;    // vector of function pointers
     std::vector <FuncPtr> Oper;    // vector of operator pointers
     std::stack  <double>  Stack;    // evaluator stack
@@ -100,53 +109,35 @@ public:
     void Pol3();
 
 // Parser memory
-    std::vector <std::string> ConstName; // names of constants: position corresponds to position in Const
-    std::vector <std::string> VarName;   // names of variables: position corresponds to position in Var
-    std::vector <std::string> FuncName;  // names of functions: position corresponds to position in Func
-    std::vector <std::string> FuncMnem;  // function mnemonics: position corresponds to position in Func
-    std::vector <int> FuncArgs; // number of arguments to take, position corresponds to position in Func
-    std::vector <std::string> OperName;  // names of operations: position corresponds to position in Oper
-    std::vector <std::string> OperMnem;  // operation mnemonics: position corresponds to position in Oper
-    std::vector <int> OperRank;  // operation priorities (less is higher): position corresponds to position in Oper
-    std::vector <int> OperArgs;  // number of arguments to take, position corresponds to position in Oper
-    std::stack <Token> OpStack;  // parser stack
+    std::vector<std::string> ConstNames; // names of constants: position corresponds to position in Const
+    std::vector<std::string> VarNames;   // names of variables: position corresponds to position in Var
+    std::vector<std::string> FuncNames;  // names of functions: position corresponds to position in Func
+    std::vector<std::string> FuncMnem;   // function mnemonics: position corresponds to position in Func
+    std::vector<int>         FuncArgs;   // number of arguments to take, position corresponds to position in Func
+    std::vector<std::string> OperName;   // names of operations: position corresponds to position in Oper
+    std::vector<std::string> OperMnem;   // operation mnemonics: position corresponds to position in Oper
+    std::vector<int>         OperRank;   // operation priorities (less is higher): position corresponds to position in Oper
+    std::vector<int>         OperArgs;   // number of arguments to take, position corresponds to position in Oper
+    std::stack<Token>        OpStack;    // parser stack
 
     bool FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr);
 
     size_t AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args=2);
     size_t AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args=1);
     size_t AddConstant(std::string name, double val);
-    size_t AddVariable(std::string name, double val);
 
-    double GetConstant(std::string name);
-    double GetVariable(std::string name);
-    bool SetConstant(std::string name, double val);
-    bool SetVariable(std::string name, double val);
-
-    bool ParseExpr(std::string expr);
     bool CheckSyntax(Token token);
     Token GetNextToken();
     bool ShuntingYard();
 
     Cmdaddr MkCmd(int cmd, int addr) {return Cmdaddr(cmd, addr);}
 
-    void PrintCVMap();
-    void PrintOFMap();
-    void PrintPrg();
 
-    void VFail(int pos, std::string msg);
-    bool Validate();
-    double Eval();
-    /*
-    double Eval(double x)
-    {
-        Var[0] = x;
-        return Eval();
-    }
-    */
 
-    size_t GetFailPos() const {return failpos;}
-    std::string GetErrorString() {return ErrorString;}
+    void VFail(int pos, const std::string &msg);
+
+    //size_t GetFailPos() const {return failpos;}
+
 
 private:
     std::string Expr;
