@@ -259,9 +259,8 @@ bool VFormula::parse(const std::string & expr)
     bool status = shuntingYard();
     if (!status)
     {
-        std::string err = std::string(TokPos-1, ' ') + "^";
-        err += "\nParsing failed at position ";
-        err += TokPos;
+        std::string err = std::string(TokPos-1, ' ');
+        err += "\nParsing failed at position " + std::to_string(TokPos);
         err += ":\n";
         ErrorString += err;
         std::cout << ErrorString << std::endl;

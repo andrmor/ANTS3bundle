@@ -31,6 +31,7 @@ public:
     bool   parse(const std::string & expr);
     bool   validate();
 
+    bool   isValidated() const {return Valid;}
     double eval(const std::vector<double> & varValues);
 
     void   printCVMap();
@@ -93,7 +94,7 @@ protected:
     void    vFail(int pos, const std::string & msg);
 
     std::string Expr;
-    bool        Valid = true;                   // result of the code validity check
+    bool        Valid = true;                   // result of the code validity check  !!!*** bad idea to have it by default true!
     size_t      TokPos = 0;                     // current token position in Expr
     Token       LastToken = Token(TokNull, "");
     size_t      CmdPos = 0;
