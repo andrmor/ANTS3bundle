@@ -3,74 +3,60 @@
 #include <algorithm>
 #include <iostream>
 #include <cstdio>
-#include <chrono>
+//#include <chrono>
+#include <cmath>
 
 VFormula::VFormula()
 {
-    AddOperation("+", &VFormula::Add, "ADD", 5);
-    AddOperation("-", &VFormula::Sub, "SUB", 5);
-    AddOperation("*", &VFormula::Mul, "MUL", 4);
-    AddOperation("/", &VFormula::Div, "DIV", 4);
-    AddOperation("^", &VFormula::Pow, "POW", 3);
+    addOperation("=",  &VFormula::Equal,     "EQ",  5);
+    addOperation("!=", &VFormula::NotEqual,  "NEQ", 5);
+    addOperation(">=", &VFormula::GreaterEq, "GE",  5);
+    addOperation(">",  &VFormula::Greater,   "GR",  5);
+    addOperation("<=", &VFormula::SmallerEq, "SE",  5);
+    addOperation("<",  &VFormula::Smaller,   "SM",  5);
+
+    addOperation("+", &VFormula::Add, "ADD", 6);
+    addOperation("-", &VFormula::Sub, "SUB", 6);
+    addOperation("*", &VFormula::Mul, "MUL", 4);
+    addOperation("/", &VFormula::Div, "DIV", 4);
+    addOperation("^", &VFormula::Pow, "POW", 3);
 // unary minus and plus
-    neg = AddOperation("--", &VFormula::Neg, "NEG", 2, 1);
-    nop = AddOperation("++", &VFormula::Nop, "NOP", 2, 1);
+    NegPos = addOperation("--", &VFormula::Neg, "NEG", 2, 1);
+    NopPos = addOperation("++", &VFormula::Nop, "NOP", 2, 1);
 
-    pow2 = AddFunction("pow2", &VFormula::Pow2, "POW2");
-    pow3 = AddFunction("pow3", &VFormula::Pow3, "POW3");
+    Pow2Pos = addFunction("pow2", &VFormula::Pow2, "POW2");
+    Pow3Pos = addFunction("pow3", &VFormula::Pow3, "POW3");
 
-    AddFunction("pow", &VFormula::Pow, "POW", 2);
-    AddFunction("abs", &VFormula::Exp, "ABS");
-    AddFunction("sqrt", &VFormula::Sqrt, "SQRT");
-    AddFunction("exp", &VFormula::Exp, "EXP");
-    AddFunction("log", &VFormula::Log, "LOG");
-    AddFunction("sin", &VFormula::Sin, "SIN");
-    AddFunction("cos", &VFormula::Cos, "COS");
-    AddFunction("tan", &VFormula::Tan, "TAN");
-    AddFunction("asin", &VFormula::Asin, "ASIN");
-    AddFunction("acos", &VFormula::Acos, "ACOS");
-    AddFunction("atan", &VFormula::Atan, "ATAN");
-    AddFunction("atan2", &VFormula::Atan2, "ATAN2", 2);
+    addFunction("pow", &VFormula::Pow, "POW", 2);
+    addFunction("abs", &VFormula::Exp, "ABS");
+    addFunction("sqrt", &VFormula::Sqrt, "SQRT");
+    addFunction("exp", &VFormula::Exp, "EXP");
+    addFunction("log", &VFormula::Log, "LOG");
+    addFunction("sin", &VFormula::Sin, "SIN");
+    addFunction("cos", &VFormula::Cos, "COS");
+    addFunction("tan", &VFormula::Tan, "TAN");
+    addFunction("asin", &VFormula::Asin, "ASIN");
+    addFunction("acos", &VFormula::Acos, "ACOS");
+    addFunction("atan", &VFormula::Atan, "ATAN");
+    addFunction("atan2", &VFormula::Atan2, "ATAN2", 2);
 
-    AddFunction("sinh", &VFormula::Sinh, "SINH");
-    AddFunction("cosh", &VFormula::Cosh, "COSH");
-    AddFunction("tanh", &VFormula::Tanh, "TANH");
-    AddFunction("asinh", &VFormula::Asinh, "ASINH");
-    AddFunction("acosh", &VFormula::Acosh, "ACOSH");
-    AddFunction("atanh", &VFormula::Atanh, "ATANH");
+    addFunction("sinh", &VFormula::Sinh, "SINH");
+    addFunction("cosh", &VFormula::Cosh, "COSH");
+    addFunction("tanh", &VFormula::Tanh, "TANH");
+    addFunction("asinh", &VFormula::Asinh, "ASINH");
+    addFunction("acosh", &VFormula::Acosh, "ACOSH");
+    addFunction("atanh", &VFormula::Atanh, "ATANH");
 
-    AddFunction("int", &VFormula::Int, "INT");
-    AddFunction("frac", &VFormula::Frac, "FRAC");
+    addFunction("int", &VFormula::Int, "INT");
+    addFunction("frac", &VFormula::Frac, "FRAC");
 
-    AddFunction("max", &VFormula::Max, "MAX", 2);
-    AddFunction("min", &VFormula::Min, "MIN", 2);
+    addFunction("max", &VFormula::Max, "MAX", 2);
+    addFunction("min", &VFormula::Min, "MIN", 2);
 
-    AddFunction("gaus", &VFormula::Gaus, "GAUS", 3);
-    AddFunction("pol2", &VFormula::Pol2, "POL2", 4);
+    addFunction("gaus", &VFormula::Gaus, "GAUS", 3);
+    addFunction("pol2", &VFormula::Pol2, "POL2", 4);
 
-    AddConstant("pi", M_PI);
-}
-
-void VFormula::Gaus()
-{
-    double sigma = Stack.top();
-    Stack.pop();
-    double x0 = Stack.top();
-    Stack.pop();
-    double t = (Stack.top()-x0)/sigma;
-    Stack.top() = 1/(sigma*sqrt(M_PI*2))*exp(-0.5*t*t);
-}
-
-void VFormula::Pol2()
-{
-    double a0 = Stack.top();
-    Stack.pop();
-    double a1 = Stack.top();
-    Stack.pop();
-    double a2 = Stack.top();
-    Stack.pop();
-    double t = Stack.top();
-    Stack.top() = (a2*t+a1)*t+a0;
+    addConstant("pi", M_PI);
 }
 
 void VFormula::setVariableNames(const std::vector<std::string> & variables)
@@ -80,7 +66,11 @@ void VFormula::setVariableNames(const std::vector<std::string> & variables)
 
 double VFormula::eval(const std::vector<double> & varValues)
 {
-    if (varValues.size() != VarNames.size()) throw std::range_error("Mismatch in variable arrays: names and values");
+    if (varValues.size() != VarNames.size())
+    {
+        ErrorString = "Mismatch in VFormula variable arrays: names and values";
+        return nan("");
+    }
 
     const size_t codelen = Command.size();
     for (size_t i = 0; i < codelen; i++)
@@ -112,19 +102,111 @@ double VFormula::eval(const std::vector<double> & varValues)
     return nan(""); // can reach this step only on error
 }
 
-void VFormula::VFail(int pos, const std::string & msg)
+void VFormula::vFail(int pos, const std::string & msg)
 {
-    valid = false;
-    failpos = pos;
+    Valid = false;
+    FailPos = pos;
 
     ErrorString = msg;
     ErrorString += "\nFail position: ";
     ErrorString += pos;
 }
 
+void VFormula::Equal()     {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() == tmp ? 1.0 : 0);}
+
+void VFormula::NotEqual()  {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() != tmp ? 1.0 : 0);}
+
+void VFormula::Greater()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >  tmp ? 1.0 : 0);}
+
+void VFormula::GreaterEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >= tmp ? 1.0 : 0);}
+
+void VFormula::Smaller()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <  tmp ? 1.0 : 0);}
+
+void VFormula::SmallerEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <= tmp ? 1.0 : 0);}
+
+void VFormula::Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
+
+void VFormula::Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
+
+void VFormula::Mul() {double tmp = Stack.top(); Stack.pop(); Stack.top() *= tmp;}
+
+void VFormula::Div() {double tmp = Stack.top(); Stack.pop(); Stack.top() /= tmp;}
+
+void VFormula::Neg() {Stack.top() = -Stack.top();}
+
+void VFormula::Pow() {double tmp = Stack.top(); Stack.pop(); Stack.top() = pow(Stack.top(), tmp);}
+
+void VFormula::Pow2() {double tmp = Stack.top(); Stack.top() = tmp*tmp;}
+
+void VFormula::Pow3() {double tmp = Stack.top(); Stack.top() = tmp*tmp*tmp;}
+
+void VFormula::Abs() {Stack.top() = abs(Stack.top());}
+
+void VFormula::Sqrt() {Stack.top() = sqrt(Stack.top());}
+
+void VFormula::Exp() {Stack.top() = exp(Stack.top());}
+
+void VFormula::Log() {Stack.top() = log(Stack.top());}
+
+void VFormula::Sin() {Stack.top() = sin(Stack.top());}
+
+void VFormula::Cos() {Stack.top() = cos(Stack.top());}
+
+void VFormula::Tan() {Stack.top() = tan(Stack.top());}
+
+void VFormula::Asin() {Stack.top() = asin(Stack.top());}
+
+void VFormula::Acos() {Stack.top() = acos(Stack.top());}
+
+void VFormula::Atan() {Stack.top() = atan(Stack.top());}
+
+void VFormula::Atan2() {double x = Stack.top(); Stack.pop(); Stack.top() = atan2(Stack.top(), x);}  //atan2(y,x)
+
+void VFormula::Sinh() {Stack.top() = sinh(Stack.top());}
+
+void VFormula::Cosh() {Stack.top() = cosh(Stack.top());}
+
+void VFormula::Tanh() {Stack.top() = tanh(Stack.top());}
+
+void VFormula::Asinh() {Stack.top() = asinh(Stack.top());}
+
+void VFormula::Acosh() {Stack.top() = acosh(Stack.top());}
+
+void VFormula::Atanh() {Stack.top() = atanh(Stack.top());}
+
+void VFormula::Int() {double t; modf(Stack.top(), &t); Stack.top() = t;}
+
+void VFormula::Frac() {double t; Stack.top() = modf(Stack.top(), &t);}
+
+void VFormula::Max() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::max(tmp, Stack.top());}
+
+void VFormula::Min() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::min(tmp, Stack.top());}
+
+void VFormula::Gaus()
+{
+    double sigma = Stack.top();
+    Stack.pop();
+    double x0 = Stack.top();
+    Stack.pop();
+    double t = (Stack.top()-x0)/sigma;
+    Stack.top() = 1/(sigma*sqrt(M_PI*2))*exp(-0.5*t*t);
+}
+
+void VFormula::Pol2()
+{
+    double a0 = Stack.top();
+    Stack.pop();
+    double a1 = Stack.top();
+    Stack.pop();
+    double a2 = Stack.top();
+    Stack.pop();
+    double t = Stack.top();
+    Stack.top() = (a2*t+a1)*t+a0;
+}
+
 bool VFormula::validate()
 {
-    valid = true;
+    Valid = true;
     size_t codelen = Command.size();
     int stkptr = 0;
     bool finished = false;
@@ -135,22 +217,22 @@ bool VFormula::validate()
         switch (cmd) {
             case CmdOper:
                 if (addr >= Oper.size())
-                    VFail(i, "Operation out of range");
+                    vFail(i, "Operation out of range");
                 stkptr = stkptr - OperArgs[addr] + 1;
                 break;
             case CmdFunc:
                 if (addr >= Func.size())
-                    VFail(i, "Function out of range");
+                    vFail(i, "Function out of range");
                 stkptr = stkptr - FuncArgs[addr] + 1;
                 break;
             case CmdReadConst:
                 if (addr >= Const.size())
-                    VFail(i, "Constant out of range");
+                    vFail(i, "Constant out of range");
                 stkptr = stkptr + 1;
                 break;
             case CmdReadVar:
                 if (addr >= VarNames.size())
-                    VFail(i, "Variable out of range");
+                    vFail(i, "Variable out of range");
                 stkptr = stkptr + 1;
                 break;
             case CmdReturn:
@@ -163,9 +245,9 @@ bool VFormula::validate()
     }
 
     if (stkptr != 0)
-        VFail(-1, std::string("Stack is out of balance by") + std::to_string(stkptr) + "positions");
+        vFail(-1, std::string("Stack is out of balance by") + std::to_string(stkptr) + "positions");
 
-    return valid;
+    return Valid;
 }
 
 bool VFormula::parse(const std::string & expr)
@@ -174,7 +256,7 @@ bool VFormula::parse(const std::string & expr)
     TokPos = 0;
     LastToken = Token(TokNull, "");
     Command.clear();
-    bool status = ShuntingYard();
+    bool status = shuntingYard();
     if (!status)
     {
         std::string err = std::string(TokPos-1, ' ') + "^";
@@ -232,7 +314,7 @@ void VFormula::printOFMap()
         std::cout << FuncNames[i] << " : " << FuncMnem[i] << std::endl;
 }
 
-VFormula::Token VFormula::GetNextToken()
+VFormula::Token VFormula::getNextToken()
 {
 // skip spaces
     while (TokPos < Expr.size() && Expr[TokPos] == ' ')
@@ -261,7 +343,7 @@ VFormula::Token VFormula::GetNextToken()
     if (std::isdigit(ch0)) {
         std::size_t len;
         double val = std::stod(Expr.substr(TokPos, std::string::npos), &len);
-        int addr = AddConstant("", val); // numbers are stored as nameless constants
+        int addr = addConstant("", val); // numbers are stored as nameless constants
         TokPos += len;
         return Token(TokNumber, Expr.substr(TokPos-len, len), addr);
     }
@@ -280,13 +362,13 @@ VFormula::Token VFormula::GetNextToken()
 
     // now check if it is a known symbol
         size_t addr;
-        if (FindSymbol(ConstNames, symbol, &addr))
+        if (findSymbol(ConstNames, symbol, &addr))
             return Token(TokConst, symbol, addr);
 
-        if (FindSymbol(VarNames, symbol, &addr))
+        if (findSymbol(VarNames, symbol, &addr))
             return Token(TokVar, symbol, addr);
 
-        if (FindSymbol(FuncNames, symbol, &addr)) {
+        if (findSymbol(FuncNames, symbol, &addr)) {
             if (Expr[TokPos] != '(') {
                 TokPos -= len;
                 return Token(TokError, std::string("Known function ")+symbol+" without ()");
@@ -303,7 +385,7 @@ VFormula::Token VFormula::GetNextToken()
         TokenType t = LastToken.type;
         if ( t == TokNull || t == TokOpen || t == TokOper || t==TokComma) {
             TokPos++;
-            return Token(TokUnary, ch0 == '-' ? "-" : "+", ch0 == '-' ? neg : nop);
+            return Token(TokUnary, ch0 == '-' ? "-" : "+", ch0 == '-' ? NegPos : NopPos);
         }
     }
 
@@ -317,15 +399,15 @@ VFormula::Token VFormula::GetNextToken()
     return Token(TokError, "Unknown character or character combination");
 }
 
-bool VFormula::ShuntingYard()
+bool VFormula::shuntingYard()
 {
 // we'll track parentheses level
 // it must never get negative and return to zero in the end
     int par_level = 0;
 
     while (1) {
-        Token token = GetNextToken();
-        if (!CheckSyntax(token)) {
+        Token token = getNextToken();
+        if (!checkSyntax(token)) {
             return false;
         }
 
@@ -338,18 +420,18 @@ bool VFormula::ShuntingYard()
         // we have special treatment for the cases of ^2 and ^3
         // to make them process a bit faster
             if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 2) { // ^2
-                Command.push_back(MkCmd(CmdFunc, pow2));
+                Command.push_back(mkCmd(CmdFunc, Pow2Pos));
                 OpStack.pop();
             } else if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 3) { // ^3
-                Command.push_back(MkCmd(CmdFunc, pow3));
+                Command.push_back(mkCmd(CmdFunc, Pow3Pos));
                 OpStack.pop();
             } else { // in all other cases
-                Command.push_back(MkCmd(CmdReadConst, token.addr)); // move to command queue
+                Command.push_back(mkCmd(CmdReadConst, token.addr)); // move to command queue
             }
         }
 
         else if (token.type == TokVar)
-            Command.push_back(MkCmd(CmdReadVar, token.addr)); // move to command queue
+            Command.push_back(mkCmd(CmdReadVar, token.addr)); // move to command queue
 
         else if (token.type == TokFunc) {
             token.args = FuncArgs[token.addr]; // fill correct number of args (should be done in tokenizer?)
@@ -367,7 +449,7 @@ bool VFormula::ShuntingYard()
                 Token op2 = OpStack.top();
                 // <=  assuming all operators are left-associative
                 if ((op2.type == TokOper && OperRank[op2.addr] <= rank) || op2.type == TokUnary) {
-                    Command.push_back(MkCmd(CmdOper, op2.addr));
+                    Command.push_back(mkCmd(CmdOper, op2.addr));
                     OpStack.pop();
                 } else {
                     LastToken = token;
@@ -392,7 +474,7 @@ bool VFormula::ShuntingYard()
             }
 
             while (!OpStack.empty() && OpStack.top().type != TokOpen) {
-                Command.push_back(MkCmd(CmdOper, OpStack.top().addr));
+                Command.push_back(mkCmd(CmdOper, OpStack.top().addr));
                 OpStack.pop();
             }
             if (OpStack.empty()) {
@@ -409,7 +491,7 @@ bool VFormula::ShuntingYard()
 
             if (!OpStack.empty() && OpStack.top().type == TokFunc)
                 if (--(OpStack.top().args) == 0) {
-                    Command.push_back(MkCmd(CmdFunc, OpStack.top().addr));
+                    Command.push_back(mkCmd(CmdFunc, OpStack.top().addr));
                     OpStack.pop();
             }
 
@@ -428,14 +510,14 @@ bool VFormula::ShuntingYard()
     }
 
     while (!OpStack.empty()) {
-        Command.push_back(MkCmd(CmdOper, OpStack.top().addr));
+        Command.push_back(mkCmd(CmdOper, OpStack.top().addr));
         OpStack.pop();
     }
-    Command.push_back(MkCmd(CmdReturn, 0));
+    Command.push_back(mkCmd(CmdReturn, 0));
     return true;
 }
 
-bool VFormula::CheckSyntax(Token token)
+bool VFormula::checkSyntax(Token token)
 {
     TokenType cur = token.type;
     TokenType last = LastToken.type;
@@ -456,7 +538,7 @@ bool VFormula::CheckSyntax(Token token)
     return true;
 }
 
-bool VFormula::FindSymbol(std::vector<std::string> & namevec, std::string symbol, size_t *addr)
+bool VFormula::findSymbol(std::vector<std::string> & namevec, std::string symbol, size_t *addr)
 {
     std::vector <std::string> :: iterator itr;
 
@@ -468,7 +550,7 @@ bool VFormula::FindSymbol(std::vector<std::string> & namevec, std::string symbol
     return true;
 }
 
-size_t VFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args)
+size_t VFormula::addOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args)
 {
     OperName.push_back(name);
     OperMnem.push_back(mnem);
@@ -478,7 +560,7 @@ size_t VFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, i
     return Oper.size()-1;
 }
 
-size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args)
+size_t VFormula::addFunction(std::string name, FuncPtr ptr, std::string mnem, int args)
 {
     FuncNames.push_back(name);
     FuncMnem.push_back(mnem);
@@ -487,7 +569,7 @@ size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, in
     return Func.size()-1;
 }
 
-size_t VFormula::AddConstant(std::string name, double val)
+size_t VFormula::addConstant(std::string name, double val)
 {
     size_t addr;
     if (name.empty())
@@ -497,7 +579,7 @@ size_t VFormula::AddConstant(std::string name, double val)
         if (itr != Const.end()) // if a constant with the same value already exists
             return itr - Const.begin(); // use it
     }
-    else if (FindSymbol(ConstNames, name, &addr))
+    else if (findSymbol(ConstNames, name, &addr))
     {
         // if the constant with this name already exists - update it
         Const[addr] = val; // !!!***FIX: here was Var[addr] = val;

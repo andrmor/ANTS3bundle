@@ -101,7 +101,7 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
     bool ok = p1.parse(formula.toLatin1().data());
     if (!ok)
     {
-        abort("VFormula parse error!\n" + QString(p1.getErrorString().data()));
+        abort("VFormula parse error!\n" + QString(p1.ErrorString.data()));
         return 0;
     }
 
@@ -115,7 +115,7 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
     ok = p.validate();
     if (!ok)
     {
-        abort("VFormula validation error!\n" + QString(p.getErrorString().data()));
+        abort("VFormula validation error!\n" + QString(p.ErrorString.data()));
         return 0;
     }
 
@@ -124,9 +124,9 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 
     double res = p.eval(values);
 
-    if (!p.getErrorString().empty())
+    if (!p.ErrorString.empty())
     {
-        abort("VFormula eval error!\n" + QString(p.getErrorString().data()));
+        abort("VFormula eval error!\n" + QString(p.ErrorString.data()));
         return 0;
     }
 

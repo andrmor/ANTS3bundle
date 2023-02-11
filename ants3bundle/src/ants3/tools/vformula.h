@@ -6,8 +6,6 @@
 #include <stack>
 #include <vector>
 #include <string>
-#include <cmath>
-#include <iostream>
 
 /*
 The provided expression is translated first into series of commands in postfix order for a simple stack-based evaluator.
@@ -26,6 +24,7 @@ class VFormula
 {
 public:
     VFormula();
+    VFormula(const VFormula &) = default;
     virtual ~VFormula() {}
 
     void   setVariableNames(const std::vector<std::string> & variables);
@@ -34,12 +33,11 @@ public:
 
     double eval(const std::vector<double> & varValues);
 
-    const std::string & getErrorString() {return ErrorString;}
+    void   printCVMap();
+    void   printOFMap();
+    void   printPrg();
 
-    // diagnostics
-    void printCVMap();
-    void printOFMap();
-    void printPrg();
+    std::string ErrorString;
 
 protected:
     enum TokenType {TokNull = 0, TokNumber, TokConst, TokVar, TokFunc, TokOper, TokUnary, TokOpen, TokClose, TokComma, TokEnd, TokError};
@@ -61,8 +59,9 @@ protected:
         Cmdaddr(int c, int a) : cmd(c), addr(a) {}
     };
 
-// Evaluator memory
     typedef void (VFormula::*FuncPtr)();
+
+    // Evaluator memory
     std::vector <Cmdaddr> Command; // expression translated to commands in postfix order
     std::vector <double>  Const;    // vector of constants
     std::vector <double>  VarLocal;      // vector of variables
@@ -70,45 +69,7 @@ protected:
     std::vector <FuncPtr> Oper;    // vector of operator pointers
     std::stack  <double>  Stack;    // evaluator stack
 
-    void Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
-    void Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
-    void Mul() {double tmp = Stack.top(); Stack.pop(); Stack.top() *= tmp;}
-    void Div() {double tmp = Stack.top(); Stack.pop(); Stack.top() /= tmp;}
-    void Neg() {Stack.top() = -Stack.top();}
-    void Nop() {}
-    void Pow() {double tmp = Stack.top(); Stack.pop(); Stack.top() = pow(Stack.top(), tmp);}
-    void Pow2() {double tmp = Stack.top(); Stack.top() = tmp*tmp;}
-    void Pow3() {double tmp = Stack.top(); Stack.top() = tmp*tmp*tmp;}
-    void Abs() {Stack.top() = abs(Stack.top());}
-    void Sqrt() {Stack.top() = sqrt(Stack.top());}
-    void Exp() {Stack.top() = exp(Stack.top());}
-    void Log() {Stack.top() = log(Stack.top());}
-    void Sin() {Stack.top() = sin(Stack.top());}
-    void Cos() {Stack.top() = cos(Stack.top());}
-    void Tan() {Stack.top() = tan(Stack.top());}
-    void Asin() {Stack.top() = asin(Stack.top());}
-    void Acos() {Stack.top() = acos(Stack.top());}
-    void Atan() {Stack.top() = atan(Stack.top());}
-    void Atan2() {double x = Stack.top(); Stack.pop(); Stack.top() = atan2(Stack.top(), x);} //atan2(y,x)
-
-    void Sinh() {Stack.top() = sinh(Stack.top());}
-    void Cosh() {Stack.top() = cosh(Stack.top());}
-    void Tanh() {Stack.top() = tanh(Stack.top());}
-    void Asinh() {Stack.top() = asinh(Stack.top());}
-    void Acosh() {Stack.top() = acosh(Stack.top());}
-    void Atanh() {Stack.top() = atanh(Stack.top());}
-
-    void Int() {double t; modf(Stack.top(), &t); Stack.top() = t;}
-    void Frac() {double t; Stack.top() = modf(Stack.top(), &t);}
-
-    void Max() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::max(tmp, Stack.top());}
-    void Min() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::min(tmp, Stack.top());}
-
-    void Gaus();
-    void Pol2();
-    void Pol3();
-
-// Parser memory
+    // Parser memory
     std::vector<std::string> ConstNames; // names of constants: position corresponds to position in Const
     std::vector<std::string> VarNames;   // names of variables: position corresponds to position in Var
     std::vector<std::string> FuncNames;  // names of functions: position corresponds to position in Func
@@ -120,35 +81,71 @@ protected:
     std::vector<int>         OperArgs;   // number of arguments to take, position corresponds to position in Oper
     std::stack<Token>        OpStack;    // parser stack
 
-    bool FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr);
+    bool    findSymbol(std::vector<std::string> & namevec, std::string symbol, size_t * addr);
 
-    size_t AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args=2);
-    size_t AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args=1);
-    size_t AddConstant(std::string name, double val);
+    size_t  addOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args=2);
+    size_t  addFunction(std::string name, FuncPtr ptr, std::string mnem, int args=1);
+    size_t  addConstant(std::string name, double val);
+    bool    checkSyntax(Token token);
+    Token   getNextToken();
+    bool    shuntingYard();
+    Cmdaddr mkCmd(int cmd, int addr) {return Cmdaddr(cmd, addr);}
+    void    vFail(int pos, const std::string & msg);
 
-    bool CheckSyntax(Token token);
-    Token GetNextToken();
-    bool ShuntingYard();
-
-    Cmdaddr MkCmd(int cmd, int addr) {return Cmdaddr(cmd, addr);}
-
-
-
-    void VFail(int pos, const std::string &msg);
-
-    //size_t GetFailPos() const {return failpos;}
-
-
-private:
     std::string Expr;
-    bool        valid = true; // result of the code validity check
-    size_t      TokPos = 0; // current token position in Expr
+    bool        Valid = true;                   // result of the code validity check
+    size_t      TokPos = 0;                     // current token position in Expr
     Token       LastToken = Token(TokNull, "");
     size_t      CmdPos = 0;
-    size_t      pow2, pow3; // positions of the fast square and cube functions
-    size_t      neg, nop; // position of the sign inverse and nop functions
-    size_t      failpos; // position in the code at which validation failed
-    std::string ErrorString;
+    size_t      Pow2Pos, Pow3Pos;               // positions of the fast square and cube functions
+    size_t      NegPos, NopPos;                 // position of the sign inverse and nop functions
+    size_t      FailPos;                        // position in the code at which validation failed
+
+    // --- VFormula methods ---
+    void Equal();
+    void NotEqual();
+    void Greater();
+    void GreaterEq();
+    void Smaller();
+    void SmallerEq();
+
+    void Add();
+    void Sub();
+    void Mul();
+    void Div();
+    void Neg();
+    void Nop() {}
+    void Pow();
+    void Pow2();
+    void Pow3();
+    void Abs();
+    void Sqrt();
+    void Exp();
+    void Log();
+    void Sin();
+    void Cos();
+    void Tan();
+    void Asin();
+    void Acos();
+    void Atan();
+    void Atan2();
+
+    void Sinh();
+    void Cosh();
+    void Tanh();
+    void Asinh();
+    void Acosh();
+    void Atanh();
+
+    void Int();
+    void Frac();
+
+    void Max();
+    void Min();
+
+    void Gaus();
+    void Pol2();
+    // ---
 };
 
 #endif // VFORMULA_H
