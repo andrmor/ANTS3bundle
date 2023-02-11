@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <iostream>
 #include <cstdio>
-//#include <chrono>
 #include <cmath>
 
 VFormula::VFormula()
@@ -20,7 +19,8 @@ VFormula::VFormula()
     addOperation("*", &VFormula::Mul, "MUL", 4);
     addOperation("/", &VFormula::Div, "DIV", 4);
     addOperation("^", &VFormula::Pow, "POW", 3);
-// unary minus and plus
+
+    // unary minus and plus
     NegPos = addOperation("--", &VFormula::Neg, "NEG", 2, 1);
     NopPos = addOperation("++", &VFormula::Nop, "NOP", 2, 1);
 
@@ -113,75 +113,40 @@ void VFormula::vFail(int pos, const std::string & msg)
 }
 
 void VFormula::Equal()     {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() == tmp ? 1.0 : 0);}
-
 void VFormula::NotEqual()  {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() != tmp ? 1.0 : 0);}
-
 void VFormula::Greater()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >  tmp ? 1.0 : 0);}
-
 void VFormula::GreaterEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >= tmp ? 1.0 : 0);}
-
 void VFormula::Smaller()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <  tmp ? 1.0 : 0);}
-
 void VFormula::SmallerEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <= tmp ? 1.0 : 0);}
-
 void VFormula::Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
-
 void VFormula::Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
-
 void VFormula::Mul() {double tmp = Stack.top(); Stack.pop(); Stack.top() *= tmp;}
-
 void VFormula::Div() {double tmp = Stack.top(); Stack.pop(); Stack.top() /= tmp;}
-
 void VFormula::Neg() {Stack.top() = -Stack.top();}
-
 void VFormula::Pow() {double tmp = Stack.top(); Stack.pop(); Stack.top() = pow(Stack.top(), tmp);}
-
 void VFormula::Pow2() {double tmp = Stack.top(); Stack.top() = tmp*tmp;}
-
 void VFormula::Pow3() {double tmp = Stack.top(); Stack.top() = tmp*tmp*tmp;}
-
 void VFormula::Abs() {Stack.top() = abs(Stack.top());}
-
 void VFormula::Sqrt() {Stack.top() = sqrt(Stack.top());}
-
 void VFormula::Exp() {Stack.top() = exp(Stack.top());}
-
 void VFormula::Log() {Stack.top() = log(Stack.top());}
-
 void VFormula::Sin() {Stack.top() = sin(Stack.top());}
-
 void VFormula::Cos() {Stack.top() = cos(Stack.top());}
-
 void VFormula::Tan() {Stack.top() = tan(Stack.top());}
-
 void VFormula::Asin() {Stack.top() = asin(Stack.top());}
-
 void VFormula::Acos() {Stack.top() = acos(Stack.top());}
-
 void VFormula::Atan() {Stack.top() = atan(Stack.top());}
-
 void VFormula::Atan2() {double x = Stack.top(); Stack.pop(); Stack.top() = atan2(Stack.top(), x);}  //atan2(y,x)
-
 void VFormula::Sinh() {Stack.top() = sinh(Stack.top());}
-
 void VFormula::Cosh() {Stack.top() = cosh(Stack.top());}
-
 void VFormula::Tanh() {Stack.top() = tanh(Stack.top());}
-
 void VFormula::Asinh() {Stack.top() = asinh(Stack.top());}
-
 void VFormula::Acosh() {Stack.top() = acosh(Stack.top());}
-
 void VFormula::Atanh() {Stack.top() = atanh(Stack.top());}
-
 void VFormula::Int() {double t; modf(Stack.top(), &t); Stack.top() = t;}
-
 void VFormula::Frac() {double t; Stack.top() = modf(Stack.top(), &t);}
-
 void VFormula::Max() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::max(tmp, Stack.top());}
-
 void VFormula::Min() {double tmp = Stack.top(); Stack.pop(); Stack.top() = std::min(tmp, Stack.top());}
-
 void VFormula::Gaus()
 {
     double sigma = Stack.top();
@@ -191,7 +156,6 @@ void VFormula::Gaus()
     double t = (Stack.top()-x0)/sigma;
     Stack.top() = 1/(sigma*sqrt(M_PI*2))*exp(-0.5*t*t);
 }
-
 void VFormula::Pol2()
 {
     double a0 = Stack.top();
@@ -211,7 +175,8 @@ bool VFormula::validate()
     int stkptr = 0;
     bool finished = false;
 
-    for (size_t i=0; i<codelen; i++) {
+    for (size_t i=0; i<codelen; i++)
+    {
         unsigned short cmd = Command[i].cmd;
         unsigned short addr = Command[i].addr;
         switch (cmd) {
@@ -282,7 +247,8 @@ void VFormula::printPrg()
             std::cout << buf << "\tOpr\t" << OperMnem[i] << std::endl;
         else if (c == CmdFunc)
             std::cout << buf << "\tFun\t" << FuncMnem[i] << std::endl;
-        else if (c == CmdReadConst) {
+        else if (c == CmdReadConst)
+        {
             if (ConstNames[i].size() == 0)
                 std::cout << buf << "\tCon\t" << Const[i] << std::endl;
             else
@@ -325,21 +291,25 @@ VFormula::Token VFormula::getNextToken()
     int ch0 = Expr[TokPos]; // fetch the character at the current token position
 
 // parentheses and commas
-    if (ch0 == '(') {
+    if (ch0 == '(')
+    {
         TokPos++;
         return Token(TokOpen, "(");
     }
-    if (ch0 == ')') {
+    if (ch0 == ')')
+    {
         TokPos++;
         return Token(TokClose, ")");
     }
-    if (ch0 == ',') {
+    if (ch0 == ',')
+    {
         TokPos++;
         return Token(TokComma, ",");
     }
 
 // number
-    if (std::isdigit(ch0)) {
+    if (std::isdigit(ch0))
+    {
         std::size_t len;
         double val = std::stod(Expr.substr(TokPos, std::string::npos), &len);
         int addr = addConstant("", val); // numbers are stored as nameless constants
@@ -348,9 +318,11 @@ VFormula::Token VFormula::getNextToken()
     }
 
 // symbol (variable, constant or function name)
-    if (std::isalpha(ch0)) {
+    if (std::isalpha(ch0))
+    {
         size_t len = 1;
-        for (size_t i=TokPos+1; i<Expr.size(); i++) {
+        for (size_t i=TokPos+1; i<Expr.size(); i++)
+        {
             int ch = Expr[i];
             if (!isalpha(ch) && !isdigit(ch) && ch!='_')
                 break;
@@ -367,8 +339,10 @@ VFormula::Token VFormula::getNextToken()
         if (findSymbol(VarNames, symbol, &addr))
             return Token(TokVar, symbol, addr);
 
-        if (findSymbol(FuncNames, symbol, &addr)) {
-            if (Expr[TokPos] != '(') {
+        if (findSymbol(FuncNames, symbol, &addr))
+        {
+            if (Expr[TokPos] != '(')
+            {
                 TokPos -= len;
                 return Token(TokError, std::string("Known function ")+symbol+" without ()");
             }
@@ -380,9 +354,11 @@ VFormula::Token VFormula::getNextToken()
     }
 
 // unary minus and plus
-    if (ch0 == '-' || ch0 == '+') {
+    if (ch0 == '-' || ch0 == '+')
+    {
         TokenType t = LastToken.type;
-        if ( t == TokNull || t == TokOpen || t == TokOper || t==TokComma) {
+        if ( t == TokNull || t == TokOpen || t == TokOper || t==TokComma)
+        {
             TokPos++;
             return Token(TokUnary, ch0 == '-' ? "-" : "+", ch0 == '-' ? NegPos : NopPos);
         }
@@ -390,7 +366,8 @@ VFormula::Token VFormula::getNextToken()
 
 // operators
     for (size_t i=0; i<OperName.size(); i++)
-        if (Expr.substr(TokPos, std::string::npos).find(OperName[i]) == 0) {
+        if (Expr.substr(TokPos, std::string::npos).find(OperName[i]) == 0)
+        {
             TokPos += OperName[i].size();
             return Token(TokOper, OperName[i], i);
         }
@@ -404,27 +381,36 @@ bool VFormula::shuntingYard()
 // it must never get negative and return to zero in the end
     int par_level = 0;
 
-    while (1) {
+    while (1)
+    {
         Token token = getNextToken();
-        if (!checkSyntax(token)) {
+        if (!checkSyntax(token))
+        {
             return false;
         }
 
-        if (token.type == TokError) {
+        if (token.type == TokError)
+        {
             ErrorString = token.string;
             return false;
         }
 
-        if (token.type == TokNumber || token.type == TokConst) {
+        if (token.type == TokNumber || token.type == TokConst)
+        {
         // we have special treatment for the cases of ^2 and ^3
         // to make them process a bit faster
-            if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 2) { // ^2
+            if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 2)
+            { // ^2
                 Command.push_back(mkCmd(CmdFunc, Pow2Pos));
                 OpStack.pop();
-            } else if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 3) { // ^3
+            }
+            else if (!OpStack.empty() && OpStack.top().string == "^" && Const[token.addr] == 3)
+            { // ^3
                 Command.push_back(mkCmd(CmdFunc, Pow3Pos));
                 OpStack.pop();
-            } else { // in all other cases
+            }
+            else
+            { // in all other cases
                 Command.push_back(mkCmd(CmdReadConst, token.addr)); // move to command queue
             }
         }
@@ -432,25 +418,32 @@ bool VFormula::shuntingYard()
         else if (token.type == TokVar)
             Command.push_back(mkCmd(CmdReadVar, token.addr)); // move to command queue
 
-        else if (token.type == TokFunc) {
+        else if (token.type == TokFunc)
+        {
             token.args = FuncArgs[token.addr]; // fill correct number of args (should be done in tokenizer?)
             OpStack.push(token); // push to Op stack
         }
 
-        else if (token.type == TokUnary) {
+        else if (token.type == TokUnary)
+        {
             if (token.string == "-")
                 OpStack.push(token); // push to Op stack
         }
 
-        else if (token.type == TokOper) {
+        else if (token.type == TokOper)
+        {
             int rank = OperRank[token.addr];
-            while (!OpStack.empty()) {
+            while (!OpStack.empty())
+            {
                 Token op2 = OpStack.top();
                 // <=  assuming all operators are left-associative
-                if ((op2.type == TokOper && OperRank[op2.addr] <= rank) || op2.type == TokUnary) {
+                if ((op2.type == TokOper && OperRank[op2.addr] <= rank) || op2.type == TokUnary)
+                {
                     Command.push_back(mkCmd(CmdOper, op2.addr));
                     OpStack.pop();
-                } else {
+                }
+                else
+                {
                     LastToken = token;
                     break;
                 }
@@ -463,43 +456,52 @@ bool VFormula::shuntingYard()
             OpStack.push(token);
         }
 
-        else if (token.type == TokClose || token.type == TokComma) {
-            if (token.type == TokClose) {
+        else if (token.type == TokClose || token.type == TokComma)
+        {
+            if (token.type == TokClose)
+            {
                 par_level--;
-                if (par_level < 0) {
+                if (par_level < 0)
+                {
                     ErrorString = "Extra )";
                     return false;
                 }
             }
 
-            while (!OpStack.empty() && OpStack.top().type != TokOpen) {
+            while (!OpStack.empty() && OpStack.top().type != TokOpen)
+            {
                 Command.push_back(mkCmd(CmdOper, OpStack.top().addr));
                 OpStack.pop();
             }
-            if (OpStack.empty()) {
+            if (OpStack.empty())
+            {
                 ErrorString = "Mismatched parenthesis";
                 return false;
             }
 
             if (OpStack.top().type == TokOpen) // at this point this should be always true
                 OpStack.pop();
-            else {
+            else
+            {
                 ErrorString = "Parentheses canary: check the parsing code";
                 return false;
             }
 
             if (!OpStack.empty() && OpStack.top().type == TokFunc)
-                if (--(OpStack.top().args) == 0) {
+                if (--(OpStack.top().args) == 0)
+                {
                     Command.push_back(mkCmd(CmdFunc, OpStack.top().addr));
                     OpStack.pop();
-            }
+                }
 
             if (token.type == TokComma) // "," is equivalent to ")("
                 OpStack.push(Token(TokOpen, "("));
         }
 
-        else if (token.type == TokEnd) {
-            if (par_level != 0) {
+        else if (token.type == TokEnd)
+        {
+            if (par_level != 0)
+            {
                 ErrorString = std::string("Unbalanced ") + std::string(par_level, '(');
                 return false;
             }
@@ -508,7 +510,8 @@ bool VFormula::shuntingYard()
         LastToken = token;
     }
 
-    while (!OpStack.empty()) {
+    while (!OpStack.empty())
+    {
         Command.push_back(mkCmd(CmdOper, OpStack.top().addr));
         OpStack.pop();
     }
@@ -520,17 +523,20 @@ bool VFormula::checkSyntax(Token token)
 {
     TokenType cur = token.type;
     TokenType last = LastToken.type;
-    if(cur == TokOper && last == TokOper) {
+    if(cur == TokOper && last == TokOper)
+    {
         ErrorString = "Missing Operand";
         return false;
     }
     if ((cur == TokConst || cur == TokVar || cur == TokNumber || cur == TokOpen || cur == TokFunc) &&
-        (last == TokConst || last == TokVar || last == TokNumber)) {
+        (last == TokConst || last == TokVar || last == TokNumber))
+    {
             ErrorString = "Missing Operator";
             return false;
     }
     if ((cur == TokConst || cur == TokVar || cur == TokNumber || cur == TokFunc) &&
-        (last == TokClose)) {
+        (last == TokClose))
+    {
             ErrorString = "Missing Operator";
             return false;
     }

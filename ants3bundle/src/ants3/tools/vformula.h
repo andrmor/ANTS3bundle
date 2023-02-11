@@ -31,7 +31,6 @@ public:
     bool   parse(const std::string & expr);
     bool   validate();
 
-    bool   isValidated() const {return Valid;}
     double eval(const std::vector<double> & varValues);
 
     void   printCVMap();
