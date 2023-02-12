@@ -168,6 +168,7 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    materials/amatcomposition.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -369,6 +370,7 @@ HEADERS += \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
     gui/script/escriptlanguage.h \
+    materials/amatcomposition.h \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \

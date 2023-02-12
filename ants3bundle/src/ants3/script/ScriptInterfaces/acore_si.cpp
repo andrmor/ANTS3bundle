@@ -149,6 +149,17 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
     return res;
 }
 
+#include "amatcomposition.h"
+bool ACore_SI::testParser(QString comp)
+{
+    AMatComposition mc;
+    bool ok = mc.parse(comp);
+
+    qDebug() << "ErrorString:" << mc.ErrorString;
+    qDebug() << "WarningString:" << mc.WarningString;
+    return ok;
+}
+
 /*
 int ACore_SI::fun(int i)
 {
