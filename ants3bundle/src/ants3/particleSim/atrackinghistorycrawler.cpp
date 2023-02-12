@@ -1,6 +1,7 @@
 #include "atrackinghistorycrawler.h"
 #include "atrackingdataimporter.h"
 #include "athreadpool.h"
+#include "vformula.h"
 
 #include <QDebug>
 #include <QApplication>
@@ -11,7 +12,6 @@
 #include "TH2D.h"
 #include "TH2.h"
 #include "TTree.h"
-#include "TFormula.h"
 
 void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread)
 {
@@ -1005,7 +1005,7 @@ AHistorySearchProcessor_Border::AHistorySearchProcessor_Border(const QString &wh
 {
     QString s = what;
     formulaWhat1 = parse(s);
-    if (!formulaWhat1->IsValid()) ErrorString = "Invalid formula for 'what'";
+    if (!formulaWhat1) ErrorString = "Invalid formula for 'what'";
     else
     {
         s = vsWhat;
@@ -1201,17 +1201,17 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
 
     if (formulaCuts)
     {
-        bool bPass = formulaCuts->EvalPar(nullptr, par);
+        bool bPass = formulaCuts->eval(par);
         if (!bPass) return;
     }
 
     if (Hist1D)
     {
         //1D case
-        double res = formulaWhat1->EvalPar(nullptr, par);
+        double res = formulaWhat1->eval(par);
         if (formulaWhat2)
         {
-            double resX = formulaWhat2->EvalPar(nullptr, par);
+            double resX = formulaWhat2->eval(par);
             Hist1D->Fill(resX, res);
             Hist1Dnum->Fill(resX, 1.0);
         }
@@ -1222,17 +1222,17 @@ void AHistorySearchProcessor_Border::onTransition(const ATrackingStepData &fromf
         if (formulaWhat3)
         {
             //3D case
-            double res1 = formulaWhat1->EvalPar(nullptr, par);
-            double res2 = formulaWhat2->EvalPar(nullptr, par);
-            double res3 = formulaWhat3->EvalPar(nullptr, par);
+            double res1 = formulaWhat1->eval(par);
+            double res2 = formulaWhat2->eval(par);
+            double res3 = formulaWhat3->eval(par);
             Hist2D->Fill(res2, res3, res1);
             Hist2Dnum->Fill(res2, res3, 1.0);
         }
         else
         {
             //2D case
-            double res1 = formulaWhat1->EvalPar(nullptr, par);
-            double res2 = formulaWhat2->EvalPar(nullptr, par);
+            double res1 = formulaWhat1->eval(par);
+            double res2 = formulaWhat2->eval(par);
             Hist2D->Fill(res2, res1);
         }
     }
@@ -1242,10 +1242,10 @@ AHistorySearchProcessor * AHistorySearchProcessor_Border::clone() const
 {
     AHistorySearchProcessor_Border * p = new AHistorySearchProcessor_Border(*this);
 
-    p->formulaWhat1 = ( formulaWhat1 ? new TFormula(*formulaWhat1) : nullptr);
-    p->formulaWhat2 = ( formulaWhat2 ? new TFormula(*formulaWhat2) : nullptr);
-    p->formulaWhat3 = ( formulaWhat3 ? new TFormula(*formulaWhat3) : nullptr);
-    p->formulaCuts  = ( formulaCuts  ? new TFormula(*formulaCuts)  : nullptr);
+    p->formulaWhat1 = ( formulaWhat1 ? new VFormula(*formulaWhat1) : nullptr);
+    p->formulaWhat2 = ( formulaWhat2 ? new VFormula(*formulaWhat2) : nullptr);
+    p->formulaWhat3 = ( formulaWhat3 ? new VFormula(*formulaWhat3) : nullptr);
+    p->formulaCuts  = ( formulaCuts  ? new VFormula(*formulaCuts)  : nullptr);
 
     p->Hist1D    = ( Hist1D    ? (TH1D*)Hist1D->Clone()    : nullptr);
     p->Hist1Dnum = ( Hist1Dnum ? (TH1D*)Hist1Dnum->Clone() : nullptr);
@@ -1299,11 +1299,41 @@ bool AHistorySearchProcessor_Border::mergeResuts(const AHistorySearchProcessor &
     return true;
 }
 
-TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
+VFormula * AHistorySearchProcessor_Border::parse(QString & expr)
 {
     //double  x, y, z, time, energy, vx, vy, vz
     //        0  1  2    3     4      5   6   7
 
+    expr.replace("Energy", "p__4"); expr.replace("ENERGY", "p__4"); expr.replace("energy", "p__4");
+
+    expr.replace("Time", "p__3"); expr.replace("TIME", "p__3"); expr.replace("time", "p__3");
+
+    expr.replace("vx", "p__5"); expr.replace("Vx", "p__5"); expr.replace("VX", "p__5");
+    expr.replace("vy", "p__6"); expr.replace("Vy", "p__6"); expr.replace("VY", "p__6");
+    expr.replace("vz", "p__7"); expr.replace("Vz", "p__7"); expr.replace("VZ", "p__7");
+
+    expr.replace("X", "p__0"); expr.replace("x", "p__0");
+    expr.replace("Y", "p__1"); expr.replace("y", "p__1");
+    expr.replace("Z", "p__2"); expr.replace("z", "p__2");
+
+    VFormula * f = new VFormula();
+    std::vector<std::string> names;
+    for (int i = 0; i < 8; i++) names.push_back(std::string{"p__"} + std::to_string(i));
+    f->setVariableNames(names);
+
+    bool ok = f->parse(expr.toLatin1().data());
+    if (ok) ok = f->validate();
+
+    if (ok)
+    {
+        bRequiresDirections = false;
+        if (expr.contains("p__5") || expr.contains("p__6") || expr.contains("p__7")) bRequiresDirections = true;
+        return f;
+    }
+
+    delete f;
+    return nullptr;
+    /*
     expr.replace("X", "[0]");
     expr.replace("Y", "[1]");
     expr.replace("Z", "[2]");
@@ -1329,6 +1359,7 @@ TFormula *AHistorySearchProcessor_Border::parse(QString & expr)
 
     delete f;
     return nullptr;
+    */
 }
 
 

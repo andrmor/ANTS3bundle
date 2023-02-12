@@ -13,7 +13,7 @@
 
 class TH1D;
 class TH2D;
-class TFormula;
+class VFormula;
 
 // --- Search processors ---
 
@@ -282,21 +282,21 @@ public:
     QString ErrorString;  // after constructor, valid if ErrorString is empty
     bool bRequiresDirections = false;
 
-    TFormula * formulaWhat1 = nullptr;
-    TFormula * formulaWhat2 = nullptr;
-    TFormula * formulaWhat3 = nullptr;
-    TFormula * formulaCuts = nullptr;
+    VFormula * formulaWhat1 = nullptr;
+    VFormula * formulaWhat2 = nullptr;
+    VFormula * formulaWhat3 = nullptr;
+    VFormula * formulaCuts = nullptr;
 
     //double  x, y, z, time, energy, vx, vy, vz
     //        0  1  2    3     4      5   6   7
-    double par[8];
+    std::vector<double> par = std::vector<double>(8, 0);
     TH1D * Hist1D = nullptr;
     TH1D * Hist1Dnum = nullptr;
     TH2D * Hist2D = nullptr;
     TH2D * Hist2Dnum = nullptr;
 
 private:
-    TFormula * parse(QString & expr);
+    VFormula * parse(QString & expr);
 };
 
 

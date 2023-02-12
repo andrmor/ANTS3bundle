@@ -89,6 +89,66 @@ QVariant ACore_SI::test(QVariant in)
     return in;
 }
 
+#include "vformula.h"
+double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
+{
+    VFormula p1;
+
+    std::vector<std::string> names;
+    for (int i = 0; i < varNames.size(); i++) names.push_back(std::string(varNames[i].toString().toLatin1()));
+    p1.setVariableNames(names);
+
+    bool ok = p1.parse(formula.toLatin1().data());
+    if (!ok)
+    {
+        abort("VFormula parse error!\n" + QString(p1.ErrorString.data()));
+        return 0;
+    }
+
+    VFormula p(p1);
+
+    std::cout << "\n----------Map------------\n";
+    p.printCVMap();
+    std::cout << "\n---------Program---------\n";
+    p.printPrg();
+
+    ok = p.validate();
+    if (!ok)
+    {
+        abort("VFormula validation error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    std::vector<double> values;
+    for (int i = 0; i < varValues.size(); i++) values.push_back(varValues[i].toDouble());
+
+    double res = p.eval(values);
+
+    if (!p.ErrorString.empty())
+    {
+        abort("VFormula eval error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    /*
+// timed run
+    std::cout << "Timed run\n";
+    auto start = std::chrono::high_resolution_clock::now();
+
+//  Code to be timed
+    double sum =  0.;
+    for (int i=0; i<10000000; i++) {
+        sum += p.Eval(6);
+    }
+    std::cout << sum << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end - start;
+    std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
+    */
+    return res;
+}
+
 /*
 int ACore_SI::fun(int i)
 {
