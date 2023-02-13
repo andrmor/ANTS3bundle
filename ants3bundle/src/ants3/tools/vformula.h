@@ -102,6 +102,10 @@ protected:
     size_t      FailPos;                        // position in the code at which validation failed
 
     // --- VFormula methods ---
+    void Not();
+    void And();
+    void Or();
+
     void Equal();
     void NotEqual();
     void Greater();

@@ -7,8 +7,13 @@
 
 VFormula::VFormula()
 {
-    addOperation("=",  &VFormula::Equal,     "EQ",  5);
     addOperation("!=", &VFormula::NotEqual,  "NEQ", 5);
+
+    addOperation("||", &VFormula::Or,        "OR",   9);
+    addOperation("&&", &VFormula::And,       "AND",  8);
+    addOperation("!",  &VFormula::Not,       "NOT",  7, 1);
+
+    addOperation("==",  &VFormula::Equal,    "EQ",  5);
     addOperation(">=", &VFormula::GreaterEq, "GE",  5);
     addOperation(">",  &VFormula::Greater,   "GR",  5);
     addOperation("<=", &VFormula::SmallerEq, "SE",  5);
@@ -112,12 +117,15 @@ void VFormula::vFail(int pos, const std::string & msg)
     ErrorString += pos;
 }
 
-void VFormula::Equal()     {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() == tmp ? 1.0 : 0);}
-void VFormula::NotEqual()  {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() != tmp ? 1.0 : 0);}
-void VFormula::Greater()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >  tmp ? 1.0 : 0);}
-void VFormula::GreaterEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >= tmp ? 1.0 : 0);}
-void VFormula::Smaller()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <  tmp ? 1.0 : 0);}
-void VFormula::SmallerEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <= tmp ? 1.0 : 0);}
+void VFormula::Not()       {Stack.top() = (Stack.top() == 0 ? 1.0 : 0);}
+void VFormula::And()       {double tmp = Stack.top(); Stack.pop(); Stack.top() = Stack.top() && tmp;}
+void VFormula::Or()        {double tmp = Stack.top(); Stack.pop(); Stack.top() = Stack.top() || tmp;}
+void VFormula::Equal()     {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() == tmp);}
+void VFormula::NotEqual()  {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() != tmp);}
+void VFormula::Greater()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >  tmp);}
+void VFormula::GreaterEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() >= tmp);}
+void VFormula::Smaller()   {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <  tmp);}
+void VFormula::SmallerEq() {double tmp = Stack.top(); Stack.pop(); Stack.top() = (Stack.top() <= tmp);}
 void VFormula::Add() {double tmp = Stack.top(); Stack.pop(); Stack.top() += tmp;}
 void VFormula::Sub() {double tmp = Stack.top(); Stack.pop(); Stack.top() -= tmp;}
 void VFormula::Mul() {double tmp = Stack.top(); Stack.pop(); Stack.top() *= tmp;}
@@ -224,8 +232,8 @@ bool VFormula::parse(const std::string & expr)
     bool status = shuntingYard();
     if (!status)
     {
-        std::string err = std::string(TokPos-1, ' ');
-        err += "\nParsing failed at position " + std::to_string(TokPos);
+        //std::string err = std::string(TokPos-1, ' ');
+        std::string err = "\nParsing failed at position " + std::to_string(TokPos);
         err += ":\n";
         ErrorString += err;
         std::cout << ErrorString << std::endl;
