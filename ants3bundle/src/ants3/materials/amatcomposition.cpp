@@ -18,13 +18,15 @@ bool AMatComposition::parse(const QString & string)
     clear();
 
     ParseString = string.simplified();
-    qDebug() << ParseString;
+    qDebug() << "Composition to parse:" << ParseString;
 
-    bool ok = checkChars();
+    bool ok = checkForbiddenChars();
     if (!ok) return false;
 
-    ok = markCustomElements(); // mark element records with custom isotope composition
+    ok = parseCustomElementRecords(); // mark element records with custom isotope composition
     if (!ok) return false;
+
+    qDebug() << "After custom element parsing, the string is:" << ParseString;
 
     // removing top level brackets
     ok = splitByBracketLevel(ParseString);
@@ -64,17 +66,22 @@ bool AMatComposition::parse(const QString & string)
         //mixtureComponents.push_back(aaa);
     }
 
+    qDebug() << "Making mixture for the main record:" << ParseString;
+    std::vector<AMatMixRecord> recs;
+    ok = prepareMixRecords(ParseString, recs);
+    if (!ok) return false;
 
 
     qDebug() << "<=== parse finished ===>";
     return true;
 }
 
-bool AMatComposition::checkChars()
+bool AMatComposition::checkForbiddenChars()
 {
-    for (QChar ch : ParseString)
+    for (int i = 0; i < ParseString.size(); i++)
     {
-        qDebug() << "----------------->" << ch << ch.isLetterOrNumber();
+        const QChar ch = ParseString[i];
+        //qDebug() << "----------------->" << ch << ch.isLetterOrNumber();
         if (ch.isLetterOrNumber()) continue;
         if (ch == '.') continue;
         if (ch == ' ' || ch == '+') continue;
@@ -87,8 +94,9 @@ bool AMatComposition::checkChars()
     return true;
 }
 
-bool AMatComposition::markCustomElements()
+bool AMatComposition::parseCustomElementRecords()
 {
+    qDebug() << "Searching for custom element records containing isotope composition";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -121,9 +129,9 @@ bool AMatComposition::markCustomElements()
 
             const int selectionSize = pos - start + 1;
             QString rec = ParseString.mid(start, selectionSize);
-            qDebug() << "Found custom element record:" << rec;
+            qDebug() << "  Found custom element record:" << rec;
             const QString replaceWith = QString("#i%0&").arg(CustomElementRecords.size());
-            qDebug() << "Replacing with:" << replaceWith;
+            qDebug() << "  Replacing with:" << replaceWith;
             ParseString.replace(start, selectionSize, replaceWith);
 
             rec.remove(0, 1); rec.chop(1); // killing { and }
@@ -131,7 +139,7 @@ bool AMatComposition::markCustomElements()
             if (!ele) return false;
             CustomElementRecords.push_back(ele);
 
-            qDebug() << "Continue with the ParseString:" << ParseString;
+            qDebug() << "  Continue to look for custom elements in string:" << ParseString;
             pos = pos - selectionSize + replaceWith.length() + 1;
             continue;
         }
@@ -143,14 +151,6 @@ bool AMatComposition::markCustomElements()
                 ErrorString = "mass fractions are not alowed in custom element record: " + QString(ch);
                 return false;
             }
-            /*
-            if (!ch.isLetterOrNumber())
-                if (ch != ':' && ch != '+' && ch != ' ')
-                {
-                    ErrorString = "Not allowed characted in custom element record: " + QString(ch);
-                    return false;
-                }
-            */
         }
 
         pos++;
@@ -162,14 +162,13 @@ bool AMatComposition::markCustomElements()
         return false;
     }
 
-    qDebug() << "Found iso records:";
-    qDebug() << CustomElementRecords;
-    qDebug() << "Returning to parse string:" << ParseString;
+    qDebug() << "Found custom element records:" << CustomElementRecords;
     return true;
 }
 
 bool AMatComposition::splitByBracketLevel(QString & string)
 {
+    qDebug() << "Checking for bracketed sub-records";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -177,7 +176,7 @@ bool AMatComposition::splitByBracketLevel(QString & string)
     while (pos < string.length())
     {
         const QChar ch = string[pos];
-        qDebug() << "  ch>" << ch;
+        qDebug() << "  br>" << ch;
 
         if (ch == '(')
         {
@@ -213,11 +212,11 @@ bool AMatComposition::splitByBracketLevel(QString & string)
 
             const int selectionSize = pos - start + 1;
             QString rec = string.mid(start, selectionSize);
-            qDebug() << "Found bracketed record:" << rec;
+            qDebug() << "  Found bracketed record:" << rec;
             const QString replaceWith = QString("#b%0&").arg(ParseStringByBracketLevel.size());
-            qDebug() << "Replacing with:" << replaceWith;
+            qDebug() << "  Replacing with:" << replaceWith;
             string.replace(start, selectionSize, replaceWith);
-            qDebug() << "Continue with the string:" << string;
+            qDebug() << "  Continue with the string:" << string;
 
             rec.remove(0, 1); rec.chop(1);
             ParseStringByBracketLevel.push_back(rec);
@@ -235,12 +234,14 @@ bool AMatComposition::splitByBracketLevel(QString & string)
         return false;
     }
 
-    qDebug() << "Returning string:" << string;
+    qDebug() << "  Returning string:" << string;
     return true;
 }
 
 bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result)
 {
+    // e.g. H2O:80+NaCl:10+#i0&4C:10
+
     QString str = expression.simplified();
     if (str.isEmpty())
     {
@@ -330,6 +331,8 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
 
 bool AMatComposition::parseMixRecord(AMatMixRecord & r)
 {
+    // Formula can contain custom isotopes! e.g. #i0&4C
+
     QString formula = r.Formula.simplified() + ":"; //":" is end signal
     qDebug() << "parsing mix:" << formula;
 
@@ -418,7 +421,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
 {
     // 10B:95+11B:5
     QString fullStr = strRec.simplified().replace(' ', '+');
-    qDebug() << "Processing custom element record:" << fullStr;
+    qDebug() << "    Processing custom element record:" << fullStr;
 
     QString elementSymbol;
     std::vector<std::pair<int,double>> isotopeVec; // pairs of [N,Fraction]
@@ -432,7 +435,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
 
     for (const QString & str : list)
     {
-        qDebug() << str;
+        qDebug() << "      Isotope record:" << str;
         if (!str.front().isDigit() || str.size() < 2)
         {
             ErrorString = "Custom element record should contain at least one isotope (e.g. 10B)";
@@ -446,7 +449,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
         bool ok;
         for (QChar ch : str)
         {
-            qDebug() << "i>" << ch;
+            qDebug() << "      i>" << ch;
             if (State == StateN)
             {
                 if (ch.isDigit())
@@ -534,7 +537,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
         isotopeVec.push_back({isotopeN, fraction});
     }
 
-    qDebug() << "Constructing custom element using parsed info:" << elementSymbol << isotopeVec;
+    qDebug() << "    Constructing custom element using parsed info:" << elementSymbol << isotopeVec;
 
     TString tBaseName = elementSymbol.toLatin1().data();
     TString tEleName = tBaseName + "_Custom"; // !!!*** make unique name

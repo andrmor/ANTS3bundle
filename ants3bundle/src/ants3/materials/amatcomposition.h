@@ -34,8 +34,8 @@ protected:
     std::vector<TGeoElement*> CustomElementRecords;
     std::vector<QString> ParseStringByBracketLevel;
 
-    bool checkChars();
-    bool markCustomElements();
+    bool checkForbiddenChars();
+    bool parseCustomElementRecords();
     bool splitByBracketLevel(QString & string);
 
     bool prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result);
