@@ -341,7 +341,7 @@ bool AMatComposition::parseMixRecord(AMatMixRecord & r)
 
     //      qDebug() << Formula;
     bool bReadingElementName = true;
-    QString tmp = formula[0];
+    QString tmp(formula.front());
     QString ElementSymbol;
     for (int i = 1; i < formula.size(); i++)
     {

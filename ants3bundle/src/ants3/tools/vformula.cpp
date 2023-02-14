@@ -7,27 +7,32 @@
 
 VFormula::VFormula()
 {
-    addOperation("!=", &VFormula::NotEqual,  "NEQ", 5);
+    // ---- Operations ----
+    // for ranks see  https://en.cppreference.com/w/c/language/operator_precedence
 
-    addOperation("||", &VFormula::Or,        "OR",   9);
-    addOperation("&&", &VFormula::And,       "AND",  8);
-    addOperation("!",  &VFormula::Not,       "NOT",  7, 1);
+    addOperation("!=", &VFormula::NotEqual,  "NEQ", 7);
 
-    addOperation("==",  &VFormula::Equal,    "EQ",  5);
-    addOperation(">=", &VFormula::GreaterEq, "GE",  5);
-    addOperation(">",  &VFormula::Greater,   "GR",  5);
-    addOperation("<=", &VFormula::SmallerEq, "SE",  5);
-    addOperation("<",  &VFormula::Smaller,   "SM",  5);
+    addOperation("||", &VFormula::Or,        "OR",   12);
+    addOperation("&&", &VFormula::And,       "AND",  11);
+    addOperation("!",  &VFormula::Not,       "NOT",  2, 1);
 
-    addOperation("+", &VFormula::Add, "ADD", 6);
-    addOperation("-", &VFormula::Sub, "SUB", 6);
-    addOperation("*", &VFormula::Mul, "MUL", 4);
-    addOperation("/", &VFormula::Div, "DIV", 4);
+    addOperation("==",  &VFormula::Equal,    "EQ",  7);
+    addOperation(">=", &VFormula::GreaterEq, "GE",  6);
+    addOperation(">",  &VFormula::Greater,   "GR",  6);
+    addOperation("<=", &VFormula::SmallerEq, "SE",  6);
+    addOperation("<",  &VFormula::Smaller,   "SM",  6);
+
+    addOperation("+", &VFormula::Add, "ADD", 5);  //+1
+    addOperation("-", &VFormula::Sub, "SUB", 5);  //+1
+    addOperation("*", &VFormula::Mul, "MUL", 4);  //+1
+    addOperation("/", &VFormula::Div, "DIV", 4);  //+1
     addOperation("^", &VFormula::Pow, "POW", 3);
 
     // unary minus and plus
     NegPos = addOperation("--", &VFormula::Neg, "NEG", 2, 1);
     NopPos = addOperation("++", &VFormula::Nop, "NOP", 2, 1);
+
+    // ---- Functions ----
 
     Pow2Pos = addFunction("pow2", &VFormula::Pow2, "POW2");
     Pow3Pos = addFunction("pow3", &VFormula::Pow3, "POW3");
@@ -60,6 +65,8 @@ VFormula::VFormula()
 
     addFunction("gaus", &VFormula::Gaus, "GAUS", 3);
     addFunction("pol2", &VFormula::Pol2, "POL2", 4);
+
+    // ---- Constants ----
 
     addConstant("pi", M_PI);
 }
@@ -134,7 +141,7 @@ void VFormula::Neg() {Stack.top() = -Stack.top();}
 void VFormula::Pow() {double tmp = Stack.top(); Stack.pop(); Stack.top() = pow(Stack.top(), tmp);}
 void VFormula::Pow2() {double tmp = Stack.top(); Stack.top() = tmp*tmp;}
 void VFormula::Pow3() {double tmp = Stack.top(); Stack.top() = tmp*tmp*tmp;}
-void VFormula::Abs() {Stack.top() = abs(Stack.top());}
+void VFormula::Abs() {Stack.top() = fabs(Stack.top());}
 void VFormula::Sqrt() {Stack.top() = sqrt(Stack.top());}
 void VFormula::Exp() {Stack.top() = exp(Stack.top());}
 void VFormula::Log() {Stack.top() = log(Stack.top());}
@@ -232,7 +239,7 @@ bool VFormula::parse(const std::string & expr)
     bool status = shuntingYard();
     if (!status)
     {
-        //std::string err = std::string(TokPos-1, ' ');
+        //std::string err = std::string(TokPos-1, ' '); // !!!***
         std::string err = "\nParsing failed at position " + std::to_string(TokPos);
         err += ":\n";
         ErrorString += err;
