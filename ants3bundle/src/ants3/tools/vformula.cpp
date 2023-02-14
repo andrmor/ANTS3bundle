@@ -38,7 +38,7 @@ VFormula::VFormula()
     Pow3Pos = addFunction("pow3", &VFormula::Pow3, "POW3");
 
     addFunction("pow", &VFormula::Pow, "POW", 2);
-    addFunction("abs", &VFormula::Exp, "ABS");
+    addFunction("abs", &VFormula::Abs, "ABS");       // !!!*** was before addFunction("abs", &VFormula::Exp, "ABS");
     addFunction("sqrt", &VFormula::Sqrt, "SQRT");
     addFunction("exp", &VFormula::Exp, "EXP");
     addFunction("log", &VFormula::Log, "LOG");
