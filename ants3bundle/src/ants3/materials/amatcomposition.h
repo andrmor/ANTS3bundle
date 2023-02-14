@@ -32,7 +32,7 @@ public:
     QString WarningString;
 
 protected:
-    std::vector<QString> CustomElementRecords;
+    std::vector<TGeoElement*> CustomElementRecords;
     std::vector<QString> ParseStringByBracketLevel;
 
     bool checkChars();
@@ -41,6 +41,7 @@ protected:
 
     bool prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result);
     bool parseMixRecord(AMatMixRecord & r);
+    TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
 
 private:
     QString ParseString;

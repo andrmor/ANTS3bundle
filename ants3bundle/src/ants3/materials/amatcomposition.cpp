@@ -127,7 +127,9 @@ bool AMatComposition::markCustomElements()
             ParseString.replace(start, selectionSize, replaceWith);
 
             rec.remove(0, 1); rec.chop(1); // killing { and }
-            CustomElementRecords.push_back(rec);
+            TGeoElement * ele = makeCustomElement(rec);
+            if (!ele) return false;
+            CustomElementRecords.push_back(ele);
 
             qDebug() << "Continue with the ParseString:" << ParseString;
             pos = pos - selectionSize + replaceWith.length() + 1;
@@ -246,7 +248,7 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
         return false;
     }
 
-    str.replace(" ", "+");
+    str.replace(' ', '+');
     qDebug() << "Processing record:" << str;
 
     const QStringList list = str.split('+', Qt::SkipEmptyParts ); //split to fields of formula:fraction
@@ -410,4 +412,145 @@ bool AMatComposition::parseMixRecord(AMatMixRecord & r)
         }
     }
     return true;
+}
+
+TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
+{
+    // 10B:95+11B:5
+    QString fullStr = strRec.simplified().replace(' ', '+');
+    qDebug() << "Processing custom element record:" << fullStr;
+
+    QString elementSymbol;
+    std::vector<std::pair<int,double>> isotopeVec; // pairs of [N,Fraction]
+
+    const QStringList list = fullStr.split('+', Qt::SkipEmptyParts ); //split to fields of NElement:Fraction
+    if (list.isEmpty())
+    {
+        ErrorString = "Custom element record is empty";
+        return nullptr;
+    }
+
+    for (const QString & str : list)
+    {
+        qDebug() << str;
+        if (!str.front().isDigit() || str.size() < 2)
+        {
+            ErrorString = "Custom element record should contain at least one isotope (e.g. 10B)";
+            return nullptr;
+        }
+        enum EState {StateN, StateSymbol, StateFraction};
+        EState State = StateN;
+        QString strN; int isotopeN;
+        QString isotopeSymbol;
+        QString strFraction; double fraction;
+        bool ok;
+        for (QChar ch : str)
+        {
+            qDebug() << "i>" << ch;
+            if (State == StateN)
+            {
+                if (ch.isDigit())
+                {
+                    strN += ch;
+                    continue;
+                }
+                isotopeN = strN.toInt(&ok);
+                if (!ok)
+                {
+                    ErrorString = "Custom element record: error extracting isotope N (use e.g. 10B or 10B:97+11B:3)";
+                    return nullptr;
+                }
+                State = StateSymbol;
+            }
+            if (State == StateSymbol)
+            {
+                if (ch.isLetter())
+                {
+                    isotopeSymbol += ch;
+                    continue;
+                }
+                if (ch != ':')
+                {
+                    ErrorString = "Isotope symbol should be followed by a ':' character";
+                    return nullptr;
+                }
+
+                if (elementSymbol.isEmpty())
+                {
+                    elementSymbol = isotopeSymbol;
+                    if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
+                    {
+                        ErrorString = "Unknown element in custom element record: " + elementSymbol;
+                        return nullptr;
+                    }
+                }
+                else if (isotopeSymbol != elementSymbol)
+                {
+                    ErrorString = "All isotopes of a custom element should have the same symbol";
+                    return nullptr;
+                }
+
+                State = StateFraction;
+                if (ch == ':') continue;
+            }
+            if (State == StateFraction)
+            {
+                if (ch.isDigit() || ch == '.')
+                {
+                    strFraction += ch;
+                    continue;
+                }
+                ErrorString = "Custom element record: error in extracting fraction";
+                return nullptr;
+            }
+        }
+
+        if (State != StateFraction)
+        {
+            if (list.size() == 1 && State == StateSymbol)
+            {
+                // for a single isotope allow skipping the fraction info
+                elementSymbol = isotopeSymbol;
+                if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
+                {
+                    ErrorString = "Unknown element in custom element record: " + elementSymbol;
+                    return nullptr;
+                }
+                strFraction = "1.0";
+            }
+            else
+            {
+                ErrorString = "Custom element record: error extracting isotope fraction (use e.g. 10B or 10B:97+11B:3)";
+                return nullptr;
+            }
+        }
+        fraction = strFraction.toDouble(&ok);
+        if (!ok)
+        {
+            ErrorString = "Custom element record: fraction format error";
+            return nullptr;
+        }
+
+        isotopeVec.push_back({isotopeN, fraction});
+    }
+
+    qDebug() << "Constructing custom element using parsed info:" << elementSymbol << isotopeVec;
+
+    TString tBaseName = elementSymbol.toLatin1().data();
+    TString tEleName = tBaseName + "_Custom"; // !!!*** make unique name
+
+    int Z = TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data())->Z(); // confirmed above that exists
+    TGeoElement * elm = new TGeoElement(tEleName, tEleName, isotopeVec.size());
+
+    for (const auto & r : isotopeVec)
+    {
+        const int    & isoN        = r.first;
+        const double & isoFraction = r.second;
+        TString tIsoName = tBaseName; tBaseName += isoN;
+
+        TGeoIsotope * geoIsotope = new TGeoIsotope(tIsoName, Z, isoN, isoN);
+        elm->AddIsotope(geoIsotope, isoFraction);
+    }
+
+    return elm;
 }
