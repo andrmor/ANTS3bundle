@@ -30,20 +30,22 @@ public:
     QString ErrorString;
     QString WarningString;
 
-protected:
-    std::vector<TGeoElement*> CustomElementRecords;
-    std::vector<QString> ParseStringByBracketLevel;
-
     bool checkForbiddenChars();
-    bool parseCustomElementRecords();
-    bool splitByBracketLevel(QString & string);
+    bool parseCustomElements();
+    bool parseBracketedLevels();
+    bool parseMixtures();
 
     bool prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result);
-    bool parseMixRecord(AMatMixRecord & r);
+    bool parseCompound(AMatMixRecord & r);
     TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
+    bool splitByBracketLevel(QString & string);
+    void mergeRecords(const std::vector<AMatMixRecord> & recs, AMatMixRecord & result);
 
-private:
+protected:
+    // properties used during parsing of the composition string
     QString ParseString;
+    std::vector<TGeoElement*> CustomElements;
+    std::vector<std::pair<QString,AMatMixRecord>> MixtureByLevels;
 
     void clear();
 };
