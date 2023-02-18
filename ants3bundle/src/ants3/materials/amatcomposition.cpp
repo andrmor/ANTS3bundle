@@ -176,7 +176,7 @@ bool AMatComposition::parseMixtures()
 
         for (AMatMixRecord & r : recs)
         {
-            ok = parseCompound(r);
+            ok = parseMolecule(r);
             if (!ok) return false;
         }
 
@@ -349,7 +349,7 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
     return true;
 }
 
-bool AMatComposition::parseCompound(AMatMixRecord & r)
+bool AMatComposition::parseMolecule(AMatMixRecord & r)
 {
     // H2O
     // Formula can contain custom isotopes! e.g. #i0&4C or Li#i2&2
@@ -360,7 +360,7 @@ bool AMatComposition::parseCompound(AMatMixRecord & r)
 
     if (formula.startsWith("#b"))
     {
-        qDebug() << "Compound from bracketed expression not yet implemented";
+        qDebug() << "Molecule from bracketed expression not yet implemented";
         exit(1111);
     }
 
@@ -624,7 +624,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
     return elm;
 }
 
-void AMatComposition::mergeRecords(const std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
+void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
 {
     if (recs.empty()) return;
 
@@ -655,6 +655,38 @@ void AMatComposition::mergeRecords(const std::vector<AMatMixRecord> & recs, AMat
     }
     else
     {
+        double TotalMass = 0;
+        for (AMatMixRecord & r : recs)
+        {
+            r.computeA();
+            r.ComputedFraction = r.Fraction / r.CombinedA;
+        }
 
+        result = recs.front();
+        for (auto & kv : result.ElementMap)
+            kv.second *= result.ComputedFraction;
+
+        for (size_t iRec = 1; iRec < recs.size(); iRec++)
+        {
+            const AMatMixRecord & other = recs[iRec];
+            for (const auto & kv : other.ElementMap)
+            {
+                auto it = result.ElementMap.find(kv.first);
+                if (it == result.ElementMap.end()) result.ElementMap[kv.first] = kv.second * other.ComputedFraction;
+                else it->second += kv.second * other.ComputedFraction;
+            }
+        }
     }
+}
+
+void AMatMixRecord::computeA()
+{
+    CombinedA = 0;
+    for (const auto & kv : ElementMap)
+    {
+        double a = kv.first->A();
+        CombinedA += a * kv.second;
+    }
+
+
 }

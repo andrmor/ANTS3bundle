@@ -18,6 +18,11 @@ public:
     double        Fraction = 1.0;
 
     std::map<TGeoElement*, double> ElementMap;
+    double CombinedA = 0;
+    double ComputedFraction = 0;
+
+    void computeA();
+
 };
 
 class AMatComposition
@@ -36,10 +41,10 @@ public:
     bool parseMixtures();
 
     bool prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result);
-    bool parseCompound(AMatMixRecord & r);
+    bool parseMolecule(AMatMixRecord & r);
     TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
     bool splitByBracketLevel(QString & string);
-    void mergeRecords(const std::vector<AMatMixRecord> & recs, AMatMixRecord & result);
+    void mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     TGeoElement * findElement(const QString & elementSymbol);
 
 protected:
