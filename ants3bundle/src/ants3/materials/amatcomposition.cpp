@@ -360,15 +360,24 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
 
     if (formula.startsWith("#b"))
     {
-        qDebug() << "Molecule from bracketed expression not yet implemented";
-        exit(1111);
+        formula.remove("#b");
+        formula.remove("&:");
+        bool ok;
+        int index = formula.toDouble(&ok);
+        if (!ok || index < 0 || index >= MixtureByLevels.size())
+        {
+            ErrorString = "Format error in braket expression director";
+            return false;
+        }
+        r = MixtureByLevels[index].second;
+        return true;
     }
 
     const QChar firstChar = formula.front();
     const bool validStart = ( (firstChar.isLetter() && firstChar.isUpper()) || firstChar == '#' );
     if (!validStart)
     {
-        ErrorString = " Format error in composition: " + formula;
+        ErrorString = "Format error in composition: " + formula;
         return false;
     }
 
@@ -655,7 +664,6 @@ void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
     }
     else
     {
-        double TotalMass = 0;
         for (AMatMixRecord & r : recs)
         {
             r.computeA();
