@@ -26,7 +26,7 @@ bool AMatComposition::parse(const QString & string)
     ok = parseCustomElements(); // custom element = element with a custom isotope composition
     if (!ok) return false;
 
-    qDebug() << "After custom element parsing, the string is:" << ParseString;
+    qDebug() << "After custom element parsing, the string is:" << ParseString << "\n";
 
     // pre-parsing brackets to expression levels
     MixtureByLevels.push_back({ParseString, AMatMixRecord()});
@@ -35,7 +35,7 @@ bool AMatComposition::parse(const QString & string)
 
     qDebug() << "MixtureByLevels have the following records:";
     for (const auto & p : MixtureByLevels) qDebug() << "      " << p.first;
-    qDebug() << "----\n\n";
+    qDebug() << "----\n";
 
     ok = parseMixtures();
     if (!ok) return false;
@@ -351,39 +351,62 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
 
 bool AMatComposition::parseCompound(AMatMixRecord & r)
 {
-    // Formula can contain custom isotopes! e.g. #i0&4C
-    // Formula can contain already processed sub-mixtures, e.g. #b1&
+    // H2O
+    // Formula can contain custom isotopes! e.g. #i0&4C or Li#i2&2
+    // Formula can be already processed sub-mixtures, e.g. #b1&
 
     QString formula = r.Formula.simplified() + ":"; //":" is end signal
-    qDebug() << "parsing mix record:" << formula << "  with fraction:" << r.Fraction;
+    qDebug() << " Parsing compound record:" << formula << "  with fraction:" << r.Fraction;
 
-    if (!formula.front().isLetter() || !formula.front().isUpper())
+    if (formula.startsWith("#b"))
     {
-        ErrorString = "Format error in composition:" + formula;
+        qDebug() << "Compound from bracketed expression not yet implemented";
+        exit(1111);
+    }
+
+    const QChar firstChar = formula.front();
+    const bool validStart = ( (firstChar.isLetter() && firstChar.isUpper()) || firstChar == '#' );
+    if (!validStart)
+    {
+        ErrorString = " Format error in composition: " + formula;
         return false;
     }
 
-    //      qDebug() << Formula;
     bool bReadingElementName = true;
     QString tmp(formula.front());
     QString ElementSymbol;
     for (int i = 1; i < formula.size(); i++)
     {
-        QChar c = formula[i];
+        const QChar c = formula[i];
         if (bReadingElementName)
         {
-            if (c.isLetter() && c.isLower()) //continue to acquire the name
+            if (tmp.front() == '#')
             {
-                tmp += c;
-                continue;
+                // custom element
+                if (tmp.back() != '&')
+                {
+                    tmp += c;
+                    continue;
+                }
             }
-            else if (c == ':' || c.isDigit() || (c.isLetter() && c.isUpper()))
+            else
+            {
+                // standard symbol
+                if (c.isLetter() && c.isLower()) //continue to acquire the name
+                {
+                    tmp += c;
+                    continue;
+                }
+            }
+
+            if (c == ':' || c.isDigit() || (c.isLetter() && c.isUpper()) || c == '#')
             {
                 if (tmp.isEmpty()) return "Format error in composition: unrecognized character";
                 ElementSymbol = tmp;
-                if (c == ':' || (c.isLetter() && c.isUpper()))
+                if (!c.isDigit())
                 {
-                    TGeoElement * ele = TGeoElement::GetElementTable()->FindElement(ElementSymbol.toLatin1().data());
+                    // stat weight of 1
+                    TGeoElement * ele = findElement(ElementSymbol);
                     if (!ele)
                     {
                         ErrorString = "Element does not exist: " + ElementSymbol;
@@ -392,7 +415,7 @@ bool AMatComposition::parseCompound(AMatMixRecord & r)
                     auto it = r.ElementMap.find(ele);
                     if (it == r.ElementMap.end()) r.ElementMap[ele] = 1.0;
                     else it->second += 1.0;
-                    if (c == ':') break;
+                    if (c == ':') break; // end of compound record
                 }
                 tmp = QString(c);
                 if (c.isDigit()) bReadingElementName = false;
@@ -407,15 +430,21 @@ bool AMatComposition::parseCompound(AMatMixRecord & r)
                 tmp += c;
                 continue;
             }
-            else if (c ==':' || c.isLetter())
+            else if (c ==':' || c.isLetter() || c == '#')
             {
                 if (c.isLower())
                 {
                     ErrorString = "Format error in composition: lower register symbol in the first character of element symbol";
                     return false;
                 }
-                double number = tmp.toDouble();
-                TGeoElement * ele = TGeoElement::GetElementTable()->FindElement(ElementSymbol.toLatin1().data());
+                bool ok;
+                double number = tmp.toDouble(&ok);
+                if (!ok)
+                {
+                    ErrorString = "Format error in composition: record is not a number"; // paranoic
+                    return false;
+                }
+                TGeoElement * ele = findElement(ElementSymbol);
                 if (!ele)
                 {
                     ErrorString = "Element does not exist: " + ElementSymbol;
@@ -424,7 +453,7 @@ bool AMatComposition::parseCompound(AMatMixRecord & r)
                 auto it = r.ElementMap.find(ele);
                 if (it == r.ElementMap.end()) r.ElementMap[ele] = number;
                 else it->second += number;
-                if (c==':') break;
+                if (c == ':') break;
                 tmp = QString(c);
                 bReadingElementName = true;
             }
@@ -436,6 +465,22 @@ bool AMatComposition::parseCompound(AMatMixRecord & r)
         }
     }
     return true;
+}
+
+TGeoElement *AMatComposition::findElement(const QString & elementSymbol)
+{
+    if (elementSymbol.startsWith("#i"))
+    {
+        QString str = elementSymbol;
+        str.remove("#i");
+        str.remove("&");
+        bool ok;
+        int recNum = str.toInt(&ok);
+        if (recNum < 0 || recNum >= CustomElements.size()) return nullptr;
+        return CustomElements[recNum];
+    }
+
+    return TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data());
 }
 
 TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
@@ -607,5 +652,9 @@ void AMatComposition::mergeRecords(const std::vector<AMatMixRecord> & recs, AMat
                 else it->second += kv.second * other.Fraction;
             }
         }
+    }
+    else
+    {
+
     }
 }

@@ -40,6 +40,7 @@ public:
     TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
     bool splitByBracketLevel(QString & string);
     void mergeRecords(const std::vector<AMatMixRecord> & recs, AMatMixRecord & result);
+    TGeoElement * findElement(const QString & elementSymbol);
 
 protected:
     // properties used during parsing of the composition string
