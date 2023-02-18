@@ -369,7 +369,8 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
             ErrorString = "Format error in braket expression director";
             return false;
         }
-        r = MixtureByLevels[index].second;
+        r.Formula = MixtureByLevels[index].second.Formula;
+        r.ElementMap = MixtureByLevels[index].second.ElementMap;
         return true;
     }
 
@@ -695,6 +696,4 @@ void AMatMixRecord::computeA()
         double a = kv.first->A();
         CombinedA += a * kv.second;
     }
-
-
 }
