@@ -7,6 +7,7 @@
 #include <vector>
 
 class TGeoElement;
+class TGeoMaterial;
 
 class AMatMixRecord
 {
@@ -30,11 +31,19 @@ class AMatComposition
 public:
     AMatComposition(){}
 
+    QString CompositionString;
+    std::map<TGeoElement*, double> ElementMap_AtomNumberFractions;
+    std::map<TGeoElement*, double> ElementMap_MassFractions;
+    QString ErrorString;
+
     bool parse(const QString & string);
 
-    QString ErrorString;
-    QString WarningString;
+    QString printCompositionByAtomFractions() const;
+    QString printCompositionByMassFractions() const;
 
+    TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
+
+protected:
     bool checkForbiddenChars();
     bool parseCustomElements();
     bool parseBracketedLevels();
@@ -47,7 +56,6 @@ public:
     void mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     TGeoElement * findElement(const QString & elementSymbol);
 
-protected:
     // properties used during parsing of the composition string
     QString ParseString;
     std::vector<TGeoElement*> CustomElements;

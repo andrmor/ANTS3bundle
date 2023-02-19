@@ -150,23 +150,24 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 }
 
 #include "amatcomposition.h"
-#include "TGeoElement.h"
-bool ACore_SI::testParser(QString comp)
+QString ACore_SI::testParser(QString comp)
 {
-    /*
-    TGeoIsotope * geoIsotope = new TGeoIsotope("B10", 5, 10, 10);//    elm->AddIsotope(geoIsotope, isoFraction);
-    geoIsotope = TGeoIsotope::FindIsotope("B10");
-    qDebug() << geoIsotope;
-    qDebug() << geoIsotope->GetA();
-    return true;
-    */
-
     AMatComposition mc;
     bool ok = mc.parse(comp);
+    if (!ok)
+    {
+        abort(mc.ErrorString);
+        return "";
+    }
 
-    qDebug() << "ErrorString:" << mc.ErrorString;
-    qDebug() << "WarningString:" << mc.WarningString;
-    return ok;
+    QString str = "Composition using number of atom fractions:";
+    str += '\n';
+    str += mc.printCompositionByAtomFractions();
+    str += '\n';
+    str += "Composition using mass fractions:";
+    str += '\n';
+    str += mc.printCompositionByMassFractions();
+    return str;
 }
 
 /*

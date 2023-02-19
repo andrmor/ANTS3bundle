@@ -7,7 +7,9 @@
 void AMatComposition::clear()
 {
     ErrorString.clear();
-    WarningString.clear();
+
+    CompositionString.clear();
+    ParseString.clear();
 
     CustomElements.clear();
     MixtureByLevels.clear();
@@ -17,6 +19,7 @@ bool AMatComposition::parse(const QString & string)
 {
     clear();
 
+    CompositionString = string;
     ParseString = string.simplified();
     qDebug() << "Composition to parse:" << ParseString;
 
@@ -42,13 +45,49 @@ bool AMatComposition::parse(const QString & string)
 
     qDebug() << "<=== parse finished ===>";
 
-    qDebug() << "Molar composition:";
-    for (const auto & kv : MixtureByLevels.front().second.ElementMap)
-    {
-        qDebug() << kv.first->GetName() << " - " << kv.second;
-    }
+    ElementMap_AtomNumberFractions = MixtureByLevels.front().second.ElementMap;
+    MixtureByLevels.front().second.computeA();
+    double combinedA = MixtureByLevels.front().second.CombinedA;
 
+    ElementMap_MassFractions.clear();
+    for (const auto & pair : ElementMap_AtomNumberFractions)
+    {
+        TGeoElement * element = pair.first;
+        const double molarFraction = pair.second;
+        const double massFraction = molarFraction * element->A() / combinedA;
+        ElementMap_MassFractions[element] = massFraction;
+    }
     return true;
+}
+
+QString AMatComposition::printCompositionByAtomFractions() const
+{
+    QString str;
+    for (const auto & kv : ElementMap_AtomNumberFractions)
+        str += QString(kv.first->GetName()) + " : " + QString::number(kv.second) + '\n';
+    str.chop(1);
+    return str;
+}
+
+QString AMatComposition::printCompositionByMassFractions() const
+{
+    QString str;
+    for (const auto & kv : ElementMap_MassFractions)
+        str += QString(kv.first->GetName()) + " : " + QString::number(kv.second) + '\n';
+    str.chop(1);
+    return str;
+}
+
+#include "TGeoMaterial.h"
+TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, double density, double temperature)
+{
+    TString tName = name.toLatin1().data();
+
+    TGeoMixture * mix = new TGeoMixture(tName, ElementMap_MassFractions.size(), density);
+    for (const auto & pair : ElementMap_MassFractions)
+        mix->AddElement(pair.first, pair.second);
+    mix->SetTemperature(temperature);
+    return mix;
 }
 
 bool AMatComposition::checkForbiddenChars()
