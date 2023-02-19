@@ -21,7 +21,7 @@ bool AMatComposition::parse(const QString & string)
 
     CompositionString = string;
     ParseString = string.simplified();
-    qDebug() << "Composition to parse:" << ParseString;
+    qDebug() << "\nComposition to parse:" << ParseString;
 
     bool ok = checkForbiddenChars();
     if (!ok) return false;
@@ -36,7 +36,7 @@ bool AMatComposition::parse(const QString & string)
     ok = parseBracketedLevels();
     if (!ok) return false;
 
-    qDebug() << "MixtureByLevels have the following records:";
+    qDebug() << "\nMixtureByLevels have the following records:";
     for (const auto & p : MixtureByLevels) qDebug() << "      " << p.first;
     qDebug() << "----\n";
 
@@ -137,7 +137,7 @@ bool AMatComposition::parseCustomElements()
     while (pos < ParseString.length())
     {
         const QChar ch = ParseString[pos];
-        qDebug() << "  ch>" << ch;
+        //qDebug() << "  ch>" << ch;
 
         if (ch == '{')
         {
@@ -255,7 +255,7 @@ bool AMatComposition::splitByBracketLevel(QString & string)
     while (pos < string.length())
     {
         const QChar ch = string[pos];
-        qDebug() << "  br>" << ch;
+        //qDebug() << "  br>" << ch;
 
         if (ch == '(')
         {
@@ -380,6 +380,7 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
         ErrorString = "Format error in composition string: empty field";
         return false;
     }
+
     if (result.size() == 1)
     {
         if (result.front().FractionType == AMatMixRecord::None)
@@ -389,17 +390,21 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
     {
         bool seenMolar = false;
         bool seenMass  = false;
+
         for (const AMatMixRecord & r : result)
         {
             if      (r.FractionType == AMatMixRecord::Molar) seenMolar = true;
             else if (r.FractionType == AMatMixRecord::Mass)  seenMass  = true;
         }
+
         if (seenMolar && seenMass)
         {
             ErrorString = "Composition string of one level (e.q. inside parenthesis) cannot have a mixture of definition by molar and by weight!";
             return false;
         }
-        for (AMatMixRecord r : result)
+        if (!seenMolar && !seenMass) seenMolar = true;
+
+        for (AMatMixRecord & r : result)
         {
             if (seenMolar && r.FractionType == AMatMixRecord::None) r.FractionType = AMatMixRecord::Molar;
             if (seenMass  && r.FractionType == AMatMixRecord::None) r.FractionType = AMatMixRecord::Mass;
@@ -702,7 +707,7 @@ void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
 
     if (recs.size() == 1)
     {
-        result = recs.front();
+        result = recs.front();  // !!!*** check fraction?
         return;
     }
 
