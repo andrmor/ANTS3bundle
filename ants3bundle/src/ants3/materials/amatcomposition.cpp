@@ -60,20 +60,40 @@ bool AMatComposition::parse(const QString & string)
     return true;
 }
 
-QString AMatComposition::printCompositionByAtomFractions() const
+QString AMatComposition::printComposition() const
 {
-    QString str;
+    QString str = "Element\tAtoms\tMassFrac\tIsotopes\n";
     for (const auto & kv : ElementMap_AtomNumberFractions)
-        str += QString(kv.first->GetName()) + " : " + QString::number(kv.second) + '\n';
-    str.chop(1);
-    return str;
-}
+    {
+        TGeoElement * ele = kv.first;
+        QString name = ele->GetName();
+        double  atFraction = kv.second;
+        double  maFraction = ElementMap_MassFractions.at(ele);
 
-QString AMatComposition::printCompositionByMassFractions() const
-{
-    QString str;
-    for (const auto & kv : ElementMap_MassFractions)
-        str += QString(kv.first->GetName()) + " : " + QString::number(kv.second) + '\n';
+        QString isoStr;
+        const int numIso = ele->GetNisotopes();
+        if (numIso == 0) isoStr = "natural";
+        else
+        {
+            for (int i = 0; i < numIso; i++)
+            {
+                TGeoIsotope * iso = ele->GetIsotope(i);
+                QString name = iso->GetName();
+                int N = iso->GetN();
+                double fraction = ele->GetRelativeAbundance(i);
+                if (!name.startsWith(QString::number(N)))
+                {
+                    qCritical() << "Mismatch in isotope name and N!" << name << N;
+                    exit(2222);
+                }
+                isoStr += name + ":" + QString::number(fraction) + "+";
+                //qDebug() << "->->->-->->->"<< name << iso->GetZ() << N << iso->GetA() << fraction;
+            }
+            isoStr.chop(1);
+        }
+
+        str += name + "\t" + QString::number(atFraction) + "\t" + QString::number(maFraction) + "\t" + isoStr + '\n';
+    }
     str.chop(1);
     return str;
 }
@@ -564,7 +584,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
         bool ok;
         for (QChar ch : str)
         {
-            qDebug() << "      i>" << ch;
+            //qDebug() << "      i>" << ch;
             if (State == StateN)
             {
                 if (ch.isDigit())
@@ -657,15 +677,18 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
     TString tBaseName = elementSymbol.toLatin1().data();
     TString tEleName = tBaseName + "_Custom"; // !!!*** need unique name?
 
-    int Z = TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data())->Z(); // confirmed above that exists
+    int Z = TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data())->Z(); // already confirmed above that exists
     TGeoElement * elm = new TGeoElement(tEleName, tEleName, isotopeVec.size());
 
     for (const auto & r : isotopeVec)
     {
-        const int    & isoN        = r.first;
-        const double & isoFraction = r.second;
-        TString tIsoName = tBaseName; tBaseName += isoN;
+        int    isoN        = r.first;
+        double isoFraction = r.second;
+        TString tIsoName;
+        tIsoName.Form("%i",isoN);
+        tIsoName += tBaseName;
         TGeoIsotope * iso = TGeoIsotope::FindIsotope(tIsoName);
+        //qDebug() << tIsoName << isoN << isoFraction << iso;
         if (!iso) iso = new TGeoIsotope(tIsoName, Z, isoN, isoN);
         elm->AddIsotope(iso, isoFraction);
     }

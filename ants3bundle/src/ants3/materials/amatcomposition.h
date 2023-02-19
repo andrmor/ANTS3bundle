@@ -38,8 +38,7 @@ public:
 
     bool parse(const QString & string);
 
-    QString printCompositionByAtomFractions() const;
-    QString printCompositionByMassFractions() const;
+    QString printComposition() const;
 
     TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
 

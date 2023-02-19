@@ -159,15 +159,7 @@ QString ACore_SI::testParser(QString comp)
         abort(mc.ErrorString);
         return "";
     }
-
-    QString str = "Composition using number of atom fractions:";
-    str += '\n';
-    str += mc.printCompositionByAtomFractions();
-    str += '\n';
-    str += "Composition using mass fractions:";
-    str += '\n';
-    str += mc.printCompositionByMassFractions();
-    return str;
+    return mc.printComposition();
 }
 
 /*
