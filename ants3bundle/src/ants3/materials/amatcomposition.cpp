@@ -797,3 +797,47 @@ void AMatMixRecord::computeA()
         CombinedA += a * kv.second;
     }
 }
+
+QString AMatComposition::geoMatToCompositionString(TGeoMaterial * mat)
+{
+    //for (int i = 0; i < 20; i++) qDebug() << i << " -- " << TGeoElement::GetElementTable()->GetElement(i)->GetName();
+
+    QString compoString;
+
+    qDebug() << mat->GetName() << mat->IsMixture(); // !!!*** generalize to mixture
+    const int numElements = mat->GetNelements();
+    double A, Z, W;
+
+    for (int iEl = 0; iEl < numElements; iEl++)
+    {
+        mat->GetElementProp(A, Z, W, iEl);
+        TGeoElement * geoEl = mat->GetElement(iEl);
+        QString elName = TGeoElement::GetElementTable()->GetElement(Z)->GetName();
+        if (elName.size() == 2) elName[1] = elName[1].toLower();
+
+        int numIso = geoEl->GetNisotopes();
+        if (numIso != 0)
+        {
+            // custom isotope composition
+            QString symbol = elName;
+            elName = '{';
+            for (int iIso = 0; iIso < numIso; iIso++)
+            {
+                double isoW = geoEl->GetRelativeAbundance(iIso);
+                TGeoIsotope * geoIso = geoEl->GetIsotope(iIso);
+                int isoN = geoIso->GetN();
+                elName += QString::number(isoN);
+                elName += symbol;
+                elName += ':';
+                elName += QString::number(isoW);
+                elName += '+';
+            }
+            elName.chop(1);
+            elName += '}';
+        }
+        compoString += elName + "/" + QString::number(W) + " + ";
+    }
+
+    if (compoString.endsWith(" + ")) compoString.chop(3);
+    return compoString;
+}

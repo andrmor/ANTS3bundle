@@ -41,6 +41,8 @@ public:
 
     TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
 
+    static QString geoMatToCompositionString(TGeoMaterial * mat);
+
 protected:
     bool checkForbiddenChars();
     bool parseCustomElements();

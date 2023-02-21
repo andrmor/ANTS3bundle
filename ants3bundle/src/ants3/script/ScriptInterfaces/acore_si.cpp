@@ -150,7 +150,7 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 }
 
 #include "amatcomposition.h"
-QString ACore_SI::testParser(QString comp)
+QString ACore_SI::testComposition(QString comp)
 {
     AMatComposition mc;
     bool ok = mc.parse(comp);
@@ -159,6 +159,10 @@ QString ACore_SI::testParser(QString comp)
         abort(mc.ErrorString);
         return "";
     }
+
+    TGeoMaterial * mat = mc.constructGeoMaterial("MatNameTest",1.1, 321.0);
+    qDebug() << "\nGeoMat to composition string:\n" << AMatComposition::geoMatToCompositionString(mat);
+
     return mc.printComposition();
 }
 

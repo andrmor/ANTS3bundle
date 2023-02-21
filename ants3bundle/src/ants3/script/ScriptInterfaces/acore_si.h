@@ -27,7 +27,7 @@ public slots:
 
     QVariant test(QVariant in);
     double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
-    QString testParser(QString comp);
+    QString testComposition(QString comp);
 
     int fun(int i, int j, int k);
     //int fun(int i);
