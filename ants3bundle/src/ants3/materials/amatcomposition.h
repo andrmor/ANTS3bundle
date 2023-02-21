@@ -23,7 +23,6 @@ public:
     double ComputedFraction = 0;
 
     void computeA();
-
 };
 
 class AMatComposition
@@ -52,7 +51,7 @@ protected:
     bool parseMolecule(AMatMixRecord & r);
     TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
     bool splitByBracketLevel(QString & string);
-    void mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
+    bool mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     TGeoElement * findElement(const QString & elementSymbol);
 
     // properties used during parsing of the composition string

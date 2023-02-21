@@ -21,22 +21,22 @@ bool AMatComposition::parse(const QString & string)
 
     CompositionString = string;
     ParseString = string.simplified();
-    qDebug() << "\nComposition to parse:" << ParseString;
+    qDebug() << "\n->Composition to parse:" << ParseString;
 
     bool ok = checkForbiddenChars();
     if (!ok) return false;
 
-    ok = parseCustomElements(); // custom element = element with a custom isotope composition
+    ok = parseCustomElements(); // elements with custom isotope composition
     if (!ok) return false;
 
-    qDebug() << "After custom element parsing, the string is:" << ParseString << "\n";
+    qDebug() << "->After custom element parsing, the string is:" << ParseString << "\n";
 
     // pre-parsing brackets to expression levels
     MixtureByLevels.push_back({ParseString, AMatMixRecord()});
     ok = parseBracketedLevels();
     if (!ok) return false;
 
-    qDebug() << "\nMixtureByLevels have the following records:";
+    qDebug() << "\n->MixtureByLevels have the following records:";
     for (const auto & p : MixtureByLevels) qDebug() << "      " << p.first;
     qDebug() << "----\n";
 
@@ -130,7 +130,7 @@ bool AMatComposition::checkForbiddenChars()
 
 bool AMatComposition::parseCustomElements()
 {
-    qDebug() << "Searching for custom element records containing isotope composition";
+    qDebug() << "->Searching for custom element records containing isotope composition";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -173,7 +173,7 @@ bool AMatComposition::parseCustomElements()
             if (!ele) return false;
             CustomElements.push_back(ele);
 
-            qDebug() << "  Continue to look for custom elements in string:" << ParseString;
+            qDebug() << "    Continue to look for custom elements in string:" << ParseString;
             pos = pos - selectionSize + replaceWith.length() + 1;
             continue;
         }
@@ -196,7 +196,7 @@ bool AMatComposition::parseCustomElements()
         return false;
     }
 
-    qDebug() << "Found custom element records:" << CustomElements;
+    qDebug() << "-->Found custom element records:" << CustomElements;
     return true;
 }
 
@@ -239,7 +239,8 @@ bool AMatComposition::parseMixtures()
             if (!ok) return false;
         }
 
-        mergeRecords(recs, MixtureByLevels[iLevel].second);
+        ok = mergeRecords(recs, MixtureByLevels[iLevel].second);
+        if (!ok) return false;
     }
 
     return true;
@@ -247,7 +248,7 @@ bool AMatComposition::parseMixtures()
 
 bool AMatComposition::splitByBracketLevel(QString & string)
 {
-    qDebug() << "Checking for bracketed sub-records";
+    qDebug() << "-->Checking for bracketed sub-records";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -291,11 +292,11 @@ bool AMatComposition::splitByBracketLevel(QString & string)
 
             const int selectionSize = pos - start + 1;
             QString rec = string.mid(start, selectionSize);
-            qDebug() << "  Found bracketed record:" << rec;
+            qDebug() << "    Found bracketed record:" << rec;
             const QString replaceWith = QString("#b%0&").arg(MixtureByLevels.size());
-            qDebug() << "  Replacing with:" << replaceWith;
+            qDebug() << "     =>Replacing with:" << replaceWith;
             string.replace(start, selectionSize, replaceWith);
-            qDebug() << "  Continue with the string:" << string;
+            qDebug() << "    Continue with the string:" << string;
 
             rec.remove(0, 1); rec.chop(1);
             MixtureByLevels.push_back( {rec, AMatMixRecord()} );
@@ -313,7 +314,7 @@ bool AMatComposition::splitByBracketLevel(QString & string)
         return false;
     }
 
-    qDebug() << "  Returning string:" << string;
+    qDebug() << "    =>Returning string:" << string;
     return true;
 }
 
@@ -415,26 +416,34 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
 
 bool AMatComposition::parseMolecule(AMatMixRecord & r)
 {
-    // H2O
+    // e.g. H2O
     // Formula can contain custom isotopes! e.g. #i0&4C or Li#i2&2
-    // Formula can be already processed sub-mixtures, e.g. #b1&
+    // Formula can be already processed sub-mixture, e.g. #b1&
 
+    qDebug() << " ->Parsing molecule||sub-mixture:" << r.Formula << " with" << (r.FractionType == AMatMixRecord::Molar ? "molar" : "mass") << "fraction:" << r.Fraction;
     QString formula = r.Formula.simplified() + ":"; //":" is end signal
-    qDebug() << " Parsing compound record:" << formula << "  with fraction:" << r.Fraction;
 
     if (formula.startsWith("#b"))
     {
         formula.remove("#b");
         formula.remove("&:");
         bool ok;
-        int index = formula.toDouble(&ok);
-        if (!ok || index < 0 || index >= MixtureByLevels.size())
+        int index = formula.toInt(&ok);
+        if (!ok || index < 0 || index >= (int)MixtureByLevels.size())
         {
             ErrorString = "Format error in braket expression director";
             return false;
         }
-        r.Formula = MixtureByLevels[index].second.Formula;
-        r.ElementMap = MixtureByLevels[index].second.ElementMap;
+
+        AMatMixRecord & mixture = MixtureByLevels[index].second;
+        if (r.FractionType == AMatMixRecord::Molar && mixture.FractionType == AMatMixRecord::Mass)
+        {
+            ErrorString = "Cannot use molar fractions for mass-fraction mixtures";
+            return false;
+        }
+
+        r.Formula = mixture.Formula;
+        r.ElementMap = mixture.ElementMap;
         return true;
     }
 
@@ -701,17 +710,34 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
     return elm;
 }
 
-void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
+bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
 {
-    if (recs.empty()) return;
+    if (recs.empty())
+    {
+        ErrorString = "Unexpected empty record list to merge";
+        return false;
+    }
 
     if (recs.size() == 1)
     {
-        result = recs.front();  // !!!*** check fraction?
-        return;
+        result = recs.front();
+
+        if (recs.front().FractionType == AMatMixRecord::Molar)
+        {
+            for (auto & kv : result.ElementMap)
+                kv.second *= result.Fraction;
+        }
+        else
+        {
+            ErrorString = "Sub-expression cannot have mass fraction for a single member";
+            return false;
+        }
+        return true;
     }
 
     AMatMixRecord::EFractionType Type = recs.front().FractionType;
+
+    // checking attempt to use molar fractions with mass fraction sub-records
 
     if (Type == AMatMixRecord::Molar)
     {
@@ -722,6 +748,12 @@ void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
         for (size_t iRec = 1; iRec < recs.size(); iRec++)
         {
             const AMatMixRecord & other = recs[iRec];
+            if (other.FractionType != AMatMixRecord::Molar) // paranoic: cannot happen here
+            {
+                ErrorString = "Cannot use molar fractions for mass-fraction mixtures";
+                return false;
+            }
+
             for (const auto & kv : other.ElementMap)
             {
                 auto it = result.ElementMap.find(kv.first);
@@ -753,6 +785,7 @@ void AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
             }
         }
     }
+    return true;
 }
 
 void AMatMixRecord::computeA()
