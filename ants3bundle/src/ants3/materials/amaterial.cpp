@@ -1,5 +1,4 @@
 #include "amaterial.h"
-#include "achemicalelement.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "aerrorhub.h"
@@ -70,8 +69,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
 
 void AMaterial::generateTGeoMat()
 {
-    _GeoMat = Composition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
-    _GeoMat->SetTemperature(Temperature);
+    _GeoMat = Composition.constructGeoMaterial(Name.toLatin1().data(), Density, Temperature);
 }
 
 double AMaterial::FT(double td, double tr, double t) const
@@ -286,7 +284,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
 {
     json["*Name"]           = Name;
 
-    json["Composition"]     = Composition.writeToJson();
+    Composition.writeToJson(json);
     json["Density"]         = Density;
     json["UseNistMaterial"] = UseNistMaterial;
     json["NistMaterial"]    = NistMaterial;
@@ -393,8 +391,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     clear();
 
     jstools::parseJson(json, "*Name", Name);
-    QJsonObject ccjson = json["Composition"].toObject();
-    Composition.readFromJson(ccjson);
+    Composition.readFromJson(json);
     jstools::parseJson(json, "Density", Density);
     jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
     jstools::parseJson(json, "NistMaterial",     NistMaterial);
@@ -512,9 +509,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 QString AMaterial::checkMaterial() const
 {
     if (Name.isEmpty()) return "Empty material name!";
-    const QString errInComposition = Composition.checkForErrors();
-    if (!errInComposition.isEmpty())
-        return Name + ": " + errInComposition;
+    if (!Composition.ErrorString.isEmpty())
+        return Name + ": " + Composition.ErrorString;
 
     if (Density <= 0) return Name + ": Non-positive density";
     if (Temperature <= 0) return Name + ": Non-positive temperature";
@@ -524,5 +520,7 @@ QString AMaterial::checkMaterial() const
 
 void AMaterial::importComposition(TGeoMaterial * mat)
 {
-    Composition.import(mat);
+    QString compStr = AMatComposition::geoMatToCompositionString(mat);
+    Composition.setCompositionString(compStr);
+    // !!!*** error handling
 }

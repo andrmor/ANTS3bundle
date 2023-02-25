@@ -8,8 +8,6 @@
 #include "afiletools.h"
 #include "guitools.h"
 #include "acommonfunctions.h"
-#include "achemicalelement.h"
-#include "aelementandisotopedelegates.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 
@@ -58,7 +56,6 @@ AMatWin::AMatWin(QWidget * parent) :
     configureG4Materials();
 
     ui->pbWasModified->setVisible(false);
-    ui->labContextMenuHelp->setVisible(false);
     ui->pbUpdateTmpMaterial->setVisible(false);
 
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -68,8 +65,7 @@ AMatWin::AMatWin(QWidget * parent) :
 
     connect(&MatHub, &AMaterialHub::materialsChanged, this, &AMatWin::onMaterialsChanged);
 
-    ui->leChemicalComposition->installEventFilter(this);
-    ui->leCompositionByWeight->installEventFilter(this);
+    ui->leComposition->setAlignment(Qt::AlignHCenter);
 }
 
 AMatWin::~AMatWin()
@@ -81,21 +77,6 @@ void AMatWin::initWindow()
 {
     updateGui();
     switchToMaterial(0);
-}
-
-bool AMatWin::eventFilter(QObject * object, QEvent * event)
-{
-    if(object == ui->leChemicalComposition && event->type() == QEvent::MouseButtonPress) // FocusIn
-    {
-        modifyChemicalComposition();
-        return true;
-    }
-    if(object == ui->leCompositionByWeight && event->type() == QEvent::MouseButtonPress) // FocusIn
-    {
-        modifyByWeight();
-        return true;
-    }
-    return false;
 }
 
 void AMatWin::setWasModified(bool flag)
@@ -203,9 +184,9 @@ void AMatWin::updateWaveButtons()
 void AMatWin::updateG4RelatedGui()
 {
     bool bDisable = ui->cbG4Material->isChecked();
-    std::vector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
-                                   ui->leCompositionByWeight, ui->trwChemicalComposition, ui->cbShowIsotopes};
+    std::vector<QWidget*> widgs = {ui->ledDensity, ui->ledT, ui->leComposition};
     for (QWidget * w : widgs) w->setDisabled(bDisable);
+    ui->pteCompositionInfo->clear(); // !!!***
 }
 
 #include <QCompleter>
@@ -266,9 +247,8 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledDensity->setText( QString::number(tmpMaterial.Density) );
     ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
 
-    ui->leChemicalComposition->setText( tmpMaterial.Composition.getCompositionString() );
-    ui->leCompositionByWeight->setText( tmpMaterial.Composition.getCompositionByWeightString() );
-    ShowTreeWithChemicalComposition();
+    ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
+//    ui->pteCompositionInfo->clear(); ui->pteCompositionInfo->appendPlainText(tmpMaterial.Composition.printComposition());
 
     ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
     ui->leG4Material->setText(tmpMaterial.NistMaterial);
@@ -351,6 +331,7 @@ void AMatWin::updateTmpMaterialGui()
 
 void AMatWin::updateWarningIcons()
 {
+    /*
     if (tmpMaterial.Composition.countElements() == 0)
     {
         QPixmap pm(QSize(16,16));
@@ -360,7 +341,9 @@ void AMatWin::updateWarningIcons()
         b.drawEllipse(0, 2, 10, 10);
         ui->twProperties->setTabIcon(0, QIcon(pm));
     }
-    else ui->twProperties->setTabIcon(0, QIcon());
+    else
+    */
+        ui->twProperties->setTabIcon(0, QIcon());
 }
 
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
@@ -785,38 +768,6 @@ void AMatWin::on_actionLoad_material_triggered()
     updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
-void AMatWin::onAddIsotope(AChemicalElement *element)
-{
-    element->Isotopes << AIsotope(element->Symbol, 777, 0);
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
-void AMatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
-{
-    if (element->Isotopes.size()<2)
-    {
-        guitools::message("Cannot remove the last isotope!", this);
-        return;
-    }
-    element->Isotopes.removeAt(isotopeIndexInElement);
-
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
-void AMatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
-{
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
 void AMatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
 {
     /*
@@ -824,125 +775,6 @@ void AMatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, 
     MW->GraphWindow->Draw(g, "APL");
     MW->GraphWindow->UpdateRootCanvas();
 */
-}
-
-void AMatWin::modifyChemicalComposition()
-{
-    QDialog* d = new QDialog(this);
-    d->setWindowTitle("Enter element composition (molar fractions!)");
-
-    QVBoxLayout* L = new QVBoxLayout();
-    QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionString(), this);
-    le->setMinimumSize(400,25);
-    QPushButton* pb = new QPushButton("Confirm", this);
-    l->addWidget(le);
-    l->addWidget(pb);
-    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
-    L->addLayout(l);
-    L->addWidget(new QLabel("Format examples:\n"));
-    L->addWidget(new QLabel("C2H5OH   - use only integer values!"));
-    L->addWidget(new QLabel("C:0.3333 + H:0.6667  -> molar fractions of 1/3 of carbon and 2/3 of hydrogen"));
-    L->addWidget(new QLabel("H2O:9.0 + NaCl:0.2 -> 9.0 parts of H2O and 0.2 parts of NaCl"));
-    d->setLayout(L);
-
-    while (d->exec() != 0)
-    {
-        AMaterialComposition& mc = tmpMaterial.Composition;
-        QString error = mc.setCompositionString(le->text(), true);
-        if (!error.isEmpty())
-        {
-            guitools::message(error, d);
-            continue;
-        }
-
-        updateTmpMaterialGui();
-        break;
-    }
-
-    if (d->result() == 0) return;
-
-    setWasModified(true);
-    updateWarningIcons();
-}
-
-void AMatWin::modifyByWeight()
-{
-    QDialog* d = new QDialog(this);
-    d->setWindowTitle("Enter element composition (fractions by weight!)");
-
-    QVBoxLayout* L = new QVBoxLayout();
-    QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionByWeightString(), this);
-    le->setMinimumSize(400,25);
-    QPushButton* pb = new QPushButton("Confirm", this);
-    l->addWidget(le);
-    l->addWidget(pb);
-    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
-    L->addLayout(l);
-    L->addWidget(new QLabel("Give weight factors for each element separately, e.g.:\n"));
-    L->addWidget(new QLabel("H:0.1112 + O:0.8889"));
-    L->addWidget(new QLabel("\nNote that Ants will recalculate this composition to molar one,\n"
-                            "and then show re-calculated weight factors with the sum of unity!\n\n"
-                            "Any subsequent changes to isotope composition of involved elements\n"
-                            "will modify the composition!"));
-    d->setLayout(L);
-
-    while (d->exec() != 0)
-    {
-        AMaterialComposition& mc = tmpMaterial.Composition;
-        QString error = mc.setCompositionByWeightString(le->text());
-        if (!error.isEmpty())
-        {
-            guitools::message(error, d);
-            continue;
-        }
-
-        updateTmpMaterialGui();
-        break;
-    }
-
-    if (d->result() == 0) return;
-
-    setWasModified(true);
-    updateWarningIcons();
-}
-
-void AMatWin::ShowTreeWithChemicalComposition()
-{
-    bClearInProgress = true;
-    ui->trwChemicalComposition->clear();
-    bClearInProgress = false;
-
-    bool bShowIsotopes = ui->cbShowIsotopes->isChecked();
-
-    for (int i=0; i<tmpMaterial.Composition.countElements(); i++)
-    {
-        AChemicalElement* el = tmpMaterial.Composition.getElement(i);
-
-        //new element
-        AChemicalElementDelegate* elDel = new AChemicalElementDelegate(el, &bClearInProgress, ui->cbShowIsotopes->isChecked());
-        QTreeWidgetItem* ElItem = new QTreeWidgetItem(ui->trwChemicalComposition);
-        ui->trwChemicalComposition->setItemWidget(ElItem, 0, elDel);
-        ElItem->setExpanded(bShowIsotopes);
-        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &AMatWin::onAddIsotope, Qt::QueuedConnection);
-
-        if (bShowIsotopes)
-            for (int index = 0; index <el->Isotopes.size(); index++)
-            {
-                AIsotopeDelegate* isotopDel = new AIsotopeDelegate(el, index, &bClearInProgress);
-                QTreeWidgetItem* twi = new QTreeWidgetItem();
-                ElItem->addChild(twi);
-                ui->trwChemicalComposition->setItemWidget(twi, 0, isotopDel);
-                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &AMatWin::onRemoveIsotope, Qt::QueuedConnection);
-                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &AMatWin::IsotopePropertiesChanged, Qt::QueuedConnection);
-            }
-    }
-}
-
-void AMatWin::on_cbShowIsotopes_clicked()
-{
-    ShowTreeWithChemicalComposition();
 }
 
 void flagButton(QPushButton* pb, bool flag)
@@ -962,6 +794,7 @@ void flagButton(QPushButton* pb, bool flag)
     pb->setStyleSheet(s);
 }
 
+/*
 void AMatWin::on_pbMaterialInfo_clicked()
 {
     if (ui->leChemicalComposition->text().isEmpty())
@@ -976,15 +809,7 @@ void AMatWin::on_pbMaterialInfo_clicked()
     str += "Atom density: " + QString::number(AtDens, 'g', 4) + " cm-3\n";
     guitools::message(str, this);
 }
-
-void AMatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
-{
-    if (!ui->cbShowIsotopes->isChecked())
-    {
-        ui->cbShowIsotopes->setChecked(true);
-        ShowTreeWithChemicalComposition();
-    }
-}
+*/
 
 void AMatWin::on_lePriT_editingFinished()
 {
@@ -1315,3 +1140,23 @@ void AMatWin::on_pbDeleteComplexN_clicked()
     ui->pbDeleteComplexN->setEnabled(false);
     setWasModified(true);
 }
+
+void AMatWin::on_pbHelpComposition_clicked()
+{
+
+}
+
+void AMatWin::on_leComposition_editingFinished()
+{
+    setWasModified(true); // see if it changed  !!!***
+
+    AMatComposition mc;
+    bool ok = mc.setCompositionString(ui->leComposition->text());
+    if (!ok)
+    {
+        guitools::message(mc.ErrorString, this);
+        return;
+    }
+    tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
+}
+

@@ -59,10 +59,7 @@ SOURCES += \
         ../ants3/photonSim/asensorhub.cpp \
         ../ants3/materials/amaterialhub.cpp \
         ../ants3/materials/amaterial.cpp \
-        ../ants3/materials/amaterialcomposition.cpp \
-        ../ants3/materials/achemicalelement.cpp \
-        ../ants3/materials/aisotope.cpp \
-        ../ants3/materials/aisotopeabundancehandler.cpp \
+        ../ants3/materials/amatcomposition.cpp \
         ../ants3/photonSim/aphotonsimhub.cpp \
         ../ants3/photonSim/aphotonsimsettings.cpp \
         ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
@@ -127,10 +124,7 @@ HEADERS += \
     ../ants3/photonSim/asensorhub.h \
     ../ants3/materials/amaterialhub.h \
     ../ants3/materials/amaterial.h \
-    ../ants3/materials/amaterialcomposition.h \
-    ../ants3/materials/achemicalelement.h \
-    ../ants3/materials/aisotope.h \
-    ../ants3/materials/aisotopeabundancehandler.h \
+    ../ants3/materials/amatcomposition.h \
     ../ants3/photonSim/aphotonsimhub.h \
     ../ants3/photonSim/aphotonsimsettings.h \
      ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \

@@ -123,10 +123,7 @@ void AMaterialHub::clearMaterials()
 
 void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
-    AMaterial * m = new AMaterial;
-
-    m->Composition.setCompositionString("H");
-    m->Density = 1e-25;
+    AMaterial * m = new AMaterial(); // vacuum by default
 
     AInterfaceRuleHub::getInstance().onMaterialAdded();
 
@@ -155,7 +152,7 @@ void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
     //do not want to copy dynamic objects!
     QJsonObject js;
         Materials[imat]->writeToJson(js);
-        tmpMaterial.readFromJson(js);
+    tmpMaterial.readFromJson(js);
 }
 
 double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
@@ -363,7 +360,9 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         if (mat->UseNistMaterial && mat->NistMaterial.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
-        if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
-            Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
+
+        // !!!*** check material here, which shoul cinclude check of composition
+        //if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
+        //    Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
     }
 }

@@ -6,7 +6,7 @@
 #include <vector>
 #include <complex>
 
-#include "amaterialcomposition.h"
+#include "amatcomposition.h"
 
 class QJsonObject;
 class TH1D;
@@ -22,8 +22,8 @@ public:
     QString Name;
 
     // composition
-    AMaterialComposition Composition;
-    double               Density;                 // in g/cm3
+    AMatComposition      Composition;
+    double               Density = 1e-25;                 // in g/cm3  // !!!*** move to composition?
     bool                 UseNistMaterial = false;
     QString              NistMaterial;
     double               Temperature = 298.0;     // in K
@@ -87,7 +87,7 @@ public:
 
     QString checkMaterial() const; // !!!***
 
-    void    importComposition(TGeoMaterial * mat);
+    void    importComposition(TGeoMaterial * mat); // !!!***
 
   // --- run-time properties ---
     TGeoMaterial  * _GeoMat = nullptr;

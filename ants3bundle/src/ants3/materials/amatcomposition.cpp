@@ -17,6 +17,27 @@ void AMatComposition::clear()
     MixtureByLevels.clear();
 }
 
+AMatComposition::AMatComposition()
+{
+    makeItVacuum();
+}
+
+bool AMatComposition::setCompositionString(const QString & composition)
+{
+    clear();
+
+    bool ok = parse(composition);
+    if (!ok) makeItVacuum();
+    return ok;
+}
+
+void AMatComposition::makeItVacuum()
+{
+    clear();
+    ElementMap_AtomNumberFractions[nullptr] = 1.0;
+    ElementMap_MassFractions[nullptr] = 1.0;
+}
+
 bool AMatComposition::parse(const QString & string)
 {
     clear();
@@ -68,9 +89,10 @@ QString AMatComposition::printComposition() const
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
         TGeoElement * ele = kv.first;
-        QString name = ele->GetName();
         double  atFraction = kv.second;
         double  maFraction = ElementMap_MassFractions.at(ele);
+        if (!ele) ele = TGeoElement::GetElementTable()->FindElement("H");
+        QString name = ele->GetName();
 
         QString isoStr;
         const int numIso = ele->GetNisotopes();
@@ -106,7 +128,16 @@ TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, doubl
 
     TGeoMixture * mix = new TGeoMixture(tName, ElementMap_MassFractions.size(), density);
     for (const auto & pair : ElementMap_MassFractions)
-        mix->AddElement(pair.first, pair.second);
+    {
+        TGeoElement * elm   = pair.first;
+        double weightFactor = pair.second;
+        if (!elm)
+        {
+            elm = TGeoElement::GetElementTable()->FindElement("H");
+            weightFactor = 1.0;
+        }
+        mix->AddElement(elm, weightFactor);
+    }
     mix->SetTemperature(temperature);
     return mix;
 }

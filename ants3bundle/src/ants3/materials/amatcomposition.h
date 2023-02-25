@@ -29,25 +29,25 @@ public:
 class AMatComposition
 {
 public:
-    AMatComposition(){}
+    AMatComposition();
 
-    QString CompositionString = "H";
-    std::map<TGeoElement*, double> ElementMap_AtomNumberFractions;
-    std::map<TGeoElement*, double> ElementMap_MassFractions;
     QString ErrorString;
 
-    bool parse(const QString & string);
+    bool setCompositionString(const QString & composition);
+    void makeItVacuum();
 
+    QString getCompositionString() const {return CompositionString;}
     QString printComposition() const;
 
     TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
 
-    static QString geoMatToCompositionString(TGeoMaterial * mat);
-
     void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json);
 
+    static QString geoMatToCompositionString(TGeoMaterial * mat);
+
 protected:
+    bool parse(const QString & string);
     bool checkForbiddenChars();
     bool parseCustomElements();
     bool parseBracketedLevels();
@@ -59,6 +59,10 @@ protected:
     bool splitByBracketLevel(QString & string);
     bool mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     TGeoElement * findElement(const QString & elementSymbol);
+
+    QString CompositionString;
+    std::map<TGeoElement*, double> ElementMap_AtomNumberFractions;
+    std::map<TGeoElement*, double> ElementMap_MassFractions;
 
     // properties used during parsing of the composition string
     QString ParseString;

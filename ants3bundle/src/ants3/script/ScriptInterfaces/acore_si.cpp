@@ -153,7 +153,7 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 QString ACore_SI::testComposition(QString comp)
 {
     AMatComposition mc;
-    bool ok = mc.parse(comp);
+    bool ok = mc.setCompositionString(comp);
     if (!ok)
     {
         abort(mc.ErrorString);

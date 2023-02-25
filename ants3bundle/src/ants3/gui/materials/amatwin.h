@@ -31,9 +31,6 @@ private slots:
     void onMaterialsChanged(); //sent by A3MatHub
 
     //on signals from delegates
-    void onAddIsotope(AChemicalElement *element);
-    void onRemoveIsotope(AChemicalElement* element, int isotopeIndexInElement);
-    void IsotopePropertiesChanged(const AChemicalElement* element, int isotopeIndexInElement);
     void onRequestDraw(const QVector<double> & x, const QVector<double> & y, const QString & titleX, const QString & titleY); // !!!***
 
     //on user input
@@ -65,9 +62,6 @@ private slots:
     void on_pbShowUsage_clicked();
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
-    void on_cbShowIsotopes_clicked();
-    void on_pbMaterialInfo_clicked();
-    void on_trwChemicalComposition_doubleClicked(const QModelIndex &index);
     void on_pbShowReemProbLambda_clicked();
     void on_pbLoadReemisProbLambda_clicked();
     void on_pbDeleteReemisProbLambda_clicked();
@@ -91,6 +85,10 @@ private slots:
 //    void on_actionLoad_from_material_library_triggered();   !!!***
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
+
+    void on_pbHelpComposition_clicked();
+
+    void on_leComposition_editingFinished();
 
 private:
     AGeometryHub & Geometry;
@@ -117,17 +115,11 @@ private:
     void setWasModified(bool flag);
     void updateActionButtons();
     void updateWaveButtons();
-    void ShowTreeWithChemicalComposition();
     bool parseDecayOrRaiseTime(bool decay_or_raise);
-    void updateWarningIcons();
-    void updateG4RelatedGui();
+    void updateWarningIcons();   // !!!***
+    void updateG4RelatedGui();   // !!!*** element info!
     void configureG4Materials();
     bool checkCurrentMaterial();
-    void modifyChemicalComposition();
-    void modifyByWeight();
-
-protected:
-    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void requestRebuildDetector();

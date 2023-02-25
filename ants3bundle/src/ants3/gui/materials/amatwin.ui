@@ -283,6 +283,53 @@ To use Al with termal scattering, use G4_Al_TS</string>
             </widget>
            </item>
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_36">
+               <property name="text">
+                <string>Composition:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbHelpComposition">
+               <property name="text">
+                <string>help</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leComposition"/>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <spacer name="horizontalSpacer">
@@ -301,7 +348,8 @@ To use Al with termal scattering, use G4_Al_TS</string>
               <widget class="QLabel" name="label_21">
                <property name="font">
                 <font>
-                 <bold>true</bold>
+                 <bold>false</bold>
+                 <kerning>true</kerning>
                 </font>
                </property>
                <property name="text">
@@ -323,19 +371,6 @@ To use Al with termal scattering, use G4_Al_TS</string>
               <widget class="QLabel" name="label_22">
                <property name="text">
                 <string>g/cm3</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pbMaterialInfo">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>info</string>
                </property>
               </widget>
              </item>
@@ -440,203 +475,21 @@ To use Al with termal scattering, use G4_Al_TS</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_64">
+            <widget class="QLabel" name="label_37">
              <property name="text">
-              <string>Chemical composition:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <string>Parsed composition by element:</string>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_19">
-             <property name="topMargin">
-              <number>0</number>
+            <widget class="QPlainTextEdit" name="pteCompositionInfo">
+             <property name="enabled">
+              <bool>false</bool>
              </property>
-             <item>
-              <widget class="QLabel" name="label_37">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>75</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Molar:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="leChemicalComposition">
-               <property name="toolTip">
-                <string>Elemental composition with the relative molar fractions.
-Can be used to automatically configure gamma interaction cross-sections and neutron scattering data.</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_46">
-             <property name="topMargin">
-              <number>0</number>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
-             <item>
-              <widget class="QLabel" name="label_74">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>75</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>By weight:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="leCompositionByWeight">
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QTreeWidget" name="trwChemicalComposition">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <attribute name="headerVisible">
-                  <bool>false</bool>
-                 </attribute>
-                 <column>
-                  <property name="text">
-                   <string>1</string>
-                  </property>
-                 </column>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_8">
-                 <item>
-                  <spacer name="horizontalSpacer_5">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="cbShowIsotopes">
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Show/modify  isotopes</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="labContextMenuHelp">
-                   <property name="text">
-                    <string>Use context menu to add/remove</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_6">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -2744,7 +2597,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>327</x>
-     <y>258</y>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2833,22 +2686,6 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>leChemicalComposition</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>pbWasModified</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>470</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>438</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledReemissionProbability</sender>
    <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
@@ -2872,7 +2709,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>360</x>
-     <y>289</y>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2929,38 +2766,6 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>leChemicalComposition</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>470</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>559</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbShowIsotopes</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>labContextMenuHelp</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>262</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>479</x>
-     <y>528</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledEDiffL</sender>
    <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
@@ -3000,7 +2805,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>327</x>
-     <y>258</y>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3064,7 +2869,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>360</x>
-     <y>289</y>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3160,7 +2965,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>327</x>
-     <y>258</y>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3351,8 +3156,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>135</x>
-     <y>198</y>
+     <x>156</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
