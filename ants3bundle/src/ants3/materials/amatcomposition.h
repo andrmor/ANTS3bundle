@@ -8,6 +8,7 @@
 
 class TGeoElement;
 class TGeoMaterial;
+class QJsonObject;
 
 class AMatMixRecord
 {
@@ -30,7 +31,7 @@ class AMatComposition
 public:
     AMatComposition(){}
 
-    QString CompositionString;
+    QString CompositionString = "H";
     std::map<TGeoElement*, double> ElementMap_AtomNumberFractions;
     std::map<TGeoElement*, double> ElementMap_MassFractions;
     QString ErrorString;
@@ -42,6 +43,9 @@ public:
     TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
 
     static QString geoMatToCompositionString(TGeoMaterial * mat);
+
+    void writeToJson(QJsonObject & json) const;
+    bool readFromJson(const QJsonObject & json);
 
 protected:
     bool checkForbiddenChars();

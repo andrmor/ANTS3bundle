@@ -1,7 +1,9 @@
 #include "amatcomposition.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 
+#include "TGeoMaterial.h"
 #include "TGeoElement.h"
 
 void AMatComposition::clear()
@@ -98,7 +100,6 @@ QString AMatComposition::printComposition() const
     return str;
 }
 
-#include "TGeoMaterial.h"
 TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, double density, double temperature)
 {
     TString tName = name.toLatin1().data();
@@ -559,7 +560,7 @@ TGeoElement *AMatComposition::findElement(const QString & elementSymbol)
         str.remove("&");
         bool ok;
         int recNum = str.toInt(&ok);
-        if (recNum < 0 || recNum >= CustomElements.size()) return nullptr;
+        if (recNum < 0 || recNum >= (int)CustomElements.size()) return nullptr;
         return CustomElements[recNum];
     }
 
@@ -707,6 +708,8 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
         elm->AddIsotope(iso, isoFraction);
     }
 
+    qDebug() << "      Custom element A =" << elm->A();
+
     return elm;
 }
 
@@ -840,4 +843,15 @@ QString AMatComposition::geoMatToCompositionString(TGeoMaterial * mat)
 
     if (compoString.endsWith(" + ")) compoString.chop(3);
     return compoString;
+}
+
+void AMatComposition::writeToJson(QJsonObject & json) const
+{
+    json["MaterialComposition"] = CompositionString;
+}
+
+bool AMatComposition::readFromJson(const QJsonObject & json)
+{
+    clear();
+    return jstools::parseJson(json, "MaterialComposition", CompositionString);
 }
