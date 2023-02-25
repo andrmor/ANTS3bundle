@@ -186,7 +186,7 @@ void AMatWin::updateG4RelatedGui()
     bool bDisable = ui->cbG4Material->isChecked();
     std::vector<QWidget*> widgs = {ui->ledDensity, ui->ledT, ui->leComposition};
     for (QWidget * w : widgs) w->setDisabled(bDisable);
-    ui->pteCompositionInfo->clear(); // !!!***
+    //ui->pteCompositionInfo->clear(); // !!!***
 }
 
 #include <QCompleter>
@@ -248,7 +248,8 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
 
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
-//    ui->pteCompositionInfo->clear(); ui->pteCompositionInfo->appendPlainText(tmpMaterial.Composition.printComposition());
+    ui->pteCompoInfo->clear();
+    ui->pteCompoInfo->insertPlainText(tmpMaterial.Composition.printComposition());
 
     ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
     ui->leG4Material->setText(tmpMaterial.NistMaterial);
@@ -1047,6 +1048,7 @@ void AMatWin::on_pbAcceptChanges_clicked()
     const QString newName = ui->leName->text();
     const int iMat = ui->cobActiveMaterials->currentIndex();       // -1    if material was just loaded
     const QString oldName = ui->cobActiveMaterials->currentText(); // empty if material was just loaded
+qDebug() << "<<<<<<<aaaaaaaaaaaaaaaaaaaa>>>>>>>>>>>>>>" << tmpMaterial.Composition.getCompositionString();
 
     if (newName != oldName)
     {
@@ -1150,13 +1152,12 @@ void AMatWin::on_leComposition_editingFinished()
 {
     setWasModified(true); // see if it changed  !!!***
 
-    AMatComposition mc;
-    bool ok = mc.setCompositionString(ui->leComposition->text());
+    bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
     if (!ok)
     {
-        guitools::message(mc.ErrorString, this);
+        guitools::message(tmpMaterial.Composition.ErrorString, this);
         return;
     }
-    tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
+    updateTmpMaterialGui();
 }
 

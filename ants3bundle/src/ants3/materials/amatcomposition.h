@@ -53,7 +53,7 @@ public:
     TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
 
     void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json);
+    bool readFromJson(const QJsonObject & json); // !!!*** error control
 
     static QString geoMatToCompositionString(TGeoMaterial * mat);
 

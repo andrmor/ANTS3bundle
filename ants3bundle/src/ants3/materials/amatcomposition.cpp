@@ -880,8 +880,14 @@ void AMatComposition::writeToJson(QJsonObject & json) const
 
 bool AMatComposition::readFromJson(const QJsonObject & json)
 {
+    // error control !!!***
     clear();
-    return jstools::parseJson(json, "MaterialComposition", CompositionString);
+    QString str;
+    bool ok = jstools::parseJson(json, "MaterialComposition", str);
+    if (ok) setCompositionString(str);
+    else makeItVacuum();
+
+    return true;
 }
 
 TGeoElement * AElementRecord::constructGeoElement() const

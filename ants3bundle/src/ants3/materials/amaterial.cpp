@@ -290,7 +290,6 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["NistMaterial"]    = NistMaterial;
     json["Temperature"]     = Temperature;
 
-
     json["RefIndex"]    = RefIndex;
     json["AbsCoeff"]    = AbsCoeff;
     json["RayleighMFP"] = RayleighMFP;
@@ -391,6 +390,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     clear();
 
     jstools::parseJson(json, "*Name", Name);
+
     Composition.readFromJson(json);
     jstools::parseJson(json, "Density", Density);
     jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);

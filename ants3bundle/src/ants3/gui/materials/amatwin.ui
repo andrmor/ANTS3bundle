@@ -482,14 +482,7 @@ To use Al with termal scattering, use G4_Al_TS</string>
             </widget>
            </item>
            <item>
-            <widget class="QPlainTextEdit" name="pteCompositionInfo">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
+            <widget class="QPlainTextEdit" name="pteCompoInfo"/>
            </item>
           </layout>
          </widget>
@@ -2596,8 +2589,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
-     <y>291</y>
+     <x>348</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2804,8 +2797,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
-     <y>291</y>
+     <x>348</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2964,8 +2957,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
-     <y>291</y>
+     <x>348</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3157,7 +3150,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>156</x>
-     <y>222</y>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -3178,6 +3171,22 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>526</x>
      <y>36</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leComposition</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>42</y>
     </hint>
    </hints>
   </connection>
