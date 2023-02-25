@@ -27,7 +27,12 @@ bool AMatComposition::setCompositionString(const QString & composition)
     clear();
 
     bool ok = parse(composition);
-    if (!ok) makeItVacuum();
+    if (!ok)
+    {
+        QString err = ErrorString;
+        makeItVacuum();
+        ErrorString = err;
+    }
     return ok;
 }
 

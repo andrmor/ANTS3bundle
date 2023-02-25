@@ -482,7 +482,11 @@ To use Al with termal scattering, use G4_Al_TS</string>
             </widget>
            </item>
            <item>
-            <widget class="QPlainTextEdit" name="pteCompoInfo"/>
+            <widget class="QPlainTextEdit" name="pteCompoInfo">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
