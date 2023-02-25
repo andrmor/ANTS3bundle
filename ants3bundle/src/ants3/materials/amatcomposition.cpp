@@ -34,8 +34,9 @@ bool AMatComposition::setCompositionString(const QString & composition)
 void AMatComposition::makeItVacuum()
 {
     clear();
-    ElementMap_AtomNumberFractions[nullptr] = 1.0;
-    ElementMap_MassFractions[nullptr] = 1.0;
+    AElementRecord r; r.Symbol = "H"; r.A = 1.00784;
+    ElementMap_AtomNumberFractions[r] = 1.0;
+    ElementMap_MassFractions[r] = 1.0;
 }
 
 bool AMatComposition::parse(const QString & string)
@@ -75,9 +76,10 @@ bool AMatComposition::parse(const QString & string)
     ElementMap_MassFractions.clear();
     for (const auto & pair : ElementMap_AtomNumberFractions)
     {
-        TGeoElement * element = pair.first;
-        const double molarFraction = pair.second;
-        const double massFraction = molarFraction * element->A() / combinedA;
+        //TGeoElement * element = pair.first;
+        const AElementRecord & element       = pair.first;
+        const double         & molarFraction = pair.second;
+        const double massFraction = molarFraction * element.A / combinedA;
         ElementMap_MassFractions[element] = massFraction;
     }
     return true;
@@ -88,35 +90,27 @@ QString AMatComposition::printComposition() const
     QString str = "Element\tAtoms\tMassFrac\tIsotopes\n";
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
-        TGeoElement * ele = kv.first;
+        const AElementRecord & ele = kv.first;
+        const QString & Symbol = ele.Symbol;
         double  atFraction = kv.second;
         double  maFraction = ElementMap_MassFractions.at(ele);
-        if (!ele) ele = TGeoElement::GetElementTable()->FindElement("H");
-        QString name = ele->GetName();
 
         QString isoStr;
-        const int numIso = ele->GetNisotopes();
+        const size_t numIso = ele.Isotopes.size();
         if (numIso == 0) isoStr = "natural";
         else
         {
-            for (int i = 0; i < numIso; i++)
+            for (const std::pair<int,double> & pair : ele.Isotopes)
             {
-                TGeoIsotope * iso = ele->GetIsotope(i);
-                QString name = iso->GetName();
-                int N = iso->GetN();
-                double fraction = ele->GetRelativeAbundance(i);
-                if (!name.startsWith(QString::number(N)))
-                {
-                    qCritical() << "Mismatch in isotope name and N!" << name << N;
-                    exit(2222);
-                }
-                isoStr += name + ":" + QString::number(fraction) + "+";
-                //qDebug() << "->->->-->->->"<< name << iso->GetZ() << N << iso->GetA() << fraction;
+                const int    & isoN        = pair.first;
+                const double & isoFraction = pair.second;
+                QString name = QString::number(isoN) + Symbol;
+                isoStr += name + ":" + QString::number(isoFraction) + "+";
             }
             isoStr.chop(1);
         }
 
-        str += name + "\t" + QString::number(atFraction) + "\t" + QString::number(maFraction) + "\t" + isoStr + '\n';
+        str += Symbol + "\t" + QString::number(atFraction) + "\t" + QString::number(maFraction) + "\t" + isoStr + '\n';
     }
     str.chop(1);
     return str;
@@ -129,14 +123,10 @@ TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, doubl
     TGeoMixture * mix = new TGeoMixture(tName, ElementMap_MassFractions.size(), density);
     for (const auto & pair : ElementMap_MassFractions)
     {
-        TGeoElement * elm   = pair.first;
-        double weightFactor = pair.second;
-        if (!elm)
-        {
-            elm = TGeoElement::GetElementTable()->FindElement("H");
-            weightFactor = 1.0;
-        }
-        mix->AddElement(elm, weightFactor);
+        const AElementRecord & element      = pair.first;
+        const double         & weightFactor = pair.second;
+        TGeoElement * geoElm = element.constructGeoElement();
+        mix->AddElement(geoElm, weightFactor);
     }
     mix->SetTemperature(temperature);
     return mix;
@@ -201,9 +191,10 @@ bool AMatComposition::parseCustomElements()
             ParseString.replace(start, selectionSize, replaceWith);
 
             rec.remove(0, 1); rec.chop(1); // killing { and }
-            TGeoElement * ele = makeCustomElement(rec);
-            if (!ele) return false;
-            CustomElements.push_back(ele);
+            AElementRecord elm;
+            bool ok = makeCustomElement(rec, elm);
+            if (!ok) return false;
+            CustomElements.push_back(elm);
 
             qDebug() << "    Continue to look for custom elements in string:" << ParseString;
             pos = pos - selectionSize + replaceWith.length() + 1;
@@ -228,7 +219,7 @@ bool AMatComposition::parseCustomElements()
         return false;
     }
 
-    qDebug() << "-->Found custom element records:" << CustomElements;
+    //qDebug() << "-->Found custom element records:" << CustomElements;
     return true;
 }
 
@@ -521,14 +512,15 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
                 if (!c.isDigit())
                 {
                     // stat weight of 1
-                    TGeoElement * ele = findElement(ElementSymbol);
-                    if (!ele)
+                    AElementRecord elm;
+                    bool ok = fetchElement(ElementSymbol, elm);
+                    if (!ok)
                     {
                         ErrorString = "Element does not exist: " + ElementSymbol;
                         return false;
                     }
-                    auto it = r.ElementMap.find(ele);
-                    if (it == r.ElementMap.end()) r.ElementMap[ele] = 1.0;
+                    auto it = r.ElementMap.find(elm);
+                    if (it == r.ElementMap.end()) r.ElementMap[elm] = 1.0;
                     else it->second += 1.0;
                     if (c == ':') break; // end of compound record
                 }
@@ -559,14 +551,15 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
                     ErrorString = "Format error in composition: record is not a number"; // paranoic
                     return false;
                 }
-                TGeoElement * ele = findElement(ElementSymbol);
-                if (!ele)
+                AElementRecord elm;
+                ok = fetchElement(ElementSymbol, elm);
+                if (!ok)
                 {
                     ErrorString = "Element does not exist: " + ElementSymbol;
                     return false;
                 }
-                auto it = r.ElementMap.find(ele);
-                if (it == r.ElementMap.end()) r.ElementMap[ele] = number;
+                auto it = r.ElementMap.find(elm);
+                if (it == r.ElementMap.end()) r.ElementMap[elm] = number;
                 else it->second += number;
                 if (c == ':') break;
                 tmp = QString(c);
@@ -582,7 +575,7 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
     return true;
 }
 
-TGeoElement *AMatComposition::findElement(const QString & elementSymbol)
+bool AMatComposition::fetchElement(const QString & elementSymbol, AElementRecord & elm)
 {
     if (elementSymbol.startsWith("#i"))
     {
@@ -591,27 +584,37 @@ TGeoElement *AMatComposition::findElement(const QString & elementSymbol)
         str.remove("&");
         bool ok;
         int recNum = str.toInt(&ok);
-        if (recNum < 0 || recNum >= (int)CustomElements.size()) return nullptr;
-        return CustomElements[recNum];
+        if (recNum < 0 || recNum >= (int)CustomElements.size()) return false;
+        elm = CustomElements[recNum];
+        return true;
     }
 
-    return TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data());
+    TGeoElement * geoElement = TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data());
+    if (geoElement)
+    {
+        elm.Symbol = elementSymbol;
+        elm.Isotopes.clear();
+        elm.A = geoElement->A();
+        return true;
+    }
+
+    return false;
 }
 
-TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
+bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord & elm)
 {
     // 10B:95+11B:5
     QString fullStr = strRec.simplified().replace(' ', '+');
     qDebug() << "    Processing custom element record:" << fullStr;
 
-    QString elementSymbol;
-    std::vector<std::pair<int,double>> isotopeVec; // pairs of [N,Fraction]
+    QString elementSymbol; // !!!*** need? use directly elm.Symbol
+    elm.Isotopes.clear();
 
     const QStringList list = fullStr.split('+', Qt::SkipEmptyParts ); //split to fields of NElement:Fraction
     if (list.isEmpty())
     {
         ErrorString = "Custom element record is empty";
-        return nullptr;
+        return false;
     }
 
     for (const QString & str : list)
@@ -620,7 +623,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
         if (!str.front().isDigit() || str.size() < 2)
         {
             ErrorString = "Custom element record should contain at least one isotope (e.g. 10B)";
-            return nullptr;
+            return false;
         }
         enum EState {StateN, StateSymbol, StateFraction};
         EState State = StateN;
@@ -642,7 +645,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
                 if (!ok)
                 {
                     ErrorString = "Custom element record: error extracting isotope N (use e.g. 10B or 10B:97+11B:3)";
-                    return nullptr;
+                    return false;
                 }
                 State = StateSymbol;
             }
@@ -656,7 +659,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
                 if (ch != ':')
                 {
                     ErrorString = "Isotope symbol should be followed by a ':' character";
-                    return nullptr;
+                    return false;
                 }
 
                 if (elementSymbol.isEmpty())
@@ -665,13 +668,13 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
                     if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
                     {
                         ErrorString = "Unknown element in custom element record: " + elementSymbol;
-                        return nullptr;
+                        return false;
                     }
                 }
                 else if (isotopeSymbol != elementSymbol)
                 {
                     ErrorString = "All isotopes of a custom element should have the same symbol";
-                    return nullptr;
+                    return false;
                 }
 
                 State = StateFraction;
@@ -685,7 +688,7 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
                     continue;
                 }
                 ErrorString = "Custom element record: error in extracting fraction";
-                return nullptr;
+                return false;
             }
         }
 
@@ -698,50 +701,43 @@ TGeoElement * AMatComposition::makeCustomElement(const QString & strRec)
                 if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
                 {
                     ErrorString = "Unknown element in custom element record: " + elementSymbol;
-                    return nullptr;
+                    return false;
                 }
                 strFraction = "1.0";
             }
             else
             {
                 ErrorString = "Custom element record: error extracting isotope fraction (use e.g. 10B or 10B:97+11B:3)";
-                return nullptr;
+                return false;
             }
         }
         fraction = strFraction.toDouble(&ok);
         if (!ok)
         {
             ErrorString = "Custom element record: fraction format error";
-            return nullptr;
+            return false;
         }
 
-        isotopeVec.push_back({isotopeN, fraction});
+        elm.Isotopes.push_back({isotopeN, fraction});
     }
 
-    qDebug() << "    Constructing custom element using parsed info:" << elementSymbol << isotopeVec;
+    elm.Symbol = elementSymbol;
 
-    TString tBaseName = elementSymbol.toLatin1().data();
-    TString tEleName = tBaseName + "_Custom"; // !!!*** need unique name?
-
-    int Z = TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data())->Z(); // already confirmed above that exists
-    TGeoElement * elm = new TGeoElement(tEleName, tEleName, isotopeVec.size());
-
-    for (const auto & r : isotopeVec)
+    double sumA  = 0;
+    double sumFr = 0;
+    for (const auto & pair : elm.Isotopes)
     {
-        int    isoN        = r.first;
-        double isoFraction = r.second;
-        TString tIsoName;
-        tIsoName.Form("%i",isoN);
-        tIsoName += tBaseName;
-        TGeoIsotope * iso = TGeoIsotope::FindIsotope(tIsoName);
-        //qDebug() << tIsoName << isoN << isoFraction << iso;
-        if (!iso) iso = new TGeoIsotope(tIsoName, Z, isoN, isoN);
-        elm->AddIsotope(iso, isoFraction);
+        sumA  += pair.first * pair.second;
+        sumFr += pair.second;
     }
+    if (sumA == 0 || sumFr == 0)
+    {
+        ErrorString = "Custom element record: error in sum of fractions (should be positive)";
+        return false;
+    }
+    elm.A = sumA / sumFr;
 
-    qDebug() << "      Custom element A =" << elm->A();
-
-    return elm;
+    return true;
 }
 
 bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
@@ -827,8 +823,9 @@ void AMatMixRecord::computeA()
     CombinedA = 0;
     for (const auto & kv : ElementMap)
     {
-        double a = kv.first->A();
-        CombinedA += a * kv.second;
+        const AElementRecord & elm = kv.first;
+        const double         & fraction = kv.second;
+        CombinedA += elm.A * fraction;
     }
 }
 
@@ -885,4 +882,30 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
 {
     clear();
     return jstools::parseJson(json, "MaterialComposition", CompositionString);
+}
+
+TGeoElement * AElementRecord::constructGeoElement() const
+{
+    TString tBaseName = Symbol.toLatin1().data();
+    TGeoElement * elm = TGeoElement::GetElementTable()->FindElement(tBaseName);
+    // !!!*** error control
+
+    if (Isotopes.empty()) return elm; // natural
+    //else custom element using isotope records
+    TString tName = tBaseName + "_Custom";
+    const int Z = elm->Z();
+    elm = new TGeoElement(tName, tName, Isotopes.size());
+    for (const auto & pair : Isotopes)
+    {
+        const int    & isoN        = pair.first;
+        const double & isoFraction = pair.second;
+        TString tIsoName;
+        tIsoName.Form("%i",isoN);
+        tIsoName += tBaseName;
+        TGeoIsotope * iso = TGeoIsotope::FindIsotope(tIsoName);
+        //qDebug() << tIsoName << isoN << isoFraction << iso;
+        if (!iso) iso = new TGeoIsotope(tIsoName, Z, isoN, isoN);
+        elm->AddIsotope(iso, isoFraction);
+    }
+    return elm;
 }
