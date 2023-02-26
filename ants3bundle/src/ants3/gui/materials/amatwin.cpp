@@ -240,6 +240,34 @@ void AMatWin::configureG4Materials()
     ui->leG4Material->setCompleter(Completer);
 }
 
+void appendLabText(QLabel * lab, const QString & addText)
+{
+    QString text = lab->text();
+    if (!text.isEmpty()) text += '\n';
+    text += addText;
+    lab->setText(text);
+}
+
+void AMatWin::fillElementInfo()
+{
+    ui->labInfoElement->clear();
+    ui->labInfoAtFraction->clear();
+    ui->labInfoMassFraction->clear();
+    ui->labInfoIsotope->clear();
+
+    QString allStr = tmpMaterial.Composition.printComposition();
+    const QStringList lines = allStr.split('\n', Qt::SkipEmptyParts);
+    for (const QString & line : lines)
+    {
+        const QStringList s = line.split('\t', Qt::SkipEmptyParts);
+        if (s.size() < 4) continue;
+        appendLabText(ui->labInfoElement,      s[0]);
+        appendLabText(ui->labInfoAtFraction,   s[1]);
+        appendLabText(ui->labInfoMassFraction, s[2]);
+        appendLabText(ui->labInfoIsotope,      s[3]);
+    }
+}
+
 void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.Name);
@@ -248,8 +276,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
 
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
-    ui->pteCompoInfo->clear();
-    ui->pteCompoInfo->insertPlainText(tmpMaterial.Composition.printComposition());
+    fillElementInfo();
 
     ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
     ui->leG4Material->setText(tmpMaterial.NistMaterial);
@@ -767,15 +794,6 @@ void AMatWin::on_actionLoad_material_triggered()
 
     updateTmpMaterialGui(); //refresh indication of tmpMaterial
     updateWaveButtons(); //refresh button state for Wave-resolved properties
-}
-
-void AMatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
-{
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(x, y, "", titleX, titleY, 4, 20, 1, 4, 1, 2);
-    MW->GraphWindow->Draw(g, "APL");
-    MW->GraphWindow->UpdateRootCanvas();
-*/
 }
 
 void flagButton(QPushButton* pb, bool flag)

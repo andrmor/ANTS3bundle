@@ -80,6 +80,8 @@ protected:
     std::vector<AElementRecord> CustomElements;
     std::vector<std::pair<QString,AMatMixRecord>> MixtureByLevels;
 
+    const size_t ColumnWidth = 15;
+
     void clear();
 };
 

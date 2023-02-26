@@ -30,9 +30,6 @@ public:
 private slots:
     void onMaterialsChanged(); //sent by A3MatHub
 
-    //on signals from delegates
-    void onRequestDraw(const QVector<double> & x, const QVector<double> & y, const QString & titleX, const QString & titleY); // !!!***
-
     //on user input
     void on_pbRemove_clicked();
     void on_pbAddNew_clicked();
@@ -120,6 +117,7 @@ private:
     void updateG4RelatedGui();   // !!!*** element info!
     void configureG4Materials();
     bool checkCurrentMaterial();
+    void fillElementInfo();
 
 signals:
     void requestRebuildDetector();

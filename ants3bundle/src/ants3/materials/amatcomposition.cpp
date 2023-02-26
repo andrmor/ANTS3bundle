@@ -92,12 +92,23 @@ bool AMatComposition::parse(const QString & string)
 
 QString AMatComposition::printComposition() const
 {
-    QString str = "Element\tAtoms\tMassFrac\tIsotopes\n";
+    QString str = "Element\tAtomFraction\tMassFraction\tIsotopes\n";
+
+    bool bAllInt = true;
+    double totAtFraction = 0;
+    for (const auto & kv : ElementMap_AtomNumberFractions)
+    {
+        double  atFraction = kv.second;
+        totAtFraction += atFraction;
+        if (atFraction != std::floor(atFraction)) bAllInt = false;
+    }
+    if (bAllInt) totAtFraction = 1.0;
+
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
         const AElementRecord & ele = kv.first;
         const QString & Symbol = ele.Symbol;
-        double  atFraction = kv.second;
+        double  atFraction = kv.second / totAtFraction;
         double  maFraction = ElementMap_MassFractions.at(ele);
 
         QString isoStr;
@@ -115,9 +126,8 @@ QString AMatComposition::printComposition() const
             isoStr.chop(1);
         }
 
-        str += Symbol + "\t" + QString::number(atFraction) + "\t" + QString::number(maFraction) + "\t" + isoStr + '\n';
+        str += Symbol + '\t' + QString::number(atFraction) + '\t' + QString::number(maFraction) + '\t' + isoStr + '\n';
     }
-    str.chop(1);
     return str;
 }
 
@@ -741,6 +751,7 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
         return false;
     }
     elm.A = sumA / sumFr;
+    qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << elm.A;
 
     return true;
 }
