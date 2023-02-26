@@ -925,12 +925,12 @@ void AScriptWindow::showContextMenuForJsonTree(QTreeWidgetItem *item, QPoint pos
     QAction* sa = menu.exec(trwJson->mapToGlobal(pos));
     if (!sa) return;
 
-    QClipboard *clipboard = QApplication::clipboard();
+    QClipboard * clipboard = QApplication::clipboard();
     QString text = getKeyPath(item);
     if (sa == plainKey) ;
     else if (sa == keyQuatation) text = "\"" + text + "\"";
-    else if (sa == keyGet) text = "config.GetKeyValue(\"" + text + "\")";
-    else if (sa == keySet) text = "config.Replace(\"" + text + "\",       )";
+    else if (sa == keyGet) text = "config.getKeyValue(\"" + text + "\")";
+    else if (sa == keySet) text = "config.replace(\"" + text + "\", newValue)";
     clipboard->setText(text);
 }
 
