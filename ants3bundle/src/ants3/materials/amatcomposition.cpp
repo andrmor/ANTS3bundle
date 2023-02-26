@@ -616,6 +616,23 @@ bool AMatComposition::fetchElement(const QString & elementSymbol, AElementRecord
     return false;
 }
 
+bool AMatComposition::checkIsotope(const QString & isotopeSymbol, const int & isotopeN)
+{
+    TGeoElement * geoElement = TGeoElement::GetElementTable()->FindElement(isotopeSymbol.toLatin1().data());
+    if (!geoElement)
+    {
+        ErrorString = "Unknown element in custom element record: " + isotopeSymbol;
+        return false;
+    }
+    int elementZ = geoElement->Z();
+    if (isotopeN < elementZ)
+    {
+        ErrorString = "Isotope cannot have number of nuclons less than the charge: " + isotopeSymbol;
+        return false;
+    }
+    return true;
+}
+
 bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord & elm)
 {
     // 10B:95+11B:5
@@ -677,20 +694,14 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
                     return false;
                 }
 
-                if (elementSymbol.isEmpty())
-                {
-                    elementSymbol = isotopeSymbol;
-                    if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
-                    {
-                        ErrorString = "Unknown element in custom element record: " + elementSymbol;
-                        return false;
-                    }
-                }
+                if (elementSymbol.isEmpty()) elementSymbol = isotopeSymbol;
                 else if (isotopeSymbol != elementSymbol)
                 {
                     ErrorString = "All isotopes of a custom element should have the same symbol";
                     return false;
                 }
+                ok = checkIsotope(elementSymbol, isotopeN);
+                if (!ok) return false;
 
                 State = StateFraction;
                 if (ch == ':') continue;
@@ -713,11 +724,8 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
             {
                 // for a single isotope allow skipping the fraction info
                 elementSymbol = isotopeSymbol;
-                if (!TGeoElement::GetElementTable()->FindElement(elementSymbol.toLatin1().data()))
-                {
-                    ErrorString = "Unknown element in custom element record: " + elementSymbol;
-                    return false;
-                }
+                ok = checkIsotope(elementSymbol, isotopeN);
+                if (!ok) return false;
                 strFraction = "1.0";
             }
             else
@@ -751,7 +759,6 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
         return false;
     }
     elm.A = sumA / sumFr;
-    qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << elm.A;
 
     return true;
 }

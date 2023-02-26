@@ -58,6 +58,7 @@ public:
     static QString geoMatToCompositionString(TGeoMaterial * mat);
 
 protected:
+    void clear();
     bool parse(const QString & string);
     bool checkForbiddenChars();
     bool parseCustomElements();
@@ -70,6 +71,7 @@ protected:
     bool splitByBracketLevel(QString & string);
     bool mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     bool fetchElement(const QString & elementSymbol, AElementRecord & elm);
+    bool checkIsotope(const QString & isotopeSymbol, const int & isotopeN);
 
     QString CompositionString;
     std::map<AElementRecord, double> ElementMap_AtomNumberFractions;
@@ -80,9 +82,6 @@ protected:
     std::vector<AElementRecord> CustomElements;
     std::vector<std::pair<QString,AMatMixRecord>> MixtureByLevels;
 
-    const size_t ColumnWidth = 15;
-
-    void clear();
 };
 
 #endif // AMATCOMPOSITION_H
