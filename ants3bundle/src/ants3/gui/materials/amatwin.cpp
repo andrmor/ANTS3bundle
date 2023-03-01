@@ -1168,7 +1168,9 @@ void AMatWin::on_pbHelpComposition_clicked()
 
 void AMatWin::on_leComposition_editingFinished()
 {
-    setWasModified(true); // see if it changed  !!!***
+    if (ui->leComposition->text() == tmpMaterial.Composition.getCompositionString()) return;
+
+    setWasModified(true);
 
     bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
     if (!ok)

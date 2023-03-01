@@ -42,6 +42,7 @@ void AMatComposition::makeItVacuum()
     AElementRecord r; r.Symbol = "H"; r.A = 1.00784;
     ElementMap_AtomNumberFractions[r] = 1.0;
     ElementMap_MassFractions[r] = 1.0;
+    CompositionString = "H";
 }
 
 bool AMatComposition::parse(const QString & string)
@@ -107,7 +108,8 @@ QString AMatComposition::printComposition() const
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
         const AElementRecord & ele = kv.first;
-        const QString & Symbol = ele.Symbol;
+        QString symbol = ele.Symbol;
+        symbol.resize(2); if (symbol[1] == '_') symbol.chop(1);
         double  atFraction = kv.second / totAtFraction;
         double  maFraction = ElementMap_MassFractions.at(ele);
 
@@ -120,13 +122,13 @@ QString AMatComposition::printComposition() const
             {
                 const int    & isoN        = pair.first;
                 const double & isoFraction = pair.second;
-                QString name = QString::number(isoN) + Symbol;
+                QString name = QString::number(isoN) + symbol;
                 isoStr += name + ":" + QString::number(isoFraction) + "+";
             }
             isoStr.chop(1);
         }
 
-        str += Symbol + '\t' + QString::number(atFraction) + '\t' + QString::number(maFraction) + '\t' + isoStr + '\n';
+        str += symbol + '\t' + QString::number(atFraction) + '\t' + QString::number(maFraction) + '\t' + isoStr + '\n';
     }
     return str;
 }
@@ -760,7 +762,44 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
     }
     elm.A = sumA / sumFr;
 
+    updateCustomElementSymbol(elm);
+
     return true;
+}
+
+void AMatComposition::updateCustomElementSymbol(AElementRecord & elm)
+{
+    // if there is identical, use the same symbol
+    for (const AElementRecord & def : CustomElements)
+    {
+        if (elm.isIdentical(def))
+        {
+            elm.Symbol = def.Symbol;
+            return;
+        }
+    }
+
+    // symbol should be unique
+    QString base = elm.Symbol + "_Custom";
+    elm.Symbol = base;
+    int index = 0;
+    while (true)
+    {
+        bool bUnique = true;
+        for (const AElementRecord & def : CustomElements)
+        {
+            if (def.Symbol == elm.Symbol)
+            {
+                bUnique = false;
+                break;
+            }
+        }
+
+        if (bUnique) return;
+
+        index++;
+        elm.Symbol = base + QString::number(index);
+    }
 }
 
 bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
@@ -915,7 +954,9 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
 
 TGeoElement * AElementRecord::constructGeoElement() const
 {
-    TString tBaseName = Symbol.toLatin1().data();
+    QString name = Symbol;
+    name.resize(2); if (name[1] == '_') name.chop(1);
+    TString tBaseName = name.toLatin1().data();
     TGeoElement * elm = TGeoElement::GetElementTable()->FindElement(tBaseName);
     // !!!*** error control
 
@@ -937,4 +978,11 @@ TGeoElement * AElementRecord::constructGeoElement() const
         elm->AddIsotope(iso, isoFraction);
     }
     return elm;
+}
+
+bool AElementRecord::isIdentical(const AElementRecord & other) const
+{
+    if (A != other.A) return false;
+    if (Isotopes != other.Isotopes) return false;
+    return true;
 }

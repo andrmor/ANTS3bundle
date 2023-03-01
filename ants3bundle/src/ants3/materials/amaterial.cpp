@@ -233,8 +233,9 @@ void AMaterial::updateRuntimeProperties()
 void AMaterial::clear()
 {
     Name = "Undefined";
+    Density = 1e-24;
     RefIndex = 1.0;
-    Density = AbsCoeff = RayleighMFP = ReemissionProb = 0;
+    AbsCoeff = RayleighMFP = ReemissionProb = 0;
     Temperature = 298.0;
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;

@@ -19,6 +19,7 @@ public:
 
     bool operator<(const AElementRecord & other) const {return (Symbol < other.Symbol);}
     TGeoElement * constructGeoElement() const; // !!!*** error control
+    bool isIdentical(const AElementRecord & other) const;
 };
 
 class AMatMixRecord
@@ -72,6 +73,7 @@ protected:
     bool mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
     bool fetchElement(const QString & elementSymbol, AElementRecord & elm);
     bool checkIsotope(const QString & isotopeSymbol, const int & isotopeN);
+    void updateCustomElementSymbol(AElementRecord &elm);
 
     QString CompositionString;
     std::map<AElementRecord, double> ElementMap_AtomNumberFractions;
