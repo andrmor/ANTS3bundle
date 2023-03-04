@@ -510,10 +510,17 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 QString AMaterial::checkMaterial() const
 {
     if (Name.isEmpty()) return "Empty material name!";
-    if (!Composition.ErrorString.isEmpty())
-        return Name + ": " + Composition.ErrorString;
 
-    if (Density <= 0) return Name + ": Non-positive density";
+    if (UseNistMaterial)
+    {
+        if (NistMaterial.isEmpty()) return Name + ": Geant4 material name is empty";
+    }
+    else
+    {
+        if (!Composition.ErrorString.isEmpty()) return Name + ": " + Composition.ErrorString;
+        if (Density <= 0) return Name + ": Non-positive density";
+    }
+
     if (Temperature <= 0) return Name + ": Non-positive temperature";
 
     return "";

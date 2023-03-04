@@ -183,10 +183,7 @@ void AMatWin::updateWaveButtons()
 
 void AMatWin::updateG4RelatedGui()
 {
-    bool bDisable = ui->cbG4Material->isChecked();
-    std::vector<QWidget*> widgs = {ui->ledDensity, ui->ledT, ui->leComposition};
-    for (QWidget * w : widgs) w->setDisabled(bDisable);
-    //ui->pteCompositionInfo->clear(); // !!!***
+
 }
 
 #include <QCompleter>
@@ -234,8 +231,10 @@ void AMatWin::configureG4Materials()
     //completer->setCompletionMode(QCompleter::PopupCompletion);
     Completer->setFilterMode(Qt::MatchContains);
     //completer->setFilterMode(Qt::MatchStartsWith);
-    Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    Completer->setCaseSensitivity(Qt::CaseSensitive);
+    //Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    Completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    //Completer->setCaseSensitivity(Qt::CaseSensitive);
+    Completer->setCaseSensitivity(Qt::CaseInsensitive);
     Completer->setWrapAround(false);
     ui->leG4Material->setCompleter(Completer);
 }
@@ -278,7 +277,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
     fillElementInfo();
 
-    ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
+    ui->cobCompositionType->setCurrentIndex(tmpMaterial.UseNistMaterial ? 1 : 0);
     ui->leG4Material->setText(tmpMaterial.NistMaterial);
     updateG4RelatedGui();
 
@@ -378,10 +377,12 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
 
+    tmpMaterial.UseNistMaterial = (ui->cobCompositionType->currentIndex() == 1);
     tmpMaterial.Density = ui->ledDensity->text().toDouble();
-    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
     tmpMaterial.NistMaterial = ui->leG4Material->text();
+
     tmpMaterial.Temperature = ui->ledT->text().toDouble();
+
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
     tmpMaterial.ReemissionProb = ui->ledReemissionProbability->text().toDouble();
@@ -406,9 +407,6 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.Tags.clear();
     for (const QString & s : slTags)
         tmpMaterial.Tags.push_back(s.simplified());
-
-    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
-    tmpMaterial.NistMaterial = ui->leG4Material->text();
 }
 
 void AMatWin::setMaterial(int index)
@@ -987,7 +985,7 @@ void AMatWin::on_pbListGeant4Materials_clicked()
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
 }
 
-void AMatWin::on_cbG4Material_toggled(bool)
+void AMatWin::on_cobCompositionType_currentIndexChanged(int /*index*/)
 {
     updateG4RelatedGui();
 }
@@ -1180,4 +1178,3 @@ void AMatWin::on_leComposition_editingFinished()
     }
     updateTmpMaterialGui();
 }
-

@@ -74,7 +74,7 @@ private slots:
     //user or code controlled change - safe or only GUI
     void on_ledRayleigh_textChanged(const QString &arg1);
     void on_pteComments_textChanged();
-    void on_cbG4Material_toggled(bool checked);
+    void on_cobCompositionType_currentIndexChanged(int index);
 
     //menu actions
     void on_actionSave_material_triggered();
@@ -86,6 +86,7 @@ private slots:
     void on_pbHelpComposition_clicked();
 
     void on_leComposition_editingFinished();
+
 
 private:
     AGeometryHub & Geometry;
@@ -114,7 +115,7 @@ private:
     void updateWaveButtons();
     bool parseDecayOrRaiseTime(bool decay_or_raise);
     void updateWarningIcons();   // !!!***
-    void updateG4RelatedGui();   // !!!*** element info!
+    void updateG4RelatedGui();   // !!!*** empty
     void configureG4Materials();
     bool checkCurrentMaterial();
     void fillElementInfo();
