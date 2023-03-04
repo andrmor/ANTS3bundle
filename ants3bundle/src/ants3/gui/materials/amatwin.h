@@ -88,6 +88,8 @@ private slots:
     void on_leComposition_editingFinished();
 
 
+    void on_pbInspectG4Material_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

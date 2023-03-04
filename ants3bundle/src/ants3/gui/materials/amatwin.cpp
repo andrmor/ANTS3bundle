@@ -10,6 +10,7 @@
 #include "acommonfunctions.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
+#include "ageant4inspectormanager.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -1178,3 +1179,24 @@ void AMatWin::on_leComposition_editingFinished()
     }
     updateTmpMaterialGui();
 }
+
+void AMatWin::on_pbInspectG4Material_clicked()
+{
+    //disableInterface(true);
+    qApp->processEvents();
+
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    //ui->pbAbort->setEnabled(true);
+
+    AG4MaterialRecord reply;
+    G4Inspector.inspectMaterial(tmpMaterial.NistMaterial, reply);
+
+    if (!G4Inspector.ErrorString.isEmpty())
+        guitools::message(G4Inspector.ErrorString, this);
+    else
+    {
+        guitools::message(reply.Formula + "\n" + QString::number(reply.Density), this);
+    }
+
+}
+

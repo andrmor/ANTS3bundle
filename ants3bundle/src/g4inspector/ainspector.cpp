@@ -73,5 +73,17 @@ void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & 
         return;
     }
 
-    qDebug() << mat->GetChemicalFormula().data() << mat->GetDensity()/(g/cm3);
+    json["Density"] = mat->GetDensity()/(g/cm3);
+    json["Formula"] = QString(mat->GetChemicalFormula().data());
+
+    int numEl = mat->GetNumberOfElements();
+    const G4double * fractions = mat->GetFractionVector();
+    const G4int * atoms = mat->GetAtomsVector();
+    qDebug() << fractions << atoms;
+    for (int i = 0; i < numEl; i++)
+    {
+        qDebug() << mat->GetElement(i)->GetName().data();
+        if (fractions) qDebug() << "fr:" << fractions[i];
+        if (atoms) qDebug() << "at:" << atoms[i];
+    }
 }

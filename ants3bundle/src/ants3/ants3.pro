@@ -169,6 +169,7 @@ SOURCES += \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
     materials/amatcomposition.cpp \
+    particleSim/ageant4inspectormanager.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -366,6 +367,7 @@ HEADERS += \
     gui/script/atextoutputwindow.h \
     gui/script/escriptlanguage.h \
     materials/amatcomposition.h \
+    particleSim/ageant4inspectormanager.h \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
