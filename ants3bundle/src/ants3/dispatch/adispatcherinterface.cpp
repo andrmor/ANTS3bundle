@@ -94,9 +94,9 @@ QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan
         for (int & num : r.Split)
         {
             double toDo = perCore + lastDelta;
-            num = std::round(toDo);
+            num = std::ceil(toDo);
 
-            if (num == 0) num = 1;
+            if (num <= 0) num = 1;
             if (num > remainingEvents) num = remainingEvents;
 
             lastDelta = toDo - num;
