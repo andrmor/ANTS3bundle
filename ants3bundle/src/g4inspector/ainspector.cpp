@@ -112,4 +112,6 @@ void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & 
         compAt.chop(3);
         json["AtomFractions"] = compAt;
     }
+
+    //qDebug() << "Mean exc en:" << mat->GetIonisation()->GetMeanExcitationEnergy()/eV;
 }
