@@ -1204,7 +1204,8 @@ void AMatWin::on_pbInspectG4Material_clicked()
         reply.Formula.remove('_');
         str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
 
-        guitools::message1(str, "Geant4 material", this);
+        //guitools::message1(str, "Geant4 material", this);
+        guitools::message1notModal(str, "Geant4 material", this);
     }
 }
 
