@@ -62,8 +62,7 @@ void AInspector::processRequest(const QJsonObject & json)
 #include "G4SystemOfUnits.hh"
 void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & json)
 {
-    qDebug() << "...Mat name:" << matName;
-
+    //qDebug() << "...Mat name:" << matName;
     G4NistManager * matManager = G4NistManager::Instance();
 
     G4Material * mat = matManager->FindOrBuildMaterial(matName.toLatin1().data());
@@ -82,22 +81,30 @@ void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & 
     const G4int * atoms = mat->GetAtomsVector();
     QString compFr, compAt;
     bool bHasAtomic = true;
+
+    // cannot say if atomic fractions are real (they can be reported as 1 even if they are not actually configured)
+    double A = 0;
+    for (int i = 0; i < numEl; i++) A += mat->GetElement(i)->GetA() * atoms[i];
+
     for (int i = 0; i < numEl; i++)
     {
         QString elName = QString(mat->GetElement(i)->GetName().data());
         double weightFr = fractions[i];
         compFr += elName + '/' + QString::number(weightFr) + " + ";
+
         if (bHasAtomic)
         {
             int atomFr = atoms[i];
-            if (atomFr == 0)
+            if (atomFr == 0 || weightFr != atomFr * mat->GetElement(i)->GetA() / A)
             {
                 bHasAtomic = false;
                 continue;
             }
             compAt += elName + ':' + QString::number(atomFr) + " + ";
         }
+        //qDebug() << elName << weightFr << atoms[i] << atoms[i] * mat->GetElement(i)->GetA() / A << (weightFr == atoms[i] * mat->GetElement(i)->GetA() / A);
     }
+
     compFr.chop(3);
     json["WeightFractions"] = compFr;
     if (bHasAtomic)
