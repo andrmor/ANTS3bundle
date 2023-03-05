@@ -942,13 +942,17 @@ void AMatComposition::writeToJson(QJsonObject & json) const
 
 bool AMatComposition::readFromJson(const QJsonObject & json)
 {
+#ifdef NEED_MAT_COMPOSITION
+#else
+
     // error control !!!***
     clear();
     QString str;
     bool ok = jstools::parseJson(json, "MaterialComposition", str);
     if (ok) setCompositionString(str);
-    else makeItVacuum();
-
+    else
+#endif
+        makeItVacuum();
     return true;
 }
 
