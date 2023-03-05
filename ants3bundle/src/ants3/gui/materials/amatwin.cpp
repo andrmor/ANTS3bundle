@@ -1195,8 +1195,16 @@ void AMatWin::on_pbInspectG4Material_clicked()
         guitools::message(G4Inspector.ErrorString, this);
     else
     {
-        guitools::message(reply.Formula + "\n" + QString::number(reply.Density), this);
-    }
+        QString str;
+        str += "Name:\t\t"    + reply.Name + "\n\n";
+        str += "Density:\t\t" + QString::number(reply.Density) + " g/cm3" + "\n\n";
+        str += "Composition\n";
+        str += " by weight:\t\t" + reply.WeightFractions + '\n';
+        str += " by atoms:\t\t" + (reply.AtomFractions.isEmpty() ? "Not specified" : reply.AtomFractions) + "\n\n";
+        reply.Formula.remove('_');
+        str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
 
+        guitools::message1(str, "Geant4 material", this);
+    }
 }
 

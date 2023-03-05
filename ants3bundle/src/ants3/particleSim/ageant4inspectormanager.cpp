@@ -71,9 +71,11 @@ bool AGeant4InspectorManager::inspectMaterial(const QString & matName, AG4Materi
             QJsonObject js;
             jstools::parseJson(json, "Response", js);
 
-            jstools::parseJson(js, "Density", reply.Density);
-            jstools::parseJson(js, "Formula", reply.Formula);
-
+            jstools::parseJson(js, "Name",            reply.Name);
+            jstools::parseJson(js, "Density",         reply.Density);
+            jstools::parseJson(js, "Formula",         reply.Formula);
+            jstools::parseJson(js, "WeightFractions", reply.WeightFractions);
+            jstools::parseJson(js, "AtomFractions",   reply.AtomFractions);
         }
     }
 

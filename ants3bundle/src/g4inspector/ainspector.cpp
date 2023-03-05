@@ -73,17 +73,36 @@ void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & 
         return;
     }
 
+    json["Name"]    = QString(mat->GetName().data());
     json["Density"] = mat->GetDensity()/(g/cm3);
     json["Formula"] = QString(mat->GetChemicalFormula().data());
 
     int numEl = mat->GetNumberOfElements();
     const G4double * fractions = mat->GetFractionVector();
     const G4int * atoms = mat->GetAtomsVector();
-    qDebug() << fractions << atoms;
+    QString compFr, compAt;
+    bool bHasAtomic = true;
     for (int i = 0; i < numEl; i++)
     {
-        qDebug() << mat->GetElement(i)->GetName().data();
-        if (fractions) qDebug() << "fr:" << fractions[i];
-        if (atoms) qDebug() << "at:" << atoms[i];
+        QString elName = QString(mat->GetElement(i)->GetName().data());
+        double weightFr = fractions[i];
+        compFr += elName + '/' + QString::number(weightFr) + " + ";
+        if (bHasAtomic)
+        {
+            int atomFr = atoms[i];
+            if (atomFr == 0)
+            {
+                bHasAtomic = false;
+                continue;
+            }
+            compAt += elName + ':' + QString::number(atomFr) + " + ";
+        }
+    }
+    compFr.chop(3);
+    json["WeightFractions"] = compFr;
+    if (bHasAtomic)
+    {
+        compAt.chop(3);
+        json["AtomFractions"] = compAt;
     }
 }

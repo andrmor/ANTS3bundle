@@ -14,8 +14,11 @@ class A3WorkDistrConfig;
 class AG4MaterialRecord
 {
 public:
+    QString Name;
     double  Density = 0;
     QString Formula;
+    QString WeightFractions;
+    QString AtomFractions;
 };
 
 class AGeant4InspectorManager : public QObject
