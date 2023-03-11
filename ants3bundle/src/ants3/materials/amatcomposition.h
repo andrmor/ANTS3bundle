@@ -18,7 +18,7 @@ public:
     double A;
 
     bool operator<(const AElementRecord & other) const {return (Symbol < other.Symbol);}
-    TGeoElement * constructGeoElement() const; // !!!*** error control
+    TGeoElement * constructGeoElement() const;
     bool isIdentical(const AElementRecord & other) const;
 };
 

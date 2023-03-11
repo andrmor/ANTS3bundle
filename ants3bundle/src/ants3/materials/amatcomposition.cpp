@@ -960,7 +960,6 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
     makeItVacuum();
     return true;
 #else
-    // error control !!!***
     clearParsing();
     QJsonObject js;
     bool ok;
@@ -970,7 +969,11 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
         QString str;
         ok = jstools::parseJson(js, "CompositionString", str);
         if (ok) setCompositionString(str);
-        else makeItVacuum();
+        else
+        {
+            ErrorString = "CompositionString not found, assigning composition of vacuum";
+            makeItVacuum();
+        }
     return ok;
 #endif
 }
@@ -981,7 +984,11 @@ TGeoElement * AElementRecord::constructGeoElement() const
     name.resize(2); if (name[1] == '_') name.chop(1);
     TString tBaseName = name.toLatin1().data();
     TGeoElement * elm = TGeoElement::GetElementTable()->FindElement(tBaseName);
-    // !!!*** error control
+    if (!elm)
+    {
+        qCritical() << "Unexpected problem: not valid element symbol:" << QString(tBaseName.Data());
+        exit(1234);
+    }
 
     if (Isotopes.empty()) return elm; // natural
     //else custom element using isotope records
