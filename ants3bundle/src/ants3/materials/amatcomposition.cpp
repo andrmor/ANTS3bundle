@@ -148,13 +148,19 @@ TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name)
     return mix;
 }
 
+#include <QRegularExpression>
 bool AMatComposition::checkForbiddenChars()
 {
+    QRegularExpression cha("[A-Za-z]");
+
+
     for (int i = 0; i < ParseString.size(); i++)
     {
         const QChar ch = ParseString[i];
-        //qDebug() << "----------------->" << ch << ch.isLetterOrNumber();
-        if (ch.isLetterOrNumber()) continue;
+        //qDebug() << "----------------->" << ch << ch.isLetterOrNumber() << ch.isLetter() << cha.match(ch).hasMatch();
+        //if (ch.isLetterOrNumber()) continue; // problems with some Portuguese characters - they get through
+        if (cha.match(ch).hasMatch()) continue;
+        if (ch.isNumber()) continue;
         if (ch == '.') continue;
         if (ch == ' ' || ch == '+') continue;
         if (ch == ':' || ch == '/') continue;
