@@ -1161,7 +1161,17 @@ void AMatWin::on_pbDeleteComplexN_clicked()
 
 void AMatWin::on_pbHelpComposition_clicked()
 {
+    QString s = "Composition string examples\n\n"
+            "C5O2H8\n"
+            "C0.5O0.2H0.8     <- possible to use real numbers in formulas\n"
+            "H2O:6 + C2H5OH:3.99     <- mixture using molecular(atomic) fractions\n"
+            "H2O/6 + C2H5OH/3.99     <- mixture using weight fractions\n"
+            "{10B:97.0+11B:3.0}4C     <- custom isotope composition\n"
+            "H2O/10.6 + (NaCl:1 + KCl:2.5)/1.4     <- possible to use an arbitrary number and level of brackets\n"
+            " It is possible to transform from molecular fractions to weight but not the opposite!\n"
+            "";
 
+    guitools::message1notModal(s, "Composition string", this);
 }
 
 void AMatWin::on_leComposition_editingFinished()
