@@ -30,7 +30,7 @@ INCLUDEPATH += ../ants3/particleSim # see comments below, needed only for calori
 
 DEFINES += QT
 
-DEFINES += NEED_MAT_COMPOSITION
+DEFINES += NOT_NEED_MAT_COMPOSITION
 
 SOURCES += \
         ../ants3/geo/acalorimeter.cpp \   # not needed for functionality, can be removed using a new DEFINE

@@ -160,8 +160,8 @@ QString ACore_SI::testComposition(QString comp)
         return "";
     }
 
-    TGeoMaterial * mat = mc.constructGeoMaterial("MatNameTest",1.1, 321.0);
-    qDebug() << "\nGeoMat to composition string:\n" << AMatComposition::geoMatToCompositionString(mat);
+    //TGeoMaterial * mat = mc.constructGeoMaterial("MatNameTest",1.1, 321.0);
+    //qDebug() << "\nGeoMat to composition string:\n" << AMatComposition::geoMatToCompositionString(mat);
 
     return mc.printComposition();
 }

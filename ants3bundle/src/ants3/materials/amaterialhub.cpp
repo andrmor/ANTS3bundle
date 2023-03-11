@@ -96,8 +96,8 @@ std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFrom
 {
     std::vector<std::pair<std::string, std::string>> v;
     for (const AMaterial * m : Materials)
-        if (m->UseNistMaterial)
-            v.push_back( {m->Name.toLatin1().data(), m->NistMaterial.toLatin1().data()} );
+        if (m->UseG4Material)
+            v.push_back( {m->Name.toLatin1().data(), m->G4MaterialName.toLatin1().data()} );
     return v;
 }
 
@@ -254,8 +254,6 @@ void AMaterialHub::importMaterials(TList * matList)
         AMaterial & amat = *Materials.back();
 
         amat.Name = tmat->GetName();
-        amat.Density = tmat->GetDensity();
-        amat.Temperature = tmat->GetTemperature();
         amat.importComposition(tmat);
     }
 
@@ -360,7 +358,7 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         const AMaterial * mat = Materials[iM];
 
-        if (mat->UseNistMaterial && mat->NistMaterial.isEmpty())
+        if (mat->UseG4Material && mat->G4MaterialName.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
 
         // !!!*** check material here, which shoul cinclude check of composition

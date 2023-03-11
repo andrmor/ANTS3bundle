@@ -23,10 +23,8 @@ public:
 
     // composition
     AMatComposition      Composition;
-    double               Density = 1e-25;                 // in g/cm3  // !!!*** move to composition?
-    bool                 UseNistMaterial = false;
-    QString              NistMaterial;
-    double               Temperature = 298.0;     // in K
+    bool                 UseG4Material = false;
+    QString              G4MaterialName;
 
     // optics
     bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
@@ -87,7 +85,7 @@ public:
 
     QString checkMaterial() const; // !!!***
 
-    void    importComposition(TGeoMaterial * mat); // !!!***
+    void    importComposition(TGeoMaterial * mat); //   // !!!*** error handling
 
   // --- run-time properties ---
     TGeoMaterial  * _GeoMat = nullptr;

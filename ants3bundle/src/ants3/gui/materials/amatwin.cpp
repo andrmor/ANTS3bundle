@@ -272,14 +272,14 @@ void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.Name);
 
-    ui->ledDensity->setText( QString::number(tmpMaterial.Density) );
-    ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
+    ui->ledDensity->setText( QString::number(tmpMaterial.Composition.Density) );
+    ui->ledT->setText( QString::number(tmpMaterial.Composition.Temperature) );
 
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
     fillElementInfo();
 
-    ui->cobCompositionType->setCurrentIndex(tmpMaterial.UseNistMaterial ? 1 : 0);
-    ui->leG4Material->setText(tmpMaterial.NistMaterial);
+    ui->cobCompositionType->setCurrentIndex(tmpMaterial.UseG4Material ? 1 : 0);
+    ui->leG4Material->setText(tmpMaterial.G4MaterialName);
     updateG4RelatedGui();
 
     ui->ledN->setText( QString::number(tmpMaterial.RefIndex) );
@@ -378,11 +378,11 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
 
-    tmpMaterial.UseNistMaterial = (ui->cobCompositionType->currentIndex() == 1);
-    tmpMaterial.Density = ui->ledDensity->text().toDouble();
-    tmpMaterial.NistMaterial = ui->leG4Material->text();
+    tmpMaterial.UseG4Material = (ui->cobCompositionType->currentIndex() == 1);
+    tmpMaterial.G4MaterialName = ui->leG4Material->text();
 
-    tmpMaterial.Temperature = ui->ledT->text().toDouble();
+    tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
+    tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
 
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
@@ -1189,7 +1189,7 @@ void AMatWin::on_pbInspectG4Material_clicked()
     //ui->pbAbort->setEnabled(true);
 
     AG4MaterialRecord reply;
-    G4Inspector.inspectMaterial(tmpMaterial.NistMaterial, reply);
+    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, reply);
 
     if (!G4Inspector.ErrorString.isEmpty())
         guitools::message(G4Inspector.ErrorString, this);

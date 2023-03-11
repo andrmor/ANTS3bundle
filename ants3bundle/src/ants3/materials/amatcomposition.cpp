@@ -6,7 +6,7 @@
 #include "TGeoMaterial.h"
 #include "TGeoElement.h"
 
-void AMatComposition::clear()
+void AMatComposition::clearParsing()
 {
     ErrorString.clear();
 
@@ -24,8 +24,6 @@ AMatComposition::AMatComposition()
 
 bool AMatComposition::setCompositionString(const QString & composition)
 {
-    clear();
-
     bool ok = parse(composition);
     if (!ok)
     {
@@ -38,16 +36,19 @@ bool AMatComposition::setCompositionString(const QString & composition)
 
 void AMatComposition::makeItVacuum()
 {
-    clear();
+    clearParsing();
+
     AElementRecord r; r.Symbol = "H"; r.A = 1.00784;
     ElementMap_AtomNumberFractions[r] = 1.0;
     ElementMap_MassFractions[r] = 1.0;
     CompositionString = "H";
+    Density = 1e-24;
+    Temperature = 298.0;
 }
 
 bool AMatComposition::parse(const QString & string)
 {
-    clear();
+    clearParsing();
 
     CompositionString = string;
     ParseString = string.simplified();
@@ -133,11 +134,11 @@ QString AMatComposition::printComposition() const
     return str;
 }
 
-TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, double density, double temperature)
+TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name)
 {
     TString tName = name.toLatin1().data();
 
-    TGeoMixture * mix = new TGeoMixture(tName, ElementMap_MassFractions.size(), density);
+    TGeoMixture * mix = new TGeoMixture(tName, ElementMap_MassFractions.size(), Density);
     for (const auto & pair : ElementMap_MassFractions)
     {
         const AElementRecord & element      = pair.first;
@@ -145,7 +146,7 @@ TGeoMaterial * AMatComposition::constructGeoMaterial(const QString & name, doubl
         TGeoElement * geoElm = element.constructGeoElement();
         mix->AddElement(geoElm, weightFactor);
     }
-    mix->SetTemperature(temperature);
+    mix->SetTemperature(Temperature);
     return mix;
 }
 
@@ -891,9 +892,12 @@ void AMatMixRecord::computeA()
     }
 }
 
-QString AMatComposition::geoMatToCompositionString(TGeoMaterial * mat)
+bool AMatComposition::importComposition(TGeoMaterial * mat)
 {
-    //for (int i = 0; i < 20; i++) qDebug() << i << " -- " << TGeoElement::GetElementTable()->GetElement(i)->GetName();
+    clearParsing();
+
+    Density     = mat->GetDensity();
+    Temperature = mat->GetTemperature();
 
     QString compoString;
 
@@ -932,28 +936,39 @@ QString AMatComposition::geoMatToCompositionString(TGeoMaterial * mat)
     }
 
     if (compoString.endsWith(" + ")) compoString.chop(3);
-    return compoString;
+
+    return setCompositionString(compoString);
 }
 
 void AMatComposition::writeToJson(QJsonObject & json) const
 {
-    json["MaterialComposition"] = CompositionString;
+    QJsonObject js;
+        js["CompositionString"] = CompositionString;
+        js["Density"]           = Density;
+        js["Temperature"]       = Temperature;
+    json["CustomComposition"] = js;
 }
 
 bool AMatComposition::readFromJson(const QJsonObject & json)
 {
-#ifdef NEED_MAT_COMPOSITION
-#else
-
-    // error control !!!***
-    clear();
-    QString str;
-    bool ok = jstools::parseJson(json, "MaterialComposition", str);
-    if (ok) setCompositionString(str);
-    else
-#endif
-        makeItVacuum();
+#ifdef NOT_NEED_MAT_COMPOSITION
+    // this is lsim
+    makeItVacuum();
     return true;
+#else
+    // error control !!!***
+    clearParsing();
+    QJsonObject js;
+    bool ok;
+    jstools::parseJson(json, "CustomComposition", js);
+        jstools::parseJson(js, "Density", Density);
+        jstools::parseJson(js, "Temperature", Temperature);
+        QString str;
+        ok = jstools::parseJson(js, "CompositionString", str);
+        if (ok) setCompositionString(str);
+        else makeItVacuum();
+    return ok;
+#endif
 }
 
 TGeoElement * AElementRecord::constructGeoElement() const

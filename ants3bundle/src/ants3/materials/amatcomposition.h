@@ -43,7 +43,8 @@ class AMatComposition
 public:
     AMatComposition();
 
-    QString ErrorString;
+    double Density     = 1e-25;     // g/cm3
+    double Temperature = 298.0;     // K
 
     bool setCompositionString(const QString & composition);
     void makeItVacuum();
@@ -51,15 +52,17 @@ public:
     QString getCompositionString() const {return CompositionString;}
     QString printComposition() const;
 
-    TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
+    TGeoMaterial * constructGeoMaterial(const QString & name);
 
     void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json); // !!!*** error control
 
-    static QString geoMatToCompositionString(TGeoMaterial * mat);
+    bool importComposition(TGeoMaterial * mat);
+
+    QString ErrorString;
 
 protected:
-    void clear();
+    void clearParsing();
     bool parse(const QString & string);
     bool checkForbiddenChars();
     bool parseCustomElements();
