@@ -183,10 +183,8 @@ void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
 
     //do not copy dynamic properties!
     QJsonObject js;
-    qDebug() << "cccccccccccccccccccccccccccccc" << tmpMaterial.Composition.getCompositionString();
     tmpMaterial.writeToJson(js);
     Materials[index]->readFromJson(js);
-    qDebug() << "dddddddddddddddddddddddddddddddd" << Materials[index]->Composition.getCompositionString();
 
     AGeometryHub::getInstance().populateGeoManager();
 

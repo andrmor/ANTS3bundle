@@ -190,7 +190,7 @@
           <widget class="QLineEdit" name="leName">
            <property name="font">
             <font>
-             <bold>true</bold>
+             <bold>false</bold>
             </font>
            </property>
            <property name="toolTip">
@@ -2720,8 +2720,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>476</x>
-     <y>310</y>
+     <x>127</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -2849,7 +2849,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>360</x>
-     <y>530</y>
+     <y>339</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2993,7 +2993,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>360</x>
-     <y>530</y>
+     <y>339</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3216,8 +3216,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>418</x>
@@ -3248,8 +3248,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3280,8 +3280,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>476</x>
-     <y>310</y>
+     <x>127</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>

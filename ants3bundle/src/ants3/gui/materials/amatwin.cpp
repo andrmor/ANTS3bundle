@@ -1065,7 +1065,6 @@ void AMatWin::on_pbAcceptChanges_clicked()
     const QString newName = ui->leName->text();
     const int iMat = ui->cobActiveMaterials->currentIndex();       // -1    if material was just loaded
     const QString oldName = ui->cobActiveMaterials->currentText(); // empty if material was just loaded
-qDebug() << "<<<<<<<aaaaaaaaaaaaaaaaaaaa>>>>>>>>>>>>>>" << tmpMaterial.Composition.getCompositionString();
 
     if (newName != oldName)
     {
@@ -1167,17 +1166,13 @@ void AMatWin::on_pbHelpComposition_clicked()
 
 void AMatWin::on_leComposition_editingFinished()
 {
-    if (ui->leComposition->text() == tmpMaterial.Composition.getCompositionString()) return;
+    if (ui->leComposition->text().simplified() == tmpMaterial.Composition.getCompositionString()) return;
 
     setWasModified(true);
 
     bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
-    if (!ok)
-    {
-        guitools::message(tmpMaterial.Composition.ErrorString, this);
-        return;
-    }
-    updateTmpMaterialGui();
+    if (ok) updateTmpMaterialGui();
+    else guitools::message(tmpMaterial.Composition.ErrorString, this);
 }
 
 void AMatWin::on_pbInspectG4Material_clicked()

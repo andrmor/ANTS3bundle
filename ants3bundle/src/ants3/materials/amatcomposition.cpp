@@ -52,7 +52,7 @@ bool AMatComposition::parse(const QString & string)
 
     CompositionString = string;
     ParseString = string.simplified();
-    qDebug() << "\n->Composition to parse:" << ParseString;
+    //qDebug() << "\n->Composition to parse:" << ParseString;
 
     bool ok = checkForbiddenChars();
     if (!ok) return false;
@@ -60,21 +60,20 @@ bool AMatComposition::parse(const QString & string)
     ok = parseCustomElements(); // elements with custom isotope composition
     if (!ok) return false;
 
-    qDebug() << "->After custom element parsing, the string is:" << ParseString << "\n";
+    //qDebug() << "->After custom element parsing, the string is:" << ParseString << "\n";
 
     // pre-parsing brackets to expression levels
     MixtureByLevels.push_back({ParseString, AMatMixRecord()});
     ok = parseBracketedLevels();
     if (!ok) return false;
 
-    qDebug() << "\n->MixtureByLevels have the following records:";
-    for (const auto & p : MixtureByLevels) qDebug() << "      " << p.first;
-    qDebug() << "----\n";
+    //qDebug() << "\n->MixtureByLevels have the following records:";
+    //for (const auto & p : MixtureByLevels) qDebug() << "      " << p.first;
 
     ok = parseMixtures();
     if (!ok) return false;
 
-    qDebug() << "<=== parse finished ===>";
+    //qDebug() << "<=== parse finished ===>";
 
     ElementMap_AtomNumberFractions = MixtureByLevels.front().second.ElementMap;
     MixtureByLevels.front().second.computeA();
@@ -83,7 +82,6 @@ bool AMatComposition::parse(const QString & string)
     ElementMap_MassFractions.clear();
     for (const auto & pair : ElementMap_AtomNumberFractions)
     {
-        //TGeoElement * element = pair.first;
         const AElementRecord & element       = pair.first;
         const double         & molarFraction = pair.second;
         const double massFraction = molarFraction * element.A / combinedA;
@@ -170,7 +168,7 @@ bool AMatComposition::checkForbiddenChars()
 
 bool AMatComposition::parseCustomElements()
 {
-    qDebug() << "->Searching for custom element records containing isotope composition";
+    //qDebug() << "->Searching for custom element records containing isotope composition";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -203,9 +201,9 @@ bool AMatComposition::parseCustomElements()
 
             const int selectionSize = pos - start + 1;
             QString rec = ParseString.mid(start, selectionSize);
-            qDebug() << "  Found custom element record:" << rec;
+            //qDebug() << "  Found custom element record:" << rec;
             const QString replaceWith = QString("#i%0&").arg(CustomElements.size());
-            qDebug() << "  Replacing with:" << replaceWith;
+            //qDebug() << "  Replacing with:" << replaceWith;
             ParseString.replace(start, selectionSize, replaceWith);
 
             rec.remove(0, 1); rec.chop(1); // killing { and }
@@ -214,7 +212,7 @@ bool AMatComposition::parseCustomElements()
             if (!ok) return false;
             CustomElements.push_back(elm);
 
-            qDebug() << "    Continue to look for custom elements in string:" << ParseString;
+            //qDebug() << "    Continue to look for custom elements in string:" << ParseString;
             pos = pos - selectionSize + replaceWith.length() + 1;
             continue;
         }
@@ -289,7 +287,7 @@ bool AMatComposition::parseMixtures()
 
 bool AMatComposition::splitByBracketLevel(QString & string)
 {
-    qDebug() << "-->Checking for bracketed sub-records";
+    //qDebug() << "-->Checking for bracketed sub-records";
     int start = 0;
     int pos = 0;
     bool bReadingRecord = false;
@@ -333,11 +331,11 @@ bool AMatComposition::splitByBracketLevel(QString & string)
 
             const int selectionSize = pos - start + 1;
             QString rec = string.mid(start, selectionSize);
-            qDebug() << "    Found bracketed record:" << rec;
+            //qDebug() << "    Found bracketed record:" << rec;
             const QString replaceWith = QString("#b%0&").arg(MixtureByLevels.size());
-            qDebug() << "     =>Replacing with:" << replaceWith;
+            //qDebug() << "     =>Replacing with:" << replaceWith;
             string.replace(start, selectionSize, replaceWith);
-            qDebug() << "    Continue with the string:" << string;
+            //qDebug() << "    Continue with the string:" << string;
 
             rec.remove(0, 1); rec.chop(1);
             MixtureByLevels.push_back( {rec, AMatMixRecord()} );
@@ -355,7 +353,7 @@ bool AMatComposition::splitByBracketLevel(QString & string)
         return false;
     }
 
-    qDebug() << "    =>Returning string:" << string;
+    //qDebug() << "    =>Returning string:" << string;
     return true;
 }
 
@@ -371,13 +369,12 @@ bool AMatComposition::prepareMixRecords(const QString & expression, std::vector<
     }
 
     str.replace(' ', '+');
-    qDebug() << "Processing mixture record:" << str;
+    //qDebug() << "Processing mixture record:" << str;
 
     const QStringList list = str.split('+', Qt::SkipEmptyParts ); //split to fields of formula:fraction
     for (const QString & str : list)
     {
-        qDebug() << str;
-
+        //qDebug() << str;
         bool haveMolar = str.contains(':');
         bool haveMass  = str.contains('/');
         if (haveMolar && haveMass)
@@ -461,7 +458,7 @@ bool AMatComposition::parseMolecule(AMatMixRecord & r)
     // Formula can contain custom isotopes! e.g. #i0&4C or Li#i2&2
     // Formula can be already processed sub-mixture, e.g. #b1&
 
-    qDebug() << " ->Parsing molecule||sub-mixture:" << r.Formula << " with" << (r.FractionType == AMatMixRecord::Molar ? "molar" : "mass") << "fraction:" << r.Fraction;
+    //qDebug() << " ->Parsing molecule||sub-mixture:" << r.Formula << " with" << (r.FractionType == AMatMixRecord::Molar ? "molar" : "mass") << "fraction:" << r.Fraction;
     QString formula = r.Formula.simplified() + ":"; //":" is end signal
 
     if (formula.startsWith("#b"))
@@ -640,7 +637,7 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
 {
     // 10B:95+11B:5
     QString fullStr = strRec.simplified().replace(' ', '+');
-    qDebug() << "    Processing custom element record:" << fullStr;
+    //qDebug() << "    Processing custom element record:" << fullStr;
 
     QString elementSymbol; // !!!*** need? use directly elm.Symbol
     elm.Isotopes.clear();
@@ -654,7 +651,7 @@ bool AMatComposition::makeCustomElement(const QString & strRec, AElementRecord &
 
     for (const QString & str : list)
     {
-        qDebug() << "      Isotope record:" << str;
+        //qDebug() << "      Isotope record:" << str;
         if (!str.front().isDigit() || str.size() < 2)
         {
             ErrorString = "Custom element record should contain at least one isotope (e.g. 10B)";
@@ -901,7 +898,7 @@ bool AMatComposition::importComposition(TGeoMaterial * mat)
 
     QString compoString;
 
-    qDebug() << mat->GetName() << mat->IsMixture(); // !!!*** generalize to mixture
+    //qDebug() << mat->GetName() << mat->IsMixture(); // !!!*** generalize to mixture
     const int numElements = mat->GetNelements();
     double A, Z, W;
 
