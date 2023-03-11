@@ -107,13 +107,14 @@ QString AMatComposition::printComposition() const
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
         const AElementRecord & ele = kv.first;
-        QString symbol = ele.Symbol;
-        symbol.resize(2); if (symbol[1] == '_') symbol.chop(1);
+        QString baseSymbol = ele.Symbol;
+        baseSymbol.resize(2); if (baseSymbol[1] == '_') baseSymbol.chop(1);
         double  atFraction = kv.second / totAtFraction;
         double  maFraction = ElementMap_MassFractions.at(ele);
 
         QString isoStr;
         const size_t numIso = ele.Isotopes.size();
+        QString modSymbol = baseSymbol;
         if (numIso == 0) isoStr = "natural";
         else
         {
@@ -121,13 +122,14 @@ QString AMatComposition::printComposition() const
             {
                 const int    & isoN        = pair.first;
                 const double & isoFraction = pair.second;
-                QString name = QString::number(isoN) + symbol;
+                QString name = QString::number(isoN) + baseSymbol;
                 isoStr += name + ":" + QString::number(isoFraction) + "+";
             }
             isoStr.chop(1);
+            modSymbol += "*";
         }
 
-        str += symbol + '\t' + QString::number(atFraction) + '\t' + QString::number(maFraction) + '\t' + isoStr + '\n';
+        str += modSymbol + '\t' + QString::number(atFraction) + '\t' + QString::number(maFraction) + '\t' + isoStr + '\n';
     }
     return str;
 }
