@@ -1178,11 +1178,13 @@ void AMatWin::on_leComposition_editingFinished()
 {
     if (ui->leComposition->text().simplified() == tmpMaterial.Composition.getCompositionString()) return;
 
-    setWasModified(true);
-
+    ui->leComposition->blockSignals(true);  // -->
     bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
     if (ok) updateTmpMaterialGui();
     else guitools::message(tmpMaterial.Composition.ErrorString, this);
+    ui->leComposition->blockSignals(false);  // <--
+
+    setWasModified(true);
 }
 
 void AMatWin::on_pbInspectG4Material_clicked()
