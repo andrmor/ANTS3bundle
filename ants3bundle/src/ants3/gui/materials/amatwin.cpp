@@ -1210,8 +1210,10 @@ void AMatWin::on_pbInspectG4Material_clicked()
         str += " by atoms:\t\t" + (reply.AtomFractions.isEmpty() ? "Not specified" : reply.AtomFractions) + "\n\n";
         reply.Formula.remove('_');
         str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
+        str += "\n\n";
+        str += "Temperature:\t" + QString::number(reply.Temperature) + " K\n\n";
+        str += "Mean Excitation Energy:\t" + QString::number(reply.MeanExcitationEnergy) + " eV";
 
-        //guitools::message1(str, "Geant4 material", this);
         guitools::message1notModal(str, "Geant4 material", this);
     }
 }

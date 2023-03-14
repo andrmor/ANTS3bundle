@@ -19,6 +19,8 @@ public:
     QString Formula;
     QString WeightFractions;
     QString AtomFractions;
+    double Temperature;
+    double MeanExcitationEnergy;
 };
 
 class AGeant4InspectorManager : public QObject
