@@ -318,8 +318,22 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 void SessionManager::updateMaterials()
 {
     G4LogicalVolume * worldLV = WorldPV->GetLogicalVolume();
-
     G4NistManager * man = G4NistManager::Instance();
+
+    for (auto & pair : Settings.RunSet.MaterialsMeanExEnergy)
+    {
+        G4String name  = pair.first;
+        double   meanE = pair.second * eV; // eV in the run time settings
+
+        G4Material * mat = man->FindOrBuildMaterial(name);
+        if (!mat)
+        {
+            terminateSession("Material with name " + name + ", listed to updare mean excitation energy, is not found");
+            return;
+        }
+        mat->GetIonisation()->SetMeanExcitationEnergy(meanE);
+    }
+
     for (auto & pair : Settings.RunSet.MaterialsFromNist)
     {
         G4String name   = pair.first;

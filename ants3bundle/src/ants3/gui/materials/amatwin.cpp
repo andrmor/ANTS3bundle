@@ -274,6 +274,9 @@ void AMatWin::updateTmpMaterialGui()
 
     ui->ledDensity->setText( QString::number(tmpMaterial.Composition.Density) );
     ui->ledT->setText( QString::number(tmpMaterial.Composition.Temperature) );
+    ui->cobMeanExcitationEnergy->setCurrentIndex(tmpMaterial.Composition.UseCustomMeanExEnergy ? 1 : 0);
+    ui->frMeanExcitationEnergy->setVisible(tmpMaterial.Composition.UseCustomMeanExEnergy);
+    ui->ledMeanExcitationEnergy->setText( QString::number(tmpMaterial.Composition.MeanExEnergy) );
 
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
     fillElementInfo();
@@ -383,6 +386,8 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 
     tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
     tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
+    tmpMaterial.Composition.UseCustomMeanExEnergy = (ui->cobMeanExcitationEnergy->currentIndex() == 1);
+    tmpMaterial.Composition.MeanExEnergy = ui->ledMeanExcitationEnergy->text().toDouble();
 
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
@@ -1216,5 +1221,10 @@ void AMatWin::on_pbInspectG4Material_clicked()
 
         guitools::message1notModal(str, "Geant4 material", this);
     }
+}
+
+void AMatWin::on_cobMeanExcitationEnergy_currentIndexChanged(int index)
+{
+    ui->frMeanExcitationEnergy->setVisible(index == 1);
 }
 

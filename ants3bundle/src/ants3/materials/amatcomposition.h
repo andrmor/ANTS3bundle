@@ -45,6 +45,8 @@ public:
 
     double Density     = 1e-25;     // g/cm3
     double Temperature = 298.0;     // K
+    bool   UseCustomMeanExEnergy = false;
+    double MeanExEnergy = 0;        // eV
 
     bool setCompositionString(const QString & composition);
     void makeItVacuum();

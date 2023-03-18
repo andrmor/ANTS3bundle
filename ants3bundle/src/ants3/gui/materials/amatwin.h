@@ -90,6 +90,8 @@ private slots:
 
     void on_pbInspectG4Material_clicked();
 
+    void on_cobMeanExcitationEnergy_currentIndexChanged(int index);
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

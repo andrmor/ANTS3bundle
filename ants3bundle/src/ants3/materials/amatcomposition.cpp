@@ -44,6 +44,8 @@ void AMatComposition::makeItVacuum()
     CompositionString = "H";
     Density = 1e-24;
     Temperature = 298.0;
+    UseCustomMeanExEnergy = false;
+    MeanExEnergy = 0;
 }
 
 bool AMatComposition::parse(const QString & string)
@@ -947,9 +949,11 @@ bool AMatComposition::importComposition(TGeoMaterial * mat)
 void AMatComposition::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
-        js["CompositionString"] = CompositionString;
-        js["Density"]           = Density;
-        js["Temperature"]       = Temperature;
+        js["CompositionString"]       = CompositionString;
+        js["Density"]                 = Density;
+        js["Temperature"]             = Temperature;
+        js["UseMeanExcitationEnergy"] = UseCustomMeanExEnergy;
+        js["MeanExcitationEnergy_eV"] = MeanExEnergy;
     json["CustomComposition"] = js;
 }
 
@@ -966,6 +970,9 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "CustomComposition", js);
         jstools::parseJson(js, "Density", Density);
         jstools::parseJson(js, "Temperature", Temperature);
+        jstools::parseJson(js, "UseMeanExcitationEnergy", UseCustomMeanExEnergy);
+        jstools::parseJson(js, "MeanExcitationEnergy_eV", MeanExEnergy);
+
         QString str;
         ok = jstools::parseJson(js, "CompositionString", str);
         if (ok) setCompositionString(str);

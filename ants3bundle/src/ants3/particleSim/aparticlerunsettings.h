@@ -64,7 +64,8 @@ public:
     int         EventTo   = 0;
 
     std::vector<std::string> Materials;
-    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;  // !!!*** G4settings? TODO: show list in the particle GUI
+    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;
+    std::vector<std::pair<std::string, double>> MaterialsMeanExEnergy; // in eV
 
     std::string GDML;
     std::string Receipt;
