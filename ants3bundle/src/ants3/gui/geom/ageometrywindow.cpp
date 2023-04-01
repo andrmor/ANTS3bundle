@@ -293,7 +293,11 @@ void AGeometryWindow::showRecursive(QString objectName)
 void AGeometryWindow::PostDraw()
 {
     TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
-    if (!v) return;
+    if (!v)
+    {
+        qWarning() << "There is no TView3D!";
+        return;
+    }
 
     if (!fRecallWindow) Zoom();
 
@@ -341,9 +345,9 @@ page->runJavaScript("JSROOT.GetMainPainter(\"onlineGUI_drawing\").produceCameraU
 void AGeometryWindow::ShowAndFocus()
 {
     RasterWindow->fCanvas->cd();
-    this->show();
-    this->activateWindow();
-    this->raise();
+    show();
+    activateWindow();
+    raise();
 }
 
 void AGeometryWindow::SetAsActiveRootWindow()

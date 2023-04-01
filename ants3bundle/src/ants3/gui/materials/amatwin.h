@@ -70,11 +70,15 @@ private slots:
     void on_pbShowComplexN_clicked();
     void on_pbLoadComplexN_clicked();
     void on_pbDeleteComplexN_clicked();
+    void on_leComposition_editingFinished();
+    void on_pbHelpComposition_clicked();
+    void on_pbInspectG4Material_clicked();
 
     //user or code controlled change - safe or only GUI
     void on_ledRayleigh_textChanged(const QString &arg1);
     void on_pteComments_textChanged();
     void on_cobCompositionType_currentIndexChanged(int index);
+    void on_cobMeanExcitationEnergy_currentIndexChanged(int index);
 
     //menu actions
     void on_actionSave_material_triggered();
@@ -82,15 +86,6 @@ private slots:
 //    void on_actionLoad_from_material_library_triggered();   !!!***
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
-
-    void on_pbHelpComposition_clicked();
-
-    void on_leComposition_editingFinished();
-
-
-    void on_pbInspectG4Material_clicked();
-
-    void on_cobMeanExcitationEnergy_currentIndexChanged(int index);
 
 private:
     AGeometryHub & Geometry;

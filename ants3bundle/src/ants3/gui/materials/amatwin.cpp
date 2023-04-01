@@ -766,9 +766,7 @@ void AMatWin::on_leName_textChanged(const QString & /*name*/)
 
 void AMatWin::updateActionButtons()
 {
-    //ui->pbAcceptChanges->setEnabled(bMaterialWasModified);
     ui->frAcceptCancel->setEnabled(bMaterialWasModified);
-
     ui->pbAddNew->setEnabled(!bMaterialWasModified);
     ui->pbClone->setEnabled(!bMaterialWasModified);
 }
@@ -858,8 +856,6 @@ void AMatWin::on_actionSave_material_triggered()
     if (fileInfo.suffix().isEmpty()) fileName += ".mat";
 
     QJsonObject json, js;
-    //MpCollection.writeMaterialToJson(imat, json);
-
     tmpMaterial.writeToJson(json);
     js["Material"] = json;
     bool bOK = jstools::saveJsonToFile(js, fileName);
@@ -914,23 +910,6 @@ void flagButton(QPushButton* pb, bool flag)
 
     pb->setStyleSheet(s);
 }
-
-/*
-void AMatWin::on_pbMaterialInfo_clicked()
-{
-    if (ui->leChemicalComposition->text().isEmpty())
-    {
-        guitools::message("Chemical composition is not defined!", this);
-        return;
-    }
-
-    double MAM = tmpMaterial.Composition.getMeanAtomMass();
-    QString str = "Mean atom mass: " + QString::number(MAM, 'g', 4) + " a.u.\n";
-    double AtDens = tmpMaterial.Density / MAM / 1.66054e-24;
-    str += "Atom density: " + QString::number(AtDens, 'g', 4) + " cm-3\n";
-    guitools::message(str, this);
-}
-*/
 
 void AMatWin::on_lePriT_editingFinished()
 {

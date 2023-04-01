@@ -71,7 +71,7 @@ private slots:
     void on_actionQuickLoad_slot_1_triggered();
     void on_actionQuickLoad_slot_2_triggered();
     void on_actionQuickLoad_slot_3_triggered();
-    void on_actionExit_triggered();
+    void on_actionClose_ants3_triggered();
 
     // Buttons
     void on_pbGeometry_clicked();
@@ -82,7 +82,7 @@ private slots:
     void on_pbGraphWin_clicked();
     void on_pbFarm_clicked();
     void on_pbParticleSim_clicked();
-    void on_pbJavaScript_clicked();
+    void on_pbJavaScript_clicked();  // !!!*** need update? note: config json could have changed!
     void on_pbDemo_clicked();
     void on_pbLoadConfig_clicked();
     void on_pbSaveConfig_clicked();
@@ -91,7 +91,7 @@ private slots:
     void on_pbSensors_clicked();
     void rootTimerTimeout();
     void on_pbGlobSet_clicked();
-    void on_pbPython_clicked();
+    void on_pbPython_clicked();  // !!!*** need update? note: config json could have changed!
 
     void on_pbNew_clicked();
 

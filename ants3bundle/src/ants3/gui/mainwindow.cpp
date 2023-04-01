@@ -97,14 +97,14 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestAddToBasket,  GraphWin, &GraphWindowClass::addCurrentToBasket);
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
-    AScriptHub * SH = &AScriptHub::getInstance();
+    AScriptHub * ScriptHub = &AScriptHub::getInstance();
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(SH, &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(SH, &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText);
-    connect(SH, &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml);
-    connect(SH, &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput);
+    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText);
+    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
@@ -113,10 +113,10 @@ MainWindow::MainWindow() :
     qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
-    connect(SH, &AScriptHub::clearOutput_JS,     PythonWin, &AScriptWindow::clearOutput);
-    connect(SH, &AScriptHub::outputText_P,       PythonWin, &AScriptWindow::outputText);
-    connect(SH, &AScriptHub::outputHtml_P,       PythonWin, &AScriptWindow::outputHtml);
-    connect(SH, &AScriptHub::showAbortMessage_P, PythonWin, &AScriptWindow::outputAbortMessage);
+    connect(ScriptHub,  &AScriptHub::clearOutput_P,       PythonWin, &AScriptWindow::clearOutput);
+    connect(ScriptHub,  &AScriptHub::outputText_P,        PythonWin, &AScriptWindow::outputText);
+    connect(ScriptHub,  &AScriptHub::outputHtml_P,        PythonWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::showAbortMessage_P,  PythonWin, &AScriptWindow::outputAbortMessage);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddScript,   PythonWin, &AScriptWindow::onRequestAddScript);
     PythonWin->updateGui();
@@ -154,7 +154,7 @@ MainWindow::MainWindow() :
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
-    SH->finalizeInit();
+    ScriptHub->finalizeInit();
 }
 
 MainWindow::~MainWindow()
@@ -191,78 +191,68 @@ void MainWindow::onRebuildGeometryRequested()
 
 void MainWindow::on_pbGeometry_clicked()
 {
-    GeoTreeWin->showNormal();
-    GeoTreeWin->activateWindow();
-    GeoTreeWin->updateGui();
+    GeoTreeWin->onMainWinButtonClicked();
+    if (GeoTreeWin->isVisible()) GeoTreeWin->updateGui();
 }
 
 void MainWindow::on_pbGeoWin_clicked()
 {
-    GeoWin->showNormal();
-    GeoWin->activateWindow();
-    GeoWin->ShowGeometry();
+    GeoWin->onMainWinButtonClicked();
+    if (GeoWin->isVisible()) GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbMaterials_clicked()
 {
-    MatWin->showNormal();
-    MatWin->activateWindow();
+    MatWin->onMainWinButtonClicked();
+    //if (MatWin->isVisible()) MatWin->update(); // why no update?
 }
 
 void MainWindow::on_pbPhotSim_clicked()
 {
-    PhotSimWin->showNormal();
-    PhotSimWin->activateWindow();
-    PhotSimWin->updateGui();
+    PhotSimWin->onMainWinButtonClicked();
+    if (PhotSimWin) PhotSimWin->updateGui();
 }
 
 void MainWindow::on_pbInterfaceRules_clicked()
 {
-    RuleWin->showNormal();
-    RuleWin->activateWindow();
-    RuleWin->updateGui();
+    RuleWin->onMainWinButtonClicked();
+    if (RuleWin->isVisible()) RuleWin->updateGui();
 }
 
 void MainWindow::on_pbGraphWin_clicked()
 {
-    GraphWin->showNormal();
-    GraphWin->activateWindow();
+    GraphWin->onMainWinButtonClicked();
 }
 
 void MainWindow::on_pbFarm_clicked()
 {
-    FarmWin->showNormal();
-    FarmWin->activateWindow();
-    FarmWin->updateGui();
+    FarmWin->onMainWinButtonClicked();
+    if (FarmWin->isVisible()) FarmWin->updateGui();
 }
 
 void MainWindow::on_pbGlobSet_clicked()
 {
-    GlobSetWin->showNormal();
-    GlobSetWin->activateWindow();
-    GlobSetWin->updateGui();
+    GlobSetWin->onMainWinButtonClicked();
+    if (GlobSetWin->isVisible()) GlobSetWin->updateGui();
 }
 
 void MainWindow::on_pbParticleSim_clicked()
 {
-    PartSimWin->showNormal();
-    PartSimWin->activateWindow();
-    PartSimWin->updateGui();
+    PartSimWin->onMainWinButtonClicked();
+    if (PartSimWin->isVisible()) PartSimWin->updateGui();
 }
 
 void MainWindow::on_pbJavaScript_clicked()
 {
-    JScriptWin->showNormal();
-    JScriptWin->activateWindow();
-    JScriptWin->updateGui();
+    JScriptWin->onMainWinButtonClicked();
+    if (JScriptWin->isVisible()) JScriptWin->updateGui();
 }
 
 void MainWindow::on_pbPython_clicked()
 {
 #ifdef ANTS3_PYTHON
-    PythonWin->showNormal();
-    PythonWin->activateWindow();
-    PythonWin->updateGui();
+    PythonWin->onMainWinButtonClicked();
+    if (PythonWin) PythonWin->updateGui();
 #else
     guitools::message("Ants3 was compiled without Python support.\nIt can be enabled in ants3.pro by uncommenting:\n#CONFIG += ants3_Python", this);
 #endif
@@ -270,8 +260,7 @@ void MainWindow::on_pbPython_clicked()
 
 void MainWindow::on_pbDemo_clicked()
 {
-    DemoWin->showNormal();
-    DemoWin->activateWindow();
+    DemoWin->onMainWinButtonClicked();
 }
 
 void MainWindow::on_pbLoadConfig_clicked()
@@ -355,7 +344,7 @@ void MainWindow::on_actionQuickLoad_slot_3_triggered()
     Config.load(fileName);
 }
 
-void MainWindow::on_actionExit_triggered()
+void MainWindow::on_actionClose_ants3_triggered()
 {
     close();
 }
@@ -412,18 +401,8 @@ void MainWindow::on_pteConfigDescription_textChanged()
 
 void MainWindow::on_pbSensors_clicked()
 {
-    if (SensWin->isVisible())
-    {
-        SensWin->storeGeomStatus();
-        SensWin->hide();
-    }
-    else
-    {
-        SensWin->restoreGeomStatus();
-        SensWin->showNormal();
-        SensWin->activateWindow();
-        SensWin->updateGui();
-    }
+    SensWin->onMainWinButtonClicked();
+    if (SensWin->isVisible()) SensWin->updateGui();
 }
 
 #include <QThread>
