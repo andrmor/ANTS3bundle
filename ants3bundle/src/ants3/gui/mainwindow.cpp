@@ -137,7 +137,7 @@ MainWindow::MainWindow() :
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     GeoWin->ShowGeometry(false);
-    if (!bShown) GeoWin->hide();
+    //if (!bShown) GeoWin->hide();
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -155,6 +155,8 @@ MainWindow::MainWindow() :
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
+
+    if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
 }
 
 MainWindow::~MainWindow()
