@@ -714,6 +714,8 @@ void AParticleSimWin::on_pbSimulate_clicked()
     {
         updateResultsGui();
     }
+
+    emit requestShowGeoObjectDelegate("", false);
 }
 
 void AParticleSimWin::updateResultsGui()

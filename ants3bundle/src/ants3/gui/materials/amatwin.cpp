@@ -8,10 +8,9 @@
 #include "afiletools.h"
 #include "guitools.h"
 #include "acommonfunctions.h"
-#include "achemicalelement.h"
-#include "aelementandisotopedelegates.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
+#include "ageant4inspectormanager.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -58,7 +57,6 @@ AMatWin::AMatWin(QWidget * parent) :
     configureG4Materials();
 
     ui->pbWasModified->setVisible(false);
-    ui->labContextMenuHelp->setVisible(false);
     ui->pbUpdateTmpMaterial->setVisible(false);
 
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -68,8 +66,7 @@ AMatWin::AMatWin(QWidget * parent) :
 
     connect(&MatHub, &AMaterialHub::materialsChanged, this, &AMatWin::onMaterialsChanged);
 
-    ui->leChemicalComposition->installEventFilter(this);
-    ui->leCompositionByWeight->installEventFilter(this);
+    ui->leComposition->setAlignment(Qt::AlignHCenter);
 }
 
 AMatWin::~AMatWin()
@@ -81,21 +78,6 @@ void AMatWin::initWindow()
 {
     updateGui();
     switchToMaterial(0);
-}
-
-bool AMatWin::eventFilter(QObject * object, QEvent * event)
-{
-    if(object == ui->leChemicalComposition && event->type() == QEvent::MouseButtonPress) // FocusIn
-    {
-        modifyChemicalComposition();
-        return true;
-    }
-    if(object == ui->leCompositionByWeight && event->type() == QEvent::MouseButtonPress) // FocusIn
-    {
-        modifyByWeight();
-        return true;
-    }
-    return false;
 }
 
 void AMatWin::setWasModified(bool flag)
@@ -202,17 +184,112 @@ void AMatWin::updateWaveButtons()
 
 void AMatWin::updateG4RelatedGui()
 {
-    bool bDisable = ui->cbG4Material->isChecked();
-    std::vector<QWidget*> widgs = {ui->ledDensity, ui->pbMaterialInfo, ui->ledT, ui->leChemicalComposition,
-                                   ui->leCompositionByWeight, ui->trwChemicalComposition, ui->cbShowIsotopes};
-    for (QWidget * w : widgs) w->setDisabled(bDisable);
+
 }
 
 #include <QCompleter>
 #include <QStringListModel>
 void AMatWin::configureG4Materials()
 {
-    const QStringList mats{"G4_A-150_TISSUE", "G4_ACETONE", "G4_ACETYLENE", "G4_ADENINE", "G4_ADIPOSE_TISSUE_ICRP", "G4_AIR", "G4_ALANINE", "G4_ALUMINUM_OXIDE",
+    const QStringList mats{"G4_H",
+                           "G4_He",
+                           "G4_Li",
+                           "G4_Be",
+                           "G4_B",
+                           "G4_C",
+                           "G4_N",
+                           "G4_O",
+                           "G4_F",
+                           "G4_Ne",
+                           "G4_Na",
+                           "G4_Mg",
+                           "G4_Al",
+                           "G4_Si",
+                           "G4_P",
+                           "G4_S",
+                           "G4_Cl",
+                           "G4_Ar",
+                           "G4_K",
+                           "G4_Ca",
+                           "G4_Sc",
+                           "G4_Ti",
+                           "G4_V",
+                           "G4_Cr",
+                           "G4_Mn",
+                           "G4_Fe",
+                           "G4_Co",
+                           "G4_Ni",
+                           "G4_Cu",
+                           "G4_Zn",
+                           "G4_Ga",
+                           "G4_Ge",
+                           "G4_As",
+                           "G4_Se",
+                           "G4_Br",
+                           "G4_Kr",
+                           "G4_Rb",
+                           "G4_Sr",
+                           "G4_Y",
+                           "G4_Zr",
+                           "G4_Nb",
+                           "G4_Mo",
+                           "G4_Tc",
+                           "G4_Ru",
+                           "G4_Rh",
+                           "G4_Pd",
+                           "G4_Ag",
+                           "G4_Cd",
+                           "G4_In",
+                           "G4_Sn",
+                           "G4_Sb",
+                           "G4_Te",
+                           "G4_I",
+                           "G4_Xe",
+                           "G4_Cs",
+                           "G4_Ba",
+                           "G4_La",
+                           "G4_Ce",
+                           "G4_Pr",
+                           "G4_Nd",
+                           "G4_Pm",
+                           "G4_Sm",
+                           "G4_Eu",
+                           "G4_Gd",
+                           "G4_Tb",
+                           "G4_Dy",
+                           "G4_Ho",
+                           "G4_Er",
+                           "G4_Tm",
+                           "G4_Yb",
+                           "G4_Lu",
+                           "G4_Hf",
+                           "G4_Ta",
+                           "G4_W",
+                           "G4_Re",
+                           "G4_Os",
+                           "G4_Ir",
+                           "G4_Pt",
+                           "G4_Au",
+                           "G4_Hg",
+                           "G4_Tl",
+                           "G4_Pb",
+                           "G4_Bi",
+                           "G4_Po",
+                           "G4_At",
+                           "G4_Rn",
+                           "G4_Fr",
+                           "G4_Ra",
+                           "G4_Ac",
+                           "G4_Th",
+                           "G4_Pa",
+                           "G4_U",
+                           "G4_Np",
+                           "G4_Pu",
+                           "G4_Am",
+                           "G4_Cm",
+                           "G4_Bk",
+                           "G4_Cf",
+                           "G4_A-150_TISSUE", "G4_ACETONE", "G4_ACETYLENE", "G4_ADENINE", "G4_ADIPOSE_TISSUE_ICRP", "G4_AIR", "G4_ALANINE", "G4_ALUMINUM_OXIDE",
                            "G4_AMBER", "G4_AMMONIA", "G4_ANILINE", "G4_ANTHRACENE", "G4_B-100_BONE", "G4_BAKELITE", "G4_BARIUM_FLUORIDE", "G4_BARIUM_SULFATE",
                            "G4_BENZENE", "G4_BERYLLIUM_OXIDE", "G4_BGO", "G4_BLOOD_ICRP", "G4_BONE_COMPACT_ICRU", "G4_BONE_CORTICAL_ICRP", "G4_BORON_CARBIDE",
                            "G4_BORON_OXIDE", "G4_BRAIN_ICRP", "G4_BUTANE", "G4_N-BUTYL_ALCOHOL", "G4_C-552", "G4_CADMIUM_TELLURIDE", "G4_CADMIUM_TUNGSTATE",
@@ -253,25 +330,57 @@ void AMatWin::configureG4Materials()
     //completer->setCompletionMode(QCompleter::PopupCompletion);
     Completer->setFilterMode(Qt::MatchContains);
     //completer->setFilterMode(Qt::MatchStartsWith);
-    Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    Completer->setCaseSensitivity(Qt::CaseSensitive);
+    //Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    Completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    //Completer->setCaseSensitivity(Qt::CaseSensitive);
+    Completer->setCaseSensitivity(Qt::CaseInsensitive);
     Completer->setWrapAround(false);
     ui->leG4Material->setCompleter(Completer);
+}
+
+void appendLabText(QLabel * lab, const QString & addText)
+{
+    QString text = lab->text();
+    if (!text.isEmpty()) text += '\n';
+    text += addText;
+    lab->setText(text);
+}
+
+void AMatWin::fillElementInfo()
+{
+    ui->labInfoElement->clear();
+    ui->labInfoAtFraction->clear();
+    ui->labInfoMassFraction->clear();
+    ui->labInfoIsotope->clear();
+
+    QString allStr = tmpMaterial.Composition.printComposition();
+    const QStringList lines = allStr.split('\n', Qt::SkipEmptyParts);
+    for (const QString & line : lines)
+    {
+        const QStringList s = line.split('\t', Qt::SkipEmptyParts);
+        if (s.size() < 4) continue;
+        appendLabText(ui->labInfoElement,      s[0]);
+        appendLabText(ui->labInfoAtFraction,   s[1]);
+        appendLabText(ui->labInfoMassFraction, s[2]);
+        appendLabText(ui->labInfoIsotope,      s[3]);
+    }
 }
 
 void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.Name);
 
-    ui->ledDensity->setText( QString::number(tmpMaterial.Density) );
-    ui->ledT->setText( QString::number(tmpMaterial.Temperature) );
+    ui->ledDensity->setText( QString::number(tmpMaterial.Composition.Density) );
+    ui->ledT->setText( QString::number(tmpMaterial.Composition.Temperature) );
+    ui->cobMeanExcitationEnergy->setCurrentIndex(tmpMaterial.Composition.UseCustomMeanExEnergy ? 1 : 0);
+    ui->frMeanExcitationEnergy->setVisible(tmpMaterial.Composition.UseCustomMeanExEnergy);
+    ui->ledMeanExcitationEnergy->setText( QString::number(tmpMaterial.Composition.MeanExEnergy) );
 
-    ui->leChemicalComposition->setText( tmpMaterial.Composition.getCompositionString() );
-    ui->leCompositionByWeight->setText( tmpMaterial.Composition.getCompositionByWeightString() );
-    ShowTreeWithChemicalComposition();
+    ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
+    fillElementInfo();
 
-    ui->cbG4Material->setChecked(tmpMaterial.UseNistMaterial);
-    ui->leG4Material->setText(tmpMaterial.NistMaterial);
+    ui->cobCompositionType->setCurrentIndex(tmpMaterial.UseG4Material ? 1 : 0);
+    ui->leG4Material->setText(tmpMaterial.G4MaterialName);
     updateG4RelatedGui();
 
     ui->ledN->setText( QString::number(tmpMaterial.RefIndex) );
@@ -351,6 +460,7 @@ void AMatWin::updateTmpMaterialGui()
 
 void AMatWin::updateWarningIcons()
 {
+    /*
     if (tmpMaterial.Composition.countElements() == 0)
     {
         QPixmap pm(QSize(16,16));
@@ -360,17 +470,23 @@ void AMatWin::updateWarningIcons()
         b.drawEllipse(0, 2, 10, 10);
         ui->twProperties->setTabIcon(0, QIcon(pm));
     }
-    else ui->twProperties->setTabIcon(0, QIcon());
+    else
+    */
+        ui->twProperties->setTabIcon(0, QIcon());
 }
 
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
 
-    tmpMaterial.Density = ui->ledDensity->text().toDouble();
-    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
-    tmpMaterial.NistMaterial = ui->leG4Material->text();
-    tmpMaterial.Temperature = ui->ledT->text().toDouble();
+    tmpMaterial.UseG4Material = (ui->cobCompositionType->currentIndex() == 1);
+    tmpMaterial.G4MaterialName = ui->leG4Material->text();
+
+    tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
+    tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
+    tmpMaterial.Composition.UseCustomMeanExEnergy = (ui->cobMeanExcitationEnergy->currentIndex() == 1);
+    tmpMaterial.Composition.MeanExEnergy = ui->ledMeanExcitationEnergy->text().toDouble();
+
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
     tmpMaterial.ReemissionProb = ui->ledReemissionProbability->text().toDouble();
@@ -395,9 +511,6 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.Tags.clear();
     for (const QString & s : slTags)
         tmpMaterial.Tags.push_back(s.simplified());
-
-    tmpMaterial.UseNistMaterial = ui->cbG4Material->isChecked();
-    tmpMaterial.NistMaterial = ui->leG4Material->text();
 }
 
 void AMatWin::setMaterial(int index)
@@ -653,9 +766,7 @@ void AMatWin::on_leName_textChanged(const QString & /*name*/)
 
 void AMatWin::updateActionButtons()
 {
-    //ui->pbAcceptChanges->setEnabled(bMaterialWasModified);
     ui->frAcceptCancel->setEnabled(bMaterialWasModified);
-
     ui->pbAddNew->setEnabled(!bMaterialWasModified);
     ui->pbClone->setEnabled(!bMaterialWasModified);
 }
@@ -745,8 +856,6 @@ void AMatWin::on_actionSave_material_triggered()
     if (fileInfo.suffix().isEmpty()) fileName += ".mat";
 
     QJsonObject json, js;
-    //MpCollection.writeMaterialToJson(imat, json);
-
     tmpMaterial.writeToJson(json);
     js["Material"] = json;
     bool bOK = jstools::saveJsonToFile(js, fileName);
@@ -785,166 +894,6 @@ void AMatWin::on_actionLoad_material_triggered()
     updateWaveButtons(); //refresh button state for Wave-resolved properties
 }
 
-void AMatWin::onAddIsotope(AChemicalElement *element)
-{
-    element->Isotopes << AIsotope(element->Symbol, 777, 0);
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
-void AMatWin::onRemoveIsotope(AChemicalElement *element, int isotopeIndexInElement)
-{
-    if (element->Isotopes.size()<2)
-    {
-        guitools::message("Cannot remove the last isotope!", this);
-        return;
-    }
-    element->Isotopes.removeAt(isotopeIndexInElement);
-
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
-void AMatWin::IsotopePropertiesChanged(const AChemicalElement * /*element*/, int /*isotopeIndexInElement*/)
-{
-    tmpMaterial.Composition.updateMassRelatedPoperties();
-
-    updateTmpMaterialGui();
-    setWasModified(true);
-}
-
-void AMatWin::onRequestDraw(const QVector<double> &x, const QVector<double> &y, const QString &titleX, const QString &titleY)
-{
-    /*
-    TGraph * g = MW->GraphWindow->ConstructTGraph(x, y, "", titleX, titleY, 4, 20, 1, 4, 1, 2);
-    MW->GraphWindow->Draw(g, "APL");
-    MW->GraphWindow->UpdateRootCanvas();
-*/
-}
-
-void AMatWin::modifyChemicalComposition()
-{
-    QDialog* d = new QDialog(this);
-    d->setWindowTitle("Enter element composition (molar fractions!)");
-
-    QVBoxLayout* L = new QVBoxLayout();
-    QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionString(), this);
-    le->setMinimumSize(400,25);
-    QPushButton* pb = new QPushButton("Confirm", this);
-    l->addWidget(le);
-    l->addWidget(pb);
-    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
-    L->addLayout(l);
-    L->addWidget(new QLabel("Format examples:\n"));
-    L->addWidget(new QLabel("C2H5OH   - use only integer values!"));
-    L->addWidget(new QLabel("C:0.3333 + H:0.6667  -> molar fractions of 1/3 of carbon and 2/3 of hydrogen"));
-    L->addWidget(new QLabel("H2O:9.0 + NaCl:0.2 -> 9.0 parts of H2O and 0.2 parts of NaCl"));
-    d->setLayout(L);
-
-    while (d->exec() != 0)
-    {
-        AMaterialComposition& mc = tmpMaterial.Composition;
-        QString error = mc.setCompositionString(le->text(), true);
-        if (!error.isEmpty())
-        {
-            guitools::message(error, d);
-            continue;
-        }
-
-        updateTmpMaterialGui();
-        break;
-    }
-
-    if (d->result() == 0) return;
-
-    setWasModified(true);
-    updateWarningIcons();
-}
-
-void AMatWin::modifyByWeight()
-{
-    QDialog* d = new QDialog(this);
-    d->setWindowTitle("Enter element composition (fractions by weight!)");
-
-    QVBoxLayout* L = new QVBoxLayout();
-    QHBoxLayout* l = new QHBoxLayout();
-    QLineEdit* le = new QLineEdit(tmpMaterial.Composition.getCompositionByWeightString(), this);
-    le->setMinimumSize(400,25);
-    QPushButton* pb = new QPushButton("Confirm", this);
-    l->addWidget(le);
-    l->addWidget(pb);
-    connect(pb, SIGNAL(clicked(bool)), d, SLOT(accept()));
-    L->addLayout(l);
-    L->addWidget(new QLabel("Give weight factors for each element separately, e.g.:\n"));
-    L->addWidget(new QLabel("H:0.1112 + O:0.8889"));
-    L->addWidget(new QLabel("\nNote that Ants will recalculate this composition to molar one,\n"
-                            "and then show re-calculated weight factors with the sum of unity!\n\n"
-                            "Any subsequent changes to isotope composition of involved elements\n"
-                            "will modify the composition!"));
-    d->setLayout(L);
-
-    while (d->exec() != 0)
-    {
-        AMaterialComposition& mc = tmpMaterial.Composition;
-        QString error = mc.setCompositionByWeightString(le->text());
-        if (!error.isEmpty())
-        {
-            guitools::message(error, d);
-            continue;
-        }
-
-        updateTmpMaterialGui();
-        break;
-    }
-
-    if (d->result() == 0) return;
-
-    setWasModified(true);
-    updateWarningIcons();
-}
-
-void AMatWin::ShowTreeWithChemicalComposition()
-{
-    bClearInProgress = true;
-    ui->trwChemicalComposition->clear();
-    bClearInProgress = false;
-
-    bool bShowIsotopes = ui->cbShowIsotopes->isChecked();
-
-    for (int i=0; i<tmpMaterial.Composition.countElements(); i++)
-    {
-        AChemicalElement* el = tmpMaterial.Composition.getElement(i);
-
-        //new element
-        AChemicalElementDelegate* elDel = new AChemicalElementDelegate(el, &bClearInProgress, ui->cbShowIsotopes->isChecked());
-        QTreeWidgetItem* ElItem = new QTreeWidgetItem(ui->trwChemicalComposition);
-        ui->trwChemicalComposition->setItemWidget(ElItem, 0, elDel);
-        ElItem->setExpanded(bShowIsotopes);
-        QObject::connect(elDel, &AChemicalElementDelegate::AddIsotopeActivated, this, &AMatWin::onAddIsotope, Qt::QueuedConnection);
-
-        if (bShowIsotopes)
-            for (int index = 0; index <el->Isotopes.size(); index++)
-            {
-                AIsotopeDelegate* isotopDel = new AIsotopeDelegate(el, index, &bClearInProgress);
-                QTreeWidgetItem* twi = new QTreeWidgetItem();
-                ElItem->addChild(twi);
-                ui->trwChemicalComposition->setItemWidget(twi, 0, isotopDel);
-                QObject::connect(isotopDel, &AIsotopeDelegate::RemoveIsotope, this, &AMatWin::onRemoveIsotope, Qt::QueuedConnection);
-                QObject::connect(isotopDel, &AIsotopeDelegate::IsotopePropertiesChanged, this, &AMatWin::IsotopePropertiesChanged, Qt::QueuedConnection);
-            }
-    }
-}
-
-void AMatWin::on_cbShowIsotopes_clicked()
-{
-    ShowTreeWithChemicalComposition();
-}
-
 void flagButton(QPushButton* pb, bool flag)
 {
     QString toRed = "QPushButton {color: red;}";
@@ -960,30 +909,6 @@ void flagButton(QPushButton* pb, bool flag)
     }
 
     pb->setStyleSheet(s);
-}
-
-void AMatWin::on_pbMaterialInfo_clicked()
-{
-    if (ui->leChemicalComposition->text().isEmpty())
-    {
-        guitools::message("Chemical composition is not defined!", this);
-        return;
-    }
-
-    double MAM = tmpMaterial.Composition.getMeanAtomMass();
-    QString str = "Mean atom mass: " + QString::number(MAM, 'g', 4) + " a.u.\n";
-    double AtDens = tmpMaterial.Density / MAM / 1.66054e-24;
-    str += "Atom density: " + QString::number(AtDens, 'g', 4) + " cm-3\n";
-    guitools::message(str, this);
-}
-
-void AMatWin::on_trwChemicalComposition_doubleClicked(const QModelIndex & /*index*/)
-{
-    if (!ui->cbShowIsotopes->isChecked())
-    {
-        ui->cbShowIsotopes->setChecked(true);
-        ShowTreeWithChemicalComposition();
-    }
 }
 
 void AMatWin::on_lePriT_editingFinished()
@@ -1143,7 +1068,7 @@ void AMatWin::on_pbListGeant4Materials_clicked()
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
 }
 
-void AMatWin::on_cbG4Material_toggled(bool)
+void AMatWin::on_cobCompositionType_currentIndexChanged(int /*index*/)
 {
     updateG4RelatedGui();
 }
@@ -1315,3 +1240,68 @@ void AMatWin::on_pbDeleteComplexN_clicked()
     ui->pbDeleteComplexN->setEnabled(false);
     setWasModified(true);
 }
+
+void AMatWin::on_pbHelpComposition_clicked()
+{
+    QString s = "Composition string examples\n\n"
+            "C5O2H8\n"
+            "C0.5O0.2H0.8     <- possible to use real numbers in formulas\n"
+            "H2O:6 + C2H5OH:3.99     <- mixture using molecular(atomic) fractions\n"
+            "H2O/6 + C2H5OH/3.99     <- mixture using weight fractions\n"
+            "{10B:97.0+11B:3.0}4C     <- custom isotope composition\n"
+            "H2O/10.6 + (NaCl:1 + KCl:2.5)/1.4     <- possible to use an arbitrary number and level of brackets\n"
+            " It is possible to transform from molecular fractions to weight but not the opposite!\n"
+            "";
+
+    guitools::message1notModal(s, "Composition string", this);
+}
+
+void AMatWin::on_leComposition_editingFinished()
+{
+    if (ui->leComposition->text().simplified() == tmpMaterial.Composition.getCompositionString()) return;
+
+    ui->leComposition->blockSignals(true);  // -->
+    bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
+    if (ok) updateTmpMaterialGui();
+    else guitools::message(tmpMaterial.Composition.ErrorString, this);
+    ui->leComposition->blockSignals(false);  // <--
+
+    setWasModified(true);
+}
+
+void AMatWin::on_pbInspectG4Material_clicked()
+{
+    //disableInterface(true);
+    qApp->processEvents();
+
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    //ui->pbAbort->setEnabled(true);
+
+    AG4MaterialRecord reply;
+    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, reply);
+
+    if (!G4Inspector.ErrorString.isEmpty())
+        guitools::message(G4Inspector.ErrorString, this);
+    else
+    {
+        QString str;
+        str += "Name:\t\t"    + reply.Name + "\n\n";
+        str += "Density:\t\t" + QString::number(reply.Density) + " g/cm3" + "\n\n";
+        str += "Composition\n";
+        str += " by weight:\t\t" + reply.WeightFractions + '\n';
+        str += " by atoms:\t\t" + (reply.AtomFractions.isEmpty() ? "Not specified" : reply.AtomFractions) + "\n\n";
+        reply.Formula.remove('_');
+        str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
+        str += "\n\n";
+        str += "Temperature:\t" + QString::number(reply.Temperature) + " K\n\n";
+        str += "Mean Excitation Energy:\t" + QString::number(reply.MeanExcitationEnergy) + " eV";
+
+        guitools::message1notModal(str, "Geant4 material", this);
+    }
+}
+
+void AMatWin::on_cobMeanExcitationEnergy_currentIndexChanged(int index)
+{
+    ui->frMeanExcitationEnergy->setVisible(index == 1);
+}
+

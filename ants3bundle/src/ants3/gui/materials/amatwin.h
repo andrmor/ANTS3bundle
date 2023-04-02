@@ -30,12 +30,6 @@ public:
 private slots:
     void onMaterialsChanged(); //sent by A3MatHub
 
-    //on signals from delegates
-    void onAddIsotope(AChemicalElement *element);
-    void onRemoveIsotope(AChemicalElement* element, int isotopeIndexInElement);
-    void IsotopePropertiesChanged(const AChemicalElement* element, int isotopeIndexInElement);
-    void onRequestDraw(const QVector<double> & x, const QVector<double> & y, const QString & titleX, const QString & titleY); // !!!***
-
     //on user input
     void on_pbRemove_clicked();
     void on_pbAddNew_clicked();
@@ -65,9 +59,6 @@ private slots:
     void on_pbShowUsage_clicked();
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
-    void on_cbShowIsotopes_clicked();
-    void on_pbMaterialInfo_clicked();
-    void on_trwChemicalComposition_doubleClicked(const QModelIndex &index);
     void on_pbShowReemProbLambda_clicked();
     void on_pbLoadReemisProbLambda_clicked();
     void on_pbDeleteReemisProbLambda_clicked();
@@ -79,11 +70,15 @@ private slots:
     void on_pbShowComplexN_clicked();
     void on_pbLoadComplexN_clicked();
     void on_pbDeleteComplexN_clicked();
+    void on_leComposition_editingFinished();
+    void on_pbHelpComposition_clicked();
+    void on_pbInspectG4Material_clicked();
 
     //user or code controlled change - safe or only GUI
     void on_ledRayleigh_textChanged(const QString &arg1);
     void on_pteComments_textChanged();
-    void on_cbG4Material_toggled(bool checked);
+    void on_cobCompositionType_currentIndexChanged(int index);
+    void on_cobMeanExcitationEnergy_currentIndexChanged(int index);
 
     //menu actions
     void on_actionSave_material_triggered();
@@ -117,17 +112,12 @@ private:
     void setWasModified(bool flag);
     void updateActionButtons();
     void updateWaveButtons();
-    void ShowTreeWithChemicalComposition();
     bool parseDecayOrRaiseTime(bool decay_or_raise);
-    void updateWarningIcons();
-    void updateG4RelatedGui();
+    void updateWarningIcons();   // !!!***
+    void updateG4RelatedGui();   // !!!*** empty
     void configureG4Materials();
     bool checkCurrentMaterial();
-    void modifyChemicalComposition();
-    void modifyByWeight();
-
-protected:
-    bool eventFilter(QObject *object, QEvent *event) override;
+    void fillElementInfo();
 
 signals:
     void requestRebuildDetector();

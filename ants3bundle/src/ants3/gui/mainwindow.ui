@@ -518,9 +518,15 @@
     <addaction name="separator"/>
     <addaction name="actionLoad_last_config"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuExit">
+    <property name="title">
+     <string>Exit</string>
+    </property>
+    <addaction name="actionClose_ants3"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuExit"/>
   </widget>
   <action name="actionSave_configuration">
    <property name="text">
@@ -567,9 +573,9 @@
     <string>QuickLoad slot 3</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="actionClose_ants3">
    <property name="text">
-    <string>Exit</string>
+    <string>Close ants3</string>
    </property>
   </action>
  </widget>

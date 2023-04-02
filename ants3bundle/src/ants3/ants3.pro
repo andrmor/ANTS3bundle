@@ -169,6 +169,7 @@ SOURCES += \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
     materials/amatcomposition.cpp \
+    particleSim/ageant4inspectormanager.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -250,16 +251,11 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
-    gui/materials/aelementandisotopedelegates.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
-    materials/achemicalelement.cpp \
-    materials/aisotope.cpp \
-    materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
-    materials/amaterialcomposition.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
     photonSim/acommonfunctions.cpp \
@@ -371,6 +367,7 @@ HEADERS += \
     gui/script/atextoutputwindow.h \
     gui/script/escriptlanguage.h \
     materials/amatcomposition.h \
+    particleSim/ageant4inspectormanager.h \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
@@ -471,16 +468,11 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
-    gui/materials/aelementandisotopedelegates.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
     materials/amaterialhub.h \
-    materials/achemicalelement.h \
-    materials/aisotope.h \
-    materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
-    materials/amaterialcomposition.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \
     tools/aerrorhub.h \

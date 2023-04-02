@@ -1,9 +1,7 @@
 #include "a3dispatcher.h"
 
 #include <QCoreApplication>
-//#include <QString>
 #include <QDebug>
-//#include <QTimer>
 
 #include <stdlib.h>
 
@@ -32,7 +30,5 @@ int main(int argc, char *argv[])
 
     A3Dispatcher Disp(ip, port, maxPr);
     Disp.start();
-    //A3Dispatcher * Disp = new A3Dispatcher(&a);
-    //QTimer::singleShot(0, Disp, &A3Dispatcher::start);
     return a.exec();
 }

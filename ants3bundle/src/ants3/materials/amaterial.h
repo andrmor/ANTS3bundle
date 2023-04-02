@@ -6,7 +6,7 @@
 #include <vector>
 #include <complex>
 
-#include "amaterialcomposition.h"
+#include "amatcomposition.h"
 
 class QJsonObject;
 class TH1D;
@@ -22,11 +22,9 @@ public:
     QString Name;
 
     // composition
-    AMaterialComposition Composition;
-    double               Density;                 // in g/cm3
-    bool                 UseNistMaterial = false;
-    QString              NistMaterial;
-    double               Temperature = 298.0;     // in K
+    AMatComposition      Composition;
+    bool                 UseG4Material = false;
+    QString              G4MaterialName;
 
     // optics
     bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
@@ -87,7 +85,7 @@ public:
 
     QString checkMaterial() const; // !!!***
 
-    void    importComposition(TGeoMaterial * mat);
+    void    importComposition(TGeoMaterial * mat); //   // !!!*** error handling
 
   // --- run-time properties ---
     TGeoMaterial  * _GeoMat = nullptr;

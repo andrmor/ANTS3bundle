@@ -92,12 +92,21 @@ std::vector<std::string> AMaterialHub::getMaterialNames() const
     return v;
 }
 
-std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFromNist() const
+std::vector<std::pair<std::string, std::string>> AMaterialHub::getMaterialsFromNist() const
 {
     std::vector<std::pair<std::string, std::string>> v;
     for (const AMaterial * m : Materials)
-        if (m->UseNistMaterial)
-            v.push_back( {m->Name.toLatin1().data(), m->NistMaterial.toLatin1().data()} );
+        if (m->UseG4Material)
+            v.push_back( {m->Name.toLatin1().data(), m->G4MaterialName.toLatin1().data()} );
+    return v;
+}
+
+std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEnergy() const
+{
+    std::vector<std::pair<std::string, double>> v;
+    for (const AMaterial * m : Materials)
+        if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
+            v.push_back( {m->Name.toLatin1().data(), m->Composition.MeanExEnergy} );
     return v;
 }
 
@@ -123,10 +132,7 @@ void AMaterialHub::clearMaterials()
 
 void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
 {
-    AMaterial * m = new AMaterial;
-
-    m->Composition.setCompositionString("H");
-    m->Density = 1e-25;
+    AMaterial * m = new AMaterial(); // vacuum by default
 
     AInterfaceRuleHub::getInstance().onMaterialAdded();
 
@@ -155,7 +161,7 @@ void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
     //do not want to copy dynamic objects!
     QJsonObject js;
         Materials[imat]->writeToJson(js);
-        tmpMaterial.readFromJson(js);
+    tmpMaterial.readFromJson(js);
 }
 
 double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
@@ -255,8 +261,6 @@ void AMaterialHub::importMaterials(TList * matList)
         AMaterial & amat = *Materials.back();
 
         amat.Name = tmat->GetName();
-        amat.Density = tmat->GetDensity();
-        amat.Temperature = tmat->GetTemperature();
         amat.importComposition(tmat);
     }
 
@@ -361,9 +365,11 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         const AMaterial * mat = Materials[iM];
 
-        if (mat->UseNistMaterial && mat->NistMaterial.isEmpty())
+        if (mat->UseG4Material && mat->G4MaterialName.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
-        if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
-            Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
+
+        // !!!*** check material here, which shoul cinclude check of composition
+        //if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
+        //    Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
     }
 }

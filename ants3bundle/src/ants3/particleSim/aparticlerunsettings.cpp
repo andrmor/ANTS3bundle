@@ -94,6 +94,17 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
             }
         json["MaterialsFromNist"]    = nistAr;
 
+        {
+            QJsonArray ar;
+            for (const auto & mat : MaterialsMeanExEnergy)
+            {
+                QJsonArray el;
+                el << QString(mat.first.data()) << mat.second;
+                ar.push_back(el);
+            }
+            json["MaterialsWithCustomMeanExcitationEnergy"] = ar;
+        }
+
         json["GDML"]                 = QString(GDML.data());
         json["Receipt"]              = QString(Receipt.data());
 
@@ -162,6 +173,16 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     {
         json11::Json::array el = arNist[i].array_items();
         MaterialsFromNist.push_back( {el[0].string_value(), el[1].string_value()} );
+    }
+
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "MaterialsWithCustomMeanExcitationEnergy", ar);
+        for (size_t i = 0; i < ar.size(); i++)
+        {
+            json11::Json::array el = ar[i].array_items();
+            MaterialsMeanExEnergy.push_back( {el[0].string_value(), el[1].number_value()} );
+        }
     }
 
     jstools::parseJson(json, "GDML",                 GDML);

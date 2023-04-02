@@ -10,6 +10,18 @@ class TGeoElement;
 class TGeoMaterial;
 class QJsonObject;
 
+class AElementRecord
+{
+public:
+    QString Symbol;
+    std::vector<std::pair<int,double>> Isotopes;  // [N,atomicFraction]; if empty, use natural;
+    double A;
+
+    bool operator<(const AElementRecord & other) const {return (Symbol < other.Symbol);}
+    TGeoElement * constructGeoElement() const;
+    bool isIdentical(const AElementRecord & other) const;
+};
+
 class AMatMixRecord
 {
 public:
@@ -19,7 +31,7 @@ public:
     EFractionType FractionType;
     double        Fraction = 1.0;
 
-    std::map<TGeoElement*, double> ElementMap;
+    std::map<AElementRecord, double> ElementMap;
     double CombinedA = 0;
     double ComputedFraction = 0;
 
@@ -29,25 +41,31 @@ public:
 class AMatComposition
 {
 public:
-    AMatComposition(){}
+    AMatComposition();
 
-    QString CompositionString = "H";
-    std::map<TGeoElement*, double> ElementMap_AtomNumberFractions;
-    std::map<TGeoElement*, double> ElementMap_MassFractions;
-    QString ErrorString;
+    double Density     = 1e-25;     // g/cm3
+    double Temperature = 298.0;     // K
+    bool   UseCustomMeanExEnergy = false;
+    double MeanExEnergy = 0;        // eV
 
-    bool parse(const QString & string);
+    bool setCompositionString(const QString & composition);
+    void makeItVacuum();
 
+    QString getCompositionString() const {return CompositionString;}
     QString printComposition() const;
 
-    TGeoMaterial * constructGeoMaterial(const QString & name, double density, double temperature);
-
-    static QString geoMatToCompositionString(TGeoMaterial * mat);
+    TGeoMaterial * constructGeoMaterial(const QString & name);
 
     void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json);
+    bool readFromJson(const QJsonObject & json); // !!!*** error control
+
+    bool importComposition(TGeoMaterial * mat);
+
+    QString ErrorString;
 
 protected:
+    void clearParsing();
+    bool parse(const QString & string);
     bool checkForbiddenChars();
     bool parseCustomElements();
     bool parseBracketedLevels();
@@ -55,17 +73,22 @@ protected:
 
     bool prepareMixRecords(const QString & expression, std::vector<AMatMixRecord> & result);
     bool parseMolecule(AMatMixRecord & r);
-    TGeoElement * makeCustomElement(const QString & strRec); // returns nullptr on error
+    bool makeCustomElement(const QString & strRec, AElementRecord & elm); // returns nullptr on error
     bool splitByBracketLevel(QString & string);
     bool mergeRecords(std::vector<AMatMixRecord> &recs, AMatMixRecord & result);
-    TGeoElement * findElement(const QString & elementSymbol);
+    bool fetchElement(const QString & elementSymbol, AElementRecord & elm);
+    bool checkIsotope(const QString & isotopeSymbol, const int & isotopeN);
+    void updateCustomElementSymbol(AElementRecord &elm);
+
+    QString CompositionString;
+    std::map<AElementRecord, double> ElementMap_AtomNumberFractions;
+    std::map<AElementRecord, double> ElementMap_MassFractions;
 
     // properties used during parsing of the composition string
     QString ParseString;
-    std::vector<TGeoElement*> CustomElements;
+    std::vector<AElementRecord> CustomElements;
     std::vector<std::pair<QString,AMatMixRecord>> MixtureByLevels;
 
-    void clear();
 };
 
 #endif // AMATCOMPOSITION_H

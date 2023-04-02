@@ -371,8 +371,9 @@ void AParticleSimManager::configureMaterials()
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
 
-    SimSet.RunSet.Materials         = MatHub.getMaterialNames();
-    SimSet.RunSet.MaterialsFromNist = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.Materials             = MatHub.getMaterialNames();
+    SimSet.RunSet.MaterialsFromNist     = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.MaterialsMeanExEnergy = MatHub.getMaterialsMeanExEnergy();
 }
 
 void AParticleSimManager::configureMonitors()

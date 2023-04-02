@@ -1,5 +1,4 @@
 #include "amaterial.h"
-#include "achemicalelement.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "aerrorhub.h"
@@ -70,8 +69,7 @@ double AMaterial::getSpeedOfLight(int iWave) const
 
 void AMaterial::generateTGeoMat()
 {
-    _GeoMat = Composition.generateTGeoMaterial(Name.toLocal8Bit().data(), Density);
-    _GeoMat->SetTemperature(Temperature);
+    _GeoMat = Composition.constructGeoMaterial(Name.toLatin1().data());
 }
 
 double AMaterial::FT(double td, double tr, double t) const
@@ -236,8 +234,7 @@ void AMaterial::clear()
 {
     Name = "Undefined";
     RefIndex = 1.0;
-    Density = AbsCoeff = RayleighMFP = ReemissionProb = 0;
-    Temperature = 298.0;
+    AbsCoeff = RayleighMFP = ReemissionProb = 0;
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
     Comments = "";
@@ -286,12 +283,11 @@ void AMaterial::writeToJson(QJsonObject & json) const
 {
     json["*Name"]           = Name;
 
-    json["Composition"]     = Composition.writeToJson();
-    json["Density"]         = Density;
-    json["UseNistMaterial"] = UseNistMaterial;
-    json["NistMaterial"]    = NistMaterial;
-    json["Temperature"]     = Temperature;
-
+    QJsonObject jsComp;
+        Composition.writeToJson(jsComp);
+        jsComp["UseGeant4Material"] = UseG4Material;
+        jsComp["Geant4Material"]    = G4MaterialName;
+    json["Composition"] = jsComp;
 
     json["RefIndex"]    = RefIndex;
     json["AbsCoeff"]    = AbsCoeff;
@@ -393,12 +389,12 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     clear();
 
     jstools::parseJson(json, "*Name", Name);
-    QJsonObject ccjson = json["Composition"].toObject();
-    Composition.readFromJson(ccjson);
-    jstools::parseJson(json, "Density", Density);
-    jstools::parseJson(json, "UseNistMaterial",  UseNistMaterial);
-    jstools::parseJson(json, "NistMaterial",     NistMaterial);
-    jstools::parseJson(json, "Temperature", Temperature);
+
+    QJsonObject jsComp;
+    jstools::parseJson(json, "Composition", jsComp);
+        Composition.readFromJson(jsComp);
+        jstools::parseJson(jsComp, "UseGeant4Material", UseG4Material);
+        jstools::parseJson(jsComp, "Geant4Material",    G4MaterialName);
 
     jstools::parseJson(json, "RefIndex", RefIndex);
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
@@ -512,17 +508,27 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 QString AMaterial::checkMaterial() const
 {
     if (Name.isEmpty()) return "Empty material name!";
-    const QString errInComposition = Composition.checkForErrors();
-    if (!errInComposition.isEmpty())
-        return Name + ": " + errInComposition;
 
-    if (Density <= 0) return Name + ": Non-positive density";
-    if (Temperature <= 0) return Name + ": Non-positive temperature";
+    if (UseG4Material)
+    {
+        if (G4MaterialName.isEmpty()) return Name + ": Geant4 material name is empty";
+    }
+    else
+    {
+        if (!Composition.ErrorString.isEmpty()) return Name + ": " + Composition.ErrorString;
+        if (Composition.Density <= 0) return Name + ": Non-positive density";
+        if (Composition.Temperature <= 0) return Name + ": Non-positive temperature";
+    }
 
     return "";
 }
 
 void AMaterial::importComposition(TGeoMaterial * mat)
 {
-    Composition.import(mat);
+    bool ok = Composition.importComposition(mat);
+    if (!ok)
+    {
+        // !!!*** error handling
+        Composition.makeItVacuum();
+    }
 }
