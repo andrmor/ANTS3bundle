@@ -7,7 +7,6 @@
 #include "rasterwindowbaseclass.h"
 #include "a3global.h"
 #include "ajsontools.h"
-//#include "anetworkmodule.h"
 #include "ageomarkerclass.h"
 #include "ageoshape.h"
 #include "ageoobject.h"
@@ -30,6 +29,8 @@
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
 #include <QWebEngineDownloadItem>
+#endif
+#ifdef USE_ROOT_HTML
 #include "aroothttpserver.h"
 #endif
 
@@ -1071,8 +1072,8 @@ void AGeometryWindow::OpenGLview()
 void AGeometryWindow::on_actionJSROOT_in_browser_triggered()
 {
 #ifdef USE_ROOT_HTML
-    ANetworkModule * NetModule = AGlobalSettings::getInstance().getNetworkModule();
-    if (NetModule->isRootServerRunning())
+    ARootHttpServer & RootServer = ARootHttpServer::getInstance();
+    if (RootServer.isRunning())
     {
         //QString t = "http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=dray;all;tracks";
         QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
@@ -1083,12 +1084,12 @@ void AGeometryWindow::on_actionJSROOT_in_browser_triggered()
     }
     else
     {
-        message("Root html server has to be started:"
-                "\nUse MainWindow->Menu->Settings->Net->Run_CERN_ROOT_HTML_server", this);
+        guitools::message("Start ROOT http server to use this feature"
+                          "\nUse MainWindow->Menu->Settings->Net->Run_ROOT_HTTP_server", this);
     }
 #else
-    guitools::message("ANTS2 has to be compiled with the activated option in ants2.pro:"
-            "\nCONFIG += ants2_RootServer\n", this);
+    guitools::message("ANTS3 has to be compiled with the activated option in ants3.pro:"
+            "\nCONFIG += ants3_RootServer\n", this);
 #endif
 }
 

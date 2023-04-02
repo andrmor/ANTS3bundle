@@ -3,13 +3,13 @@ CONFIG += ants3_GUI          #if commented away, GUI is not compiled
 CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
 CONFIG += ants3_Python      #enable Python scripting
-# not yet!  #CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
 # not yet!  #CONFIG += ants3_jsroot      #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
 LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
-#ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
+ants3_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 # PYTHON
 ants3_Python {
@@ -35,6 +35,15 @@ ants3_Python {
 
     INCLUDEPATH += script/Python
 }
+
+# ROOT HTML server
+ants3_RootServer{
+  DEFINES += USE_ROOT_HTML
+
+    SOURCES += net/aroothttpserver.cpp
+    HEADERS += net/aroothttpserver.h
+}
+#----------
 
 QT += core
 ants3_GUI {
@@ -90,6 +99,7 @@ INCLUDEPATH += photonSim/interfaceRules
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
+INCLUDEPATH += net
 INCLUDEPATH += ../dispatcher
 INCLUDEPATH += ../lsim
 INCLUDEPATH += /usr/include

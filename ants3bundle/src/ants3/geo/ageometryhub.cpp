@@ -249,6 +249,9 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
+#ifdef USE_ROOT_HTML
+#include "aroothttpserver.h"
+#endif
 void AGeometryHub::populateGeoManager()
 {
     ASensorHub::getInstance().clearSensors();
@@ -294,6 +297,10 @@ void AGeometryHub::populateGeoManager()
     setVolumeTitle(World, Top);
 
     GeoManager->CloseGeometry();
+
+#ifdef USE_ROOT_HTML
+    ARootHttpServer::getInstance().onNewGeoManagerCreated();
+#endif
 }
 
 #include "amonitor.h"

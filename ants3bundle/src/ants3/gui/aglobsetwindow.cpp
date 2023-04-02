@@ -3,7 +3,7 @@
 #include "a3global.h"
 #include "ascriptwindow.h"
 #include "guitools.h"
-//#include "anetworkmodule.h"
+#include "aroothttpserver.h"
 //#include "agstyle_si.h"
 
 //Qt
@@ -23,8 +23,10 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 
     updateGui();
 
-    //QObject::connect(GlobSet.getNetworkModule(), &ANetworkModule::StatusChanged, this, &AGlobSetWindow::updateNetGui);
-    //if (GlobSet.fRunRootServerOnStart) GlobSet.getNetworkModule()->StartRootHttpServer();  //does nothing if compilation flag is not set
+    ARootHttpServer & rs = ARootHttpServer::getInstance();
+    QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
+
+    if (rs.Autostart) rs.start();  //does nothing if compilation flag is not set
 }
 
 AGlobSetWindow::~AGlobSetWindow()
@@ -75,28 +77,27 @@ void AGlobSetWindow::updateNetGui()
         ui->leWebSocketPort->setText(QString::number(port));
         ui->leWebSocketURL->setText(Net->getWebSocketServerURL());
     }
-
-    bool fRootServerRunning = Net->isRootServerRunning();
-    ui->cbRunRootServer->setChecked( fRootServerRunning );
-    ui->cbAutoRunRootServer->setChecked( GlobSet.fRunRootServerOnStart );
 */
 
-/*
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    bool fRootServerRunning = ser.isRunning();
+    ui->cbRunRootServer->setChecked(fRootServerRunning);
+    ui->cbAutoRunRootServer->setChecked(ser.Autostart);
+
 #ifdef USE_ROOT_HTML
-    ui->leJSROOT->setText(GlobSet.ExternalJSROOT);
-    const QString sPort = QString::number(GlobSet.RootServerPort);
+    ui->leJSROOT->setText(ser.ExternalJSROOT);
+    QString sPort = QString::number(ser.Port);
     ui->leRootServerPort->setText(sPort);
-    const QString url = ( fRootServerRunning ? "http://localhost:" + sPort : "" );
+    QString url = ( ser.isRunning() ? "http://localhost:" + sPort : "" );
     ui->leRootServerURL->setText(url);
 #else
-*/
     ui->cbRunRootServer->setChecked(false);
     ui->cbRunRootServer->setEnabled(false);
     ui->cbAutoRunRootServer->setEnabled(false);
     ui->leRootServerPort->setEnabled(false);
     ui->leJSROOT->setEnabled(false);
     ui->leRootServerURL->setEnabled(false);
-//#endif
+#endif
 }
 
 void AGlobSetWindow::setTab(int iTab)
@@ -300,37 +301,6 @@ void AGlobSetWindow::on_leWebSocketPort_editingFinished()
         ui->leWebSocketPort->setText(QString::number(newp));
     }
 }
-void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
-{
-    GlobSet.fRunRootServerOnStart = ui->cbAutoRunRootServer->isChecked();
-}
-void AGlobSetWindow::on_leRootServerPort_editingFinished()
-{
-    int oldp = GlobSet.RootServerPort;
-    int newp = ui->leRootServerPort->text().toInt();
-    if (oldp == newp) return;
-    GlobSet.RootServerPort = newp;
-
-    ui->cbRunRootServer->setChecked(false);
-}
-void AGlobSetWindow::on_leJSROOT_editingFinished()
-{
-    const QString & olda = GlobSet.ExternalJSROOT;
-    QString newa = ui->leJSROOT->text();
-    if (olda == newa) return;
-    GlobSet.ExternalJSROOT = newa;
-
-    ui->cbRunRootServer->setChecked(false);
-}
-void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
-{
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-
-    if (checked)
-        Net->StartRootHttpServer();  //does nothing if compilation flag is not set
-    else
-        Net->StopRootHttpServer();
-}
 void AGlobSetWindow::on_leWebSocketIP_editingFinished()
 {
     QString newIP = ui->leWebSocketIP->text();
@@ -364,3 +334,37 @@ void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
     GlobSet.SimTextSave_IncludePositions = checked;
 }
 */
+
+void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    ser.Autostart = ui->cbAutoRunRootServer->isChecked();
+}
+void AGlobSetWindow::on_leRootServerPort_editingFinished()  // !!!*** stop when changed? restart?
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    int oldp = ser.Port;
+    int newp = ui->leRootServerPort->text().toInt();
+    if (oldp == newp) return;
+    ser.Port = newp;
+
+    ui->cbRunRootServer->setChecked(false);
+}
+void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    const QString newa = ui->leJSROOT->text();
+    if (newa == ser.ExternalJSROOT) return;
+    ser.ExternalJSROOT = newa;
+
+    ui->cbRunRootServer->setChecked(false);
+}
+void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+
+    if (checked)
+        ser.start();  //does nothing if compilation flag is not set
+    else
+        ser.stop();
+}
