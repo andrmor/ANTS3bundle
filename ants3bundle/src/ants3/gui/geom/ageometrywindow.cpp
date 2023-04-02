@@ -28,6 +28,7 @@
 #include <QWebEngineView>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
+#include <QWebEngineSettings>
 //#include <QWebEngineDownloadItem>
 #endif
 #ifdef USE_ROOT_HTML
@@ -50,19 +51,17 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
     windowFlags |= Qt::WindowCloseButtonHint;
     windowFlags |= Qt::WindowMinimizeButtonHint;
     windowFlags |= Qt::WindowMaximizeButtonHint;
-    //windowFlags |= Qt::Tool;
     this->setWindowFlags( windowFlags );
 
     this->setMinimumWidth(200);
 
     RasterWindow = new RasterWindowBaseClass(this);
-    //centralWidget()->layout()->addWidget(RasterWindow);
-    connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
-
     QVBoxLayout * layV = new QVBoxLayout();
     layV->setContentsMargins(0,0,0,0);
     layV->addWidget(RasterWindow);
     ui->swViewers->widget(0)->setLayout(layV);
+
+    connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
 
 #ifdef __USE_ANTS_JSROOT__
     WebView = new QWebEngineView(this);
@@ -73,7 +72,7 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
     //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
 
     // !!!*** to fix:
-    //    QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
+    //QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
     //                                                 this, &AGeometryWindow::onDownloadPngRequested);
 #endif
 
@@ -196,6 +195,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
     else
     {
 #ifdef __USE_ANTS_JSROOT__
+        // qDebug() << "<<<<>>>>------------- ShowGeometry FOR JSROOT!!!!!!!!!!!!!!!!!!!!!!";
         //qDebug() << "Before:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast() << "markers: "<< MW->GeoMarkers.size();
 
         //deleting old markers
@@ -238,12 +238,22 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         emit requestUpdateRegisteredGeoManager();
 
         QWebEnginePage * page = WebView->page();
+        /*
         QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
         js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
         js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
         js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
         js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
         js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
+        */
+
+        QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
+        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
+        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
+        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
+        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
+
         page->runJavaScript(js);
 #endif
     }
@@ -958,7 +968,21 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
 //#include <QElapsedTimer>
 void AGeometryWindow::showWebView()
 {
+    qDebug() << "------------------showWebView------------------";
+
 #ifdef __USE_ANTS_JSROOT__
+
+    //QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50";
+    QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks;transp50";
+    //QString sss = "https://webapps.frm2.tum.de/neutroncalc/";
+    qDebug() << "------------Load:";
+    WebView->load(QUrl(sss));
+    qDebug() << "------------Show:";
+    WebView->show();
+    qDebug() << "------------AfterShow";
+    return;
+
+
     //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
     //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
     //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/world,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
@@ -974,7 +998,6 @@ void AGeometryWindow::showWebView()
     s += QString(";transp%1").arg(ui->sbTransparency->value());
 
     prepareGeoManager(true);
-
     WebView->load(QUrl(s));
     WebView->show();
 
@@ -1025,6 +1048,7 @@ void AGeometryWindow::on_cobViewer_currentIndexChanged(int index)
         ARootHttpServer & rs = ARootHttpServer::getInstance();
         if (!rs.isRunning())
         {
+            qDebug() << "Root server is not running, starting...";
             bool bOK = rs.start();
             if (!bOK)
             {
@@ -1078,7 +1102,8 @@ void AGeometryWindow::on_actionJSROOT_in_browser_triggered()
     if (RootServer.isRunning())
     {
         //QString t = "http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=dray;all;tracks";
-        QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
+        //QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
+        QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks";
         t += ";transp"+QString::number(ui->sbTransparency->value());
         if (ui->cbShowAxes->isChecked()) t += ";axis";
 

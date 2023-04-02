@@ -18,13 +18,18 @@ bool ARootHttpServer::start()
     delete Server;
     QString s = "http:" + QString::number(Port);
     Server = new THttpServer(s.toLatin1());
-    if (!ExternalJSROOT.isEmpty()) Server->SetJSROOT(ExternalJSROOT.toLatin1());
+    if (!ExternalJSROOT.isEmpty())
+    {
+        Server->SetJSROOT(ExternalJSROOT.toLatin1());
+        //Server->SetJSROOT("https://root.cern.ch/js/latest/");
+    }
 
     if (isRunning())
     {
         qDebug() << "ANTS3 root server is now listening";
         emit StatusChanged();
-        emit RootServerStarted(); //to update current geometry on the server
+        //emit RootServerStarted(); //to update current geometry on the server
+        onNewGeoManagerCreated();
         return true;
     }
     else

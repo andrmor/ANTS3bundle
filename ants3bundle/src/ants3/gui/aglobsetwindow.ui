@@ -780,7 +780,7 @@
            <item>
             <widget class="QCheckBox" name="cbRunRootServer">
              <property name="text">
-              <string>Run CERN ROOT HTML server</string>
+              <string>Run ROOT HTTP server</string>
              </property>
             </widget>
            </item>

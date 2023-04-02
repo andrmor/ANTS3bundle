@@ -36,7 +36,8 @@ public:
     void readFromJson(const QJsonObject & json);
 
     int     Port = 8080;
-    QString ExternalJSROOT = "https://root.cern/js/5.9.0/";     //QString ExternalJSROOT = "https://root.cern/js/latest/";
+    //QString ExternalJSROOT = "https://root.cern.ch/js/latest/"; // "https://root.cern/js/5.9.0/";     //QString ExternalJSROOT = "https://root.cern/js/latest/";
+    QString ExternalJSROOT = "https://root.cern.ch/js/6.3.4/";
     bool    Autostart = false;
 
 public slots:

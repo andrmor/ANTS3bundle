@@ -127,7 +127,7 @@ private slots:
     void on_actionDecrease_line_width_triggered();
     void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
-    void on_actionJSROOT_in_browser_triggered();
+    void on_actionJSROOT_in_browser_triggered(); // !!!*** hard coded port of the root server
     void on_cbWireFrame_toggled(bool checked);
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
