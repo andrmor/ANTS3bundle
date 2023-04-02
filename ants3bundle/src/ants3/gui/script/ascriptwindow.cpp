@@ -245,9 +245,11 @@ void AScriptWindow::createGuiElements()
     pteOut = new QPlainTextEdit();
     pteOut->setMinimumHeight(50);
     pteOut->setReadOnly(true);
-    QPalette p = pteOut->palette();
-    p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
-    p.setColor(QPalette::Inactive, QPalette::Base, QColor(240,240,240));
+    QPalette p = pteOut->palette();   // !!!*** avoid using palettes: clashes with dark theme!
+    //p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
+    //p.setColor(QPalette::Inactive, QPalette::Base, QColor(240,240,240));
+    p.setColor(QPalette::Active, QPalette::Base, p.color(QPalette::AlternateBase));
+    p.setColor(QPalette::Inactive, QPalette::Base, p.color(QPalette::AlternateBase));
     pteOut->setPalette(p);
     pteHelp->setPalette(p);
     hor->setSizes(sizes);  // sizes of Script / Help / Config

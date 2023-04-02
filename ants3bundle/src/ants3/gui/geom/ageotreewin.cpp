@@ -73,17 +73,17 @@ AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
 //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
   connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &AGeoTreeWin::onMaterialsChanged);
 
-  QPalette palette = ui->frObjectEditor->palette();
-  palette.setColor( backgroundRole(), QColor( 240, 240, 240 ) );
-  ui->frObjectEditor->setPalette( palette );
-  ui->frObjectEditor->setAutoFillBackground( true );
+//  QPalette palette = ui->frObjectEditor->palette();
+//  palette.setColor( backgroundRole(), QColor( 240, 240, 240 ) );
+//  ui->frObjectEditor->setPalette( palette );
+//  ui->frObjectEditor->setAutoFillBackground( true );
 
   connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
 
-  QPalette p = ui->pteTP->palette();
-  p.setColor(QPalette::Active, QPalette::Base, QColor(220,220,220));
-  p.setColor(QPalette::Inactive, QPalette::Base, QColor(220,220,220));
-  ui->pteTP->setPalette(p);
+//  QPalette p = ui->pteTP->palette();
+//  p.setColor(QPalette::Active, QPalette::Base, QColor(220,220,220));
+//  p.setColor(QPalette::Inactive, QPalette::Base, QColor(220,220,220));
+//  ui->pteTP->setPalette(p);
   ui->pteTP->setReadOnly(true);
 
   QDoubleValidator* dv = new QDoubleValidator(this);

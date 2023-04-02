@@ -55,7 +55,8 @@ AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
   frBottom->setMinimumHeight(38);
   frBottom->setMaximumHeight(38);
   QPalette palette = frBottom->palette();
-  palette.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
+  //palette.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
+  palette.setColor( backgroundRole(), palette.color(QPalette::AlternateBase) );
   frBottom->setPalette( palette );
   frBottom->setAutoFillBackground( true );
   QHBoxLayout* lb = new QHBoxLayout();

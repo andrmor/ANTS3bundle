@@ -485,7 +485,8 @@ void ATextEdit::setFontSizeAndEmitSignal(int size)
 void ATextEdit::paintLeftField(QPaintEvent *event)
 {
     QPainter painter(LeftField);
-    QColor color = QColor(Qt::gray).lighter(152);
+    //QColor color = QColor(Qt::gray).lighter(152);
+    QColor color = palette().color(QPalette::AlternateBase);
     painter.fillRect(event->rect(), color);
 
     QTextBlock block = firstVisibleBlock();
@@ -504,7 +505,7 @@ void ATextEdit::paintLeftField(QPaintEvent *event)
         if (block.isVisible() && bottom >= event->rect().top())
         {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen( currentLine == blockNumber ? Qt::black : Qt::gray);
+            painter.setPen( currentLine == blockNumber ? Qt::black : Qt::gray); // !!!*** make compatible with dark theme
             painter.drawText(0, top, LeftField->width(), fontMetrics().height(), Qt::AlignCenter, number);
         }
 

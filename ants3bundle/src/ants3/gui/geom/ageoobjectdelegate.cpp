@@ -42,7 +42,8 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
   Widget->setContextMenuPolicy(Qt::CustomContextMenu);
 
   QPalette palette = frMainFrame->palette();
-  palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+  //palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+  palette.setColor( Widget->backgroundRole(), palette.color(QPalette::AlternateBase) );
   frMainFrame->setPalette( palette );
   frMainFrame->setAutoFillBackground( true );
   lMF = new QVBoxLayout();
@@ -3157,7 +3158,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
     Widget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     QPalette palette = frMainFrame->palette();
-    palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+    //palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+    palette.setColor( Widget->backgroundRole(), palette.color(QPalette::AlternateBase) );
     frMainFrame->setPalette( palette );
     frMainFrame->setAutoFillBackground( true );
 

@@ -62,7 +62,7 @@ private:
     void setFontSizeAndEmitSignal(int size);
 
     friend class ALeftField;
-    void paintLeftField(QPaintEvent *event);
+    void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
     int  getWidthLeftField() const;
 
     QCompleter* c;
