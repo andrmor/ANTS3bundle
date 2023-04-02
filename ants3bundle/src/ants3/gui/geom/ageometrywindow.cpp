@@ -28,7 +28,7 @@
 #include <QWebEngineView>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
-#include <QWebEngineDownloadItem>
+//#include <QWebEngineDownloadItem>
 #endif
 #ifdef USE_ROOT_HTML
 #include "aroothttpserver.h"
@@ -71,8 +71,10 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
     layV->addWidget(WebView);
     ui->swViewers->widget(1)->setLayout(layV);
     //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
-    QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
-                                                 this, &GeometryWindowClass::onDownloadPngRequested);
+
+    // !!!*** to fix:
+    //    QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
+    //                                                 this, &AGeometryWindow::onDownloadPngRequested);
 #endif
 
     QActionGroup* group = new QActionGroup( this );
@@ -197,7 +199,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         //qDebug() << "Before:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast() << "markers: "<< MW->GeoMarkers.size();
 
         //deleting old markers
-        TObjArray * Arr = Detector.GeoManager->GetListOfTracks();
+        TObjArray * Arr = gGeoManager->GetListOfTracks();
         const int numObj = Arr->GetEntriesFast();
         int iObj = 0;
         for (; iObj<numObj; iObj++)
@@ -214,20 +216,20 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         }
         //qDebug() << "After filtering markers:"<<Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
 
-        if (!GeoMarkers.isEmpty())
+        if (!GeoMarkers.empty())
         {
-            for (int i = 0; i < GeoMarkers.size(); i++)
+            for (size_t i = 0; i < GeoMarkers.size(); i++)
             {
                 GeoMarkerClass * gm = GeoMarkers[i];
                 //overrides
-                if (gm->Type == "Recon" || gm->Type == "Scan" || gm->Type == "Nodes")
+                if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::Source)
                 {
                     gm->SetMarkerStyle(GeoMarkerStyle);
                     gm->SetMarkerSize(GeoMarkerSize);
                 }
 
                 TPolyMarker3D * mark = new TPolyMarker3D(*gm);
-                Detector.GeoManager->GetListOfTracks()->Add(mark);
+                gGeoManager->GetListOfTracks()->Add(mark);
             }
         }
         //qDebug() << "After:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
@@ -239,7 +241,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
         js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
         js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / AGlobalSettings::getInstance().NumSegments : 6);
+        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
         js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
         js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
         page->runJavaScript(js);
@@ -1020,14 +1022,14 @@ void AGeometryWindow::on_cobViewer_currentIndexChanged(int index)
     }
     else
     {
-        ANetworkModule * NetModule = AGlobalSettings::getInstance().getNetworkModule();
-        if (!NetModule->isRootServerRunning())
+        ARootHttpServer & rs = ARootHttpServer::getInstance();
+        if (!rs.isRunning())
         {
-            bool bOK = NetModule->StartRootHttpServer();
+            bool bOK = rs.start();
             if (!bOK)
             {
                 ui->cobViewer->setCurrentIndex(0);
-                message("Failed to start root http server. Check if another server is running at the same port", this);
+                guitools::message("Failed to start root http server. Check if another server is running at the same port", this);
                 emit requestShowNetSettings();
                 return;
             }
@@ -1137,7 +1139,7 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
 #ifdef __USE_ANTS_JSROOT__
         int level = ui->sbLimitVisibility->value();
         if (!ui->cbLimitVisibility->isChecked()) level = -1;
-        Detector.GeoManager->SetVisLevel(level);
+        gGeoManager->SetVisLevel(level);
         //MW->NetModule->onNewGeoManagerCreated();
         emit requestUpdateRegisteredGeoManager();
 
@@ -1240,6 +1242,7 @@ void AGeometryWindow::on_pbSaveAs_clicked()
 
 void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
 {
+/*
 #ifdef __USE_ANTS_JSROOT__
     QString fileName = QFileDialog::getSaveFileName(this, "Select file name to safe image");
     if (fileName.isEmpty())
@@ -1250,6 +1253,7 @@ void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
     item->setPath(fileName);
     item->accept();
 #endif
+*/
 }
 
 void AGeometryWindow::on_pbCameraDialog_clicked()

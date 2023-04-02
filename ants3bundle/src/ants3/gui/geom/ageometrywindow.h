@@ -104,7 +104,7 @@ public slots:
     void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
 
 private slots:
-    void onDownloadPngRequested(QWebEngineDownloadItem *item);
+    void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
 
 private slots:
     void on_pbShowGeometry_clicked();

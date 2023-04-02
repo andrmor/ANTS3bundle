@@ -4,7 +4,7 @@ CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and
 
 CONFIG += ants3_Python      #enable Python scripting
 CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
-# not yet!  #CONFIG += ants3_jsroot      #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
+CONFIG += ants3_jsroot      #enables JSROOT visualisation at GeometryWindow. Requares ants3_RootServer
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
@@ -42,6 +42,13 @@ ants3_RootServer{
 
     SOURCES += net/aroothttpserver.cpp
     HEADERS += net/aroothttpserver.h
+}
+#----------
+
+# JSROOT viewer
+ants3_jsroot{
+    DEFINES += __USE_ANTS_JSROOT__
+    QT      += webenginewidgets
 }
 #----------
 
