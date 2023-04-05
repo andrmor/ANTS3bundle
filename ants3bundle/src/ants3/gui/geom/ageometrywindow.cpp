@@ -198,15 +198,7 @@ void AGeometryWindow::on_pbShowGeometry_clicked()
 {
     //qDebug() << "Redraw triggered!";
     ShowAndFocus();
-
-    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
-    if (Mode == 0)
-    {
-        //RasterWindow->ForceResize();
-        //ResetView();
-        fRecallWindow = false;
-    }
-
+    if (!UseJSRoot) fRecallWindow = false;
     ShowGeometry(true, false); //not doing "same" option!
 }
 
@@ -281,7 +273,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
 
         //MW->NetModule->onNewGeoManagerCreated();
         emit requestUpdateRegisteredGeoManager();
-/*
+
         QWebEnginePage * page = WebView->page();
 
 //        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
@@ -299,7 +291,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
         page->runJavaScript(js);
-*/
+
 #endif
     }
 }
@@ -1024,7 +1016,6 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
     ShowGeometry(true, false);
 }
 
-//#include <QElapsedTimer>
 void AGeometryWindow::showWebView()
 {
     //qDebug() << "------------------showWebView------------------";
@@ -1038,10 +1029,6 @@ void AGeometryWindow::showWebView()
     return;
     */
 
-    //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
-    //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
-    //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/world,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
-
     QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
@@ -1054,37 +1041,6 @@ void AGeometryWindow::showWebView()
     prepareGeoManager(true);
     WebView->load(QUrl(s));
     WebView->show();
-
-    /*
-    QWebEnginePage * page = WebView->page();
-    QString js = ""
-    "var wait = true;"
-    "if ((typeof JSROOT != \"undefined\") && JSROOT.GetMainPainter)"
-    "{"
-    "   var p = JSROOT.GetMainPainter(\"onlineGUI_drawing\");"
-    "   if (p && p.isDrawingReady()) wait = false;"
-    "}"
-    "wait";
-
-    bool bWait = true;
-    QElapsedTimer timer;
-    timer.start();
-    do
-    {
-        qApp->processEvents();
-
-        page->runJavaScript(js, [&bWait](const QVariant &v)
-        {
-            bWait = v.toBool();
-        });
-        //qDebug() << bWait << timer.elapsed();
-    }
-    while (bWait && timer.elapsed() < 2000);
-
-    qDebug() << "exit!";
-    */
-
-    //ShowGeometry(true, false);
 #endif
 }
 
