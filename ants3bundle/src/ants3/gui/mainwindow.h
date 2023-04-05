@@ -109,6 +109,7 @@ private:
     void loadWindowGeometries();
     QString getQuickLoadMessage(int index);
     void changeGeoViewer(bool useJSRoot);
+    void connectSignalSlotsForGeoWin();
 };
 
 #endif // MAINWINDOW_H

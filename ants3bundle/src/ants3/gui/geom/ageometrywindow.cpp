@@ -215,7 +215,6 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
     if (bDisableDraw) return;
 
     prepareGeoManager(ColorUpdateAllowed);
-    qDebug() << "Prepared geo manager";
 
     if (!UseJSRoot)
     {
@@ -1028,30 +1027,28 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
 //#include <QElapsedTimer>
 void AGeometryWindow::showWebView()
 {
-    qDebug() << "------------------showWebView------------------";
-
+    //qDebug() << "------------------showWebView------------------";
 #ifdef __USE_ANTS_JSROOT__
-
-    //QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50";
+        //QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50";
+        //QString sss = "https://webapps.frm2.tum.de/neutroncalc/";
+    /*
     QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks;transp50";
-    //QString sss = "https://webapps.frm2.tum.de/neutroncalc/";
     WebView->load(QUrl(sss));
     WebView->show();
     return;
-
+    */
 
     //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
     //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
     //WebView->load(QUrl("http://localhost:8080/?item=[Objects/GeoWorld/world,Objects/GeoTracks/TObjArray]&opt=nohighlight;dray;all;tracks;transp50"));
 
-    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
+    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks";
+    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
+    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
-    if (ui->cbShowTop->isChecked())
-        s += ";showtop";
-    if (ui->cobViewType->currentIndex() == 1)
-        s += ";ortho_camera_rotate";
-    if (ui->cbWireFrame->isChecked())
-        s += ";wireframe";
+    if (ui->cbShowTop->isChecked())           s += ";showtop";
+    if (ui->cobViewType->currentIndex() == 1) s += ";ortho_camera_rotate";
+    if (ui->cbWireFrame->isChecked())         s += ";wireframe";
     s += QString(";transp%1").arg(ui->sbTransparency->value());
 
     prepareGeoManager(true);
