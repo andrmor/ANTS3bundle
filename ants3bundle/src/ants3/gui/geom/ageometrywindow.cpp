@@ -1035,11 +1035,8 @@ void AGeometryWindow::showWebView()
     //QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50";
     QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks;transp50";
     //QString sss = "https://webapps.frm2.tum.de/neutroncalc/";
-    qDebug() << "------------Load:";
     WebView->load(QUrl(sss));
-    qDebug() << "------------Show:";
     WebView->show();
-    qDebug() << "------------AfterShow";
     return;
 
 
