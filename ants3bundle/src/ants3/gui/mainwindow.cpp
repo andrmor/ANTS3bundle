@@ -48,7 +48,8 @@ MainWindow::MainWindow() :
     GeoTreeWin = new AGeoTreeWin(this);
     connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
-    GeoWin = new AGeometryWindow(this);
+    GeoWin = new AGeometryWindow(false, this);
+    connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer, this,   &MainWindow::onRequestChangeGeoViewer);
     connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
     connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,   GeoWin, &AGeometryWindow::showRecursive);
     connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
@@ -137,7 +138,7 @@ MainWindow::MainWindow() :
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     GeoWin->ShowGeometry(false);
-    //if (!bShown) GeoWin->hide();
+    //if (!bShown) GeoWin->hide(); // has to be in the end!
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -389,6 +390,34 @@ void MainWindow::onRequestSaveGuiSettings()
     }
 
     JSON["gui"] = json;
+}
+
+void MainWindow::onRequestChangeGeoViewer(bool useJSRoot)
+{
+    QTimer::singleShot(0, this,
+                       [useJSRoot, this]()
+                       {
+                            changeGeoViewer(useJSRoot);
+                       } );
+}
+
+void MainWindow::changeGeoViewer(bool useJSRoot)
+{
+    delete GeoWin; GeoWin = new AGeometryWindow(useJSRoot, this);
+    GeoWin->restoreGeomStatus();
+
+    connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer, this,   &MainWindow::onRequestChangeGeoViewer);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,   GeoWin, &AGeometryWindow::showRecursive);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoTreeWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
+
+    GeoWin->show();
+    GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+    GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    GeoWin->ShowGeometry(true);
 }
 
 void MainWindow::on_leConfigName_editingFinished()

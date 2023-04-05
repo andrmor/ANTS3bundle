@@ -28,7 +28,7 @@ class AGeometryWindow : public AGuiWindow
 friend class AShowNumbersDialog;
 
 public:
-    explicit AGeometryWindow(QWidget * parent);
+    explicit AGeometryWindow(bool jsrootViewer, QWidget * parent);
     ~AGeometryWindow();
 
     bool ModePerspective = true;
@@ -68,7 +68,7 @@ public:
     void ClearTracks(bool bRefreshWindow = true);
 
 protected:
-    bool event(QEvent *event) override;
+    bool event(QEvent *event) override; // !!!***
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
@@ -107,6 +107,7 @@ private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
 
 private slots:
+    void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
     void on_cbShowTop_toggled(bool checked);
     void on_cbColor_toggled(bool checked);
@@ -125,7 +126,6 @@ private slots:
     void on_actionDefault_zoom_to_0_triggered();
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
-    void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
     void on_actionJSROOT_in_browser_triggered(); // !!!*** hard coded port of the root server
     void on_cbWireFrame_toggled(bool checked);
@@ -136,16 +136,17 @@ private slots:
     void on_pbShowNumbers_clicked();
 
 private:
+    bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
 
     Ui::AGeometryWindow   * ui = nullptr;
+
     RasterWindowBaseClass * RasterWindow = nullptr;
-
-    ACameraControlDialog  * CameraControl = nullptr;
-
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif
+
+    ACameraControlDialog  * CameraControl = nullptr;
 
     int GeoMarkerSize  = 2;
     int GeoMarkerStyle = 6;
@@ -163,6 +164,7 @@ private:
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
 
 signals:
+    void requestChangeGeoViewer(bool useJSRoot);
     void requestUpdateRegisteredGeoManager();
     void requestUpdateMaterialListWidget();
     void requestShowNetSettings();

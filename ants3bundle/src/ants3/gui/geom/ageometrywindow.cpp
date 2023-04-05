@@ -40,11 +40,12 @@
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 
-AGeometryWindow::AGeometryWindow(QWidget * parent) :
+AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
     AGuiWindow("Geo", parent),
+    UseJSRoot(jsrootViewer),
     Geometry(AGeometryHub::getInstance()),
     ui(new Ui::AGeometryWindow)
-{    
+{
     ui->setupUi(this);
 
     Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
@@ -55,37 +56,50 @@ AGeometryWindow::AGeometryWindow(QWidget * parent) :
 
     this->setMinimumWidth(200);
 
-    RasterWindow = new RasterWindowBaseClass(this);
-    QVBoxLayout * layV = new QVBoxLayout();
-    layV->setContentsMargins(0,0,0,0);
-    layV->addWidget(RasterWindow);
-    ui->swViewers->widget(0)->setLayout(layV);
-
-    connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
-
-#ifdef __USE_ANTS_JSROOT__
-    WebView = new QWebEngineView(this);
-    layV = new QVBoxLayout();
-    layV->setContentsMargins(0,0,0,0);
-    layV->addWidget(WebView);
-    ui->swViewers->widget(1)->setLayout(layV);
-    //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
-
-    // !!!*** to fix:
-    //QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
-    //                                                 this, &AGeometryWindow::onDownloadPngRequested);
+#ifndef __USE_ANTS_JSROOT__
+    if (UseJSRoot)
+    {
+        qWarning() << "Cannot use JSROOT viewer: ANTS3 was compiled without flag ants3_jsroot";
+        UseJSRoot = false;
+    }
 #endif
 
-    QActionGroup* group = new QActionGroup( this );
+    if (!UseJSRoot)
+    {
+        RasterWindow = new RasterWindowBaseClass(this);
+        ui->hlMain->addWidget(RasterWindow);
+        connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
+
+        ui->cbWireFrame->setVisible(false);
+        CameraControl = new ACameraControlDialog(RasterWindow, this);
+        CameraControl->setModal(false);
+    }
+    else
+    {
+#ifdef __USE_ANTS_JSROOT__
+        WebView = new QWebEngineView(this);
+        ui->hlMain->addWidget(WebView);
+        //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
+
+        // !!!*** to fix:
+        //QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
+        //                                                 this, &AGeometryWindow::onDownloadPngRequested);
+
+        ui->pbCameraDialog->setVisible(false);
+
+        showWebView();
+#endif
+    }
+
+    TMPignore = true;
+    ui->cobViewer->setCurrentIndex(UseJSRoot ? 1 : 0);
+    TMPignore = false;
+
+    QActionGroup * group = new QActionGroup( this );
     ui->actionSmall_dot->setActionGroup(group);
     ui->actionLarge_dot->setActionGroup(group);
     ui->actionSmall_cross->setActionGroup(group);
     ui->actionLarge_cross->setActionGroup(group);
-
-    ui->cbWireFrame->setVisible(false);
-
-    CameraControl = new ACameraControlDialog(RasterWindow, this);
-    CameraControl->setModal(false);
 
     AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(this), "geowin");
 }
@@ -94,6 +108,39 @@ AGeometryWindow::~AGeometryWindow()
 {
     delete ui;
     clearGeoMarkers(0);
+}
+
+void AGeometryWindow::on_cobViewer_currentIndexChanged(int index)
+{
+    if (TMPignore) return;
+
+    if (index == 1)
+    {
+#ifdef __USE_ANTS_JSROOT__
+        ARootHttpServer & rs = ARootHttpServer::getInstance();
+        if (!rs.isRunning())
+        {
+            qDebug() << "Root server is not running, starting...";
+            bool bOK = rs.start();
+            if (!bOK)
+            {
+                ui->cobViewer->setCurrentIndex(0);
+                guitools::message("Failed to start root http server. Check if another server is running at the same port", this);
+                emit requestShowNetSettings();
+                return;
+            }
+        }
+#else
+        ui->cobViewer->setCurrentIndex(0);
+        guitools::message("Enable ants3_jsroot in ants3.pro and rebuild ants3", this);
+        return;
+#endif
+    }
+
+    storeGeomStatus();
+
+    bool requestJSRoot = (index == 1);
+    emit requestChangeGeoViewer(requestJSRoot);
 }
 
 void AGeometryWindow::adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel)
@@ -168,10 +215,9 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
     if (bDisableDraw) return;
 
     prepareGeoManager(ColorUpdateAllowed);
+    qDebug() << "Prepared geo manager";
 
-    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
-
-    if (Mode == 0)
+    if (!UseJSRoot)
     {
         if (ActivateWindow) ShowAndFocus(); //window is activated (focused)
         else SetAsActiveRootWindow(); //no activation in this mode
@@ -236,16 +282,15 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
 
         //MW->NetModule->onNewGeoManagerCreated();
         emit requestUpdateRegisteredGeoManager();
-
+/*
         QWebEnginePage * page = WebView->page();
-        /*
-        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
-        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
-        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
-        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
-        */
+
+//        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
+//        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
+//        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
+//        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+//        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
+//        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
         QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
         js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
@@ -255,6 +300,7 @@ void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpd
         js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
         page->runJavaScript(js);
+*/
 #endif
     }
 }
@@ -357,7 +403,7 @@ page->runJavaScript("JSROOT.GetMainPainter(\"onlineGUI_drawing\").produceCameraU
 
 void AGeometryWindow::ShowAndFocus()
 {
-    RasterWindow->fCanvas->cd();
+    if (!UseJSRoot) RasterWindow->fCanvas->cd();
     show();
     activateWindow();
     raise();
@@ -365,18 +411,24 @@ void AGeometryWindow::ShowAndFocus()
 
 void AGeometryWindow::SetAsActiveRootWindow()
 {
-    RasterWindow->fCanvas->cd();
+    if (UseJSRoot) qDebug() << "SetAsActiveRootWindow called in JSRoot mode!!!";
+    else RasterWindow->fCanvas->cd();
 }
 
 void AGeometryWindow::ClearRootCanvas()
 {
-    RasterWindow->fCanvas->Clear();
-    RasterWindow->fCanvas->cd();
+    if (UseJSRoot) qDebug() << "ClearRootCanvas called in JSRoot mode!!!";
+    else
+    {
+        RasterWindow->fCanvas->Clear();
+        RasterWindow->fCanvas->cd();
+    }
 }
 
 void AGeometryWindow::UpdateRootCanvas()
 {
-    RasterWindow->UpdateRootCanvas();
+    if (UseJSRoot) qDebug() << "UpdateRootCanvas called in JSRoot mode!!!";
+    else RasterWindow->UpdateRootCanvas();
 }
 
 void AGeometryWindow::SaveAs(const QString & filename)
@@ -386,35 +438,40 @@ void AGeometryWindow::SaveAs(const QString & filename)
 
 void AGeometryWindow::ResetView()
 {
-    if (ui->cobViewer->currentIndex() == 0)
+    if (UseJSRoot) qDebug() << "ResetView called in JSRoot mode!!!";
+    else
     {
-        TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
-        if (!v) return;
+        if (ui->cobViewer->currentIndex() == 0)
+        {
+            TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
+            if (!v) return;
 
-        TMPignore = true;
-        ui->cobViewType->setCurrentIndex(0);
-        TMPignore = false;
+            TMPignore = true;
+            ui->cobViewType->setCurrentIndex(0);
+            TMPignore = false;
 
-        //CameraControl->resetView();  //does not work: Draw() method resets canvas orientation to the last draw
-        //RasterWindow->UpdateRootCanvas();
+            //CameraControl->resetView();  //does not work: Draw() method resets canvas orientation to the last draw
+            //RasterWindow->UpdateRootCanvas();
+        }
     }
 }
 
 void AGeometryWindow::setHideUpdate(bool flag)
 {
-    RasterWindow->setVisible(!flag);
+    if (UseJSRoot) qDebug() << "setHideUpdate called in JSRoot mode!!!";
+    else RasterWindow->setVisible(!flag);
 }
 
 void AGeometryWindow::onBusyOn()
 {
     this->setEnabled(false);
-    RasterWindow->setBlockEvents(true);
+    if (!UseJSRoot) RasterWindow->setBlockEvents(true);
 }
 
 void AGeometryWindow::onBusyOff()
 {
     this->setEnabled(true);
-    RasterWindow->setBlockEvents(false);
+    if (!UseJSRoot) RasterWindow->setBlockEvents(false);
 }
 
 void AGeometryWindow::writeToJson(QJsonObject & json) const
@@ -436,7 +493,7 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     ok = jstools::parseJson(json, "GeoWriter", js);
     if (ok) GeoWriter.readFromJson(js);
 
-    RasterWindow->ForceResize();
+    if (!UseJSRoot) RasterWindow->ForceResize();
 }
 
 bool AGeometryWindow::IsWorldVisible()
@@ -447,7 +504,10 @@ bool AGeometryWindow::IsWorldVisible()
 bool AGeometryWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
-        RasterWindow->UpdateRootCanvas();
+    {
+        if (UseJSRoot) ; // !!!***
+        else RasterWindow->UpdateRootCanvas();
+    }
 
     //return AGuiWindow::event(event);
     return QMainWindow::event(event);
@@ -1032,48 +1092,6 @@ void AGeometryWindow::showWebView()
 
     //ShowGeometry(true, false);
 #endif
-}
-
-//#include "globalsettingswindowclass.h"
-void AGeometryWindow::on_cobViewer_currentIndexChanged(int index)
-{
-#ifdef __USE_ANTS_JSROOT__
-    if (index == 0)
-    {
-        ui->swViewers->setCurrentIndex(0);
-        on_pbShowGeometry_clicked();
-    }
-    else
-    {
-        ARootHttpServer & rs = ARootHttpServer::getInstance();
-        if (!rs.isRunning())
-        {
-            qDebug() << "Root server is not running, starting...";
-            bool bOK = rs.start();
-            if (!bOK)
-            {
-                ui->cobViewer->setCurrentIndex(0);
-                guitools::message("Failed to start root http server. Check if another server is running at the same port", this);
-                emit requestShowNetSettings();
-                return;
-            }
-        }
-
-        ui->swViewers->setCurrentIndex(1);
-        showWebView();
-    }
-    ui->cbWireFrame->setVisible(index == 1);
-#else
-    if (index != 0)
-    {
-        ui->cobViewer->setCurrentIndex(0);
-        index = 0;
-        guitools::message("Enable ants2_jsroot in ants2.pro and rebuild ants2", this);
-    }
-#endif
-
-    ui->pbCameraDialog->setVisible(index == 0);
-    if (index != 0) CameraControl->hide();
 }
 
 void AGeometryWindow::on_actionOpen_GL_viewer_triggered()
