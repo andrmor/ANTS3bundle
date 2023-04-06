@@ -298,6 +298,11 @@ void AGeometryHub::populateGeoManager()
 
     GeoManager->CloseGeometry();
 
+    notifyRootServerGeometryChanged();
+}
+
+void AGeometryHub::notifyRootServerGeometryChanged()
+{
 #ifdef USE_ROOT_HTML
     ARootHttpServer::getInstance().onNewGeoManagerCreated();
 #endif

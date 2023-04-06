@@ -162,6 +162,9 @@ private:
     void showWebView();
     void prepareGeoManager(bool ColorUpdateAllowed = true);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
+    void showGeometryRasterWindow(bool SAME);
+    void showGeometryJSRootWindow();
+    void copyGeoMarksToGeoManager();
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

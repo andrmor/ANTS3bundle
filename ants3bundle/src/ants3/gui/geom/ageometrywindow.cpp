@@ -202,98 +202,103 @@ void AGeometryWindow::on_pbShowGeometry_clicked()
     ShowGeometry(true, false); //not doing "same" option!
 }
 
-void AGeometryWindow::ShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed)
+void AGeometryWindow::ShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed)
 {
     if (bDisableDraw) return;
 
-    prepareGeoManager(ColorUpdateAllowed);
+    prepareGeoManager(colorUpdateAllowed);
 
-    if (!UseJSRoot)
-    {
-        if (ActivateWindow) ShowAndFocus(); //window is activated (focused)
-        else SetAsActiveRootWindow(); //no activation in this mode
+    if (activateWindow) ShowAndFocus();
 
-        //DRAW
-        setHideUpdate(true);
-        ClearRootCanvas();
-        if (SAME) Geometry.Top->Draw("SAME");  // is it needed at all?
-        else      Geometry.Top->Draw("");
-        PostDraw();
+    if (UseJSRoot) showGeometryJSRootWindow();
+    else showGeometryRasterWindow(same);
+}
 
-        //drawing dots
-        showGeoMarkers();
+void AGeometryWindow::showGeometryRasterWindow(bool same)
+{
+    SetAsActiveRootWindow();
 
-        //ResetView();  // angles are resetted, by rotation (with mouse) starts with a wrong angles
+    setHideUpdate(true);
+    ClearRootCanvas();
+    if (same) Geometry.Top->Draw("SAME");  // is it still needed?
+    else      Geometry.Top->Draw("");
+    PostDraw();
 
-        UpdateRootCanvas();
+    showGeoMarkers();
 
-        CameraControl->updateGui();
-    }
-    else
-    {
+    UpdateRootCanvas();
+
+    CameraControl->updateGui();
+}
+
+void AGeometryWindow::showGeometryJSRootWindow()
+{
+    copyGeoMarksToGeoManager();
+
+    //MW->NetModule->onNewGeoManagerCreated();
+    //emit requestUpdateRegisteredGeoManager();
+    Geometry.notifyRootServerGeometryChanged();
+
 #ifdef __USE_ANTS_JSROOT__
-        // qDebug() << "<<<<>>>>------------- ShowGeometry FOR JSROOT!!!!!!!!!!!!!!!!!!!!!!";
-        //qDebug() << "Before:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast() << "markers: "<< MW->GeoMarkers.size();
+    QWebEnginePage * page = WebView->page();
 
-        //deleting old markers
-        TObjArray * Arr = gGeoManager->GetListOfTracks();
-        const int numObj = Arr->GetEntriesFast();
-        int iObj = 0;
-        for (; iObj<numObj; iObj++)
-            if (!dynamic_cast<TVirtualGeoTrack*>(Arr->At(iObj))) break;
-        if (iObj < numObj)
-        {
-            //qDebug() << "First non-track object:"<<iObj;
-            for (int iMarker=iObj; iMarker<numObj; iMarker++)
-            {
-                delete Arr->At(iMarker);
-                (*Arr)[iMarker] = nullptr;
-            }
-            Arr->Compress();
-        }
-        //qDebug() << "After filtering markers:"<<Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
+    // JSROOT v5
+    //        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
+    //        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
+    //        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
+    //        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+    //        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
+    //        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
-        if (!GeoMarkers.empty())
-        {
-            for (size_t i = 0; i < GeoMarkers.size(); i++)
-            {
-                GeoMarkerClass * gm = GeoMarkers[i];
-                //overrides
-                if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::Source)
-                {
-                    gm->SetMarkerStyle(GeoMarkerStyle);
-                    gm->SetMarkerSize(GeoMarkerSize);
-                }
+    QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
+    js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
+    js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
+    js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+    js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
+    js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
-                TPolyMarker3D * mark = new TPolyMarker3D(*gm);
-                gGeoManager->GetListOfTracks()->Add(mark);
-            }
-        }
-        //qDebug() << "After:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
-
-        //MW->NetModule->onNewGeoManagerCreated();
-        emit requestUpdateRegisteredGeoManager();
-
-        QWebEnginePage * page = WebView->page();
-
-//        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-//        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
-//        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-//        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
-//        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
-//        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
-
-        QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
-        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
-        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
-        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
-        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
-
-        page->runJavaScript(js);
-
+    page->runJavaScript(js);
 #endif
+}
+
+void AGeometryWindow::copyGeoMarksToGeoManager()
+{
+    //deleting old markers
+      //qDebug() << "Before:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast() << "markers: "<< MW->GeoMarkers.size();
+    TObjArray * Arr = Geometry.GeoManager->GetListOfTracks();
+    const int numObj = Arr->GetEntriesFast();
+    int iObj = 0;
+    for (; iObj<numObj; iObj++)
+        if (!dynamic_cast<TVirtualGeoTrack*>(Arr->At(iObj))) break;
+    if (iObj < numObj)
+    {
+        //qDebug() << "First non-track object:"<<iObj;
+        for (int iMarker=iObj; iMarker<numObj; iMarker++)
+        {
+            delete Arr->At(iMarker);
+            (*Arr)[iMarker] = nullptr;
+        }
+        Arr->Compress();
     }
+    //qDebug() << "After filtering markers:"<<Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
+
+    if (!GeoMarkers.empty())
+    {
+        for (size_t i = 0; i < GeoMarkers.size(); i++)
+        {
+            GeoMarkerClass * gm = GeoMarkers[i];
+            //overrides
+            if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::Source)
+            {
+                gm->SetMarkerStyle(GeoMarkerStyle);
+                gm->SetMarkerSize(GeoMarkerSize);
+            }
+
+            TPolyMarker3D * mark = new TPolyMarker3D(*gm);
+            Geometry.GeoManager->GetListOfTracks()->Add(mark);
+        }
+    }
+    //qDebug() << "After:" << Detector.GeoManager->GetListOfTracks()->GetEntriesFast();
 }
 
 bool drawIfFound(TGeoNode * node, const TString & name, bool same = false)
@@ -1132,7 +1137,7 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
 #ifdef __USE_ANTS_JSROOT__
         int level = ui->sbLimitVisibility->value();
         if (!ui->cbLimitVisibility->isChecked()) level = -1;
-        gGeoManager->SetVisLevel(level);
+        Geometry.GeoManager->SetVisLevel(level);
         //MW->NetModule->onNewGeoManagerCreated();
         emit requestUpdateRegisteredGeoManager();
 
