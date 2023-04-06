@@ -62,6 +62,7 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
         qWarning() << "Cannot use JSROOT viewer: ANTS3 was compiled without flag ants3_jsroot";
         UseJSRoot = false;
     }
+    ui->cobViewer->setEnabled(false);
 #endif
 
     if (!UseJSRoot)
@@ -187,7 +188,7 @@ void AGeometryWindow::prepareGeoManager(bool ColorUpdateAllowed)
     Geometry.Top->SetAttBit(TGeoAtt::kVisOnScreen, ui->cbShowTop->isChecked());
 
     int transp = ui->sbTransparency->value();
-    Geometry.Top->SetTransparency(Mode == 0 ? 0 : transp);
+    Geometry.Top->SetTransparency(UseJSRoot ? transp : 0);
     adjustGeoAttributes(Geometry.Top, Mode, transp, ui->cbLimitVisibility->isChecked(), level, 0);
 
     //making contaners visible
@@ -227,16 +228,12 @@ void AGeometryWindow::showGeometryRasterWindow(bool same)
     showGeoMarkers();
 
     UpdateRootCanvas();
-
     CameraControl->updateGui();
 }
 
 void AGeometryWindow::showGeometryJSRootWindow()
 {
     copyGeoMarksToGeoManager();
-
-    //MW->NetModule->onNewGeoManagerCreated();
-    //emit requestUpdateRegisteredGeoManager();
     Geometry.notifyRootServerGeometryChanged();
 
 #ifdef __USE_ANTS_JSROOT__
@@ -251,13 +248,16 @@ void AGeometryWindow::showGeometryJSRootWindow()
     //        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
 
     QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
+    /*
     js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
     js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
     js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
     js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
     js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
+    */
 
-    page->runJavaScript(js);
+    //page->runJavaScript(js);
+    page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
 #endif
 }
 
