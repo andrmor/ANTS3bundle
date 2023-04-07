@@ -60,6 +60,7 @@ private slots:
     void onRebuildGeometryRequested(); // !!!*** refactor?
     void updateAllGuiFromConfig();
     void onRequestSaveGuiSettings();
+    void onRequestChangeGeoViewer(bool useJSRoot);
 
     // Main menu
     void on_actionSave_configuration_triggered();
@@ -107,6 +108,8 @@ private:
     void saveWindowGeometries();
     void loadWindowGeometries();
     QString getQuickLoadMessage(int index);
+    void changeGeoViewer(bool useJSRoot);
+    void connectSignalSlotsForGeoWin();
 };
 
 #endif // MAINWINDOW_H

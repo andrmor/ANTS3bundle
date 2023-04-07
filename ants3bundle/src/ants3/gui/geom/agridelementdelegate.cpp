@@ -24,7 +24,8 @@ AGridElementDelegate::AGridElementDelegate(QWidget * ParentWidget)
     Widget = frMainFrame;
 
     QPalette palette = frMainFrame->palette();
-    palette.setColor( frMainFrame->backgroundRole(), QColor( 255, 255, 255 ) );
+    //palette.setColor( frMainFrame->backgroundRole(), QColor( 255, 255, 255 ) );
+    palette.setColor( frMainFrame->backgroundRole(), palette.color(QPalette::AlternateBase) );
     frMainFrame->setPalette( palette );
     frMainFrame->setAutoFillBackground( true );
     //frMainFrame->setMinimumHeight(150);

@@ -667,17 +667,10 @@
         <property name="bottomMargin">
          <number>3</number>
         </property>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Not yet implemented</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QFrame" name="frServers">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -703,6 +696,9 @@
            </property>
            <item>
             <widget class="QCheckBox" name="cbRunWebSocketServer">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Run web socket server</string>
              </property>
@@ -719,6 +715,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="leWebSocketIP">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>127.0.0.1</string>
                </property>
@@ -737,6 +736,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="leWebSocketPort">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>12345</string>
                </property>
@@ -758,6 +760,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="leWebSocketURL">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -775,7 +780,7 @@
            <item>
             <widget class="QCheckBox" name="cbRunRootServer">
              <property name="text">
-              <string>Run CERN ROOT HTML server</string>
+              <string>Run ROOT HTTP server</string>
              </property>
             </widget>
            </item>
@@ -875,7 +880,6 @@
         </item>
        </layout>
        <zorder>frServers</zorder>
-       <zorder>label_10</zorder>
        <zorder>verticalSpacer_2</zorder>
       </widget>
      </widget>

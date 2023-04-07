@@ -14,7 +14,7 @@
    <string>Geometry viewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <layout class="QHBoxLayout" name="hlMain">
     <property name="spacing">
      <number>1</number>
     </property>
@@ -328,15 +328,6 @@
         </spacer>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QStackedWidget" name="swViewers">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="geo"/>
-      <widget class="QWidget" name="jsroot"/>
      </widget>
     </item>
    </layout>

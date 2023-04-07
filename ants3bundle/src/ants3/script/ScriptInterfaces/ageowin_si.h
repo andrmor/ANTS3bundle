@@ -22,7 +22,7 @@ public slots:
 
     void setZoom(int level);
     void setParallel(bool on);
-    void updateView();
+    void updateView(); // !!!*** case of JSROOT
 
     void showGeometry();
 //    void showPMnumbers(); // need?

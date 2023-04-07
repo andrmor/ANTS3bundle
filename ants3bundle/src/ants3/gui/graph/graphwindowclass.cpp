@@ -42,8 +42,6 @@
 #include <QShortcut>
 #include <QPolygonF>
 #include <QButtonGroup>
-#include <QPalette>
-#include <QPalette>
 #include <QElapsedTimer>
 #include <QFileInfo>
 

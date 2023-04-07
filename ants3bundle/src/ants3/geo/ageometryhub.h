@@ -44,6 +44,7 @@ public:
     const TString IndexSeparator = "_-_";
 
     void         populateGeoManager();
+    void         notifyRootServerGeometryChanged();
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);

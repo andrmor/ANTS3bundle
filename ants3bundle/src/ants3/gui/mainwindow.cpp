@@ -48,13 +48,9 @@ MainWindow::MainWindow() :
     GeoTreeWin = new AGeoTreeWin(this);
     connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
-    GeoWin = new AGeometryWindow(this);
-    connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,    GeoWin, &AGeometryWindow::ShowGeometry);
-    connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,   GeoWin, &AGeometryWindow::showRecursive);
-    connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,      GeoWin, &AGeometryWindow::ShowTracks);
-    connect(GeoTreeWin, &AGeoTreeWin::requestFocusVolume,     GeoWin, &AGeometryWindow::FocusVolume);
-    connect(GeoTreeWin, &AGeoTreeWin::requestAddGeoMarkers,   GeoWin, &AGeometryWindow::addGeoMarkers);
-    connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers, GeoWin, &AGeometryWindow::clearGeoMarkers);
+    GeoWin = new AGeometryWindow(false, this);
+    // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
+    // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
     GraphWin = new GraphWindowClass(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
@@ -62,39 +58,23 @@ MainWindow::MainWindow() :
     MatWin = new AMatWin(this);
     MatWin->initWindow();
     connect(MatWin, &AMatWin::requestRebuildDetector, this,     &MainWindow::onRebuildGeometryRequested);
-    connect(MatWin, &AMatWin::requestShowGeometry,    GeoWin,   &AGeometryWindow::ShowGeometry);
     connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
-    connect(RuleWin, &AInterfaceRuleWin::requestClearGeometryViewer, GeoWin,   &AGeometryWindow::ClearRootCanvas);
-    connect(RuleWin, &AInterfaceRuleWin::requestShowTracks,          GeoWin,   &AGeometryWindow::ShowTracks);
-    connect(RuleWin, &AInterfaceRuleWin::requestDraw,                GraphWin, &GraphWindowClass::onDrawRequest);
-    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend,          GraphWin, &GraphWindowClass::drawLegend);
+    connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &GraphWindowClass::drawLegend);
 
     SensWin = new ASensorWindow(this);
-    connect(SensWin, &ASensorWindow::requestShowSensorModels, GeoWin,   &AGeometryWindow::showSensorModelIndexes);
-    connect(SensWin, &ASensorWindow::requestDraw,             GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
-    connect(PhotSimWin, &APhotSimWin::requestShowGeometry,           GeoWin,   &AGeometryWindow::ShowGeometry);
-    connect(PhotSimWin, &APhotSimWin::requestShowTracks,             GeoWin,   &AGeometryWindow::ShowTracks);
-    connect(PhotSimWin, &APhotSimWin::requestClearGeoMarkers,        GeoWin,   &AGeometryWindow::clearGeoMarkers);
-    connect(PhotSimWin, &APhotSimWin::requestAddPhotonNodeGeoMarker, GeoWin,   &AGeometryWindow::addPhotonNodeGeoMarker);
-    connect(PhotSimWin, &APhotSimWin::requestShowGeoMarkers,         GeoWin,   &AGeometryWindow::showGeoMarkers);
-    connect(PhotSimWin, &APhotSimWin::requestShowPosition,           GeoWin,   &AGeometryWindow::ShowPoint);
-    connect(PhotSimWin, &APhotSimWin::requestDraw,                   GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
     PartSimWin = new AParticleSimWin(nullptr); // Qt::WindowModality for the source dialog requires another parent for the window!
-    connect(PartSimWin, &AParticleSimWin::requestShowGeometry, GeoWin,   &AGeometryWindow::ShowGeometry);
-    connect(PartSimWin, &AParticleSimWin::requestShowTracks,   GeoWin,   &AGeometryWindow::ShowTracks);
-    connect(PartSimWin, &AParticleSimWin::requestShowPosition, GeoWin,   &AGeometryWindow::ShowPoint);
-    connect(PartSimWin, &AParticleSimWin::requestAddMarker,    GeoWin,   &AGeometryWindow::addGenerationMarker);
-    connect(PartSimWin, &AParticleSimWin::requestClearMarkers, GeoWin,   &AGeometryWindow::clearGeoMarkers);
-    connect(PartSimWin, &AParticleSimWin::requestCenterView,   GeoWin,   &AGeometryWindow::CenterView);
-    connect(PartSimWin, &AParticleSimWin::requestDraw,         GraphWin, &GraphWindowClass::onDrawRequest);
-    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,  GraphWin, &GraphWindowClass::addCurrentToBasket);
+    connect(PartSimWin, &AParticleSimWin::requestDraw,                  GraphWin,   &GraphWindowClass::onDrawRequest);
+    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,           GraphWin,   &GraphWindowClass::addCurrentToBasket);
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
@@ -130,6 +110,9 @@ MainWindow::MainWindow() :
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
 
+    // called where all windows connecting to GeoWin are already defined
+    connectSignalSlotsForGeoWin();
+
     loadWindowGeometries();
 
     bool bShown = GeoWin->isVisible();
@@ -137,7 +120,7 @@ MainWindow::MainWindow() :
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     GeoWin->ShowGeometry(false);
-    //if (!bShown) GeoWin->hide();
+    //if (!bShown) GeoWin->hide(); // has to be in the end!
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -389,6 +372,64 @@ void MainWindow::onRequestSaveGuiSettings()
     }
 
     JSON["gui"] = json;
+}
+
+void MainWindow::onRequestChangeGeoViewer(bool useJSRoot)
+{
+    QTimer::singleShot(0, this,
+                       [useJSRoot, this]()
+                       {
+                            changeGeoViewer(useJSRoot);
+                       } );
+}
+
+void MainWindow::changeGeoViewer(bool useJSRoot)
+{
+    delete GeoWin; GeoWin = new AGeometryWindow(useJSRoot, this);
+    GeoWin->restoreGeomStatus();
+
+    connectSignalSlotsForGeoWin();
+
+    GeoWin->show();
+    if (!useJSRoot)
+    {
+        GeoWin->resize(GeoWin->width()+1, GeoWin->height());
+        GeoWin->resize(GeoWin->width()-1, GeoWin->height());
+    }
+    GeoWin->ShowGeometry(true);
+}
+
+void MainWindow::connectSignalSlotsForGeoWin()
+{
+    connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer,       this,   &MainWindow::onRequestChangeGeoViewer);
+
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,              GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,             GeoWin, &AGeometryWindow::showRecursive);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowTracks,                GeoWin, &AGeometryWindow::ShowTracks);
+    connect(GeoTreeWin, &AGeoTreeWin::requestFocusVolume,               GeoWin, &AGeometryWindow::FocusVolume);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddGeoMarkers,             GeoWin, &AGeometryWindow::addGeoMarkers);
+    connect(GeoTreeWin, &AGeoTreeWin::requestClearGeoMarkers,           GeoWin, &AGeometryWindow::clearGeoMarkers);
+
+    connect(MatWin,     &AMatWin::requestShowGeometry,                  GeoWin, &AGeometryWindow::ShowGeometry);
+
+    connect(RuleWin,    &AInterfaceRuleWin::requestClearGeometryViewer, GeoWin, &AGeometryWindow::ClearRootCanvas);
+    connect(RuleWin,    &AInterfaceRuleWin::requestShowTracks,          GeoWin, &AGeometryWindow::ShowTracks);
+
+    connect(SensWin,    &ASensorWindow::requestShowSensorModels,        GeoWin, &AGeometryWindow::showSensorModelIndexes);
+
+    connect(PhotSimWin, &APhotSimWin::requestShowGeometry,              GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(PhotSimWin, &APhotSimWin::requestShowTracks,                GeoWin, &AGeometryWindow::ShowTracks);
+    connect(PhotSimWin, &APhotSimWin::requestClearGeoMarkers,           GeoWin, &AGeometryWindow::clearGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestAddPhotonNodeGeoMarker,    GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
+    connect(PhotSimWin, &APhotSimWin::requestShowGeoMarkers,            GeoWin, &AGeometryWindow::showGeoMarkers);
+    connect(PhotSimWin, &APhotSimWin::requestShowPosition,              GeoWin, &AGeometryWindow::ShowPoint);
+
+    connect(PartSimWin, &AParticleSimWin::requestShowGeometry,          GeoWin, &AGeometryWindow::ShowGeometry);
+    connect(PartSimWin, &AParticleSimWin::requestShowTracks,            GeoWin, &AGeometryWindow::ShowTracks);
+    connect(PartSimWin, &AParticleSimWin::requestShowPosition,          GeoWin, &AGeometryWindow::ShowPoint);
+    connect(PartSimWin, &AParticleSimWin::requestAddMarker,             GeoWin, &AGeometryWindow::addGenerationMarker);
+    connect(PartSimWin, &AParticleSimWin::requestClearMarkers,          GeoWin, &AGeometryWindow::clearGeoMarkers);
+    connect(PartSimWin, &AParticleSimWin::requestCenterView,            GeoWin, &AGeometryWindow::CenterView);
 }
 
 void MainWindow::on_leConfigName_editingFinished()

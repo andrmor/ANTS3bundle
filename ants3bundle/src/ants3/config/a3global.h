@@ -58,14 +58,11 @@ public:
 
     QJsonObject TrackVisAttributes;
 
-/*
-    //Network
+    // WebSocket server
+    /*
     int DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
-    int RootServerPort = 8080;
-    QString ExternalJSROOT = "https://root.cern/js/5.9.0/";     //QString ExternalJSROOT = "https://root.cern/js/latest/";
-    bool bRunRootServerOnStart = false;
-*/
+    */
 
     void    init();
     bool    checkExchangeDir();

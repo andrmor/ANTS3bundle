@@ -68,6 +68,7 @@ bool A3Global::checkExchangeDir()
 }
 
 #include "afarmhub.h"
+#include "aroothttpserver.h"
 void A3Global::saveConfig()
 {
     QJsonObject json;
@@ -100,14 +101,18 @@ void A3Global::saveConfig()
 
     json["TrackVisAttributes"] = TrackVisAttributes;
 
-/*
-    js["DefaultWebSocketPort"] = DefaultWebSocketPort;
-    js["DefaultWebSocketIP"] = DefaultWebSocketIP;
-    js["RootServerPort"] = RootServerPort;
-    js["RunRootServerOnStart"] = fRunRootServerOnStart;
-    //js["ExternalJSROOT"] = ExternalJSROOT;
-*/
+    // Web server
+    //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
+    //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
 
+    // Root server
+    {
+        QJsonObject js;
+            ARootHttpServer::getInstance().writeToJson(js);
+        json["RootServer"] = js;
+    }
+
+    // Workload
     {
         QJsonObject js;
             AFarmHub::getConstInstance().writeToJson(js);
@@ -158,6 +163,14 @@ void A3Global::loadConfig()
 
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 
+    // Root server
+    {
+        QJsonObject js;
+            jstools::parseJson(json, "RootServer", js);
+        ARootHttpServer::getInstance().readFromJson(js);
+    }
+
+    // Workload
     {
         QJsonObject js;
             jstools::parseJson(json, "Workload", js);

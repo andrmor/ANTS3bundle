@@ -49,7 +49,6 @@ private slots:
 
     void on_pbOpen_clicked();
 
-
 //    void on_sbNumPointsFunctionX_editingFinished();
 //    void on_sbNumPointsFunctionY_editingFinished();
 //    void on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked);
@@ -58,12 +57,13 @@ private slots:
 
 //    void on_cbRunWebSocketServer_clicked(bool checked);
 //    void on_leWebSocketPort_editingFinished();
-//    void on_cbAutoRunRootServer_clicked();
-//    void on_leRootServerPort_editingFinished();
-//    void on_leJSROOT_editingFinished();
-//    void on_cbRunRootServer_clicked(bool checked);
 //    void on_leWebSocketIP_editingFinished();
 //    void on_cbRunWebSocketServer_toggled(bool checked);
+
+    void on_cbAutoRunRootServer_clicked();
+    void on_leRootServerPort_editingFinished();
+    void on_leJSROOT_editingFinished();
+    void on_cbRunRootServer_clicked(bool checked);
 
 //    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
 //    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);
