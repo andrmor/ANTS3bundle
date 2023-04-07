@@ -236,6 +236,10 @@ void AGeometryWindow::showGeometryJSRootWindow()
     copyGeoMarksToGeoManager();
     Geometry.notifyRootServerGeometryChanged();
 
+    // temporary?
+    showWebView();
+    return;
+
 #ifdef __USE_ANTS_JSROOT__
     QWebEnginePage * page = WebView->page();
 
