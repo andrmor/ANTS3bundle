@@ -203,3 +203,10 @@ bool guitools::extractNumbersFromQString(const QString & input, std::vector<int>
     }
     return true;
 }
+
+bool guitools::isDarkTheme()
+{
+    const QPalette defaultPalette;
+    return defaultPalette.color(QPalette::WindowText).lightness()
+         > defaultPalette.color(QPalette::Window).lightness();
+}

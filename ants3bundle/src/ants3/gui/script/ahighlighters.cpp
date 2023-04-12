@@ -1,4 +1,5 @@
 #include "ahighlighters.h"
+#include "guitools.h"
 
 #include <QDebug>
 
@@ -12,7 +13,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
     HighlightingRule rule;
 
     QTextCharFormat customKeywordFormat;
-    QColor color = Qt::darkCyan;
+    QColor color = ( guitools::isDarkTheme() ? Qt::cyan : Qt::darkCyan );
     customKeywordFormat.setForeground(color.darker(110));
     //customKeywordFormat.setFontWeight(QFont::Bold);
     //customKeywordFormat.setFontItalic(true);
@@ -37,7 +38,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
     }
 
     QTextCharFormat unitFormat;
-    unitFormat.setForeground(Qt::darkMagenta);
+    unitFormat.setForeground( guitools::isDarkTheme() ? Qt::magenta : Qt::darkMagenta);
     for (const QString& pattern : units)
     {
         rule.Pattern = QRegularExpression("\\b"+pattern+"\\b");
@@ -104,7 +105,7 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     HighlightingRule rule;
 
     QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(Qt::blue);
+    keywordFormat.setForeground( guitools::isDarkTheme() ? QColor(Qt::blue).lighter(150) : Qt::blue);
     //keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     keywordPatterns << "\\bbreak\\b" << "\\bcatch\\b" << "\\bcontinue\\b" << "\\b.length\\b" << "\\barguments\\b"
@@ -149,7 +150,7 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     multiLineCommentFormat.setForeground(Qt::darkGreen);
 
     QTextCharFormat quotationFormat;
-    quotationFormat.setForeground(Qt::darkGreen);
+    quotationFormat.setForeground(guitools::isDarkTheme() ? QColor(Qt::darkGreen).lighter(150) : Qt::darkGreen);
     QRegularExpression rx("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"|\'([^\'\\\\]*(\\\\.[^\'\\\\]*)*)\'");
     //qDebug() << "----------------------"<< rx.isValid();
     //rx.setMinimal(true); //fixes the problem with "xdsfdsfds" +variable+ "dsfdsfdsf"

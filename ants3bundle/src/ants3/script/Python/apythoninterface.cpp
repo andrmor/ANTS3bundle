@@ -213,7 +213,7 @@ struct AArgDataHolder
     QVariantMap  Map;
 };
 static std::array<AArgDataHolder,10> ArgDataHolders;
-static bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgument & arg)
+bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgument & arg)
 {
     PyObject * po = PyTuple_GetItem(args, iArg);  // borrowed
     AArgDataHolder & h = ArgDataHolders[iArg];

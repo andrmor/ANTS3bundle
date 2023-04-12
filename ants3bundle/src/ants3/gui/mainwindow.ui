@@ -200,7 +200,7 @@
            <item>
             <widget class="QPushButton" name="pbGlobSet">
              <property name="text">
-              <string>Global</string>
+              <string>Settings</string>
              </property>
             </widget>
            </item>

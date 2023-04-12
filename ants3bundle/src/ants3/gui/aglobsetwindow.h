@@ -68,6 +68,8 @@ private slots:
 //    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
 //    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);
 
+    void on_cobColorPalette_activated(int index);
+
 private:
     A3Global & GlobSet;
     Ui::AGlobSetWindow * ui = nullptr;

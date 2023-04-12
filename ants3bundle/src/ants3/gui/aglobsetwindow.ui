@@ -262,6 +262,58 @@
          <number>3</number>
         </property>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Color plalette</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cobColorPalette">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>System default</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Light theme</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Dark theme</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QCheckBox" name="cbOpenImageExternalEditor">
           <property name="text">
            <string>Open image in external editor after save</string>

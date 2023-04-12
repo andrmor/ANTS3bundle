@@ -30,6 +30,8 @@ namespace guitools
 
     bool    extractNumbersFromQString(const QString & input, std::vector<int> & extracted);
 
+    bool isDarkTheme();
+
 }
 
 #endif // GUITOOLS_H

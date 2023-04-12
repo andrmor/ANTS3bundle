@@ -46,7 +46,7 @@ protected:
 
 private slots:
     void insertCompletion(const QString &completion);    
-    void onCursorPositionChanged();
+    void onCursorPositionChanged(); // !!!***
     void updateLineNumberAreaWidth();
     void updateLineNumberArea(const QRect &rect, int dy);
 

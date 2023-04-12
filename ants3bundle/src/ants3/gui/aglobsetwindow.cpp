@@ -368,3 +368,62 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
     else
         ser.stop();
 }
+
+#include "aproxystyle.h"
+#include <QStyleFactory>
+void AGlobSetWindow::on_cobColorPalette_activated(int index)
+{
+    switch (index)
+    {
+    case 0:
+        {
+            QStyle * style = new AProxyStyle();
+            QApplication::setPalette(style->standardPalette());
+
+            //QApplication::setStyle(new AProxyStyle());
+            //QApplication::setPalette(
+            //QApplication::style()->standardPalette() );
+                    //QPalette());
+        }
+        break;
+    case 1:
+        {
+            QStyle * style = QStyleFactory::create("Windows");
+            QApplication::setPalette(style->standardPalette());
+        }
+        break;
+    case 2:
+        {
+            QColor darkGray(53, 53, 53);
+            QColor gray(128, 128, 128);
+            QColor black(25, 25, 25);
+            QColor blue(42, 130, 218);
+
+            QPalette darkPalette;
+            darkPalette.setColor(QPalette::Window, darkGray);
+            darkPalette.setColor(QPalette::WindowText, Qt::white);
+            darkPalette.setColor(QPalette::Base, black);
+            darkPalette.setColor(QPalette::AlternateBase, darkGray);
+            darkPalette.setColor(QPalette::ToolTipBase, blue);
+            darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+            darkPalette.setColor(QPalette::Text, Qt::white);
+            darkPalette.setColor(QPalette::Button, darkGray);
+            darkPalette.setColor(QPalette::ButtonText, Qt::white);
+            darkPalette.setColor(QPalette::Link, blue);
+            darkPalette.setColor(QPalette::Highlight, blue);
+            darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+            darkPalette.setColor(QPalette::Active, QPalette::Button, gray.darker());
+            darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::Text, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::Light, darkGray);
+
+            QApplication::setPalette(darkPalette);
+            qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+
+        }
+        break;
+    }
+}
+
