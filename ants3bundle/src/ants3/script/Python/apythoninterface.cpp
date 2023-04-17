@@ -370,18 +370,20 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 {
     qDebug() << "Base function called!";
     qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
-         //int iModule, iMethod; PyArg_ParseTuple(caller, "ii", &iModule, &iMethod); qDebug() << iModule << iMethod;
     const int iModule = PyLong_AsLong(PyTuple_GetItem(caller, 0));
     QObject * obj = ModData[iModule]->Object;
+    qDebug() << "script interface object:" << obj;
 
     // optimized for non-overloaded methods
     int iMethod = PyLong_AsLong(PyTuple_GetItem(caller, 1));
     QMetaMethod met = obj->metaObject()->method(iMethod);
+    qDebug() << "called method name:" << met.name();
     int numArgs = met.parameterCount();
+    qDebug() << "num arguments:" << numArgs;
     if (PyTuple_Size(args) != numArgs)
     {
         const int numMethods = PyTuple_Size(caller) - 1;
-        //qDebug() << "There are" << numMethods << "method versions";
+        qDebug() << "There are" << numMethods << "method versions";
         if (numMethods == 1)
         {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -419,7 +421,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     }
 
     const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
-    //qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
+    qDebug() << "return argument type:" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QGenericReturnArgument ret;
 #else
@@ -445,16 +447,19 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     std::array<QGenericArgument,10> ar;
-    std::fill(ar.begin(), ar.end(), QGenericArgument());
+    std::fill(ar.begin(), ar.end(), QGenericArgument());    // !!!*** why this?
 #else
     std::array<QMetaMethodArgument,10> ar;
-    std::fill(ar.begin(), ar.end(), QMetaMethodArgument{});
+    std::fill(ar.begin(), ar.end(), QMetaMethodArgument{}); // !!!*** why this?
 #endif
     for (int i = 0; i < numArgs; i++)
     {
         bool ok = parseArg(i, args, met, ar[i]);
+        qDebug() << ok;
         if (!ok) return nullptr;
     }
+
+    qDebug() << "invoking...";
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     if (!ret.name()) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
     else             met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
@@ -463,6 +468,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     else           met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
 #endif
 
+    qDebug() << "converting and returning result...";
     if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
     else if (mtype == QMetaType::Bool)         return PyBool_FromLong(retBool); // else if (mtype == QMetaType(QMetaType::Bool))
     else if (mtype == QMetaType::Int)          return PyLong_FromLong(retInt);
