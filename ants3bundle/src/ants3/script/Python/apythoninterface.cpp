@@ -213,7 +213,11 @@ struct AArgDataHolder
     QVariantMap  Map;
 };
 static std::array<AArgDataHolder,10> ArgDataHolders;
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgument & arg)
+#else
+bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QMetaMethodArgument & arg)
+#endif
 {
     PyObject * po = PyTuple_GetItem(args, iArg);  // borrowed
     AArgDataHolder & h = ArgDataHolders[iArg];
@@ -364,8 +368,8 @@ QVariantList retList;
 QVariantMap  retMap;
 static PyObject* baseFunction(PyObject *caller, PyObject *args)
 {
-    //qDebug() << "Base function called!";
-    //qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
+    qDebug() << "Base function called!";
+    qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
          //int iModule, iMethod; PyArg_ParseTuple(caller, "ii", &iModule, &iMethod); qDebug() << iModule << iMethod;
     const int iModule = PyLong_AsLong(PyTuple_GetItem(caller, 0));
     QObject * obj = ModData[iModule]->Object;
@@ -416,7 +420,11 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 
     const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
     //qDebug() << "==============>" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QGenericReturnArgument ret;
+#else
+    QMetaMethodReturnArgument ret;
+#endif
     if      (mtype == QMetaType::Void)         ; // keep default
     else if (mtype == QMetaType::Bool)         ret = Q_RETURN_ARG(bool,         retBool); //  else if (mtype == QMetaType(QMetaType::Bool))
     else if (mtype == QMetaType::Int)          ret = Q_RETURN_ARG(int,          retInt);
@@ -435,15 +443,25 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
         return nullptr;
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     std::array<QGenericArgument,10> ar;
     std::fill(ar.begin(), ar.end(), QGenericArgument());
+#else
+    std::array<QMetaMethodArgument,10> ar;
+    std::fill(ar.begin(), ar.end(), QMetaMethodArgument{});
+#endif
     for (int i = 0; i < numArgs; i++)
     {
         bool ok = parseArg(i, args, met, ar[i]);
         if (!ok) return nullptr;
     }
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     if (!ret.name()) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
-    else             met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // ugly, but it's Qt :)
+    else             met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
+#else
+    if (!ret.name) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
+    else           met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
+#endif
 
     if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
     else if (mtype == QMetaType::Bool)         return PyBool_FromLong(retBool); // else if (mtype == QMetaType(QMetaType::Bool))
