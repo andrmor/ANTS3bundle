@@ -70,6 +70,10 @@ private slots:
 
     void on_cobColorPalette_activated(int index);
 
+    void on_cobStyle_textActivated(const QString &arg1);
+
+    void on_cbUseStyleSystPalette_clicked(bool checked);
+
 private:
     A3Global & GlobSet;
     Ui::AGlobSetWindow * ui = nullptr;

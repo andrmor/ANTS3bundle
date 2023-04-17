@@ -11,6 +11,7 @@
 #include <QDesktopServices>
 #include <QDebug>
 #include <QHostAddress>
+#include <QStyleFactory>
 
 #include "TGeoManager.h"
 
@@ -20,6 +21,16 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     ui(new Ui::AGlobSetWindow)
 {
     ui->setupUi(this);
+
+    const QString defaultStyleName = QApplication::style()->objectName();
+    QStringList styleNames = QStyleFactory::keys();
+    for (int i = 1, size = styleNames.size(); i < size; ++i) {
+        if (defaultStyleName.compare(styleNames.at(i), Qt::CaseInsensitive) == 0) {
+            styleNames.swapItemsAt(0, i);
+            break;
+        }
+    }
+    ui->cobStyle->addItems(styleNames);
 
     updateGui();
 
@@ -370,7 +381,6 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
 }
 
 #include "aproxystyle.h"
-#include <QStyleFactory>
 void AGlobSetWindow::on_cobColorPalette_activated(int index)
 {
     switch (index)
@@ -425,5 +435,15 @@ void AGlobSetWindow::on_cobColorPalette_activated(int index)
         }
         break;
     }
+}
+
+void AGlobSetWindow::on_cobStyle_textActivated(const QString & arg1)
+{
+    QApplication::setStyle(QStyleFactory::create(arg1));
+}
+
+void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
+{
+    QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
 }
 
