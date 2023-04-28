@@ -24,13 +24,18 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 
     const QString defaultStyleName = QApplication::style()->objectName();
     QStringList styleNames = QStyleFactory::keys();
-    for (int i = 1, size = styleNames.size(); i < size; ++i) {
-        if (defaultStyleName.compare(styleNames.at(i), Qt::CaseInsensitive) == 0) {
+    for (int i = 1, size = styleNames.size(); i < size; ++i)
+    {
+        if (defaultStyleName.compare(styleNames.at(i), Qt::CaseInsensitive) == 0)
+        {
             styleNames.swapItemsAt(0, i);
             break;
         }
     }
     ui->cobStyle->addItems(styleNames);
+
+    ui->cbUseStyleSystPalette->setChecked(true);
+    on_cbUseStyleSystPalette_clicked(true);
 
     updateGui();
 
@@ -380,6 +385,7 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
         ser.stop();
 }
 
+/*
 #include "aproxystyle.h"
 void AGlobSetWindow::on_cobColorPalette_activated(int index)
 {
@@ -436,6 +442,7 @@ void AGlobSetWindow::on_cobColorPalette_activated(int index)
         break;
     }
 }
+*/
 
 void AGlobSetWindow::on_cobStyle_textActivated(const QString & arg1)
 {

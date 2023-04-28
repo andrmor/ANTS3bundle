@@ -68,7 +68,7 @@ private slots:
 //    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
 //    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);
 
-    void on_cobColorPalette_activated(int index);
+    //void on_cobColorPalette_activated(int index);
 
     void on_cobStyle_textActivated(const QString &arg1);
 
