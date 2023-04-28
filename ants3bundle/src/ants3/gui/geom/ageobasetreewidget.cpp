@@ -8,6 +8,9 @@
 #include <QDebug>
 #include <QTreeView>
 #include <QtGlobal>
+//#include <QApplication>
+//#include <QStyle>
+#include <QPalette>
 
 AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     QTreeWidget(), World(World)
@@ -56,7 +59,9 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
 {
     if (previousHoverItem)
     {
-        previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, QApplication::style()->standardPalette().color(QPalette::Window));
+        previousHoverItem->setBackground(0, QPalette().color(QPalette::Base));
         previousHoverItem = nullptr;
     }
 
@@ -276,7 +281,9 @@ void AGeoBaseTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 
     if (previousHoverItem)
     {
-        previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, QApplication::style()->standardPalette().color(QPalette::Window));
+        previousHoverItem->setBackground(0, QPalette().color(QPalette::Base));
         previousHoverItem = nullptr;
     }
     if (!bRearrange)
@@ -288,7 +295,9 @@ void AGeoBaseTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 #endif
         if (itemOver && itemOver != movingItem)
         {
-            itemOver->setBackground(0, Qt::cyan);
+            //itemOver->setBackground(0, Qt::cyan);
+            //itemOver->setBackground(0, QApplication::style()->standardPalette().color(QPalette::Highlight));
+            itemOver->setBackground(0, QPalette().color(QPalette::Highlight));
             previousHoverItem = itemOver;
         }
     }
@@ -298,7 +307,9 @@ void AGeoBaseTreeWidget::dragLeaveEvent(QDragLeaveEvent *)
 {
     if (previousHoverItem)
     {
-        previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, Qt::white);
+        //previousHoverItem->setBackground(0, QApplication::style()->standardPalette().color(QPalette::Window));
+        previousHoverItem->setBackground(0, QPalette().color(QPalette::Base));
         previousHoverItem = nullptr;
     }
 }
