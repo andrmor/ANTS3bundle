@@ -25,59 +25,63 @@
 #include <vector>
 
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
-  Geometry(AGeometryHub::getInstance()),
-  Materials(AMaterialHub::getInstance()),
-  tw(tw)
+    Geometry(AGeometryHub::getInstance()),
+    Materials(AMaterialHub::getInstance()),
+    tw(tw)
 {
-  lMain = new QVBoxLayout(this);
-  lMain->setContentsMargins(2,2,2,5);
-  this->setLayout(lMain);
+    lMain = new QVBoxLayout(this);
+    lMain->setContentsMargins(2,2,2,5);
+    setLayout(lMain);
 
-  //Scroll area in middle
-  QScrollArea* sa = new QScrollArea(this);
-  sa->setFrameShape(QFrame::Box);//NoFrame);
-  sa->setContentsMargins(2,2,2,2);
-  sa->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-  sa->setWidgetResizable(true);
-  sa->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //Scroll area in the middle
+    QScrollArea * sa = new QScrollArea(this);
+    sa->setFrameShape(QFrame::Box);//NoFrame);
+    sa->setContentsMargins(2,2,2,2);
+    sa->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    sa->setWidgetResizable(true);
+    sa->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-  QWidget* scrollAreaWidgetContents = new QWidget();
-  scrollAreaWidgetContents->setGeometry(QRect(0, 0, 350, 200));
+    QWidget * scrollAreaWidgetContents = new QWidget();
+    scrollAreaWidgetContents->setGeometry(QRect(0, 0, 350, 200));
 
-  ObjectLayout = new QVBoxLayout(scrollAreaWidgetContents);
-  ObjectLayout->setContentsMargins(0,0,0,0);
+    ObjectLayout = new QVBoxLayout(scrollAreaWidgetContents);
+    ObjectLayout->setContentsMargins(0,0,0,0);
 
-  sa->setWidget(scrollAreaWidgetContents);
-  lMain->addWidget(sa);
+    sa->setWidget(scrollAreaWidgetContents);
+    lMain->addWidget(sa);
 
-  frBottom = new QFrame();
-  frBottom->setFrameShape(QFrame::StyledPanel);
-  frBottom->setMinimumHeight(38);
-  frBottom->setMaximumHeight(38);
-  QPalette palette = frBottom->palette();
-  //palette.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
-  palette.setColor( backgroundRole(), palette.color(QPalette::AlternateBase) );
-  frBottom->setPalette( palette );
-  frBottom->setAutoFillBackground( true );
-  QHBoxLayout* lb = new QHBoxLayout();
-  lb->setContentsMargins(0,0,0,0);
-  frBottom->setLayout(lb);
-    pbConfirm = new QPushButton("Confirm changes");
-    pbConfirm->setMinimumHeight(25);
-    connect(pbConfirm, SIGNAL(clicked()), this, SLOT(onConfirmPressed()));
-    pbConfirm->setMaximumWidth(150);
-    lb->addWidget(pbConfirm);
-    pbCancel = new QPushButton("Cancel changes");
-    connect(pbCancel, SIGNAL(clicked()), this, SLOT(onCancelPressed()));
-    pbCancel->setMaximumWidth(150);
-    pbCancel->setMinimumHeight(25);
-    lb->addWidget(pbCancel);
-  lMain->addWidget(frBottom);
+    frBottom = new QFrame();
+    frBottom->setFrameShape(QFrame::StyledPanel);
+    frBottom->setMinimumHeight(38);
+    frBottom->setMaximumHeight(38);
 
-  pbConfirm->setEnabled(false);
-  pbCancel->setEnabled(false);
+    /*
+    QPalette palette = frBottom->palette();
+    //palette.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
+    palette.setColor( backgroundRole(), palette.color(QPalette::AlternateBase) );
+    frBottom->setPalette( palette );
+    */
 
-  fIgnoreSignals = false;
+    frBottom->setAutoFillBackground(true);
+    QHBoxLayout * lb = new QHBoxLayout();
+    lb->setContentsMargins(0,0,0,0);
+    frBottom->setLayout(lb);
+        pbConfirm = new QPushButton("Confirm changes");
+        pbConfirm->setMinimumHeight(25);
+        connect(pbConfirm, SIGNAL(clicked()), this, SLOT(onConfirmPressed()));
+        pbConfirm->setMaximumWidth(150);
+        lb->addWidget(pbConfirm);
+        pbCancel = new QPushButton("Cancel changes");
+        connect(pbCancel, SIGNAL(clicked()), this, SLOT(onCancelPressed()));
+        pbCancel->setMaximumWidth(150);
+        pbCancel->setMinimumHeight(25);
+        lb->addWidget(pbCancel);
+    lMain->addWidget(frBottom);
+
+    pbConfirm->setEnabled(false);
+    pbCancel->setEnabled(false);
+
+    fIgnoreSignals = false;
 }
 
 void AGeoDelegateWidget::ClearGui()
