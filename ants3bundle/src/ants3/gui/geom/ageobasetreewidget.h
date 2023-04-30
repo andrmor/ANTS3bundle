@@ -25,7 +25,7 @@ private:
     const QTreeWidgetItem * movingItem  = nullptr;  // used only to prevent highlight of item under the moving one if it is the same as target
 
 private:
-    void configureStyle();
+    //void configureStyle();  // hard to maintain with continuos changes in Qt
 
 signals:
     void RequestRebuildDetector();

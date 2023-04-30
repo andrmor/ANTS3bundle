@@ -344,7 +344,8 @@ void AGeoDelegateWidget::exitEditingMode()
     tw->twGeoTree->setEnabled(true);
     tw->twPrototypes->setEnabled(true);
     QFont f = pbConfirm->font(); f.setBold(false); pbConfirm->setFont(f);
-    pbConfirm->setStyleSheet("QPushButton {color: black;}");
+    //pbConfirm->setStyleSheet("QPushButton {color: black;}");
+    pbConfirm->setStyleSheet("");
     pbConfirm->setEnabled(false);
     pbCancel->setEnabled(false);
     emit requestEnableGeoConstWidget(true);

@@ -20,16 +20,18 @@ AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::InternalMove);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setDropIndicatorShown(false);
+    //setDropIndicatorShown(false);
+    setDropIndicatorShown(true);
     //setIndentation(50);
     setContentsMargins(0, 0, 0, 0);
     setFrameStyle(QFrame::NoFrame);
     setIconSize(QSize(20, 20));
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    configureStyle();
+    //configureStyle();
 }
 
+/*
 void AGeoBaseTreeWidget::configureStyle()
 {
     QString style = "QTreeView {alternate-background-color: yellow;}"
@@ -54,6 +56,7 @@ void AGeoBaseTreeWidget::configureStyle()
             "}";
     setStyleSheet(style);
 }
+*/
 
 void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
 {

@@ -574,7 +574,8 @@ void AGeoTreeWin::on_pbRunTestParticle_clicked()
 void AGeoTreeWin::on_cbAutoCheck_stateChanged(int)
 {
     bool checked = ui->cbAutoCheck->isChecked();
-    QColor col = (checked ? Qt::black : Qt::red);
+    //QColor col = (checked ? Qt::black : Qt::red);
+    QColor col = (checked ? QPalette().color(QPalette::WindowText) : QColor(255,114,0));
     QPalette p = ui->cbAutoCheck->palette();
     p.setColor(QPalette::Active, QPalette::WindowText, col );
     p.setColor(QPalette::Inactive, QPalette::WindowText, col );
