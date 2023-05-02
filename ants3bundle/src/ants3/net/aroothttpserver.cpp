@@ -24,6 +24,10 @@ bool ARootHttpServer::start()
         //Server->SetJSROOT("https://root.cern.ch/js/latest/");
     }
 
+    //Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/test.htm");
+    Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/index.htm");
+    //Server->SetDefaultPage("/opt/root62802/js/files/online.htm");
+
     if (isRunning())
     {
         qDebug() << "ANTS3 root server is now listening";

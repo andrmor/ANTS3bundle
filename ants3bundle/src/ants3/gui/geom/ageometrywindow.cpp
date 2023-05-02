@@ -236,30 +236,24 @@ void AGeometryWindow::showGeometryJSRootWindow()
     copyGeoMarksToGeoManager();
     Geometry.notifyRootServerGeometryChanged();
 
-    // temporary?
-    showWebView();
-    return;
+//    showWebView();
+//    return;
 
 #ifdef __USE_ANTS_JSROOT__
+
+    bool showAxes = ui->cbShowAxes->isChecked();
+    bool wireFrame = ui->cbWireFrame->isChecked();
+    int  numSegments = (ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+    bool showTop = ui->cbShowTop->isChecked();
+
+    QString sShowAxes  = (showAxes  ? "true" : "false");
+    QString sWireFrame = (wireFrame ? "true" : "false");
+    QString sShowTop   = (showTop   ? "true" : "false");
+    QString sNumSeg    = QString::number(numSegments);
+
     QWebEnginePage * page = WebView->page();
-
-    // JSROOT v5
-    //        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-    //        js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
-    //        js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-    //        js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
-    //        js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
-    //        js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
-
-    QString js = "var painter = JSROOT.getMainPainter(\"onlineGUI_drawing\");";
-    /*
-    js += QString("painter.setAxesDraw(%1);").arg(ui->cbShowAxes->isChecked());
-    js += QString("painter.setWireFrame(%1);").arg(ui->cbWireFrame->isChecked());
-    js += QString("JSROOT.GEO.GradPerSegm = %1;").arg(ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
-    js += QString("painter.setShowTop(%1);").arg(ui->cbShowTop->isChecked() ? "true" : "false");
-    js += "if (JSROOT.hpainter) JSROOT.hpainter.updateAll();";
-    */
-
+    //QString js = "doAnts3Redraw()";
+    QString js = QString("doAnts3Redraw(%1, %2, %3, %4)").arg(sShowAxes, sWireFrame, sShowTop, sNumSeg);
     //page->runJavaScript(js);
     page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
 #endif
