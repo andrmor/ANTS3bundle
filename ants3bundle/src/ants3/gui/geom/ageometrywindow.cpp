@@ -206,7 +206,6 @@ void AGeometryWindow::on_pbShowGeometry_clicked()
 void AGeometryWindow::ShowGeometry(bool activateWindow, bool same, bool colorUpdateAllowed)
 {
     if (bDisableDraw) return;
-
     prepareGeoManager(colorUpdateAllowed);
 
     if (activateWindow) ShowAndFocus();
@@ -243,8 +242,8 @@ void AGeometryWindow::showGeometryJSRootWindow()
 
     bool showAxes = ui->cbShowAxes->isChecked();
     bool wireFrame = ui->cbWireFrame->isChecked();
-    int  numSegments = (ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
     bool showTop = ui->cbShowTop->isChecked();
+    int  numSegments = (ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
 
     QString sShowAxes  = (showAxes  ? "true" : "false");
     QString sWireFrame = (wireFrame ? "true" : "false");
@@ -691,7 +690,7 @@ void AGeometryWindow::clearGeoMarkers(int All_Rec_True)
 void AGeometryWindow::on_cbColor_toggled(bool checked)
 {
     ColorByMaterial = checked;
-    emit requestUpdateMaterialListWidget();
+    //emit requestUpdateMaterialListWidget();
     ShowGeometry(true, false);
 }
 
@@ -1032,7 +1031,7 @@ void AGeometryWindow::showWebView()
     return;
     */
 
-    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks";
+    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
@@ -1119,11 +1118,6 @@ void AGeometryWindow::on_actionJSROOT_in_browser_triggered()
                 //"xhr.send('/Objects/GeoWorld/WorldBox_1/root.json\n');"
                 );
 */
-
-void AGeometryWindow::on_cbWireFrame_toggled(bool)
-{
-    ShowGeometry(true, false);
-}
 
 void AGeometryWindow::on_cbLimitVisibility_clicked()
 {
@@ -1332,5 +1326,15 @@ void AGeometryWindow::on_pbShowNumbers_clicked()
 {
     AShowNumbersDialog d(*this);
     d.exec();
+}
+
+void AGeometryWindow::on_cbWireFrame_clicked(bool)
+{
+    ShowGeometry(true, false);
+}
+
+void AGeometryWindow::on_sbTransparency_editingFinished()
+{
+    ShowGeometry(true, false);
 }
 

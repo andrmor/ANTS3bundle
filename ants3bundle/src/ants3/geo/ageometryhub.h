@@ -64,7 +64,7 @@ public:
 
     bool         isVolumeExistAndActive(const QString & name) const;
 
-    void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot
+    void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot  !!!*** redo, can be very slow
     void         changeLineWidthOfVolumes(int delta);
 
     bool         isWorldSizeFixed() const;

@@ -1099,10 +1099,10 @@ void AGeometryHub::colorVolumes(int scheme, int id)
         switch (scheme)
         {
         case 0:  //default color volumes for PMs and dPMs otherwise color from AGeoObject
-            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);
+            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);  // !!!*** obsolete?
             else
             {
-                const AGeoObject * obj = World->findObjectByName(name); // !*! can be very slow for large detectors!
+                const AGeoObject * obj = World->findObjectByName(name); // !!!*** can be very slow for large detectors!
                 if (!obj && !name.isEmpty())
                 {
                     //special for monitors

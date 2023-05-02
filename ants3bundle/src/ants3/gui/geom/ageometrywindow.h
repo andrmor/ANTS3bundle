@@ -128,12 +128,15 @@ private slots:
     void on_actionDecrease_line_width_triggered();
     void on_actionOpen_GL_viewer_triggered();
     void on_actionJSROOT_in_browser_triggered(); // !!!*** hard coded port of the root server
-    void on_cbWireFrame_toggled(bool checked);
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
     void on_pbClearMarkers_clicked();
     void on_pbShowNumbers_clicked();
+
+    void on_cbWireFrame_clicked(bool checked);
+
+    void on_sbTransparency_editingFinished();
 
 private:
     bool                    UseJSRoot = false;
@@ -169,7 +172,7 @@ private:
 signals:
     void requestChangeGeoViewer(bool useJSRoot);
     void requestUpdateRegisteredGeoManager();
-    void requestUpdateMaterialListWidget();
+    //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
 };
 
