@@ -15,6 +15,7 @@
 
 #include "TGeoManager.h"
 
+#include <QToolTip>
 AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     AGuiWindow("Glob", parent),
     GlobSet(A3Global::getInstance()),
@@ -38,6 +39,8 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     on_cbUseStyleSystPalette_clicked(true);
 
     updateGui();
+
+    QToolTip::setPalette(QPalette());
 
     ARootHttpServer & rs = ARootHttpServer::getInstance();
     QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
