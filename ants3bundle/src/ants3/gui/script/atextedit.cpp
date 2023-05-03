@@ -640,7 +640,7 @@ void ATextEdit::onCursorPositionChanged()
   QTextEdit::ExtraSelection extra;
 
   //lowest priority: highlight line where the cursor is
-  QColor color = (guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(200) : QColor(Qt::gray).lighter(150) );
+  QColor color = (guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(250) : QColor(Qt::gray).lighter(150) );
   extra.format.setBackground(color);
   extra.format.setProperty(QTextFormat::FullWidthSelection, true);
   extra.cursor = textCursor();
@@ -683,7 +683,7 @@ void ATextEdit::onCursorPositionChanged()
       tc.select(QTextCursor::WordUnderCursor);
       QString selection = tc.selectedText();
       //    qDebug() << "-->"<<selection;
-      QColor color = ( guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(100) : QColor(Qt::green).lighter(170) );
+      QColor color = ( guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(150) : QColor(Qt::green).lighter(170) );
       QRegularExpression exl("[0-9 (){}\\[\\]=+\\-*/\\|~^.,:;\"'<>\\#\\$\\&\\?]");
       QString test = selection.simplified();
       test.remove(exl);
@@ -713,7 +713,7 @@ void ATextEdit::onCursorPositionChanged()
               cursor = document()->find(pat, cursor, QTextDocument::FindCaseSensitively);
           }
 /*
-          //variable highlight test
+          //variable highlight test  // !!!*** temporary disabled
           QRegularExpression patvar("\\bvar\\s+"+selection+"\\b"); // !!!*** let and const and Python aware!
           QTextCursor cursor1 = document()->find(patvar, tc, QTextDocument::FindCaseSensitively | QTextDocument::FindBackward);
           if (cursor1.hasSelection())// && cursor1 != tc)
