@@ -1032,6 +1032,7 @@ void AGeometryWindow::showWebView()
     */
 
     QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks";
+    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks;geosegm=20";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";

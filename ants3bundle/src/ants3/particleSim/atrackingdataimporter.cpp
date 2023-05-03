@@ -91,6 +91,7 @@ bool ATrackingDataImporter::gotoEvent(int iEvent)
 
     if (iEvent < CurrentEvent)
     {
+        inStream->clear();
         inStream->seekg(0);
         CurrentEvent = -1;
     }
@@ -182,6 +183,9 @@ int ATrackingDataImporter::countEvents()
 
     int numEvents = 1;
     while (gotoEvent(numEvents)) numEvents++;
+
+    inStream->clear();
+    gotoEvent(0);
     return numEvents;
 }
 
