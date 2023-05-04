@@ -3,6 +3,8 @@
 #include "aerrorhub.h"
 #include "acalorimeterhub.h"
 #include "acalorimeter.h"
+#include "amonitorhub.h"
+#include "amonitor.h"
 #include "ath.h"
 
 #include <QDebug>
@@ -138,3 +140,77 @@ QVariantList AParticleSim_SI::getCalorimeterProperties(int calorimeterIndex)
     res.push_back(vlS);
     return res;
 }
+
+void AParticleSim_SI::clearCalorimeterData()
+{
+    ACalorimeterHub::getInstance().clearData();
+}
+
+int AParticleSim_SI::countMonitors()
+{
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    return MonHub.countMonitors(AMonitorHub::Particle);
+}
+
+QVariantList AParticleSim_SI::getMonitorHitsAll()
+{
+    QVariantList vl;
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    for (const AMonitorData & md : MonHub.ParticleMonitors)
+        vl.push_back(md.Monitor->getHits());
+    return vl;
+}
+
+/*
+QVariantList AParticleSim_SI::getMonitorStats1D(int index, ASim_SI::dataType type) const
+{
+    QVariantList vl;
+    if (!EventsDataHub->SimStat) return vl;
+    if (index < 0 || index >= EventsDataHub->SimStat->Monitors.size()) return vl;
+
+    const AMonitor* mon = EventsDataHub->SimStat->Monitors.at(index);
+    TH1D* h = nullptr;
+    switch (type)
+    {
+    case dat_time:   h = mon->getTime(); break;
+    case dat_angle:  h = mon->getAngle(); break;
+    case dat_wave:   h = mon->getWave(); break;
+    case dat_energy: h = mon->getEnergy(); break;
+    }
+    if (!h) return vl;
+
+    double stat[4];
+    h->GetStats(stat); // stats[0] = sumw  stats[1] = sumw2   stats[2] = sumwx  stats[3] = sumwx2
+    for (int i=0; i<4; i++)
+        vl.push_back(stat[i]);
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getMonitorData1D(int index, dataType type) const
+{
+    QVariantList vl;
+    if (!EventsDataHub->SimStat) return vl;
+    if (index < 0 || index >= EventsDataHub->SimStat->Monitors.size()) return vl;
+
+    const AMonitor* mon = EventsDataHub->SimStat->Monitors.at(index);
+    TH1D* h = nullptr;
+    switch (type)
+    {
+    case dat_time:   h = mon->getTime(); break;
+    case dat_angle:  h = mon->getAngle(); break;
+    case dat_wave:   h = mon->getWave(); break;
+    case dat_energy: h = mon->getEnergy(); break;
+    }
+    if (!h) return vl;
+
+    TAxis* axis = h->GetXaxis();
+    for (int i=1; i<axis->GetNbins()+1; i++)
+    {
+        QVariantList el;
+        el << axis->GetBinCenter(i);
+        el << h->GetBinContent(i);
+        vl.push_back(el);
+    }
+    return vl;
+}
+*/

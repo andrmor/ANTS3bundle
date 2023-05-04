@@ -22,6 +22,10 @@ public slots:
     int countCalorimeters();
     QVariantList getCalorimeterData(int calorimeterIndex, QString mode);
     QVariantList getCalorimeterProperties(int calorimeterIndex);
+    void clearCalorimeterData();
+
+    int countMonitors();
+    QVariantList getMonitorHitsAll();
 
 private:
     AParticleSimManager & SimMan;
