@@ -63,8 +63,6 @@ ants3_GUI {
 
 QT += qml   #this is for qjsengine
 
-#QT += core5compat
-
 lessThan(QT_MAJOR_VERSION, 6) {
     CONFIG += c++11
 } else {
@@ -84,7 +82,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
+//DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
+DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}/../../bin\\\"\"
 
 INCLUDEPATH += script
 INCLUDEPATH += script/ScriptInterfaces
@@ -566,4 +565,16 @@ ants3_FARM {
     ../dispatcher/a3wsclient.h \
 } else {
     QT -= websockets
+}
+message("Copy resource files")
+linux-g++ || unix{
+   #todir = $${OUT_PWD}
+   #fromdir = $${PWD}/EXAMPLES
+   #QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
+
+   fromdir = $${PWD}/files
+   message($$fromdir)
+   todir = $${OUT_PWD}/../../bin
+   message($$todir)
+   QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
 }

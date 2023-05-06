@@ -1,5 +1,6 @@
 #include "aroothttpserver.h"
 #include "ajsontools.h"
+#include "a3global.h"
 
 #include <QDebug>
 
@@ -24,9 +25,11 @@ bool ARootHttpServer::start()
         //Server->SetJSROOT("https://root.cern.ch/js/latest/");
     }
 
-    //Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/test.htm");
-    Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/index.htm");
     //Server->SetDefaultPage("/opt/root62802/js/files/online.htm");
+    //Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/index.htm");
+    QString customHtmlPage = A3Global::getConstInstance().ResourcesDir+"/index.htm";
+    qDebug() << "JSROOT: configuring custom html page:" << customHtmlPage;
+    Server->SetDefaultPage(customHtmlPage.toLatin1().data());
 
     if (isRunning())
     {

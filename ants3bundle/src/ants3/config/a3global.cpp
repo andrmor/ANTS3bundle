@@ -20,7 +20,7 @@ A3Global::A3Global()
 {
     QString TargetDir(TARGET_DIR);
     ExamplesDir  = TargetDir + "/EXAMPLES";
-    ResourcesDir = TargetDir + "/DATA";
+    ResourcesDir = TargetDir + "/files";
 
     ExecutableDir = QDir::currentPath();
     ExchangeDir = ExecutableDir + "/Exchange";
