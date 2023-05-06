@@ -109,7 +109,6 @@ private slots:
 private slots:
     void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
-    void on_cbShowTop_toggled(bool checked);
     void on_cbColor_toggled(bool checked);
     void on_pbSaveAs_clicked();
     void on_pbSide_clicked();
@@ -137,6 +136,8 @@ private slots:
     void on_cbWireFrame_clicked(bool checked);
 
     void on_sbTransparency_editingFinished();
+
+    void on_cbShowTop_clicked(bool checked);
 
 private:
     bool                    UseJSRoot = false;

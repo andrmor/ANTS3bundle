@@ -232,7 +232,7 @@ void AGeometryWindow::showGeometryRasterWindow(bool same)
 
 void AGeometryWindow::showGeometryJSRootWindow()
 {
-    copyGeoMarksToGeoManager();
+    //copyGeoMarksToGeoManager();  // !!!*** check with markers
     Geometry.notifyRootServerGeometryChanged();
 
 //    showWebView();
@@ -243,7 +243,7 @@ void AGeometryWindow::showGeometryJSRootWindow()
     bool showAxes = ui->cbShowAxes->isChecked();
     bool wireFrame = ui->cbWireFrame->isChecked();
     bool showTop = ui->cbShowTop->isChecked();
-    int  numSegments = (ui->cbWireFrame->isChecked() ? 360 / A3Global::getInstance().NumSegmentsTGeo : 6);
+    int  numSegments = (ui->cbWireFrame->isChecked() ? 360.0 / A3Global::getInstance().NumSegmentsTGeo : 6);
 
     QString sShowAxes  = (showAxes  ? "true" : "false");
     QString sWireFrame = (wireFrame ? "true" : "false");
@@ -253,6 +253,7 @@ void AGeometryWindow::showGeometryJSRootWindow()
     QWebEnginePage * page = WebView->page();
     //QString js = "doAnts3Redraw()";
     QString js = QString("doAnts3Redraw(%1, %2, %3, %4)").arg(sShowAxes, sWireFrame, sShowTop, sNumSeg);
+    qDebug() << "Run js:" << js;
     //page->runJavaScript(js);
     page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
 #endif
@@ -768,6 +769,7 @@ void AGeometryWindow::CenterView(double *r)
 void AGeometryWindow::on_pbClearTracks_clicked()
 {
     Geometry.GeoManager->ClearTracks();
+    //Geometry.notifyRootServerGeometryChanged();
     ShowGeometry(true, false);
 }
 
@@ -1145,28 +1147,6 @@ void AGeometryWindow::on_sbLimitVisibility_editingFinished()
     on_cbLimitVisibility_clicked();
 }
 
-void AGeometryWindow::on_cbShowTop_toggled(bool)
-{
-    ShowGeometry(true, false);
-    /*
-    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
-    if (Mode == 0)
-        ShowGeometry(true, false);
-    else
-    {
-#ifdef __USE_ANTS_JSROOT__
-        ShowGeometry(true, false);
-        QWebEnginePage * page = WebView->page();
-        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-        //js += QString("painter.options.showtop = %1;").arg(checked ? "true" : "false");
-        js += QString("painter.setShowTop(%1);").arg(checked ? "true" : "false");
-        js += "painter.startDrawGeometry();";
-        page->runJavaScript(js);
-#endif
-    }
-*/
-}
-
 void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
 {
     if (TMPignore) return;
@@ -1337,5 +1317,28 @@ void AGeometryWindow::on_cbWireFrame_clicked(bool)
 void AGeometryWindow::on_sbTransparency_editingFinished()
 {
     ShowGeometry(true, false);
+}
+
+void AGeometryWindow::on_cbShowTop_clicked(bool checked)
+{
+    Geometry.Top->SetVisibility(checked);
+    ShowGeometry(true, false);
+/*
+    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
+    if (Mode == 0)
+        ShowGeometry(true, false);
+    else
+    {
+#ifdef __USE_ANTS_JSROOT__
+        ShowGeometry(true, false);
+        QWebEnginePage * page = WebView->page();
+        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
+        //js += QString("painter.options.showtop = %1;").arg(checked ? "true" : "false");
+        js += QString("painter.setShowTop(%1);").arg(checked ? "true" : "false");
+        js += "painter.startDrawGeometry();";
+        page->runJavaScript(js);
+#endif
+    }
+*/
 }
 
