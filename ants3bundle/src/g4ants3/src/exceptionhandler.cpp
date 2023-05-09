@@ -9,6 +9,8 @@ G4bool ExceptionHandler::Notify(const char * originOfException, const char * exc
     std::cout << exceptionCode << std::endl;
     std::cout << description << std::endl;
 
+    if (severity == JustWarning) return false;
+
     SessionManager::getInstance().terminateSession(description);
     return true;
 }
