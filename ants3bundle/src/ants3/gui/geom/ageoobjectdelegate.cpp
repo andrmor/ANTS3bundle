@@ -2783,6 +2783,8 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     lHor->addWidget(new QLabel("Index of the first node:"));
     ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
+    QLabel * ledHelp = new QLabel("|?|"); ledHelp->setToolTip("Can use \"ParentIndex\" expression in the formula to access index of the containing volume");
+    lHor->addWidget(ledHelp);
     lHor->addStretch();
 
     lVer->addLayout(lHor);

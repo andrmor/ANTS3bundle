@@ -51,7 +51,7 @@ public slots:
     void onContentChangedBase();
 
 public:
-    static void configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex = -1); // -1 == all
+    static void configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex = -1); // -1 == all   //!!!***
     static bool processEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str, QWidget * parent);
 };
 

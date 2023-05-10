@@ -553,7 +553,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 
     // Position hosted objects
     if      (obj->Type->isHandlingArray())
-        positionArray(obj, vol);
+        positionArray(obj, vol, forcedNodeNumber);
     else if (obj->Type->isStack())
         positionStack(obj, vol, forcedNodeNumber);
     else if (obj->Type->isInstance())
@@ -607,16 +607,30 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     vol->SetTitle(title);
 }
 
-void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
+void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)
 {
     ATypeArrayObject * array = static_cast<ATypeArrayObject*>(obj->Type);
 
     ATypeCircularArrayObject  * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
     ATypeHexagonalArrayObject * hexArray  = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
 
+    // ---  !!!*** test
+    int iCounterStart = array->startIndex;
+    if (array->strStartIndex.contains("ParentIndex"))
+    {
+        QString tmpStr = array->strStartIndex;
+        tmpStr.replace("ParentIndex", QString::number(parentNodeIndex));
+        const AGeoConsts & GC = AGeoConsts::getConstInstance();
+        QString errorStr;
+        bool ok = GC.updateIntParameter(errorStr, tmpStr, iCounterStart, false, true);
+        if (!ok) qDebug() << "EERRRROOORRRRRRRR in start index using ParentIndex";
+    }
+    // ---
+
     for (AGeoObject * el : obj->HostedObjects)
     {
-        int iCounter = array->startIndex;
+        //int iCounter = array->startIndex;
+        int iCounter = iCounterStart;
         if (iCounter < 0) iCounter = 0;
 
         if (circArray)

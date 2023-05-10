@@ -92,7 +92,7 @@ public:
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
-    void positionArray(AGeoObject * obj, TGeoVolume * vol);  // !!!*** split to array types!
+    void positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex);  // !!!*** split to array types!
     void positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
     void positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
 
