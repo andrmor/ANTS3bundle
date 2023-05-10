@@ -25,13 +25,14 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     const int&           iMat = SM.findMaterial( aStep->GetPreStepPoint()->GetMaterial()->GetName() ); //will terminate session if not found!
     const G4ThreeVector& G4pos = aStep->GetPostStepPoint()->GetPosition();
     const double&        time = aStep->GetPostStepPoint()->GetGlobalTime()/ns;
+    const int &          copyNumber = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
 
     double pos[3];
     pos[0] = G4pos.x();
     pos[1] = G4pos.y();
     pos[2] = G4pos.z();
 
-    SM.saveDepoRecord(pName, iMat, edep, pos, time);
+    SM.saveDepoRecord(pName, iMat, edep, pos, time, copyNumber);
 
     return true;
 }

@@ -521,7 +521,7 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
             if (logic && SM.isEnergyDepoLogger(logic))
             {
                 const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
-                SM.saveDepoRecord("-", iMat, energy, position, time);
+                SM.saveDepoRecord("-", iMat, energy, position, time, vol->GetCopyNo());
             }
         }
 #endif

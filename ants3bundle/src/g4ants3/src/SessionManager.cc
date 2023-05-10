@@ -408,7 +408,7 @@ void SessionManager::writeNewEventMarker()
     }
 }
 
-void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double edep, double *pos, double time)
+void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double edep, double *pos, double time, int copyNumber)
 {
     if (!outStreamDeposition) return;
 
@@ -421,10 +421,11 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
 
         *outStreamDeposition << pName << char(0x00);
 
-        outStreamDeposition->write((char*)&iMat,    sizeof(int));
-        outStreamDeposition->write((char*)&edep,    sizeof(double));
-        outStreamDeposition->write((char*)pos,    3*sizeof(double));
-        outStreamDeposition->write((char*)&time,    sizeof(double));
+        outStreamDeposition->write((char*)&iMat,        sizeof(int));
+        outStreamDeposition->write((char*)&edep,        sizeof(double));
+        outStreamDeposition->write((char*)pos,        3*sizeof(double));
+        outStreamDeposition->write((char*)&time,        sizeof(double));
+        outStreamDeposition->write((char*)&copyNumber,  sizeof(int)); // !!!***
     }
     else
     {
@@ -435,7 +436,8 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
         ss << iMat << ' ';
         ss << edep << ' ';
         ss << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ' ';
-        ss << time;
+        ss << time << ' ';
+        ss << copyNumber;  // !!!***
 
         *outStreamDeposition << ss.rdbuf() << std::endl;
     }
