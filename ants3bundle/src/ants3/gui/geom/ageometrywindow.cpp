@@ -1342,3 +1342,11 @@ void AGeometryWindow::on_cbShowTop_clicked(bool checked)
 */
 }
 
+void AGeometryWindow::on_pushButton_clicked()
+{
+    QWebEnginePage * page = WebView->page();
+    QString js = "getAnts3Camera()";
+    qDebug() << "Run js:" << js;
+    page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
+}
+

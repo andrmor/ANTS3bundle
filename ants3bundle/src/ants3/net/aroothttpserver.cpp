@@ -31,11 +31,13 @@ bool ARootHttpServer::start()
     qDebug() << "JSROOT: configuring custom html page:" << customHtmlPage;
     Server->SetDefaultPage(customHtmlPage.toLatin1().data());
 
+    //Server->SetItemField("/", "_monitoring", "1000");   // monitoring interval in ms
+
+
     if (isRunning())
     {
         qDebug() << "ANTS3 root server is now listening";
         emit StatusChanged();
-        //emit RootServerStarted(); //to update current geometry on the server
         onNewGeoManagerCreated();
         return true;
     }
@@ -90,10 +92,10 @@ void ARootHttpServer::onNewGeoManagerCreated()
 
     if (RegisteredGeoManager)
     {
-        qDebug() << "-----------------------Root html server: unregistering old GeoManager";
+        //qDebug() << "-----------------------Root html server: unregistering old GeoManager";
         Server->Unregister(RegisteredGeoManager);
     }
-    qDebug() << "-----------------------Root html server: registering new GeoManager";
+    //qDebug() << "-----------------------Root html server: registering new GeoManager";
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->SetName("world");
     Server->Register("GeoWorld", GeoManager);

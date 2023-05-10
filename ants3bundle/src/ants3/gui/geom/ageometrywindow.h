@@ -139,6 +139,8 @@ private slots:
 
     void on_cbShowTop_clicked(bool checked);
 
+    void on_pushButton_clicked();
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
