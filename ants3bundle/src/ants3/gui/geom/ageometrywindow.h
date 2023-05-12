@@ -89,8 +89,6 @@ public slots:
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
-    void on_pbTop_clicked();
-    void on_pbFront_clicked();
     void onRasterWindowChange();
     void readRasterWindowProperties();   // !*!
 
@@ -111,6 +109,8 @@ private slots:
     void on_pbShowGeometry_clicked();
     void on_cbColor_toggled(bool checked);
     void on_pbSaveAs_clicked();
+    void on_pbTop_clicked();
+    void on_pbFront_clicked();
     void on_pbSide_clicked();
     void on_cobViewType_currentIndexChanged(int index);
     void on_cbShowAxes_toggled(bool checked);
@@ -164,13 +164,15 @@ private:
     AGeoWriter GeoWriter;
 
 private:
+    void redrawWebView(QString extraArguments = "");
     void doChangeLineWidth(int deltaWidth);
-    void showWebView();
     void prepareGeoManager(bool ColorUpdateAllowed = true);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
     void showGeometryRasterWindow(bool SAME);
     void showGeometryJSRootWindow();
     void copyGeoMarksToGeoManager();
+
+    void onWebPageReplyViewPort(const QVariant & reply);
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

@@ -88,7 +88,7 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
 
         ui->pbCameraDialog->setVisible(false);
 
-        showWebView();
+        redrawWebView();
 #endif
     }
 
@@ -235,9 +235,9 @@ void AGeometryWindow::showGeometryJSRootWindow()
     //copyGeoMarksToGeoManager();  // !!!*** check with markers
     Geometry.notifyRootServerGeometryChanged();
 
-//    showWebView();
-//    return;
+    on_pushButton_clicked();
 
+/*
 #ifdef __USE_ANTS_JSROOT__
 
     bool showAxes = ui->cbShowAxes->isChecked();
@@ -257,6 +257,7 @@ void AGeometryWindow::showGeometryJSRootWindow()
     //page->runJavaScript(js);
     page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
 #endif
+*/
 }
 
 void AGeometryWindow::copyGeoMarksToGeoManager()
@@ -481,7 +482,7 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
 {
     fRecallWindow = false;
     bool ok = jstools::parseJson(json, "ZoomLevel", ZoomLevel);
-    if (ok) Zoom(true);
+    if (ok && !UseJSRoot) Zoom(true);
 
     QJsonObject js;
     ok = jstools::parseJson(json, "GeoWriter", js);
@@ -786,36 +787,7 @@ void AGeometryWindow::on_pbTop_clicked()
         CameraControl->updateGui();
     }
     else
-    {
-#ifdef __USE_ANTS_JSROOT__
-        QWebEnginePage * page = WebView->page();
-        QString js = ""
-        "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");"
-        "painter.setCameraPosition(90,0);";
-        page->runJavaScript(js);
-
-        /*
-        page->runJavaScript("JSROOT.GetMainPainter(\"onlineGUI_drawing\").produceCameraUrl()", [page](const QVariant &v)
-        {
-            QString reply = v.toString();
-            qDebug() << reply; // let's ask Sergey to make JSON with this data
-            QStringList sl = reply.split(',', QString::SkipEmptyParts); //quick parse just for now
-            if (sl.size() > 2)
-            {
-                QString s;
-                //s += "roty" + ui->leY->text() + ",";
-                s += "roty90,";
-                //s += "rotz" + ui->leZ->text() + ",";
-                s += "rotz0,";
-                //s += "zoom" + ui->leZoom->text() + ",";
-                s += sl.at(2) + ",";
-                s += "dray,nohighlight,all,tracks,transp50";
-                page->runJavaScript("JSROOT.redraw(\"onlineGUI_drawing\", JSROOT.GetMainPainter(\"onlineGUI_drawing\").GetObject(), \"" + s + "\");");
-            }
-        });
-        */
-#endif
-    }
+        redrawWebView(";roty90.0;rotz0");
 }
 
 void AGeometryWindow::on_pbFront_clicked()
@@ -831,27 +803,7 @@ void AGeometryWindow::on_pbFront_clicked()
         CameraControl->updateGui();
     }
     else
-    {
-#ifdef __USE_ANTS_JSROOT__
-        QWebEnginePage * page = WebView->page();
-        QString js = ""
-        "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");"
-        "painter.setCameraPosition(90,90);";
-        page->runJavaScript(js);
-#endif
-    }
-}
-
-void AGeometryWindow::onRasterWindowChange()
-{
-    fRecallWindow = true;
-    CameraControl->updateGui();
-}
-
-void AGeometryWindow::readRasterWindowProperties()
-{
-    fRecallWindow = true;
-    RasterWindow->ViewParameters.read(RasterWindow->fCanvas);   // !*! method
+        redrawWebView(";roty90.0;rotz90.0");
 }
 
 void AGeometryWindow::on_pbSide_clicked()
@@ -867,15 +819,19 @@ void AGeometryWindow::on_pbSide_clicked()
         CameraControl->updateGui();
     }
     else
-    {
-#ifdef __USE_ANTS_JSROOT__
-        QWebEnginePage * page = WebView->page();
-        QString js = ""
-                     "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");"
-                     "painter.setCameraPosition(0.001,0.01);";
-        page->runJavaScript(js);
-#endif
-    }
+        redrawWebView(";roty180.0,rotz0");
+}
+
+void AGeometryWindow::onRasterWindowChange()
+{
+    fRecallWindow = true;
+    CameraControl->updateGui();
+}
+
+void AGeometryWindow::readRasterWindowProperties()
+{
+    fRecallWindow = true;
+    RasterWindow->ViewParameters.read(RasterWindow->fCanvas);   // !*! method
 }
 
 void AGeometryWindow::on_cbShowAxes_toggled(bool /*checked*/)
@@ -1020,28 +976,24 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
     ShowGeometry(true, false);
 }
 
-void AGeometryWindow::showWebView()
+void AGeometryWindow::redrawWebView(QString extraArguments)
 {
-    //qDebug() << "------------------showWebView------------------";
 #ifdef __USE_ANTS_JSROOT__
-        //QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50";
-        //QString sss = "https://webapps.frm2.tum.de/neutroncalc/";
+    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     /*
-    QString sss = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks;transp50";
-    WebView->load(QUrl(sss));
-    WebView->show();
-    return;
-    */
-
     QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks;geosegm=20";
-    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
-    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
+    */
+
     if (ui->cbShowTop->isChecked())           s += ";showtop";
     if (ui->cobViewType->currentIndex() == 1) s += ";ortho_camera_rotate";
     if (ui->cbWireFrame->isChecked())         s += ";wireframe";
     s += QString(";transp%1").arg(ui->sbTransparency->value());
+
+    s += extraArguments;
+
+    qDebug() << "---->" << s;
 
     prepareGeoManager(true);
     WebView->load(QUrl(s));
@@ -1137,7 +1089,7 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
         emit requestUpdateRegisteredGeoManager();
 
         prepareGeoManager();
-        showWebView();
+        redrawWebView();
 #endif
     }
 }
@@ -1178,7 +1130,7 @@ void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
     else
     {
         prepareGeoManager();
-        showWebView();
+        redrawWebView();
         // ShowGeometry(true, false);
     }
 }
@@ -1344,9 +1296,22 @@ void AGeometryWindow::on_cbShowTop_clicked(bool checked)
 
 void AGeometryWindow::on_pushButton_clicked()
 {
+    if (!UseJSRoot) return;
+
     QWebEnginePage * page = WebView->page();
     QString js = "getAnts3Camera()";
     qDebug() << "Run js:" << js;
-    page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
+
+    //page->runJavaScript(js, [](const QVariant & v) {qDebug() << v.toString(); });
+    page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
 }
 
+void AGeometryWindow::onWebPageReplyViewPort(const QVariant & reply)
+{
+    qDebug() << reply;
+    QStringList argList = reply.toString().split(',', Qt::SkipEmptyParts);
+
+    QString extraArgs = ";";
+    for (const QString & s : argList) extraArgs += (s + ";");
+    redrawWebView(extraArgs);
+}
