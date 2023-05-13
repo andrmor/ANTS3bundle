@@ -26,6 +26,7 @@
 #include <QLineEdit>
 #include <QFile>
 #include <QRegularExpression>
+#include <QDoubleValidator>
 
 #include <string>
 
@@ -52,6 +53,11 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
     ui->pbUpdateIcon->setVisible(false);
+
+    QDoubleValidator * dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    QList<QLineEdit*> list = this->findChildren<QLineEdit*>();
+    foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     updateGui();
 
@@ -88,7 +94,7 @@ void AParticleSimWin::updateGui()
 
 void AParticleSimWin::updateSimGui()
 {
-    ui->sbEvents->setValue(SimSet.Events);
+    ui->ledEvents->setText(QString::number(SimSet.Events));
 
     int iMode = 0;
     if      (SimSet.GenerationMode == AParticleSimSettings::Sources) iMode = 0;
@@ -641,7 +647,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
 void AParticleSimWin::disableGui(bool flag)
 {
     //setDisabled(flag);
-    ui->sbEvents->setDisabled(flag);
+    ui->ledEvents->setDisabled(flag);
     ui->pbConfigureOutput->setDisabled(flag);
     ui->pbSimulate->setDisabled(flag);
 
@@ -675,9 +681,9 @@ void AParticleSimWin::on_cobParticleGenerationMode_activated(int index)
     else                 SimSet.GenerationMode = AParticleSimSettings::Script;
 }
 
-void AParticleSimWin::on_sbEvents_editingFinished()
+void AParticleSimWin::on_ledEvents_editingFinished()
 {
-    SimSet.Events = ui->sbEvents->value();
+    SimSet.Events = ui->ledEvents->text().toDouble();
 }
 
 #include "aparticlesimoutputdialog.h"
@@ -766,7 +772,7 @@ void AParticleSimWin::onBusyStatusChange(bool busy)
     ui->sbGunTestEvents->setEnabled(bEnable);
     ui->cbShowStatistics->setEnabled(bEnable);
 
-    ui->sbEvents->setEnabled(bEnable);
+    ui->ledEvents->setEnabled(bEnable);
     ui->pbConfigureOutput->setEnabled(bEnable);
     ui->pbSimulate->setEnabled(bEnable);
     ui->cbAutoLoadResults->setEnabled(bEnable);

@@ -67,7 +67,7 @@ private slots:
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
-    void on_sbEvents_editingFinished();
+    void on_ledEvents_editingFinished();
     void on_pbChooseWorkingDirectory_clicked();
 
     // tracks

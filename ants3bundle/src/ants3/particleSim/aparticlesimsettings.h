@@ -22,7 +22,7 @@ public:
     enum EGenMode {Sources = 0, File = 1, Script = 2};
 
     EGenMode GenerationMode = Sources;
-    int      Events         = 1;
+    double   Events         = 1;
 
     //bool    bDoS1           = true;
     //bool    bDoS2           = false;
