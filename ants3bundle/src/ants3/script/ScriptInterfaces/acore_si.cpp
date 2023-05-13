@@ -556,7 +556,7 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
     return vl;
 }
 
-QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil)
+QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
 
@@ -610,7 +610,7 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
                 bOnStart = false; //buffer is invalid
             else                  //else save buffer
             {
-                vl1.push_back(vl2);
+                if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
                 vl2.clear();
             }
 
@@ -628,7 +628,8 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
         readFormattedLine(fields, FormatSelector, el3);
         vl2.push_back(el3);
     }
-    vl1.push_back(vl2);
+
+    if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
 
     file.close();
     return vl1;
