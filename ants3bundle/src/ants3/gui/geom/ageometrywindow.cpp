@@ -235,11 +235,13 @@ void AGeometryWindow::showGeometryJSRootWindow()
     //copyGeoMarksToGeoManager();  // !!!*** check with markers
     Geometry.notifyRootServerGeometryChanged();
 
-    on_pushButton_clicked();
+#ifdef __USE_ANTS_JSROOT__
+    QWebEnginePage * page = WebView->page();
+    QString js = "getAnts3Camera()";
+    qDebug() << "Run js:" << js;
+    page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
 
 /*
-#ifdef __USE_ANTS_JSROOT__
-
     bool showAxes = ui->cbShowAxes->isChecked();
     bool wireFrame = ui->cbWireFrame->isChecked();
     bool showTop = ui->cbShowTop->isChecked();
@@ -256,8 +258,18 @@ void AGeometryWindow::showGeometryJSRootWindow()
     qDebug() << "Run js:" << js;
     //page->runJavaScript(js);
     page->runJavaScript(js, [](const QVariant &v) { qDebug() << v.toString(); });
-#endif
 */
+#endif
+}
+
+void AGeometryWindow::onWebPageReplyViewPort(const QVariant & reply)
+{
+    qDebug() << reply;
+    QStringList argList = reply.toString().split(',', Qt::SkipEmptyParts);
+
+    QString extraArgs = ";";
+    for (const QString & s : argList) extraArgs += (s + ";");
+    redrawWebView(extraArgs);
 }
 
 void AGeometryWindow::copyGeoMarksToGeoManager()
@@ -979,7 +991,8 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
 void AGeometryWindow::redrawWebView(QString extraArguments)
 {
 #ifdef __USE_ANTS_JSROOT__
-    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
+    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
+    QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
     /*
     QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks";
     //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks;geosegm=20";
@@ -990,6 +1003,8 @@ void AGeometryWindow::redrawWebView(QString extraArguments)
     if (ui->cobViewType->currentIndex() == 1) s += ";ortho_camera_rotate";
     if (ui->cbWireFrame->isChecked())         s += ";wireframe";
     s += QString(";transp%1").arg(ui->sbTransparency->value());
+
+    s += ";camxn1040;camy1040;camzn1040";
 
     s += extraArguments;
 
@@ -1304,14 +1319,4 @@ void AGeometryWindow::on_pushButton_clicked()
 
     //page->runJavaScript(js, [](const QVariant & v) {qDebug() << v.toString(); });
     page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
-}
-
-void AGeometryWindow::onWebPageReplyViewPort(const QVariant & reply)
-{
-    qDebug() << reply;
-    QStringList argList = reply.toString().split(',', Qt::SkipEmptyParts);
-
-    QString extraArgs = ";";
-    for (const QString & s : argList) extraArgs += (s + ";");
-    redrawWebView(extraArgs);
 }

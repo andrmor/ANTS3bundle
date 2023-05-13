@@ -19,17 +19,20 @@ bool ARootHttpServer::start()
     delete Server;
     QString s = "http:" + QString::number(Port);
     Server = new THttpServer(s.toLatin1());
+
+    //Server->SetJSROOT("http://jsroot.gsi.de/dev/");
     if (!ExternalJSROOT.isEmpty())
     {
         Server->SetJSROOT(ExternalJSROOT.toLatin1());
+        //Server->SetJSROOT("https://jsroot.gsi.de/dev/");
         //Server->SetJSROOT("https://root.cern.ch/js/latest/");
     }
 
     //Server->SetDefaultPage("/opt/root62802/js/files/online.htm");
     //Server->SetDefaultPage("/home/andr/WORK/ANTS3/js/index.htm");
-    QString customHtmlPage = A3Global::getConstInstance().ResourcesDir+"/index.htm";
-    qDebug() << "JSROOT: configuring custom html page:" << customHtmlPage;
-    Server->SetDefaultPage(customHtmlPage.toLatin1().data());
+//    QString customHtmlPage = A3Global::getConstInstance().ResourcesDir+"/index.htm";
+//    qDebug() << "JSROOT: configuring custom html page:" << customHtmlPage;
+//    Server->SetDefaultPage(customHtmlPage.toLatin1().data());
 
     //Server->SetItemField("/", "_monitoring", "1000");   // monitoring interval in ms
 
