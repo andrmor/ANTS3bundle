@@ -45,7 +45,6 @@ void AGeoWin_SI::setParallel(bool on)
 
 void AGeoWin_SI::BlockUpdates(bool on)
 {
-    //DoNotUpdateGeometry = on;
     GeometryWindow->bDisableDraw = on;
 }
 

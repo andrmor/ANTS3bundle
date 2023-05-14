@@ -503,11 +503,6 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     if (!UseJSRoot) RasterWindow->ForceResize();
 }
 
-bool AGeometryWindow::IsWorldVisible()
-{
-    return ui->cbShowTop->isChecked();
-}
-
 bool AGeometryWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
@@ -516,15 +511,12 @@ bool AGeometryWindow::event(QEvent *event)
         else RasterWindow->UpdateRootCanvas();
     }
 
-    //return AGuiWindow::event(event);
-    return QMainWindow::event(event);
+    return AGuiWindow::event(event);
 }
 
 #include <QCloseEvent>
 void AGeometryWindow::closeEvent(QCloseEvent * event)
 {
-    //qDebug() << "Geometry window close event";
-
     //fix for bug with root reported for Qt 5.14: close then restore results in resize of the canvas to huge size, and nothing is shown on the widow
     event->ignore();
     hide();
@@ -991,26 +983,25 @@ void AGeometryWindow::doChangeLineWidth(int deltaWidth)
 void AGeometryWindow::redrawWebView(QString extraArguments)
 {
 #ifdef __USE_ANTS_JSROOT__
-    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
-    QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
-    /*
-    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks";
-    //QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;dray;tracks;geosegm=20";
-    //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
-    */
+    QString s = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks";
+    //QString s = "http://localhost:8080/?item=Objects/GeoWorld/world&opt=nohighlight;dray;all;tracks"; // with browser
 
     if (ui->cbShowTop->isChecked())           s += ";showtop";
     if (ui->cobViewType->currentIndex() == 1) s += ";ortho_camera_rotate";
-    if (ui->cbWireFrame->isChecked())         s += ";wireframe";
-    s += QString(";transp%1").arg(ui->sbTransparency->value());
+    if (ui->cbWireFrame->isChecked())         s += ";wire";
+    if (ui->cbShowAxes->isChecked())          s += ";axis";
 
-    s += ";camxn1040;camy1040;camzn1040";
+    s += ";z";
+    s += QString(";transp%1").arg(ui->sbTransparency->value());
+    //s += QString(";geosegm20");  // ?before? geosegm=20
 
     s += extraArguments;
 
     qDebug() << "---->" << s;
 
     prepareGeoManager(true);
+    Geometry.notifyRootServerGeometryChanged();
+
     WebView->load(QUrl(s));
     WebView->show();
 #endif
@@ -1018,6 +1009,8 @@ void AGeometryWindow::redrawWebView(QString extraArguments)
 
 void AGeometryWindow::on_actionOpen_GL_viewer_triggered()
 {
+    if (UseJSRoot) return;
+
     int tran = ui->sbTransparency->value();
     TObjArray * list = Geometry.GeoManager->GetListOfVolumes();
     int numVolumes = list->GetEntries();
@@ -1027,11 +1020,7 @@ void AGeometryWindow::on_actionOpen_GL_viewer_triggered()
         TGeoVolume * tv = (TGeoVolume*)list->At(i);
         tv->SetTransparency(tran);
     }
-    OpenGLview();
-}
 
-void AGeometryWindow::OpenGLview()
-{
     RasterWindow->fCanvas->GetViewer3D("ogl");
 }
 
@@ -1041,6 +1030,9 @@ void AGeometryWindow::on_actionJSROOT_in_browser_triggered()
     ARootHttpServer & RootServer = ARootHttpServer::getInstance();
     if (RootServer.isRunning())
     {
+
+        // !!!*** use the same code to generate URL as in the widget
+
         //QString t = "http://localhost:8080/?nobrowser&item=[Objects/GeoWorld/WorldBox_1,Objects/GeoTracks/TObjArray]&opt=dray;all;tracks";
         //QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks";
         QString t = "http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=all;tracks";
@@ -1095,18 +1087,7 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
     if (Mode == 0)
         ShowGeometry(true, false);
     else
-    {
-#ifdef __USE_ANTS_JSROOT__
-        int level = ui->sbLimitVisibility->value();
-        if (!ui->cbLimitVisibility->isChecked()) level = -1;
-        Geometry.GeoManager->SetVisLevel(level);
-        //MW->NetModule->onNewGeoManagerCreated();
-        emit requestUpdateRegisteredGeoManager();
-
-        prepareGeoManager();
         redrawWebView();
-#endif
-    }
 }
 
 void AGeometryWindow::on_sbLimitVisibility_editingFinished()

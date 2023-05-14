@@ -38,11 +38,7 @@ public:
 
     std::vector<GeoMarkerClass*> GeoMarkers;
 
-    void ShowAndFocus();
-    void SetAsActiveRootWindow();
-
     void SaveAs(const QString & filename);
-    void OpenGLview();
 
     void ResetView();
     void setHideUpdate(bool flag);
@@ -55,14 +51,10 @@ public:
     void onBusyOn();
     void onBusyOff();
 
-    bool isColorByMaterial() {return ColorByMaterial;}
-
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    bool IsWorldVisible();
-
-    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
+    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true); // !!!***
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
@@ -126,7 +118,7 @@ private slots:
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
     void on_actionOpen_GL_viewer_triggered();
-    void on_actionJSROOT_in_browser_triggered(); // !!!*** hard coded port of the root server
+    void on_actionJSROOT_in_browser_triggered(); // !!!*** refactor + avoid hard coded port of the root server!
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
@@ -165,18 +157,22 @@ private:
 
 private:
     void redrawWebView(QString extraArguments = "");
-    void doChangeLineWidth(int deltaWidth);
     void prepareGeoManager(bool ColorUpdateAllowed = true);
-    void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
     void showGeometryRasterWindow(bool SAME);
     void showGeometryJSRootWindow();
+
+    void ShowAndFocus();
+    void SetAsActiveRootWindow();
+
+    void doChangeLineWidth(int deltaWidth);
+    void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
     void copyGeoMarksToGeoManager();
 
     void onWebPageReplyViewPort(const QVariant & reply);
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);
-    void requestUpdateRegisteredGeoManager();
+    void requestUpdateRegisteredGeoManager(); // Geometry.notifyRootServerGeometryChanged();
     //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
 };
