@@ -245,7 +245,7 @@ void AScriptWindow::createGuiElements()
     pteOut = new QPlainTextEdit();
     pteOut->setMinimumHeight(50);
     pteOut->setReadOnly(true);
-    QPalette p = pteOut->palette();   // !!!*** avoid using palettes: clashes with dark theme!
+    QPalette p = pteOut->palette();
     //p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
     //p.setColor(QPalette::Inactive, QPalette::Base, QColor(240,240,240));
     p.setColor(QPalette::Active, QPalette::Base, p.color(QPalette::AlternateBase));
