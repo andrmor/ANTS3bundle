@@ -254,7 +254,7 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
         time += ARandomHub::getInstance().gauss(0, Source.TimeSpreadSigma);
         break;
     case AParticleSourceRecord::UniformSpread :
-        time += Source.TimeSpreadWidth * (ARandomHub::getInstance().uniform() - 0.5);
+        time += Source.TimeSpreadWidth * ARandomHub::getInstance().uniform();
         break;
     case AParticleSourceRecord::ExponentialSpread :
         constexpr double ln2 = std::log(2.0);

@@ -1978,7 +1978,7 @@ In conract, when not checked, the distribution values are assumed to be measured
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Full width:</string>
+            <string>Duration:</string>
            </property>
           </widget>
          </item>
