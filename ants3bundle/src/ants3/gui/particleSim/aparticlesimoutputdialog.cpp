@@ -86,3 +86,13 @@ void AParticleSimOutputDialog::on_cobAsciiBinary_currentIndexChanged(int index)
     ui->labAsciiPrecision->setVisible(index == 0);
     ui->sbAsciiPrecision->setVisible(index == 0);
 }
+
+#include <QDesktopServices>
+void AParticleSimOutputDialog::on_pbChangeDir_customContextMenuRequested(const QPoint &)
+{
+    const QString dir = ui->leOutputDirectory->text();
+    if (dir.isEmpty()) return;
+
+    QDesktopServices::openUrl(QUrl("file:///" + dir, QUrl::TolerantMode));
+}
+

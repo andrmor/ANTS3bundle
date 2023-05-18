@@ -61,6 +61,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pbChangeDir">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="toolTip">
+        <string>Right mouse button click to open</string>
+       </property>
        <property name="text">
         <string>Change</string>
        </property>
