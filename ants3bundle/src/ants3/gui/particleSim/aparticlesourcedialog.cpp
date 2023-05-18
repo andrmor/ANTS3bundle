@@ -393,6 +393,7 @@ void AParticleSourceDialog::on_lwGunParticles_currentRowChanged(int)
 void AParticleSourceDialog::on_cobUnits_activated(int)
 {
     updateFixedEnergy();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -469,7 +470,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();
 
-    const int iPart = ui->lwGunParticles->currentRow();
+    int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
     {
         AGunParticle & p = LocalRec.Particles[iPart];
@@ -495,10 +496,10 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         p.configureEnergySampler();
     }
 
-    int curRow = ui->lwGunParticles->currentRow();
     updateListWidget();
-    if (curRow < 0 && curRow >= ui->lwGunParticles->count()) curRow = 0;
-    ui->lwGunParticles->setCurrentRow(curRow);
+
+    if (iPart < 0 || iPart >= ui->lwGunParticles->count()) iPart = 0;
+    ui->lwGunParticles->setCurrentRow(iPart);
     updateParticleInfo();
     updateColorLimitingMat();
 
@@ -750,7 +751,7 @@ void AParticleSourceDialog::updateFixedEnergy()
         p.PreferredUnits = AGunParticle::keV;
     }
     p.FixedEnergy = ui->ledGunEnergy->text().toDouble() / factor;
-    updateParticleInfo();
+    //updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
