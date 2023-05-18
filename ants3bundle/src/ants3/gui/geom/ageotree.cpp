@@ -790,16 +790,16 @@ void AGeoTree::menuActionRemoveKeepContent(QTreeWidget * treeWidget)
   QList<QTreeWidgetItem*> selected = treeWidget->selectedItems();
   if (selected.isEmpty()) return;
 
-  QMessageBox msgBox;
+  QMessageBox msgBox(treeWidget);
   msgBox.setIcon(QMessageBox::Question);
-  msgBox.setWindowTitle("");
+  msgBox.setWindowTitle("Remove but keep content");
   QString str = ( selected.size() == 1 ? "Remove "+selected.first()->text(0)+"?"
                                        : "Remove selected objects?" );
   //str += "                                             ";
   msgBox.setText(str);
   QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
   QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
-  msgBox.setDefaultButton(cancel);
+  msgBox.setDefaultButton(remove);
 
   msgBox.exec();
 
@@ -834,15 +834,15 @@ void AGeoTree::menuActionRemoveWithContent(QTreeWidget * treeWidget)
     QList<QTreeWidgetItem*> selected = treeWidget->selectedItems();
     if (selected.isEmpty()) return;
 
-    QMessageBox msgBox;
+    QMessageBox msgBox(treeWidget->parentWidget());
     msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle("");
+    msgBox.setWindowTitle("Remove with content");
     QString str = ( selected.size() == 1 ? "Remove " + selected.first()->text(0) + "?"
                                          : "Remove selected objects?" );
     msgBox.setText(str);
     QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
     QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
-    msgBox.setDefaultButton(cancel);
+    msgBox.setDefaultButton(remove);
 
     msgBox.exec();
 
@@ -870,13 +870,13 @@ void AGeoTree::menuActionRemoveHostedObjects(AGeoObject * obj)
 {
     if (!obj) return;
 
-    QMessageBox msgBox;
+    QMessageBox msgBox(twGeoTree);
     msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle("");
-    msgBox.setText("Delete objects hosted inside " + obj->Name + "?");
-    msgBox.addButton(QMessageBox::Yes);
+    msgBox.setWindowTitle("Remove content");
+    msgBox.setText("Remove objects hosted inside " + obj->Name + "?");
+    QPushButton * yes    = msgBox.addButton(QMessageBox::Yes);
     QPushButton * cancel = msgBox.addButton(QMessageBox::Cancel);
-    msgBox.setDefaultButton(cancel);
+    msgBox.setDefaultButton(yes);
 
     msgBox.exec();
     if (msgBox.clickedButton() == cancel) return;

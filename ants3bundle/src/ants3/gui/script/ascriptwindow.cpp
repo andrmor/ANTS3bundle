@@ -815,7 +815,8 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
     //pteHelp->appendPlainText(returnType+ "  " +item->text(0)+":");
 
     //pteHelp->appendHtml("<b>" + item->text(1) + "</b>");
-    pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
+    //pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
+    pteHelp->appendPlainText(item->text(1)+"\n");
     pteHelp->appendPlainText(item->toolTip(0));
 }
 

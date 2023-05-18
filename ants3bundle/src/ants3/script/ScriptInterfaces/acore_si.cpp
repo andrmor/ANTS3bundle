@@ -283,7 +283,7 @@ QString ACore_SI::loadText(QString fileName)
 }
 
 
-void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
+void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int precision)
 {
     if (append && !QFileInfo::exists(fileName))
     {
@@ -298,6 +298,8 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
     }
 
     QTextStream s(&file);
+    if (precision != 6) s.setRealNumberPrecision(precision);
+
     for (int i = 0; i < array.size(); i++)
     {
         const QVariant & var = array[i];
@@ -879,7 +881,9 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
     }
 }
 
-QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom, int recordsUntil)
+QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat,
+                                         char separatorId, const QVariantList &separatorFormat,
+                                         int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
 
@@ -935,7 +939,8 @@ QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, c
                 bOnStart = false; //buffer is invalid
             else                  //else save buffer
             {
-                vl1.push_back(vl2);
+                //vl1.push_back(vl2);
+                if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
                 vl2.clear();
             }
 
@@ -957,7 +962,8 @@ QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, c
             return vl1;
         }
     }
-    vl1.push_back(vl2);
+    //vl1.push_back(vl2);
+    if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
 
     inStream.close();
     return vl1;
