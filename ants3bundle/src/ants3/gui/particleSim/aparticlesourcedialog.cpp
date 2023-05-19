@@ -263,6 +263,7 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     }
 
     ui->frLimitToMat->setVisible(index != 0);
+    ui->frAxialDistribution->setVisible(index == 3);
 }
 
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
