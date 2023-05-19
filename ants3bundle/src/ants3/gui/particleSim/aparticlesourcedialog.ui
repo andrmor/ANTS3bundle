@@ -74,6 +74,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="pbUpdateRecord">
+       <property name="text">
+        <string>...UpdateRecord</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -160,6 +167,54 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QFrame" name="frLimitToMat">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_31">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbSourceLimitmat">
+          <property name="text">
+           <string>Limit particle generation to material:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leSourceLimitMaterial">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Particle will be generated only if the point sampled inside the source is located within an object with the indicated material.
+If material with this name does not exist, this limitation is not applied.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
     </layout>
    </item>
@@ -294,51 +349,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <property name="leftMargin">
-      <number>15</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbSourceLimitmat">
-       <property name="text">
-        <string>Limit particle generation to material:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="leSourceLimitMaterial">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="toolTip">
-        <string>Particle will be generated only if the point sampled inside the source is located within an object with the indicated material.
-If material with this name does not exist, this limitation is not applied.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_10">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbUpdateRecord">
-       <property name="text">
-        <string>...UpdateRecord</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item>
     <widget class="Line" name="line_7">

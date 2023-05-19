@@ -261,6 +261,8 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
         ui->labGunPhi->setText("Around X:");
         ui->labGunTheta->setText("Around Y:");
     }
+
+    ui->frLimitToMat->setVisible(index != 0);
 }
 
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
