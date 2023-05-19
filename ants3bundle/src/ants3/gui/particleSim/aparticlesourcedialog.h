@@ -44,7 +44,6 @@ private slots:
     void on_pbGunShowSpectrum_clicked();
     void on_pbGunLoadSpectrum_clicked();
     void on_pbDeleteSpectrum_clicked();
-    void on_cbRangeBaseEnergyData_clicked();
 
     void on_pbShowSource_clicked(bool checked);
     void on_pbHelpParticle_clicked();

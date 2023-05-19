@@ -34,7 +34,6 @@ struct AGunParticle
     double       FixedEnergy     = 100.0;      // in keV
     EEneryUnits  PreferredUnits  = keV;
     std::vector<std::pair<double, double>> EnergySpectrum;
-    bool         RangeBasedEnergies = false;
 
     std::string  configureEnergySampler();
     double       generateEnergy() const;

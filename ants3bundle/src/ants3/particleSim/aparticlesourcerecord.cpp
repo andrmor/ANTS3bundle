@@ -25,7 +25,7 @@ std::string AGunParticle::configureEnergySampler()
 {
     _EnergySampler.clear();
     if (UseFixedEnergy) return "";
-    return _EnergySampler.configure(EnergySpectrum, RangeBasedEnergies);
+    return _EnergySampler.configure(EnergySpectrum, false);
 }
 
 double AGunParticle::generateEnergy() const
@@ -88,7 +88,6 @@ void AGunParticle::writeToJson(QJsonObject & json) const
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(EnergySpectrum, ar);
             js["EnergySpectrum"] = ar;
-            js["RangeBasedEnergies"] = RangeBasedEnergies;
 
         json["Energy"] = js;
     }
@@ -135,7 +134,6 @@ bool AGunParticle::readFromJson(const JsonObject & json)
             else if (str == "MeV") PreferredUnits = MeV;
             else ;// !!!*** error handling
             jstools::parseJson(js, "UseFixedEnergy",     UseFixedEnergy);
-            jstools::parseJson(js, "RangeBasedEnergies", RangeBasedEnergies);
 
             JsonArray ar;
                 jstools::parseJson(js, "EnergySpectrum", ar);

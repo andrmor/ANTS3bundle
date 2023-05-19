@@ -377,8 +377,6 @@ void AParticleSourceDialog::updateParticleInfo()
         ui->swEnergy->setCurrentIndex(bFix ? 0 : 1);
         ui->pbGunShowSpectrum->setDisabled(gRec.EnergySpectrum.empty());
         ui->pbDeleteSpectrum->setDisabled(gRec.EnergySpectrum.empty());
-        ui->cbRangeBaseEnergyData->setVisible(!bFix);
-        ui->cbRangeBaseEnergyData->setChecked(gRec.RangeBasedEnergies);
     }
     else ui->fGunParticle->setEnabled(false);
 }
@@ -479,7 +477,6 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
         p.UseFixedEnergy = (ui->cobEnergy->currentIndex() == 0);
         updateFixedEnergy();
-        p.RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
         switch (ui->cobGenerationType->currentIndex())
         {
         case 0 : p.GenerationType = AGunParticle::Independent; break;
@@ -538,8 +535,7 @@ void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
     int particle = ui->lwGunParticles->currentRow();
     TGraph * gr = AGraphBuilder::graph(LocalRec.Particles[particle].EnergySpectrum);
     AGraphBuilder::configure(gr, "Energy distribution", "Energy, keV", "");
-    const QString opt = (LocalRec.Particles[particle].RangeBasedEnergies ? "AP" : "APL");
-    emit requestDraw(gr, opt, true, true);
+    emit requestDraw(gr, "APL", true, true);
 }
 
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
@@ -617,14 +613,6 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
                        "  which indicates direct energy deposition (a particle is NOT generated).\n"
                        "  Note that the direct energy deposition is only saved if the position is inside\n"
                        "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
-}
-
-void AParticleSourceDialog::on_cbRangeBaseEnergyData_clicked()
-{
-    int iPart = ui->lwGunParticles->currentRow();
-    LocalRec.Particles[iPart].RangeBasedEnergies = ui->cbRangeBaseEnergyData->isChecked();
-    LocalRec.Particles[iPart]._EnergySampler.configure(LocalRec.Particles[iPart].EnergySpectrum, LocalRec.Particles[iPart].RangeBasedEnergies);
-    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbShowAngular_clicked()
