@@ -60,7 +60,6 @@ private slots:
     void on_pbTimeCustomShow_clicked();
     void on_pbTimeCustomLoad_clicked();
     void on_pbTimeCustomDelete_clicked();
-    void on_cbTimeCustomRanged_clicked(bool checked);
 
 signals:
     void delayClose();

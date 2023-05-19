@@ -106,7 +106,7 @@
      <item>
       <widget class="QComboBox" name="cobGunSourceType">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -603,6 +603,12 @@ If material with this name does not exist, this limitation is not applied.</stri
      </item>
      <item>
       <widget class="QComboBox" name="cobAngularMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <item>
         <property name="text">
          <string>Isotropic</string>
@@ -1791,13 +1797,6 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbTimeCustomRanged">
-           <property name="text">
-            <string>Range-based data</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <spacer name="horizontalSpacer_22">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -2527,7 +2526,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>546</x>
-     <y>604</y>
+     <y>575</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2559,7 +2558,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>505</x>
-     <y>516</y>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2638,7 +2637,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
+     <x>305</x>
      <y>666</y>
     </hint>
     <hint type="destinationlabel">
@@ -2654,8 +2653,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>689</y>
+     <x>517</x>
+     <y>683</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2686,8 +2685,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>718</y>
+     <x>312</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2702,8 +2701,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>718</y>
+     <x>330</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2750,8 +2749,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>278</y>
+     <x>420</x>
+     <y>281</y>
     </hint>
     <hint type="destinationlabel">
      <x>496</x>
@@ -2799,7 +2798,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>597</x>
-     <y>503</y>
+     <y>474</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2814,8 +2813,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>718</y>
+     <x>333</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2846,8 +2845,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>287</x>
-     <y>718</y>
+     <x>395</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>499</x>

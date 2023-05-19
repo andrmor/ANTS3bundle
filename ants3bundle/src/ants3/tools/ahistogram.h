@@ -61,7 +61,7 @@ class ARandomSampler
 {
 public:
     void        clear();
-    std::string configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData); // returns error string or empty
+    std::string configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData = false); // returns error string or empty
     bool        isReady() const {return !SumBins.empty();}
 
     double      getRandom() const; // if not configured or error during configure -> always returns 0

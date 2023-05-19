@@ -183,7 +183,6 @@ void AParticleSourceRecord::clear()
     TimeSpreadMode    = NoSpread;
     TimeSpreadSigma   = 50.0;
     TimeSpreadWidth   = 100.0;
-    TimeRangeBased    = false;
     TimeDistribution.clear();
 
     Particles.clear();
@@ -281,7 +280,6 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case h   : str = "h";   break;
                 }
             js["HalfLifePreferUnit"] = str;
-            js["RangeBasedData"]     = TimeRangeBased;
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(TimeDistribution, ar);
             js["CustomDistribution"] = ar;
@@ -424,7 +422,6 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else if (str == "min") TimeHalfLifePrefUnit = min;
             else if (str == "h")   TimeHalfLifePrefUnit = h;
             else ; // !!!*** error
-            jstools::parseJson(js, "RangeBasedData", TimeRangeBased);
             JsonArray ar;
                 jstools::parseJson(js, "CustomDistribution", ar);
             jstools::readDPairVectorFromArray(ar, TimeDistribution);
@@ -582,5 +579,5 @@ std::string AParticleSourceRecord::configureTimeSampler()
 {
     _TimeSampler.clear();
     if (TimeOffsetMode != CustomDistributionOffset) return "";
-    return _TimeSampler.configure(TimeDistribution, TimeRangeBased);
+    return _TimeSampler.configure(TimeDistribution, false);
 }

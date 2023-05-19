@@ -103,7 +103,6 @@ struct AParticleSourceRecord
     double      TimeSpreadHalfLife = 100.0; // in ns
     ETimeUnits  TimeHalfLifePrefUnit = ns;
     std::vector<std::pair<double, double>> TimeDistribution;
-    bool        TimeRangeBased = false;
 
     // Particles
     std::vector<AGunParticle> Particles;

@@ -86,7 +86,6 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
     ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
     ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
-    ui->cbTimeCustomRanged->setChecked(Rec.TimeRangeBased);
     updateTimeButtons();
     index = 0;
     switch (Rec.TimeSpreadMode)
@@ -746,8 +745,7 @@ void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
 {
     TGraph * gr = AGraphBuilder::graph(LocalRec.TimeDistribution);
     AGraphBuilder::configure(gr, "Time offset distribution", "Time, ns", "");
-    const QString opt = (LocalRec.TimeRangeBased ? "AP" : "APL");
-    emit requestDraw(gr, opt, true, true);
+    emit requestDraw(gr, "APL", true, true);
 }
 
 void AParticleSourceDialog::on_pbTimeCustomLoad_clicked()
@@ -770,10 +768,4 @@ void AParticleSourceDialog::on_pbTimeCustomDelete_clicked()
 {
     LocalRec.TimeDistribution.clear();
     updateTimeButtons();
-}
-
-void AParticleSourceDialog::on_cbTimeCustomRanged_clicked(bool checked)
-{
-    LocalRec.TimeRangeBased = checked;
-    LocalRec._TimeSampler.configure(LocalRec.TimeDistribution, LocalRec.TimeRangeBased);
 }
