@@ -13,7 +13,7 @@
 #include "acameracontroldialog.h"
 #include "guitools.h"
 #include "ascripthub.h"
-#include "ageowin_si.h"
+//#include "ageowin_si.h"
 
 #include <vector>
 
@@ -101,8 +101,6 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
     ui->actionLarge_dot->setActionGroup(group);
     ui->actionSmall_cross->setActionGroup(group);
     ui->actionLarge_cross->setActionGroup(group);
-
-    AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(this), "geowin");
 }
 
 AGeometryWindow::~AGeometryWindow()

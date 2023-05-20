@@ -39,6 +39,8 @@ public slots:
 
     void addMarkers(QVariantList XYZs, int color, int style, double size);
 
+    void updateGeoWin(AGeometryWindow * newGeoWin);
+
 private:
     AGeometryWindow * GeometryWindow = nullptr;
 };

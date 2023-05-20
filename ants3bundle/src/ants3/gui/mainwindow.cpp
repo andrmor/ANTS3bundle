@@ -21,6 +21,7 @@
 #include "aglobsetwindow.h"
 #include "ademowindow.h"
 #include "escriptlanguage.h"
+#include "ageowin_si.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -49,6 +50,7 @@ MainWindow::MainWindow() :
     connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(false, this);
+    AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(GeoWin), "geowin");
     // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
     // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
@@ -397,6 +399,8 @@ void MainWindow::changeGeoViewer(bool useJSRoot)
         GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     }
     GeoWin->ShowGeometry(true);
+
+    AScriptHub::getInstance().updateGeoWin(GeoWin);
 }
 
 void MainWindow::connectSignalSlotsForGeoWin()

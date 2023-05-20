@@ -116,6 +116,12 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
     GeometryWindow->GeoMarkers.push_back(M);
 }
 
+void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
+{
+    GeometryWindow = newGeoWin;
+    BaseWindow = newGeoWin;
+}
+
 void AGeoWin_SI::clearTracks()
 {
     GeometryWindow->on_pbClearTracks_clicked();
