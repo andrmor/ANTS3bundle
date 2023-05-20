@@ -1022,13 +1022,15 @@ void ADrawExplorerWidget::fwhm(int index)
     fl->SetLineStyle(2);
     fl->SetParameters(c/b, -a/b);
     DrawObjects.insert(index+2, ADrawObject(fl, "same"));
+
     //box with results
-    QString text = QString("FWHM = %1\nmean = %2\nfwhm/mean = %3").arg(FWHM).arg(mid).arg(rel);
-    TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
+    TPaveText * la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
     la->SetFillColor(0);
     la->SetBorderSize(1);
     la->SetLineColor(1);
     la->SetTextAlign( (0 + 1) * 10 + 2);
+    //QString text = QString("FWHM = %1\nmean = %2\nfwhm/mean = %3").arg(FWHM).arg(mid).arg(rel);
+    QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2  fwhm/mean: %3").arg(mid).arg(sigma).arg(FWHM).arg(rel);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
     GraphWindow.RegisterTObject(la);
