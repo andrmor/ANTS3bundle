@@ -56,6 +56,7 @@ struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
     enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
+    enum EAxialMode {GaussAxial, CustomAxial};
     enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};
     enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
     enum ETimeUnits {ns, us, ms, s, min, h};
@@ -78,6 +79,12 @@ struct AParticleSourceRecord
     double      Size1 = 10.0;
     double      Size2 = 10.0;
     double      Size3 = 10.0;
+
+    // Axial distribution for round
+    bool        UseAxialDistribution = false;
+    EAxialMode  AxialDistributionType = GaussAxial;
+    double      AxialDistributionSigma = 10.0;
+    std::vector<std::pair<double, double>> AxialDistribution;
 
     // Limit to material
     bool        MaterialLimited = false;
@@ -112,7 +119,7 @@ struct AParticleSourceRecord
 #ifdef JSON11
     bool readFromJson(const json11::Json::object & json); // !!!*** error handling?
 #else
-    void writeToJson(QJsonObject & json) const;  // make subjson for time, angular etc !!!***
+    void writeToJson(QJsonObject & json) const;
     bool readFromJson(const QJsonObject & json); // !!!*** error handling
 #endif
 
@@ -123,10 +130,12 @@ struct AParticleSourceRecord
 
     std::string configureAngularSampler();
     std::string configureTimeSampler();
+    std::string configureAxialSampler();
 
     // run-time
-    ARandomSampler _AngularSampler;
-    ARandomSampler _TimeSampler;
+    ARandomSampler      _AngularSampler;
+    ARandomSampler      _TimeSampler;
+    RandomRadialSampler _AxialSampler;
 };
 
 #endif // APARTICLESOURCERECORD_H

@@ -426,3 +426,125 @@ double ARandomSampler::getRandom() const
         x += (To - From) * (r1 - SumBins[ibin]) / (SumBins[ibin+1] - SumBins[ibin]);
     return x;
 }
+
+// ---
+
+double interpolateHere(double a, double b, double fraction)
+{
+    //out("    interpolation->", a, b, fraction);
+    if (fraction == 0.0) return a;
+    if (fraction == 1.0) return b;
+    return a + fraction * (b - a);
+}
+
+void RandomRadialSampler::clear()
+{
+    Distribution.clear();
+    Cumulative.clear();
+}
+
+std::string RandomRadialSampler::configure(const std::vector<std::pair<double, double>> & data)
+{
+    if (data.size() < 2)
+        return "Distribution for RandomRadialSampler should have at least 2 points";
+    if (data.front().first != 0)
+        return "First record for the distribution given to RandomRadialSampler should be for zero radial distance";
+
+    const size_t sizeInterpolated = 100;
+    const double step = data.back().first / sizeInterpolated;
+
+    Distribution.reserve(sizeInterpolated);
+
+    const size_t sizeOriginal = data.size();
+    size_t indexInterpolated = 0;
+    for (size_t indexOriginal = 0; indexOriginal < sizeOriginal-1; indexOriginal++)
+    {
+        double r = step * indexInterpolated;
+        while (r <= data[indexOriginal+1].first)
+        {
+            const double interpolationFactor = (r - data[indexOriginal].first) / ( data[indexOriginal+1].first - data[indexOriginal].first );
+            const double interpolatedValue   = interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
+
+            Distribution.push_back( {r, interpolatedValue} );
+
+            indexInterpolated++;
+            r = step * indexInterpolated;
+        }
+    }
+
+    double acc = 0;
+    const size_t size = Distribution.size();
+    for (size_t iBin = 0; iBin < size; iBin++)
+    {
+        Cumulative.push_back(SamplerRec(iBin, acc));
+
+        double areaFactor = 1.0;
+        if (iBin != size-1) areaFactor = Distribution[iBin+1].first*Distribution[iBin+1].first - Distribution[iBin].first*Distribution[iBin].first;
+
+        acc += Distribution[iBin].second * areaFactor;
+    }
+
+    if (acc != 0)
+        for (SamplerRec & rec : Cumulative)
+            rec.val /= acc;
+
+    return "";
+}
+
+double RandomRadialSampler::getRandom() const
+{
+    if (Cumulative.empty()) return 0;
+
+    const double rndm = ARandomHub::getInstance().uniform();
+    auto res = std::upper_bound(Cumulative.begin(), Cumulative.end(), SamplerRec(0, rndm)); // iterator to the element with larger val than rndm
+
+    size_t indexAbove = (res == Cumulative.end() ? Cumulative.size()-1
+                                                 : res->index);
+
+    const double from = Distribution[indexAbove-1].first;
+    const double to   = Distribution[indexAbove].first;
+    return from + (to - from) * ARandomHub::getInstance().uniform();
+}
+
+#include "avector.h"
+void RandomRadialSampler::generatePosition(AVector3 & pos) const
+{
+    if (Cumulative.empty())
+    {
+        pos[0] = 0;
+        pos[1] = 0;
+        pos[2] = 0;
+        return;
+    }
+
+    const double rndm = ARandomHub::getInstance().uniform(); // (0,1)?
+    auto res = std::upper_bound(Cumulative.begin(), Cumulative.end(), SamplerRec(0, rndm)); // iterator to the element with larger val than rndm
+
+    size_t indexAbove = (res == Cumulative.end() ? Cumulative.size()-1
+                                                 : res->index);
+
+    pos[2] = 0;
+    if (indexAbove != 1)
+    {
+        const double from = Distribution[indexAbove-1].first;
+        const double to   = Distribution[indexAbove].first;
+
+        const double radius = from + (to - from) * ARandomHub::getInstance().uniform();
+        const double phi = 2.0 * 3.1415926535 * ARandomHub::getInstance().uniform();
+
+        pos[0] = radius;
+        pos[1] = 0;
+        pos.rotateZ(phi);
+    }
+    else
+    {
+        const double r  = Distribution[1].first;
+        const double r2 = Distribution[1].first * Distribution[1].first;
+        do
+        {
+            pos[0] = -r + 2.0 * r * ARandomHub::getInstance().uniform();
+            pos[1] = -r + 2.0 * r * ARandomHub::getInstance().uniform();
+        }
+        while (pos[0]*pos[0] + pos[1]*pos[1] > r2);
+    }
+}

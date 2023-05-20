@@ -7,6 +7,8 @@
 #include <tuple>
 #include <string>
 
+class AVector3;
+
 class AHistogram1D
 {
 public:
@@ -70,6 +72,32 @@ private:
     std::vector<double> LeftBounds;
     std::vector<double> Values;
     std::vector<double> SumBins;
+};
+
+struct SamplerRec
+{
+    size_t index;
+    double val;
+
+    SamplerRec(size_t Index, double Val) : index(Index), val(Val) {}
+    SamplerRec(){}
+
+    bool operator<(const SamplerRec & other) const {return val < other.val;}
+};
+class RandomRadialSampler
+{
+public:
+    void        clear();
+    std::string configure(const std::vector<std::pair<double,double>> & data); // returns error string or empty
+    bool        isReady() const {return !Cumulative.empty();}
+
+    double      getRandom() const;
+    void        generatePosition(AVector3 & pos) const;
+
+protected:
+    std::vector<std::pair<double,double>> Distribution;
+    std::vector<SamplerRec> Cumulative;
+
 };
 
 class AHistogram2D

@@ -39,7 +39,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
-    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
+    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);  // !!!***
 
     ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
     ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
@@ -49,11 +49,23 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunOriginY->setText(QString::number(Rec.Y0));
     ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
 
+    ui->cbAxialDistribution->setChecked(Rec.UseAxialDistribution);
+    int index = 0;
+    switch (Rec.AxialDistributionType)
+    {
+    case AParticleSourceRecord::GaussAxial  : index = 0; break;
+    case AParticleSourceRecord::CustomAxial : index = 1; break;
+    default: guitools::message("Unknown axial distribution type, setting to Gauss!", this);
+    }
+    ui->cobAxialDistributionType->setCurrentIndex(index);
+    ui->ledAxialDistributionSigma->setText(QString::number(Rec.AxialDistributionSigma));
+    updateAxialButtons();
+
     ui->ledGunPhi->setText(QString::number(Rec.Phi));
     ui->ledGunTheta->setText(QString::number(Rec.Theta));
     ui->ledGunPsi->setText(QString::number(Rec.Psi));
 
-    int index = 0;
+    index = 0;
     switch (Rec.AngularMode)
     {
     case AParticleSourceRecord::Isotropic  : index = 0; break;
@@ -421,6 +433,16 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
     LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
 
+    LocalRec.UseAxialDistribution = ui->cbAxialDistribution->isChecked();
+    switch (ui->cobAxialDistributionType->currentIndex())
+    {
+    case 0 : LocalRec.AxialDistributionType = AParticleSourceRecord::GaussAxial;  break;
+    case 1 : LocalRec.AxialDistributionType = AParticleSourceRecord::CustomAxial; break;
+    default: qWarning() << "Not implemented AxialDistributionType";
+    }
+    LocalRec.AxialDistributionSigma = ui->ledAxialDistributionSigma->text().toDouble();
+    updateAxialButtons();   // need here?
+
     LocalRec.Phi = ui->ledGunPhi->text().toDouble();
     LocalRec.Theta = ui->ledGunTheta->text().toDouble();
     LocalRec.Psi = ui->ledGunPsi->text().toDouble();
@@ -469,6 +491,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();
+    LocalRec.configureAxialSampler();
 
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
@@ -591,6 +614,13 @@ void AParticleSourceDialog::updateCustomAngularButtons()
     const bool distrLoaded = !LocalRec.AngularDistribution.empty();
     ui->pbShowAngular->setEnabled(distrLoaded);
     ui->pbDeleteAngular->setEnabled(distrLoaded);
+}
+
+void AParticleSourceDialog::updateAxialButtons()
+{
+    const bool distrLoaded = !LocalRec.AxialDistribution.empty();
+    ui->pbAxialDistributionShow->setEnabled(distrLoaded);
+    ui->pbAxialDistributionRemove->setEnabled(distrLoaded);
 }
 
 void AParticleSourceDialog::updateTimeButtons()
@@ -772,3 +802,33 @@ void AParticleSourceDialog::on_pbTimeCustomDelete_clicked()
     LocalRec.TimeDistribution.clear();
     updateTimeButtons();
 }
+
+void AParticleSourceDialog::on_pbAxialDistributionShow_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.AxialDistribution);
+    AGraphBuilder::configure(gr, "Axial distribution", "Distance from axis, mm", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void AParticleSourceDialog::on_pbAxialDistributionLoad_clicked()
+{
+    const QString fileName = guitools::dialogLoadFile(this, "Load custom axial distribution", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.AxialDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureAxialSampler().data());
+    if (!err.isEmpty())
+    {
+        LocalRec.AxialDistribution.clear();
+        guitools::message(err, this);
+    }
+    updateAxialButtons();
+}
+
+void AParticleSourceDialog::on_pbAxialDistributionRemove_clicked()
+{
+    LocalRec.AxialDistribution.clear();
+    updateAxialButtons();
+}
+

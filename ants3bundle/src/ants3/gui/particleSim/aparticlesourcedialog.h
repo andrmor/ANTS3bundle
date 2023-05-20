@@ -61,6 +61,12 @@ private slots:
     void on_pbTimeCustomLoad_clicked();
     void on_pbTimeCustomDelete_clicked();
 
+    void on_pbAxialDistributionShow_clicked();
+
+    void on_pbAxialDistributionLoad_clicked();
+
+    void on_pbAxialDistributionRemove_clicked();
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
@@ -80,6 +86,7 @@ private:
     void updateParticleInfo();
     void updateColorLimitingMat();
     void updateCustomAngularButtons();
+    void updateAxialButtons();
     void updateTimeButtons();
     void updateDirectionVisibility();
     void storePersistentSettings();

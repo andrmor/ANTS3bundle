@@ -417,21 +417,39 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     }
     case AParticleSourceRecord::Round :
     {
-        const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
-        double r = RandomHub.uniform() + RandomHub.uniform();  //  !!!*** why?
-        if (r > 1.0) r = (2.0 - r) * size1;
-        else r *=  size1;
-        double x = r * cos(angle);
-        double y = r * sin(angle);
+        AVector3 circ(0,0,0);
+        if (!rec.UseAxialDistribution)
+        {
+            double r = RandomHub.uniform() + RandomHub.uniform();
+            if (r > 1.0) r = (2.0 - r) * size1;
+            else r *=  size1;
+            const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+            circ[0] = r * cos(angle);
+            circ[1] = r * sin(angle);
+        }
+        else if (rec.AxialDistributionType == AParticleSourceRecord::GaussAxial)
+        {
+            // !!!*** can be faster if radial and angle, but take care of the radial distortion
+            do
+            {
+                circ[0] = RandomHub.gauss(0, rec.AxialDistributionSigma);
+                circ[1] = RandomHub.gauss(0, rec.AxialDistributionSigma);
+            }
+            while (circ[0]*circ[0] + circ[1]*circ[1] > size1*size1);
+        }
+        else
+        {
+            do rec._AxialSampler.generatePosition(circ);
+            while (circ[0]*circ[0] + circ[1]*circ[1] > size1*size1);
+        }
 
-        AVector3 Circ(x, y, 0);
-        Circ.rotateX(Phi);
-        Circ.rotateY(Theta);
-        Circ.rotateZ(Psi);
+        circ.rotateX(Phi);
+        circ.rotateY(Theta);
+        circ.rotateZ(Psi);
 
-        R[0] = X0 + Circ[0];
-        R[1] = Y0 + Circ[1];
-        R[2] = Z0 + Circ[2];
+        R[0] = X0 + circ[0];
+        R[1] = Y0 + circ[1];
+        R[2] = Z0 + circ[2];
         return;
     }
     case AParticleSourceRecord::Box :

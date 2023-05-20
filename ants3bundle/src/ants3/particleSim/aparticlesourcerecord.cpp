@@ -165,6 +165,11 @@ void AParticleSourceRecord::clear()
     Size2 = 10.0;
     Size3 = 10.0;
 
+    UseAxialDistribution = false;
+    AxialDistributionType = GaussAxial;
+    AxialDistributionSigma = 10.0;
+    AxialDistribution.clear();
+
     MaterialLimited = false;
     LimtedToMatName = "";
 
@@ -212,6 +217,21 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             js["Size1"] = Size1;
             js["Size2"] = Size2;
             js["Size3"] = Size3;
+            QJsonObject jsAxial;
+                jsAxial["Enabled"] = UseAxialDistribution;
+                QString strAx;
+                    switch (AxialDistributionType)
+                    {
+                    case GaussAxial  : strAx = "Gauss";  break;
+                    case CustomAxial : strAx = "Custom"; break;
+                    default          : strAx = "Gauss"; qWarning() << "Not implemented AxialDistributionType! Switching to Gauss";
+                    }
+                jsAxial["Type"] = strAx;
+                jsAxial["Sigma"] = AxialDistributionSigma;
+                QJsonArray arAx;
+                    jstools::writeDPairVectorToArray(AxialDistribution, arAx);
+                jsAxial["CustomDistribution"] = arAx;
+            js["AxialDistributionForRound"] = jsAxial;
             js["Orientation"] = QJsonArray{Phi, Theta, Psi};
             QJsonObject mjs;
                 mjs["Enabled"] = MaterialLimited;
@@ -341,6 +361,20 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             jstools::parseJson(js, "Size1", Size1);
             jstools::parseJson(js, "Size2", Size2);
             jstools::parseJson(js, "Size3", Size3);
+
+            JsonObject jsAxial;
+            jstools::parseJson(js, "AxialDistributionForRound", jsAxial);
+                jstools::parseJson(jsAxial, "Enabled", UseAxialDistribution);
+                std::string strAx;
+                jstools::parseJson(jsAxial, "Type", strAx);
+                if      (strAx == "Gauss")  AxialDistributionType = GaussAxial;
+                else if (strAx == "Custom") AxialDistributionType = CustomAxial;
+                else ; // !!!*** error reporting
+                jstools::parseJson(jsAxial, "Sigma", AxialDistributionSigma);
+                JsonArray arAx;
+                jstools::parseJson(jsAxial, "CustomDistribution", arAx);
+                jstools::readDPairVectorFromArray(arAx, AxialDistribution);
+                configureAxialSampler(); // !!!*** error handling
 
             JsonArray ojs;
             jstools::parseJson(js, "Orientation", ojs);
@@ -580,4 +614,11 @@ std::string AParticleSourceRecord::configureTimeSampler()
     _TimeSampler.clear();
     if (TimeOffsetMode != CustomDistributionOffset) return "";
     return _TimeSampler.configure(TimeDistribution, false);
+}
+
+std::string AParticleSourceRecord::configureAxialSampler()
+{
+    _AxialSampler.clear();
+    if (AxialDistributionType != CustomAxial) return "";
+    return _AxialSampler.configure(AxialDistribution);
 }

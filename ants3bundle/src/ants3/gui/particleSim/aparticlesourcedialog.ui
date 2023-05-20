@@ -376,135 +376,168 @@ If material with this name does not exist, this limitation is not applied.</stri
         <property name="text">
          <string>Use axial distribution</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="cobAxialDistributionType">
-        <item>
-         <property name="text">
-          <string>Gaussian</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Custom</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QStackedWidget" name="swAxialDistribution">
-        <property name="currentIndex">
-         <number>0</number>
+        <property name="checked">
+         <bool>true</bool>
         </property>
-        <widget class="QWidget" name="page_14">
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_26">
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frAxialProperties">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_36">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="cobAxialDistributionType">
+           <item>
             <property name="text">
-             <string>Sigma:</string>
+             <string>Gaussian</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="ledAxialDistributionSigma">
-            <property name="maximumSize">
-             <size>
-              <width>75</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_27">
+           </item>
+           <item>
             <property name="text">
-             <string>mm</string>
+             <string>Custom</string>
             </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="swAxialDistribution">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="page_14">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_26">
+               <property name="text">
+                <string>Sigma:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledAxialDistributionSigma">
+               <property name="maximumSize">
+                <size>
+                 <width>75</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_27">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="page_15">
-         <layout class="QHBoxLayout" name="horizontalLayout_34">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QPushButton" name="pbAxialDistributionShow">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Show</string>
-            </property>
+           <widget class="QWidget" name="page_15">
+            <layout class="QHBoxLayout" name="horizontalLayout_34">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionShow">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Show</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionLoad">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Load</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionRemove">
+               <property name="maximumSize">
+                <size>
+                 <width>18</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_23">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbAxialDistributionLoad">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Load</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbAxialDistributionRemove">
-            <property name="maximumSize">
-             <size>
-              <width>18</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>X</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_23">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -2441,7 +2474,7 @@ If material with this name does not exist, this limitation is not applied.</stri
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2452,12 +2485,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>52</y>
+     <x>148</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2472,8 +2505,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2488,8 +2521,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2504,8 +2537,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2516,12 +2549,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>120</y>
+     <x>335</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2532,12 +2565,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>361</x>
-     <y>121</y>
+     <x>603</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2552,8 +2585,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2568,8 +2601,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2584,8 +2617,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2600,8 +2633,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2616,8 +2649,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2632,8 +2665,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2648,8 +2681,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2664,8 +2697,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2677,11 +2710,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>538</x>
-     <y>317</y>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2693,11 +2726,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>533</x>
-     <y>435</y>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2712,8 +2745,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>575</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2728,8 +2761,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>418</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2745,7 +2778,7 @@ If material with this name does not exist, this limitation is not applied.</stri
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2792,8 +2825,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>663</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2808,8 +2841,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>663</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2820,12 +2853,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>305</x>
-     <y>666</y>
+     <x>269</x>
+     <y>669</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2836,12 +2869,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>517</x>
-     <y>683</y>
+     <x>320</x>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
-     <x>509</x>
-     <y>119</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2856,8 +2889,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2868,12 +2901,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>712</y>
+     <x>262</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2884,12 +2917,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>712</y>
+     <x>262</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>121</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2901,11 +2934,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>467</x>
-     <y>316</y>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>511</x>
-     <y>103</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2921,7 +2954,7 @@ If material with this name does not exist, this limitation is not applied.</stri
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2936,8 +2969,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>281</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>113</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2949,11 +2982,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>467</x>
-     <y>316</y>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>538</x>
-     <y>317</y>
+     <y>315</y>
     </hint>
    </hints>
   </connection>
@@ -2965,11 +2998,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>567</x>
-     <y>377</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2981,11 +3014,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>597</x>
-     <y>474</y>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2996,12 +3029,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>333</x>
-     <y>712</y>
+     <x>253</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
-     <y>125</y>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -3016,8 +3049,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>712</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>108</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -3028,12 +3061,92 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>712</y>
+     <x>287</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
-     <x>499</x>
-     <y>111</y>
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAxialDistribution</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>157</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>585</x>
+     <y>19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAxialDistributionType</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAxialDistributionSigma</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>558</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAxialDistributionType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>swAxialDistribution</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>255</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAxialDistribution</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frAxialProperties</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
