@@ -747,11 +747,27 @@ void AParticleSourceDialog::updateFixedEnergyIndication(const AGunParticle & gRe
     case AGunParticle::eV  : index = 2; factor = 1e3;  break;
     case AGunParticle::meV : index = 3; factor = 1e6;  break;
     default :
-        qWarning() << "Not implemented PreferredUnits -> assuming keV";
+        qWarning() << "Not implemented EEneryUnits of PreferredUnits -> assuming keV";
         index = 1; factor = 1.0; break;
     }
     ui->cobUnits->setCurrentIndex(index);
     ui->ledGunEnergy->setText( QString::number(gRec.FixedEnergy * factor) );
+
+    ui->cbEnergyGaussBlur->setChecked(gRec.UseGaussBlur);
+    index = 0;
+    factor = 1.0;
+    switch (gRec.PreferredSigmaUnits)
+    {
+    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    default :
+        qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits -> assuming keV";
+        index = 1; factor = 1.0; break;
+    }
+    ui->cobEnergySigmaUnits->setCurrentIndex(index);
+    ui->ledEnergySigma->setText( QString::number(gRec.EnergySigma * factor) );
 }
 
 void AParticleSourceDialog::updateFixedEnergy()
@@ -759,6 +775,7 @@ void AParticleSourceDialog::updateFixedEnergy()
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart == -1) return;
     AGunParticle & p = LocalRec.Particles[iPart];
+
     double factor = 1.0;
     switch (ui->cobUnits->currentIndex())
     {
@@ -767,11 +784,24 @@ void AParticleSourceDialog::updateFixedEnergy()
     case 2 : p.PreferredUnits = AGunParticle::eV;  factor = 1e3;  break;
     case 3 : p.PreferredUnits = AGunParticle::meV; factor = 1e6;  break;
     default:
-        qWarning() << "Not implemented PreferredUnits in updateFixedEnergy()";
+        qWarning() << "Not implemented EEneryUnits of PreferredUnits in updateFixedEnergy()";
         p.PreferredUnits = AGunParticle::keV;
     }
     p.FixedEnergy = ui->ledGunEnergy->text().toDouble() / factor;
-    //updateParticleInfo();
+
+    p.UseGaussBlur = ui->cbEnergyGaussBlur->isChecked();
+    factor = 1.0;
+    switch (ui->cobEnergySigmaUnits->currentIndex())
+    {
+    case 0 : p.PreferredSigmaUnits = AGunParticle::MeV; factor = 1e-3; break;
+    case 1 : p.PreferredSigmaUnits = AGunParticle::keV; factor = 1.0;  break;
+    case 2 : p.PreferredSigmaUnits = AGunParticle::eV;  factor = 1e3;  break;
+    case 3 : p.PreferredSigmaUnits = AGunParticle::meV; factor = 1e6;  break;
+    default:
+        qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits in updateFixedEnergy()";
+        p.PreferredSigmaUnits = AGunParticle::keV;
+    }
+    p.EnergySigma = ui->ledEnergySigma->text().toDouble() / factor;
 }
 
 void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
@@ -830,5 +860,16 @@ void AParticleSourceDialog::on_pbAxialDistributionRemove_clicked()
 {
     LocalRec.AxialDistribution.clear();
     updateAxialButtons();
+}
+
+void AParticleSourceDialog::on_cobEnergy_currentIndexChanged(int index)
+{
+    ui->frEnergyBlur->setVisible(index == 0);
+}
+
+void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
+{
+    ui->ledEnergySigma->setEnabled(checked);
+    ui->cobEnergySigmaUnits->setEnabled(checked);
 }
 

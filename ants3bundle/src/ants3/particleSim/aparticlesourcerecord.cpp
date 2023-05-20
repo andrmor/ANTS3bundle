@@ -28,9 +28,20 @@ std::string AGunParticle::configureEnergySampler()
     return _EnergySampler.configure(EnergySpectrum, false);
 }
 
+#include "arandomhub.h"
 double AGunParticle::generateEnergy() const
 {
-    if (UseFixedEnergy) return FixedEnergy;
+    if (UseFixedEnergy)
+    {
+        if (UseGaussBlur)
+        {
+            double energy;
+            do energy = ARandomHub::getInstance().gauss(FixedEnergy, EnergySigma);
+            while (energy < 0);
+            return energy;
+        }
+        else return FixedEnergy;
+    }
     return _EnergySampler.getRandom();
 }
 
@@ -89,6 +100,18 @@ void AGunParticle::writeToJson(QJsonObject & json) const
                 jstools::writeDPairVectorToArray(EnergySpectrum, ar);
             js["EnergySpectrum"] = ar;
 
+            js["UseGaussBlur"] = UseGaussBlur;
+            js["EnergySigma"]  = EnergySigma;
+            switch (PreferredSigmaUnits)
+            {
+            case meV : str = "meV"; break;
+            case eV  : str = "eV";  break;
+            case keV : str = "keV"; break;
+            case MeV : str = "MeV"; break;
+            default: qCritical() << "Not implemented PreferredSigmaUnits"; exit(111);
+            }
+            js["PreferredSigmaUnits"] = str;
+
         json["Energy"] = js;
     }
 }
@@ -133,13 +156,22 @@ bool AGunParticle::readFromJson(const JsonObject & json)
             else if (str == "keV") PreferredUnits = keV;
             else if (str == "MeV") PreferredUnits = MeV;
             else ;// !!!*** error handling
-            jstools::parseJson(js, "UseFixedEnergy",     UseFixedEnergy);
+            jstools::parseJson(js, "UseFixedEnergy", UseFixedEnergy);
 
             JsonArray ar;
                 jstools::parseJson(js, "EnergySpectrum", ar);
             jstools::readDPairVectorFromArray(ar, EnergySpectrum);
 
             configureEnergySampler(); // !!!*** error handling
+
+            jstools::parseJson(js, "UseGaussBlur", UseGaussBlur);
+            jstools::parseJson(js, "EnergySigma", EnergySigma);
+            jstools::parseJson(js, "PreferredSigmaUnits", str);
+            if      (str == "meV") PreferredSigmaUnits = meV;
+            else if (str == "eV")  PreferredSigmaUnits = eV;
+            else if (str == "keV") PreferredSigmaUnits = keV;
+            else if (str == "MeV") PreferredSigmaUnits = MeV;
+            else ;// !!!*** error handling
     }
 
     return true;

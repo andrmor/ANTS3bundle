@@ -67,6 +67,10 @@ private slots:
 
     void on_pbAxialDistributionRemove_clicked();
 
+    void on_cobEnergy_currentIndexChanged(int index);
+
+    void on_cbEnergyGaussBlur_toggled(bool checked);
+
 signals:
     void delayClose();
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
