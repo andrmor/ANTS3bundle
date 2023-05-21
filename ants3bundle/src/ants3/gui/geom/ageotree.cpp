@@ -65,9 +65,9 @@ AGeoTree::AGeoTree() :
     connect(this,         &AGeoTree::ProtoObjectSelectionChanged,          EditWidget, &AGeoDelegateWidget::onObjectSelectionChanged);
 
     // shortcuts
-    QShortcut * Del = new QShortcut(Qt::Key_Backspace, twGeoTree);
+    QShortcut * Del = new QShortcut(Qt::Key_Backspace, twGeoTree, nullptr,nullptr, Qt::WidgetShortcut);
     connect(Del, &QShortcut::activated, this, &AGeoTree::onRemoveTriggered);
-    QShortcut * DelRec = new QShortcut(QKeySequence(QKeySequence::Delete), twGeoTree);
+    QShortcut * DelRec = new QShortcut(QKeySequence(QKeySequence::Delete), twGeoTree, nullptr,nullptr, Qt::WidgetShortcut);
     connect(DelRec, &QShortcut::activated, this, &AGeoTree::onRemoveRecursiveTriggered);
 }
 

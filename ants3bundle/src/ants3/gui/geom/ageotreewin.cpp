@@ -31,6 +31,7 @@
 #include <QRegularExpression>
 #include <QMenu>
 #include <QTabWidget>
+#include <QShortcut>
 
 #include "TGeoManager.h"
 #include "TGeoTrack.h"
@@ -39,66 +40,60 @@
 #include "TROOT.h"
 
 AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
-  AGuiWindow("GeoTree", parent),
-  Geometry(AGeometryHub::getInstance()),
-  MaterialHub(AMaterialHub::getConstInstance()),
-  ui(new Ui::AGeoTreeWin)
+    AGuiWindow("GeoTree", parent),
+    Geometry(AGeometryHub::getInstance()),
+    MaterialHub(AMaterialHub::getConstInstance()),
+    ui(new Ui::AGeoTreeWin)
 {
-  ui->setupUi(this);
+    ui->setupUi(this);
 
-  // world tree widget
-  twGeo = new AGeoTree();
-  ui->saGeo->setWidget(twGeo->twGeoTree);
-  connect(twGeo, &AGeoTree::RequestShowMonitor, this, &AGeoTreeWin::onRequestShowMonitorActiveDirection);
+    // world tree widget
+    twGeo = new AGeoTree();
+    ui->saGeo->setWidget(twGeo->twGeoTree);
+    connect(twGeo, &AGeoTree::RequestShowMonitor, this, &AGeoTreeWin::onRequestShowMonitorActiveDirection);
 
-  // prototype tree widget
-  ui->saPrototypes->setWidget(twGeo->twPrototypes);
+    // prototype tree widget
+    ui->saPrototypes->setWidget(twGeo->twPrototypes);
 
-  // Object editor
-  QVBoxLayout* l = new QVBoxLayout();
-  l->setContentsMargins(0,0,0,0);
-  ui->frObjectEditor->setLayout(l);
-  l->addWidget(twGeo->GetEditWidget());
+    // Object editor
+    QVBoxLayout * l = new QVBoxLayout();
+    l->setContentsMargins(0,0,0,0);
+    ui->frObjectEditor->setLayout(l);
+    l->addWidget(twGeo->GetEditWidget());
 
-  connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &AGeoTreeWin::onRebuildDetectorRequest);
-  connect(twGeo, &AGeoTree::RequestFocusObject,     this, &AGeoTreeWin::FocusVolume);
-  connect(twGeo, &AGeoTree::RequestHighlightObject, this, &AGeoTreeWin::ShowObject);
-  connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &AGeoTreeWin::ShowObjectRecursive);
-  connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &AGeoTreeWin::showAllInstances);
-  connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &AGeoTreeWin::onRequestEnableGeoConstWidget);
-  // !!!***
-//  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
-  connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &AGeoTreeWin::onRequestShowPrototypeList);
-  // !!!***
-//  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
-  connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &AGeoTreeWin::onMaterialsChanged);
+    connect(twGeo, &AGeoTree::RequestRebuildDetector, this, &AGeoTreeWin::onRebuildDetectorRequest);
+    connect(twGeo, &AGeoTree::RequestFocusObject,     this, &AGeoTreeWin::FocusVolume);
+    connect(twGeo, &AGeoTree::RequestHighlightObject, this, &AGeoTreeWin::ShowObject);
+    connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &AGeoTreeWin::ShowObjectRecursive);
+    connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &AGeoTreeWin::showAllInstances);
+    connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &AGeoTreeWin::onRequestEnableGeoConstWidget);
+    // !!!***
+    //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
+    connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &AGeoTreeWin::onRequestShowPrototypeList);
+    // !!!***
+    //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
+    connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &AGeoTreeWin::onMaterialsChanged);
 
-//  QPalette palette = ui->frObjectEditor->palette();
-//  palette.setColor( backgroundRole(), QColor( 240, 240, 240 ) );
-//  ui->frObjectEditor->setPalette( palette );
-//  ui->frObjectEditor->setAutoFillBackground( true );
+    connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
 
-  connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
+    ui->pteTP->setReadOnly(true);
 
-//  QPalette p = ui->pteTP->palette();
-//  p.setColor(QPalette::Active, QPalette::Base, QColor(220,220,220));
-//  p.setColor(QPalette::Inactive, QPalette::Base, QColor(220,220,220));
-//  ui->pteTP->setPalette(p);
-  ui->pteTP->setReadOnly(true);
+    QDoubleValidator* dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
+    for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
+        w->setValidator(dv);
 
-  QDoubleValidator* dv = new QDoubleValidator(this);
-  dv->setNotation(QDoubleValidator::ScientificNotation);
-  QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
-  for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
-      w->setValidator(dv);
+    ui->cbAutoCheck->setChecked(A3Global::getConstInstance().AutoCheckGeometry);
+    on_cbAutoCheck_stateChanged(ui->cbAutoCheck->isChecked());
 
-  ui->cbAutoCheck->setChecked(A3Global::getConstInstance().AutoCheckGeometry);
-  on_cbAutoCheck_stateChanged(ui->cbAutoCheck->isChecked());
+    //if (!MW->PythonScriptWindow) ui->actionTo_Python->setEnabled(false);
+    ui->saPrototypes->setVisible(false);
 
-  //if (!MW->PythonScriptWindow) ui->actionTo_Python->setEnabled(false);
-  ui->saPrototypes->setVisible(false);
+    connect(ui->menuUndo_redo, &QMenu::aboutToShow, this, &AGeoTreeWin::updateMenuIndication);
 
-  connect(ui->menuUndo_redo, &QMenu::aboutToShow, this, &AGeoTreeWin::updateMenuIndication);
+    QShortcut * DelA = new QShortcut(QKeySequence(QKeySequence::Delete), ui->tabwConstants, nullptr,nullptr, Qt::WidgetShortcut);
+    connect(DelA, &QShortcut::activated, this, &AGeoTreeWin::onRemoveGeoConstFromShortcut);
 }
 
 AGeoTreeWin::~AGeoTreeWin()
@@ -682,9 +677,38 @@ void AGeoTreeWin::onRequestShowPrototypeList()
 void AGeoTreeWin::updateMenuIndication()
 {
 //    ui->actionUndo->setEnabled(MW->Config->isUndoAvailable());
-      ui->actionUndo->setEnabled(false);
+    ui->actionUndo->setEnabled(false);
 //    ui->actionRedo->setEnabled(MW->Config->isRedoAvailable());
-      ui->actionRedo->setEnabled(false);
+    ui->actionRedo->setEnabled(false);
+}
+
+void AGeoTreeWin::onRemoveGeoConstFromShortcut()
+{
+    int index = ui->tabwConstants->currentRow();
+    AGeoConsts & GC = AGeoConsts::getInstance();
+
+    if (!GC.isIndexValid(index)) return;
+
+    QString name = GC.getName(index);
+    if (!name.isEmpty())
+    {
+        QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index);
+        if (!constUsingIt.isEmpty())
+        {
+           guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), this);
+           return;
+        }
+        const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
+        if (obj)
+        {
+           guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), this);
+           return;
+        }
+    }
+
+    GC.removeConstant(index);
+    updateGeoConstsIndication();
+    emit requestDelayedRebuildAndRestoreDelegate();
 }
 
 void AGeoTreeWin::on_tabwConstants_cellChanged(int row, int column)

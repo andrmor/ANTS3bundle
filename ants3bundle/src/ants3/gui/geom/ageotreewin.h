@@ -33,6 +33,7 @@ private slots:
   void onGeoConstEscapePressed(int index);
   void onRequestShowPrototypeList();
   void updateMenuIndication();
+  void onRemoveGeoConstFromShortcut();
 
   void on_tabwConstants_customContextMenuRequested(const QPoint & pos);
   void on_pbSaveTGeo_clicked();
