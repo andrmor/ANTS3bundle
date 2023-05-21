@@ -124,149 +124,131 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     QAction * editTextPave = ( Type == "TPaveText" ? Menu.addAction("Edit") : nullptr );
     if (editTextPave) Menu.addSeparator();
 
-    QAction * renameA =     Menu.addAction("Rename");
+    QAction * renameA     = Menu.addAction("Rename");
 
     Menu.addSeparator();
-
-    QAction * enableA =     Menu.addAction("Toggle enabled/disabled"); enableA->setChecked(obj.bEnabled); enableA->setEnabled(index != 0);
-
-    Menu.addSeparator();
-
-    QAction * delA =        Menu.addAction("Delete"); delA->setEnabled(index != 0);
+    QAction * enableA     = Menu.addAction("Toggle enabled/disabled"); enableA->setChecked(obj.bEnabled); enableA->setEnabled(index != 0);
 
     Menu.addSeparator();
-
-    QAction * setAttrib =   Menu.addAction("Draw attributes");
-
-    Menu.addSeparator();
-
-    QAction* axesX =        Menu.addAction("X axis");
-    QAction* axesY =        Menu.addAction("Y axis");
-    QAction* axesZ =        Menu.addAction("Z axis");
+    QAction * delA        = Menu.addAction("Remove"); delA->setEnabled(index != 0);
 
     Menu.addSeparator();
+    QAction * setAttrib   = Menu.addAction("Draw attributes");
 
+    Menu.addSeparator();
+    QAction* axesX        = Menu.addAction("X axis");
+    QAction* axesY        = Menu.addAction("Y axis");
+    QAction* axesZ        = Menu.addAction("Z axis");
+
+    Menu.addSeparator();
     QAction* addAxisRight = Menu.addAction("Add axis on RHS");
     QAction* addAxisTop   = Menu.addAction("Add axis on Top");
 
     Menu.addSeparator();
-
-    QMenu * scaleMenu =     Menu.addMenu("Scale / shift"); scaleMenu->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
-        QAction * scaleA =      scaleMenu->addAction("Scale");
+    QMenu * scaleMenu     = Menu.addMenu("Scale"); scaleMenu->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
+        QAction * scaleA      = scaleMenu->addAction("Scale");
         QAction * scaleTo1    = scaleMenu->addAction("Scale max to unity");
         QAction * scaleIntTo1 = scaleMenu->addAction("Scale integral to unity");
-        QAction * scaleCDRA =   scaleMenu->addAction("Scale: click-drag-release");
-        scaleMenu->addSeparator();
-        QAction * shiftA =      scaleMenu->addAction("Shift X scale");
+        QAction * scaleCDRA   = scaleMenu->addAction("Scale: click-drag-release");
+    QAction * shiftA      = Menu.addAction("Shift X scale");  shiftA->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
 
     Menu.addSeparator();
-
-    QMenu * manipMenu =     Menu.addMenu("Manipulate histogram"); manipMenu->setEnabled(Type.startsWith("TH1"));
-        QAction* interpolateA = manipMenu->addAction("Interpolate");
+    QMenu * manipMenu     = Menu.addMenu("Manipulate histogram"); manipMenu->setEnabled(Type.startsWith("TH1"));
+        QAction * interpolateA = manipMenu->addAction("Interpolate");
         manipMenu->addSeparator();
-        QAction* medianA =      manipMenu->addAction("Apply median filter");
+        QAction * medianA      = manipMenu->addAction("Apply median filter");
 
     Menu.addSeparator();
-
-    QMenu * projectMenu =   Menu.addMenu("Projection"); projectMenu->setEnabled(Type.startsWith("TH2") || Type.startsWith("TH3"));
-        QAction* projX =        projectMenu->addAction("X projection");
-        QAction* projY =        projectMenu->addAction("Y projection");
-        QAction* projZ =        projectMenu->addAction("Z projection"); projZ->setVisible(Type.startsWith("TH3"));
+    QMenu * projectMenu   = Menu.addMenu("Projection"); projectMenu->setEnabled(Type.startsWith("TH2") || Type.startsWith("TH3"));
+        QAction * projX      = projectMenu->addAction("X projection");
+        QAction * projY      = projectMenu->addAction("Y projection");
+        QAction * projZ      = projectMenu->addAction("Z projection"); projZ->setVisible(Type.startsWith("TH3"));
         projectMenu->addSeparator();
-        QAction* projCustom =   projectMenu->addAction("Show projection tool");
+        QAction * projCustom = projectMenu->addAction("Show projection tool");
 
     Menu.addSeparator();
-
-    QMenu * calcMenu =     Menu.addMenu("Calculate");
-        QAction* integralA =    calcMenu->addAction("Draw integral");                   integralA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type == "TGraph" || Type == "TGraphError");
-        QAction* fractionA =    calcMenu->addAction("Calculate fraction before/after"); fractionA->setEnabled(Type.startsWith("TH1") || Type == "TProfile");
+    QMenu * calcMenu      = Menu.addMenu("Calculate");
+        QAction * integralA = calcMenu->addAction("Draw integral");                   integralA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type == "TGraph" || Type == "TGraphError");
+        QAction * fractionA = calcMenu->addAction("Calculate fraction before/after"); fractionA->setEnabled(Type.startsWith("TH1") || Type == "TProfile");
 
     Menu.addSeparator();
-
-    QMenu * fitMenu =       Menu.addMenu("Fit");
+    QMenu * fitMenu       = Menu.addMenu("Fit");
         fitMenu->setToolTipsVisible(true);
         QAction * linFitA    = fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * fwhmA      = fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
-
         fitMenu->addSeparator();
-
         QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
                   gauss2FitA->setToolTip("Select a rectangular area indicating the fitting range.\nIf fit fails, try to center the area at the expected mean position");
-
         fitMenu->addSeparator();
-
         QAction * showFitPanel = fitMenu->addAction("Show fit panel");
 
     Menu.addSeparator();
-
     const QString options = obj.Options;
     bool flag3D = false;
     if (Type.startsWith("TH3") || Type.startsWith("TProfile2D") || Type.startsWith("TH2") || Type.startsWith("TF2") || Type.startsWith("TGraph2D"))
         flag3D = true;
-    if ((Type.startsWith("TH2") || Type.startsWith("TProfile2D")) && ( options.contains("col",Qt::CaseInsensitive) || options.contains("prof", Qt::CaseInsensitive) || (options.isEmpty())) )
+    if ((Type.startsWith("TH2") || Type.startsWith("TProfile2D")) &&
+        ( options.contains("col",Qt::CaseInsensitive) || options.contains("prof", Qt::CaseInsensitive) || (options.isEmpty())) )
         flag3D = false;
     //qDebug() << "flag 3D" << flag3D << Type;//options.contains("col",Qt::CaseInsensitive);
-
     QMenu * drawMenu = Menu.addMenu("Draw");        drawMenu->setEnabled(!flag3D);
         QAction* linDrawA     = drawMenu->addAction("Line (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction* boxDrawA     = drawMenu->addAction("Box (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction* ellipseDrawA = drawMenu->addAction("Elypse (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction* boxDrawA     = drawMenu->addAction("Box (use click-drag)");     // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction* ellipseDrawA = drawMenu->addAction("Elypse (use click-drag)");  // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
 
     Menu.addSeparator();
-
-    QMenu * saveMenu =      Menu.addMenu("Save");
-        QAction* saveRootA =    saveMenu->addAction("Save ROOT object");
+    QMenu * saveMenu          = Menu.addMenu("Save");
+        QAction * saveRootA = saveMenu->addAction("Save ROOT object");
         saveMenu->addSeparator();
-        QAction* saveTxtA =     saveMenu->addAction("Save as text");
-        QAction* saveEdgeA =    saveMenu->addAction("Save hist as text using bin edges");
+        QAction * saveTxtA  = saveMenu->addAction("Save as text");
+        QAction* saveEdgeA  = saveMenu->addAction("Save hist as text using bin edges");
 
     Menu.addSeparator();
-
-    QAction * extractA =    Menu.addAction("Extract object"); extractA->setEnabled(DrawObjects.size() > 1);
+    QAction * extractA        = Menu.addAction("Extract object"); extractA->setEnabled(DrawObjects.size() > 1);
 
     // ------ exec ------
 
     QAction* si = Menu.exec(pos);
     if (!si) return; //nothing was selected
 
-   if      (si == renameA)      rename(obj);
-   else if (si == enableA)      toggleEnable(obj);
-   else if (si == delA)         remove(index);
-   else if (si == setAttrib)    setAttributes(index);
-   else if (si == scaleA)       scale(obj);
-   else if (si == scaleTo1)     scaleToUnity(obj);
-   else if (si == scaleIntTo1)  scaleIntegralToUnity(obj);
-   else if (si == scaleCDRA)    scaleCDR(obj);
-   else if (si == integralA)    drawIntegral(obj);
-   else if (si == fractionA)    fraction(obj);
-   else if (si == linFitA)      linFit(index);
-   else if (si == fwhmA)        fwhm(index);
-   else if (si == expA)         expFit(index);
-   else if (si == gauss2FitA)   gauss2Fit(index);
-   else if (si == interpolateA) interpolate(obj);
-   else if (si == axesX)        editAxis(obj, 0);
-   else if (si == axesY)        editAxis(obj, 1);
-   else if (si == axesZ)        editAxis(obj, 2);
-   else if (si == addAxisTop)   addAxis(0);
-   else if (si == addAxisRight) addAxis(1);
-   else if (si == shiftA)       shift(obj);
-   else if (si == medianA)      median(obj);
-   else if (si == splineFitA)   splineFit(index);
-   else if (si == projX)        projection(obj, 0);
-   else if (si == projY)        projection(obj, 1);
-   else if (si == projZ)        projection(obj, 2);
-   else if (si == saveRootA)    saveRoot(obj);
-   else if (si == saveTxtA)     saveAsTxt(obj, true);
-   else if (si == saveEdgeA)    saveAsTxt(obj, false);
-   else if (si == projCustom)   customProjection(obj);
-   else if (si == showFitPanel) fitPanel(obj);
-   else if (si == extractA)     extract(obj);
-   else if (si == editTextPave) editPave(obj);
-   else if (si == linDrawA)     linDraw(index);
-   else if (si == boxDrawA)     boxDraw(index);
-   else if (si == ellipseDrawA) ellipseDraw(index);
+    if      (si == renameA)      rename(obj);
+    else if (si == enableA)      toggleEnable(obj);
+    else if (si == delA)         remove(index);
+    else if (si == setAttrib)    setAttributes(index);
+    else if (si == scaleA)       scale(obj);
+    else if (si == scaleTo1)     scaleToUnity(obj);
+    else if (si == scaleIntTo1)  scaleIntegralToUnity(obj);
+    else if (si == scaleCDRA)    scaleCDR(obj);
+    else if (si == integralA)    drawIntegral(obj);
+    else if (si == fractionA)    fraction(obj);
+    else if (si == linFitA)      linFit(index);
+    else if (si == fwhmA)        fwhm(index);
+    else if (si == expA)         expFit(index);
+    else if (si == gauss2FitA)   gauss2Fit(index);
+    else if (si == interpolateA) interpolate(obj);
+    else if (si == axesX)        editAxis(obj, 0);
+    else if (si == axesY)        editAxis(obj, 1);
+    else if (si == axesZ)        editAxis(obj, 2);
+    else if (si == addAxisTop)   addAxis(0);
+    else if (si == addAxisRight) addAxis(1);
+    else if (si == shiftA)       shift(obj);
+    else if (si == medianA)      median(obj);
+    else if (si == splineFitA)   splineFit(index);
+    else if (si == projX)        projection(obj, 0);
+    else if (si == projY)        projection(obj, 1);
+    else if (si == projZ)        projection(obj, 2);
+    else if (si == saveRootA)    saveRoot(obj);
+    else if (si == saveTxtA)     saveAsTxt(obj, true);
+    else if (si == saveEdgeA)    saveAsTxt(obj, false);
+    else if (si == projCustom)   customProjection(obj);
+    else if (si == showFitPanel) fitPanel(obj);
+    else if (si == extractA)     extract(obj);
+    else if (si == editTextPave) editPave(obj);
+    else if (si == linDrawA)     linDraw(index);
+    else if (si == boxDrawA)     boxDraw(index);
+    else if (si == ellipseDrawA) ellipseDraw(index);
 }
 
 void ADrawExplorerWidget::manipulateTriggered()
@@ -283,27 +265,20 @@ void ADrawExplorerWidget::manipulateTriggered()
 
         QMenu Menu;
 
-        QAction* axesX =        Menu.addAction("X axis");
-        QAction* axesY =        Menu.addAction("Y axis");
-        QAction* axesZ =        Menu.addAction("Z axis");
+        QAction * axesX        = Menu.addAction("X axis");
+        QAction * axesY        = Menu.addAction("Y axis");
+        QAction * axesZ        = Menu.addAction("Z axis");
 
         Menu.addSeparator();
-
-        QAction* addAxisRight = Menu.addAction("Add axis on RHS");
-        QAction* addAxisTop   = Menu.addAction("Add axis on Top");
-
-        Menu.addSeparator();
-
-        //QMenu * scaleMenu =     Menu.addMenu("Scale / shift"); scaleMenu->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
-        //    QAction * scaleA =      scaleMenu->addAction("Scale all graphs/histograms to the same max");
-        //    QAction * scaleCDRA =   scaleMenu->addAction("Scale: click-drag-release");
-        //    scaleMenu->addSeparator();
-        //    QAction * shiftA =      scaleMenu->addAction("Shift X scale");
-
-        QAction* scale        = Menu.addAction("Scale all graphs/histograms to have max of unity"); scale->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
+        QAction * addAxisRight = Menu.addAction("Add axis on RHS");
+        QAction * addAxisTop   = Menu.addAction("Add axis on Top");
 
         Menu.addSeparator();
+        QAction * scale        = Menu.addAction("Scale all graphs/histograms to have max of unity"); scale->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
+        // !!!*** scale to integral of unity
+        // !!!***  QAction * shiftA = scaleMenu->addAction("Shift X scale for all");
 
+        Menu.addSeparator();
         const QString options = obj.Options;
         bool flag3D = false;
         if (Type.startsWith("TH3") || Type.startsWith("TProfile2D") || Type.startsWith("TH2") || Type.startsWith("TF2") || Type.startsWith("TGraph2D"))
@@ -313,15 +288,14 @@ void ADrawExplorerWidget::manipulateTriggered()
         //qDebug() << "flag 3D" << flag3D << Type;//options.contains("col",Qt::CaseInsensitive);
 
         QMenu * drawMenu = Menu.addMenu("Draw");        drawMenu->setEnabled(!flag3D);
-            QAction* linDrawA     = drawMenu->addAction("Line (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-            QAction* boxDrawA     = drawMenu->addAction("Box (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-            QAction* ellipseDrawA = drawMenu->addAction("Elypse (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-
+            QAction * linDrawA     = drawMenu->addAction("Line (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+            QAction * boxDrawA     = drawMenu->addAction("Box (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+            QAction * ellipseDrawA = drawMenu->addAction("Elypse (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
 
         // ------ exec ------
 
-        QAction* si = Menu.exec(pos);
-        if (!si) return; //nothing was selected
+        QAction * si = Menu.exec(pos);
+        if (!si) return;
 
         if      (si == axesX)        editAxis(obj, 0);
         else if (si == axesY)        editAxis(obj, 1);
@@ -367,9 +341,7 @@ void ADrawExplorerWidget::addToDrawObjectsAndRegister(TObject * pointer, const Q
 void ADrawExplorerWidget::rename(ADrawObject & obj)
 {
     bool ok;
-    QString text = QInputDialog::getText(&GraphWindow, "Rename item",
-                                               "Enter new name:", QLineEdit::Normal,
-                                               obj.Name, &ok);
+    QString text = QInputDialog::getText(&GraphWindow, "Rename item", "Enter new name:", QLineEdit::Normal, obj.Name, &ok);
     if (!ok || text.isEmpty()) return;
 
     obj.Name = text;
@@ -425,13 +397,13 @@ void ADrawExplorerWidget::setAttributes(int index)
 
 void ADrawExplorerWidget::showPanel(ADrawObject &obj)
 {
-    TH1* h = dynamic_cast<TH1*>(obj.Pointer);
+    TH1 * h = dynamic_cast<TH1*>(obj.Pointer);
     if (h)
     {
         h->DrawPanel();
         return;
     }
-    TGraph* g = dynamic_cast<TGraph*>(obj.Pointer);
+    TGraph * g = dynamic_cast<TGraph*>(obj.Pointer);
     if (g)
     {
         g->DrawPanel();
@@ -441,7 +413,7 @@ void ADrawExplorerWidget::showPanel(ADrawObject &obj)
 
 void ADrawExplorerWidget::fitPanel(ADrawObject &obj)
 {
-    TH1* h = dynamic_cast<TH1*>(obj.Pointer);
+    TH1 * h = dynamic_cast<TH1*>(obj.Pointer);
     if (h) h->FitPanel();
     else
     {
@@ -452,24 +424,24 @@ void ADrawExplorerWidget::fitPanel(ADrawObject &obj)
 
 double runScaleDialog(QWidget * parent)
 {
-    QDialog* D = new QDialog(parent);
+    QDialog * D = new QDialog(parent);
 
-    QDoubleValidator* vali = new QDoubleValidator(D);
-    QVBoxLayout* l = new QVBoxLayout(D);
-    QHBoxLayout* l1 = new QHBoxLayout();
-    QLabel* lab1 = new QLabel("Multiply by ");
-    QLineEdit* leM = new QLineEdit("1.0");
-    leM->setValidator(vali);
-    l1->addWidget(lab1);
-    l1->addWidget(leM);
-    QLabel* lab2 = new QLabel(" and divide by ");
-    QLineEdit* leD = new QLineEdit("1.0");
-    leD->setValidator(vali);
-    l1->addWidget(lab2);
-    l1->addWidget(leD);
+    QDoubleValidator * vali = new QDoubleValidator(D);
+    QVBoxLayout * l = new QVBoxLayout(D);
+        QHBoxLayout * l1 = new QHBoxLayout();
+            QLabel * lab1 = new QLabel("Multiply by ");
+        l1->addWidget(lab1);
+            QLineEdit * leM = new QLineEdit("1.0");
+            leM->setValidator(vali);
+        l1->addWidget(leM);
+            QLabel * lab2 = new QLabel(" and divide by ");
+        l1->addWidget(lab2);
+            QLineEdit * leD = new QLineEdit("1.0");
+            leD->setValidator(vali);
+        l1->addWidget(leD);
     l->addLayout(l1);
-    QPushButton* pb = new QPushButton("Scale");
-    QObject::connect(pb, &QPushButton::clicked, D, &QDialog::accept);
+        QPushButton* pb = new QPushButton("Scale");
+        QObject::connect(pb, &QPushButton::clicked, D, &QDialog::accept);
     l->addWidget(pb);
 
     int ret = D->exec();
@@ -478,10 +450,8 @@ double runScaleDialog(QWidget * parent)
     {
         double Mult = leM->text().toDouble();
         double Div = leD->text().toDouble();
-        if (Div == 0)
-            guitools::message("Cannot divide by 0!", D);
-        else
-            res = Mult / Div;
+        if (Div == 0) guitools::message("Cannot divide by 0!", D);
+        else          res = Mult / Div;
     }
 
     delete D;
@@ -491,8 +461,8 @@ double runScaleDialog(QWidget * parent)
 bool ADrawExplorerWidget::canScale(ADrawObject & obj)
 {
     const QString name = obj.Pointer->ClassName();
-    QList<QString> impl;
-    impl << "TGraph" << "TGraphErrors"  << "TH1I" << "TH1D" << "TH1F" << "TH2I"<< "TH2D"<< "TH2D";
+    QStringList impl;
+    impl << "TGraph" << "TGraphErrors" << "TH1I" << "TH1D" << "TH1F" << "TH2I"<< "TH2D"<< "TH2D";
     if (!impl.contains(name))
     {
         guitools::message("Not implemented for this object", &GraphWindow);
@@ -657,33 +627,33 @@ void ADrawExplorerWidget::scaleAllSameMax()
 
 const QPair<double, double> runShiftDialog(QWidget * parent)
 {
-    QDialog* D = new QDialog(parent);
+    QDialog * D = new QDialog(parent);
 
-    QDoubleValidator* vali = new QDoubleValidator(D);
-    QVBoxLayout* l = new QVBoxLayout(D);
-    QHBoxLayout* l1 = new QHBoxLayout();
-      QLabel* lab1 = new QLabel("Multiply by: ");
-      QLineEdit* leM = new QLineEdit("1.0");
-      leM->setValidator(vali);
-      l1->addWidget(lab1);
-      l1->addWidget(leM);
-      QLabel* lab2 = new QLabel(" Add: ");
-      QLineEdit* leA = new QLineEdit("0");
-      leA->setValidator(vali);
-      l1->addWidget(lab2);
-      l1->addWidget(leA);
+    QDoubleValidator * vali = new QDoubleValidator(D);
+    QVBoxLayout * l = new QVBoxLayout(D);
+        QHBoxLayout * l1 = new QHBoxLayout();
+            QLabel * lab1 = new QLabel("Multiply by: ");
+        l1->addWidget(lab1);
+            QLineEdit * leM = new QLineEdit("1.0");
+            leM->setValidator(vali);
+        l1->addWidget(leM);
+            QLabel* lab2 = new QLabel(" Add: ");
+        l1->addWidget(lab2);
+            QLineEdit* leA = new QLineEdit("0");
+            leA->setValidator(vali);
+        l1->addWidget(leA);
     l->addLayout(l1);
-      QPushButton* pb = new QPushButton("Shift");
-      QObject::connect(pb, &QPushButton::clicked, D, &QDialog::accept);
+        QPushButton* pb = new QPushButton("Shift");
+        QObject::connect(pb, &QPushButton::clicked, D, &QDialog::accept);
     l->addWidget(pb);
 
     int ret = D->exec();
     QPair<double, double> res(1.0, 0);
     if (ret == QDialog::Accepted)
-      {
+    {
         res.first =  leM->text().toDouble();
         res.second = leA->text().toDouble();
-      }
+    }
 
     delete D;
     return res;
@@ -692,7 +662,7 @@ const QPair<double, double> runShiftDialog(QWidget * parent)
 void ADrawExplorerWidget::shift(ADrawObject &obj)
 {
     QString name = obj.Pointer->ClassName();
-    QList<QString> impl;
+    QStringList impl;
     impl << "TGraph" << "TGraphErrors"  << "TH1I" << "TH1D" << "TH1F" << "TProfile";
     if (!impl.contains(name))
     {
