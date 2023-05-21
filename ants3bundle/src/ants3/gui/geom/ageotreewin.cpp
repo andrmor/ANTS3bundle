@@ -796,13 +796,13 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
             QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index);
             if (!constUsingIt.isEmpty())
             {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), this);
+                guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), ui->tabwConstants);
                 return;
             }
             const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
             if (obj)
             {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), this);
+                guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), ui->tabwConstants);
                 return;
             }
         }
