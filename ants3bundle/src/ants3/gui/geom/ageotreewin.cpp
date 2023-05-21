@@ -748,15 +748,19 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     int index = ui->tabwConstants->currentRow();
 
     QMenu menu;
-    QAction * removeA = menu.addAction("Remove selected constant"); removeA->setEnabled(index != -1 && index != GC.countConstants());
-    QAction * addAboveA = menu.addAction("Add new constant above"); addAboveA->setEnabled(index != -1 && index != GC.countConstants());
+
+    QAction * addAboveA  = menu.addAction("Add new constant above"); addAboveA->setEnabled(index != -1 && index != GC.countConstants());
 
     menu.addSeparator();
+    QAction * removeA    = menu.addAction("Remove selected constant"); removeA->setEnabled(index != -1 && index != GC.countConstants());
+    QAction * removeAllA = menu.addAction("Remove all unused constants"); removeAllA->setEnabled(GC.countConstants() != 0);
 
-    QAction * setCommentA = menu.addAction("Add comment"); setCommentA->setEnabled(index != -1 && index != GC.countConstants());
+    menu.addSeparator();
+    QAction * setCommentA = menu.addAction("Add/edit comment"); setCommentA->setEnabled(index != -1 && index != GC.countConstants());
 
 
     QAction * selected = menu.exec(ui->tabwConstants->mapToGlobal(pos));
+
     if (selected == removeA)
     {
         if (!GC.isIndexValid(index)) return;
@@ -779,14 +783,12 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
         }
 
         GC.removeConstant(index);
- //       MW->writeDetectorToJson(MW->Config->JSON);
         updateGeoConstsIndication();
         emit requestDelayedRebuildAndRestoreDelegate();
     }
     else if (selected == addAboveA)
     {
         GC.addNoNameConstant(index);
-//        MW->writeDetectorToJson(MW->Config->JSON);
         updateGeoConstsIndication();
     }
     else if (selected == setCommentA)
@@ -794,8 +796,36 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
         QString txt;
         guitools::inputString("New comment (empty to remove)", txt, this);
         GC.setNewComment(index, txt);
-//        MW->writeDetectorToJson(MW->Config->JSON);
         updateGeoConstsIndication();
+    }
+    else if (selected == removeAllA)
+    {
+        int inUse = 0;
+        for (int iC = GC.countConstants()-1; iC >=0 ; iC--)
+        {
+            QString name = GC.getName(iC);
+            if (!name.isEmpty())
+            {
+                QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), iC);
+                if (!constUsingIt.isEmpty())
+                {
+                    inUse++;
+                    continue;
+                }
+                const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
+                if (obj)
+                {
+                    inUse++;
+                    continue;
+                }
+            }
+
+            GC.removeConstant(iC);
+        }
+
+        //if (inUse > 0)guitools::message("The constants in use cannot be removed", this);
+        updateGeoConstsIndication();
+        emit requestDelayedRebuildAndRestoreDelegate();
     }
 }
 
