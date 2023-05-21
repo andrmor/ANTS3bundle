@@ -777,6 +777,7 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
 
     menu.addSeparator();
     QAction * removeA    = menu.addAction("Remove selected constant"); removeA->setEnabled(index != -1 && index != GC.countConstants());
+    removeA->setShortcut(QKeySequence(QKeySequence::Delete));
     QAction * removeAllA = menu.addAction("Remove all unused constants"); removeAllA->setEnabled(GC.countConstants() != 0);
 
     menu.addSeparator();
