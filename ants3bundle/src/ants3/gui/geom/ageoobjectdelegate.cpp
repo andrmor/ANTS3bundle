@@ -199,7 +199,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
     rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
+        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator"});
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
@@ -477,6 +477,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
+                break;
+            case 4:
+                obj->Role = new AGeoScint();
                 break;
             default:;
             }
@@ -808,6 +811,11 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             {
                 AGeoSecScint * sec = dynamic_cast<AGeoSecScint*>(obj->Role);
                 if (sec) cobRole->setCurrentIndex(3);
+                else
+                {
+                    AGeoScint * scint = dynamic_cast<AGeoScint*>(obj->Role);
+                    if (scint) cobRole->setCurrentIndex(4);
+                }
             }
         }
     }

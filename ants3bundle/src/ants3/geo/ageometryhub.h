@@ -89,6 +89,8 @@ public:
 
     void         removeNameDecorators(TString & name) const;
 
+    QStringList getSintillatorTable(const QString & format, const QString & delimiter) const; // "inpo" for index, name, position, orientation
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
@@ -110,16 +112,18 @@ private:
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
-    void getGlobalPosition(const TGeoNode * node, AVector3 & position);
-    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
-    void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
-    bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
+    void getGlobalPosition(const TGeoNode * node, AVector3 & position) const;
+    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ) const;
+    void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode) const;
+    bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode) const;
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
     QString readGDMLtoTGeo(const QString & fileName);
 
 private:
     bool   DoScaling = false;
     double ScalingFactor = 1.0;
+
+    std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 };
 
 #endif // AGEOMETRYHUB_H

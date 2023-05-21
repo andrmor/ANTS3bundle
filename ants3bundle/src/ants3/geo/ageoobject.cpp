@@ -178,6 +178,12 @@ bool AGeoObject::isCalorimeter() const
     return dynamic_cast<AGeoCalorimeter*>(Role);
 }
 
+bool AGeoObject::isScintillator() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoScint*>(Role);
+}
+
 int AGeoObject::getMaterial() const
 {
     if (Type->isHandlingArray() || Type->isHandlingSet())

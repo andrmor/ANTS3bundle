@@ -1269,3 +1269,13 @@ QVariantList AGeo_SI::getPassedVoulumes(QVariantList startXYZ, QVariantList star
 
     return vl;
 }
+
+QVariantList AGeo_SI::getListScintillators()
+{
+    QStringList table = GeoHub.getSintillatorTable("ipo", " ");
+
+    QVariantList vl;
+    vl.reserve(table.size());
+    for (const auto & s : table) vl.push_back(s);
+    return vl;
+}

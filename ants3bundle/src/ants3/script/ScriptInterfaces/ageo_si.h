@@ -100,6 +100,8 @@ public slots:
 
     QVariantList getPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
 
+    QVariantList getListScintillators();
+
 signals:
     void requestUpdateGeoGui();
 

@@ -70,4 +70,12 @@ public:
     QString getType() const override {return QStringLiteral("SecScint");}
 };
 
+class AGeoScint : public AGeoSpecial
+{
+public:
+    AGeoScint(){}
+
+    QString getType() const override {return QStringLiteral("Scint");}
+};
+
 #endif // AGEOSPECIAL_H

@@ -258,6 +258,7 @@ void AGeometryHub::populateGeoManager()
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
+    Scintillators.clear();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
@@ -386,7 +387,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     SensorHub.registerNextSensor(sr);
 }
 
-bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)
+bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode) const
 {
     TGeoVolume * startVol = startNode->GetVolume();
     //qDebug() << "    Starting from"<<startVol->GetName();
@@ -412,7 +413,7 @@ bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * sta
     return false;
 }
 
-void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode)
+void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode) const
 {
     //qDebug() << "--- search for " << node->GetName();
     TObjArray* allNodes = GeoManager->GetListOfNodes();
@@ -429,7 +430,7 @@ void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & mothe
     //else qDebug() << "--- search failed!";
 }
 
-void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
+void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position) const
 {
     double master[3];
     TGeoVolume * motherVol = node->GetMotherVolume();
@@ -460,7 +461,7 @@ void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
     }
 }
 
-void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ)
+void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ) const
 {
     uvX[0] = 1.0; uvX[1] = 0.0; uvX[2] = 0.0;
     uvY[0] = 0.0; uvY[1] = 1.0; uvY[2] = 0.0;
@@ -548,7 +549,15 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
         else
-            parent->AddNode(vol, forcedNodeNumber, lTrans);
+        {
+            if (obj->isScintillator())
+            {
+                TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);
+                Scintillators.push_back({obj, node}); // !!!*** can get position/orientation info from node?
+            }
+            else
+                parent->AddNode(vol, forcedNodeNumber, lTrans);
+        }
     }
 
     // Position hosted objects
@@ -614,7 +623,6 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
     ATypeCircularArrayObject  * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
     ATypeHexagonalArrayObject * hexArray  = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
 
-    // ---  !!!*** test
     int iCounterStart = array->startIndex;
     if (array->strStartIndex.contains("ParentIndex"))
     {
@@ -623,9 +631,8 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
         const AGeoConsts & GC = AGeoConsts::getConstInstance();
         QString errorStr;
         bool ok = GC.updateIntParameter(errorStr, tmpStr, iCounterStart, false, true);
-        if (!ok) qDebug() << "EERRRROOORRRRRRRR in start index using ParentIndex";
+        if (!ok) qWarning() << "Error in start index using ParentIndex";
     }
-    // ---
 
     for (AGeoObject * el : obj->HostedObjects)
     {
@@ -1575,6 +1582,46 @@ void AGeometryHub::removeNameDecorators(TString & name) const
 {
     const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
     if (ind != TString::kNPOS) name.Resize(ind);
+}
+
+QStringList AGeometryHub::getSintillatorTable(const QString & format, const QString & delimiter) const
+{
+    QStringList list;
+    int index = -1;
+    for (const auto & rec : Scintillators)
+    {
+        index++;
+        QString str;
+        const TGeoNode * node = rec.second;
+        for (int iEl = 0; iEl < format.size(); iEl++)
+        {
+            unsigned char ch = format[iEl].toLatin1();
+            switch (ch)
+            {
+            case 'i' : str += QString::number(index) + delimiter; break;
+            case 'n' : str += rec.first->Name + delimiter;        break;
+            case 'p' :
+            {
+                AVector3 pos(0,0,0);
+                getGlobalPosition(node, pos);
+                for (int i = 0; i < 3; i++)
+                    str += QString::number(pos[i]) + delimiter;
+                break;
+            }
+            case 'o' :
+            {
+                double uvX[3], uvY[3], uvZ[3];
+                getGlobalUnitVectors(node, uvX, uvY, uvZ);
+                for (int i = 0; i < 3; i++)
+                    str += QString::number(uvX[i]) + delimiter;
+                break;
+            }
+            default:;
+            }
+        }
+        list << str;
+    }
+    return list;
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const
