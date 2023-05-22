@@ -532,6 +532,22 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
         script += "\n" + QString(" ").repeated(ident) + str;
         return;
     }
+
+    AGeoScint * sci = dynamic_cast<AGeoScint*>(obj->Role);
+    if (sci)
+    {
+        QString str = QString("geo.setScintillator( '%1' )").arg(obj->Name);
+        script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
+
+    AGeoSecScint * sec = dynamic_cast<AGeoSecScint*>(obj->Role);
+    if (sec)
+    {
+        QString str = QString("geo.setSecondaryScintillator( '%1' )").arg(obj->Name);
+        script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
 }
 
 const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const

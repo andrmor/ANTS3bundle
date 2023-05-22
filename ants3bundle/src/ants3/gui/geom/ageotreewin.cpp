@@ -900,7 +900,15 @@ void AGeoTreeWin::on_actionTo_JavaScript_triggered()
     QString script;
     AGeoScriptMaker sm(AGeoScriptMaker::JavaScript);
     sm.createScript(script);
-    emit requestAddScript(script);
+    emit requestAddJavaScript(script);
+}
+
+void AGeoTreeWin::on_actionTo_Python_triggered()
+{
+    QString script;
+    AGeoScriptMaker sm(AGeoScriptMaker::Python);
+    sm.createScript(script);
+    emit requestAddPythonScript(script);
 }
 
 void AGeoTreeWin::on_cbShowPrototypes_toggled(bool checked)

@@ -942,8 +942,7 @@ void AGeo_SI::removeWithHosted(QString Object)
     obj->recursiveSuicide();
 }
 
-#include "ageospecial.h"
-void AGeo_SI::setLightSensor(QString Object, int iModel)
+AGeoObject * AGeo_SI::findObject(const QString & Object)
 {
     AGeoObject * obj = nullptr;
     for (AGeoObject * o : GeoObjects)
@@ -959,32 +958,25 @@ void AGeo_SI::setLightSensor(QString Object, int iModel)
         if (!obj)
         {
             abort("Cannot find object " + Object);
-            return;
+            return nullptr;
         }
     }
 
+    return obj;
+}
+
+#include "ageospecial.h"
+void AGeo_SI::setLightSensor(QString Object, int iModel)
+{
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSensor(iModel);
 }
 
 void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step)
 {
-    AGeoObject * obj = nullptr;
-    for (AGeoObject * o : GeoObjects)
-        if (o->Name == Object)
-        {
-            obj = o;
-            break;
-        }
-
-    if (!obj)
-    {
-        obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-        if (!obj)
-        {
-            abort("Cannot find object " + Object);
-            return;
-        }
-    }
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return;
 
     if (bins.size() != 3 || origin.size() != 3 || step.size() != 3)
     {
@@ -1008,6 +1000,20 @@ void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList ori
     }
 
     delete obj->Role; obj->Role = new AGeoCalorimeter(aOrigin, aStep, aBins);
+}
+
+void AGeo_SI::setScintillator(QString Object)
+{
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return;
+    delete obj->Role; obj->Role = new AGeoScint();
+}
+
+void AGeo_SI::setSecondaryScintillator(QString Object)
+{
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return;
+    delete obj->Role; obj->Role = new AGeoSecScint();
 }
 
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)

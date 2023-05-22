@@ -83,6 +83,8 @@ public slots:
 
     void setLightSensor(QString Object, int iModel = 0);
     void setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
+    void setScintillator(QString Object);
+    void setSecondaryScintillator(QString Object);
 
     void setEnabled(QString ObjectOrWildcard, bool flag);
 
@@ -95,8 +97,6 @@ public slots:
     double  getMaterialDensity(int materialIndex);
     QString getMaterialComposition(int materialIndex, bool byWeight);
     */
-
-//    QString printOverrides(); // !!!*** to somewhere
 
     QVariantList getPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
 
@@ -112,6 +112,8 @@ private:
 
     void clearGeoObjects();
     bool getSectionsPoly(const QVariantList & sections, std::vector<std::array<double, 3> > & vecSections);
+
+    AGeoObject * findObject(const QString & Object);
 };
 
 #endif // AGEO_SI_H
