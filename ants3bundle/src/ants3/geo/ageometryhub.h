@@ -89,7 +89,9 @@ public:
 
     void         removeNameDecorators(TString & name) const;
 
-    QStringList getSintillatorTable(const QString & format, const QString & delimiter) const; // "inpo" for index, name, position, orientation
+    void         getScintillatorPositions(std::vector<AVector3> & positions) const;
+    void         getScintillatorOrientations(std::vector<AVector3> & orientations) const;
+    void         getScintillatorVolumeNames(std::vector<QString> & vol) const;
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);

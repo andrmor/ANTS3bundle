@@ -1584,44 +1584,34 @@ void AGeometryHub::removeNameDecorators(TString & name) const
     if (ind != TString::kNPOS) name.Resize(ind);
 }
 
-QStringList AGeometryHub::getSintillatorTable(const QString & format, const QString & delimiter) const
+void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) const
 {
-    QStringList list;
-    int index = -1;
-    for (const auto & rec : Scintillators)
+    positions.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
     {
-        index++;
-        QString str;
-        const TGeoNode * node = rec.second;
-        for (int iEl = 0; iEl < format.size(); iEl++)
-        {
-            unsigned char ch = format[iEl].toLatin1();
-            switch (ch)
-            {
-            case 'i' : str += QString::number(index) + delimiter; break;
-            case 'n' : str += rec.first->Name + delimiter;        break;
-            case 'p' :
-            {
-                AVector3 pos(0,0,0);
-                getGlobalPosition(node, pos);
-                for (int i = 0; i < 3; i++)
-                    str += QString::number(pos[i]) + delimiter;
-                break;
-            }
-            case 'o' :
-            {
-                double uvX[3], uvY[3], uvZ[3];
-                getGlobalUnitVectors(node, uvX, uvY, uvZ);
-                for (int i = 0; i < 3; i++)
-                    str += QString::number(uvX[i]) + delimiter;
-                break;
-            }
-            default:;
-            }
-        }
-        list << str;
+        positions[i] = {0,0,0};
+        const TGeoNode * node = Scintillators[i].second;
+        getGlobalPosition(node, positions[i]);
     }
-    return list;
+}
+
+void AGeometryHub::getScintillatorOrientations(std::vector<AVector3> & orientations) const
+{
+    orientations.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
+    {
+        const TGeoNode * node = Scintillators[i].second;
+        double uvX[3], uvY[3], uvZ[3];
+        getGlobalUnitVectors(node, uvX, uvY, uvZ);
+        orientations[i] = {uvX[0], uvX[1], uvX[2]};
+    }
+}
+
+void AGeometryHub::getScintillatorVolumeNames(std::vector<QString> & vol) const
+{
+    vol.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
+        vol[i] = Scintillators[i].first->Name;
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

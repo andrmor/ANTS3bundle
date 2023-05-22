@@ -5,6 +5,7 @@
 #include "ageoshape.h"
 #include "ageotype.h"
 #include "afiletools.h"
+#include "avector.h"
 
 #include <QDebug>
 
@@ -1270,12 +1271,30 @@ QVariantList AGeo_SI::getPassedVoulumes(QVariantList startXYZ, QVariantList star
     return vl;
 }
 
-QVariantList AGeo_SI::getListScintillators()
+QVariantList AGeo_SI::getScintillatorProperties()
 {
-    QStringList table = GeoHub.getSintillatorTable("ipo", " ");
+    std::vector<QString> name;
+    GeoHub.getScintillatorVolumeNames(name);
+    std::vector<AVector3> pos;
+    GeoHub.getScintillatorPositions(pos);
+    std::vector<AVector3> ori;
+    GeoHub.getScintillatorOrientations(ori);
 
     QVariantList vl;
-    vl.reserve(table.size());
-    for (const auto & s : table) vl.push_back(s);
+    for (int iScint = 0; iScint < (int)pos.size(); iScint++)
+    {
+        QVariantList rec;
+
+        rec.push_back(iScint);
+        rec.push_back(name[iScint]);
+        QVariantList vlPos;
+            for (size_t i = 0; i < 3; i++) vlPos << pos[iScint][i];
+        rec.push_back(vlPos);
+        QVariantList vlOri;
+            for (size_t i = 0; i < 3; i++) vlOri << ori[iScint][i];
+        rec.push_back(vlOri);
+
+        vl.push_back(rec);
+    }
     return vl;
 }
