@@ -623,7 +623,7 @@ void GraphWindowClass::updateSecondaryAxis(TGaxis * gaxis, const char *opt)
 
 void GraphWindowClass::showHintInStatus()
 {
-    ui->statusBar->showMessage("Use context menu in \"Currently drawn\" and \"Basket\" to manipulate the objects");
+    ui->statusBar->showMessage("Use context menus (right mouse button click) to manipulate objects in \"Currently drawn\" and \"Basket\"");
 }
 
 void GraphWindowClass::setShowCursorPosition(bool flag)

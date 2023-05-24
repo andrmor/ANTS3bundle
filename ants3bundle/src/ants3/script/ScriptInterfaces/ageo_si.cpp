@@ -815,12 +815,14 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     StackObj->HostedObjects.clear();
 }
 
-void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
-    o->Type = new ATypeArrayObject(numX, numY, numZ, stepX, stepY, stepZ, startIndex);
+    ATypeArrayObject * arType = new ATypeArrayObject(numX, numY, numZ, stepX, stepY, stepZ, startIndex);
+    arType->bCenterSymmetric = centerSymmetric;
+    o->Type = arType;
     GeoObjects.push_back(o);
 }
 

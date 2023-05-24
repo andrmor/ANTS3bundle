@@ -323,6 +323,7 @@ QString AGeoScriptMaker::makeScriptString_arrayObject(AGeoObject * obj) const
             sOri0 + ",   " +
             sOri1 + ",   " +
             sOri2 + ",   " +
+            (a->bCenterSymmetric ? "true" : "false") + ",   " +
             sIndex + " )";
 
     return str;

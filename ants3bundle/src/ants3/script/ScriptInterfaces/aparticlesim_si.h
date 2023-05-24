@@ -26,6 +26,7 @@ public slots:
 
     int countMonitors();
     QVariantList getMonitorHitsAll();
+    // !!!*** get unit-aware monitor energy data
 
 private:
     AParticleSimManager & SimMan;

@@ -235,7 +235,8 @@ void AGlobSetWindow::on_sbNumBinsHistogramsZ_editingFinished()
 void AGlobSetWindow::on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint & /*pos*/)
 {
     if (ui->leDataExchangeDir->text().isEmpty()) return;
-    QDesktopServices::openUrl(QUrl("file///:"+ui->leDataExchangeDir->text(), QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("file///:"+ui->leDataExchangeDir->text(), QUrl::TolerantMode));
+    QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leDataExchangeDir->text()) );
 }
 
 void AGlobSetWindow::on_pbOpen_clicked()
