@@ -36,6 +36,7 @@ public:
 //configuration
   bool readFromGeoObject(const AGeoObject* MonitorRecord);
 
+  // used for photon monitors !!!*** find a way to unify particle and photon monitor append system
   void writeDataToJson(QJsonObject & json) const;
   void readDataFromJson(const QJsonObject & json);
 
@@ -56,6 +57,7 @@ public:
 
   void append(const AMonitor & from);
 
+  // used for particle monitor
   void overrideDataFromJson(const QJsonObject & json);
 
 private:
@@ -66,6 +68,8 @@ private:
   void initEnergyHist();
 
   void update1D(const QJsonObject &json, TH1D *&old);
+
+  double timeFactor = 1.0;
 };
 
 #endif // AMONITOR_H

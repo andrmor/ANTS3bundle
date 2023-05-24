@@ -80,7 +80,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hPosition->fill(x, y);
 
             // time info
-            double time = step->GetPostStepPoint()->GetGlobalTime()/ns;
+            const double time = step->GetPostStepPoint()->GetGlobalTime() / TimeFactor;
             hTime->fill(time);
 
             // angle info
@@ -93,7 +93,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hAngle->fill(angle);
 
             //energy
-            double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
+            const double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
             hEnergy->fill(energy);
 
             //stop tracking?
@@ -161,6 +161,12 @@ bool MonitorSensitiveDetector::readFromJson(const json11::Json & json)
     timeBins =          json["timeBins"].int_value();
     timeFrom =          json["timeFrom"].number_value();
     timeTo =            json["timeTo"].number_value();
+    TimeUnits         = json["timeUnits"].string_value();
+    if      (TimeUnits == "ns") TimeFactor = ns;
+    else if (TimeUnits == "us") TimeFactor = us;
+    else if (TimeUnits == "ms") TimeFactor = ms;
+    else if (TimeUnits == "s")  TimeFactor = s;
+    else return false; // !!!*** error reporting system
 
     xbins =             json["xbins"].int_value();
     ybins =             json["ybins"].int_value();
@@ -186,7 +192,8 @@ void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
     json["MonitorIndex"] = MonitorIndex;
 
     json11::Json::object jsTime;
-    writeHist1D(hTime, jsTime);
+        writeHist1D(hTime, jsTime);
+        jsTime["Units"] = TimeUnits;
     json["Time"] = jsTime;
 
     json11::Json::object jsAngle;

@@ -109,6 +109,14 @@ bool AMonitorDelegateForm::updateGUI(const AGeoObject *obj)
     ui->ledAngleTo->setText( QString::number(config.angleTo) );
     ui->ledWaveTo->setText( QString::number(config.waveTo) );
     ui->ledEnergyTo->setText( QString::number(config.energyTo) );
+
+    int tIndex = 0;
+        if      (config.timeUnits == "ns") tIndex = 0;
+        else if (config.timeUnits == "us") tIndex = 1;
+        else if (config.timeUnits == "ms") tIndex = 2;
+        else if (config.timeUnits == "s")  tIndex = 3;
+        else qWarning() << "Unknown time unit for monitor:" << config.timeUnits;
+    ui->cobTimeUnits->setCurrentIndex(tIndex);
     int enIndex = 0;
         if      (config.energyUnits == "meV") enIndex = 0;
         else if (config.energyUnits == "eV")  enIndex = 1;
@@ -240,6 +248,8 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     config.angleTo = ui->ledAngleTo->text().toDouble();
     config.waveTo = ui->ledWaveTo->text().toDouble();
     config.energyTo = ui->ledEnergyTo->text().toDouble();
+
+    config.timeUnits = ui->cobTimeUnits->currentText();
     config.energyUnits = ui->cobEnergyUnits->currentText();
 
     return true;

@@ -655,15 +655,23 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     QVariantList time = Time.toList();
     if (!time.isEmpty())
     {
-        if (time.size() == 3)
+        if (time.size() == 4)
         {
             mc.timeBins = time.at(0).toInt();
             mc.timeFrom = time.at(1).toDouble();
             mc.timeTo   = time.at(2).toDouble();
+            mc.timeUnits = time.at(3).toString();
+
+            if (mc.timeUnits != "ns" && mc.timeUnits != "us" && mc.timeUnits != "ms" && mc.timeUnits != "s")
+            {
+                abort("Monitor config: Valid options for time units are: ns, us, ms, s");
+                return;
+            }
         }
         else
         {
-            abort("Monitor config: Time argument should be either an empty array for default settings or an array of [bins, from, to]");
+            abort("Monitor config: Time argument should be either an empty array for default settings or an array of [bins, from, to, units]"
+                  "Options for time units: ns, us, ms, s");
             return;
         }
     }
@@ -693,6 +701,12 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
             mc.energyFrom  = e.at(1).toDouble();
             mc.energyTo    = e.at(2).toDouble();
             mc.energyUnits = e.at(3).toString();
+
+            if (mc.energyUnits != "meV" && mc.energyUnits != "eV" && mc.energyUnits != "keV" && mc.energyUnits != "MeV")
+            {
+                abort("Monitor config: Valid options for energy units are: meV, eV, keV, MeV");
+                return;
+            }
         }
         else
         {

@@ -34,6 +34,7 @@ public:
     int    timeBins = 10;
     double timeFrom = 0;
     double timeTo = 0;
+    QString timeUnits = "ns";
     int    angleBins = 90;
     double angleFrom = 0;
     double angleTo = 90.0;

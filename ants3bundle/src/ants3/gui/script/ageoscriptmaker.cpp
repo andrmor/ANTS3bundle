@@ -433,7 +433,7 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
     else
     {
         //geo.configureParticleMonitor( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
-        return QString("geo.configureParticleMonitor( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
+        return QString("geo.configureParticleMonitor( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9, %10],  [%11, %12, %13],  [%14, %15, %16, %17] )")
                 .arg("'" + obj->Name + "'")
                 .arg("'" + c.Particle + "'")
                 .arg(c.bPrimary && c.bSecondary ? 0 : (c.bPrimary ? 1 : 2))
@@ -443,6 +443,7 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
                 .arg(c.timeBins)
                 .arg(c.timeFrom)
                 .arg(c.timeTo)
+                .arg("'" + c.timeUnits + "'")
                 .arg(c.angleBins)
                 .arg(c.angleFrom)
                 .arg(c.angleTo)

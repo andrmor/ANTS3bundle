@@ -1894,7 +1894,13 @@ void AParticleSimWin::on_pbMonitorShowTime_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->time, "hist", false, true);
+    {
+        TH1D * time = MonitorHub.ParticleMonitors[iMon].Monitor->time;
+        TString title = "Time, ";
+        title += MonitorHub.ParticleMonitors[iMon].Monitor->config.timeUnits.toLatin1().data();
+        time->GetXaxis()->SetTitle(title);
+        emit requestDraw(time, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowEnergy_clicked()

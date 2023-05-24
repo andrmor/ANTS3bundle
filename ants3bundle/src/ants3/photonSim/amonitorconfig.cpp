@@ -32,6 +32,7 @@ void AMonitorConfig::writeToJson(QJsonObject &json) const
    json["timeBins"] = timeBins;
    json["timeFrom"] = timeFrom;
    json["timeTo"] = timeTo;
+   json["timeUnits"] = timeUnits;
 
    json["angleBins"] = angleBins;
    json["angleFrom"] = angleFrom;
@@ -77,6 +78,7 @@ void AMonitorConfig::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "timeBins", timeBins);
     jstools::parseJson(json, "timeFrom", timeFrom);
     jstools::parseJson(json, "timeTo", timeTo);
+    jstools::parseJson(json, "timeUnits", timeUnits);
 
     jstools::parseJson(json, "angleBins", angleBins);
     jstools::parseJson(json, "angleFrom", angleFrom);

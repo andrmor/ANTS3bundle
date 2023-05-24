@@ -59,6 +59,8 @@ public:
     int     timeBins;
     double  timeFrom;
     double  timeTo;
+    std::string TimeUnits; // ns, us, ms, s
+    double  TimeFactor = 1.0;
 
     int     xbins;
     int     ybins;
