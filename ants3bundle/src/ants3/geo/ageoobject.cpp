@@ -691,9 +691,9 @@ AGeoObject * AGeoObject::findObjectByName(const QString & name)
     return nullptr; //not found
 }
 
-void AGeoObject::findObjectsByWildcard(const QString & name, QVector<AGeoObject*> & foundObjs)
+void AGeoObject::findObjectsByWildcard(const QString & name, std::vector<AGeoObject*> & foundObjs)
 {
-    if (Name.startsWith(name, Qt::CaseSensitive)) foundObjs << this;
+    if (Name.startsWith(name, Qt::CaseSensitive)) foundObjs.push_back(this);
 
     for (AGeoObject * obj : HostedObjects)
         obj->findObjectsByWildcard(name, foundObjs);

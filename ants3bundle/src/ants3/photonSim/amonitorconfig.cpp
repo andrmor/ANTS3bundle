@@ -44,7 +44,8 @@ void AMonitorConfig::writeToJson(QJsonObject &json) const
    json["energyBins"] = energyBins;
    json["energyFrom"] = energyFrom;
    json["energyTo"] = energyTo;
-   json["energyUnitsInHist"] = energyUnitsInHist;
+//   json["energyUnitsInHist"] = energyUnitsInHist;
+   json["energyUnits"] = energyUnits;
 }
 
 void AMonitorConfig::readFromJson(const QJsonObject & json)
@@ -88,7 +89,8 @@ void AMonitorConfig::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "energyBins", energyBins);
     jstools::parseJson(json, "energyFrom", energyFrom);
     jstools::parseJson(json, "energyTo", energyTo);
-    jstools::parseJson(json, "energyUnitsInHist", energyUnitsInHist);
+//    jstools::parseJson(json, "energyUnitsInHist", energyUnitsInHist);
+    jstools::parseJson(json, "energyUnits", energyUnits);
 }
 
 void AMonitorConfig::updateFromGeoConstants(QString & errorStr)

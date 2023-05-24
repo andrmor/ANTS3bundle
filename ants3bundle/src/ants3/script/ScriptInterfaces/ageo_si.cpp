@@ -689,15 +689,15 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     {
         if (e.size() == 4 && e.at(3).toInt() >= 0 && e.at(3).toInt() < 4)
         {
-            mc.energyBins = e.at(0).toInt();
-            mc.energyFrom = e.at(1).toDouble();
-            mc.energyTo   = e.at(2).toDouble();
-            mc.energyUnitsInHist = e.at(3).toInt();
+            mc.energyBins  = e.at(0).toInt();
+            mc.energyFrom  = e.at(1).toDouble();
+            mc.energyTo    = e.at(2).toDouble();
+            mc.energyUnits = e.at(3).toString();
         }
         else
         {
             abort("Monitor config: Energy argument should be either an empty array for default settings or an array of [bins, from, to, units]\n"
-                  "Energy units: 0,1,2,3 -> meV, eV, keV, MeV;");
+                  "Options for energy units: meV, eV, keV, MeV");
             return;
         }
     }
@@ -1022,23 +1022,19 @@ void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
     {
         ObjectOrWildcard.chop(1);
         //qDebug() << "Looking for all objects starting with" << ObjectOrWildcard;
-        QVector<AGeoObject*> foundObjs;
+        std::vector<AGeoObject*> foundObjs;
+        for (AGeoObject * o : GeoObjects)
+            if (o->Name.startsWith(ObjectOrWildcard, Qt::CaseSensitive)) foundObjs.push_back(o);
         AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectOrWildcard, foundObjs);
 
         for (AGeoObject * obj: foundObjs)
-            if (!obj->isWorld())
-                obj->fActive = flag;
+            if (!obj->isWorld()) obj->fActive = flag;
     }
     else
     {
-        AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(ObjectOrWildcard);
-        if (!obj)
-            abort("Cannot find object " + ObjectOrWildcard);
-        else
-        {
-            if (!obj->isWorld())
-                obj->fActive = flag;
-        }
+        AGeoObject * obj = findObject(ObjectOrWildcard);
+        if (!obj) return;
+        if (!obj->isWorld()) obj->fActive = flag;
     }
 }
 

@@ -109,7 +109,13 @@ bool AMonitorDelegateForm::updateGUI(const AGeoObject *obj)
     ui->ledAngleTo->setText( QString::number(config.angleTo) );
     ui->ledWaveTo->setText( QString::number(config.waveTo) );
     ui->ledEnergyTo->setText( QString::number(config.energyTo) );
-    ui->cobEnergyUnits->setCurrentIndex( config.energyUnitsInHist );
+    int enIndex = 0;
+        if      (config.energyUnits == "meV") enIndex = 0;
+        else if (config.energyUnits == "eV")  enIndex = 1;
+        else if (config.energyUnits == "keV") enIndex = 2;
+        else if (config.energyUnits == "MeV") enIndex = 3;
+        else qWarning() << "Unknown energy unit for monitor:" << config.energyUnits;
+    ui->cobEnergyUnits->setCurrentIndex(enIndex);
 
     setPhotonOrParticle(config.PhotonOrParticle);
 
@@ -234,7 +240,7 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     config.angleTo = ui->ledAngleTo->text().toDouble();
     config.waveTo = ui->ledWaveTo->text().toDouble();
     config.energyTo = ui->ledEnergyTo->text().toDouble();
-    config.energyUnitsInHist = ui->cobEnergyUnits->currentIndex();
+    config.energyUnits = ui->cobEnergyUnits->currentText();
 
     return true;
 }

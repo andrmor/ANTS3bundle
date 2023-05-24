@@ -43,7 +43,8 @@ public:
     int    energyBins = 100;
     double energyFrom = 0;
     double energyTo = 0;
-    int    energyUnitsInHist = 2; // 0,1,2,3 -> meV, eV, keV, MeV;
+//    int    energyUnitsInHist = 2; // 0,1,2,3 -> meV, eV, keV, MeV;
+    QString energyUnits = "keV";
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

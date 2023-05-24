@@ -718,7 +718,8 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
             MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
-            mobj->readFromJson(r.ConfigJson);
+            bool ok = mobj->readFromJson(r.ConfigJson);
+            if (!ok) terminateSession("Failed to read monitor config, might be units");
             Monitors.push_back(mobj);
             if (!mobj->bAcceptDirect || !mobj->bAcceptIndirect) bMonitorsRequireSteppingAction = true;
         }

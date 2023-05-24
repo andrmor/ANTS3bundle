@@ -434,7 +434,7 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
         //geo.configureParticleMonitor( MonitorName,  Particle,  Both_Primary_Secondary,  Both_Direct_Indirect,  Position,  Time,  Angle,  Energy )
         return QString("geo.configureParticleMonitor( %1,  %2,  %3,  %4,   [%5, %6],  [%7, %8, %9],  [%10, %11, %12],  [%13, %14, %15, %16] )")
                 .arg("'" + obj->Name + "'")
-                .arg(c.Particle)
+                .arg("'" + c.Particle + "'")
                 .arg(c.bPrimary && c.bSecondary ? 0 : (c.bPrimary ? 1 : 2))
                 .arg(c.bDirect  && c.bIndirect  ? 0 : (c.bDirect  ? 1 : 2))
                 .arg(c.xbins)
@@ -448,7 +448,7 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
                 .arg(c.energyBins)
                 .arg(c.energyFrom)
                 .arg(c.energyTo)
-                .arg(c.energyUnitsInHist);
+                .arg("'" + c.energyUnits + "'");
     }
 }
 

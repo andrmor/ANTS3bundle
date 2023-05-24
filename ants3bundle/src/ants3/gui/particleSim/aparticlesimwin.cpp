@@ -1902,7 +1902,13 @@ void AParticleSimWin::on_pbMonitorShowEnergy_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->energy, "hist", false, true);
+    {
+        TH1D * energy = MonitorHub.ParticleMonitors[iMon].Monitor->energy;
+        TString title = "Energy, ";
+        title += MonitorHub.ParticleMonitors[iMon].Monitor->config.energyUnits.toLatin1().data();
+        energy->GetXaxis()->SetTitle(title);
+        emit requestDraw(energy, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbShowMonitorHitDistribution_clicked()

@@ -113,7 +113,7 @@ public:
   // for global effect, the check has to be performed on World (Top) object
   void removeHostedObject(AGeoObject * obj); //does not delete the removed object!
   AGeoObject * findObjectByName(const QString & name);
-  void findObjectsByWildcard(const QString & name, QVector<AGeoObject*> & foundObjs);
+  void findObjectsByWildcard(const QString & name, std::vector<AGeoObject*> & foundObjs);
   void changeLineWidthRecursive(int delta);
   bool isNameExists(const QString & name);
   bool isContainsLocked();

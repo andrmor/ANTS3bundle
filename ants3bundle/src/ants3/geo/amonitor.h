@@ -20,7 +20,6 @@ public:
   ~AMonitor();
 
 //runtime functions
-  void fillForParticle(double x, double y, double Time, double Angle, double Energy);
   void fillForPhoton(double x, double y, double Time, double Angle, int waveIndex); // !!!***
 
   bool isForPhotons() const         {return config.PhotonOrParticle == 0;}

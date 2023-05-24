@@ -93,7 +93,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hAngle->fill(angle);
 
             //energy
-            double energy = step->GetPostStepPoint()->GetKineticEnergy() / keV;
+            double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
             hEnergy->fill(energy);
 
             //stop tracking?
@@ -121,7 +121,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
     return true;
 }
 
-void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
+bool MonitorSensitiveDetector::readFromJson(const json11::Json & json)
 {
     //std::cout << "Monitor created for volume " << Name << " and particle " << ParticleName << std::endl;
 
@@ -140,17 +140,23 @@ void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
     energyBins =        json["energyBins"].int_value();
     energyFrom =        json["energyFrom"].number_value();
     energyTo =          json["energyTo"].number_value();
-    energyUnits =       json["energyUnitsInHist"].int_value(); // 0,1,2,3 -> meV, eV, keV, MeV;
-    double multipler = 1.0;
-    switch (energyUnits)
-    {
-    case 0: multipler *= 1e-6; break;
-    case 1: multipler *= 1e-3; break;
-    case 3: multipler *= 1e3;  break;
-    default:;
-    }
-    energyFrom *= multipler;
-    energyTo   *= multipler;
+//    energyUnits =       json["energyUnitsInHist"].int_value(); // 0,1,2,3 -> meV, eV, keV, MeV;
+//    double multipler = 1.0;
+//    switch (energyUnits)
+//    {
+//    case 0: multipler *= 1e-6; break;
+//    case 1: multipler *= 1e-3; break;
+//    case 3: multipler *= 1e3;  break;
+//    default:;
+//    }
+//    energyFrom *= multipler;
+//    energyTo   *= multipler;
+    EnergyUnits       = json["energyUnits"].string_value();
+    if      (EnergyUnits == "meV") EnergyFactor = 0.001*eV;
+    else if (EnergyUnits == "eV")  EnergyFactor = eV;
+    else if (EnergyUnits == "keV") EnergyFactor = keV;
+    else if (EnergyUnits == "MeV") EnergyFactor = MeV;
+    else return false; // !!!*** error reporting system
 
     timeBins =          json["timeBins"].int_value();
     timeFrom =          json["timeFrom"].number_value();
@@ -171,6 +177,8 @@ void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
     hEnergy   = new AHistogram1D(energyBins, energyFrom, energyTo);
 
     hPosition = new AHistogram2D(xbins, -size1, size1, ybins, -size2, size2);
+
+    return true;
 }
 
 void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
@@ -186,7 +194,8 @@ void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
     json["Angle"] = jsAngle;
 
     json11::Json::object jsEnergy;
-    writeHist1D(hEnergy, jsEnergy);
+        writeHist1D(hEnergy, jsEnergy);
+        jsEnergy["Units"] = EnergyUnits;
     json["Energy"] = jsEnergy;
 
     json11::Json::object jsSpatial;
