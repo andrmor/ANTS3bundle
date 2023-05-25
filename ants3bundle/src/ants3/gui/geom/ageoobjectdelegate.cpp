@@ -3204,6 +3204,7 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
       QHBoxLayout * h = new QHBoxLayout();
             h->addStretch();
             cbFixedSize = new QCheckBox("Fixed size");
+            cbFixedSize->setChecked(true);
             connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
             h->addWidget(cbFixedSize);
 
@@ -3222,8 +3223,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
                     configureHighligherAndCompleter(le);
                     connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
                 }
-                connect(cbFixedSize, &QCheckBox::toggled, ledSizeXY, &AOneLineTextEdit::setDisabled);
-                connect(cbFixedSize, &QCheckBox::toggled, ledSizeZ,  &AOneLineTextEdit::setDisabled);
+                connect(cbFixedSize, &QCheckBox::toggled, ledSizeXY, &AOneLineTextEdit::setEnabled);
+                connect(cbFixedSize, &QCheckBox::toggled, ledSizeZ,  &AOneLineTextEdit::setEnabled);
             h->addLayout(v2);
             h->addStretch();
     lMF->addLayout(h);

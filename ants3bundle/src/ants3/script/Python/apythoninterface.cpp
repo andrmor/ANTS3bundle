@@ -678,7 +678,6 @@ bool APythonInterface::evalScript(const QString & script)
 
     //qDebug() << "Running script:" << script;
     PyObject * outObj = PyRun_String(script.toLatin1().data(), Py_file_input, dict, dict);
-
     if (!outObj)
     {
         handleError();

@@ -340,7 +340,7 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
 void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
-                                    nullptr,
+                                    new AGeoBox(),
                                     x,y,z, phi,theta,psi);
 
     QString s = compositionString.simplified();
