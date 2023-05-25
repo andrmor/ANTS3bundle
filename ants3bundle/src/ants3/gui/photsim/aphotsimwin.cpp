@@ -826,7 +826,11 @@ void APhotSimWin::on_pbMonitorShowAngle_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->angle, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->angle;
+        h->GetXaxis()->SetTitle("Angle of incidence, deg");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowXY_clicked()
@@ -834,7 +838,12 @@ void APhotSimWin::on_pbMonitorShowXY_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->xy, "colz", false, true);
+    {
+        TH2D * h = MonitorHub.PhotonMonitors[iMon].Monitor->xy;
+        h->GetXaxis()->SetTitle("Local X, mm");
+        h->GetYaxis()->SetTitle("Local Y, mm");
+        emit requestDraw(h, "colz", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowTime_clicked()
@@ -842,7 +851,13 @@ void APhotSimWin::on_pbMonitorShowTime_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->time, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->time;
+        TString title = "Time, ";
+        title += MonitorHub.PhotonMonitors[iMon].Monitor->config.timeUnits.toLatin1().data();
+        h->GetXaxis()->SetTitle(title);
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowWaveIndex_clicked()
@@ -850,7 +865,11 @@ void APhotSimWin::on_pbMonitorShowWaveIndex_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->wave, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->wave;
+        h->GetXaxis()->SetTitle("Index");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowWavelength_clicked()
