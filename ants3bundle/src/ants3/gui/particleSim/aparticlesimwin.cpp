@@ -1878,7 +1878,11 @@ void AParticleSimWin::on_pbMonitorShowAngle_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->angle, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.ParticleMonitors[iMon].Monitor->angle;
+        h->GetXaxis()->SetTitle("Angle of incidence, deg");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowXY_clicked()
@@ -1886,7 +1890,12 @@ void AParticleSimWin::on_pbMonitorShowXY_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->xy, "colz", false, true);
+    {
+        TH2D * h = MonitorHub.ParticleMonitors[iMon].Monitor->xy;
+        h->GetXaxis()->SetTitle("Local X, mm");
+        h->GetYaxis()->SetTitle("Local Y, mm");
+        emit requestDraw(h, "colz", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowTime_clicked()

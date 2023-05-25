@@ -772,17 +772,11 @@ void APhotSimWin::updateMonitorGui()
         const AMonitor & Mon = *MonitorHub.PhotonMonitors[imon].Monitor;
         ui->leDetections->setText( QString::number(Mon.getHits()) );
 
-        const bool bPhotonMode = (Mon.config.PhotonOrParticle == 0);
-        ui->pbMonitorShowWaveIndex->setVisible(bPhotonMode);
-        ui->pbMonitorShowWavelength->setVisible(bPhotonMode);
-        ui->pbMonitorShowEnergy->setVisible(!bPhotonMode);
-
         ui->pbMonitorShowXY->setEnabled(Mon.xy);
         ui->pbMonitorShowTime->setEnabled(Mon.time);
         ui->pbMonitorShowAngle->setEnabled(Mon.angle);
         ui->pbMonitorShowWaveIndex->setEnabled(Mon.wave);
         ui->pbMonitorShowWavelength->setEnabled(Mon.wave);
-        ui->pbMonitorShowEnergy->setEnabled(Mon.energy);
     }
 }
 
@@ -907,14 +901,6 @@ void APhotSimWin::on_pbMonitorShowWavelength_clicked()
         hnew->SetXTitle("Wavelength, nm");
         emit requestDraw(hnew, "hist", true, true);
     }
-}
-
-void APhotSimWin::on_pbMonitorShowEnergy_clicked()
-{
-    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
-    const int iMon = ui->cobMonitor->currentIndex();
-    if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->energy, "hist", false, true);
 }
 
 void APhotSimWin::on_pbShowMonitorHitDistribution_clicked()

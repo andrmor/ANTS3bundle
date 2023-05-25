@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3540,7 +3540,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>1</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">
@@ -4037,19 +4037,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       </widget>
                      </item>
                     </layout>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="pbMonitorShowEnergy">
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>22</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Energy</string>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </item>
