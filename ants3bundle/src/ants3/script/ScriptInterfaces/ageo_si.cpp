@@ -80,6 +80,45 @@ void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+bool AGeo_SI::checkPosOri(QVariantList position, QVariantList orientation, std::array<double,3> & pos, std::array<double,3> & ori)
+{
+    if (position.size() != 3)
+    {
+        abort("position argument should be an array of X, Y and Z");
+        return false;
+    }
+    if (orientation.size() != 3)
+    {
+        abort("position argument should be an array of phi, theta and psi");
+        return false;
+    }
+    for (size_t i = 0; i < 3; i++)
+    {
+        pos[i] = position[i].toDouble();
+        ori[i] = orientation[i].toDouble();
+    }
+    return true;
+}
+
+void AGeo_SI::box(QString name, QVariantList fullSizes, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori, L;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    if (fullSizes.size() != 3)
+    {
+        abort("fullSizes should be an array of full sizes in x, y and z directions");
+        return;
+    }
+    for (size_t i = 0; i < 3; i++) L[i] = fullSizes[i].toDouble();
+
+    AGeoObject* o = new AGeoObject(name, container, iMat,
+                                   new AGeoBox(0.5 * L[0], 0.5 * L[1], 0.5 * L[2]),
+                                   pos[0],pos[1],pos[2],  ori[0],ori[1],ori[2]);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container,
                              double x, double y, double z, double phi, double theta, double psi)
 {
@@ -840,6 +879,37 @@ void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, do
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex)
+{
+    std::array<double,3> pos, ori, num, step;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    if (numXYZ.size() != 3)
+    {
+        abort("numXYZ should be an array of number of elements along x, y and z directions");
+        return;
+    }
+    if (stepXYZ.size() != 3)
+    {
+        abort("stepXYZ should be an array of array step along x, y and z directions");
+        return;
+    }
+    for (size_t i = 0; i < 3; i++)
+    {
+        num[i] = numXYZ[i].toInt();
+        step[i] = stepXYZ[i].toDouble();
+    }
+
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeArrayObject * arType = new ATypeArrayObject(num[0], num[1], num[2], step[0], step[1], step[2], startIndex);
+    arType->bCenterSymmetric = centerSymmetric;
+    o->Type = arType;
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -849,9 +919,38 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    o->Type = new ATypeCircularArrayObject(num, angularStep, radius, startIndex);
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->startIndex = startIndex;
+    o->Type = ar;
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();

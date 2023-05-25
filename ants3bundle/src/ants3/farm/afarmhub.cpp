@@ -115,6 +115,7 @@ void AFarmHub::writeToJson(QJsonObject & json) const
     json["TimeoutMs"]      = TimeoutMs;
 
     QJsonArray ar;
+    qDebug() << "-----------------"<<FarmNodes.size();
     for (AFarmNodeRecord * node : FarmNodes)
     {
         QJsonObject js;
