@@ -449,13 +449,13 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     std::array<QGenericArgument,10> ar;
     std::fill(ar.begin(), ar.end(), QGenericArgument());    // !!!*** why this?
 #else
-    std::array<QMetaMethodArgument,10> ar;
-    std::fill(ar.begin(), ar.end(), QMetaMethodArgument{}); // !!!*** why this?
+    std::vector<QMetaMethodArgument> ar(numArgs, QMetaMethodArgument{});
+    //std::fill(ar.begin(), ar.end(), QMetaMethodArgument{}); // !!!*** why this?
 #endif
     for (int i = 0; i < numArgs; i++)
     {
         bool ok = parseArg(i, args, met, ar[i]);
-        qDebug() << ok;
+        qDebug() << "Argument #" << i << "ok?--->" << ok;
         if (!ok) return nullptr;
     }
 
@@ -464,8 +464,59 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     if (!ret.name()) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
     else             met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
 #else
-    if (!ret.name) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
-    else           met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); // !!!*** is there a better way?
+    //if (!ret.name) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
+    //else           met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
+    if (!ret.name)
+    {
+        // at least until(and including) Qt 6.5.1 there is still no invoke with std::vector of arguments
+        switch (numArgs)
+        {
+        case 0  : met.invoke(obj, Qt::DirectConnection); break;
+        case 1  : met.invoke(obj, Qt::DirectConnection, ar[0]); break;
+        case 2  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1]); break;
+        case 3  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2]); break;
+        case 4  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3]); break;
+        case 5  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4]); break;
+        case 6  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5]); break;
+        case 7  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6]); break;
+        case 8  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7]); break;
+        case 9  : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8]); break;
+        case 10 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); break;
+        case 11 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10]); break;
+        case 12 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11]); break;
+        case 13 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12]); break;
+        case 14 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13]); break;
+        case 15 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14]); break;
+        case 16 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14], ar[15]); break;
+        case 17 : met.invoke(obj, Qt::DirectConnection, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14], ar[15], ar[16]); break;
+        default: qCritical("Num arguments is > 17"); exit(333);
+        }
+    }
+    else
+    {
+        switch (numArgs)
+        {
+        case 0  : met.invoke(obj, Qt::DirectConnection, ret); break;
+        case 1  : met.invoke(obj, Qt::DirectConnection, ret, ar[0]); break;
+        case 2  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1]); break;
+        case 3  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2]); break;
+        case 4  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3]); break;
+        case 5  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4]); break;
+        case 6  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5]); break;
+        case 7  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6]); break;
+        case 8  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7]); break;
+        case 9  : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8]); break;
+        case 10 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]); break;
+        case 11 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10]); break;
+        case 12 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11]); break;
+        case 13 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12]); break;
+        case 14 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13]); break;
+        case 15 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14]); break;
+        case 16 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14], ar[15]); break;
+        case 17 : met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9], ar[10], ar[11], ar[12], ar[13], ar[14], ar[15], ar[16]); break;
+        default: qCritical("Num arguments is > 17"); exit(333);
+        }
+    }
 #endif
 
     qDebug() << "converting and returning result...";

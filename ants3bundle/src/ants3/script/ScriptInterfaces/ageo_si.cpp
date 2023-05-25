@@ -1190,7 +1190,7 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
     clearGeoObjects();
 
     //Detector->BuildDetector_CallFromScript();
-    GeoHub.populateGeoManager();
+    GeoHub.populateGeoManager(false);
 
     if (CheckOverlaps)
     {

@@ -252,7 +252,7 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 #ifdef USE_ROOT_HTML
 #include "aroothttpserver.h"
 #endif
-void AGeometryHub::populateGeoManager()
+void AGeometryHub::populateGeoManager(bool notifyRootServer)
 {
     ASensorHub::getInstance().clearSensors();
     clearMonitors();
@@ -299,7 +299,7 @@ void AGeometryHub::populateGeoManager()
 
     GeoManager->CloseGeometry();
 
-    notifyRootServerGeometryChanged();
+    if (notifyRootServer) notifyRootServerGeometryChanged();
 }
 
 void AGeometryHub::notifyRootServerGeometryChanged()

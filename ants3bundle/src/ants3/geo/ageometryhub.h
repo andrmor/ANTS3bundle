@@ -43,7 +43,7 @@ public:
 
     const TString IndexSeparator = "_-_";
 
-    void         populateGeoManager();
+    void         populateGeoManager(bool notifyRootServer = true);
     void         notifyRootServerGeometryChanged();
 
     void         writeToJson(QJsonObject & json) const;
