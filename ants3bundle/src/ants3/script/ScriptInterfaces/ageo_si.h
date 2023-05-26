@@ -40,8 +40,10 @@ public slots:
     void trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, QVariantList position, QVariantList orientation);
       void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
     void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-      void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
-    void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void cylinder(QString name, double outerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void cylinder(QString name, double outerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
+      void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
       void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, QVariantList position, QVariantList orientation);
       void tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
@@ -54,10 +56,14 @@ public slots:
     void conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
       void coneSegment(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void coneSegment(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, QVariantList position, QVariantList orientation);
-    void pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void polygon(QString name, int edges, double InscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation);
+      void polygon(QString name, int edges, double InscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void polygon(QString name, int edges, double InscribDiameter, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
+      void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation);
+      void pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation);
       void sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void sphere(QString name, double Dout, double Din, int iMat, QString container, QVariantList position, QVariantList orientation);
       void sphereSector(QString name, double Dout, double Din, double theta1, double theta2, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
@@ -66,8 +72,10 @@ public slots:
     void torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation);
       void paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
-    void composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void customTGeo(QString name, QString generationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void composite(QString name, QString compositionString, int iMat, QString container, QVariantList position, QVariantList orientation);
+      void customTGeo(QString name, QString generationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void customTGeo(QString name, QString generationString, int iMat, QString container, QVariantList position, QVariantList orientation);
 
     void toScaled(QString name, double xFactor, double yFactor, double zFactor);
 
@@ -76,7 +84,6 @@ public slots:
     void configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave);
     void configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
                                   QVariant Position, QVariant Time, QVariant Angle, QVariant Energy);
-
 
       void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
     void stack(QString name, QString container, QVariantList position, QVariantList orientation);
@@ -96,10 +103,9 @@ public slots:
       void instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi);
     void instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation);
 
-    void setLineProperties(QString name, int color, int width, int style);
+    void setEnabled(QString ObjectOrWildcard, bool flag);
 
-    void clearHosted(QString Object);
-    void removeWithHosted(QString Object);
+    void setLineProperties(QString name, int color, int width, int style);
 
     void setLightSensor(QString Object, int iModel = 0);
     void setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
@@ -108,7 +114,8 @@ public slots:
 
     QVariantList getScintillatorProperties();
 
-    void setEnabled(QString ObjectOrWildcard, bool flag);
+    void clearHosted(QString Object);
+    void removeWithHosted(QString Object);
 
     void exportToGDML(QString fileName);
     void exportToROOT(QString fileName);
@@ -120,7 +127,7 @@ public slots:
     QString getMaterialComposition(int materialIndex, bool byWeight);
     */
 
-    QVariantList getPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
+    QVariantList trackAndGetPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
 
 signals:
     void requestUpdateGeoGui();

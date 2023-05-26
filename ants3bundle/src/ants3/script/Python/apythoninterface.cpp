@@ -212,7 +212,8 @@ struct AArgDataHolder
     QVariantList List;
     QVariantMap  Map;
 };
-static std::array<AArgDataHolder,10> ArgDataHolders;
+//  !!!*** max number of parameters is 20 !!!!
+static std::array<AArgDataHolder,20> ArgDataHolders;
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 bool parseArg(int iArg, PyObject * args, QMetaMethod & met, QGenericArgument & arg)
 #else
@@ -446,7 +447,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-    std::array<QGenericArgument,10> ar;
+    std::array<QGenericArgument,20> ar;
     std::fill(ar.begin(), ar.end(), QGenericArgument());    // !!!*** why this?
 #else
     std::vector<QMetaMethodArgument> ar(numArgs, QMetaMethodArgument{});
@@ -469,6 +470,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     if (!ret.name)
     {
         // at least until(and including) Qt 6.5.1 there is still no invoke with std::vector of arguments
+        // see ArgDataHolders - it's max size is limited above to 20!
         switch (numArgs)
         {
         case 0  : met.invoke(obj, Qt::DirectConnection); break;
