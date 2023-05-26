@@ -396,7 +396,7 @@ QString AGeoScriptMaker::makeScriptString_prototypeObject(AGeoObject * obj) cons
     }
 
     QString str =  QString("geo.prototype( ") +
-                   "'" + obj->Name +            "' )";
+                   "'" + obj->Name + "' )";
     return str;
 }
 
