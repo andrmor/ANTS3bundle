@@ -818,7 +818,19 @@ void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QStri
 
 void AGeo_SI::stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
-    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
+    AGeoObject * o = new AGeoObject(name, container, 0, nullptr, x,y,z, phi,theta,psi);
+    delete o->Type;
+    o->Type = new ATypeStackContainerObject();
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::stack(QString name, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, 0, nullptr, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
     delete o->Type;
     o->Type = new ATypeStackContainerObject();
     GeoObjects.push_back(o);

@@ -65,7 +65,8 @@ public slots:
                                   QVariant Position, QVariant Time, QVariant Angle, QVariant Energy);
 
 
-    void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void stack(QString name, QString container, QVariantList position, QVariantList orientation);
     void initializeStack(QString StackName, QString MemberName_StackReference);
     // !!!*** add posibility to reshape already exisiting stack
 

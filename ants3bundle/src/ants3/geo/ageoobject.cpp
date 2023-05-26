@@ -1399,7 +1399,7 @@ void AGeoObject::scaleRecursive(double factor)
 {
     for (size_t i = 0; i < 3; i++) Position[i] *= factor;
 
-    Shape->scale(factor);
+    if (Shape) Shape->scale(factor);
     Type->scale(factor);
 
     for (AGeoObject * obj : HostedObjects) obj->scaleRecursive(factor);

@@ -481,22 +481,22 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
 
 QString AGeoScriptMaker::makeScriptString_stackObjectStart(AGeoObject * obj) const
 {
-    return  QString("geo.stack( '%1', '%2',   %3, %4, %5,   %6, %7, %8 )")
+    return  QString("geo.stack( '%1', '%2',  [%3, %4, %5], [%6, %7, %8] )")
             .arg(obj->Name)
             .arg(obj->Container->Name)
             .arg(obj->PositionStr[0].isEmpty() ? QString::number(obj->Position[0]) : obj->PositionStr[0])
-                .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
-          .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
-          .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
-          .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
-          .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
-    }
+            .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
+            .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
+            .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
+            .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
+            .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
+}
 
-    QString AGeoScriptMaker::makeScriptString_stackObjectEnd(AGeoObject * obj) const
-    {
+QString AGeoScriptMaker::makeScriptString_stackObjectEnd(AGeoObject * obj) const
+{
     return QString("geo.initializeStack( ") +
-    "'" + obj->Name + "',  " +
-    "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";
+                   "'" + obj->Name + "',  " +
+                   "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";
 }
 
 QString AGeoScriptMaker::makeLinePropertiesString(AGeoObject * obj) const
