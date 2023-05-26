@@ -10,42 +10,48 @@
 
 #include <QDebug>
 
+AGeoScriptMaker::AGeoScriptMaker(ELanguage lang) : Language(lang)
+{
+    init();
+}
+
+void AGeoScriptMaker::init()
+{
+    TrueStr     = (Language == JavaScript ? "true"  : "True");
+    FalseStr    = (Language == JavaScript ? "false" : "False");
+    CommentStr  = (Language == JavaScript ? "//"    : "#");
+    VariableStr = (Language == JavaScript ? "var "  : "");
+    ArrBeginStr = (Language == JavaScript ? "["     : "(");
+    ArrEndStr   = (Language == JavaScript ? "]"     : ")");
+}
+
 void AGeoScriptMaker::createScript(QString & script)
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
-    QString CommentStr;
-    if      (JavaScript == Language) CommentStr = "//";
-    else if (Python     == Language) CommentStr = "#";
-    else return;
-
     script = CommentStr + "== Auto-generated script ==\n\n";
 
     int indent = 0;
-    QString VarStr;
     QString indentStr;
 
-    if (JavaScript == Language)
-    {
-        VarStr = "var ";
-    }
-    else if (Python == Language)
+    /*
+    if (Python == Language)     // for now
     {
         script += "true = True\n";
-        script += "false = False\n\n";     // for now
+        script += "false = False\n\n";
     }
-    else return;
+    */
 
     script += indentStr + CommentStr + "Defined materials:\n";
     const QStringList mn = MatHub.getListOfMaterialNames();
     for (int i = 0; i < mn.size(); i++)
-        script += indentStr + VarStr + mn[i] + "_mat = " + QString::number(i) + "\n";
+        script += indentStr + VariableStr + mn[i] + "_mat = " + QString::number(i) + "\n";
     script += "\n";
 
     AGeoObject * World = GeoHub.World;
 
-    QString geoScr = AGeoConsts::getConstInstance().exportToScript(World, CommentStr, VarStr);
+    QString geoScr = AGeoConsts::getConstInstance().exportToScript(World, CommentStr, VariableStr); // boolean?
     if (!geoScr.simplified().isEmpty())
     {
         script += indentStr + CommentStr + "Geometry constants:\n";
@@ -68,7 +74,7 @@ void AGeoScriptMaker::createScript(QString & script)
     script += indentStr + CommentStr + "Geometry:";
     objectMembersToScript(World, script, indent, true, true);
 
-    script += "\n\n" + indentStr + "geo.updateGeometry(true)";
+    script += "\n\n" + indentStr + "geo.updateGeometry(" + TrueStr + ")";
 }
 
 void AGeoScriptMaker::objectMembersToScript(AGeoObject * Master, QString & script, int ident, bool useStrings, bool bRecursive)
@@ -82,16 +88,7 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
     int bigIdent = ident + 4;
     int medIdent = ident + 2;
 
-    QString CommentStr;
-
-    if (JavaScript == Language)
-        CommentStr = "//";
-    else if (Python == Language)
-    {
-        bigIdent = medIdent = 0;
-        CommentStr = "#";
-    }
-    else return;
+    if (Python == Language) bigIdent = medIdent = 0;
 
     const QString Starter = "\n" + QString(" ").repeated(ident);
 
@@ -186,7 +183,10 @@ QString AGeoScriptMaker::makeScriptString_basicObject(AGeoObject * obj, bool use
                                                                                  : QString::number(obj->Material) );
     QString str = obj->Shape->getScriptString(true);
     if (!str.isEmpty())
+    {
         str.replace("$name$", "'" + obj->Name + "'");
+        if (Language == Python) convertToPython(str);
+    }
     else
     {
         QString GenerationString = obj->Shape->getGenerationString(true);
@@ -199,12 +199,17 @@ QString AGeoScriptMaker::makeScriptString_basicObject(AGeoObject * obj, bool use
 
     str += matStr + ", " +
            "'" + obj->Container->Name + "',   " +
+           ArrBeginStr +
            posStrs[0] + ", " +
            posStrs[1] + ", " +
-           posStrs[2] + ",   " +
+           posStrs[2] +
+           ArrEndStr + ",  " +
+           ArrBeginStr +
            oriStrs[0] + ", " +
            oriStrs[1] + ", " +
-           oriStrs[2] + " )";
+           oriStrs[2] +
+           ArrEndStr +
+           " )";
 
     AGeoConsts::getConstInstance().formulaToScript(str, (Python == Language) );
     return str;
@@ -234,12 +239,16 @@ QString AGeoScriptMaker::makeScriptString_arrayObject(AGeoObject * obj) const
                 sstep + ", " +
                 srad + ",   " +
                 "'" + obj->Container->Name + "',   " +
+                ArrBeginStr +
                 sPos0 + ", " +
                 sPos1 + ", " +
-                sPos2 + ",   " +
+                sPos2 +
+                ArrEndStr + ", " +
+                ArrBeginStr +
                 sOri0 + ",   " +
                 sOri1 + ",   " +
-                sOri2 + ",   " +
+                sOri2 +
+                ArrEndStr + ", " +
                 sIndex + " )";
 
         return str;
@@ -274,15 +283,19 @@ QString AGeoScriptMaker::makeScriptString_arrayObject(AGeoObject * obj) const
                    sNumX + ", " +
                    sNumY + ", " +
                    sStep + ", " +
-                   (h->SkipOddLast ? "true" : "false") + ",   ";
+                   (h->SkipOddLast ? TrueStr : FalseStr) + ",   ";
         }
         str += "'" + obj->Container->Name + "',   " +
+               ArrBeginStr +
                sPos0 + ", " +
                sPos1 + ", " +
-               sPos2 + ",   " +
-               sOri0 + ",   " +
-               sOri1 + ",   " +
-               sOri2 + ",   " +
+               sPos2 +
+               ArrEndStr + ", " +
+               ArrBeginStr +
+               sOri0 + ", " +
+               sOri1 + ", " +
+               sOri2 +
+               ArrEndStr + ", " +
                sIndex + " )";
 
         return str;
@@ -310,20 +323,28 @@ QString AGeoScriptMaker::makeScriptString_arrayObject(AGeoObject * obj) const
 
     str +=  QString("geo.array( ") +
             "'" + obj->Name + "', " +
+            ArrBeginStr +
             snumX + ", " +
             snumY + ", " +
-            snumZ + ",   " +
+            snumZ +
+            ArrEndStr + ", " +
+            ArrBeginStr +
             sstepX + ", " +
             sstepY + ", " +
-            sstepZ + ", " +
+            sstepZ +
+            ArrEndStr + ", "
             "'" + obj->Container->Name + "',   " +
+            ArrBeginStr +
             sPos0 + ", " +
             sPos1 + ", " +
-            sPos2 + ",   " +
-            sOri0 + ",   " +
-            sOri1 + ",   " +
-            sOri2 + ",   " +
-            (a->bCenterSymmetric ? "true" : "false") + ",   " +
+            sPos2 +
+            ArrEndStr + ", " +
+            ArrBeginStr +
+            sOri0 + ", " +
+            sOri1 + ", " +
+            sOri2 +
+            ArrEndStr + ", " +
+            (a->bCenterSymmetric ? TrueStr : FalseStr) + ",  " +
             sIndex + " )";
 
     return str;
@@ -486,7 +507,7 @@ QString AGeoScriptMaker::makeLinePropertiesString(AGeoObject * obj) const
 
 QString AGeoScriptMaker::makeScriptString_DisabledObject(AGeoObject * obj) const
 {
-    return QString("geo.setEnabled( '%1', false )").arg(obj->Name);
+    return QString("geo.setEnabled( '%1', " + FalseStr + ")").arg(obj->Name);
 }
 
 void AGeoScriptMaker::addLineProperties(QString & script, AGeoObject * obj, int ident)
@@ -518,8 +539,13 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
     {
         QString bins, origin, step;
         cal->Properties.toStrings(origin, step, bins, useStrings);
+        if (Language == Python)
+        {
+            convertToPython(bins);
+            convertToPython(origin);
+            convertToPython(step);
+        }
 
-        //setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
         QString str = QString("geo.setCalorimeter( '%0', %1, %2, %3 )").arg(obj->Name, bins, origin, step);
         AGeoConsts::getConstInstance().formulaToScript(str, false);
         script += "\n" + QString(" ").repeated(ident) + str;
@@ -552,7 +578,7 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
     }
 }
 
-const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
+QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const
 {
     int numberofQ = javaGenString.count("'");
     if (numberofQ == 0) return javaGenString;
@@ -582,4 +608,13 @@ const QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGen
         }
     }
     return PythonGenString;
+}
+
+void AGeoScriptMaker::convertToPython(QString & str) const
+{
+    if (Language == Python)
+    {
+        str.replace('[', '(');
+        str.replace(']', ')');
+    }
 }

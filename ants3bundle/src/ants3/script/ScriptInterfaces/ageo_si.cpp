@@ -972,6 +972,22 @@ void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitc
     GeoObjects.push_back(o);
 }
 
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, 0, 0, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
+    delete o->Shape; o->Shape = new AGeoBox;
+    delete o->Type;
+    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->startIndex = startIndex;
+    o->Type = ar;
+    GeoObjects.push_back(o);
+}
+
 void AGeo_SI::prototype(QString name)
 {
     AGeoObject * proto = new AGeoObject(name);

@@ -233,7 +233,7 @@ QString AGeoBox::getScriptString(bool useStrings) const
     }
 
     //void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.box( $name$,  %0, %1, %2,  ").arg(sdx, sdy, sdz);
+    return QString("geo.box( $name$,  [%0, %1, %2],  ").arg(sdx, sdy, sdz);
 }
 
 double AGeoBox::maxSize() const
