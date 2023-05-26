@@ -371,12 +371,16 @@ QString AGeoScriptMaker::makeScriptString_instanceObject(AGeoObject * obj) const
                    "'" + obj->Name +            "', " +
                    "'" + ins->PrototypeName +   "', " +
                    "'" + obj->Container->Name + "',   " +
+                   ArrBeginStr +
                    posStrs[0] + ", " +
                    posStrs[1] + ", " +
-                   posStrs[2] + ",   " +
+                   posStrs[2] +
+                   ArrEndStr + ", " +
+                   ArrBeginStr +
                    oriStrs[0] + ", " +
                    oriStrs[1] + ", " +
-                   oriStrs[2] + " )";
+                   oriStrs[2] +
+                   ArrEndStr + " )";
 
     AGeoConsts::getConstInstance().formulaToScript(str, (Python == Language) );
     return str;

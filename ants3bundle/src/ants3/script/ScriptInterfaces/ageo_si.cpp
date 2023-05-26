@@ -1010,6 +1010,24 @@ void AGeo_SI::instance(QString name, QString prototype, QString container, doubl
     GeoObjects.push_back(instance);
 }
 
+void AGeo_SI::instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * instance = new AGeoObject(name);
+    delete instance->Type; instance->Type = new ATypeInstanceObject(prototype);
+    instance->tmpContName = container;
+    instance->Position[0] = pos[0];
+    instance->Position[1] = pos[1];
+    instance->Position[2] = pos[2];
+    instance->Orientation[0] = ori[0];
+    instance->Orientation[1] = ori[1];
+    instance->Orientation[2] = ori[2];
+    GeoObjects.push_back(instance);
+}
+
 void AGeo_SI::setLineProperties(QString name, int color, int width, int style)
 {
     AGeoObject * obj = nullptr;
@@ -1045,10 +1063,11 @@ void AGeo_SI::clearWorld()
 {
     clearGeoObjects();
 
-    AGeometryHub::getInstance().World->recursiveSuicide();  // locked objects are not deleted!
+    //AGeometryHub::getInstance().World->recursiveSuicide();  // locked objects are not deleted!
+    AGeometryHub::getInstance().clearWorld();
 
-    //Detector->BuildDetector_CallFromScript();
-    AGeometryHub::getInstance().populateGeoManager();
+      //Detector->BuildDetector_CallFromScript();
+    //AGeometryHub::getInstance().populateGeoManager();
 }
 
 void AGeo_SI::clearHosted(QString Object)

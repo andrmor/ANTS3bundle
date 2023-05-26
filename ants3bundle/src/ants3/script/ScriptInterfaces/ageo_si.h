@@ -79,7 +79,8 @@ public slots:
     void hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, QVariantList position, QVariantList orientation, int startIndex);
 
     void prototype(QString name);
-    void instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation);
 
     void setLineProperties(QString name, int color, int width, int style);
 
