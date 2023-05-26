@@ -428,8 +428,7 @@ QString AGeoPara::getScriptString(bool useStrings) const
         sPhi   = QString::number(phi);
     }
 
-    //void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    return QString("geo.parallelepiped( $name$,  %0, %1, %2, %3, %4, %5,  ").arg(sdx, sdy, sdz, sAlpha, sTheta, sPhi);
+    return QString("geo.parallelepiped( $name$, [%0, %1, %2], [%3, %4, %5],  ").arg(sdx, sdy, sdz, sAlpha, sTheta, sPhi);
 }
 
 double AGeoPara::maxSize() const

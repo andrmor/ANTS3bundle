@@ -32,11 +32,12 @@ public slots:
 
       void box(QString name, double Lx, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void box(QString name, QVariantList fullSizes, int iMat, QString container, QVariantList position, QVariantList orientation);
-    void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+    void parallelepiped(QString name, QVariantList fullSizes, QVariantList angles, int iMat, QString container, QVariantList position, QVariantList orientation);
     void trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
+      void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation);
     void tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);

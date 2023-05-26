@@ -89,6 +89,25 @@ AGeoObject::AGeoObject(const QString & name, const QString & container, int iMat
     Shape = shape;
 }
 
+AGeoObject::AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape, const std::array<double,3> & pos, const std::array<double,3> & ori)
+{
+    constructorInit();
+
+    Type = new ATypeSingleObject();
+
+    Name = name;
+    tmpContName = container;
+    Material = iMat;
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        Position[i]    = pos[i];
+        Orientation[i] = ori[i];
+    }
+
+    Shape = shape;
+}
+
 AGeoObject::AGeoObject(AGeoType *objType, AGeoShape* shape)
 {
     constructorInit();

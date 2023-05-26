@@ -113,9 +113,8 @@ void AGeo_SI::box(QString name, QVariantList fullSizes, int iMat, QString contai
     }
     for (size_t i = 0; i < 3; i++) L[i] = fullSizes[i].toDouble();
 
-    AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoBox(0.5 * L[0], 0.5 * L[1], 0.5 * L[2]),
-                                   pos[0],pos[1],pos[2],  ori[0],ori[1],ori[2]);
+    AGeoObject * o = new AGeoObject(name, container, iMat, new AGeoBox(0.5 * L[0], 0.5 * L[1], 0.5 * L[2]), pos, ori);
+
     GeoObjects.push_back(o);
 }
 
@@ -125,6 +124,33 @@ void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, doub
     AGeoObject* o = new AGeoObject(name, container, iMat,
                                    new AGeoPara(0.5*Lx, 0.5*Ly, 0.5*Lz, Alpha, Theta, Phi),
                                    x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::parallelepiped(QString name, QVariantList fullSizes, QVariantList angles, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori, L, A;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    if (fullSizes.size() != 3)
+    {
+        abort("'fullSizes' should be an array of full sizes in x, y and z directions");
+        return;
+    }
+    if (angles.size() != 3)
+    {
+        abort("'angles' should be an array of three angles");
+        return;
+    }
+    for (size_t i = 0; i < 3; i++)
+    {
+        L[i] = fullSizes[i].toDouble();
+        A[i] = angles[i].toDouble();
+    }
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, new AGeoPara(0.5*L[0], 0.5*L[1], 0.5*L[2], A[0], A[1], A[2]), pos, ori);
+
     GeoObjects.push_back(o);
 }
 
@@ -144,14 +170,6 @@ void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, doubl
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::cylinder(QString name, double D, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
-{
-    AGeoObject* o = new AGeoObject(name, container, iMat,
-                                   new AGeoTube(0.5*D, 0.5*h),
-                                   x,y,z, phi,theta,psi);
-    GeoObjects.push_back(o);
-}
-
 void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (innerD >= outerD)
@@ -162,6 +180,23 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     AGeoObject * o = new AGeoObject(name, container, iMat,
                                    new AGeoTube(0.5*innerD, 0.5*outerD, 0.5*h),
                                    x,y,z, phi,theta,psi);
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    if (innerD >= outerD)
+    {
+        abort("Inner diameter should be smaller than the outer one");
+        return;
+    }
+
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, new AGeoTube(0.5*innerD, 0.5*outerD, 0.5*h), pos, ori);
+
     GeoObjects.push_back(o);
 }
 

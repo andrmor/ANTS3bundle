@@ -27,8 +27,8 @@ public:
   AGeoObject(QString name = "", QString ShapeGenerationString = ""); //name must be unique!
   AGeoObject(const QString & name, AGeoShape * shape); // accepts nullptr, then creates box shape
   AGeoObject(const AGeoObject * objToCopy);  //normal object is created
-  AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape,
-             double x, double y, double z,   double phi, double theta, double psi); // for tmp only, needs positioning in the container and name uniqueness check!
+  AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape, double x, double y, double z,   double phi, double theta, double psi);
+  AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape, const std::array<double,3> & pos, const std::array<double,3> & ori);
   AGeoObject(AGeoType * objType, AGeoShape * shape = nullptr);  // pointers are assigned to the object properties! if no shape, default cube is formed
   ~AGeoObject();
 
