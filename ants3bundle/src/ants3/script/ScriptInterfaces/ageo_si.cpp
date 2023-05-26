@@ -759,7 +759,32 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
     ATypeMonitorObject* mto = new ATypeMonitorObject();
     delete o->Type; o->Type = mto;
 
-    AMonitorConfig& mc = mto->config;
+    AMonitorConfig & mc = mto->config;
+    mc.shape = shape;
+    mc.size1 = 0.5 * size1;
+    mc.size2 = 0.5 * size2;
+    mc.bUpper = SensitiveTop;
+    mc.bLower = SensitiveBottom;
+    mc.bStopTracking = StopsTraking;
+
+    //o->updateMonitorShape();
+    o->color = 1;
+
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * o = new AGeoObject(name, container, 0, nullptr, pos, ori);
+
+    ATypeMonitorObject* mto = new ATypeMonitorObject();
+    delete o->Type; o->Type = mto;
+
+    AMonitorConfig & mc = mto->config;
     mc.shape = shape;
     mc.size1 = 0.5 * size1;
     mc.size2 = 0.5 * size2;

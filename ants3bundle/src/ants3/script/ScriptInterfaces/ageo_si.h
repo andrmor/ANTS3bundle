@@ -71,9 +71,8 @@ public slots:
 
     void toScaled(QString name, double xFactor, double yFactor, double zFactor);
 
-    void monitor(QString name, int shape, double size1, double size2,
-                 QString container, double x, double y, double z, double phi, double theta, double psi,
-                 bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);
+      void monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);
+    void monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);
     void configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave);
     void configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
                                   QVariant Position, QVariant Time, QVariant Angle, QVariant Energy);
@@ -107,6 +106,8 @@ public slots:
     void setScintillator(QString Object);
     void setSecondaryScintillator(QString Object);
 
+    QVariantList getScintillatorProperties();
+
     void setEnabled(QString ObjectOrWildcard, bool flag);
 
     void exportToGDML(QString fileName);
@@ -120,8 +121,6 @@ public slots:
     */
 
     QVariantList getPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz);
-
-    QVariantList getScintillatorProperties();
 
 signals:
     void requestUpdateGeoGui();

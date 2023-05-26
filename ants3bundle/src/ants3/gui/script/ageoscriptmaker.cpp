@@ -408,28 +408,32 @@ QString AGeoScriptMaker::makeScriptString_monitorBaseObject(const AGeoObject * o
         qWarning() << "It is not a monitor!";
         return "Error accessing monitor!";
     }
+
     const AMonitorConfig & c = m->config;
 
-    // geo.monitor( name,  shape,  size1,  size2,  container,  x,  y,  z,  phi,  theta,  psi,  SensitiveTop,  SensitiveBottom,  StopsTraking )
-    return QString("geo.monitor( %1, %2,  %3, %4,  %5,   %6, %7, %8,   %9, %10, %11,   %12, %13,   %14 )")
+    //             geo.monitor( name,shape,size1, size2,  container,  [x,  y,  z],  [phi,  theta,  psi],  SensitiveTop,  SensitiveBottom,  StopsTraking )
+    QString s = QString("geo.monitor( %1,  %2,  %3, %4,  %5, [%6, %7, %8], [%9, %10, %11], %12, %13, %14 )")
             .arg("'" + obj->Name + "'")
             .arg(c.shape)
             .arg(c.str2size1.isEmpty() ? QString::number(2.0 * c.size1) : c.str2size1)
             .arg(c.str2size2.isEmpty() ? QString::number(2.0 * c.size2) : c.str2size2)
             .arg("'" + obj->Container->Name + "'")
             .arg(obj->PositionStr[0].isEmpty() ? QString::number(obj->Position[0]) : obj->PositionStr[0])
-                .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
-          .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
-          .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
-          .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
-          .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2])
-          .arg(c.bUpper ? "true" : "false")
-          .arg(c.bLower ? "true" : "false")
-          .arg(c.bStopTracking ? "true" : "false");
-    }
+            .arg(obj->PositionStr[1].isEmpty() ? QString::number(obj->Position[1]) : obj->PositionStr[1])
+            .arg(obj->PositionStr[2].isEmpty() ? QString::number(obj->Position[2]) : obj->PositionStr[2])
+            .arg(obj->OrientationStr[0].isEmpty() ? QString::number(obj->Orientation[0]) : obj->OrientationStr[0])
+            .arg(obj->OrientationStr[1].isEmpty() ? QString::number(obj->Orientation[1]) : obj->OrientationStr[1])
+            .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2])
+            .arg(c.bUpper        ? TrueStr : FalseStr)
+            .arg(c.bLower        ? TrueStr : FalseStr)
+            .arg(c.bStopTracking ? TrueStr : FalseStr);
 
-    QString AGeoScriptMaker::makeScriptString_monitorConfig(const AGeoObject *obj) const
-    {
+    if (Language == Python) convertToPython(s);
+    return s;
+}
+
+QString AGeoScriptMaker::makeScriptString_monitorConfig(const AGeoObject *obj) const
+{
     ATypeMonitorObject * m = dynamic_cast<ATypeMonitorObject*>(obj->Type);
     if (!m)
     {
