@@ -102,7 +102,7 @@ private:
 
     void positionArrayElement(int ix, int iy, int iz, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
     void positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
-    void positionHexArrayRing(int iR, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
+    void positionHexArrayRing(int iR, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int & arrayIndex);
     void positionHexArrayElement(double localX, double localY, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex);
     void positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume * parent, int forcedNodeNumber);
 

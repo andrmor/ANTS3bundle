@@ -650,7 +650,8 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
             if (hexArray->Shape == ATypeHexagonalArrayObject::Hexagonal)
             {
                 for (int iR = 0; iR < hexArray->Rings; iR++)
-                    positionHexArrayRing(iR, el, obj, vol, iCounter++);
+                    positionHexArrayRing(iR, el, obj, vol, iCounter);
+                iCounter++;
             }
             else
             {
@@ -846,7 +847,7 @@ void AGeometryHub::positionHexArrayElement(double localX, double localY, AGeoObj
     addTGeoVolumeRecursively(el, parent, arrayIndex);
 }
 
-void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex)
+void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int & arrayIndex)
 {
     ATypeHexagonalArrayObject * array = static_cast<ATypeHexagonalArrayObject*>(arrayObj->Type);
 
