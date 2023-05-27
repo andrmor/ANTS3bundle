@@ -16,7 +16,7 @@ public:
     void storeGeomStatus();
     void restoreGeomStatus();
 
-    void onMainWinButtonClicked();
+    void onMainWinButtonClicked(bool show);
 
 public slots:
     QVariantList getGeometry();

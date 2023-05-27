@@ -74,32 +74,48 @@ private slots:
     void on_actionQuickLoad_slot_3_triggered();
     void on_actionClose_ants3_triggered();
 
-    // Buttons
+    // Window buttons
     void on_pbGeometry_clicked();
+    void on_pbGeometry_customContextMenuRequested(const QPoint & pos);
     void on_pbGeoWin_clicked();
+    void on_pbGeoWin_customContextMenuRequested(const QPoint & pos);
     void on_pbMaterials_clicked();
+    void on_pbMaterials_customContextMenuRequested(const QPoint & pos);
     void on_pbPhotSim_clicked();
+    void on_pbPhotSim_customContextMenuRequested(const QPoint & pos);
     void on_pbInterfaceRules_clicked();
+    void on_pbInterfaceRules_customContextMenuRequested(const QPoint & pos);
+    void on_pbSensors_clicked();
+    void on_pbSensors_customContextMenuRequested(const QPoint & pos);
     void on_pbGraphWin_clicked();
+    void on_pbGraphWin_customContextMenuRequested(const QPoint & pos);
     void on_pbFarm_clicked();
+    void on_pbFarm_customContextMenuRequested(const QPoint & pos);
     void on_pbParticleSim_clicked();
+    void on_pbParticleSim_customContextMenuRequested(const QPoint & pos);
+    void on_pbGlobSet_clicked();
+    void on_pbGlobSet_customContextMenuRequested(const QPoint & pos);
     void on_pbJavaScript_clicked();  // !!!*** need update? note: config json could have changed!
+    void on_pbJavaScript_customContextMenuRequested(const QPoint & pos);
+    void on_pbPython_clicked();  // !!!*** need update? note: config json could have changed!
+    void on_pbPython_customContextMenuRequested(const QPoint & pos);
     void on_pbDemo_clicked();
+    void on_pbDemo_customContextMenuRequested(const QPoint & pos);
+
+    // Other buttons
     void on_pbLoadConfig_clicked();
     void on_pbSaveConfig_clicked();
+    void on_pbNew_clicked();
+
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
-    void on_pbSensors_clicked();
-    void rootTimerTimeout();
-    void on_pbGlobSet_clicked();
-    void on_pbPython_clicked();  // !!!*** need update? note: config json could have changed!
-
-    void on_pbNew_clicked();
 
     void on_actionQuickLoad_slot_1_hovered();
     void on_actionQuickLoad_slot_2_hovered();
     void on_actionQuickLoad_slot_3_hovered();
     void on_actionLoad_last_config_hovered();
+
+    void rootTimerTimeout();
 
 protected:
     void closeEvent(QCloseEvent * event);

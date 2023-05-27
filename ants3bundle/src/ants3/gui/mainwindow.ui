@@ -62,6 +62,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGeometry">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Geometry</string>
              </property>
@@ -69,6 +72,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbMaterials">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Materials</string>
              </property>
@@ -104,6 +110,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGeoWin">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>GeoView</string>
              </property>
@@ -111,6 +120,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGraphWin">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Graphs</string>
              </property>
@@ -150,6 +162,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbInterfaceRules">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Interfaces</string>
              </property>
@@ -157,6 +172,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbSensors">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Sensors</string>
              </property>
@@ -192,6 +210,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbFarm">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Workload</string>
              </property>
@@ -199,6 +220,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGlobSet">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Settings</string>
              </property>
@@ -238,6 +262,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbParticleSim">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Particles</string>
              </property>
@@ -245,6 +272,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbPhotSim">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Photons</string>
              </property>
@@ -280,6 +310,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbJavaScript">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>JavaScript</string>
              </property>
@@ -287,6 +320,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbPython">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Python</string>
              </property>
@@ -326,6 +362,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbLRFs">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>LRFs</string>
              </property>
@@ -333,6 +372,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbRecon">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>XYZ/Energy</string>
              </property>
@@ -368,6 +410,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbDemo">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Demo</string>
              </property>

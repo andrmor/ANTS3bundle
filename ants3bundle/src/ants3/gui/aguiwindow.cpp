@@ -36,18 +36,18 @@ void AGuiWindow::restoreGeomStatus()
     settings.endGroup();
 }
 
-void AGuiWindow::onMainWinButtonClicked()
+void AGuiWindow::onMainWinButtonClicked(bool show)
 {
-    if (isVisible())
-    {
-        storeGeomStatus();
-        hide();
-    }
-    else
+    if (show)
     {
         restoreGeomStatus();
         showNormal();
         activateWindow();
+    }
+    else
+    {
+        storeGeomStatus();
+        hide();
     }
 }
 

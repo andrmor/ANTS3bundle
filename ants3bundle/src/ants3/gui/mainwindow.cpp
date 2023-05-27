@@ -178,76 +178,126 @@ void MainWindow::onRebuildGeometryRequested()
 
 void MainWindow::on_pbGeometry_clicked()
 {
-    GeoTreeWin->onMainWinButtonClicked();
-    if (GeoTreeWin->isVisible()) GeoTreeWin->updateGui();
+    GeoTreeWin->onMainWinButtonClicked(true);
+    GeoTreeWin->updateGui();
+}
+void MainWindow::on_pbGeometry_customContextMenuRequested(const QPoint &)
+{
+    GeoTreeWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbGeoWin_clicked()
 {
-    GeoWin->onMainWinButtonClicked();
-    if (GeoWin->isVisible()) GeoWin->ShowGeometry();
+    GeoWin->onMainWinButtonClicked(true);
+    GeoWin->ShowGeometry();
+}
+void MainWindow::on_pbGeoWin_customContextMenuRequested(const QPoint &)
+{
+    GeoWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbMaterials_clicked()
 {
-    MatWin->onMainWinButtonClicked();
-    //if (MatWin->isVisible()) MatWin->update(); // why no update?
+    MatWin->onMainWinButtonClicked(true);
+    //MatWin->update(); // why no update?
+}
+void MainWindow::on_pbMaterials_customContextMenuRequested(const QPoint &)
+{
+    MatWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbPhotSim_clicked()
 {
-    PhotSimWin->onMainWinButtonClicked();
-    if (PhotSimWin) PhotSimWin->updateGui();
+    PhotSimWin->onMainWinButtonClicked(true);
+    PhotSimWin->updateGui();
+}
+void MainWindow::on_pbPhotSim_customContextMenuRequested(const QPoint &)
+{
+    PhotSimWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbInterfaceRules_clicked()
 {
-    RuleWin->onMainWinButtonClicked();
-    if (RuleWin->isVisible()) RuleWin->updateGui();
+    RuleWin->onMainWinButtonClicked(true);
+    RuleWin->updateGui();
+}
+void MainWindow::on_pbInterfaceRules_customContextMenuRequested(const QPoint &)
+{
+    RuleWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbGraphWin_clicked()
 {
-    GraphWin->onMainWinButtonClicked();
+    GraphWin->onMainWinButtonClicked(true);
+}
+void MainWindow::on_pbGraphWin_customContextMenuRequested(const QPoint &)
+{
+    GraphWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbFarm_clicked()
 {
-    FarmWin->onMainWinButtonClicked();
-    if (FarmWin->isVisible()) FarmWin->updateGui();
+    FarmWin->onMainWinButtonClicked(true);
+    FarmWin->updateGui();
+}
+void MainWindow::on_pbFarm_customContextMenuRequested(const QPoint &)
+{
+    FarmWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbGlobSet_clicked()
 {
-    GlobSetWin->onMainWinButtonClicked();
-    if (GlobSetWin->isVisible()) GlobSetWin->updateGui();
+    GlobSetWin->onMainWinButtonClicked(true);
+    GlobSetWin->updateGui();
+}
+void MainWindow::on_pbGlobSet_customContextMenuRequested(const QPoint &)
+{
+    GlobSetWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbParticleSim_clicked()
 {
-    PartSimWin->onMainWinButtonClicked();
-    if (PartSimWin->isVisible()) PartSimWin->updateGui();
+    PartSimWin->onMainWinButtonClicked(true);
+    PartSimWin->updateGui();
+}
+void MainWindow::on_pbParticleSim_customContextMenuRequested(const QPoint &)
+{
+    PartSimWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbJavaScript_clicked()
 {
-    JScriptWin->onMainWinButtonClicked();
-    if (JScriptWin->isVisible()) JScriptWin->updateGui();
+    JScriptWin->onMainWinButtonClicked(true);
+    JScriptWin->updateGui();
+}
+void MainWindow::on_pbJavaScript_customContextMenuRequested(const QPoint &)
+{
+    JScriptWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbPython_clicked()
 {
 #ifdef ANTS3_PYTHON
-    PythonWin->onMainWinButtonClicked();
-    if (PythonWin) PythonWin->updateGui();
+    PythonWin->onMainWinButtonClicked(true);
+    PythonWin->updateGui();
 #else
     guitools::message("Ants3 was compiled without Python support.\nIt can be enabled in ants3.pro by uncommenting:\n#CONFIG += ants3_Python", this);
+#endif
+}
+void MainWindow::on_pbPython_customContextMenuRequested(const QPoint &)
+{
+#ifdef ANTS3_PYTHON
+    PythonWin->onMainWinButtonClicked(false);
 #endif
 }
 
 void MainWindow::on_pbDemo_clicked()
 {
-    DemoWin->onMainWinButtonClicked();
+    DemoWin->onMainWinButtonClicked(true);
+}
+void MainWindow::on_pbDemo_customContextMenuRequested(const QPoint &pos)
+{
+    DemoWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbLoadConfig_clicked()
@@ -448,8 +498,12 @@ void MainWindow::on_pteConfigDescription_textChanged()
 
 void MainWindow::on_pbSensors_clicked()
 {
-    SensWin->onMainWinButtonClicked();
-    if (SensWin->isVisible()) SensWin->updateGui();
+    SensWin->onMainWinButtonClicked(true);
+    SensWin->updateGui();
+}
+void MainWindow::on_pbSensors_customContextMenuRequested(const QPoint &)
+{
+    SensWin->onMainWinButtonClicked(false);
 }
 
 #include <QThread>
