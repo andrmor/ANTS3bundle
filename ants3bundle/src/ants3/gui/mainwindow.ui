@@ -570,7 +570,14 @@
     </property>
     <addaction name="actionClose_ants3"/>
    </widget>
+   <widget class="QMenu" name="menuHints">
+    <property name="title">
+     <string>Hints</string>
+    </property>
+    <addaction name="actionShow_hints"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHints"/>
    <addaction name="menuExit"/>
   </widget>
   <action name="actionSave_configuration">
@@ -621,6 +628,11 @@
   <action name="actionClose_ants3">
    <property name="text">
     <string>Close ants3</string>
+   </property>
+  </action>
+  <action name="actionShow_hints">
+   <property name="text">
+    <string>Show hints</string>
    </property>
   </action>
  </widget>

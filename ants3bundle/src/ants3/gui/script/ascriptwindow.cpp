@@ -515,6 +515,8 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     ScriptManager->collectGarbage();
 
+    updateJsonTree();
+
     emit requestUpdateGui();
 }
 

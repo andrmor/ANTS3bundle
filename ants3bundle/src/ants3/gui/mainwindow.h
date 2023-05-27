@@ -117,6 +117,8 @@ private slots:
 
     void rootTimerTimeout();
 
+    void on_actionShow_hints_triggered();
+
 protected:
     void closeEvent(QCloseEvent * event);
 

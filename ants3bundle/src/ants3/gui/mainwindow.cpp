@@ -400,6 +400,13 @@ void MainWindow::updateAllGuiFromConfig()
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
 
+    /*
+    JScriptWin->updateGui();
+#ifdef ANTS3_PYTHON
+    PythonWin->updateGui();
+#endif
+    */
+
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
     {
         QJsonObject js;
@@ -671,3 +678,14 @@ QString MainWindow::getQuickLoadMessage(int index)
     ret += QFileInfo(fileName).lastModified().toString();
     return ret;
 }
+
+void MainWindow::on_actionShow_hints_triggered()
+{
+    QString str = ""
+                  "Mouse right-button click on a window button closes that window.\n\n"
+                  "Hovering with mouse over a quick load slot shows name and description for that configuration."
+                  "";
+
+    guitools::message1(str, "main window hints", this);
+}
+
