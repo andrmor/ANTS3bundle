@@ -95,9 +95,9 @@ private slots:
     void on_pbParticleSim_customContextMenuRequested(const QPoint & pos);
     void on_pbGlobSet_clicked();
     void on_pbGlobSet_customContextMenuRequested(const QPoint & pos);
-    void on_pbJavaScript_clicked();  // !!!*** need update? note: config json could have changed!
+    void on_pbJavaScript_clicked();
     void on_pbJavaScript_customContextMenuRequested(const QPoint & pos);
-    void on_pbPython_clicked();  // !!!*** need update? note: config json could have changed!
+    void on_pbPython_clicked();
     void on_pbPython_customContextMenuRequested(const QPoint & pos);
     void on_pbDemo_clicked();
     void on_pbDemo_customContextMenuRequested(const QPoint & pos);
