@@ -48,6 +48,8 @@ bool ACalorimeterProperties::isAxisOff(int index) const
 {
     if (index < 0 || index > 2) return false;
 
+    if (DataType == Dose) return false;
+
     return (Origin[index] == -1e10 && Step[index] == 2e10 && Bins[index] == 1);
 }
 

@@ -235,6 +235,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         cvl->addLayout(chl);
             chl->addWidget(new QLabel("Acquire:"));
         cobCalType = new QComboBox(); cobCalType->addItems({"Deposited energy", "Dose"});
+        cobCalType->setToolTip("Energy is collected as MeV per voxel\nDose is collected as grays per voxel.");
             chl->addWidget(cobCalType);
             chl->addStretch();
             cbCalRandomize = new QCheckBox("Random bin along step");
@@ -276,6 +277,22 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         frCal->setVisible(false);
         rl->addWidget(frCal);
 
+        connect(cobCalType, &QComboBox::currentIndexChanged, this, [this](int index)
+        {
+            if (index == 0) // energy
+            {
+                cbOffX->setEnabled(true);
+                cbOffY->setEnabled(true);
+                cbOffZ->setEnabled(true);
+            }
+            else // dose
+            {
+                cbOffX->setChecked(false); cbOffX->setEnabled(false);
+                cbOffY->setChecked(false); cbOffY->setEnabled(false);
+                cbOffZ->setChecked(false); cbOffZ->setEnabled(false);
+            }
+        } );
+
         connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
         {
             ledCalOriginX->setDisabled(checked);
@@ -283,8 +300,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsX  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginX->setText("-1e10");
-                ledCalStepX->setText("2e10");
+                ledCalOriginX->setText("-1e+10");
+                ledCalStepX->setText("2e+10");
                 leiCalBinsX->setText("1");
             }
         } );
@@ -295,8 +312,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsY  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginY->setText("-1e10");
-                ledCalStepY->setText("2e10");
+                ledCalOriginY->setText("-1e+10");
+                ledCalStepY->setText("2e+10");
                 leiCalBinsY->setText("1");
             }
         } );
@@ -307,8 +324,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsZ  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginZ->setText("-1e10");
-                ledCalStepZ->setText("2e10");
+                ledCalOriginZ->setText("-1e+10");
+                ledCalStepZ->setText("2e+10");
                 leiCalBinsZ->setText("1");
             }
         } );
@@ -438,6 +455,22 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
             ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
             if (!ok) return false;
+
+            if (cobCalType->currentIndex() == 1)
+            {
+                bool badForDose = false;
+                for (int iA = 0; iA < 3; iA++)
+                    if (calDouble[iA] == -1e+10 && calDouble[3+iA] == 2e+10 && calInt[iA] == 1)
+                    {
+                        badForDose = true;
+                        break;
+                    }
+                if (badForDose)
+                {
+                    QMessageBox::warning(this->ParentWidget, "Warning", "For meaningful dose data, configure adequate voxel dimensions!");
+                    return false;
+                }
+            }
         }
 
         // ---- all checks are ok, can assign new values to the object ----

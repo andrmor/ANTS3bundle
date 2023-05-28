@@ -304,7 +304,7 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
             Data->fill({local[0], local[1], local[2]}, deltaDose);
         }
     }
-    else Data->fill({local[0], local[1], local[2]}, depo / keV);
+    else Data->fill({local[0], local[1], local[2]}, depo / MeV);
 
     return true;
 }
