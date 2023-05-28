@@ -36,6 +36,11 @@ public:
     void toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const;
 #endif
 
+    enum EDataType {Energy, Dose};
+
+    EDataType DataType = Energy;
+    bool RandomizeBin = false;
+
     std::array<double, 3> Origin = {-5, -1e10, -1e10};
     std::array<double, 3> Step   = { 1,  2e10,  2e10};
     std::array<int,    3> Bins   = {10,  1,     1};

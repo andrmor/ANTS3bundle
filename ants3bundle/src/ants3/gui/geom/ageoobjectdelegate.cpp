@@ -204,6 +204,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
     QFrame * frSensor = new QFrame();
+    {
         QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
         hlSensor->setContentsMargins(0,0,0,0);
         cobSensorModel = new QComboBox();
@@ -224,8 +225,23 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         rl->addWidget(frSensor);
         rl->setAlignment(frSensor, Qt::AlignHCenter);
 
+
+    }
+
     QFrame * frCal = new QFrame();
-        QGridLayout * gl = new QGridLayout(frCal);
+    {
+      QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
+        QHBoxLayout * chl = new QHBoxLayout(); chl->setContentsMargins(15,0,15,0);
+        cvl->addLayout(chl);
+            chl->addWidget(new QLabel("Acquire:"));
+        cobCalType = new QComboBox(); cobCalType->addItems({"Deposited energy", "Dose"});
+            chl->addWidget(cobCalType);
+            chl->addStretch();
+            cbCalRandomize = new QCheckBox("Random bin along step");
+            chl->addWidget(cbCalRandomize);
+
+        QGridLayout * gl = new QGridLayout();
+      cvl->addLayout(gl);
         gl->setContentsMargins(0,0,0,0);
         ledCalOriginX = new AOneLineTextEdit();
         ledCalOriginY = new AOneLineTextEdit();
@@ -306,12 +322,16 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             le->setContextMenuPolicy(Qt::NoContextMenu);
             connect(le, &AOneLineTextEdit::textChanged, this, &AGeoObjectDelegate::onContentChanged);
         }
+    }
 
     rl->addStretch();
 
-    connect(cbOffX,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbOffY,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbOffZ,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobCalType,     &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalRandomize, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+
+    connect(cbOffX,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffY,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffZ,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal, this](int index)
@@ -471,6 +491,17 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 cal->Properties.strOrigin = {calDoubleStr[0], calDoubleStr[1], calDoubleStr[2]};
                 cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
                 cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
+
+                switch (cobCalType->currentIndex())
+                {
+                case 0: cal->Properties.DataType = ACalorimeterProperties::Energy; break;
+                case 1: cal->Properties.DataType = ACalorimeterProperties::Dose;   break;
+                default:
+                    qWarning() << "Not impelemnted calorimeter type in the combo box";
+                    cal->Properties.DataType = ACalorimeterProperties::Energy; break;
+                }
+
+                cal->Properties.RandomizeBin = cbCalRandomize->isChecked();
 
                 obj->Role = cal;
                 }
@@ -823,6 +854,18 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
 
 void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
 {
+    int index = 0;
+    switch (p.DataType)
+    {
+    case ACalorimeterProperties::Energy : index = 0; break;
+    case ACalorimeterProperties::Dose   : index = 1; break;
+    default:
+        qWarning() << "Unknown calorimter type";
+    }
+    cobCalType->setCurrentIndex(index);
+
+    cbCalRandomize->setChecked(p.RandomizeBin);
+
     ledCalOriginX->setText( p.strOrigin[0].isEmpty() ? QString::number(p.Origin[0]) : p.strOrigin[0] );
     ledCalOriginY->setText( p.strOrigin[1].isEmpty() ? QString::number(p.Origin[1]) : p.strOrigin[1] );
     ledCalOriginZ->setText( p.strOrigin[2].isEmpty() ? QString::number(p.Origin[2]) : p.strOrigin[2] );

@@ -269,6 +269,7 @@ CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
     delete Data;
 }
 
+#include "arandomg4hub.h"
 G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
     G4double depo = step->GetTotalEnergyDeposit()/keV;
@@ -277,7 +278,11 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
     const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
     const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
 
-    const G4ThreeVector global = 0.5 * (fromGlobal + toGlobal);
+    G4ThreeVector global;
+    if (Properties.RandomizeBin)
+        global = fromGlobal + ARandomHub::getInstance().uniform() * (toGlobal - fromGlobal);
+    else
+        global = 0.5 * (fromGlobal + toGlobal);
 
     const G4ThreeVector local = step->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(global);
 

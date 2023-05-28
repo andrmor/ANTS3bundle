@@ -12,6 +12,10 @@
 
 bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) const
 {
+    DataType == other.DataType;
+
+    RandomizeBin == other.RandomizeBin;
+
     for (int i = 0; i < 3; i++)
     {
         if (Origin[i] != other.Origin[i]) return false;
@@ -90,14 +94,18 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 #endif
 {
 #ifdef JSON11
+    std::string dataTypeStr;
     json11::Json::array arO;
     json11::Json::array arS;
     json11::Json::array arB;
 #else
+    QString dataTypeStr;
     QJsonArray arO;
     QJsonArray arS;
     QJsonArray arB;
 #endif
+    dataTypeStr = ( DataType == Energy ? "Energy" : "Dose" );
+    json["DataType"] = dataTypeStr;
     for (int i=0; i<3; i++)
     {
         arO.push_back(Origin[i]);
@@ -107,6 +115,8 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
     json["Origin"] = arO;
     json["Step"] = arS;
     json["Bins"] = arB;
+
+    json["RandomizeBin"] = RandomizeBin;
 
 #ifndef JSON11
     QJsonArray toAr, tsAr, tbAr;
@@ -125,6 +135,19 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 #ifdef JSON11
 void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
 {
+    std::string dataTypeStr;
+    jstools::parseJson(json, "DataType", dataTypeStr);
+    if      (dataTypeStr == "Energy") DataType = Energy;
+    else if (dataTypeStr == "Dose")   DataType = Dose;
+    else
+    {
+        // !!!*** error control
+        // "Unknown string for calorimeter DataType, setting it to 'Energy'";
+        DataType = Energy;
+    }
+
+    jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
     {
         json11::Json::array ar;
         jstools::parseJson(json, "Origin", ar);
@@ -149,6 +172,19 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
 #else
 void ACalorimeterProperties::readFromJson(const QJsonObject & json)
 {
+    QString dataTypeStr;
+    jstools::parseJson(json, "DataType", dataTypeStr);
+    if      (dataTypeStr == "Energy") DataType = Energy;
+    else if (dataTypeStr == "Dose")   DataType = Dose;
+    else
+    {
+        // !!!*** error control
+        qWarning() << "Unknown string for calorimeter DataType, setting it to 'Energy'";
+        DataType = Energy;
+    }
+
+    jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
     {
         QJsonArray ar;
         jstools::parseJson(json, "Origin", ar);
