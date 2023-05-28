@@ -1,6 +1,7 @@
 #include "SensitiveDetector.hh"
 #include "SessionManager.hh"
 #include "ahistogram.h"
+#include "arandomg4hub.h"
 
 #include <sstream>
 #include <iomanip>
@@ -262,6 +263,8 @@ CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & n
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
     Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+
+    VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
 }
 
 CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
@@ -269,10 +272,9 @@ CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
     delete Data;
 }
 
-#include "arandomg4hub.h"
 G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
-    G4double depo = step->GetTotalEnergyDeposit()/keV;
+    const G4double depo = step->GetTotalEnergyDeposit();
     if (depo == 0.0) return false;
 
     const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
@@ -280,7 +282,10 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
 
     G4ThreeVector global;
     if (Properties.RandomizeBin)
-        global = fromGlobal + ARandomHub::getInstance().uniform() * (toGlobal - fromGlobal);
+    {
+        const double rnd = 0.00001 + 0.99999 * ARandomHub::getInstance().uniform();
+        global = fromGlobal + rnd * (toGlobal - fromGlobal);
+    }
     else
         global = 0.5 * (fromGlobal + toGlobal);
 
@@ -288,7 +293,19 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
 
     //std::cout << global << local << "\n";
 
-    Data->fill({local[0], local[1], local[2]}, depo);
+    if (Properties.DataType == ACalorimeterProperties::Dose)
+    {
+        const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
+        if (!material) return false; // paranoic
+        const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
+        if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
+        {
+            const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
+            Data->fill({local[0], local[1], local[2]}, deltaDose);
+        }
+    }
+    else Data->fill({local[0], local[1], local[2]}, depo / keV);
+
     return true;
 }
 

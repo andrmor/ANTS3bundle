@@ -94,6 +94,7 @@ public:
 
     //run-time
     AHistogram3Dfixed * Data = nullptr;
+    double VoxelVolume_mm3 = 0;
 
 };
 
