@@ -2545,12 +2545,12 @@ void AParticleSimWin::updateShowCalorimeterGui()
     ui->cobCaloShowType->setVisible(bEnergy);
 
     bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
+    bool b2D = (ui->cobCaloAxes->currentIndex() > 2 && ui->cobCaloAxes->currentIndex() != 6);
+    bool b3D = (ui->cobCaloAxes->currentIndex() == 6);
     bool bAverage = ui->cbCaloAverage->isChecked();
-    bool bRound = ui->cbCaloRound->isChecked();
 
-    ui->cbCaloAverage->setVisible(!bProjection);
-    ui->cbCaloRound->setVisible(!bProjection && b1D);
-    ui->cbCalorimeterSwapAxes->setVisible(!b1D);
+    ui->cbCaloAverage->setVisible(!bProjection && !b3D);
+    ui->cbCalorimeterSwapAxes->setVisible(b2D);
 
     switch (ui->cobCaloAxes->currentIndex())
     {
@@ -2584,6 +2584,11 @@ void AParticleSimWin::updateShowCalorimeterGui()
         ui->frCaloY->setVisible(false);
         ui->frCaloZ->setVisible(false);
         break;
+    case 6: // XYZ
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+        break;
     }
 
     if (!bProjection && !bAverage)
@@ -2613,26 +2618,6 @@ void AParticleSimWin::updateShowCalorimeterGui()
         ui->sbCaloY1->setVisible(true);
         ui->sbCaloZ1->setVisible(true);
     }
-
-    if (!bProjection && b1D && bRound)
-    {
-        // 1D slice and round - special case!
-        ui->frCaloX->setVisible(true);
-        ui->frCaloY->setVisible(false);
-        ui->frCaloZ->setVisible(false);
-        ui->labCaloX0->setText("iR");
-        if (bAverage)
-        {
-            ui->labCaloX1->setVisible(true);
-            ui->sbCaloX1->setVisible(true);
-            ui->labCaloX0->setVisible(true);
-            ui->labCaloX1->setVisible(true);
-            ui->labCaloX0->setText("iRfrom");
-            ui->labCaloX1->setText("iRto");
-        }
-    }
-
-
 }
 
 void AParticleSimWin::on_pbCaloShow_clicked()
@@ -2648,13 +2633,24 @@ void AParticleSimWin::on_pbCaloShow_clicked()
     const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
 
     bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
+    bool b3D = (ui->cobCaloAxes->currentIndex() == 6);
     bool bAverage = ui->cbCaloAverage->isChecked();
-    bool bRound = ui->cbCaloRound->isChecked();
 
     if (ui->cobCaloShowType->currentIndex() == 0)
     {
         // projection
-        if (b1D)
+        if (b3D)
+        {
+            TH3D * h = (TH3D*)(Data->Clone());
+
+            h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-3D");
+            h->GetXaxis()->SetTitle("x, mm");
+            h->GetYaxis()->SetTitle("y, mm");
+            h->GetZaxis()->SetTitle("z, mm");
+
+            emit requestDraw(h, "box2", true, true);
+        }
+        else if (b1D)
         {
             // 1D
             const int axisIndex = ui->cobCaloAxes->currentIndex();

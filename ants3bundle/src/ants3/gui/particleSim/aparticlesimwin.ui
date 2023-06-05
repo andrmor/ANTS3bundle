@@ -4572,19 +4572,17 @@ If checked, only &quot;creation&quot; is considered!</string>
                      <string>YZ</string>
                     </property>
                    </item>
+                   <item>
+                    <property name="text">
+                     <string>XYZ</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item>
                   <widget class="QCheckBox" name="cbCaloAverage">
                    <property name="text">
                     <string>Average in range</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="cbCaloRound">
-                   <property name="text">
-                    <string>Round area</string>
                    </property>
                   </widget>
                  </item>
