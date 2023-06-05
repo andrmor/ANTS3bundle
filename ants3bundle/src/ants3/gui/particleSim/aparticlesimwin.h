@@ -254,7 +254,6 @@ private slots:
     void on_cobCaloShowType_currentIndexChanged(int index);
     void on_cobCaloAxes_currentIndexChanged(int index);
     void on_cbCaloAverage_clicked();
-    void on_cbCaloRound_clicked();
     void on_pbCaloShow_clicked();
 };
 
