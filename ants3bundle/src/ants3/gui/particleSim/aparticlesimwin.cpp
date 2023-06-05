@@ -2746,6 +2746,25 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->GetYaxis()->SetTitle("Dose, Gy");
 
         emit requestDraw(hist, "hist", true, true);
+        return;
+    }
+
+    if (b2D)
+    {
+
+    }
+
+    if (b3D)
+    {
+        TH3D * h = (TH3D*)(Data->Clone());
+
+        h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-Dose-3D");
+        h->GetXaxis()->SetTitle("x, mm");
+        h->GetYaxis()->SetTitle("y, mm");
+        h->GetZaxis()->SetTitle("z, mm");
+
+        emit requestDraw(h, "box2", true, true);
+        return;
     }
 
 }
