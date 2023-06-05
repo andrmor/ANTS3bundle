@@ -552,8 +552,10 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         {
             if (obj->isScintillator())
             {
-                TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);
-                Scintillators.push_back({obj, node}); // !!!*** can get position/orientation info from node?
+                //TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);  // not compatible with old ROOT versions
+                parent->AddNode(vol, Scintillators.size(), lTrans);
+                TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+                Scintillators.push_back({obj, node});
             }
             else
                 parent->AddNode(vol, forcedNodeNumber, lTrans);

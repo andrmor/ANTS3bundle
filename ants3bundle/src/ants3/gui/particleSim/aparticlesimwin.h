@@ -207,6 +207,7 @@ private:
 
     void updateMonitorGui();
     void updateCalorimeterGui();
+    void updateShowCalorimeterGui();
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
@@ -250,6 +251,11 @@ private slots:
 
     void on_pbAbort_clicked();
     void on_ledEventsPerThread_editingFinished();
+    void on_cobCaloShowType_currentIndexChanged(int index);
+    void on_cobCaloAxes_currentIndexChanged(int index);
+    void on_cbCaloAverage_clicked();
+    void on_cbCaloRound_clicked();
+    void on_pbCaloShow_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

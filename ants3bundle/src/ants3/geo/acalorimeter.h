@@ -23,16 +23,15 @@ public:
 
     void clearData();
 
-    void writeDataToJson(QJsonObject & json, int index) const; // !!!*** TODO
+    void writeDataToJson(QJsonObject & json, int index) const;
 
     bool appendDataFromJson(const QJsonObject & json);  // It is possible that Deposition hist is nullptr!
 
-    int getTotalEnergy() const;
+    double getTotalEnergy() const;
 
-    //QString Name = "Undefined";
     ACalorimeterProperties Properties;
 
-    ATH3D * Deposition = nullptr;
+    ATH3D * DataHistogram = nullptr;
     std::array<double,11> Stats;
     double Entries = 0;
 

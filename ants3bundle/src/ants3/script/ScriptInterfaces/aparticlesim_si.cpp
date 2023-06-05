@@ -63,7 +63,7 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString m
         return res;
     }
 
-    ATH3D * data = cal->Deposition;
+    ATH3D * data = cal->DataHistogram;
     if (!data)
     {
         abort("Calorimeter has no data!");

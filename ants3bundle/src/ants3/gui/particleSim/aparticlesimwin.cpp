@@ -18,6 +18,7 @@
 #include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
+#include "ath.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -2289,7 +2290,7 @@ void AParticleSimWin::updateCalorimeterGui()
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
             const double total = Cal->getTotalEnergy() * getCalorimeterEnergyFactor();
             ui->leCalorimetersTotal->setText( QString::number(total) );
-            ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
+            ui->pbCalorimetersShowDistribution->setEnabled(Cal->DataHistogram);
             ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
         }
         else
@@ -2370,90 +2371,7 @@ void AParticleSimWin::on_sbCalorimeterIndex_editingFinished()
     updateCalorimeterGui();
 }
 
-#include "ath.h"
-void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
-{
-    const int iCal = ui->cobCalorimeter->currentIndex();
 
-    int numCal = CalHub.countCalorimeters();
-    if (iCal < 0 || iCal >= numCal) return;
-
-    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->Deposition;
-    if (!Data) return;
-
-    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
-
-    const int numDim = p.getNumDimensions();
-    const double energyFactor = getCalorimeterEnergyFactor();
-    TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
-    eu += " per bin";
-
-    switch (numDim)
-    {
-    case 0:
-        return;
-    case 1:
-        {
-            int iDim = 0;
-            for (; iDim < 3; iDim++)
-                if (p.Bins[iDim] != 1) break;
-
-            TString opt;
-            switch (iDim)
-            {
-            case 0: opt = "x"; break;
-            case 1: opt = "y"; break;
-            case 2: opt = "z"; break;
-            default:;
-            }
-
-            TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle( TString(opt + ", mm") );
-            h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
-
-            emit requestDraw(h, "hist", true, true);
-        }
-        break;
-    case 2:
-        {
-            TString opt;
-            if (p.Bins[2] != 1) opt += "z";
-            if (p.Bins[1] != 1) opt += "y";
-            if (p.Bins[0] != 1) opt += "x";
-            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
-
-            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
-            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-            h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
-
-            emit requestDraw(h, "colz", true, true);
-        }
-        break;
-    case 3:
-        {
-            TH3D * h = (TH3D*)(Data->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle("x, mm");
-            h->GetYaxis()->SetTitle("y, mm");
-            h->GetZaxis()->SetTitle("z, mm");
-
-            emit requestDraw(h, "box2", true, true);
-        }
-        break;
-    default:
-        guitools::message("Unexpected number of dimensions!", this);
-        return;
-    }
-}
 
 void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
 {
@@ -2587,5 +2505,301 @@ void AParticleSimWin::on_ledEventsPerThread_editingFinished()
     {
         ui->ledEventsPerThread->setText("1");
         guitools::message("Number of events per chunk should be at least one", this);
+    }
+}
+
+void AParticleSimWin::on_cobCaloShowType_currentIndexChanged(int)
+{
+    updateShowCalorimeterGui();
+}
+void AParticleSimWin::on_cobCaloAxes_currentIndexChanged(int)
+{
+    updateShowCalorimeterGui();
+}
+void AParticleSimWin::on_cbCaloAverage_clicked()
+{
+    updateShowCalorimeterGui();
+}
+void AParticleSimWin::on_cbCaloRound_clicked()
+{
+    updateShowCalorimeterGui();
+}
+
+void AParticleSimWin::updateShowCalorimeterGui()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+    int numCal = CalHub.countCalorimeters(); if (iCal < 0 || iCal >= numCal) return;
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+    bool bEnergy = (p.DataType == ACalorimeterProperties::Energy);
+    QString buttonText = (bEnergy ? "Show deposited energy" : "Show dose");
+    ui->pbCaloShow->setText(buttonText);
+
+    bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
+
+    if (!bEnergy && bProjection)
+    {
+        ui->cobCaloShowType->setCurrentIndex(1);
+        return; // comes back on update
+    }
+
+    ui->cobCaloShowType->setVisible(bEnergy);
+
+    bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
+    bool bAverage = ui->cbCaloAverage->isChecked();
+    bool bRound = ui->cbCaloRound->isChecked();
+
+    ui->cbCaloAverage->setVisible(!bProjection);
+    ui->cbCaloRound->setVisible(!bProjection && b1D);
+    ui->cbCalorimeterSwapAxes->setVisible(!b1D);
+
+    switch (ui->cobCaloAxes->currentIndex())
+    {
+    case 0: // X
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 1: // Y
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 2: // Z
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(false);
+        break;
+    case 3: // XY
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 4: // XZ
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(false);
+        break;
+    case 5: // YZ
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+        break;
+    }
+
+    if (!bProjection && !bAverage)
+    {
+        ui->labCaloX0->setText("iX");
+        ui->labCaloY0->setText("iY");
+        ui->labCaloZ0->setText("iZ");
+        ui->labCaloX1->setVisible(false);
+        ui->labCaloY1->setVisible(false);
+        ui->labCaloZ1->setVisible(false);
+        ui->sbCaloX1->setVisible(false);
+        ui->sbCaloY1->setVisible(false);
+        ui->sbCaloZ1->setVisible(false);
+    }
+    else
+    {
+        ui->labCaloX0->setText("iXfrom");
+        ui->labCaloY0->setText("iYfrom");
+        ui->labCaloZ0->setText("iZfrom");
+        ui->labCaloX1->setText("iXto");
+        ui->labCaloY1->setText("iYto");
+        ui->labCaloZ1->setText("iZto");
+        ui->labCaloX1->setVisible(true);
+        ui->labCaloY1->setVisible(true);
+        ui->labCaloZ1->setVisible(true);
+        ui->sbCaloX1->setVisible(true);
+        ui->sbCaloY1->setVisible(true);
+        ui->sbCaloZ1->setVisible(true);
+    }
+
+    if (!bProjection && b1D && bRound)
+    {
+        // 1D slice and round - special case!
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+        ui->labCaloX0->setText("iR");
+        if (bAverage)
+        {
+            ui->labCaloX1->setVisible(true);
+            ui->sbCaloX1->setVisible(true);
+            ui->labCaloX0->setVisible(true);
+            ui->labCaloX1->setVisible(true);
+            ui->labCaloX0->setText("iRfrom");
+            ui->labCaloX1->setText("iRto");
+        }
+    }
+
+
+}
+
+void AParticleSimWin::on_pbCaloShow_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->DataHistogram;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
+    bool bAverage = ui->cbCaloAverage->isChecked();
+    bool bRound = ui->cbCaloRound->isChecked();
+
+    if (ui->cobCaloShowType->currentIndex() == 0)
+    {
+        // projection
+        if (b1D)
+        {
+            // 1D
+            const int axisIndex = ui->cobCaloAxes->currentIndex();
+            if (axisIndex < 0 || axisIndex > 2) exit(321); // paranoic
+
+            TH1D * hist = new TH1D("", "", p.Bins[axisIndex], p.Origin[axisIndex], p.Origin[axisIndex]+p.Step[axisIndex]*p.Bins[axisIndex]);
+
+            TString axisTitle;
+            switch (axisIndex)
+            {
+            case 0:
+                {
+                axisTitle = "x";
+                int fromYIndex = ui->sbCaloY0->value(); int toYIndex = ui->sbCaloY1->value();
+                int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = ui->sbCaloZ1->value();
+                for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                    for (int iY = fromYIndex; iY < toYIndex; iY++)
+                        for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                            hist->AddBinContent(iBin+1, Data->GetBinContent(iBin+1, iY+1, iZ+1));
+                break;
+                }
+            case 1:
+                {
+                axisTitle = "y";
+                int fromXIndex = ui->sbCaloX0->value(); int toXIndex = ui->sbCaloX1->value();
+                int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = ui->sbCaloZ1->value();
+                for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                    for (int iX = fromXIndex; iX < toXIndex; iX++)
+                        for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                            hist->AddBinContent(iBin+1, Data->GetBinContent(iX+1, iBin+1, iZ+1));
+                break;
+                }
+            case 2:
+                {
+                axisTitle = "z";
+                int fromXIndex = ui->sbCaloX0->value(); int toXIndex = ui->sbCaloX1->value();
+                int fromYIndex = ui->sbCaloY0->value(); int toYIndex = ui->sbCaloY1->value();
+                for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                    for (int iX = fromXIndex; iX < toXIndex; iX++)
+                        for (int iY = fromYIndex; iY < toYIndex; iY++)
+                            hist->AddBinContent(iBin+1, Data->GetBinContent(iX+1, iY+1, iBin+1));
+                break;
+                }
+            }
+
+            hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + axisTitle);
+            hist->GetXaxis()->SetTitle(axisTitle + ", mm");
+            hist->GetYaxis()->SetTitle("Deposited energy, MeV");
+
+            emit requestDraw(hist, "hist", true, true);
+        }
+        else
+        {
+            // 2D
+        }
+    }
+    else
+    {
+        // slices
+    }
+
+}
+
+void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->DataHistogram;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    qDebug() << "------------" << (p.DataType == ACalorimeterProperties::Energy);
+
+    const int numDim = p.getNumDimensions();
+    const double energyFactor = getCalorimeterEnergyFactor();
+    TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
+    eu += " per bin";
+
+    switch (numDim)
+    {
+    case 0:
+        return;
+    case 1:
+    {
+        int iDim = 0;
+        for (; iDim < 3; iDim++)
+            if (p.Bins[iDim] != 1) break;
+
+        TString opt;
+        switch (iDim)
+        {
+        case 0: opt = "x"; break;
+        case 1: opt = "y"; break;
+        case 2: opt = "z"; break;
+        default:;
+        }
+
+        TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
+        h->Scale(energyFactor);
+
+        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+        h->GetXaxis()->SetTitle( TString(opt + ", mm") );
+        h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
+
+        emit requestDraw(h, "hist", true, true);
+    }
+    break;
+    case 2:
+    {
+        TString opt;
+        if (p.Bins[2] != 1) opt += "z";
+        if (p.Bins[1] != 1) opt += "y";
+        if (p.Bins[0] != 1) opt += "x";
+        if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+
+        TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+        h->Scale(energyFactor);
+
+        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+        h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+        h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+        h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
+
+        emit requestDraw(h, "colz", true, true);
+    }
+    break;
+    case 3:
+    {
+        TH3D * h = (TH3D*)(Data->Clone());
+        h->Scale(energyFactor);
+
+        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
+        h->GetXaxis()->SetTitle("x, mm");
+        h->GetYaxis()->SetTitle("y, mm");
+        h->GetZaxis()->SetTitle("z, mm");
+
+        emit requestDraw(h, "box2", true, true);
+    }
+    break;
+    default:
+        guitools::message("Unexpected number of dimensions!", this);
+        return;
     }
 }

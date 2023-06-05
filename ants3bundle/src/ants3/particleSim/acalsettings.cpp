@@ -12,9 +12,9 @@
 
 bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) const
 {
-    DataType == other.DataType;
+    if (DataType != other.DataType) return false;
 
-    RandomizeBin == other.RandomizeBin;
+    if (RandomizeBin != other.RandomizeBin) return false;
 
     for (int i = 0; i < 3; i++)
     {
@@ -28,6 +28,7 @@ bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) c
         if (strBins[i]   != other.strBins[i])   return false;
 #endif
     }
+
     return true;
 }
 
