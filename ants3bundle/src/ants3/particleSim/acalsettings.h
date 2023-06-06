@@ -41,9 +41,9 @@ public:
     EDataType DataType = Energy;
     bool RandomizeBin = false;
 
-    std::array<double, 3> Origin = {-5, -1e10, -1e10};
-    std::array<double, 3> Step   = { 1,  2e10,  2e10};
-    std::array<int,    3> Bins   = {10,  1,     1};
+    std::array<double, 3> Origin = {-5, -5, -5};
+    std::array<double, 3> Step   = { 1,  1,  1};
+    std::array<int,    3> Bins   = {10, 10,  10};
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
