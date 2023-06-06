@@ -2640,6 +2640,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
     bool b2D = (axisIndex > 2 && axisIndex < 6);
     bool b3D = (axisIndex == 6);
     bool bAverage = ui->cbCaloAverage->isChecked();
+    bool bSwapAxes = ui->cbCalorimeterSwapAxes->isChecked();
 
     if (bProjection)
     {
@@ -2661,7 +2662,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         {
             TString opt(ui->cobCaloAxes->currentText().toLatin1().data());
             opt.ToLower();
-            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+            if (bSwapAxes) std::swap(opt[0], opt[1]);
 
             TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
             if (!h) return;
@@ -2756,48 +2757,88 @@ void AParticleSimWin::on_pbCaloShow_clicked()
             {
             verAxisTitle = "x";
             horAxisTitle = "y";
-            hist = new TH2D("", "",
-                            p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
-                            p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0],
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            }
             int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
             if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
             double factor = 1.0 + toZIndex - fromZIndex;
             for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
                 for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
                     for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
-                        hist->AddBinContent(hist->GetBin(iBinY+1, iBinX+1), Data->GetBinContent(iBinX+1, iBinY+1, iZ+1)/factor);
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinX+1,iBinY+1) : hist->GetBin(iBinY+1, iBinX+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iBinX+1, iBinY+1, iZ+1)/factor);
+                    }
             break;
             }
         case 4: // xz
             {
             verAxisTitle = "x";
             horAxisTitle = "z";
-            hist = new TH2D("", "",
-                            p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
-                            p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0],
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            }
+
             int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
             if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
             double factor = 1.0 + toYIndex - fromYIndex;
             for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
                 for (int iY = fromYIndex; iY < toYIndex; iY++)
                     for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
-                        hist->AddBinContent(hist->GetBin(iBinZ+1, iBinX+1), Data->GetBinContent(iBinX+1, iY+1, iBinZ+1)/factor);
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinX+1, iBinZ+1) : hist->GetBin(iBinZ+1, iBinX+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iBinX+1, iY+1, iBinZ+1)/factor);
+                    }
             break;
             }
         case 5: // yz
             {
             verAxisTitle = "y";
             horAxisTitle = "z";
-            hist = new TH2D("", "",
-                            p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
-                            p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+            }
             int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
             if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
             double factor = 1.0 + toXIndex - fromXIndex;
             for (int iX = fromXIndex; iX < toXIndex; iX++)
                 for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
                     for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
-                        hist->AddBinContent(hist->GetBin(iBinZ+1, iBinY+1), Data->GetBinContent(iX+1, iBinY+1, iBinZ+1)/factor);
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinY+1, iBinZ+1) : hist->GetBin(iBinZ+1, iBinY+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iX+1, iBinY+1, iBinZ+1)/factor);
+                    }
             break;
             }
         }
