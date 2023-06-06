@@ -19,14 +19,16 @@ public:
 public slots:
     void simulate(bool updateGui);
 
+    // !!!*** load calocrimeter data
     int countCalorimeters();
-    QVariantList getCalorimeterData(int calorimeterIndex, QString mode);
+    QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
     QVariantList getCalorimeterProperties(int calorimeterIndex);
     void clearCalorimeterData();
 
+    // !!!*** monitor data
     int countMonitors();
     QVariantList getMonitorHitsAll();
-    // !!!*** get unit-aware monitor energy data
+    QVariantList getMonitorEnergy(int monitorIndex, QString units);
 
 private:
     AParticleSimManager & SimMan;

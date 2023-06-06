@@ -161,6 +161,58 @@ QVariantList AParticleSim_SI::getMonitorHitsAll()
     return vl;
 }
 
+QVariantList AParticleSim_SI::getMonitorEnergy(int monitorIndex, QString units)
+{
+    QVariantList vl;
+
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    int numMon = MonHub.countMonitors(AMonitorHub::Particle);
+    if (monitorIndex < 0 || monitorIndex >= numMon)
+    {
+        abort("bad monitor index");
+        return vl;
+    }
+
+    AMonitor * mon = MonHub.ParticleMonitors[monitorIndex].Monitor;
+    if (!mon || !mon->energy)
+    {
+        abort("Monitor data are not initialized!");
+        return vl;
+    }
+
+    QString monEnergyUnits = mon->config.energyUnits;
+    double factor = 1.0;
+    if      (monEnergyUnits == "meV") factor = 1e-6; // meV -> keV
+    else if (monEnergyUnits == "eV")  factor = 1e-3; // eV -> keV
+    else if (monEnergyUnits == "keV") factor = 1.0;
+    else if (monEnergyUnits == "MeV") factor = 1000.0; // MeV -> keV
+    else
+    {
+        abort("Unrecognoized energy units of the monitor: " + monEnergyUnits);
+        return vl;
+    }
+
+    if      (units == "meV") factor *= 1e6;
+    else if (units == "eV")  factor *= 1e3;
+    else if (units == "keV") ;
+    else if (units == "MeV") factor *= 1e-3;
+    else
+    {
+        abort("Unrecognized energy units: " + units);
+        return vl;
+    }
+
+    TH1D * data = mon->energy;
+    const int numX = data->GetXaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+    {
+        double thisEn = data->GetXaxis()->GetBinCenter(ix+1) * factor;
+        vl.push_back( QVariantList{thisEn, data->GetBinContent(ix+1)} );
+    }
+
+    return vl;
+}
+
 /*
 QVariantList AParticleSim_SI::getMonitorStats1D(int index, ASim_SI::dataType type) const
 {
