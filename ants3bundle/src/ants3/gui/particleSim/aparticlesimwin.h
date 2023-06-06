@@ -225,6 +225,7 @@ private:
 
     void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
+    void updateCaloRange();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -252,6 +253,7 @@ private slots:
     void on_cobCaloAxes_currentIndexChanged(int index);
     void on_cbCaloAverage_clicked();
     void on_pbCaloShow_clicked();
+    void on_pbUpdateCaloRange_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

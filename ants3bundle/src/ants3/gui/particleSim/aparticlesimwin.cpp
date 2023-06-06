@@ -54,6 +54,7 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
     ui->pbUpdateIcon->setVisible(false);
+    ui->pbUpdateCaloRange->setVisible(false);
 
     QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
@@ -2599,9 +2600,9 @@ void AParticleSimWin::updateShowCalorimeterGui()
         ui->sbCaloZ1->setVisible(true);
     }
 
-    int maxX = p.Bins[0] - 1; ui->sbCaloX1->setMaximum(maxX);
-    int maxY = p.Bins[1] - 1; ui->sbCaloY1->setMaximum(maxX);
-    int maxZ = p.Bins[2] - 1; ui->sbCaloZ1->setMaximum(maxX);
+    int maxX = p.Bins[0] - 1; ui->sbCaloX0->setMaximum(maxX); ui->sbCaloX1->setMaximum(maxX);
+    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxX); ui->sbCaloY1->setMaximum(maxX);
+    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxX); ui->sbCaloZ1->setMaximum(maxX);
 
     if (ui->sbCaloX0->value() == 0 && ui->sbCaloX1->value() == 0)
     {
@@ -2618,6 +2619,8 @@ void AParticleSimWin::updateShowCalorimeterGui()
         ui->sbCaloZ0->setValue(maxZ/2);
         ui->sbCaloZ1->setValue(maxZ/2);
     }
+
+    updateCaloRange();
 }
 
 void AParticleSimWin::on_pbCaloShow_clicked()
@@ -2861,4 +2864,47 @@ void AParticleSimWin::on_pbCaloShow_clicked()
 
         emit requestDraw(h, "box2", true, true);
     }
+}
+
+void AParticleSimWin::on_pbUpdateCaloRange_clicked()
+{
+    updateCaloRange();
+}
+
+void AParticleSimWin::updateCaloRange()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal)
+    {
+        ui->labCaloRangeX->clear();
+        ui->labCaloRangeY->clear();
+        ui->labCaloRangeZ->clear();
+        return;
+    }
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
+    if (bProjection) return;
+
+    bool bAverage = ui->cbCaloAverage->isChecked();
+
+    int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+    if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+    int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+    if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+    int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+    if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+
+    double rx0 = p.Origin[0] + p.Step[0] * fromXIndex;
+    double rx1 = p.Origin[0] + p.Step[0] * toXIndex;
+    ui->labCaloRangeX->setText(QString("  (from %0 to %1 mm)").arg(rx0, 5).arg(rx1, 5));
+    double ry0 = p.Origin[1] + p.Step[1] * fromYIndex;
+    double ry1 = p.Origin[1] + p.Step[1] * toYIndex;
+    ui->labCaloRangeY->setText(QString("  (from %0 to %1 mm)").arg(ry0, 5).arg(ry1, 5));
+    double rz0 = p.Origin[2] + p.Step[2] * fromZIndex;
+    double rz1 = p.Origin[2] + p.Step[2] * toZIndex;
+    ui->labCaloRangeZ->setText(QString("  (from %0 to %1 mm)").arg(rz0, 5).arg(rz1, 5));
 }

@@ -4790,6 +4790,13 @@ If checked, only &quot;creation&quot; is considered!</string>
                   </layout>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="pbUpdateCaloRange">
+                   <property name="text">
+                    <string>...updateRange</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <spacer name="horizontalSpacer_67">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -5511,6 +5518,102 @@ If checked, only &quot;creation&quot; is considered!</string>
     <hint type="destinationlabel">
      <x>100</x>
      <y>142</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloX0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>459</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloX1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>466</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloY0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>461</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>430</x>
+     <y>463</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloY1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>259</x>
+     <y>471</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>465</x>
+     <y>468</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloZ0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>494</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>460</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloZ1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>250</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>506</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
