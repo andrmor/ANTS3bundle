@@ -2266,7 +2266,7 @@ void AParticleSimWin::updateCalorimeterGui()
     const int numWithData = CalHub.countCalorimetersWithData();
     ui->labNumCalWithData->setText(QString::number(numWithData));
 
-    ui->frCalorimeter->setVisible(numCal != 0);
+    ui->frCaloShow->setVisible(numCal != 0);
 
     if (numCal > 0)
     {
@@ -2288,32 +2288,15 @@ void AParticleSimWin::updateCalorimeterGui()
         if (Cal)
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            const double total = Cal->getTotalEnergy() * getCalorimeterEnergyFactor();
-            ui->leCalorimetersTotal->setText( QString::number(total) );
-            ui->pbCalorimetersShowDistribution->setEnabled(Cal->DataHistogram);
-            ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
+            ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+            updateShowCalorimeterGui();
         }
         else
         {
             ui->leCalorimetersEntries->setText("--");
-            ui->leCalorimetersTotal->setText("--");
-            ui->pbCalorimetersShowDistribution->setEnabled(false);
+            ui->pbCaloShow->setEnabled(false);
         }
     }
-}
-
-double AParticleSimWin::getCalorimeterEnergyFactor()
-{
-    const QString txt = ui->cobCalorimeterEnergyUnits->currentText();
-
-    double factor = 1.0;
-    if      (txt == "meV") factor = 1e6;
-    else if (txt == "eV")  factor = 1e3;
-    else if (txt == "keV")  factor = 1.0;
-    else if (txt == "MeV")  factor = 1e-3;
-    else qWarning() << "Unknown unit of energy for calorimeters!";
-
-    return factor;
 }
 
 void AParticleSimWin::addStatistics(const AParticleRecord & p)
@@ -2326,11 +2309,6 @@ void AParticleSimWin::addStatistics(const AParticleRecord & p)
         histAngle->Fill(particleDir.angle(SourceStatDirection)*180.0/3.1415926535, 1);
     }
     SeenParticles[p.particle]++;
-}
-
-void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
-{
-    updateCalorimeterGui();
 }
 
 void AParticleSimWin::on_pbNextCalorimeter_clicked()
@@ -2884,99 +2862,3 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         emit requestDraw(h, "box2", true, true);
     }
 }
-
-void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
-{
-    const int iCal = ui->cobCalorimeter->currentIndex();
-
-    int numCal = CalHub.countCalorimeters();
-    if (iCal < 0 || iCal >= numCal) return;
-
-    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->DataHistogram;
-    if (!Data) return;
-
-    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
-
-    qDebug() << "------------" << (p.DataType == ACalorimeterProperties::Energy);
-
-    const int numDim = p.getNumDimensions();
-    const double energyFactor = getCalorimeterEnergyFactor();
-    TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
-    eu += " per bin";
-
-    switch (numDim)
-    {
-    case 0:
-        return;
-    case 1:
-    {
-        int iDim = 0;
-        for (; iDim < 3; iDim++)
-            if (p.Bins[iDim] != 1) break;
-
-        TString opt;
-        switch (iDim)
-        {
-        case 0: opt = "x"; break;
-        case 1: opt = "y"; break;
-        case 2: opt = "z"; break;
-        default:;
-        }
-
-        TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
-        h->Scale(energyFactor);
-
-        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-        h->GetXaxis()->SetTitle( TString(opt + ", mm") );
-        h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
-
-        emit requestDraw(h, "hist", true, true);
-    }
-    break;
-    case 2:
-    {
-        TString opt;
-        if (p.Bins[2] != 1) opt += "z";
-        if (p.Bins[1] != 1) opt += "y";
-        if (p.Bins[0] != 1) opt += "x";
-        if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
-
-        TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
-        h->Scale(energyFactor);
-
-        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-        h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
-        h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-        h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
-
-        emit requestDraw(h, "colz", true, true);
-    }
-    break;
-    case 3:
-    {
-        TH3D * h = (TH3D*)(Data->Clone());
-        h->Scale(energyFactor);
-
-        h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-        h->GetXaxis()->SetTitle("x, mm");
-        h->GetYaxis()->SetTitle("y, mm");
-        h->GetZaxis()->SetTitle("z, mm");
-
-        emit requestDraw(h, "box2", true, true);
-    }
-    break;
-    default:
-        guitools::message("Unexpected number of dimensions!", this);
-        return;
-    }
-}
-
-/*
-
-
-        else
-        {
-            // 2D
-        }
-
-*/

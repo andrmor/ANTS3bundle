@@ -37,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -4310,6 +4310,56 @@ If checked, only &quot;creation&quot; is considered!</string>
              </widget>
             </item>
             <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_56">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_70">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_48">
+                <property name="text">
+                 <string>Entries:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leCalorimetersEntries">
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_71">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
              <spacer name="verticalSpacer_7">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -4324,98 +4374,6 @@ If checked, only &quot;creation&quot; is considered!</string>
                </size>
               </property>
              </spacer>
-            </item>
-            <item alignment="Qt::AlignHCenter">
-             <widget class="QFrame" name="frCalorimeter">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_33">
-               <item>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_44">
-                   <property name="text">
-                    <string>Total energy:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersTotal">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_48">
-                   <property name="text">
-                    <string>Entries:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersEntries">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QComboBox" name="cobCalorimeterEnergyUnits">
-                   <item>
-                    <property name="text">
-                     <string>MeV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>keV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>eV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>meV</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pbCalorimetersShowDistribution">
-                 <property name="font">
-                  <font>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Show distribution vs energy</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
             </item>
             <item>
              <widget class="QFrame" name="frCaloShow">
@@ -4455,7 +4413,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                    <property name="minimumSize">
                     <size>
                      <width>200</width>
-                     <height>0</height>
+                     <height>31</height>
                     </size>
                    </property>
                    <property name="font">
@@ -4923,12 +4881,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>200</y>
+     <x>109</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>208</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -4939,12 +4897,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>175</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -4955,12 +4913,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>48</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -4971,12 +4929,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>189</y>
+     <x>72</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -4987,12 +4945,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>48</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5003,12 +4961,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>95</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5019,12 +4977,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>175</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5035,12 +4993,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>95</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5051,12 +5009,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>77</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5067,12 +5025,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>48</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5083,12 +5041,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>192</y>
+     <x>66</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5099,12 +5057,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>192</y>
+     <x>146</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5115,12 +5073,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>77</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>87</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -5131,12 +5089,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>187</y>
+     <x>64</x>
+     <y>140</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>186</y>
+     <x>108</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -5147,12 +5105,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>214</y>
+     <x>67</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>111</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -5163,12 +5121,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>215</y>
+     <x>67</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>215</y>
+     <x>111</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -5179,12 +5137,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>216</y>
+     <x>67</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>111</x>
+     <y>169</y>
     </hint>
    </hints>
   </connection>
@@ -5195,12 +5153,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>214</y>
+     <x>46</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>214</y>
+     <x>65</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -5211,12 +5169,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>216</y>
+     <x>46</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>216</y>
+     <x>65</x>
+     <y>169</y>
     </hint>
    </hints>
   </connection>
@@ -5227,12 +5185,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>218</y>
+     <x>46</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>218</y>
+     <x>65</x>
+     <y>171</y>
     </hint>
    </hints>
   </connection>
@@ -5243,12 +5201,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>214</y>
+     <x>92</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>111</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -5259,12 +5217,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>92</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>111</x>
+     <y>169</y>
     </hint>
    </hints>
   </connection>
@@ -5275,12 +5233,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>218</y>
+     <x>92</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>218</y>
+     <x>111</x>
+     <y>171</y>
     </hint>
    </hints>
   </connection>
@@ -5291,12 +5249,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>40</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>232</y>
+     <x>99</x>
+     <y>185</y>
     </hint>
    </hints>
   </connection>
@@ -5307,12 +5265,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>40</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
-     <x>72</x>
-     <y>232</y>
+     <x>70</x>
+     <y>185</y>
     </hint>
    </hints>
   </connection>
@@ -5323,12 +5281,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>202</y>
+     <x>69</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>202</y>
+     <x>114</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
@@ -5339,12 +5297,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>80</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5355,12 +5313,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>109</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5371,12 +5329,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>80</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5387,12 +5345,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>109</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5403,12 +5361,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>51</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>83</x>
-     <y>211</y>
+     <x>81</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5419,12 +5377,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>44</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>212</y>
+     <x>66</x>
+     <y>165</y>
     </hint>
    </hints>
   </connection>
@@ -5435,12 +5393,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>88</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>212</y>
+     <x>110</x>
+     <y>165</y>
     </hint>
    </hints>
   </connection>
@@ -5451,12 +5409,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>110</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5467,12 +5425,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>50</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>110</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5483,12 +5441,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>51</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>110</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5499,12 +5457,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>44</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>110</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5515,12 +5473,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>88</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>110</x>
+     <y>164</y>
     </hint>
    </hints>
   </connection>
@@ -5531,12 +5489,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>77</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>189</y>
+     <x>85</x>
+     <y>142</y>
     </hint>
    </hints>
   </connection>
@@ -5547,12 +5505,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>77</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>102</x>
-     <y>189</y>
+     <x>100</x>
+     <y>142</y>
     </hint>
    </hints>
   </connection>

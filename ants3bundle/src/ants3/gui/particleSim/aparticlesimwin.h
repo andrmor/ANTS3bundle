@@ -217,7 +217,6 @@ private:
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
     int  findEventWithFilters(int currentEv, bool bUp);
-    double getCalorimeterEnergyFactor();
 
     void addStatistics(const AParticleRecord & p);
     void configureAngleStat(AParticleGun * gun);
@@ -234,11 +233,9 @@ private slots:
     void on_pbUpdateIcon_clicked();
     void on_pbChooseCalorimetersFile_clicked();
     void on_pbLoadCalorimetersData_clicked();
-    void on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &arg1);
     void on_pbNextCalorimeter_clicked();
     void on_cobCalorimeter_activated(int index);
     void on_sbCalorimeterIndex_editingFinished();
-    void on_pbCalorimetersShowDistribution_clicked();
     void on_pbShowCalorimeterSettings_clicked();
     void on_pbShowMonitorProperties_clicked();
     void on_leWorkingDirectory_editingFinished();
