@@ -2635,9 +2635,10 @@ void AParticleSimWin::on_pbCaloShow_clicked()
     const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
 
     bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
-    bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
-    bool b3D = (ui->cobCaloAxes->currentIndex() == 6);
-    bool b2D = (!b1D && !b2D);
+    int  axisIndex = ui->cobCaloAxes->currentIndex();
+    bool b1D = (axisIndex >= 0 && axisIndex < 3);
+    bool b2D = (axisIndex > 2 && axisIndex < 6);
+    bool b3D = (axisIndex == 6);
     bool bAverage = ui->cbCaloAverage->isChecked();
 
     if (bProjection)
@@ -2655,9 +2656,24 @@ void AParticleSimWin::on_pbCaloShow_clicked()
             h->GetYaxis()->SetTitle("Deposited energy, MeV");
 
             emit requestDraw(h, "hist", true, true);
-            return;
         }
-        if (b3D)
+        else if (b2D)
+        {
+            TString opt(ui->cobCaloAxes->currentText().toLatin1().data());
+            opt.ToLower();
+            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
+
+            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+            if (!h) return;
+
+            h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
+            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+            h->GetZaxis()->SetTitle("Deposited energy, MeV");
+
+            emit requestDraw(h, "colz", true, true);
+        }
+        else if (b3D)
         {
             TH3D * h = (TH3D*)(Data->Clone());
 
@@ -2667,31 +2683,13 @@ void AParticleSimWin::on_pbCaloShow_clicked()
             h->GetZaxis()->SetTitle("z, mm");
 
             emit requestDraw(h, "box2", true, true);
-            return;
         }
-        // 2D
-        TString opt(ui->cobCaloAxes->currentText().toLatin1().data());
-        opt.ToLower();
-        if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
-
-        TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
-        if (!h) return;
-
-        h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
-        h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
-        h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-        h->GetZaxis()->SetTitle("Deposited energy, MeV");
-
-        emit requestDraw(h, "colz", true, true);
         return;
     }
 
     // slices
     if (b1D)
     {
-        const int axisIndex = ui->cobCaloAxes->currentIndex();
-        if (axisIndex < 0 || axisIndex > 2) exit(321); // paranoic
-
         TH1D * hist = new TH1D("", "", p.Bins[axisIndex], p.Origin[axisIndex], p.Origin[axisIndex]+p.Step[axisIndex]*p.Bins[axisIndex]);
 
         TString axisTitle;
@@ -2746,15 +2744,74 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->GetYaxis()->SetTitle("Dose, Gy");
 
         emit requestDraw(hist, "hist", true, true);
-        return;
     }
-
-    if (b2D)
+    else if (b2D)
     {
+        TH2D * hist = nullptr;
+        TString verAxisTitle, horAxisTitle;
 
+        switch (axisIndex)
+        {
+        case 3: // xy
+            {
+            verAxisTitle = "x";
+            horAxisTitle = "y";
+            hist = new TH2D("", "",
+                            p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
+                            p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+            if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+            double factor = 1.0 + toZIndex - fromZIndex;
+            for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
+                for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
+                    for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                        hist->AddBinContent(hist->GetBin(iBinY+1, iBinX+1), Data->GetBinContent(iBinX+1, iBinY+1, iZ+1)/factor);
+            break;
+            }
+        case 4: // xz
+            {
+            verAxisTitle = "x";
+            horAxisTitle = "z";
+            hist = new TH2D("", "",
+                            p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                            p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+            if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+            double factor = 1.0 + toYIndex - fromYIndex;
+            for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
+                for (int iY = fromYIndex; iY < toYIndex; iY++)
+                    for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
+                        hist->AddBinContent(hist->GetBin(iBinZ+1, iBinX+1), Data->GetBinContent(iBinX+1, iY+1, iBinZ+1)/factor);
+            break;
+            }
+        case 5: // yz
+            {
+            verAxisTitle = "y";
+            horAxisTitle = "z";
+            hist = new TH2D("", "",
+                            p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                            p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+            int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+            if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+            double factor = 1.0 + toXIndex - fromXIndex;
+            for (int iX = fromXIndex; iX < toXIndex; iX++)
+                for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
+                    for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
+                        hist->AddBinContent(hist->GetBin(iBinZ+1, iBinY+1), Data->GetBinContent(iX+1, iBinY+1, iBinZ+1)/factor);
+            break;
+            }
+        }
+
+        if (!hist) return;
+        hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + verAxisTitle + horAxisTitle);
+        hist->GetXaxis()->SetTitle(horAxisTitle + ", mm");
+        hist->GetYaxis()->SetTitle(verAxisTitle + ", mm");
+        hist->GetZaxis()->SetTitle("Dose, Gy");
+        hist->SetEntries(Data->GetEntries());
+
+        emit requestDraw(hist, "colz", true, true);
     }
-
-    if (b3D)
+    else if (b3D)
     {
         TH3D * h = (TH3D*)(Data->Clone());
 
@@ -2764,9 +2821,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         h->GetZaxis()->SetTitle("z, mm");
 
         emit requestDraw(h, "box2", true, true);
-        return;
     }
-
 }
 
 void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
