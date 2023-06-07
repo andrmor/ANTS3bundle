@@ -186,6 +186,8 @@ private:
 
     bool IgnoreWorldSizeWarning = false;
 
+    bool   bFindEventAbortRequested = false;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -254,6 +256,8 @@ private slots:
     void on_cbCaloAverage_clicked();
     void on_pbCaloShow_clicked();
     void on_pbUpdateCaloRange_clicked();
+
+    void abortFind();
 };
 
 #endif // APARTICLESIMWIN_H

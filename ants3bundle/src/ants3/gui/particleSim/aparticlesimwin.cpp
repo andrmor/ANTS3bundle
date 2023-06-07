@@ -2101,7 +2101,7 @@ void AParticleSimWin::on_pbPreviousEvent_clicked()
     int ev = findEventWithFilters(curEv, false);
     if (ev == -1)
         guitools::message("Cannot find events according to the selected criteria", this);
-    else
+    else if (ev >= 0)
     {
         ui->sbShowEvent->setValue(ev);
         on_pbEventView_clicked();
@@ -2116,17 +2116,37 @@ void AParticleSimWin::on_pbNextEvent_clicked()
     int ev = findEventWithFilters(curEv, true);
     if (ev == -1)
     {
-        //guitools::message("Cannot find events according to the selected criteria", this);
+        guitools::message("Cannot find events according to the selected criteria", this);
     }
-    else
+    else if (ev >= 0)
     {
         ui->sbShowEvent->setValue(ev);
         on_pbEventView_clicked();
     }
 }
 
+void AParticleSimWin::abortFind()
+{
+    bFindEventAbortRequested = true;
+}
+
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
+    bFindEventAbortRequested = false;
+
+    QDialog dReport(this);
+    dReport.setWindowTitle("Event finder");
+        QHBoxLayout * l = new QHBoxLayout();
+        dReport.setLayout(l);
+        l->addWidget(new QLabel("Event #"));
+            QLabel * labEvent = new QLabel("");
+        l->addWidget(labEvent);
+            QPushButton * pbAbort = new QPushButton("Abort");
+            QObject::connect(pbAbort, &QPushButton::clicked, this, &AParticleSimWin::abortFind);
+            QObject::connect(&dReport, &QDialog::rejected, this, &AParticleSimWin::abortFind);
+        l->addWidget(pbAbort);
+    dReport.show();
+
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
     const bool bLimProc = ui->cbEVlimToProc->isChecked();
@@ -2147,15 +2167,16 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
     const QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, Qt::SkipEmptyParts);
     const QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, Qt::SkipEmptyParts);
 
+    AEventTrackingRecord * er = AEventTrackingRecord::create();
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
     bUp ? currentEv++ : currentEv--;
     while (currentEv >= 0)
     {
         // !!!*** code duplication: see EV_showTree() method
         //-->
-        QString fileName = ui->leTrackingDataFile->text();
-        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-        AEventTrackingRecord * er = AEventTrackingRecord::create();
         QString err = SimManager.fillTrackingRecord(fileName, currentEv, er);
         if (!err.isEmpty())
         {
@@ -2188,6 +2209,10 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
         if (bGood) return currentEv;
 
         bUp ? currentEv++ : currentEv--;
+
+        QApplication::processEvents();
+        if (bFindEventAbortRequested) return -2;
+        labEvent->setText(QString::number(currentEv));
     };
     return -1;
 }
