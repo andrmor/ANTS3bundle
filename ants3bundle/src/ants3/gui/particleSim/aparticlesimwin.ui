@@ -3881,7 +3881,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                </sizepolicy>
               </property>
               <property name="frameShape">
-               <enum>QFrame::Box</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
@@ -3913,10 +3913,13 @@ If checked, only &quot;creation&quot; is considered!</string>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Minimum</enum>
+                 </property>
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>60</height>
                   </size>
                  </property>
                 </spacer>
@@ -4127,7 +4130,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>60</height>
                   </size>
                  </property>
                 </spacer>
@@ -4259,7 +4262,7 @@ If checked, only &quot;creation&quot; is considered!</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>20</height>
+                <height>60</height>
                </size>
               </property>
              </spacer>
@@ -4815,7 +4818,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                 </layout>
                </item>
                <item>
-                <spacer name="verticalSpacer_9">
+                <spacer name="verticalSpacer_6">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>

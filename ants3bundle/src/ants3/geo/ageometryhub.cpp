@@ -688,7 +688,7 @@ void AGeometryHub::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedN
     const ATypeStackContainerObject * stack = static_cast<const ATypeStackContainerObject*>(obj->Type);
     const QString & RefObjName = stack->ReferenceVolume;
     const AGeoObject * RefObj = nullptr;
-    for (const AGeoObject * el : qAsConst(obj->HostedObjects))
+    for (const AGeoObject * el : obj->HostedObjects)
         if (el->Name == RefObjName)
         {
             RefObj = el;

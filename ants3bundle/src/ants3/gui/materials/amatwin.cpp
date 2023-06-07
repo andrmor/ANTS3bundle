@@ -449,7 +449,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->pteComments->appendPlainText(tmpMaterial.Comments);
 
     QString sTags;
-    for (const QString & s : qAsConst(tmpMaterial.Tags))
+    for (const QString & s : tmpMaterial.Tags)
         sTags.append(s.simplified() + ", ");
     if (sTags.size() > 1) sTags.chop(2);
     ui->leTags->setText(sTags);
