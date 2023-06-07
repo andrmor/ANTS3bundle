@@ -44,6 +44,16 @@ int AParticleSim_SI::countCalorimeters()
     return ACalorimeterHub::getConstInstance().countCalorimeters();
 }
 
+QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
+{
+    QVariantList vl;
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+    for (const ACalorimeterData & cd : CalHub.Calorimeters)
+        vl.push_back(QVariantList{cd.Position[0], cd.Position[1], cd.Position[2]});
+    return vl;
+}
+
+/*
 QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString mode)
 {
     QVariantList res;
@@ -104,8 +114,49 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString m
 
     return res;
 }
+*/
 
-QVariantList AParticleSim_SI::getCalorimeterProperties(int calorimeterIndex)
+QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
+{
+    QVariantList res;
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+    
+    const int numCal = CalHub.countCalorimeters();
+    if (calorimeterIndex < 0 || calorimeterIndex >= numCal)
+    {
+        abort("Invalid calorimeter index");
+        return res;
+    }
+    
+    ACalorimeter * cal = CalHub.Calorimeters[calorimeterIndex].Calorimeter;
+    if (!cal)
+    {
+        abort("Calorimeter is nullptr!");
+        return res;
+    }
+    
+    ATH3D * data = cal->DataHistogram;
+    if (!data)
+    {
+        abort("Calorimeter has no data!");
+        return res;
+    }
+    
+    const int numX = data->GetXaxis()->GetNbins();
+    const int numY = data->GetYaxis()->GetNbins();
+    const int numZ = data->GetZaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+        for (int iy = 0; iy < numY; iy++)
+            for (int iz = 0; iz < numZ; iz++)
+                res.push_back( QVariantList{data->GetXaxis()->GetBinCenter(ix+1),
+                                           data->GetYaxis()->GetBinCenter(iy+1),
+                                           data->GetZaxis()->GetBinCenter(iz+1),
+                                           data->GetBinContent(ix+1, iy+1, iz+1)} );
+    
+    return res;
+}
+
+QVariantList AParticleSim_SI::getCalorimeterBinning(int calorimeterIndex)
 {
     QVariantList res;
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
@@ -161,6 +212,15 @@ QVariantList AParticleSim_SI::getMonitorHitsAll()
     return vl;
 }
 
+QVariantList AParticleSim_SI::getMonitorGlobalPositionsAll()
+{
+    QVariantList vl;
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    for (const AMonitorData & md : MonHub.ParticleMonitors)
+        vl.push_back(QVariantList{md.Position[0], md.Position[1], md.Position[2]});
+    return vl;
+}
+
 QVariantList AParticleSim_SI::getMonitorEnergy(int monitorIndex, QString units)
 {
     QVariantList vl;
@@ -209,6 +269,119 @@ QVariantList AParticleSim_SI::getMonitorEnergy(int monitorIndex, QString units)
         double thisEn = data->GetXaxis()->GetBinCenter(ix+1) * factor;
         vl.push_back( QVariantList{thisEn, data->GetBinContent(ix+1)} );
     }
+
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getMonitorTime(int monitorIndex, QString units)
+{
+    QVariantList vl;
+
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    int numMon = MonHub.countMonitors(AMonitorHub::Particle);
+    if (monitorIndex < 0 || monitorIndex >= numMon)
+    {
+        abort("bad monitor index");
+        return vl;
+    }
+
+    AMonitor * mon = MonHub.ParticleMonitors[monitorIndex].Monitor;
+    if (!mon || !mon->time)
+    {
+        abort("Monitor data are not initialized!");
+        return vl;
+    }
+
+    QString monTimeUnits = mon->config.timeUnits;
+    double factor = 1.0;
+    if      (monTimeUnits == "ns") ;
+    else if (monTimeUnits == "us") factor = 1e3; // us -> ns
+    else if (monTimeUnits == "ms") factor = 1e6; // ms -> ns
+    else if (monTimeUnits == "s")  factor = 1e9; // s  -> ns
+    else
+    {
+        abort("Unrecognoized time units of the monitor: " + monTimeUnits);
+        return vl;
+    }
+
+    if      (units == "ns") ;
+    else if (units == "us") factor *= 1e-3;
+    else if (units == "ms") factor *= 1e-6;
+    else if (units == "s")  factor *= 1e-9;
+    else
+    {
+        abort("Unrecognized time units: " + units);
+        return vl;
+    }
+
+    TH1D * data = mon->time;
+    const int numX = data->GetXaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+    {
+        double thisTime = data->GetXaxis()->GetBinCenter(ix+1) * factor;
+        vl.push_back( QVariantList{thisTime, data->GetBinContent(ix+1)} );
+    }
+
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getMonitorAngle(int monitorIndex)
+{
+    QVariantList vl;
+
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    int numMon = MonHub.countMonitors(AMonitorHub::Particle);
+    if (monitorIndex < 0 || monitorIndex >= numMon)
+    {
+        abort("bad monitor index");
+        return vl;
+    }
+
+    AMonitor * mon = MonHub.ParticleMonitors[monitorIndex].Monitor;
+    if (!mon || !mon->angle)
+    {
+        abort("Monitor data are not initialized!");
+        return vl;
+    }
+
+    TH1D * data = mon->angle;
+    const int numX = data->GetXaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+    {
+        double thisAngle = data->GetXaxis()->GetBinCenter(ix+1);
+        vl.push_back( QVariantList{thisAngle, data->GetBinContent(ix+1)} );
+    }
+
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getMonitorXY(int monitorIndex)
+{
+    QVariantList vl;
+
+    const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
+    int numMon = MonHub.countMonitors(AMonitorHub::Particle);
+    if (monitorIndex < 0 || monitorIndex >= numMon)
+    {
+        abort("bad monitor index");
+        return vl;
+    }
+
+    AMonitor * mon = MonHub.ParticleMonitors[monitorIndex].Monitor;
+    if (!mon || !mon->xy)
+    {
+        abort("Monitor data are not initialized!");
+        return vl;
+    }
+
+    TH2D * data = mon->xy;
+    const int numX = data->GetXaxis()->GetNbins();
+    const int numY = data->GetYaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+        for (int iy = 0; iy < numY; iy++)
+            vl.push_back( QVariantList{data->GetXaxis()->GetBinCenter(ix+1),
+                                       data->GetYaxis()->GetBinCenter(iy+1),
+                                       data->GetBinContent(ix+1, iy+1)} );
 
     return vl;
 }

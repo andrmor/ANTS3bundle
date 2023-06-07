@@ -21,14 +21,20 @@ public slots:
 
     // !!!*** load calocrimeter data
     int countCalorimeters();
-    QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
-    QVariantList getCalorimeterProperties(int calorimeterIndex);
+    QVariantList getCalorimeterGlobalPositionsAll();
+    //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
+    QVariantList getCalorimeterData(int calorimeterIndex);
+    QVariantList getCalorimeterBinning(int calorimeterIndex);
     void clearCalorimeterData();
 
     // !!!*** monitor data
     int countMonitors();
+    QVariantList getMonitorGlobalPositionsAll();
     QVariantList getMonitorHitsAll();
     QVariantList getMonitorEnergy(int monitorIndex, QString units);
+    QVariantList getMonitorTime(int monitorIndex, QString units);
+    QVariantList getMonitorAngle(int monitorIndex);
+    QVariantList getMonitorXY(int monitorIndex);
 
 private:
     AParticleSimManager & SimMan;
