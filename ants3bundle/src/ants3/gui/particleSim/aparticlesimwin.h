@@ -258,6 +258,7 @@ private slots:
     void on_pbUpdateCaloRange_clicked();
 
     void abortFind();
+    void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
 };
 
 #endif // APARTICLESIMWIN_H

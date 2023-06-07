@@ -2935,3 +2935,11 @@ void AParticleSimWin::updateCaloRange()
     double rz1 = p.Origin[2] + p.Step[2] * toZIndex;
     ui->labCaloRangeZ->setText(QString("  (from %0 to %1 mm)").arg(rz0, 5).arg(rz1, 5));
 }
+
+#include <QDesktopServices>
+void AParticleSimWin::on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &)
+{
+    if (ui->leWorkingDirectory->text().isEmpty()) return;
+    QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leWorkingDirectory->text()) );
+}
+
