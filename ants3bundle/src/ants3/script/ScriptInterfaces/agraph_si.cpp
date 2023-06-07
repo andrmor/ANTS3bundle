@@ -364,7 +364,7 @@ void AGraph_SI::addPoints(QString graphName, QVariantList array)
             if (res != ARootObjBase::OK) abort("addPoints with one array argument [x,y] is applicable only to 1D graphs");
             break;
         case 3 :
-            res = r->addPoints(xArr, yArr, yArr);
+            res = r->addPoints(xArr, yArr, zArr);
             if (res != ARootObjBase::OK) abort("addPoints with one array argument [x,y,z] is applicable only to 2D graphs");
             break;
         case 4 :
