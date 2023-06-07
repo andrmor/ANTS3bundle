@@ -2247,6 +2247,9 @@ sources</string>
                       <height>16777215</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>Search forward (&quot;-&gt;&quot;) is faster!</string>
+                    </property>
                     <property name="text">
                      <string>&lt;-</string>
                     </property>

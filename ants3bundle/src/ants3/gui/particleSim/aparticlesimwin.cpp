@@ -2130,6 +2130,7 @@ void AParticleSimWin::abortFind()
     bFindEventAbortRequested = true;
 }
 
+#include "atrackingdataimporter.h"
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
     bFindEventAbortRequested = false;
@@ -2170,21 +2171,22 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
     AEventTrackingRecord * er = AEventTrackingRecord::create();
     QString fileName = ui->leTrackingDataFile->text();
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+    ATrackingDataImporter tdi(fileName);
+    if (!tdi.ErrorString.isEmpty())
+    {
+        guitools::message(tdi.ErrorString, this);
+        return -1;
+    }
 
     bUp ? currentEv++ : currentEv--;
     while (currentEv >= 0)
     {
-        // !!!*** code duplication: see EV_showTree() method
-        //-->
-
-        QString err = SimManager.fillTrackingRecord(fileName, currentEv, er);
-        if (!err.isEmpty())
+        bool ok = tdi.extractEvent(currentEv, er);
+        if (!ok)
         {
-            guitools::message(err, this);
+            guitools::message(tdi.ErrorString, this);
             return -1;
         }
-        // !!!*** add error processing, separetely process bad event index
-        // <--
 
         bool bGood = true;
         if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
