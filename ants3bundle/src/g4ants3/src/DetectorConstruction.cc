@@ -28,7 +28,11 @@ void DetectorConstruction::ConstructSDandField()
 
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
 
-    const std::vector<std::string> & SVlist = SM.Settings.G4Set.SensitiveVolumes;
+    std::vector<std::string> SVlist;
+    SVlist.reserve(SM.Settings.G4Set.SensitiveVolumes.size() + SM.Settings.G4Set.ScintSensitiveVolumes.size());
+    std::copy(SM.Settings.G4Set.SensitiveVolumes.begin(), SM.Settings.G4Set.SensitiveVolumes.end(), std::back_inserter(SVlist));
+    if (SM.Settings.G4Set.AddScintillatorsToSensitiveVolumes)
+        std::copy(SM.Settings.G4Set.ScintSensitiveVolumes.begin(), SM.Settings.G4Set.ScintSensitiveVolumes.end(), std::back_inserter(SVlist));
     for (auto & sv : SVlist)
     {
         if (sv.size() == 0) continue;

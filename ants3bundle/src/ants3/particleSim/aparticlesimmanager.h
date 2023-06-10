@@ -67,7 +67,7 @@ private:
     std::vector<QString> ReceiptFiles;
 
     int  getNumberEvents() const;
-    void doPreSimChecks();
+    void doPreSimChecks();  // !!!*** check if there are scaled TGeo!!!
     void checkDirectories();
     void checkG4Settings();
 
@@ -77,6 +77,7 @@ private:
     void configureMonitors();
     void configureCalorimeters();
     bool configureParticleGun();
+    void configureScintillators();
 
     void removeOutputFiles();
     void mergeOutput(bool binary);

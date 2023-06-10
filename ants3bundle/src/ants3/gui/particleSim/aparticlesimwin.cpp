@@ -73,6 +73,8 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labFilterActivated->setPixmap(pm);
     on_pbUpdateIcon_clicked();
+
+    ui->twMain->setCurrentIndex(1);
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -128,6 +130,7 @@ void AParticleSimWin::updateG4Gui()
     ui->pteSensitiveVolumes->clear();
     for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
     ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
+    ui->cbIncludeScintillators->setChecked(G4SimSet.AddScintillatorsToSensitiveVolumes);
 
     ui->lwStepLimits->clear();
     for (const auto & it : G4SimSet.StepLimits)
@@ -2941,5 +2944,10 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_customContextMenuRequested(con
 {
     if (ui->leWorkingDirectory->text().isEmpty()) return;
     QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leWorkingDirectory->text()) );
+}
+
+void AParticleSimWin::on_cbIncludeScintillators_clicked(bool checked)
+{
+    G4SimSet.AddScintillatorsToSensitiveVolumes = checked;
 }
 

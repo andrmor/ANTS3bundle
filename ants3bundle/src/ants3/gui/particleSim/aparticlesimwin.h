@@ -259,6 +259,7 @@ private slots:
 
     void abortFind();
     void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
+    void on_cbIncludeScintillators_clicked(bool checked);
 };
 
 #endif // APARTICLESIMWIN_H

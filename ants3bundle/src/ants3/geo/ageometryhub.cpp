@@ -1617,6 +1617,16 @@ void AGeometryHub::getScintillatorVolumeNames(std::vector<QString> & vol) const
         vol[i] = Scintillators[i].first->Name;
 }
 
+void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const
+{
+    for (size_t i = 0; i < Scintillators.size(); i++)
+    {
+        const QString & name = Scintillators[i].first->Name;
+        if (std::find(vol.begin(), vol.end(), name) == vol.end())
+            vol.push_back(name);
+    }
+}
+
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const
 {
     if (VolumesAndWildcards.empty()) return ""; //can be empty

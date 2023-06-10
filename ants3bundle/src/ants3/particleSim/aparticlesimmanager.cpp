@@ -204,6 +204,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
     configureMaterials();
     configureMonitors();
     configureCalorimeters();
+    configureScintillators();
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
@@ -384,6 +385,19 @@ void AParticleSimManager::configureMonitors()
 void AParticleSimManager::configureCalorimeters()
 {
     SimSet.RunSet.CalorimeterSettings.initFromHub();
+}
+
+void AParticleSimManager::configureScintillators()
+{
+    SimSet.G4Set.ScintSensitiveVolumes.clear();
+    if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    {
+        std::vector<QString> vol;
+        Geometry.getScintillatorVolumeUniqueNames(vol);
+
+        for (const QString & name : vol)
+            SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+    }
 }
 
 // ---
