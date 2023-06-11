@@ -19,7 +19,6 @@ public:
 public slots:
     void simulate(bool updateGui);
 
-    // !!!*** load calocrimeter data
     int countCalorimeters();
     void loadCalorimeterData(QString fileName);
     QVariantList getCalorimeterGlobalPositionsAll();
@@ -28,7 +27,6 @@ public slots:
     QVariantList getCalorimeterBinning(int calorimeterIndex);
     void clearCalorimeterData();
 
-    // !!!*** monitor data
     int countMonitors();
     void loadMonitorData(QString fileName);
     QVariantList getMonitorGlobalPositionsAll();

@@ -443,12 +443,14 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
+    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
+    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
 }
@@ -509,7 +511,8 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         QString s;
-        AVirtualScriptManager::addQVariantToString(ScriptManager->getResult(), s, ScriptLanguage);
+        const QVariant res = ScriptManager->getResult();
+        AVirtualScriptManager::addQVariantToString(res, s, ScriptLanguage);
         if (!s.isEmpty() && s != "undefined") outputText(s);
     }
 
