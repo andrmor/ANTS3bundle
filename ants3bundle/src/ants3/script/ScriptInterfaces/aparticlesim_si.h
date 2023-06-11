@@ -21,6 +21,7 @@ public slots:
 
     // !!!*** load calocrimeter data
     int countCalorimeters();
+    void loadCalorimeterData(QString fileName);
     QVariantList getCalorimeterGlobalPositionsAll();
     //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
     QVariantList getCalorimeterData(int calorimeterIndex);
@@ -29,6 +30,7 @@ public slots:
 
     // !!!*** monitor data
     int countMonitors();
+    void loadMonitorData(QString fileName);
     QVariantList getMonitorGlobalPositionsAll();
     QVariantList getMonitorHitsAll();
     QVariantList getMonitorEnergy(int monitorIndex, QString units);

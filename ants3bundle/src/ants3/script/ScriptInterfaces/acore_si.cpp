@@ -83,11 +83,13 @@ void ACore_SI::abort(QString message)
     AScriptInterface::abort(message);
 }
 
+/*
 QVariant ACore_SI::test(QVariant in)
 {
     qDebug() << in;
     return in;
 }
+*/
 
 #include "vformula.h"
 double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
@@ -149,6 +151,7 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
     return res;
 }
 
+/*
 #include "amatcomposition.h"
 QString ACore_SI::testComposition(QString comp)
 {
@@ -165,6 +168,7 @@ QString ACore_SI::testComposition(QString comp)
 
     return mc.printComposition();
 }
+*/
 
 /*
 int ACore_SI::fun(int i)
@@ -174,11 +178,13 @@ int ACore_SI::fun(int i)
 }
 */
 
+/*
 int ACore_SI::fun(int i, int j, int k)
 {
     qDebug() << "Three args!";
     return i + j + k;
 }
+*/
 
 #include <QElapsedTimer>
 void ACore_SI::sleep(int ms)

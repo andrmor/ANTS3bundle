@@ -6,6 +6,7 @@
 #include "amonitorhub.h"
 #include "amonitor.h"
 #include "ath.h"
+#include "ajsontools.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -19,7 +20,7 @@ AParticleSim_SI::AParticleSim_SI() :
                                  "options: 'x' or 'y' or 'z' for 1D,\n,"
                                  "'xy' or 'xz' or 'yx' or 'yz' or 'zx' or 'zy' for 2D,\n"
                                  "'xyz' or empty for 3D";
-    Help["getCalorimeterProperties"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
+    Help["getCalorimeterBinning"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
 }
 
 void AParticleSim_SI::simulate(bool updateGui)
@@ -42,6 +43,29 @@ void AParticleSim_SI::simulate(bool updateGui)
 int AParticleSim_SI::countCalorimeters()
 {
     return ACalorimeterHub::getConstInstance().countCalorimeters();
+}
+
+void AParticleSim_SI::loadCalorimeterData(QString fileName)
+{
+    ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
+    if (CalHub.countCalorimeters() == 0)
+    {
+        abort("There are no calorimeters in the loaded config!");
+        return;
+    }
+
+    CalHub.clearData();
+
+    QJsonArray jsar;
+    bool ok = jstools::loadJsonArrayFromFile(jsar, fileName);
+    if (!ok)
+    {
+        abort("Could not open: " + fileName);
+        return;
+    }
+
+    QString err = CalHub.appendDataFromJson(jsar);
+    if (!err.isEmpty()) abort(err);
 }
 
 QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
@@ -201,6 +225,29 @@ int AParticleSim_SI::countMonitors()
 {
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     return MonHub.countMonitors(AMonitorHub::Particle);
+}
+
+void AParticleSim_SI::loadMonitorData(QString fileName)
+{
+    AMonitorHub & MonHub = AMonitorHub::getInstance();
+    if (MonHub.countMonitors(AMonitorHub::Particle) == 0)
+    {
+        abort("There are no monitors in the loaded config!");
+        return;
+    }
+
+    MonHub.clearData(AMonitorHub::Particle);
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
+    {
+        abort("Could not open: " + fileName);
+        return;
+    }
+
+    QString err = MonHub.appendDataFromJson(json, AMonitorHub::Particle);
+    if (!err.isEmpty()) abort(err);
 }
 
 QVariantList AParticleSim_SI::getMonitorHitsAll()

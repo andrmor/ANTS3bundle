@@ -25,11 +25,11 @@ public:
 public slots:
     void    abort(QString message);
 
-    QVariant test(QVariant in);
+    //QVariant test(QVariant in);
     double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
-    QString testComposition(QString comp);
+    //QString testComposition(QString comp);
 
-    int fun(int i, int j, int k);
+    //int fun(int i, int j, int k);
     //int fun(int i);
 
     // Output
