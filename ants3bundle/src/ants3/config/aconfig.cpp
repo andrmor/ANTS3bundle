@@ -7,8 +7,10 @@
 #include "asensorhub.h"
 #include "aparticlesimhub.h"
 #include "aerrorhub.h"
+#include "a3global.h"
 
 #include <QDebug>
+#include <QFile>
 
 AConfig & AConfig::getInstance()
 {
@@ -29,6 +31,8 @@ AConfig::AConfig()
 
 void AConfig::updateJSONfromConfig()
 {
+    if (!JSON.isEmpty()) createUndo();
+
     // if gui is present, save gui settings
     emit requestSaveGuiSettings();
 
@@ -45,6 +49,9 @@ QString AConfig::load(const QString & fileName)
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
     if (!ok) return "Cannot open config file: " + fileName;
+
+    invalidateUndo();
+    invalidateRedo();
 
     return readFromJson(json);
 }
@@ -122,4 +129,56 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     // LRFs
 
     return "";
+}
+
+void AConfig::createUndo()
+{
+    A3Global & GS = A3Global::getInstance();
+    QString fn = GS.QuicksaveDir + "/undo.json";
+    jstools::saveJsonToFile(JSON, fn);
+}
+
+bool AConfig::isUndoAvailable() const
+{
+    A3Global & GS = A3Global::getInstance();
+    QFile qf(GS.QuicksaveDir + "/undo.json");
+    return qf.exists();
+}
+
+bool AConfig::isRedoAvailable() const
+{
+    A3Global & GS = A3Global::getInstance();
+    QFile qf(GS.QuicksaveDir + "/redo.json");
+    return qf.exists();
+}
+
+void AConfig::invalidateUndo()
+{
+    A3Global & GS = A3Global::getInstance();
+    QFile qf(GS.QuicksaveDir + "/undo.json");
+    qf.remove();
+}
+
+void AConfig::invalidateRedo()
+{
+    A3Global & GS = A3Global::getInstance();
+    QFile qf(GS.QuicksaveDir + "/redo.json");
+    qf.remove();
+}
+
+QString AConfig::doUndo()
+{
+    A3Global & GS = A3Global::getInstance();
+    save(GS.QuicksaveDir + "/redoTmp.json");
+    QString ErrorString = load(GS.QuicksaveDir + "/undo.json");
+    QFile qf(GS.QuicksaveDir + "/redoTmp.json");
+    qf.rename(GS.QuicksaveDir + "/redo.json");
+    return ErrorString;
+}
+
+QString AConfig::doRedo()
+{
+    A3Global & GS = A3Global::getInstance();
+    QString ErrorString = load(GS.QuicksaveDir + "/redo.json");
+    return ErrorString;
 }

@@ -56,6 +56,15 @@ public:
     void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);
 
+    // undo / redo
+    void createUndo();
+    bool isUndoAvailable() const;
+    bool isRedoAvailable() const;
+    void invalidateUndo();
+    void invalidateRedo();
+    QString doUndo();
+    QString doRedo();
+
 private:
     QString tryReadFromJson(const QJsonObject & json); // !!!***
 

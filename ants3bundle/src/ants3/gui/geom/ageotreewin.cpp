@@ -10,6 +10,7 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
+#include "aconfig.h"
 #include "a3global.h"
 #include "ageometrytester.h"
 #include "ajsontools.h"
@@ -676,10 +677,9 @@ void AGeoTreeWin::onRequestShowPrototypeList()
 
 void AGeoTreeWin::updateMenuIndication()
 {
-//    ui->actionUndo->setEnabled(MW->Config->isUndoAvailable());
-    ui->actionUndo->setEnabled(false);
-//    ui->actionRedo->setEnabled(MW->Config->isRedoAvailable());
-    ui->actionRedo->setEnabled(false);
+    const AConfig & Config = AConfig::getConstInstance();
+    ui->actionUndo->setEnabled(Config.isUndoAvailable());
+    ui->actionRedo->setEnabled(Config.isRedoAvailable());
 }
 
 void AGeoTreeWin::onRemoveGeoConstFromShortcut()
@@ -856,30 +856,28 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
 
 void AGeoTreeWin::on_actionUndo_triggered()
 {
-    /*
-    bool ok = MW->Config->isUndoAvailable();
+    AConfig & Config = AConfig::getInstance();
+    bool ok = Config.isUndoAvailable();
     if (!ok)
         guitools::message("Undo is not available!", this);
     else
     {
-        QString err = MW->Config->doUndo();
+        QString err = Config.doUndo();
         if (!err.isEmpty()) guitools::message(err, this);
     }
-    */
 }
 
 void AGeoTreeWin::on_actionRedo_triggered()
 {
-    /*
-    bool ok = MW->Config->isRedoAvailable();
+    AConfig & Config = AConfig::getInstance();
+    bool ok = Config.isRedoAvailable();
     if (!ok)
         guitools::message("Redo is not available!", this);
     else
     {
-        QString err = MW->Config->doRedo();
+        QString err = Config.doRedo();
         if (!err.isEmpty()) guitools::message(err, this);
     }
-    */
 }
 
 void AGeoTreeWin::on_actionHow_to_use_drag_and_drop_triggered()
@@ -935,7 +933,6 @@ void AGeoTreeWin::on_pbSaveTGeo_clicked()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
-#include "aconfig.h"
 void AGeoTreeWin::on_pmParseInGeometryFromGDML_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load GDML file", "GDML files (*.gdml)");
