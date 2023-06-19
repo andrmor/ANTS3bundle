@@ -1,10 +1,12 @@
 # ANTS3bundle
 
-More than a half-way to alpha release
+* GUI and scripting components are ready, collecting user suggestion for tweaking
+* Particle simulation part is in beta
+* Optical simulation part is in alpha
 
 ---
 
-# Installation instructions for ants3 on ubuntu 22.04 mate
+# Installation instructions for ants3 on Ubuntu 22.04 Mate
 
 ### General
 
@@ -33,7 +35,7 @@ apt -y install python3-dev
 apt -y install libxerces-c-dev freeglut3-dev libmotif-dev tk-dev libxpm-dev libxmu-dev libxi-dev
 
 ### CERN ROOT
-export VERSION=6.28.04
+export VERSION=6.28.04     # check for the newest version at https://root.cern/
 
 export ROOTTGZ=root_v$VERSION.Linux-ubuntu22-x86_64-gcc11.3.tar.gz
 
@@ -50,7 +52,7 @@ Install qtcreator: see https://www.qt.io/download
 * go to open source section, 
 * then download "Qt online installer",
 * allow execution for the downloaded file and start it
-* you will have to crate an account to us ethe installer
+* you will have to create an account to use the installer
 * Go for "Custom installation"
     * QtCreator and the tools will be automatically selected, you only need to selected the Qt version
     * For example, in Qt 6.5.1, you have to select:
