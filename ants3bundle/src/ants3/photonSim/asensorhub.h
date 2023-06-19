@@ -15,7 +15,7 @@ class QJsonObject;
 struct ASensorData
 {
     AGeoObject * GeoObj     = nullptr;
-    int          ModelIndex = 0;
+    int          ModelIndex = 0;  // !!!*** consider adding ASensorModel* directly
     AVector3     Position   = {0, 0, 0};
 };
 
@@ -68,6 +68,10 @@ public:
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    clear();
+
+    double  getMaxQE(bool bWaveRes) const;
 
 private:
     ASensorHub();

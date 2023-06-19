@@ -3,8 +3,8 @@
 
 #include "aparticlerecord.h"
 
-#include <vector>
-#include <string>
+//#include <vector>
+//#include <string>
 #include <functional>
 
 class AParticleGun
@@ -18,7 +18,7 @@ public:
 
     virtual void setStartEvent(int) {} // for 'from file' generator
 
-    bool        AbortRequested = false;
+    bool         AbortRequested = false;
 };
 
 #endif // APARTICLEGUN_H

@@ -12,9 +12,9 @@ const APhotonSimHub &APhotonSimHub::getConstInstance()
     return getInstance();
 }
 
-void APhotonSimHub::writeToJson(QJsonObject & json) const
+void APhotonSimHub::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 {
-    Settings.writeToJson(json);
+    Settings.writeToJson(json, addRuntimeExport);
 }
 
 QString APhotonSimHub::readFromJson(const QJsonObject & json)
@@ -24,4 +24,9 @@ QString APhotonSimHub::readFromJson(const QJsonObject & json)
     if (ErrorString.isEmpty()) emit settingsChanged();
 
     return ErrorString;
+}
+
+void APhotonSimHub::clear()
+{
+    Settings.clear();
 }

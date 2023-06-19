@@ -25,9 +25,11 @@ public:
 public slots:
     void    abort(QString message);
 
-    QVariant test(QVariant in);
+    //QVariant test(QVariant in);
+    double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
+    //QString testComposition(QString comp);
 
-    int fun(int i, int j, int k);
+    //int fun(int i, int j, int k);
     //int fun(int i);
 
     // Output
@@ -38,7 +40,7 @@ public slots:
 
     // Time
     void    sleep(int ms);
-    double  getTimeMark();
+    double  getTimeMarkMilliseconds();
     QString getDateTimeStamp();
 
     // Basic io
@@ -55,7 +57,7 @@ public slots:
     // !!!*** read line from file
 
     // Ascii array
-    void         saveArray(QVariantList array, QString fileName, bool append);
+    void         saveArray(QVariantList array, QString fileName, bool append, int precision = 6);
     QVariantList loadNumericArray(QString fileName);
     QVariantList loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine);
 
@@ -65,8 +67,8 @@ public slots:
 
     // 3D arrays
     void         save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append);
-    QVariantList load3DArray(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom, int recordsUntil);
-    QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6);
+    QVariantList load3DArray(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom, int recordsUntil, bool skipEmpty);
+    QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
 
     // Object
     void        saveObject(QVariantMap Object, QString FileName);

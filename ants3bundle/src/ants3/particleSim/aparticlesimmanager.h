@@ -1,7 +1,7 @@
 #ifndef APARTICLESIMMANAGER_H
 #define APARTICLESIMMANAGER_H
 
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "afilemerger.h"
 
 #include <QObject>
@@ -45,6 +45,9 @@ public:
 
     void simulate(int numLocalProc = -1);
 
+    void abort();
+    bool isAborted() const;
+
     QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
                         bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
                         const int MaxTracks, int LimitToEvent = -1);
@@ -64,19 +67,20 @@ private:
     std::vector<QString> ReceiptFiles;
 
     int  getNumberEvents() const;
-    void doPreSimChecks();
+    void doPreSimChecks();  // !!!*** check if there are scaled TGeo!!!
     void checkDirectories();
     void checkG4Settings();
 
-    bool configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool configureGDML(A3WorkDistrConfig & Request, const QString & ExchangeDir);
     void configureMaterials();
     void configureMonitors();
     void configureCalorimeters();
     bool configureParticleGun();
+    void configureScintillators();
 
     void removeOutputFiles();
-    void mergeOutput();
+    void mergeOutput(bool binary);
     void processReply(const QJsonObject & Reply);
 };
 

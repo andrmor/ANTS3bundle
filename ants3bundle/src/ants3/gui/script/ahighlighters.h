@@ -4,6 +4,8 @@
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
 
+#include <vector>
+
 struct HighlightingRule
 {
     QRegularExpression Pattern;
@@ -22,7 +24,8 @@ public:
 protected:
     void highlightBlock(const QString & text);
 
-    QVector<HighlightingRule> highlightingRules; // !!!*** to std::vector
+    std::vector<HighlightingRule> HighlightingRulesPermanent;
+    std::vector<HighlightingRule> HighlightingRulesInEffect;
 
     bool bMultilineCommentAllowed = true;
     QRegularExpression commentStartExpression;

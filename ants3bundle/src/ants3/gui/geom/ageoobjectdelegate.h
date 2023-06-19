@@ -73,6 +73,8 @@ protected:
     QWidget   * RoleWidget = nullptr;
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
+    QComboBox * cobCalType;
+    QCheckBox * cbCalRandomize;
     AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
     AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
     AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;

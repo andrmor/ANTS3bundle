@@ -10,7 +10,7 @@ class AGeoScriptMaker
 public:
     enum ELanguage {JavaScript, Python};
 
-    AGeoScriptMaker(ELanguage lang = JavaScript) : Language(lang) {}
+    AGeoScriptMaker(ELanguage lang = JavaScript);
 
     void createScript(QString & script);
 
@@ -19,6 +19,8 @@ public:
 
 protected:
     ELanguage Language = JavaScript;
+
+    void init();
 
     QString makeScriptString_basicObject(AGeoObject * obj, bool useStrings) const;
     QString makeScriptString_arrayObject(AGeoObject * obj) const;
@@ -35,7 +37,15 @@ protected:
     void addScaledIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings);
     void addRoleIfApplicable(QString & script, AGeoObject * obj, int ident, bool useStrings);
 
-    const QString getPythonGenerationString(const QString & javaGenString) const;
+    QString getPythonGenerationString(const QString & javaGenString) const;
+    void    convertToPython(QString & str) const;
+
+    QString TrueStr;
+    QString FalseStr;
+    QString CommentStr;
+    QString VariableStr;
+    QString ArrBeginStr;
+    QString ArrEndStr;
 };
 
 #endif // AGEOSCRIPTMAKER_H

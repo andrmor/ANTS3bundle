@@ -1,7 +1,7 @@
 #ifndef ADEMOMANAGER_H
 #define ADEMOMANAGER_H
 
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 
 #include <QObject>
 #include <QString>
@@ -18,7 +18,7 @@ public:
     static ADemoManager & getInstance();
 
     void abort();
-    void abortedByScript() {bAborted = true;};
+    void abortedByScript() {bAborted = true;}
 
 private:
     ADemoManager();
@@ -46,7 +46,7 @@ protected:
     std::vector<QString>   OutputFiles;
     bool                   bAborted = false;
 
-    bool configure(std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configure(std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 };
 
 #endif // ADEMOMANAGER_H

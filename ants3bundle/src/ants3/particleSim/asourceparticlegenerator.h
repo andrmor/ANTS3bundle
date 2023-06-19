@@ -7,6 +7,7 @@
 #include "avector.h"
 
 #include <vector>
+#include <functional>
 
 class  ASourceGeneratorSettings;
 struct AParticleSourceRecord;
@@ -35,15 +36,19 @@ public:
     bool init() override; // !!! has to be called before the first use of GenerateEvent()!
     bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
 
-private:
+    AVector3 getCollimationDirection(int iSource) const {return CollimationDirection[iSource];}
+
     const ASourceGeneratorSettings & Settings;
+
+private:
     ARandomHub & RandomHub;
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
-    std::vector< std::vector< std::vector<ALinkedParticle> > > LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf!!!)
+    std::vector<std::vector<std::vector<ALinkedParticle>>> LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf (first one)
 
     double TotalActivity = 0;
 
+    // consider moving randomSamplers to here too !!!***
     std::vector<double>   TotalParticleWeight;
     std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
@@ -55,17 +60,16 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
-    std::vector<AParticleRecord> GeneratedParticles;
-
-    void   updateLimitedToMat();  // !!!*** implementation for Geant4
+    void   updateLimitedToMat();
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
     size_t selectParticle(int iSource) const;
-    bool   selectPosition(int iSource, double * R) const;  // !!!*** implementation for Geant4
+    bool   selectPosition(int iSource, double * R) const;
+    void   generateDirection(size_t iSource, bool forceIsotropic, double * direction) const;
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex = -1);
+    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
 
 };
 

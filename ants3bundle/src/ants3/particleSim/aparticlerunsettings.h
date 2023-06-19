@@ -38,11 +38,14 @@ public:
 class AParticleRunSettings
 {
 public:
-    // ants3 only
+  // ants3 only
     std::string OutputDirectory;
 
-    // ants3 and g4ants3
+  // ants3 and g4ants3
     int         Seed = 0;
+
+    bool        AsciiOutput    = true;
+    int         AsciiPrecision = 6;
 
     bool        SaveTrackingHistory = false;
     std::string FileNameTrackingHistory = "TrackingHistory.dat";
@@ -52,19 +55,17 @@ public:
 
     ASaveParticlesSettings SaveSettings;
 
-    AMonitorSettings MonitorSettings;
+    AMonitorSettings MonitorSettings;  // also contains settings which are only initialized during g4anst3 export!
 
-    ACalSettings CalorimeterSettings;
+    ACalSettings CalorimeterSettings;  // also contains settings which are only initialized during g4anst3 export!
 
-    bool        AsciiOutput    = true;
-    int         AsciiPrecision = 6;
-
-    // g4ants3 only
+  // g4ants3 only
     int         EventFrom = 0;
     int         EventTo   = 0;
 
     std::vector<std::string> Materials;
-    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;  // !!!*** G4settings? TODO: show list in the particle GUI
+    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;
+    std::vector<std::pair<std::string, double>> MaterialsMeanExEnergy; // in eV
 
     std::string GDML;
     std::string Receipt;
@@ -74,7 +75,7 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool includeG4ants3Set) const;
     void readFromJson(const QJsonObject & json);
 #endif
 

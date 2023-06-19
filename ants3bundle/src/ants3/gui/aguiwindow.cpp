@@ -36,6 +36,21 @@ void AGuiWindow::restoreGeomStatus()
     settings.endGroup();
 }
 
+void AGuiWindow::onMainWinButtonClicked(bool show)
+{
+    if (show)
+    {
+        restoreGeomStatus();
+        showNormal();
+        activateWindow();
+    }
+    else
+    {
+        storeGeomStatus();
+        hide();
+    }
+}
+
 QVariantList AGuiWindow::getGeometry()
 {
     QVariantList vl;

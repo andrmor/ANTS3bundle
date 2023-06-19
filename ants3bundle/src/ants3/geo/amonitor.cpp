@@ -38,29 +38,10 @@ int AMonitor::getHits() const
     return time->GetEntries();
 }
 
-void AMonitor::fillForParticle(double x, double y, double Time, double Angle, double Energy)
-{
-    if (xy) xy->Fill(x,y);
-    if (time) time->Fill(Time);
-    if (angle) angle->Fill(Angle);
-
-    if (energy)
-    {
-        switch (config.energyUnitsInHist)
-        {
-        case 0: Energy *= 1.0e6; break;
-        case 1: Energy *= 1.0e3; break;
-        case 2: break;
-        case 3: Energy *= 1.0e-3;break;
-        }
-        energy->Fill(Energy);
-    }
-}
-
 void AMonitor::fillForPhoton(double x, double y, double Time, double Angle, int waveIndex)
 {
     if (xy)    xy->Fill(x,y);
-    if (time)  time->Fill(Time);
+    if (time)  time->Fill(Time * timeFactor);
     if (angle) angle->Fill(Angle); // !!!*** check num bins == 1 then skip, put angle from cos calculation here
     if (wave)  wave->Fill(waveIndex);
 }
@@ -89,24 +70,54 @@ bool AMonitor::readFromGeoObject(const AGeoObject *MonitorRecord)
 
 void AMonitor::writeDataToJson(QJsonObject & json) const
 {
-    json["Time"]   = jstools::regularTh1dToJson(time);
-    json["Wave"]   = jstools::regularTh1dToJson(wave);
-    json["Angle"]  = jstools::regularTh1dToJson(angle);
-    json["Energy"] = jstools::regularTh1dToJson(energy);
+    // time
+    {
+        QJsonObject js;
+            js["Data"]  = jstools::regularTh1dToJson(time);
+            js["Units"] = config.timeUnits;
+        json["Time"] = js;
+    }
 
-    json["XY"]     = jstools::regularTh2dToJson(xy);
+    json["Wave"] = jstools::regularTh1dToJson(wave);
+
+    json["Angle"] = jstools::regularTh1dToJson(angle);
+
+    // Energy
+    {
+        QJsonObject js;
+            js["Data"]  = jstools::regularTh1dToJson(energy);
+            js["Units"] = config.energyUnits;
+        json["Energy"] = js;
+    }
+
+    json["XY"] = jstools::regularTh2dToJson(xy);
 }
 
 void AMonitor::readDataFromJson(const QJsonObject &json)
 {
     clearData();
 
-    jstools::parseJson(json, "Time",   time);
-    jstools::parseJson(json, "Wave",   wave);
-    jstools::parseJson(json, "Angle",  angle);
-    jstools::parseJson(json, "Energy", energy);
+    // time
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Time", js);
+            jstools::parseJson(js, "Data", time);
+            jstools::parseJson(js, "Units", config.timeUnits);
+    }
 
-    jstools::parseJson(json, "XY",     xy);
+    jstools::parseJson(json, "Wave", wave);
+
+    jstools::parseJson(json, "Angle", angle);
+
+    // energy
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "Energy", js);
+            jstools::parseJson(js, "Data", energy);
+            jstools::parseJson(js, "Units", config.energyUnits);
+    }
+
+    jstools::parseJson(json, "XY", xy);
 }
 
 void AMonitor::append(const AMonitor & from)
@@ -132,7 +143,16 @@ void AMonitor::initTimeHist()
 {
     delete time;
     time = new TH1D("", "", config.timeBins, config.timeFrom, config.timeTo);
-    time->SetXTitle("Time, ns");
+    TString title = "Time, ";
+    title += config.timeUnits.toLatin1().data();
+    time->SetXTitle(title);
+
+    timeFactor = 1.0;
+    if      (config.timeUnits == "ns") timeFactor = 1.0;
+    else if (config.timeUnits == "us") timeFactor = 1e-3;
+    else if (config.timeUnits == "ms") timeFactor = 1e-6;
+    else if (config.timeUnits == "s")  timeFactor = 1e-9;
+    else qWarning() << "Bad timeUnits in monitor:" << config.timeUnits;
 }
 
 void AMonitor::initWaveHist()
@@ -155,16 +175,9 @@ void AMonitor::initEnergyHist()
 
     double from = config.energyFrom;
     double to = config.energyTo;
-    TString title = "";
-    switch (config.energyUnitsInHist)
-    {
-    case 0: title = "Energy, meV"; break;
-    case 1: title = "Energy, eV"; break;
-    case 2: title = "Energy, keV"; break;
-    case 3: title = "Energy, MeV"; break;
-    }
-
     energy = new TH1D("", "", config.energyBins, from, to);
+    TString title = "Energy, ";
+    title += config.energyUnits.toLatin1().data();
     energy->SetXTitle(title);
 }
 
@@ -175,12 +188,14 @@ void AMonitor::initEnergyHist()
 void AMonitor::overrideDataFromJson(const QJsonObject &json)
 {
     QJsonObject jEnergy = json["Energy"].toObject();
+    jstools::parseJson(jEnergy, "Units", config.energyUnits);
     update1D(jEnergy, energy);
 
     QJsonObject jAngle = json["Angle"].toObject();
     update1D(jAngle, angle);
 
     QJsonObject jTime = json["Time"].toObject();
+    jstools::parseJson(jTime, "Units", config.timeUnits);
     update1D(jTime, time);
 
     QJsonObject jSpatial = json["Spatial"].toObject();
@@ -225,23 +240,11 @@ void AMonitor::update1D(const QJsonObject & json, TH1D* & old)
     for (int i=0; i<statAr.size(); i++)
         statVec.push_back(statAr[i].toDouble());
 
-    double multiplier = 1.0;
-    if (old == energy)
-    {
-        switch (config.energyUnitsInHist)
-        {
-        case 0:  multiplier = 1.0e6;  break;// keV -> meV
-        case 1:  multiplier = 1.0e3;  break;// keV -> eV
-        default: multiplier = 1.0;    break;// keV -> keV
-        case 3:  multiplier = 1.0e-3; break;// keV -> MeV
-        }
-    }
-
     ATH1D * hist;
     if (old) hist = new ATH1D(*old); //to inherit all properties, including the axis titles
     else hist = new ATH1D("", "", 10,0,1);
 
-    hist->Import(from * multiplier, to * multiplier, dataVec, statVec);
+    hist->Import(from, to, dataVec, statVec);
     delete old;
     old = hist;
 }

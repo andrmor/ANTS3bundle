@@ -17,9 +17,10 @@
     #include "G4Material.hh"
     #include "G4NistManager.hh"
 #else
-    #include "TGeoManager.h"
+    #include <QApplication>
     #include "amaterialhub.h"
     #include "arandomhub.h"
+    #include "TGeoManager.h"
 #endif
 
 ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGeneratorSettings & settings) :
@@ -50,13 +51,11 @@ bool ASourceParticleGenerator::init()
     for (int isource = 0; isource<NumSources; isource++)
     {
         for (const AGunParticle & gp : Settings.SourceData[isource].Particles)
-            if (gp.Individual)
+            if (gp.GenerationType == AGunParticle::Independent)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
 
     updateLimitedToMat(); // !!!*** error handling?
-
-    // !!!*** check energy histograms, init them
 
     //creating lists of linked particles
     LinkedPartiles.resize(NumSources);
@@ -67,14 +66,14 @@ bool ASourceParticleGenerator::init()
         for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
             LinkedPartiles[iSource][iParticle].clear();
-            if (!Settings.SourceData[iSource].Particles[iParticle].Individual)
-                continue; //nothing to do for non-individual particles
+            if (Settings.SourceData[iSource].Particles[iParticle].GenerationType != AGunParticle::Independent)
+                continue; //nothing to do for dependent particles
 
-            //every individual particles defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
+            //every independent particle defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip = iParticle + 1; ip < numParts; ip++)
-                if (!Settings.SourceData[iSource].Particles[ip].Individual) //only looking for non-individuals
+                if (Settings.SourceData[iSource].Particles[ip].GenerationType != AGunParticle::Independent) //only looking for dependent
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
@@ -96,9 +95,9 @@ bool ASourceParticleGenerator::init()
     CollimationProbability.resize(NumSources);
     for (int isource=0; isource<NumSources; isource++)
     {
-        const double CollPhi   = Settings.SourceData[isource].CollPhi*3.1415926535/180.0;
-        const double CollTheta = Settings.SourceData[isource].CollTheta*3.1415926535/180.0;
-        const double Spread    = Settings.SourceData[isource].Spread*3.1415926535/180.0;
+        const double CollPhi   = Settings.SourceData[isource].DirectionPhi*3.1415926535/180.0;
+        const double CollTheta = Settings.SourceData[isource].DirectionTheta*3.1415926535/180.0;
+        const double Spread    = Settings.SourceData[isource].CutOff*3.1415926535/180.0;
 
         CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
@@ -156,6 +155,7 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 
             TGeoNode * node = gGeoManager->FindNode(R[0], R[1], R[2]);
             if (node && node->GetVolume() && node->GetVolume()->GetMaterial()->GetIndex() == LimitedToMat[iSource]) break;
+            QApplication::processEvents();
         }
         while (attempts-- != 0);
     }
@@ -164,23 +164,101 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
     return true;
 }
 
+void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotropic, double * direction) const
+{
+    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+
+    if (src.AngularMode == AParticleSourceRecord::Isotropic || forceIsotropic)
+    {
+        //generating random direction inside the collimation cone
+        const double spread   = (src.UseCutOff ? src.CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
+        const double cosTheta = cos(spread);
+        const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
+        const double tmp = sqrt(1.0 - z * z);
+        const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+
+        AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
+        AVector3 Coll( CollimationDirection[iSource] );
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+    else if (src.AngularMode == AParticleSourceRecord::FixedDirection)
+    {
+        for (int i = 0; i < 3; i++) direction[i] = CollimationDirection[iSource][i];
+    }
+    //*** add error if CutOff is zero in this mode!
+    else if (src.AngularMode == AParticleSourceRecord::GaussDispersion)
+    {
+        double angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+        if (src.UseCutOff)
+        {
+            while (angle > src.CutOff)
+            {
+                angle = std::fabs(RandomHub.gauss(0, src.DispersionSigma));
+#ifndef GEANT4
+                QApplication::processEvents();
+                if (AbortRequested) break;
+#endif
+            }
+        }
+
+        AVector3 K1(0, 0, 1.0);
+        K1.rotateX(angle * 3.14159265358979323846 / 180.0);
+        K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
+        AVector3 Coll(CollimationDirection[iSource]);
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+    // !!!*** add error if AngularDistribution does not have presence within CutOff
+    else if (src.AngularMode == AParticleSourceRecord::CustomAngular)
+    {
+        double angle = src._AngularSampler.getRandom();
+        if (src.UseCutOff)
+        {
+            while (angle > src.CutOff)
+            {
+                angle = src._AngularSampler.getRandom();
+#ifndef GEANT4
+                QApplication::processEvents();
+                if (AbortRequested) break;
+#endif
+            }
+        }
+
+        AVector3 K1(0, 0, 1.0);
+        K1.rotateX(angle * 3.14159265358979323846 / 180.0);
+        K1.rotateZ(RandomHub.uniform() * 3.14159265358979323846 * 2.0);
+        AVector3 Coll( CollimationDirection[iSource] );
+        K1.rotateUz(Coll);
+        for (int i = 0; i < 3; i++) direction[i] = K1[i];
+    }
+}
+
 double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source, int iEvent)
 {
     double time;
-
-    if (Source.TimeAverageMode == 0) time = Source.TimeAverage;
-    else                             time = Source.TimeAverageStart + iEvent * Source.TimeAveragePeriod;
+    switch (Source.TimeOffsetMode)
+    {
+    default:
+    case AParticleSourceRecord::FixedOffset              : time = Source.TimeFixedOffset;                                      break;
+    case AParticleSourceRecord::ByEventIndexOffset       : time = Source.TimeByEventStart + iEvent * Source.TimeByEventPeriod; break;
+    case AParticleSourceRecord::CustomDistributionOffset : time = Source._TimeSampler.getRandom();                             break;
+    }
 
     switch (Source.TimeSpreadMode)
     {
     default:
-    case 0:
+    case AParticleSourceRecord::NoSpread :
         break;
-    case 1:
-        time = ARandomHub::getInstance().gauss(time, Source.TimeSpreadSigma);
+    case AParticleSourceRecord::GaussianSpread :
+        time += ARandomHub::getInstance().gauss(0, Source.TimeSpreadSigma);
         break;
-    case 2:
-        time += (-0.5 * Source.TimeSpreadWidth + ARandomHub::getInstance().uniform() * Source.TimeSpreadWidth);
+    case AParticleSourceRecord::UniformSpread :
+        time += Source.TimeSpreadWidth * ARandomHub::getInstance().uniform();
+        break;
+    case AParticleSourceRecord::ExponentialSpread :
+        constexpr double ln2 = std::log(2.0);
+        time += ARandomHub::getInstance().exp(Source.TimeSpreadHalfLife / ln2);
         break;
     }
 
@@ -195,7 +273,7 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(iSource);
     for ( ; iParticle < Source.Particles.size() - 1; iParticle++)
     {
-        if (Source.Particles[iParticle].Individual)
+        if (Source.Particles[iParticle].GenerationType == AGunParticle::Independent)
         {
             if (Source.Particles[iParticle].StatWeight >= rnd) break; //this one
             rnd -= Source.Particles[iParticle].StatWeight;
@@ -227,58 +305,61 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
         // Time
         const double time = selectTime(Source, iEvent);
 
-        // first store generated particles as there could be linked particles and we need direction for the "opposite direction" case
-        GeneratedParticles.clear();
+        // generating the selected particle itself
+        addGeneratedParticle(iSource, iParticle, position, time, false, handler);
 
-        if (LinkedPartiles[iSource][iParticle].size() == 1)
+        // generating linked particles
+        std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+        ThisLP.front().bWasGenerated = true;
+        for (size_t ip = 1; ip < ThisLP.size(); ip++) // ThisLP starts from the particle itself, so skip the first record
         {
-            // there are no linked particles (the first record is the particle itself)
-            addGeneratedParticle(iSource, iParticle, position, time);
-        }
-        else
-        {
-            std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+            const int thisParticle = ThisLP[ip].iParticle;
+            const int linkedTo     = ThisLP[ip].LinkedTo;
 
-            for (size_t ip = 0; ip < ThisLP.size(); ip++)  //ip - index in the list of linked particles
+            if (ThisLP[linkedTo].bWasGenerated) // parent was generated
+            {
+                if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
+                {
+                    ThisLP[ip].bWasGenerated = false;
+                    continue;
+                }
+            }
+            else // parent was NOT generated
+            {
+                if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfGenerated)
+                {
+                    ThisLP[ip].bWasGenerated = false;
+                    continue;
+                }
+            }
+
+            const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
+            if (ARandomHub::getInstance().uniform() > LinkingProbability)
             {
                 ThisLP[ip].bWasGenerated = false;
-
-                const int  thisParticle = ThisLP[ip].iParticle;
-                const int  linkedTo     = ThisLP[ip].LinkedTo;
-                const bool bOpposite    = Source.Particles[thisParticle].LinkedOpposite;
-
-                if (ip != 0) // first is always generated, init checks that the first is not marked as opposite
-                {
-                    if (!ThisLP[linkedTo].bWasGenerated) continue; // parent was not generated
-
-                    const double LinkingProbability = Source.Particles[thisParticle].LinkedProb;
-                    if (ARandomHub::getInstance().uniform() > LinkingProbability) continue;
-
-                    if (!bOpposite && Source.Particles[thisParticle].Particle != "-")
-                    {
-                        if (ARandomHub::getInstance().uniform() > CollimationProbability[iSource])
-                            continue; // cone test fail
-                    }
-                    // else
-                    //opposite: it will be generated in opposite direction and ignore collimation cone
-                    //direct:   ignore direction and so the cone
-                }
-
-                ThisLP[ip].bWasGenerated = true;
-
-                int index = -1;
-                if (bOpposite)
-                {
-                    for (int i = 0; i < linkedTo + 1; i++)
-                        if (ThisLP[i].bWasGenerated && Source.Particles[ThisLP[i].iParticle].Particle != "-") index++;
-                }
-                addGeneratedParticle(iSource, thisParticle, position, time, index);
+                continue;
             }
+
+            if (Source.UseCutOff && Source.Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
+            {
+                double inCutoffProbability = CollimationProbability[iSource];
+                if (Source.Particles[thisParticle].BtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
+                if (ARandomHub::getInstance().uniform() > inCutoffProbability)
+                {
+                    // did not pass cut-off
+                    ThisLP[ip].bWasGenerated = true;  // marked as generated, just do not add to tracking since outside of cut-off
+                    continue;
+                }
+            }
+
+            ThisLP[ip].bWasGenerated = true;
+
+            addGeneratedParticle(iSource, thisParticle, position, time, true, handler);
         }
 
-        // using casll-back to do the actual work with the particles
-        for (const AParticleRecord & particle : GeneratedParticles)
-            handler(particle);
+#ifndef GEANT4
+            if (AbortRequested) return false;
+#endif
     }
 
     return true;
@@ -336,21 +417,39 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     }
     case AParticleSourceRecord::Round :
     {
-        const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
-        double r = RandomHub.uniform() + RandomHub.uniform();  //  !!!*** why?
-        if (r > 1.0) r = (2.0 - r) * size1;
-        else r *=  size1;
-        double x = r * cos(angle);
-        double y = r * sin(angle);
+        AVector3 circ(0,0,0);
+        if (!rec.UseAxialDistribution)
+        {
+            double r = RandomHub.uniform() + RandomHub.uniform();
+            if (r > 1.0) r = (2.0 - r) * size1;
+            else r *=  size1;
+            const double angle = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+            circ[0] = r * cos(angle);
+            circ[1] = r * sin(angle);
+        }
+        else if (rec.AxialDistributionType == AParticleSourceRecord::GaussAxial)
+        {
+            // !!!*** can be faster if radial and angle, but take care of the radial distortion
+            do
+            {
+                circ[0] = RandomHub.gauss(0, rec.AxialDistributionSigma);
+                circ[1] = RandomHub.gauss(0, rec.AxialDistributionSigma);
+            }
+            while (circ[0]*circ[0] + circ[1]*circ[1] > size1*size1);
+        }
+        else
+        {
+            do rec._AxialSampler.generatePosition(circ);
+            while (circ[0]*circ[0] + circ[1]*circ[1] > size1*size1);
+        }
 
-        AVector3 Circ(x, y, 0);
-        Circ.rotateX(Phi);
-        Circ.rotateY(Theta);
-        Circ.rotateZ(Psi);
+        circ.rotateX(Phi);
+        circ.rotateY(Theta);
+        circ.rotateZ(Psi);
 
-        R[0] = X0 + Circ[0];
-        R[1] = Y0 + Circ[1];
-        R[2] = Z0 + Circ[2];
+        R[0] = X0 + circ[0];
+        R[1] = Y0 + circ[1];
+        R[2] = Z0 + circ[2];
         return;
     }
     case AParticleSourceRecord::Box :
@@ -398,17 +497,15 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
     return;
 }
 
-void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, int oppositeToIndex)
+// !!!*** override for secondaries to uniform!
+void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler)
 {
-    const AGunParticle & gp = Settings.SourceData[iSource].Particles[iParticle];
+    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+    const AGunParticle & gp = src.Particles[iParticle];
 
     const double energy = gp.generateEnergy();
 
-#ifdef GEANT4
-    if (gp.particleDefinition)
-#else
-    if (gp.Particle != "-")
-#endif
+    if (!gp.isDirectDeposition())
     {
         AParticleRecord particle(
 #ifdef GEANT4
@@ -418,26 +515,14 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
 #endif
                                  position, time, energy);
 
-        if (oppositeToIndex == -1)
-        {
-            //generating random direction inside the collimation cone
-            const double spread   = Settings.SourceData[iSource].Spread * 3.14159265358979323846 / 180.0; //max angle away from generation diretion
-            const double cosTheta = cos(spread);
-            const double z   = cosTheta + RandomHub.uniform() * (1.0 - cosTheta);
-            const double tmp = sqrt(1.0 - z * z);
-            const double phi = RandomHub.uniform() * 3.14159265358979323846 * 2.0;
+        generateDirection(iSource, forceIsotropic, particle.v);
+        handler(particle);
 
-            AVector3 K1( tmp * cos(phi), tmp * sin(phi), z);
-            AVector3 Coll( CollimationDirection[iSource] );
-            K1.rotateUz(Coll);
-            for (int i = 0; i < 3; i++)  particle.v[i] = K1[i];
-        }
-        else
+        if (gp.BtBPair)
         {
-            for (int i = 0; i < 3; i++) particle.v[i] = -GeneratedParticles[oppositeToIndex].v[i];
+            for (int i = 0; i < 3; i++) particle.v[i] = -particle.v[i];
+            handler(particle);
         }
-
-        GeneratedParticles.push_back(particle);
     }
     else
     {
@@ -454,7 +539,7 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
             if (logic && SM.isEnergyDepoLogger(logic))
             {
                 const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
-                SM.saveDepoRecord("-", iMat, energy, position, time);
+                SM.saveDepoRecord("-", iMat, energy, position, time, vol->GetCopyNo());
             }
         }
 #endif

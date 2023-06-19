@@ -50,6 +50,28 @@ void guitools::message1(const QString & text, const QString & title, QWidget *pa
     d.exec();
 }
 
+void guitools::message1notModal(const QString &text, const QString &title, QWidget *parent)
+{
+    QDialog * d = new QDialog(parent);
+    d->setModal(false);
+    QVBoxLayout * l = new QVBoxLayout(d);
+    QPlainTextEdit * e = new QPlainTextEdit();
+    e->appendPlainText(text);
+    l->addWidget(e);
+    QPushButton * pb = new QPushButton("Close");
+    QObject::connect(pb, &QPushButton::clicked, d, &QDialog::reject);
+    QObject::connect(d, &QDialog::rejected, d, &QObject::deleteLater);
+    l->addWidget(pb);
+
+    QTextCursor curs = e->textCursor();
+    curs.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+    e->setTextCursor(curs);
+
+    d->resize(800, 400);
+    d->setWindowTitle(title);
+    d->show();
+}
+
 void guitools::inputInteger(const QString &text, int &input, int min, int max, QWidget *parent)
 {
     bool ok;
@@ -180,4 +202,11 @@ bool guitools::extractNumbersFromQString(const QString & input, std::vector<int>
         }
     }
     return true;
+}
+
+bool guitools::isDarkTheme()
+{
+    const QPalette defaultPalette;
+    return defaultPalette.color(QPalette::WindowText).lightness()
+         > defaultPalette.color(QPalette::Window).lightness();
 }

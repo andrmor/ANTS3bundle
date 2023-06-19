@@ -12,10 +12,10 @@ const AParticleSimHub &AParticleSimHub::getConstInstance()
     return getInstance();
 }
 
-void AParticleSimHub::writeToJson(QJsonObject &json) const
+void AParticleSimHub::writeToJson(QJsonObject & json, bool exportSimulation) const
 {
     QJsonObject js;
-    Settings.writeToJson(js);
+    Settings.writeToJson(js, exportSimulation);
     json["ParticleSim"] = js;
 }
 
@@ -24,4 +24,9 @@ void AParticleSimHub::readFromJson(const QJsonObject &json)
     QJsonObject js;
     jstools::parseJson(json, "ParticleSim", js);
     Settings.readFromJson(js);
+}
+
+void AParticleSimHub::clear()
+{
+    Settings.clearSettings();
 }

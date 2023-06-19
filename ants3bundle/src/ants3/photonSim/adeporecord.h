@@ -18,6 +18,7 @@ public:
     double   Time;
     QString  Particle;
     int      MatIndex;
+    int      VolIndex;
 
     void writeAscii(QTextStream & stream) const override;
     bool readAscii(QString & line) override;

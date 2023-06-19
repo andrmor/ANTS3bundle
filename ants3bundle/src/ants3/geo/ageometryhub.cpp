@@ -12,8 +12,10 @@
 #include "agridhub.h"
 #include "acalorimeterhub.h"
 #include "aerrorhub.h"
+#include "afiletools.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -62,7 +64,12 @@ void AGeometryHub::clearWorld()
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
+    setWorldSizeFixed(false);
+    setWorldSizeXY(500);
+    setWorldSizeZ(500);
+
     clearMonitors();
+    ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
 }
 
@@ -220,6 +227,8 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
             qWarning() << err;
             return false;
         }
+
+        // !!!*** scaled processing?
     }
 
     obj->refreshShapeCompositeMembers();
@@ -240,21 +249,28 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
     return true;
 }
 
-void AGeometryHub::populateGeoManager()
+#ifdef USE_ROOT_HTML
+#include "aroothttpserver.h"
+#endif
+void AGeometryHub::populateGeoManager(bool notifyRootServer)
 {
     ASensorHub::getInstance().clearSensors();
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
+    Scintillators.clear();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
     World->updateAllStacks();
+    World->updateAllMonitors();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
     GeoManager->SetMaxVisNodes(100000);
+
+    if (DoScaling) World->scaleRecursive(ScalingFactor);
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
@@ -271,7 +287,7 @@ void AGeometryHub::populateGeoManager()
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     MatHub.generateGeoMedia();
 
-    Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+    Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
     GeoManager->SetTopVolume(Top);
     GeoManager->SetTopVisible(true);
 
@@ -282,6 +298,15 @@ void AGeometryHub::populateGeoManager()
     setVolumeTitle(World, Top);
 
     GeoManager->CloseGeometry();
+
+    if (notifyRootServer) notifyRootServerGeometryChanged();
+}
+
+void AGeometryHub::notifyRootServerGeometryChanged()
+{
+#ifdef USE_ROOT_HTML
+    ARootHttpServer::getInstance().onNewGeoManagerCreated();
+#endif
 }
 
 #include "amonitor.h"
@@ -362,7 +387,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     SensorHub.registerNextSensor(sr);
 }
 
-bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode)
+bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode) const
 {
     TGeoVolume * startVol = startNode->GetVolume();
     //qDebug() << "    Starting from"<<startVol->GetName();
@@ -388,7 +413,7 @@ bool AGeometryHub::findMotherNodeFor(const TGeoNode * node, const TGeoNode * sta
     return false;
 }
 
-void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode)
+void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode) const
 {
     //qDebug() << "--- search for " << node->GetName();
     TObjArray* allNodes = GeoManager->GetListOfNodes();
@@ -405,7 +430,7 @@ void AGeometryHub::findMotherNode(const TGeoNode * node, const TGeoNode* & mothe
     //else qDebug() << "--- search failed!";
 }
 
-void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
+void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position) const
 {
     double master[3];
     TGeoVolume * motherVol = node->GetMotherVolume();
@@ -436,7 +461,7 @@ void AGeometryHub::getGlobalPosition(const TGeoNode * node, AVector3 & position)
     }
 }
 
-void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ)
+void AGeometryHub::getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ) const
 {
     uvX[0] = 1.0; uvX[1] = 0.0; uvX[2] = 0.0;
     uvY[0] = 0.0; uvY[1] = 1.0; uvY[2] = 0.0;
@@ -486,21 +511,6 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         vol = parent; // group objects are pure virtual, pass the volume of the parent
     else
     {
-        if (obj->Type->isMonitor())
-        {
-            obj->updateMonitorShape();
-
-            if (obj->Container) obj->Material = obj->Container->getMaterial();
-            else
-            {
-                QString err = "Error: Monitor without container: " + obj->Name;
-                AErrorHub::addQError(err);
-                qWarning() << err;
-                return;
-            }
-        }
-        // No need special init for calorimeters
-
         if (obj->Type->isComposite())
         {
             bool ok = processCompositeObject(obj);
@@ -508,7 +518,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         }
 
         AMaterialHub & MatHub = AMaterialHub::getInstance();
-        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), MatHub[obj->Material]->GeoMed);
+        vol = new TGeoVolume(obj->Name.toLocal8Bit().data(), obj->Shape->createGeoShape(), MatHub[obj->Material]->_GeoMed);
 
         TGeoRotation * lRot = nullptr;
         if (obj->TrueRot)
@@ -539,12 +549,22 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
         else
-            parent->AddNode(vol, forcedNodeNumber, lTrans);
+        {
+            if (obj->isScintillator())
+            {
+                //TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);  // not compatible with old ROOT versions
+                parent->AddNode(vol, Scintillators.size(), lTrans);
+                TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+                Scintillators.push_back({obj, node});
+            }
+            else
+                parent->AddNode(vol, forcedNodeNumber, lTrans);
+        }
     }
 
     // Position hosted objects
     if      (obj->Type->isHandlingArray())
-        positionArray(obj, vol);
+        positionArray(obj, vol, forcedNodeNumber);
     else if (obj->Type->isStack())
         positionStack(obj, vol, forcedNodeNumber);
     else if (obj->Type->isInstance())
@@ -598,16 +618,28 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     vol->SetTitle(title);
 }
 
-void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
+void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)
 {
     ATypeArrayObject * array = static_cast<ATypeArrayObject*>(obj->Type);
 
     ATypeCircularArrayObject  * circArray = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
     ATypeHexagonalArrayObject * hexArray  = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
 
+    int iCounterStart = array->startIndex;
+    if (array->strStartIndex.contains("ParentIndex"))
+    {
+        QString tmpStr = array->strStartIndex;
+        tmpStr.replace("ParentIndex", QString::number(parentNodeIndex));
+        const AGeoConsts & GC = AGeoConsts::getConstInstance();
+        QString errorStr;
+        bool ok = GC.updateIntParameter(errorStr, tmpStr, iCounterStart, false, true);
+        if (!ok) qWarning() << "Error in start index using ParentIndex";
+    }
+
     for (AGeoObject * el : obj->HostedObjects)
     {
-        int iCounter = array->startIndex;
+        //int iCounter = array->startIndex;
+        int iCounter = iCounterStart;
         if (iCounter < 0) iCounter = 0;
 
         if (circArray)
@@ -620,7 +652,8 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol)
             if (hexArray->Shape == ATypeHexagonalArrayObject::Hexagonal)
             {
                 for (int iR = 0; iR < hexArray->Rings; iR++)
-                    positionHexArrayRing(iR, el, obj, vol, iCounter++);
+                    positionHexArrayRing(iR, el, obj, vol, iCounter);
+                iCounter++;
             }
             else
             {
@@ -655,7 +688,7 @@ void AGeometryHub::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedN
     const ATypeStackContainerObject * stack = static_cast<const ATypeStackContainerObject*>(obj->Type);
     const QString & RefObjName = stack->ReferenceVolume;
     const AGeoObject * RefObj = nullptr;
-    for (const AGeoObject * el : qAsConst(obj->HostedObjects))
+    for (const AGeoObject * el : obj->HostedObjects)
         if (el->Name == RefObjName)
         {
             RefObj = el;
@@ -816,7 +849,7 @@ void AGeometryHub::positionHexArrayElement(double localX, double localY, AGeoObj
     addTGeoVolumeRecursively(el, parent, arrayIndex);
 }
 
-void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex)
+void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int & arrayIndex)
 {
     ATypeHexagonalArrayObject * array = static_cast<ATypeHexagonalArrayObject*>(arrayObj->Type);
 
@@ -1090,10 +1123,10 @@ void AGeometryHub::colorVolumes(int scheme, int id)
         switch (scheme)
         {
         case 0:  //default color volumes for PMs and dPMs otherwise color from AGeoObject
-            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);
+            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);  // !!!*** obsolete?
             else
             {
-                const AGeoObject * obj = World->findObjectByName(name); // !*! can be very slow for large detectors!
+                const AGeoObject * obj = World->findObjectByName(name); // !!!*** can be very slow for large detectors!
                 if (!obj && !name.isEmpty())
                 {
                     //special for monitors
@@ -1145,8 +1178,31 @@ int AGeometryHub::checkGeometryForConflicts()
     return overlapCount;
 }
 
-#include <QFileInfo>
-#include "afiletools.h"
+QString AGeometryHub::exportGeometry(const QString & fileName)
+{
+    QFileInfo fi(fileName);
+    const QString suffix = fi.suffix();
+    if (!suffix.compare("gdml", Qt::CaseInsensitive))
+        if (!suffix.compare("root", Qt::CaseInsensitive))
+            return "File name should have .gdml or .root suffix";
+
+    QJsonObject json;
+    writeToJson(json);
+    DoScaling = true;
+    ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
+    populateGeoManager();
+
+    GeoManager->SetName("geometry");
+    int res = GeoManager->Export(fileName.toLocal8Bit().data());
+
+    DoScaling = false;
+    readFromJson(json);
+    populateGeoManager();
+
+    return (res == 0 ? "Failed to export to file "+fileName : "");
+}
+
+/*
 QString AGeometryHub::exportToGDML(const QString & fileName) const
 {
     QFileInfo fi(fileName);
@@ -1188,6 +1244,312 @@ QString AGeometryHub::exportToROOT(const QString & fileName) const
 
     return "";
 }
+*/
+
+//#include "a3global.h"
+QString AGeometryHub::readGDMLtoTGeo(const QString & fileName)
+{
+    QString txt;
+    bool bOK = ftools::loadTextFromFile(txt, fileName);
+    if (!bOK) return "Cannot open file " + fileName;
+
+    if (txt.contains("unit=\"cm\"") || txt.contains("unit=\"m\""))
+        return "Cannot load GDML files with length units other than \"mm\"";
+
+    txt.replace("unit=\"mm\"", "unit=\"cm\"");
+    //const QString tmpFileName = A3Global::getConstInstance().ExecutableDir + "/gdmlTMP.gdml";
+    const QString tmpFileName = "gdmlTMP.gdml";
+    bOK = ftools::saveTextToFile(txt, tmpFileName);
+    if (!bOK) return "Conversion failed - tmp file cannot be allocated";
+
+    delete GeoManager; GeoManager = nullptr;
+    GeoManager = TGeoManager::Import(tmpFileName.toLatin1());
+    QFile(tmpFileName).remove();
+
+    if (!GeoManager || !GeoManager->IsClosed())
+    {
+        GeoManager = new TGeoManager();
+        return "Load GDML failed!"; // needs rebuild!
+    }
+    qDebug() << "--> tmp GeoManager loaded from GDML file";
+
+    return "";
+}
+
+#include <TVector3.h>
+#include <TMatrixD.h>
+#include <TMath.h>
+
+// input: R - rotation matrix
+// return: vector of Euler angles in X-convention (Z0, X, Z1)
+// based on the pseudocode by David Eberly from
+// https://www.geometrictools.com/Documentation/EulerAngles.pdf
+TVector3 euler(TMatrixD R)  // !!!*** need?
+{
+    double tol = 1e-6; // tolerance to detect special cases
+    double Pi = TMath::Pi();
+    double thetaZ0, thetaX, thetaZ1; // Euler angles
+
+    if (R(2,2) < 1.-tol) {
+        if (R(2,2) > -1.+tol) {
+            thetaX = acos(R(2,2));
+            thetaZ0 = atan2(R(0,2), -R(1,2));
+            thetaZ1 = atan2(R(2,0), R(2,1));
+        } else { // r22 == -1.
+            thetaX = Pi;
+            thetaZ0 = -atan2(-R(0,1), R(0,0));
+            thetaZ1 = 0.;
+        }
+    } else { // r22 == +1.
+        thetaX = 0.;
+        thetaZ0 = atan2(-R(0,1), R(0,0));
+        thetaZ1 = 0.;
+    }
+    return TVector3(thetaZ0, thetaX, thetaZ1);
+}
+
+void processNonComposite(QString Name, TGeoShape* Tshape, const TGeoMatrix* Matrix, QVector<AGeoObject*>& LogicalObjects)
+{
+    //qDebug() << Name;
+    TGeoTranslation trans(*Matrix);
+    //qDebug() << "Translation:"<<trans.GetTranslation()[0]<<trans.GetTranslation()[1]<<trans.GetTranslation()[2];
+    TGeoRotation rot(*Matrix);
+    double phi, theta, psi;
+    rot.GetAngles(phi, theta, psi);
+    //qDebug() << "Rotation:"<<phi<<theta<<psi;
+
+    AGeoObject* GeoObj = new AGeoObject(Name);
+    for (int i=0; i<3; i++) GeoObj->Position[i] = trans.GetTranslation()[i];
+    GeoObj->Orientation[0] = phi; GeoObj->Orientation[1] = theta; GeoObj->Orientation[2] = psi;
+    delete GeoObj->Shape;
+    GeoObj->Shape = AGeoShape::GeoShapeFactory(Tshape->ClassName());
+    if (!GeoObj->Shape)
+    {
+        qWarning() << "Unknown TGeoShape:"<<Tshape->ClassName();
+        GeoObj->Shape = new AGeoBox();
+    }
+    bool fOK = GeoObj->Shape->readFromTShape(Tshape);
+    if (!fOK)
+    {
+        qWarning() << "Not implemented: import data from"<<Tshape->ClassName()<< "to ANTS2 object";
+        GeoObj->Shape = new AGeoBox();
+    }
+    LogicalObjects << GeoObj;
+}
+
+bool isLogicalObjectsHaveName(const QVector<AGeoObject*>& LogicalObjects, const QString name)
+{
+    for (AGeoObject* obj : LogicalObjects)
+        if (obj->Name == name) return true;
+    return false;
+}
+
+#include "TGeoBoolNode.h"
+#include "TGeoCompositeShape.h"
+void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& LogicalObjects, QString& GenerationString )
+{
+    TGeoBoolNode* n = Tshape->GetBoolNode();
+    if (!n)
+    {
+        qWarning() << "Failed to read BoolNode in TCompositeShape!";
+    }
+
+    TGeoBoolNode::EGeoBoolType operation = n->GetBooleanOperator(); // kGeoUnion, kGeoIntersection, kGeoSubtraction
+    QString operationStr;
+    switch (operation)
+    {
+    default:
+        qCritical() << "Unknown EGeoBoolType, assuming it is kGeoUnion";
+    case TGeoBoolNode::kGeoUnion:
+        operationStr = " + "; break;
+    case TGeoBoolNode::kGeoIntersection:
+        operationStr = " * "; break;
+    case TGeoBoolNode::kGeoSubtraction:
+        operationStr = " - "; break;
+    }
+    //qDebug() << "UnionIntersectSubstr:"<<operationStr;
+
+    TGeoShape* left = n->GetLeftShape();
+    QString leftName;
+    TGeoCompositeShape* CompositeShape = dynamic_cast<TGeoCompositeShape*>(left);
+    if (CompositeShape)
+    {
+        QString tmp;
+        processTCompositeShape(CompositeShape, LogicalObjects, tmp);
+        if (tmp.isEmpty())
+            qWarning() << "Error processing TGeoComposite: no generation string obtained";
+        leftName = " (" + tmp + ") ";
+    }
+    else
+    {
+        QString leftNameBase = leftName = left->GetName();
+        while (isLogicalObjectsHaveName(LogicalObjects, leftName))
+            leftName = leftNameBase + "_" + AGeoObject::GenerateRandomName();
+        processNonComposite(leftName, left, n->GetLeftMatrix(), LogicalObjects);
+    }
+
+    TGeoShape* right = n->GetRightShape();
+    QString rightName;
+    CompositeShape = dynamic_cast<TGeoCompositeShape*>(right);
+    if (CompositeShape)
+    {
+        QString tmp;
+        processTCompositeShape(CompositeShape, LogicalObjects, tmp);
+        if (tmp.isEmpty())
+            qWarning() << "Error processing TGeoComposite: no generation string obtained";
+        rightName = " (" + tmp + ") ";
+    }
+    else
+    {
+        QString rightNameBase = rightName = right->GetName();
+        while (isLogicalObjectsHaveName(LogicalObjects, rightName))
+            rightName = rightNameBase + "_" + AGeoObject::GenerateRandomName();
+        processNonComposite(rightName, right, n->GetRightMatrix(), LogicalObjects);
+    }
+
+    GenerationString = " " + leftName + operationStr + rightName + " ";
+    //qDebug() << leftName << operationStr << rightName;
+}
+
+void readGeoObjectTree(AGeoObject * obj, const TGeoNode * node)
+{
+    obj->Name = node->GetName();
+
+    // Material
+    //const QString mat = node->GetVolume()->GetMaterial()->GetName();
+    //qDebug() << mat << node->GetVolume()->GetMaterial()->GetIndex();
+    obj->Material = node->GetVolume()->GetMaterial()->GetIndex();
+
+    obj->color = obj->Material+1;
+    obj->fExpanded = true;
+
+    // Shape
+    TGeoShape * Tshape = node->GetVolume()->GetShape();
+    const QString Sshape = Tshape->ClassName();
+    //qDebug() << "TGeoShape:"<<Sshape;
+    AGeoShape * Ashape = AGeoShape::GeoShapeFactory(Sshape);
+    bool fOK = false;
+    if (!Ashape) qWarning() << "TGeoShape was not recognized - using box";
+    else
+    {
+        delete obj->Shape; //delete default one
+        obj->Shape = Ashape;
+
+        fOK = Ashape->readFromTShape(Tshape);  //composite has special procedure!
+        if (Ashape->getShapeType() == "TGeoCompositeShape")
+        {
+            //TGeoShape -> TGeoCompositeShape
+            TGeoCompositeShape* tshape = static_cast<TGeoCompositeShape*>(Tshape);
+
+            //AGeoObj converted to composite type:
+            delete obj->Type; obj->Type = new ATypeCompositeObject();
+            //creating container for logical objects:
+            AGeoObject* logicals = new AGeoObject();
+            logicals->Name = "CompositeSet_"+obj->Name;
+            delete logicals->Type; logicals->Type = new ATypeCompositeContainerObject();
+            obj->addObjectFirst(logicals);
+
+            QVector<AGeoObject*> AllLogicalObjects;
+            QString GenerationString;
+            processTCompositeShape(tshape, AllLogicalObjects, GenerationString);
+            AGeoComposite* cshape = static_cast<AGeoComposite*>(Ashape);
+            cshape->GenerationString = "TGeoCompositeShape(" + GenerationString + ")";
+            for (AGeoObject* ob : AllLogicalObjects)
+            {
+                ob->Material = obj->Material;
+                logicals->addObjectLast(ob);
+                cshape->members << ob->Name;
+            }
+            //qDebug() << cshape->GenerationString;// << cshape->members;
+
+            fOK = true;
+        }
+    }
+    //qDebug() << "Shape:"<<Sshape<<"Read success:"<<fOK;
+    if (!fOK) qDebug() << "Failed to read shape for:"<<obj->Name;
+
+    //position + angles
+    const TGeoMatrix* matrix = node->GetMatrix();
+    TGeoTranslation trans(*matrix);
+    for (int i=0; i<3; i++) obj->Position[i] = trans.GetTranslation()[i];
+    TGeoRotation mrot(*matrix);
+    mrot.GetAngles(obj->Orientation[0], obj->Orientation[1], obj->Orientation[2]);
+    //qDebug() << "xyz:"<<obj->Position[0]<< obj->Position[1]<< obj->Position[2]<< "phi,theta,psi:"<<obj->Orientation[0]<<obj->Orientation[1]<<obj->Orientation[2];
+
+    //hosted nodes
+    int totNodes = node->GetNdaughters();
+    //qDebug() << "Number of hosted nodes:"<<totNodes;
+    for (int i=0; i<totNodes; i++)
+    {
+        TGeoNode* daugtherNode = node->GetDaughter(i);
+        QString name = daugtherNode->GetName();
+        //qDebug() << i<< name;
+
+        //not a PM
+        AGeoObject* inObj = new AGeoObject(name);
+        obj->addObjectLast(inObj);
+        readGeoObjectTree(inObj, daugtherNode);
+    }
+}
+
+QString AGeometryHub::importGDML(const QString & fileName)
+{
+    QString err = readGDMLtoTGeo(fileName.toLatin1());
+    if (!err.isEmpty()) return err;
+
+    const TGeoNode * top = GeoManager->GetTopNode();
+    //ShowNodes(top, 0);
+
+    AMaterialHub::getInstance().importMaterials(GeoManager->GetListOfMaterials());
+
+    clearWorld();
+    readGeoObjectTree(World, top);
+    World->makeItWorld();
+    AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
+    if (wb)
+    {
+        setWorldSizeXY( std::max(wb->dx, wb->dy) );
+        setWorldSizeZ(wb->dz);
+    }
+    setWorldSizeFixed(wb);
+
+    //GeoManager->FindNode(0,0,0); // need?
+
+    return "";
+}
+
+QString AGeometryHub::importGeometry(const QString &fileName)
+{
+    delete GeoManager; GeoManager = nullptr;
+    GeoManager = TGeoManager::Import(fileName.toLocal8Bit());
+
+    if (!GeoManager || !GeoManager->IsClosed())
+    {
+        GeoManager = new TGeoManager();
+        return "Load GDML failed!"; // needs rebuild!
+    }
+    qDebug() << "--> tmp GeoManager loaded from GDML file";
+
+    const TGeoNode * top = GeoManager->GetTopNode();
+    //ShowNodes(top, 0);
+
+    AMaterialHub::getInstance().importMaterials(GeoManager->GetListOfMaterials());
+
+    clearWorld();
+    readGeoObjectTree(World, top);
+    World->makeItWorld();
+    AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
+    if (wb)
+    {
+        setWorldSizeXY( std::max(wb->dx, wb->dy) );
+        setWorldSizeZ(wb->dz);
+    }
+    setWorldSizeFixed(wb);
+
+    World->scaleRecursive(10.0);  // 1[cm] becomes 10[mm]
+
+    return "";
+}
 
 QString AGeometryHub::generateStandaloneObjectName(const AGeoShape * shape) const
 {
@@ -1223,6 +1585,46 @@ void AGeometryHub::removeNameDecorators(TString & name) const
 {
     const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
     if (ind != TString::kNPOS) name.Resize(ind);
+}
+
+void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) const
+{
+    positions.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
+    {
+        positions[i] = {0,0,0};
+        const TGeoNode * node = Scintillators[i].second;
+        getGlobalPosition(node, positions[i]);
+    }
+}
+
+void AGeometryHub::getScintillatorOrientations(std::vector<AVector3> & orientations) const
+{
+    orientations.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
+    {
+        const TGeoNode * node = Scintillators[i].second;
+        double uvX[3], uvY[3], uvZ[3];
+        getGlobalUnitVectors(node, uvX, uvY, uvZ);
+        orientations[i] = {uvX[0], uvX[1], uvX[2]};
+    }
+}
+
+void AGeometryHub::getScintillatorVolumeNames(std::vector<QString> & vol) const
+{
+    vol.resize(Scintillators.size());
+    for (size_t i = 0; i < Scintillators.size(); i++)
+        vol[i] = Scintillators[i].first->Name;
+}
+
+void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const
+{
+    for (size_t i = 0; i < Scintillators.size(); i++)
+    {
+        const QString & name = Scintillators[i].first->Name;
+        if (std::find(vol.begin(), vol.end(), name) == vol.end())
+            vol.push_back(name);
+    }
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

@@ -11,7 +11,9 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <QDebug>
+
+//#include <QDebug>
+
 TrackingAction::TrackingAction(){}
 
 TrackingAction::~TrackingAction(){}

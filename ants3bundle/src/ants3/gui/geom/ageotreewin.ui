@@ -639,42 +639,32 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="pmParseInGeometryFromGDML">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>All length sizes should be in mm!</string>
+             </property>
+             <property name="text">
+              <string>Import geometry from a GDML file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="Line" name="line_3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_13">
-             <property name="topMargin">
-              <number>3</number>
-             </property>
-             <property name="bottomMargin">
-              <number>3</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="pmParseInGeometryFromGDML">
-               <property name="minimumSize">
-                <size>
-                 <width>400</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>All length sizes should be in mm!</string>
-               </property>
-               <property name="text">
-                <string>Import geometry from a GDML file</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </item>
            <item>
             <widget class="Line" name="line">

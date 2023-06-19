@@ -46,7 +46,7 @@ protected:
 
 private slots:
     void insertCompletion(const QString &completion);    
-    void onCursorPositionChanged();
+    void onCursorPositionChanged(); // !!!***
     void updateLineNumberAreaWidth();
     void updateLineNumberArea(const QRect &rect, int dy);
 
@@ -62,7 +62,7 @@ private:
     void setFontSizeAndEmitSignal(int size);
 
     friend class ALeftField;
-    void paintLeftField(QPaintEvent *event);
+    void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
     int  getWidthLeftField() const;
 
     QCompleter* c;

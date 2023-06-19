@@ -9,7 +9,7 @@
 #include <vector>
 
 class AFarmHub;
-class A3FarmNodeRecord;
+class AFarmNodeRecord;
 class AServerDelegate;
 
 namespace Ui {
@@ -51,7 +51,7 @@ private slots:
 
 private:
     void clear();
-    void addNewNodeDelegate(A3FarmNodeRecord * record);
+    void addNewNodeDelegate(AFarmNodeRecord * record);
 
 };
 

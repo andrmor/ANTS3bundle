@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     if ( argc == 1   ||   (argc == 2 && QString(argv[1]).startsWith("-qml")) )
     {
         QApplication * qa = new QApplication(argc, argv);
-        qa->setStyle(new AProxyStyle);
+        //qa->setStyle(new AProxyStyle);
         app.reset(qa);
     }
     else app.reset(new QCoreApplication(argc, argv));

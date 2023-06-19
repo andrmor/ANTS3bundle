@@ -1,13 +1,15 @@
 #include "exceptionhandler.h"
 #include "SessionManager.hh"
 
-#include <QDebug>
+#include <iostream>
 
 G4bool ExceptionHandler::Notify(const char * originOfException, const char * exceptionCode, G4ExceptionSeverity severity, const char * description)
 {
-    qDebug() << originOfException;
-    qDebug() << exceptionCode;
-    qDebug() << description;
+    std::cout << originOfException << std::endl;
+    std::cout << exceptionCode << std::endl;
+    std::cout << description << std::endl;
+
+    if (severity == JustWarning) return false;
 
     SessionManager::getInstance().terminateSession(description);
     return true;

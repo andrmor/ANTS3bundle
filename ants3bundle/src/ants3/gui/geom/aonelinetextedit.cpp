@@ -24,7 +24,8 @@ AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPla
     setTabChangesFocus(false);
 
     QPalette p = palette();
-    p.setColor(QPalette::Disabled, QPalette::Base, QColor(235,235,235));
+    //p.setColor(QPalette::Disabled, QPalette::Base, QColor(235,235,235));
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::AlternateBase));
     setPalette(p);
 
     connect(this, &AOneLineTextEdit::textChanged, this, &AOneLineTextEdit::clearTooltip);

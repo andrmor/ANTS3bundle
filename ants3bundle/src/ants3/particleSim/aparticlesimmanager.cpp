@@ -4,7 +4,7 @@
 #include "asourceparticlegenerator.h"
 #include "afileparticlegenerator.h"
 #include "ageometryhub.h"
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "a3workdistrconfig.h"
 #include "adispatcherinterface.h"
 #include "a3global.h"
@@ -55,7 +55,7 @@ void AParticleSimManager::simulate(int numLocalProc)
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
 
     // configure number of local/remote processes to run
-    std::vector<A3FarmNodeRecord> RunPlan;
+    std::vector<AFarmNodeRecord> RunPlan;
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty())
@@ -75,7 +75,19 @@ void AParticleSimManager::simulate(int numLocalProc)
 
     processReply(Reply);
 
-    if (!AErrorHub::isError()) mergeOutput();
+    if (!AErrorHub::isError()) mergeOutput(!SimSet.RunSet.AsciiOutput);
+}
+
+void AParticleSimManager::abort()
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    Dispatcher.abortTask();
+}
+
+bool AParticleSimManager::isAborted() const
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    return Dispatcher.isAborted();
 }
 
 void AParticleSimManager::processReply(const QJsonObject & Reply)
@@ -181,7 +193,7 @@ int AParticleSimManager::getNumberEvents() const
     return numEvents;
 }
 
-bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "g4ants3";
 
@@ -192,6 +204,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
     configureMaterials();
     configureMonitors();
     configureCalorimeters();
+    configureScintillators();
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
@@ -205,7 +218,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<A3FarmNodeRecord
 
     int iEvent = 0;
     int iProcess = 0;
-    for (const A3FarmNodeRecord & r : RunPlan)   // per node server
+    for (const AFarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;
@@ -344,13 +357,13 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
 
     const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
     Request.CommonFiles.push_back(LocalGdmlName);
-    QString err = Geometry.exportToGDML(LocalGdmlName);
+    //QString err = Geometry.exportToGDML(LocalGdmlName);
+    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName);
 
-    // refactor !!!***
     if (err.isEmpty()) return true;
     else
     {
-        AErrorHub::addError(err.toLatin1().data());
+        AErrorHub::addQError(err);
         return false;
     }
 }
@@ -359,8 +372,9 @@ void AParticleSimManager::configureMaterials()
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
 
-    SimSet.RunSet.Materials         = MatHub.getMaterialNames();
-    SimSet.RunSet.MaterialsFromNist = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.Materials             = MatHub.getMaterialNames();
+    SimSet.RunSet.MaterialsFromNist     = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.MaterialsMeanExEnergy = MatHub.getMaterialsMeanExEnergy();
 }
 
 void AParticleSimManager::configureMonitors()
@@ -371,6 +385,19 @@ void AParticleSimManager::configureMonitors()
 void AParticleSimManager::configureCalorimeters()
 {
     SimSet.RunSet.CalorimeterSettings.initFromHub();
+}
+
+void AParticleSimManager::configureScintillators()
+{
+    SimSet.G4Set.ScintSensitiveVolumes.clear();
+    if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    {
+        std::vector<QString> vol;
+        Geometry.getScintillatorVolumeUniqueNames(vol);
+
+        for (const QString & name : vol)
+            SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+    }
 }
 
 // ---
@@ -387,20 +414,20 @@ void AParticleSimManager::checkDirectories()
 
 #include "amonitorhub.h"
 #include "acalorimeterhub.h"
-void AParticleSimManager::mergeOutput()
+void AParticleSimManager::mergeOutput(bool binary)
 {
     qDebug() << "Merging output files...";
 
     const QString & OutputDir(SimSet.RunSet.OutputDirectory.data());
 
     if (SimSet.RunSet.SaveTrackingHistory)
-        HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data());
+        HistoryFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTrackingHistory.data(), binary);
 
     if (SimSet.RunSet.SaveDeposition)
-        DepositionFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameDeposition.data());
+        DepositionFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameDeposition.data(), binary);
 
     if (SimSet.RunSet.SaveSettings.Enabled)
-        ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data());
+        ParticlesFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.SaveSettings.FileName.data(), binary);
 
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     //MonitorHub.clearData(AMonitorHub::Particle);
@@ -473,12 +500,9 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
                                          bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
                                          const int MaxTracks, int LimitToEvent)
 {
-    // binary or ascii !!!***
-    bool bBinary = false;
+    Geometry.GeoManager->ClearTracks();
 
-    gGeoManager->ClearTracks();
-
-    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+    ATrackingDataImporter tdi(fileName);
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
 
     const QSet<QString> LimitTo(LimitToParticles.begin(), LimitToParticles.end());
@@ -491,6 +515,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     int iTrack = 0;
     while (iTrack < MaxTracks)
     {
+        //qDebug() << "TB--> Event:" << iEvent << "Track index:" << iTrack;
         if (LimitToEvent >= 0)
         {
             if (iEvent < LimitToEvent)
@@ -502,11 +527,13 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
             if (iEvent > LimitToEvent) break;
         }
 
+        //qDebug() << "TB--> Asking extractor for event #" << iEvent;
         bool ok = tdi.extractEvent(iEvent, record);
         iEvent++;
 
         if (!ok)
         {
+            //qDebug() << tdi.ErrorString << tdi.isEndReached();
             if (tdi.isEndReached()) return "";
             return tdi.ErrorString;
         }
@@ -524,10 +551,7 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
 
 QString AParticleSimManager::fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record)
 {
-    // binary or ascii !!!***
-    bool bBinary = false;
-
-    ATrackingDataImporter tdi(fileName, bBinary); // !!!*** make it persistent
+    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
 
     bool ok = tdi.extractEvent(iEvent, record);
     if (!ok) return tdi.ErrorString;

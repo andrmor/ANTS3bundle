@@ -21,18 +21,18 @@ void APhotonGenerator::generateWave(APhoton & Photon, int iMaterial)
     {
         if (Photon.SecondaryScint)
         {
-            if (SimSet.WaveSet.Enabled && Material->SecondarySpectrumHist)
+            if (SimSet.WaveSet.Enabled && Material->_SecondarySpectrumHist)
             {
-                double wavelength = Material->SecondarySpectrumHist->GetRandom();
+                double wavelength = Material->_SecondarySpectrumHist->GetRandom();
                 Photon.waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
                 //  qDebug()<<"sec! lambda "<<wavelength<<" index:"<<Photon.waveIndex;
             }
         }
         else
         {
-            if (Material->PrimarySpectrumHist)
+            if (Material->_PrimarySpectrumHist)
             {
-                double wavelength = Material->PrimarySpectrumHist->GetRandom();
+                double wavelength = Material->_PrimarySpectrumHist->GetRandom();
                 Photon.waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
                 //  qDebug()<<"prim! lambda "<<wavelength<<" index:"<<Photon.waveIndex;
             }

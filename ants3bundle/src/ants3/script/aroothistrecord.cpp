@@ -17,79 +17,79 @@ TObject* ARootHistRecord::GetObject()
     return Object;
 }
 
-void ARootHistRecord::SetTitle(const QString Title)
+void ARootHistRecord::setTitle(const QString & title)
 {
     QMutexLocker locker(&Mutex);
-    TH1* h = dynamic_cast<TH1*>(Object);
-    h->SetTitle(Title.toLatin1().data());
+    TH1 * h = dynamic_cast<TH1*>(Object);
+    h->SetTitle(title.toLatin1().data());
 }
 
-void ARootHistRecord::SetAxisTitles(const QString X_Title, const QString Y_Title, const QString Z_Title)
+void ARootHistRecord::setAxisTitles(const QString &x_Title, const QString &y_Title, const QString &z_Title)
 {
     QMutexLocker locker(&Mutex);
 
     if (Type == "TH1D")
     {
         TH1D* h = static_cast<TH1D*>(Object);
-        h->SetXTitle(X_Title.toLatin1().data());
-        h->SetYTitle(Y_Title.toLatin1().data());
+        h->SetXTitle(x_Title.toLatin1().data());
+        h->SetYTitle(y_Title.toLatin1().data());
     }
     else if (Type == "TH2D")
     {
         TH2D* h = static_cast<TH2D*>(Object);
-        h->SetXTitle(X_Title.toLatin1().data());
-        h->SetYTitle(Y_Title.toLatin1().data());
-        h->SetZTitle(Z_Title.toLatin1().data());
+        h->SetXTitle(x_Title.toLatin1().data());
+        h->SetYTitle(y_Title.toLatin1().data());
+        h->SetZTitle(z_Title.toLatin1().data());
     }
 }
 
-void ARootHistRecord::SetLineProperties(int LineColor, int LineStyle, int LineWidth)
+void ARootHistRecord::setLineProperties(int lineColor, int lineStyle, int lineWidth)
 {
     QMutexLocker locker(&Mutex);
 
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
     {
-        h->SetLineColor(LineColor);
-        h->SetLineWidth(LineWidth);
-        h->SetLineStyle(LineStyle);
+        h->SetLineColor(lineColor);
+        h->SetLineWidth(lineWidth);
+        h->SetLineStyle(lineStyle);
     }
 }
 
-void ARootHistRecord::SetMarkerProperties(int MarkerColor, int MarkerStyle, double MarkerSize)
+void ARootHistRecord::setMarkerProperties(int markerColor, int markerStyle, double markerSize)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
     {
-        h->SetMarkerColor(MarkerColor);
-        h->SetMarkerStyle(MarkerStyle);
-        h->SetMarkerSize(MarkerSize);
+        h->SetMarkerColor(markerColor);
+        h->SetMarkerStyle(markerStyle);
+        h->SetMarkerSize(markerSize);
     }
 }
 
-void ARootHistRecord::SetFillColor(int Color)
+void ARootHistRecord::setFillColor(int color)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
-    if (h) h->SetFillColor(Color);
+    if (h) h->SetFillColor(color);
 }
 
-void ARootHistRecord::SetXLabels(const QVector<QString> &labels)
+void ARootHistRecord::setXLabels(const std::vector<QString> & labels)
 {
     int numLabels = labels.size();
 
-    TH1* h = dynamic_cast<TH1*>(Object);
+    TH1 * h = dynamic_cast<TH1*>(Object);
     if (h)
     {
         TAxis * axis = h->GetXaxis();
         if (!axis) return;
 
-        int numBins = axis->GetNbins();
-        for (int i=1; i <= numLabels && i <= numBins ; i++)
+        const int numBins = axis->GetNbins();
+        for (int i = 1; i <= numLabels && i <= numBins ; i++)
             axis->SetBinLabel(i, labels.at(i-1).toLatin1().data());
     }
 }
 
-void ARootHistRecord::SetXDivisions(int primary, int secondary, int tertiary, bool canOptimize)
+void ARootHistRecord::setXDivisions(int primary, int secondary, int tertiary, bool canOptimize)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
@@ -101,7 +101,7 @@ void ARootHistRecord::SetXDivisions(int primary, int secondary, int tertiary, bo
     }
 }
 
-void ARootHistRecord::SetYDivisions(int primary, int secondary, int tertiary, bool canOptimize)
+void ARootHistRecord::setYDivisions(int primary, int secondary, int tertiary, bool canOptimize)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
@@ -113,7 +113,7 @@ void ARootHistRecord::SetYDivisions(int primary, int secondary, int tertiary, bo
     }
 }
 
-void ARootHistRecord::SetXLabelProperties(double size, double offset)
+void ARootHistRecord::setXLabelProperties(double size, double offset)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
@@ -126,7 +126,7 @@ void ARootHistRecord::SetXLabelProperties(double size, double offset)
     }
 }
 
-void ARootHistRecord::SetYLabelProperties(double size, double offset)
+void ARootHistRecord::setYLabelProperties(double size, double offset)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h)
@@ -139,78 +139,82 @@ void ARootHistRecord::SetYLabelProperties(double size, double offset)
     }
 }
 
-void ARootHistRecord::Fill(double val, double weight)
+void ARootHistRecord::fill1D(double x, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH1D")
     {
+        QMutexLocker locker(&Mutex);
         TH1D* h = static_cast<TH1D*>(Object);
-        h->Fill(val, weight);
+        h->Fill(x, weight);
     }
 }
 
-void ARootHistRecord::Fill2D(double x, double y, double weight)
+void ARootHistRecord::fill2D(double x, double y, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH2D")
     {
+        QMutexLocker locker(&Mutex);
         TH2D* h = static_cast<TH2D*>(Object);
         h->Fill(x, y, weight);
     }
 }
 
-void ARootHistRecord::Fill3D(double x, double y, double z, double weight)
+void ARootHistRecord::fill3D(double x, double y, double z, double weight)
 {
-    QMutexLocker locker(&Mutex);
-
     if (Type == "TH3D")
     {
+        QMutexLocker locker(&Mutex);
         TH3D * h = static_cast<TH3D*>(Object);
         h->Fill(x, y, z, weight);
     }
 }
 
-void ARootHistRecord::FillArr(const QVector<double>& val, const QVector<double>& weight)
+void ARootHistRecord::fill1D(const std::vector<double> & x, const std::vector<double> & weight)
 {
-    QMutexLocker locker(&Mutex);
-
-    if (Type == "TH1D")
+    if (x.size() == weight.size() && Type == "TH1D")
     {
-        TH1D* h = static_cast<TH1D*>(Object);
-
-        for (int i=0; i<val.size(); i++)
-            h->Fill(val.at(i), weight.at(i));
+        QMutexLocker locker(&Mutex);
+        TH1D * h = static_cast<TH1D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], weight[i]);
     }
 }
 
-void ARootHistRecord::Fill2DArr(const QVector<double> &x, const QVector<double> &y, const QVector<double> &weight)
+void ARootHistRecord::fill2D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & weight)
 {
-    QMutexLocker locker(&Mutex);
-
-    if (Type == "TH2D")
+    if (x.size() == weight.size() && y.size() == weight.size() && Type == "TH2D")
     {
-        TH2D* h = static_cast<TH2D*>(Object);
-
-        for (int i=0; i<x.size(); i++)
-            h->Fill(x.at(i), y.at(i), weight.at(i));
+        QMutexLocker locker(&Mutex);
+        TH2D * h = static_cast<TH2D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], y[i], weight[i]);
     }
 }
 
-void ARootHistRecord::SetMax(double max)
+void ARootHistRecord::fill3D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & z, const std::vector<double> & weight)
+{
+    if (x.size() == weight.size() && y.size() == weight.size() && z.size() == weight.size() && Type == "TH3D")
+    {
+        QMutexLocker locker(&Mutex);
+        TH3D * h = static_cast<TH3D*>(Object);
+        for (size_t i = 0; i < x.size(); i++)
+            h->Fill(x[i], y[i], z[i], weight[i]);
+    }
+}
+
+void ARootHistRecord::setMax(double max)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h) h->SetMaximum(max);
 }
 
-void ARootHistRecord::SetMin(double min)
+void ARootHistRecord::setMin(double min)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (h) h->SetMinimum(min);
 }
 
-void ARootHistRecord::Save(const QString &fileName) const
+void ARootHistRecord::save(const QString &fileName) const
 {
     QMutexLocker locker(&Mutex);
 
@@ -232,23 +236,22 @@ void ARootHistRecord::Save(const QString &fileName) const
     }
 }
 
-bool ARootHistRecord::Divide(ARootHistRecord *other)
+bool ARootHistRecord::divide(ARootHistRecord * other)
 {
     other->externalLock();
     QMutexLocker locker(&Mutex);
 
-    TH1* h1 = dynamic_cast<TH1*>(Object);
-    TH1* h2 = dynamic_cast<TH1*>(other->GetObject());
+    TH1 * h1 = dynamic_cast<TH1*>(Object);
+    TH1 * h2 = dynamic_cast<TH1*>(other->GetObject());
 
-    bool bOK = false;
-    if (h1 && h2)
-        bOK = h1->Divide(h2);
+    bool ok = false;
+    if (h1 && h2) ok = h1->Divide(h2);
 
     other->externalUnlock();
-    return bOK;
+    return ok;
 }
 
-void ARootHistRecord::Smooth(int times)
+void ARootHistRecord::smooth(int times)
 {
     QMutexLocker locker(&Mutex);
 
@@ -264,7 +267,7 @@ void ARootHistRecord::Smooth(int times)
     }
 }
 
-void ARootHistRecord::Smear(double sigma)
+void ARootHistRecord::smear(double sigma)
 {
     QMutexLocker locker(&Mutex);
 
@@ -319,7 +322,7 @@ void ARootHistRecord::Scale(double ScaleIntegralTo, bool bDividedByBinWidth)
     }
 }
 
-bool ARootHistRecord::MedianFilter(int span, int spanRight)
+bool ARootHistRecord::medianFilter(int span, int spanRight)
 {
     QMutexLocker locker(&Mutex);
 
@@ -363,14 +366,14 @@ bool ARootHistRecord::MedianFilter(int span, int spanRight)
     return true;
 }
 
-double ARootHistRecord::GetIntegral(bool bMultipliedByBinWidth)
+double ARootHistRecord::getIntegral(bool bMultipliedByBinWidth)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (!h) return 1.0;
     return ( bMultipliedByBinWidth ? h->Integral("width") : h->Integral() );
 }
 
-int ARootHistRecord::GetEntries()
+int ARootHistRecord::getEntries()
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (!h) return 0;
@@ -398,7 +401,7 @@ void ARootHistRecord::GetStatistics(int &num, std::vector<double> &mean, std::ve
     }
 }
 
-void ARootHistRecord::SetEntries(int num)
+void ARootHistRecord::setEntries(int num)
 {
     TH1* h = dynamic_cast<TH1*>(Object);
     if (!h) return;
@@ -406,75 +409,97 @@ void ARootHistRecord::SetEntries(int num)
     h->SetEntries(num);
 }
 
-double ARootHistRecord::GetMaximum()
+double ARootHistRecord::getMaximum() const
 {
-    TH1* h = dynamic_cast<TH1*>(Object);
+    TH1 * h = dynamic_cast<TH1*>(Object);
     if (!h) return 1.0;
 
     return h->GetMaximum();
 }
 
-bool ARootHistRecord::GetContent(QVector<double> &x, QVector<double> &y) const
+double ARootHistRecord::getMinimum() const
 {
+    TH1 * h = dynamic_cast<TH1*>(Object);
+    if (!h) return 1.0;
+
+    return h->GetMinimum();
+}
+
+bool ARootHistRecord::getContent1D(std::vector<double> & x, std::vector<double> & w) const
+{
+    if (!Type.startsWith("TH1")) return false;
+
     QMutexLocker locker(&Mutex);
 
-    if (!Type.startsWith("TH1")) return false;
-    TH1* h = dynamic_cast<TH1*>(Object);
+    TH1 * h = dynamic_cast<TH1*>(Object);
     if (!h) return false;
 
-    int num = h->GetNbinsX();
+    const int num = h->GetNbinsX();
+    x.reserve(num - 2);
+    w.reserve(num - 2);
     for (int i = 1; i <= num; i++)
     {
-        x.append(h->GetBinCenter(i));
-        y.append(h->GetBinContent(i));
+        x.push_back(h->GetBinCenter(i));
+        w.push_back(h->GetBinContent(i));
     }
     return true;
 }
 
-bool ARootHistRecord::GetContent2D(QVector<double> & x, QVector<double> & y, QVector<double> & z) const
+bool ARootHistRecord::getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w) const
 {
+    if (!Type.startsWith("TH2")) return false;
+
     QMutexLocker locker(&Mutex);
 
-    if (!Type.startsWith("TH2")) return false;
-    TH2* h = dynamic_cast<TH2*>(Object);
+    TH2 * h = dynamic_cast<TH2*>(Object);
     if (!h) return false;
 
-    int numX = h->GetNbinsX();
-    int numY = h->GetNbinsY();
+    const int numX = h->GetNbinsX();
+    const int numY = h->GetNbinsY();
+    const int num = (numX - 2) * (numY - 2);
+    x.reserve(num);
+    y.reserve(num);
+    w.reserve(num);
     for (int iy = 1; iy <= numY; iy++)
         for (int ix = 1; ix <= numX; ix++)
         {
-            x.append(h->GetXaxis()->GetBinCenter(ix));
-            y.append(h->GetYaxis()->GetBinCenter(iy));
-            z.append(h->GetBinContent(ix, iy));
+            x.push_back(h->GetXaxis()->GetBinCenter(ix));
+            y.push_back(h->GetYaxis()->GetBinCenter(iy));
+            w.push_back(h->GetBinContent(ix, iy));
         }
     return true;
 }
 
-bool ARootHistRecord::GetContent3D(QVector<double> &x, QVector<double> &y, QVector<double> &z, QVector<double> &val) const
+bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w) const
 {
+    if (!Type.startsWith("TH3")) return false;
+
     QMutexLocker locker(&Mutex);
 
-    if (!Type.startsWith("TH3")) return false;
-    TH3* h = dynamic_cast<TH3*>(Object);
+    TH3 * h = dynamic_cast<TH3*>(Object);
     if (!h) return false;
 
-    int numX = h->GetNbinsX();
-    int numY = h->GetNbinsY();
-    int numZ = h->GetNbinsZ();
+    const int numX = h->GetNbinsX();
+    const int numY = h->GetNbinsY();
+    const int numZ = h->GetNbinsZ();
+    const int num = (numX - 2) * (numY - 2) * (numZ - 2);
+    x.reserve(num);
+    y.reserve(num);
+    z.reserve(num);
+    w.reserve(num);
     for (int iz = 1; iz <= numZ; iz++)
         for (int iy = 1; iy <= numY; iy++)
             for (int ix = 1; ix <= numX; ix++)
             {
-                x.append(h->GetXaxis()->GetBinCenter(ix));
-                y.append(h->GetYaxis()->GetBinCenter(iy));
-                z.append(h->GetZaxis()->GetBinCenter(iz));
-                val.append(h->GetBinContent(ix, iy, iz));
+                x.push_back(h->GetXaxis()->GetBinCenter(ix));
+                y.push_back(h->GetYaxis()->GetBinCenter(iy));
+                z.push_back(h->GetZaxis()->GetBinCenter(iz));
+                w.push_back(h->GetBinContent(ix, iy, iz));
             }
     return true;
 }
 
-bool ARootHistRecord::GetUnderflow(double & undeflow) const
+bool ARootHistRecord::getUnderflow(double & undeflow) const
 {
     if (!Type.startsWith("TH1")) return false;
     TH1* h = dynamic_cast<TH1*>(Object);
@@ -484,7 +509,7 @@ bool ARootHistRecord::GetUnderflow(double & undeflow) const
     return true;
 }
 
-bool ARootHistRecord::GetOverflow(double & overflow) const
+bool ARootHistRecord::getOverflow(double & overflow) const
 {
     if (!Type.startsWith("TH1")) return false;
     TH1* h = dynamic_cast<TH1*>(Object);
@@ -531,30 +556,6 @@ bool ARootHistRecord::is3D() const
     return Type.startsWith("TH3");
 }
 
-QVector<double> ARootHistRecord::FitGaussWithInit(const QVector<double> &InitialParValues, const QString options)
-{
-    QMutexLocker locker(&Mutex);
-
-    QVector<double> res;
-
-    if (InitialParValues.size() != 3) return res;
-    if (Type.startsWith("TH1"))
-    {
-        TH1* h = static_cast<TH1*>(Object);
-
-        TF1 *f1 = new TF1("f1","[0]*exp(-0.5*((x-[1])/[2])^2)");
-        f1->SetParameters(InitialParValues.at(0), InitialParValues.at(1), InitialParValues.at(2));
-
-        int status = h->Fit(f1, options.toLatin1());
-        if (status == 0)
-        {
-            for (int i=0; i<3; i++) res << f1->GetParameter(i);
-            for (int i=0; i<3; i++) res << f1->GetParError(i);
-        }
-    }
-    return res;
-}
-
 std::vector<double> ARootHistRecord::findPeaks(double sigma, double threshold)
 {
     QMutexLocker locker(&Mutex);
@@ -571,21 +572,41 @@ std::vector<double> ARootHistRecord::findPeaks(double sigma, double threshold)
     return res;
 }
 
-QVector<double> ARootHistRecord::FitGauss(const QString &options)
+std::vector<double> ARootHistRecord::fitGauss(const QString & options)
 {
     QMutexLocker locker(&Mutex);
 
-    QVector<double> res;
-    if (Type.startsWith("TH1"))
+    std::vector<double> res;
+    if (!Type.startsWith("TH1")) return res;
+
+    TH1 * h  = static_cast<TH1*>(Object);
+    TF1 * f1 = new TF1("f1", "gaus");
+    int status = h->Fit(f1, options.toLatin1().data());
+    if (status == 0)
     {
-        TH1* h = static_cast<TH1*>(Object);
-        TF1 *f1 = new TF1("f1", "gaus");
-        int status = h->Fit(f1, options.toLatin1().data());
-        if (status == 0)
-        {
-            for (int i=0; i<3; i++) res << f1->GetParameter(i);
-            for (int i=0; i<3; i++) res << f1->GetParError(i);
-        }
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParameter(i) );
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParError(i) );
+    }
+    return res;
+}
+
+std::vector<double> ARootHistRecord::fitGaussWithInit(const std::vector<double> & initialParValues, const QString & options)
+{
+    QMutexLocker locker(&Mutex);
+
+    std::vector<double> res;
+    if (initialParValues.size() != 3) return res;
+    if (!Type.startsWith("TH1")) return res;
+
+    TH1 * h  = static_cast<TH1*>(Object);
+    TF1 * f1 = new TF1("f1","[0]*exp(-0.5*((x-[1])/[2])^2)");
+    f1->SetParameters(initialParValues[0], initialParValues[1], initialParValues[2]);
+
+    int status = h->Fit(f1, options.toLatin1());
+    if (status == 0)
+    {
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParameter(i) );
+        for (int i = 0; i < 3; i++) res.push_back( f1->GetParError(i) );
     }
     return res;
 }

@@ -25,6 +25,12 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         sec->readFromJson(json);
         return sec;
     }
+    if (Type == "Scint")
+    {
+        AGeoScint * scint = new AGeoScint();
+        scint->readFromJson(json);
+        return scint;
+    }
 
     return nullptr;
 }

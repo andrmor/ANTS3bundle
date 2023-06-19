@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
+    <width>594</width>
     <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Particle simulation</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources.qrc">
+    <normaloff>:/images/gui/images/ant.png</normaloff>:/images/gui/images/ant.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -33,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -309,7 +313,7 @@ To benefit from TS, materials like TS_POLYETHYLENE have to be used</string>
                 <string>List of volumes where deposition information will be collected</string>
                </property>
                <property name="text">
-                <string>Sensitive volumes:
+                <string>Energy deposition recorded in volumes:
 (Vol* indicates &quot;starts with Vol&quot;)</string>
                </property>
                <property name="alignment">
@@ -321,6 +325,16 @@ To benefit from TS, materials like TS_POLYETHYLENE have to be used</string>
               <widget class="QPlainTextEdit" name="pteSensitiveVolumes">
                <property name="toolTip">
                 <string>List of volumes where deposition information will be collected</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="cbIncludeScintillators">
+               <property name="text">
+                <string>Include all scintillators</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -546,7 +560,14 @@ Format: Volume_name  Step_in_mm</string>
              <number>1000000</number>
             </property>
             <property name="value">
-             <number>100</number>
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbShowStatistics">
+            <property name="text">
+             <string>Show stats</string>
             </property>
            </widget>
           </item>
@@ -727,7 +748,8 @@ Format: Volume_name  Step_in_mm</string>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Show</string>
+                   <string>Show all
+sources</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -1126,15 +1148,12 @@ Format: Volume_name  Step_in_mm</string>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="sbEvents">
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
-            </property>
-            <property name="value">
-             <number>10</number>
+           <widget class="QLineEdit" name="ledEvents">
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -1323,6 +1342,9 @@ Format: Volume_name  Step_in_mm</string>
           </item>
           <item>
            <widget class="QPushButton" name="pbChooseWorkingDirectory">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
             <property name="text">
              <string>Choose</string>
             </property>
@@ -2238,6 +2260,9 @@ Format: Volume_name  Step_in_mm</string>
                       <height>16777215</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>Search forward (&quot;-&gt;&quot;) is faster!</string>
+                    </property>
                     <property name="text">
                      <string>&lt;-</string>
                     </property>
@@ -2597,61 +2622,62 @@ Format: Volume_name  Step_in_mm</string>
                      </widget>
                     </item>
                     <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_51">
-                      <property name="topMargin">
-                       <number>0</number>
+                     <layout class="QHBoxLayout" name="horizontalLayout_54">
+                      <property name="spacing">
+                       <number>3</number>
                       </property>
                       <item>
-                       <spacer name="horizontalSpacer_62">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
+                       <widget class="QCheckBox" name="cbPTHistTime">
+                        <property name="text">
+                         <string>Time from</string>
                         </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
+                       </widget>
                       </item>
                       <item>
-                       <widget class="QLabel" name="label_10">
-                        <property name="toolTip">
-                         <string>Large values may lead to very high memory consumption!</string>
+                       <widget class="QLineEdit" name="lePTHistTimeFrom">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>80</width>
+                          <height>16777215</height>
+                         </size>
                         </property>
                         <property name="text">
-                         <string>Number of threads:</string>
+                         <string>0</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSpinBox" name="sbNumThreadsStatistics">
-                        <property name="toolTip">
-                         <string>Large values may lead to very high memory consumption!</string>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="value">
-                         <number>0</number>
+                       <widget class="QLabel" name="label_49">
+                        <property name="text">
+                         <string>to</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <spacer name="horizontalSpacer_20">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
+                       <widget class="QLineEdit" name="lePTHistTimeTo">
+                        <property name="enabled">
+                         <bool>false</bool>
                         </property>
-                        <property name="sizeHint" stdset="0">
+                        <property name="maximumSize">
                          <size>
-                          <width>40</width>
-                          <height>20</height>
+                          <width>80</width>
+                          <height>16777215</height>
                          </size>
                         </property>
-                       </spacer>
+                        <property name="text">
+                         <string>1e99</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_50">
+                        <property name="text">
+                         <string>ns</string>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </item>
@@ -3158,7 +3184,7 @@ and any mathematical/logical operations
 See ROOT TFormula description</string>
                           </property>
                           <property name="text">
-                           <string>Energy * 1e-6</string>
+                           <string>Energy * 1e-3</string>
                           </property>
                          </widget>
                         </item>
@@ -3667,7 +3693,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                    <widget class="QPushButton" name="pbPTHistRequest">
                     <property name="minimumSize">
                      <size>
-                      <width>200</width>
+                      <width>150</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -3682,17 +3708,60 @@ If checked, only &quot;creation&quot; is considered!</string>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_45">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <layout class="QHBoxLayout" name="horizontalLayout_51">
+                    <property name="topMargin">
+                     <number>0</number>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
+                    <item>
+                     <widget class="QLabel" name="label_10">
+                      <property name="toolTip">
+                       <string>Large values may lead to very high memory consumption!</string>
+                      </property>
+                      <property name="text">
+                       <string>threads:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="sbNumThreadsStatistics">
+                      <property name="toolTip">
+                       <string>Large values may lead to very high memory consumption!</string>
+                      </property>
+                      <property name="minimum">
+                       <number>0</number>
+                      </property>
+                      <property name="maximum">
+                       <number>100</number>
+                      </property>
+                      <property name="value">
+                       <number>0</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_43">
+                      <property name="text">
+                       <string>ev/thr:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ledEventsPerThread">
+                      <property name="maximumSize">
+                       <size>
+                        <width>50</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Events allocated to a thread each time</string>
+                      </property>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </item>
@@ -3825,7 +3894,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                </sizepolicy>
               </property>
               <property name="frameShape">
-               <enum>QFrame::Box</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
@@ -3857,10 +3926,13 @@ If checked, only &quot;creation&quot; is considered!</string>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Minimum</enum>
+                 </property>
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>60</height>
                   </size>
                  </property>
                 </spacer>
@@ -3919,7 +3991,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                   <widget class="QPushButton" name="pbShowMonitorProperties">
                    <property name="minimumSize">
                     <size>
-                     <width>200</width>
+                     <width>250</width>
                      <height>22</height>
                     </size>
                    </property>
@@ -4071,7 +4143,7 @@ If checked, only &quot;creation&quot; is considered!</string>
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>60</height>
                   </size>
                  </property>
                 </spacer>
@@ -4203,7 +4275,7 @@ If checked, only &quot;creation&quot; is considered!</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>20</height>
+                <height>60</height>
                </size>
               </property>
              </spacer>
@@ -4244,26 +4316,519 @@ If checked, only &quot;creation&quot; is considered!</string>
              </layout>
             </item>
             <item alignment="Qt::AlignHCenter">
-             <widget class="QFrame" name="frCalorimeter">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QPushButton" name="pbShowCalorimeterSettings">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Show calorimeter settings</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_56">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_70">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_48">
+                <property name="text">
+                 <string>Entries:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leCalorimetersEntries">
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_71">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QFrame" name="frCaloShow">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>250</height>
+               </size>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_33">
+              <layout class="QVBoxLayout" name="verticalLayout_42">
                <item>
-                <widget class="QPushButton" name="pbShowCalorimeterSettings">
-                 <property name="text">
-                  <string>Show calorimeter settings</string>
+                <layout class="QHBoxLayout" name="horizontalLayout_64">
+                 <property name="topMargin">
+                  <number>0</number>
                  </property>
-                </widget>
+                 <item>
+                  <spacer name="horizontalSpacer_72">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbCaloShow">
+                   <property name="minimumSize">
+                    <size>
+                     <width>200</width>
+                     <height>31</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Show ...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cobCaloShowType">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>Projection</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Slice</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_73">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_63">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <spacer name="horizontalSpacer_68">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_51">
+                   <property name="text">
+                    <string>Along</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cobCaloAxes">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>X</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Y</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Z</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>XY</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>XZ</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>YZ</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>XYZ</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbCaloAverage">
+                   <property name="text">
+                    <string>Average in range</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbCalorimeterSwapAxes">
+                   <property name="text">
+                    <string>Swap axes</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_69">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_58">
+                 <item>
+                  <spacer name="horizontalSpacer_66">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_41">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>5</number>
+                   </property>
+                   <item>
+                    <widget class="QFrame" name="frCaloX">
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_60">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="labCaloX0">
+                        <property name="text">
+                         <string>iXfrom</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloX0">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloX1">
+                        <property name="text">
+                         <string>iXto</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloX1">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloRangeX">
+                        <property name="text">
+                         <string>labCaloXRange</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_20">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>21</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="frCaloY">
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_61">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="labCaloY0">
+                        <property name="text">
+                         <string>iYfrom</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloY0">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloY1">
+                        <property name="text">
+                         <string>iYto</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloY1">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloRangeY">
+                        <property name="text">
+                         <string>labCaloYRange</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_45">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>21</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="frCaloZ">
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_62">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="labCaloZ0">
+                        <property name="text">
+                         <string>iZfrom</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloZ0">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloZ1">
+                        <property name="text">
+                         <string>iZto</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="sbCaloZ1">
+                        <property name="maximum">
+                         <number>9999</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="labCaloRangeZ">
+                        <property name="text">
+                         <string>labCaloZRange</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_62">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>21</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbUpdateCaloRange">
+                   <property name="text">
+                    <string>...updateRange</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_67">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
                </item>
                <item>
                 <spacer name="verticalSpacer_6">
@@ -4278,107 +4843,6 @@ If checked, only &quot;creation&quot; is considered!</string>
                  </property>
                 </spacer>
                </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_54">
-                 <item>
-                  <widget class="QLabel" name="label_43">
-                   <property name="text">
-                    <string>Energy units:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="cobCalorimeterEnergyUnits">
-                   <item>
-                    <property name="text">
-                     <string>MeV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>keV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>eV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>meV</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="Line" name="line_11">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_44">
-                   <property name="text">
-                    <string>Total energy:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersTotal">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QLabel" name="labCalorimeterUnits">
-                   <property name="text">
-                    <string>MeV</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_48">
-                   <property name="text">
-                    <string>Entries:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="leCalorimetersEntries">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pbCalorimetersShowDistribution">
-                 <property name="text">
-                  <string>Show distribution</string>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignHCenter">
-                <widget class="QCheckBox" name="cbCalorimeterSwapAxes">
-                 <property name="text">
-                  <string>Swap axes</string>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
             </item>
@@ -4390,7 +4854,7 @@ If checked, only &quot;creation&quot; is considered!</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>219</height>
+                <height>250</height>
                </size>
               </property>
              </spacer>
@@ -4410,13 +4874,15 @@ If checked, only &quot;creation&quot; is considered!</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>639</width>
-     <height>22</height>
+     <width>594</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>cobParticleGenerationMode</sender>
@@ -4425,8 +4891,8 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>345</x>
-     <y>87</y>
+     <x>332</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>271</x>
@@ -4441,12 +4907,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>564</x>
-     <y>555</y>
+     <x>111</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>712</y>
+     <x>117</x>
+     <y>208</y>
     </hint>
    </hints>
   </connection>
@@ -4457,12 +4923,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>589</x>
-     <y>425</y>
+     <x>177</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4473,12 +4939,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>473</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4489,12 +4955,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>411</x>
-     <y>375</y>
+     <x>74</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4505,12 +4971,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>448</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4521,12 +4987,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>424</y>
+     <x>97</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4537,12 +5003,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>589</x>
-     <y>453</y>
+     <x>177</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4553,12 +5019,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>452</y>
+     <x>97</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4569,12 +5035,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>422</y>
+     <x>79</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4585,12 +5051,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>423</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4601,12 +5067,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>247</x>
-     <y>472</y>
+     <x>68</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4617,12 +5083,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>333</x>
-     <y>473</y>
+     <x>148</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4633,12 +5099,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>446</y>
+     <x>79</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>511</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -4649,12 +5115,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>228</x>
-     <y>218</y>
+     <x>66</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>431</x>
-     <y>216</y>
+     <x>110</x>
+     <y>186</y>
     </hint>
    </hints>
   </connection>
@@ -4665,12 +5131,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>332</x>
-     <y>458</y>
+     <x>69</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>482</x>
-     <y>459</y>
+     <x>113</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -4681,12 +5147,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>332</x>
-     <y>485</y>
+     <x>69</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
-     <x>482</x>
-     <y>487</y>
+     <x>113</x>
+     <y>215</y>
     </hint>
    </hints>
   </connection>
@@ -4697,12 +5163,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>332</x>
-     <y>512</y>
+     <x>69</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>482</x>
-     <y>516</y>
+     <x>113</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -4713,12 +5179,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>335</y>
+     <x>48</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>335</y>
+     <x>67</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -4729,12 +5195,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>338</y>
+     <x>48</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>338</y>
+     <x>67</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -4745,12 +5211,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>340</y>
+     <x>48</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>340</y>
+     <x>67</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -4761,12 +5227,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>335</y>
+     <x>94</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>335</y>
+     <x>113</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -4777,12 +5243,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>338</y>
+     <x>94</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>338</y>
+     <x>113</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -4793,12 +5259,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>340</y>
+     <x>94</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>340</y>
+     <x>113</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -4809,12 +5275,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>251</x>
-     <y>411</y>
+     <x>42</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>516</x>
-     <y>412</y>
+     <x>101</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -4825,12 +5291,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>251</x>
-     <y>411</y>
+     <x>42</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>381</x>
-     <y>412</y>
+     <x>72</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -4841,12 +5307,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>366</y>
+     <x>71</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
-     <x>482</x>
-     <y>374</y>
+     <x>116</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -4857,12 +5323,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>600</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>596</y>
+     <x>82</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4873,12 +5339,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>609</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>553</x>
-     <y>599</y>
+     <x>111</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4889,12 +5355,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>627</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>198</x>
-     <y>627</y>
+     <x>82</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4905,12 +5371,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>618</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>530</x>
-     <y>627</y>
+     <x>111</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4921,12 +5387,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>677</y>
+     <x>53</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>204</x>
-     <y>678</y>
+     <x>83</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4937,12 +5403,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>728</y>
+     <x>46</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>171</x>
-     <y>727</y>
+     <x>68</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -4953,12 +5419,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>363</x>
-     <y>725</y>
+     <x>90</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>452</x>
-     <y>725</y>
+     <x>112</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -4969,12 +5435,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>597</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>570</x>
-     <y>678</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -4985,12 +5451,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>617</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>583</x>
-     <y>672</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5001,12 +5467,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>670</y>
+     <x>53</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>550</x>
-     <y>675</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5017,12 +5483,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>725</y>
+     <x>46</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>684</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5033,12 +5499,140 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>375</x>
-     <y>734</y>
+     <x>90</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>592</x>
-     <y>677</y>
+     <x>112</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbPTHistTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lePTHistTimeFrom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbPTHistTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lePTHistTimeTo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloX0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloX1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloY0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloY1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloZ0</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbCaloZ1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateCaloRange</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>277</y>
     </hint>
    </hints>
   </connection>

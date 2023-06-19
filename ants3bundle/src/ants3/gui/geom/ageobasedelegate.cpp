@@ -76,6 +76,12 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
         highlighter->HighlightingRules.append(rule);
         sl << name;
     }
+    // !!!***
+    rule.pattern = QRegularExpression("\\bParentIndex\\b");
+    rule.format = GeoConstantFormat;
+    highlighter->HighlightingRules.append(rule);
+    sl << "ParentIndex";
+    //
 
     QTextCharFormat FormulaFormat;
     FormulaFormat.setForeground(Qt::blue);

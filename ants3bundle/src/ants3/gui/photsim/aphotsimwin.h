@@ -37,6 +37,7 @@ private slots:
     void on_pbdWave_clicked();
     void on_sbMaxNumbPhTransitions_editingFinished();
     void on_cbRndCheckBeforeTrack_clicked();
+    void on_cbRndCheckBeforeTrack_toggled(bool checked);
     void on_pbQEacceleratorHelp_clicked();
 
     void on_cobSimType_activated(int index);
@@ -95,7 +96,6 @@ private slots:
     void on_pbMonitorShowTime_clicked();
     void on_pbMonitorShowWaveIndex_clicked();
     void on_pbMonitorShowWavelength_clicked();
-    void on_pbMonitorShowEnergy_clicked();
     void on_pbShowMonitorHitDistribution_clicked();
     void on_pbShowMonitorTimeOverall_clicked();
 
@@ -144,6 +144,7 @@ private slots:
 
     void on_pbShowBombsMultiple_clicked();
 
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -156,6 +157,8 @@ private:
 
     AFileSettingsBase * SignalsFileSettings = nullptr;
     AFileHandlerBase  * SignalsFileHandler  = nullptr;
+
+    QPixmap YellowCircle;
 
     void updatePhotBombGui();
     void updateDepoGui();

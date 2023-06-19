@@ -28,7 +28,7 @@ void ARootObjBase::externalUnlock()
     Mutex.unlock();
 }
 
-const QString &ARootObjBase::getType() const
+const QString &ARootObjBase::getType() const // !!!*** to enum!
 {
     return Type;
 }

@@ -3,15 +3,13 @@
 #include "ageotype.h"
 #include "ageospecial.h"
 #include "ajsontools.h"
-//        #include "agridelementrecord.h"
 #include "ageoconsts.h"
 #include "aerrorhub.h"
 
 #include <cmath>
 
-#include <QRegularExpression>
 #include <QDebug>
-#include <QVariantList>
+#include <QRegularExpression>
 
 void AGeoObject::constructorInit()
 {
@@ -87,6 +85,25 @@ AGeoObject::AGeoObject(const QString & name, const QString & container, int iMat
     Orientation[0] = phi;
     Orientation[1] = theta;
     Orientation[2] = psi;
+
+    Shape = shape;
+}
+
+AGeoObject::AGeoObject(const QString & name, const QString & container, int iMat, AGeoShape * shape, const std::array<double,3> & pos, const std::array<double,3> & ori)
+{
+    constructorInit();
+
+    Type = new ATypeSingleObject();
+
+    Name = name;
+    tmpContName = container;
+    Material = iMat;
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        Position[i]    = pos[i];
+        Orientation[i] = ori[i];
+    }
 
     Shape = shape;
 }
@@ -178,6 +195,12 @@ bool AGeoObject::isCalorimeter() const
 {
     if (!Role) return false;
     return dynamic_cast<AGeoCalorimeter*>(Role);
+}
+
+bool AGeoObject::isScintillator() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoScint*>(Role);
 }
 
 int AGeoObject::getMaterial() const
@@ -601,25 +624,6 @@ void AGeoObject::updateGridElementShape()
         Shape = new AGeoPolygon(6, GE->dz, GE->size1, GE->size1);
 }
 
-void AGeoObject::updateMonitorShape()
-{
-    if (!Type->isMonitor())
-    {
-        QString err = "Attempt to update monitor shape for a non-monitor object" + Name;
-        qWarning() << err;
-        AErrorHub::addQError(err);
-        return;
-    }
-
-    ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
-
-    delete Shape;
-    if (mon->config.shape == 0) //rectangular
-        Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
-    else //round
-        Shape = new AGeoTube(0, mon->config.size1, mon->config.dz);
-}
-
 const AMonitorConfig * AGeoObject::getMonitorConfig() const
 {
     if (!Type) return nullptr;
@@ -706,9 +710,9 @@ AGeoObject * AGeoObject::findObjectByName(const QString & name)
     return nullptr; //not found
 }
 
-void AGeoObject::findObjectsByWildcard(const QString & name, QVector<AGeoObject*> & foundObjs)
+void AGeoObject::findObjectsByWildcard(const QString & name, std::vector<AGeoObject*> & foundObjs)
 {
-    if (Name.startsWith(name, Qt::CaseSensitive)) foundObjs << this;
+    if (Name.startsWith(name, Qt::CaseSensitive)) foundObjs.push_back(this);
 
     for (AGeoObject * obj : HostedObjects)
         obj->findObjectsByWildcard(name, foundObjs);
@@ -841,8 +845,8 @@ bool AGeoObject::suicide()
     //cannot remove logicals used by composite (and the logicals container itself); the composite kills itself!
     if (Type->isCompositeContainer()) return false;
     if (isInUseByComposite()) return false;
-    //cannot remove grid elementary - it is deleted when grid bulk is deleted
-    if (Type->isGridElement()) return false;
+
+    //if (Type->isGridElement()) return false; //in ants2: cannot remove grid elementary - it is deleted when grid bulk is deleted
 
     //qDebug() << "!!--Suicide triggered for object:"<<Name;
     AGeoObject * ObjectContainer = Container;
@@ -1000,6 +1004,24 @@ void AGeoObject::updateAllStacks()
     }
 
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
+}
+
+void AGeoObject::updateAllMonitors()
+{
+    if (Type && Type->isMonitor())
+    {
+        ATypeMonitorObject * mon = static_cast<ATypeMonitorObject*>(Type);
+
+        delete Shape;
+        if (mon->config.shape == 0)
+            Shape = new AGeoBox(mon->config.size1, mon->config.size2, mon->config.dz);
+        else
+            Shape = new AGeoTube(0, mon->config.size1, mon->config.dz);
+
+        if (Container) Material = Container->getMaterial();
+    }
+
+    for (AGeoObject * obj : HostedObjects) obj->updateAllMonitors();
 }
 
 void AGeoObject::removeHostedObject(AGeoObject *obj)
@@ -1384,6 +1406,22 @@ bool AGeoObject::isGoodContainerForInstance() const
 {
     if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
     return false;
+}
+
+void AGeoObject::makeItWorld()
+{
+    Name = "World";
+    delete Type; Type = new ATypeWorldObject();
+}
+
+void AGeoObject::scaleRecursive(double factor)
+{
+    for (size_t i = 0; i < 3; i++) Position[i] *= factor;
+
+    if (Shape) Shape->scale(factor);
+    Type->scale(factor);
+
+    for (AGeoObject * obj : HostedObjects) obj->scaleRecursive(factor);
 }
 
 #include <QRandomGenerator>

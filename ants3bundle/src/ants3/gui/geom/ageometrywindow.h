@@ -28,7 +28,7 @@ class AGeometryWindow : public AGuiWindow
 friend class AShowNumbersDialog;
 
 public:
-    explicit AGeometryWindow(QWidget * parent);
+    explicit AGeometryWindow(bool jsrootViewer, QWidget * parent);
     ~AGeometryWindow();
 
     bool ModePerspective = true;
@@ -38,11 +38,7 @@ public:
 
     std::vector<GeoMarkerClass*> GeoMarkers;
 
-    void ShowAndFocus();
-    void SetAsActiveRootWindow();
-
     void SaveAs(const QString & filename);
-    void OpenGLview();
 
     void ResetView();
     void setHideUpdate(bool flag);
@@ -55,20 +51,16 @@ public:
     void onBusyOn();
     void onBusyOff();
 
-    bool isColorByMaterial() {return ColorByMaterial;}
-
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    bool IsWorldVisible();
-
-    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true);
+    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true); // !!!***
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
 
 protected:
-    bool event(QEvent *event) override;
+    bool event(QEvent *event) override; // !!!***
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
@@ -89,8 +81,6 @@ public slots:
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
-    void on_pbTop_clicked();
-    void on_pbFront_clicked();
     void onRasterWindowChange();
     void readRasterWindowProperties();   // !*!
 
@@ -104,13 +94,15 @@ public slots:
     void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
 
 private slots:
-    void onDownloadPngRequested(QWebEngineDownloadItem *item);
+    void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
 
 private slots:
+    void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
-    void on_cbShowTop_toggled(bool checked);
     void on_cbColor_toggled(bool checked);
     void on_pbSaveAs_clicked();
+    void on_pbTop_clicked();
+    void on_pbFront_clicked();
     void on_pbSide_clicked();
     void on_cobViewType_currentIndexChanged(int index);
     void on_cbShowAxes_toggled(bool checked);
@@ -125,27 +117,34 @@ private slots:
     void on_actionDefault_zoom_to_0_triggered();
     void on_actionSet_line_width_for_objects_triggered();
     void on_actionDecrease_line_width_triggered();
-    void on_cobViewer_currentIndexChanged(int index);
     void on_actionOpen_GL_viewer_triggered();
-    void on_actionJSROOT_in_browser_triggered();
-    void on_cbWireFrame_toggled(bool checked);
+    void on_actionJSROOT_in_browser_triggered(); // !!!*** refactor + avoid hard coded port of the root server!
     void on_cbLimitVisibility_clicked();
     void on_sbLimitVisibility_editingFinished();
     void on_pbCameraDialog_clicked();
     void on_pbClearMarkers_clicked();
     void on_pbShowNumbers_clicked();
 
+    void on_cbWireFrame_clicked(bool checked);
+
+    void on_sbTransparency_editingFinished();
+
+    void on_cbShowTop_clicked(bool checked);
+
+    void on_pushButton_clicked();
+
 private:
+    bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
 
     Ui::AGeometryWindow   * ui = nullptr;
+
     RasterWindowBaseClass * RasterWindow = nullptr;
-
-    ACameraControlDialog  * CameraControl = nullptr;
-
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif
+
+    ACameraControlDialog  * CameraControl = nullptr;
 
     int GeoMarkerSize  = 2;
     int GeoMarkerStyle = 6;
@@ -157,14 +156,24 @@ private:
     AGeoWriter GeoWriter;
 
 private:
-    void doChangeLineWidth(int deltaWidth);
-    void showWebView();
+    void redrawWebView(QString extraArguments = "");
     void prepareGeoManager(bool ColorUpdateAllowed = true);
+    void showGeometryRasterWindow(bool SAME);
+    void showGeometryJSRootWindow();
+
+    void ShowAndFocus();
+    void SetAsActiveRootWindow();
+
+    void doChangeLineWidth(int deltaWidth);
     void adjustGeoAttributes(TGeoVolume * vol, int Mode, int transp, bool adjustVis, int visLevel, int currentLevel);
+    void copyGeoMarksToGeoManager();
+
+    void onWebPageReplyViewPort(const QVariant & reply);
 
 signals:
-    void requestUpdateRegisteredGeoManager();
-    void requestUpdateMaterialListWidget();
+    void requestChangeGeoViewer(bool useJSRoot);
+    void requestUpdateRegisteredGeoManager(); // Geometry.notifyRootServerGeometryChanged();
+    //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
 };
 

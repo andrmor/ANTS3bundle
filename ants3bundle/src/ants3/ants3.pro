@@ -3,13 +3,13 @@ CONFIG += ants3_GUI          #if commented away, GUI is not compiled
 CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 
 CONFIG += ants3_Python      #enable Python scripting
-# not yet!  #CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
-# not yet!  #CONFIG += ants3_jsroot      #enables JSROOT visualisation at GeometryWindow. Automatically enables ants2_RootServer
+CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+CONFIG += ants3_jsroot      #enables JSROOT visualisation of the geometry. Requires Qt WebEngine library installed and ants3_RootServer enabled
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
 LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
-#ants2_RootServer {LIBS += -lRHTTP  -lXMLIO}
+ants3_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 # PYTHON
 ants3_Python {
@@ -36,6 +36,22 @@ ants3_Python {
     INCLUDEPATH += script/Python
 }
 
+# ROOT HTML server
+ants3_RootServer{
+  DEFINES += USE_ROOT_HTML
+
+    SOURCES += net/aroothttpserver.cpp
+    HEADERS += net/aroothttpserver.h
+}
+#----------
+
+# JSROOT viewer
+ants3_jsroot{
+    DEFINES += __USE_ANTS_JSROOT__
+    QT      += webenginewidgets
+}
+#----------
+
 QT += core
 ants3_GUI {
     QT += gui
@@ -47,14 +63,7 @@ ants3_GUI {
 
 QT += qml   #this is for qjsengine
 
-#QT += core5compat
-
-lessThan(QT_MAJOR_VERSION, 6) {
-    CONFIG += c++11
-} else {
-    CONFIG += c++17
-    # ROOT has to be compiled with c++17 too!!!!
-}
+CONFIG += c++17 #c++11
 
 QMAKE_CXXFLAGS += -march=native
 
@@ -68,7 +77,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
+//DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}\\\"\"
+DEFINES += TARGET_DIR=\"\\\"$${OUT_PWD}/../../bin\\\"\"
 
 INCLUDEPATH += script
 INCLUDEPATH += script/ScriptInterfaces
@@ -90,6 +100,7 @@ INCLUDEPATH += photonSim/interfaceRules
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
+INCLUDEPATH += net
 INCLUDEPATH += ../dispatcher
 INCLUDEPATH += ../lsim
 INCLUDEPATH += /usr/include
@@ -100,6 +111,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     geo/agridhub.cpp \
@@ -110,8 +122,10 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/materials/amatwin.cpp \
+    gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -165,6 +179,8 @@ SOURCES += \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
+    materials/amatcomposition.cpp \
+    particleSim/ageant4inspectormanager.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -173,6 +189,7 @@ SOURCES += \
     script/ScriptInterfaces/agraphwin_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
     script/ScriptInterfaces/aparticlesim_si.cpp \
+    script/ScriptInterfaces/arootstyle_si.cpp \
     script/ScriptInterfaces/asensor_si.cpp \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
@@ -245,16 +262,11 @@ SOURCES += \
     gui/geom/amonitordelegate.cpp \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
-    gui/materials/aelementandisotopedelegates.cpp \
     gui/raster/acameracontroldialog.cpp \
     gui/raster/rasterwindowbaseclass.cpp \
     gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
-    materials/achemicalelement.cpp \
-    materials/aisotope.cpp \
-    materials/aisotopeabundancehandler.cpp \
     materials/amaterial.cpp \
-    materials/amaterialcomposition.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
     photonSim/acommonfunctions.cpp \
@@ -287,13 +299,15 @@ SOURCES += \
     tools/arandomhub.cpp \
     tools/ath.cpp \
     tools/athreadpool.cpp \
-    tools/avector.cpp
+    tools/avector.cpp \
+    tools/vformula.cpp
 
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    farm/afarmnoderecord.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
     geo/agridelementrecord.h \
@@ -305,8 +319,10 @@ HEADERS += \
     gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
     gui/materials/amatwin.h \
+    gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/particleSim/aworldsizewarningdialog.h \
     gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
     gui/photsim/asensordrawwidget.h \
@@ -361,6 +377,8 @@ HEADERS += \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
     gui/script/escriptlanguage.h \
+    materials/amatcomposition.h \
+    particleSim/ageant4inspectormanager.h \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
@@ -369,6 +387,7 @@ HEADERS += \
     script/ScriptInterfaces/agraphwin_si.h \
     script/ScriptInterfaces/amsg_si.h \
     script/ScriptInterfaces/aparticlesim_si.h \
+    script/ScriptInterfaces/arootstyle_si.h \
     script/ScriptInterfaces/asensor_si.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \
@@ -460,19 +479,13 @@ HEADERS += \
     gui/geom/amonitordelegate.h \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
-    gui/materials/aelementandisotopedelegates.h \
     gui/raster/acameracontroldialog.h \
     gui/raster/rasterwindowbaseclass.h \
     gui/raster/rasterwindowgraphclass.h \
     materials/amaterialhub.h \
-    materials/achemicalelement.h \
-    materials/aisotope.h \
-    materials/aisotopeabundancehandler.h \
     materials/amaterial.h \
-    materials/amaterialcomposition.h \
     config/a3global.h \
     dispatch/a3workdistrconfig.h \
-    farm/a3farmnoderecord.h \
     tools/aerrorhub.h \
     tools/ageowriter.h \
     tools/ahistogram.h \
@@ -487,12 +500,15 @@ HEADERS += \
     tools/arandomhub.h \
     tools/ath.h \
     tools/athreadpool.h \
-    tools/avector.h
+    tools/avector.h \
+    tools/vformula.h
 
 FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
+        gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
@@ -544,4 +560,16 @@ ants3_FARM {
     ../dispatcher/a3wsclient.h \
 } else {
     QT -= websockets
+}
+message("Copy resource files")
+linux-g++ || unix{
+   #todir = $${OUT_PWD}
+   #fromdir = $${PWD}/EXAMPLES
+   #QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
+
+   fromdir = $${PWD}/files
+   message($$fromdir)
+   todir = $${OUT_PWD}/../../bin
+   message($$todir)
+   QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
 }

@@ -3,7 +3,7 @@
 #include "a3global.h"
 #include "ascriptwindow.h"
 #include "guitools.h"
-//#include "anetworkmodule.h"
+#include "aroothttpserver.h"
 //#include "agstyle_si.h"
 
 //Qt
@@ -11,9 +11,11 @@
 #include <QDesktopServices>
 #include <QDebug>
 #include <QHostAddress>
+#include <QStyleFactory>
 
 #include "TGeoManager.h"
 
+#include <QToolTip>
 AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     AGuiWindow("Glob", parent),
     GlobSet(A3Global::getInstance()),
@@ -21,10 +23,29 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 {
     ui->setupUi(this);
 
+    const QString defaultStyleName = QApplication::style()->objectName();
+    QStringList styleNames = QStyleFactory::keys();
+    for (int i = 1, size = styleNames.size(); i < size; ++i)
+    {
+        if (defaultStyleName.compare(styleNames.at(i), Qt::CaseInsensitive) == 0)
+        {
+            styleNames.swapItemsAt(0, i);
+            break;
+        }
+    }
+    ui->cobStyle->addItems(styleNames);
+
+    ui->cbUseStyleSystPalette->setChecked(true);
+    on_cbUseStyleSystPalette_clicked(true);
+
     updateGui();
 
-    //QObject::connect(GlobSet.getNetworkModule(), &ANetworkModule::StatusChanged, this, &AGlobSetWindow::updateNetGui);
-    //if (GlobSet.fRunRootServerOnStart) GlobSet.getNetworkModule()->StartRootHttpServer();  //does nothing if compilation flag is not set
+    QToolTip::setPalette(QPalette());
+
+    ARootHttpServer & rs = ARootHttpServer::getInstance();
+    QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
+
+    if (rs.Autostart) rs.start();  //does nothing if compilation flag is not set
 }
 
 AGlobSetWindow::~AGlobSetWindow()
@@ -75,28 +96,27 @@ void AGlobSetWindow::updateNetGui()
         ui->leWebSocketPort->setText(QString::number(port));
         ui->leWebSocketURL->setText(Net->getWebSocketServerURL());
     }
-
-    bool fRootServerRunning = Net->isRootServerRunning();
-    ui->cbRunRootServer->setChecked( fRootServerRunning );
-    ui->cbAutoRunRootServer->setChecked( GlobSet.fRunRootServerOnStart );
 */
 
-/*
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    bool fRootServerRunning = ser.isRunning();
+    ui->cbRunRootServer->setChecked(fRootServerRunning);
+    ui->cbAutoRunRootServer->setChecked(ser.Autostart);
+
 #ifdef USE_ROOT_HTML
-    ui->leJSROOT->setText(GlobSet.ExternalJSROOT);
-    const QString sPort = QString::number(GlobSet.RootServerPort);
+    ui->leJSROOT->setText(ser.ExternalJSROOT);
+    QString sPort = QString::number(ser.Port);
     ui->leRootServerPort->setText(sPort);
-    const QString url = ( fRootServerRunning ? "http://localhost:" + sPort : "" );
+    QString url = ( ser.isRunning() ? "http://localhost:" + sPort : "" );
     ui->leRootServerURL->setText(url);
 #else
-*/
     ui->cbRunRootServer->setChecked(false);
     ui->cbRunRootServer->setEnabled(false);
     ui->cbAutoRunRootServer->setEnabled(false);
     ui->leRootServerPort->setEnabled(false);
     ui->leJSROOT->setEnabled(false);
     ui->leRootServerURL->setEnabled(false);
-//#endif
+#endif
 }
 
 void AGlobSetWindow::setTab(int iTab)
@@ -215,7 +235,8 @@ void AGlobSetWindow::on_sbNumBinsHistogramsZ_editingFinished()
 void AGlobSetWindow::on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint & /*pos*/)
 {
     if (ui->leDataExchangeDir->text().isEmpty()) return;
-    QDesktopServices::openUrl(QUrl("file///:"+ui->leDataExchangeDir->text(), QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("file///:"+ui->leDataExchangeDir->text(), QUrl::TolerantMode));
+    QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leDataExchangeDir->text()) );
 }
 
 void AGlobSetWindow::on_pbOpen_clicked()
@@ -300,37 +321,6 @@ void AGlobSetWindow::on_leWebSocketPort_editingFinished()
         ui->leWebSocketPort->setText(QString::number(newp));
     }
 }
-void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
-{
-    GlobSet.fRunRootServerOnStart = ui->cbAutoRunRootServer->isChecked();
-}
-void AGlobSetWindow::on_leRootServerPort_editingFinished()
-{
-    int oldp = GlobSet.RootServerPort;
-    int newp = ui->leRootServerPort->text().toInt();
-    if (oldp == newp) return;
-    GlobSet.RootServerPort = newp;
-
-    ui->cbRunRootServer->setChecked(false);
-}
-void AGlobSetWindow::on_leJSROOT_editingFinished()
-{
-    const QString & olda = GlobSet.ExternalJSROOT;
-    QString newa = ui->leJSROOT->text();
-    if (olda == newa) return;
-    GlobSet.ExternalJSROOT = newa;
-
-    ui->cbRunRootServer->setChecked(false);
-}
-void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
-{
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-
-    if (checked)
-        Net->StartRootHttpServer();  //does nothing if compilation flag is not set
-    else
-        Net->StopRootHttpServer();
-}
 void AGlobSetWindow::on_leWebSocketIP_editingFinished()
 {
     QString newIP = ui->leWebSocketIP->text();
@@ -364,3 +354,107 @@ void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
     GlobSet.SimTextSave_IncludePositions = checked;
 }
 */
+
+void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    ser.Autostart = ui->cbAutoRunRootServer->isChecked();
+}
+void AGlobSetWindow::on_leRootServerPort_editingFinished()  // !!!*** stop when changed? restart?
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    int oldp = ser.Port;
+    int newp = ui->leRootServerPort->text().toInt();
+    if (oldp == newp) return;
+    ser.Port = newp;
+
+    ui->cbRunRootServer->setChecked(false);
+}
+void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    const QString newa = ui->leJSROOT->text();
+    if (newa == ser.ExternalJSROOT) return;
+    ser.ExternalJSROOT = newa;
+
+    ui->cbRunRootServer->setChecked(false);
+}
+void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+
+    if (checked)
+        ser.start();  //does nothing if compilation flag is not set
+    else
+        ser.stop();
+}
+
+/*
+#include "aproxystyle.h"
+void AGlobSetWindow::on_cobColorPalette_activated(int index)
+{
+    switch (index)
+    {
+    case 0:
+        {
+            QStyle * style = new AProxyStyle();
+            QApplication::setPalette(style->standardPalette());
+
+            //QApplication::setStyle(new AProxyStyle());
+            //QApplication::setPalette(
+            //QApplication::style()->standardPalette() );
+                    //QPalette());
+        }
+        break;
+    case 1:
+        {
+            QStyle * style = QStyleFactory::create("Windows");
+            QApplication::setPalette(style->standardPalette());
+        }
+        break;
+    case 2:
+        {
+            QColor darkGray(53, 53, 53);
+            QColor gray(128, 128, 128);
+            QColor black(25, 25, 25);
+            QColor blue(42, 130, 218);
+
+            QPalette darkPalette;
+            darkPalette.setColor(QPalette::Window, darkGray);
+            darkPalette.setColor(QPalette::WindowText, Qt::white);
+            darkPalette.setColor(QPalette::Base, black);
+            darkPalette.setColor(QPalette::AlternateBase, darkGray);
+            darkPalette.setColor(QPalette::ToolTipBase, blue);
+            darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+            darkPalette.setColor(QPalette::Text, Qt::white);
+            darkPalette.setColor(QPalette::Button, darkGray);
+            darkPalette.setColor(QPalette::ButtonText, Qt::white);
+            darkPalette.setColor(QPalette::Link, blue);
+            darkPalette.setColor(QPalette::Highlight, blue);
+            darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+            darkPalette.setColor(QPalette::Active, QPalette::Button, gray.darker());
+            darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::Text, gray);
+            darkPalette.setColor(QPalette::Disabled, QPalette::Light, darkGray);
+
+            QApplication::setPalette(darkPalette);
+            qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+
+        }
+        break;
+    }
+}
+*/
+
+void AGlobSetWindow::on_cobStyle_textActivated(const QString & arg1)
+{
+    QApplication::setStyle(QStyleFactory::create(arg1));
+}
+
+void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
+{
+    QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
+}
+

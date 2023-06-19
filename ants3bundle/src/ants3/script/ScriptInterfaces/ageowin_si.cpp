@@ -45,7 +45,6 @@ void AGeoWin_SI::setParallel(bool on)
 
 void AGeoWin_SI::BlockUpdates(bool on)
 {
-    //DoNotUpdateGeometry = on;
     GeometryWindow->bDisableDraw = on;
 }
 
@@ -115,6 +114,12 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
         M->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
     }
     GeometryWindow->GeoMarkers.push_back(M);
+}
+
+void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
+{
+    GeometryWindow = newGeoWin;
+    BaseWindow = newGeoWin;
 }
 
 void AGeoWin_SI::clearTracks()

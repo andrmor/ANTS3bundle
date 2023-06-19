@@ -28,7 +28,7 @@ public:
 
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 
-    void readFromJson(const json11::Json & json);
+    bool readFromJson(const json11::Json & json);
     void writeToJson(json11::Json::object & json);
 
     std::string Name;
@@ -52,11 +52,15 @@ public:
     int     energyBins;
     double  energyFrom;
     double  energyTo;
-    int     energyUnits; // 0,1,2,3 -> meV, eV, keV, MeV;
+//    int     energyUnits; // 0,1,2,3 -> meV, eV, keV, MeV;
+    std::string EnergyUnits; // meV, eV, keV, MeV
+    double  EnergyFactor = 1.0;
 
     int     timeBins;
     double  timeFrom;
     double  timeTo;
+    std::string TimeUnits; // ns, us, ms, s
+    double  TimeFactor = 1.0;
 
     int     xbins;
     int     ybins;
@@ -90,6 +94,7 @@ public:
 
     //run-time
     AHistogram3Dfixed * Data = nullptr;
+    double VoxelVolume_mm3 = 0;
 
 };
 

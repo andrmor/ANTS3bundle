@@ -40,6 +40,8 @@ void APhotonTracer::configureTracer()
 {
     Track.Positions.reserve(SimSet.OptSet.MaxPhotonTransitions + 1);
     AddedTracks = 0;
+
+    _MaxQE = SensorHub.getMaxQE(SimSet.WaveSet.Enabled);
 }
 
 void APhotonTracer::initTracks()
@@ -59,17 +61,6 @@ void APhotonTracer::initPhotonLog()
     PhLog.clear();
     PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
     PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
-}
-
-bool APhotonTracer::skipTracing(int waveIndex)
-{
-    Rnd = RandomHub.uniform();
-    if (Rnd > SensorHub.getMaxQE(SimSet.WaveSet.Enabled, waveIndex))
-    {
-        SimStat.TracingSkipped++;
-        return true;
-    }
-    return false;
 }
 
 bool APhotonTracer::initBeforeTracing(const APhoton & phot)
@@ -107,8 +98,19 @@ bool APhotonTracer::initBeforeTracing(const APhoton & phot)
 
 void APhotonTracer::tracePhoton(const APhoton & phot)
 {
-//    qDebug() << "Photon tracing called";
-    if (SimSet.OptSet.CheckQeBeforeTracking && skipTracing(phot.waveIndex)) return;
+//    qDebug() << "Photon tracing started";
+
+    if (SimSet.OptSet.CheckQeBeforeTracking)
+    {
+        //if (skipTracing(phot.waveIndex)) return;  // in contrast to ANTS2, do not assume that wavelength will be constant during tracing
+        Rnd = RandomHub.uniform();
+        if (Rnd > _MaxQE)
+        {
+            SimStat.TracingSkipped++;
+            return;
+        }
+    }
+
     if (!initBeforeTracing(phot)) return;
 
     TransitionCounter = 0;
@@ -591,12 +593,12 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     //prepare Rayleigh
     bool DoRayleigh;
     double RayleighPath;
-    if (MaterialFrom->rayleighMFP == 0) DoRayleigh = false;      // == 0 - means undefined
+    if (MaterialFrom->RayleighMFP == 0) DoRayleigh = false;      // == 0 - means undefined
     else
     {
         double RayleighMFP;
-        if (Photon.waveIndex == -1) RayleighMFP = MaterialFrom->rayleighMFP;
-        else RayleighMFP = MaterialFrom->rayleighBinned[Photon.waveIndex];
+        if (Photon.waveIndex == -1) RayleighMFP = MaterialFrom->RayleighMFP;
+        else RayleighMFP = MaterialFrom->_Rayleigh_WaveBinned[Photon.waveIndex];
 
         RayleighPath = -RayleighMFP * log(RandomHub.uniform());
         if (RayleighPath < Step) DoRayleigh = true;
@@ -638,7 +640,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                 if (RandomHub.uniform() < reemissionProb)
                 {
                     //qDebug() << "Waveshifting! Original index:"<<p.waveIndex;
-                    if (Photon.waveIndex!=-1 && MatHub[MatIndexFrom]->PrimarySpectrumHist)
+                    if (Photon.waveIndex!=-1 && MatHub[MatIndexFrom]->_PrimarySpectrumHist)
                     {
                         double wavelength;
                         int waveIndex;
@@ -647,7 +649,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                         {
                             attempts++;
                             if (attempts > 9) return EBulkProcessResult::Absorbed;  // ***!!! absolute number
-                            wavelength = MatHub[MatIndexFrom]->PrimarySpectrumHist->GetRandom();
+                            wavelength = MatHub[MatIndexFrom]->_PrimarySpectrumHist->GetRandom();
                             //qDebug() << "   "<<wavelength << " MatIndexFrom:"<< MatIndexFrom;
                             waveIndex = SimSet.WaveSet.toIndexFast(wavelength); // !!!*** before was round here:
                             //waveIndex = round( (wavelength - SimSet->WaveFrom)/SimSet->WaveStep );
@@ -797,7 +799,7 @@ void APhotonTracer::processSensorHit(int iSensor)
     }
 
     double local[3];//if no area dep or not SiPM - local content is undefined!
-    if (model->isXYSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
+    if (model->isAreaSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
     {
         const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, local);
@@ -813,8 +815,9 @@ void APhotonTracer::processSensorHit(int iSensor)
     for (int i=0; i<3; i++) cosAngle += N[i] * Photon.v[i];
     //       qDebug()<<"cos() = "<<cosAngle;
     double angle = 0;
-    if ( SimSet.RunSet.SaveStatistics ||
-         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) // !!!*** or angular dependence!
+    if ( !model->AngularBinned.empty() ||
+         SimSet.RunSet.SaveStatistics ||
+         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) )
     {
         // !!!*** TODO for metals!
         angle = TMath::ACos(cosAngle)*180.0/3.1415926535;

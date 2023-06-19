@@ -1,7 +1,7 @@
 #ifndef ADISPATCHERINTERFACE_H
 #define ADISPATCHERINTERFACE_H
 
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 
 #include <QObject>
 #include <QJsonObject>
@@ -30,13 +30,14 @@ private:
     ADispatcherInterface& operator=(ADispatcherInterface&&)      = delete;
 
 public:
-    QString     fillRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
+    QString     fillRunPlan(std::vector<AFarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
+    // !!!*** change int to double?
 
     QJsonObject performTask(const A3WorkDistrConfig & Request);
     void        waitForReply();
 
     void        abortTask();
-
+    bool        isAborted() const;
 
 public slots:
     void        aboutToQuit();
@@ -56,7 +57,7 @@ protected:
     QJsonObject    Reply;
     std::mutex     ReplyMutex;
 
-    bool           bAbortRequested = false; // !!!*** need?
+    bool           bAbortRequested = false;
 
 private:
     void clearOutputFiles(const A3WorkDistrConfig & Request);

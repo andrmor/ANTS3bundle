@@ -20,7 +20,7 @@ A3Global::A3Global()
 {
     QString TargetDir(TARGET_DIR);
     ExamplesDir  = TargetDir + "/EXAMPLES";
-    ResourcesDir = TargetDir + "/DATA";
+    ResourcesDir = TargetDir + "/files";
 
     ExecutableDir = QDir::currentPath();
     ExchangeDir = ExecutableDir + "/Exchange";
@@ -44,24 +44,11 @@ A3Global::A3Global()
     }
 }
 
+#include "TStyle.h"
 void A3Global::init()
 {
     qDebug() << "Init of global config";
-/*
-#ifdef GUI
-    if (!RootStyleScript.isEmpty())
-    {
-        //running root TStyle script
-        AJavaScriptManager* SM = new AJavaScriptManager(0);
-        AGStyle_SI* GStyleInterface  = new  AGStyle_SI(); //deleted by the SM
-        SM->RegisterInterfaceAsGlobal(GStyleInterface);
-        SM->Evaluate(RootStyleScript);
-        SM->deleteLater();
-    }
     gStyle->SetOptTitle(0);  // disables drawing of the title of ROOT histograms / graphs
-#endif
-*/
-
 }
 
 #include "aerrorhub.h"
@@ -80,22 +67,22 @@ bool A3Global::checkExchangeDir()
     return true;
 }
 
+#include "afarmhub.h"
+#include "aroothttpserver.h"
 void A3Global::saveConfig()
 {
-    QJsonObject js;
+    QJsonObject json;
 
-    js["ExchangeDir"]   = ExchangeDir;
-    js["LastSaveDir"]   = LastSaveDir;
-    js["LastLoadDir"]   = LastLoadDir;
+    json["ExchangeDir"] = ExchangeDir;
+    json["LastSaveDir"] = LastSaveDir;
+    json["LastLoadDir"] = LastLoadDir;
 
-    js["AutoCheckGeometry"] = AutoCheckGeometry;
-    js["NumSegmentsTGeo"]   = NumSegmentsTGeo;
-    js["BinsX"] = BinsX;
-    js["BinsY"] = BinsY;
-    js["BinsZ"] = BinsZ;
-    js["OpenImageExternalEditor"] = OpenImageExternalEditor;
-
-//    js["RootStyleScript"] = RootStyleScript;
+    json["AutoCheckGeometry"] = AutoCheckGeometry;
+    json["NumSegmentsTGeo"]   = NumSegmentsTGeo;
+    json["BinsX"] = BinsX;
+    json["BinsY"] = BinsY;
+    json["BinsZ"] = BinsZ;
+    json["OpenImageExternalEditor"] = OpenImageExternalEditor;
 
 /*
     js["RecTreeSave_IncludePMsignals"] = RecTreeSave_IncludePMsignals;
@@ -105,64 +92,93 @@ void A3Global::saveConfig()
     js["SimTextSave_IncludePositions"] = SimTextSave_IncludePositions;
 */
 
-    js["JavaScriptJson"] = JavaScriptJson;
-    js["PythonJson"]     = PythonJson;
-    js["SW_FontSize"]    = SW_FontSize;
-    js["SW_FontFamily"]  = SW_FontFamily;
-    js["SW_FontWeight"]  = SW_FontWeight;
-    js["SW_Italic"]      = SW_Italic;
+    json["JavaScriptJson"] = JavaScriptJson;
+    json["PythonJson"]     = PythonJson;
+    json["SW_FontSize"]    = SW_FontSize;
+    json["SW_FontFamily"]  = SW_FontFamily;
+    json["SW_FontWeight"]  = SW_FontWeight;
+    json["SW_Italic"]      = SW_Italic;
 
-    js["TrackVisAttributes"] = TrackVisAttributes;
+    json["TrackVisAttributes"] = TrackVisAttributes;
 
-/*
-    js["DefaultWebSocketPort"] = DefaultWebSocketPort;
-    js["DefaultWebSocketIP"] = DefaultWebSocketIP;
-    js["RootServerPort"] = RootServerPort;
-    js["RunRootServerOnStart"] = fRunRootServerOnStart;
-    //js["ExternalJSROOT"] = ExternalJSROOT;
-*/
+    // Web server
+    //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
+    //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
 
-    QJsonObject json;
-    json["ANTS3config"] = js;
-    jstools::saveJsonToFile(json, ConfigDir + '/' + ConfigFileName);
+    // Root server
+    {
+        QJsonObject js;
+            ARootHttpServer::getInstance().writeToJson(js);
+        json["RootServer"] = js;
+    }
+
+    // Workload
+    {
+        QJsonObject js;
+            AFarmHub::getConstInstance().writeToJson(js);
+        json["Workload"] = js;
+    }
+
+    QJsonObject mainjson;
+        mainjson["ANTS3config"] = json;
+    jstools::saveJsonToFile(mainjson, ConfigDir + '/' + ConfigFileName);
 }
 
 void A3Global::loadConfig()
 {
-    QJsonObject json;
+    QJsonObject mainjson;
     const QString fileName = ConfigDir + '/' + ConfigFileName;
-    bool ok = jstools::loadJsonFromFile(json, fileName);
+    bool ok = jstools::loadJsonFromFile(mainjson, fileName);
     if (!ok)
     {
         qDebug() << "Could not open global config file:" << fileName;
         return;
     }
 
-    QJsonObject js;
-    ok = jstools::parseJson(json, "ANTS3config", js);
+    QJsonObject json;
+    ok = jstools::parseJson(mainjson, "ANTS3config", json);
     if (!ok)
     {
         qDebug() << "Bad format of the config file:" << fileName;
         return;
     }
 
-    jstools::parseJson(js, "ExchangeDir", ExchangeDir);
-    jstools::parseJson(js, "LastSaveDir", LastSaveDir);
-    jstools::parseJson(js, "LastLoadDir", LastLoadDir);
+    jstools::parseJson(json, "ExchangeDir", ExchangeDir);
+    jstools::parseJson(json, "LastSaveDir", LastSaveDir);
+    jstools::parseJson(json, "LastLoadDir", LastLoadDir);
 
-    jstools::parseJson(js, "AutoCheckGeometry", AutoCheckGeometry);
-    jstools::parseJson(js, "NumSegmentsTGeo", NumSegmentsTGeo);
-    jstools::parseJson(js, "BinsX", BinsX);
-    jstools::parseJson(js, "BinsY", BinsY);
-    jstools::parseJson(js, "BinsZ", BinsZ);
-    jstools::parseJson(js, "OpenImageExternalEditor", OpenImageExternalEditor);
+    jstools::parseJson(json, "AutoCheckGeometry", AutoCheckGeometry);
+    jstools::parseJson(json, "NumSegmentsTGeo", NumSegmentsTGeo);
+    jstools::parseJson(json, "BinsX", BinsX);
+    jstools::parseJson(json, "BinsY", BinsY);
+    jstools::parseJson(json, "BinsZ", BinsZ);
+    jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
 
-    jstools::parseJson(js, "JavaScriptJson", JavaScriptJson);
-    jstools::parseJson(js, "PythonJson", PythonJson);
-    jstools::parseJson(js, "SW_FontSize", SW_FontSize);
-    jstools::parseJson(js, "SW_FontFamily", SW_FontFamily);
-    jstools::parseJson(js, "SW_FontWeight", SW_FontWeight);
-    jstools::parseJson(js, "SW_Italic", SW_Italic);
+    jstools::parseJson(json, "JavaScriptJson", JavaScriptJson);
+    jstools::parseJson(json, "PythonJson", PythonJson);
+    jstools::parseJson(json, "SW_FontSize", SW_FontSize);
+    jstools::parseJson(json, "SW_FontFamily", SW_FontFamily);
+    jstools::parseJson(json, "SW_FontWeight", SW_FontWeight);
+    jstools::parseJson(json, "SW_Italic", SW_Italic);
 
-    jstools::parseJson(js, "TrackVisAttributes", TrackVisAttributes);
+    jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
+
+    // Root server
+    {
+        QJsonObject js;
+            jstools::parseJson(json, "RootServer", js);
+        ARootHttpServer::getInstance().readFromJson(js);
+    }
+
+    // Workload
+    {
+        QJsonObject js;
+            jstools::parseJson(json, "Workload", js);
+        AFarmHub::getInstance().readFromJson(js);
+    }
+}
+
+QString A3Global::getQuickFileName(int index) const
+{
+    return QString("%0/QuickSave%1.json").arg(QuicksaveDir).arg(index);
 }

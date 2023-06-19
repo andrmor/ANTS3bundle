@@ -42,6 +42,8 @@ AThreadPool::~AThreadPool()
     {
         std::unique_lock<std::mutex> lock(Mutex);
         StopRequested = true;
+        std::queue<std::function<void()>> empty;
+        std::swap(Jobs, empty);
     }
 
     Condition.notify_all();
@@ -70,6 +72,8 @@ bool AThreadPool::isFull()
 
 bool AThreadPool::isIdle()
 {
+    if (!Jobs.empty()) return false; // fast
+
     std::lock_guard<std::mutex> lock(Mutex);
-    return NumBusyThreads == 0;
+    return (NumBusyThreads == 0);
 }

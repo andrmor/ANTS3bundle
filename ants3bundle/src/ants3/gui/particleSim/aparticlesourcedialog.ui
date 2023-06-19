@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
-    <height>748</height>
+    <width>610</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -21,301 +21,58 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <property name="spacing">
-    <number>2</number>
+    <number>3</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <property name="bottomMargin">
-    <number>2</number>
+    <number>5</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_16">
+    <layout class="QHBoxLayout" name="horizontalLayout_23">
      <property name="topMargin">
-      <number>0</number>
+      <number>3</number>
+     </property>
+     <property name="bottomMargin">
+      <number>3</number>
      </property>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="spacing">
-        <number>3</number>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Source name:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_160">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Shape</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLineEdit" name="leSourceName"/>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cobGunSourceType">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <bold>false</bold>
-          </font>
-         </property>
-         <item>
-          <property name="text">
-           <string>Point</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Line</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Rectangle</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Round</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Box</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Cylinder</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QPushButton" name="pbShowSource">
-         <property name="minimumSize">
-          <size>
-           <width>200</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Show source</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_8">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labDimensions">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Dimensions, mm:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <property name="leftMargin">
-      <number>20</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="lGun1DSize">
        <property name="text">
-        <string>Size1:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <string>Source name:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGun1DSize">
-       <property name="maximumSize">
+      <widget class="QLineEdit" name="leSourceName"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbShowSource">
+       <property name="minimumSize">
         <size>
-         <width>75</width>
-         <height>16777215</height>
+         <width>200</width>
+         <height>0</height>
         </size>
        </property>
        <property name="text">
-        <string>10</string>
+        <string>Show source</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lGun2DSize">
-       <property name="text">
-        <string>Size2:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGun2DSize">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>10</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lGun3DSize">
-       <property name="text">
-        <string>Size3:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGun3DSize">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>10</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="hsDimensions">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbSourceLimitmat">
-       <property name="text">
-        <string>Limit particle generation to material:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="leSourceLimitMaterial">
-       <property name="enabled">
+       <property name="checkable">
         <bool>true</bool>
        </property>
-       <property name="toolTip">
-        <string>Particle will be generated only if the point sampled inside the source is located within an object with the indicated material.
-If material with this name does not exist, this limitation is not applied.</string>
-       </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_10">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="pbUpdateRecord">
@@ -325,6 +82,479 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_24">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_160">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Shape:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cobGunSourceType">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <bold>false</bold>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>Point</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Line</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Rectangle</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Round</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Box</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cylinder</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_15">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QFrame" name="frLimitToMat">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_31">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbSourceLimitmat">
+          <property name="text">
+           <string>Limit particle generation to material:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leSourceLimitMaterial">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Particle will be generated only if the point sampled inside the source is located within an object with the indicated material.
+If material with this name does not exist, this limitation is not applied.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="frDimensions">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_10">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="leftMargin">
+         <number>20</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lGun1DSize">
+          <property name="text">
+           <string>Size1:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGun1DSize">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lGun2DSize">
+          <property name="text">
+           <string>Size2:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGun2DSize">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lGun3DSize">
+          <property name="text">
+           <string>Size3:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGun3DSize">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>mm</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="hsDimensions">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frAxialDistribution">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_35">
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="cbAxialDistribution">
+        <property name="text">
+         <string>Use axial distribution</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frAxialProperties">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_36">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="cobAxialDistributionType">
+           <item>
+            <property name="text">
+             <string>Gaussian</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Custom</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="swAxialDistribution">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="page_14">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_26">
+               <property name="text">
+                <string>Sigma:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledAxialDistributionSigma">
+               <property name="maximumSize">
+                <size>
+                 <width>75</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_27">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_15">
+            <layout class="QHBoxLayout" name="horizontalLayout_34">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionShow">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Show</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionLoad">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Load</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbAxialDistributionRemove">
+               <property name="maximumSize">
+                <size>
+                 <width>18</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_23">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_10">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>147</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="Line" name="line_7">
@@ -341,7 +571,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Position of the source center, mm:</string>
+      <string>Position of the center:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -414,6 +644,13 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_20">
+       <property name="text">
+        <string>mm</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -443,7 +680,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Source orientation, degrees:</string>
+      <string>Orientation:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -525,6 +762,13 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_21">
+       <property name="text">
+        <string>deg</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -554,9 +798,236 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Collimation direction (polar system) and cone, degrees:</string>
+      <string>Angular properties:</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_26">
+     <property name="leftMargin">
+      <number>20</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>Generation mode:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cobAngularMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Isotropic</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fixed direction</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fixed with Gaussian divergence</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Custom distribution</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_18">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="swAngular">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_6"/>
+       <widget class="QWidget" name="page_9"/>
+       <widget class="QWidget" name="page_7">
+        <layout class="QHBoxLayout" name="horizontalLayout_27">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Sigma:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledAngularSigma">
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>deg</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_19">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_8">
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Distribution:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbShowAngular">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Show</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbLoadAngular">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Load</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbDeleteAngular">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>18</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>X</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_16">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>36</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -564,72 +1035,140 @@ If material with this name does not exist, this limitation is not applied.</stri
       <number>20</number>
      </property>
      <item>
-      <widget class="QLabel" name="label_179">
-       <property name="text">
-        <string>Phi:</string>
+      <widget class="QFrame" name="frDirection">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_28">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_179">
+          <property name="text">
+           <string>Direction phi:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGunCollPhi">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_174">
+          <property name="text">
+           <string>theta:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledGunCollTheta">
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_22">
+          <property name="text">
+           <string>deg  </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGunCollPhi">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
+      <widget class="QFrame" name="frAngularCutoff">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="text">
-        <string>0</string>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_174">
-       <property name="text">
-        <string>Theta:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGunCollTheta">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Cone:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ledGunSpread">
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Angle from the collimation direction</string>
-       </property>
-       <property name="text">
-        <string>45</string>
-       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_29">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbAngularCutoff">
+          <property name="text">
+           <string>Angular cut-off:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ledAngularCutoff">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Angle from the collimation direction</string>
+          </property>
+          <property name="text">
+           <string>45</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>deg</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
@@ -675,7 +1214,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
-           <verstretch>10</verstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
@@ -727,7 +1266,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>260</width>
          <height>16777215</height>
         </size>
        </property>
@@ -739,19 +1278,19 @@ If material with this name does not exist, this limitation is not applied.</stri
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="spacing">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="leftMargin">
          <number>3</number>
         </property>
         <property name="topMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="rightMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="bottomMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_25">
@@ -784,104 +1323,263 @@ If material with this name does not exist, this limitation is not applied.</stri
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="topMargin">
-           <number>0</number>
+         <widget class="QFrame" name="frParticleInfo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <item>
-           <widget class="QLabel" name="labStatWeight">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Statistical weight:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="ledGunParticleWeight">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Energy:</string>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
           </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="spacing">
-           <number>3</number>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-          <property name="topMargin">
-           <number>0</number>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
           </property>
-          <item>
-           <widget class="QComboBox" name="cobEnergy">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>Fixed</string>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="Line" name="line_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_11">
              <property name="text">
-              <string>Distribution</string>
+              <string>Energy:</string>
              </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_17">
-              <property name="spacing">
-               <number>1</number>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>3</number>
+             </property>
+             <property name="leftMargin">
+              <number>15</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="cobEnergy">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Fixed</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Distribution</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QStackedWidget" name="swEnergy">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <widget class="QWidget" name="page_12">
+                <layout class="QHBoxLayout" name="horizontalLayout_18">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLineEdit" name="ledGunEnergy">
+                   <property name="maximumSize">
+                    <size>
+                     <width>75</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>100</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cobUnits">
+                   <item>
+                    <property name="text">
+                     <string>MeV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>keV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>eV</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>meV</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="page_13">
+                <layout class="QHBoxLayout" name="horizontalLayout_17">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QPushButton" name="pbGunShowSpectrum">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>35</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbGunLoadSpectrum">
+                   <property name="minimumSize">
+                    <size>
+                     <width>35</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Format: two columns, first is the energy in keV, second is the probability</string>
+                   </property>
+                   <property name="text">
+                    <string>Load</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbDeleteSpectrum">
+                   <property name="maximumSize">
+                    <size>
+                     <width>18</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="frEnergyBlur">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_37">
+              <property name="leftMargin">
+               <number>15</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <widget class="QLineEdit" name="ledGunEnergy">
-                <property name="maximumSize">
-                 <size>
-                  <width>75</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
+               <widget class="QCheckBox" name="cbEnergyGaussBlur">
                 <property name="text">
-                 <string>100</string>
+                 <string>Gauss sigma</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="cobUnits">
+               <widget class="QLineEdit" name="ledEnergySigma"/>
+              </item>
+              <item>
+               <widget class="QComboBox" name="cobEnergySigmaUnits">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <item>
                  <property name="text">
                   <string>MeV</string>
@@ -905,181 +1603,229 @@ If material with this name does not exist, this limitation is not applied.</stri
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <property name="spacing">
-               <number>1</number>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_30">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="cobGenerationType">
+               <item>
+                <property name="text">
+                 <string>Independent particle</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked -&gt; parent generated</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linked -&gt; parent NOT generated</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="frIndependent">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="leftMargin">
+               <number>15</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <widget class="QPushButton" name="pbGunShowSpectrum">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>35</width>
-                  <height>0</height>
-                 </size>
+               <widget class="QLabel" name="labStatWeight">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Show</string>
+                 <string>Statistical weight:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbGunLoadSpectrum">
-                <property name="minimumSize">
-                 <size>
-                  <width>35</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Format: two columns, first is the energy in keV, second is the probability</string>
-                </property>
-                <property name="text">
-                 <string>Load</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbDeleteSpectrum">
+               <widget class="QLineEdit" name="ledGunParticleWeight">
                 <property name="maximumSize">
                  <size>
-                  <width>18</width>
+                  <width>75</width>
                   <height>16777215</height>
                  </size>
                 </property>
                 <property name="text">
-                 <string>X</string>
+                 <string>1</string>
                 </property>
                </widget>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>33</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbLinkedParticle">
-          <property name="text">
-           <string>Linked particle</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="frSecondary">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_20">
-             <item>
-              <widget class="QLabel" name="label_153">
-               <property name="text">
-                <string>Linked to particle #</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="sbLinkedTo"/>
-             </item>
-            </layout>
+            </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_19">
-             <item>
-              <widget class="QLabel" name="label_152">
-               <property name="text">
-                <string>With probability:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="ledLinkingProbability">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QFrame" name="frLinked">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="leftMargin">
+               <number>15</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_20">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_153">
+                  <property name="text">
+                   <string>Linked to particle #</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="sbLinkedTo"/>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_17">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_19">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_152">
+                  <property name="text">
+                   <string>With probability:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="ledLinkingProbability">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_21">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="cbLinkingOpposite">
+             <property name="toolTip">
+              <string>Intended usage are annihilation gammas</string>
+             </property>
              <property name="text">
-              <string>Generate in opposite direction</string>
+              <string>Generate back-to-back pair</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="fLinkedParticle">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <property name="spacing">
-            <number>2</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
           </layout>
          </widget>
         </item>
@@ -1097,11 +1843,8 @@ If material with this name does not exist, this limitation is not applied.</stri
          </spacer>
         </item>
        </layout>
-       <zorder>cbLinkedParticle</zorder>
-       <zorder>fLinkedParticle</zorder>
-       <zorder>frSecondary</zorder>
-       <zorder>label_11</zorder>
        <zorder>verticalSpacer</zorder>
+       <zorder>frParticleInfo</zorder>
       </widget>
      </item>
     </layout>
@@ -1121,7 +1864,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </font>
      </property>
      <property name="text">
-      <string>Time properties of emitted particles:</string>
+      <string>Temporal properties:</string>
      </property>
     </widget>
    </item>
@@ -1136,7 +1879,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <widget class="QLabel" name="label_18">
        <property name="text">
-        <string>Average time:</string>
+        <string>Offset: </string>
        </property>
       </widget>
      </item>
@@ -1149,7 +1892,12 @@ If material with this name does not exist, this limitation is not applied.</stri
        </item>
        <item>
         <property name="text">
-         <string>Regular train</string>
+         <string>By event index</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Custom distribution</string>
         </property>
        </item>
       </widget>
@@ -1171,7 +1919,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page">
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1220,7 +1968,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page_2">
         <layout class="QHBoxLayout" name="horizontalLayout_9">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1284,6 +2032,80 @@ If material with this name does not exist, this limitation is not applied.</stri
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="page_11">
+        <layout class="QHBoxLayout" name="horizontalLayout_33">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pbTimeCustomShow">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Show</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbTimeCustomLoad">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Load</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbTimeCustomDelete">
+           <property name="minimumSize">
+            <size>
+             <width>18</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>18</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>X</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_22">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>37</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item>
@@ -1325,12 +2147,17 @@ If material with this name does not exist, this limitation is not applied.</stri
        </item>
        <item>
         <property name="text">
-         <string>Gauss</string>
+         <string>Gaussian</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Uniform</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Exponential</string>
         </property>
        </item>
       </widget>
@@ -1353,7 +2180,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page_5">
         <layout class="QHBoxLayout" name="horizontalLayout_21">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1409,7 +2236,7 @@ If material with this name does not exist, this limitation is not applied.</stri
        <widget class="QWidget" name="page_4">
         <layout class="QHBoxLayout" name="horizontalLayout_22">
          <property name="leftMargin">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -1423,7 +2250,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Full width:</string>
+            <string>Duration:</string>
            </property>
           </widget>
          </item>
@@ -1462,6 +2289,79 @@ If material with this name does not exist, this limitation is not applied.</stri
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="page_10">
+        <layout class="QHBoxLayout" name="horizontalLayout_32">
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>Half-time:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledTimeSpreadHalfLife">
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cobPreferedHalfLifeUnits">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item>
@@ -1481,34 +2381,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    </item>
    <item>
     <widget class="Line" name="line_9">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>10</height>
+       <width>0</width>
+       <height>5</height>
       </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="Line" name="line_2">
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="lineWidth">
-      <number>2</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -1555,14 +2432,14 @@ If material with this name does not exist, this limitation is not applied.</stri
         <number>1000000</number>
        </property>
        <property name="value">
-        <number>100</number>
+        <number>1000</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pbAbort">
+      <widget class="QCheckBox" name="cbShowStatistics">
        <property name="text">
-        <string>Abort</string>
+        <string>Show statsistics</string>
        </property>
       </widget>
      </item>
@@ -1675,8 +2552,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>15</y>
     </hint>
     <hint type="destinationlabel">
-     <x>478</x>
-     <y>126</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1687,12 +2564,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>52</y>
+     <x>148</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>125</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1707,8 +2584,8 @@ If material with this name does not exist, this limitation is not applied.</stri
      <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>432</x>
-     <y>122</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1719,12 +2596,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>98</y>
+     <x>263</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1735,12 +2612,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>98</y>
+     <x>385</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1751,12 +2628,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>125</y>
+     <x>335</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>124</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1767,12 +2644,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>361</x>
-     <y>126</y>
+     <x>603</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>127</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1783,12 +2660,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>192</y>
+     <x>117</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1799,12 +2676,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>192</y>
+     <x>214</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>439</x>
-     <y>125</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1815,12 +2692,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>192</y>
+     <x>311</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1831,12 +2708,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>245</y>
+     <x>128</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>434</x>
-     <y>127</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1847,12 +2724,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>245</y>
+     <x>254</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1863,12 +2740,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>399</x>
-     <y>245</y>
+     <x>401</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1879,12 +2756,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>295</y>
+     <x>170</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1895,28 +2772,28 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>295</y>
+     <x>274</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>128</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ledGunSpread</sender>
+   <sender>ledAngularCutoff</sender>
    <signal>editingFinished()</signal>
    <receiver>pbUpdateRecord</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>373</x>
-     <y>295</y>
+     <x>538</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1927,12 +2804,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>481</x>
-     <y>431</y>
+     <x>533</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
-     <x>454</x>
-     <y>123</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1943,12 +2820,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>545</x>
-     <y>570</y>
+     <x>598</x>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1959,12 +2836,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>444</y>
+     <x>414</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1975,12 +2852,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>381</y>
+     <x>557</x>
+     <y>532</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>124</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -1991,12 +2868,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>628</y>
+     <x>227</x>
+     <y>663</y>
     </hint>
     <hint type="destinationlabel">
-     <x>522</x>
-     <y>628</y>
+     <x>511</x>
+     <y>663</y>
     </hint>
    </hints>
   </connection>
@@ -2007,12 +2884,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
-     <y>657</y>
+     <x>158</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>390</x>
-     <y>657</y>
+     <x>374</x>
+     <y>691</y>
     </hint>
    </hints>
   </connection>
@@ -2023,12 +2900,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>628</y>
+     <x>227</x>
+     <y>663</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>136</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2039,12 +2916,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>628</y>
+     <x>307</x>
+     <y>663</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>139</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2055,12 +2932,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>633</y>
+     <x>269</x>
+     <y>669</y>
     </hint>
     <hint type="destinationlabel">
-     <x>434</x>
-     <y>132</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2072,11 +2949,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>320</x>
-     <y>633</y>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
-     <x>509</x>
-     <y>124</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2087,12 +2964,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
-     <y>657</y>
+     <x>158</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
-     <y>133</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2103,12 +2980,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>662</y>
+     <x>262</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>136</y>
+     <x>603</x>
+     <y>30</y>
     </hint>
    </hints>
   </connection>
@@ -2119,12 +2996,284 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>662</y>
+     <x>262</x>
+     <y>715</y>
     </hint>
     <hint type="destinationlabel">
-     <x>458</x>
-     <y>137</y>
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAngularCutoff</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>467</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAngularMode</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAngularSigma</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAngularCutoff</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledAngularCutoff</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>467</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>538</x>
+     <y>315</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leGunParticle</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>567</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobGenerationType</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>597</x>
+     <y>502</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledTimeSpreadHalfLife</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>253</x>
+     <y>715</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>swTimeSpread</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>712</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobPreferedHalfLifeUnits</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>715</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>603</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAxialDistribution</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>157</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>585</x>
+     <y>19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAxialDistributionType</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledAxialDistributionSigma</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>558</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAxialDistributionType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>swAxialDistribution</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>255</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbAxialDistribution</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frAxialProperties</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbEnergyGaussBlur</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>446</x>
+     <y>448</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>544</x>
+     <y>16</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEnergySigma</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>493</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobEnergySigmaUnits</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>563</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>569</x>
+     <y>16</y>
     </hint>
    </hints>
   </connection>

@@ -43,7 +43,8 @@ public:
 
     const TString IndexSeparator = "_-_";
 
-    void         populateGeoManager();   // emit signal?
+    void         populateGeoManager(bool notifyRootServer = true);
+    void         notifyRootServerGeometryChanged();
 
     void         writeToJson(QJsonObject & json) const;
     QString      readFromJson(const QJsonObject & json);
@@ -63,10 +64,9 @@ public:
 
     bool         isVolumeExistAndActive(const QString & name) const;
 
-    void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot
+    void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot  !!!*** redo, can be very slow
     void         changeLineWidthOfVolumes(int delta);
 
-    //World size-related   !!!*** still need?
     bool         isWorldSizeFixed() const;
     void         setWorldSizeFixed(bool bFlag);
     double       getWorldSizeXY() const;
@@ -74,27 +74,36 @@ public:
     double       getWorldSizeZ() const;
     void         setWorldSizeZ(double size);
 
-    int          checkGeometryForConflicts();  // !!!*** to geom hub
+    int          checkGeometryForConflicts();
     QString      checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const;
 
-    QString      exportToGDML(const QString & fileName) const;
-    QString      exportToROOT(const QString & fileName) const;
+    //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
+    //QString      exportToROOT(const QString & fileName) const;  // old system
+    QString      exportGeometry(const QString & fileName);      // new system based on geometry scaling
+
+    QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
+    QString      importGeometry(const QString & fileName);      // new system based on geometry scaling
 
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
 
     void         removeNameDecorators(TString & name) const;
 
+    void         getScintillatorPositions(std::vector<AVector3> & positions) const;
+    void         getScintillatorOrientations(std::vector<AVector3> & orientations) const;
+    void         getScintillatorVolumeNames(std::vector<QString> & vol) const;
+    void         getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const;
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
-    void positionArray(AGeoObject * obj, TGeoVolume * vol);  // !!!*** split to array types!
+    void positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex);  // !!!*** split to array types!
     void positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
     void positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
 
     void positionArrayElement(int ix, int iy, int iz, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
     void positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
-    void positionHexArrayRing(int iR, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
+    void positionHexArrayRing(int iR, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int & arrayIndex);
     void positionHexArrayElement(double localX, double localY, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex);
     void positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume * parent, int forcedNodeNumber);
 
@@ -106,11 +115,18 @@ private:
     TGeoRotation * createCombinedRotation(TGeoRotation * firstRot, TGeoRotation * secondRot, TGeoRotation * thirdRot = nullptr);
 
     void clearMonitors();
-    void getGlobalPosition(const TGeoNode * node, AVector3 & position);
-    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ);
-    void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode);
-    bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode);
+    void getGlobalPosition(const TGeoNode * node, AVector3 & position) const;
+    void getGlobalUnitVectors(const TGeoNode * node, double * uvX, double * uvY, double * uvZ) const;
+    void findMotherNode(const TGeoNode * node, const TGeoNode* & motherNode) const;
+    bool findMotherNodeFor(const TGeoNode * node, const TGeoNode * startNode, const TGeoNode* & foundNode) const;
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
+    QString readGDMLtoTGeo(const QString & fileName);
+
+private:
+    bool   DoScaling = false;
+    double ScalingFactor = 1.0;
+
+    std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 };
 
 #endif // AGEOMETRYHUB_H

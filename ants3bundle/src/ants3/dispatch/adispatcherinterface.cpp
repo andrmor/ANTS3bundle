@@ -41,7 +41,7 @@ ADispatcherInterface::~ADispatcherInterface()
 }
 
 #include "afarmhub.h"
-QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPlan, int numEvents, int overrideLocalProcesses)
+QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan, int numEvents, int overrideLocalProcesses)
 {
     runPlan.clear();
 
@@ -55,21 +55,21 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
             numLocalsProcesses = FarmHub.LocalProcesses;
     }
 
-    QVector<A3FarmNodeRecord> tmpPlan;
+    QVector<AFarmNodeRecord> tmpPlan;
     int    num      = 0;
     double totSpeed = 0;
 
     if (numLocalsProcesses > 0)
     {
-        tmpPlan << A3FarmNodeRecord("", 0, numLocalsProcesses);
+        tmpPlan << AFarmNodeRecord("", 0, numLocalsProcesses);
         num      += numLocalsProcesses;
         totSpeed += 1.0 * numLocalsProcesses;
     }
 
     if (FarmHub.UseFarm)
     {
-        const std::vector<A3FarmNodeRecord*> & FarmNodes = FarmHub.getNodes();
-        for (const A3FarmNodeRecord * FarmNode : FarmNodes)
+        const std::vector<AFarmNodeRecord*> & FarmNodes = FarmHub.getNodes();
+        for (const AFarmNodeRecord * FarmNode : FarmNodes)
             if (FarmNode->Enabled)
             {
                 tmpPlan << *FarmNode;
@@ -85,7 +85,7 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
     double eventsPerUnitSpeed = numEvents / totSpeed;
     int remainingEvents = numEvents;
     double lastDelta = 0;
-    for (A3FarmNodeRecord & r : tmpPlan)
+    for (AFarmNodeRecord & r : tmpPlan)
     {
         if (remainingEvents == 0) break;
 
@@ -94,9 +94,9 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
         for (int & num : r.Split)
         {
             double toDo = perCore + lastDelta;
-            num = std::round(toDo);
+            num = std::ceil(toDo);
 
-            if (num == 0) num = 1;
+            if (num <= 0) num = 1;
             if (num > remainingEvents) num = remainingEvents;
 
             lastDelta = toDo - num;
@@ -116,7 +116,7 @@ QString ADispatcherInterface::fillRunPlan(std::vector<A3FarmNodeRecord> & runPla
     // debug
     qDebug() << "Obtained run plan over local/farm nodes:";
     int iNode = 0;
-    for (A3FarmNodeRecord & r : runPlan)
+    for (AFarmNodeRecord & r : runPlan)
         qDebug() << iNode++ << ">--->" << (r.Address.isEmpty() ? "Local" : r.Address) << " Number of events:"<< r.Split;
 
     return "";
@@ -157,6 +157,11 @@ void ADispatcherInterface::abortTask()
 {
     bAbortRequested = true;
     Dispatcher->abortExecution();
+}
+
+bool ADispatcherInterface::isAborted() const
+{
+    return bAbortRequested;
 }
 
 void ADispatcherInterface::onProgressReceived(double progress)

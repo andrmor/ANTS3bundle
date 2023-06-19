@@ -18,6 +18,7 @@
 #include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
+#include "ath.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -26,12 +27,14 @@
 #include <QLineEdit>
 #include <QFile>
 #include <QRegularExpression>
+#include <QDoubleValidator>
 
 #include <string>
 
 #include "TVirtualGeoTrack.h"
+#include "TH1D.h"
 
-AParticleSimWin::AParticleSimWin(QWidget *parent) :
+AParticleSimWin::AParticleSimWin(QWidget * parent) :
     AGuiWindow("PartSim", parent),
     SimSet(AParticleSimHub::getInstance().Settings),
     G4SimSet(SimSet.G4Set),
@@ -51,6 +54,12 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     ui->pbShowEventTree->setVisible(false);
     ui->pbShowGeometry->setVisible(false);
     ui->pbUpdateIcon->setVisible(false);
+    ui->pbUpdateCaloRange->setVisible(false);
+
+    QDoubleValidator * dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    QList<QLineEdit*> list = this->findChildren<QLineEdit*>();
+    foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     updateGui();
 
@@ -64,6 +73,8 @@ AParticleSimWin::AParticleSimWin(QWidget *parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labFilterActivated->setPixmap(pm);
     on_pbUpdateIcon_clicked();
+
+    ui->twMain->setCurrentIndex(1);
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -80,12 +91,14 @@ void AParticleSimWin::updateGui()
 
     updateGeneralControlInResults();
 
+    emit killSourceDialog();
+
     bGuiUpdateInProgress = false; // <--
 }
 
 void AParticleSimWin::updateSimGui()
 {
-    ui->sbEvents->setValue(SimSet.Events);
+    ui->ledEvents->setText(QString::number(SimSet.Events));
 
     int iMode = 0;
     if      (SimSet.GenerationMode == AParticleSimSettings::Sources) iMode = 0;
@@ -117,6 +130,7 @@ void AParticleSimWin::updateG4Gui()
     ui->pteSensitiveVolumes->clear();
     for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
     ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
+    ui->cbIncludeScintillators->setChecked(G4SimSet.AddScintillatorsToSensitiveVolumes);
 
     ui->lwStepLimits->clear();
     for (const auto & it : G4SimSet.StepLimits)
@@ -274,45 +288,76 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
     connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
+    connect(this,                  &AParticleSimWin::killSourceDialog,             &ParticleSourceDialog, &AParticleSourceDialog::reject);
 
-    int res = ParticleSourceDialog.exec(); // !!!*** check: if detector is rebuild (this->readSimSettingsFromJson() is triggered), ParticleSourceDialog is signal-blocked and rejected
+    int res = ParticleSourceDialog.exec();
     if (res == QDialog::Rejected) return;
 
     AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
+    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-//    on_pbUpdateSimConfig_clicked();
+    checkWorldSize(ps);
+}
 
-//    if (Detector->isGDMLempty())   !!!*** no need?
-//    {
-//        double XYm = 0;
-//        double  Zm = 0;
-//        for (int isource = 0; isource < numSources; isource++)
-//        {
-//            double msize =   ps->size1;
-//            UpdateMax(msize, ps->size2);
-//            UpdateMax(msize, ps->size3);
+#include "aworldsizewarningdialog.h"
+void AParticleSimWin::checkWorldSize(AParticleSourceRecord & ps)
+{
+    if (IgnoreWorldSizeWarning) return;
 
-//            UpdateMax(XYm, fabs(ps->X0)+msize);
-//            UpdateMax(XYm, fabs(ps->Y0)+msize);
-//            UpdateMax(Zm,  fabs(ps->Z0)+msize);
-//        }
+    AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    const double wXY = GeoHub.getWorldSizeXY();
+    const double wZ  = GeoHub.getWorldSizeZ();
+    double maxXY = std::max(abs(ps.X0), abs(ps.Y0));
+    double maxZ  = abs(ps.Z0);
+    switch (ps.Shape)
+    {
+    case AParticleSourceRecord::Point :
+        break;
+    case AParticleSourceRecord::Line :
+        maxXY += 0.5 * ps.Size1;
+        maxZ  += 0.5 * ps.Size1;
+        break;
+    case AParticleSourceRecord::Rectangle :
+        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
+        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
+        break;
+    case AParticleSourceRecord::Round :
+        maxXY += 0.5 * ps.Size1;
+        maxZ  += 0.5 * ps.Size1;
+        break;
+    case AParticleSourceRecord::Box :
+        maxXY += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
+        maxZ  += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
+        break;
+    case AParticleSourceRecord::Cylinder :
+        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
+        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
+        break;
+    }
 
-//        double currXYm = Detector->Sandwich->getWorldSizeXY();
-//        double  currZm = Detector->Sandwich->getWorldSizeZ();
-//        if (XYm > currXYm || Zm > currZm)
-//        {
-//            //need to override
-//            Detector->Sandwich->setWorldSizeFixed(true);
-//            Detector->Sandwich->setWorldSizeXY( std::max(1.05*XYm, currXYm) );
-//            Detector->Sandwich->setWorldSizeZ ( std::max(1.05*Zm,  currZm) );
-//            ReconstructDetector();
-//        }
-//    }
+    maxXY *= 1.1;
+    maxZ  *= 1.1;
 
-//    if (ui->pbGunShowSource->isChecked()) ShowParticleSource_noFocus();
+    if (maxXY > wXY || maxZ > wZ)
+    {
+        AWorldSizeWarningDialog d( std::max(maxXY, wXY), std::max(maxZ, wZ), this);
+        d.exec();
+        switch (d.Result)
+        {
+        case AWorldSizeWarningDialog::OK :
+            break;
+        case AWorldSizeWarningDialog::Goto :
+            emit requestShowGeoObjectDelegate("World", true);
+            break;
+        case AWorldSizeWarningDialog::DontBother :
+            IgnoreWorldSizeWarning = true;
+            break;
+        }
+    }
 }
 
 void AParticleSimWin::on_pbAddSource_clicked()
@@ -451,8 +496,6 @@ void AParticleSimWin::updateGeneralControlInResults()
 {
     updateMonitorGui();
     updateCalorimeterGui();
-
-    // !!!*** sensor map?
 }
 
 void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem *)
@@ -460,21 +503,9 @@ void AParticleSimWin::on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetI
     on_pbEditParticleSource_clicked();
 }
 
-#include "TGeoManager.h"
 #include "afileparticlegenerator.h"
 void AParticleSimWin::on_pbGunTest_clicked()
 {
-//    WindowNavigator->BusyOn();   // -->
-
-    gGeoManager->ClearTracks();
-
-    if (ui->cobParticleGenerationMode->currentIndex() == 0)
-    {
-        if (ui->pbGunShowSource->isChecked())
-            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(s);
-    }
-
     AParticleGun * pg = nullptr;
     switch (ui->cobParticleGenerationMode->currentIndex())
     {
@@ -483,65 +514,101 @@ void AParticleSimWin::on_pbGunTest_clicked()
         break;
     case 1:
         pg = SimManager.Generator_File;
-        SimManager.Generator_File->checkFile(false);
+        SimManager.Generator_File->checkFile(false);  // !!!*** error?
         break;
     default:
         guitools::message("This generation mode is not implemented!", this);
-//        WindowNavigator->BusyOff(); // <--
         return;
     }
+
+    AParticleSourcePlotter::clearTracks();
+    if (ui->cobParticleGenerationMode->currentIndex() == 0)
+    {
+        if (ui->pbGunShowSource->isChecked())
+            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
+                AParticleSourcePlotter::plotSource(s);
+    }
+
+    emit requestBusyStatus(true);   // -->   !!!***
+onBusyStatusChange(true);
 
     ui->pbAbort->setEnabled(true);
     QFont font = ui->pbAbort->font();
     font.setBold(true);
     ui->pbAbort->setFont(font);
+    QApplication::processEvents();
 
-    testParticleGun(pg, ui->sbGunTestEvents->value()); //script generator is aborted on click of the stop button!
-
-    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
+    testParticleGun(pg, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
     ui->pbAbort->setEnabled(false);
-    ui->pbAbort->setText("stop");
     font.setBold(false);
     ui->pbAbort->setFont(font);
+    emit requestBusyStatus(false);  // <--  !!!***
+onBusyStatusChange(false);
 
-//    WindowNavigator->BusyOff();  // <--
+    if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 }
 
-void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
+void AParticleSimWin::configureAngleStat(AParticleGun * gun)
+{
+    CollectAngle = false;
+    const ASourceParticleGenerator * ps = dynamic_cast<const ASourceParticleGenerator*>(gun);
+    if (!ps) return;
+
+    if (ps->Settings.getNumSources() > 1) return;
+
+    const AParticleSourceRecord & sr = ps->Settings.SourceData.front();
+    if (!sr.isDirectional()) return;
+
+    CollectAngle = true;
+    SourceStatDirection = ps->getCollimationDirection(0);
+}
+
+#include "TGeoManager.h"
+void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics)
 {
     AErrorHub::clear();
 
-    if (!Gun)
+    if (!gun)
     {
         guitools::message("Particle gun is not defined", this);
         return;
     }
 
-    bool bOK = Gun->init();
+    bool bOK = gun->init();
     if (!bOK)
     {
         guitools::message( QString("Failed to initialize particle gun!\n%0").arg(AErrorHub::getError().data()), this);
         return;
     }
-    Gun->setStartEvent(0);
+    gun->setStartEvent(0);
 
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
     double Length = std::max(WorldSizeXY, WorldSizeZ)*0.4;
 
     int numTracks = 0;
-
-    auto handler = [&numTracks, Length, this](const AParticleRecord & particle)
+    if (fillStatistics)
     {
-        if (numTracks > 10000) return;
+        delete histTime;   histTime   = new TH1D("", "Time", 100,0,0);   histTime->GetXaxis()->SetTitle("Time, ns");
+        delete histEnergy; histEnergy = new TH1D("", "Energy", 100,0,0); histEnergy->GetXaxis()->SetTitle("Energy, keV");
+        delete histAngle;  histAngle  = new TH1D("", "Angle", 181,0,181);  histAngle->GetXaxis()->SetTitle("Angle, degrees");
+        configureAngleStat(gun);
+        SeenParticles.clear();
+    }
+
+    auto handler = [&numTracks, Length, fillStatistics, this](const AParticleRecord & particle)
+    {
+        //qDebug() << particle.particle.data();
+        if (fillStatistics) addStatistics(particle);
+
+        if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
         AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
-
         emit requestAddMarker(particle.r);
     };
 
@@ -549,18 +616,43 @@ void AParticleSimWin::testParticleGun(AParticleGun * Gun, int numParticles)
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
-        bool bOK = Gun->generateEvent(handler, iRun);
-        if (!bOK || numTracks > 10000) break;
+        bool bOK = gun->generateEvent(handler, iRun);
+        //if (!bOK || numTracks > 10000) break;
+        if (!bOK) break;
     }
+
+    if (gun->AbortRequested) return;
 
     emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
+
+    if (fillStatistics)
+    {
+        const size_t numParticles = SeenParticles.size();
+        TH1D * histSeen = new TH1D("", "Seen particles", numParticles, 0, numParticles);
+        TAxis * axis = histSeen->GetXaxis();
+        int iBin = 1;
+        for (auto const & pair : SeenParticles)
+        {
+            histSeen->SetBinContent(iBin, pair.second);
+            axis->SetBinLabel(iBin, pair.first.data());
+            iBin++;
+        }
+        histSeen->SetMinimum(0);
+        emit requestDraw(histSeen,   "hist", true,  true); emit requestAddToBasket("Seen particles");
+        emit requestDraw(histTime,   "hist", false, true); emit requestAddToBasket("Time");
+        if (CollectAngle)
+        {
+            emit requestDraw(histAngle, "hist", false, true); emit requestAddToBasket("Angle");
+        }
+        emit requestDraw(histEnergy, "hist", false, true); emit requestAddToBasket("Energy");
+    }
 }
 
 void AParticleSimWin::disableGui(bool flag)
 {
     //setDisabled(flag);
-    ui->sbEvents->setDisabled(flag);
+    ui->ledEvents->setDisabled(flag);
     ui->pbConfigureOutput->setDisabled(flag);
     ui->pbSimulate->setDisabled(flag);
 
@@ -571,7 +663,7 @@ void AParticleSimWin::disableGui(bool flag)
 
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
-    gGeoManager->ClearTracks();
+    AParticleSourcePlotter::clearTracks();
     emit requestClearMarkers(0);
 
     if (checked)
@@ -594,9 +686,9 @@ void AParticleSimWin::on_cobParticleGenerationMode_activated(int index)
     else                 SimSet.GenerationMode = AParticleSimSettings::Script;
 }
 
-void AParticleSimWin::on_sbEvents_editingFinished()
+void AParticleSimWin::on_ledEvents_editingFinished()
 {
-    SimSet.Events = ui->sbEvents->value();
+    SimSet.Events = ui->ledEvents->text().toDouble();
 }
 
 #include "aparticlesimoutputdialog.h"
@@ -606,13 +698,23 @@ void AParticleSimWin::on_pbConfigureOutput_clicked()
     d.exec();
 }
 
+#include "aconfig.h"
 void AParticleSimWin::on_pbSimulate_clicked()
 {
+    A3Global::getInstance().saveConfig();
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+
     clearResultsGui();
 
     disableGui(true);
     SimManager.simulate();
     disableGui(false);
+
+    if (SimManager.isAborted())
+    {
+        ui->progbSim->setValue(0);
+        return;
+    }
 
     if (AErrorHub::isError())
     {
@@ -623,6 +725,8 @@ void AParticleSimWin::on_pbSimulate_clicked()
     {
         updateResultsGui();
     }
+
+    emit requestShowGeoObjectDelegate("", false);
 }
 
 void AParticleSimWin::updateResultsGui()
@@ -659,6 +763,26 @@ void AParticleSimWin::updateResultsGui()
     }
 }
 
+void AParticleSimWin::onBusyStatusChange(bool busy)
+{
+    bool bEnable = !busy;
+
+    ui->tabGeant4->setEnabled(bEnable);
+    ui->tabResults->setEnabled(bEnable);
+
+    ui->swParticleGenerationMode->setEnabled(bEnable);
+
+    ui->cobParticleGenerationMode->setEnabled(bEnable);
+    ui->pbGunTest->setEnabled(bEnable);
+    ui->sbGunTestEvents->setEnabled(bEnable);
+    ui->cbShowStatistics->setEnabled(bEnable);
+
+    ui->ledEvents->setEnabled(bEnable);
+    ui->pbConfigureOutput->setEnabled(bEnable);
+    ui->pbSimulate->setEnabled(bEnable);
+    ui->cbAutoLoadResults->setEnabled(bEnable);
+}
+
 void AParticleSimWin::on_pbLoadAllResults_clicked()
 {
     QString dir = ui->leWorkingDirectory->text();
@@ -669,8 +793,8 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leTrackingDataFile->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
     {
-        on_pbShowTracks_clicked();
         EV_showTree();
+        on_pbShowTracks_clicked();
     }
 
     //monitors
@@ -1025,8 +1149,27 @@ void AParticleSimWin::on_cbEVhideTransPrim_clicked()
     EV_showTree();
 }
 
+bool AParticleSimWin::isTrackingDataFileExists()
+{
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+    if (fileName.isEmpty())
+    {
+        guitools::message("File name with tracking data is not configured!", this);
+        return false;
+    }
+    if (!QFileInfo::exists(fileName))
+    {
+        guitools::message("Configured file with tracking data not found!", this);
+        return false;
+    }
+    return true;
+}
+
 void AParticleSimWin::on_pbEventView_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     EV_showTree();
 
     if (ui->cbEVtracks->isChecked())
@@ -1061,22 +1204,242 @@ void AParticleSimWin::on_pbEventView_clicked()
 // --- Statistics ---
 
 #include "atrackinghistorycrawler.h"
+#include "aeventsdonedialog.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
 void AParticleSimWin::on_pbPTHistRequest_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     setEnabled(false);
-    qApp->processEvents();
 
-    AFindRecordSelector Opt;
-    ATrackingHistoryCrawler Crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text(), false); // !!!*** binary control
+    ATrackingHistoryCrawler crawler(ui->leWorkingDirectory->text() + "/" + ui->leTrackingDataFile->text());
 
-    Opt.bParticle = ui->cbPTHistParticle->isChecked();
-    Opt.Particle = ui->lePTHistParticle->text();
-    Opt.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
-    Opt.bSecondary = ui->cbPTHistOnlySec->isChecked();
-    Opt.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
+    AEventsDoneDialog dialog(this);
+    connect(&crawler, &ATrackingHistoryCrawler::reportProgress, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &crawler, &ATrackingHistoryCrawler::abort);
+    dialog.setModal(true);
+    dialog.show();
+    QApplication::processEvents();
+
+    AFindRecordSelector options;
+    options.bParticle = ui->cbPTHistParticle->isChecked();
+    options.Particle = ui->lePTHistParticle->text();
+    options.bPrimary = ui->cbPTHistOnlyPrim->isChecked();
+    options.bSecondary = ui->cbPTHistOnlySec->isChecked();
+    options.bLimitToFirstInteractionOfPrimary = ui->cbPTHistLimitToFirst->isChecked();
+    options.bTime = ui->cbPTHistTime->isChecked();
+    options.TimeFrom = ui->lePTHistTimeFrom->text().toDouble();
+    options.TimeTo = ui->lePTHistTimeTo->text().toDouble();
+
+    int numThreads = ui->sbNumThreadsStatistics->value();
+    int numEventsPerThread = ui->ledEventsPerThread->text().toDouble();
+    if (numEventsPerThread < 1.0) numEventsPerThread = 1.0;
+
+    int Selector = ui->twPTHistType->currentIndex();
+    if (Selector == 0) findInBulk(crawler, options, numThreads, numEventsPerThread);
+    else               findInTransitions(crawler, options, numThreads, numEventsPerThread);
+
+    QTextCursor txtCursor = ui->ptePTHist->textCursor();
+    txtCursor.setPosition(0);
+    ui->ptePTHist->setTextCursor(txtCursor);
+
+    setEnabled(true);
+}
+
+void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread)
+{
+    int    bins = ui->sbPTHistBinsX->value();
+    double from = ui->ledPTHistFromX->text().toDouble();
+    double to   = ui->ledPTHistToX  ->text().toDouble();
+
+    int    bins2 = ui->sbPTHistBinsY->value();
+    double from2 = ui->ledPTHistFromY->text().toDouble();
+    double to2   = ui->ledPTHistToY  ->text().toDouble();
+
+    options.bMaterial = ui->cbPTHistVolMat->isChecked();
+    options.Material = ui->cobPTHistVolMat->currentIndex();
+    options.bVolume = ui->cbPTHistVolVolume->isChecked();
+    options.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
+    options.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
+    options.VolumeIndex = ui->sbPTHistVolIndex->value();
+
+    int What = ui->cobPTHistVolRequestWhat->currentIndex();
+    switch (What)
+    {
+    case 0:
+      {
+        AHistorySearchProcessor_findParticles p;
+        crawler.find(options, p, numThreads, numEventsPerThread);
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Particle and number of times:\n");
+        std::vector<std::pair<QString,int>> vec;
+        p.getResults(vec);
+        for (const auto & pair : vec)
+            ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+        break;
+      }
+    case 1:
+      {
+        int mode = ui->cobPTHistVolPlus->currentIndex();
+        if (mode < 0 || mode > 2)
+        {
+            guitools::message("Unknown process selection mode", this);
+            setEnabled(true);
+            return;
+        }
+
+        AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
+        AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
+        crawler.find(options, p, numThreads, numEventsPerThread);
+
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Process and number of times:\n");
+        std::vector<std::pair<QString,int>> vec;
+        p.getResults(vec);
+        for (const auto & pair : vec)
+            ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+
+        selectedModeForProcess = mode;
+        break;
+      }
+    case 2:
+      {
+        AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
+        crawler.find(options, p, numThreads, numEventsPerThread);
+
+        if (p.Hist->GetEntries() == 0)
+            guitools::message("No trajectories found", this);
+        else
+        {
+            emit requestDraw(p.Hist, "hist", true, true);
+            p.Hist = nullptr;
+        }
+        binsDistance = bins;
+        fromDistance = from;
+        toDistance = to;
+
+        break;
+      }
+    case 3:
+      {
+        int mode = ui->cobPTHistVolPlus->currentIndex();
+        if (mode < 0 || mode > 2)
+        {
+            guitools::message("Unknown energy deposition collection mode", this);
+            setEnabled(true);
+            return;
+        }
+        AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
+
+        if (ui->cbPTHistVolVsTime->isChecked())
+        {
+            AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
+            crawler.find(options, p, numThreads, numEventsPerThread);
+
+            if (p.Hist2D->GetEntries() == 0)
+                guitools::message("No deposition detected", this);
+            else
+            {
+                emit requestDraw(p.Hist2D, "colz", true, true);
+                p.Hist2D = nullptr;
+            }
+            binsTime = bins2;
+            fromTime = from2;
+            toTime   = to2;
+        }
+        else
+        {
+            AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
+            crawler.find(options, p, numThreads, numEventsPerThread);
+
+            if (p.Hist->GetEntries() == 0)
+                guitools::message("No deposition detected", this);
+            else
+            {
+                emit requestDraw(p.Hist, "hist", true, true);
+                p.Hist = nullptr;
+            }
+        }
+        selectedModeForEnergyDepo = mode;
+        binsEnergy = bins;
+        fromEnergy = from;
+        toEnergy = to;
+        break;
+      }
+    case 4:
+     {
+        AHistorySearchProcessor_getDepositionStats * p = nullptr;
+        if (ui->cbLimitTimeWindow->isChecked())
+        {
+            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
+            crawler.find(options, *p, numThreads, numEventsPerThread);
+        }
+        else
+        {
+            p = new AHistorySearchProcessor_getDepositionStats();
+            crawler.find(options, *p, numThreads, numEventsPerThread);
+        }
+
+        ui->ptePTHist->clear();
+        ui->ptePTHist->appendPlainText("Deposition statistics:\n");
+
+        std::vector< std::tuple<QString,double,double,int,double,double> > data;
+        const double sum = p->getResults(data);
+
+        for (const auto & el : data)
+        {
+            QString str = QString("%1\t%2 keV (%3%)\t#: %4")
+                          .arg(std::get<0>(el))
+                          .arg(std::get<1>(el))
+                          .arg( QString::number(std::get<2>(el), 'g', 4) )
+                          .arg(std::get<3>(el));
+
+            if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
+            if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
+
+            ui->ptePTHist->appendPlainText(str);
+        }
+        ui->ptePTHist->appendPlainText("\n---------\n");
+        ui->ptePTHist->appendPlainText(QString("sum of all listed depositions: %1 keV").arg(sum));
+        delete p;
+        break;
+     }
+    case 5:
+        {
+            AHistorySearchProcessor_findHadronicChannels p;
+            crawler.find(options, p, numThreads, numEventsPerThread);
+            ui->ptePTHist->clear();
+            ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
+            std::vector<std::pair<QString,int>> vec;
+            p.getResults(vec);
+            for (const auto & pair : vec)
+                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
+            break;
+        }
+    default:
+        qWarning() << "Unknown type of volume request";
+    }
+}
+
+void AParticleSimWin::findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread)
+{
+    options.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
+    options.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
+    options.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
+    options.bEscaping = ui->cbPTHistEscaping->isChecked();
+    options.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
+    options.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
+    options.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
+
+    options.bToMat = ui->cbPTHistVolMatTo->isChecked();
+    options.ToMat = ui->cobPTHistVolMatTo->currentIndex();
+    options.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
+    options.bCreated = ui->cbPTHistCreated->isChecked();
+    options.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
+    options.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
+    options.ToVolIndex = ui->sbPTHistVolIndexTo->value();
 
     int    bins = ui->sbPTHistBinsX->value();
     double from = ui->ledPTHistFromX->text().toDouble();
@@ -1086,211 +1449,42 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
     double from2 = ui->ledPTHistFromY->text().toDouble();
     double to2   = ui->ledPTHistToY  ->text().toDouble();
 
-    int NumThreads = ui->sbNumThreadsStatistics->value();
+    QString what = ui->lePTHistBordWhat->text();
+    QString vsWhat = ui->lePTHistBordVsWhat->text();
+    QString andVsWhat = ui->lePTHistBordAndVsWhat->text();
+    QString cuts = ui->lePTHistBordCuts->text();
 
-    int Selector = ui->twPTHistType->currentIndex(); // 0 - Vol, 1 - Boundary
-    if (Selector == 0)
+    bool bVs = ui->cbPTHistBordVs->isChecked();
+    bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
+    bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
+
+    if (!bVs)
     {
-        Opt.bMaterial = ui->cbPTHistVolMat->isChecked();
-        Opt.Material = ui->cobPTHistVolMat->currentIndex();
-        Opt.bVolume = ui->cbPTHistVolVolume->isChecked();
-        Opt.Volume = ui->lePTHistVolVolume->text().toLocal8Bit().data();
-        Opt.bVolumeIndex = ui->cbPTHistVolIndex->isChecked();
-        Opt.VolumeIndex = ui->sbPTHistVolIndex->value();
-
-        int What = ui->cobPTHistVolRequestWhat->currentIndex();
-        switch (What)
+        //1D stat
+        AHistorySearchProcessor_Border p(what, cuts, bins, from, to);
+        if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+        else
         {
-        case 0:
-          {
-            AHistorySearchProcessor_findParticles p;
-            Crawler.find(Opt, p, NumThreads);
-            ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Particle and number of times:\n");
-            std::vector<std::pair<QString,int>> vec;
-            p.getResults(vec);
-            for (const auto & pair : vec)
-                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-            break;
-          }
-        case 1:
-          {
-            int mode = ui->cobPTHistVolPlus->currentIndex();
-            if (mode < 0 || mode > 2)
-            {
-                guitools::message("Unknown process selection mode", this);
-                setEnabled(true);
-                return;
-            }
-
-            AHistorySearchProcessor_findProcesses::SelectionMode sm = static_cast<AHistorySearchProcessor_findProcesses::SelectionMode>(mode);
-            AHistorySearchProcessor_findProcesses p(sm, ui->cbLimitToHadronic->isChecked(), ui->leLimitHadronicTarget->text());
-            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-
-            ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Process and number of times:\n");
-            std::vector<std::pair<QString,int>> vec;
-            p.getResults(vec);
-            for (const auto & pair : vec)
-                ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-
-            selectedModeForProcess = mode;
-            break;
-          }
-        case 2:
-          {
-            AHistorySearchProcessor_findTravelledDistances p(bins, from, to);
-            Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-
-            if (p.Hist->GetEntries() == 0)
-                guitools::message("No trajectories found", this);
+            crawler.find(options, p, numThreads, numEventsPerThread);
+            if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
             else
             {
-                emit requestDraw(p.Hist, "hist", true, true);
-                p.Hist = nullptr;
+                emit requestDraw(p.Hist1D, "hist", true, true);
+                p.Hist1D = nullptr;
             }
-            binsDistance = bins;
-            fromDistance = from;
-            toDistance = to;
-
-            break;
-          }
-        case 3:
-          {
-            int mode = ui->cobPTHistVolPlus->currentIndex();
-            if (mode < 0 || mode > 2)
-            {
-                guitools::message("Unknown energy deposition collection mode", this);
-                setEnabled(true);
-                return;
-            }
-            AHistorySearchProcessor_findDepositedEnergy::CollectionMode edm = static_cast<AHistorySearchProcessor_findDepositedEnergy::CollectionMode>(mode);
-
-            if (ui->cbPTHistVolVsTime->isChecked())
-            {
-                AHistorySearchProcessor_findDepositedEnergyTimed p(edm, bins, from, to, bins2, from2, to2);
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-
-                if (p.Hist2D->GetEntries() == 0)
-                    guitools::message("No deposition detected", this);
-                else
-                {
-                    emit requestDraw(p.Hist2D, "colz", true, true);
-                    p.Hist2D = nullptr;
-                }
-                binsTime = bins2;
-                fromTime = from2;
-                toTime   = to2;
-            }
-            else
-            {
-                AHistorySearchProcessor_findDepositedEnergy p(edm, bins, from, to);
-                Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-
-                if (p.Hist->GetEntries() == 0)
-                    guitools::message("No deposition detected", this);
-                else
-                {
-                    emit requestDraw(p.Hist, "hist", true, true);
-                    p.Hist = nullptr;
-                }
-            }
-            selectedModeForEnergyDepo = mode;
-            binsEnergy = bins;
-            fromEnergy = from;
-            toEnergy = to;
-            break;
-          }
-        case 4:
-         {
-            AHistorySearchProcessor_getDepositionStats * p = nullptr;
-            if (ui->cbLimitTimeWindow->isChecked())
-            {
-                p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
-                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
-            }
-            else
-            {
-                p = new AHistorySearchProcessor_getDepositionStats();
-                Crawler.find(Opt, *p, ui->sbNumThreadsStatistics->value());
-            }
-
-            ui->ptePTHist->clear();
-            ui->ptePTHist->appendPlainText("Deposition statistics:\n");
-
-            std::vector< std::tuple<QString,double,double,int,double,double> > data;
-            const double sum = p->getResults(data);
-
-            for (const auto & el : data)
-            {
-                QString str = QString("%1\t%2 keV (%3%)\t#: %4")
-                              .arg(std::get<0>(el))
-                              .arg(std::get<1>(el))
-                              .arg( QString::number(std::get<2>(el), 'g', 4) )
-                              .arg(std::get<3>(el));
-
-                if (std::get<4>(el) != 0) str += QString("\tmean: %1 keV").arg(std::get<4>(el));
-                if (std::get<5>(el) != 0) str += QString("\tsigma: %1 keV").arg(std::get<5>(el));
-
-                ui->ptePTHist->appendPlainText(str);
-            }
-            ui->ptePTHist->appendPlainText("\n---------\n");
-            ui->ptePTHist->appendPlainText(QString("sum of all listed depositions: %1 keV").arg(sum));
-            delete p;
-            break;
-         }
-        case 5:
-            {
-                AHistorySearchProcessor_findHadronicChannels p;
-                Crawler.find(Opt, p, NumThreads);
-                ui->ptePTHist->clear();
-                ui->ptePTHist->appendPlainText("Hadronic channel and number of times:\n");
-                std::vector<std::pair<QString,int>> vec;
-                p.getResults(vec);
-                for (const auto & pair : vec)
-                    ui->ptePTHist->appendPlainText(QString("%1\t : %2").arg(pair.first).arg(pair.second));
-                break;
-            }
-        default:
-            qWarning() << "Unknown type of volume request";
         }
     }
     else
     {
-        //Border
-        Opt.bFromMat = ui->cbPTHistVolMatFrom->isChecked();
-        Opt.FromMat = ui->cobPTHistVolMatFrom->currentIndex();
-        Opt.bFromVolume = ui->cbPTHistVolVolumeFrom->isChecked();
-        Opt.bEscaping = ui->cbPTHistEscaping->isChecked();
-        Opt.FromVolume = ui->lePTHistVolVolumeFrom->text().toLocal8Bit().data();
-        Opt.bFromVolIndex = ui->cbPTHistVolIndexFrom->isChecked();
-        Opt.FromVolIndex = ui->sbPTHistVolIndexFrom->value();
-
-        Opt.bToMat = ui->cbPTHistVolMatTo->isChecked();
-        Opt.ToMat = ui->cobPTHistVolMatTo->currentIndex();
-        Opt.bToVolume = ui->cbPTHistVolVolumeTo->isChecked();
-        Opt.bCreated = ui->cbPTHistCreated->isChecked();
-        Opt.ToVolume = ui->lePTHistVolVolumeTo->text().toLocal8Bit().data();
-        Opt.bToVolIndex = ui->cbPTHistVolIndexTo->isChecked();
-        Opt.ToVolIndex = ui->sbPTHistVolIndexTo->value();
-
-        QString what = ui->lePTHistBordWhat->text();
-        QString vsWhat = ui->lePTHistBordVsWhat->text();
-        QString andVsWhat = ui->lePTHistBordAndVsWhat->text();
-        QString cuts = ui->lePTHistBordCuts->text();
-
-        bool bVs = ui->cbPTHistBordVs->isChecked();
-        bool bVsVs = ui->cbPTHistBordAndVs->isChecked();
-        bool bAveraged = ui->cbPTHistBordAsStat->isChecked();
-
-        if (!bVs)
+        // "vs" is activated
+        if (!bVsVs && bAveraged)
         {
-            //1D stat
-            AHistorySearchProcessor_Border p(what, cuts, bins, from, to);
+            //1D vs
+            AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to);
             if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
             else
             {
-                Crawler.find(Opt, p, NumThreads);
+                crawler.find(options, p, numThreads, numEventsPerThread);
                 if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
@@ -1299,75 +1493,49 @@ void AParticleSimWin::on_pbPTHistRequest_clicked()
                 }
             }
         }
-        else
+        else if (!bVsVs && !bAveraged)
         {
-            // "vs" is activated
-            if (!bVsVs && bAveraged)
+            //2D stat
+            AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to, bins2, from2, to2);
+            if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+            else
             {
-                //1D vs
-                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+                crawler.find(options, p, numThreads, numEventsPerThread);
+                if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
                 else
                 {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist1D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist1D, "hist", true, true);
-                        p.Hist1D = nullptr;
-                    }
+                    emit requestDraw(p.Hist2D, "colz", true, true);
+                    p.Hist2D = nullptr;
                 }
             }
-            else if (!bVsVs && !bAveraged)
-            {
-                //2D stat
-                AHistorySearchProcessor_Border p(what, vsWhat, cuts, bins, from, to, bins2, from2, to2);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
-                else
-                {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist2D, "colz", true, true);
-                        p.Hist2D = nullptr;
-                    }
-                }
-                binsB2 = bins2;
-                fromB2 = from2;
-                toB2 = to2;
-            }
-            else if (bVsVs)
-            {
-                //2D vsvs
-                AHistorySearchProcessor_Border p(what, vsWhat, andVsWhat, cuts, bins, from, to, bins2, from2, to2);
-                if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
-                else
-                {
-                    Crawler.find(Opt, p, ui->sbNumThreadsStatistics->value());
-                    if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
-                    else
-                    {
-                        emit requestDraw(p.Hist2D, "colz", true, true);
-                        p.Hist2D = nullptr;
-                    }
-                }
-                binsB2 = bins2;
-                fromB2 = from2;
-                toB2 = to2;
-            }
-            else guitools::message("Unexpected mode!", this);
+            binsB2 = bins2;
+            fromB2 = from2;
+            toB2 = to2;
         }
-        binsB1 = bins;
-        fromB1 = from;
-        toB1 = to;
+        else if (bVsVs)
+        {
+            //2D vsvs
+            AHistorySearchProcessor_Border p(what, vsWhat, andVsWhat, cuts, bins, from, to, bins2, from2, to2);
+            if (!p.ErrorString.isEmpty()) guitools::message(p.ErrorString, this);
+            else
+            {
+                crawler.find(options, p, numThreads, numEventsPerThread);
+                if (p.Hist2D->GetEntries() == 0) guitools::message("No data", this);
+                else
+                {
+                    emit requestDraw(p.Hist2D, "colz", true, true);
+                    p.Hist2D = nullptr;
+                }
+            }
+            binsB2 = bins2;
+            fromB2 = from2;
+            toB2 = to2;
+        }
+        else guitools::message("Unexpected mode!", this);
     }
-
-    QTextCursor txtCursor = ui->ptePTHist->textCursor();
-    txtCursor.setPosition(0);
-    ui->ptePTHist->setTextCursor(txtCursor);
-
-    setEnabled(true);
+    binsB1 = bins;
+    fromB1 = from;
+    toB1 = to;
 }
 
 void AParticleSimWin::on_cbPTHistOnlyPrim_clicked(bool checked)
@@ -1715,7 +1883,11 @@ void AParticleSimWin::on_pbMonitorShowAngle_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->angle, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.ParticleMonitors[iMon].Monitor->angle;
+        h->GetXaxis()->SetTitle("Angle of incidence, deg");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowXY_clicked()
@@ -1723,7 +1895,12 @@ void AParticleSimWin::on_pbMonitorShowXY_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->xy, "colz", false, true);
+    {
+        TH2D * h = MonitorHub.ParticleMonitors[iMon].Monitor->xy;
+        h->GetXaxis()->SetTitle("Local X, mm");
+        h->GetYaxis()->SetTitle("Local Y, mm");
+        emit requestDraw(h, "colz", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowTime_clicked()
@@ -1731,7 +1908,13 @@ void AParticleSimWin::on_pbMonitorShowTime_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->time, "hist", false, true);
+    {
+        TH1D * time = MonitorHub.ParticleMonitors[iMon].Monitor->time;
+        TString title = "Time, ";
+        title += MonitorHub.ParticleMonitors[iMon].Monitor->config.timeUnits.toLatin1().data();
+        time->GetXaxis()->SetTitle(title);
+        emit requestDraw(time, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbMonitorShowEnergy_clicked()
@@ -1739,7 +1922,13 @@ void AParticleSimWin::on_pbMonitorShowEnergy_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Particle);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.ParticleMonitors[iMon].Monitor->energy, "hist", false, true);
+    {
+        TH1D * energy = MonitorHub.ParticleMonitors[iMon].Monitor->energy;
+        TString title = "Energy, ";
+        title += MonitorHub.ParticleMonitors[iMon].Monitor->config.energyUnits.toLatin1().data();
+        energy->GetXaxis()->SetTitle(title);
+        emit requestDraw(energy, "hist", false, true);
+    }
 }
 
 void AParticleSimWin::on_pbShowMonitorHitDistribution_clicked()
@@ -1908,14 +2097,14 @@ void AParticleSimWin::on_trwEventView_customContextMenuRequested(const QPoint &p
 
 void AParticleSimWin::on_pbPreviousEvent_clicked()
 {
+    if (!isTrackingDataFileExists()) return;
+
     int curEv = ui->sbShowEvent->value();
     if (curEv == 0) return;
-//    ui->sbShowEvent->setValue(curEv - 1);
-//    on_pbEventView_clicked();
     int ev = findEventWithFilters(curEv, false);
     if (ev == -1)
         guitools::message("Cannot find events according to the selected criteria", this);
-    else
+    else if (ev >= 0)
     {
         ui->sbShowEvent->setValue(ev);
         on_pbEventView_clicked();
@@ -1924,24 +2113,44 @@ void AParticleSimWin::on_pbPreviousEvent_clicked()
 
 void AParticleSimWin::on_pbNextEvent_clicked()
 {
-    //ui->sbShowEvent->setValue(ui->sbShowEvent->value() + 1);
-    //on_pbEventView_clicked();
+    if (!isTrackingDataFileExists()) return;
 
     int curEv = ui->sbShowEvent->value();
     int ev = findEventWithFilters(curEv, true);
     if (ev == -1)
     {
-        //guitools::message("Cannot find events according to the selected criteria", this);
+        guitools::message("Cannot find events according to the selected criteria", this);
     }
-    else
+    else if (ev >= 0)
     {
         ui->sbShowEvent->setValue(ev);
         on_pbEventView_clicked();
     }
 }
 
+void AParticleSimWin::abortFind()
+{
+    bFindEventAbortRequested = true;
+}
+
+#include "atrackingdataimporter.h"
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
+    bFindEventAbortRequested = false;
+
+    QDialog dReport(this);
+    dReport.setWindowTitle("Event finder");
+        QHBoxLayout * l = new QHBoxLayout();
+        dReport.setLayout(l);
+        l->addWidget(new QLabel("Event #"));
+            QLabel * labEvent = new QLabel("");
+        l->addWidget(labEvent);
+            QPushButton * pbAbort = new QPushButton("Abort");
+            QObject::connect(pbAbort, &QPushButton::clicked, this, &AParticleSimWin::abortFind);
+            QObject::connect(&dReport, &QDialog::rejected, this, &AParticleSimWin::abortFind);
+        l->addWidget(pbAbort);
+    dReport.show();
+
     const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
     const bool bLimProc = ui->cbEVlimToProc->isChecked();
@@ -1962,23 +2171,25 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
     const QStringList MustContainParticles = ui->leLimitToParticles->text().split(rx, Qt::SkipEmptyParts);
     const QStringList ExcludeParticles = ui->leExcludeParticles->text().split(rx, Qt::SkipEmptyParts);
 
+    AEventTrackingRecord * er = AEventTrackingRecord::create();
+    QString fileName = ui->leTrackingDataFile->text();
+    if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+    ATrackingDataImporter tdi(fileName);
+    if (!tdi.ErrorString.isEmpty())
+    {
+        guitools::message(tdi.ErrorString, this);
+        return -1;
+    }
+
     bUp ? currentEv++ : currentEv--;
     while (currentEv >= 0)
     {
-        // !!!*** code duplication: see EV_showTree() method
-        //-->
-        QString fileName = ui->leTrackingDataFile->text();
-        if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
-
-        AEventTrackingRecord * er = AEventTrackingRecord::create();
-        QString err = SimManager.fillTrackingRecord(fileName, currentEv, er);
-        if (!err.isEmpty())
+        bool ok = tdi.extractEvent(currentEv, er);
+        if (!ok)
         {
-            guitools::message(err, this);
+            guitools::message(tdi.ErrorString, this);
             return -1;
         }
-        // !!!*** add error processing, separetely process bad event index
-        // <--
 
         bool bGood = true;
         if (bLimProc)           bGood = er->isHaveProcesses(LimProc, bLimProc_prim);
@@ -2003,6 +2214,10 @@ int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
         if (bGood) return currentEv;
 
         bUp ? currentEv++ : currentEv--;
+
+        QApplication::processEvents();
+        if (bFindEventAbortRequested) return -2;
+        labEvent->setText(QString::number(currentEv));
     };
     return -1;
 }
@@ -2082,7 +2297,7 @@ void AParticleSimWin::updateCalorimeterGui()
     const int numWithData = CalHub.countCalorimetersWithData();
     ui->labNumCalWithData->setText(QString::number(numWithData));
 
-    ui->frCalorimeter->setVisible(numCal != 0);
+    ui->frCaloShow->setVisible(numCal != 0);
 
     if (numCal > 0)
     {
@@ -2104,38 +2319,27 @@ void AParticleSimWin::updateCalorimeterGui()
         if (Cal)
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            double total = Cal->Stats[0] * getCalorimeterEnergyFactor();
-            ui->leCalorimetersTotal->setText( QString::number(total) );
-            ui->pbCalorimetersShowDistribution->setEnabled(Cal->Deposition);
-            ui->cbCalorimeterSwapAxes->setVisible(Cal->Properties.getNumDimensions() == 2);
+            ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+            updateShowCalorimeterGui();
         }
         else
         {
             ui->leCalorimetersEntries->setText("--");
-            ui->leCalorimetersTotal->setText("--");
-            ui->pbCalorimetersShowDistribution->setEnabled(false);
+            ui->pbCaloShow->setEnabled(false);
         }
     }
 }
 
-double AParticleSimWin::getCalorimeterEnergyFactor()
+void AParticleSimWin::addStatistics(const AParticleRecord & p)
 {
-    const QString txt = ui->cobCalorimeterEnergyUnits->currentText();
-
-    double factor = 1.0;
-    if      (txt == "meV") factor = 1e6;
-    else if (txt == "eV")  factor = 1e3;
-    else if (txt == "keV")  factor = 1.0;
-    else if (txt == "MeV")  factor = 1e-3;
-    else qWarning() << "Unknown unit of energy for calorimeters!";
-
-    return factor;
-}
-
-void AParticleSimWin::on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &)
-{
-    //ui->labCalorimeterUnits->setText(arg1);
-    updateCalorimeterGui();
+    histTime->Fill(p.time, 1);
+    histEnergy->Fill(p.energy, 1);
+    if (CollectAngle)
+    {
+        AVector3 particleDir(p.v);
+        histAngle->Fill(particleDir.angle(SourceStatDirection)*180.0/3.1415926535, 1);
+    }
+    SeenParticles[p.particle]++;
 }
 
 void AParticleSimWin::on_pbNextCalorimeter_clicked()
@@ -2176,89 +2380,7 @@ void AParticleSimWin::on_sbCalorimeterIndex_editingFinished()
     updateCalorimeterGui();
 }
 
-#include "ath.h"
-void AParticleSimWin::on_pbCalorimetersShowDistribution_clicked()
-{
-    const int iCal = ui->cobCalorimeter->currentIndex();
 
-    int numCal = CalHub.countCalorimeters();
-    if (iCal < 0 || iCal >= numCal) return;
-
-    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->Deposition;
-    if (!Data) return;
-
-    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
-
-    const int numDim = p.getNumDimensions();
-    const double energyFactor = getCalorimeterEnergyFactor();
-    const TString eu(ui->cobCalorimeterEnergyUnits->currentText().toLatin1().data());
-
-    switch (numDim)
-    {
-    case 0:
-        return;
-    case 1:
-        {
-            int iDim = 0;
-            for (; iDim < 3; iDim++)
-                if (p.Bins[iDim] != 1) break;
-
-            TString opt;
-            switch (iDim)
-            {
-            case 0: opt = "x"; break;
-            case 1: opt = "y"; break;
-            case 2: opt = "z"; break;
-            default:;
-            }
-
-            TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle( TString(opt + ", mm") );
-            h->GetYaxis()->SetTitle( TString("Deposited energy, ") + eu);
-
-            emit requestDraw(h, "hist", true, true);
-        }
-        break;
-    case 2:
-        {
-            TString opt;
-            if (p.Bins[2] != 1) opt += "z";
-            if (p.Bins[1] != 1) opt += "y";
-            if (p.Bins[0] != 1) opt += "x";
-            if (ui->cbCalorimeterSwapAxes->isChecked()) std::swap(opt[0], opt[1]);
-
-            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
-            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-            h->GetZaxis()->SetTitle( TString("Deposited energy, ") + eu );
-
-            emit requestDraw(h, "colz", true, true);
-        }
-        break;
-    case 3:
-        {
-            TH3D * h = (TH3D*)(Data->Clone());
-            h->Scale(energyFactor);
-
-            h->SetTitle(CalHub.Calorimeters[iCal].Name.toLatin1().data());
-            h->GetXaxis()->SetTitle("x, mm");
-            h->GetYaxis()->SetTitle("y, mm");
-            h->GetZaxis()->SetTitle("z, mm");
-
-            emit requestDraw(h, "box2", true, true);
-        }
-        break;
-    default:
-        guitools::message("Unexpected number of dimensions!", this);
-        return;
-    }
-}
 
 void AParticleSimWin::on_pbShowCalorimeterSettings_clicked()
 {
@@ -2316,3 +2438,516 @@ void AParticleSimWin::clearResultsGuiCalorimeters()
 {
     updateCalorimeterGui();
 }
+
+void AParticleSimWin::on_pbSaveParticleSource_clicked()
+{
+    const int iSource = ui->lwDefinedParticleSources->currentRow();
+    if (iSource == -1)
+    {
+        guitools::message("Select a source to export", this);
+        return;
+    }
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    const int numSources = SourceGenSettings.getNumSources();
+    if (iSource >= numSources)
+    {
+        guitools::message("Error - bad source index!", this);
+        return;
+    }
+
+    const AParticleSourceRecord & source = SimSet.SourceGenSettings.SourceData[iSource];
+
+    QString fileName = guitools::dialogSaveFile(this, "Save source " + QString(source.Name.data()) + " to file", "Json files (*.json)");
+    if (fileName.isEmpty()) return;
+    if (!fileName.endsWith(".json")) fileName += ".json";
+    QJsonObject json;
+    source.writeToJson(json);
+    bool ok = jstools::saveJsonToFile(json, fileName);
+    if (!ok) guitools::message("Failed to open file for saving: " + fileName);
+}
+
+void AParticleSimWin::on_pbLoadParticleSource_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Import particle source file", "Json files (*.json);;All files (*)");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
+    {
+        guitools::message("Cannot open file: " + fileName, this);
+        return;
+    }
+
+    AParticleSourceRecord s;
+    ok = s.readFromJson(json);
+    if (!ok)
+    {
+        guitools::message("Error in imported source", this);
+        return;
+    }
+
+    QString err(s.check().data());
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    SimSet.SourceGenSettings.SourceData.push_back(s);
+    updateSourceList();
+    ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
+}
+
+void AParticleSimWin::on_pbAbort_clicked()
+{
+    SimManager.Generator_Sources->AbortRequested = true;
+    SimManager.Generator_File->AbortRequested = true;
+    SimManager.abort();
+}
+
+void AParticleSimWin::on_ledEventsPerThread_editingFinished()
+{
+    bool ok;
+    double numEv = ui->ledEventsPerThread->text().toDouble(&ok);
+    if (!ok || numEv < 1.0)
+    {
+        ui->ledEventsPerThread->setText("1");
+        guitools::message("Number of events per chunk should be at least one", this);
+    }
+}
+
+void AParticleSimWin::on_cobCaloShowType_currentIndexChanged(int)
+{
+    updateShowCalorimeterGui();
+}
+void AParticleSimWin::on_cobCaloAxes_currentIndexChanged(int)
+{
+    updateShowCalorimeterGui();
+}
+void AParticleSimWin::on_cbCaloAverage_clicked()
+{
+    updateShowCalorimeterGui();
+}
+
+void AParticleSimWin::updateShowCalorimeterGui()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+    int numCal = CalHub.countCalorimeters(); if (iCal < 0 || iCal >= numCal) return;
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+    bool bEnergy = (p.DataType == ACalorimeterProperties::Energy);
+    QString buttonText = (bEnergy ? "Show deposited energy" : "Show dose");
+    ui->pbCaloShow->setText(buttonText);
+
+    bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
+
+    if (!bEnergy && bProjection)
+    {
+        ui->cobCaloShowType->setCurrentIndex(1);
+        return; // comes back on update
+    }
+
+    ui->cobCaloShowType->setVisible(bEnergy);
+
+    bool b1D = (ui->cobCaloAxes->currentIndex() < 3);
+    bool b2D = (ui->cobCaloAxes->currentIndex() > 2 && ui->cobCaloAxes->currentIndex() != 6);
+    bool b3D = (ui->cobCaloAxes->currentIndex() == 6);
+    bool bAverage = ui->cbCaloAverage->isChecked();
+
+    ui->cbCaloAverage->setVisible(!bProjection && !b3D);
+    ui->cbCalorimeterSwapAxes->setVisible(b2D);
+
+    if (bProjection)
+    {
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+    }
+    else switch (ui->cobCaloAxes->currentIndex())
+    {
+    case 0: // X
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 1: // Y
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 2: // Z
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(false);
+        break;
+    case 3: // XY
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(true);
+        break;
+    case 4: // XZ
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(true);
+        ui->frCaloZ->setVisible(false);
+        break;
+    case 5: // YZ
+        ui->frCaloX->setVisible(true);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+        break;
+    case 6: // XYZ
+        ui->frCaloX->setVisible(false);
+        ui->frCaloY->setVisible(false);
+        ui->frCaloZ->setVisible(false);
+        break;
+    }
+
+    if (!bProjection && !bAverage)
+    {
+        ui->labCaloX0->setText("iX");
+        ui->labCaloY0->setText("iY");
+        ui->labCaloZ0->setText("iZ");
+        ui->labCaloX1->setVisible(false);
+        ui->labCaloY1->setVisible(false);
+        ui->labCaloZ1->setVisible(false);
+        ui->sbCaloX1->setVisible(false);
+        ui->sbCaloY1->setVisible(false);
+        ui->sbCaloZ1->setVisible(false);
+    }
+    else
+    {
+        ui->labCaloX0->setText("iXfrom");
+        ui->labCaloY0->setText("iYfrom");
+        ui->labCaloZ0->setText("iZfrom");
+        ui->labCaloX1->setText("iXto");
+        ui->labCaloY1->setText("iYto");
+        ui->labCaloZ1->setText("iZto");
+        ui->labCaloX1->setVisible(true);
+        ui->labCaloY1->setVisible(true);
+        ui->labCaloZ1->setVisible(true);
+        ui->sbCaloX1->setVisible(true);
+        ui->sbCaloY1->setVisible(true);
+        ui->sbCaloZ1->setVisible(true);
+    }
+
+    int maxX = p.Bins[0] - 1; ui->sbCaloX0->setMaximum(maxX); ui->sbCaloX1->setMaximum(maxX);
+    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxX); ui->sbCaloY1->setMaximum(maxX);
+    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxX); ui->sbCaloZ1->setMaximum(maxX);
+
+    if (ui->sbCaloX0->value() == 0 && ui->sbCaloX1->value() == 0)
+    {
+        ui->sbCaloX0->setValue(maxX/2);
+        ui->sbCaloX1->setValue(maxX/2);
+    }
+    if (ui->sbCaloY0->value() == 0 && ui->sbCaloY1->value() == 0)
+    {
+        ui->sbCaloY0->setValue(maxY/2);
+        ui->sbCaloY1->setValue(maxY/2);
+    }
+    if (ui->sbCaloZ0->value() == 0 && ui->sbCaloZ1->value() == 0)
+    {
+        ui->sbCaloZ0->setValue(maxZ/2);
+        ui->sbCaloZ1->setValue(maxZ/2);
+    }
+
+    updateCaloRange();
+}
+
+void AParticleSimWin::on_pbCaloShow_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH3D * Data = CalHub.Calorimeters[iCal].Calorimeter->DataHistogram;
+    if (!Data) return;
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
+    int  axisIndex = ui->cobCaloAxes->currentIndex();
+    bool b1D = (axisIndex >= 0 && axisIndex < 3);
+    bool b2D = (axisIndex > 2 && axisIndex < 6);
+    bool b3D = (axisIndex == 6);
+    bool bAverage = ui->cbCaloAverage->isChecked();
+    bool bSwapAxes = ui->cbCalorimeterSwapAxes->isChecked();
+
+    if (bProjection)
+    {
+        if (b1D)
+        {
+            TString opt(ui->cobCaloAxes->currentText().toLatin1().data());
+            opt.ToLower();
+
+            TH1D * h = (TH1D*)(Data->Project3D(opt)->Clone());
+            if (!h) return;
+
+            h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
+            h->GetXaxis()->SetTitle( TString(opt) + ", mm" );
+            h->GetYaxis()->SetTitle("Deposited energy, MeV");
+
+            emit requestDraw(h, "hist", true, true);
+        }
+        else if (b2D)
+        {
+            TString opt(ui->cobCaloAxes->currentText().toLatin1().data());
+            opt.ToLower();
+            if (bSwapAxes) std::swap(opt[0], opt[1]);
+
+            TH2D * h = (TH2D*)(Data->Project3D(opt)->Clone());
+            if (!h) return;
+
+            h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
+            h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
+            h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
+            h->GetZaxis()->SetTitle("Deposited energy, MeV");
+
+            emit requestDraw(h, "colz", true, true);
+        }
+        else if (b3D)
+        {
+            TH3D * h = (TH3D*)(Data->Clone());
+
+            h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-3D");
+            h->GetXaxis()->SetTitle("x, mm");
+            h->GetYaxis()->SetTitle("y, mm");
+            h->GetZaxis()->SetTitle("z, mm");
+
+            emit requestDraw(h, "box2", true, true);
+        }
+        return;
+    }
+
+    // slices
+    if (b1D)
+    {
+        TH1D * hist = new TH1D("", "", p.Bins[axisIndex], p.Origin[axisIndex], p.Origin[axisIndex]+p.Step[axisIndex]*p.Bins[axisIndex]);
+
+        TString axisTitle;
+        switch (axisIndex)
+        {
+        case 0:
+        {
+            axisTitle = "x";
+            int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+            if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+            int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+            if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+            double factor = (1.0+toYIndex-fromYIndex) * (1.0+toZIndex-fromZIndex);
+            for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                for (int iY = fromYIndex; iY < toYIndex; iY++)
+                    for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                        hist->AddBinContent(iBin+1, Data->GetBinContent(iBin+1, iY+1, iZ+1)/factor);
+            break;
+        }
+        case 1:
+        {
+            axisTitle = "y";
+            int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+            if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+            int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+            if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+            double factor = (1.0+toXIndex-fromXIndex) * (1.0+toZIndex-fromZIndex);
+            for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                for (int iX = fromXIndex; iX < toXIndex; iX++)
+                    for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                        hist->AddBinContent(iBin+1, Data->GetBinContent(iX+1, iBin+1, iZ+1)/factor);
+            break;
+        }
+        case 2:
+        {
+            axisTitle = "z";
+            int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+            if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+            int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+            if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+            double factor = (1.0+toYIndex-fromYIndex) * (1.0+toXIndex-fromXIndex);
+            for (int iBin = 0; iBin < p.Bins[axisIndex]; iBin++)
+                for (int iX = fromXIndex; iX < toXIndex; iX++)
+                    for (int iY = fromYIndex; iY < toYIndex; iY++)
+                        hist->AddBinContent(iBin+1, Data->GetBinContent(iX+1, iY+1, iBin+1)/factor);
+            break;
+        }
+        }
+
+        hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + axisTitle);
+        hist->GetXaxis()->SetTitle(axisTitle + ", mm");
+        hist->GetYaxis()->SetTitle("Dose, Gy");
+
+        emit requestDraw(hist, "hist", true, true);
+    }
+    else if (b2D)
+    {
+        TH2D * hist = nullptr;
+        TString verAxisTitle, horAxisTitle;
+
+        switch (axisIndex)
+        {
+        case 3: // xy
+            {
+            verAxisTitle = "x";
+            horAxisTitle = "y";
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0],
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            }
+            int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+            if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+            double factor = 1.0 + toZIndex - fromZIndex;
+            for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
+                for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
+                    for (int iZ = fromZIndex; iZ < toZIndex; iZ++)
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinX+1,iBinY+1) : hist->GetBin(iBinY+1, iBinX+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iBinX+1, iBinY+1, iZ+1)/factor);
+                    }
+            break;
+            }
+        case 4: // xz
+            {
+            verAxisTitle = "x";
+            horAxisTitle = "z";
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0],
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                                p.Bins[0], p.Origin[0], p.Origin[0]+p.Step[0]*p.Bins[0]);
+            }
+
+            int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+            if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+            double factor = 1.0 + toYIndex - fromYIndex;
+            for (int iBinX = 0; iBinX < p.Bins[0]; iBinX++)
+                for (int iY = fromYIndex; iY < toYIndex; iY++)
+                    for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinX+1, iBinZ+1) : hist->GetBin(iBinZ+1, iBinX+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iBinX+1, iY+1, iBinZ+1)/factor);
+                    }
+            break;
+            }
+        case 5: // yz
+            {
+            verAxisTitle = "y";
+            horAxisTitle = "z";
+            if (bSwapAxes)
+            {
+                hist = new TH2D("", "",
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1],
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2]);
+                std::swap(verAxisTitle, horAxisTitle);
+            }
+            else
+            {
+                hist = new TH2D("", "",
+                                p.Bins[2], p.Origin[2], p.Origin[2]+p.Step[2]*p.Bins[2],
+                                p.Bins[1], p.Origin[1], p.Origin[1]+p.Step[1]*p.Bins[1]);
+            }
+            int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+            if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+            double factor = 1.0 + toXIndex - fromXIndex;
+            for (int iX = fromXIndex; iX < toXIndex; iX++)
+                for (int iBinY = 0; iBinY < p.Bins[1]; iBinY++)
+                    for (int iBinZ = 0; iBinZ < p.Bins[2]; iBinZ++)
+                    {
+                        int bin = (bSwapAxes ? hist->GetBin(iBinY+1, iBinZ+1) : hist->GetBin(iBinZ+1, iBinY+1));
+                        hist->AddBinContent(bin, Data->GetBinContent(iX+1, iBinY+1, iBinZ+1)/factor);
+                    }
+            break;
+            }
+        }
+
+        if (!hist) return;
+        hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + verAxisTitle + horAxisTitle);
+        hist->GetXaxis()->SetTitle(horAxisTitle + ", mm");
+        hist->GetYaxis()->SetTitle(verAxisTitle + ", mm");
+        hist->GetZaxis()->SetTitle("Dose, Gy");
+        hist->SetEntries(Data->GetEntries());
+
+        emit requestDraw(hist, "colz", true, true);
+    }
+    else if (b3D)
+    {
+        TH3D * h = (TH3D*)(Data->Clone());
+
+        h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-Dose-3D");
+        h->GetXaxis()->SetTitle("x, mm");
+        h->GetYaxis()->SetTitle("y, mm");
+        h->GetZaxis()->SetTitle("z, mm");
+
+        emit requestDraw(h, "box2", true, true);
+    }
+}
+
+void AParticleSimWin::on_pbUpdateCaloRange_clicked()
+{
+    updateCaloRange();
+}
+
+void AParticleSimWin::updateCaloRange()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal)
+    {
+        ui->labCaloRangeX->clear();
+        ui->labCaloRangeY->clear();
+        ui->labCaloRangeZ->clear();
+        return;
+    }
+
+    const ACalorimeterProperties & p = CalHub.Calorimeters[iCal].Calorimeter->Properties;
+
+    bool bProjection = (ui->cobCaloShowType->currentIndex() == 0);
+    if (bProjection) return;
+
+    bool bAverage = ui->cbCaloAverage->isChecked();
+
+    int fromXIndex = ui->sbCaloX0->value(); int toXIndex = (bAverage ? ui->sbCaloX1->value() : fromXIndex+1);
+    if (fromXIndex > toXIndex) std::swap(fromXIndex, toXIndex);
+    int fromYIndex = ui->sbCaloY0->value(); int toYIndex = (bAverage ? ui->sbCaloY1->value() : fromYIndex+1);
+    if (fromYIndex > toYIndex) std::swap(fromYIndex, toYIndex);
+    int fromZIndex = ui->sbCaloZ0->value(); int toZIndex = (bAverage ? ui->sbCaloZ1->value() : fromZIndex+1);
+    if (fromZIndex > toZIndex) std::swap(fromZIndex, toZIndex);
+
+    double rx0 = p.Origin[0] + p.Step[0] * fromXIndex;
+    double rx1 = p.Origin[0] + p.Step[0] * toXIndex;
+    ui->labCaloRangeX->setText(QString("  (from %0 to %1 mm)").arg(rx0, 5).arg(rx1, 5));
+    double ry0 = p.Origin[1] + p.Step[1] * fromYIndex;
+    double ry1 = p.Origin[1] + p.Step[1] * toYIndex;
+    ui->labCaloRangeY->setText(QString("  (from %0 to %1 mm)").arg(ry0, 5).arg(ry1, 5));
+    double rz0 = p.Origin[2] + p.Step[2] * fromZIndex;
+    double rz1 = p.Origin[2] + p.Step[2] * toZIndex;
+    ui->labCaloRangeZ->setText(QString("  (from %0 to %1 mm)").arg(rz0, 5).arg(rz1, 5));
+}
+
+#include <QDesktopServices>
+void AParticleSimWin::on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &)
+{
+    if (ui->leWorkingDirectory->text().isEmpty()) return;
+    QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leWorkingDirectory->text()) );
+}
+
+void AParticleSimWin::on_cbIncludeScintillators_clicked(bool checked)
+{
+    G4SimSet.AddScintillatorsToSensitiveVolumes = checked;
+}
+

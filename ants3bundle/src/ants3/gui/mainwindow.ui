@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>456</width>
-    <height>417</height>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,18 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_7">
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -50,6 +62,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGeometry">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Geometry</string>
              </property>
@@ -57,6 +72,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbMaterials">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Materials</string>
              </property>
@@ -92,6 +110,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGeoWin">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>GeoView</string>
              </property>
@@ -99,6 +120,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGraphWin">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Graphs</string>
              </property>
@@ -138,13 +162,19 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbInterfaceRules">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Interfaces</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="pbSensors">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Sensors</string>
              </property>
@@ -180,6 +210,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbFarm">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Workload</string>
              </property>
@@ -187,8 +220,11 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbGlobSet">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
-              <string>Global</string>
+              <string>Settings</string>
              </property>
             </widget>
            </item>
@@ -226,6 +262,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbParticleSim">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Particles</string>
              </property>
@@ -233,6 +272,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbPhotSim">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Photons</string>
              </property>
@@ -268,6 +310,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbJavaScript">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>JavaScript</string>
              </property>
@@ -275,6 +320,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbPython">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Python</string>
              </property>
@@ -314,6 +362,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbLRFs">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>LRFs</string>
              </property>
@@ -321,6 +372,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbRecon">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>XYZ/Energy</string>
              </property>
@@ -356,6 +410,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pbDemo">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="text">
               <string>Demo</string>
              </property>
@@ -400,22 +457,20 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_11">
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>3</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <property name="bottomMargin">
+        <number>3</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QPushButton" name="pbLoadConfig">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pbSaveConfig">
-           <property name="text">
-            <string>Save</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QLabel" name="label_10">
            <property name="text">
@@ -434,6 +489,34 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="pteConfigDescription"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pbSaveConfig">
+           <property name="text">
+            <string>Save</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbLoadConfig">
+           <property name="text">
+            <string>Load</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbNew">
+           <property name="text">
+            <string>New</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -480,9 +563,22 @@
     <addaction name="separator"/>
     <addaction name="actionLoad_last_config"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuExit">
+    <property name="title">
+     <string>Exit</string>
+    </property>
+    <addaction name="actionClose_ants3"/>
+   </widget>
+   <widget class="QMenu" name="menuHints">
+    <property name="title">
+     <string>Hints</string>
+    </property>
+    <addaction name="actionShow_hints"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHints"/>
+   <addaction name="menuExit"/>
   </widget>
   <action name="actionSave_configuration">
    <property name="text">
@@ -529,9 +625,14 @@
     <string>QuickLoad slot 3</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="actionClose_ants3">
    <property name="text">
-    <string>Exit</string>
+    <string>Close ants3</string>
+   </property>
+  </action>
+  <action name="actionShow_hints">
+   <property name="text">
+    <string>Show hints</string>
    </property>
   </action>
  </widget>

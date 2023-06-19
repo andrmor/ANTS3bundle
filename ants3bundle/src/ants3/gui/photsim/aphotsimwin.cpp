@@ -61,8 +61,9 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     ui->cbSensorsAll->setChecked(true);
 
-    QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
-    ui->labAdvancedBombOn->setPixmap(pm);
+    YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
+    ui->labAdvancedBombOn->setPixmap(YellowCircle);
+    ui->labSkipTracingON->setPixmap(YellowCircle);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
@@ -299,7 +300,14 @@ void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
 
 void APhotSimWin::on_pbQEacceleratorHelp_clicked()
 {
-    guitools::message("TODO", this);
+    QString str;
+    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
+           "Before tracing each photon, a random number is generated "
+           "and the max det.eff. is checked against it. If the generated number is larger, "
+           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
+           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
+           "as it will be distorted!";
+    guitools::message(str, this);
 }
 
 void APhotSimWin::on_cobSimType_activated(int index)
@@ -764,17 +772,11 @@ void APhotSimWin::updateMonitorGui()
         const AMonitor & Mon = *MonitorHub.PhotonMonitors[imon].Monitor;
         ui->leDetections->setText( QString::number(Mon.getHits()) );
 
-        const bool bPhotonMode = (Mon.config.PhotonOrParticle == 0);
-        ui->pbMonitorShowWaveIndex->setVisible(bPhotonMode);
-        ui->pbMonitorShowWavelength->setVisible(bPhotonMode);
-        ui->pbMonitorShowEnergy->setVisible(!bPhotonMode);
-
         ui->pbMonitorShowXY->setEnabled(Mon.xy);
         ui->pbMonitorShowTime->setEnabled(Mon.time);
         ui->pbMonitorShowAngle->setEnabled(Mon.angle);
         ui->pbMonitorShowWaveIndex->setEnabled(Mon.wave);
         ui->pbMonitorShowWavelength->setEnabled(Mon.wave);
-        ui->pbMonitorShowEnergy->setEnabled(Mon.energy);
     }
 }
 
@@ -818,7 +820,11 @@ void APhotSimWin::on_pbMonitorShowAngle_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->angle, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->angle;
+        h->GetXaxis()->SetTitle("Angle of incidence, deg");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowXY_clicked()
@@ -826,7 +832,12 @@ void APhotSimWin::on_pbMonitorShowXY_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->xy, "colz", false, true);
+    {
+        TH2D * h = MonitorHub.PhotonMonitors[iMon].Monitor->xy;
+        h->GetXaxis()->SetTitle("Local X, mm");
+        h->GetYaxis()->SetTitle("Local Y, mm");
+        emit requestDraw(h, "colz", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowTime_clicked()
@@ -834,7 +845,13 @@ void APhotSimWin::on_pbMonitorShowTime_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->time, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->time;
+        TString title = "Time, ";
+        title += MonitorHub.PhotonMonitors[iMon].Monitor->config.timeUnits.toLatin1().data();
+        h->GetXaxis()->SetTitle(title);
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowWaveIndex_clicked()
@@ -842,7 +859,11 @@ void APhotSimWin::on_pbMonitorShowWaveIndex_clicked()
     const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
     const int iMon = ui->cobMonitor->currentIndex();
     if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->wave, "hist", false, true);
+    {
+        TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->wave;
+        h->GetXaxis()->SetTitle("Index");
+        emit requestDraw(h, "hist", false, true);
+    }
 }
 
 void APhotSimWin::on_pbMonitorShowWavelength_clicked()
@@ -880,14 +901,6 @@ void APhotSimWin::on_pbMonitorShowWavelength_clicked()
         hnew->SetXTitle("Wavelength, nm");
         emit requestDraw(hnew, "hist", true, true);
     }
-}
-
-void APhotSimWin::on_pbMonitorShowEnergy_clicked()
-{
-    const int numMonitors = MonitorHub.countMonitors(AMonitorHub::Photon);
-    const int iMon = ui->cobMonitor->currentIndex();
-    if (iMon >=0 && iMon < numMonitors)
-        emit requestDraw(MonitorHub.PhotonMonitors[iMon].Monitor->energy, "hist", false, true);
 }
 
 void APhotSimWin::on_pbShowMonitorHitDistribution_clicked()
@@ -1542,3 +1555,10 @@ void APhotSimWin::on_pbSingleSourceShow_clicked()
     pos[2] = ui->ledSingleZ->text().toDouble();
     emit requestShowPosition(pos, false);
 }
+
+void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
+{
+    ui->labSkipTracingON->setVisible(checked);
+    ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+}
+

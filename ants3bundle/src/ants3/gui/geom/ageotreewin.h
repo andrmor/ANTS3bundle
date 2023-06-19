@@ -33,6 +33,7 @@ private slots:
   void onGeoConstEscapePressed(int index);
   void onRequestShowPrototypeList();
   void updateMenuIndication();
+  void onRemoveGeoConstFromShortcut();
 
   void on_tabwConstants_customContextMenuRequested(const QPoint & pos);
   void on_pbSaveTGeo_clicked();
@@ -47,13 +48,15 @@ private slots:
   void on_actionRedo_triggered();
   void on_actionHow_to_use_drag_and_drop_triggered();
   void on_actionTo_JavaScript_triggered();
+  void on_actionTo_Python_triggered();
   void on_cbShowPrototypes_toggled(bool checked);
 
   void on_tabwConstants_cellClicked(int row, int column);
 
   void on_actionFind_object_triggered();
 
-private:
+
+  private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
 
@@ -64,7 +67,6 @@ private:
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
 
-  bool    GDMLtoTGeo(const QString &fileName);
   void    updateGeoConstsIndication();
   void    reportGeometryConflicts();
 
@@ -91,7 +93,8 @@ signals:
   void requestFocusVolume(QString name);
   void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
   void requestClearGeoMarkers(int All_Rec_True);
-  void requestAddScript(const QString & script);
+  void requestAddJavaScript(const QString & script);
+  void requestAddPythonScript(const QString & script);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

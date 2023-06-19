@@ -22,7 +22,7 @@ public slots:
 
     void setZoom(int level);
     void setParallel(bool on);
-    void updateView();
+    void updateView(); // !!!*** case of JSROOT
 
     void showGeometry();
 //    void showPMnumbers(); // need?
@@ -38,6 +38,8 @@ public slots:
 //    void DeleteAllTracks();
 
     void addMarkers(QVariantList XYZs, int color, int style, double size);
+
+    void updateGeoWin(AGeometryWindow * newGeoWin);
 
 private:
     AGeometryWindow * GeometryWindow = nullptr;

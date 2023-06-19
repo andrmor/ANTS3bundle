@@ -42,7 +42,8 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
   Widget->setContextMenuPolicy(Qt::CustomContextMenu);
 
   QPalette palette = frMainFrame->palette();
-  palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+  //palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+  palette.setColor( Widget->backgroundRole(), palette.color(QPalette::AlternateBase) );
   frMainFrame->setPalette( palette );
   frMainFrame->setAutoFillBackground( true );
   lMF = new QVBoxLayout();
@@ -85,7 +86,7 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     hbs->setContentsMargins(2,0,2,0);
         hbs->addStretch();
         cbScale = new QCheckBox("Scale");
-        cbScale->setToolTip("Use scaling only if it really necessary, e.g. to make ellipsoid from a sphere");
+        cbScale->setToolTip("NOT compatible with Geant4!\nUse scaling only if it is unavoidable, e.g. to make ellipsoid from a sphere");
         connect(cbScale, &QCheckBox::clicked, this, &AGeoObjectDelegate::onScaleToggled);
         connect(cbScale, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
         hbs->addWidget(cbScale);
@@ -167,9 +168,9 @@ AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * 
     createBottomButtons();
     lMF->addWidget(frBottomButtons);
 
-  frMainFrame->setLayout(lMF);
+    frMainFrame->setLayout(lMF);
 
-  ListOfShapesForTransform << "Box"
+    ListOfShapesForTransform << "Box"
        << "Tube" << "Tube segment" << "Tube segment cut" << "Tube elliptical"
        << "Trap" << "Trap2"
        << "Polycone"
@@ -198,11 +199,12 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
     rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Sensor", "Calorimeter", "Secondary scintillator"});
+        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator"});
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
     QFrame * frSensor = new QFrame();
+    {
         QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
         hlSensor->setContentsMargins(0,0,0,0);
         cobSensorModel = new QComboBox();
@@ -223,8 +225,24 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         rl->addWidget(frSensor);
         rl->setAlignment(frSensor, Qt::AlignHCenter);
 
+
+    }
+
     QFrame * frCal = new QFrame();
-        QGridLayout * gl = new QGridLayout(frCal);
+    {
+      QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
+        QHBoxLayout * chl = new QHBoxLayout(); chl->setContentsMargins(15,0,15,0);
+        cvl->addLayout(chl);
+            chl->addWidget(new QLabel("Acquire:"));
+        cobCalType = new QComboBox(); cobCalType->addItems({"Deposited energy", "Dose"});
+        cobCalType->setToolTip("Energy is collected as MeV per voxel\nDose is collected as grays per voxel.");
+            chl->addWidget(cobCalType);
+            chl->addStretch();
+            cbCalRandomize = new QCheckBox("Random bin along step");
+            chl->addWidget(cbCalRandomize);
+
+        QGridLayout * gl = new QGridLayout();
+      cvl->addLayout(gl);
         gl->setContentsMargins(0,0,0,0);
         ledCalOriginX = new AOneLineTextEdit();
         ledCalOriginY = new AOneLineTextEdit();
@@ -238,9 +256,9 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         cbOffX = new QCheckBox("Off");
         cbOffY = new QCheckBox("Off");
         cbOffZ = new QCheckBox("Off");
-        gl->addWidget(new QLabel("X"),      0, 1, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Y"),      0, 2, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Z"),      0, 3, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local X"), 0, 1, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local Y"), 0, 2, Qt::AlignHCenter);
+        gl->addWidget(new QLabel("Local Z"), 0, 3, Qt::AlignHCenter);
         gl->addWidget(new QLabel("Bins"),   1, 0);
         gl->addWidget(leiCalBinsX,          1, 1);
         gl->addWidget(leiCalBinsY,          1, 2);
@@ -259,6 +277,22 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         frCal->setVisible(false);
         rl->addWidget(frCal);
 
+        connect(cobCalType, &QComboBox::currentIndexChanged, this, [this](int index)
+        {
+            if (index == 0) // energy
+            {
+                cbOffX->setEnabled(true);
+                cbOffY->setEnabled(true);
+                cbOffZ->setEnabled(true);
+            }
+            else // dose
+            {
+                cbOffX->setChecked(false); cbOffX->setEnabled(false);
+                cbOffY->setChecked(false); cbOffY->setEnabled(false);
+                cbOffZ->setChecked(false); cbOffZ->setEnabled(false);
+            }
+        } );
+
         connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
         {
             ledCalOriginX->setDisabled(checked);
@@ -266,8 +300,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsX  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginX->setText("-1e10");
-                ledCalStepX->setText("2e10");
+                ledCalOriginX->setText("-1e+10");
+                ledCalStepX->setText("2e+10");
                 leiCalBinsX->setText("1");
             }
         } );
@@ -278,8 +312,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsY  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginY->setText("-1e10");
-                ledCalStepY->setText("2e10");
+                ledCalOriginY->setText("-1e+10");
+                ledCalStepY->setText("2e+10");
                 leiCalBinsY->setText("1");
             }
         } );
@@ -290,8 +324,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             leiCalBinsZ  ->setDisabled(checked);
             if (checked)
             {
-                ledCalOriginZ->setText("-1e10");
-                ledCalStepZ->setText("2e10");
+                ledCalOriginZ->setText("-1e+10");
+                ledCalStepZ->setText("2e+10");
                 leiCalBinsZ->setText("1");
             }
         } );
@@ -305,12 +339,16 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             le->setContextMenuPolicy(Qt::NoContextMenu);
             connect(le, &AOneLineTextEdit::textChanged, this, &AGeoObjectDelegate::onContentChanged);
         }
+    }
 
     rl->addStretch();
 
-    connect(cbOffX,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbOffY,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbOffZ,        &QCheckBox::toggled, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobCalType,     &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalRandomize, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+
+    connect(cbOffX,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffY,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbOffZ,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
     connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal, this](int index)
@@ -417,6 +455,22 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
             ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
             if (!ok) return false;
+
+            if (cobCalType->currentIndex() == 1)
+            {
+                bool badForDose = false;
+                for (int iA = 0; iA < 3; iA++)
+                    if (calDouble[iA] == -1e+10 && calDouble[3+iA] == 2e+10 && calInt[iA] == 1)
+                    {
+                        badForDose = true;
+                        break;
+                    }
+                if (badForDose)
+                {
+                    QMessageBox::warning(this->ParentWidget, "Warning", "For meaningful dose data, configure adequate voxel dimensions!");
+                    return false;
+                }
+            }
         }
 
         // ---- all checks are ok, can assign new values to the object ----
@@ -471,11 +525,25 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
                 cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
 
+                switch (cobCalType->currentIndex())
+                {
+                case 0: cal->Properties.DataType = ACalorimeterProperties::Energy; break;
+                case 1: cal->Properties.DataType = ACalorimeterProperties::Dose;   break;
+                default:
+                    qWarning() << "Not impelemnted calorimeter type in the combo box";
+                    cal->Properties.DataType = ACalorimeterProperties::Energy; break;
+                }
+
+                cal->Properties.RandomizeBin = cbCalRandomize->isChecked();
+
                 obj->Role = cal;
                 }
                 break;
             case 3:
                 obj->Role = new AGeoSecScint();
+                break;
+            case 4:
+                obj->Role = new AGeoScint();
                 break;
             default:;
             }
@@ -807,6 +875,11 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             {
                 AGeoSecScint * sec = dynamic_cast<AGeoSecScint*>(obj->Role);
                 if (sec) cobRole->setCurrentIndex(3);
+                else
+                {
+                    AGeoScint * scint = dynamic_cast<AGeoScint*>(obj->Role);
+                    if (scint) cobRole->setCurrentIndex(4);
+                }
             }
         }
     }
@@ -814,6 +887,18 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
 
 void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
 {
+    int index = 0;
+    switch (p.DataType)
+    {
+    case ACalorimeterProperties::Energy : index = 0; break;
+    case ACalorimeterProperties::Dose   : index = 1; break;
+    default:
+        qWarning() << "Unknown calorimter type";
+    }
+    cobCalType->setCurrentIndex(index);
+
+    cbCalRandomize->setChecked(p.RandomizeBin);
+
     ledCalOriginX->setText( p.strOrigin[0].isEmpty() ? QString::number(p.Origin[0]) : p.strOrigin[0] );
     ledCalOriginY->setText( p.strOrigin[1].isEmpty() ? QString::number(p.Origin[1]) : p.strOrigin[1] );
     ledCalOriginZ->setText( p.strOrigin[2].isEmpty() ? QString::number(p.Origin[2]) : p.strOrigin[2] );
@@ -2782,6 +2867,8 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     lHor->addWidget(new QLabel("Index of the first node:"));
     ledStartIndex = new AOneLineTextEdit("", Widget); ledStartIndex->bIntegerTooltip = true;
     lHor->addWidget(ledStartIndex);
+    QLabel * ledHelp = new QLabel("|?|"); ledHelp->setToolTip("Can use \"ParentIndex\" expression in the formula to access index of the containing volume");
+    lHor->addWidget(ledHelp);
     lHor->addStretch();
 
     lVer->addLayout(lHor);
@@ -3157,7 +3244,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
     Widget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     QPalette palette = frMainFrame->palette();
-    palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+    //palette.setColor( Widget->backgroundRole(), QColor( 255, 255, 255 ) );
+    palette.setColor( Widget->backgroundRole(), palette.color(QPalette::AlternateBase) );
     frMainFrame->setPalette( palette );
     frMainFrame->setAutoFillBackground( true );
 
@@ -3192,6 +3280,7 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
       QHBoxLayout * h = new QHBoxLayout();
             h->addStretch();
             cbFixedSize = new QCheckBox("Fixed size");
+            cbFixedSize->setChecked(true);
             connect(cbFixedSize, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
             h->addWidget(cbFixedSize);
 
@@ -3210,6 +3299,8 @@ AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWi
                     configureHighligherAndCompleter(le);
                     connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
                 }
+                connect(cbFixedSize, &QCheckBox::toggled, ledSizeXY, &AOneLineTextEdit::setEnabled);
+                connect(cbFixedSize, &QCheckBox::toggled, ledSizeZ,  &AOneLineTextEdit::setEnabled);
             h->addLayout(v2);
             h->addStretch();
     lMF->addLayout(h);

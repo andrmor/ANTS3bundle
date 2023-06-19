@@ -19,6 +19,8 @@ public:
 
     const QString&   getType() const;
 
+    enum EStatus {OK, NotApplicable, DataMimatch};
+
 protected:
     TObject* Object = 0;
     QString  Title;

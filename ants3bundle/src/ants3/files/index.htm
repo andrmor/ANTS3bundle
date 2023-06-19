@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!--  this file used by THttpServer to display objects hierarchy -->
+      <!--  original file: /ROOTDIR/js/files/online.html -->
+      <meta charset="utf-8">
+      <title>Online server</title>
+      <link rel="shortcut icon" href="jsrootsys/img/RootIcon.ico"/>
+   </head>
+
+   <body>
+      <div id="onlineGUI">
+         loading ...
+      </div>
+
+   </body>
+
+   <script type="module">
+      import { buildGUI, internals } from './jsrootsys/modules/gui.mjs';
+
+      internals.getCachedHierarchy = function() { return "$$$h.json$$$"; }
+
+      buildGUI("onlineGUI", "online");
+      
+      globalThis.doAnts3Redraw = function(showAxes, wireFrame, showTop, numSegments) {
+        import('./jsrootsys/modules/base/ObjectPainter.mjs').then(handle => {
+        let painter = handle.getElementMainPainter('onlineGUI_drawing');
+        painter.setAxesDraw(showAxes);
+        painter.setWireFrame(wireFrame);
+        painter.setShowTop(showTop);
+        return import('./jsrootsys/modules/geom/geobase.mjs');
+        }).then(handle2 => {
+        handle2.geoCfg('GradPerSegm', 1);
+        return import('./jsrootsys/modules/gui/HierarchyPainter.mjs');
+        }).then(handle3 => {
+        handle3.getHPainter().updateItems('Objects/GeoWorld/world');
+        });
+        // return "end reached..."
+      }
+      
+      //globalThis.getAnts3Camera = function() {
+      //    import('./jsrootsys/modules/base/ObjectPainter.mjs').then(handle => {
+      //    let painter = handle.getElementMainPainter('onlineGUI_drawing');
+      //    return painter.produceCameraUrl(true) })
+      //}
+      
+
+          import {getElementMainPainter} from './jsrootsys/modules/base/ObjectPainter.mjs'
+          
+          globalThis.getAnts3Camera = function() {
+              let painter = getElementMainPainter('onlineGUI_drawing');
+              return painter.produceCameraUrl(true)
+          }    
+   </script>
+
+</html>

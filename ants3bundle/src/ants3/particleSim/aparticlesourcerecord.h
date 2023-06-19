@@ -1,4 +1,4 @@
-#ifndef APARTICLESOURCERECORD_H
+﻿#ifndef APARTICLESOURCERECORD_H
 #define APARTICLESOURCERECORD_H
 
 #include "ahistogram.h"
@@ -14,40 +14,59 @@
 
 class G4ParticleDefinition;
 
+// !!!*** add check method (check energy spectrum, values are positive, add: LinkedBtBPair cannot be for "-")
 struct AGunParticle
 {
-    std::string  Particle        = "geantino";
-    double       StatWeight      = 1.0;
-    bool         UseFixedEnergy  = true;
-    double       Energy          = 100.0;      //in keV
-    std::string  PreferredUnits  = "keV";
-    bool         Individual      = true;       // true = individual particle; false = linked
-    int          LinkedTo        = 0;          // index of the "parent" particle this one is following
-    double       LinkedProb      = 0;          //probability to be emitted after the parent particle
-    bool         LinkedOpposite  = false;      // false = isotropic direction; else opposite direction in respect to the LinkedTo particle
+    enum EType {Independent, Linked_IfGenerated, Linked_IfNotGenerated};
+    enum EEneryUnits {meV, eV, keV, MeV};
 
-    AHistogram1D EnergyDistr; //energy spectrum   !!!*** check initRandomGenerator is called
+    std::string  Particle        = "geantino";
+
+    EType        GenerationType  = Independent;
+
+    double       StatWeight      = 1.0;
+    int          LinkedTo        = 0;          // index of the "parent" particle
+    double       LinkedProb      = 0;          // probability to be emitted if the parent particle is generated / not_generated
+
+    bool         BtBPair         = false;      // false = normal case (single particle), true = back-to-back pair of identical particles
+
+    bool         UseFixedEnergy  = true;
+    double       FixedEnergy     = 100.0;      // in keV
+    EEneryUnits  PreferredUnits  = keV;
+    std::vector<std::pair<double, double>> EnergySpectrum;
+    bool         UseGaussBlur    = false;
+    double       EnergySigma     = 50.0;
+    EEneryUnits  PreferredSigmaUnits = keV;
+
+    std::string  configureEnergySampler();
+    double       generateEnergy() const;
+
+    bool         isDirectDeposition() const;
+
+#ifdef JSON11
+    bool         readFromJson(const json11::Json::object & json);  // !!!***
+#else
+    bool         readFromJson(const QJsonObject & json);  // !!!***
+    void         writeToJson(QJsonObject & json) const;   // !!!***
+#endif
 
     //run-time
     G4ParticleDefinition * particleDefinition = nullptr;
-
-    double  generateEnergy() const;
-    bool    loadSpectrum(const std::string & fileName); // !!!***  wrong place!
-
-#ifdef JSON11
-    bool    readFromJson(const json11::Json::object & json);  // !!!***
-#else
-    void    writeToJson(QJsonObject & json) const;   // !!!***
-    bool    readFromJson(const QJsonObject & json);  // !!!***
-#endif
+    ARandomSampler _EnergySampler;
 };
 
 struct AParticleSourceRecord
 {
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
+    enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
+    enum EAxialMode {GaussAxial, CustomAxial};
+    enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};
+    enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
+    enum ETimeUnits {ns, us, ms, s, min, h};
 
-    std::string Name  = "No_name";
-    EShape      Shape = Point;
+    std::string Name     = "No_name";
+    double      Activity = 1.0;
+    EShape      Shape    = Point;
 
     // Position
     double      X0    = 0;
@@ -64,26 +83,36 @@ struct AParticleSourceRecord
     double      Size2 = 10.0;
     double      Size3 = 10.0;
 
-    // Collimation
-    double      CollPhi   = 0;
-    double      CollTheta = 0;
-    double      Spread    = 45.0;
+    // Axial distribution for round
+    bool        UseAxialDistribution = false;
+    EAxialMode  AxialDistributionType = GaussAxial;
+    double      AxialDistributionSigma = 10.0;
+    std::vector<std::pair<double, double>> AxialDistribution;
 
     // Limit to material
-    bool        MaterialLimited = false;  // !!!*** remove? use empty LimtedToMatName
+    bool        MaterialLimited = false;
     std::string LimtedToMatName;
 
-    // Relative activity
-    double      Activity = 1.0;
+    // Angular properties
+    EAngularMode AngularMode     = Isotropic;
+    double       DirectionPhi    = 0;
+    double       DirectionTheta  = 0;
+    bool         UseCutOff       = false;
+    double       CutOff          = 45.0;
+    double       DispersionSigma = 1.0;
+    std::vector<std::pair<double, double>> AngularDistribution;
 
     // Time
-    int         TimeAverageMode = 0;  // !!!*** to enum
-    double      TimeAverage = 0;
-    double      TimeAverageStart = 0;
-    double      TimeAveragePeriod = 10.0;
-    int         TimeSpreadMode = 0;  // !!!*** to enum
+    EOffsetMode TimeOffsetMode = FixedOffset;
+    double      TimeFixedOffset = 0;
+    double      TimeByEventStart = 0;
+    double      TimeByEventPeriod = 10.0;
+    ESpreadMode TimeSpreadMode = NoSpread;
     double      TimeSpreadSigma = 50.0;
     double      TimeSpreadWidth = 100.0;
+    double      TimeSpreadHalfLife = 100.0; // in ns
+    ETimeUnits  TimeHalfLifePrefUnit = ns;
+    std::vector<std::pair<double, double>> TimeDistribution;
 
     // Particles
     std::vector<AGunParticle> Particles;
@@ -98,9 +127,18 @@ struct AParticleSourceRecord
 #endif
 
     std::string getShapeString() const;
+    bool        isDirectional() const;
 
-    std::string check() const;
+    std::string check() const;  // !!!*** check energy spectrum
 
+    std::string configureAngularSampler();
+    std::string configureTimeSampler();
+    std::string configureAxialSampler();
+
+    // run-time
+    ARandomSampler      _AngularSampler;
+    ARandomSampler      _TimeSampler;
+    RandomRadialSampler _AxialSampler;
 };
 
 #endif // APARTICLESOURCERECORD_H

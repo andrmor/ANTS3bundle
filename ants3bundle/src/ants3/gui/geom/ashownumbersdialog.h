@@ -35,6 +35,7 @@ private slots:
     void on_pbCalTotals_clicked();
     void on_ledSizeCalorimeter_editingFinished();
 
+
 private:
     AGeometryWindow & GW;
     Ui::AShowNumbersDialog *ui;

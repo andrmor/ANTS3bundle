@@ -22,6 +22,8 @@ private slots:
     void on_pbChangeDir_clicked();
     void on_cobAsciiBinary_currentIndexChanged(int index);
 
+    void on_pbChangeDir_customContextMenuRequested(const QPoint &pos);
+
 private:
     AParticleRunSettings & RunSet;
 

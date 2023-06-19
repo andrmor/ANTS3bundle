@@ -1,7 +1,7 @@
 #ifndef APHOTONSIMMANAGER_H
 #define APHOTONSIMMANAGER_H
 
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "afilemerger.h"
 
 #include <QObject>
@@ -38,7 +38,7 @@ signals:
     void requestUpdateResultsGUI();
 
 private:
-    bool configureSimulation(const std::vector<A3FarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
+    bool configureSimulation(const std::vector<AFarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remove files in exchange

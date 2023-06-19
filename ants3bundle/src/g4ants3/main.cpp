@@ -29,8 +29,6 @@
 #include "FTFP_INCLXX.hh"
 #include "FTFP_INCLXX_HP.hh"
 
-#include <QDebug>
-
 int main(int argc, char** argv)
 {
     SessionManager & SM = SessionManager::getInstance();

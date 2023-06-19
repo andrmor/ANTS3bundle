@@ -118,4 +118,3 @@ echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
 echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
 
 echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
-

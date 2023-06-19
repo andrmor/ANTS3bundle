@@ -135,7 +135,6 @@ bool ASensorHub::updateRuntimeProperties()
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
-        qDebug() << "bbbbb" << index;
         if (index < 0 || index >= (int)Models.size())
         {
             // !!!*** error reporting
@@ -240,6 +239,30 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
     }
 
     return err;
+}
+
+void ASensorHub::clear()
+{
+    LoadedModelAssignment.clear();
+    clearSensors();
+
+    Models.clear();
+    Models.resize(1);
+    Models.front().Name = "Ideal";
+}
+
+double ASensorHub::getMaxQE(bool bWaveRes) const
+{
+    double maxQE = 0;
+    for (const ASensorData & SM : SensorData)
+    {
+        const int & iModel = SM.ModelIndex;
+        if (iModel < 0 || iModel >= (int)Models.size()) continue;
+        double modelMaxQE = Models[iModel].getMaxQE(bWaveRes);
+        if (modelMaxQE > maxQE) maxQE = modelMaxQE;
+    }
+    qDebug() << "----- Max QE:" << maxQE;
+    return maxQE;
 }
 
 ASensorHub::ASensorHub()

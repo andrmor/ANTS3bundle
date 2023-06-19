@@ -83,11 +83,92 @@ void ACore_SI::abort(QString message)
     AScriptInterface::abort(message);
 }
 
+/*
 QVariant ACore_SI::test(QVariant in)
 {
     qDebug() << in;
     return in;
 }
+*/
+
+#include "vformula.h"
+double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
+{
+    VFormula p1;
+
+    std::vector<std::string> names;
+    for (int i = 0; i < varNames.size(); i++) names.push_back(std::string(varNames[i].toString().toLatin1()));
+    p1.setVariableNames(names);
+
+    bool ok = p1.parse(formula.toLatin1().data());
+    if (!ok)
+    {
+        abort("VFormula parse error!\n" + QString(p1.ErrorString.data()));
+        return 0;
+    }
+
+    VFormula p(p1);
+
+    std::cout << "\n----------Map------------\n";
+    p.printCVMap();
+    std::cout << "\n---------Program---------\n";
+    p.printPrg();
+
+    ok = p.validate();
+    if (!ok)
+    {
+        abort("VFormula validation error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    std::vector<double> values;
+    for (int i = 0; i < varValues.size(); i++) values.push_back(varValues[i].toDouble());
+
+    double res = p.eval(values);
+
+    if (!p.ErrorString.empty())
+    {
+        abort("VFormula eval error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    /*
+// timed run
+    std::cout << "Timed run\n";
+    auto start = std::chrono::high_resolution_clock::now();
+
+//  Code to be timed
+    double sum =  0.;
+    for (int i=0; i<10000000; i++) {
+        sum += p.Eval(6);
+    }
+    std::cout << sum << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end - start;
+    std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
+    */
+    return res;
+}
+
+/*
+#include "amatcomposition.h"
+QString ACore_SI::testComposition(QString comp)
+{
+    AMatComposition mc;
+    bool ok = mc.setCompositionString(comp);
+    if (!ok)
+    {
+        abort(mc.ErrorString);
+        return "";
+    }
+
+    //TGeoMaterial * mat = mc.constructGeoMaterial("MatNameTest",1.1, 321.0);
+    //qDebug() << "\nGeoMat to composition string:\n" << AMatComposition::geoMatToCompositionString(mat);
+
+    return mc.printComposition();
+}
+*/
 
 /*
 int ACore_SI::fun(int i)
@@ -97,11 +178,13 @@ int ACore_SI::fun(int i)
 }
 */
 
+/*
 int ACore_SI::fun(int i, int j, int k)
 {
     qDebug() << "Three args!";
     return i + j + k;
 }
+*/
 
 #include <QElapsedTimer>
 void ACore_SI::sleep(int ms)
@@ -126,7 +209,7 @@ void ACore_SI::sleep(int ms)
     while (t.elapsed() < ms);
 }
 
-double ACore_SI::getTimeMark()
+double ACore_SI::getTimeMarkMilliseconds()
 {
     return QDateTime::currentMSecsSinceEpoch();
 }
@@ -206,7 +289,7 @@ QString ACore_SI::loadText(QString fileName)
 }
 
 
-void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
+void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int precision)
 {
     if (append && !QFileInfo::exists(fileName))
     {
@@ -221,6 +304,8 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
     }
 
     QTextStream s(&file);
+    if (precision != 6) s.setRealNumberPrecision(precision);
+
     for (int i = 0; i < array.size(); i++)
     {
         const QVariant & var = array[i];
@@ -479,7 +564,7 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
     return vl;
 }
 
-QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil)
+QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
 
@@ -533,7 +618,7 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
                 bOnStart = false; //buffer is invalid
             else                  //else save buffer
             {
-                vl1.push_back(vl2);
+                if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
                 vl2.clear();
             }
 
@@ -551,7 +636,8 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
         readFormattedLine(fields, FormatSelector, el3);
         vl2.push_back(el3);
     }
-    vl1.push_back(vl2);
+
+    if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
 
     file.close();
     return vl1;
@@ -801,7 +887,9 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
     }
 }
 
-QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom, int recordsUntil)
+QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat,
+                                         char separatorId, const QVariantList &separatorFormat,
+                                         int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
 
@@ -857,7 +945,8 @@ QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, c
                 bOnStart = false; //buffer is invalid
             else                  //else save buffer
             {
-                vl1.push_back(vl2);
+                //vl1.push_back(vl2);
+                if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
                 vl2.clear();
             }
 
@@ -879,7 +968,8 @@ QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, c
             return vl1;
         }
     }
-    vl1.push_back(vl2);
+    //vl1.push_back(vl2);
+    if (!vl2.empty() || !skipEmpty) vl1.push_back(vl2);
 
     inStream.close();
     return vl1;

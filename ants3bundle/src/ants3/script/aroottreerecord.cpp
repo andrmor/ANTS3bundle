@@ -188,12 +188,12 @@ const QVariant ABranchBuffer::read()
         QVariantList vl;
         switch (cType)
         {
-        case 'C' : for (const TString& e : AC) vl << QString(e); return vl;
-        case 'I' : for (const int& e : AI) vl << e; return vl;
-        case 'F' : for (const float& e : AF) vl << e; return vl;
-        case 'D' : for (const double& e : AD) vl << e; return vl;
-        case 'O' : for (const bool& e : AO) vl << e; return vl;
-        case 'o' : for (const bool& e : Ao) vl << e; return vl;
+        case 'C' : for (const std::string & e : AC) vl << QString(e.data()); return vl;
+        case 'I' : for (const int & e : AI) vl << e; return vl;
+        case 'F' : for (const float & e : AF) vl << e; return vl;
+        case 'D' : for (const double & e : AD) vl << e; return vl;
+        case 'O' : for (const bool & e : AO) vl << e; return vl;
+        case 'o' : for (const bool & e : Ao) vl << e; return vl;
         default  : qWarning() << "read - unknown tree branch type:" << type;
         }
     }

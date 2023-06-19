@@ -44,7 +44,7 @@ protected:
     void abort(const QString & message);
 
 private:
-    QString NoHelp = "Help not provided";
+    QString NoHelp = "Description not provided";
 };
 
 #endif // ASCRIPTINTERFACE_H

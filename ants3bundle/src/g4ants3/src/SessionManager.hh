@@ -59,7 +59,7 @@ class SessionManager
 
         void writeNewEventMarker();
 
-        void saveDepoRecord(const std::string & pName, int iMat, double edep, double * pos, double time);
+        void saveDepoRecord(const std::string & pName, int iMat, double edep, double * pos, double time, int copyNumber);
 
         void saveTrackStart(int trackID, int parentTrackID,
                             const G4String & particleName,

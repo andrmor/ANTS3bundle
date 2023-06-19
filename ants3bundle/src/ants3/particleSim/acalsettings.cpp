@@ -12,6 +12,10 @@
 
 bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) const
 {
+    if (DataType != other.DataType) return false;
+
+    if (RandomizeBin != other.RandomizeBin) return false;
+
     for (int i = 0; i < 3; i++)
     {
         if (Origin[i] != other.Origin[i]) return false;
@@ -24,6 +28,7 @@ bool ACalorimeterProperties::operator ==(const ACalorimeterProperties & other) c
         if (strBins[i]   != other.strBins[i])   return false;
 #endif
     }
+
     return true;
 }
 
@@ -43,6 +48,8 @@ int ACalorimeterProperties::getNumDimensions() const
 bool ACalorimeterProperties::isAxisOff(int index) const
 {
     if (index < 0 || index > 2) return false;
+
+    if (DataType == Dose) return false;
 
     return (Origin[index] == -1e10 && Step[index] == 2e10 && Bins[index] == 1);
 }
@@ -90,14 +97,18 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 #endif
 {
 #ifdef JSON11
+    std::string dataTypeStr;
     json11::Json::array arO;
     json11::Json::array arS;
     json11::Json::array arB;
 #else
+    QString dataTypeStr;
     QJsonArray arO;
     QJsonArray arS;
     QJsonArray arB;
 #endif
+    dataTypeStr = ( DataType == Energy ? "Energy" : "Dose" );
+    json["DataType"] = dataTypeStr;
     for (int i=0; i<3; i++)
     {
         arO.push_back(Origin[i]);
@@ -107,6 +118,8 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
     json["Origin"] = arO;
     json["Step"] = arS;
     json["Bins"] = arB;
+
+    json["RandomizeBin"] = RandomizeBin;
 
 #ifndef JSON11
     QJsonArray toAr, tsAr, tbAr;
@@ -125,6 +138,19 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 #ifdef JSON11
 void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
 {
+    std::string dataTypeStr;
+    jstools::parseJson(json, "DataType", dataTypeStr);
+    if      (dataTypeStr == "Energy") DataType = Energy;
+    else if (dataTypeStr == "Dose")   DataType = Dose;
+    else
+    {
+        // !!!*** error control
+        // "Unknown string for calorimeter DataType, setting it to 'Energy'";
+        DataType = Energy;
+    }
+
+    jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
     {
         json11::Json::array ar;
         jstools::parseJson(json, "Origin", ar);
@@ -149,6 +175,19 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
 #else
 void ACalorimeterProperties::readFromJson(const QJsonObject & json)
 {
+    QString dataTypeStr;
+    jstools::parseJson(json, "DataType", dataTypeStr);
+    if      (dataTypeStr == "Energy") DataType = Energy;
+    else if (dataTypeStr == "Dose")   DataType = Dose;
+    else
+    {
+        // !!!*** error control
+        qWarning() << "Unknown string for calorimeter DataType, setting it to 'Energy'";
+        DataType = Energy;
+    }
+
+    jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
     {
         QJsonArray ar;
         jstools::parseJson(json, "Origin", ar);
@@ -258,19 +297,22 @@ void ACalSetRecord::readFromJson(const QJsonObject & json)
 // ---
 
 #ifndef JSON11
-void ACalSettings::writeToJson(QJsonObject & json) const
+void ACalSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 {
     json["Enabled"] = Enabled;
     json["FileName"] = FileName.data();
 
-    QJsonArray ar;
-    for (const ACalSetRecord & c : Calorimeters)
+    if (includeG4ants3Set)
     {
-        QJsonObject js;
-        c.writeToJson(js);
-        ar.append(js);
+        QJsonArray ar;
+        for (const ACalSetRecord & c : Calorimeters)
+        {
+            QJsonObject js;
+            c.writeToJson(js);
+            ar.append(js);
+        }
+        json["Calorimeters"] = ar;
     }
-    json["Calorimeters"] = ar;
 }
 #endif
 
@@ -317,3 +359,11 @@ void ACalSettings::initFromHub()
     }
 }
 #endif
+
+void ACalSettings::clear()
+{
+    Enabled         = false;
+    FileName = "Calorimeters.json";
+
+    Calorimeters.clear();
+}

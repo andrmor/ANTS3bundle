@@ -7,7 +7,7 @@
 #include "adispatcherinterface.h"
 #include "a3workdistrconfig.h"
 #include "astatisticshub.h"
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
 #include "ajsontools.h"
 #include "adepositionfilehandler.h"
 #include "aphotonbombfilehandler.h"
@@ -121,7 +121,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     }
 
     // configure number of local/remote processes to run
-    std::vector<A3FarmNodeRecord> RunPlan;
+    std::vector<AFarmNodeRecord> RunPlan;
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QString err = Dispatcher.fillRunPlan(RunPlan, numEvents, numLocalProc);
     if (!err.isEmpty()) return false;
@@ -237,6 +237,8 @@ void APhotonSimManager::mergeOutput()
     MonitorHub.clearData(AMonitorHub::Photon);
     if (SimSet.RunSet.SaveMonitors)
         MonitorHub.mergePhotonMonitorFiles(MonitorFiles, OutputDir + '/' + SimSet.RunSet.FileNameMonitors);
+
+    qDebug() << "Done!";
 }
 
 void  APhotonSimManager::clearFileMergers()
@@ -249,7 +251,7 @@ void  APhotonSimManager::clearFileMergers()
     MonitorFiles.clear();
 }
 
-bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     qDebug() << "Configuring simulation...";
     Request.Command = "lsim"; // name of the corresponding executable
@@ -272,7 +274,7 @@ bool APhotonSimManager::configureSimulation(const std::vector<A3FarmNodeRecord> 
     int iEvent = 0;
     int iProcess = 0;
 
-    for (const A3FarmNodeRecord & r : RunPlan)   // per node server
+    for (const AFarmNodeRecord & r : RunPlan)   // per node server
     {
         A3WorkNodeConfig nc;
         nc.Address = r.Address;
@@ -414,8 +416,8 @@ void APhotonSimManager::makeWorkerConfigFile(A3NodeWorkerConfig & Worker, APhoto
     const QString & ExchangeDir = A3Global::getInstance().ExchangeDir;
 
     QJsonObject json;
-    AConfig::getInstance().writeToJson(json);
-    WorkSet.writeToJson(json);
+    AConfig::getInstance().writeToJson(json, true);
+    WorkSet.writeToJson(json, true);
     QString ConfigFN = QString("config-%0.json").arg(iProcess);
     jstools::saveJsonToFile(json, ExchangeDir + '/' + ConfigFN);
     Worker.ConfigFile = ConfigFN;

@@ -2,6 +2,9 @@
 #define APARTICLESIMWIN_H
 
 #include "aguiwindow.h"
+#include "avector.h"
+
+#include <map>
 
 class AParticleSimSettings;
 class AG4SimulationSettings;
@@ -13,6 +16,11 @@ class AParticleTrackingRecord;
 class TObject;
 class AMonitorHub;
 class ACalorimeterHub;
+class TH1D;
+class AParticleRecord;
+class AParticleSourceRecord;
+class ATrackingHistoryCrawler;
+class AFindRecordSelector;
 
 namespace Ui {
 class AParticleSimWin;
@@ -29,6 +37,7 @@ public:
 public slots:
     void updateGui();
     void updateResultsGui();
+    void onBusyStatusChange(bool busy);
 
 private slots:
     // auto-updates
@@ -58,7 +67,7 @@ private slots:
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
-    void on_sbEvents_editingFinished();
+    void on_ledEvents_editingFinished();
     void on_pbChooseWorkingDirectory_clicked();
 
     // tracks
@@ -121,6 +130,7 @@ signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);
     void requestCenterView(double * pos);
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
@@ -128,6 +138,8 @@ signals:
     void requestAddMarker(const double *);
     void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
     void requestConfigureExchangeDir();
+    void killSourceDialog();
+    void requestBusyStatus(bool flag);
 
 private:
     AParticleSimSettings  & SimSet;
@@ -165,6 +177,17 @@ private:
     QString LastFile_Monitors;
     QString LastFile_Calorimeters;
 
+    TH1D * histEnergy = nullptr;
+    TH1D * histAngle = nullptr;
+    bool   CollectAngle = false;
+    AVector3 SourceStatDirection = {0,0,1.0};
+    TH1D * histTime = nullptr;
+    std::map<std::string, int> SeenParticles;
+
+    bool IgnoreWorldSizeWarning = false;
+
+    bool   bFindEventAbortRequested = false;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -186,6 +209,7 @@ private:
 
     void updateMonitorGui();
     void updateCalorimeterGui();
+    void updateShowCalorimeterGui();
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
@@ -195,26 +219,47 @@ private:
     void updateFileParticleGeneratorGui();
     void showStepLimitDialog(const QString &volName, double limit);
     int  findEventWithFilters(int currentEv, bool bUp);
-    double getCalorimeterEnergyFactor();
+
+    void addStatistics(const AParticleRecord & p);
+    void configureAngleStat(AParticleGun * gun);
+    void checkWorldSize(AParticleSourceRecord & ps);
+    bool isTrackingDataFileExists();
+
+    void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
+    void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
+    void updateCaloRange();
 
 private slots:
-    void testParticleGun(AParticleGun * Gun, int numParticles); // two use cases, one from source dialog
+    void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
     void onProgressReceived(double progress);
     void on_cbPTHistVolVsTime_toggled(bool checked);
     void on_pbUpdateIcon_clicked();
     void on_pbChooseCalorimetersFile_clicked();
     void on_pbLoadCalorimetersData_clicked();
-    void on_cobCalorimeterEnergyUnits_currentTextChanged(const QString &arg1);
     void on_pbNextCalorimeter_clicked();
     void on_cobCalorimeter_activated(int index);
     void on_sbCalorimeterIndex_editingFinished();
-    void on_pbCalorimetersShowDistribution_clicked();
     void on_pbShowCalorimeterSettings_clicked();
     void on_pbShowMonitorProperties_clicked();
     void on_leWorkingDirectory_editingFinished();
     void on_leTrackingDataFile_editingFinished();
     void on_leMonitorsFileName_editingFinished();
     void on_leCalorimetersFileName_editingFinished();
+
+    void on_pbSaveParticleSource_clicked();
+    void on_pbLoadParticleSource_clicked();
+
+    void on_pbAbort_clicked();
+    void on_ledEventsPerThread_editingFinished();
+    void on_cobCaloShowType_currentIndexChanged(int index);
+    void on_cobCaloAxes_currentIndexChanged(int index);
+    void on_cbCaloAverage_clicked();
+    void on_pbCaloShow_clicked();
+    void on_pbUpdateCaloRange_clicked();
+
+    void abortFind();
+    void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
+    void on_cbIncludeScintillators_clicked(bool checked);
 };
 
 #endif // APARTICLESIMWIN_H

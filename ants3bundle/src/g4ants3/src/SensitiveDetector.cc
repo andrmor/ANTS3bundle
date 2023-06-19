@@ -1,6 +1,7 @@
 #include "SensitiveDetector.hh"
 #include "SessionManager.hh"
 #include "ahistogram.h"
+#include "arandomg4hub.h"
 
 #include <sstream>
 #include <iomanip>
@@ -25,13 +26,14 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     const int&           iMat = SM.findMaterial( aStep->GetPreStepPoint()->GetMaterial()->GetName() ); //will terminate session if not found!
     const G4ThreeVector& G4pos = aStep->GetPostStepPoint()->GetPosition();
     const double&        time = aStep->GetPostStepPoint()->GetGlobalTime()/ns;
+    const int &          copyNumber = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
 
     double pos[3];
     pos[0] = G4pos.x();
     pos[1] = G4pos.y();
     pos[2] = G4pos.z();
 
-    SM.saveDepoRecord(pName, iMat, edep, pos, time);
+    SM.saveDepoRecord(pName, iMat, edep, pos, time, copyNumber);
 
     return true;
 }
@@ -79,7 +81,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hPosition->fill(x, y);
 
             // time info
-            double time = step->GetPostStepPoint()->GetGlobalTime()/ns;
+            const double time = step->GetPostStepPoint()->GetGlobalTime() / TimeFactor;
             hTime->fill(time);
 
             // angle info
@@ -92,7 +94,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hAngle->fill(angle);
 
             //energy
-            double energy = step->GetPostStepPoint()->GetKineticEnergy() / keV;
+            const double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
             hEnergy->fill(energy);
 
             //stop tracking?
@@ -120,7 +122,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
     return true;
 }
 
-void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
+bool MonitorSensitiveDetector::readFromJson(const json11::Json & json)
 {
     //std::cout << "Monitor created for volume " << Name << " and particle " << ParticleName << std::endl;
 
@@ -139,21 +141,33 @@ void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
     energyBins =        json["energyBins"].int_value();
     energyFrom =        json["energyFrom"].number_value();
     energyTo =          json["energyTo"].number_value();
-    energyUnits =       json["energyUnitsInHist"].int_value(); // 0,1,2,3 -> meV, eV, keV, MeV;
-    double multipler = 1.0;
-    switch (energyUnits)
-    {
-    case 0: multipler *= 1e-6; break;
-    case 1: multipler *= 1e-3; break;
-    case 3: multipler *= 1e3;  break;
-    default:;
-    }
-    energyFrom *= multipler;
-    energyTo   *= multipler;
+//    energyUnits =       json["energyUnitsInHist"].int_value(); // 0,1,2,3 -> meV, eV, keV, MeV;
+//    double multipler = 1.0;
+//    switch (energyUnits)
+//    {
+//    case 0: multipler *= 1e-6; break;
+//    case 1: multipler *= 1e-3; break;
+//    case 3: multipler *= 1e3;  break;
+//    default:;
+//    }
+//    energyFrom *= multipler;
+//    energyTo   *= multipler;
+    EnergyUnits       = json["energyUnits"].string_value();
+    if      (EnergyUnits == "meV") EnergyFactor = 0.001*eV;
+    else if (EnergyUnits == "eV")  EnergyFactor = eV;
+    else if (EnergyUnits == "keV") EnergyFactor = keV;
+    else if (EnergyUnits == "MeV") EnergyFactor = MeV;
+    else return false; // !!!*** error reporting system
 
     timeBins =          json["timeBins"].int_value();
     timeFrom =          json["timeFrom"].number_value();
     timeTo =            json["timeTo"].number_value();
+    TimeUnits         = json["timeUnits"].string_value();
+    if      (TimeUnits == "ns") TimeFactor = ns;
+    else if (TimeUnits == "us") TimeFactor = us;
+    else if (TimeUnits == "ms") TimeFactor = ms;
+    else if (TimeUnits == "s")  TimeFactor = s;
+    else return false; // !!!*** error reporting system
 
     xbins =             json["xbins"].int_value();
     ybins =             json["ybins"].int_value();
@@ -170,6 +184,8 @@ void MonitorSensitiveDetector::readFromJson(const json11::Json &json)
     hEnergy   = new AHistogram1D(energyBins, energyFrom, energyTo);
 
     hPosition = new AHistogram2D(xbins, -size1, size1, ybins, -size2, size2);
+
+    return true;
 }
 
 void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
@@ -177,7 +193,8 @@ void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
     json["MonitorIndex"] = MonitorIndex;
 
     json11::Json::object jsTime;
-    writeHist1D(hTime, jsTime);
+        writeHist1D(hTime, jsTime);
+        jsTime["Units"] = TimeUnits;
     json["Time"] = jsTime;
 
     json11::Json::object jsAngle;
@@ -185,7 +202,8 @@ void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
     json["Angle"] = jsAngle;
 
     json11::Json::object jsEnergy;
-    writeHist1D(hEnergy, jsEnergy);
+        writeHist1D(hEnergy, jsEnergy);
+        jsEnergy["Units"] = EnergyUnits;
     json["Energy"] = jsEnergy;
 
     json11::Json::object jsSpatial;
@@ -245,6 +263,8 @@ CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & n
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
     Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+
+    VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
 }
 
 CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
@@ -254,19 +274,38 @@ CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
 
 G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
-    G4double depo = step->GetTotalEnergyDeposit()/keV;
+    const G4double depo = step->GetTotalEnergyDeposit();
     if (depo == 0.0) return false;
 
     const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
     const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
 
-    const G4ThreeVector global = 0.5 * (fromGlobal + toGlobal);
+    G4ThreeVector global;
+    if (Properties.RandomizeBin)
+    {
+        const double rnd = 0.00001 + 0.99999 * ARandomHub::getInstance().uniform();
+        global = fromGlobal + rnd * (toGlobal - fromGlobal);
+    }
+    else
+        global = 0.5 * (fromGlobal + toGlobal);
 
     const G4ThreeVector local = step->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(global);
 
     //std::cout << global << local << "\n";
 
-    Data->fill({local[0], local[1], local[2]}, depo);
+    if (Properties.DataType == ACalorimeterProperties::Dose)
+    {
+        const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
+        if (!material) return false; // paranoic
+        const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
+        if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
+        {
+            const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
+            Data->fill({local[0], local[1], local[2]}, deltaDose);
+        }
+    }
+    else Data->fill({local[0], local[1], local[2]}, depo / MeV);
+
     return true;
 }
 

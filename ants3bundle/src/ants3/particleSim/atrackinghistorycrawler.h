@@ -13,7 +13,7 @@
 
 class TH1D;
 class TH2D;
-class TFormula;
+class VFormula;
 
 // --- Search processors ---
 
@@ -39,7 +39,7 @@ public:
     virtual void onTrackEnd(bool /*bMaster*/){} // flag is the value returned by onNewTrack()
     virtual void onEventEnd(){}
 
-    virtual AHistorySearchProcessor * clone() = 0;
+    virtual AHistorySearchProcessor * clone() const = 0;
 
     bool isInlineSecondaryProcessing() const {return bInlineSecondaryProcessing;}
     bool isIgnoreParticleSelectors()   const {return bIgnoreParticleSelectors;}
@@ -55,10 +55,11 @@ class AHistorySearchProcessor_findParticles : public AHistorySearchProcessor
 {
 public:
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
+    void onTransitionIn (const ATrackingStepData & tr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTrackEnd(bool) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -83,7 +84,7 @@ public:
     void onTransitionOut(const ATrackingStepData & tr) override;
     void onTransitionIn (const ATrackingStepData & tr) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -107,7 +108,7 @@ public:
     bool onNewTrack(const AParticleTrackingRecord & pr) override;
     void onLocalStep(const ATrackingStepData & tr) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -140,7 +141,7 @@ public:
     void onTrackEnd(bool bMaster) override;
     void onEventEnd() override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -163,7 +164,7 @@ public:
                                                      int binsT, double fromT, double toT);
     ~AHistorySearchProcessor_findDepositedEnergyTimed();
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -197,7 +198,7 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -220,7 +221,7 @@ public:
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
 private:
     float timeFrom;
@@ -239,7 +240,7 @@ public:
     void onTransitionIn (const ATrackingStepData & tr) override; // "from" step
     void onTrackEnd(bool) override;
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
@@ -274,28 +275,28 @@ public:
     // direction info can be [0,0,0] !!!
     void onTransition(const ATrackingStepData & fromfromTr, const ATrackingStepData & fromTr) override; // "from" step
 
-    AHistorySearchProcessor * clone() override;
+    AHistorySearchProcessor * clone() const override;
 
     bool mergeResuts(const AHistorySearchProcessor & other) override; // !!!*** merge statistics of histograms
 
     QString ErrorString;  // after constructor, valid if ErrorString is empty
     bool bRequiresDirections = false;
 
-    TFormula * formulaWhat1 = nullptr;
-    TFormula * formulaWhat2 = nullptr;
-    TFormula * formulaWhat3 = nullptr;
-    TFormula * formulaCuts = nullptr;
+    VFormula * formulaWhat1 = nullptr;
+    VFormula * formulaWhat2 = nullptr;
+    VFormula * formulaWhat3 = nullptr;
+    VFormula * formulaCuts = nullptr;
 
     //double  x, y, z, time, energy, vx, vy, vz
     //        0  1  2    3     4      5   6   7
-    double par[8];
+    std::vector<double> par = std::vector<double>(8, 0);
     TH1D * Hist1D = nullptr;
     TH1D * Hist1Dnum = nullptr;
     TH2D * Hist2D = nullptr;
     TH2D * Hist2Dnum = nullptr;
 
 private:
-    TFormula * parse(QString & expr);
+    VFormula * parse(QString & expr);
 };
 
 
@@ -305,50 +306,57 @@ class AFindRecordSelector
 {
 public:
   //track level
-    bool bParticle = false;
+    bool    bParticle = false;
     QString Particle;
-    bool bPrimary = false;
-    bool bSecondary = false;
-    bool bLimitToFirstInteractionOfPrimary = false;
+    bool    bPrimary = false;
+    bool    bSecondary = false;
+    bool    bLimitToFirstInteractionOfPrimary = false;
+
+  //time
+    bool    bTime = false;
+    float   TimeFrom = 0;
+    float   TimeTo   = 1e99;
 
   //transportation
     //from
-    bool bFromMat = false;
-    bool bFromVolume = false;
-    bool bFromVolIndex = false;
-    bool bEscaping = false;
-    int  FromMat = 0;
+    bool    bFromMat = false;
+    bool    bFromVolume = false;
+    bool    bFromVolIndex = false;
+    bool    bEscaping = false;
+    int     FromMat = 0;
     TString FromVolume;
-    int  FromVolIndex = 0;
+    int     FromVolIndex = 0;
     //to
-    bool bToMat = false;
-    bool bToVolume = false;
-    bool bToVolIndex = false;
-    bool bCreated = false;
-    int  ToMat = 0;
+    bool    bToMat = false;
+    bool    bToVolume = false;
+    bool    bToVolIndex = false;
+    bool    bCreated = false;
+    int     ToMat = 0;
     TString ToVolume;
-    int  ToVolIndex = 0;
+    int     ToVolIndex = 0;
 
   //step level
-    bool bMaterial = false;
-    int Material = 0;
+    bool    bMaterial = false;
+    int     Material = 0;
 
-    bool bVolume = false;
+    bool    bVolume = false;
     TString Volume;
 
-    bool bVolumeIndex = false;
-    int VolumeIndex = 0;
-
+    bool    bVolumeIndex = false;
+    int     VolumeIndex = 0;
 };
 
-// !!!*** abort for multithreaded!
-class ATrackingHistoryCrawler
+#include <QObject>
+class ATrackingHistoryCrawler : public QObject
 {
+    Q_OBJECT
+
 public:
-    ATrackingHistoryCrawler(const QString & fileName, bool binary) : FileName(fileName), bBinary(binary) {}
+    ATrackingHistoryCrawler(const QString & fileName) : QObject(), FileName(fileName) {}
 
-    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
+    void find(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
 
+public slots:
     void abort() {bAbortRequested = true;}
 
 private:
@@ -357,13 +365,17 @@ private:
     void findRecursive(const AParticleTrackingRecord & pr, const AFindRecordSelector &opt, AHistorySearchProcessor & processor) const;
 
     QString FileName;
-    bool    bBinary;
 
     bool bAbortRequested = false;
 
     std::mutex CrawlerMutex;
+    int NumEventsProcessed = 0;
 
-    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads);
+    void findSingleThread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor);
+    void findMultithread(const AFindRecordSelector & criteria, AHistorySearchProcessor & processor, int numThreads, int eventsPerThread);
+
+signals:
+    void reportProgress(int numEventsDone);
 };
 
 #endif // ATRACKINGHISTORYCRAWLER_H

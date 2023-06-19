@@ -6,7 +6,7 @@
 class A3Global;
 class MainWindow;
 class ANetworkModule;
-class AGStyle_SI;
+class ARootStyle_SI;
 
 namespace Ui {
 class AGlobSetWindow;
@@ -23,7 +23,7 @@ public:
     void updateGui();
     void setTab(int iTab);
 
-    AGStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
+    ARootStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
 
 protected:
     bool event(QEvent *event);
@@ -49,7 +49,6 @@ private slots:
 
     void on_pbOpen_clicked();
 
-
 //    void on_sbNumPointsFunctionX_editingFinished();
 //    void on_sbNumPointsFunctionY_editingFinished();
 //    void on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked);
@@ -58,15 +57,22 @@ private slots:
 
 //    void on_cbRunWebSocketServer_clicked(bool checked);
 //    void on_leWebSocketPort_editingFinished();
-//    void on_cbAutoRunRootServer_clicked();
-//    void on_leRootServerPort_editingFinished();
-//    void on_leJSROOT_editingFinished();
-//    void on_cbRunRootServer_clicked(bool checked);
 //    void on_leWebSocketIP_editingFinished();
 //    void on_cbRunWebSocketServer_toggled(bool checked);
 
+    void on_cbAutoRunRootServer_clicked();
+    void on_leRootServerPort_editingFinished();
+    void on_leJSROOT_editingFinished();
+    void on_cbRunRootServer_clicked(bool checked);
+
 //    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
 //    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);
+
+    //void on_cobColorPalette_activated(int index);
+
+    void on_cobStyle_textActivated(const QString &arg1);
+
+    void on_cbUseStyleSystPalette_clicked(bool checked);
 
 private:
     A3Global & GlobSet;

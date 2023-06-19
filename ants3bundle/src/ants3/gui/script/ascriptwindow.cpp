@@ -246,8 +246,10 @@ void AScriptWindow::createGuiElements()
     pteOut->setMinimumHeight(50);
     pteOut->setReadOnly(true);
     QPalette p = pteOut->palette();
-    p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
-    p.setColor(QPalette::Inactive, QPalette::Base, QColor(240,240,240));
+    //p.setColor(QPalette::Active, QPalette::Base, QColor(240,240,240));
+    //p.setColor(QPalette::Inactive, QPalette::Base, QColor(240,240,240));
+    p.setColor(QPalette::Active, QPalette::Base, p.color(QPalette::AlternateBase));
+    p.setColor(QPalette::Inactive, QPalette::Base, p.color(QPalette::AlternateBase));
     pteOut->setPalette(p);
     pteHelp->setPalette(p);
     hor->setSizes(sizes);  // sizes of Script / Help / Config
@@ -441,12 +443,14 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
+    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
+    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
 }
@@ -507,11 +511,14 @@ void AScriptWindow::on_pbRunScript_clicked()
     else
     {
         QString s;
-        AVirtualScriptManager::addQVariantToString(ScriptManager->getResult(), s, ScriptLanguage);
+        const QVariant res = ScriptManager->getResult();
+        AVirtualScriptManager::addQVariantToString(res, s, ScriptLanguage);
         if (!s.isEmpty() && s != "undefined") outputText(s);
     }
 
     ScriptManager->collectGarbage();
+
+    updateJsonTree();
 
     emit requestUpdateGui();
 }
@@ -813,7 +820,8 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
     //pteHelp->appendPlainText(returnType+ "  " +item->text(0)+":");
 
     //pteHelp->appendHtml("<b>" + item->text(1) + "</b>");
-    pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
+    //pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
+    pteHelp->appendPlainText(item->text(1)+"\n");
     pteHelp->appendPlainText(item->toolTip(0));
 }
 
@@ -925,12 +933,12 @@ void AScriptWindow::showContextMenuForJsonTree(QTreeWidgetItem *item, QPoint pos
     QAction* sa = menu.exec(trwJson->mapToGlobal(pos));
     if (!sa) return;
 
-    QClipboard *clipboard = QApplication::clipboard();
+    QClipboard * clipboard = QApplication::clipboard();
     QString text = getKeyPath(item);
     if (sa == plainKey) ;
     else if (sa == keyQuatation) text = "\"" + text + "\"";
-    else if (sa == keyGet) text = "config.GetKeyValue(\"" + text + "\")";
-    else if (sa == keySet) text = "config.Replace(\"" + text + "\",       )";
+    else if (sa == keyGet) text = "config.getKeyValue(\"" + text + "\")";
+    else if (sa == keySet) text = "config.replace(\"" + text + "\", newValue)";
     clipboard->setText(text);
 }
 

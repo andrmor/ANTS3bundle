@@ -123,7 +123,7 @@ void APhotonSimulator::setupCommonProperties()
     AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();
-    Tracer->configureTracer();
+    Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
 }
 
 QString APhotonSimulator::openOutput()
@@ -186,6 +186,9 @@ void APhotonSimulator::saveEventMarker()
 
 void APhotonSimulator::saveSensorHits()
 {
+    Event->addDarkCounts();
+    Event->convertHitsToSignals();
+
     for (float sig : Event->PMhits) *StreamSensorHits << sig << ' ';
     *StreamSensorHits << '\n';
 }

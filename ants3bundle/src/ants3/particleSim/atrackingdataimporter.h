@@ -22,7 +22,7 @@ struct AImporterEventStart
 class ATrackingDataImporter
 {
 public:
-    ATrackingDataImporter(const QString & fileName, bool binary);
+    ATrackingDataImporter(const QString & fileName);
     ~ATrackingDataImporter();
 
     bool extractEvent(int iEvent, AEventTrackingRecord * EventRecord);
@@ -59,15 +59,11 @@ private:
 
     int FileEndEvent = -1;
 
-    //resources for ascii input
-    QFile *       inTextFile = nullptr;
-    QTextStream * inTextStream = nullptr;
-    QString       currentLine;
-    QStringList   inputSL;
-
-    //resources for binary input
+    //resources for input
     std::ifstream * inStream = nullptr;
-    char          binHeader;
+    std::string   currentLine;
+    std::vector<std::string> inputSL; // !!!*** temporary, to be replaced with the approach used for binary
+    unsigned char binHeader;
     int           BtrackId;
     int           BparentTrackId;
     std::string   BparticleName = "______________________________________________________"; //reserve long
@@ -110,7 +106,8 @@ private:
     ATrackingStepData * createHistoryStep() const;
     void readSecondaries();
     void readString(std::string & str) const;
-
+    bool isAscii();
+    void toStringVector(const std::string & line, std::vector<std::string> & vec) const;
 };
 
 #endif // ATRACKINGDATAIMPORTER_H

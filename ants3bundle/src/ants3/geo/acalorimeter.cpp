@@ -23,18 +23,18 @@ ACalorimeter::~ACalorimeter()
 
 void ACalorimeter::clearData()
 {
-    delete Deposition; Deposition = nullptr;
+    delete DataHistogram; DataHistogram = nullptr;
     Stats.fill(0);
     Entries = 0;
 }
 
-int ACalorimeter::getTotalEnergy() const
+double ACalorimeter::getTotalEnergy() const
 {
-    if (!Deposition) return 0;
+    if (!DataHistogram) return 0;
     return Stats[0];
 }
 
-bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
+bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj)
 {
     const ACalorimeterProperties * props = geoObj->getCalorimeterProperties();
     if (!props)
@@ -45,12 +45,12 @@ bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj) // !!!*** TODO
 
     Properties = *props;
 
-    Name = geoObj->Name;
+    //Name = geoObj->Name;
 
     return true;
 }
 
-void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const // !!!*** TODO
+void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const
 {
     json["CalorimeterIndex"] = index;
 
@@ -66,7 +66,7 @@ void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const // !!!**
             {
                 QJsonArray el;
                 for (int ix = 0; ix < Properties.Bins[0]; ix++)
-                    el.push_back (Deposition->GetBinContent(ix+1, iy+1, iz+1) );
+                    el.push_back (DataHistogram->GetBinContent(ix+1, iy+1, iz+1) );
                 ar.push_back(el);
             }
         jsDepo["Data"] = ar;
@@ -95,7 +95,7 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     ACalorimeterProperties loadedProps;
     loadedProps.readFromJson(pjs);
 
-    const bool bMergeMode = (Deposition != nullptr);
+    const bool bMergeMode = (DataHistogram != nullptr);
     if (bMergeMode)
     {
         if (loadedProps != Properties)
@@ -109,7 +109,7 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     else
     {
         Properties = loadedProps;
-        Deposition = new ATH3D("", "",
+        DataHistogram = new ATH3D("", "",
                                Properties.Bins[0], Properties.Origin[0], Properties.Origin[0] + Properties.Bins[0]*Properties.Step[0],
                                Properties.Bins[1], Properties.Origin[1], Properties.Origin[1] + Properties.Bins[1]*Properties.Step[1],
                                Properties.Bins[2], Properties.Origin[2], Properties.Origin[2] + Properties.Bins[2]*Properties.Step[2]  );
@@ -170,7 +170,7 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
             for (int iz = 0; iz < Properties.Bins[2]; iz++)
             {
                 const double z = Properties.Origin[2] + (0.5 + iz) * Properties.Step[2];
-                Deposition->Fill(x, y, z, Data[ix][iy][iz]);
+                DataHistogram->Fill(x, y, z, Data[ix][iy][iz]);
             }
         }
     }
@@ -179,8 +179,8 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
         Stats[i] += statAr[i].toDouble();
     Entries += entries;
 
-    Deposition->setStatistics(Stats);
-    Deposition->SetEntries(Entries);
+    DataHistogram->setStatistics(Stats);
+    DataHistogram->SetEntries(Entries);
 
     return true;
 }

@@ -18,46 +18,48 @@ public:
 
     TObject* GetObject() override;  // unsave for multithread (draw on queued signal), only GUI thread can trigger draw
 
-    void SetTitle(const QString Title);
-    void SetAxisTitles(const QString X_Title, const QString Y_Title, const QString Z_Title = "");
-    void SetLineProperties(int LineColor, int LineStyle, int LineWidth);
-    void SetMarkerProperties(int MarkerColor, int MarkerStyle, double MarkerSize);
-    void SetFillColor(int Color);
-    void SetXLabels(const QVector<QString> & labels);
-    void SetXDivisions(int primary, int secondary, int tertiary, bool canOptimize);
-    void SetYDivisions(int primary, int secondary, int tertiary, bool canOptimize);
-    void SetXLabelProperties(double size, double offset);
-    void SetYLabelProperties(double size, double offset);
+    void setTitle(const QString & title);
+    void setAxisTitles(const QString & x_Title, const QString & y_Title, const QString & z_Title = "");
+    void setLineProperties(int lineColor, int lineStyle, int lineWidth);
+    void setMarkerProperties(int markerColor, int markerStyle, double markerSize);
+    void setFillColor(int color);
+    void setXLabels(const std::vector<QString> & labels);
+    void setXDivisions(int primary, int secondary, int tertiary, bool canOptimize);
+    void setYDivisions(int primary, int secondary, int tertiary, bool canOptimize);
+    void setXLabelProperties(double size, double offset);
+    void setYLabelProperties(double size, double offset);
 
-    void Fill(double val, double weight);
-    void Fill2D(double x, double y, double weight);
-    void Fill3D(double x, double y, double z, double weight);
+    void fill1D(double x, double weight);
+    void fill2D(double x, double y, double weight);
+    void fill3D(double x, double y, double z, double weight);
 
-    void FillArr(const QVector<double>& val, const QVector<double>& weight);
-    void Fill2DArr(const QVector<double>& x, const QVector<double>& y, const QVector<double>& weight);
+    void fill1D(const std::vector<double> & x, const std::vector<double> & weight);
+    void fill2D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & weight);
+    void fill3D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & z, const std::vector<double> & weight);
 
-    void SetMax(double max);
-    void SetMin(double min);
+    void setMax(double max);
+    void setMin(double min);
 
-    void Save(const QString & fileName) const;
+    void save(const QString & fileName) const;
 
-    bool Divide(ARootHistRecord* other);
+    bool divide(ARootHistRecord* other);
 
-    void   Smooth(int times);
-    void   Smear(double sigma);
+    void   smooth(int times);
+    void   smear(double sigma);
     void   Scale(double ScaleIntegralTo, bool bDividedByBinWidth = false);
-    bool   MedianFilter(int span, int spanRight = -1);
+    bool   medianFilter(int span, int spanRight = -1);
 
-    double GetIntegral(bool bMultipliedByBinWidth = false);
-    int    GetEntries();
+    double getIntegral(bool bMultipliedByBinWidth = false);
+    int    getEntries();
     void   GetStatistics(int & num, std::vector<double> & mean, std::vector<double> & std);
-    void   SetEntries(int num);
-    double GetMaximum();
-    bool   GetContent(QVector<double> & x, QVector<double> & y) const;
-    bool   GetContent2D(QVector<double> & x, QVector<double> & y, QVector<double> & z) const;
-    bool   GetContent3D(QVector<double> & x, QVector<double> & y, QVector<double> & z, QVector<double> & val) const;
-    bool   GetUnderflow(double & undeflow) const;
-    bool   GetOverflow (double & overflow) const;
+    void   setEntries(int num);
+    double getMaximum() const;
+    double getMinimum() const;
+    bool   getContent1D(std::vector<double> & x, std::vector<double> & w) const;
+    bool   getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w) const;
+    bool   getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w) const;
+    bool   getUnderflow(double & undeflow) const;
+    bool   getOverflow (double & overflow) const;
     double GetRandom();
     std::vector<double> GetRandomMultiple(int numRandoms);
 
@@ -65,8 +67,8 @@ public:
     bool   is2D() const;
     bool   is3D() const;
 
-    QVector<double> FitGauss(const QString& options = "");
-    QVector<double> FitGaussWithInit(const QVector<double>& InitialParValues, const QString options = "");
+    std::vector<double> fitGauss(const QString & options = "");
+    std::vector<double> fitGaussWithInit(const std::vector<double> & initialParValues, const QString & options = "");
     std::vector<double> findPeaks(double sigma, double threshold);
 
 };

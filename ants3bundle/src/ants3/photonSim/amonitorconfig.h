@@ -34,6 +34,7 @@ public:
     int    timeBins = 10;
     double timeFrom = 0;
     double timeTo = 0;
+    QString timeUnits = "ns";
     int    angleBins = 90;
     double angleFrom = 0;
     double angleTo = 90.0;
@@ -43,7 +44,8 @@ public:
     int    energyBins = 100;
     double energyFrom = 0;
     double energyTo = 0;
-    int    energyUnitsInHist = 2; // 0,1,2,3 -> meV, eV, keV, MeV;
+//    int    energyUnitsInHist = 2; // 0,1,2,3 -> meV, eV, keV, MeV;
+    QString energyUnits = "keV";
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

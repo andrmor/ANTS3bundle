@@ -18,27 +18,30 @@ public:
 
     TObject* GetObject() override;  // unasve for multithread (draw on queued signal), only GUI thread can trigger draw
 
-    void     SetMarkerProperties(int markerColor, int markerStyle, double markerSize);
-    void     SetLineProperties(int lineColor, int lineStyle, int lineWidth);
-    void     SetTitles(const QString& titleX, const QString& titleY, const QString graphTitle = "");
+    void     setMarkerProperties(int markerColor, int markerStyle, double markerSize);
+    void     setLineProperties(int lineColor, int lineStyle, int lineWidth);
+
+    void     setTitle(QString graphTitle);
+    void     setAxisTitles(const QString & titleX, const QString & titleY);
 
     // Protected by Mutex
-    void     AddPoint(double x, double y, double errorX = 0, double errorY = 0);
-    void     AddPoints(const QVector<double> &xArr, const QVector<double> &yArr);
-    void     AddPoints(const QVector<double> &xArr, const QVector<double> &yArr, const QVector<double> &xErrArr, const QVector<double> &yErrArr);
-    void     Sort();
-    void     SetYRange(double min, double max);
-    void     SetMinimum(double min);
-    void     SetMaximum(double max);
-    void     SetXRange(double min, double max);
-    void     SetXDivisions(int numDiv);
-    void     SetYDivisions(int numDiv);
+    void     addPoint(double x, double y, double errorX = 0, double errorY = 0);
+    void     addPoint2D(double x, double y, double z);
+    EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr);
+    EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr, const std::vector<double> & xErrArr, const std::vector<double> & yErrArr);
+    EStatus  addPoints(const std::vector<double> & xArr, const std::vector<double> & yArr, const std::vector<double> & zArr);
+    void     sort();
+    void     setYRange(double min, double max);
+    void     setMinimum(double min);
+    void     setMaximum(double max);
+    void     setXRange(double min, double max);
+    void     setXDivisions(int numDiv);
+    void     setYDivisions(int numDiv);
 
-    void     AddPoint2D(double x, double y, double z);
+    void     getData(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z,
+                     std::vector<double> & errx, std::vector<double> & erry);
 
-    const std::vector<std::pair<double, double>> GetPoints(); // !!!*** make more general
-
-    void     ExportRoot(const QString & fileName);
+    void     exportRoot(const QString & fileName);
 
     QString  LastDrawOption;
 

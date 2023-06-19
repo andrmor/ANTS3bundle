@@ -12,6 +12,7 @@
 
 class ATracerStateful;
 class AGeoObject;
+class TList;
 
 class AMaterialHub : public QObject
 {
@@ -37,6 +38,8 @@ public:
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
+    void    clear();
+
     void    generateGeoMedia();
     void    updateRuntimeProperties();
 
@@ -61,13 +64,16 @@ public:
     QStringList getListOfMaterialNames() const;
     std::vector<std::string> getMaterialNames() const;
     std::vector<std::pair<std::string, std::string>> getMaterialsFromNist() const;
+    std::vector<std::pair<std::string, double>> getMaterialsMeanExEnergy() const;
     double  getDriftSpeed(int iMat) const; //returns in mm / ns
     double  getDiffusionSigmaTime(int iMat, double length_mm) const;
     double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;
-    void    checkReadyForGeant4Sim(QString & Errors) const;
+    void    checkReadyForGeant4Sim(QString & Errors) const; // !!!***
 
     QString CheckMaterial(const AMaterial *mat) const; //"" - check passed, otherwise error
     QString CheckMaterial(int iMat) const;       //"" - check passed, otherwise error
+
+    void    importMaterials(TList * matList);
 
 private:
     void    removeMaterial(int iMat); // !!!*** propagate to PhotonSources!

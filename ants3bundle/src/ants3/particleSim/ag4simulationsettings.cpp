@@ -9,10 +9,21 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 {
     json["PhysicsList"] = QString(PhysicsList.data());
 
-    QJsonArray arSV;
-    for (auto & v : SensitiveVolumes)
-        arSV.push_back(QString(v.data()));
-    json["SensitiveVolumes"] = arSV;
+    {
+        QJsonArray ar;
+        for (auto & v : SensitiveVolumes)
+            ar.push_back(QString(v.data()));
+        json["SensitiveVolumes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (auto & v : ScintSensitiveVolumes)
+            ar.push_back(QString(v.data()));
+        json["ScintSensitiveVolumes"] = ar;
+    }
+
+    json["AddScintillatorsToSensitiveVolumes"] = AddScintillatorsToSensitiveVolumes;
 
     QJsonArray arC;
     for (auto & c : Commands)
@@ -59,6 +70,25 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 #endif
         SensitiveVolumes.push_back(sv);
     }
+
+#ifdef JSON11
+    json11::Json::array arSSV;
+#else
+    QJsonArray arSSV;
+#endif
+    jstools::parseJson(json, "ScintSensitiveVolumes", arSSV);
+    for (int i = 0; i < (int)arSSV.size(); i++)
+    {
+        std::string sv;
+#ifdef JSON11
+        sv = arSSV[i].string_value();
+#else
+        sv = arSSV.at(i).toString().toLatin1().data();
+#endif
+        ScintSensitiveVolumes.push_back(sv);
+    }
+
+    jstools::parseJson(json, "AddScintillatorsToSensitiveVolumes", AddScintillatorsToSensitiveVolumes);
 
 #ifdef JSON11
     json11::Json::array arC;

@@ -1,4 +1,5 @@
 #include "atextedit.h"
+#include "guitools.h"
 
 #include <QCompleter>
 #include <QKeyEvent>
@@ -485,7 +486,8 @@ void ATextEdit::setFontSizeAndEmitSignal(int size)
 void ATextEdit::paintLeftField(QPaintEvent *event)
 {
     QPainter painter(LeftField);
-    QColor color = QColor(Qt::gray).lighter(152);
+    //QColor color = QColor(Qt::gray).lighter(152);
+    QColor color = palette().color(QPalette::AlternateBase);
     painter.fillRect(event->rect(), color);
 
     QTextBlock block = firstVisibleBlock();
@@ -504,7 +506,10 @@ void ATextEdit::paintLeftField(QPaintEvent *event)
         if (block.isVisible() && bottom >= event->rect().top())
         {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen( currentLine == blockNumber ? Qt::black : Qt::gray);
+            if (guitools::isDarkTheme())
+                painter.setPen( currentLine == blockNumber ? Qt::white : Qt::gray);
+            else
+                painter.setPen( currentLine == blockNumber ? Qt::black : Qt::gray);
             painter.drawText(0, top, LeftField->width(), fontMetrics().height(), Qt::AlignCenter, number);
         }
 
@@ -632,26 +637,28 @@ void ATextEdit::onCursorPositionChanged()
   QList<QTextEdit::ExtraSelection> extraSelections;
 
   // extraSelections introduced later override previous if both match!
+  QTextEdit::ExtraSelection extra;
 
   //lowest priority: highlight line where the cursor is
-  QTextEdit::ExtraSelection extra;
-  QColor color = QColor(Qt::gray).lighter(150);
+  QColor color = (guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(250) : QColor(Qt::gray).lighter(150) );
   extra.format.setBackground(color);
   extra.format.setProperty(QTextFormat::FullWidthSelection, true);
   extra.cursor = textCursor();
   extra.cursor.clearSelection();
   extraSelections.append(extra);
 
+  /*
   //higher priority: show with trailing spaces
   QTextCursor tc = textCursor();
   tc.select(QTextCursor::LineUnderCursor);
-  color = QColor(Qt::gray).lighter(140);
+  QColor color = (guitools::isDarkTheme() ? QColor(Qt::gray).darker(140) : QColor(Qt::gray).lighter(140) );
   extra.format.setBackground(color);
   extra.cursor = tc;
   extraSelections.append(extra);
+  */
 
   //checking for '}', ')' or ']' on the left
-  QColor colorBrackets = QColor(Qt::green).lighter(170);
+  QColor colorBrackets = ( guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(170) : QColor(Qt::green).lighter(170) );
   checkBracketsOnLeft(extraSelections, colorBrackets);
   //checking for '{', '(' or '[' on the right
   checkBracketsOnRight(extraSelections, colorBrackets);
@@ -676,7 +683,7 @@ void ATextEdit::onCursorPositionChanged()
       tc.select(QTextCursor::WordUnderCursor);
       QString selection = tc.selectedText();
       //    qDebug() << "-->"<<selection;
-      QColor color = QColor(Qt::green).lighter(170);
+      QColor color = ( guitools::isDarkTheme() ? QColor(Qt::darkGray).darker(150) : QColor(Qt::green).lighter(170) );
       QRegularExpression exl("[0-9 (){}\\[\\]=+\\-*/\\|~^.,:;\"'<>\\#\\$\\&\\?]");
       QString test = selection.simplified();
       test.remove(exl);
@@ -694,23 +701,23 @@ void ATextEdit::onCursorPositionChanged()
       }
 
       if (!test.isEmpty())
-        {
+      {
           QRegularExpression pat("\\b"+selection+"\\b");
           QTextCursor cursor = document()->find(pat, 0, QTextDocument::FindCaseSensitively);
           while(cursor.hasSelection())
-            {
+          {
               QTextEdit::ExtraSelection extra;
               extra.format.setBackground(color);
               extra.cursor = cursor;
               extraSelections.append(extra);
               cursor = document()->find(pat, cursor, QTextDocument::FindCaseSensitively);
-            }
-
-          //variable highlight test
-          QRegularExpression patvar("\\bvar\\s+"+selection+"\\b");
+          }
+/*
+          //variable highlight test  // !!!*** temporary disabled
+          QRegularExpression patvar("\\bvar\\s+"+selection+"\\b"); // !!!*** let and const and Python aware!
           QTextCursor cursor1 = document()->find(patvar, tc, QTextDocument::FindCaseSensitively | QTextDocument::FindBackward);
           if (cursor1.hasSelection())// && cursor1 != tc)
-            {
+          {
               QTextEdit::ExtraSelection extra;
               extra.format.setBackground(Qt::black);
               extra.format.setForeground(Qt::white);
@@ -726,8 +733,9 @@ void ATextEdit::onCursorPositionChanged()
               //extra1.format.setForeground(color);
               extra1.cursor = tc;
               extraSelections.append(extra1);
-            }
-        }
+          }
+*/
+      }
   }
 
   //all extra selections defined, applying now

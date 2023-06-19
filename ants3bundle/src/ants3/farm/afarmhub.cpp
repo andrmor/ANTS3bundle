@@ -1,5 +1,8 @@
 #include "afarmhub.h"
-#include "a3farmnoderecord.h"
+#include "afarmnoderecord.h"
+#include "adispatcherinterface.h"
+#include "a3workdistrconfig.h"
+#include "ajsontools.h"
 
 AFarmHub &AFarmHub::getInstance()
 {
@@ -20,7 +23,7 @@ void AFarmHub::clearNodes()
 
 void AFarmHub::addNewNode()
 {
-    A3FarmNodeRecord * node = new A3FarmNodeRecord();
+    AFarmNodeRecord * node = new AFarmNodeRecord();
 
     while (isIPandPortAlreadyExist(node->Address, node->Port))
         node->Port++;
@@ -32,7 +35,7 @@ bool AFarmHub::addNode(const QString & name, const QString & ip, int port, int m
 {
     if (isIPandPortAlreadyExist(ip, port)) return false;
 
-    A3FarmNodeRecord * node = new A3FarmNodeRecord();
+    AFarmNodeRecord * node = new AFarmNodeRecord();
     node->Name = name;
     node->Address = ip;
     node->Port = port;
@@ -52,9 +55,6 @@ bool AFarmHub::removeNode(int index)
     return true;
 }
 
-#include "adispatcherinterface.h"
-#include "a3workdistrconfig.h"
-#include <QJsonArray>
 void AFarmHub::checkFarmStatus()
 {
     ADispatcherInterface & Disp = ADispatcherInterface::getInstance();
@@ -62,7 +62,7 @@ void AFarmHub::checkFarmStatus()
     A3WorkDistrConfig Request;
     Request.Command = "check";
 
-    for (const A3FarmNodeRecord * FarmNode : FarmNodes)
+    for (const AFarmNodeRecord * FarmNode : FarmNodes)
     {
         A3WorkNodeConfig nc;
         nc.Address = FarmNode->Address;
@@ -75,20 +75,20 @@ void AFarmHub::checkFarmStatus()
     QJsonArray ar = Reply["NodeStatus"].toArray();
 
     int iN = 0;
-    for (A3FarmNodeRecord * FarmNode : FarmNodes)
+    for (AFarmNodeRecord * FarmNode : FarmNodes)
     {
         if (iN < ar.size())
         {
             int proc = ar[iN].toInt();
             if (proc == -1)
             {
-                FarmNode->Status    = A3FarmNodeRecord::NotResponding;
+                FarmNode->Status    = AFarmNodeRecord::NotResponding;
                 FarmNode->Processes = 0;
                 FarmNode->Enabled   = false;
             }
             else
             {
-                FarmNode->Status    = A3FarmNodeRecord::Available;
+                FarmNode->Status    = AFarmNodeRecord::Available;
                 FarmNode->Processes = proc;
             }
         }
@@ -98,11 +98,47 @@ void AFarmHub::checkFarmStatus()
 
 bool AFarmHub::isIPandPortAlreadyExist(const QString &address, int port) const
 {
-    for (const A3FarmNodeRecord * fn : FarmNodes)
+    for (const AFarmNodeRecord * fn : FarmNodes)
     {
         if (fn->Address != address) continue;
         if (fn->Port == port) return true;
     }
 
     return false;
+}
+
+void AFarmHub::writeToJson(QJsonObject & json) const
+{
+    json["UseLocal"]       = UseLocal;
+    json["LocalProcesses"] = LocalProcesses;
+    json["UseFarm"]        = UseFarm;
+    json["TimeoutMs"]      = TimeoutMs;
+
+    QJsonArray ar;
+    for (AFarmNodeRecord * node : FarmNodes)
+    {
+        QJsonObject js;
+        node->writeToJson(js);
+        ar.push_back(js);
+    }
+    json["FarmNodes"] = ar;
+}
+
+void AFarmHub::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "UseLocal",       UseLocal);
+    jstools::parseJson(json, "LocalProcesses", LocalProcesses);
+    jstools::parseJson(json, "UseFarm",        UseFarm);
+    jstools::parseJson(json, "TimeoutMs",      TimeoutMs);
+
+    clearNodes();
+    QJsonArray ar;
+    jstools::parseJson(json, "FarmNodes", ar);
+    for (int iNode = 0; iNode < ar.size(); iNode++)
+    {
+        QJsonObject js = ar[iNode].toObject();
+        AFarmNodeRecord * node = new AFarmNodeRecord();
+        node->readFromJson(js);
+        FarmNodes.push_back(node);
+    }
 }

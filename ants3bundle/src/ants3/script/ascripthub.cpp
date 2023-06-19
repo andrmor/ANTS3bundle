@@ -23,6 +23,7 @@
 #include "ageo_si.h"
 #include "asensor_si.h"
 #include "aparticlesim_si.h"
+#include "arootstyle_si.h"
 
 AScriptHub & AScriptHub::getInstance()
 {
@@ -51,14 +52,25 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
     if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
 }
 
+#include "ageowin_si.h"
 void AScriptHub::addCommonInterface(AScriptInterface * interface, QString name)
 {
     JavaScriptM->registerInterface(interface, name);
 
+    AGeoWin_SI * geoWin = dynamic_cast<AGeoWin_SI*>(interface);
+    if (geoWin) geoWinInterfaces.push_back(geoWin);
+
 #ifdef ANTS3_PYTHON
     AScriptInterface * twin = interface->cloneBase();
     PythonM->registerInterface(twin, name);
+
+    if (geoWin) geoWinInterfaces.push_back(dynamic_cast<AGeoWin_SI*>(twin));
 #endif
+}
+
+void AScriptHub::updateGeoWin(AGeometryWindow * GeoWin)
+{
+    for (AGeoWin_SI * inter : geoWinInterfaces) inter->updateGeoWin(GeoWin);
 }
 
 void AScriptHub::finalizeInit()
@@ -113,6 +125,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new AGraph_SI(),        "graph");
     addCommonInterface(new AHist_SI(),         "hist");
     addCommonInterface(new ATree_SI(),         "tree");
+    addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new ADemo_SI(),         "demo");
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");

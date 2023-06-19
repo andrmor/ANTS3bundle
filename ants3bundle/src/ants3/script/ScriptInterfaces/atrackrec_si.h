@@ -25,7 +25,7 @@ public:
     AScriptInterface * cloneBase() const {return new ATrackRec_SI();}
 
 public slots:
-    void open(QString fileName, bool binary);
+    void open(QString fileName);
 
     int  countEvents();
     void setEvent(int iEvent);
@@ -58,7 +58,6 @@ public slots:
 
 private:
     QString FileName;
-    bool    bBinaryFile;
 
     ATrackingDataImporter * Importer = nullptr;
 

@@ -55,21 +55,33 @@ void AMonitorSettings::initFromHub()
         Monitors.push_back(r);
     }
 }
-void AMonitorSettings::writeToJson(QJsonObject & json) const
+
+void AMonitorSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 {
     json["Enabled"] = Enabled;
     json["FileName"] = FileName.data();
 
-    QJsonArray arMon;
-    for (const AMonSetRecord & m : Monitors)
+    if (includeG4ants3Set)
     {
-        QJsonObject mjs;
-        m.writeToJson(mjs);
-        arMon.append(mjs);
+        QJsonArray arMon;
+        for (const AMonSetRecord & m : Monitors)
+        {
+            QJsonObject mjs;
+            m.writeToJson(mjs);
+            arMon.append(mjs);
+        }
+        json["Monitors"] = arMon;
     }
-    json["Monitors"] = arMon;
 }
 #endif
+
+void AMonitorSettings::clear()
+{
+    Enabled         = false;
+    FileName = "ParticleMonitors.json";
+
+    Monitors.clear();
+}
 
 #ifdef JSON11
 void AMonitorSettings::readFromJson(const json11::Json::object & json)

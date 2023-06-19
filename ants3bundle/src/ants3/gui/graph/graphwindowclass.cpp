@@ -42,8 +42,6 @@
 #include <QShortcut>
 #include <QPolygonF>
 #include <QButtonGroup>
-#include <QPalette>
-#include <QPalette>
 #include <QElapsedTimer>
 #include <QFileInfo>
 
@@ -226,8 +224,8 @@ void GraphWindowClass::connectScriptUnitDrawRequests(const std::vector<AScriptIn
         }
     }
 
-    if (graphInter) connect(graphInter, &AGraph_SI::RequestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
-    if (histInter)  connect(histInter,  &AHist_SI::RequestDraw,     this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
+    if (graphInter) connect(graphInter, &AGraph_SI::requestDraw,    this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
+    if (histInter)  connect(histInter,  &AHist_SI::requestDraw,     this, &GraphWindowClass::onScriptDrawRequest, Qt::DirectConnection);
     if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &GraphWindowClass::onScriptDrawTree);
 }
 
@@ -625,7 +623,7 @@ void GraphWindowClass::updateSecondaryAxis(TGaxis * gaxis, const char *opt)
 
 void GraphWindowClass::showHintInStatus()
 {
-    ui->statusBar->showMessage("Use context menu in \"Currently drawn\" and \"Basket\" to manipulate the objects");
+    ui->statusBar->showMessage("Use context menus (right mouse button click) to manipulate objects in \"Currently drawn\" and \"Basket\"");
 }
 
 void GraphWindowClass::setShowCursorPosition(bool flag)
@@ -1974,10 +1972,10 @@ void GraphWindowClass::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    AddCurrentToBasket(text);
+    addCurrentToBasket(text);
 }
 
-void GraphWindowClass::AddCurrentToBasket(const QString & name)
+void GraphWindowClass::addCurrentToBasket(const QString & name)
 {
     if (DrawObjects.isEmpty()) return;
     updateLogScaleFlags(DrawObjects);

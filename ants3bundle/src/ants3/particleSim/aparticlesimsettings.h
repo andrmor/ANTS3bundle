@@ -22,16 +22,15 @@ public:
     enum EGenMode {Sources = 0, File = 1, Script = 2};
 
     EGenMode GenerationMode = Sources;
-    int      Events         = 1;
+    double   Events         = 1;
 
-    bool    bDoS1           = true;  // !!!*** to run settings?
-    bool    bDoS2           = false; // !!!*** to run settings?
+    //bool    bDoS1           = true;
+    //bool    bDoS2           = false;
+    //bool    bIgnoreNoDepo   = false;
 
-    bool    bIgnoreNoDepo   = false; // !!!*** ?
-
-    bool    bClusterMerge   = false; // !!!*** to photon from depo settings
-    double  ClusterRadius   = 0.1;   // !!!*** to photon from depo settings
-    double  ClusterTime     = 1.0;   // !!!*** to photon from depo settings
+    bool    bClusterMerge   = false;
+    double  ClusterRadius   = 0.1;
+    double  ClusterTime     = 1.0;
 
     ASourceGeneratorSettings SourceGenSettings;
     AFileGeneratorSettings   FileGenSettings;
@@ -42,7 +41,7 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json, bool minimal = false) const;
+    void writeToJson(QJsonObject & json, bool exportSimulation) const;
     void readFromJson(const QJsonObject & json);  // !!!*** add error handling!
 #endif
 

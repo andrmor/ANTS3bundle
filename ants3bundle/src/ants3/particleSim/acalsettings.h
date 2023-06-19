@@ -36,9 +36,14 @@ public:
     void toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const;
 #endif
 
-    std::array<double, 3> Origin = {-5, -1e10, -1e10};
-    std::array<double, 3> Step   = { 1,  2e10,  2e10};
-    std::array<int,    3> Bins   = {10,  1,     1};
+    enum EDataType {Energy, Dose};
+
+    EDataType DataType = Energy;
+    bool RandomizeBin = false;
+
+    std::array<double, 3> Origin = {-5, -5, -5};
+    std::array<double, 3> Step   = { 1,  1,  1};
+    std::array<int,    3> Bins   = {10, 10,  10};
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
@@ -73,12 +78,14 @@ public:
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool includeG4ants3Set) const;
     void readFromJson(const QJsonObject & json);
     void initFromHub();
 #endif
 
     std::vector<ACalSetRecord> Calorimeters;
+
+    void clear();
 };
 
 #endif // ACALSETTINGS_H

@@ -16,6 +16,8 @@ public:
     void storeGeomStatus();
     void restoreGeomStatus();
 
+    void onMainWinButtonClicked(bool show);
+
 public slots:
     QVariantList getGeometry();
     void setGeometry(QVariantList XYWHm);

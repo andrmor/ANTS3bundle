@@ -1,4 +1,5 @@
 #include "ahighlighters.h"
+#include "guitools.h"
 
 #include <QDebug>
 
@@ -7,12 +8,14 @@ AHighlighter::AHighlighter(QTextDocument *parent)
 
 void AHighlighter::setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants)
 {
-    QVector<HighlightingRule> hr;
+    if (HighlightingRulesInEffect.size() > HighlightingRulesPermanent.size()) return;
+
+    std::vector<HighlightingRule> hr;
 
     HighlightingRule rule;
 
     QTextCharFormat customKeywordFormat;
-    QColor color = Qt::darkCyan;
+    QColor color = ( guitools::isDarkTheme() ? Qt::cyan : Qt::darkCyan );
     customKeywordFormat.setForeground(color.darker(110));
     //customKeywordFormat.setFontWeight(QFont::Bold);
     //customKeywordFormat.setFontItalic(true);
@@ -20,7 +23,7 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
     {
         rule.Pattern = QRegularExpression("\\b"+pattern+"(?=\\()");
         rule.Format = customKeywordFormat;
-        hr.append(rule);
+        hr.push_back(rule);
 
         //QStringList f = pattern.split(".", Qt::SkipEmptyParts);
         //if (f.size() > 1 && !f.first().isEmpty()) units << f.first();
@@ -33,16 +36,16 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
     {
         rule.Pattern = QRegularExpression("\\b"+pattern+"(?=\\()");
         rule.Format = deprecatedOrRemovedFormat;
-        hr.append(rule);
+        hr.push_back(rule);
     }
 
     QTextCharFormat unitFormat;
-    unitFormat.setForeground(Qt::darkMagenta);
+    unitFormat.setForeground( guitools::isDarkTheme() ? Qt::magenta : Qt::darkMagenta);
     for (const QString& pattern : units)
     {
         rule.Pattern = QRegularExpression("\\b"+pattern+"\\b");
         rule.Format = unitFormat;
-        hr.append(rule);
+        hr.push_back(rule);
     }
 
     /*
@@ -50,16 +53,19 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
     {
         rule.pattern = QRegularExpression("\\b"+pattern+"\\b(?![\\(\\{\\[])");
         rule.format = customKeywordFormat;
-        hr.append(rule);
+        hr.push_back(rule);
     }
     */
 
-    highlightingRules = hr + highlightingRules; //so e.g. comments and quatation rule have higher priority
+    //HighlightingRulesInEffect = hr + HighlightingRulesPermanent; //so e.g. comments and quatation rule have higher priority
+    HighlightingRulesInEffect.clear();
+    HighlightingRulesInEffect.insert( HighlightingRulesInEffect.end(), hr.begin(), hr.end() );
+    HighlightingRulesInEffect.insert( HighlightingRulesInEffect.end(), HighlightingRulesPermanent.begin(), HighlightingRulesPermanent.end() );
 }
 
 void AHighlighter::highlightBlock(const QString &text)
 {
-    for (const HighlightingRule & rule : highlightingRules)
+    for (const HighlightingRule & rule : HighlightingRulesInEffect)
     {
         QRegularExpressionMatchIterator matchIterator = rule.Pattern.globalMatch(text);
         while ( matchIterator.hasNext() )
@@ -104,7 +110,7 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     HighlightingRule rule;
 
     QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(Qt::blue);
+    keywordFormat.setForeground( guitools::isDarkTheme() ? QColor(Qt::blue).lighter(150) : Qt::blue);
     //keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     keywordPatterns << "\\bbreak\\b" << "\\bcatch\\b" << "\\bcontinue\\b" << "\\b.length\\b" << "\\barguments\\b"
@@ -122,14 +128,14 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
         rule.Pattern = QRegularExpression(pattern);
         if (!rule.Pattern.isValid()) qDebug() << "-------------------------" << pattern;
         rule.Format = keywordFormat;
-        highlightingRules.append(rule);
+        HighlightingRulesPermanent.push_back(rule);
     }
 
     QTextCharFormat includeFormat;
     includeFormat.setForeground(QColor(227, 146, 48));
     rule.Pattern = QRegularExpression("#include\\b");
     rule.Format = includeFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 
     /*
     QTextCharFormat classFormat;
@@ -144,18 +150,18 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
     singleLineCommentFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegularExpression("//[^\n]*");
     rule.Format = singleLineCommentFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 
     multiLineCommentFormat.setForeground(Qt::darkGreen);
 
     QTextCharFormat quotationFormat;
-    quotationFormat.setForeground(Qt::darkGreen);
+    quotationFormat.setForeground(guitools::isDarkTheme() ? QColor(Qt::darkGreen).lighter(150) : Qt::darkGreen);
     QRegularExpression rx("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"|\'([^\'\\\\]*(\\\\.[^\'\\\\]*)*)\'");
     //qDebug() << "----------------------"<< rx.isValid();
     //rx.setMinimal(true); //fixes the problem with "xdsfdsfds" +variable+ "dsfdsfdsf"
     rule.Pattern = rx;
     rule.Format = quotationFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 
     /*
     QTextCharFormat charFormat;
@@ -209,7 +215,7 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
 
         rule.Pattern = QRegularExpression(pattern1);
         rule.Format = keywordFormat;
-        highlightingRules.append(rule);
+        HighlightingRulesPermanent.push_back(rule);
     }
 
     /*
@@ -225,7 +231,7 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     singleLineCommentFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegularExpression("#[^\n]*");
     rule.Format = singleLineCommentFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 
     QTextCharFormat quotationFormat;
     quotationFormat.setForeground(Qt::darkGreen);
@@ -234,7 +240,7 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     //qDebug() << "----------------------"<< rx.isValid();
     rule.Pattern = rx;
     rule.Format = quotationFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 
     /*
     QTextCharFormat functionFormat;
@@ -249,5 +255,5 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     includeFormat.setForeground(QColor(227, 146, 48));
     rule.Pattern = QRegularExpression("^[ \t]*#include\\b");
     rule.Format = includeFormat;
-    highlightingRules.append(rule);
+    HighlightingRulesPermanent.push_back(rule);
 }

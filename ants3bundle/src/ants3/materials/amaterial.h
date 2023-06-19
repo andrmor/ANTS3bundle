@@ -2,18 +2,16 @@
 #define AMATERIAL_H
 
 #include <QString>
-#include <QVector>
 
 #include <vector>
 #include <complex>
 
-#include "amaterialcomposition.h"
+#include "amatcomposition.h"
 
 class QJsonObject;
 class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
-class APair_ValueAndWeight;
 class ARandomHub;
 
 class AMaterial
@@ -21,64 +19,48 @@ class AMaterial
 public:
     AMaterial();
 
-    QString name;
-    double density; //in g/cm3
-    double temperature = 298.0; //in K
-    double n;   //refractive index for monochrome
-    double abs; //bulk absorption per mm   for monochrome    (I = I0*exp(-abs*length[mm]))  !! see also absComplex
-    double reemissionProb; //for waveshifters: probability that absorbed photon is reemitted
-    double rayleighMFP = 0; //0 - no rayleigh scattering
-    double rayleighWave;
-    double e_driftVelocity;
-    double W; //default W
-    double e_diffusion_T = 0; //in mm2/ns
-    double e_diffusion_L = 0; //in mm2/ns
-    double SecYield;  // ph per secondary electron
-    QVector<APair_ValueAndWeight> PriScint_Decay;
-    QVector<APair_ValueAndWeight> PriScint_Raise;
+    QString Name;
 
-    bool   Dielectric = true;
-    //complex refractive index
-    double ReN = 1.0;
-    double ImN = 0;
-    //double ComplexEffectiveWave = 500.0; // effective wavelength to get absorption coefficient from the refractive index
-    std::vector<std::pair<double,std::complex<double>>> ComplexN; // Wave[nm] + ComplexRefractiveIndex
+    // composition
+    AMatComposition      Composition;
+    bool                 UseG4Material = false;
+    QString              G4MaterialName;
 
-    double PhotonYieldDefault = 0;   //make it possible to define different value for different particle names
-    //double getPhotonYield(int iParticle) const;   !!!***
+    // optics
+    bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
+    double                                              RefIndex;                   // for wave=-1 or wavelength unresolved sim
+    std::vector<std::pair<double,double>>               RefIndex_Wave;              // {wave[nm], RefIndex}
+    std::complex<double>                                RefIndexComplex = {1.0, 0};
+    std::vector<std::pair<double,std::complex<double>>> RefIndexComplex_Wave;       // {Wave[nm], ComplexRefractiveIndex}
 
-    double IntrEnResDefault = 0;
-    //double getIntrinsicEnergyResolution(int iParticle) const; !!!***
+    double                                AbsCoeff;       // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
+    std::vector<std::pair<double,double>> AbsCoeff_Wave;
 
-    double SecScintDecayTime;
+    double  RayleighMFP = 0;      // in mm    if =0 => no Rayleigh scattering
+    double  RayleighWave;         // in nm
+
+    double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters, uses PrimaryScint data)
+    std::vector<std::pair<double,double>> ReemissionProb_Wave;
+
+    // primary scintillation
+    double PhotonYield = 0;
+    double IntrEnergyRes = 0;
+    std::vector<std::pair<double,double>> PrimarySpectrum;
+    std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
+    std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}
+
+    // secondary scintillation
+    double W;                     // energy per pair in keV
+    double ElDriftVelocity;
+    double ElDiffusionT = 0;      // in mm2/ns
+    double ElDiffusionL = 0;      // in mm2/ns
+    double SecScintPhotonYield;   // ph per secondary electron
+    std::vector<std::pair<double,double>> SecondarySpectrum;
+    double SecScintDecayTime;     // !!!*** reuse system of prim scint timing
+
+    // misc
     QString Comments;
-
-    QVector<QString> Tags; // used in material library     !!!*** to std::vector
-
-    AMaterialComposition ChemicalComposition;
-
-    bool    bG4UseNistMaterial = false;  // !!!*** empty if false:
-    QString G4NistMaterial;
-
-    /* make it possible to define for diffrent particles!
-    double PhYield = 0;         // Photon yield of the primary scintillation
-    double IntrEnergyRes = 0; // intrinsic energy resolution
-    */
-
-    // !!!*** to std::vector<std::pair>
-    QVector<double> nWave_lambda;
-    QVector<double> nWave;
-
-    QVector<double> absWave_lambda;
-    QVector<double> absWave;
-
-    QVector<double> reemisProbWave;
-    QVector<double> reemisProbWave_lambda;
-
-    QVector<double> PrimarySpectrum_lambda;
-    QVector<double> PrimarySpectrum;
-    QVector<double> SecondarySpectrum_lambda;
-    QVector<double> SecondarySpectrum;
+    std::vector<QString> Tags; // used in material library
 
     void    clear();
     void    clearDynamicProperties();
@@ -99,39 +81,31 @@ public:
     double  getSpeedOfLight(int iWave = -1) const;
 
     void    writeToJson (QJsonObject & json) const;
-    bool    readFromJson(const QJsonObject &json);    // !!!*** TODO refactor
+    bool    readFromJson(const QJsonObject & json);    // !!!*** TODO refactor add error control
 
-    QString checkMaterial() const;
+    QString checkMaterial() const; // !!!***
 
-    //run-time properties
-    TGeoMaterial  * GeoMat = nullptr; // handled by TGeoManager
-    TGeoMedium    * GeoMed = nullptr; // handled by TGeoManager
-    double          _PrimScintSumStatWeight_Decay;
-    double          _PrimScintSumStatWeight__Raise;
-    TH1D          * PrimarySpectrumHist = nullptr;
-    TH1D          * SecondarySpectrumHist = nullptr;
-    QVector<double> rayleighBinned;//regular step (WaveStep step, WaveNodes bins)
-    QVector<double> nWaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    QVector<double> absWaveBinned; //regular step (WaveStep step, WaveNodes bins)
-    QVector<double> reemissionProbBinned; //regular step (WaveStep step, WaveNodes bins)
-      // complex refraction index-related
-    std::complex<double> RefIndex_Complex;                        // also computed for purely real index!
-    std::vector<std::complex<double>> RefIndex_Comlex_WaveBinned; // also computed for purely real index!
-    //double Abs_FromComplex;                                       // only for complex case
-    //std::vector<double> Abs_FromComplex_WaveBinned;               // only for comlex case
+    void    importComposition(TGeoMaterial * mat); //   // !!!*** error handling
+
+  // --- run-time properties ---
+    TGeoMaterial  * _GeoMat = nullptr;
+    TGeoMedium    * _GeoMed = nullptr;
+    TH1D          * _PrimarySpectrumHist = nullptr;
+    TH1D          * _SecondarySpectrumHist = nullptr;
+    double          _PrimScintSumStatWeight_Decay = 0;
+    double          _PrimScintSumStatWeight__Raise = 0;
+
+    //regular step (WaveStep step, WaveNodes bins)
+    std::vector<double> _Rayleigh_WaveBinned;
+    std::vector<double> _RefIndex_WaveBinned;
+    std::vector<double> _AbsCoeff_WaveBinned;
+    std::vector<double> _ReemissionProb_WaveBinned;
+
+    std::vector<std::complex<double>> _RefIndex_Comlex_WaveBinned; // also computed for purely real index! - still need? !!!***
+  // ---
 
 private:
     double FT(double td, double tr, double t) const;
-};
-
-class APair_ValueAndWeight   // !!!*** AVector2 and AVector3
-{
-public:
-    double value;
-    double statWeight;
-
-    APair_ValueAndWeight(double value, double statWeight) : value(value), statWeight(statWeight) {}
-    APair_ValueAndWeight() {}
 };
 
 #endif // AMATERIAL_H

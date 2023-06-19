@@ -5,12 +5,17 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <string>
+
+class AVector3;
 
 class AHistogram1D
 {
 public:
     AHistogram1D(int Bins, double From, double To);
     AHistogram1D();
+
+    void configureFromData(const std::vector<std::pair<double,double>> & VecOfPairs);
 
     void setBufferSize(size_t size) {BufferSize = size;}
 
@@ -48,8 +53,50 @@ private:
     std::vector<double> SumBins; // size = Bins + 1
 
 private:
+    void init();
     void fillFixed(double x, double val);
     void processBuffer();
+
+};
+
+class ARandomSampler
+{
+public:
+    void        clear();
+    std::string configure(const std::vector<std::pair<double,double>> & data, bool RangeBasedData = false); // returns error string or empty
+    bool        isReady() const {return !SumBins.empty();}
+
+    double      getRandom() const; // if not configured or error during configure -> always returns 0
+
+private:
+    std::vector<double> LeftBounds;
+    std::vector<double> Values;
+    std::vector<double> SumBins;
+};
+
+struct SamplerRec
+{
+    size_t index;
+    double val;
+
+    SamplerRec(size_t Index, double Val) : index(Index), val(Val) {}
+    SamplerRec(){}
+
+    bool operator<(const SamplerRec & other) const {return val < other.val;}
+};
+class RandomRadialSampler
+{
+public:
+    void        clear();
+    std::string configure(const std::vector<std::pair<double,double>> & data); // returns error string or empty
+    bool        isReady() const {return !Cumulative.empty();}
+
+    double      getRandom() const;
+    void        generatePosition(AVector3 & pos) const;
+
+protected:
+    std::vector<std::pair<double,double>> Distribution;
+    std::vector<SamplerRec> Cumulative;
 
 };
 

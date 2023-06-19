@@ -20,8 +20,21 @@ public slots:
     void simulate(bool updateGui);
 
     int countCalorimeters();
-    QVariantList getCalorimeterData(int calorimeterIndex, QString mode);
-    QVariantList getCalorimeterProperties(int calorimeterIndex);
+    void loadCalorimeterData(QString fileName);
+    QVariantList getCalorimeterGlobalPositionsAll();
+    //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
+    QVariantList getCalorimeterData(int calorimeterIndex);
+    QVariantList getCalorimeterBinning(int calorimeterIndex);
+    void clearCalorimeterData();
+
+    int countMonitors();
+    void loadMonitorData(QString fileName);
+    QVariantList getMonitorGlobalPositionsAll();
+    QVariantList getMonitorHitsAll();
+    QVariantList getMonitorEnergy(int monitorIndex, QString units);
+    QVariantList getMonitorTime(int monitorIndex, QString units);
+    QVariantList getMonitorAngle(int monitorIndex);
+    QVariantList getMonitorXY(int monitorIndex);
 
 private:
     AParticleSimManager & SimMan;

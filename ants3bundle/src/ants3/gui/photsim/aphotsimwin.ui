@@ -3214,6 +3214,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <number>10</number>
                 </property>
                 <item>
+                 <widget class="QLabel" name="labSkipTracingON">
+                  <property name="text">
+                   <string>--</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QCheckBox" name="cbRndCheckBeforeTrack">
                   <property name="toolTip">
                    <string>Do not use if PMs register light after wavelength shifting!</string>
@@ -4030,19 +4037,6 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                       </widget>
                      </item>
                     </layout>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="pbMonitorShowEnergy">
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>22</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Energy</string>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </item>

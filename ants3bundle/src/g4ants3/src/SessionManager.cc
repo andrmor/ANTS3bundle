@@ -1,5 +1,8 @@
 #include "SessionManager.hh"
 #include "arandomg4hub.h"
+#include "asourceparticlegenerator.h"
+#include "afileparticlegenerator.h"
+#include "aerrorhub.h"
 
 #include <iostream>
 #include <sstream>
@@ -7,6 +10,7 @@
 #include <iomanip>
 #include <map>
 
+#include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
@@ -14,7 +18,7 @@
 
 #include "Randomize.hh"  // !!!*** need?
 
-#include <QDebug> // !!!***
+//#include <QDebug>
 
 SessionManager &SessionManager::getInstance()
 {
@@ -61,38 +65,27 @@ void SessionManager::startSession()
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 }
 
-#include "asourceparticlegenerator.h"
-#include "afileparticlegenerator.h"
 void SessionManager::prepareParticleGun()
 {
     switch (Settings.GenerationMode)
     {
     case AParticleSimSettings::Sources :
-        {
-            for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
-                for (AGunParticle & particle : source.Particles)
-                    particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
-
-            ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
-        }
+        for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
+            for (AGunParticle & particle : source.Particles)
+                particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+        ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
         break;
     case AParticleSimSettings::File :
-        {
-            Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
-            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Settings.FileGenSettings.FileName.data();
-            ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
-        }
+        Settings.FileGenSettings.FileName = WorkingDir + '/' + Settings.FileGenSettings.FileName;
+        ParticleGenerator = new AFileParticleGenerator(Settings.FileGenSettings);
         break;
     default :
-        {
-            terminateSession("Unknown or not-implemented primary generation mode");
-        }
+        terminateSession("Unknown or not-implemented primary generation mode");
     }
 
     bool ok = ParticleGenerator->init();
-    qDebug() << "Particle gun init:" << ok;
-
-    if (ok) ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
+    if (!ok) terminateSession(AErrorHub::getError());
+    ParticleGenerator->setStartEvent(Settings.RunSet.EventFrom);
 }
 
 void SessionManager::terminateSession(const std::string & ReturnMessage)
@@ -325,8 +318,22 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 void SessionManager::updateMaterials()
 {
     G4LogicalVolume * worldLV = WorldPV->GetLogicalVolume();
-
     G4NistManager * man = G4NistManager::Instance();
+
+    for (auto & pair : Settings.RunSet.MaterialsMeanExEnergy)
+    {
+        G4String name  = pair.first;
+        double   meanE = pair.second * eV; // eV in the run time settings
+
+        G4Material * mat = man->FindOrBuildMaterial(name);
+        if (!mat)
+        {
+            terminateSession("Material with name " + name + ", listed to updare mean excitation energy, is not found");
+            return;
+        }
+        mat->GetIonisation()->SetMeanExcitationEnergy(meanE);
+    }
+
     for (auto & pair : Settings.RunSet.MaterialsFromNist)
     {
         G4String name   = pair.first;
@@ -401,7 +408,7 @@ void SessionManager::writeNewEventMarker()
     }
 }
 
-void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double edep, double *pos, double time)
+void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double edep, double *pos, double time, int copyNumber)
 {
     if (!outStreamDeposition) return;
 
@@ -414,10 +421,11 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
 
         *outStreamDeposition << pName << char(0x00);
 
-        outStreamDeposition->write((char*)&iMat,    sizeof(int));
-        outStreamDeposition->write((char*)&edep,    sizeof(double));
-        outStreamDeposition->write((char*)pos,    3*sizeof(double));
-        outStreamDeposition->write((char*)&time,    sizeof(double));
+        outStreamDeposition->write((char*)&iMat,        sizeof(int));
+        outStreamDeposition->write((char*)&edep,        sizeof(double));
+        outStreamDeposition->write((char*)pos,        3*sizeof(double));
+        outStreamDeposition->write((char*)&time,        sizeof(double));
+        outStreamDeposition->write((char*)&copyNumber,  sizeof(int)); // !!!***
     }
     else
     {
@@ -428,7 +436,8 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
         ss << iMat << ' ';
         ss << edep << ' ';
         ss << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ' ';
-        ss << time;
+        ss << time << ' ';
+        ss << copyNumber;  // !!!***
 
         *outStreamDeposition << ss.rdbuf() << std::endl;
     }
@@ -587,7 +596,10 @@ void SessionManager::findExitVolume()
     std::vector<G4LogicalVolume*>::const_iterator lvciter;
     for (lvciter = lvs->begin(); lvciter != lvs->end(); ++lvciter)
     {
-        if ( (std::string)(*lvciter)->GetName() == Settings.RunSet.SaveSettings.VolumeName)
+        std::string name = (std::string)(*lvciter)->GetName();
+        const size_t pos = name.find("_-_");
+        if (pos != std::string::npos) name.resize(pos);
+        if (name == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;
             std::cout << "Found exit volume " << ExitVolume << " --> " << ExitVolume->GetName().data() << std::endl;
@@ -657,7 +669,9 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
 
     json11::Json::object json = jo.object_items();
 
+    AErrorHub::clear();
     Settings.readFromJson(json);
+    if (AErrorHub::isError()) terminateSession(AErrorHub::getError());
 
     if (Settings.RunSet.Receipt.empty())
         terminateSession("File name for receipt was not provided");
@@ -704,7 +718,8 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
             MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
-            mobj->readFromJson(r.ConfigJson);
+            bool ok = mobj->readFromJson(r.ConfigJson);
+            if (!ok) terminateSession("Failed to read monitor config, might be units");
             Monitors.push_back(mobj);
             if (!mobj->bAcceptDirect || !mobj->bAcceptIndirect) bMonitorsRequireSteppingAction = true;
         }
@@ -827,7 +842,6 @@ void SessionManager::storeCalorimeterData()
     outStream.close();
 }
 
-#include "G4SystemOfUnits.hh"
 G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & particleName)
 {
     if (particleName == "-") return nullptr;

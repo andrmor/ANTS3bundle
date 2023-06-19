@@ -14,7 +14,7 @@ class QTimer;
 class A3WorkerHandler;
 class A3WorkNodeConfig;
 class A3WorkDistrConfig;
-class A3FarmNodeRecord;
+class AFarmNodeRecord;
 
 class A3Dispatcher : public QObject
 {

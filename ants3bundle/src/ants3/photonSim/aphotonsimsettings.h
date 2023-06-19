@@ -31,6 +31,8 @@ public:
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);
 
+    void   clear();
+
     int    countNodes() const;
     double toWavelength(int index) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
@@ -45,17 +47,22 @@ public:
 
 private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
-    double getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F) const;
+
+public:
+    static double getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F);  // !!!*** consider moving to some tool header
+    static double getInterpolatedValue(double val, const std::vector<std::pair<double,double>> & F);  // !!!*** consider moving to some tool header
 };
 
 class APhotOptSettings
 {
 public:
-    int    MaxPhotonTransitions = 500;
-    bool   CheckQeBeforeTracking   = false;
+    int    MaxPhotonTransitions  = 500;
+    bool   CheckQeBeforeTracking = false;
 
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json);
+
+    void   clear();
 };
 
 typedef std::pair<double, double> ADPair;
@@ -180,7 +187,7 @@ class APhotonBombsSettings
 public:
     APhotonsPerBombSettings PhotonsPerBomb;
 
-    EBombGen         GenerationMode = EBombGen::Single;
+    EBombGen          GenerationMode = EBombGen::Single;
 
     ASingleSettings   SingleSettings;
     AGridSettings     GridSettings;
@@ -191,18 +198,22 @@ public:
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    clear();
 };
 
 class APhotonLogSettings   // !!!*** to RunSettings?
 {
 public:
-    bool Save        = true;
+    bool    Save     = false;
     QString FileName = "PhotonLog.txt";
 
     std::set<int>        MustNotInclude_Processes; // v.fast
     std::vector<int>     MustInclude_Processes;    // slow
     std::set<TString>    MustNotInclude_Volumes;   // fast
     std::vector<TString> MustInclude_Volumes;      // v.slow
+
+    void clear();
 };
 
 class APhotSimRunSettings
@@ -245,8 +256,10 @@ public:
 
     APhotonLogSettings LogSet;
 
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     void readFromJson(const QJsonObject & json);
+
+    void clear();
 };
 
 class APhotonDepoSettings : public AFileSettingsBase
@@ -284,8 +297,10 @@ public:
 
     APhotSimRunSettings  RunSet;
 
-    void    writeToJson(QJsonObject & json) const;
+    void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    clear();
 };
 
 #endif // APHOTONSIMSETTINGS_H

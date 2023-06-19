@@ -1,22 +1,22 @@
 #include "aparticlesourcedialog.h"
 #include "ui_aparticlesourcedialog.h"
-#include "mainwindow.h"
-#include "graphwindowclass.h"
 #include "ajsontools.h"
 #include "guitools.h"
+#include "afiletools.h"
 #include "asourceparticlegenerator.h"
 #include "aparticlesimsettings.h"
 #include "aparticlesourceplotter.h"
+#include "agraphbuilder.h"
+#include "amaterialhub.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QApplication>
+#include <QSettings>
 
-#include "TGeoManager.h"
 #include "TH1D.h"
+#include "TGraph.h"
 
 AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent) :
     QDialog(parent),
@@ -39,7 +39,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
-    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
+    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);  // !!!***
 
     ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
     ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
@@ -49,48 +49,108 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->ledGunOriginY->setText(QString::number(Rec.Y0));
     ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
 
+    ui->cbAxialDistribution->setChecked(Rec.UseAxialDistribution);
+    int index = 0;
+    switch (Rec.AxialDistributionType)
+    {
+    case AParticleSourceRecord::GaussAxial  : index = 0; break;
+    case AParticleSourceRecord::CustomAxial : index = 1; break;
+    default: guitools::message("Unknown axial distribution type, setting to Gauss!", this);
+    }
+    ui->cobAxialDistributionType->setCurrentIndex(index);
+    ui->ledAxialDistributionSigma->setText(QString::number(Rec.AxialDistributionSigma));
+    updateAxialButtons();
+
     ui->ledGunPhi->setText(QString::number(Rec.Phi));
     ui->ledGunTheta->setText(QString::number(Rec.Theta));
     ui->ledGunPsi->setText(QString::number(Rec.Psi));
 
-    ui->ledGunCollPhi->setText(QString::number(Rec.CollPhi));
-    ui->ledGunCollTheta->setText(QString::number(Rec.CollTheta));
-    ui->ledGunSpread->setText(QString::number(Rec.Spread));
+    index = 0;
+    switch (Rec.AngularMode)
+    {
+    case AParticleSourceRecord::Isotropic  : index = 0; break;
+    case AParticleSourceRecord::FixedDirection  : index = 1; break;
+    case AParticleSourceRecord::GaussDispersion : index = 2; break;
+    case AParticleSourceRecord::CustomAngular   : index = 3; break;
+    default : guitools::message("Unknown angular mode, setting to Uniform!", this);
+    }
+    ui->cobAngularMode->setCurrentIndex(index);
+    on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
+    ui->ledAngularSigma->setText(QString::number(Rec.DispersionSigma));
+    updateCustomAngularButtons();
+    ui->ledGunCollPhi->setText(QString::number(Rec.DirectionPhi));
+    ui->ledGunCollTheta->setText(QString::number(Rec.DirectionTheta));
+    ui->cbAngularCutoff->setChecked(Rec.UseCutOff);
+    ui->ledAngularCutoff->setText(QString::number(Rec.CutOff));
 
     ui->cbSourceLimitmat->setChecked(Rec.MaterialLimited);
     ui->leSourceLimitMaterial->setText(Rec.LimtedToMatName.data());
 
-    ui->cobTimeAverageMode->setCurrentIndex(Rec.TimeAverageMode);
-    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeAverage) );
-    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeAverageStart) );
-    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeAveragePeriod) );
-    ui->cobTimeSpreadMode->setCurrentIndex(Rec.TimeSpreadMode);
+    index = 0;
+    switch (Rec.TimeOffsetMode)
+    {
+    case AParticleSourceRecord::FixedOffset              : index = 0; break;
+    case AParticleSourceRecord::ByEventIndexOffset       : index = 1; break;
+    case AParticleSourceRecord::CustomDistributionOffset : index = 2; break;
+    default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
+    }
+    ui->cobTimeAverageMode->setCurrentIndex(index);
+    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
+    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
+    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
+    updateTimeButtons();
+    index = 0;
+    switch (Rec.TimeSpreadMode)
+    {
+    case AParticleSourceRecord::NoSpread          : index = 0; break;
+    case AParticleSourceRecord::GaussianSpread    : index = 1; break;
+    case AParticleSourceRecord::UniformSpread     : index = 2; break;
+    case AParticleSourceRecord::ExponentialSpread : index = 3; break;
+    default : guitools::message("Unknown TimeSpreadMode, setting to NoSpread!", this);
+    }
+    ui->cobTimeSpreadMode->setCurrentIndex(index);
     ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
     ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
+    updateHalfLifeIndication();
 
-    ui->frSecondary->setVisible(false);
-    UpdateListWidget();
+    updateListWidget();
     updateColorLimitingMat();
+
     if ( !Rec.Particles.empty() )
     {
         ui->lwGunParticles->setCurrentRow(0);
-        UpdateParticleInfo();
+        updateParticleInfo();
     }
 
     on_cobGunSourceType_currentIndexChanged(ui->cobGunSourceType->currentIndex());
 
-    ui->pbAbort->setVisible(false);
-
-//    QMenuBar* mb = new QMenuBar(this);
-//    QMenu* fileMenu = mb->addMenu("&File");
-//    fileMenu->addAction("Load source", this, &AParticleSourceDialog::loadSource);
-//    fileMenu->addAction("Save source", this, &AParticleSourceDialog::saveSource);
-//    layout()->setMenuBar(mb);
+    restorePersistentSettings();
 }
 
 AParticleSourceDialog::~AParticleSourceDialog()
 {
+    storePersistentSettings();
     delete ui;
+}
+
+void AParticleSourceDialog::storePersistentSettings()
+{
+    QSettings settings;
+    settings.beginGroup("ParticleSourceDialog");
+    settings.setValue("ShowStatistics",  ui->cbShowStatistics->isChecked());
+    settings.setValue("NumInStatistics", ui->sbGunTestEvents->value());
+    settings.endGroup();
+}
+
+void AParticleSourceDialog::restorePersistentSettings()
+{
+    QSettings settings;
+    settings.beginGroup("ParticleSourceDialog");
+    bool ShowStatistics = settings.value("ShowStatistics", false).toBool();
+    ui->cbShowStatistics->setChecked(ShowStatistics);
+    int NumInStatistics = settings.value("NumInStatistics", 1000).toInt();
+    ui->sbGunTestEvents->setValue(NumInStatistics);
+    settings.endGroup();
 }
 
 AParticleSourceRecord & AParticleSourceDialog::getResult()
@@ -126,7 +186,7 @@ void AParticleSourceDialog::on_pbAccept_clicked()
 {
     std::string err = LocalRec.check();
     if (err.empty()) accept();
-    else guitools::message(QString(err.data()), this);
+    else guitools::message(err.data(), this);
 }
 
 void AParticleSourceDialog::on_pbReject_clicked()
@@ -136,24 +196,34 @@ void AParticleSourceDialog::on_pbReject_clicked()
 
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
-    ui->pbGunTest->setEnabled(false); //-->
-
-    gGeoManager->ClearTracks();
-
-    if (ui->pbShowSource->isChecked())
-        AParticleSourcePlotter::plotSource(LocalRec);
+    AParticleSourcePlotter::clearTracks();
+    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(LocalRec);
+    settings.SourceData.back().Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
-    ui->pbAbort->setVisible(true);
+    auto abort = [&gun]{gun.AbortRequested = true;};
+    QDialog D(this);
+    D.setWindowTitle("Particle generator");
+    D.setMinimumWidth(250);
+    QHBoxLayout * lay = new QHBoxLayout(&D);
+    lay->addWidget(new QLabel("Generating..."));
+    QPushButton * pb = new QPushButton("Abort");
+    lay->addWidget(pb);
+    connect(pb, &QPushButton::clicked, &D, &QDialog::reject);
+    connect(&D, &QDialog::rejected, &D, abort); // react both to close and button click
+    D.setModal(true);
+    D.move(mapToGlobal(ui->pbGunTest->pos()));
 
-    emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value());
+    this->setDisabled(true);   //-->
+    D.setEnabled(true);
+    D.show();
 
-    ui->pbAbort->setVisible(false);
+    emit requestTestParticleGun(&gun, ui->sbGunTestEvents->value(), ui->cbShowStatistics->isChecked());
 
-    ui->pbGunTest->setEnabled(true);  // <--
+    this->setDisabled(false);  // <--
 }
 
 void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
@@ -161,28 +231,21 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     QVector<QString> s;
     switch (index)
     {
-      case 0: s <<""<<""<<"";
-        break;
-      case 1: s <<"Length:"<<""<<"";
-        break;
-      case 2: s <<"X:"<<"Y:"<<"";
-        break;
-      case 3: s <<"Diameter:"<<""<<"";
-        break;
-      case 4: s <<"X:"<<"Y:"<<"Z:";
-        break;
-      case 5: s <<"Diameter:"<<""<<"Height:";
-        break;
-      default:
-        qWarning() << "Unknown source type!";
-        s <<""<<""<<"";
+    default: qWarning() << "Unknown source type!";
+            s << ""          << ""       << "";        break;
+    case 0: s << ""          << ""       << "";        break;
+    case 1: s << "Length:"   << ""       << "";        break;
+    case 2: s << "SizeX:"    << "SizeY:" << "";        break;
+    case 3: s << "Diameter:" << ""       << "";        break;
+    case 4: s << "SizeX:"    << "SizeY:" << "SizeZ:";  break;
+    case 5: s << "Diameter:" << ""       << "Height:"; break;
     }
     ui->lGun1DSize->setText(s[0]);
     ui->lGun2DSize->setText(s[1]);
     ui->lGun3DSize->setText(s[2]);
 
     bool bPoint = (index == 0);
-    ui->labDimensions->setVisible(!bPoint);
+    ui->frDimensions->setVisible(!bPoint);
 
     bool b1 = !s[0].isEmpty();
     ui->lGun1DSize->setVisible(b1);
@@ -210,6 +273,9 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
         ui->labGunPhi->setText("Around X:");
         ui->labGunTheta->setText("Around Y:");
     }
+
+    ui->frLimitToMat->setVisible(index != 0);
+    ui->frAxialDistribution->setVisible(index == 3);
 }
 
 void AParticleSourceDialog::on_pbGunAddNew_clicked()
@@ -217,12 +283,12 @@ void AParticleSourceDialog::on_pbGunAddNew_clicked()
     AGunParticle tmp;
     tmp.Particle = ui->leGunParticle->text().toLatin1().data();
     tmp.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-    tmp.Energy = ui->ledGunEnergy->text().toDouble();
+    tmp.FixedEnergy = ui->ledGunEnergy->text().toDouble();
     LocalRec.Particles.push_back(tmp);
 
-    UpdateListWidget();
+    updateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbGunRemove_clicked()
@@ -240,15 +306,14 @@ void AParticleSourceDialog::on_pbGunRemove_clicked()
         return;
     }
 
-    //Rec->GunParticles.remove(iparticle);
     LocalRec.Particles.erase(LocalRec.Particles.begin() + iparticle);
 
-    UpdateListWidget();
+    updateListWidget();
     ui->lwGunParticles->setCurrentRow( LocalRec.Particles.size()-1 );
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
-void AParticleSourceDialog::UpdateListWidget()
+void AParticleSourceDialog::updateListWidget()
 {
     bUpdateInProgress = true; // >>>---
 
@@ -256,19 +321,19 @@ void AParticleSourceDialog::UpdateListWidget()
     int counter = 0;
     for (const AGunParticle & gps : LocalRec.Particles)
     {
-        bool Individual = gps.Individual;
+        bool Independent = (gps.GenerationType == AGunParticle::Independent);
 
         QString str, str1;
-        if (Individual) str = "";
+        if (Independent) str = "";
         else str = ">";
         str1.setNum(counter++);
         str += str1 + "> ";
         str += QString(gps.Particle.data());
         if (gps.UseFixedEnergy)
-             str += QString(" E=%1").arg(gps.Energy);
+             str += QString(" E=%1").arg(gps.FixedEnergy);
         else str += " E=spec";
 
-        if (Individual)
+        if (Independent)
         {
             str += " W=";
             str1.setNum(gps.StatWeight);
@@ -276,12 +341,12 @@ void AParticleSourceDialog::UpdateListWidget()
         }
         else
         {
-            str += " Link:";
+            if (gps.GenerationType == AGunParticle::Linked_IfGenerated) str += " Link:";
+            else str += " IfNotLink:";
             str += QString::number(gps.LinkedTo);
             str += " P=";
             str += QString::number(gps.LinkedProb);
-            if (gps.LinkedOpposite)
-                str += " Opposite";
+            if (gps.BtBPair) str += " BtB pair";
         }
         ui->lwGunParticles->addItem(str);
     }
@@ -289,12 +354,12 @@ void AParticleSourceDialog::UpdateListWidget()
     bUpdateInProgress = false; // <<<---
 }
 
-void AParticleSourceDialog::UpdateParticleInfo()
+void AParticleSourceDialog::updateParticleInfo()
 {
     int row = ui->lwGunParticles->currentRow();
 
     int DefinedSourceParticles = LocalRec.Particles.size();
-    if (DefinedSourceParticles > 0 && row>-1)
+    if (DefinedSourceParticles > 0 && row > -1)
     {
         ui->fGunParticle->setEnabled(true);
         QString part = LocalRec.Particles.at(row).Particle.data();
@@ -306,33 +371,26 @@ void AParticleSourceDialog::UpdateParticleInfo()
         str.setNum(gRec.StatWeight);
         ui->ledGunParticleWeight->setText(str);
 
-        int iPrefUnits = ui->cobUnits->findText(gRec.PreferredUnits.data());
-        double energy = gRec.Energy;
-        if (iPrefUnits > -1)
-        {
-            ui->cobUnits->setCurrentIndex(iPrefUnits);
-            if      (gRec.PreferredUnits == "MeV") energy *= 1.0e-3;
-            else if (gRec.PreferredUnits == "keV") ;
-            else if (gRec.PreferredUnits == "eV") energy *= 1.0e3;
-            else if (gRec.PreferredUnits == "meV") energy *= 1.0e6;
-        }
-        else ui->cobUnits->setCurrentText("keV");
-        ui->ledGunEnergy->setText( QString::number(energy) );
+        updateFixedEnergyIndication(gRec);
 
-        ui->cbLinkedParticle->setChecked(!gRec.Individual);
-        ui->frSecondary->setVisible(!gRec.Individual);
+        int index = 0;
+        if      (gRec.GenerationType == AGunParticle::Independent)           index = 0;
+        else if (gRec.GenerationType == AGunParticle::Linked_IfGenerated)    index = 1;
+        else if (gRec.GenerationType == AGunParticle::Linked_IfNotGenerated) index = 2;
+        else qWarning() << "Not implemented particle generation type";
+        ui->cobGenerationType->setCurrentIndex(index);
+        ui->frIndependent->setVisible(gRec.GenerationType == AGunParticle::Independent);
+        ui->frLinked->setVisible(gRec.GenerationType != AGunParticle::Independent);
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
-        ui->cbLinkingOpposite->setChecked(gRec.LinkedOpposite);
+        ui->cbLinkingOpposite->setChecked(gRec.BtBPair);
 
         bool bFix = gRec.UseFixedEnergy;
-        ui->cobEnergy->setCurrentIndex( bFix ? 0 : 1 );
-        ui->pbGunShowSpectrum->setVisible(!bFix);
-        ui->pbGunLoadSpectrum->setVisible(!bFix);
-        ui->pbDeleteSpectrum->setVisible(!bFix);
-        ui->ledGunEnergy->setVisible(bFix);
-        ui->cobUnits->setVisible(bFix);
+        ui->cobEnergy->setCurrentIndex(bFix ? 0 : 1);
+        ui->swEnergy->setCurrentIndex(bFix ? 0 : 1);
+        ui->pbGunShowSpectrum->setDisabled(gRec.EnergySpectrum.empty());
+        ui->pbDeleteSpectrum->setDisabled(gRec.EnergySpectrum.empty());
     }
     else ui->fGunParticle->setEnabled(false);
 }
@@ -341,23 +399,13 @@ void AParticleSourceDialog::on_lwGunParticles_currentRowChanged(int)
 {
     if (bUpdateInProgress) return;
 
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_cobUnits_activated(int)
 {
-    int iPart = ui->lwGunParticles->currentRow();
-    if (iPart == -1) return;
-    LocalRec.Particles[iPart].PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
-    UpdateParticleInfo();
-}
-
-void AParticleSourceDialog::on_cbLinkedParticle_toggled(bool checked)
-{
-    ui->fLinkedParticle->setVisible(checked);
-
-    ui->labStatWeight->setVisible(!checked);
-    ui->ledGunParticleWeight->setVisible(!checked);
+    updateFixedEnergy();
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -385,21 +433,65 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
     LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
 
+    LocalRec.UseAxialDistribution = ui->cbAxialDistribution->isChecked();
+    switch (ui->cobAxialDistributionType->currentIndex())
+    {
+    case 0 : LocalRec.AxialDistributionType = AParticleSourceRecord::GaussAxial;  break;
+    case 1 : LocalRec.AxialDistributionType = AParticleSourceRecord::CustomAxial; break;
+    default: qWarning() << "Not implemented AxialDistributionType";
+    }
+    LocalRec.AxialDistributionSigma = ui->ledAxialDistributionSigma->text().toDouble();
+    updateAxialButtons();   // need here?
+
     LocalRec.Phi = ui->ledGunPhi->text().toDouble();
     LocalRec.Theta = ui->ledGunTheta->text().toDouble();
     LocalRec.Psi = ui->ledGunPsi->text().toDouble();
 
-    LocalRec.CollPhi = ui->ledGunCollPhi->text().toDouble();
-    LocalRec.CollTheta = ui->ledGunCollTheta->text().toDouble();
-    LocalRec.Spread = ui->ledGunSpread->text().toDouble();
+    switch (ui->cobAngularMode->currentIndex())
+    {
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord::Isotropic;  break;
+    case 1 : LocalRec.AngularMode = AParticleSourceRecord::FixedDirection;  break;
+    case 2 : LocalRec.AngularMode = AParticleSourceRecord::GaussDispersion; break;
+    case 3 : LocalRec.AngularMode = AParticleSourceRecord::CustomAngular;   break;
+    default:
+        qWarning() << "Unknown angular mode!";
+        LocalRec.AngularMode = AParticleSourceRecord::Isotropic;
+    }
+    LocalRec.DispersionSigma = ui->ledAngularSigma->text().toDouble();
+    LocalRec.DirectionPhi = ui->ledGunCollPhi->text().toDouble();
+    LocalRec.DirectionTheta = ui->ledGunCollTheta->text().toDouble();
+    LocalRec.UseCutOff = ui->cbAngularCutoff->isChecked();
+    LocalRec.CutOff = ui->ledAngularCutoff->text().toDouble();
 
-    LocalRec.TimeAverageMode = ui->cobTimeAverageMode->currentIndex();
-    LocalRec.TimeAverage = ui->ledTimeAverageFixed->text().toDouble();
-    LocalRec.TimeAverageStart = ui->ledTimeAverageStart->text().toDouble();
-    LocalRec.TimeAveragePeriod = ui->ledTimeAveragePeriod->text().toDouble();
-    LocalRec.TimeSpreadMode = ui->cobTimeSpreadMode->currentIndex();
+    switch (ui->cobTimeAverageMode->currentIndex())
+    {
+    case 0  : LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;              break;
+    case 1  : LocalRec.TimeOffsetMode = AParticleSourceRecord::ByEventIndexOffset;       break;
+    case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord::CustomDistributionOffset; break;
+    default :
+        qWarning() << "Unknown time offset mode!";
+        LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;
+    }
+    LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
+    LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
+    LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    switch (ui->cobTimeSpreadMode->currentIndex())
+    {
+    case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;          break;
+    case 1  : LocalRec.TimeSpreadMode = AParticleSourceRecord::GaussianSpread;    break;
+    case 2  : LocalRec.TimeSpreadMode = AParticleSourceRecord::UniformSpread;     break;
+    case 3  : LocalRec.TimeSpreadMode = AParticleSourceRecord::ExponentialSpread; break;
+    default :
+        qWarning() << "Unknown time spread mode!";
+        LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;
+    }
     LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
     LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
+    updateHalfLife();
+
+    LocalRec.configureAngularSampler();
+    LocalRec.configureTimeSampler();
+    LocalRec.configureAxialSampler();
 
     int iPart = ui->lwGunParticles->currentRow();
     if (iPart >= 0)
@@ -408,48 +500,37 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
         p.Particle = ui->leGunParticle->text().toLatin1().data();
         p.StatWeight = ui->ledGunParticleWeight->text().toDouble();
-        p.UseFixedEnergy = ( ui->cobEnergy->currentIndex() == 0);
-        p.PreferredUnits = ui->cobUnits->currentText().toLatin1().data();
-        double energy = ui->ledGunEnergy->text().toDouble();
-        if      (p.PreferredUnits == "MeV") energy *= 1.0e3;
-        else if (p.PreferredUnits == "keV") ;
-        else if (p.PreferredUnits == "eV") energy *= 1.0e-3;
-        else if (p.PreferredUnits == "meV") energy *= 1.0e-6;
-        p.Energy = energy;
-        p.Individual = !ui->cbLinkedParticle->isChecked();
+        p.UseFixedEnergy = (ui->cobEnergy->currentIndex() == 0);
+        updateFixedEnergy();
+        switch (ui->cobGenerationType->currentIndex())
+        {
+        case 0 : p.GenerationType = AGunParticle::Independent; break;
+        case 1 : p.GenerationType = AGunParticle::Linked_IfGenerated; break;
+        case 2 : p.GenerationType = AGunParticle::Linked_IfNotGenerated; break;
+        default :
+            qWarning() << "Non-implemented generation type for the particle!";
+            p.GenerationType = AGunParticle::Independent;
+        }
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
-        p.LinkedOpposite = ui->cbLinkingOpposite->isChecked();
+        p.BtBPair = ui->cbLinkingOpposite->isChecked();
+
+        p.configureEnergySampler();
     }
 
-    int curRow = ui->lwGunParticles->currentRow();
-    UpdateListWidget();
-    if ( curRow < 0 && curRow >= ui->lwGunParticles->count() )
-        curRow = 0;
-    ui->lwGunParticles->setCurrentRow(curRow);
-    UpdateParticleInfo();
+    updateListWidget();
+
+    if (iPart < 0 || iPart >= ui->lwGunParticles->count()) iPart = 0;
+    ui->lwGunParticles->setCurrentRow(iPart);
+    updateParticleInfo();
     updateColorLimitingMat();
 
     if (ui->pbShowSource->isChecked())
     {
-        gGeoManager->ClearTracks();
+        AParticleSourcePlotter::clearTracks();
         AParticleSourcePlotter::plotSource(LocalRec);
         emit requestShowSource();
     }
-}
-
-void AParticleSourceDialog::on_cbLinkedParticle_clicked(bool checked)
-{
-    if (checked)
-    {
-        if (ui->lwGunParticles->currentRow() == 0)
-        {
-            ui->cbLinkedParticle->setChecked(false);
-            guitools::message("First particle cannot be linked", this);
-            return;
-        }
-    }
-    on_pbUpdateRecord_clicked();
 }
 
 void AParticleSourceDialog::on_sbLinkedTo_editingFinished()
@@ -466,7 +547,7 @@ void AParticleSourceDialog::on_sbLinkedTo_editingFinished()
 void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
 {
     double val = ui->ledLinkingProbability->text().toDouble();
-    if (val < 0 || val > 1.0)
+    if ((val < 0) || (val > 1.0))
     {
         ui->ledLinkingProbability->setText(0);
         guitools::message("Linking probability has to be within [0, 1] range. Setting to 0", this);
@@ -476,37 +557,39 @@ void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
 
 void AParticleSourceDialog::on_pbGunShowSpectrum_clicked()
 {
-//    int particle = ui->lwGunParticles->currentRow();
-//    TH1D* h = new TH1D(*Rec->GunParticles[particle]->spectrum);
-
-//    h->GetXaxis()->SetTitle("Energy, keV");
-//    MW.GraphWindow->Draw(h); //registering!
-//    MW.GraphWindow->ShowAndFocus();
+    int particle = ui->lwGunParticles->currentRow();
+    TGraph * gr = AGraphBuilder::graph(LocalRec.Particles[particle].EnergySpectrum);
+    AGraphBuilder::configure(gr, "Energy distribution", "Energy, keV", "");
+    emit requestDraw(gr, "APL", true, true);
 }
 
 void AParticleSourceDialog::on_pbGunLoadSpectrum_clicked()
 {
-//    QString fileName = QFileDialog::getOpenFileName(this, "Load energy spectrum", MW.GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
-//    if (fileName.isEmpty()) return;
-//    MW.GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
+    const QString fileName = guitools::dialogLoadFile(this, "Load energy spectrum", "");
+    if (fileName.isEmpty()) return;
 
-//    int iPart = ui->lwGunParticles->currentRow();
-//    bool bOK = Rec->GunParticles[iPart]->loadSpectrum(fileName);
-//    if (!bOK) guitools::message("Load file failed!", this);
-
-//    UpdateParticleInfo();
+    const int iParticle = ui->lwGunParticles->currentRow();
+    AGunParticle & Particle = LocalRec.Particles[iParticle];
+    QString err = ftools::loadPairs(fileName, Particle.EnergySpectrum, true);
+    if (err.isEmpty())
+        err = QString(Particle.configureEnergySampler().data());
+    if (!err.isEmpty())
+    {
+        Particle.EnergySpectrum.clear();
+        guitools::message(err, this);
+    }
+    updateParticleInfo();
 }
 
 void AParticleSourceDialog::on_pbDeleteSpectrum_clicked()
 {
     int iPart = ui->lwGunParticles->currentRow();
-    LocalRec.Particles[iPart].EnergyDistr.clear();
-    LocalRec.Particles[iPart].UseFixedEnergy = false;
+    LocalRec.Particles[iPart].EnergySpectrum.clear();
+    LocalRec.Particles[iPart].UseFixedEnergy = true;
 
-    UpdateParticleInfo();
+    updateParticleInfo();
 }
 
-#include "amaterialhub.h"
 void AParticleSourceDialog::updateColorLimitingMat()
 {
     if (!ui->cbSourceLimitmat->isChecked()) return;
@@ -526,14 +609,30 @@ void AParticleSourceDialog::updateColorLimitingMat()
     ui->leSourceLimitMaterial->setPalette(palette);
 }
 
-void AParticleSourceDialog::on_leGunParticle_editingFinished()
+void AParticleSourceDialog::updateCustomAngularButtons()
 {
-    on_pbUpdateRecord_clicked();
+    const bool distrLoaded = !LocalRec.AngularDistribution.empty();
+    ui->pbShowAngular->setEnabled(distrLoaded);
+    ui->pbDeleteAngular->setEnabled(distrLoaded);
+}
+
+void AParticleSourceDialog::updateAxialButtons()
+{
+    const bool distrLoaded = !LocalRec.AxialDistribution.empty();
+    ui->pbAxialDistributionShow->setEnabled(distrLoaded);
+    ui->pbAxialDistributionRemove->setEnabled(distrLoaded);
+}
+
+void AParticleSourceDialog::updateTimeButtons()
+{
+    const bool distrLoaded = !LocalRec.TimeDistribution.empty();
+    ui->pbTimeCustomShow->setEnabled(distrLoaded);
+    ui->pbTimeCustomDelete->setEnabled(distrLoaded);
 }
 
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 {
-    gGeoManager->ClearTracks();
+    AParticleSourcePlotter::clearTracks();
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
     emit requestShowSource();
 }
@@ -546,5 +645,231 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
                        "  which indicates direct energy deposition (a particle is NOT generated).\n"
                        "  Note that the direct energy deposition is only saved if the position is inside\n"
                        "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
+}
+
+void AParticleSourceDialog::on_pbShowAngular_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.AngularDistribution);
+    AGraphBuilder::configure(gr, "Angular distribution", "Angle, degrees", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void AParticleSourceDialog::on_pbLoadAngular_clicked()
+{
+    const QString fileName = guitools::dialogLoadFile(this, "Load angular distribution", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.AngularDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureAngularSampler().data());
+    if (!err.isEmpty())
+    {
+        LocalRec.AngularDistribution.clear();
+        guitools::message(err, this);
+    }
+    updateCustomAngularButtons();
+}
+
+void AParticleSourceDialog::on_pbDeleteAngular_clicked()
+{
+    LocalRec.AngularDistribution.clear();
+    updateCustomAngularButtons();
+}
+
+void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
+{
+    ui->swAngular->setCurrentIndex(index);
+    updateDirectionVisibility();
+}
+
+void AParticleSourceDialog::updateDirectionVisibility()
+{
+    ui->frDirection->setVisible(ui->swAngular->currentIndex() != 0 || ui->cbAngularCutoff->isChecked());
+}
+void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
+{
+    updateDirectionVisibility();
+}
+
+void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &)
+{
+    updateColorLimitingMat();
+}
+
+void AParticleSourceDialog::updateHalfLifeIndication()
+{
+    int index = 0;
+    double factor = 1.0;
+    switch (LocalRec.TimeHalfLifePrefUnit)
+    {
+    case AParticleSourceRecord::ns  : index = 0; factor = 1.0;    break;
+    case AParticleSourceRecord::us  : index = 1; factor = 1e3;    break;
+    case AParticleSourceRecord::ms  : index = 2; factor = 1e6;    break;
+    case AParticleSourceRecord::s   : index = 3; factor = 1e9;    break;
+    case AParticleSourceRecord::min : index = 4; factor = 60e9;   break;
+    case AParticleSourceRecord::h   : index = 5; factor = 3600e9; break;
+    default :
+        qWarning() << "Not impelmented AParticleSourceRecord::TimeHalfLifePrefUnit enum value";
+        index = 0; factor = 1.0;
+    }
+    ui->cobPreferedHalfLifeUnits->setCurrentIndex(index);
+    ui->ledTimeSpreadHalfLife->setText(QString::number(LocalRec.TimeSpreadHalfLife / factor));
+}
+
+void AParticleSourceDialog::updateHalfLife()
+{
+    AParticleSourceRecord::ETimeUnits e = AParticleSourceRecord::ns;
+    double factor = 1.0;
+    switch (ui->cobPreferedHalfLifeUnits->currentIndex())
+    {
+    case 0 : e = AParticleSourceRecord::ns;  factor = 1.0;    break;
+    case 1 : e = AParticleSourceRecord::us;  factor = 1e3;    break;
+    case 2 : e = AParticleSourceRecord::ms;  factor = 1e6;    break;
+    case 3 : e = AParticleSourceRecord::s;   factor = 1e9;    break;
+    case 4 : e = AParticleSourceRecord::min; factor = 60e9;   break;
+    case 5 : e = AParticleSourceRecord::h;   factor = 3600e9; break;
+    default :
+        qWarning() << "Not implemented AParticleSourceRecord::TimeHalfLifePrefUnit value for ui->cobPreferedHalfLifeUnits";
+        e = AParticleSourceRecord::ns; factor = 1.0;
+    }
+    LocalRec.TimeHalfLifePrefUnit = e;
+    LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
+}
+
+void AParticleSourceDialog::updateFixedEnergyIndication(const AGunParticle & gRec)
+{
+    int index = 0;
+    double factor = 1.0;
+    switch (gRec.PreferredUnits)
+    {
+    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    default :
+        qWarning() << "Not implemented EEneryUnits of PreferredUnits -> assuming keV";
+        index = 1; factor = 1.0; break;
+    }
+    ui->cobUnits->setCurrentIndex(index);
+    ui->ledGunEnergy->setText( QString::number(gRec.FixedEnergy * factor) );
+
+    ui->cbEnergyGaussBlur->setChecked(gRec.UseGaussBlur);
+    index = 0;
+    factor = 1.0;
+    switch (gRec.PreferredSigmaUnits)
+    {
+    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    default :
+        qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits -> assuming keV";
+        index = 1; factor = 1.0; break;
+    }
+    ui->cobEnergySigmaUnits->setCurrentIndex(index);
+    ui->ledEnergySigma->setText( QString::number(gRec.EnergySigma * factor) );
+}
+
+void AParticleSourceDialog::updateFixedEnergy()
+{
+    int iPart = ui->lwGunParticles->currentRow();
+    if (iPart == -1) return;
+    AGunParticle & p = LocalRec.Particles[iPart];
+
+    double factor = 1.0;
+    switch (ui->cobUnits->currentIndex())
+    {
+    case 0 : p.PreferredUnits = AGunParticle::MeV; factor = 1e-3; break;
+    case 1 : p.PreferredUnits = AGunParticle::keV; factor = 1.0;  break;
+    case 2 : p.PreferredUnits = AGunParticle::eV;  factor = 1e3;  break;
+    case 3 : p.PreferredUnits = AGunParticle::meV; factor = 1e6;  break;
+    default:
+        qWarning() << "Not implemented EEneryUnits of PreferredUnits in updateFixedEnergy()";
+        p.PreferredUnits = AGunParticle::keV;
+    }
+    p.FixedEnergy = ui->ledGunEnergy->text().toDouble() / factor;
+
+    p.UseGaussBlur = ui->cbEnergyGaussBlur->isChecked();
+    factor = 1.0;
+    switch (ui->cobEnergySigmaUnits->currentIndex())
+    {
+    case 0 : p.PreferredSigmaUnits = AGunParticle::MeV; factor = 1e-3; break;
+    case 1 : p.PreferredSigmaUnits = AGunParticle::keV; factor = 1.0;  break;
+    case 2 : p.PreferredSigmaUnits = AGunParticle::eV;  factor = 1e3;  break;
+    case 3 : p.PreferredSigmaUnits = AGunParticle::meV; factor = 1e6;  break;
+    default:
+        qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits in updateFixedEnergy()";
+        p.PreferredSigmaUnits = AGunParticle::keV;
+    }
+    p.EnergySigma = ui->ledEnergySigma->text().toDouble() / factor;
+}
+
+void AParticleSourceDialog::on_pbTimeCustomShow_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.TimeDistribution);
+    AGraphBuilder::configure(gr, "Time offset distribution", "Time, ns", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void AParticleSourceDialog::on_pbTimeCustomLoad_clicked()
+{
+    const QString fileName = guitools::dialogLoadFile(this, "Load custom distribution of time offsets", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.TimeDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureTimeSampler().data());
+    if (!err.isEmpty())
+    {
+        LocalRec.TimeDistribution.clear();
+        guitools::message(err, this);
+    }
+    updateTimeButtons();
+}
+
+void AParticleSourceDialog::on_pbTimeCustomDelete_clicked()
+{
+    LocalRec.TimeDistribution.clear();
+    updateTimeButtons();
+}
+
+void AParticleSourceDialog::on_pbAxialDistributionShow_clicked()
+{
+    TGraph * gr = AGraphBuilder::graph(LocalRec.AxialDistribution);
+    AGraphBuilder::configure(gr, "Axial distribution", "Distance from axis, mm", "");
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void AParticleSourceDialog::on_pbAxialDistributionLoad_clicked()
+{
+    const QString fileName = guitools::dialogLoadFile(this, "Load custom axial distribution", "");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRec.AxialDistribution, true);
+    if (err.isEmpty())
+        err = QString(LocalRec.configureAxialSampler().data());
+    if (!err.isEmpty())
+    {
+        LocalRec.AxialDistribution.clear();
+        guitools::message(err, this);
+    }
+    updateAxialButtons();
+}
+
+void AParticleSourceDialog::on_pbAxialDistributionRemove_clicked()
+{
+    LocalRec.AxialDistribution.clear();
+    updateAxialButtons();
+}
+
+void AParticleSourceDialog::on_cobEnergy_currentIndexChanged(int index)
+{
+    ui->frEnergyBlur->setVisible(index == 0);
+}
+
+void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
+{
+    ui->ledEnergySigma->setEnabled(checked);
+    ui->cobEnergySigmaUnits->setEnabled(checked);
 }
 

@@ -3,8 +3,9 @@
 
 #include <vector>
 
-class A3FarmNodeRecord;
+class AFarmNodeRecord;
 class QString;
+class QJsonObject;
 
 class AFarmHub
 {
@@ -26,7 +27,7 @@ public:
     int  LocalProcesses = 4;
 
     bool UseFarm        = false;
-    const std::vector<A3FarmNodeRecord*> & getNodes() const {return FarmNodes;}
+    const std::vector<AFarmNodeRecord*> & getNodes() const {return FarmNodes;}
 
     double TimeoutMs    = 10000;
 
@@ -38,8 +39,11 @@ public:
 
     void checkFarmStatus();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 private:
-    std::vector<A3FarmNodeRecord*> FarmNodes;
+    std::vector<AFarmNodeRecord*> FarmNodes;
 
     bool isIPandPortAlreadyExist(const QString & address, int port) const;
 
