@@ -3,12 +3,7 @@ QT -= gui
 CONFIG += console
 CONFIG -= app_bundle
 
-lessThan(QT_MAJOR_VERSION, 6) {
-    CONFIG += c++11
-} else {
-    CONFIG += c++17
-    # ROOT has to be compiled with c++17 too!!!!
-}
+CONFIG += c++17 #c++11
 
 # CERN ROOT
      INCLUDEPATH += $$system(root-config --incdir)
