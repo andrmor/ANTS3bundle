@@ -2,6 +2,7 @@
 #define ACONFIGEXAMPLEBROWSER_H
 
 #include <QMainWindow>
+#include <QString>
 
 namespace Ui {
 class AConfigExampleBrowser;
@@ -43,6 +44,9 @@ private slots:
     void on_pbReadDatabase_clicked();
     void on_pbLoadExample_clicked();
 
+    void on_trwExamples_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_trwExamples_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
 private:
     Ui::AConfigExampleBrowser * ui;
 
@@ -54,6 +58,9 @@ private:
 
     void updateTableWidget();
     void fillTableRecursively(AConfigExampleBranch * branch, QTreeWidgetItem * item);
+
+signals:
+    void requestLoadFile(QString fileName);
 };
 
 #endif // ACONFIGEXAMPLEBROWSER_H

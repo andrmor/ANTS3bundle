@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>797</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,6 +35,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QPlainTextEdit" name="pteDescription">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>100</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="pbLoadExample">
       <property name="text">
        <string>Load selected example</string>
@@ -48,7 +58,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>797</width>
      <height>21</height>
     </rect>
    </property>

@@ -43,6 +43,7 @@ void AConfigExampleBrowser::on_pbReadDatabase_clicked()
     }
 
     updateTableWidget();
+    ui->trwExamples->expandAll();
 }
 
 QString AConfigExampleBrowser::readDatabase(QString fileName)
@@ -211,8 +212,36 @@ void AConfigExampleBrowser::fillTableRecursively(AConfigExampleBranch * branch, 
     }
 }
 
+void AConfigExampleBrowser::on_trwExamples_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
+{
+    ui->pteDescription->clear();
+    ui->pbLoadExample->setEnabled(false);
+    if (!current) return;
+
+    QString description = current->text(1);
+    bool ExampleSelected = !description.isEmpty();
+    ui->pbLoadExample->setEnabled(ExampleSelected);
+    if (ExampleSelected) ui->pteDescription->setPlainText(current->text(0) + ":\n" + description);
+}
+
 void AConfigExampleBrowser::on_pbLoadExample_clicked()
 {
+    QTreeWidgetItem * item = ui->trwExamples->currentItem();
+    if (!item) return;
+    if (item->text(1).isEmpty()) return;
 
+    bool ok = guitools::confirm("Load this example?\nUnsaved changes in the current configuration will be lost!", this);
+    if (!ok) return;
+
+    QString fileName = item->text(0);
+    close();
+    emit requestLoadFile(fileName);
+}
+
+void AConfigExampleBrowser::on_trwExamples_itemDoubleClicked(QTreeWidgetItem * item, int)
+{
+    if (!item) return;
+    if (item->text(1).isEmpty()) return;
+    on_pbLoadExample_clicked();
 }
 

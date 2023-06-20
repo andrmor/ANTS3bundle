@@ -21,6 +21,7 @@ class AGlobSetWindow;
 class ADemoWindow; // tmp
 class QTimer;
 class A3Global;
+class AConfigExampleBrowser;
 
 class MainWindow : public AGuiWindow
 {
@@ -54,6 +55,8 @@ private:
     AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
 
+    AConfigExampleBrowser * ConfigExampleBrowser = nullptr;
+
     QTimer * RootUpdateTimer = nullptr;
 
 private slots:
@@ -61,6 +64,7 @@ private slots:
     void updateAllGuiFromConfig();
     void onRequestSaveGuiSettings();
     void onRequestChangeGeoViewer(bool useJSRoot);
+    void onRequestLoadConfiguration(QString fileName);
 
     // Main menu
     void on_actionSave_configuration_triggered();

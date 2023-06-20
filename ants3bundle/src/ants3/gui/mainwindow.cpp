@@ -694,7 +694,19 @@ void MainWindow::on_actionShow_hints_triggered()
 #include "aconfigexamplebrowser.h"
 void MainWindow::on_pbExamples_clicked()
 {
-    AConfigExampleBrowser * browser = new AConfigExampleBrowser(this);
-    browser->show();
+    if (!ConfigExampleBrowser)
+    {
+        ConfigExampleBrowser = new AConfigExampleBrowser(this);
+        ConfigExampleBrowser->setWindowModality(Qt::ApplicationModal);
+        connect(ConfigExampleBrowser, &AConfigExampleBrowser::requestLoadFile, this, &MainWindow::onRequestLoadConfiguration);
+    }
+
+    ConfigExampleBrowser->show();
 }
 
+void MainWindow::onRequestLoadConfiguration(QString fileName)
+{
+    qDebug() << "Loading configuration from file" << fileName;
+    QString err = Config.load(fileName);
+    if (!err.isEmpty()) guitools::message(err, this);
+}
