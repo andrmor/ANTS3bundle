@@ -115,6 +115,7 @@ SOURCES += \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     geo/agridhub.cpp \
+    gui/aconfigexamplebrowser.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
     gui/alineeditwithescape.cpp \
@@ -312,6 +313,7 @@ HEADERS += \
     geo/acalorimeterhub.h \
     geo/agridelementrecord.h \
     geo/agridhub.h \
+    gui/aconfigexamplebrowser.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
     gui/alineeditwithescape.h \
@@ -504,6 +506,7 @@ HEADERS += \
     tools/vformula.h
 
 FORMS += \
+        gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/aeventsdonedialog.ui \

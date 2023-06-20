@@ -691,3 +691,10 @@ void MainWindow::on_actionShow_hints_triggered()
     guitools::message1(str, "main window hints", this);
 }
 
+#include "aconfigexamplebrowser.h"
+void MainWindow::on_pbExamples_clicked()
+{
+    AConfigExampleBrowser * browser = new AConfigExampleBrowser(this);
+    browser->show();
+}
+

@@ -119,6 +119,8 @@ private slots:
 
     void on_actionShow_hints_triggered();
 
+    void on_pbExamples_clicked();
+
 protected:
     void closeEvent(QCloseEvent * event);
 
