@@ -29,6 +29,8 @@ public:
     void clear();
 };
 
+class QTreeWidgetItem;
+
 class AConfigExampleBrowser : public QMainWindow
 {
     Q_OBJECT
@@ -48,7 +50,10 @@ private:
 
     QString readDatabase(QString fileName);
     QString extractItem(const QString & line, AConfigExampleBranch * currentBranch);
-    QString extractBranch(const QString & line, AConfigExampleBranch * currentBranch, int & currentlevel);
+    QString extractBranch(const QString & line, AConfigExampleBranch* & currentBranch, int & currentLevel);
+
+    void updateTableWidget();
+    void fillTableRecursively(AConfigExampleBranch * branch, QTreeWidgetItem * item);
 };
 
 #endif // ACONFIGEXAMPLEBROWSER_H

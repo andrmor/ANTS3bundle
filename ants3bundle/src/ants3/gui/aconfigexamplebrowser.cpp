@@ -42,7 +42,7 @@ void AConfigExampleBrowser::on_pbReadDatabase_clicked()
         return;
     }
 
-
+    updateTableWidget();
 }
 
 QString AConfigExampleBrowser::readDatabase(QString fileName)
@@ -117,17 +117,98 @@ QString AConfigExampleBrowser::extractItem(const QString &line, AConfigExampleBr
             if (!tag.isEmpty()) item.Tags.push_back(tag); // !!!*** check uniqness?
         }
 
-    qDebug() << item.FileName << item.Description << item.Tags;
+    //qDebug() << item.FileName << item.Description << item.Tags;
     currentBranch->Items.push_back(item);
 
     return "";
 }
 
-QString AConfigExampleBrowser::extractBranch(const QString & line, AConfigExampleBranch * currentBranch, int & currentlevel)
+QString AConfigExampleBrowser::extractBranch(const QString & line, AConfigExampleBranch* & currentBranch, int & currentLevel)
 {
+    int iChar = 0;
+    int extractedLevel = 0;
+    while (iChar < line.size() && line[iChar] == '*')
+    {
+        extractedLevel++;
+        iChar++;
+    }
+    if (iChar >= line.size()) return "Cannot find branch title in record: " + line;
 
+    while (iChar < line.size() && line[iChar] == ' ') iChar++;
+    if (iChar >= line.size()) return "Cannot find branch title in record: " + line;
 
+    QString title;
+    while (iChar < line.size())
+    {
+        title += line[iChar];
+        iChar++;
+    }
+    if (title.isEmpty()) return "Branch title is empty in record: " + line;
+
+    if (extractedLevel < 1) return "Branch level cannot be less than 1 (at least one '*' char in record)";
+    if (extractedLevel > currentLevel+1) return "Branch level cannot exceed the previous one by more than 1";
+
+    AConfigExampleBranch * newBranch = new AConfigExampleBranch();
+    newBranch->Title = title;
+
+    AConfigExampleBranch * containerBranch = nullptr;
+    if (extractedLevel < currentLevel)
+    {
+        containerBranch = currentBranch->ParentBranch;
+        for (int i = 0; i < (currentLevel - extractedLevel); i++)
+            containerBranch = containerBranch->ParentBranch;
+    }
+    else if (extractedLevel == currentLevel)
+    {
+        if (extractedLevel == 1)
+            containerBranch = &MainBranch;
+        else
+            containerBranch = currentBranch->ParentBranch;
+    }
+    else // extractedLevel is currentLevel+1
+    {
+        containerBranch = currentBranch;
+    }
+
+    if (!containerBranch) return "Something went wrong in parent branch search algorithm";
+    newBranch->ParentBranch = containerBranch;
+    containerBranch->SubBranches.push_back(newBranch);
+
+    currentBranch = newBranch;
+    currentLevel = extractedLevel;
     return "";
+}
+
+void AConfigExampleBrowser::updateTableWidget()
+{
+    ui->trwExamples->clear();
+
+    for (AConfigExampleBranch * br : MainBranch.SubBranches)
+    {
+        QTreeWidgetItem * item = new QTreeWidgetItem();
+        QFont font = item->font(0); font.setBold(true); item->setFont(0, font);
+        ui->trwExamples->addTopLevelItem(item);
+        fillTableRecursively(br, item);
+    }
+}
+
+void AConfigExampleBrowser::fillTableRecursively(AConfigExampleBranch * branch, QTreeWidgetItem * item)
+{
+    item->setText(0, branch->Title);
+
+    for (AConfigExampleBranch * subBranch : branch->SubBranches)
+    {
+        QTreeWidgetItem * newBranchItem = new QTreeWidgetItem();
+        QFont font = newBranchItem->font(0); font.setBold(true); newBranchItem->setFont(0, font);
+        item->addChild(newBranchItem);
+        fillTableRecursively(subBranch, newBranchItem);
+    }
+
+    for (const AConfigExampleItem & example : branch->Items)
+    {
+        QTreeWidgetItem * exampleItem = new QTreeWidgetItem({example.FileName, example.Description});
+        item->addChild(exampleItem);
+    }
 }
 
 void AConfigExampleBrowser::on_pbLoadExample_clicked()
