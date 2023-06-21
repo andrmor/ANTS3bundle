@@ -2,3 +2,5 @@
 ** Basic
 @BasicProtonTherapy.json Proton pencil beam irradiating a PMMA phantom. The config also features a beam monitor for primary protons and the phantom is a calorimeter. #ProtonTherapy #Monitor #Calorimeter
 * Neutrons
+** 10B-RPCs
+@DoubleGap10BRPC.json Single hybrid double-gap 10B-RPC irradiated by a pencil beam of thermal neutrons.
