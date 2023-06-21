@@ -20,6 +20,37 @@ QString ATH1D::Import(double from, double to, const std::vector<double> & binCon
     return "";
 }
 
+bool ATH1D::merge(const TH1D & other)
+{
+    int size = GetXaxis()->GetNbins();
+    int otherSize = other.GetXaxis()->GetNbins();
+    if (size != otherSize) return false;
+
+    double min = GetXaxis()->GetXmin();
+    double otherMin = other.GetXaxis()->GetXmin();
+    if (min != otherMin) return false;
+
+    double max = GetXaxis()->GetXmax();
+    double otherMax = other.GetXaxis()->GetXmax();
+    if (max != otherMax) return false;
+
+    for (int i = 0; i < size; i++)
+        AddBinContent(i, other.GetBinContent(i));
+
+    double otherStats[20];
+    other.GetStats(otherStats);
+    ///  - s[0]  = sumw       s[1]  = sumw2
+    ///  - s[2]  = sumwx      s[3]  = sumwx2
+
+    fTsumw   += otherStats[0];
+    fTsumw2  += otherStats[1];
+    fTsumwx  += otherStats[2];
+    fTsumwx2 += otherStats[3];
+
+    SetEntries(GetEntries() + other.GetEntries());
+    return true;
+}
+
 void ATH1D::setStats(double *statsArray)
 {
     fTsumw   = statsArray[0];

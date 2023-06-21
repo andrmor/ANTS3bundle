@@ -2,6 +2,7 @@
 #include "atrackingdataimporter.h"
 #include "athreadpool.h"
 #include "vformula.h"
+#include "ath.h"
 
 #include <QDebug>
 #include <QApplication>
@@ -500,11 +501,28 @@ bool AHistorySearchProcessor_findDepositedEnergy::mergeResuts(const AHistorySear
     const AHistorySearchProcessor_findDepositedEnergy * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergy*>(&other);
     if (!from) return false;
 
+    // histograms with explicitly defined (and the same) binning
+    if (Hist->GetXaxis()->GetXmin() < Hist->GetXaxis()->GetXmax())
+        if (Hist->GetXaxis()->GetXmin() == from->Hist->GetXaxis()->GetXmin() &&
+            Hist->GetXaxis()->GetXmax() == from->Hist->GetXaxis()->GetXmax() &&
+            Hist->GetNbinsX() == from->Hist->GetNbinsX())
+        {
+            ATH1D * ahist = new ATH1D(*Hist); //to inherit all properties, including the axis titles
+            bool ok = ahist->merge(*from->Hist);
+            if (ok)
+            {
+                delete Hist;
+                Hist = ahist;
+                return true;
+            }
+
+            delete ahist;
+            // then using the general case below
+        }
+
+    // general case: not fully compatible histograms
     for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
-    {
         Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
-    }
-    // !!!*** underflow and overflow
 
     return true;
 }

@@ -17,6 +17,8 @@ public:
 
     QString Import(double from, double to, const std::vector<double> & binContent, const std::vector<double> & stats); // empty srtring if no error
 
+    bool merge(const TH1D & other);
+
     void setStats(double * statsArray);
 
 private:
