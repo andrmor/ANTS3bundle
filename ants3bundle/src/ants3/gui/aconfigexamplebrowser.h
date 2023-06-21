@@ -41,7 +41,6 @@ public:
     ~AConfigExampleBrowser();
 
 private slots:
-    void on_pbReadDatabase_clicked();
     void on_pbLoadExample_clicked();
 
     void on_trwExamples_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);

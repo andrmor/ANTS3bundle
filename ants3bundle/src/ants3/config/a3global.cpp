@@ -19,8 +19,8 @@ const A3Global &A3Global::getConstInstance()
 A3Global::A3Global()
 {
     QString TargetDir(TARGET_DIR);
-    ExamplesDir  = TargetDir + "/EXAMPLES";
     ResourcesDir = TargetDir + "/files";
+    ExamplesDir  = TargetDir + "/files/examples";
 
     ExecutableDir = QDir::currentPath();
     ExchangeDir = ExecutableDir + "/Exchange";

@@ -16,13 +16,6 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPushButton" name="pbReadDatabase">
-      <property name="text">
-       <string>...Read database</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QTreeWidget" name="trwExamples">
       <attribute name="headerVisible">
        <bool>false</bool>

@@ -706,6 +706,7 @@ void MainWindow::on_pbExamples_clicked()
 
 void MainWindow::onRequestLoadConfiguration(QString fileName)
 {
+    fileName = GlobSet.ExamplesDir + "/configs/" + fileName;
     qDebug() << "Loading configuration from file" << fileName;
     QString err = Config.load(fileName);
     if (!err.isEmpty()) guitools::message(err, this);

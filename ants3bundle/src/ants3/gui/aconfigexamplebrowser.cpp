@@ -2,6 +2,7 @@
 #include "ui_aconfigexamplebrowser.h"
 #include "afiletools.h"
 #include "guitools.h"
+#include "a3global.h"
 
 AConfigExampleBranch::~AConfigExampleBranch()
 {
@@ -23,27 +24,22 @@ AConfigExampleBrowser::AConfigExampleBrowser(QWidget *parent) :
     ui(new Ui::AConfigExampleBrowser)
 {
     ui->setupUi(this);
-
     setWindowTitle("Config example browser");
+
+    const A3Global & GlobSet = A3Global::getConstInstance();
+    QString fn = GlobSet.ExamplesDir + "/ConfigExamples.txt";
+    QString err = readDatabase(fn);
+    if (!err.isEmpty()) qWarning() << err;
+    else
+    {
+        updateTableWidget();
+        ui->trwExamples->expandAll();
+    }
 }
 
 AConfigExampleBrowser::~AConfigExampleBrowser()
 {
     delete ui;
-}
-
-void AConfigExampleBrowser::on_pbReadDatabase_clicked()
-{
-    QString fn = "/home/andr/tmp/ConfigExamples.txt";
-    QString err = readDatabase(fn);
-    if (!err.isEmpty())
-    {
-        guitools::message(err);
-        return;
-    }
-
-    updateTableWidget();
-    ui->trwExamples->expandAll();
 }
 
 QString AConfigExampleBrowser::readDatabase(QString fileName)

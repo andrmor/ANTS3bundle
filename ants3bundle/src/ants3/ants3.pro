@@ -566,10 +566,6 @@ ants3_FARM {
 }
 message("Copy resource files")
 linux-g++ || unix{
-   #todir = $${OUT_PWD}
-   #fromdir = $${PWD}/EXAMPLES
-   #QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
-
    fromdir = $${PWD}/files
    message($$fromdir)
    todir = $${OUT_PWD}/../../bin
