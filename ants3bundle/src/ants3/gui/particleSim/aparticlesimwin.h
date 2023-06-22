@@ -228,6 +228,7 @@ private:
     void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
+    void updateRangeWarning();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -260,6 +261,11 @@ private slots:
     void abortFind();
     void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
     void on_cbIncludeScintillators_clicked(bool checked);
+    void on_sbNumThreadsStatistics_valueChanged(int arg1);
+    void on_ledPTHistFromX_editingFinished();
+    void on_ledPTHistToX_editingFinished();
+    void on_ledPTHistFromY_editingFinished();
+    void on_ledPTHistToY_editingFinished();
 };
 
 #endif // APARTICLESIMWIN_H

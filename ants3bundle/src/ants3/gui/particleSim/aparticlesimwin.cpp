@@ -73,6 +73,9 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labFilterActivated->setPixmap(pm);
     on_pbUpdateIcon_clicked();
+    ui->labRangeWarningHor->setPixmap(pm);
+    ui->labRangeWarningVert->setPixmap(pm);
+    updateRangeWarning();
 
     ui->twMain->setCurrentIndex(1);
 }
@@ -2949,5 +2952,39 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_customContextMenuRequested(con
 void AParticleSimWin::on_cbIncludeScintillators_clicked(bool checked)
 {
     G4SimSet.AddScintillatorsToSensitiveVolumes = checked;
+}
+
+void AParticleSimWin::updateRangeWarning()
+{
+    bool bMultithread = (ui->sbNumThreadsStatistics->value() > 0);
+
+    double HorFrom = ui->ledPTHistFromX->text().toDouble();
+    double HorTo = ui->ledPTHistToX->text().toDouble();
+    ui->labRangeWarningHor->setVisible(bMultithread && (HorFrom >= HorTo));
+
+    double VertFrom = ui->ledPTHistFromY->text().toDouble();
+    double VertTo = ui->ledPTHistToY->text().toDouble();
+    ui->labRangeWarningVert->setVisible(bMultithread && (VertFrom >= VertTo));
+}
+
+void AParticleSimWin::on_sbNumThreadsStatistics_valueChanged(int)
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistFromX_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistToX_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistFromY_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistToY_editingFinished()
+{
+    updateRangeWarning();
 }
 

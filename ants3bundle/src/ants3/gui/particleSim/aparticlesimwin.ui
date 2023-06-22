@@ -3537,6 +3537,17 @@ If checked, only &quot;creation&quot; is considered!</string>
                     </widget>
                    </item>
                    <item>
+                    <widget class="QLabel" name="labRangeWarningHor">
+                     <property name="toolTip">
+                      <string>Automatic histogram range for multithread search can provide wrong data due to histogram merging!
+Please specify a valid range</string>
+                     </property>
+                     <property name="text">
+                      <string>Warning</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <spacer name="horizontalSpacer_49">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -3652,6 +3663,17 @@ If checked, only &quot;creation&quot; is considered!</string>
                      </property>
                      <property name="text">
                       <string>0</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labRangeWarningVert">
+                     <property name="toolTip">
+                      <string>Automatic histogram range for multithread search can provide wrong data due to histogram merging!
+Please specify a valid range</string>
+                     </property>
+                     <property name="text">
+                      <string>Warning</string>
                      </property>
                     </widget>
                    </item>
@@ -4907,12 +4929,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>200</y>
+     <x>541</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>208</y>
+     <x>126</x>
+     <y>718</y>
     </hint>
    </hints>
   </connection>
@@ -4923,12 +4945,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>549</x>
+     <y>441</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4939,12 +4961,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4955,12 +4977,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>189</y>
+     <x>382</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4971,12 +4993,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -4987,12 +5009,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>416</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5003,12 +5025,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>192</y>
+     <x>549</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5019,12 +5041,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>416</x>
+     <y>467</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5035,12 +5057,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>238</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5051,12 +5073,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>191</y>
+     <x>78</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5067,12 +5089,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>192</y>
+     <x>228</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5083,12 +5105,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>192</y>
+     <x>309</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5099,12 +5121,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>191</y>
+     <x>238</x>
+     <y>461</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>191</y>
+     <x>460</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -5115,12 +5137,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>187</y>
+     <x>132</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>186</y>
+     <x>315</x>
+     <y>210</y>
     </hint>
    </hints>
   </connection>
@@ -5131,12 +5153,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>214</y>
+     <x>200</x>
+     <y>447</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>415</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>
@@ -5147,12 +5169,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>215</y>
+     <x>200</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>215</y>
+     <x>415</x>
+     <y>475</y>
     </hint>
    </hints>
   </connection>
@@ -5163,12 +5185,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>216</y>
+     <x>200</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>415</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>
@@ -5179,12 +5201,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>214</y>
+     <x>66</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>214</y>
+     <x>243</x>
+     <y>430</y>
     </hint>
    </hints>
   </connection>
@@ -5195,12 +5217,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>216</y>
+     <x>66</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>216</y>
+     <x>243</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -5211,12 +5233,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>218</y>
+     <x>66</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>218</y>
+     <x>243</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -5227,12 +5249,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>214</y>
+     <x>415</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>557</x>
+     <y>430</y>
     </hint>
    </hints>
   </connection>
@@ -5243,12 +5265,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>415</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>557</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -5259,12 +5281,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>218</y>
+     <x>415</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>218</y>
+     <x>557</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -5275,12 +5297,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>118</x>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>232</y>
+     <x>479</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -5291,12 +5313,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
+     <x>118</x>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
-     <x>72</x>
-     <y>232</y>
+     <x>332</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -5307,12 +5329,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>202</y>
+     <x>122</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>202</y>
+     <x>499</x>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -5323,12 +5345,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>180</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -5339,12 +5361,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>555</x>
+     <y>616</y>
     </hint>
    </hints>
   </connection>
@@ -5355,12 +5377,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>211</y>
+     <x>180</x>
+     <y>642</y>
     </hint>
    </hints>
   </connection>
@@ -5371,12 +5393,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>211</y>
+     <x>555</x>
+     <y>640</y>
     </hint>
    </hints>
   </connection>
@@ -5387,12 +5409,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>67</x>
+     <y>690</y>
     </hint>
     <hint type="destinationlabel">
-     <x>83</x>
-     <y>211</y>
+     <x>178</x>
+     <y>691</y>
     </hint>
    </hints>
   </connection>
@@ -5403,12 +5425,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>60</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>212</y>
+     <x>163</x>
+     <y>739</y>
     </hint>
    </hints>
   </connection>
@@ -5419,12 +5441,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>375</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>212</y>
+     <x>478</x>
+     <y>739</y>
     </hint>
    </hints>
   </connection>
@@ -5435,12 +5457,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>616</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5451,12 +5473,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>211</y>
+     <x>67</x>
+     <y>640</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5467,12 +5489,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>211</y>
+     <x>67</x>
+     <y>690</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5483,12 +5505,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>212</y>
+     <x>60</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5499,12 +5521,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>212</y>
+     <x>375</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>211</y>
+     <x>564</x>
+     <y>690</y>
     </hint>
    </hints>
   </connection>
@@ -5515,12 +5537,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>285</x>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>189</y>
+     <x>385</x>
+     <y>263</y>
     </hint>
    </hints>
   </connection>
@@ -5531,12 +5553,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>285</x>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>102</x>
-     <y>189</y>
+     <x>493</x>
+     <y>263</y>
     </hint>
    </hints>
   </connection>
@@ -5547,12 +5569,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>248</y>
+     <x>162</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
@@ -5563,12 +5585,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>248</y>
+     <x>261</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
@@ -5579,12 +5601,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>279</y>
+     <x>161</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
@@ -5595,12 +5617,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>279</y>
+     <x>259</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
@@ -5611,12 +5633,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>310</y>
+     <x>161</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
@@ -5627,12 +5649,12 @@ If checked, only &quot;creation&quot; is considered!</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>310</y>
+     <x>259</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>277</y>
+     <x>495</x>
+     <y>515</y>
     </hint>
    </hints>
   </connection>
