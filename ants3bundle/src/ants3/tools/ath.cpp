@@ -72,6 +72,9 @@ void ATH1D::SetStatistic(const std::vector<double> & stats)
 ATH2D::ATH2D(const char *name, const char *title, int xbins, double xfrom, double xto, int ybins, double yfrom, double yto) :
     TH2D(name, title, xbins, xfrom, xto, ybins, yfrom, yto){}
 
+ATH2D::ATH2D(const TH2D &other) :
+    TH2D(other) {}
+
 QString ATH2D::Import(double xfrom, double xto, double yfrom, double yto, const std::vector< std::vector<double> > & binContent, const std::vector<double> &stats)
 {
     const int ysize = binContent.size();
@@ -88,6 +91,55 @@ QString ATH2D::Import(double xfrom, double xto, double yfrom, double yto, const 
             SetBinContent(ix, iy, binContent[iy][ix]);
     SetStatistic(stats);
     return "";
+}
+
+bool ATH2D::merge(const TH2D & other)
+{
+    int sizeX = GetXaxis()->GetNbins();
+    int otherSizeX = other.GetXaxis()->GetNbins();
+    if (sizeX != otherSizeX) return false;
+
+    int sizeY = GetYaxis()->GetNbins();
+    int otherSizeY = other.GetYaxis()->GetNbins();
+    if (sizeY != otherSizeY) return false;
+
+    double minX = GetXaxis()->GetXmin();
+    double otherMinX = other.GetXaxis()->GetXmin();
+    if (minX != otherMinX) return false;
+    double maxX = GetXaxis()->GetXmax();
+    double otherMaxX = other.GetXaxis()->GetXmax();
+    if (maxX != otherMaxX) return false;
+
+    double minY = GetYaxis()->GetXmin();
+    double otherMinY = other.GetYaxis()->GetXmin();
+    if (minY != otherMinY) return false;
+    double maxY = GetYaxis()->GetXmax();
+    double otherMaxY = other.GetYaxis()->GetXmax();
+    if (maxY != otherMaxY) return false;
+
+    for (int ix = 0; ix < sizeX; ix++)
+        for (int iy = 1; iy < sizeY; iy++)
+        {
+            int iBin = GetBin(ix, iy);
+            AddBinContent(iBin, other.GetBinContent(iBin));
+        }
+
+    double otherStats[20];
+    other.GetStats(otherStats);
+    ///  - s[0]  = sumw       s[1]  = sumw2
+    ///  - s[2]  = sumwx      s[3]  = sumwx2
+    ///  - s[4]  = sumwy      s[5]  = sumwy2   s[6]  = sumwxy
+    ///  - s[7]  = sumwz      s[8]  = sumwz2   s[9]  = sumwxz   s[10]  = sumwyz
+    fTsumw   += otherStats[0];
+    fTsumw2  += otherStats[1];
+    fTsumwx  += otherStats[2];
+    fTsumwx2 += otherStats[3];
+    fTsumwy  += otherStats[4];
+    fTsumwy2 += otherStats[5];
+    fTsumwxy += otherStats[6];
+
+    SetEntries(GetEntries() + other.GetEntries());
+    return true;
 }
 
 void ATH2D::SetStatistic(const std::vector<double> &stats)

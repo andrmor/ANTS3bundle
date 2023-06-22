@@ -29,8 +29,11 @@ class ATH2D : public TH2D
 {
 public:
     ATH2D(const char *name, const char *title, int xbins, double xfrom, double xto, int ybins, double yfrom, double yto);
+    ATH2D(const TH2D & other);
 
     QString Import(double xfrom, double xto, double yfrom, double yto, const std::vector<std::vector<double> > &binContent, const std::vector<double> & stats); // empty srtring if no error
+
+    bool merge(const TH2D & other);
 
 private:
     void SetStatistic(const std::vector<double> & stats);

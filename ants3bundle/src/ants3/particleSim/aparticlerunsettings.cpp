@@ -199,7 +199,7 @@ void AParticleRunSettings::clear()
     Seed = 0;
 
     SaveTrackingHistory = false;
-    FileNameTrackingHistory = "TrackingData.txt";
+    FileNameTrackingHistory = "TrackingData.dat";
 
     SaveDeposition = false;
     FileNameDeposition = "Deposition.dat";

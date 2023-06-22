@@ -1402,7 +1402,7 @@ sources</string>
               <item>
                <widget class="QLineEdit" name="leTrackingDataFile">
                 <property name="text">
-                 <string>TrackingHistory.dat</string>
+                 <string>TrackingData.dat</string>
                 </property>
                </widget>
               </item>
