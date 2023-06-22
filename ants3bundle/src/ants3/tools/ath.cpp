@@ -20,7 +20,7 @@ QString ATH1D::Import(double from, double to, const std::vector<double> & binCon
     return "";
 }
 
-bool ATH1D::merge(const TH1D & other)
+bool ATH1D::mergeIdentical(const TH1D & other)
 {
     int size = GetXaxis()->GetNbins();
     int otherSize = other.GetXaxis()->GetNbins();
@@ -34,7 +34,9 @@ bool ATH1D::merge(const TH1D & other)
     double otherMax = other.GetXaxis()->GetXmax();
     if (max != otherMax) return false;
 
-    for (int i = 0; i < size; i++)
+    if (min >= max) return false; // range is not explicitly defined
+
+    for (int i = 0; i < size+2; i++)
         AddBinContent(i, other.GetBinContent(i));
 
     double otherStats[20];
@@ -58,6 +60,34 @@ void ATH1D::setStats(double *statsArray)
     fTsumwx  = statsArray[2];
     fTsumwx2 = statsArray[3];
     SetEntries(statsArray[0]);
+}
+
+void ATH1D::merge(TH1D* & to, TH1D* const & from)
+{
+    if (to->GetEntries() == 0)
+    {
+        delete to; to = new TH1D(*from);
+        return;
+    }
+
+    if (to->GetXaxis()->GetXmin() < to->GetXaxis()->GetXmax())
+        {
+            ATH1D * ahist = new ATH1D(*to);
+            bool ok = ahist->mergeIdentical(*from);
+            if (ok)
+            {
+                delete to;
+                to = ahist;
+                return;
+            }
+
+            delete ahist;
+            // then using the general case below
+        }
+
+    // general case: not fully compatible histograms
+    for (int i = 1; i <= from->GetNbinsX(); i++)
+        to->Fill(from->GetBinCenter(i), from->GetBinContent(i));
 }
 
 void ATH1D::SetStatistic(const std::vector<double> & stats)
@@ -93,7 +123,7 @@ QString ATH2D::Import(double xfrom, double xto, double yfrom, double yto, const 
     return "";
 }
 
-bool ATH2D::merge(const TH2D & other)
+bool ATH2D::mergeIdentical(const TH2D & other)
 {
     int sizeX = GetXaxis()->GetNbins();
     int otherSizeX = other.GetXaxis()->GetNbins();
@@ -110,6 +140,8 @@ bool ATH2D::merge(const TH2D & other)
     double otherMaxX = other.GetXaxis()->GetXmax();
     if (maxX != otherMaxX) return false;
 
+    if (minX >= maxX) return false; // not explicitly defined X range
+
     double minY = GetYaxis()->GetXmin();
     double otherMinY = other.GetYaxis()->GetXmin();
     if (minY != otherMinY) return false;
@@ -117,8 +149,10 @@ bool ATH2D::merge(const TH2D & other)
     double otherMaxY = other.GetYaxis()->GetXmax();
     if (maxY != otherMaxY) return false;
 
-    for (int ix = 0; ix < sizeX; ix++)
-        for (int iy = 1; iy < sizeY; iy++)
+    if (minY >= maxY) return false; // not explicitly defined Y range
+
+    for (int ix = 0; ix < sizeX+2; ix++)
+        for (int iy = 0; iy < sizeY+2; iy++)
         {
             int iBin = GetBin(ix, iy);
             AddBinContent(iBin, other.GetBinContent(iBin));
@@ -140,6 +174,40 @@ bool ATH2D::merge(const TH2D & other)
 
     SetEntries(GetEntries() + other.GetEntries());
     return true;
+}
+
+void ATH2D::merge(TH2D* & to, TH2D* const & from)
+{
+    if (to->GetEntries() == 0)
+    {
+        delete to; to = new TH2D(*from);
+        return;
+    }
+
+    // histograms with explicitly defined (and the same) binning
+    if (to->GetXaxis()->GetXmin() < to->GetXaxis()->GetXmax() &&
+        to->GetYaxis()->GetXmin() < to->GetYaxis()->GetXmax())
+        {
+            ATH2D * ahist2D = new ATH2D(*to);
+            bool ok = ahist2D->mergeIdentical(*from);
+            if (ok)
+            {
+                delete to;
+                to = ahist2D;
+                return;
+            }
+
+            delete ahist2D;
+            // then using the general case below
+        }
+
+    // general case: not fully compatible histograms
+    for (int ix = 1; ix <= from->GetNbinsX(); ix++)
+    {
+        const double X = from->GetXaxis()->GetBinCenter(ix);
+        for (int iy = 1; iy <= from->GetNbinsY(); iy++)
+                to->Fill(X, from->GetYaxis()->GetBinCenter(iy), from->GetBinContent(from->GetBin(ix, iy)));
+    }
 }
 
 void ATH2D::SetStatistic(const std::vector<double> &stats)

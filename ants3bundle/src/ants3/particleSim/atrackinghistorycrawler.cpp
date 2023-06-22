@@ -501,29 +501,7 @@ bool AHistorySearchProcessor_findDepositedEnergy::mergeResuts(const AHistorySear
     const AHistorySearchProcessor_findDepositedEnergy * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergy*>(&other);
     if (!from) return false;
 
-    // histograms with explicitly defined (and the same) binning
-    if (Hist->GetXaxis()->GetXmin() < Hist->GetXaxis()->GetXmax())
-        if (Hist->GetXaxis()->GetXmin() == from->Hist->GetXaxis()->GetXmin() &&
-            Hist->GetXaxis()->GetXmax() == from->Hist->GetXaxis()->GetXmax() &&
-            Hist->GetNbinsX() == from->Hist->GetNbinsX())
-        {
-            ATH1D * ahist = new ATH1D(*Hist); //to inherit all properties, including the axis titles
-            bool ok = ahist->merge(*from->Hist);
-            if (ok)
-            {
-                delete Hist;
-                Hist = ahist;
-                return true;
-            }
-
-            delete ahist;
-            // then using the general case below
-        }
-
-    // general case: not fully compatible histograms
-    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
-        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
-
+    ATH1D::merge(Hist, from->Hist);
     return true;
 }
 
@@ -575,38 +553,7 @@ bool AHistorySearchProcessor_findDepositedEnergyTimed::mergeResuts(const AHistor
     const AHistorySearchProcessor_findDepositedEnergyTimed * from = dynamic_cast<const AHistorySearchProcessor_findDepositedEnergyTimed*>(&other);
     if (!from) return false;
 
-    // histograms with explicitly defined (and the same) binning
-    if (Hist->GetXaxis()->GetXmin() < Hist->GetXaxis()->GetXmax() &&
-        Hist->GetYaxis()->GetXmin() < Hist->GetYaxis()->GetXmax())
-        if (Hist->GetXaxis()->GetXmin() == from->Hist->GetXaxis()->GetXmin() &&
-            Hist->GetXaxis()->GetXmax() == from->Hist->GetXaxis()->GetXmax() &&
-            Hist->GetYaxis()->GetXmin() == from->Hist->GetYaxis()->GetXmin() &&
-            Hist->GetYaxis()->GetXmax() == from->Hist->GetYaxis()->GetXmax() &&
-            Hist->GetNbinsX() == from->Hist->GetNbinsX() &&
-            Hist->GetNbinsY() == from->Hist->GetNbinsY()
-            )
-        {
-            ATH2D * ahist2D = new ATH2D(*Hist2D);
-            bool ok = ahist2D->merge(*from->Hist2D);
-            if (ok)
-            {
-                delete Hist2D;
-                Hist2D = ahist2D;
-                return true;
-            }
-
-            delete ahist2D;
-            // then using the general case below
-        }
-
-    // general case: not fully compatible histograms
-    for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
-    {
-        const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
-        for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
-            Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
-    }
-
+    ATH2D::merge(Hist2D, from->Hist2D);
     return true;
 }
 
@@ -705,29 +652,7 @@ bool AHistorySearchProcessor_findTravelledDistances::mergeResuts(const AHistoryS
     const AHistorySearchProcessor_findTravelledDistances * from = dynamic_cast<const AHistorySearchProcessor_findTravelledDistances*>(&other);
     if (!from) return false;
 
-    // histograms with explicitly defined (and the same) binning
-    if (Hist->GetXaxis()->GetXmin() < Hist->GetXaxis()->GetXmax())
-        if (Hist->GetXaxis()->GetXmin() == from->Hist->GetXaxis()->GetXmin() &&
-            Hist->GetXaxis()->GetXmax() == from->Hist->GetXaxis()->GetXmax() &&
-            Hist->GetNbinsX() == from->Hist->GetNbinsX())
-        {
-            ATH1D * ahist = new ATH1D(*Hist); //to inherit all properties, including the axis titles
-            bool ok = ahist->merge(*from->Hist);
-            if (ok)
-            {
-                delete Hist;
-                Hist = ahist;
-                return true;
-            }
-
-            delete ahist;
-            // then using the general case below
-        }
-
-    // general case: not fully compatible histograms
-    for (int i = 1; i <= from->Hist->GetNbinsX(); i++)
-        Hist->Fill(from->Hist->GetBinCenter(i), from->Hist->GetBinContent(i));
-
+    ATH1D::merge(Hist, from->Hist);
     return true;
 }
 

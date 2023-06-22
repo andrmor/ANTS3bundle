@@ -17,9 +17,11 @@ public:
 
     QString Import(double from, double to, const std::vector<double> & binContent, const std::vector<double> & stats); // empty srtring if no error
 
-    bool merge(const TH1D & other);
+    bool mergeIdentical(const TH1D & other);
 
     void setStats(double * statsArray);
+
+    static void merge(TH1D* & to, TH1D* const & from);
 
 private:
     void SetStatistic(const std::vector<double> & stats);
@@ -33,7 +35,9 @@ public:
 
     QString Import(double xfrom, double xto, double yfrom, double yto, const std::vector<std::vector<double> > &binContent, const std::vector<double> & stats); // empty srtring if no error
 
-    bool merge(const TH2D & other);
+    bool mergeIdentical(const TH2D & other);
+
+    static void merge(TH2D* & to, TH2D* const & from);
 
 private:
     void SetStatistic(const std::vector<double> & stats);
