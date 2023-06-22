@@ -1248,35 +1248,45 @@ bool AHistorySearchProcessor_Border::mergeResuts(const AHistorySearchProcessor &
 
     if (from->Hist1D)
     {
+        /*
         for (int i = 1; i <= from->Hist1D->GetNbinsX(); i++)
             Hist1D->Fill(from->Hist1D->GetBinCenter(i), from->Hist1D->GetBinContent(i));
+        */
+        ATH1D::merge(Hist1D, from->Hist1D);
     }
     if (from->Hist1Dnum)
     {
+        /*
         for (int i = 1; i <= from->Hist1Dnum->GetNbinsX(); i++)
             Hist1Dnum->Fill(from->Hist1Dnum->GetBinCenter(i), from->Hist1Dnum->GetBinContent(i));
+        */
+        ATH1D::merge(Hist1Dnum, from->Hist1Dnum);
     }
 
     if (from->Hist2D)
     {
+        /*
         for (int ix = 1; ix <= from->Hist2D->GetNbinsX(); ix++)
         {
             const double X = from->Hist2D->GetXaxis()->GetBinCenter(ix);
             for (int iy = 1; iy <= from->Hist2D->GetNbinsY(); iy++)
                 Hist2D->Fill(X, from->Hist2D->GetYaxis()->GetBinCenter(iy), from->Hist2D->GetBinContent(ix, iy));
         }
+        */
+        ATH2D::merge(Hist2D, from->Hist2D);
     }
     if (from->Hist2Dnum)
     {
+        /*
         for (int ix = 1; ix <= from->Hist2Dnum->GetNbinsX(); ix++)
         {
             const double X = from->Hist2Dnum->GetXaxis()->GetBinCenter(ix);
             for (int iy = 1; iy <= from->Hist2Dnum->GetNbinsY(); iy++)
                 Hist2Dnum->Fill(X, from->Hist2Dnum->GetYaxis()->GetBinCenter(iy), from->Hist2Dnum->GetBinContent(ix, iy));
         }
+        */
+        ATH2D::merge(Hist2Dnum, from->Hist2Dnum);
     }
-
-    // !!!*** underflow and overflow
 
     return true;
 }
