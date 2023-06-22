@@ -37,6 +37,7 @@ AGeometryHub::AGeometryHub()
     delete World->Type; World->Type = new ATypeWorldObject();
     World->Material = 0;
     World->Container = nullptr;
+    World->color = 1;
 
     Prototypes = new AGeoObject("_#_PrototypeContainer_#_");
     delete Prototypes->Type; Prototypes->Type = new ATypePrototypeCollectionObject();

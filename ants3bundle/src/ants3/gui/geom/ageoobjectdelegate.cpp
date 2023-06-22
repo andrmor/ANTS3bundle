@@ -843,6 +843,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
     updateTypeLabel();
     updateControlUI();
 
+    updateLineColorFrame(obj);
+
     AGeoScaledShape * scaledShape = dynamic_cast<AGeoScaledShape*>(CurrentObject->Shape);
     cbScale->setChecked(scaledShape);
     if (scaledShape)
@@ -3383,6 +3385,8 @@ void AWorldDelegate::Update(const AGeoObject *obj)
     const AGeoBox * box = static_cast<const AGeoBox*>(obj->Shape);
     ledSizeXY->setText(box->str2dx.isEmpty() ? QString::number(box->dx*2.0) : box->str2dx);
     ledSizeZ ->setText(box->str2dz.isEmpty() ? QString::number(box->dz*2.0) : box->str2dz);
+
+    updateLineColorFrame(obj);
 }
 
 AGeoInstanceDelegate::AGeoInstanceDelegate(const QStringList &materials, QWidget *parent)

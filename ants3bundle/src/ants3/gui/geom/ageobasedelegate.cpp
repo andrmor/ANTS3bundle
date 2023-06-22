@@ -1,6 +1,7 @@
 #include "ageobasedelegate.h"
 #include "aonelinetextedit.h"
 #include "ageoconsts.h"
+#include "ageoobject.h"
 
 #include <QDebug>
 #include <QCompleter>
@@ -37,12 +38,34 @@ void AGeoBaseDelegate::createBottomButtons()
     pbChangeAtt = new QPushButton("Color/line");
     QObject::connect(pbChangeAtt, &QPushButton::clicked, this, &AGeoBaseDelegate::RequestChangeVisAttributes);
     abl->addWidget(pbChangeAtt);
+
+    frLineColor = new QFrame();
+    frLineColor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    frLineColor->setMaximumWidth(3);
+    frLineColor->setMinimumWidth(3);
+    frLineColor->setVisible(false);
+    abl->addWidget(frLineColor);
+
     pbScriptLine = new QPushButton("Script to clipboard");
     pbScriptLine->setToolTip("Click right mouse button to generate script recursively");
     QObject::connect(pbScriptLine, &QPushButton::clicked, this, &AGeoBaseDelegate::RequestScriptToClipboard);
     pbScriptLine->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(pbScriptLine, &QPushButton::customContextMenuRequested, this, &AGeoBaseDelegate::RequestScriptRecursiveToClipboard);
     abl->addWidget(pbScriptLine);
+}
+
+#include "TColor.h"
+#include "TROOT.h"
+void AGeoBaseDelegate::updateLineColorFrame(const AGeoObject * obj)
+{
+    if (!obj) return;
+    TColor * tc = gROOT->GetColor(obj->color);
+    if (!tc) return;
+    int red   = 255 * tc->GetRed();
+    int green = 255 * tc->GetGreen();
+    int blue  = 255 * tc->GetBlue();
+    frLineColor->setStyleSheet(QString("background-color: rgb(%0,%1,%2)").arg(red).arg(green).arg(blue));
+    frLineColor->setVisible(true);
 }
 
 void AGeoBaseDelegate::onContentChangedBase()

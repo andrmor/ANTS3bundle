@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QString>
 
+#include <array>
+
 class AGeoObject;
 class QPushButton;
 class QHBoxLayout;
@@ -35,7 +37,10 @@ protected:
     QPushButton * pbChangeAtt = nullptr;
     QPushButton * pbScriptLine = nullptr;
 
+    QFrame * frLineColor = nullptr;
+
     void createBottomButtons();
+    void updateLineColorFrame(const AGeoObject * obj);
 
 protected:
     QWidget * ParentWidget = nullptr;
