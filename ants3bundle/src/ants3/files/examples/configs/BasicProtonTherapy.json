@@ -1,6 +1,6 @@
 {
-    "ConfigDescription": "Description is empty",
-    "ConfigName": "--",
+    "ConfigDescription": "Proton pencil beam irradiating a PMMA phantom. The config also features a beam monitor for primary protons and the phantom is a calorimeter",
+    "ConfigName": "ProtonBeamOnPMMA",
     "Geometry": {
         "GeoConsts": [
             [
@@ -31,7 +31,7 @@
                     "FixedSize": false,
                     "Type": "World"
                 },
-                "color": -1,
+                "color": 1,
                 "fActive": true,
                 "fExpanded": true,
                 "style": 1,

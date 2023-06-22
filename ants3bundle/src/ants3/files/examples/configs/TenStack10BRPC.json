@@ -1,6 +1,6 @@
 {
-    "ConfigDescription": "Single hybrid double-gap 10B-RPC irradiated by a pencil beam of thermal neutrons.",
-    "ConfigName": "10B-RPC",
+    "ConfigDescription": "Stack of 10 hybrid double-gap 10B-RPCs with pick-up electrodes, irradiated by a pencil beam of thermal neutrons.",
+    "ConfigName": "TenRPCs",
     "Geometry": {
         "GeoConsts": [
             [
@@ -32,6 +32,36 @@
                 0.3,
                 "",
                 ""
+            ],
+            [
+                "PickupTh",
+                0.018,
+                "",
+                ""
+            ],
+            [
+                "KaptonTh",
+                0.025,
+                "",
+                ""
+            ],
+            [
+                "Offset",
+                0.2,
+                "",
+                ""
+            ],
+            [
+                "RPC_pitch",
+                2.161,
+                "CatTh+2*GapTh+2*GlassTh+2*PickupTh+KaptonTh+Offset+0.2",
+                ""
+            ],
+            [
+                "NumRPC",
+                10,
+                "",
+                ""
             ]
         ],
         "WorldTree": [
@@ -43,7 +73,7 @@
                 "ShapeSpecific": {
                     "dx": 90.93266739736606,
                     "dy": 90.93266739736606,
-                    "dz": 91.66887489736605
+                    "dz": 92.09097489736605
                 },
                 "Type": {
                     "FixedSize": false,
@@ -57,15 +87,31 @@
             },
             {
                 "Container": "World",
-                "Name": "_#_PrototypeContainer_#_",
+                "Name": "Array1",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
                 "Type": {
-                    "Type": "PrototypeCollection"
+                    "Type": "Array",
+                    "centerSymmetric": true,
+                    "numX": 10,
+                    "numY": 1,
+                    "numZ": 1,
+                    "startIndex": 0,
+                    "stepX": 2.161,
+                    "stepY": 1,
+                    "stepZ": 1,
+                    "strNumX": "NumRPC",
+                    "strStepX": "RPC_pitch"
                 },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
                 "fActive": true,
                 "fExpanded": true
             },
             {
-                "Container": "World",
+                "Container": "Array1",
                 "Name": "Stack1",
                 "Phi": -90,
                 "Psi": 0,
@@ -79,6 +125,118 @@
                 "Z": 0,
                 "fActive": true,
                 "fExpanded": true
+            },
+            {
+                "Container": "Stack1",
+                "Material": 5,
+                "Name": "PickUp0",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.009,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "PickupTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 1.10315,
+                "color": 807,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 6,
+                "Name": "Kapton",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.0125,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "KaptonTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 1.08165,
+                "color": 803,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 5,
+                "Name": "PickUp1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.009,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "PickupTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 1.06015,
+                "color": 807,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 0,
+                "Name": "Offset",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.1,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "Offset"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0.9511499999999999,
+                "color": 11,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
             },
             {
                 "Container": "Stack1",
@@ -101,7 +259,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0.7011499999999998,
+                "Z": 0.7011499999999999,
                 "color": 7,
                 "fActive": true,
                 "fExpanded": true,
@@ -129,7 +287,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0.3761499999999999,
+                "Z": 0.37615,
                 "color": 4,
                 "fActive": true,
                 "fExpanded": true,
@@ -157,7 +315,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0.20057499999999995,
+                "Z": 0.20057500000000006,
                 "color": 2,
                 "fActive": true,
                 "fExpanded": true,
@@ -275,6 +433,116 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "Stack2",
+                "Phi": -90,
+                "Psi": 0,
+                "Theta": 90,
+                "Type": {
+                    "ReferenceVolume": "PickUpLast0",
+                    "Type": "Stack"
+                },
+                "X": 10.805,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true,
+                "strX": "0.5*NumRPC*RPC_pitch"
+            },
+            {
+                "Container": "Stack2",
+                "Material": 5,
+                "Name": "PickUpLast0",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.009,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "PickupTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 807,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack2",
+                "Material": 6,
+                "Name": "KaptonLast",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.0125,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "KaptonTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.0215,
+                "color": 803,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack2",
+                "Material": 5,
+                "Name": "PickUpLast1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.009,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "PickupTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.043,
+                "color": 807,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
             }
         ]
     },
@@ -537,6 +805,124 @@
                 },
                 "Geant4Material": "",
                 "UseGeant4Material": false
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Cu",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_Cu",
+                "UseGeant4Material": true
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Kapton",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_KAPTON",
+                "UseGeant4Material": true
             },
             "Dielectric": true,
             "ElDiffusionL": 0,
