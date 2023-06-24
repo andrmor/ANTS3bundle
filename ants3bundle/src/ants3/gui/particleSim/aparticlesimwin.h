@@ -189,6 +189,8 @@ private:
 
     bool   bFindEventAbortRequested = false;
 
+    AEventTrackingRecord * CurrentEventRecord = nullptr;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -214,7 +216,7 @@ private:
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
-    AEventTrackingRecord * EV_showTree();  // !!!***
+    void EV_showTree();  // !!!***
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();

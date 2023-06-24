@@ -16,6 +16,7 @@ class ATrackingDataExplorer : public QObject
 
 public:
     ATrackingDataExplorer();
+    ~ATrackingDataExplorer();
 
     QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
                         bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
@@ -31,6 +32,7 @@ signals:
 
 private:
     AGeometryHub & Geometry;
+    AEventTrackingRecord * EventRecord = nullptr;
     bool AbortEventProcessingFlag = false;
 
     void addTrack(const AParticleTrackingRecord * r, const QSet<QString> & LimitTo, bool bCheckLimitTo, const QSet<QString> & Exclude,

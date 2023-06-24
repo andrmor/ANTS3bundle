@@ -22,6 +22,7 @@
 #include "atrackingdataimporter.h"
 #include "aeventsdonedialog.h"
 #include "atrackingdataexplorer.h"
+#include "aeventtrackingrecord.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -46,6 +47,8 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     CalHub(ACalorimeterHub::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
+    CurrentEventRecord = AEventTrackingRecord::create();
+
     ui->setupUi(this);
 
     ui->frEventFilters->setVisible(false);
@@ -1085,32 +1088,30 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
     }
 }
 
-AEventTrackingRecord * AParticleSimWin::EV_showTree()
+void AParticleSimWin::EV_showTree()
 {
     ui->trwEventView->clear();
 
     QString fileName = ui->leTrackingDataFile->text();
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-    AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
     ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
-    if (tdi.ErrorString.isEmpty()) tdi.extractEvent(ui->sbShowEvent->value(), record);
+    if (tdi.ErrorString.isEmpty()) tdi.extractEvent(ui->sbShowEvent->value(), CurrentEventRecord);
     if (!tdi.ErrorString.isEmpty())
     {
         guitools::message(tdi.ErrorString, this);
-        return nullptr;
+        CurrentEventRecord->clear();
+        return;
     }
     // !!!*** add error processing, separetely process bad event index
 
     const int ExpLevel = ui->sbEVexpansionLevel->value();
 
-    for (AParticleTrackingRecord * pr : record->getPrimaryParticleRecords())
+    for (AParticleTrackingRecord * pr : CurrentEventRecord->getPrimaryParticleRecords())
     {
         QTreeWidgetItem * item = new QTreeWidgetItem(ui->trwEventView);
         fillEvTabViewRecord(item, pr, ExpLevel);
     }
-
-    return record;
 }
 
 void AParticleSimWin::on_pbShowEventTree_clicked()
@@ -1187,15 +1188,15 @@ void AParticleSimWin::on_pbEventView_clicked()
 {
     if (!isTrackingDataFileExists()) return;
 
-    AEventTrackingRecord * eventRecord = EV_showTree();
+    EV_showTree();
 
-    if (eventRecord && ui->cbEVtracks->isChecked())
+    if (ui->cbEVtracks->isChecked())
     {
         QString fileName = ui->leTrackingDataFile->text();
         if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
         ATrackingDataExplorer explorer;
-        explorer.buildTracksForEventRecord(eventRecord, ui->cbEVsupressSec->isChecked());
+        explorer.buildTracksForEventRecord(CurrentEventRecord, ui->cbEVsupressSec->isChecked());
 
         emit requestShowGeometry(true, true, true);
         emit requestShowTracks();

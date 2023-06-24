@@ -9,7 +9,14 @@
 #include <QApplication>
 
 ATrackingDataExplorer::ATrackingDataExplorer() :
-    QObject(), Geometry(AGeometryHub::getInstance()) {}
+    QObject(),
+    Geometry(AGeometryHub::getInstance()),
+    EventRecord(AEventTrackingRecord::create()) {}
+
+ATrackingDataExplorer::~ATrackingDataExplorer()
+{
+    delete EventRecord;
+}
 
 void ATrackingDataExplorer::addTrack(const AParticleTrackingRecord * r,
               const QSet<QString> & LimitTo, bool bCheckLimitTo, const QSet<QString> & Exclude, bool bCheckExclude,
@@ -72,7 +79,6 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
     const QSet<QString> Exclude(ExcludeParticles.begin(), ExcludeParticles.end());
     const bool bCheckExclude = !Exclude.isEmpty();
 
-    AEventTrackingRecord * record = AEventTrackingRecord::create();
     int iEvent = 0;
     int iTrack = 0;
     while (iTrack < MaxTracks && !AbortEventProcessingFlag)
@@ -92,7 +98,7 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
         }
 
         //qDebug() << "TB--> Asking extractor for event #" << iEvent;
-        bool ok = tdi.extractEvent(iEvent, record);
+        bool ok = tdi.extractEvent(iEvent, EventRecord);
         iEvent++;
 
         if (!ok)
@@ -102,7 +108,7 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
             return tdi.ErrorString;
         }
 
-        const std::vector<AParticleTrackingRecord *> Prims = record->getPrimaryParticleRecords();
+        const std::vector<AParticleTrackingRecord *> Prims = EventRecord->getPrimaryParticleRecords();
         for (const AParticleTrackingRecord * r : Prims)
             addTrack(r,
                      LimitTo, bCheckLimitTo, Exclude, bCheckExclude,
