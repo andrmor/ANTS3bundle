@@ -178,7 +178,7 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
 
         if (ContainerTo != obj->Container)
         {
-            AGeoObject* objFormerContainer = obj->Container;
+            //AGeoObject* objFormerContainer = obj->Container;
 
             bool ok = obj->migrateTo(ContainerTo);
             if (!ok)

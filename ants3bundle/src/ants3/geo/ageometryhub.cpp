@@ -260,6 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    World->clearTrueRotationRecursive();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();

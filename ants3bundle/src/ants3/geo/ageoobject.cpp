@@ -1414,6 +1414,12 @@ void AGeoObject::makeItWorld()
     delete Type; Type = new ATypeWorldObject();
 }
 
+void AGeoObject::clearTrueRotationRecursive()
+{
+    TrueRot = nullptr;
+    for (AGeoObject * obj : HostedObjects) obj->clearTrueRotationRecursive();
+}
+
 void AGeoObject::scaleRecursive(double factor)
 {
     for (size_t i = 0; i < 3; i++) Position[i] *= factor;

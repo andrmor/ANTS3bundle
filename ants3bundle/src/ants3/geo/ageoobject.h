@@ -156,6 +156,8 @@ public:
 
   void makeItWorld();
 
+  void clearTrueRotationRecursive();
+
   void scaleRecursive(double factor);         // used only during population of TGeoManager as it ignores txt position/size parameters
 
   //service propertie
