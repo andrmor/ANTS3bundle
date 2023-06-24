@@ -1418,7 +1418,7 @@ sources</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">

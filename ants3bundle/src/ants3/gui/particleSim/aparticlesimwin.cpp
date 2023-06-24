@@ -19,6 +19,9 @@
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
 #include "ath.h"
+#include "atrackingdataimporter.h"
+#include "aeventsdonedialog.h"
+#include "atrackingdataexplorer.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -833,7 +836,6 @@ void AParticleSimWin::onRequestShowSource()
     emit requestShowTracks();
 }
 
-#include "aeventsdonedialog.h"
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
@@ -853,16 +855,17 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     const bool SkipPrimNoInter = ui->cbSkipPrimaryTracksNoInteraction->isChecked();
     const bool SkipSecondaries = ui->cbSkipSecondaryTracks->isChecked();
 
+    ATrackingDataExplorer explorer;
     AEventsDoneDialog dialog(this);
-    connect(&SimManager, &AParticleSimManager::reportEventsProcessed, &dialog, &AEventsDoneDialog::onProgressReported);
-    connect(&dialog, &AEventsDoneDialog::rejected, &SimManager, &AParticleSimManager::abortEventProcessing);
+    connect(&explorer, &ATrackingDataExplorer::reportEventsProcessed, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &explorer, &ATrackingDataExplorer::abortEventProcessing);
     dialog.setModal(true);
     dialog.show();
     QApplication::processEvents();
 
-    QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
-                                         SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
-                                         MaxTracks, -1);
+    QString err = explorer.buildTracks(fileName, LimitTo, Exclude,
+                                       SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                                       MaxTracks, -1);
 
     if (!err.isEmpty())
     {
@@ -1082,7 +1085,7 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
     }
 }
 
-void AParticleSimWin::EV_showTree()
+AEventTrackingRecord * AParticleSimWin::EV_showTree()
 {
     ui->trwEventView->clear();
 
@@ -1090,11 +1093,12 @@ void AParticleSimWin::EV_showTree()
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
     AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
-    QString err = SimManager.fillTrackingRecord(fileName, ui->sbShowEvent->value(), record);
-    if (!err.isEmpty())
+    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
+    if (tdi.ErrorString.isEmpty()) tdi.extractEvent(ui->sbShowEvent->value(), record);
+    if (!tdi.ErrorString.isEmpty())
     {
-        guitools::message(err, this);
-        return;
+        guitools::message(tdi.ErrorString, this);
+        return nullptr;
     }
     // !!!*** add error processing, separetely process bad event index
 
@@ -1105,6 +1109,8 @@ void AParticleSimWin::EV_showTree()
         QTreeWidgetItem * item = new QTreeWidgetItem(ui->trwEventView);
         fillEvTabViewRecord(item, pr, ExpLevel);
     }
+
+    return record;
 }
 
 void AParticleSimWin::on_pbShowEventTree_clicked()
@@ -1181,31 +1187,15 @@ void AParticleSimWin::on_pbEventView_clicked()
 {
     if (!isTrackingDataFileExists()) return;
 
-    EV_showTree();
+    AEventTrackingRecord * eventRecord = EV_showTree();
 
-    if (ui->cbEVtracks->isChecked())
+    if (eventRecord && ui->cbEVtracks->isChecked())
     {
         QString fileName = ui->leTrackingDataFile->text();
         if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-        const QStringList LimitTo;
-        const QStringList Exclude;
-
-        const int MaxTracks = 1000;//ui->sbMaxTracks->value(); // !!!***
-
-        const bool SkipPrimaries   = false;
-        const bool SkipPrimNoInter = false;
-        const bool SkipSecondaries = ui->cbEVsupressSec->isChecked();
-
-        QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
-                                             SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
-                                             MaxTracks, ui->sbShowEvent->value());
-
-        if (!err.isEmpty())
-        {
-            //guitools::message(err, this);
-            return;
-        }
+        ATrackingDataExplorer explorer;
+        explorer.buildTracksForEventRecord(eventRecord, ui->cbEVsupressSec->isChecked());
 
         emit requestShowGeometry(true, true, true);
         emit requestShowTracks();
@@ -1215,7 +1205,6 @@ void AParticleSimWin::on_pbEventView_clicked()
 // --- Statistics ---
 
 #include "atrackinghistorycrawler.h"
-#include "aeventsdonedialog.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -2144,7 +2133,6 @@ void AParticleSimWin::abortFind()
     bFindEventAbortRequested = true;
 }
 
-#include "atrackingdataimporter.h"
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
     bFindEventAbortRequested = false;

@@ -16,7 +16,6 @@ class AGeometryHub;
 class A3WorkDistrConfig;
 class QJsonObject;
 class AParticleRunSettings;
-class AEventTrackingRecord;
 class AParticleGun;
 
 class AParticleSimManager : public QObject
@@ -48,18 +47,8 @@ public:
     void abort();
     bool isAborted() const;
 
-    QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
-                        bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
-                        const int MaxTracks, int LimitToEvent = -1);
-
-    QString fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record);
-
-public slots:
-    void abortEventProcessing() {AbortEventProcessingFlag = true;}
-
 signals:
     void requestUpdateResultsGUI();
-    void reportEventsProcessed(int numEvents);
 
 private:
     AFileMerger HistoryFileMerger;
@@ -69,8 +58,6 @@ private:
     std::vector<QString> CalorimeterFiles;
 
     std::vector<QString> ReceiptFiles;
-
-    bool AbortEventProcessingFlag = false;
 
     int  getNumberEvents() const;
     void doPreSimChecks();  // !!!*** check if there are scaled TGeo!!!

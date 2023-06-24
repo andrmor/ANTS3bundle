@@ -21,6 +21,7 @@ class AParticleRecord;
 class AParticleSourceRecord;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
+class AEventTrackingRecord;
 
 namespace Ui {
 class AParticleSimWin;
@@ -213,7 +214,7 @@ private:
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
-    void EV_showTree();
+    AEventTrackingRecord * EV_showTree();  // !!!***
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();

@@ -126,6 +126,7 @@ SOURCES += \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
@@ -324,6 +325,7 @@ HEADERS += \
     gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/particleSim/atrackingdataexplorer.h \
     gui/particleSim/aworldsizewarningdialog.h \
     gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
