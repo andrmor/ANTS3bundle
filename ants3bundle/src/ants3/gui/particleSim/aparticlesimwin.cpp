@@ -833,6 +833,7 @@ void AParticleSimWin::onRequestShowSource()
     emit requestShowTracks();
 }
 
+#include "aeventsdonedialog.h"
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
     QString fileName = ui->leTrackingDataFile->text();
@@ -851,6 +852,13 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     const bool SkipPrimaries   = ui->cbSkipPrimaryTracks->isChecked();
     const bool SkipPrimNoInter = ui->cbSkipPrimaryTracksNoInteraction->isChecked();
     const bool SkipSecondaries = ui->cbSkipSecondaryTracks->isChecked();
+
+    AEventsDoneDialog dialog(this);
+    connect(&SimManager, &AParticleSimManager::reportEventsProcessed, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &SimManager, &AParticleSimManager::abortEventProcessing);
+    dialog.setModal(true);
+    dialog.show();
+    QApplication::processEvents();
 
     QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
                                          SkipPrimaries, SkipPrimNoInter, SkipSecondaries,

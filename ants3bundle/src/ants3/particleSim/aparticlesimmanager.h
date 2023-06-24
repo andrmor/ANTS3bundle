@@ -54,8 +54,12 @@ public:
 
     QString fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record);
 
+public slots:
+    void abortEventProcessing() {AbortEventProcessingFlag = true;}
+
 signals:
     void requestUpdateResultsGUI();
+    void reportEventsProcessed(int numEvents);
 
 private:
     AFileMerger HistoryFileMerger;
@@ -65,6 +69,8 @@ private:
     std::vector<QString> CalorimeterFiles;
 
     std::vector<QString> ReceiptFiles;
+
+    bool AbortEventProcessingFlag = false;
 
     int  getNumberEvents() const;
     void doPreSimChecks();  // !!!*** check if there are scaled TGeo!!!

@@ -496,10 +496,12 @@ namespace
     }
 }
 
+#include <QApplication>
 QString AParticleSimManager::buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
                                          bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
                                          const int MaxTracks, int LimitToEvent)
 {
+    AbortEventProcessingFlag = false;
     Geometry.GeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName);
@@ -513,9 +515,11 @@ QString AParticleSimManager::buildTracks(const QString & fileName, const QString
     AEventTrackingRecord * record = AEventTrackingRecord::create();
     int iEvent = 0;
     int iTrack = 0;
-    while (iTrack < MaxTracks)
+    while (iTrack < MaxTracks && !AbortEventProcessingFlag)
     {
         //qDebug() << "TB--> Event:" << iEvent << "Track index:" << iTrack;
+        emit reportEventsProcessed(iEvent);
+        QApplication::processEvents();
         if (LimitToEvent >= 0)
         {
             if (iEvent < LimitToEvent)
