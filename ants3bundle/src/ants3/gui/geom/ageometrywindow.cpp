@@ -1299,3 +1299,48 @@ void AGeometryWindow::on_pushButton_clicked()
     //page->runJavaScript(js, [](const QVariant & v) {qDebug() << v.toString(); });
     page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
 }
+
+#include "amaterial.h"
+#include "amaterialhub.h"
+#include "TColor.h"
+#include "TROOT.h"
+void AGeometryWindow::on_cbColor_customContextMenuRequested(const QPoint & pos)
+{
+    if (!ui->cbColor->isChecked()) return;
+
+    QDialog d(this);
+    d.setWindowTitle("Material colors");
+    d.setModal(true);
+    d.show();
+    d.move(this->mapToGlobal(pos));
+
+    const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+    const QStringList ml = MatHub.getListOfMaterialNames();
+
+    QVBoxLayout * lMain = new QVBoxLayout(&d);
+
+    int index = 1;
+    for (const QString & m : ml)
+    {
+        TColor * tc = gROOT->GetColor(index++);
+        if (!tc) return; // !!!***
+
+        int red   = 255 * tc->GetRed();
+        int green = 255 * tc->GetGreen();
+        int blue  = 255 * tc->GetBlue();
+
+        QHBoxLayout * l = new QHBoxLayout();
+            QFrame * fr = new QFrame;
+            fr->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+            fr->setMaximumWidth(25);
+            fr->setMinimumWidth(25);
+            fr->setStyleSheet(QString("background-color: rgb(%0,%1,%2)").arg(red).arg(green).arg(blue));
+            l->addWidget(fr);
+            l->addWidget(new QLabel(m));
+            l->addStretch(15);
+
+        lMain->addLayout(l);
+    }
+    d.exec();
+}
+

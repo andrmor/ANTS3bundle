@@ -133,6 +133,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_cbColor_customContextMenuRequested(const QPoint &pos);
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
