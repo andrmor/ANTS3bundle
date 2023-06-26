@@ -2859,6 +2859,10 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     ledStepY = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepY, 1, 3);
     ledStepZ = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepZ, 2, 3);
 
+    connect(ledNumX, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumX, ledStepX);});
+    connect(ledNumY, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumY, ledStepY);});
+    connect(ledNumZ, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumZ, ledStepZ);});
+
     lVer->addLayout(grAW);
 
     cbCenterSym = new QCheckBox("Center-symmetric");
@@ -2900,6 +2904,22 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     pbTransform->setVisible(false);
     pbShapeInfo->setVisible(false);
 }
+
+void AGeoArrayDelegate::updateArrayStepEnable(AOneLineTextEdit * editNum, AOneLineTextEdit * editStep)
+{
+    QString text = editNum->text();
+    bool bAtLeastTwo = true;
+    bool ok;
+    double val = text.toDouble(&ok);
+    if (!ok)
+    {
+        QString errorStr;
+        ok = AGeoConsts::getConstInstance().evaluateFormula(errorStr, text, val);
+    }
+    if (ok) bAtLeastTwo = (val >= 2);
+    editStep->setEnabled(bAtLeastTwo);
+}
+
 
 bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
 {

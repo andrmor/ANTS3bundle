@@ -504,6 +504,9 @@ protected:
     AOneLineTextEdit *ledStepX, *ledStepY, *ledStepZ;
     AOneLineTextEdit *ledStartIndex;
     QCheckBox        *cbCenterSym;
+
+private slots:
+    void updateArrayStepEnable(AOneLineTextEdit *editNum, AOneLineTextEdit *editStep);
 };
 
 class AGeoCircularArrayDelegate : public AGeoObjectDelegate
