@@ -121,6 +121,11 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 
     json["RandomizeBin"] = RandomizeBin;
 
+    json["CollectDepoOverEvent"] = CollectDepoOverEvent;
+    json["EventDepoBins"] = EventDepoBins;
+    json["EventDepoFrom"] = EventDepoFrom;
+    json["EventDepoTo"] = EventDepoTo;
+
 #ifndef JSON11
     QJsonArray toAr, tsAr, tbAr;
     for (int i=0; i<3; i++)
@@ -132,6 +137,10 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
     if (strOrigin != std::array<QString,3>{"", "", ""}) json["strOrigin"] = toAr;
     if (strStep   != std::array<QString,3>{"", "", ""}) json["strStep"]   = tsAr;
     if (strBins   != std::array<QString,3>{"", "", ""}) json["strBins"]   = tbAr;
+
+    json["strEventDepoBins"] = strEventDepoBins;
+    json["strEventDepoFrom"] = strEventDepoFrom;
+    json["strEventDepoTo"]   = strEventDepoTo;
 #endif
 }
 
@@ -171,6 +180,11 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
         for (int i=0; i<3; i++)
             Bins[i] = ar[i].int_value();
     }
+
+    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    jstools::parseJson(json, "EventDepoBins", EventDepoBins);
+    jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
+    jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
 }
 #else
 void ACalorimeterProperties::readFromJson(const QJsonObject & json)
@@ -187,6 +201,11 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     }
 
     jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
+    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    jstools::parseJson(json, "EventDepoBins", EventDepoBins);
+    jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
+    jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
 
     {
         QJsonArray ar;
@@ -258,6 +277,10 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
             }
         }
     }
+
+    jstools::parseJson(json, "strEventDepoBins", strEventDepoBins);
+    jstools::parseJson(json, "strEventDepoFrom", strEventDepoFrom);
+    jstools::parseJson(json, "strEventDepoTo",   strEventDepoTo);
 }
 #endif
 

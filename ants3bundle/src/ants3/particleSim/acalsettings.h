@@ -45,11 +45,17 @@ public:
     std::array<double, 3> Step   = { 1,  1,  1};
     std::array<int,    3> Bins   = {10, 10,  10};
 
+    bool CollectDepoOverEvent = false;
+    int EventDepoBins = 100;
+    double EventDepoFrom = 0.1;
+    double EventDepoTo = 2.0;
+
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
     std::array<QString, 3> strOrigin = {"", "", ""};
     std::array<QString, 3> strStep   = {"", "", ""};
     std::array<QString, 3> strBins   = {"", "", ""};
+    QString strEventDepoBins, strEventDepoFrom, strEventDepoTo;
 #endif
 };
 

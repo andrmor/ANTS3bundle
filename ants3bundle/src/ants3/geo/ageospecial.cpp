@@ -78,6 +78,18 @@ void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
         ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
         if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
     }
+
+    if (Properties.CollectDepoOverEvent)
+    {
+        ok = GC.updateIntParameter(errorStr, Properties.strEventDepoBins, Properties.EventDepoBins,  true, true);
+        if (!ok) errorStr += " in event energy depo bins";
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strEventDepoFrom, Properties.EventDepoFrom,  false, true, false);
+        if (!ok) errorStr += " in event energy depo from";
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strEventDepoTo,   Properties.EventDepoTo,    false, true, false);
+        if (!ok) errorStr += " in event energy depo to";
+    }
 }
 
 void AGeoCalorimeter::readFromJson(const QJsonObject & json)
