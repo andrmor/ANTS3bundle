@@ -22,10 +22,10 @@ AGeo_SI::AGeo_SI() :
                 "in the local frame of the container;\n"
                 "Requires updateGeometry() to take effect!";
 
-    Help["box"] = "Adds to geometry a box 'name' with the sizes (sizeX,sizeY,sizeZ)\n." + s;
-    Help["cylinder"] = "Adds to geometry a cylinder 'name' with the given diameter and height\n" + s;
-    Help["tube"] = "Adds to geometry a tube 'name' with the given outer and inner diameters and height\n" + s;
-    Help["cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height\n" +s;
+    Help["box"] = "Adds to geometry a box 'name' with the sizes (sizeX,sizeY,sizeZ).\n" + s;
+    Help["cylinder"] = "Adds to geometry a cylinder 'name' with the given diameter and height.\n" + s;
+    Help["tube"] = "Adds to geometry a tube 'name' with the given outer and inner diameters and height.\n" + s;
+    Help["cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height.\n" +s;
     Help["polygone"] =  "Adds to geometry a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
                         "circles and height.\n" +s;
     Help["sphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;

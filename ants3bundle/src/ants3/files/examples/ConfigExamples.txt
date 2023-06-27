@@ -8,3 +8,4 @@
 ** 10B-RPCs
 @DoubleGap10BRPC.json Single hybrid double-gap 10B-RPC irradiated by a pencil beam of thermal neutrons.
 @TenStack10BRPC.json Stack of 10 hybrid double-gap 10B-RPCs with pick-up electrodes, irradiated by a pencil beam of thermal neutrons.
+@TenStack10BRPC-3-4-3.json Stack of 10 hybrid double-gap 10B-RPCs (different RPC thicknesses in the arrangement 3-4-3) with pick-up electrodes, irradiated by a pencil beam of thermal neutrons.
