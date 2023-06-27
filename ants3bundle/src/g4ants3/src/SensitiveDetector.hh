@@ -96,6 +96,9 @@ public:
     AHistogram3Dfixed * Data = nullptr;
     double VoxelVolume_mm3 = 0;
 
+    AHistogram1D * EventDepoData = nullptr;
+    double SumDepoOverEvent = 0;
+
 };
 
 #endif // SensitiveDetector_h
