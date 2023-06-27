@@ -22,5 +22,5 @@ void EventAction::EndOfEventAction(const G4Event*)
     SM.resetPredictedTrackID();
 
     for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
-        if (cal->EventDepoData) cal->EventDepoData->fill(cal->SumDepoOverEvent);
+        if (cal->EventDepoData && cal->SumDepoOverEvent > 0) cal->EventDepoData->fill(cal->SumDepoOverEvent);
 }
