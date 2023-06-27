@@ -258,7 +258,7 @@ void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::obj
 
 // ---
 
-CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index) :
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties &properties, int index) :
     G4VSensitiveDetector(name),
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
@@ -317,10 +317,6 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
 {
     json["CalorimeterIndex"] = CalorimeterIndex;
 
-    json11::Json::object jsProps;
-    Properties.writeToJson(jsProps);
-    json["Properties"] = jsProps;
-
     json11::Json::object jsDepo;
     {
         std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
@@ -352,6 +348,8 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
         const std::vector<double> & data = EventDepoData->getContent();
         double from, to;
         EventDepoData->getLimits(from, to);
+        Properties.EventDepoFrom = from;
+        Properties.EventDepoTo = to;
         double delta = (to - from) / Properties.EventDepoBins;
         json11::Json::array ar;
         for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
@@ -371,4 +369,8 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
 
         json["DepoOverEvent"] = js;
     }
+
+    json11::Json::object jsProps;
+    Properties.writeToJson(jsProps);
+    json["Properties"] = jsProps;
 }

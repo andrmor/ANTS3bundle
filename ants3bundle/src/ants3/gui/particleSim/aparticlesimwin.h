@@ -269,6 +269,7 @@ private slots:
     void on_ledPTHistToX_editingFinished();
     void on_ledPTHistFromY_editingFinished();
     void on_ledPTHistToY_editingFinished();
+    void on_pbCaloShowDepoOverEvent_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

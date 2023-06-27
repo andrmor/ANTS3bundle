@@ -40,7 +40,7 @@ public:
     void copyEventDepoProperties(const ACalorimeterProperties & other);
 
     bool isSameDepoDoseProperties(const ACalorimeterProperties & other) const;
-    bool isSameyEventDepoProperties(const ACalorimeterProperties & other) const;
+    bool isSameEventDepoProperties(const ACalorimeterProperties & other) const;
 
     enum EDataType {Energy, Dose};
 

@@ -419,7 +419,7 @@ bool ACalorimeterProperties::isSameDepoDoseProperties(const ACalorimeterProperti
     return true;
 }
 
-bool ACalorimeterProperties::isSameyEventDepoProperties(const ACalorimeterProperties &other) const
+bool ACalorimeterProperties::isSameEventDepoProperties(const ACalorimeterProperties &other) const
 {
     if (CollectDepoOverEvent != other.CollectDepoOverEvent) return false;
     if (EventDepoBins != other.EventDepoBins) return false;

@@ -26,6 +26,9 @@ void ACalorimeter::clearData()
     delete DataHistogram; DataHistogram = nullptr;
     Stats.fill(0);
     Entries = 0;
+
+    delete EventDepoData; EventDepoData = nullptr;
+    EventDepoDataStats.fill(0);
 }
 
 double ACalorimeter::getTotalEnergy() const
@@ -228,7 +231,7 @@ bool ACalorimeter::addEventDepoDataFromJson(const QJsonObject & json, const ACal
     }
     else
     {
-        bIdenticalBinning = (Properties.isSameyEventDepoProperties(loadedProps));
+        bIdenticalBinning = (Properties.isSameEventDepoProperties(loadedProps));
     }
 
     QJsonObject djs;
@@ -277,13 +280,18 @@ bool ACalorimeter::addEventDepoDataFromJson(const QJsonObject & json, const ACal
         else
             EventDepoData->Fill(data[i].first, data[i].second);
 
-    for (int i = 0; i < 5; i++)
-        EventDepoDataStats[i] += statAr[i].toDouble();
-
     if (bIdenticalBinning)
-        EventDepoData->setStats(EventDepoDataStats);
+    {
+        for (int i = 0; i < 5; i++)
+            EventDepoDataStats[i] += statAr[i].toDouble();
+    }
     else
-        EventDepoData->SetEntries(EventDepoDataStats[4]);
+    {
+        for (int i = 0; i < 4; i++) EventDepoDataStats[i] = 0;
+        EventDepoDataStats[4] += statAr[4].toDouble();
+    }
+
+    EventDepoData->setStats(EventDepoDataStats);
 
     return true;
 }
@@ -330,9 +338,9 @@ bool ACalorimeter::loadDepositionFromJsonArr(const QJsonArray & ar, std::vector<
 
 bool ACalorimeter::loadEventDepoFromJsonArr(const QJsonArray & ar, std::vector<std::pair<double, double>> & data) const
 {
-    data.reserve(Properties.EventDepoBins);
+    data.reserve(Properties.EventDepoBins+2);
 
-    for (int i = 0; i < Properties.EventDepoBins; i++)
+    for (int i = 0; i < Properties.EventDepoBins+2; i++)
     {
         QJsonArray el = ar[i].toArray();
 

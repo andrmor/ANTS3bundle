@@ -728,7 +728,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
 
     if (Settings.RunSet.CalorimeterSettings.Enabled)
     {
-        for (const ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
+        for (ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
         {
             CalorimeterSensitiveDetector * sd = new CalorimeterSensitiveDetector(r.Name, r.Properties, r.Index);
             Calorimeters.push_back(sd);
