@@ -390,3 +390,40 @@ void ACalSettings::clear()
 
     Calorimeters.clear();
 }
+
+void ACalorimeterProperties::copyDepoDoseProperties(const ACalorimeterProperties & other)
+{
+    DataType = other.DataType;
+    RandomizeBin = other.RandomizeBin;
+
+    Origin = other.Origin;
+    Step   = other.Step;
+    Bins   = other.Bins;
+}
+
+void ACalorimeterProperties::copyEventDepoProperties(const ACalorimeterProperties &other)
+{
+    CollectDepoOverEvent = other.CollectDepoOverEvent;
+    EventDepoBins = other.EventDepoBins;
+    EventDepoFrom = other.EventDepoFrom;
+    EventDepoTo = other.EventDepoTo;
+}
+
+bool ACalorimeterProperties::isSameDepoDoseProperties(const ACalorimeterProperties &other) const
+{
+    if (DataType != other.DataType) return false;
+    if (RandomizeBin != other.RandomizeBin) return false;
+    if (Origin != other.Origin) return false;
+    if (Step   != other.Step) return false;
+    if (Bins   != other.Bins) return false;
+    return true;
+}
+
+bool ACalorimeterProperties::isSameyEventDepoProperties(const ACalorimeterProperties &other) const
+{
+    if (CollectDepoOverEvent != other.CollectDepoOverEvent) return false;
+    if (EventDepoBins != other.EventDepoBins) return false;
+    if (EventDepoFrom != other.EventDepoFrom) return false;
+    if (EventDepoTo != other.EventDepoTo) return false;
+    return true;
+}

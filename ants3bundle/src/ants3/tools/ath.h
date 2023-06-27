@@ -20,6 +20,7 @@ public:
     bool mergeIdentical(const TH1D & other);
 
     void setStats(double * statsArray);
+    void setStats(const std::array<double,5> & statsArray);
 
     static void merge(TH1D* & to, TH1D* const & from);
 

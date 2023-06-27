@@ -36,11 +36,16 @@ public:
     void toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const;
 #endif
 
+    void copyDepoDoseProperties(const ACalorimeterProperties & other);
+    void copyEventDepoProperties(const ACalorimeterProperties & other);
+
+    bool isSameDepoDoseProperties(const ACalorimeterProperties & other) const;
+    bool isSameyEventDepoProperties(const ACalorimeterProperties & other) const;
+
     enum EDataType {Energy, Dose};
 
     EDataType DataType = Energy;
     bool RandomizeBin = false;
-
     std::array<double, 3> Origin = {-5, -5, -5};
     std::array<double, 3> Step   = { 1,  1,  1};
     std::array<int,    3> Bins   = {10, 10,  10};
