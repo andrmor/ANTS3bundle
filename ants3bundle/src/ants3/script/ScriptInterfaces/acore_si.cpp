@@ -151,6 +151,27 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
     return res;
 }
 
+double ACore_SI::arraySum(QVariantList array)
+{
+    double sum = 0;
+    bool ok;
+
+    for (int i = 0; i < array.size(); i++)
+    {
+        double val = array[i].toDouble(&ok);
+        if (ok)
+        {
+            sum += val;
+            continue;
+        }
+
+        QVariantList el = array[i].toList();
+        sum += el.back().toDouble();
+    }
+
+    return sum;
+}
+
 /*
 #include "amatcomposition.h"
 QString ACore_SI::testComposition(QString comp)
