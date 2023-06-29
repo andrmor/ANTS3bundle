@@ -1430,6 +1430,22 @@ void AGeoObject::scaleRecursive(double factor)
     for (AGeoObject * obj : HostedObjects) obj->scaleRecursive(factor);
 }
 
+bool AGeoObject::checkCompatibleWithGeant4() const
+{
+    if (!fActive) return true;
+
+    if (Shape && !Shape->isCompatibleWithGeant4())
+    {
+        AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
+        return false;
+    }
+
+    for (AGeoObject * obj : HostedObjects)
+        if (!obj->checkCompatibleWithGeant4()) return false;
+
+    return true;
+}
+
 #include <QRandomGenerator>
 QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
 {

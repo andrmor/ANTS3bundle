@@ -94,6 +94,8 @@ public:
     void         getScintillatorVolumeNames(std::vector<QString> & vol) const;
     void         getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const;
 
+    void         checkGeometryCompatibleWithGeant4() const;
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 

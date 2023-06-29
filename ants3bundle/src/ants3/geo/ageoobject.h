@@ -160,6 +160,8 @@ public:
 
   void scaleRecursive(double factor);         // used only during population of TGeoManager as it ignores txt position/size parameters
 
+  bool checkCompatibleWithGeant4() const;
+
   //service propertie
   QString tmpContName;               // used only during load
   bool fExpanded = true;             // gui only: expand status in the tree view

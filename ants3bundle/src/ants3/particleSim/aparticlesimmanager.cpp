@@ -165,6 +165,7 @@ void AParticleSimManager::doPreSimChecks()
 {
     checkG4Settings();
     checkDirectories();
+    Geometry.checkGeometryCompatibleWithGeant4();
 
     // !!!*** refactor
     QString err;

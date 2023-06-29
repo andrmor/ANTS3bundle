@@ -53,6 +53,8 @@ public:
 
     virtual void scale(double factor) {} // !!!*** = 0
 
+    virtual bool isCompatibleWithGeant4() const {return true;}
+
 protected:
     bool    extractParametersFromString(QString GenerationString, QStringList& parameters, int numParameters);
 
@@ -177,6 +179,8 @@ public:
     bool readFromTShape(TGeoShape* Tshape) override;
 
     void scale(double factor) override;
+
+    bool isCompatibleWithGeant4() const override;
 
     QString BaseShapeGenerationString;
 

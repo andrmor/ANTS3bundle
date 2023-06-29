@@ -1629,6 +1629,11 @@ void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) 
     }
 }
 
+void AGeometryHub::checkGeometryCompatibleWithGeant4() const
+{
+    World->checkCompatibleWithGeant4();
+}
+
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const
 {
     if (VolumesAndWildcards.empty()) return ""; //can be empty
