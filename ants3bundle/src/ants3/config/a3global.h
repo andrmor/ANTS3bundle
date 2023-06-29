@@ -45,6 +45,7 @@ public:
     int     SW_FontSize   = 12;
     int     SW_FontWeight = false;
     bool    SW_Italic     = false;
+    int     TabInSpaces = 7;
 
     /*
     bool RecTreeSave_IncludePMsignals = true;

@@ -98,6 +98,7 @@ void A3Global::saveConfig()
     json["SW_FontFamily"]  = SW_FontFamily;
     json["SW_FontWeight"]  = SW_FontWeight;
     json["SW_Italic"]      = SW_Italic;
+    json["TabInSpaces"]    = TabInSpaces;
 
     json["TrackVisAttributes"] = TrackVisAttributes;
 
@@ -160,6 +161,7 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "SW_FontFamily", SW_FontFamily);
     jstools::parseJson(json, "SW_FontWeight", SW_FontWeight);
     jstools::parseJson(json, "SW_Italic", SW_Italic);
+    jstools::parseJson(json, "TabInSpaces", TabInSpaces);
 
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 

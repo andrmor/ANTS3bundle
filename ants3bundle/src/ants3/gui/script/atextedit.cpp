@@ -1,5 +1,6 @@
 #include "atextedit.h"
 #include "guitools.h"
+#include "a3global.h"
 
 #include <QCompleter>
 #include <QKeyEvent>
@@ -18,7 +19,8 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(QWidget *parent) : QPlainTextEdit(parent), c(0)
+ATextEdit::ATextEdit(QWidget *parent) :
+    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces), c(0)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);

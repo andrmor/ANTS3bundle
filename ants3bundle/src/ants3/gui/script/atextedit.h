@@ -25,9 +25,9 @@ public:
 
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
+    int & TabInSpaces;
     QStringList functionList;
     QString FindString;
-    static const int TabInSpaces = 7;
     const QHash<QString, QString>* DeprecatedOrRemovedMethods = 0;
 
 public slots:
