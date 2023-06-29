@@ -298,6 +298,33 @@
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
                 },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
                 "Theta": 0,
                 "Type": {
                     "Type": "Single"
@@ -409,6 +436,33 @@
                     "str2dx": "XYsize",
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
                 },
                 "Theta": 0,
                 "Type": {
@@ -631,6 +685,33 @@
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
                 },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
                 "Theta": 0,
                 "Type": {
                     "Type": "Single"
@@ -742,6 +823,33 @@
                     "str2dx": "XYsize",
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
                 },
                 "Theta": 0,
                 "Type": {
@@ -964,6 +1072,33 @@
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
                 },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
                 "Theta": 0,
                 "Type": {
                     "Type": "Single"
@@ -1075,6 +1210,33 @@
                     "str2dx": "XYsize",
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
                 },
                 "Theta": 0,
                 "Type": {
@@ -1800,7 +1962,7 @@
         "ClusterMerge": false,
         "ClusterMergeRadius": 0.1,
         "ClusterMergeTime": 1,
-        "Events": 10000,
+        "Events": 100000,
         "Geant4Settings": {
             "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
@@ -1915,7 +2077,7 @@
             "AsciiOutput": true,
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
-                "Enabled": false,
+                "Enabled": true,
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
