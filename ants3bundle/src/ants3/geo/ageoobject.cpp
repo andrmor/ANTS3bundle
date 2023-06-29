@@ -218,7 +218,8 @@ const AGeoObject * AGeoObject::isGeoConstInUse(const QRegularExpression & nameRe
         if (OrientationStr[i].contains(nameRegExp)) return this;
     }
     if (Shape && Shape->isGeoConstInUse(nameRegExp)) return this;
-    if (Type && Type->isGeoConstInUse(nameRegExp)) return this;  //good?
+    if (Type  && Type->isGeoConstInUse(nameRegExp))  return this;
+    if (Role  && Role->isGeoConstInUse(nameRegExp))  return this;
     return nullptr;
 }
 
@@ -231,6 +232,7 @@ void AGeoObject::replaceGeoConstName(const QRegularExpression & nameRegExp, cons
     }
     if (Shape) Shape->replaceGeoConstName(nameRegExp, newName);
     if (Type)  Type->replaceGeoConstName(nameRegExp, newName);
+    if (Role)  Role->replaceGeoConstName(nameRegExp, newName);
 }
 
 const AGeoObject * AGeoObject::isGeoConstInUseRecursive(const QRegularExpression & nameRegExp) const
@@ -416,9 +418,7 @@ void AGeoObject::introduceGeoConstValues()
     }
 
     if (Shape) Shape->introduceGeoConstValues(errorStr);
-
     if (Type)  Type->introduceGeoConstValues(errorStr);
-
     if (Role)  Role->introduceGeoConstValues(errorStr);
 
     if (!errorStr.isEmpty())

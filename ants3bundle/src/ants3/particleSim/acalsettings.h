@@ -51,7 +51,7 @@ public:
     std::array<int,    3> Bins   = {10, 10,  10};
 
     bool CollectDepoOverEvent = false;
-    int EventDepoBins = 100;
+    int EventDepoBins = 190;
     double EventDepoFrom = 0.1;
     double EventDepoTo = 2.0;
 
