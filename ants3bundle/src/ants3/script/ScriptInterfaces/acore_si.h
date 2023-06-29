@@ -32,6 +32,8 @@ public slots:
     //int fun(int i, int j, int k);
     //int fun(int i);
 
+    double  arraySum(QVariantList array);
+
     // Output
     void    clearOutput();
     void    print(QVariant message);

@@ -87,6 +87,15 @@
             },
             {
                 "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
                 "Name": "Array1",
                 "Phi": 0,
                 "Psi": 0,
@@ -281,6 +290,33 @@
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
                 },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
                 "Theta": 0,
                 "Type": {
                     "Type": "Single"
@@ -392,6 +428,33 @@
                     "str2dx": "XYsize",
                     "str2dy": "XYsize",
                     "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
                 },
                 "Theta": 0,
                 "Type": {
@@ -534,15 +597,6 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
-            },
-            {
-                "Container": "World",
-                "Name": "_#_PrototypeContainer_#_",
-                "Type": {
-                    "Type": "PrototypeCollection"
-                },
-                "fActive": true,
-                "fExpanded": true
             }
         ]
     },
@@ -1086,7 +1140,7 @@
             "AsciiOutput": true,
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
-                "Enabled": false,
+                "Enabled": true,
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",

@@ -59,7 +59,16 @@ void ATH1D::setStats(double *statsArray)
     fTsumw2  = statsArray[1];
     fTsumwx  = statsArray[2];
     fTsumwx2 = statsArray[3];
-    SetEntries(statsArray[0]);
+    SetEntries(statsArray[4]);
+}
+
+void ATH1D::setStats(const std::array<double, 5> & statsArray)
+{
+    fTsumw   = statsArray[0];
+    fTsumw2  = statsArray[1];
+    fTsumwx  = statsArray[2];
+    fTsumwx2 = statsArray[3];
+    SetEntries(statsArray[4]);
 }
 
 void ATH1D::merge(TH1D* & to, TH1D* const & from)

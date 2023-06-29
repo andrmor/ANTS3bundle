@@ -121,6 +121,11 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 
     json["RandomizeBin"] = RandomizeBin;
 
+    json["CollectDepoOverEvent"] = CollectDepoOverEvent;
+    json["EventDepoBins"] = EventDepoBins;
+    json["EventDepoFrom"] = EventDepoFrom;
+    json["EventDepoTo"] = EventDepoTo;
+
 #ifndef JSON11
     QJsonArray toAr, tsAr, tbAr;
     for (int i=0; i<3; i++)
@@ -132,6 +137,10 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
     if (strOrigin != std::array<QString,3>{"", "", ""}) json["strOrigin"] = toAr;
     if (strStep   != std::array<QString,3>{"", "", ""}) json["strStep"]   = tsAr;
     if (strBins   != std::array<QString,3>{"", "", ""}) json["strBins"]   = tbAr;
+
+    json["strEventDepoBins"] = strEventDepoBins;
+    json["strEventDepoFrom"] = strEventDepoFrom;
+    json["strEventDepoTo"]   = strEventDepoTo;
 #endif
 }
 
@@ -171,6 +180,11 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
         for (int i=0; i<3; i++)
             Bins[i] = ar[i].int_value();
     }
+
+    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    jstools::parseJson(json, "EventDepoBins", EventDepoBins);
+    jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
+    jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
 }
 #else
 void ACalorimeterProperties::readFromJson(const QJsonObject & json)
@@ -187,6 +201,11 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     }
 
     jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
+    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    jstools::parseJson(json, "EventDepoBins", EventDepoBins);
+    jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
+    jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
 
     {
         QJsonArray ar;
@@ -258,6 +277,10 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
             }
         }
     }
+
+    jstools::parseJson(json, "strEventDepoBins", strEventDepoBins);
+    jstools::parseJson(json, "strEventDepoFrom", strEventDepoFrom);
+    jstools::parseJson(json, "strEventDepoTo",   strEventDepoTo);
 }
 #endif
 
@@ -366,4 +389,41 @@ void ACalSettings::clear()
     FileName = "Calorimeters.json";
 
     Calorimeters.clear();
+}
+
+void ACalorimeterProperties::copyDepoDoseProperties(const ACalorimeterProperties & other)
+{
+    DataType = other.DataType;
+    RandomizeBin = other.RandomizeBin;
+
+    Origin = other.Origin;
+    Step   = other.Step;
+    Bins   = other.Bins;
+}
+
+void ACalorimeterProperties::copyEventDepoProperties(const ACalorimeterProperties &other)
+{
+    CollectDepoOverEvent = other.CollectDepoOverEvent;
+    EventDepoBins = other.EventDepoBins;
+    EventDepoFrom = other.EventDepoFrom;
+    EventDepoTo = other.EventDepoTo;
+}
+
+bool ACalorimeterProperties::isSameDepoDoseProperties(const ACalorimeterProperties &other) const
+{
+    if (DataType != other.DataType) return false;
+    if (RandomizeBin != other.RandomizeBin) return false;
+    if (Origin != other.Origin) return false;
+    if (Step   != other.Step) return false;
+    if (Bins   != other.Bins) return false;
+    return true;
+}
+
+bool ACalorimeterProperties::isSameEventDepoProperties(const ACalorimeterProperties &other) const
+{
+    if (CollectDepoOverEvent != other.CollectDepoOverEvent) return false;
+    if (EventDepoBins != other.EventDepoBins) return false;
+    if (EventDepoFrom != other.EventDepoFrom) return false;
+    if (EventDepoTo != other.EventDepoTo) return false;
+    return true;
 }

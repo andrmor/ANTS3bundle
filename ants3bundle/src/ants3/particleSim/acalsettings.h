@@ -36,20 +36,31 @@ public:
     void toStrings(QString & originRet, QString & stepRet, QString & binsRet, bool useStringValues) const;
 #endif
 
+    void copyDepoDoseProperties(const ACalorimeterProperties & other);
+    void copyEventDepoProperties(const ACalorimeterProperties & other);
+
+    bool isSameDepoDoseProperties(const ACalorimeterProperties & other) const;
+    bool isSameEventDepoProperties(const ACalorimeterProperties & other) const;
+
     enum EDataType {Energy, Dose};
 
     EDataType DataType = Energy;
     bool RandomizeBin = false;
-
     std::array<double, 3> Origin = {-5, -5, -5};
     std::array<double, 3> Step   = { 1,  1,  1};
     std::array<int,    3> Bins   = {10, 10,  10};
+
+    bool CollectDepoOverEvent = false;
+    int EventDepoBins = 190;
+    double EventDepoFrom = 0.1;
+    double EventDepoTo = 2.0;
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
     std::array<QString, 3> strOrigin = {"", "", ""};
     std::array<QString, 3> strStep   = {"", "", ""};
     std::array<QString, 3> strBins   = {"", "", ""};
+    QString strEventDepoBins, strEventDepoFrom, strEventDepoTo;
 #endif
 };
 

@@ -26,6 +26,9 @@ void ACalorimeter::clearData()
     delete DataHistogram; DataHistogram = nullptr;
     Stats.fill(0);
     Entries = 0;
+
+    delete EventDepoData; EventDepoData = nullptr;
+    EventDepoDataStats.fill(0);
 }
 
 double ACalorimeter::getTotalEnergy() const
@@ -79,6 +82,29 @@ void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const
         jsDepo["Entries"] = Entries;
     }
     json["XYZDepo"] = jsDepo;
+
+    if (EventDepoData)
+    {
+        QJsonObject js;
+
+        QJsonArray ar;
+        const int size = EventDepoData->GetNbinsX();
+        for (int i = 0; i < size+2; i++)  // starts with underflow and ends with overflow
+        {
+            QJsonArray el;
+            el.push_back(EventDepoData->GetBinCenter(i));
+            el.push_back(EventDepoData->GetBinContent(i));
+            ar.push_back(el);
+        }
+        js["Data"] = ar;
+
+        QJsonArray sjs;
+        for (const double & d : EventDepoDataStats)
+            sjs.push_back(d);
+        js["Stat"] = sjs;
+
+        json["DepoOverEvent"] = js;
+    }
 }
 
 bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
@@ -95,10 +121,28 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     ACalorimeterProperties loadedProps;
     loadedProps.readFromJson(pjs);
 
-    const bool bMergeMode = (DataHistogram != nullptr);
-    if (bMergeMode)
+    ok = addDepoDoseData(json, loadedProps);
+    if (!ok) return false;
+
+    if (Properties.CollectDepoOverEvent) addEventDepoDataFromJson(json, loadedProps);
+
+    return true;
+}
+
+bool ACalorimeter::addDepoDoseData(const QJsonObject & json, const ACalorimeterProperties & loadedProps)
+{
+    if (DataHistogram == nullptr)
     {
-        if (loadedProps != Properties)
+        Properties.copyDepoDoseProperties(loadedProps);
+
+        DataHistogram = new ATH3D("", "",
+                                  Properties.Bins[0], Properties.Origin[0], Properties.Origin[0] + Properties.Bins[0]*Properties.Step[0],
+                                  Properties.Bins[1], Properties.Origin[1], Properties.Origin[1] + Properties.Bins[1]*Properties.Step[1],
+                                  Properties.Bins[2], Properties.Origin[2], Properties.Origin[2] + Properties.Bins[2]*Properties.Step[2]  );
+    }
+    else
+    {
+        if (!Properties.isSameDepoDoseProperties(loadedProps))
         {
             QString err = "Append calorimeter data error: Mismatch in calorimeter properties";
             AErrorHub::addQError(err);
@@ -106,18 +150,9 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
             return false;
         }
     }
-    else
-    {
-        Properties = loadedProps;
-        DataHistogram = new ATH3D("", "",
-                               Properties.Bins[0], Properties.Origin[0], Properties.Origin[0] + Properties.Bins[0]*Properties.Step[0],
-                               Properties.Bins[1], Properties.Origin[1], Properties.Origin[1] + Properties.Bins[1]*Properties.Step[1],
-                               Properties.Bins[2], Properties.Origin[2], Properties.Origin[2] + Properties.Bins[2]*Properties.Step[2]  );
-    }
-
 
     QJsonObject djs;
-    ok = jstools::parseJson(json, "XYZDepo", djs);
+    bool ok = jstools::parseJson(json, "XYZDepo", djs);
     if (!ok)
     {
         QString err = "Cannot find XYZDepo object in calorimeter json";
@@ -130,7 +165,7 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     ok = jstools::parseJson(djs, "Data", dataAr);
     if (!ok)
     {
-        QString err = "Cannot find Data array in calorimeter json";
+        QString err = "Cannot find Data array for XYZDepo in calorimeter json";
         AErrorHub::addQError(err);
         qWarning() << err;
         return false;
@@ -185,6 +220,82 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     return true;
 }
 
+bool ACalorimeter::addEventDepoDataFromJson(const QJsonObject & json, const ACalorimeterProperties & loadedProps)
+{
+    bool bIdenticalBinning;
+    if (EventDepoData == nullptr)
+    {
+        Properties.copyEventDepoProperties(loadedProps);
+        EventDepoData = new ATH1D("", "", loadedProps.EventDepoBins, loadedProps.EventDepoFrom, loadedProps.EventDepoTo);
+        bIdenticalBinning = true;
+    }
+    else
+    {
+        bIdenticalBinning = (Properties.isSameEventDepoProperties(loadedProps));
+    }
+
+    QJsonObject djs;
+    bool ok = jstools::parseJson(json, "DepoOverEvent", djs);
+    if (!ok)
+    {
+        QString err = "Cannot find DepoOverEvent object in calorimeter json";
+        AErrorHub::addQError(err);
+        qWarning() << err;
+        return false;
+    }
+
+    QJsonArray dataAr;
+    ok = jstools::parseJson(djs, "Data", dataAr);
+    if (!ok)
+    {
+        QString err = "Cannot find Data array for DepoOverEvent in calorimeter json";
+        AErrorHub::addQError(err);
+        qWarning() << err;
+        return false;
+    }
+    QJsonArray statAr;
+    ok = jstools::parseJson(djs, "Stat", statAr);
+    if (!ok)
+    {
+        QString err = "Cannot find Stat array for DepoOverEvent in calorimeter json";
+        AErrorHub::addQError(err);
+        qWarning() << err;
+        return false;
+    }
+    if (statAr.size() != 5)
+    {
+        QString err = "Bad length of Stat array for DepoOverEvent in calorimeter json";
+        AErrorHub::addQError(err);
+        qWarning() << err;
+        return false;
+    }
+
+    std::vector<std::pair<double,double>> data;
+    ok = loadEventDepoFromJsonArr(dataAr, data);
+    if (!ok) return false;
+
+    for (size_t i = 0; i < data.size(); i++)
+        if (bIdenticalBinning)
+            EventDepoData->AddBinContent(i, data[i].second);
+        else
+            EventDepoData->Fill(data[i].first, data[i].second);
+
+    if (bIdenticalBinning)
+    {
+        for (int i = 0; i < 5; i++)
+            EventDepoDataStats[i] += statAr[i].toDouble();
+    }
+    else
+    {
+        for (int i = 0; i < 4; i++) EventDepoDataStats[i] = 0;
+        EventDepoDataStats[4] += statAr[4].toDouble();
+    }
+
+    EventDepoData->setStats(EventDepoDataStats);
+
+    return true;
+}
+
 bool ACalorimeter::loadDepositionFromJsonArr(const QJsonArray & ar, std::vector< std::vector< std::vector<double> > > & data) const
 {
     data.resize(Properties.Bins[0]);
@@ -222,5 +333,29 @@ bool ACalorimeter::loadDepositionFromJsonArr(const QJsonArray & ar, std::vector<
                 data[ix][iy][iz] = el[ix].toDouble();
         }
 
+    return true;
+}
+
+bool ACalorimeter::loadEventDepoFromJsonArr(const QJsonArray & ar, std::vector<std::pair<double, double>> & data) const
+{
+    data.reserve(Properties.EventDepoBins+2);
+
+    for (int i = 0; i < Properties.EventDepoBins+2; i++)
+    {
+        QJsonArray el = ar[i].toArray();
+
+        if (el.size() != 2)
+        {
+            QString err = "Bad length of Data array element for DepoOverEvent in calorimeter json";
+            AErrorHub::addQError(err);
+            qWarning() << err;
+            return false;
+        }
+
+        double pos = el[0].toDouble();
+        double val = el[1].toDouble();
+
+        data.push_back({pos, val});
+    }
     return true;
 }

@@ -79,6 +79,8 @@ protected:
     AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
     AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
     QCheckBox *cbOffX, *cbOffY, *cbOffZ;
+    QCheckBox * cbCalEventStat;
+    AOneLineTextEdit * leiCalEventDepoBins, *ledCalEventDepoFrom, *ledCalEventDepoTo;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!

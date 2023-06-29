@@ -180,6 +180,40 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
     return res;
 }
 
+QVariantList AParticleSim_SI::getCalorimeterOverEventData(int calorimeterIndex)
+{
+    QVariantList res;
+    const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
+
+    const int numCal = CalHub.countCalorimeters();
+    if (calorimeterIndex < 0 || calorimeterIndex >= numCal)
+    {
+        abort("Invalid calorimeter index");
+        return res;
+    }
+
+    ACalorimeter * cal = CalHub.Calorimeters[calorimeterIndex].Calorimeter;
+    if (!cal)
+    {
+        abort("Calorimeter is nullptr!");
+        return res;
+    }
+
+    ATH1D * data = cal->EventDepoData;
+    if (!data)
+    {
+        abort("Calorimeter has no data!");
+        return res;
+    }
+
+    const int num = data->GetXaxis()->GetNbins();
+    for (int i = 0; i < num; i++)
+                res.push_back( QVariantList{data->GetXaxis()->GetBinCenter(i+1),
+                                            data->GetBinContent(i+1)} );
+
+    return res;
+}
+
 QVariantList AParticleSim_SI::getCalorimeterBinning(int calorimeterIndex)
 {
     QVariantList res;

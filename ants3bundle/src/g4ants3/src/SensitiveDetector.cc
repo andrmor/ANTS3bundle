@@ -258,13 +258,15 @@ void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::obj
 
 // ---
 
-CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index) :
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties &properties, int index) :
     G4VSensitiveDetector(name),
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
     Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
 
     VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
+
+    if (properties.CollectDepoOverEvent) EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
 }
 
 CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
@@ -306,16 +308,14 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
     }
     else Data->fill({local[0], local[1], local[2]}, depo / MeV);
 
+    if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / MeV;
+
     return true;
 }
 
 void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
 {
     json["CalorimeterIndex"] = CalorimeterIndex;
-
-    json11::Json::object jsProps;
-    Properties.writeToJson(jsProps);
-    json["Properties"] = jsProps;
 
     json11::Json::object jsDepo;
     {
@@ -340,4 +340,37 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
         jsDepo["Entries"] = Data->getEntries();
     }
     json["XYZDepo"] = jsDepo;
+
+    if (Properties.CollectDepoOverEvent)
+    {
+        json11::Json::object js;
+
+        const std::vector<double> & data = EventDepoData->getContent();
+        double from, to;
+        EventDepoData->getLimits(from, to);
+        Properties.EventDepoFrom = from;
+        Properties.EventDepoTo = to;
+        double delta = (to - from) / Properties.EventDepoBins;
+        json11::Json::array ar;
+        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
+        {
+            json11::Json::array el;
+                el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
+                el.push_back(data[i]);
+            ar.push_back(el);
+        }
+        js["Data"] = ar;
+
+        const std::vector<double> vec = EventDepoData->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        js["Stat"] = sjs;
+
+        json["DepoOverEvent"] = js;
+    }
+
+    json11::Json::object jsProps;
+    Properties.writeToJson(jsProps);
+    json["Properties"] = jsProps;
 }

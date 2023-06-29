@@ -2320,6 +2320,7 @@ void AParticleSimWin::updateCalorimeterGui()
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
             ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+            ui->frCaloShowDepoOverEvent->setVisible(Cal->EventDepoData);
             updateShowCalorimeterGui();
         }
         else
@@ -2983,5 +2984,20 @@ void AParticleSimWin::on_ledPTHistFromY_editingFinished()
 void AParticleSimWin::on_ledPTHistToY_editingFinished()
 {
     updateRangeWarning();
+}
+
+void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH1D * Data = CalHub.Calorimeters[iCal].Calorimeter->EventDepoData;
+    if (!Data) return;
+
+    Data->GetXaxis()->SetTitle("Deposited energy over event, MeV");
+
+    emit requestDraw(Data, "hist", false, true);
 }
 
