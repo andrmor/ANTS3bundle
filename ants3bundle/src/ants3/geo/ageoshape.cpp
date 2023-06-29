@@ -4041,7 +4041,7 @@ bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
         return false;
     }
     BaseShapeGenerationString = AShape->getGenerationString();
-    delete AShape;
+    BaseShape = AShape;
     return true;
 }
 
