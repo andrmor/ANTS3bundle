@@ -1783,7 +1783,12 @@ void AScriptWindow::on_actionShortcuts_triggered()
                 "Ctrl + Shift + Down\tShift line down\n"
                 "\n"
                 "For selected text:\n"
-                "Ctrl + i\t\tAuto-align JavaScript";
+                "Ctrl + i\t\tAuto-align JavaScript\n"
+                "\n"
+                "Insert boilerplate code:\n"
+                "Ctrl + Alt + F\t'For' cycle\n"
+                "Ctrl + Alt + G\t1D graph\n"
+                "Ctrl + Alt + H\t1D histogram\n";
 
     guitools::message(s, this);
 }

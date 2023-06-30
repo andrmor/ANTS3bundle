@@ -1,6 +1,8 @@
 #ifndef ATEXTEDIT_H
 #define ATEXTEDIT_H
 
+#include "escriptlanguage.h"
+
 #include <QPlainTextEdit>
 #include <QObject>
 #include <QWidget>
@@ -18,6 +20,8 @@ public:
 
     void setCompleter(QCompleter *completer);
     QCompleter *completer() const {return c; }
+
+    void setScriptLanguage(EScriptLanguage lang) {ScriptLanguage = lang;}
 
     void SetFontSize(int size);
     void RefreshExtraHighlight();
@@ -53,6 +57,7 @@ private slots:
 private:
     int  previousLineNumber = 0;
     bool bMonitorLineChange = true;
+    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
 
     QString textUnderCursor() const;
     QString SelectObjFunctUnderCursor(QTextCursor* cursor = 0) const;
@@ -77,6 +82,7 @@ private:
     void setIndent(QString &line, int indent);
     void convertTabToSpaces(QString &line);
     int getSectionCounterChange(const QString &line) const;
+    void pasteText(const QString &text);
 
 signals:
     void requestHelp(QString);

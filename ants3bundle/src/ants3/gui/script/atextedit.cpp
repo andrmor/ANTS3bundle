@@ -51,6 +51,43 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     //simple cases
     switch (e->key())
     {
+    case Qt::Key_F :
+      {
+        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+        {
+            QString text = "for (var ii = 0; ii < iiMax; ii++)\n"
+                           "{\n"
+                           "\n"
+                           "}";
+            pasteText(text);
+            return;
+        }
+      }
+       break;
+    case Qt::Key_G :
+      {
+        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+        {
+            QString text = "graph.new1D(\"g\")\n"
+                           "graph.addPoints(\"g\", myArrayOfPoints )\n"
+                           "graph.draw(\"g\")";
+            pasteText(text);
+            return;
+        }
+      }
+      break;
+    case Qt::Key_H :
+    {
+        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+        {
+            QString text = "hist.new1D(\"h\", 100, 0, 100)\n"
+                           "hist.fillArr(\"h\", myArray )\n"
+                           "hist.draw(\"h\", \"hist\")";
+            pasteText(text);
+            return;
+        }
+    }
+    break;
     case Qt::Key_V :
       {
         if (e->modifiers() & Qt::ControlModifier)
@@ -1043,6 +1080,28 @@ void ATextEdit::paste()
         //  qDebug() << "Not empty, using regular paste";
         QPlainTextEdit::paste(); //just in case, but most likely it is empty
     }
+}
+
+void ATextEdit::pasteText(const QString & text)
+{
+    QStringList lines = text.split('\n');
+
+    QTextCursor tc = textCursor();
+    tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+
+    //  qDebug() << "Adjusting ident";
+    tc = textCursor();
+    int newIdent = textCursor().positionInBlock();
+
+    QString toInsert;
+    for (int i=0; i<lines.size(); i++)
+    {
+        QString modLine = lines.at(i);
+        if (i != lines.size()-1) modLine += "\n";
+        if (i != 0) modLine = QString(newIdent, ' ') + modLine;
+        toInsert += modLine;
+    }
+    tc.insertText( toInsert );
 }
 
 void ATextEdit::align()
