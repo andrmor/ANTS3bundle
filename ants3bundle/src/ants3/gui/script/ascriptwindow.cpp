@@ -1786,10 +1786,13 @@ void AScriptWindow::on_actionShortcuts_triggered()
                 "Ctrl + i\t\tAuto-align JavaScript\n"
                 "\n"
                 "Insert boilerplate code:\n"
+                "Ctrl + Alt + R\tSet ROOT stats\n"
                 "Ctrl + Alt + F  \t'For' cycle\n"
                 "Ctrl + Alt + G\t1D graph\n"
+                "Ctrl + Alt + Shift + G\t1D graph with more code\n"
                 "Ctrl + Alt + H\t1D histogram\n"
-                "Ctrl + Alt + R\tSet hist & graph stats\n";
+                "Ctrl + Alt + Shift + H\t1D histogram with more code\n"
+                "Ctrl + Alt + 2 followed by a hist or graph shortcut -> 2D hist or graph\n";
 
     guitools::message(s, this);
 }

@@ -84,7 +84,7 @@ private:
     int getSectionCounterChange(const QString &line) const;
     void pasteText(const QString &text);
 
-    bool onKeyPressed_interceptShortcut(int key);
+    bool onKeyPressed_interceptShortcut(int key, bool shift);
 
 signals:
     void requestHelp(QString);

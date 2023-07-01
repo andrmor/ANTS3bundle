@@ -44,13 +44,15 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(c, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
+static int counter = 0;
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
+    if (key == Qt::Key_Shift) return;
 
     if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
     {
-        bool ok = onKeyPressed_interceptShortcut(key);
+        bool ok = onKeyPressed_interceptShortcut(key, ((e->modifiers() & Qt::ShiftModifier)));
         if (ok) return;
     }
 
@@ -458,12 +460,16 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     c->complete(cr); // popup it up!
 }
 
-bool ATextEdit::onKeyPressed_interceptShortcut(int key)
+bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
 {
+    //qDebug() << key << shift;
     QString text;
     switch (key)
     {
     case Qt::Key_2 :
+        Pressed_2 = true;
+        return true;
+    case Qt::Key_QuoteDbl :
         Pressed_2 = true;
         return true;
     case Qt::Key_F :
@@ -476,34 +482,57 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key)
     case Qt::Key_G :
         if (Pressed_2)
         {
-            text = "graphName = \"g\"\n"
-                   "graph.new2D(graphName)\n"
-                   "graph.addPoints(graphName, ArrayOfArraysOfXYZ)\n"
-                   "graph.draw(graphName, \"lego\");";
+            text  = "graphName = \"g\"\n"
+                    "graph.new2D(graphName)\n"
+                    "graph.addPoints(graphName, ArrayOfArraysOfXYZ)\n";
+            if (shift)
+            {
+                text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
+                        "graph.setTitle(\"Title\")\n";
+            }
+            text += "graph.draw(graphName, \"lego\");";
         }
         else
         {
-            text = "graphName = \"g\"\n"
-                   "graph.new1D(graphName)\n"
-                   "graph.addPoints(graphName, ArrayOfArrysOfXY)\n"
-                   "graph.draw(graphName)";
+            text  = "graphName = \"g\"\n"
+                    "graph.new1D(graphName)\n"
+                    "graph.addPoints(graphName, ArrayOfArrysOfXY)\n";
+            if (shift)
+            {
+                text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\")\n"
+                        "graph.setLineProperties(graphName, lineColor, lineStyle, lineWidth)\n"
+                        "graph.setMarkerProperties(graphName, markerColor, markerStyle, markerSize)\n"
+                        "graph.setTitle(\"Title\")\n";
+            }
+            text += "graph.draw(graphName, \"APL\")";
         }
         pasteText(text);
         return true;
     case Qt::Key_H :
         if (Pressed_2)
         {
-            text = "histName = \"h\"\n"
+            text  = "histName = \"h\"\n"
                    "hist.new2D(histName, xBins, xFrom, xTo,  yBins, yFrom, yTo)\n"
-                   "hist.fillArr(histName, arrayOfArrysOfXYZ)\n"
-                   "hist.draw(histName, \"colz\")";
+                   "hist.fillArr(histName, arrayOfArrysOfXYZ)\n";
+            if (shift)
+            {
+                text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
+                        "hist.setTitle(\"Title\")\n";
+            }
+            text += "hist.draw(histName, \"colz\")";
         }
         else
         {
-            text = "histName = \"h\"\n"
-                   "hist.new1D(histName, Bins, RangeFrom, RangeTo)\n"
-                   "hist.fillArr(histName, arrayOfArrayOfXY)\n"
-                   "hist.draw(histName, \"hist\")";
+            text  = "histName = \"h\"\n"
+                    "hist.new1D(histName, Bins, RangeFrom, RangeTo)\n"
+                    "hist.fillArr(histName, arrayOfArrayOfXY)\n";
+            if (shift)
+            {
+                text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\")\n"
+                        "hist.setLineProperties(histName, lineColor, lineStyle, lineWidth)\n"
+                        "hist.setTitle(\"Title\")\n";
+            }
+            text += "hist.draw(histName, \"hist\")";
         }
         pasteText(text);
         return true;
