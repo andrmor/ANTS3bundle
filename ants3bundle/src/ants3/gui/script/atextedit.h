@@ -55,9 +55,13 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
+    friend class ALeftField;
     int  previousLineNumber = 0;
     bool bMonitorLineChange = true;
     EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
+    QCompleter * c = nullptr;
+    ALeftField * LeftField  = nullptr;
+    bool Pressed_2 = false;
 
     QString textUnderCursor() const;
     QString SelectObjFunctUnderCursor(QTextCursor* cursor = 0) const;
@@ -66,12 +70,8 @@ private:
     bool findInList(QString text, QString &tmp) const;
     void setFontSizeAndEmitSignal(int size);
 
-    friend class ALeftField;
     void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
     int  getWidthLeftField() const;
-
-    QCompleter* c;
-    ALeftField* LeftField;
 
     void checkBracketsOnLeft(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
     void checkBracketsOnRight(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
@@ -83,6 +83,8 @@ private:
     void convertTabToSpaces(QString &line);
     int getSectionCounterChange(const QString &line) const;
     void pasteText(const QString &text);
+
+    bool onKeyPressed_interceptShortcut(int key);
 
 signals:
     void requestHelp(QString);

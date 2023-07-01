@@ -1786,9 +1786,10 @@ void AScriptWindow::on_actionShortcuts_triggered()
                 "Ctrl + i\t\tAuto-align JavaScript\n"
                 "\n"
                 "Insert boilerplate code:\n"
-                "Ctrl + Alt + F\t'For' cycle\n"
+                "Ctrl + Alt + F  \t'For' cycle\n"
                 "Ctrl + Alt + G\t1D graph\n"
-                "Ctrl + Alt + H\t1D histogram\n";
+                "Ctrl + Alt + H\t1D histogram\n"
+                "Ctrl + Alt + R\tSet hist & graph stats\n";
 
     guitools::message(s, this);
 }

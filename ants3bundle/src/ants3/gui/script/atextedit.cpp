@@ -44,50 +44,22 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(c, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
-void ATextEdit::keyPressEvent(QKeyEvent *e)
+void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
+    const int key = e->key();
+
+    if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+    {
+        bool ok = onKeyPressed_interceptShortcut(key);
+        if (ok) return;
+    }
+
+    Pressed_2 = false;
+
     QTextCursor tc = textCursor();
 
-    //simple cases
-    switch (e->key())
+    switch (key)
     {
-    case Qt::Key_F :
-      {
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
-        {
-            QString text = "for (var ii = 0; ii < iiMax; ii++)\n"
-                           "{\n"
-                           "\n"
-                           "}";
-            pasteText(text);
-            return;
-        }
-      }
-       break;
-    case Qt::Key_G :
-      {
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
-        {
-            QString text = "graph.new1D(\"g\")\n"
-                           "graph.addPoints(\"g\", myArrayOfPoints )\n"
-                           "graph.draw(\"g\")";
-            pasteText(text);
-            return;
-        }
-      }
-      break;
-    case Qt::Key_H :
-    {
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
-        {
-            QString text = "hist.new1D(\"h\", 100, 0, 100)\n"
-                           "hist.fillArr(\"h\", myArray )\n"
-                           "hist.draw(\"h\", \"hist\")";
-            pasteText(text);
-            return;
-        }
-    }
-    break;
     case Qt::Key_V :
       {
         if (e->modifiers() & Qt::ControlModifier)
@@ -297,7 +269,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     }
     */
 
-    if (e->key() == Qt::Key_Return  && !(c && c->popup()->isVisible()))
+    if (key == Qt::Key_Return  && !(c && c->popup()->isVisible()))
     { //enter is pressed but completer popup is not visible
         tc.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
         QString onRight = tc.selectedText();
@@ -399,7 +371,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     if (c && c->popup()->isVisible())
     {
         // The following keys are forwarded by the completer to the widget
-        switch (e->key())
+        switch (key)
         {
         case Qt::Key_Tab:
           {
@@ -452,7 +424,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
+    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && key == Qt::Key_E); // CTRL+E
     if (!c || !isShortcut) // do not process the shortcut when we have a completer
         QPlainTextEdit::keyPressEvent(e);
 
@@ -484,6 +456,64 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     cr.setWidth(c->popup()->sizeHintForColumn(0)
                 + c->popup()->verticalScrollBar()->sizeHint().width());
     c->complete(cr); // popup it up!
+}
+
+bool ATextEdit::onKeyPressed_interceptShortcut(int key)
+{
+    QString text;
+    switch (key)
+    {
+    case Qt::Key_2 :
+        Pressed_2 = true;
+        return true;
+    case Qt::Key_F :
+        text = "for (var ii = 0; ii < iiMax; ii++)\n"
+               "{\n"
+               "\n"
+               "}";
+        pasteText(text);
+        return true;
+    case Qt::Key_G :
+        if (Pressed_2)
+        {
+            text = "graphName = \"g\"\n"
+                   "graph.new2D(graphName)\n"
+                   "graph.addPoints(graphName, ArrayOfArraysOfXYZ)\n"
+                   "graph.draw(graphName, \"lego\");";
+        }
+        else
+        {
+            text = "graphName = \"g\"\n"
+                   "graph.new1D(graphName)\n"
+                   "graph.addPoints(graphName, ArrayOfArrysOfXY)\n"
+                   "graph.draw(graphName)";
+        }
+        pasteText(text);
+        return true;
+    case Qt::Key_H :
+        if (Pressed_2)
+        {
+            text = "histName = \"h\"\n"
+                   "hist.new2D(histName, xBins, xFrom, xTo,  yBins, yFrom, yTo)\n"
+                   "hist.fillArr(histName, arrayOfArrysOfXYZ)\n"
+                   "hist.draw(histName, \"colz\")";
+        }
+        else
+        {
+            text = "histName = \"h\"\n"
+                   "hist.new1D(histName, Bins, RangeFrom, RangeTo)\n"
+                   "hist.fillArr(histName, arrayOfArrayOfXY)\n"
+                   "hist.draw(histName, \"hist\")";
+        }
+        pasteText(text);
+        return true;
+    case Qt::Key_R :
+        text = "root.SetOptStat( \"rmeoui\" )";
+        pasteText(text);
+        return true;
+    }
+
+    return false;
 }
 
 void ATextEdit::focusInEvent(QFocusEvent *e)
@@ -1085,6 +1115,7 @@ void ATextEdit::paste()
 void ATextEdit::pasteText(const QString & text)
 {
     QStringList lines = text.split('\n');
+    lines.push_back("");
 
     QTextCursor tc = textCursor();
     tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
