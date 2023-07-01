@@ -473,10 +473,14 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
         Pressed_2 = true;
         return true;
     case Qt::Key_F :
-        text = "for (var ii = 0; ii < iiMax; ii++)\n"
-               "{\n"
-               "\n"
-               "}";
+        if (ScriptLanguage == EScriptLanguage::JavaScript)
+        {
+            text = "for (var ii = 0; ii < iiMax; ii++)\n"
+                   "{\n"
+                   "\n"
+                   "}";
+        }
+        else text = "for ii in range(iiFrom, iiTo, iiStep):";
         pasteText(text);
         return true;
     case Qt::Key_G :
