@@ -176,6 +176,7 @@ SOURCES += \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/script/ageoscriptmaker.cpp \
+    gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
     gui/script/ascriptwindow.cpp \
@@ -377,6 +378,7 @@ HEADERS += \
     gui/photsim/asensorgview.h \
     gui/photsim/asensorwindow.h \
     gui/script/ageoscriptmaker.h \
+    gui/script/aguifromscrwin.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
     gui/script/ascriptwindow.h \

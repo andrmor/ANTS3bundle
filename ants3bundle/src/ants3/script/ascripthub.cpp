@@ -74,9 +74,11 @@ void AScriptHub::updateGeoWin(AGeometryWindow * GeoWin)
 }
 
 #include "agui_si.h"
-void AScriptHub::addGuiScriptUnit()
+#include "aguifromscrwin.h"
+void AScriptHub::addGuiScriptUnit(AGuiFromScrWin * win)
 {
-    JavaScriptM->registerInterface(new AGui_JS_SI(), "gui");
+    AGui_JS_SI * unit = new AGui_JS_SI(win);
+    JavaScriptM->registerInterface(unit, "gui");
 #ifdef ANTS3_PYTHON
     //PythonM->registerInterface(new AGui_SI(EScriptLanguage::Python), "gui");
 #endif
