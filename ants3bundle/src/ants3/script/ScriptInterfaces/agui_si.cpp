@@ -65,7 +65,7 @@ bool AGui_SI::beforeRun()
 
 void AGui_SI::abortRun()
 {
-    //delete Wid; Wid = nullptr;
+    emit requestHide();
 }
 
 void AGui_SI::buttonNew(QString name, QString addTo, QString text)
@@ -674,7 +674,6 @@ void AGui_JS_SI::buttonOnClick(QString name, QJSValue scriptFunction)
 {
     QTimer::singleShot(0, Win, [this, name, scriptFunction]()
                        {
-
                            QWidget * w = Widgets.value(name, 0);
                            QPushButton * b = dynamic_cast<QPushButton*>(w);
                            if (!b)
@@ -682,17 +681,21 @@ void AGui_JS_SI::buttonOnClick(QString name, QJSValue scriptFunction)
                                abort("Button " + name + " does not exist");
                                return;
                            }
-
                            if (scriptFunction.isCallable())
                            {
                                qDebug() << "Directly callable!";
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                               abort("Direct call is not supported for Qt5, use function name (e.g. \"doSomething\")");
+                               return;
+#else
                                connect(b, &QPushButton::clicked, Win,
                                    [scriptFunction]()
                                    {
                                        bool err = scriptFunction.call().isError();
                                        qDebug() << "----DONE, error?" << err;
                                        if (err) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::JavaScript);
-                                   } );
+                                   });
+#endif
                            }
                            else
                            {
@@ -709,8 +712,7 @@ void AGui_JS_SI::buttonOnClick(QString name, QJSValue scriptFunction)
                                        qDebug() << "----DONE, ok?" << ok;
                                        if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::JavaScript);
                                        qDebug() << "<--";
-                                   }
-                                    );
+                                   });
                            }
     } );
 

@@ -111,13 +111,13 @@ public:
 
 public slots:
     void buttonOnClick(QString name, QJSValue scriptFunction);
-    void buttonOnRightClick(QString name, QVariant scriptFunction);
+    void buttonOnRightClick(QString name, QVariant scriptFunction); // !!!***
 
-    void editOnTextChanged(QString name, QVariant scriptFunction);
+    void editOnTextChanged(QString name, QVariant scriptFunction); // !!!***
 
-    void comboboxOnTextChanged(QString name, QVariant scriptFunction);
+    void comboboxOnTextChanged(QString name, QVariant scriptFunction); // !!!***
 
-    void checkboxOnClick(QString name, const QVariant scriptFunction);
+    void checkboxOnClick(QString name, const QVariant scriptFunction); // !!!***
 
 private:
     std::function<void(void)> getCallable(const QVariant & function);
