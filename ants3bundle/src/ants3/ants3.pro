@@ -118,6 +118,7 @@ SOURCES += \
     gui/aconfigexamplebrowser.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
@@ -189,6 +190,7 @@ SOURCES += \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
+    script/ScriptInterfaces/agui_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
     script/ScriptInterfaces/aparticlesim_si.cpp \
     script/ScriptInterfaces/arootstyle_si.cpp \
@@ -317,6 +319,7 @@ HEADERS += \
     gui/aconfigexamplebrowser.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
+    gui/alineedit.h \
     gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ageotreewin.h \
@@ -389,6 +392,7 @@ HEADERS += \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \
+    script/ScriptInterfaces/agui_si.h \
     script/ScriptInterfaces/amsg_si.h \
     script/ScriptInterfaces/aparticlesim_si.h \
     script/ScriptInterfaces/arootstyle_si.h \

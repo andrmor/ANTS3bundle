@@ -33,6 +33,7 @@ public:
 
     void addCommonInterface(AScriptInterface * interface, QString name);
     void updateGeoWin(AGeometryWindow * GeoWin);
+    void addGuiScriptUnit();
     void finalizeInit(); // run when initialization is finished (all additional script units already registered)
 
     void outputText(const QString & text, EScriptLanguage lang);

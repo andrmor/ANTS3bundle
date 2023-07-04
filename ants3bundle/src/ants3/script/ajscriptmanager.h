@@ -39,6 +39,9 @@ public:
     bool   testMinimizationFunction();
     double runMinimizationFunction(const double * p);
 
+    bool   isCallable(const QString & functionName);
+    bool   callFunctionNoArguments(const QString & functionName);
+
     void collectGarbage() override;
 private:
     void start();

@@ -80,6 +80,7 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
+    ScriptHub->addGuiScriptUnit();
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
