@@ -34,28 +34,28 @@ public slots:
 
     void editNew(QString name, QString addTo, QString text = "");
     void editSetText(QString name, QString text);
-    QString editGetText(QString name); // !!!***
+    QString editGetText(QString name); // use only inside action functions
     void editSetIntValidator(QString name, int min, int max);
     void editSetDoubleValidator(QString name, double min, double max, int decimals);
     void editSetCompleter(QString name, QVariant arrayOfStrings);
     //void editOnTextChanged --> see below
 
-    void comboboxNew(QString name, QString addTo, bool editable = false);
+    void comboboxNew(QString name, QString addTo);
     void comboboxAppend(QString name, QVariant entries);
     void comboboxClear(QString name);
-    QString comboboxGetSelected(QString name); // !!!***
+    QString comboboxGetSelected(QString name); // use only inside action functions
     //void comboboxOnTextChanged --> see below
 
     void textNew(QString name, QString addTo, QString text = "");
     void textClear(QString name);
     void textAppendPlainText(QString name, QString text);
     void textAppendHtml(QString name, QString text);
-    QString textGet(QString name); // !!!***
+    QString textGet(QString name); // use only inside action functions
 
     void checkboxNew(QString name, QString addTo, QString text = "", bool checked = false);
     void checkboxSetText(QString name, QString text);
     void checkboxSetChecked(QString name, bool checked);
-    bool checkboxIsChecked(QString name);  // !!!***
+    bool checkboxIsChecked(QString name);  // use only inside action functions
     //void checkboxOnClick --> see below
 
     void setMinimumWidth(QString name, int min);
@@ -111,15 +111,13 @@ public:
 
 public slots:
     void buttonOnClick(QString name, QJSValue scriptFunction);
-    void buttonOnRightClick(QString name, QVariant scriptFunction); // !!!***
+    void buttonOnRightClick(QString name, QJSValue scriptFunction);
 
-    void editOnTextChanged(QString name, QVariant scriptFunction); // !!!***
+    void editOnTextChanged(QString name, QJSValue scriptFunction);
 
-    void comboboxOnTextChanged(QString name, QVariant scriptFunction); // !!!***
+    void comboboxOnTextChanged(QString name, QJSValue scriptFunction);
 
-    void checkboxOnClick(QString name, const QVariant scriptFunction); // !!!***
+    void checkboxOnClick(QString name, QJSValue scriptFunction);
 
-private:
-    std::function<void(void)> getCallable(const QVariant & function);
 };
 #endif // AINTERFACETOGUISCRIPT_H
