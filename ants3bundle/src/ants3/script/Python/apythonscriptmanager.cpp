@@ -65,6 +65,16 @@ double APythonScriptManager::runMinimizationFunction(const double *p)
     return Worker->runMinimizationFunction(p, MiniNumVariables);
 }
 
+bool APythonScriptManager::isCallable(const QString & name) const
+{
+    return Worker->isCallable(name);
+}
+
+bool APythonScriptManager::callFunctionNoArguments(const QString & name)
+{
+    return Worker->callFunctionNoArguments(name);
+}
+
 void APythonScriptManager::evalFinished(bool flag)
 {
     emit finished(flag);

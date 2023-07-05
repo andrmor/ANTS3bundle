@@ -761,7 +761,7 @@ void AGui_JS_SI::editOnTextChanged(QString name, QJSValue scriptFunction)
                                abort("Direct call is not supported for Qt5, use function name (e.g. \"doSomething\")");
                                return;
 #else
-                connect(e, &ALineEdit::textChanged, Win, [scriptFunction]()
+                connect(e, &ALineEdit::editingFinished, Win, [scriptFunction]()
                         {
                             bool err = scriptFunction.call().isError();
                             if (err) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::JavaScript);
@@ -781,7 +781,7 @@ void AGui_JS_SI::editOnTextChanged(QString name, QJSValue scriptFunction)
                        } );
 }
 
-void AGui_JS_SI::comboboxOnTextChanged(QString name, QJSValue scriptFunction)
+void AGui_JS_SI::comboboxOnSelectionChanged(QString name, QJSValue scriptFunction)
 {
     QTimer::singleShot(0, Win, [this, name, scriptFunction]()
                        {
@@ -798,7 +798,7 @@ void AGui_JS_SI::comboboxOnTextChanged(QString name, QJSValue scriptFunction)
                                abort("Direct call is not supported for Qt5, use function name (e.g. \"doSomething\")");
                                return;
 #else
-                connect(b, &QComboBox::currentTextChanged, Win, [scriptFunction]()
+                connect(b, &QComboBox::currentIndexChanged, Win, [scriptFunction]()
                         {
                             bool err = scriptFunction.call().isError();
                             if (err) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::JavaScript);
@@ -808,7 +808,7 @@ void AGui_JS_SI::comboboxOnTextChanged(QString name, QJSValue scriptFunction)
                            else
                            {
                                QString functionName = scriptFunction.toString();
-                               connect(b, &QComboBox::currentTextChanged, Win, [functionName]()
+                               connect(b, &QComboBox::currentIndexChanged, Win, [functionName]()
                                        {
                                            AScriptHub & hub = AScriptHub::getInstance();
                                            bool ok = hub.getJScriptManager().callFunctionNoArguments(functionName);
@@ -858,3 +858,148 @@ void AGui_JS_SI::checkboxOnClick(QString name, QJSValue scriptFunction)
 
 //        abort("checkboxOnClick() function requires function or its name as the second argument!");
 }
+
+
+#ifdef ANTS3_PYTHON
+// ---- Python ----
+
+#include "apythonscriptmanager.h"
+AGui_Py_SI::AGui_Py_SI(AGuiFromScrWin * win) :
+    AGui_SI(win) {}
+
+void AGui_Py_SI::buttonOnClick(QString name, QString scriptFunctionName)
+{
+    QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
+                       {
+                           QWidget * w = Widgets.value(name, 0);
+                           QPushButton * b = dynamic_cast<QPushButton*>(w);
+                           if (!b)
+                           {
+                               abort("Button " + name + " does not exist");
+                               return;
+                           }
+
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (!hub.getPythonManager().isCallable(scriptFunctionName))
+                           {
+                               abort("Not callable object!");
+                               return;
+                           }
+                           connect(b, &QPushButton::clicked, Win, [scriptFunctionName]()
+                                   {
+                                       AScriptHub & hub = AScriptHub::getInstance();
+                                       bool ok = hub.getPythonManager().callFunctionNoArguments(scriptFunctionName);
+                                       if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::Python);
+                                   });
+                       } );
+}
+
+void AGui_Py_SI::buttonOnRightClick(QString name, QString scriptFunctionName)
+{
+    QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
+                       {
+                           QWidget * w = Widgets.value(name, 0);
+                           QPushButton * b = dynamic_cast<QPushButton*>(w);
+                           if (!b)
+                           {
+                               abort("Button " + name + " does not exist");
+                               return;
+                           }
+
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (!hub.getPythonManager().isCallable(scriptFunctionName))
+                           {
+                               abort("Not callable object!");
+                               return;
+                           }
+                           connect(b, &QPushButton::customContextMenuRequested, Win, [scriptFunctionName]()
+                                   {
+                                       AScriptHub & hub = AScriptHub::getInstance();
+                                       bool ok = hub.getPythonManager().callFunctionNoArguments(scriptFunctionName);
+                                       if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::Python);
+                                   });
+    } );
+}
+
+void AGui_Py_SI::editOnTextChanged(QString name, QString scriptFunctionName)
+{
+    QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
+                       {
+                           QWidget * w = Widgets.value(name, 0);
+                           ALineEdit * e = dynamic_cast<ALineEdit*>(w);
+                           if (!e)
+                           {
+                               abort("Edit box " + name + " does not exist");
+                               return;
+                           }
+
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (!hub.getPythonManager().isCallable(scriptFunctionName))
+                           {
+                               abort("Not callable object!");
+                               return;
+                           }
+                           connect(e, &ALineEdit::editingFinished, Win, [scriptFunctionName]()
+                                   {
+                                       AScriptHub & hub = AScriptHub::getInstance();
+                                       bool ok = hub.getPythonManager().callFunctionNoArguments(scriptFunctionName);
+                                       if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::Python);
+                                   });
+    } );
+}
+
+void AGui_Py_SI::comboboxOnSelectionChanged(QString name, QString scriptFunctionName)
+{
+    QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
+                       {
+                           QWidget * w = Widgets.value(name, 0);
+                           QComboBox * b = dynamic_cast<QComboBox*>(w);
+                           if (!b)
+                           {
+                               abort("Combobox " + name + " does not exist");
+                               return;
+                           }
+
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (!hub.getPythonManager().isCallable(scriptFunctionName))
+                           {
+                               abort("Not callable object!");
+                               return;
+                           }
+                           connect(b, &QComboBox::currentIndexChanged, Win, [scriptFunctionName]()
+                                   {
+                                       AScriptHub & hub = AScriptHub::getInstance();
+                                       bool ok = hub.getPythonManager().callFunctionNoArguments(scriptFunctionName);
+                                       if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::Python);
+                                   });
+    } );
+}
+
+void AGui_Py_SI::checkboxOnClick(QString name, QString scriptFunctionName)
+{
+    QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
+                       {
+                           QWidget * w = Widgets.value(name, 0);
+                           QCheckBox * cb = dynamic_cast<QCheckBox*>(w);
+                           if (!cb)
+                           {
+                               abort("Checkbox " + name + " does not exist");
+                               return;
+                           }
+
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (!hub.getPythonManager().isCallable(scriptFunctionName))
+                           {
+                               abort("Not callable object!");
+                               return;
+                           }
+                           connect(cb, &QCheckBox::clicked, Win, [scriptFunctionName]()
+                                   {
+                                       AScriptHub & hub = AScriptHub::getInstance();
+                                       bool ok = hub.getPythonManager().callFunctionNoArguments(scriptFunctionName);
+                                       if (!ok) AScriptHub::getInstance().abort("Error while executing function call", EScriptLanguage::Python);
+                                   });
+                       } );
+}
+
+#endif

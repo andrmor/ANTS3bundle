@@ -115,9 +115,33 @@ public slots:
 
     void editOnTextChanged(QString name, QJSValue scriptFunction);
 
-    void comboboxOnTextChanged(QString name, QJSValue scriptFunction);
+    void comboboxOnSelectionChanged(QString name, QJSValue scriptFunction);
 
     void checkboxOnClick(QString name, QJSValue scriptFunction);
 
 };
+
+#ifdef ANTS3_PYTHON
+// ---- Python ----
+
+class AGui_Py_SI : public AGui_SI
+{
+    Q_OBJECT
+public:
+    AGui_Py_SI(AGuiFromScrWin * win);
+
+    AScriptInterface * cloneBase() const override {return new AGui_Py_SI(Win);}
+
+public slots:
+    void buttonOnClick(QString name, QString scriptFunctionName);
+    void buttonOnRightClick(QString name, QString scriptFunctionName);
+
+    void editOnTextChanged(QString name, QString scriptFunctionName);
+
+    void comboboxOnSelectionChanged(QString name, QString scriptFunctionName);
+
+    void checkboxOnClick(QString name, QString scriptFunctionName);
+};
+#endif
+
 #endif // AINTERFACETOGUISCRIPT_H
