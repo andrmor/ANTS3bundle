@@ -969,6 +969,8 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
     bool bHideTranspPrim = ui->cbEVhideTransPrim->isChecked();
     bool bHideStepLim = ui->cbEVhideStepLim->isChecked();
     bool bHideStepLimPrim = ui->cbEVhideStepLimPrim->isChecked();
+    bool bHideIoni = ui->cbEVhideIoni->isChecked();
+    bool bHideIoniPrim = ui->cbEVhideIoniPrim->isChecked();
 
     bool bPos = ui->cbEVpos->isChecked();
     bool bStep = ui->cbEVstep->isChecked();
@@ -1042,6 +1044,9 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
 
         if (bHideStepLim || (bHideStepLimPrim && pr->isPrimary()))
             if (step->Process == "StepLimiter") continue;
+
+        if (bHideIoni || (bHideIoniPrim && pr->isPrimary()))
+            if (step->Process == "hIoni" || step->Process == "ionIoni") continue;
 
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
@@ -1178,6 +1183,16 @@ void AParticleSimWin::on_cbEVhideStepLim_clicked()
 }
 
 void AParticleSimWin::on_cbEVhideStepLimPrim_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideIoni_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideIoniPrim_clicked()
 {
     EV_showTree();
 }

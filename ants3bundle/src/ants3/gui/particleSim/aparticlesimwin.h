@@ -92,6 +92,8 @@ private slots:
     void on_cbEVhideTransPrim_clicked();
     void on_cbEVhideStepLim_clicked();
     void on_cbEVhideStepLimPrim_clicked();
+    void on_cbEVhideIoni_clicked();
+    void on_cbEVhideIoniPrim_clicked();
     void on_sbShowEvent_editingFinished();
     void on_pbPreviousEvent_clicked();
     void on_pbNextEvent_clicked();
@@ -272,6 +274,7 @@ private slots:
     void on_ledPTHistFromY_editingFinished();
     void on_ledPTHistToY_editingFinished();
     void on_pbCaloShowDepoOverEvent_clicked();
+
 };
 
 #endif // APARTICLESIMWIN_H
