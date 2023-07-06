@@ -26,6 +26,9 @@ public:
     bool     testMinimizationFunction(const QString & name) const;
     double   runMinimizationFunction(const double * p, int numParameters);
 
+    bool     isCallable(const QString & name) const;
+    bool     callFunctionNoArguments(const QString & name);
+
 public slots:
     void initialize();
     void onRegisterInterface(AScriptInterface * interface, QString name);

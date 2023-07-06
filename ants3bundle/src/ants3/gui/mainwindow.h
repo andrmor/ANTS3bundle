@@ -22,6 +22,7 @@ class ADemoWindow; // tmp
 class QTimer;
 class A3Global;
 class AConfigExampleBrowser;
+class AGuiFromScrWin;
 
 class MainWindow : public AGuiWindow
 {
@@ -49,6 +50,7 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+    AGuiFromScrWin    * GuiFromScrWin = nullptr;
 #ifdef ANTS3_PYTHON
     AScriptWindow     * PythonWin = nullptr;
 #endif

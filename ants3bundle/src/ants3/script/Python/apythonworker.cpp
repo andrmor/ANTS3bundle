@@ -94,6 +94,50 @@ double APythonWorker::runMinimizationFunction(const double *p, int numParameters
     return result;
 }
 
+bool APythonWorker::isCallable(const QString & name) const
+{
+    PyObject* mainModule = PyInterface->getMainModule();
+    PyObject* dict = PyModule_GetDict(mainModule);
+
+    //qDebug() << "Dict:" << dict;
+
+    PyObject* obj = PyDict_GetItemString(dict, name.toLatin1().data());
+    //qDebug() << "---->" << function;
+
+    if (obj && PyCallable_Check(obj))
+    {
+        qDebug() << name << "is callable!";
+        return true;
+    }
+    qDebug() << name << "is NOT callable";
+    return false;
+}
+
+bool APythonWorker::callFunctionNoArguments(const QString &name)
+{
+    PyObject* mainModule = PyInterface->getMainModule();
+    PyObject* dict = PyModule_GetDict(mainModule);
+
+    PyObject* obj = PyDict_GetItemString(dict, name.toLatin1().data());
+    if (obj && PyCallable_Check(obj))
+    {
+        PyObject* tupleArgs = PyTuple_New(0);
+
+        PyObject * pyth_val = PyObject_Call(obj, tupleArgs, NULL);
+        //qDebug() << "return obj:" << pyth_val;
+        Py_DecRef(tupleArgs);
+
+        if (!pyth_val)
+        {
+            qDebug() << "Python: received NULL from object call";
+            return false;
+        }
+        Py_DecRef(pyth_val);
+        return true;
+    }
+    return false;
+}
+
 void APythonWorker::initialize()
 {
     PyInterface = new APythonInterface();

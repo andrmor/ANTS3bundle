@@ -98,12 +98,22 @@ int AJScriptManager::getErrorLineNumber()
 
 bool AJScriptManager::testMinimizationFunction()
 {
-    return Worker->testMinimizationFunction(MiniFunctionName);
+    return Worker->isCallable(MiniFunctionName);
 }
 
 double AJScriptManager::runMinimizationFunction(const double * p)
 {
     return Worker->runMinimizationFunction(MiniFunctionName, p, MiniNumVariables); // !!!*** store function as JSValue
+}
+
+bool AJScriptManager::isCallable(const QString & functionName)
+{
+    return Worker->isCallable(functionName);
+}
+
+bool AJScriptManager::callFunctionNoArguments(const QString & functionName)
+{
+    return Worker->callFunctionNoArguments(functionName);
 }
 
 QString AJScriptManager::getErrorDescription() const

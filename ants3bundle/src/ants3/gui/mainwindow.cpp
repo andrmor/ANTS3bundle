@@ -22,6 +22,7 @@
 #include "ademowindow.h"
 #include "escriptlanguage.h"
 #include "ageowin_si.h"
+#include "aguifromscrwin.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -80,6 +81,8 @@ MainWindow::MainWindow() :
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
+    GuiFromScrWin = new AGuiFromScrWin(this);
+    ScriptHub->addGuiScriptUnit(GuiFromScrWin);
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
@@ -561,12 +564,13 @@ void MainWindow::saveWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
-                                   GlobSetWin, DemoWin };
+                                   GlobSetWin, GuiFromScrWin, DemoWin };
 #ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
     wins.push_back(PythonWin->ScriptMsgWin);
 #endif
 
+    GuiFromScrWin->hide();
     for (auto * w : wins) w->storeGeomStatus();
 }
 
@@ -574,7 +578,7 @@ void MainWindow::loadWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
-                                   GlobSetWin, DemoWin };
+                                   GlobSetWin, GuiFromScrWin, DemoWin };
 #ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
     wins.push_back(PythonWin->ScriptMsgWin);
