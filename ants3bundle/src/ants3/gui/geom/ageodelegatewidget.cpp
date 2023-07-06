@@ -291,7 +291,8 @@ void AGeoDelegateWidget::onRequestShowCurrentObject()
     if (!CurrentObject) return;
 
     QString name = CurrentObject->Name;
-    emit tw->RequestHighlightObject(name);
+    if (CurrentObject->Type->isPrototype()) tw->ShowAllInstances(CurrentObject);
+    else emit tw->RequestHighlightObject(name);
     tw->UpdateGui(name);
 }
 

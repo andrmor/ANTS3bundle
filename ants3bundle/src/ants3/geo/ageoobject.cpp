@@ -1404,8 +1404,9 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
 
 bool AGeoObject::isPrototypeMember() const
 {
-    const AGeoObject * obj = this;
+    if (Type->isPrototype()) return false;
 
+    const AGeoObject * obj = this;
     while (obj)
     {
         if (obj->Type->isPrototype()) return true;
