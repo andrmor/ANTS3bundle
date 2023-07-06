@@ -42,6 +42,8 @@ void AGui_SI::init()
 
     QLayout * lay = Win->resetLayout();
     Layouts.insert("", lay);
+
+    Win->hide();
 }
 
 void AGui_SI::doShow()
