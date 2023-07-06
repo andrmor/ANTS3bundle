@@ -183,7 +183,8 @@ void AConfigExampleBrowser::updateTableWidget()
     for (AConfigExampleBranch * br : MainBranch.SubBranches)
     {
         QTreeWidgetItem * item = new QTreeWidgetItem();
-        QFont font = item->font(0); font.setBold(true); item->setFont(0, font);
+        //QFont font = item->font(0); font.setBold(true); item->setFont(0, font);
+        QFont font = item->font(0); font.setPointSize(font.pointSize() + 2); item->setFont(0, font);
         ui->trwExamples->addTopLevelItem(item);
         fillTableRecursively(br, item);
     }
@@ -196,7 +197,7 @@ void AConfigExampleBrowser::fillTableRecursively(AConfigExampleBranch * branch, 
     for (AConfigExampleBranch * subBranch : branch->SubBranches)
     {
         QTreeWidgetItem * newBranchItem = new QTreeWidgetItem();
-        QFont font = newBranchItem->font(0); font.setBold(true); newBranchItem->setFont(0, font);
+        //QFont font = newBranchItem->font(0); font.setBold(true); newBranchItem->setFont(0, font);
         item->addChild(newBranchItem);
         fillTableRecursively(subBranch, newBranchItem);
     }
@@ -204,6 +205,7 @@ void AConfigExampleBrowser::fillTableRecursively(AConfigExampleBranch * branch, 
     for (const AConfigExampleItem & example : branch->Items)
     {
         QTreeWidgetItem * exampleItem = new QTreeWidgetItem({example.FileName, example.Description});
+        QFont font = exampleItem->font(0); font.setBold(true); exampleItem->setFont(0, font);
         item->addChild(exampleItem);
     }
 }

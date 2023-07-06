@@ -1046,7 +1046,8 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
             if (step->Process == "StepLimiter") continue;
 
         if (bHideIoni || (bHideIoniPrim && pr->isPrimary()))
-            if (step->Process == "hIoni" || step->Process == "ionIoni") continue;
+            if (step->Process == "hIoni" || step->Process == "ionIoni")
+                if (step->Energy > 0) continue;
 
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
