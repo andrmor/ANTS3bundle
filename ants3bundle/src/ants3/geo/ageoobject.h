@@ -151,6 +151,7 @@ public:
   bool    isPossiblePrototype(QString * sReason = nullptr) const;
   QString makeItPrototype(AGeoObject * Prototypes);
   bool    isPrototypeInUseRecursive(const QString & PrototypeName, QStringList * Users = nullptr) const;
+  bool    isPrototypeMember() const;
 
   bool isGoodContainerForInstance() const;
 

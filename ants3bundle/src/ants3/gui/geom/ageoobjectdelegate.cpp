@@ -923,6 +923,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             }
         }
     }
+
+    if (obj->isPrototypeMember()) pbShow->setEnabled(false);
 }
 
 void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)

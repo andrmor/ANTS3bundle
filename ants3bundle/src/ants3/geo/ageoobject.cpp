@@ -1333,7 +1333,7 @@ bool AGeoObject::isInstanceMember() const
 
     while (obj)
     {
-        if (Type->isInstance()) return true;
+        if (obj->Type->isInstance()) return true;
         obj = obj->Container;
     }
     return false;
@@ -1400,6 +1400,18 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
             bFoundInUse = true;
 
     return bFoundInUse;
+}
+
+bool AGeoObject::isPrototypeMember() const
+{
+    const AGeoObject * obj = this;
+
+    while (obj)
+    {
+        if (obj->Type->isPrototype()) return true;
+        obj = obj->Container;
+    }
+    return false;
 }
 
 bool AGeoObject::isGoodContainerForInstance() const
