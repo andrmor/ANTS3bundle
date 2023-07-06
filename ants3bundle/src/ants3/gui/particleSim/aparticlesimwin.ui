@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
+    <width>595</width>
     <height>767</height>
    </rect>
   </property>
@@ -37,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1418,7 +1418,7 @@ sources</string>
             <item>
              <widget class="QTabWidget" name="twHistory">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabTracks">
                <attribute name="title">
@@ -1747,18 +1747,80 @@ sources</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="QCheckBox" name="cbEVhideTrans">
-                         <property name="text">
-                          <string>Hide transportation steps</string>
-                         </property>
-                        </widget>
+                        <layout class="QHBoxLayout" name="horizontalLayout_66">
+                         <item>
+                          <widget class="QLabel" name="label_44">
+                           <property name="text">
+                            <string>Hide transportation steps:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_77">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>5</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="cbEVhideTrans">
+                           <property name="text">
+                            <string>All</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="cbEVhideTransPrim">
+                           <property name="text">
+                            <string>Primaries</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="cbEVhideTransPrim">
-                         <property name="text">
-                          <string>Hide transportation of primaries</string>
-                         </property>
-                        </widget>
+                        <layout class="QHBoxLayout" name="horizontalLayout_67">
+                         <item>
+                          <widget class="QLabel" name="label_52">
+                           <property name="text">
+                            <string>Hide step-limiter steps:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_76">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>10</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="cbEVhideStepLim">
+                           <property name="text">
+                            <string>All</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="cbEVhideStepLimPrim">
+                           <property name="text">
+                            <string>Primaries</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </item>
                       </layout>
                      </item>
@@ -1776,48 +1838,69 @@ sources</string>
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLabel" name="label_27">
-                       <property name="text">
-                        <string>Precision:</string>
+                      <layout class="QVBoxLayout" name="verticalLayout_33">
+                       <property name="leftMargin">
+                        <number>0</number>
                        </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QSpinBox" name="sbEVprecision">
-                       <property name="maximum">
-                        <number>15</number>
-                       </property>
-                       <property name="value">
-                        <number>4</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <spacer name="horizontalSpacer_42">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>40</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_30">
-                       <property name="text">
-                        <string>Default expansion:</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QSpinBox" name="sbEVexpansionLevel">
-                       <property name="value">
-                        <number>2</number>
-                       </property>
-                      </widget>
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_59">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <spacer name="horizontalSpacer_42">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_27">
+                           <property name="text">
+                            <string>Precision:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSpinBox" name="sbEVprecision">
+                           <property name="maximum">
+                            <number>15</number>
+                           </property>
+                           <property name="value">
+                            <number>4</number>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_65">
+                         <item>
+                          <widget class="QLabel" name="label_30">
+                           <property name="text">
+                            <string>Default expansion:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSpinBox" name="sbEVexpansionLevel">
+                           <property name="value">
+                            <number>2</number>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_33">
@@ -4956,7 +5039,7 @@ Please specify a valid range</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>594</width>
+     <width>595</width>
      <height>21</height>
     </rect>
    </property>
@@ -5037,8 +5120,8 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>392</y>
+     <x>546</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -5197,12 +5280,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>132</x>
-     <y>210</y>
+     <x>66</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>210</y>
+     <x>110</x>
+     <y>186</y>
     </hint>
    </hints>
   </connection>
@@ -5213,12 +5296,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>447</y>
+     <x>69</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>415</x>
-     <y>448</y>
+     <x>113</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -5229,12 +5312,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>473</y>
+     <x>69</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
-     <x>415</x>
-     <y>475</y>
+     <x>113</x>
+     <y>215</y>
     </hint>
    </hints>
   </connection>
@@ -5245,12 +5328,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>499</y>
+     <x>69</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>415</x>
-     <y>501</y>
+     <x>113</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -5261,12 +5344,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>429</y>
+     <x>48</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>430</y>
+     <x>67</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -5277,12 +5360,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>458</y>
+     <x>48</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>459</y>
+     <x>67</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -5293,12 +5376,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>486</y>
+     <x>48</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>487</y>
+     <x>67</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -5309,12 +5392,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>415</x>
-     <y>429</y>
+     <x>94</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
-     <x>557</x>
-     <y>430</y>
+     <x>113</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -5325,12 +5408,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>415</x>
-     <y>458</y>
+     <x>94</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>557</x>
-     <y>459</y>
+     <x>113</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -5341,12 +5424,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>415</x>
-     <y>486</y>
+     <x>94</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
-     <x>557</x>
-     <y>487</y>
+     <x>113</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -5357,12 +5440,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>401</y>
+     <x>42</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>479</x>
-     <y>402</y>
+     <x>101</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -5373,12 +5456,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>401</y>
+     <x>42</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>332</x>
-     <y>402</y>
+     <x>72</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -5389,12 +5472,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>122</x>
-     <y>371</y>
+     <x>71</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
-     <x>499</x>
-     <y>372</y>
+     <x>116</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -5597,12 +5680,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>262</y>
+     <x>79</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
-     <x>385</x>
-     <y>263</y>
+     <x>87</x>
+     <y>189</y>
     </hint>
    </hints>
   </connection>
@@ -5613,12 +5696,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>262</y>
+     <x>79</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
-     <x>493</x>
-     <y>263</y>
+     <x>102</x>
+     <y>189</y>
     </hint>
    </hints>
   </connection>
@@ -5629,12 +5712,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>486</y>
+     <x>46</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -5645,12 +5728,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>261</x>
-     <y>486</y>
+     <x>51</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -5661,12 +5744,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>161</x>
-     <y>517</y>
+     <x>46</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -5677,12 +5760,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>259</x>
-     <y>517</y>
+     <x>51</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -5693,12 +5776,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>161</x>
-     <y>548</y>
+     <x>46</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -5709,12 +5792,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>259</x>
-     <y>548</y>
+     <x>51</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>515</y>
+     <x>90</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>

@@ -389,7 +389,7 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
-            "FileNameTrackingHistory": "TrackingHistory.dat",
+            "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": true,
                 "FileName": "ParticleMonitors.json"

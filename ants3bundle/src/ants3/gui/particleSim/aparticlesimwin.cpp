@@ -967,6 +967,8 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
     int precision = ui->sbEVprecision->value();
     bool bHideTransp = ui->cbEVhideTrans->isChecked();
     bool bHideTranspPrim = ui->cbEVhideTransPrim->isChecked();
+    bool bHideStepLim = ui->cbEVhideStepLim->isChecked();
+    bool bHideStepLimPrim = ui->cbEVhideStepLimPrim->isChecked();
 
     bool bPos = ui->cbEVpos->isChecked();
     bool bStep = ui->cbEVstep->isChecked();
@@ -1037,6 +1039,9 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
             //cannot set currents yet - the indication should still show the "from" values - remember about energy deposition during "T" step!
         }
         else if (!step->TargetIsotope.isEmpty()) s += QString(" (%0)").arg(step->TargetIsotope);
+
+        if (bHideStepLim || (bHideStepLimPrim && pr->isPrimary()))
+            if (step->Process == "StepLimiter") continue;
 
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
@@ -1163,6 +1168,16 @@ void AParticleSimWin::on_cbEVhideTrans_clicked()
 }
 
 void AParticleSimWin::on_cbEVhideTransPrim_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideStepLim_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideStepLimPrim_clicked()
 {
     EV_showTree();
 }
@@ -3000,4 +3015,3 @@ void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
 
     emit requestDraw(Data, "hist", false, true);
 }
-

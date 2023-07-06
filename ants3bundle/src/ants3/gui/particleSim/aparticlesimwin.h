@@ -90,6 +90,8 @@ private slots:
     void on_sbEVexpansionLevel_valueChanged(int);
     void on_cbEVhideTrans_clicked();
     void on_cbEVhideTransPrim_clicked();
+    void on_cbEVhideStepLim_clicked();
+    void on_cbEVhideStepLimPrim_clicked();
     void on_sbShowEvent_editingFinished();
     void on_pbPreviousEvent_clicked();
     void on_pbNextEvent_clicked();
