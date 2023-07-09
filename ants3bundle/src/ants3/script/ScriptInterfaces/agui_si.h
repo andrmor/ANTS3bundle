@@ -76,8 +76,10 @@ public slots:
 
     void show();
     void hide();
-    void setWidgetTitle(QString title);
     void resize(int width, int height);
+    void move(int x, int y);
+    void setAlwaysOnTop();
+    void setWidgetTitle(QString title);
 
     void setEnabled(QString name, bool flag);
     void setVisible(QString name, bool flag);
@@ -91,11 +93,17 @@ public slots:
     void init();
     void doShow();
     void doHide();
+    void doResize(int w, int h);
+    void doMove(int x, int y);
+    void doSetOnTop();
 
 signals:
     void requestInit();
     void requestShow();
     void requestHide();
+    void requestResize(int w, int h);
+    void requestMove(int x, int y);
+    void requestOnTop();
 };
 
 // ---- JavaScript ----

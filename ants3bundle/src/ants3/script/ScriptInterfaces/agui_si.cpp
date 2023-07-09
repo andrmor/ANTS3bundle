@@ -30,9 +30,12 @@ AGui_SI::AGui_SI(AGuiFromScrWin * win) :
 
     init();
 
-    connect(this, &AGui_SI::requestInit, this, &AGui_SI::init, Qt::QueuedConnection);
-    connect(this, &AGui_SI::requestShow, this, &AGui_SI::doShow, Qt::QueuedConnection);
-    connect(this, &AGui_SI::requestHide, this, &AGui_SI::doHide, Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestInit,   this, &AGui_SI::init,       Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestShow,   this, &AGui_SI::doShow,     Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestHide,   this, &AGui_SI::doHide,     Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestResize, this, &AGui_SI::doResize,   Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestMove,   this, &AGui_SI::doMove,     Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestOnTop,  this, &AGui_SI::doSetOnTop, Qt::QueuedConnection);
 }
 
 void AGui_SI::init()
@@ -57,6 +60,21 @@ void AGui_SI::doHide()
 {
     Win->storeGeomStatus();
     Win->hide();
+}
+
+void AGui_SI::doResize(int w, int h)
+{
+    Win->resize(w, h);
+}
+
+void AGui_SI::doMove(int x, int y)
+{
+    Win->move(x, y);
+}
+
+void AGui_SI::doSetOnTop()
+{
+    Win->setWindowFlags(Win->windowFlags() |= Qt::WindowStaysOnTopHint);
 }
 
 bool AGui_SI::beforeRun()
@@ -639,10 +657,17 @@ void AGui_SI::setWidgetTitle(QString title)
 
 void AGui_SI::resize(int width, int height)
 {
-    QTimer::singleShot(0, Win, [this, width, height]()
-                       {
-                           Win->resize(width, height);
-                       });
+    emit requestResize(width, height);
+}
+
+void AGui_SI::move(int x, int y)
+{
+    emit requestMove(x, y);
+}
+
+void AGui_SI::setAlwaysOnTop()
+{
+    emit requestOnTop();
 }
 
 void AGui_SI::setEnabled(QString name, bool flag)
