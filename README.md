@@ -9,6 +9,7 @@
 # Installation instructions for ants3 on Ubuntu 22.04 Mate
 
 If you plan to set up a virtual machine, give it at least 50 Gb of disc space!
+It is recommended to set up your location as UK (e.g. London), otherwise you will have to configer decimal separator to "." yourself!
 
 ### General
 
@@ -103,6 +104,11 @@ exit
 * Create a directory for ants3 and open a terminal inside
 * git clone https://github.com/andrmor/ANTS3bundle
    * for dev version, use: git clone --branch dev https://github.com/andrmor/ANTS3bundle
+ 
+### Confirm your system is using "." as the decimal separator
+
+If it is not ".", use the following command and then restart Ubuntu:
+sudo update-locale LC_NUMERIC="en_GB.UTF-8"
 
 ### Setting up the environment
 
