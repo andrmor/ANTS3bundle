@@ -369,6 +369,12 @@ bool AConfig_SI::modifyJsonValue(QJsonObject &obj, const QString &path, const QJ
         }
         else
         { //not the last subkey, so it should be an object
+            if (indexes.back() >= arrays.last().size())
+            {
+                LastError = "Requested index in "+propertyName+" is larger than or equal to the container size";
+                qDebug() << LastError;
+                return false;
+            }
             QJsonObject obj1 = arrays.last()[indexes.back()].toObject();
             if (obj1.isEmpty())
             {
