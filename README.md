@@ -9,6 +9,7 @@
 # Installation instructions for ants3 on Ubuntu 22.04 Mate
 
 If you plan to set up a virtual machine, give it at least 50 Gb of disc space!
+
 It is recommended to set up your location as UK (e.g. London), otherwise you will have to configer decimal separator to "." yourself!
 
 ### General
@@ -100,14 +101,15 @@ exit
 ---
 ### THE NEXT INSTRUCTIONS TO BE EXECUTED NOT WITH SUPERUSER!!!
 ---
-### ants3 source code
+### ANTS3 source code
 * Create a directory for ants3 and open a terminal inside
 * git clone https://github.com/andrmor/ANTS3bundle
    * for dev version, use: git clone --branch dev https://github.com/andrmor/ANTS3bundle
  
-### Confirm your system is using "." as the decimal separator
+### Decimal separator
 
-If it is not ".", use the following command and then restart Ubuntu:
+* Confirm that your system is using "." as the decimal separator. If not, use the following command and then restart Ubuntu:
+
 sudo update-locale LC_NUMERIC="en_GB.UTF-8"
 
 ### Setting up the environment
@@ -132,7 +134,7 @@ echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
 
 echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
 
-## if you use a virtual machine:
+## If you use a virtual machine:
 
 * Adjuct the paths according to the root and geant4 versions, and the path for the QtCreator:
 
@@ -145,3 +147,10 @@ echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
 echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
 
 echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
+
+### Next?
+
+* Start a new terminal and type qt to start QtCreator IDE
+* Click "Open project..." and select meta.pro file in the ANTS3 source directory (ANTS3bundle/ants3bundle/meta.pro)
+* Click "Configure project" button
+* To start ANTS3 compilation click the green triangular button in the lower-left corner of the QtCeator window
