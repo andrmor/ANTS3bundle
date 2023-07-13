@@ -280,7 +280,7 @@ void AMaterialHub::writeToJson(QJsonObject & json) const
     json["Materials"] = ar;
 }
 
-QString AMaterialHub::readFromJson(const QJsonObject & json)
+QString AMaterialHub::readFromJson(const QJsonObject & json, bool bUpdateGui)
 {
     QJsonArray ar;
     bool ok = jstools::parseJson(json, "Materials", ar);
@@ -300,7 +300,10 @@ QString AMaterialHub::readFromJson(const QJsonObject & json)
         addNewMaterial("Dummy"); //emits the signal!
         return "Materials are empty!";
     }
-    else emit materialsChanged();
+    else
+    {
+        if (bUpdateGui) emit materialsChanged();
+    }
 
     return "";
 }

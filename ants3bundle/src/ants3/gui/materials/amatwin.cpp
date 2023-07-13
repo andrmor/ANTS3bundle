@@ -91,7 +91,7 @@ void AMatWin::setWasModified(bool flag)
 }
 
 void AMatWin::updateGui()
-{   
+{
     if (bLockTmpMaterial) return;
 
     int current = ui->cobActiveMaterials->currentIndex();

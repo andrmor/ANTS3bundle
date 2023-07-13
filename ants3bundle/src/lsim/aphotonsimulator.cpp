@@ -658,7 +658,7 @@ void APhotonSimulator::loadConfig()
     QJsonObject json;
     jstools::loadJsonFromFile(json, WorkingDir + "/" + ConfigFN);
 
-    QString Error = AMaterialHub::getInstance().readFromJson(json);
+    QString Error = AMaterialHub::getInstance().readFromJson(json, false);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();

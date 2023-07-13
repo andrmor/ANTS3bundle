@@ -330,7 +330,7 @@ void MainWindow::on_actionLoad_configuration_triggered()
     QString fileName = guitools::dialogLoadFile(this, "Load configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
 
-    QString err = Config.load(fileName);
+    QString err = Config.load(fileName, true);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -344,7 +344,7 @@ void MainWindow::on_actionLoad_last_config_triggered()
     const QString fileName = GlobSet.getQuickFileName(0);
     if (!QFile::exists(fileName)) return;
 
-    AConfig::getInstance().load(fileName);
+    AConfig::getInstance().load(fileName, true);
 }
 
 void MainWindow::on_actionQuickSave_slot_1_triggered()
@@ -367,7 +367,7 @@ void MainWindow::on_actionQuickLoad_slot_1_triggered()
     const QString fileName = GlobSet.getQuickFileName(1);
     if (!QFile::exists(fileName)) return;
 
-    Config.load(fileName);
+    Config.load(fileName, true);
 }
 
 void MainWindow::on_actionQuickLoad_slot_2_triggered()
@@ -375,7 +375,7 @@ void MainWindow::on_actionQuickLoad_slot_2_triggered()
     const QString fileName = GlobSet.getQuickFileName(2);
     if (!QFile::exists(fileName)) return;
 
-    Config.load(fileName);
+    Config.load(fileName, true);
 }
 
 void MainWindow::on_actionQuickLoad_slot_3_triggered()
@@ -383,7 +383,7 @@ void MainWindow::on_actionQuickLoad_slot_3_triggered()
     const QString fileName = GlobSet.getQuickFileName(3);
     if (!QFile::exists(fileName)) return;
 
-    Config.load(fileName);
+    Config.load(fileName, true);
 }
 
 void MainWindow::on_actionClose_ants3_triggered()
@@ -712,6 +712,6 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
 {
     fileName = GlobSet.ExamplesDir + "/configs/" + fileName;
     qDebug() << "Loading configuration from file" << fileName;
-    QString err = Config.load(fileName);
+    QString err = Config.load(fileName, true);
     if (!err.isEmpty()) guitools::message(err, this);
 }

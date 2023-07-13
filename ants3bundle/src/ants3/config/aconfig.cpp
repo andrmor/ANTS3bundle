@@ -39,12 +39,12 @@ void AConfig::updateJSONfromConfig()
     writeToJson(JSON, false);
 }
 
-QString AConfig::updateConfigFromJSON()
+QString AConfig::updateConfigFromJSON(bool updateGui)
 {
-    return readFromJson(JSON);
+    return readFromJson(JSON, updateGui);
 }
 
-QString AConfig::load(const QString & fileName)
+QString AConfig::load(const QString & fileName, bool bUpdateGui)
 {
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
@@ -53,7 +53,7 @@ QString AConfig::load(const QString & fileName)
     invalidateUndo();
     invalidateRedo();
 
-    return readFromJson(json);
+    return readFromJson(json, bUpdateGui);
 }
 
 QString AConfig::save(const QString & fileName)
@@ -82,18 +82,18 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
     // LRFs
 }
 
-QString AConfig::readFromJson(const QJsonObject & json)
+QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
 {
     QString err = tryReadFromJson(json);
     if (err.isEmpty())
     {
         JSON = json;
-        emit configLoaded();
+        if (updateGui) emit configLoaded();
         return "";
     }
     else
     {
-        readFromJson(JSON);
+        readFromJson(JSON, updateGui);
         return err;
     }
 }
@@ -107,7 +107,7 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     QString Error;
 
-    Error = AMaterialHub::getInstance().readFromJson(json);
+    Error = AMaterialHub::getInstance().readFromJson(json, false);
     if (!Error.isEmpty()) return Error;
 
     Error = ASensorHub::getInstance().readFromJson(json); // Sensors should be read before geometry
@@ -170,7 +170,7 @@ QString AConfig::doUndo()
 {
     A3Global & GS = A3Global::getInstance();
     save(GS.QuicksaveDir + "/redoTmp.json");
-    QString ErrorString = load(GS.QuicksaveDir + "/undo.json");
+    QString ErrorString = load(GS.QuicksaveDir + "/undo.json", true);
     QFile qf(GS.QuicksaveDir + "/redoTmp.json");
     qf.rename(GS.QuicksaveDir + "/redo.json");
     return ErrorString;
@@ -179,6 +179,6 @@ QString AConfig::doUndo()
 QString AConfig::doRedo()
 {
     A3Global & GS = A3Global::getInstance();
-    QString ErrorString = load(GS.QuicksaveDir + "/redo.json");
+    QString ErrorString = load(GS.QuicksaveDir + "/redo.json", true);
     return ErrorString;
 }
