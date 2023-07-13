@@ -4041,13 +4041,25 @@ bool AGeoScaledShape::readFromTShape(TGeoShape *Tshape)
         return false;
     }
     BaseShapeGenerationString = AShape->getGenerationString();
-    delete AShape;
+    BaseShape = AShape;
     return true;
 }
 
 void AGeoScaledShape::scale(double factor)
 {
     if (BaseShape) BaseShape->scale(factor);
+}
+
+bool AGeoScaledShape::isCompatibleWithGeant4() const
+{
+    if (!BaseShape) return false;
+
+    if (scaleX == 1.0 && scaleY == 1.0 && scaleZ == 1.0) return true;
+
+    const QString baseShapeType = BaseShape->getShapeType();
+    if (baseShapeType == "TGeoCone") return true;
+    //if (baseShapeType == "TGeoSphere") return true;
+    return false;
 }
 
 QString AGeoTorus::getHelp() const

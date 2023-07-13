@@ -48,7 +48,7 @@ public:
     int         AsciiPrecision = 6;
 
     bool        SaveTrackingHistory = false;
-    std::string FileNameTrackingHistory = "TrackingHistory.dat";
+    std::string FileNameTrackingHistory = "TrackingData.dat";
 
     bool        SaveDeposition = false;
     std::string FileNameDeposition = "Deposition.dat";

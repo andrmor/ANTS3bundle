@@ -21,6 +21,9 @@ public:
 
     virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
+    virtual bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {return false;}
+    virtual void replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
+
     void writeToJson(QJsonObject & json) const;
     virtual void readFromJson(const QJsonObject & /*json*/) {}
 protected:
@@ -53,6 +56,9 @@ public:
     QString getType() const override {return QStringLiteral("Calorimeter");}
 
     void introduceGeoConstValues(QString & errorStr) override;
+
+    bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 
     void readFromJson(const QJsonObject & json) override;
 protected:

@@ -37,6 +37,7 @@ AGeometryHub::AGeometryHub()
     delete World->Type; World->Type = new ATypeWorldObject();
     World->Material = 0;
     World->Container = nullptr;
+    World->color = 1;
 
     Prototypes = new AGeoObject("_#_PrototypeContainer_#_");
     delete Prototypes->Type; Prototypes->Type = new ATypePrototypeCollectionObject();
@@ -259,6 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    World->clearTrueRotationRecursive();
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
@@ -1625,6 +1627,11 @@ void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) 
         if (std::find(vol.begin(), vol.end(), name) == vol.end())
             vol.push_back(name);
     }
+}
+
+void AGeometryHub::checkGeometryCompatibleWithGeant4() const
+{
+    World->checkCompatibleWithGeant4();
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

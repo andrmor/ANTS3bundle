@@ -57,6 +57,7 @@ void AGlobSetWindow::updateGui()
 {
     ui->leDataExchangeDir->setText(GlobSet.ExchangeDir);
 
+    ui->sbTabInSpaces->setValue(GlobSet.TabInSpaces);
     ui->cbOpenImageExternalEditor->setChecked(GlobSet.OpenImageExternalEditor);
 
     ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
@@ -456,5 +457,10 @@ void AGlobSetWindow::on_cobStyle_textActivated(const QString & arg1)
 void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
 {
     QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
+}
+
+void AGlobSetWindow::on_sbTabInSpaces_valueChanged(int arg1)
+{
+    GlobSet.TabInSpaces = arg1;
 }
 

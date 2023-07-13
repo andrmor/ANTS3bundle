@@ -5,6 +5,7 @@
 #include "amaterialhub.h"
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
+#include "ascriptinterface.h"
 
 #ifdef GUI
     #include <QApplication>
@@ -24,9 +25,7 @@
 #include "TApplication.h"
 #include "TH1.h"
 
-#include "ascriptinterface.h"
-
-Q_DECLARE_METATYPE(TObject*);
+Q_DECLARE_METATYPE(TObject*)
 
 int main(int argc, char *argv[])
 {

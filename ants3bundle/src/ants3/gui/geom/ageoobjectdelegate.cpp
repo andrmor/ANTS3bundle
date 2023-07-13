@@ -224,8 +224,6 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         frSensor->setVisible(false);
         rl->addWidget(frSensor);
         rl->setAlignment(frSensor, Qt::AlignHCenter);
-
-
     }
 
     QFrame * frCal = new QFrame();
@@ -274,6 +272,26 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         gl->addWidget(cbOffX,               4, 1, Qt::AlignHCenter);
         gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
         gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
+        QHBoxLayout * hlCalOverEv = new QHBoxLayout(); hlCalOverEv->setContentsMargins(0,0,0,0);
+            cbCalEventStat = new QCheckBox("Dep. over event");
+            hlCalOverEv->addWidget(cbCalEventStat);
+            QFrame * frCalEventStat = new QFrame(); frCalEventStat->setVisible(false);
+                QHBoxLayout * hlCalEvStat = new QHBoxLayout(frCalEventStat); hlCalEvStat->setContentsMargins(0,0,0,0);
+                hlCalEvStat->addWidget(new QLabel("Bins:"));
+                    leiCalEventDepoBins = new AOneLineTextEdit(); leiCalEventDepoBins->setMinimumWidth(50);
+                hlCalEvStat->addWidget(leiCalEventDepoBins);
+                hlCalEvStat->addWidget(new QLabel("From:"));
+                    ledCalEventDepoFrom = new AOneLineTextEdit(); ledCalEventDepoFrom->setMinimumWidth(50);
+                hlCalEvStat->addWidget(ledCalEventDepoFrom);
+                hlCalEvStat->addWidget(new QLabel("To:"));
+                    ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
+                hlCalEvStat->addWidget(ledCalEventDepoTo);
+                hlCalEvStat->addWidget(new QLabel("MeV"));
+                connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
+                connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
+            hlCalOverEv->addWidget(frCalEventStat);
+            hlCalOverEv->addStretch();
+        cvl->addLayout(hlCalOverEv);
         frCal->setVisible(false);
         rl->addWidget(frCal);
 
@@ -332,7 +350,8 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
 
         const std::vector<AOneLineTextEdit*> ole = {ledCalOriginX, ledCalOriginY, ledCalOriginZ,
                                                     ledCalStepX, ledCalStepY, ledCalStepZ,
-                                                    leiCalBinsX, leiCalBinsY, leiCalBinsZ};
+                                                    leiCalBinsX, leiCalBinsY, leiCalBinsZ,
+                                                    leiCalEventDepoBins, ledCalEventDepoFrom, ledCalEventDepoTo};
         for (AOneLineTextEdit * le : ole)
         {
             configureHighligherAndCompleter(le);
@@ -443,7 +462,10 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
 
         std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
         std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
-        if (cobRole->currentIndex() == 2)
+        int calEventDepoBins; QString calEventDepoBinsStr;
+        double calEventDepoFrom; QString calEventDepoFromStr;
+        double calEventDepoTo; QString calEventDepoToStr;
+        if (cobRole->currentIndex() == 2) // !!!***
         {
             ok = ok && processDoubleEditBox("Origin X", ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
             ok = ok && processDoubleEditBox("Origin Y", ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
@@ -454,6 +476,14 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             ok = ok && processIntEditBox("Bins X", leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
             ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
             ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+
+            if (cbCalEventStat->isChecked())
+            {
+                ok = ok && processIntEditBox("Event energy depo bins", leiCalEventDepoBins, calEventDepoBins, calEventDepoBinsStr,  true, true,  ParentWidget);
+                ok = ok && processDoubleEditBox("Event energy depo from", ledCalEventDepoFrom, calEventDepoFrom, calEventDepoFromStr,  false, true, false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Event energy depo to",   ledCalEventDepoTo,   calEventDepoTo,   calEventDepoToStr,    false, true, false,  ParentWidget);
+            }
+
             if (!ok) return false;
 
             if (cobCalType->currentIndex() == 1)
@@ -535,6 +565,14 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 }
 
                 cal->Properties.RandomizeBin = cbCalRandomize->isChecked();
+
+                cal->Properties.CollectDepoOverEvent = cbCalEventStat->isChecked();
+                if (cal->Properties.CollectDepoOverEvent)
+                {
+                    cal->Properties.EventDepoBins = calEventDepoBins; cal->Properties.strEventDepoBins = calEventDepoBinsStr;
+                    cal->Properties.EventDepoFrom = calEventDepoFrom; cal->Properties.strEventDepoFrom = calEventDepoFromStr;
+                    cal->Properties.EventDepoTo   = calEventDepoTo;   cal->Properties.strEventDepoTo   = calEventDepoToStr;
+                }
 
                 obj->Role = cal;
                 }
@@ -843,6 +881,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
     updateTypeLabel();
     updateControlUI();
 
+    updateLineColorFrame(obj);
+
     AGeoScaledShape * scaledShape = dynamic_cast<AGeoScaledShape*>(CurrentObject->Shape);
     cbScale->setChecked(scaledShape);
     if (scaledShape)
@@ -883,6 +923,8 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
             }
         }
     }
+
+    if (obj->isPrototypeMember()) pbShow->setEnabled(false);
 }
 
 void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
@@ -912,6 +954,11 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
     cbOffX->setChecked( p.isAxisOff(0) );
     cbOffY->setChecked( p.isAxisOff(1) );
     cbOffZ->setChecked( p.isAxisOff(2) );
+
+    cbCalEventStat->setChecked(p.CollectDepoOverEvent);
+    leiCalEventDepoBins->setText(p.strEventDepoBins.isEmpty() ? QString::number(p.EventDepoBins) : p.strEventDepoBins );
+    ledCalEventDepoFrom->setText(p.strEventDepoFrom.isEmpty() ? QString::number(p.EventDepoFrom) : p.strEventDepoFrom );
+    ledCalEventDepoTo  ->setText(p.strEventDepoTo.isEmpty()   ? QString::number(p.EventDepoTo)   : p.strEventDepoTo );
 }
 
 void AGeoObjectDelegate::onContentChanged()
@@ -2857,6 +2904,10 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     ledStepY = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepY, 1, 3);
     ledStepZ = new AOneLineTextEdit("", Widget); grAW->addWidget(ledStepZ, 2, 3);
 
+    connect(ledNumX, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumX, ledStepX);});
+    connect(ledNumY, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumY, ledStepY);});
+    connect(ledNumZ, &AOneLineTextEdit::textChanged, this, [this](){updateArrayStepEnable(ledNumZ, ledStepZ);});
+
     lVer->addLayout(grAW);
 
     cbCenterSym = new QCheckBox("Center-symmetric");
@@ -2898,6 +2949,22 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     pbTransform->setVisible(false);
     pbShapeInfo->setVisible(false);
 }
+
+void AGeoArrayDelegate::updateArrayStepEnable(AOneLineTextEdit * editNum, AOneLineTextEdit * editStep)
+{
+    QString text = editNum->text();
+    bool bAtLeastTwo = true;
+    bool ok;
+    double val = text.toDouble(&ok);
+    if (!ok)
+    {
+        QString errorStr;
+        ok = AGeoConsts::getConstInstance().evaluateFormula(errorStr, text, val);
+    }
+    if (ok) bAtLeastTwo = (val >= 2);
+    editStep->setEnabled(bAtLeastTwo);
+}
+
 
 bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
 {
@@ -3383,6 +3450,8 @@ void AWorldDelegate::Update(const AGeoObject *obj)
     const AGeoBox * box = static_cast<const AGeoBox*>(obj->Shape);
     ledSizeXY->setText(box->str2dx.isEmpty() ? QString::number(box->dx*2.0) : box->str2dx);
     ledSizeZ ->setText(box->str2dz.isEmpty() ? QString::number(box->dz*2.0) : box->str2dz);
+
+    updateLineColorFrame(obj);
 }
 
 AGeoInstanceDelegate::AGeoInstanceDelegate(const QStringList &materials, QWidget *parent)

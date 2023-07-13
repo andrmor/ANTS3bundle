@@ -74,6 +74,8 @@ private slots:
 
     void on_cbUseStyleSystPalette_clicked(bool checked);
 
+    void on_sbTabInSpaces_valueChanged(int arg1);
+
 private:
     A3Global & GlobSet;
     Ui::AGlobSetWindow * ui = nullptr;

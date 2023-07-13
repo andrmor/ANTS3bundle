@@ -26,6 +26,7 @@ ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) 
     Completer->setCaseSensitivity(Qt::CaseSensitive);
     Completer->setWrapAround(false);
     TextEdit->setCompleter(Completer);
+    TextEdit->setScriptLanguage(language);
 
     if (language == EScriptLanguage::JavaScript)
         Highlighter = new AHighlighterJS(TextEdit->document());

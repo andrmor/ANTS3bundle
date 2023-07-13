@@ -151,12 +151,17 @@ public:
   bool    isPossiblePrototype(QString * sReason = nullptr) const;
   QString makeItPrototype(AGeoObject * Prototypes);
   bool    isPrototypeInUseRecursive(const QString & PrototypeName, QStringList * Users = nullptr) const;
+  bool    isPrototypeMember() const;
 
   bool isGoodContainerForInstance() const;
 
   void makeItWorld();
 
+  void clearTrueRotationRecursive();
+
   void scaleRecursive(double factor);         // used only during population of TGeoManager as it ignores txt position/size parameters
+
+  bool checkCompatibleWithGeant4() const;
 
   //service propertie
   QString tmpContName;               // used only during load

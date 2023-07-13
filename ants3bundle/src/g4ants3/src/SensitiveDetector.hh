@@ -81,7 +81,7 @@ protected:
 class CalorimeterSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    CalorimeterSensitiveDetector(const std::string & name, const ACalorimeterProperties & properties, int index);
+    CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties & properties, int index);
     ~CalorimeterSensitiveDetector();
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
@@ -89,12 +89,15 @@ public:
     void writeToJson(json11::Json::object & json);
 
     std::string Name;
-    const ACalorimeterProperties & Properties;
+    ACalorimeterProperties & Properties;
     int CalorimeterIndex;
 
     //run-time
     AHistogram3Dfixed * Data = nullptr;
     double VoxelVolume_mm3 = 0;
+
+    AHistogram1D * EventDepoData = nullptr;
+    double SumDepoOverEvent = 0;
 
 };
 

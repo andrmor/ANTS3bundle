@@ -1,0 +1,984 @@
+{
+    "ConfigDescription": "Single hybrid double-gap 10B-RPC irradiated by a pencil beam of thermal neutrons.",
+    "ConfigName": "10B-RPC",
+    "Geometry": {
+        "GeoConsts": [
+            [
+                "XYsize",
+                100,
+                "",
+                ""
+            ],
+            [
+                "CatTh",
+                0.4,
+                "",
+                ""
+            ],
+            [
+                "ConvTh",
+                0.00115,
+                "",
+                ""
+            ],
+            [
+                "GapTh",
+                0.35,
+                "",
+                ""
+            ],
+            [
+                "GlassTh",
+                0.3,
+                "",
+                ""
+            ]
+        ],
+        "WorldTree": [
+            {
+                "Container": "",
+                "Material": 0,
+                "Name": "World",
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 90.93266739736606,
+                    "dy": 90.93266739736606,
+                    "dz": 91.66887489736605
+                },
+                "Type": {
+                    "FixedSize": false,
+                    "Type": "World"
+                },
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
+                "Name": "Stack1",
+                "Phi": -90,
+                "Psi": 0,
+                "Theta": 90,
+                "Type": {
+                    "ReferenceVolume": "Cathode",
+                    "Type": "Stack"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "Stack1",
+                "Material": 1,
+                "Name": "Anode0",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.15,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "GlassTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0.7011499999999998,
+                "color": 7,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 4,
+                "Name": "GasGap0",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.175,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0.3761499999999999,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 3,
+                "Name": "Converter0",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.000575,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "ConvTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0.20057499999999995,
+                "color": 2,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 2,
+                "Name": "Cathode",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.2,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "CatTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 3,
+                "Name": "Converter1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.000575,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "ConvTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.20057499999999995,
+                "color": 2,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 4,
+                "Name": "GasGap1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.175,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "GapTh"
+                },
+                "SpecialRole": {
+                    "Bins": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "CollectDepoOverEvent": true,
+                    "DataType": "Energy",
+                    "EventDepoBins": 190,
+                    "EventDepoFrom": 0.1,
+                    "EventDepoTo": 2,
+                    "Origin": [
+                        -10000000000,
+                        -10000000000,
+                        -10000000000
+                    ],
+                    "RandomizeBin": false,
+                    "Step": [
+                        20000000000,
+                        20000000000,
+                        20000000000
+                    ],
+                    "Type": "Calorimeter",
+                    "strEventDepoBins": "",
+                    "strEventDepoFrom": "",
+                    "strEventDepoTo": ""
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.37615,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Stack1",
+                "Material": 1,
+                "Name": "Anode1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.15,
+                    "str2dx": "XYsize",
+                    "str2dy": "XYsize",
+                    "str2dz": "GlassTh"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.7011499999999999,
+                "color": 7,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            }
+        ]
+    },
+    "InterfaceRules": {
+        "MaterialRules": [
+        ],
+        "VolumeRules": [
+        ]
+    },
+    "Materials": [
+        {
+            "*Name": "Vacuum",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "SodaLimeGlass",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "SiO2/74+Na2O/13+CaO/10.5+Al2O3/1.3+K2O/0.3+MgO/0.2+SO3/0.2",
+                    "Density": 2.53,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Al",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_Al",
+                "UseGeant4Material": true
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "B4C",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "{10B:97.06+11B:2.94}:81.7 + C:17 + H:0.7 + O:0.4 + N:0.2",
+                    "Density": 2.242,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Freon",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "C2F4H2",
+                    "Density": 0.0042405,
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        }
+    ],
+    "ParticleSim": {
+        "ClusterMerge": false,
+        "ClusterMergeRadius": 0.1,
+        "ClusterMergeTime": 1,
+        "Events": 100000,
+        "Geant4Settings": {
+            "AddScintillatorsToSensitiveVolumes": true,
+            "Commands": [
+                "/run/setCut 0.01 mm"
+            ],
+            "PhysicsList": "QGSP_BIC_HP",
+            "ScintSensitiveVolumes": [
+            ],
+            "SensitiveVolumes": [
+            ],
+            "StepLimits": [
+                [
+                    "Converter*",
+                    1e-05
+                ]
+            ],
+            "UseTSphys": false
+        },
+        "GenerationFromFile": {
+            "FileFormat": "Undefined",
+            "FileLastModified": -3600000,
+            "FileName": "",
+            "NumEvents": 0
+        },
+        "GenerationFromSources": {
+            "MultiplePerEvent": {
+                "Enabled": false,
+                "Mode": "Constant",
+                "Number": 1
+            },
+            "ParticleSources": [
+                {
+                    "Activity": 1,
+                    "Angular": {
+                        "CustomDistribution": [
+                        ],
+                        "CutOff": 45,
+                        "Mode": "Fixed",
+                        "Phi": 90,
+                        "Sigma": 1,
+                        "Theta": 90,
+                        "UseCutOff": false
+                    },
+                    "Name": "NeutronBeam",
+                    "Particles": [
+                        {
+                            "Energy": {
+                                "EnergySigma": 50,
+                                "EnergySpectrum": [
+                                ],
+                                "FixedEnergy": 2.5e-05,
+                                "PreferredSigmaUnits": "keV",
+                                "PreferredUnits": "meV",
+                                "UseFixedEnergy": true,
+                                "UseGaussBlur": false
+                            },
+                            "Generation": {
+                                "BtBPair": false,
+                                "LinkedTo": 0,
+                                "LinkingProbability": 0,
+                                "StatWeight": 1,
+                                "Type": "Independent"
+                            },
+                            "Particle": "neutron"
+                        }
+                    ],
+                    "Spatial": {
+                        "AxialDistributionForRound": {
+                            "CustomDistribution": [
+                            ],
+                            "Enabled": false,
+                            "Sigma": 10,
+                            "Type": "Gauss"
+                        },
+                        "MaterialLimited": {
+                            "Enabled": false,
+                            "Material": ""
+                        },
+                        "Orientation": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Position": [
+                            -25,
+                            0,
+                            0
+                        ],
+                        "Shape": "Point",
+                        "Size1": 10,
+                        "Size2": 10,
+                        "Size3": 10
+                    },
+                    "Time": {
+                        "ByEventPeriod": 10,
+                        "ByEventStart": 0,
+                        "CustomDistribution": [
+                        ],
+                        "FixedOffset": 0,
+                        "HalfLifePreferUnit": "ns",
+                        "OffsetMode": "Fixed",
+                        "SpreadHalfLife": 100,
+                        "SpreadMode": "None",
+                        "SpreadSigma": 50,
+                        "SpreadWidth": 100
+                    }
+                }
+            ]
+        },
+        "ParticleGenerationMode": "Sources",
+        "RunSettings": {
+            "AsciiOutput": true,
+            "AsciiPrecision": 6,
+            "CalorimeterSettings": {
+                "Enabled": true,
+                "FileName": "Calorimeters.json"
+            },
+            "FileNameDeposition": "Deposition.dat",
+            "FileNameTrackingHistory": "TrackingData.dat",
+            "MonitorSettings": {
+                "Enabled": false,
+                "FileName": "ParticleMonitors.json"
+            },
+            "OutputDirectory": "/home/andr/tmp",
+            "SaveDeposition": false,
+            "SaveParticles": {
+                "Enabled": false,
+                "FileName": "OutputParticles.dat",
+                "StopTrack": true,
+                "TimeFrom": 0,
+                "TimeTo": 10000000000,
+                "TimeWindow": false,
+                "VolumeName": ""
+            },
+            "SaveTrackingHistory": true,
+            "Seed": 0
+        }
+    },
+    "PhotonSim": {
+        "Deposition": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": -3600000,
+            "NumEvents": 0,
+            "Primary": true,
+            "Secondary": false
+        },
+        "Optimization": {
+            "CheckQeBeforeTracking": false,
+            "MaxPhotonTransitions": 500
+        },
+        "PhotonBombs": {
+            "Advanced": {
+                "Direction": {
+                    "ConeAngle": 10,
+                    "DirDX": 0,
+                    "DirDY": 0,
+                    "DirDZ": 1,
+                    "DirectionMode": "Isotropic"
+                },
+                "SkipBombs": {
+                    "EnableOnlyMat": false,
+                    "EnableOnlyVol": false,
+                    "Material": "",
+                    "MaxNodeAttempts": 1000,
+                    "Volume": ""
+                },
+                "Time": {
+                    "DecayTime": 5,
+                    "Enabled": false
+                },
+                "Wave": {
+                    "Enabled": false,
+                    "WaveIndex": -1
+                }
+            },
+            "File": {
+                "FileFormat": "Undefined",
+                "FileName": "",
+                "LastModified": -3600000,
+                "NumEvents": 0
+            },
+            "Flood": {
+                "CenterX": 0,
+                "CenterY": 0,
+                "InnerDiameter": 0,
+                "Number": 100,
+                "OuterDiameter": 300,
+                "Shape": "rectangle",
+                "Xfrom": -15,
+                "Xto": 15,
+                "Yfrom": -15,
+                "Yto": 15,
+                "Zfixed": 0,
+                "Zfrom": 0,
+                "Zmode": "fixed",
+                "Zto": 0
+            },
+            "GenerationMode": "single",
+            "Grid": {
+                "AxesData": [
+                    {
+                        "BiDirect": false,
+                        "Enabled": true,
+                        "Nodes": 10,
+                        "dX": 10,
+                        "dY": 0,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 10,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 0,
+                        "dZ": 10
+                    }
+                ],
+                "ScanX0": 0,
+                "ScanY0": 0,
+                "ScanZ0": 0
+            },
+            "PhotonsPerBomb": {
+                "CustomDist": [
+                ],
+                "FixedNumber": 10,
+                "Mode": "constant",
+                "NormalMean": 100,
+                "NormalSigma": 10,
+                "PoissonMean": 10,
+                "UniformMax": 12,
+                "UniformMin": 10
+            },
+            "Single": {
+                "Position": [
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "PhotonFile": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": -3600000,
+            "NumEvents": 0
+        },
+        "Run": {
+            "BinaryFormat": false,
+            "FileNameMonitors": "PhotonMonitors.txt",
+            "FileNamePhotonBombs": "PhotonBombs.txt",
+            "FileNameSensorLog": "SensorLog.dat",
+            "FileNameSensorSignals": "SensorSignals.txt",
+            "FileNameStatistics": "PhotonStatistics.json",
+            "FileNameTracks": "PhotonTracks.txt",
+            "MaxTracks": 1000,
+            "OutputDirectory": "",
+            "SaveMonitors": true,
+            "SavePhotonBombs": true,
+            "SaveSensorLog": false,
+            "SaveSensorSignals": true,
+            "SaveStatistics": true,
+            "SaveTracks": true,
+            "Seed": 0,
+            "SensorLogAngle": false,
+            "SensorLogTime": true,
+            "SensorLogWave": false,
+            "SensorLogXY": false,
+            "UpperTimeLimit": 100
+        },
+        "SimulationType": "bomb",
+        "WaveResolved": {
+            "Enabled": false,
+            "From": 200,
+            "Step": 5,
+            "To": 800
+        }
+    },
+    "Sensors": {
+        "ModelAssignment": [
+        ],
+        "Models": [
+            {
+                "AngularResponse": {
+                    "Data": [
+                    ]
+                },
+                "AreaResponse": {
+                    "Data": [
+                    ],
+                    "StepX": 1,
+                    "StepY": 1
+                },
+                "DarkCountRate": 0,
+                "IntegrationTime": 1e-06,
+                "Name": "Ideal",
+                "PDE": {
+                    "Effective": 1,
+                    "Spectral": [
+                    ]
+                },
+                "PhElToSignals": {
+                    "AverageSignalPerPhEl": 1,
+                    "ElectronicGainFactor": 1,
+                    "GammaShape": 2,
+                    "Model": "Constant",
+                    "NormalSigma": 0,
+                    "SinglePhElPHS": [
+                    ]
+                },
+                "PreampSigma": 0,
+                "SiPM": {
+                    "PixelSizeX": 3,
+                    "PixelSizeY": 3,
+                    "PixelSpacingX": 0,
+                    "PixelSpacingY": 0,
+                    "PixelsX": 50,
+                    "PixelsY": 50,
+                    "isSiPM": false
+                }
+            }
+        ]
+    },
+    "gui": {
+        "GeometryWindow": {
+            "GeoWriter": {
+                "SizeForCalorimeters": 10,
+                "SizeForMonitors": 10,
+                "SizeForSensors": 10
+            },
+            "ZoomLevel": 0
+        }
+    }
+}

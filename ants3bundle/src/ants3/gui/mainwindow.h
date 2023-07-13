@@ -21,6 +21,8 @@ class AGlobSetWindow;
 class ADemoWindow; // tmp
 class QTimer;
 class A3Global;
+class AConfigExampleBrowser;
+class AGuiFromScrWin;
 
 class MainWindow : public AGuiWindow
 {
@@ -48,11 +50,14 @@ private:
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
+    AGuiFromScrWin    * GuiFromScrWin = nullptr;
 #ifdef ANTS3_PYTHON
     AScriptWindow     * PythonWin = nullptr;
 #endif
     AGlobSetWindow    * GlobSetWin = nullptr;
     ADemoWindow       * DemoWin    = nullptr;
+
+    AConfigExampleBrowser * ConfigExampleBrowser = nullptr;
 
     QTimer * RootUpdateTimer = nullptr;
 
@@ -61,6 +66,7 @@ private slots:
     void updateAllGuiFromConfig();
     void onRequestSaveGuiSettings();
     void onRequestChangeGeoViewer(bool useJSRoot);
+    void onRequestLoadConfiguration(QString fileName);
 
     // Main menu
     void on_actionSave_configuration_triggered();
@@ -118,6 +124,8 @@ private slots:
     void rootTimerTimeout();
 
     void on_actionShow_hints_triggered();
+
+    void on_pbExamples_clicked();
 
 protected:
     void closeEvent(QCloseEvent * event);

@@ -16,7 +16,6 @@ class AGeometryHub;
 class A3WorkDistrConfig;
 class QJsonObject;
 class AParticleRunSettings;
-class AEventTrackingRecord;
 class AParticleGun;
 
 class AParticleSimManager : public QObject
@@ -47,12 +46,6 @@ public:
 
     void abort();
     bool isAborted() const;
-
-    QString buildTracks(const QString & fileName, const QStringList & LimitToParticles, const QStringList & ExcludeParticles,
-                        bool SkipPrimaries, bool SkipPrimNoInter, bool SkipSecondaries,
-                        const int MaxTracks, int LimitToEvent = -1);
-
-    QString fillTrackingRecord(const QString & fileName, int iEvent, AEventTrackingRecord * record);
 
 signals:
     void requestUpdateResultsGUI();

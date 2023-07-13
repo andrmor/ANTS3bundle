@@ -1,5 +1,6 @@
 #include "atextedit.h"
 #include "guitools.h"
+#include "a3global.h"
 
 #include <QCompleter>
 #include <QKeyEvent>
@@ -18,7 +19,8 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(QWidget *parent) : QPlainTextEdit(parent), c(0)
+ATextEdit::ATextEdit(QWidget *parent) :
+    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces), c(0)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -42,12 +44,23 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(c, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
-void ATextEdit::keyPressEvent(QKeyEvent *e)
+static int counter = 0;
+void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
+    const int key = e->key();
+    if (key == Qt::Key_Shift) return;
+
+    if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+    {
+        bool ok = onKeyPressed_interceptShortcut(key, ((e->modifiers() & Qt::ShiftModifier)));
+        if (ok) return;
+    }
+
+    Pressed_2 = false;
+
     QTextCursor tc = textCursor();
 
-    //simple cases
-    switch (e->key())
+    switch (key)
     {
     case Qt::Key_V :
       {
@@ -258,7 +271,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     }
     */
 
-    if (e->key() == Qt::Key_Return  && !(c && c->popup()->isVisible()))
+    if (key == Qt::Key_Return  && !(c && c->popup()->isVisible()))
     { //enter is pressed but completer popup is not visible
         tc.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
         QString onRight = tc.selectedText();
@@ -360,7 +373,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     if (c && c->popup()->isVisible())
     {
         // The following keys are forwarded by the completer to the widget
-        switch (e->key())
+        switch (key)
         {
         case Qt::Key_Tab:
           {
@@ -413,7 +426,7 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
+    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && key == Qt::Key_E); // CTRL+E
     if (!c || !isShortcut) // do not process the shortcut when we have a completer
         QPlainTextEdit::keyPressEvent(e);
 
@@ -445,6 +458,95 @@ void ATextEdit::keyPressEvent(QKeyEvent *e)
     cr.setWidth(c->popup()->sizeHintForColumn(0)
                 + c->popup()->verticalScrollBar()->sizeHint().width());
     c->complete(cr); // popup it up!
+}
+
+bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
+{
+    //qDebug() << key << shift;
+    QString text;
+    switch (key)
+    {
+    case Qt::Key_2 :
+        Pressed_2 = true;
+        return true;
+    case Qt::Key_QuoteDbl :
+        Pressed_2 = true;
+        return true;
+    case Qt::Key_F :
+        if (ScriptLanguage == EScriptLanguage::JavaScript)
+        {
+            text = "for (var ii = 0; ii < iiMax; ii++)\n"
+                   "{\n"
+                   "\n"
+                   "}";
+        }
+        else text = "for ii in range(iiFrom, iiTo, iiStep):";
+        pasteText(text);
+        return true;
+    case Qt::Key_G :
+        if (Pressed_2)
+        {
+            text  = "graphName = \"g\"\n"
+                    "graph.new2D(graphName)\n"
+                    "graph.addPoints(graphName, ArrayOfArraysOfXYZ)\n";
+            if (shift)
+            {
+                text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
+                        "graph.setTitle(\"Title\")\n";
+            }
+            text += "graph.draw(graphName, \"lego\");";
+        }
+        else
+        {
+            text  = "graphName = \"g\"\n"
+                    "graph.new1D(graphName)\n"
+                    "graph.addPoints(graphName, ArrayOfArrysOfXY)\n";
+            if (shift)
+            {
+                text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\")\n"
+                        "graph.setLineProperties(graphName, lineColor, lineStyle, lineWidth)\n"
+                        "graph.setMarkerProperties(graphName, markerColor, markerStyle, markerSize)\n"
+                        "graph.setTitle(\"Title\")\n";
+            }
+            text += "graph.draw(graphName, \"APL\")";
+        }
+        pasteText(text);
+        return true;
+    case Qt::Key_H :
+        if (Pressed_2)
+        {
+            text  = "histName = \"h\"\n"
+                   "hist.new2D(histName, xBins, xFrom, xTo,  yBins, yFrom, yTo)\n"
+                   "hist.fillArr(histName, arrayOfArrysOfXYZ)\n";
+            if (shift)
+            {
+                text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
+                        "hist.setTitle(\"Title\")\n";
+            }
+            text += "hist.draw(histName, \"colz\")";
+        }
+        else
+        {
+            text  = "histName = \"h\"\n"
+                    "hist.new1D(histName, Bins, RangeFrom, RangeTo)\n"
+                    "hist.fillArr(histName, arrayOfArrayOfXY)\n";
+            if (shift)
+            {
+                text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\")\n"
+                        "hist.setLineProperties(histName, lineColor, lineStyle, lineWidth)\n"
+                        "hist.setTitle(\"Title\")\n";
+            }
+            text += "hist.draw(histName, \"hist\")";
+        }
+        pasteText(text);
+        return true;
+    case Qt::Key_R :
+        text = "root.SetOptStat( \"rmeoui\" )";
+        pasteText(text);
+        return true;
+    }
+
+    return false;
 }
 
 void ATextEdit::focusInEvent(QFocusEvent *e)
@@ -1041,6 +1143,29 @@ void ATextEdit::paste()
         //  qDebug() << "Not empty, using regular paste";
         QPlainTextEdit::paste(); //just in case, but most likely it is empty
     }
+}
+
+void ATextEdit::pasteText(const QString & text)
+{
+    QStringList lines = text.split('\n');
+    lines.push_back("");
+
+    QTextCursor tc = textCursor();
+    tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+
+    //  qDebug() << "Adjusting ident";
+    tc = textCursor();
+    int newIdent = textCursor().positionInBlock();
+
+    QString toInsert;
+    for (int i=0; i<lines.size(); i++)
+    {
+        QString modLine = lines.at(i);
+        if (i != lines.size()-1) modLine += "\n";
+        if (i != 0) modLine = QString(newIdent, ' ') + modLine;
+        toInsert += modLine;
+    }
+    tc.insertText( toInsert );
 }
 
 void ATextEdit::align()

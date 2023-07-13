@@ -61,13 +61,15 @@ bool AMonitorDelegate::updateObject(AGeoObject *obj) const
 
 #include "ageotype.h"
 #include "ageoobject.h"
-void AMonitorDelegate::Update(const AGeoObject *obj)
+void AMonitorDelegate::Update(const AGeoObject * obj)
 {
     ATypeMonitorObject * tmo = dynamic_cast<ATypeMonitorObject*>(obj->Type);
     QString txt;
     if (tmo->config.PhotonOrParticle == 0) txt = "Photon monitor";
     else txt = "Particle monitor";
     labType->setText(txt);
+
+    updateLineColorFrame(obj);
 
     bool bOK = del->updateGUI(obj);
     if (!bOK) return;

@@ -129,6 +129,12 @@
        </item>
        <item>
         <widget class="QCheckBox" name="cbColor">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="toolTip">
+          <string>When checked, right mouse click shows the list of material colours</string>
+         </property>
          <property name="text">
           <string>Color: material</string>
          </property>

@@ -42,6 +42,9 @@ public:
     bool   testMinimizationFunction();
     double runMinimizationFunction(const double * p);
 
+    bool   isCallable(const QString & name) const;
+    bool   callFunctionNoArguments(const QString & name);
+
 private slots:
     void evalFinished(bool flag);
 

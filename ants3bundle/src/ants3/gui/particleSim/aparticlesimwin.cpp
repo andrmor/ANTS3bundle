@@ -19,6 +19,10 @@
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
 #include "ath.h"
+#include "atrackingdataimporter.h"
+#include "aeventsdonedialog.h"
+#include "atrackingdataexplorer.h"
+#include "aeventtrackingrecord.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -43,6 +47,8 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     CalHub(ACalorimeterHub::getInstance()),
     ui(new Ui::AParticleSimWin)
 {
+    CurrentEventRecord = AEventTrackingRecord::create();
+
     ui->setupUi(this);
 
     ui->frEventFilters->setVisible(false);
@@ -73,6 +79,9 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labFilterActivated->setPixmap(pm);
     on_pbUpdateIcon_clicked();
+    ui->labRangeWarningHor->setPixmap(pm);
+    ui->labRangeWarningVert->setPixmap(pm);
+    updateRangeWarning();
 
     ui->twMain->setCurrentIndex(1);
 }
@@ -849,9 +858,17 @@ void AParticleSimWin::on_pbShowTracks_clicked()
     const bool SkipPrimNoInter = ui->cbSkipPrimaryTracksNoInteraction->isChecked();
     const bool SkipSecondaries = ui->cbSkipSecondaryTracks->isChecked();
 
-    QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
-                                         SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
-                                         MaxTracks, -1);
+    ATrackingDataExplorer explorer;
+    AEventsDoneDialog dialog(this);
+    connect(&explorer, &ATrackingDataExplorer::reportEventsProcessed, &dialog, &AEventsDoneDialog::onProgressReported);
+    connect(&dialog, &AEventsDoneDialog::rejected, &explorer, &ATrackingDataExplorer::abortEventProcessing);
+    dialog.setModal(true);
+    dialog.show();
+    QApplication::processEvents();
+
+    QString err = explorer.buildTracks(fileName, LimitTo, Exclude,
+                                       SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
+                                       MaxTracks, -1);
 
     if (!err.isEmpty())
     {
@@ -950,6 +967,10 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
     int precision = ui->sbEVprecision->value();
     bool bHideTransp = ui->cbEVhideTrans->isChecked();
     bool bHideTranspPrim = ui->cbEVhideTransPrim->isChecked();
+    bool bHideStepLim = ui->cbEVhideStepLim->isChecked();
+    bool bHideStepLimPrim = ui->cbEVhideStepLimPrim->isChecked();
+    bool bHideIoni = ui->cbEVhideIoni->isChecked();
+    bool bHideIoniPrim = ui->cbEVhideIoniPrim->isChecked();
 
     bool bPos = ui->cbEVpos->isChecked();
     bool bStep = ui->cbEVstep->isChecked();
@@ -1021,6 +1042,13 @@ void AParticleSimWin::fillEvTabViewRecord(QTreeWidgetItem * item, const AParticl
         }
         else if (!step->TargetIsotope.isEmpty()) s += QString(" (%0)").arg(step->TargetIsotope);
 
+        if (bHideStepLim || (bHideStepLimPrim && pr->isPrimary()))
+            if (step->Process == "StepLimiter") continue;
+
+        if (bHideIoni || (bHideIoniPrim && pr->isPrimary()))
+            if (step->Process == "hIoni" || step->Process == "ionIoni")
+                if (step->Energy > 0) continue;
+
         if (bPos) s += QString("  (%1, %2, %3)").arg(step->Position[0], 0, 'g', precision).arg(step->Position[1], 0, 'g', precision).arg(step->Position[2], 0, 'g', precision);
         if (bStep)
         {
@@ -1078,18 +1106,19 @@ void AParticleSimWin::EV_showTree()
     QString fileName = ui->leTrackingDataFile->text();
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-    AEventTrackingRecord * record = AEventTrackingRecord::create(); // !!!*** make persistent
-    QString err = SimManager.fillTrackingRecord(fileName, ui->sbShowEvent->value(), record);
-    if (!err.isEmpty())
+    ATrackingDataImporter tdi(fileName); // !!!*** make it persistent
+    if (tdi.ErrorString.isEmpty()) tdi.extractEvent(ui->sbShowEvent->value(), CurrentEventRecord);
+    if (!tdi.ErrorString.isEmpty())
     {
-        guitools::message(err, this);
+        guitools::message(tdi.ErrorString, this);
+        CurrentEventRecord->clear();
         return;
     }
     // !!!*** add error processing, separetely process bad event index
 
     const int ExpLevel = ui->sbEVexpansionLevel->value();
 
-    for (AParticleTrackingRecord * pr : record->getPrimaryParticleRecords())
+    for (AParticleTrackingRecord * pr : CurrentEventRecord->getPrimaryParticleRecords())
     {
         QTreeWidgetItem * item = new QTreeWidgetItem(ui->trwEventView);
         fillEvTabViewRecord(item, pr, ExpLevel);
@@ -1149,6 +1178,26 @@ void AParticleSimWin::on_cbEVhideTransPrim_clicked()
     EV_showTree();
 }
 
+void AParticleSimWin::on_cbEVhideStepLim_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideStepLimPrim_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideIoni_clicked()
+{
+    EV_showTree();
+}
+
+void AParticleSimWin::on_cbEVhideIoniPrim_clicked()
+{
+    EV_showTree();
+}
+
 bool AParticleSimWin::isTrackingDataFileExists()
 {
     QString fileName = ui->leTrackingDataFile->text();
@@ -1177,24 +1226,8 @@ void AParticleSimWin::on_pbEventView_clicked()
         QString fileName = ui->leTrackingDataFile->text();
         if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
-        const QStringList LimitTo;
-        const QStringList Exclude;
-
-        const int MaxTracks = 1000;//ui->sbMaxTracks->value(); // !!!***
-
-        const bool SkipPrimaries   = false;
-        const bool SkipPrimNoInter = false;
-        const bool SkipSecondaries = ui->cbEVsupressSec->isChecked();
-
-        QString err = SimManager.buildTracks(fileName, LimitTo, Exclude,
-                                             SkipPrimaries, SkipPrimNoInter, SkipSecondaries,
-                                             MaxTracks, ui->sbShowEvent->value());
-
-        if (!err.isEmpty())
-        {
-            //guitools::message(err, this);
-            return;
-        }
+        ATrackingDataExplorer explorer;
+        explorer.buildTracksForEventRecord(CurrentEventRecord, ui->cbEVsupressSec->isChecked());
 
         emit requestShowGeometry(true, true, true);
         emit requestShowTracks();
@@ -1204,7 +1237,6 @@ void AParticleSimWin::on_pbEventView_clicked()
 // --- Statistics ---
 
 #include "atrackinghistorycrawler.h"
-#include "aeventsdonedialog.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -2133,7 +2165,6 @@ void AParticleSimWin::abortFind()
     bFindEventAbortRequested = true;
 }
 
-#include "atrackingdataimporter.h"
 int AParticleSimWin::findEventWithFilters(int currentEv, bool bUp)
 {
     bFindEventAbortRequested = false;
@@ -2320,6 +2351,7 @@ void AParticleSimWin::updateCalorimeterGui()
         {
             ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
             ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+            ui->frCaloShowDepoOverEvent->setVisible(Cal->EventDepoData);
             updateShowCalorimeterGui();
         }
         else
@@ -2951,3 +2983,51 @@ void AParticleSimWin::on_cbIncludeScintillators_clicked(bool checked)
     G4SimSet.AddScintillatorsToSensitiveVolumes = checked;
 }
 
+void AParticleSimWin::updateRangeWarning()
+{
+    bool bMultithread = (ui->sbNumThreadsStatistics->value() > 0);
+
+    double HorFrom = ui->ledPTHistFromX->text().toDouble();
+    double HorTo = ui->ledPTHistToX->text().toDouble();
+    ui->labRangeWarningHor->setVisible(bMultithread && (HorFrom >= HorTo));
+
+    double VertFrom = ui->ledPTHistFromY->text().toDouble();
+    double VertTo = ui->ledPTHistToY->text().toDouble();
+    ui->labRangeWarningVert->setVisible(bMultithread && (VertFrom >= VertTo));
+}
+
+void AParticleSimWin::on_sbNumThreadsStatistics_valueChanged(int)
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistFromX_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistToX_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistFromY_editingFinished()
+{
+    updateRangeWarning();
+}
+void AParticleSimWin::on_ledPTHistToY_editingFinished()
+{
+    updateRangeWarning();
+}
+
+void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
+{
+    const int iCal = ui->cobCalorimeter->currentIndex();
+
+    int numCal = CalHub.countCalorimeters();
+    if (iCal < 0 || iCal >= numCal) return;
+
+    ATH1D * Data = CalHub.Calorimeters[iCal].Calorimeter->EventDepoData;
+    if (!Data) return;
+
+    Data->GetXaxis()->SetTitle("Deposited energy over event, MeV");
+
+    emit requestDraw(Data, "hist", false, true);
+}

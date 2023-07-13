@@ -21,6 +21,7 @@ class AParticleRecord;
 class AParticleSourceRecord;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
+class AEventTrackingRecord;
 
 namespace Ui {
 class AParticleSimWin;
@@ -89,6 +90,10 @@ private slots:
     void on_sbEVexpansionLevel_valueChanged(int);
     void on_cbEVhideTrans_clicked();
     void on_cbEVhideTransPrim_clicked();
+    void on_cbEVhideStepLim_clicked();
+    void on_cbEVhideStepLimPrim_clicked();
+    void on_cbEVhideIoni_clicked();
+    void on_cbEVhideIoniPrim_clicked();
     void on_sbShowEvent_editingFinished();
     void on_pbPreviousEvent_clicked();
     void on_pbNextEvent_clicked();
@@ -188,6 +193,8 @@ private:
 
     bool   bFindEventAbortRequested = false;
 
+    AEventTrackingRecord * CurrentEventRecord = nullptr;
+
     void updateG4Gui();
     void updateSimGui();
     void updateSourceList();
@@ -213,7 +220,7 @@ private:
 
     //event viewer
     void fillEvTabViewRecord(QTreeWidgetItem * item, const AParticleTrackingRecord * pr, int ExpansionLevel) const;
-    void EV_showTree();
+    void EV_showTree();  // !!!***
     void doProcessExpandedStatus(QTreeWidgetItem *item, int &counter, bool bStore);
     void updatePTHistoryBinControl();
     void updateFileParticleGeneratorGui();
@@ -228,6 +235,7 @@ private:
     void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
+    void updateRangeWarning();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -260,6 +268,13 @@ private slots:
     void abortFind();
     void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
     void on_cbIncludeScintillators_clicked(bool checked);
+    void on_sbNumThreadsStatistics_valueChanged(int arg1);
+    void on_ledPTHistFromX_editingFinished();
+    void on_ledPTHistToX_editingFinished();
+    void on_ledPTHistFromY_editingFinished();
+    void on_ledPTHistToY_editingFinished();
+    void on_pbCaloShowDepoOverEvent_clicked();
+
 };
 
 #endif // APARTICLESIMWIN_H

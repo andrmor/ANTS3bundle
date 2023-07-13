@@ -38,6 +38,7 @@ public slots:
   void rebuildDetectorAndRestoreCurrentDelegate();  // used by geoConst widget
   void onRequestShowPrototype(QString ProtoName);
   void onRequestIsValidPrototypeName(const QString & ProtoName, bool & bResult) const;
+  void ShowAllInstances(AGeoObject * obj);
 
 private slots:
   void onItemSelectionChanged();
@@ -85,7 +86,6 @@ private:
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);
   void ShowObjectOnly(AGeoObject * obj);  // !!!***
-  void ShowAllInstances(AGeoObject * obj);
   void menuActionEnableDisable(AGeoObject * obj);
   void menuActionRemoveKeepContent(QTreeWidget * treeWidget);
   void menuActionRemoveHostedObjects(AGeoObject * obj);

@@ -115,8 +115,10 @@ SOURCES += \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
     geo/agridhub.cpp \
+    gui/aconfigexamplebrowser.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
@@ -125,6 +127,7 @@ SOURCES += \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
+    gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotsimwin.cpp \
@@ -173,6 +176,7 @@ SOURCES += \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/script/ageoscriptmaker.cpp \
+    gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
     gui/script/ascriptwindow.cpp \
@@ -187,6 +191,7 @@ SOURCES += \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
+    script/ScriptInterfaces/agui_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
     script/ScriptInterfaces/aparticlesim_si.cpp \
     script/ScriptInterfaces/arootstyle_si.cpp \
@@ -312,8 +317,10 @@ HEADERS += \
     geo/acalorimeterhub.h \
     geo/agridelementrecord.h \
     geo/agridhub.h \
+    gui/aconfigexamplebrowser.h \
     gui/aglobsetwindow.h \
     gui/aguiwindow.h \
+    gui/alineedit.h \
     gui/alineeditwithescape.h \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ageotreewin.h \
@@ -322,6 +329,7 @@ HEADERS += \
     gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
     gui/particleSim/atrackdrawdialog.h \
+    gui/particleSim/atrackingdataexplorer.h \
     gui/particleSim/aworldsizewarningdialog.h \
     gui/photsim/ainterfaceruletester.h \
     gui/photsim/aphotsimwin.h \
@@ -370,6 +378,7 @@ HEADERS += \
     gui/photsim/asensorgview.h \
     gui/photsim/asensorwindow.h \
     gui/script/ageoscriptmaker.h \
+    gui/script/aguifromscrwin.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
     gui/script/ascriptwindow.h \
@@ -385,6 +394,7 @@ HEADERS += \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \
+    script/ScriptInterfaces/agui_si.h \
     script/ScriptInterfaces/amsg_si.h \
     script/ScriptInterfaces/aparticlesim_si.h \
     script/ScriptInterfaces/arootstyle_si.h \
@@ -504,6 +514,7 @@ HEADERS += \
     tools/vformula.h
 
 FORMS += \
+        gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/particleSim/aeventsdonedialog.ui \
@@ -563,10 +574,6 @@ ants3_FARM {
 }
 message("Copy resource files")
 linux-g++ || unix{
-   #todir = $${OUT_PWD}
-   #fromdir = $${PWD}/EXAMPLES
-   #QMAKE_POST_LINK = $$quote(cp -rf \"$${fromdir}\" \"$${todir}\"$$escape_expand(\n\t))
-
    fromdir = $${PWD}/files
    message($$fromdir)
    todir = $${OUT_PWD}/../../bin

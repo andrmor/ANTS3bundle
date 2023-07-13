@@ -35,6 +35,8 @@ QString ACalorimeterHub::appendDataFromJson(const QJsonArray & ar)
 {
     if (ar.size() != (int)Calorimeters.size()) return "JsonArray contains data for wrong number of calorimeters";
 
+    clearData();
+
     for (int i=0; i<ar.size(); i++)
     {
         QJsonObject js = ar[i].toObject();

@@ -1330,6 +1330,7 @@ void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool 
     do
     {
         QThread::msleep(100);
+        QApplication::processEvents();
     }
     while (!DrawFinished);
 }

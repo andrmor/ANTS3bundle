@@ -218,7 +218,8 @@ const AGeoObject * AGeoObject::isGeoConstInUse(const QRegularExpression & nameRe
         if (OrientationStr[i].contains(nameRegExp)) return this;
     }
     if (Shape && Shape->isGeoConstInUse(nameRegExp)) return this;
-    if (Type && Type->isGeoConstInUse(nameRegExp)) return this;  //good?
+    if (Type  && Type->isGeoConstInUse(nameRegExp))  return this;
+    if (Role  && Role->isGeoConstInUse(nameRegExp))  return this;
     return nullptr;
 }
 
@@ -231,6 +232,7 @@ void AGeoObject::replaceGeoConstName(const QRegularExpression & nameRegExp, cons
     }
     if (Shape) Shape->replaceGeoConstName(nameRegExp, newName);
     if (Type)  Type->replaceGeoConstName(nameRegExp, newName);
+    if (Role)  Role->replaceGeoConstName(nameRegExp, newName);
 }
 
 const AGeoObject * AGeoObject::isGeoConstInUseRecursive(const QRegularExpression & nameRegExp) const
@@ -416,9 +418,7 @@ void AGeoObject::introduceGeoConstValues()
     }
 
     if (Shape) Shape->introduceGeoConstValues(errorStr);
-
     if (Type)  Type->introduceGeoConstValues(errorStr);
-
     if (Role)  Role->introduceGeoConstValues(errorStr);
 
     if (!errorStr.isEmpty())
@@ -1333,7 +1333,7 @@ bool AGeoObject::isInstanceMember() const
 
     while (obj)
     {
-        if (Type->isInstance()) return true;
+        if (obj->Type->isInstance()) return true;
         obj = obj->Container;
     }
     return false;
@@ -1402,6 +1402,19 @@ bool AGeoObject::isPrototypeInUseRecursive(const QString & PrototypeName, QStrin
     return bFoundInUse;
 }
 
+bool AGeoObject::isPrototypeMember() const
+{
+    if (Type->isPrototype()) return false;
+
+    const AGeoObject * obj = this;
+    while (obj)
+    {
+        if (obj->Type->isPrototype()) return true;
+        obj = obj->Container;
+    }
+    return false;
+}
+
 bool AGeoObject::isGoodContainerForInstance() const
 {
     if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
@@ -1414,6 +1427,12 @@ void AGeoObject::makeItWorld()
     delete Type; Type = new ATypeWorldObject();
 }
 
+void AGeoObject::clearTrueRotationRecursive()
+{
+    TrueRot = nullptr;
+    for (AGeoObject * obj : HostedObjects) obj->clearTrueRotationRecursive();
+}
+
 void AGeoObject::scaleRecursive(double factor)
 {
     for (size_t i = 0; i < 3; i++) Position[i] *= factor;
@@ -1422,6 +1441,22 @@ void AGeoObject::scaleRecursive(double factor)
     Type->scale(factor);
 
     for (AGeoObject * obj : HostedObjects) obj->scaleRecursive(factor);
+}
+
+bool AGeoObject::checkCompatibleWithGeant4() const
+{
+    if (!fActive) return true;
+
+    if (Shape && !Shape->isCompatibleWithGeant4())
+    {
+        AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
+        return false;
+    }
+
+    for (AGeoObject * obj : HostedObjects)
+        if (!obj->checkCompatibleWithGeant4()) return false;
+
+    return true;
 }
 
 #include <QRandomGenerator>

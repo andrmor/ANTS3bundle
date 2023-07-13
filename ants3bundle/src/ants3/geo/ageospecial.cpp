@@ -78,6 +78,45 @@ void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
         ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
         if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
     }
+
+    if (Properties.CollectDepoOverEvent)
+    {
+        ok = GC.updateIntParameter(errorStr, Properties.strEventDepoBins, Properties.EventDepoBins,  true, true);
+        if (!ok) errorStr += " in event energy depo bins";
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strEventDepoFrom, Properties.EventDepoFrom,  false, true, false);
+        if (!ok) errorStr += " in event energy depo from";
+
+        ok = GC.updateDoubleParameter(errorStr, Properties.strEventDepoTo,   Properties.EventDepoTo,    false, true, false);
+        if (!ok) errorStr += " in event energy depo to";
+    }
+}
+
+bool AGeoCalorimeter::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (Properties.strOrigin[i].contains(nameRegExp)) return true;
+        if (Properties.strStep[i]  .contains(nameRegExp)) return true;
+        if (Properties.strBins[i]  .contains(nameRegExp)) return true;
+    }
+    if (Properties.strEventDepoBins.contains(nameRegExp)) return true;
+    if (Properties.strEventDepoFrom.contains(nameRegExp)) return true;
+    if (Properties.strEventDepoTo.contains(nameRegExp)) return true;
+    return false;
+}
+
+void AGeoCalorimeter::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    for (size_t i = 0; i < 3; i++)
+    {
+        Properties.strOrigin[i].replace(nameRegExp, newName);
+        Properties.strStep[i]  .replace(nameRegExp, newName);
+        Properties.strBins[i]  .replace(nameRegExp, newName);
+    }
+    Properties.strEventDepoBins.replace(nameRegExp, newName);
+    Properties.strEventDepoFrom.replace(nameRegExp, newName);
+    Properties.strEventDepoTo.replace(nameRegExp, newName);
 }
 
 void AGeoCalorimeter::readFromJson(const QJsonObject & json)

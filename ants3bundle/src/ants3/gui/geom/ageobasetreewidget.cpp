@@ -173,11 +173,12 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
         QTreeWidgetItem* DraggedItem = this->selectedItems().at(i);
 
         QString DraggedName = DraggedItem->text(0);
-        AGeoObject* obj = World->findObjectByName(DraggedName);
+        AGeoObject * obj = World->findObjectByName(DraggedName);
+        obj->TrueRot = nullptr;
 
         if (ContainerTo != obj->Container)
         {
-            AGeoObject* objFormerContainer = obj->Container;
+            //AGeoObject* objFormerContainer = obj->Container;
 
             bool ok = obj->migrateTo(ContainerTo);
             if (!ok)
@@ -187,6 +188,7 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
                 return;
             }
 
+            /*
             if (ContainerTo->Type->isStack())
             {
                 //qDebug() << "updating stack of this object";
@@ -198,6 +200,7 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
                 if (objFormerContainer->HostedObjects.size()>0)
                     objFormerContainer->HostedObjects.front()->updateStack();
             }
+            */
         }
 
         if (ContainerTo != objTo)
@@ -205,9 +208,7 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
             bool fAfter = (dropIndicatorPosition() == QAbstractItemView::BelowItem);
             obj->repositionInHosted(objTo, fAfter);
 
-            if (obj && obj->Container && obj->Container->Type->isStack())
-                obj->updateStack();
-
+            //if (obj && obj->Container && obj->Container->Type->isStack()) obj->updateStack();
         }
 
     }
