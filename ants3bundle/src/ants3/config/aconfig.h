@@ -48,13 +48,13 @@ public:
     QString     lines;
 
     void    updateJSONfromConfig();
-    QString updateConfigFromJSON();
+    QString updateConfigFromJSON(bool updateGui);
 
-    QString load(const QString & fileName);
+    QString load(const QString & fileName, bool bUpdateGui);
     QString save(const QString & fileName);
 
     void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
-    QString readFromJson(const QJsonObject & json);
+    QString readFromJson(const QJsonObject & json, bool updateGui);
 
     // undo / redo
     void createUndo();
@@ -69,7 +69,7 @@ private:
     QString tryReadFromJson(const QJsonObject & json); // !!!***
 
 signals:
-    void configLoaded();
+    void configLoaded();  // signal to GUI
     void requestSaveGuiSettings();
 
 };

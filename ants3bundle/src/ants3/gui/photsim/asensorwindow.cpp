@@ -304,7 +304,7 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
 
         AConfig & Config = AConfig::getInstance();
         Config.updateJSONfromConfig();
-        Config.updateConfigFromJSON();
+        Config.updateConfigFromJSON(true);
     }
 }
 

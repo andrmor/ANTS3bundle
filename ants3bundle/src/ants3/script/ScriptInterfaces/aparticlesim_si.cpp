@@ -32,7 +32,7 @@ void AParticleSim_SI::simulate(bool updateGui)
     QString err = AErrorHub::getQError();
     if (err.isEmpty())
     {
-        if (updateGui) SimMan.requestUpdateResultsGUI();;
+        if (updateGui) SimMan.requestUpdateResultsGUI();
     }
     else
     {

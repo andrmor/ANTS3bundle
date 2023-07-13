@@ -37,7 +37,7 @@ bool AConfig_SI::load(QString FileName)
         return false;
     }
 
-    QString err = Config.load(FileName);
+    QString err = Config.load(FileName, false);
     if (err.isEmpty()) return true;
 
     abort("Failed to load config from file " + FileName + " -->\n" + err);
@@ -67,7 +67,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
 
     QJsonObject json = QJsonObject::fromVariantMap(ConfigObject);
 
-    QString err = Config.readFromJson(json);
+    QString err = Config.readFromJson(json, false);
     if (err.isEmpty()) return true;
 
     abort("Failed to set config from object:\n" + err);
@@ -254,7 +254,7 @@ void AConfig_SI::updateConfig()
         return;
     }
 
-    QString err = Config.updateConfigFromJSON();
+    QString err = Config.updateConfigFromJSON(false);
     if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
 }
 
@@ -369,6 +369,12 @@ bool AConfig_SI::modifyJsonValue(QJsonObject &obj, const QString &path, const QJ
         }
         else
         { //not the last subkey, so it should be an object
+            if (indexes.back() >= arrays.last().size())
+            {
+                LastError = "Requested index in "+propertyName+" is larger than or equal to the container size";
+                qDebug() << LastError;
+                return false;
+            }
             QJsonObject obj1 = arrays.last()[indexes.back()].toObject();
             if (obj1.isEmpty())
             {

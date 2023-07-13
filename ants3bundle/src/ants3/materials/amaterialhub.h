@@ -36,7 +36,7 @@ public:
     const AMaterial* operator[](int i) const {return Materials[i];}
 
     void    writeToJson(QJsonObject & json) const;
-    QString readFromJson(const QJsonObject & json);
+    QString readFromJson(const QJsonObject & json, bool bUpdateGui);
 
     void    clear();
 
@@ -81,7 +81,7 @@ private:
     void    ensureMatNameIsUnique(AMaterial * mat);
 
 signals:
-    void materialsChanged();
+    void materialsChanged();  // !!!!!!****** remove and replace with direct reaction of all necessary listeners
 
 };
 
