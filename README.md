@@ -39,7 +39,10 @@ apt -y install python3-dev
 apt -y install libxerces-c-dev freeglut3-dev libmotif-dev tk-dev libxpm-dev libxmu-dev libxi-dev
 
 ### CERN ROOT
-export VERSION=6.28.04     # check for the newest version at https://root.cern/
+
+* Check for the newest version numbers at https://root.cern/ and modify the line below
+
+export VERSION=6.28.04
 
 export ROOTTGZ=root_v$VERSION.Linux-ubuntu22-x86_64-gcc11.3.tar.gz
 
@@ -71,7 +74,10 @@ Install qtcreator: see https://www.qt.io/download
    *   only in this way the environmental variables will be configured properly!
 
 ### Geant4
-export VERSION=11.1.1         # see for version number https://geant4.web.cern.ch/
+
+* Check for the newest version numbers at https://geant4.web.cern.ch/ and modify the line below
+
+export VERSION=11.1.1
 
 wget https://github.com/Geant4/geant4/archive/v$VERSION.tar.gz
 
@@ -83,12 +89,20 @@ mkdir /opt/geant4-$VERSION-build
 
 cd /opt/geant4-$VERSION-build
 
-* Modify the Qt directory in the following line.
-* If Geant4's GUI is not needed, set -DGEANT4_USE_QT=OFF and remove -DCMAKE_PREFIX_PATH=... compilation key from the line
+#### Geant4 without Qt visualisation support (if you do not plan to run Geant4 standalone, see QtCreator section above)
+
+cmake -DCMAKE_INSTALL_PREFIX=/opt/geant4-$VERSION-install -DGEANT4_USE_GDML=ON -DCMAKE_BUILD_TYPE=Release -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_QT=OFF -DGEANT4_BUILD_MULTITHREADED=OFF -DCMAKE_CXX_STANDARD=17 /opt/geant4-$VERSION
+
+#### Geant4 with Qt visualisation support (in July 2023 still requres Qt5, see QtCreator section above)
+
+* Modify the Qt directory in the following line!
 
 cmake -DCMAKE_INSTALL_PREFIX=/opt/geant4-$VERSION-install -DGEANT4_USE_GDML=ON -DCMAKE_BUILD_TYPE=Release -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_QT=ON -DGEANT4_BUILD_MULTITHREADED=OFF -DCMAKE_PREFIX_PATH=/home/andr/Qt/5.15.2/gcc_64/lib/cmake -DCMAKE_CXX_STANDARD=17 /opt/geant4-$VERSION
 
-make -j8
+#### The nest is the same for both options
+* The number 8 in the next line is the number of cores used during compilation, modify for the adequte for your system
+
+make -j8           
 
 make install
 
