@@ -90,8 +90,6 @@ void AMatWin::setWasModified(bool flag)
 
 void AMatWin::updateGui()
 {
-    qDebug() << "-------------->UPDATE------------------->";
-
     int current = ui->cobActiveMaterials->currentIndex();
 
     ui->cobActiveMaterials->clear();
@@ -514,11 +512,6 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 void AMatWin::setMaterial(int index)
 {
     switchToMaterial(index);
-}
-
-void AMatWin::onMaterialsChanged()
-{
-    updateGui();
 }
 
 void AMatWin::on_ledIntEnergyRes_editingFinished()

@@ -28,8 +28,6 @@ public:
 //    void AddMaterialFromLibrary(QWidget * parentWidget);   !!!***
 
 private slots:
-    void onMaterialsChanged(); //sent by A3MatHub //!!!!!!****** remove
-
     //on user input
     void on_pbRemove_clicked();
     void on_pbAddNew_clicked();
