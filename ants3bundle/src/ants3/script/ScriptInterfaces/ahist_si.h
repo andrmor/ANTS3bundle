@@ -25,6 +25,7 @@ public:
 
 public slots:
     void           new1D(QString histName, int bins, double start, double stop);
+    void           new1D(QString histName, QVariantList binStartArray);
     void           new2D(QString histName, int binsX, double startX, double stopX,
                                            int binsY, double startY, double stopY);
     void           new3D(QString histName, int binsX, double startX, double stopX,
