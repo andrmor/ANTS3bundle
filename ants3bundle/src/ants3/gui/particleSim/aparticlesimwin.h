@@ -39,10 +39,10 @@ public slots:
     void updateGui();
     void updateResultsGui();
     void onBusyStatusChange(bool busy);
+    void onMaterialsChanged();
 
 private slots:
     // auto-updates
-    void onMaterialsChanged();
     void onRequestShowSource();
 
     void on_pbSimulate_clicked();

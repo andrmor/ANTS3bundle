@@ -73,7 +73,6 @@ AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
     connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &AGeoTreeWin::onRequestShowPrototypeList);
     // !!!***
     //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
-    connect(&MaterialHub, &AMaterialHub::materialsChanged, this, &AGeoTreeWin::onMaterialsChanged);
 
     connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
 

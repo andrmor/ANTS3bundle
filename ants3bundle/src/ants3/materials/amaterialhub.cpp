@@ -130,24 +130,20 @@ void AMaterialHub::clearMaterials()
     Materials.clear();
 }
 
-void AMaterialHub::addNewMaterial(bool fSuppressChangedSignal)
+void AMaterialHub::addNewMaterial()
 {
     AMaterial * m = new AMaterial(); // vacuum by default
 
     AInterfaceRuleHub::getInstance().onMaterialAdded();
 
     Materials.push_back(m);
-
-    if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
-void AMaterialHub::addNewMaterial(QString name, bool fSuppressChangedSignal)
+void AMaterialHub::addNewMaterial(QString name)
 {
-    addNewMaterial(true);
+    addNewMaterial();
     Materials.back()->Name = name;
     ensureMatNameIsUnique(Materials.back());
-
-    if (!fSuppressChangedSignal) emit materialsChanged();
 }
 
 void AMaterialHub::copyMaterialToTmp(int imat, AMaterial & tmpMaterial)
@@ -185,7 +181,7 @@ void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
     if (index == -1)
     {
         //qDebug() << "MatHub-> New material: " << name;
-        addNewMaterial(true);
+        addNewMaterial();
         index = Materials.size() - 1;
     }
     //else qDebug() << "MatHub-> Material " + name + " already defined; index = " << index;
@@ -196,8 +192,6 @@ void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)
     Materials[index]->readFromJson(js);
 
     AGeometryHub::getInstance().populateGeoManager();
-
-    emit materialsChanged();
 }
 
 int AMaterialHub::findMaterial(const QString & name) const
@@ -232,8 +226,6 @@ void AMaterialHub::removeMaterial(int iMat)
 
     AInterfaceRuleHub::getInstance().onMaterialRemoved(iMat);
     AGeometryHub::getInstance().onMaterialRemoved(iMat);
-
-    emit materialsChanged();
 }
 
 QString AMaterialHub::CheckMaterial(const AMaterial* mat) const
@@ -257,14 +249,14 @@ void AMaterialHub::importMaterials(TList * matList)
     {
         TGeoMaterial * tmat = (TGeoMaterial*)matList->At(i);
 
-        addNewMaterial(true);
+        addNewMaterial();
         AMaterial & amat = *Materials.back();
 
         amat.Name = tmat->GetName();
         amat.importComposition(tmat);
     }
 
-    if (countMaterials() == 0) addNewMaterial("Vacuum", true); // !!!*** error?
+    if (countMaterials() == 0) addNewMaterial("Vacuum"); // !!!*** error?
 }
 
 void AMaterialHub::writeToJson(QJsonObject & json) const
@@ -280,7 +272,7 @@ void AMaterialHub::writeToJson(QJsonObject & json) const
     json["Materials"] = ar;
 }
 
-QString AMaterialHub::readFromJson(const QJsonObject & json, bool bUpdateGui)
+QString AMaterialHub::readFromJson(const QJsonObject & json)
 {
     QJsonArray ar;
     bool ok = jstools::parseJson(json, "Materials", ar);
@@ -291,7 +283,7 @@ QString AMaterialHub::readFromJson(const QJsonObject & json, bool bUpdateGui)
     for (int i=0; i<ar.size(); i++)
     {
         QJsonObject js = ar[i].toObject();
-        addNewMaterial(true);
+        addNewMaterial();
         Materials.back()->readFromJson(js);
     }
 
@@ -300,10 +292,6 @@ QString AMaterialHub::readFromJson(const QJsonObject & json, bool bUpdateGui)
         addNewMaterial("Dummy"); //emits the signal!
         return "Materials are empty!";
     }
-    else
-    {
-        if (bUpdateGui) emit materialsChanged();
-    }
 
     return "";
 }
@@ -311,7 +299,7 @@ QString AMaterialHub::readFromJson(const QJsonObject & json, bool bUpdateGui)
 void AMaterialHub::clear()
 {
     clearMaterials();
-    addNewMaterial("Vacuum", true);
+    addNewMaterial("Vacuum");
 }
 
 void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is indeed material properties!
@@ -321,8 +309,6 @@ void AMaterialHub::addNewMaterial(QJsonObject & json) //have to be sure json is 
     mat->readFromJson(json);
 
     ensureMatNameIsUnique(mat);
-
-    emit materialsChanged();
 }
 
 bool AMaterialHub::renameMaterial(int iMat, const QString & newName)
@@ -331,8 +317,6 @@ bool AMaterialHub::renameMaterial(int iMat, const QString & newName)
         if (newName == m->Name) return false;
 
     Materials[iMat]->Name = newName;
-
-    emit materialsChanged();
     return true;
 }
 

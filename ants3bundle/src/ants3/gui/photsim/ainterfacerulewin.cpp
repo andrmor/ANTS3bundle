@@ -15,7 +15,6 @@ AInterfaceRuleWin::AInterfaceRuleWin(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&MatHub, &AMaterialHub::materialsChanged, this, &AInterfaceRuleWin::updateGui);
     connect(&RuleHub, &AInterfaceRuleHub::rulesLoaded, this, &AInterfaceRuleWin::updateGui);
 
     connect(ui->tabwMat,     &QTableWidget::itemDoubleClicked, this, &AInterfaceRuleWin::onMatCellDoubleClicked);

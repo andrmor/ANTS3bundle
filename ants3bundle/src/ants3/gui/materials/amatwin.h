@@ -28,7 +28,7 @@ public:
 //    void AddMaterialFromLibrary(QWidget * parentWidget);   !!!***
 
 private slots:
-    void onMaterialsChanged(); //sent by A3MatHub
+    void onMaterialsChanged(); //sent by A3MatHub //!!!!!!****** remove
 
     //on user input
     void on_pbRemove_clicked();
@@ -100,7 +100,6 @@ private:
 
     bool bMaterialWasModified = false;
     bool flagDisreguardChange = false;
-    bool bLockTmpMaterial     = false;   // need?
     bool bMessageLock         = false;
     bool bClearInProgress     = false;
 

@@ -177,8 +177,9 @@ void MainWindow::onRebuildGeometryRequested()
     GeoTreeWin->updateGui();
     MatWin->updateGui();
     RuleWin->updateGui();
+    PartSimWin->onMaterialsChanged();
     emit GeoTreeWin->requestClearGeoMarkers(0);
-    GeoWin->ShowGeometry();
+    if (GeoWin->isVisible()) GeoWin->ShowGeometry();
 }
 
 void MainWindow::on_pbGeometry_clicked()

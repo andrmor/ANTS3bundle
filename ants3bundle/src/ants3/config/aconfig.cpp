@@ -107,7 +107,7 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     QString Error;
 
-    Error = AMaterialHub::getInstance().readFromJson(json, false);
+    Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
 
     Error = ASensorHub::getInstance().readFromJson(json); // Sensors should be read before geometry

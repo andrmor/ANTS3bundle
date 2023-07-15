@@ -72,8 +72,6 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     connect(&Dispatcher, &ADispatcherInterface::updateProgress, this, &AParticleSimWin::onProgressReceived);
 
-    connect(&AMaterialHub::getInstance(), &AMaterialHub::materialsChanged, this, &AParticleSimWin::onMaterialsChanged);
-
     connect(&SimManager, &AParticleSimManager::requestUpdateResultsGUI, this, &AParticleSimWin::updateResultsGui);
 
     QPixmap pm = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
@@ -97,6 +95,7 @@ void AParticleSimWin::updateGui()
 
     updateG4Gui();
     updateSimGui();
+    onMaterialsChanged();
 
     updateGeneralControlInResults();
 

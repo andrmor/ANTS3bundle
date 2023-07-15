@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     AScriptHub::getInstance();
 
-    AMaterialHub::getInstance().addNewMaterial("Vacuum", true);
+    AMaterialHub::getInstance().addNewMaterial("Vacuum");
 
     // should be last line in initialization!
     AConfig::getInstance().updateJSONfromConfig();

@@ -36,15 +36,15 @@ public:
     const AMaterial* operator[](int i) const {return Materials[i];}
 
     void    writeToJson(QJsonObject & json) const;
-    QString readFromJson(const QJsonObject & json, bool bUpdateGui);
+    QString readFromJson(const QJsonObject & json);
 
     void    clear();
 
     void    generateGeoMedia();
     void    updateRuntimeProperties();
 
-    void    addNewMaterial(bool fSuppressChangedSignal = false);               //
-    void    addNewMaterial(QString name, bool fSuppressChangedSignal = false); // !!!*** make single method!
+    void    addNewMaterial();             //
+    void    addNewMaterial(QString name); // !!!*** make single method!
     void    addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
 
     bool    renameMaterial(int iMat, const QString & newName);
@@ -79,9 +79,6 @@ private:
     void    removeMaterial(int iMat); // !!!*** propagate to PhotonSources!
     void    clearMaterials();
     void    ensureMatNameIsUnique(AMaterial * mat);
-
-signals:
-    void materialsChanged();  // !!!!!!****** remove and replace with direct reaction of all necessary listeners
 
 };
 
