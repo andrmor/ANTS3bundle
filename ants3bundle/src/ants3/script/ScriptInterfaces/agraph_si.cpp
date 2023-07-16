@@ -167,7 +167,7 @@ void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
     {
         if      (r->getType() == "TGraph2D")     r->addPoint2D(x, y, z);
         else if (r->getType() == "TGraphErrors") r->addPoint(x, y, 0, z);
-        else abort("Cannot use addPoint with three doubles for that type of graphs!");
+        else abort(graphName + ": Cannot use addPoint with three doubles for that type of graphs!");
     }
 }
 
