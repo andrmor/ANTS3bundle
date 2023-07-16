@@ -163,7 +163,12 @@ void AGraph_SI::addPoint(QString graphName, double x, double y, double z)
 {
     ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r) abort("Graph " + graphName + " not found!");
-    else    r->addPoint2D(x, y, z);
+    else
+    {
+        if      (r->getType() == "TGraph2D")     r->addPoint2D(x, y, z);
+        else if (r->getType() == "TGraphErrors") r->addPoint(x, y, 0, z);
+        else abort("Cannot use addPoint with three doubles for that type of graphs!");
+    }
 }
 
 void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray)

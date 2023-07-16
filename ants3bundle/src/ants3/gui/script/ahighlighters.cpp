@@ -198,16 +198,15 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
     keywordFormat.setForeground(Qt::blue);
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
-    keywordPatterns << "and" << "assert" << "break" << "class" << "continue" <<
+    keywordPatterns << "and" << "as" << "assert" << "break" << "class" << "close" << "continue" <<
                        "def" << "del" << "elif" << "else" << "except" <<
-                       "exec" << "finally" << "for" << "from" << "global" <<
-                       "if" << "import" << "in" << "is" << "lambda" <<
-                       "not" << "or" << "pass" << "raise" <<
-                       "return" << "try" << "while" <<
-                       "Data" << "Float" << "Int" << "Numeric" << "Oxphys" <<
-                       "array" << "close" << "float" << "int" << "input" <<
-                       "open" << "range" << "type" << "write" << "zeros" <<
-                       "print";
+                       "exec" << "False" << "finally" << "float" << "for" << "from" << "global" <<
+                       "if" << "import" << "in" << "int" << "input" << "is" << "lambda" << "list" <<
+                       "None" << "nonlocal" << "not" << "or" << "open" << "pass" << "raise" << "range" <<
+                       "return" << "string" << "True"<< "try" << "tuple" <<
+                       "type" << "with" << "while" << "yield" <<
+                    // and common functions
+                    "abs" << "len" << "max" << "min" << "print" << "round" << "sorted" << "sum";
 
     for (const QString &pattern : keywordPatterns)
     {
