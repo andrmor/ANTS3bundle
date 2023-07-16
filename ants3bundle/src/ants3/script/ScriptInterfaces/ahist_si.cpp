@@ -28,6 +28,14 @@ AHist_SI::AHist_SI()
 {
     Description = "CERN ROOT histograms";
 
+    Help["new1D"] = "Creates a new 1D histogram.\n"
+                    "For a regular bin histogram provide 3 parameters: number of bins, beginning of the range and end of the range;\n"
+                    "For a variable bin size histogram, provide array of bin low edges. The last number in the array should give the upper range for the last bin.";
+
+    Help["new2D"] = "Creates a new 2D histogram.\n"
+                    "For a regular bin histogram provide 6 parameters: number of bins in X, beginning of the range in X, end of the range in X, number of bins in Y, beginning of the range in Y and end of the range in Y;\n"
+                    "For a variable bin size histogram, provide two arrays of bin low edges (one for X and one for Y). The last number in the arrays should give the upper range for the last bin.";
+
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                     "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";
     Help["FitGaussWithInit"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
@@ -57,9 +65,53 @@ void AHist_SI::new1D(QString histName, int bins, double start, double stop)
         abort("Histogram " + histName+" already exists!");
     }
     else
-    {
         hist->GetYaxis()->SetTitleOffset(1.30f);
+}
+
+void AHist_SI::new1D(QString histName, QVariantList binStartArray)
+{
+    if (!bGuiThread)
+    {
+        abort("Threads cannot create/delete/draw histograms!");
+        return;
     }
+
+    const int size = binStartArray.size();
+    if (size < 2)
+    {
+        abort("Error in new1D using bin array: array should contain at least two doubles");
+        return;
+    }
+
+    std::vector<double> binsAr(size);
+    bool ok = true;
+    for (int i = 0; i < size; i++)
+    {
+        binsAr[i] = binStartArray[i].toDouble(&ok);
+        if (!ok)
+        {
+            abort("Error in new1D using bin array: array should contain doubles");
+            return;
+        }
+    }
+
+    TH1D * hist = new TH1D("", histName.toLatin1().data(), size-1, binsAr.data());
+    if (!hist)
+    {
+        abort("Error in new1D using bin array: failed to generate histogram!");
+        return;
+    }
+
+    ARootHistRecord * rec = new ARootHistRecord(hist, histName, "TH1D");
+
+    bool bOK = Hists.append(histName, rec, AbortIfExists);
+    if (!bOK)
+    {
+        delete rec;
+        abort("Histogram " + histName+" already exists!");
+    }
+    else
+        hist->GetYaxis()->SetTitleOffset(1.30f);
 }
 
 void AHist_SI::new2D(QString histName, int binsX, double startX, double stopX,  int binsY, double startY, double stopY)
@@ -80,9 +132,64 @@ void AHist_SI::new2D(QString histName, int binsX, double startX, double stopX,  
         abort("Histogram " + histName+" already exists!");
     }
     else
-    {
         hist->GetYaxis()->SetTitleOffset(1.30f);
+}
+
+void AHist_SI::new2D(QString histName, QVariantList xBinStartArray, QVariantList yBinStartArray)
+{
+    if (!bGuiThread)
+    {
+        abort("Threads cannot create/delete/draw histograms!");
+        return;
     }
+
+    const int sizeX = xBinStartArray.size();
+    const int sizeY = yBinStartArray.size();
+    if (sizeX < 2 || sizeY < 2)
+    {
+        abort("Error in new2D using bin arrays: arrays should contain at least two doubles");
+        return;
+    }
+
+    std::vector<double> binsArX(sizeX);
+    bool ok = true;
+    for (int i = 0; i < sizeX; i++)
+    {
+        binsArX[i] = xBinStartArray[i].toDouble(&ok);
+        if (!ok)
+        {
+            abort("Error in new2D using bin arrays: arrays should contain doubles");
+            return;
+        }
+    }
+    std::vector<double> binsArY(sizeY);
+    for (int i = 0; i < sizeY; i++)
+    {
+        binsArY[i] = yBinStartArray[i].toDouble(&ok);
+        if (!ok)
+        {
+            abort("Error in new2D using bin arrays: arrays should contain doubles");
+            return;
+        }
+    }
+
+    TH2D * hist = new TH2D("", histName.toLatin1().data(), sizeX-1, binsArX.data(), sizeY-1, binsArY.data());
+    if (!hist)
+    {
+        abort("Error in new2D using bin arrays: failed to generate histogram!");
+        return;
+    }
+
+    ARootHistRecord * rec = new ARootHistRecord(hist, histName, "TH2D");
+
+    bool bOK = Hists.append(histName, rec, AbortIfExists);
+    if (!bOK)
+    {
+        delete rec;
+        abort("Histogram " + histName+" already exists!");
+    }
+    else
+        hist->GetYaxis()->SetTitleOffset(1.30f);
 }
 
 void AHist_SI::new3D(QString histName, int binsX, double startX, double stopX, int binsY, double startY, double stopY, int binsZ, double startZ, double stopZ)

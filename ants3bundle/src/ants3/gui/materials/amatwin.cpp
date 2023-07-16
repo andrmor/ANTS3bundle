@@ -64,8 +64,6 @@ AMatWin::AMatWin(QWidget * parent) :
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
-    connect(&MatHub, &AMaterialHub::materialsChanged, this, &AMatWin::onMaterialsChanged);
-
     ui->leComposition->setAlignment(Qt::AlignHCenter);
 }
 
@@ -92,8 +90,6 @@ void AMatWin::setWasModified(bool flag)
 
 void AMatWin::updateGui()
 {
-    if (bLockTmpMaterial) return;
-
     int current = ui->cobActiveMaterials->currentIndex();
 
     ui->cobActiveMaterials->clear();
@@ -516,11 +512,6 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 void AMatWin::setMaterial(int index)
 {
     switchToMaterial(index);
-}
-
-void AMatWin::onMaterialsChanged()
-{
-    updateGui();
 }
 
 void AMatWin::on_ledIntEnergyRes_editingFinished()
@@ -1109,10 +1100,10 @@ void AMatWin::on_pbAddNew_clicked()
     while (MatHub.findMaterial(matName) != -1)
         matName = QString("NoName%1").arg(iCounter++);
 
-    MatHub.addNewMaterial(matName, true);
+    MatHub.addNewMaterial(matName);
 
     emit requestRebuildDetector();
-    updateGui();
+    //updateGui();
 
     int index = ui->cobActiveMaterials->count() - 1;
     if (index > -1) switchToMaterial(index);

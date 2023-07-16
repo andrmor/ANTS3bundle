@@ -492,7 +492,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
             if (shift)
             {
                 text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
-                        "graph.setTitle(\"Title\")\n";
+                        "graph.setTitle(graphName, \"Title\")\n";
             }
             text += "graph.draw(graphName, \"lego\");";
         }
@@ -506,7 +506,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
                 text += "graph.setAxisTitles(graphName, \"X_axis_title\", \"Y_axis_title\")\n"
                         "graph.setLineProperties(graphName, lineColor, lineStyle, lineWidth)\n"
                         "graph.setMarkerProperties(graphName, markerColor, markerStyle, markerSize)\n"
-                        "graph.setTitle(\"Title\")\n";
+                        "graph.setTitle(graphName, \"Title\")\n";
             }
             text += "graph.draw(graphName, \"APL\")";
         }
@@ -521,7 +521,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
             if (shift)
             {
                 text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
-                        "hist.setTitle(\"Title\")\n";
+                        "hist.setTitle(graphName, \"Title\")\n";
             }
             text += "hist.draw(histName, \"colz\")";
         }
@@ -534,7 +534,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
             {
                 text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\")\n"
                         "hist.setLineProperties(histName, lineColor, lineStyle, lineWidth)\n"
-                        "hist.setTitle(\"Title\")\n";
+                        "hist.setTitle(graphName, \"Title\")\n";
             }
             text += "hist.draw(histName, \"hist\")";
         }
