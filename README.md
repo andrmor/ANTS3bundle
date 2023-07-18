@@ -10,13 +10,15 @@
 
 If you plan to set up a virtual machine, give it at least 50 Gb of disc space!
 
-It is recommended to set up your location as UK (e.g. London), otherwise you will have to configer decimal separator to "." yourself!
+It is recommended to set up your keyboard according to your true location (e.g. Portuguese), but set your location as UK (e.g. London), otherwise you will have to configer decimal separator to "." yourself!
 
 ### General
 
 sudo su      # and enter your password
 
-update-locale LANG=en_GB.UTF-8       # this is to ensure you use decimal separator "."
+* The following line only if you selected a location where the decimal separator is not "." (e.g. Portugal). Note that you will have to restart ubuntu to take this in effect!
+
+update-locale LANG=en_GB.UTF-8
 
 apt -y update && apt -y upgrade
 
