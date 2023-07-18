@@ -54,25 +54,6 @@ tar -xzf $ROOTTGZ -C /opt/root$VERSION
 
 rm $ROOTTGZ
 
-### QtCreator
-Install qtcreator: see https://www.qt.io/download
-* go to open source section, 
-* then download "Qt online installer",
-* allow execution for the downloaded file and start it
-* you will have to create an account to use the installer
-* Go for "Custom installation"
-    * QtCreator and the tools will be automatically selected, you only need to selected the Qt version
-    * For example, in Qt 6.5.1, you have to select:
-      * Desktop gcc 64-bit
-      * Additional libraries / QWebSockets
-      * Additional libraries / QWebEngine
-    * If you also plan to use ants2 or Geant4's Qt-based GUI, install the following:
-        * Qt 5.15.2
-           * Desktop gcc 64-bit
-           * Qt Script
-   * Do NOT start QtCreator from the installation tool, only from the terminal!
-   *   only in this way the environmental variables will be configured properly!
-
 ### Geant4
 
 * Check for the newest version numbers at https://geant4.web.cern.ch/ and modify the line below
@@ -115,6 +96,25 @@ exit
 ---
 ### THE NEXT INSTRUCTIONS TO BE EXECUTED NOT WITH SUPERUSER!!!
 ---
+### QtCreator
+
+Download online Install qtcreator: see https://www.qt.io/download
+
+* go to open source section, 
+* then download "Qt online installer",
+* allow execution for the downloaded file (checkbox on the file context menu using th right mouse click) and start it
+* you will have to create an account to use the installer
+* Go for "Custom installation"
+    * QtCreator and the tools will be automatically selected, you only need to selected the Qt version
+    * For example, in Qt 6.5.1, you have to select:
+      * Desktop gcc 64-bit
+      * Additional libraries / QWebSockets
+      * Additional libraries / QWebEngine
+    * Normally skip the following part, but if you also plan to use ants2 or Geant4's Qt-based GUI, install the following:
+        * Qt 5.15.2
+           * Desktop gcc 64-bit
+           * Qt Script
+
 ### ANTS3 source code
 * Create a directory for ants3 and open a terminal inside
 * git clone https://github.com/andrmor/ANTS3bundle
@@ -139,12 +139,12 @@ echo ". /opt/geant4-11.1.1-install/bin/geant4.sh" >> ~/.bashrc
 * Adjust the path for the QtCreator
 
 echo "alias qt="/home/andr/Qt/Tools/QtCreator/bin/qtcreator"" >> ~/.bashrc
-              
-* Adjust the path for the Qt directory in the third line
 
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
 
 echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
+
+* Only if you also installed Qt5 (not needed for Qt6!), adjust the path for the Qt directory and run:
 
 echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
 
@@ -160,11 +160,13 @@ echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
 
 echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
 
+* Only if you also installed Qt5 (not needed for Qt6!), adjust the path for the Qt directory and run:
+
 echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
 
 ### Next?
 
-* Start a new terminal and type qt to start QtCreator IDE
+* Start a new terminal and type qt to start QtCreator IDE (only in this way the environmental variables will be configured properly!)
 * Click "Open project..." and select meta.pro file in the ANTS3 source directory (ANTS3bundle/ants3bundle/meta.pro)
 * Click "Configure project" button
 * To start ANTS3 compilation click the green triangular button in the lower-left corner of the QtCeator window
