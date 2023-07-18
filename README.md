@@ -16,7 +16,7 @@ It is recommended to set up your keyboard according to your true location (e.g. 
 
 sudo su      # and enter your password
 
-* The following line only if you selected a location where the decimal separator is not "." (e.g. Portugal). Note that you will have to restart ubuntu to take this in effect!
+* The following line only if you selected a location where the decimal separator is not "." (e.g. Portugal). Note that you will have to restart ubuntu to take this into effect!
 
 update-locale LANG=en_GB.UTF-8
 
