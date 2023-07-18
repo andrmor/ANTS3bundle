@@ -154,8 +154,6 @@ echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" 
 
 echo "alias qt=\\". /opt/root6.28.04/root/bin/thisroot.sh;. /opt/geant4-11.1.1-install/bin/geant4.sh;/home/andr/Qt/Tools/QtCreator/bin/qtcreator\\"" >> ~/.bashrc
               
-* Adjust the path for the Qt directory in the third line
-
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
 
 echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
