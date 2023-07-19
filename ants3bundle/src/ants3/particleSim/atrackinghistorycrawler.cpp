@@ -150,7 +150,7 @@ void ATrackingHistoryCrawler::findRecursive(const AParticleTrackingRecord & pr, 
         const std::vector<ATrackingStepData *> & steps = pr.getSteps();
         if (!steps.empty())
         {
-            const float & Time = steps.front()->Time;
+            const double & Time = steps.front()->Time;
             if (Time < opt.TimeFrom || Time > opt.TimeTo) bDoTrack = false;
         }
     }
@@ -602,10 +602,10 @@ void AHistorySearchProcessor_findTravelledDistances::onLocalStep(const ATracking
 {
     if (bStarted)
     {
-        float d2 = 0;
+        double d2 = 0;
         for (int i=0; i<3; i++)
         {
-            const float delta = LastPosition[i] - tr.Position[i];
+            const double delta = LastPosition[i] - tr.Position[i];
             d2 += delta * delta;
             LastPosition[i] = tr.Position[i];
         }
@@ -616,10 +616,10 @@ void AHistorySearchProcessor_findTravelledDistances::onLocalStep(const ATracking
 void AHistorySearchProcessor_findTravelledDistances::onTransitionOut(const ATrackingStepData &tr)
 {
     bStarted = false;
-    float d2 = 0;
+    double d2 = 0;
     for (int i=0; i<3; i++)
     {
-        const float delta = LastPosition[i] - tr.Position[i];
+        const double delta = LastPosition[i] - tr.Position[i];
         d2 += delta * delta;
     }
     Distance += sqrt(d2);
@@ -1374,7 +1374,7 @@ void AHistorySearchProcessor_getDepositionStats::onLocalStep(const ATrackingStep
 {
     if (tr.DepositedEnergy == 0) return;
 
-    const float & depo = tr.DepositedEnergy;
+    const double & depo = tr.DepositedEnergy;
 
     if (!bAlreadyFound)
     {
@@ -1447,7 +1447,7 @@ double AHistorySearchProcessor_getDepositionStats::getResults(std::vector<std::t
     return sum;
 }
 
-AHistorySearchProcessor_getDepositionStatsTimeAware::AHistorySearchProcessor_getDepositionStatsTimeAware(float timeFrom, float timeTo) :
+AHistorySearchProcessor_getDepositionStatsTimeAware::AHistorySearchProcessor_getDepositionStatsTimeAware(double timeFrom, double timeTo) :
     AHistorySearchProcessor_getDepositionStats(), timeFrom(timeFrom), timeTo(timeTo) {}
 
 void AHistorySearchProcessor_getDepositionStatsTimeAware::onLocalStep(const ATrackingStepData &tr)

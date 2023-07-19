@@ -216,7 +216,7 @@ protected:
 class AHistorySearchProcessor_getDepositionStatsTimeAware : public AHistorySearchProcessor_getDepositionStats
 {
 public:
-    AHistorySearchProcessor_getDepositionStatsTimeAware(float timeFrom, float timeTo);
+    AHistorySearchProcessor_getDepositionStatsTimeAware(double timeFrom, double timeTo);
 
     void onLocalStep(const ATrackingStepData & tr) override;
     void onTransitionOut(const ATrackingStepData & tr) override; // in Geant4 energy loss can happen on transition
@@ -224,8 +224,8 @@ public:
     AHistorySearchProcessor * clone() const override;
 
 private:
-    float timeFrom;
-    float timeTo;
+    double timeFrom;
+    double timeTo;
 };
 
 class AHistorySearchProcessor_findTravelledDistances : public AHistorySearchProcessor
@@ -244,9 +244,9 @@ public:
 
     bool mergeResuts(const AHistorySearchProcessor & other) override;
 
-    float Distance = 0;
-    float LastPosition[3];
-    bool bStarted = false;
+    double Distance = 0;
+    double LastPosition[3];
+    bool   bStarted = false;
     TH1D * Hist = nullptr;
 };
 
@@ -314,8 +314,8 @@ public:
 
   //time
     bool    bTime = false;
-    float   TimeFrom = 0;
-    float   TimeTo   = 1e99;
+    double  TimeFrom = 0;
+    double  TimeTo   = 1e99;
 
   //transportation
     //from

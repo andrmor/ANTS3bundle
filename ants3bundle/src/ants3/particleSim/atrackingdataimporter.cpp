@@ -346,11 +346,11 @@ AParticleTrackingRecord * ATrackingDataImporter::createAndInitParticleTrackingRe
         //   0           1           2         3 4 5   6  7   8     9       10
         r = AParticleTrackingRecord::create(inputSL[2].data());
 
-        ATransportationStepData * step = new ATransportationStepData(std::stof(inputSL[3]), // X
-                                                                     std::stof(inputSL[4]), // Y
-                                                                     std::stof(inputSL[5]), // Z
-                                                                     std::stof(inputSL[6]), // time
-                                                                     std::stof(inputSL[7]), // E
+        ATransportationStepData * step = new ATransportationStepData(std::stod(inputSL[3]), // X
+                                                                     std::stod(inputSL[4]), // Y
+                                                                     std::stod(inputSL[5]), // Z
+                                                                     std::stod(inputSL[6]), // time
+                                                                     std::stod(inputSL[7]), // E
                                                                      0,                       // depoE
                                                                      "C");                    // process = 'C' which is "Creation"
         //step->setVolumeInfo(inputSL.at(9), inputSL.at(10).toInt(), inputSL.at(8).toInt());
@@ -389,11 +389,11 @@ void ATrackingDataImporter::updatePromisedSecondary(AParticleTrackingRecord *sec
         //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
         //   0           1           2         3 4 5   6  7   8     9       10
         secrec->updatePromisedSecondary(inputSL[2].data(),            // p_name
-                                        std::stof(inputSL[7]),  // E
-                                        std::stof(inputSL[3]),  // X
-                                        std::stof(inputSL[4]),  // Y
-                                        std::stof(inputSL[5]),  // Z
-                                        std::stof(inputSL[6]),  // time
+                                        std::stod(inputSL[7]),  // E
+                                        std::stod(inputSL[3]),  // X
+                                        std::stod(inputSL[4]),  // Y
+                                        std::stod(inputSL[5]),  // Z
+                                        std::stod(inputSL[6]),  // time
                                         inputSL[9].data(),            //VolName
                                         std::stoi(inputSL[10]),   //VolIndex
                                         std::stoi(inputSL[8])     //MatIndex
@@ -510,15 +510,15 @@ ATrackingStepData *ATrackingDataImporter::createHistoryTransportationStep() cons
         // ProcName X Y Z Time KinE DirectDepoE iMatTo VolNameTo VolIndexTo [secondaries]
         //     0    1 2 3   4    5      6          7       8           9         ...
 
-        step = new ATransportationStepData(std::stof(inputSL[1]), // X
-                                           std::stof(inputSL[2]), // Y
-                                           std::stof(inputSL[3]), // Z
-                                           std::stof(inputSL[4]), // time
-                                           std::stof(inputSL[5]), // energy
-                                           std::stof(inputSL[6]), // depoE
+        step = new ATransportationStepData(std::stod(inputSL[1]), // X
+                                           std::stod(inputSL[2]), // Y
+                                           std::stod(inputSL[3]), // Z
+                                           std::stod(inputSL[4]), // time
+                                           std::stod(inputSL[5]), // energy
+                                           std::stod(inputSL[6]), // depoE
                                            inputSL[0].data());    // pr
 
-        step->setVolumeInfo(inputSL[8].data(), std::stoi(inputSL[9]), std::stof(inputSL[7]));
+        step->setVolumeInfo(inputSL[8].data(), std::stoi(inputSL[9]), std::stod(inputSL[7]));
     }
 
     return step;
@@ -530,9 +530,7 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
 
     if (bBinaryInput)
     {
-        step = new ATrackingStepData(Bpos[0],         // X
-                                     Bpos[1],         // Y
-                                     Bpos[2],         // Z
+        step = new ATrackingStepData(Bpos,            // [x,y,z]
                                      Btime,           // time
                                      BkinEnergy,      // energy
                                      BdepoEnergy,     // depoE
@@ -543,13 +541,13 @@ ATrackingStepData * ATrackingDataImporter::createHistoryStep() const
         // ProcName X Y Z Time KinE DirectDepoE [secondaries]
         //     0    1 2 3   4    5      6           ...
 
-        step = new ATrackingStepData(std::stof(inputSL[1]), // X
-                                     std::stof(inputSL[2]), // Y
-                                     std::stof(inputSL[3]), // Z
-                                     std::stof(inputSL[4]), // time
-                                     std::stof(inputSL[5]), // energy
-                                     std::stod(inputSL[6]), // depoE  !!!*** stof can throw out_of_range for e.g. 2.4e-303
-                                     inputSL[0].data());          // pr
+        step = new ATrackingStepData(std::stod(inputSL[1]), // X
+                                     std::stod(inputSL[2]), // Y
+                                     std::stod(inputSL[3]), // Z
+                                     std::stod(inputSL[4]), // time
+                                     std::stod(inputSL[5]), // energy
+                                     std::stod(inputSL[6]), // depoE
+                                     inputSL[0].data());    // pr
     }
 
     step->extractTargetIsotope();

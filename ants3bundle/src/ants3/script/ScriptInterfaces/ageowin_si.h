@@ -34,7 +34,7 @@ public slots:
     void saveImage(QString fileName);
 
 //    int  AddTrack();
-//    void AddNodeToTrack(int trk, float x, float y, float z);
+//    void AddNodeToTrack(int trk, float x, float y, float z);  // change to doubles
 //    void DeleteAllTracks();
 
     void addMarkers(QVariantList XYZs, int color, int style, double size);

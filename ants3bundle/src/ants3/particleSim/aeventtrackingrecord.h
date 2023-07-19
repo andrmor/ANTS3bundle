@@ -8,9 +8,8 @@
 class ATrackingStepData
 {
 public:
-    ATrackingStepData(float * position, float time, float energy, float depositedEnergy, const QString & process);
     ATrackingStepData(const double * position, double time, double energy, double depositedEnergy, const QString & process);
-    ATrackingStepData(float x, float y, float z, float time, float energy, float depositedEnergy, const QString & process);
+    ATrackingStepData(double x, double y, double z, double time, double energy, double depositedEnergy, const QString & process);
 
     virtual ~ATrackingStepData();
 
@@ -19,10 +18,10 @@ public:
     virtual void logToString(QString & str, int offset) const; // !!!*** obsolete?
 
 public:
-    float   Position[3];
-    float   Time;
-    float   Energy;
-    float   DepositedEnergy;
+    double  Position[3];
+    double  Time;
+    double  Energy;
+    double  DepositedEnergy;
     QString Process;              //step defining process
     QString TargetIsotope;        //defined only for hadronic procresses, otherwise empty
     std::vector<int> Secondaries; //secondaries created in this step - indexes in the parent record
@@ -33,7 +32,7 @@ public:
 class ATransportationStepData : public ATrackingStepData
 {
 public:
-    ATransportationStepData(float x, float y, float z, float time, float energy, float depositedEnergy, const QString & process);
+    ATransportationStepData(double x, double y, double z, double time, double energy, double depositedEnergy, const QString & process);
     ATransportationStepData(const double * position, double time, double energy, double depositedEnergy, const QString & process);
 
     void setVolumeInfo(const QString & volName, int volIndex, int matIndex);
@@ -53,7 +52,7 @@ public:
     static AParticleTrackingRecord* create(const QString & Particle);
     static AParticleTrackingRecord* create(); // try to avoid this
 
-    void updatePromisedSecondary(const QString & particle, float startEnergy, float startX, float startY, float startZ, float startTime, const QString& volName, int volIndex, int matIndex);
+    void updatePromisedSecondary(const QString & particle, double startEnergy, double startX, double startY, double startZ, double startTime, const QString& volName, int volIndex, int matIndex);
     void addStep(ATrackingStepData * step);
 
     void addSecondary(AParticleTrackingRecord * sec);
