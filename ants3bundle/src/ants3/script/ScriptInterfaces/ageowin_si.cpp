@@ -79,7 +79,7 @@ int AGeoWin_SI::AddTrack()
     return SimManager->Tracks.size() - 1;
 }
 
-void AGeoWin_SI::AddNodeToTrack(int trk, float x, float y, float z)
+void AGeoWin_SI::AddNodeToTrack(int trk, float x, float y, float z)  // change to doubles!!!
 {
     TrackHolderClass* th = SimManager->Tracks.at(trk);
     th->Nodes.push_back(TrackNodeStruct(x, y, z));

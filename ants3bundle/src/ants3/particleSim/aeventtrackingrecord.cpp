@@ -6,19 +6,13 @@
 
 // ============= Step ==============
 
-ATrackingStepData::ATrackingStepData(float *position, float time, float energy, float depositedEnergy, const QString & process) :
+ATrackingStepData::ATrackingStepData(const double * position, double time, double energy, double depositedEnergy, const QString & process) :
     Time(time), Energy(energy), DepositedEnergy(depositedEnergy), Process(process)
 {
-    for (int i=0; i<3; i++) Position[i] = position[i];
+    for (int i = 0; i < 3; i++) Position[i] = position[i];
 }
 
-ATrackingStepData::ATrackingStepData(const double *position, double time, double energy, double depositedEnergy, const QString &process) :
-    Time(time), Energy(energy), DepositedEnergy(depositedEnergy), Process(process)
-{
-    for (int i=0; i<3; i++) Position[i] = position[i];
-}
-
-ATrackingStepData::ATrackingStepData(float x, float y, float z, float time, float energy, float depositedEnergy, const QString &process) :
+ATrackingStepData::ATrackingStepData(double x, double y, double z, double time, double energy, double depositedEnergy, const QString & process) :
     Time(time), Energy(energy), DepositedEnergy(depositedEnergy), Process(process)
 {
     Position[0] = x;
@@ -50,10 +44,10 @@ void ATrackingStepData::logToString(QString & str, int offset) const
     str += '\n';
 }
 
-ATransportationStepData::ATransportationStepData(float x, float y, float z, float time, float energy, float depositedEnergy, const QString &process) :
+ATransportationStepData::ATransportationStepData(double x, double y, double z, double time, double energy, double depositedEnergy, const QString & process) :
     ATrackingStepData(x,y,z, time, energy, depositedEnergy, process) {}
 
-ATransportationStepData::ATransportationStepData(const double *position, double time, double energy, double depositedEnergy, const QString &process) :
+ATransportationStepData::ATransportationStepData(const double *position, double time, double energy, double depositedEnergy, const QString & process) :
     ATrackingStepData(position, time, energy, depositedEnergy, process) {}
 
 void ATransportationStepData::setVolumeInfo(const QString & volName, int volIndex, int matIndex)
@@ -104,7 +98,7 @@ AParticleTrackingRecord *AParticleTrackingRecord::create()
     return new AParticleTrackingRecord("undefined");
 }
 
-void AParticleTrackingRecord::updatePromisedSecondary(const QString & particle, float startEnergy, float startX, float startY, float startZ, float startTime, const QString& volName, int volIndex, int matIndex)
+void AParticleTrackingRecord::updatePromisedSecondary(const QString & particle, double startEnergy, double startX, double startY, double startZ, double startTime, const QString & volName, int volIndex, int matIndex)
 {
     ParticleName = particle;
     ATransportationStepData * st = new ATransportationStepData(startX, startY, startZ, startTime, startEnergy, 0, "C");
@@ -219,7 +213,7 @@ void AParticleTrackingRecord::fillDepositionData(std::vector<std::pair<double,do
     data.clear();
     if (Steps.size() < 2) return;
 
-    const float * start = Steps[0]->Position;
+    const double * start = Steps[0]->Position;
     for (const ATrackingStepData * ts : Steps)
     {
         double delta = 0;

@@ -1404,7 +1404,7 @@ void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordS
         AHistorySearchProcessor_getDepositionStats * p = nullptr;
         if (ui->cbLimitTimeWindow->isChecked())
         {
-            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toFloat(), ui->ledTimeTo->text().toFloat());
+            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toDouble(), ui->ledTimeTo->text().toDouble());
             crawler.find(options, *p, numThreads, numEventsPerThread);
         }
         else
