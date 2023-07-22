@@ -49,7 +49,8 @@ public slots:
     bool gotoNextNonTransportationStep();
     int  getCurrentStep();
 
-    QVariantList getStepRecord();
+    QVariantList getPreStepRecord();
+    QVariantList getPostStepRecord();
     QVariantList getDirectionApproximate();
     bool         hadPriorInteraction();    // !!!*** suspicious step index of 2
 
@@ -76,6 +77,7 @@ private:
 
     bool checkImporter();
     bool checkImporterAndPrimary();
+    QVariantList doGetStepRecord(bool flag_PreTrue_PostFalse);
 };
 
 #endif // APTHISTORY_SI_H
