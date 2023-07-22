@@ -260,7 +260,17 @@ int ATrackRec_SI::getCurrentStep()
     return 0;
 }
 
-QVariantList ATrackRec_SI::getStepRecord()
+QVariantList ATrackRec_SI::getPreStepRecord()
+{
+    return doGetStepRecord(true);
+}
+
+QVariantList ATrackRec_SI::getPostStepRecord()
+{
+    return doGetStepRecord(false);
+}
+
+QVariantList ATrackRec_SI::doGetStepRecord(bool flag_PreTrue_PostFalse)
 {
     QVariantList vl;
 
@@ -268,18 +278,30 @@ QVariantList ATrackRec_SI::getStepRecord()
     {
         if (CurrentStep < (int)ParticleRecord->getSteps().size())
         {
-            ATrackingStepData * s = ParticleRecord->getSteps().at(CurrentStep);
-            vl.push_back( QVariantList() << s->Position[0] << s->Position[1] << s->Position[2] );
-            vl << s->Time;
+            ATrackingStepData * thisStep = ParticleRecord->getSteps()[CurrentStep];
+
+            ATrackingStepData * prevStep = (CurrentStep != 0 ? ParticleRecord->getSteps()[CurrentStep-1] : thisStep);
+
+            QVariantList posVL;
+            if (flag_PreTrue_PostFalse)
+                posVL << prevStep->Position[0] << prevStep->Position[1] << prevStep->Position[2];
+            else
+                posVL << thisStep->Position[0] << thisStep->Position[1] << thisStep->Position[2];
+            vl.push_back(posVL);
+
+            vl << (flag_PreTrue_PostFalse ? prevStep->Time : thisStep->Time);
+
             QVariantList vnode;
-            for (int iStep = CurrentStep; iStep > -2; iStep--)
+            int iStep = (flag_PreTrue_PostFalse ? CurrentStep - 1 : CurrentStep);
+            if (iStep < 0) iStep = 0;
+            for (; iStep > -2; iStep--)
             {
                 if (iStep < 0)
                 {
                     abort("Corrupted tracking history!");
                     return vl;
                 }
-                ATransportationStepData * trans = dynamic_cast<ATransportationStepData*>(ParticleRecord->getSteps().at(iStep));
+                ATransportationStepData * trans = dynamic_cast<ATransportationStepData*>(ParticleRecord->getSteps()[iStep]);
                 if (!trans) continue;
 
                 vnode << trans->iMaterial;
@@ -288,12 +310,17 @@ QVariantList ATrackRec_SI::getStepRecord()
                 break;
             }
             vl.push_back(vnode);
-            vl << s->Energy;
-            vl << s->DepositedEnergy;
-            vl << s->Process;
-            vl << s->TargetIsotope;
+
+            vl << (flag_PreTrue_PostFalse ? prevStep->Energy : thisStep->Energy);
+
+            vl << thisStep->DepositedEnergy;
+
+            vl << thisStep->Process;
+
+            vl << thisStep->TargetIsotope;
+
             QVariantList svl;
-            for (int & iSec : s->Secondaries) svl << iSec;
+            for (int & iSec : thisStep->Secondaries) svl << iSec;
             vl.push_back(svl);
         }
         else abort("Error: bad current step!");
