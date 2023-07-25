@@ -85,6 +85,8 @@ public slots:
     void setEnabled(QString name, bool flag);
     void setVisible(QString name, bool flag);
 
+    void blockGui(bool flag);
+
 protected:
     AGuiFromScrWin * Win = nullptr;
     QMap<QString, QWidget*> Widgets;
@@ -100,6 +102,7 @@ private slots:
     void doMove(int x, int y);
     void doSetOnTop();
     void onWindowClosed();
+    void doBlock(bool on);
 
 signals:
     void requestInit();
@@ -108,6 +111,7 @@ signals:
     void requestResize(int w, int h);
     void requestMove(int x, int y);
     void requestOnTop();
+    void requestBlock(bool on);
 };
 
 // ---- JavaScript ----

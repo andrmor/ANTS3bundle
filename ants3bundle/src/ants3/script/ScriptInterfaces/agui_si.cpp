@@ -36,6 +36,7 @@ AGui_SI::AGui_SI(AGuiFromScrWin * win) :
     connect(this, &AGui_SI::requestResize, this, &AGui_SI::doResize,   Qt::QueuedConnection);
     connect(this, &AGui_SI::requestMove,   this, &AGui_SI::doMove,     Qt::QueuedConnection);
     connect(this, &AGui_SI::requestOnTop,  this, &AGui_SI::doSetOnTop, Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestBlock,  this, &AGui_SI::doBlock,    Qt::QueuedConnection);
 
     connect(Win,  &AGuiFromScrWin::windowClosed, this, &AGui_SI::onWindowClosed, Qt::DirectConnection);
 }
@@ -82,6 +83,11 @@ void AGui_SI::doSetOnTop()
 void AGui_SI::onWindowClosed()
 {
     KeepLoop = false;
+}
+
+void AGui_SI::doBlock(bool on)
+{
+    Win->setDisabled(on);
 }
 
 bool AGui_SI::beforeRun()
@@ -709,7 +715,12 @@ void AGui_SI::setVisible(QString name, bool flag)
                            QWidget * w = Widgets.value(name, 0);
                            if (!w) abort("Widget " + name + " does not exist");
                            else w->setVisible(flag);
-                       });
+    });
+}
+
+void AGui_SI::blockGui(bool flag)
+{
+    emit requestBlock(flag);
 }
 
 // ---- JavaScript ----
