@@ -93,13 +93,14 @@ void AJScriptWorker::evaluate(const QString & script)
     bBusy = true;
     Engine->setInterrupted(false);
     Result = Engine->evaluate(script);
-    bBusy = false;
 
     //qDebug() << "Script eval result:\n" << Result.toString();
 
     for (AScriptInterface * inter : Interfaces) inter->afterRun(); // !!!*** error control!
 
     bool ok = !Result.isError();
+
+    bBusy = false;
     emit evalFinished(ok);
 }
 
