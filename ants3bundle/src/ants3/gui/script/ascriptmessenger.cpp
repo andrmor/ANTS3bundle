@@ -1,12 +1,15 @@
 #include "ascriptmessenger.h"
 #include "astopwatch.h"
+#include "ascripthub.h"
 
 #include <QTimer>
 
 #include <chrono>
 
-AScriptMessenger::AScriptMessenger(QObject * parent)
-    : QObject{parent}, StopWatch(new AStopWatch), Timer(new QTimer())
+AScriptMessenger::AScriptMessenger(EScriptLanguage language, bool html, QObject * parent) :
+    QObject{parent},
+    Language(language), HTML(html),
+    StopWatch(new AStopWatch), Timer(new QTimer())
 {
     connect(Timer, &QTimer::timeout, this, &AScriptMessenger::onTimer);
     Timer->setSingleShot(true);
@@ -19,7 +22,7 @@ void AScriptMessenger::output(QString txt)
     {
         if (StopWatch->getSecondsFromStart() > IntervalForDirectOutput_seconds)
         {
-            emit requestOutput(txt);
+            AScriptHub::getInstance().outputText(txt, Language);
             return;
         }
         // else starting new "queue"
@@ -46,7 +49,7 @@ void AScriptMessenger::onTimer()
     // locking the buffer
     {
         QMutexLocker locker(&BufferMutex);
-        emit requestOutput(Buffer);
+        AScriptHub::getInstance().outputText(Buffer, Language);
         Buffer.clear();
     }
 

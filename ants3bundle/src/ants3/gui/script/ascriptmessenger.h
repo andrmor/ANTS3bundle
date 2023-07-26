@@ -1,6 +1,8 @@
 #ifndef ASCRIPTMESSENGER_H
 #define ASCRIPTMESSENGER_H
 
+#include "escriptlanguage.h"
+
 #include <QObject>
 #include <QString>
 #include <QMutex>
@@ -12,7 +14,7 @@ class AScriptMessenger : public QObject
 {
     Q_OBJECT
 public:
-    explicit AScriptMessenger(QObject * parent = nullptr);
+    AScriptMessenger(EScriptLanguage language, bool html, QObject * parent = nullptr);
 
     void output(QString txt);
 
@@ -23,14 +25,18 @@ private slots:
     void onTimer();
 
 private:
-    AStopWatch   * StopWatch = nullptr;
-    QTimer       * Timer = nullptr;
-    QString        Buffer;
+    EScriptLanguage Language;
+    bool            HTML;
 
-    const int      TimerInterval_Milliseconds      = 1;
-    const double   IntervalForDirectOutput_seconds = 0.001;
+    AStopWatch    * StopWatch = nullptr;
+    QTimer        * Timer = nullptr;
+    QString         Buffer;
 
-    mutable QMutex BufferMutex;
+    const int       TimerInterval_Milliseconds      = 1;
+    const double    IntervalForDirectOutput_seconds = 0.001;
+
+    mutable QMutex  BufferMutex;
+
 };
 
 #endif // ASCRIPTMESSENGER_H
