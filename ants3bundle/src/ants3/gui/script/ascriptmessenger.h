@@ -18,6 +18,8 @@ public:
 
     void output(QString txt);
 
+    void flush();
+
 signals:
     void requestOutput(QString txt);
 

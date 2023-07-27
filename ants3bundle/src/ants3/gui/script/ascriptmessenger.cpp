@@ -44,6 +44,14 @@ void AScriptMessenger::output(QString txt)
     }
 }
 
+void AScriptMessenger::flush()
+{
+    Timer->stop();
+    QMutexLocker locker(&BufferMutex);
+    AScriptHub::getInstance().outputText(Buffer, Language);
+    Buffer.clear();
+}
+
 void AScriptMessenger::onTimer()
 {
     // locking the buffer

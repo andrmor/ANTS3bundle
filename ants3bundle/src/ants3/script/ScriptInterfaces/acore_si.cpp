@@ -90,6 +90,10 @@ void ACore_SI::abort(QString message)
 {
     //qDebug() << ">Core module: abort triggered!";
     //AJScriptHub::getInstance().abort(message);
+
+    MessengerTxt->flush();
+    MessengerHtml->flush();
+
     AScriptInterface::abort(message);
 }
 

@@ -443,14 +443,14 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
+    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
+    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
 }

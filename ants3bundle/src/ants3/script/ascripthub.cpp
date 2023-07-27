@@ -36,6 +36,7 @@ AJScriptManager & AScriptHub::manager()
     return getInstance().getJScriptManager();
 }
 
+#include <QTimer>
 void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
     AScriptHub & hub = getInstance();
@@ -47,9 +48,11 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
     ADispatcherInterface::getInstance().abortTask();
 
 #ifdef ANTS3_PYTHON
-    if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
+    //if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
+    if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_P(message); } );
 #endif
-    if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
+    //if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
+    if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_JS(message); } );
 }
 
 #include "ageowin_si.h"
