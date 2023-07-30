@@ -270,7 +270,8 @@ void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVarian
     AVirtualScriptManager::addQVariantToString(m8,  s, Lang); s += " ";
     AVirtualScriptManager::addQVariantToString(m9,  s, Lang); s += " ";
     AVirtualScriptManager::addQVariantToString(m10, s, Lang);
-    AScriptHub::getInstance().outputText(s, Lang);
+    //AScriptHub::getInstance().outputText(s, Lang);
+    MessengerTxt->output(s);
 }
 
 void ACore_SI::printHtml(QString text)
@@ -278,11 +279,14 @@ void ACore_SI::printHtml(QString text)
     //QString s;
     //AVirtualScriptManager::addQVariantToString(text, s, Lang);
     //AScriptHub::getInstance().outputHtml(s, Lang);
-    AScriptHub::getInstance().outputHtml(text, Lang);
+//    AScriptHub::getInstance().outputHtml(text, Lang);
+    MessengerHtml->output(text);
 }
 
 void ACore_SI::clearOutput()
 {
+    MessengerTxt->clear();
+    MessengerHtml->clear();
     AScriptHub::getInstance().clearOutput(Lang);
 }
 

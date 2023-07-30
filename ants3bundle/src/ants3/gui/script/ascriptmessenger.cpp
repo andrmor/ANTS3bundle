@@ -52,6 +52,13 @@ void AScriptMessenger::flush()
     Buffer.clear();
 }
 
+void AScriptMessenger::clear()
+{
+    Timer->stop();
+    QMutexLocker locker(&BufferMutex);
+    Buffer.clear();
+}
+
 void AScriptMessenger::onTimer()
 {
     // locking the buffer

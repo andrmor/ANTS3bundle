@@ -19,6 +19,7 @@ public:
     void output(QString txt);
 
     void flush();
+    void clear();
 
 signals:
     void requestOutput(QString txt);

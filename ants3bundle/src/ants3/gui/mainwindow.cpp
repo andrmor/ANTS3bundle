@@ -86,9 +86,9 @@ MainWindow::MainWindow() :
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText);
-    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
