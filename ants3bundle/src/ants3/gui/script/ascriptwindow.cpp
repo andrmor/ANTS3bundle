@@ -513,7 +513,7 @@ void AScriptWindow::on_pbRunScript_clicked()
         QString s;
         const QVariant res = ScriptManager->getResult();
         AVirtualScriptManager::addQVariantToString(res, s, ScriptLanguage);
-        if (!s.isEmpty() && s != "undefined") outputText(s);
+        if (!s.simplified().isEmpty() && s != "undefined") outputText(s);
     }
 
     ScriptManager->collectGarbage();

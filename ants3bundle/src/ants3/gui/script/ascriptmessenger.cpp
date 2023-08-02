@@ -30,7 +30,7 @@ void AScriptMessenger::output(QString txt)
         // locking the buffer
         {
             QMutexLocker locker(&BufferMutex);
-            Buffer += '\n';
+            if (!Buffer.isEmpty()) Buffer += '\n';
             Buffer += txt;
         }
         Timer->start();
