@@ -555,8 +555,9 @@ void AScriptWindow::on_pbStop_clicked()
 {
     if (ScriptManager->isRunning())
     {
-        qDebug() << "Stop button pressed!";
-        AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        //qDebug() << "Stop button pressed!";
+        //AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        AScriptHub::abort("Stop script eval clicked", ScriptLanguage);
         qApp->processEvents();
     }
 }

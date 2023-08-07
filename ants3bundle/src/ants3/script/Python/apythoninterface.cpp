@@ -694,6 +694,7 @@ void APythonInterface::abort()
 {
     //qDebug() << "--> abort of Python Interface...";
     PyErr_SetInterrupt();
+    //qDebug() << PyErr_SetInterruptEx(2);
 }
 
 PyObject * APythonInterface::getMainModule()
