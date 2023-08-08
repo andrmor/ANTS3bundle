@@ -179,7 +179,9 @@ SOURCES += \
     gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
+    gui/script/ascriptmessenger.cpp \
     gui/script/ascriptwindow.cpp \
+    gui/script/astopwatch.cpp \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
@@ -381,7 +383,9 @@ HEADERS += \
     gui/script/aguifromscrwin.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
+    gui/script/ascriptmessenger.h \
     gui/script/ascriptwindow.h \
+    gui/script/astopwatch.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \

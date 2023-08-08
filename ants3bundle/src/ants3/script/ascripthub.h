@@ -56,7 +56,7 @@ signals:
     void outputText_P(QString);
     void outputHtml_JS(QString);
     void outputHtml_P(QString);
-    void showAbortMessage_JS(QString message);
+    void showAbortMessage_JS(QString message); // !!!*** remove, use outputHtml
     void showAbortMessage_P(QString message);
     void clearOutput_JS();
     void clearOutput_P();

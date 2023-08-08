@@ -443,14 +443,14 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
+    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
+    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
 }
@@ -513,7 +513,7 @@ void AScriptWindow::on_pbRunScript_clicked()
         QString s;
         const QVariant res = ScriptManager->getResult();
         AVirtualScriptManager::addQVariantToString(res, s, ScriptLanguage);
-        if (!s.isEmpty() && s != "undefined") outputText(s);
+        if (!s.simplified().isEmpty() && s != "undefined") outputText(s);
     }
 
     ScriptManager->collectGarbage();
@@ -555,8 +555,9 @@ void AScriptWindow::on_pbStop_clicked()
 {
     if (ScriptManager->isRunning())
     {
-        qDebug() << "Stop button pressed!";
-        AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        //qDebug() << "Stop button pressed!";
+        //AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        AScriptHub::abort("Stop script eval clicked", ScriptLanguage);
         qApp->processEvents();
     }
 }

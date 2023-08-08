@@ -88,6 +88,7 @@ const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() co
 bool APythonScriptManager::evaluate(const QString & script)
 {
     //qDebug() << "Request to evaluate script:\n" << script;
+    //qDebug() << "Busy?" << Worker->isBusy();
     if (Worker->isBusy()) return false;
 
     bAborted = false;
@@ -99,8 +100,8 @@ bool APythonScriptManager::evaluate(const QString & script)
 
 void APythonScriptManager::abort()
 {
-    bAborted = true;
     Worker->abort();
+    bAborted = true;
 }
 
 bool APythonScriptManager::isRunning() const

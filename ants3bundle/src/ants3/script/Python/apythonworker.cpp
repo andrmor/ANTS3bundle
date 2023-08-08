@@ -20,7 +20,7 @@ APythonWorker::~APythonWorker()
 
 void APythonWorker::abort()
 {
-    qDebug() << "Python Worker abort triggered";
+    //qDebug() << "Python Worker abort triggered";
     PyInterface->abort();
 
     for (AScriptInterface * inter : Interfaces)
@@ -157,18 +157,24 @@ void APythonWorker::onFinalizeInit()
 
 void APythonWorker::evaluate(const QString &script)
 {
-    if (bBusy) return;
+    //qDebug() << "Script eval triggered";
+    if (bBusy)
+    {
+        qDebug() << "Cannot start script eval, worker is still busy";
+        return;
+    }
 
     for (AScriptInterface * inter : Interfaces) inter->beforeRun(); // !!!*** error control!
 
     bBusy = true;
     bool ok = PyInterface->evalScript(script);
-    bBusy = false;
 
     //qDebug() << "Script eval finished:\n" << ok;
 
     for (AScriptInterface * inter : Interfaces) inter->afterRun(); // !!!*** error control!
+    //qDebug() << "AfterRun for all script units done";
 
+    bBusy = false;
     emit evalFinished(ok);
 }
 
