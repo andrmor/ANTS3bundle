@@ -24,6 +24,7 @@
 #include "asensor_si.h"
 #include "aparticlesim_si.h"
 #include "arootstyle_si.h"
+#include "apet_si.h"
 
 AScriptHub & AScriptHub::getInstance()
 {
@@ -139,6 +140,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new AHist_SI(),         "hist");
     addCommonInterface(new ATree_SI(),         "tree");
     addCommonInterface(new ARootStyle_SI(),    "root");
+    addCommonInterface(new APet_si(),          "pet");
     addCommonInterface(new ADemo_SI(),         "demo");
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");

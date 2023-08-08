@@ -1589,6 +1589,11 @@ void AGeometryHub::removeNameDecorators(TString & name) const
     if (ind != TString::kNPOS) name.Resize(ind);
 }
 
+size_t AGeometryHub::countScintillators() const
+{
+    return Scintillators.size();
+}
+
 void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) const
 {
     positions.resize(Scintillators.size());
