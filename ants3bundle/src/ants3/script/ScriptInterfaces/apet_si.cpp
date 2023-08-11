@@ -113,3 +113,10 @@ bool APet_si::makeLUT(QString fileName)
     return true;
 }
 
+#include "apeteventbuilder.h"
+void APet_si::buildEvents(QString depositionFileName, QString eventsFileName)
+{
+    size_t numScint = AGeometryHub::getConstInstance().countScintillators();
+    APetEventBuilder eb(numScint, depositionFileName.toLatin1().data(), false);
+    eb.makeEvents(eventsFileName.toLatin1().data(), false);
+}

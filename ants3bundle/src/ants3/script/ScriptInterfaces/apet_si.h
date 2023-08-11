@@ -16,6 +16,7 @@ public:
 
 public slots:
     void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize);
+    void buildEvents(QString depositionFileName, QString eventsFileName);
 
 private:
     bool makeLUT(QString fileName);
