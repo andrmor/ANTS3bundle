@@ -103,6 +103,8 @@ INCLUDEPATH += config
 INCLUDEPATH += net
 INCLUDEPATH += ../dispatcher
 INCLUDEPATH += ../lsim
+INCLUDEPATH += rec
+INCLUDEPATH += rec/PET
 INCLUDEPATH += /usr/include
 
 DESTDIR = ../../bin
@@ -202,8 +204,8 @@ SOURCES += \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
     script/apeakfinder.cpp \
-    script/apetcoincidencefinder.cpp \
-    script/apeteventbuilder.cpp \
+    rec/PET/apetcoincidencefinder.cpp \
+    rec/PET/apeteventbuilder.cpp \
     script/arootgraphrecord.cpp \
     script/aroothistrecord.cpp \
     script/arootobjbase.cpp \
@@ -407,8 +409,8 @@ HEADERS += \
     script/ScriptInterfaces/apet_si.h \
     script/ScriptInterfaces/arootstyle_si.h \
     script/ScriptInterfaces/asensor_si.h \
-    script/apetcoincidencefinder.h \
-    script/apeteventbuilder.h \
+    rec/PET/apetcoincidencefinder.h \
+    rec/PET/apeteventbuilder.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \
     script/arootobjbase.h \
