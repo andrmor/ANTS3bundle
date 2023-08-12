@@ -114,9 +114,17 @@ bool APet_si::makeLUT(QString fileName)
 }
 
 #include "apeteventbuilder.h"
-void APet_si::buildEvents(QString depositionFileName, QString eventsFileName)
+void APet_si::buildEventsFromDeposition(QString depositionFileName, QString eventsFileName)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
     APetEventBuilder eb(numScint, depositionFileName.toLatin1().data(), false);
     eb.makeEvents(eventsFileName.toLatin1().data(), false);
+}
+
+#include "apetcoincidencefinder.h"
+void APet_si::findCoincidences(QString eventsFileName, QString coincFileName)
+{
+    size_t numScint = AGeometryHub::getConstInstance().countScintillators();
+    APetCoincidenceFinder cf(numScint, eventsFileName.toLatin1().data(), false);
+    cf.findCoincidences(coincFileName.toLatin1().data());
 }

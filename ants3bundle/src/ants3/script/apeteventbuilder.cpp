@@ -52,7 +52,6 @@ APetEventBuilder::APetEventBuilder(size_t numScint, const std::string & fileName
     Files.push_back({fileName, binaryInput});
 
     RandEngine = new std::mt19937_64(Seed + 1);
-
 }
 
 APetEventBuilder::~APetEventBuilder()
