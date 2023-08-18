@@ -40,7 +40,7 @@ class APetCoincidenceFinder
 public:
     APetCoincidenceFinder(size_t numScint, const std::string & eventsFileName, bool binaryInput);
 
-    bool findCoincidences(const std::string & coincFileName);
+    bool findCoincidences(const std::string & coincFileName, bool writeToF);
 
     std::string ErrorString;
 
@@ -65,9 +65,9 @@ private:
     double EnergyTo       = 1.05 * 511.0;
 
     bool   read(std::vector<APetEventRecord> & events, bool bEnforceEnergyRange);
-    void   findCoincidences(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);
+    void   find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);
     size_t findNextEventOutsideCoinsidenceWindow(std::vector<APetEventRecord> & events, size_t iCurrentEvent);
-    bool   write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool binary);
+    bool   write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool writeToF);
 };
 
 #endif // APETCOINCIDENCEFINDER_H

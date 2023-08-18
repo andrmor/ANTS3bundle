@@ -11,7 +11,8 @@ APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const std::string 
     Files.push_back({eventsFileName, binaryInput});
 }
 
-bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName)
+#include <QFileInfo>
+bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName, bool writeToF)
 {
     /*
     Config.InputFileName     = "BuilderOutput.bin"; Config.BinaryInput  = true;
@@ -39,6 +40,13 @@ bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName)
 
     //Lut LUT(Config.WorkingDirectory + '/' + Config.LutFileName);
 
+    QFileInfo fi(coincFileName.data());
+    if (!fi.suffix().isEmpty())
+    {
+        ErrorString = "Coincidence file name should be provided without suffix.\nThe ascii header and binary data files will be attributed '.cdh' and '.bin' suffixes";
+        return false;
+    }
+
     std::vector<APetEventRecord>     Events;
     std::vector<APetCoincidencePair> Pairs;
 
@@ -53,12 +61,12 @@ bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName)
     switch (FinderMethod)
     {
     case FinderMethods::Basic :
-        findCoincidences(Events, Pairs);
+        find(Events, Pairs);
         break;
     case FinderMethods::Advanced :
     {
         //Finder2 cf(Events, LUT);
-        //cf.findCoincidences(Pairs);
+        //cf.find(Pairs);
     }
     break;
     default:
@@ -66,7 +74,7 @@ bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName)
         exit(20);
     }
 
-    ok = write(Pairs, coincFileName, false);
+    ok = write(Pairs, coincFileName, writeToF);
     return ok;
 }
 
@@ -165,7 +173,7 @@ void APetEventRecord::print()
     qDebug() << "iScint:"<< iScint<< " Energy:"<< Energy<< " Time:"<< Time;
 }
 
-void APetCoincidenceFinder::findCoincidences(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs)
+void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs)
 {
     size_t numSingles    = 0;
     size_t numBadAngular = 0;
@@ -231,48 +239,58 @@ size_t APetCoincidenceFinder::findNextEventOutsideCoinsidenceWindow(std::vector<
     return iOtherHit;
 }
 
-bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool binary)
+#include "afiletools.h"
+bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool writeToF)
 {
-    std::ofstream * outStream = new std::ofstream;  // !!!*** remove pointer
-    if (binary) outStream->open(fileName, std::ios::out | std::ios::binary);
-    else        outStream->open(fileName);
-
-    if (!outStream->is_open())
+    std::ofstream * outDataStream = new std::ofstream;  // !!!*** remove pointer
+    outDataStream->open(fileName + ".bin", std::ios::out | std::ios::binary);
+    if (!outDataStream->is_open())
     {
-        ErrorString = "Cannot open file " + fileName + " for writing";
-        delete outStream; outStream = nullptr;
+        ErrorString = "Cannot open file " + fileName + ".dat for writing coincidence binary data";
+        delete outDataStream; outDataStream = nullptr;
         return false;
     }
 
-    qDebug() << "->Writing coincidences"<< "("<< pairs.size()<< ")"<< "to file " << fileName << "  binary?" << binary;
+    qDebug() << "->Writing coincidences"<< "("<< pairs.size()<< ")"<< "to file " << fileName << "  ToF information?" << writeToF;
 
     for (const APetCoincidencePair & cp : pairs)
     {
-        float dt    = (cp.Records[0].Time - cp.Records[1].Time) * 1000.0; // in ps
-        float time0 = cp.Records[0].Time * 1e-6; // in ms
+        uint32_t iScint1 = cp.Records[0].iScint;
+        uint32_t iScint2 = cp.Records[1].iScint;
+        uint32_t iTime   = cp.Records[0].Time * 1e-6; // in ms
+        float deltaT     = (cp.Records[0].Time - cp.Records[1].Time) * 1000.0; // in ps
 
-        if (binary)
-        {
-            outStream->write((char*)&cp.Records[0].iScint, sizeof(int));
-            outStream->write((char*)&cp.Records[1].iScint, sizeof(int));
-            outStream->write((char*)&dt,                   sizeof(float));
-            outStream->write((char*)&time0,                sizeof(float));
-        }
-        else
-        {
-            *outStream << cp.Records[0].iScint << ','
-                       << cp.Records[1].iScint << ','
-                       << dt                   << ','
-                       << time0                << '\n';
-        }
+        // t1[ms]   t1-t2[ps]  i1   i2
+        // t1[ms]   i1   i2
+        // t1-t2 is saved as float, the rest are uint32_t
+
+        outDataStream->write((char*)&iTime, sizeof(uint32_t));
+        if (writeToF) outDataStream->write((char*)&deltaT, sizeof(float));
+        outDataStream->write((char*)&iScint1, sizeof(uint32_t));
+        outDataStream->write((char*)&iScint2, sizeof(uint32_t));
     }
 
-    outStream->close();
-    delete outStream;
+    outDataStream->close();
+    delete outDataStream;
 
-    qDebug() << "\n<-Coincidences are saved\n";
+    qDebug() << "Writing the header file...";
 
-    return "";
+    QString header = "Scanner name: ants\n"
+                     "Data filename: " + QString(fileName.data()) + ".bin\n"
+                     "Number of events: " + QString::number(pairs.size()) + "\n"
+                     "Data mode: list-mode\n"
+                     "Data type: PET\n"
+                     "Start time (s): 0"+"\n"               // !!!***
+                     "Duration (s): 100000"+"\n";           // !!!***
+    if (writeToF)
+    {
+        header +=    "TOF information flag: 1\n"
+                     "TOF resolution (ps): 220\n"                                      // !!!***
+                     "List TOF measurement range (ps): 4000";       // ∆tmax − ∆tmin in ps    // !!!***
+    }
+
+    bool ok = ftools::saveTextToFile(header, QString(fileName.data()) + ".cdh");
+    if (ok) qDebug() << "\n<-Coincidences are saved\n";
+    else ErrorString = "Cannot save header file for coincidences";
+    return ok;
 }
-
-

@@ -122,9 +122,11 @@ void APet_si::buildEventsFromDeposition(QString depositionFileName, QString even
 }
 
 #include "apetcoincidencefinder.h"
-void APet_si::findCoincidences(QString eventsFileName, QString coincFileName)
+void APet_si::findCoincidences(QString eventsFileName, QString coincFileName, bool writeToF)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
     APetCoincidenceFinder cf(numScint, eventsFileName.toLatin1().data(), false);
-    cf.findCoincidences(coincFileName.toLatin1().data());
+    bool ok = cf.findCoincidences(coincFileName.toLatin1().data(), writeToF);
+    if (!ok)
+        abort(cf.ErrorString.data());
 }

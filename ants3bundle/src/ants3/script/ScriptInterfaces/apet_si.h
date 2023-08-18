@@ -17,7 +17,7 @@ public:
 public slots:
     void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize);
     void buildEventsFromDeposition(QString depositionFileName, QString eventsFileName);
-    void findCoincidences(QString eventsFileName, QString coincFileName);
+    void findCoincidences(QString eventsFileName, QString coincFileName, bool writeToF);
 
 private:
     bool makeLUT(QString fileName);
