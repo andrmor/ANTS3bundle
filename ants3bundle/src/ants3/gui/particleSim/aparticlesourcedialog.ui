@@ -2948,8 +2948,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>686</y>
+     <x>312</x>
+     <y>689</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2980,8 +2980,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>715</y>
+     <x>312</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2996,8 +2996,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>715</y>
+     <x>330</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3108,23 +3108,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>715</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>603</x>
-     <y>30</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>swTimeSpread</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>pbUpdateRecord</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>395</x>
+     <x>324</x>
      <y>712</y>
     </hint>
     <hint type="destinationlabel">
@@ -3140,8 +3124,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>287</x>
-     <y>715</y>
+     <x>395</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
