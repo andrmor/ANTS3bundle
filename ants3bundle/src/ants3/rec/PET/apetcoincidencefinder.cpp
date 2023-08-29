@@ -3,7 +3,8 @@
 #include <fstream>
 #include <sstream>
 
-#include <QDebug>
+#include <QFileInfo>
+//#include <QDebug>
 
 APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const std::string & eventsFileName, bool binaryInput) :
     NumScint(numScint)
@@ -11,7 +12,6 @@ APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const std::string 
     Files.push_back({eventsFileName, binaryInput});
 }
 
-#include <QFileInfo>
 bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName, bool writeToF)
 {
     /*
@@ -114,7 +114,7 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
                     inStream->read((char*)&hit.Time,   sizeof(double));
                     inStream->read((char*)&hit.Energy, sizeof(double));
 
-                    qDebug() << "Extracted values:" << hit.Time<< hit.Energy;
+                    //qDebug() << "Extracted values:" << hit.Time<< hit.Energy;
 
                     if (hit.Time < TimeFrom || hit.Time > TimeTo) continue;
                     if (bEnforceEnergyRange)
@@ -134,7 +134,7 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
             while (!inStream->eof())
             {
                 getline(*inStream, line);
-                qDebug() << line;
+                //qDebug() << line;
                 if (line.empty()) break;
 
                 std::stringstream ss(line);
@@ -148,14 +148,14 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
                 {
                     //another node
                     ss >> time >> depo;
-                    qDebug() << "Extracted time and depo values:"<< time<< depo;
+                    //qDebug() << "Extracted time and depo values:"<< time<< depo;
 
                     if (time < TimeFrom || time > TimeTo) continue;
                     if (bEnforceEnergyRange)
                         if (depo < EnergyFrom || depo > EnergyTo) continue;
 
                     events.push_back( APetEventRecord(iScint, time, depo) );
-                    qDebug() << "  -->Added to HitRecords";
+                    //qDebug() << "  -->Added to HitRecords";
                 }
             }
         }

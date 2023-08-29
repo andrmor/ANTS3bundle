@@ -4,6 +4,9 @@
 #include "ascriptinterface.h"
 
 #include <QObject>
+#include <QVariantList>
+
+class QProcess;
 
 class APet_si : public AScriptInterface
 {
@@ -18,9 +21,16 @@ public slots:
     void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize);
     void buildEventsFromDeposition(QString depositionFileName, QString eventsFileName);
     void findCoincidences(QString eventsFileName, QString coincFileName, bool writeToF);
+    void reconstruct(QString coincFileName, QString outDir);
+    QVariantList loadImage(QString fileName);
+
+private slots:
+    void onReadReady();
 
 private:
     bool makeLUT(QString fileName);
+
+    QProcess * Process = nullptr;
 };
 
 #endif // APET_SI_H

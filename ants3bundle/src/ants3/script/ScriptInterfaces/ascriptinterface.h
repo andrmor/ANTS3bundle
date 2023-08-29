@@ -39,7 +39,7 @@ public slots:
     QString help() const;
 
 protected:
-    bool bAbortRequested = false; // each unit have to be aaware of this flag! Dispatcher-based tasks are aborter automatically!
+    bool bAbortRequested = false; // each unit have to be aware of this flag! Dispatcher-based tasks are aborted automatically!
 
     void abort(const QString & message);
 

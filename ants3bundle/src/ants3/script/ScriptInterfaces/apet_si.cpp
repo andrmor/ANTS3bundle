@@ -130,3 +130,94 @@ void APet_si::findCoincidences(QString eventsFileName, QString coincFileName, bo
     if (!ok)
         abort(cf.ErrorString.data());
 }
+
+#include <QProcess>
+#include <QApplication>
+void APet_si::reconstruct(QString coincFileName, QString outDir)
+{
+    Process = new QProcess();
+    Process->setProcessChannelMode(QProcess::MergedChannels);
+
+    //QObject::connect(G4antsProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----FINISHED!-----";});
+    //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
+
+    QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &APet_si::onReadReady);
+
+    //castor-recon -df Tor.cdh -opti MLEM -it 10:16 -proj joseph -conv gaussian,2.0,2.5,3.5::psf -dim 128,128,128 -vox 3.0,3.0,3.0 -dout /home/andr/WORK/ANTS3/castor/Out/Tor/images
+    QString program = "castor-recon";
+    QStringList args;
+    args << "-df" << coincFileName;
+    args << "-opti" << "MLEM";
+    args << "-it" << "10:16";
+    args << "-proj" << "joseph";
+    args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
+    args << "-dim" << "128,128,128";
+    args << "-vox" << "3.0,3.0,3.0";
+    args << "-dout" << outDir;
+
+    qDebug() << program << args;
+
+    Process->start(program, args);
+    bool ok = Process->waitForStarted(1000);
+    if (!ok)
+    {
+        abort("Failed to start reconstruction using castor-recon");
+        return;
+    }
+
+    while (!bAbortRequested)
+    {
+        Process->waitForFinished(100); // ms
+        QApplication::processEvents();
+    }
+
+    QString err = Process->errorString();
+    if (!err.isEmpty())
+        abort("Reconstruction failed:\n" + err);
+}
+
+#include "ascripthub.h"
+void APet_si::onReadReady()
+{
+    const QString in = Process->readAllStandardOutput();
+
+    const QStringList input = in.split('\n', Qt::SkipEmptyParts);
+    for (const QString & message : input)
+        AScriptHub::getInstance().outputText(message, Lang);
+}
+
+#include <QVariantList>
+QVariantList APet_si::loadImage(QString fileName)
+{
+    QVariantList res;
+
+    std::ifstream inStream;
+    inStream.open(fileName.toLatin1().data(), std::ios::in | std::ios::binary);
+
+    if (!inStream.is_open() || inStream.fail() || inStream.bad())
+    {
+        abort("Cannot open image file: " + fileName);
+        return res;
+    }
+
+    float buffer;
+    for (int iz = 0; iz < 128; iz++)
+    {
+        QVariantList frame;
+        for (int iy = 0; iy < 128; iy++)
+        {
+            //qDebug() << "---"<<iy<<"---";
+            QVariantList el;
+            for (int ix = 0; ix < 128; ix++)
+            {
+                inStream.read((char*)&buffer,   sizeof(float));
+                //if (buffer != 0) qDebug() << buffer;
+                el << buffer;
+            }
+            frame.push_back(el);
+        }
+        res.push_back(frame);
+    }
+
+    return res;
+}

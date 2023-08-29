@@ -104,10 +104,10 @@ bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binar
             qDebug() << "  -->Energy blurring completed";
         }
 
-        qDebug() << " --- final events:";
-        for (size_t iScint = 0; iScint < Events.size(); iScint++)
-            for (const EventRecord & e : Events[iScint])
-                qDebug() << iScint << e.time << e.energy;
+//        qDebug() << " --- final events:";
+//        for (size_t iScint = 0; iScint < Events.size(); iScint++)
+//            for (const EventRecord & e : Events[iScint])
+//                qDebug() << iScint << e.time << e.energy;
 
         write(Events, binaryOutput);
         qDebug() << "  -->Events saved";
@@ -181,7 +181,7 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
             while (!inStream.eof())
             {
                 getline(inStream, line);
-                qDebug() << "  Loaded line:" << line;
+                //qDebug() << "  Loaded line:" << line;
                 if (line.empty()) break;
 
                 std::stringstream ss(line);
@@ -190,7 +190,7 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
                 if (bNewEvent) continue;
 
                 ss >> particle >> iMat >> depo_keV >> x >> y >> z >> time >> iScint;
-                qDebug() << "Extracted values:" << particle << iMat << depo_keV << x << y << z << time << iScint;
+                //qDebug() << "Extracted values:" << particle << iMat << depo_keV << x << y << z << time << iScint;
 
                 if (time > timeRange.first && time < timeRange.second)
                 {
@@ -222,12 +222,12 @@ void DepositionClusterer::cluster()
         std::vector<DepositionNodeRecord> & nvec = Nodes[iScint];
         if (nvec.empty()) continue;
 
-        if (true)
-        {
-            qDebug() << "==> #"<< iScint<< " nodes:"<< nvec.size();
-            qDebug() << " --- before clustering:";
-            outNodes(nvec);
-        }
+//        if (true)
+//        {
+//            qDebug() << "==> #"<< iScint<< " nodes:"<< nvec.size();
+//            qDebug() << " --- before clustering:";
+//            outNodes(nvec);
+//        }
 
         std::sort(nvec.begin(), nvec.end());
 
@@ -236,15 +236,15 @@ void DepositionClusterer::cluster()
         {
             numMerges = doCluster(nvec);
             numMergesClusterGlobal += numMerges;
-            if (true) qDebug() << "Number of merges in clustering:"<< numMerges;
+            //if (true) qDebug() << "Number of merges in clustering:"<< numMerges;
         }
         while (numMerges != 0);
 
-        if (true)
-        {
-            qDebug() << " --- after clustering:";
-            outNodes(Nodes[iScint]);
-        }
+//        if (true)
+//        {
+//            qDebug() << " --- after clustering:";
+//            outNodes(Nodes[iScint]);
+//        }
     }
     qDebug() << "-- Num clustering merges in total:"<< numMergesClusterGlobal;
 
@@ -300,12 +300,12 @@ void APetEventBuilder::build(std::vector<std::vector<DepositionNodeRecord>> & cl
         std::vector<DepositionNodeRecord> & cvec = clusters[iScint];
         if (cvec.empty()) continue;
 
-        if (true)
-        {
-            qDebug() << "==> #"<< iScint<< " clusters:"<< cvec.size();
-            qDebug() << " --- input clusters:";
-            for (const DepositionNodeRecord & c : cvec) qDebug() << c.time<< c.energy;
-        }
+//        if (true)
+//        {
+//            qDebug() << "==> #"<< iScint<< " clusters:"<< cvec.size();
+//            qDebug() << " --- input clusters:";
+//            for (const DepositionNodeRecord & c : cvec) qDebug() << c.time<< c.energy;
+//        }
 
         std::sort(cvec.begin(), cvec.end()); // !!!*** need?
 
@@ -325,11 +325,11 @@ void APetEventBuilder::build(std::vector<std::vector<DepositionNodeRecord>> & cl
                 evVec.push_back( EventRecord(clust.time, clust.energy) );
         }
 
-        if (true)
-        {
-            qDebug() << " --- constructed events:";
-            for (const EventRecord & e : evVec) qDebug() << e.time << e.energy;
-        }
+//        if (true)
+//        {
+//            qDebug() << " --- constructed events:";
+//            for (const EventRecord & e : evVec) qDebug() << e.time << e.energy;
+//        }
 
         events[iScint] = evVec;
     }
