@@ -19,6 +19,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     switch (ViewType)
     {
     case XY:
+        ui->lAxis->setText("Z:");
+
         ui->sbPosition->setMaximum(Viewer->NumBins[0]-1);
         ui->hsPosition->setMaximum(Viewer->NumBins[0]-1);
         ui->sbPosition->setValue(0.5*(Viewer->NumBins[0]-1));
@@ -27,11 +29,31 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         Hist = new TH2D("", "", Viewer->NumBins[2], 0, Viewer->NumBins[2],   Viewer->NumBins[1], 0, Viewer->NumBins[1]);
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Y, mm");
-
-        ui->lAxis->setText("Z:");
-
         break;
+    case XZ:
+        ui->lAxis->setText("Y:");
 
+        ui->sbPosition->setMaximum(Viewer->NumBins[1]-1);
+        ui->hsPosition->setMaximum(Viewer->NumBins[1]-1);
+        ui->sbPosition->setValue(0.5*(Viewer->NumBins[1]-1));
+        ui->hsPosition->setValue(0.5*(Viewer->NumBins[1]-1));
+
+        Hist = new TH2D("", "", Viewer->NumBins[2], 0, Viewer->NumBins[2],   Viewer->NumBins[0], 0, Viewer->NumBins[0]);
+        Hist->GetXaxis()->SetTitle("X, mm");
+        Hist->GetYaxis()->SetTitle("Z, mm");
+        break;
+    case YZ:
+        ui->lAxis->setText("X:");
+
+        ui->sbPosition->setMaximum(Viewer->NumBins[2]-1);
+        ui->hsPosition->setMaximum(Viewer->NumBins[2]-1);
+        ui->sbPosition->setValue(0.5*(Viewer->NumBins[2]-1));
+        ui->hsPosition->setValue(0.5*(Viewer->NumBins[2]-1));
+
+        Hist = new TH2D("", "", Viewer->NumBins[1], 0, Viewer->NumBins[1],   Viewer->NumBins[0], 0, Viewer->NumBins[0]);
+        Hist->GetXaxis()->SetTitle("Y, mm");
+        Hist->GetYaxis()->SetTitle("Z, mm");
+        break;
     }
 
     Hist->SetStats(false);
@@ -53,13 +75,29 @@ void AViewer3DWidget::redraw()
     switch (ViewType)
     {
     case XY:
-    {
+      {
         int iz = ui->hsPosition->value();
         for (int iy = 0; iy < Viewer->NumBins[1]; iy++)
             for (int ix = 0; ix < Viewer->NumBins[2]; ix++)
                 Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix]);
-    }
         break;
+      }
+    case XZ:
+      {
+        int iy = ui->hsPosition->value();
+        for (int iz = 0; iz < Viewer->NumBins[0]; iz++)
+            for (int ix = 0; ix < Viewer->NumBins[2]; ix++)
+                Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix]);
+        break;
+      }
+    case YZ:
+      {
+        int ix = ui->hsPosition->value();
+        for (int iz = 0; iz < Viewer->NumBins[0]; iz++)
+            for (int iy = 0; iy < Viewer->NumBins[1]; iy++)
+                Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix]);
+        break;
+      }
     }
 
     if (Viewer->UseGlobalMaximum) Hist->SetMaximum(Viewer->GlobalMaximum);
@@ -74,7 +112,6 @@ void AViewer3DWidget::on_pbRedraw_clicked()
     qDebug() << "Redraw button clicked!";
     redraw();
 }
-
 
 void AViewer3DWidget::on_pbMinus_clicked()
 {

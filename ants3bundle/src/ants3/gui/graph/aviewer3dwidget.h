@@ -17,7 +17,7 @@ class AViewer3DWidget : public QWidget
     Q_OBJECT
 
 public:
-    enum EViewType {XY, YZ, XZ};
+    enum EViewType {XY, XZ, YZ};
 
     explicit AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
     ~AViewer3DWidget();

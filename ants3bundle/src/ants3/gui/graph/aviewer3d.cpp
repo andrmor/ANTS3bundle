@@ -24,8 +24,8 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
 void AViewer3D::initWidgets()
 {
     View1 = new AViewer3DWidget(this, AViewer3DWidget::XY);
-    View2 = new AViewer3DWidget(this, AViewer3DWidget::XY);
-    View3 = new AViewer3DWidget(this, AViewer3DWidget::XY);
+    View2 = new AViewer3DWidget(this, AViewer3DWidget::XZ);
+    View3 = new AViewer3DWidget(this, AViewer3DWidget::YZ);
 
     ui->horizontalLayout->insertWidget(0, View1);
     ui->horizontalLayout->insertWidget(1, View2);
