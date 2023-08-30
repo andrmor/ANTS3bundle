@@ -125,6 +125,8 @@ SOURCES += \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/aviewer3d.cpp \
+    gui/graph/aviewer3dwidget.cpp \
     gui/materials/amatwin.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
@@ -332,6 +334,8 @@ HEADERS += \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
+    gui/graph/aviewer3d.h \
+    gui/graph/aviewer3dwidget.h \
     gui/materials/amatwin.h \
     gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
@@ -529,6 +533,8 @@ FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/aviewer3d.ui \
+        gui/graph/aviewer3dwidget.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \

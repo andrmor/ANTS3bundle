@@ -2890,3 +2890,10 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
     MGDesigner->activateWindow();
     //MGDesigner->updateGUI();
 }
+
+#include "aviewer3d.h"
+void GraphWindowClass::show3D(QString castorFileName)
+{
+    AViewer3D * viewer = new AViewer3D(this, castorFileName);
+    viewer->showNormal();
+}

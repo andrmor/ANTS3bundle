@@ -155,6 +155,8 @@ public slots:
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
     void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
 
+    void show3D(QString castorFileName);
+
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);

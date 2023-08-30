@@ -78,6 +78,13 @@ void AGraphWin_SI::exportTH2AsText(QString fileName)
     GraphWindow->ExportTH2AsText(fileName);
 }
 
+#include <QTimer>
+void AGraphWin_SI::show3D(QString castorFileName)
+{
+    QTimer::singleShot(0, GraphWindow, [this, castorFileName]()
+                       {GraphWindow->show3D(castorFileName); });
+}
+
 /*
 QVariant AGraphWin_SI::GetProjection()
 {
