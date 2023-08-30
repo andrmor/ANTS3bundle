@@ -81,8 +81,9 @@ void AGraphWin_SI::exportTH2AsText(QString fileName)
 #include <QTimer>
 void AGraphWin_SI::show3D(QString castorFileName)
 {
-    QTimer::singleShot(0, GraphWindow, [this, castorFileName]()
+    QTimer::singleShot(100, GraphWindow, [this, castorFileName]()
                        {GraphWindow->show3D(castorFileName); });
+    qDebug() << "Scheduled show Castor image";
 }
 
 /*

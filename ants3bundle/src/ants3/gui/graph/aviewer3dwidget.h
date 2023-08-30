@@ -28,6 +28,10 @@ public slots:
 private slots:
     void on_pbRedraw_clicked();
 
+    void on_pbMinus_clicked();
+
+    void on_pbPlus_clicked();
+
 private:
     AViewer3D * Viewer = nullptr;
     EViewType ViewType;

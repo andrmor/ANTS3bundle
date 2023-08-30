@@ -2,33 +2,41 @@
 #include "ui_aviewer3d.h"
 #include "aviewer3dwidget.h"
 
+#include <QComboBox>
+
 AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
     QMainWindow(parent), ui(new Ui::AViewer3D)
 {
     ui->setupUi(this);
 
+    blockSignals(true);
+    Palettes = { {"Basic ROOT",1}, {"Deep sea",51}, {"Grey scale",52}, {"Dark body radiator",53}, {"Two color hue",54}, {"Rainbow",55}, {"Inverted dark body",56} };
+    for (const auto & p : Palettes)
+        ui->cobPalette->addItem(p.first);
+    blockSignals(false);
+
     bool ok = loadCastorImage(castorFileName);
-    if (ok)
-    {
-        initWidgets();
-        updateGui();
-    }
+    if (ok) initWidgets();
+
+    StartUp = false;
 }
 
 void AViewer3D::initWidgets()
 {
     View1 = new AViewer3DWidget(this, AViewer3DWidget::XY);
-    //View2 = new AViewer3DWidget(this, AViewer3DWidget::XY);
-    //View3 = new AViewer3DWidget(this, AViewer3DWidget::XY);
+    View2 = new AViewer3DWidget(this, AViewer3DWidget::XY);
+    View3 = new AViewer3DWidget(this, AViewer3DWidget::XY);
 
     ui->horizontalLayout->insertWidget(0, View1);
-    //ui->horizontalLayout->insertWidget(1, View2);
-    //ui->horizontalLayout->insertWidget(2, View3);
+    ui->horizontalLayout->insertWidget(1, View2);
+    ui->horizontalLayout->insertWidget(2, View3);
 }
 
 void AViewer3D::updateGui()
 {
-
+    View1->redraw();
+    View2->redraw();
+    View3->redraw();
 }
 
 AViewer3D::~AViewer3D()
@@ -137,5 +145,16 @@ bool AViewer3D::loadCastorImage(const QString & fileName)
 void AViewer3D::on_cbGlobalMaximum_clicked(bool checked)
 {
     UseGlobalMaximum = checked;
+}
+
+#include "TStyle.h"
+void AViewer3D::on_cobPalette_currentTextChanged(const QString & arg1)
+{
+    if (StartUp) return;
+
+    for (const auto & p : Palettes)
+        if (arg1 == p.first) gStyle->SetPalette(p.second);
+
+    updateGui();
 }
 

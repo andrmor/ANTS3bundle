@@ -31,11 +31,17 @@ public:
     bool  UseGlobalMaximum = true;
     float GlobalMaximum = 0;
 
+    std::vector<std::pair<QString,int>> Palettes;
+
 private slots:
     void on_cbGlobalMaximum_clicked(bool checked);
 
+    void on_cobPalette_currentTextChanged(const QString &arg1);
+
 private:
     Ui::AViewer3D * ui = nullptr;
+
+    bool StartUp = true;
 
     AViewer3DWidget * View1 = nullptr;
     AViewer3DWidget * View2 = nullptr;
