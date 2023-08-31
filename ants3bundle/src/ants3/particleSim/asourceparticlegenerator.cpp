@@ -141,8 +141,12 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
             if (vol && vol->GetLogicalVolume())
                 if (vol->GetLogicalVolume()->GetMaterial() == LimitedToMat[iSource])
                     break;
+
+            attempts--;
+            if (attempts == 0)
+                SessionManager::getInstance().terminateSession("Failed to generate position for material limited source");
         }
-        while (attempts-- != 0);
+        while (attempts != 0);
     }
 #else
     if (LimitedToMat[iSource] < 0) doGeneratePosition(Source, R);

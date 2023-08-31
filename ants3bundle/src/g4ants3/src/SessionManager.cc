@@ -364,8 +364,18 @@ void SessionManager::updateMaterials()
             return;
         }
         replaceMaterialRecursive(worldLV, name, newMat);
+        replaceMatNameInMatLimitedSources(name, G4Name);
 
         MaterialMap[G4Name] = MaterialMap[name];
+    }
+}
+
+void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
+{
+    for (AParticleSourceRecord & sr : Settings.SourceGenSettings.SourceData)
+    {
+        if (sr.MaterialLimited && sr.LimtedToMatName == name)
+            sr.LimtedToMatName = G4Name;
     }
 }
 

@@ -113,6 +113,7 @@ private:
         void storeMonitorsData();
         void storeCalorimeterData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
+        void replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name);
 
     private:
         std::ofstream * outStreamDeposition = nullptr;
