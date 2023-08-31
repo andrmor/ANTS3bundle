@@ -133,12 +133,14 @@ void APet_si::findCoincidences(QString eventsFileName, QString coincFileName, bo
 
 #include <QProcess>
 #include <QApplication>
+#include <QThread>
 void APet_si::reconstruct(QString coincFileName, QString outDir)
 {
     Process = new QProcess();
     Process->setProcessChannelMode(QProcess::MergedChannels);
 
-    //QObject::connect(G4antsProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----FINISHED!-----";});
+    bool isRunning = true;
+    QObject::connect(Process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----CASTOR FINISHED!-----";});
     //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
 
     QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &APet_si::onReadReady);
@@ -165,14 +167,23 @@ void APet_si::reconstruct(QString coincFileName, QString outDir)
         return;
     }
 
-    while (!bAbortRequested)
+    while (isRunning)
     {
-        Process->waitForFinished(100); // ms
+        //bool ok = Process->waitForFinished(100); // ms
+        //if (ok) break;
+
+        QThread::usleep(100);
         QApplication::processEvents();
+
+        if (bAbortRequested)
+        {
+            Process->terminate();
+            break;
+        }
     }
 
     QString err = Process->errorString();
-    if (!err.isEmpty())
+    if (!err.isEmpty() && err != "Unknown error")
         abort("Reconstruction failed:\n" + err);
 }
 
