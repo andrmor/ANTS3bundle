@@ -2895,7 +2895,6 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
 void GraphWindowClass::show3D(QString castorFileName)
 {
     qDebug() << "Showing Castor image...";
-
     AViewer3D * viewer = new AViewer3D(this, castorFileName);
     viewer->showNormal();
 }

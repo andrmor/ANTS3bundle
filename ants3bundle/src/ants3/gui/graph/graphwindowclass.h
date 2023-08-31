@@ -249,6 +249,7 @@ private slots:
     void on_actionOpen_MultiGraphDesigner_triggered();
 
     void onExternalBasketChange();
+
 private:
     Ui::GraphWindowClass * ui;
 

@@ -1,8 +1,16 @@
 #include "aviewer3d.h"
 #include "ui_aviewer3d.h"
 #include "aviewer3dwidget.h"
+#include "afiletools.h"
 
+#include <QFileInfo>
 #include <QComboBox>
+#include <QDoubleValidator>
+
+#include <iostream>
+#include <fstream>
+#include <ostream>
+#include <ios>
 
 AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
     QMainWindow(parent), ui(new Ui::AViewer3D)
@@ -18,7 +26,15 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
     bool ok = loadCastorImage(castorFileName);
     if (ok) initWidgets();
 
+    QDoubleValidator * dval = new QDoubleValidator(this);
+    ui->ledMaximum->setValidator(dval);
+    ui->ledScaling->setValidator(dval);
+
+    on_cobMaximum_activated(0);
+
     StartUp = false;
+
+    updateGui();
 }
 
 void AViewer3D::initWidgets()
@@ -44,12 +60,6 @@ AViewer3D::~AViewer3D()
     delete ui;
 }
 
-#include <QFileInfo>
-#include "afiletools.h"
-#include <iostream>
-#include <fstream>
-#include <ostream>
-#include <ios>
 bool AViewer3D::loadCastorImage(const QString & fileName)
 {
     QFileInfo fi(fileName);
@@ -136,15 +146,12 @@ bool AViewer3D::loadCastorImage(const QString & fileName)
             }
         }
     }
+    ui->ledMaximum->setText(QString::number(GlobalMaximum));
+    //ui->ledScaling->setText(QString::number(1/GlobalMaximum));
 
     // error control
 
     return true;
-}
-
-void AViewer3D::on_cbGlobalMaximum_clicked(bool checked)
-{
-    UseGlobalMaximum = checked;
 }
 
 #include "TStyle.h"
@@ -155,6 +162,31 @@ void AViewer3D::on_cobPalette_currentTextChanged(const QString & arg1)
     for (const auto & p : Palettes)
         if (arg1 == p.first) gStyle->SetPalette(p.second);
 
+    updateGui();
+}
+
+
+void AViewer3D::on_cobMaximum_activated(int index)
+{
+    switch (index)
+    {
+        case 0 : MaximumMode = IndividualMax; break;
+        case 1 : MaximumMode = GlobalMax;     break;
+        case 2 : MaximumMode = FixedMax;      break;
+    }
+
+    ui->ledMaximum->setVisible(index == 2);
+}
+
+void AViewer3D::on_ledMaximum_editingFinished()
+{
+    FixedMaximum = ui->ledMaximum->text().toDouble();
+    updateGui();
+}
+
+void AViewer3D::on_ledScaling_editingFinished()
+{
+    ScalingFactor = 1 / ui->ledScaling->text().toDouble();
     updateGui();
 }
 

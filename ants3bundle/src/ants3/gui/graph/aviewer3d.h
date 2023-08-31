@@ -28,15 +28,23 @@ public:
 
     std::vector<std::vector<std::vector<double>>> Data; // Data[iz][iy][ix]
 
-    bool  UseGlobalMaximum = true;
-    float GlobalMaximum = 0;
+    enum EMaximumMode {IndividualMax, GlobalMax, FixedMax};
+    EMaximumMode MaximumMode = IndividualMax;
+    double FixedMaximum = 0;
+    double GlobalMaximum = 0;
+
+    double ScalingFactor = 1.0;
 
     std::vector<std::pair<QString,int>> Palettes;
 
 private slots:
-    void on_cbGlobalMaximum_clicked(bool checked);
-
     void on_cobPalette_currentTextChanged(const QString &arg1);
+
+    void on_cobMaximum_activated(int index);
+
+    void on_ledMaximum_editingFinished();
+
+    void on_ledScaling_editingFinished();
 
 private:
     Ui::AViewer3D * ui = nullptr;

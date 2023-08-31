@@ -11,6 +11,8 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
     Help["saveImage"] = "Save image currently shown on the graph window to an image file.\nTip: use .png extension";
     Help["addLegend"] = "Adds a temporary (not savable yet!) legend to the graph.\n"
                         "x1,y1 and x2,y2 are the bottom-left and top-right corner coordinates (0..1)";
+
+    connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &GraphWindowClass::show3D, Qt::QueuedConnection);
 }
 
 void AGraphWin_SI::setLog(bool Xaxis, bool Yaxis)
@@ -81,9 +83,7 @@ void AGraphWin_SI::exportTH2AsText(QString fileName)
 #include <QTimer>
 void AGraphWin_SI::show3D(QString castorFileName)
 {
-    QTimer::singleShot(100, GraphWindow, [this, castorFileName]()
-                       {GraphWindow->show3D(castorFileName); });
-    qDebug() << "Scheduled show Castor image";
+    emit requestShow3D(castorFileName);
 }
 
 /*

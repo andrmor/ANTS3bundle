@@ -1,3 +1,5 @@
+#include "TCanvas.h"
+
 #include "aviewer3dwidget.h"
 #include "ui_aviewer3dwidget.h"
 #include "rasterwindowbaseclass.h"
@@ -9,6 +11,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     ui(new Ui::AViewer3DWidget)
 {
     ui->setupUi(this);
+
+    ui->pbRedraw->setVisible(false);
 
     RasterWindow = new RasterWindowBaseClass(nullptr);
     RasterWindow->resize(400, 400);
@@ -57,6 +61,7 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     }
 
     Hist->SetStats(false);
+    Hist->GetYaxis()->SetTitleOffset(1.3);
 }
 
 AViewer3DWidget::~AViewer3DWidget()
@@ -67,40 +72,49 @@ AViewer3DWidget::~AViewer3DWidget()
     delete ui;
 }
 
-#include "TCanvas.h"
 void AViewer3DWidget::redraw()
 {
     Hist->Reset("ICESM");
+    QString title;
 
     switch (ViewType)
     {
     case XY:
       {
-        int iz = ui->hsPosition->value();
-        for (int iy = 0; iy < Viewer->NumBins[1]; iy++)
-            for (int ix = 0; ix < Viewer->NumBins[2]; ix++)
-                Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix]);
+        int iz = ui->sbPosition->value();
+        title = QString("Transverse (XY at Z=%0)").arg(iz);
+        for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
+            for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
+                Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
         break;
       }
     case XZ:
       {
-        int iy = ui->hsPosition->value();
-        for (int iz = 0; iz < Viewer->NumBins[0]; iz++)
-            for (int ix = 0; ix < Viewer->NumBins[2]; ix++)
-                Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix]);
+        int iy = ui->sbPosition->value();
+        title = QString("Coronal (XZ at Y=%0)").arg(iy);
+        for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
+            for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
+                Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
         break;
       }
     case YZ:
       {
-        int ix = ui->hsPosition->value();
-        for (int iz = 0; iz < Viewer->NumBins[0]; iz++)
-            for (int iy = 0; iy < Viewer->NumBins[1]; iy++)
-                Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix]);
+        int ix = ui->sbPosition->value();
+        title = QString("Sagittal (YZ at X=%0)").arg(ix);
+        for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
+            for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
+                Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
         break;
       }
     }
+    ui->lView->setText(title);
 
-    if (Viewer->UseGlobalMaximum) Hist->SetMaximum(Viewer->GlobalMaximum);
+    switch (Viewer->MaximumMode)
+    {
+    case AViewer3D::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * Viewer->ScalingFactor); break;
+    case AViewer3D::FixedMax  : Hist->SetMaximum(Viewer->FixedMaximum * Viewer->ScalingFactor);  break;
+    default: break;
+    }
 
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");
@@ -109,7 +123,6 @@ void AViewer3DWidget::redraw()
 
 void AViewer3DWidget::on_pbRedraw_clicked()
 {
-    qDebug() << "Redraw button clicked!";
     redraw();
 }
 
@@ -129,5 +142,19 @@ void AViewer3DWidget::on_pbPlus_clicked()
 
     ui->sbPosition->setValue(pos+1);
     redraw();
+}
+
+void AViewer3DWidget::on_hsPosition_sliderMoved(int position)
+{
+    ui->sbPosition->setValue(position);
+    redraw();
+}
+
+void AViewer3DWidget::on_pbUnzoom_clicked()
+{
+    Hist->GetXaxis()->UnZoom();
+    Hist->GetYaxis()->UnZoom();
+    RasterWindow->fCanvas->Modified();
+    RasterWindow->fCanvas->Update();
 }
 

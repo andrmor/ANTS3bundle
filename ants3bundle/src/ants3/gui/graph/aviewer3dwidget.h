@@ -32,6 +32,10 @@ private slots:
 
     void on_pbPlus_clicked();
 
+    void on_hsPosition_sliderMoved(int position);
+
+    void on_pbUnzoom_clicked();
+
 private:
     AViewer3D * Viewer = nullptr;
     EViewType ViewType;

@@ -15,14 +15,21 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="lView1">
+    <widget class="QLabel" name="lView">
      <property name="text">
       <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>1</number>
+     </property>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -42,7 +49,7 @@
      <item>
       <widget class="QLabel" name="l_Bin">
        <property name="text">
-        <string>Bin:</string>
+        <string>Bin index:</string>
        </property>
       </widget>
      </item>
@@ -81,6 +88,13 @@
       <widget class="QPushButton" name="pbRedraw">
        <property name="text">
         <string>...redraw</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbUnzoom">
+       <property name="text">
+        <string>Unzoom</string>
        </property>
       </widget>
      </item>
@@ -143,33 +157,10 @@
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="Line" name="line1">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>hsPosition</sender>
-   <signal>actionTriggered(int)</signal>
-   <receiver>pbRedraw</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>326</x>
-     <y>410</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>335</x>
-     <y>368</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>sbPosition</sender>
    <signal>editingFinished()</signal>
@@ -177,28 +168,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>375</y>
+     <x>170</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>372</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>hsPosition</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>sbPosition</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>157</x>
-     <y>413</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>152</x>
-     <y>366</y>
+     <x>359</x>
+     <y>274</y>
     </hint>
    </hints>
   </connection>
@@ -209,12 +184,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>169</x>
-     <y>383</y>
+     <x>170</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
-     <x>177</x>
-     <y>415</y>
+     <x>288</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
