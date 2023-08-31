@@ -2,6 +2,7 @@
 #include "ui_aviewer3d.h"
 #include "aviewer3dwidget.h"
 #include "afiletools.h"
+#include "guitools.h"
 
 #include <QFileInfo>
 #include <QComboBox>
@@ -34,7 +35,8 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
 
     StartUp = false;
 
-    updateGui();
+    if (ErrorString.isEmpty()) updateGui();
+    else guitools::message(ErrorString, this);
 }
 
 void AViewer3D::initWidgets()
@@ -58,6 +60,33 @@ void AViewer3D::updateGui()
 AViewer3D::~AViewer3D()
 {
     delete ui;
+}
+
+bool AViewer3D::extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array)
+{
+    const QString key = twoFields.front();
+    if (!key.contains(identifierTxt)) return true;
+
+    bool ok;
+    double val = twoFields[1].toDouble(&ok);
+    if (!ok)
+    {
+        ErrorString = "Format error in the image header";
+        return false;
+    }
+
+    int index = 0;
+    if      (key.contains('1')) index = 1;
+    else if (key.contains('2')) index = 2;
+    else if (key.contains('3')) index = 3;
+    if (index == 0)
+    {
+        ErrorString = "Format error in the image header";
+        return false;
+    }
+
+    array[index-1] = val;
+    return true;
 }
 
 bool AViewer3D::loadCastorImage(const QString & fileName)
@@ -108,10 +137,20 @@ bool AViewer3D::loadCastorImage(const QString & fileName)
                 return false;
             }
             NumBins[index-1] = num;
+            continue;
         }
+
+        ok = extractDoubleFromPair(fields, "scaling factor (mm/pixel)", Scaling_mmPerPixel);
+        if (!ok) return false;
+
+        ok = extractDoubleFromPair(fields, "first pixel offset (mm)", Offset);
+        if (!ok) return false;
     }
 
     qDebug() << "---> Num bins:" << NumBins[0] << NumBins[1] << NumBins[2];
+    qDebug() << "---> mm/pixel:" << Scaling_mmPerPixel[0] << Scaling_mmPerPixel[1] << Scaling_mmPerPixel[2];
+    qDebug() << "---> Offset:" << Offset[0] << Offset[1] << Offset[2];
+
     Data.resize(NumBins[2]);
     for (size_t iz = 0; iz < NumBins[2]; iz++)
     {

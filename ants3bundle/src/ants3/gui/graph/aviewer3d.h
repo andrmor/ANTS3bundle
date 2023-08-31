@@ -58,6 +58,7 @@ private:
     bool loadCastorImage(const QString & fileName);
     void initWidgets();
     void updateGui();
+    bool extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array); // false on error
 };
 
 #endif // AVIEWER3D_H
