@@ -19,7 +19,7 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
     ui->setupUi(this);
 
     blockSignals(true);
-    Palettes = { {"Basic ROOT",1}, {"Deep sea",51}, {"Grey scale",52}, {"Dark body radiator",53}, {"Two color hue",54}, {"Rainbow",55}, {"Inverted dark body",56} };
+    Palettes = { {"Default ROOT",57}, {"Deep sea",51}, {"Grey scale",52}, {"Dark body radiator",53}, {"Two color hue",54}, {"Rainbow",55}, {"Inverted dark body",56} };
     for (const auto & p : Palettes)
         ui->cobPalette->addItem(p.first);
     blockSignals(false);
@@ -60,6 +60,16 @@ void AViewer3D::updateGui()
 AViewer3D::~AViewer3D()
 {
     delete ui;
+}
+
+double AViewer3D::binToEdgePosition(size_t iDimension, size_t iBin) const
+{
+    return StartZeroBin[iDimension] + iBin * Scaling_mmPerPixel[iDimension];
+}
+
+double AViewer3D::binToCenterPosition(size_t iDimension, size_t iBin) const
+{
+    return StartZeroBin[iDimension] + (0.5 + iBin) * Scaling_mmPerPixel[iDimension];
 }
 
 bool AViewer3D::extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array)
@@ -150,6 +160,9 @@ bool AViewer3D::loadCastorImage(const QString & fileName)
     qDebug() << "---> Num bins:" << NumBins[0] << NumBins[1] << NumBins[2];
     qDebug() << "---> mm/pixel:" << Scaling_mmPerPixel[0] << Scaling_mmPerPixel[1] << Scaling_mmPerPixel[2];
     qDebug() << "---> Offset:" << Offset[0] << Offset[1] << Offset[2];
+
+    for (size_t i = 0; i < 3; i++)
+        StartZeroBin[i] = Offset[i] - 0.5 * NumBins[i] * Scaling_mmPerPixel[i];
 
     Data.resize(NumBins[2]);
     for (size_t iz = 0; iz < NumBins[2]; iz++)

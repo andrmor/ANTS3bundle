@@ -30,7 +30,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->sbPosition->setValue(0.5*(Viewer->NumBins[0]-1));
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[0]-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[2], 0, Viewer->NumBins[2],   Viewer->NumBins[1], 0, Viewer->NumBins[1]);
+        Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
+                                Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Y, mm");
         break;
@@ -42,7 +43,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->sbPosition->setValue(0.5*(Viewer->NumBins[1]-1));
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[1]-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[2], 0, Viewer->NumBins[2],   Viewer->NumBins[0], 0, Viewer->NumBins[0]);
+        Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
+                                Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
@@ -54,7 +56,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->sbPosition->setValue(0.5*(Viewer->NumBins[2]-1));
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[2]-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[1], 0, Viewer->NumBins[1],   Viewer->NumBins[0], 0, Viewer->NumBins[0]);
+        Hist = new TH2D("", "", Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]),
+                                Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
         Hist->GetXaxis()->SetTitle("Y, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
@@ -82,28 +85,37 @@ void AViewer3DWidget::redraw()
     case XY:
       {
         int iz = ui->sbPosition->value();
-        title = QString("Transverse (XY at Z=%0)").arg(iz);
+        double z = Viewer->binToCenterPosition(0, iz);
+        title = QString("Transverse (XY at Z = %0 mm)").arg(z);
         for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
+        {
+            double y = Viewer->binToEdgePosition(1, iy);
             for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
-                Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                //Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                Hist->SetBinContent(ix, iy, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+        }
         break;
       }
     case XZ:
       {
         int iy = ui->sbPosition->value();
-        title = QString("Coronal (XZ at Y=%0)").arg(iy);
+        double y = Viewer->binToCenterPosition(1, iy);
+        title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
         for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
             for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
-                Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                //Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                Hist->SetBinContent(ix, iz, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
         break;
       }
     case YZ:
       {
         int ix = ui->sbPosition->value();
-        title = QString("Sagittal (YZ at X=%0)").arg(ix);
+        double x = Viewer->binToCenterPosition(2, ix);
+        title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
         for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
             for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
-                Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                //Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+                Hist->SetBinContent(iy, iz, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
         break;
       }
     }
@@ -156,5 +168,18 @@ void AViewer3DWidget::on_pbUnzoom_clicked()
     Hist->GetYaxis()->UnZoom();
     RasterWindow->fCanvas->Modified();
     RasterWindow->fCanvas->Update();
+}
+
+void AViewer3DWidget::on_sbPosition_valueChanged(int arg1)
+{
+    size_t index;
+    switch (ViewType)
+    {
+    case XY: index = 0; break;
+    case XZ: index = 1; break;
+    case YZ: index = 2; break;
+    }
+
+    ui->lPosition->setText( QString::number(Viewer->binToCenterPosition(index, arg1)) );
 }
 

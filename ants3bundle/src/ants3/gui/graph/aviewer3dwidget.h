@@ -36,6 +36,8 @@ private slots:
 
     void on_pbUnzoom_clicked();
 
+    void on_sbPosition_valueChanged(int arg1);
+
 private:
     AViewer3D * Viewer = nullptr;
     EViewType ViewType;
