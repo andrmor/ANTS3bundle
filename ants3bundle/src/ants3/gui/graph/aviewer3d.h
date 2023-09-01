@@ -17,8 +17,10 @@ class AViewer3D : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit AViewer3D(QWidget * parent, const QString & castorFileName);
+    explicit AViewer3D(QWidget * parent);
     ~AViewer3D();
+
+    bool loadCastorImage(const QString & castorFileName);
 
     QString ErrorString;
 
@@ -60,8 +62,8 @@ private:
     AViewer3DWidget * View2 = nullptr;
     AViewer3DWidget * View3 = nullptr;
 
-    bool loadCastorImage(const QString & fileName);
-    void initWidgets();
+    bool doLoadCastorImage(const QString & fileName);
+    void createViewWidgets();
     void updateGui();
     bool extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array); // false on error
 };

@@ -22,6 +22,8 @@ public:
     explicit AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
     ~AViewer3DWidget();
 
+    bool init();
+
 public slots:
     void redraw();
 

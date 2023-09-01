@@ -1,10 +1,9 @@
-#include "TCanvas.h"
-
 #include "aviewer3dwidget.h"
 #include "ui_aviewer3dwidget.h"
 #include "rasterwindowbaseclass.h"
 
 #include "TH2D.h"
+#include "TCanvas.h"
 
 AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     QWidget(viewer), Viewer(viewer), ViewType(viewType),
@@ -15,10 +14,23 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     ui->pbRedraw->setVisible(false);
 
     RasterWindow = new RasterWindowBaseClass(nullptr);
+    ui->horizontalLayout->insertWidget(0, RasterWindow);
+    RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     RasterWindow->resize(400, 400);
     RasterWindow->ForceResize();
-    RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->horizontalLayout->insertWidget(0, RasterWindow);
+}
+
+AViewer3DWidget::~AViewer3DWidget()
+{
+    ui->horizontalLayout->removeWidget(RasterWindow);
+    delete RasterWindow; RasterWindow = nullptr;
+
+    delete ui;
+}
+
+bool AViewer3DWidget::init()
+{
+    delete Hist; Hist = nullptr;
 
     switch (ViewType)
     {
@@ -31,7 +43,7 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[0]-1));
 
         Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
-                                Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]));
+                        Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Y, mm");
         break;
@@ -44,7 +56,7 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[1]-1));
 
         Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
-                                Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
+                        Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
@@ -57,7 +69,7 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
         ui->hsPosition->setValue(0.5*(Viewer->NumBins[2]-1));
 
         Hist = new TH2D("", "", Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]),
-                                Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
+                        Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
         Hist->GetXaxis()->SetTitle("Y, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
@@ -67,16 +79,10 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     Hist->GetYaxis()->SetTitleOffset(1.3);
 }
 
-AViewer3DWidget::~AViewer3DWidget()
-{
-    ui->horizontalLayout->removeWidget(RasterWindow);
-    delete RasterWindow; RasterWindow = nullptr;
-
-    delete ui;
-}
-
 void AViewer3DWidget::redraw()
 {
+    if (!Hist) return;
+
     Hist->Reset("ICESM");
     QString title;
 
@@ -140,6 +146,8 @@ void AViewer3DWidget::on_pbRedraw_clicked()
 
 void AViewer3DWidget::on_pbMinus_clicked()
 {
+    if (!Hist) return;
+
     int pos = ui->sbPosition->value();
     if (pos == 0) return;
 
@@ -149,6 +157,8 @@ void AViewer3DWidget::on_pbMinus_clicked()
 
 void AViewer3DWidget::on_pbPlus_clicked()
 {
+    if (!Hist) return;
+
     int pos = ui->sbPosition->value();
     if (pos == ui->sbPosition->maximum()) return;
 
@@ -158,12 +168,16 @@ void AViewer3DWidget::on_pbPlus_clicked()
 
 void AViewer3DWidget::on_hsPosition_sliderMoved(int position)
 {
+    if (!Hist) return;
+
     ui->sbPosition->setValue(position);
     redraw();
 }
 
 void AViewer3DWidget::on_pbUnzoom_clicked()
 {
+    if (!Hist) return;
+
     Hist->GetXaxis()->UnZoom();
     Hist->GetYaxis()->UnZoom();
     RasterWindow->fCanvas->Modified();
@@ -172,6 +186,8 @@ void AViewer3DWidget::on_pbUnzoom_clicked()
 
 void AViewer3DWidget::on_sbPosition_valueChanged(int arg1)
 {
+    if (!Hist) return;
+
     size_t index;
     switch (ViewType)
     {

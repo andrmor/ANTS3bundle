@@ -13,7 +13,7 @@
 #include <ostream>
 #include <ios>
 
-AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
+AViewer3D::AViewer3D(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::AViewer3D)
 {
     ui->setupUi(this);
@@ -24,8 +24,7 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
         ui->cobPalette->addItem(p.first);
     blockSignals(false);
 
-    bool ok = loadCastorImage(castorFileName);
-    if (ok) initWidgets();
+    createViewWidgets();
 
     QDoubleValidator * dval = new QDoubleValidator(this);
     ui->ledMaximum->setValidator(dval);
@@ -34,12 +33,9 @@ AViewer3D::AViewer3D(QWidget *parent, const QString & castorFileName) :
     on_cobMaximum_activated(0);
 
     StartUp = false;
-
-    if (ErrorString.isEmpty()) updateGui();
-    else guitools::message(ErrorString, this);
 }
 
-void AViewer3D::initWidgets()
+void AViewer3D::createViewWidgets()
 {
     View1 = new AViewer3DWidget(this, AViewer3DWidget::XY);
     View2 = new AViewer3DWidget(this, AViewer3DWidget::XZ);
@@ -60,6 +56,24 @@ void AViewer3D::updateGui()
 AViewer3D::~AViewer3D()
 {
     delete ui;
+}
+
+bool AViewer3D::loadCastorImage(const QString & castorFileName)
+{
+    bool ok = doLoadCastorImage(castorFileName);
+    if (!ok)
+    {
+        guitools::message(ErrorString, this);
+        return false;
+    }
+
+    View1->init();
+    View2->init();
+    View3->init();
+
+    updateGui();
+
+    return true;
 }
 
 double AViewer3D::binToEdgePosition(size_t iDimension, size_t iBin) const
@@ -99,7 +113,7 @@ bool AViewer3D::extractDoubleFromPair(const QStringList & twoFields, const QStri
     return true;
 }
 
-bool AViewer3D::loadCastorImage(const QString & fileName)
+bool AViewer3D::doLoadCastorImage(const QString & fileName)
 {
     QFileInfo fi(fileName);
     if (fi.suffix() != "hdr")
