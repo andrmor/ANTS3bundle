@@ -6,13 +6,13 @@
 #include <QFileInfo>
 //#include <QDebug>
 
-APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const std::string & eventsFileName, bool binaryInput) :
+APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const QString & eventsFileName, bool binaryInput) :
     NumScint(numScint)
 {
     Files.push_back({eventsFileName, binaryInput});
 }
 
-bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName, bool writeToF)
+bool APetCoincidenceFinder::findCoincidences(const QString & coincFileName, bool writeToF)
 {
     /*
     Config.InputFileName     = "BuilderOutput.bin"; Config.BinaryInput  = true;
@@ -40,10 +40,10 @@ bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName, 
 
     //Lut LUT(Config.WorkingDirectory + '/' + Config.LutFileName);
 
-    QFileInfo fi(coincFileName.data());
-    if (!fi.suffix().isEmpty())
+    QFileInfo fi(coincFileName);
+    if (fi.suffix() == "bin" )
     {
-        ErrorString = "Coincidence file name should be provided without suffix.\nThe ascii header and binary data files will be attributed '.cdh' and '.bin' suffixes";
+        ErrorString = "Coincidence file name should not have suffix 'bin'. The binary part will be created automatically";
         return false;
     }
 
@@ -74,7 +74,12 @@ bool APetCoincidenceFinder::findCoincidences(const std::string & coincFileName, 
         exit(20);
     }
 
-    ok = write(Pairs, coincFileName, writeToF);
+    QString baseName = fi.completeBaseName();
+    QString dir = fi.absolutePath();
+    QString binFileName = baseName + ".bin";
+    QString headerFileName = baseName + "." + fi.suffix();
+
+    ok = write(Pairs, writeToF, dir, headerFileName, binFileName);
     return ok;
 }
 
@@ -82,13 +87,13 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
 {
     for (const auto & pair : Files)
     {
-        const std::string & fileName = pair.first;
+        const QString & fileName = pair.first;
         const bool binary = pair.second;
         qDebug() << "Input file:"<< fileName << "  binary?" << binary;
 
         std::ifstream * inStream;  // !!!*** drop pointer
-        if (binary) inStream = new std::ifstream(fileName, std::ios::in | std::ios::binary);
-        else        inStream = new std::ifstream(fileName);
+        if (binary) inStream = new std::ifstream(fileName.toLatin1().data(), std::ios::in | std::ios::binary);
+        else        inStream = new std::ifstream(fileName.toLatin1().data());
 
         if (!inStream->is_open() || inStream->fail() || inStream->bad())
         {
@@ -240,18 +245,19 @@ size_t APetCoincidenceFinder::findNextEventOutsideCoinsidenceWindow(std::vector<
 }
 
 #include "afiletools.h"
-bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool writeToF)
+bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName)
 {
     std::ofstream * outDataStream = new std::ofstream;  // !!!*** remove pointer
-    outDataStream->open(fileName + ".bin", std::ios::out | std::ios::binary);
+    const QString binNameWithPath = dir + "/" + binFileName;
+    outDataStream->open(binNameWithPath.toLatin1().data(), std::ios::out | std::ios::binary);
     if (!outDataStream->is_open())
     {
-        ErrorString = "Cannot open file " + fileName + ".dat for writing coincidence binary data";
+        ErrorString = "Cannot open file " + binNameWithPath + " for writing coincidence binary data";
         delete outDataStream; outDataStream = nullptr;
         return false;
     }
 
-    qDebug() << "->Writing coincidences"<< "("<< pairs.size()<< ")"<< "to file " << fileName << "  ToF information?" << writeToF;
+    qDebug() << "->Writing coincidences"<< "("<< pairs.size()<< ")"<< "to file " << dir + "/" + binFileName << "  ToF information?" << writeToF;
 
     for (const APetCoincidencePair & cp : pairs)
     {
@@ -276,7 +282,7 @@ bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, cons
     qDebug() << "Writing the header file...";
 
     QString header = "Scanner name: ants\n"
-                     "Data filename: " + QString(fileName.data()) + ".bin\n"
+                     "Data filename: " + binFileName + "\n"
                      "Number of events: " + QString::number(pairs.size()) + "\n"
                      "Data mode: list-mode\n"
                      "Data type: PET\n"
@@ -289,7 +295,7 @@ bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, cons
                      "List TOF measurement range (ps): 4000";       // ∆tmax − ∆tmin in ps    // !!!***
     }
 
-    bool ok = ftools::saveTextToFile(header, QString(fileName.data()) + ".cdh");
+    bool ok = ftools::saveTextToFile(header, dir + "/" + headerFileName);
     if (ok) qDebug() << "\n<-Coincidences are saved\n";
     else ErrorString = "Cannot save header file for coincidences";
     return ok;

@@ -1,6 +1,8 @@
 #ifndef APETCOINCIDENCEFINDER_H
 #define APETCOINCIDENCEFINDER_H
 
+#include <QString>
+
 #include <string>
 #include <vector>
 
@@ -38,15 +40,15 @@ enum class RejectionMethods {None, All, EnergyWindow};
 class APetCoincidenceFinder
 {
 public:
-    APetCoincidenceFinder(size_t numScint, const std::string & eventsFileName, bool binaryInput);
+    APetCoincidenceFinder(size_t numScint, const QString & eventsFileName, bool binaryInput);
 
-    bool findCoincidences(const std::string & coincFileName, bool writeToF);
+    bool findCoincidences(const QString & coincFileName, bool writeToF);
 
-    std::string ErrorString;
+    QString ErrorString;
 
 private:
     int NumScint;
-    std::vector<std::pair<std::string, bool>> Files;
+    std::vector<std::pair<QString, bool>> Files;
 
     FinderMethods FinderMethod = FinderMethods::Basic;
 
@@ -67,7 +69,7 @@ private:
     bool   read(std::vector<APetEventRecord> & events, bool bEnforceEnergyRange);
     void   find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);
     size_t findNextEventOutsideCoinsidenceWindow(std::vector<APetEventRecord> & events, size_t iCurrentEvent);
-    bool   write(std::vector<APetCoincidencePair> & pairs, const std::string & fileName, bool writeToF);
+    bool   write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName);
 };
 
 #endif // APETCOINCIDENCEFINDER_H

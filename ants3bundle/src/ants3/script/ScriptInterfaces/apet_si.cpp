@@ -128,7 +128,25 @@ void APet_si::findCoincidences(QString eventsFileName, QString coincFileName, bo
     APetCoincidenceFinder cf(numScint, eventsFileName.toLatin1().data(), false);
     bool ok = cf.findCoincidences(coincFileName.toLatin1().data(), writeToF);
     if (!ok)
-        abort(cf.ErrorString.data());
+        abort(cf.ErrorString);
+}
+
+void APet_si::reconstructConfigureVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ)
+{
+    if (numX < 1 || numY < 1 || numZ < 1)
+    {
+        abort("Number of voxel for PET reconstruction should be positive");
+        return;
+    }
+
+    if (sizeX <= 0 || sizeY <= 0 || sizeZ <= 0)
+    {
+        abort("Voxel sizes for PET reconstruction should be positive");
+        return;
+    }
+
+    NumVoxels  = {numX,  numY,  numZ};
+    SizeVoxels = {sizeX, sizeY, sizeZ};
 }
 
 #include <QProcess>
@@ -153,8 +171,10 @@ void APet_si::reconstruct(QString coincFileName, QString outDir)
     args << "-it" << "10:16";
     args << "-proj" << "joseph";
     args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
-    args << "-dim" << "128,128,128";
-    args << "-vox" << "3.0,3.0,3.0";
+    //args << "-dim" << "128,128,128";
+    args << "-dim" << QString("%1,%2,%3").arg(NumVoxels[0]).arg(NumVoxels[1]).arg(NumVoxels[2]);
+    //args << "-vox" << "3.0,3.0,3.0";
+    args << "-vox" << QString("%1,%2,%3").arg(SizeVoxels[0]).arg(SizeVoxels[1]).arg(SizeVoxels[2]);
     args << "-dout" << outDir;
 
     qDebug() << program << args;

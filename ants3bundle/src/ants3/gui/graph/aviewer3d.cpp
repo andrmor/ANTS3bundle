@@ -183,7 +183,7 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     {
         Data[iz].resize(NumBins[1]);
         for (size_t iy = 0; iy < NumBins[1]; iy++)
-            Data[iz][iy].resize(NumBins[2], 0);
+            Data[iz][iy].resize(NumBins[0], 0);
     }
 
     QString binFileName = fileName;
@@ -212,6 +212,9 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
             }
         }
     }
+
+    qDebug() << "Global max:" << GlobalMax;
+
     ui->ledMaximum->setText(QString::number(GlobalMaximum));
     //ui->ledScaling->setText(QString::number(1/GlobalMaximum));
 
