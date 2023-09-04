@@ -30,6 +30,7 @@ class TLegend;
 class TGaxis;
 class AMultiGraphDesigner;
 class AScriptInterface;
+class AViewer3D;
 
 namespace Ui {
 class GraphWindowClass;
@@ -260,6 +261,7 @@ private:
     QGraphicsView          * gvOver       = nullptr;
     AToolboxScene          * scene        = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
+    AViewer3D              * Viewer3D     = nullptr;
 
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window

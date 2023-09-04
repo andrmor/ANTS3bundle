@@ -14,10 +14,10 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     ui->pbRedraw->setVisible(false);
 
     RasterWindow = new RasterWindowBaseClass(nullptr);
-    ui->horizontalLayout->insertWidget(0, RasterWindow);
-    RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     RasterWindow->resize(400, 400);
+    ui->horizontalLayout->insertWidget(0, RasterWindow);
     RasterWindow->ForceResize();
+    RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 AViewer3DWidget::~AViewer3DWidget()

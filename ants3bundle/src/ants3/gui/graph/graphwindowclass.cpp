@@ -172,6 +172,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
 GraphWindowClass::~GraphWindowClass()
 {
+    delete Viewer3D; Viewer3D = nullptr;
+
     ClearBasket();
 
     delete ui;
@@ -2895,7 +2897,9 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
 void GraphWindowClass::show3D(QString castorFileName)
 {
     qDebug() << "Showing Castor image...";
-    AViewer3D * viewer = new AViewer3D(this);
-    bool ok = viewer->loadCastorImage(castorFileName);
-    if (ok) viewer->showNormal();
+    //if (!Viewer3D) Viewer3D = new AViewer3D(this);
+    if (Viewer3D) delete Viewer3D;
+    Viewer3D = new AViewer3D(this);
+    bool ok = Viewer3D->loadCastorImage(castorFileName);
+    if (ok) Viewer3D->showNormal();
 }
