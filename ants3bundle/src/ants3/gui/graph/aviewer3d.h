@@ -24,13 +24,13 @@ public:
 
     QString ErrorString;
 
-    std::array<size_t, 3> NumBins;
-    std::array<double, 3> Scaling_mmPerPixel;
-    std::array<double, 3> Offset;
+    size_t NumBinsX, NumBinsY, NumBinsZ;
+    double mmPerPixelX, mmPerPixelY, mmPerPixelZ;
+    double OffsetX, OffsetY, OffsetZ;
 
-    std::array<double, 3> StartZeroBin;
+    double StartZeroBinX, StartZeroBinY, StartZeroBinZ;
 
-    std::vector<std::vector<std::vector<double>>> Data; // Data[iz][iy][ix]
+    std::vector<std::vector<std::vector<double>>> Data; // Data[ix][iy][iz]
 
     enum EMaximumMode {IndividualMax, GlobalMax, FixedMax};
     EMaximumMode MaximumMode = IndividualMax;
@@ -41,8 +41,9 @@ public:
 
     std::vector<std::pair<QString,int>> Palettes;
 
-    double binToEdgePosition(size_t iDimension, size_t iBin) const;
-    double binToCenterPosition(size_t iDimension, size_t iBin) const;
+    enum EAxis {Xaxis, Yaxis, Zaxis};
+    double binToEdgePosition(EAxis axis, size_t iBin) const;
+    double binToCenterPosition(EAxis axis, size_t iBin) const;
 
 private slots:
     void on_cobPalette_currentTextChanged(const QString &arg1);
@@ -65,7 +66,6 @@ private:
     bool doLoadCastorImage(const QString & fileName);
     void createViewWidgets();
     void updateGui();
-    bool extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array); // false on error
 };
 
 #endif // AVIEWER3D_H

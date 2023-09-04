@@ -37,39 +37,39 @@ bool AViewer3DWidget::init()
     case XY:
         ui->lAxis->setText("Z:");
 
-        ui->sbPosition->setMaximum(Viewer->NumBins[0]-1);
-        ui->hsPosition->setMaximum(Viewer->NumBins[0]-1);
-        ui->sbPosition->setValue(0.5*(Viewer->NumBins[0]-1));
-        ui->hsPosition->setValue(0.5*(Viewer->NumBins[0]-1));
+        ui->sbPosition->setMaximum(Viewer->NumBinsZ-1);
+        ui->hsPosition->setMaximum(Viewer->NumBinsZ-1);
+        ui->sbPosition->setValue(0.5*(Viewer->NumBinsZ-1));
+        ui->hsPosition->setValue(0.5*(Viewer->NumBinsZ-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
-                        Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]));
+        Hist = new TH2D("", "", Viewer->NumBinsX, Viewer->binToEdgePosition(AViewer3D::Xaxis, 0), Viewer->binToEdgePosition(AViewer3D::Xaxis, Viewer->NumBinsX),
+                                Viewer->NumBinsY, Viewer->binToEdgePosition(AViewer3D::Yaxis, 0), Viewer->binToEdgePosition(AViewer3D::Yaxis, Viewer->NumBinsY));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Y, mm");
         break;
     case XZ:
         ui->lAxis->setText("Y:");
 
-        ui->sbPosition->setMaximum(Viewer->NumBins[1]-1);
-        ui->hsPosition->setMaximum(Viewer->NumBins[1]-1);
-        ui->sbPosition->setValue(0.5*(Viewer->NumBins[1]-1));
-        ui->hsPosition->setValue(0.5*(Viewer->NumBins[1]-1));
+        ui->sbPosition->setMaximum(Viewer->NumBinsY-1);
+        ui->hsPosition->setMaximum(Viewer->NumBinsY-1);
+        ui->sbPosition->setValue(0.5*(Viewer->NumBinsY-1));
+        ui->hsPosition->setValue(0.5*(Viewer->NumBinsY-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[2], Viewer->binToEdgePosition(2, 0), Viewer->binToEdgePosition(2, Viewer->NumBins[2]),
-                        Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
+        Hist = new TH2D("", "", Viewer->NumBinsX, Viewer->binToEdgePosition(AViewer3D::Xaxis, 0), Viewer->binToEdgePosition(AViewer3D::Xaxis, Viewer->NumBinsX),
+                                Viewer->NumBinsZ, Viewer->binToEdgePosition(AViewer3D::Zaxis, 0), Viewer->binToEdgePosition(AViewer3D::Zaxis, Viewer->NumBinsZ));
         Hist->GetXaxis()->SetTitle("X, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
     case YZ:
         ui->lAxis->setText("X:");
 
-        ui->sbPosition->setMaximum(Viewer->NumBins[2]-1);
-        ui->hsPosition->setMaximum(Viewer->NumBins[2]-1);
-        ui->sbPosition->setValue(0.5*(Viewer->NumBins[2]-1));
-        ui->hsPosition->setValue(0.5*(Viewer->NumBins[2]-1));
+        ui->sbPosition->setMaximum(Viewer->NumBinsX-1);
+        ui->hsPosition->setMaximum(Viewer->NumBinsX-1);
+        ui->sbPosition->setValue(0.5*(Viewer->NumBinsX-1));
+        ui->hsPosition->setValue(0.5*(Viewer->NumBinsX-1));
 
-        Hist = new TH2D("", "", Viewer->NumBins[1], Viewer->binToEdgePosition(1, 0), Viewer->binToEdgePosition(1, Viewer->NumBins[1]),
-                        Viewer->NumBins[0], Viewer->binToEdgePosition(0, 0), Viewer->binToEdgePosition(0, Viewer->NumBins[0]));
+        Hist = new TH2D("", "", Viewer->NumBinsY, Viewer->binToEdgePosition(AViewer3D::Yaxis, 0), Viewer->binToEdgePosition(AViewer3D::Yaxis, Viewer->NumBinsY),
+                                Viewer->NumBinsZ, Viewer->binToEdgePosition(AViewer3D::Zaxis, 0), Viewer->binToEdgePosition(AViewer3D::Zaxis, Viewer->NumBinsZ));
         Hist->GetXaxis()->SetTitle("Y, mm");
         Hist->GetYaxis()->SetTitle("Z, mm");
         break;
@@ -77,6 +77,7 @@ bool AViewer3DWidget::init()
 
     Hist->SetStats(false);
     Hist->GetYaxis()->SetTitleOffset(1.3);
+    return true;
 }
 
 void AViewer3DWidget::redraw()
@@ -91,37 +92,31 @@ void AViewer3DWidget::redraw()
     case XY:
       {
         int iz = ui->sbPosition->value();
-        double z = Viewer->binToCenterPosition(0, iz);
+        double z = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
         title = QString("Transverse (XY at Z = %0 mm)").arg(z);
-        for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
-        {
-            double y = Viewer->binToEdgePosition(1, iy);
-            for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
-                //Hist->Fill(ix+0.5, iy+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
-                Hist->SetBinContent(ix, iy, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
-        }
+        for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
+            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
+                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
         break;
       }
     case XZ:
       {
         int iy = ui->sbPosition->value();
-        double y = Viewer->binToCenterPosition(1, iy);
+        double y = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
         title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
-        for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
-            for (size_t ix = 0; ix < Viewer->NumBins[2]; ix++)
-                //Hist->Fill(ix+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
-                Hist->SetBinContent(ix, iz, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
+                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
         break;
       }
     case YZ:
       {
         int ix = ui->sbPosition->value();
-        double x = Viewer->binToCenterPosition(2, ix);
+        double x = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
         title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
-        for (size_t iz = 0; iz < Viewer->NumBins[0]; iz++)
-            for (size_t iy = 0; iy < Viewer->NumBins[1]; iy++)
-                //Hist->Fill(iy+0.5, iz+0.5, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
-                Hist->SetBinContent(iy, iz, Viewer->Data[iz][iy][ix] * Viewer->ScalingFactor);
+        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
+                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
         break;
       }
     }
@@ -130,7 +125,7 @@ void AViewer3DWidget::redraw()
     switch (Viewer->MaximumMode)
     {
     case AViewer3D::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * Viewer->ScalingFactor); break;
-    case AViewer3D::FixedMax  : Hist->SetMaximum(Viewer->FixedMaximum * Viewer->ScalingFactor);  break;
+    case AViewer3D::FixedMax  : Hist->SetMaximum(Viewer->FixedMaximum  * Viewer->ScalingFactor); break;
     default: break;
     }
 
@@ -188,14 +183,14 @@ void AViewer3DWidget::on_sbPosition_valueChanged(int arg1)
 {
     if (!Hist) return;
 
-    size_t index;
+    double val;
     switch (ViewType)
     {
-    case XY: index = 0; break;
-    case XZ: index = 1; break;
-    case YZ: index = 2; break;
+    case XY: val = Viewer->binToCenterPosition(AViewer3D::Zaxis, arg1); break;
+    case XZ: val = Viewer->binToCenterPosition(AViewer3D::Yaxis, arg1); break;
+    case YZ: val = Viewer->binToCenterPosition(AViewer3D::Xaxis, arg1); break;
     }
 
-    ui->lPosition->setText( QString::number(Viewer->binToCenterPosition(index, arg1)) );
+    ui->lPosition->setText( QString::number(val) );
 }
 

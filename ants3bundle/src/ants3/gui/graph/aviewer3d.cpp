@@ -76,41 +76,30 @@ bool AViewer3D::loadCastorImage(const QString & castorFileName)
     return true;
 }
 
-double AViewer3D::binToEdgePosition(size_t iDimension, size_t iBin) const
+double AViewer3D::binToEdgePosition(EAxis axis, size_t iBin) const
 {
-    return StartZeroBin[iDimension] + iBin * Scaling_mmPerPixel[iDimension];
+    //return StartZeroBin[iDimension] + iBin * Scaling_mmPerPixel[iDimension];
+
+    switch (axis)
+    {
+    case Xaxis: return StartZeroBinX + iBin * mmPerPixelX;
+    case Yaxis: return StartZeroBinY + iBin * mmPerPixelY;
+    case Zaxis: return StartZeroBinZ + iBin * mmPerPixelZ;
+    }
+    return 0; // just to avoid the warning
 }
 
-double AViewer3D::binToCenterPosition(size_t iDimension, size_t iBin) const
+double AViewer3D::binToCenterPosition(EAxis axis, size_t iBin) const
 {
-    return StartZeroBin[iDimension] + (0.5 + iBin) * Scaling_mmPerPixel[iDimension];
-}
+    //return StartZeroBin[iDimension] + (0.5 + iBin) * Scaling_mmPerPixel[iDimension];
 
-bool AViewer3D::extractDoubleFromPair(const QStringList & twoFields, const QString & identifierTxt, std::array<double, 3> & array)
-{
-    const QString key = twoFields.front();
-    if (!key.contains(identifierTxt)) return true;
-
-    bool ok;
-    double val = twoFields[1].toDouble(&ok);
-    if (!ok)
+    switch (axis)
     {
-        ErrorString = "Format error in the image header";
-        return false;
+    case Xaxis: return StartZeroBinX + (0.5 + iBin) * mmPerPixelX;
+    case Yaxis: return StartZeroBinY + (0.5 + iBin) * mmPerPixelY;
+    case Zaxis: return StartZeroBinZ + (0.5 + iBin) * mmPerPixelZ;
     }
-
-    int index = 0;
-    if      (key.contains('1')) index = 1;
-    else if (key.contains('2')) index = 2;
-    else if (key.contains('3')) index = 3;
-    if (index == 0)
-    {
-        ErrorString = "Format error in the image header";
-        return false;
-    }
-
-    array[index-1] = val;
-    return true;
+    return 0; // just to avoid the warning
 }
 
 bool AViewer3D::doLoadCastorImage(const QString & fileName)
@@ -151,39 +140,70 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
                 ErrorString = "Format error in the image header";
                 return false;
             }
-            int index = 0;
-            if      (key.contains('1')) index = 1;
-            else if (key.contains('2')) index = 2;
-            else if (key.contains('3')) index = 3;
-            if (index == 0)
+            if      (key.contains('1')) NumBinsX = num;
+            else if (key.contains('2')) NumBinsY = num;
+            else if (key.contains('3')) NumBinsZ = num;
+            else
             {
                 ErrorString = "Format error in the image header";
                 return false;
             }
-            NumBins[index-1] = num;
             continue;
         }
 
-        ok = extractDoubleFromPair(fields, "scaling factor (mm/pixel)", Scaling_mmPerPixel);
-        if (!ok) return false;
+        if (key.contains("scaling factor (mm/pixel)"))
+        {
+            double val = fields[1].toDouble(&ok);
+            if (!ok)
+            {
+                ErrorString = "Format error in the image header";
+                return false;
+            }
+            if      (key.contains('1')) mmPerPixelX = val;
+            else if (key.contains('2')) mmPerPixelY = val;
+            else if (key.contains('3')) mmPerPixelZ = val;
+            else
+            {
+                ErrorString = "Format error in the image header";
+                return false;
+            }
+            continue;
+        }
 
-        ok = extractDoubleFromPair(fields, "first pixel offset (mm)", Offset);
-        if (!ok) return false;
+        if (key.contains("first pixel offset (mm)"))
+        {
+            double val = fields[1].toDouble(&ok);
+            if (!ok)
+            {
+                ErrorString = "Format error in the image header";
+                return false;
+            }
+            if      (key.contains('1')) OffsetX = val;
+            else if (key.contains('2')) OffsetY = val;
+            else if (key.contains('3')) OffsetZ = val;
+            else
+            {
+                ErrorString = "Format error in the image header";
+                return false;
+            }
+            continue;
+        }
     }
 
-    qDebug() << "---> Num bins:" << NumBins[0] << NumBins[1] << NumBins[2];
-    qDebug() << "---> mm/pixel:" << Scaling_mmPerPixel[0] << Scaling_mmPerPixel[1] << Scaling_mmPerPixel[2];
-    qDebug() << "---> Offset:" << Offset[0] << Offset[1] << Offset[2];
+    qDebug() << "---> Num bins:" << NumBinsX << NumBinsY << NumBinsZ;
+    qDebug() << "---> mm/pixel:" << mmPerPixelX << mmPerPixelY << mmPerPixelZ;
+    qDebug() << "---> Offset:" << OffsetX << OffsetY << OffsetZ;
 
-    for (size_t i = 0; i < 3; i++)
-        StartZeroBin[i] = Offset[i] - 0.5 * NumBins[i] * Scaling_mmPerPixel[i];
+    StartZeroBinX = OffsetX - 0.5 * NumBinsX * mmPerPixelX;
+    StartZeroBinY = OffsetY - 0.5 * NumBinsY * mmPerPixelY;
+    StartZeroBinZ = OffsetZ - 0.5 * NumBinsZ * mmPerPixelZ;
 
-    Data.resize(NumBins[2]);
-    for (size_t iz = 0; iz < NumBins[2]; iz++)
+    Data.resize(NumBinsX);
+    for (size_t ix = 0; ix < NumBinsX; ix++)
     {
-        Data[iz].resize(NumBins[1]);
-        for (size_t iy = 0; iy < NumBins[1]; iy++)
-            Data[iz][iy].resize(NumBins[0], 0);
+        Data[ix].resize(NumBinsY);
+        for (size_t iy = 0; iy < NumBinsY; iy++)
+            Data[ix][iy].resize(NumBinsZ, 0);
     }
 
     QString binFileName = fileName;
@@ -200,14 +220,14 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
 
     GlobalMaximum = 0;
     float buffer;
-    for (size_t iz = 0; iz < NumBins[2]; iz++)
+    for (size_t iz = 0; iz < NumBinsZ; iz++)
     {
-        for (size_t iy = 0; iy < NumBins[1]; iy++)
+        for (size_t iy = 0; iy < NumBinsY; iy++)
         {
-            for (size_t ix = 0; ix < NumBins[0]; ix++)
+            for (size_t ix = 0; ix < NumBinsX; ix++)
             {
                 inStream.read((char*)&buffer, sizeof(float));
-                Data[iz][iy][ix] = buffer;
+                Data[ix][iy][iz] = buffer;
                 if (buffer > GlobalMaximum) GlobalMaximum = buffer;
             }
         }
@@ -216,9 +236,8 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     qDebug() << "Global max:" << GlobalMax;
 
     ui->ledMaximum->setText(QString::number(GlobalMaximum));
-    //ui->ledScaling->setText(QString::number(1/GlobalMaximum));
 
-    // error control
+    // !!!*** error control
 
     return true;
 }
