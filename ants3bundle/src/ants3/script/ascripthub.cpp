@@ -56,6 +56,18 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
     if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_JS(message); } );
 }
 
+bool AScriptHub::isAborted(EScriptLanguage lang)
+{
+    AScriptHub & hub = getInstance();
+
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::Python)     return hub.PythonM->isAborted();
+#endif
+    if (lang == EScriptLanguage::JavaScript) return hub.JavaScriptM->isAborted();
+
+    return false;
+}
+
 #include "ageowin_si.h"
 void AScriptHub::addCommonInterface(AScriptInterface * interface, QString name)
 {

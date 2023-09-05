@@ -26,6 +26,7 @@ public:
     static AJScriptManager & manager(); // !!!*** to kill
 
     static void              abort(const QString & message, EScriptLanguage lang);
+    static bool              isAborted(EScriptLanguage lang);
 
     AJScriptManager        & getJScriptManager() {return *JavaScriptM;}
 #ifdef ANTS3_PYTHON
