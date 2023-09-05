@@ -14,7 +14,10 @@
 #include <QDir>
 
 APet_si::APet_si() :
-    AScriptInterface() {}
+    AScriptInterface()
+{
+    Help["reconstructConfigureAlgorithm"] = "For list-mode PET datasets, CASToR can be configured to use DEPIERRO95, MLEM (default) and OSL algorithms";
+}
 
 void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg)
 {
@@ -150,6 +153,24 @@ void APet_si::reconstructConfigureVoxels(int numX, int numY, int numZ, double si
     SizeVoxels = {sizeX, sizeY, sizeZ};
 }
 
+void APet_si::reconstructConfigureAlgorithm(QString algorithmName)
+{
+    AlgorithmName = algorithmName;
+}
+
+void APet_si::reconstructConfigureIterations(int numIteration, int numSubsets)
+{
+    NumIterations = numIteration;
+    NumSubsets = numSubsets;
+}
+
+void APet_si::reconstructConfigureGaussianConvolver(double transaxialFWHM_mm, double axialFWHM_mm, double numberOfSigmas)
+{
+    TransaxialFWHM_mm = transaxialFWHM_mm;
+    AxialFWHM_mm = axialFWHM_mm;
+    NumberOfSigmas = numberOfSigmas;
+}
+
 #include <QProcess>
 #include <QApplication>
 #include <QThread>
@@ -169,10 +190,11 @@ void APet_si::reconstruct(QString coincFileName, QString outDir, int numThreads)
     QStringList args;
     args << "-df" << coincFileName;
     args << "-th" << QString::number(numThreads);
-    args << "-opti" << "MLEM";                      // !
-    args << "-it" << "10:16";                       // !
+    args << "-opti" << AlgorithmName;
+    args << "-it" << QString("%1:%2").arg(NumIterations).arg(NumSubsets);
     args << "-proj" << "joseph";                    // !
-    args << "-conv" << "gaussian,2.0,2.5,3.5::psf"; // !
+    //args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
+    args << "-conv" << QString("gaussian,%1,%2,%3::psf").arg(TransaxialFWHM_mm).arg(AxialFWHM_mm).arg(NumberOfSigmas);
     //args << "-dim" << "128,128,128";
     args << "-dim" << QString("%1,%2,%3").arg(NumVoxels[0]).arg(NumVoxels[1]).arg(NumVoxels[2]);
     //args << "-vox" << "3.0,3.0,3.0";
