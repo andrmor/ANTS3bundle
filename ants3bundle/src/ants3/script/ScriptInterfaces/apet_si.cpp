@@ -3,6 +3,8 @@
 #include "avector.h"
 #include "afiletools.h"
 #include "ascripthub.h"
+#include "apeteventbuilder.h"
+#include "apetcoincidencefinder.h"
 
 #include <iostream>
 #include <fstream>
@@ -16,6 +18,30 @@
 APet_si::APet_si() :
     AScriptInterface()
 {
+    Help["createScanner"] = "Creates description file and crystal LUT file with name given by scannerName argument in the CASTOR's "
+                            "config/scanner directory using the scintillators defined in the current geometry.\n"
+                            "scannerRadius, crystalDepth and crystalSize arguments provide the radius of the scanner (from center to the front surface of scintillators),"
+                            "length and xy_size of the scintillator crystals, respectively (all in mm)\n"
+                            "minAngle_deg defined the minimum angle in degrees between the scintillators for a coincidence pair to be considered.";
+
+    Help["configureBuilderTimeWindows"] = "Defines time windows during which the scanner records activity data. The number of windows is arbitrary, each element of "
+                                          "the argument array is an array of {timeFrom,timeTo}, both in ns. Each time range is processed independently, so even one "
+                                          "range can be split in second ones to speed up processing";
+    Help["configureBuilderClustering"] = "maxTimeDeltaCluster defines the time threshold for pre-clustering procedure: if two neighboring deposition records in the same scintillator are"
+                                         "closer in time than this time, they will be merged already in the deposition file reading phase.\nclusterTime"
+                                         "is used similarly in the custering phase, after sorting the deposition nodes by time."
+                                         "integrationTime and deadTime are used in eventt building phase: deposition clusters are added up to an event during integrationTime: "
+                                         "energy is the sum of these of the individfual clusters and the event time is given by the earlist cluster. During the time after the end of the inegrationTime"
+                                         "and before the end of the deadTime from the event start, all despoition nodes are disreguarded.";
+    Help["configureBuilderSeed"] = "Configures the seed of the random generator needed to simulate CTR and energy resolution";
+    Help["configureBuilderCTR"] = "Configures the Coincidence Timing Resolution of the scanner in ns: all events will be 'blurred' assuming Gaussian distribution to result in this CTR for the coincidence pairs";
+    Help["configureBuilderEnergies"] = "Configures energy resolution (the ratio of FWHM to the mean value) of the sanner and energy threshold in keV below which an event is ignored (not saved to the output file)."
+                                       "Note that the energy values of all events will be blurred assuming Gaussian distribution and uing the provided energy resolution";
+    Help["buildEventsFromDeposition"] = "Build events using energy deposition records in a provided ANTS3 deposition file and creates an output find with the constructed events according to the configuration settings "
+                                        "configured using the methods starting from configureBuilder...";
+
+
+
     Help["reconstructConfigureAlgorithm"] = "For list-mode PET datasets, CASToR can be configured to use DEPIERRO95, MLEM (default) and OSL algorithms";
 }
 
@@ -117,25 +143,77 @@ bool APet_si::makeLUT(QString fileName)
     return true;
 }
 
-#include "apeteventbuilder.h"
+void APet_si::configureBuilderTimeWindows(QVariantList arrayOfTimeFromAndTimeTo)
+{
+    std::vector<std::pair<double,double>> timeRanges;
+    for (int i = 0; i < arrayOfTimeFromAndTimeTo.size(); i++)
+    {
+        QVariantList range = arrayOfTimeFromAndTimeTo[i].toList();
+        if (range.size() != 2)
+        {
+            abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]");
+            return;
+        }
+        bool ok1, ok2;
+        double from = range[0].toDouble(&ok1);
+        double to   = range[1].toDouble(&ok2);
+        if (!ok1 || !ok2 || from < 0 || to < 0 || from >= to)
+        {
+            abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]. Both values should be positive and from < to");
+            return;
+        }
+        timeRanges.push_back({from, to});
+    }
+    if (timeRanges.empty())
+    {
+        abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]. It cannot be empty.");
+        return;
+    }
+    BuilderConfig.TimeRanges = timeRanges;
+}
+
+void APet_si::configureBuilderClustering(double maxTimeDeltaCluster, double clusterTime, double integrationTime, double deadTime)
+{
+    BuilderConfig.MaxTimeDeltaCluster = maxTimeDeltaCluster;
+    BuilderConfig.ClusterTime         = clusterTime;
+    BuilderConfig.IntegrationTime     = integrationTime;
+    BuilderConfig.DeadTime            = deadTime;
+}
+
+void APet_si::configureBuilderSeed(int seed)
+{
+    BuilderConfig.Seed = seed;
+}
+
+void APet_si::configureBuilderCTR(double CTR_ns)
+{
+    BuilderConfig.CTR = CTR_ns;
+}
+
+void APet_si::configureBuilderEnergies(double energyResolution, double energyThreshold)
+{
+    BuilderConfig.EnergyResolution = energyResolution;
+    BuilderConfig.EnergyThreshold  = energyThreshold;
+}
+
 void APet_si::buildEventsFromDeposition(QString depositionFileName, QString eventsFileName)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
     APetEventBuilder eb(numScint, depositionFileName.toLatin1().data(), false);
+    eb.configure(BuilderConfig);
     eb.makeEvents(eventsFileName.toLatin1().data(), false);
 }
 
-#include "apetcoincidencefinder.h"
-void APet_si::findCoincidences(QString eventsFileName, QString coincFileName, bool writeToF)
+void APet_si::findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    APetCoincidenceFinder cf(numScint, eventsFileName.toLatin1().data(), false);
-    bool ok = cf.findCoincidences(coincFileName.toLatin1().data(), writeToF);
+    APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, false);
+    bool ok = cf.findCoincidences(coincFileName, writeToF);
     if (!ok)
         abort(cf.ErrorString);
 }
 
-void APet_si::reconstructConfigureVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ)
+void APet_si::configureReconstructionVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ)
 {
     if (numX < 1 || numY < 1 || numZ < 1)
     {
@@ -153,18 +231,18 @@ void APet_si::reconstructConfigureVoxels(int numX, int numY, int numZ, double si
     SizeVoxels = {sizeX, sizeY, sizeZ};
 }
 
-void APet_si::reconstructConfigureAlgorithm(QString algorithmName)
+void APet_si::configureReconstructionAlgorithm(QString algorithmName)
 {
     AlgorithmName = algorithmName;
 }
 
-void APet_si::reconstructConfigureIterations(int numIteration, int numSubsets)
+void APet_si::configureReconstructionIterations(int numIteration, int numSubsets)
 {
     NumIterations = numIteration;
     NumSubsets = numSubsets;
 }
 
-void APet_si::reconstructConfigureGaussianConvolver(double transaxialFWHM_mm, double axialFWHM_mm, double numberOfSigmas)
+void APet_si::configureReconstructionGaussianConvolver(double transaxialFWHM_mm, double axialFWHM_mm, double numberOfSigmas)
 {
     TransaxialFWHM_mm = transaxialFWHM_mm;
     AxialFWHM_mm = axialFWHM_mm;

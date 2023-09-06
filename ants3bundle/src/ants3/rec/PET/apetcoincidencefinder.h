@@ -40,13 +40,14 @@ enum class RejectionMethods {None, All, EnergyWindow};
 class APetCoincidenceFinder
 {
 public:
-    APetCoincidenceFinder(size_t numScint, const QString & eventsFileName, bool binaryInput);
+    APetCoincidenceFinder(const QString & scannerName, size_t numScint, const QString & eventsFileName, bool binaryInput);
 
     bool findCoincidences(const QString & coincFileName, bool writeToF);
 
     QString ErrorString;
 
 private:
+    QString ScannerName;
     int NumScint;
     std::vector<std::pair<QString, bool>> Files;
 

@@ -1,6 +1,8 @@
 #ifndef APETEVENTBUILDER_H
 #define APETEVENTBUILDER_H
 
+#include "apeteventbuilderconfig.h"
+
 #include <string>
 #include <vector>
 #include <random>
@@ -39,8 +41,7 @@ public:
 
     bool makeEvents(const std::string & outputFileName, bool binaryOutput);
 
-    // !!!*** TODO
-    //void configure(times, thresholds, CTR, etc);
+    void configure(const APetEventBuilderConfig & config) {Config = config;}
 
 private:
     int NumScint;
@@ -52,16 +53,7 @@ private:
 
     std::string ErrorString;
 
-    std::vector<std::pair<double,double>> TimeRanges = {{0,1e50}};
-    const double MaxTimeDeltaCluster = 0.01;  // ns
-    double ClusterTime               = 0.1;   // ns
-    double IntegrationTime           = 40.0;  // ns
-    double DeadTime                  = 100.0; // ns
-    long   Seed                      = 1234;
-    double CTR                       = 0.2;   // ns ->coincidence timing resolution
-    double EnergyResolution          = 0.13;  // energy resolution (fraction, FWHM)
-    double EnergyThreshold           = 10.0;  // keV
-
+    APetEventBuilderConfig Config;
 
     bool read(const std::pair<double,double> & timeRange, std::vector<std::vector<DepositionNodeRecord>> & nodes);
     void build(std::vector<std::vector<DepositionNodeRecord>> & clusters, std::vector<std::vector<EventRecord>> & events, double integrationTime, double deadTime);

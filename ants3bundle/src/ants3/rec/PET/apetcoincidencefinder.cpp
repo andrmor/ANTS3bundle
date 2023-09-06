@@ -6,8 +6,8 @@
 #include <QFileInfo>
 //#include <QDebug>
 
-APetCoincidenceFinder::APetCoincidenceFinder(size_t numScint, const QString & eventsFileName, bool binaryInput) :
-    NumScint(numScint)
+APetCoincidenceFinder::APetCoincidenceFinder(const QString & scannerName, size_t numScint, const QString & eventsFileName, bool binaryInput) :
+    ScannerName(scannerName), NumScint(numScint)
 {
     Files.push_back({eventsFileName, binaryInput});
 }
@@ -281,7 +281,7 @@ bool APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, bool
 
     qDebug() << "Writing the header file...";
 
-    QString header = "Scanner name: ants\n"
+    QString header = "Scanner name: " + ScannerName + "\n"
                      "Data filename: " + binFileName + "\n"
                      "Number of events: " + QString::number(pairs.size()) + "\n"
                      "Data mode: list-mode\n"

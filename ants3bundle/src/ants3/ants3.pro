@@ -404,6 +404,7 @@ HEADERS += \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
+    rec/PET/apeteventbuilderconfig.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \

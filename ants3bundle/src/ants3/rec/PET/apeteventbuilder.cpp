@@ -51,7 +51,7 @@ APetEventBuilder::APetEventBuilder(size_t numScint, const std::string & fileName
 {
     Files.push_back({fileName, binaryInput});
 
-    RandEngine = new std::mt19937_64(Seed + 1);
+    RandEngine = new std::mt19937_64(Config.Seed + 1);
 }
 
 APetEventBuilder::~APetEventBuilder()
@@ -77,9 +77,9 @@ bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binar
         return false;
     }
 
-    gauss = new std::normal_distribution<double>(0, CTR / 2.355 / sqrt(2.0));
+    gauss = new std::normal_distribution<double>(0, Config.CTR / 2.355 / sqrt(2.0));
 
-    for (const std::pair<double,double> & timeRange : TimeRanges)
+    for (const std::pair<double,double> & timeRange : Config.TimeRanges)
     {
         qDebug() << "==> Processing time range from" << timeRange.first << " ns to" << timeRange.second << " ns";
 
@@ -91,14 +91,14 @@ bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binar
         read(timeRange, Nodes);
         qDebug() << "  -->Reading completed";
 
-        DepositionClusterer clusterer(Nodes, ClusterTime);
+        DepositionClusterer clusterer(Nodes, Config.ClusterTime);
         clusterer.cluster();
         qDebug() <<  "-->Clustering completed";
 
-        build(Nodes, Events, IntegrationTime, DeadTime);
+        build(Nodes, Events, Config.IntegrationTime, Config.DeadTime);
         qDebug() << "  -->Event building completed";
 
-        if (EnergyResolution != 0)
+        if (Config.EnergyResolution != 0)
         {
             applyBlur(Events);
             qDebug() << "  -->Energy blurring completed";
@@ -195,7 +195,7 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
                 if (time > timeRange.first && time < timeRange.second)
                 {
                     DepositionNodeRecord tmp{time, depo_keV};
-                    if (!nodes[iScint].empty() && nodes[iScint].back().isCluster(tmp, MaxTimeDeltaCluster))
+                    if (!nodes[iScint].empty() && nodes[iScint].back().isCluster(tmp, Config.MaxTimeDeltaCluster))
                         nodes[iScint].back().merge(tmp);
                     else
                         nodes[iScint].push_back(std::move(tmp));
@@ -343,7 +343,7 @@ void APetEventBuilder::applyBlur(std::vector<std::vector<EventRecord>> & events)
         for (EventRecord & ev : evec)
         {
             //ev.energy = blurValue(ev.energy);
-            std::normal_distribution<double> ND{ev.energy, ev.energy * EnergyResolution / 2.355};
+            std::normal_distribution<double> ND{ev.energy, ev.energy * Config.EnergyResolution / 2.355};
             ev.energy = ND(*RandEngine);
         }
 }
@@ -375,9 +375,9 @@ void APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, boo
         // events
         for (EventRecord & ev : evec)
         {
-            if (ev.energy < EnergyThreshold) continue;
+            if (ev.energy < Config.EnergyThreshold) continue;
 
-            if (CTR != 0) blurTime(ev.time);
+            if (Config.CTR != 0) blurTime(ev.time);
 
             if (binary)
             {
