@@ -41,8 +41,22 @@ APet_si::APet_si() :
                                         "configured using the methods starting from configureBuilder...";
 
 
+    Help["configureCoincidenceWindow"] = "Configures the maximum time window in ns for defining two events as a coincidence";
+    Help["configureCoincidenceGlobalTimeRange"] = "Coincidences will be ignored if they have the time stamp outside of the defined time window";
+    Help["configureCoincidenceEnergyWindow"] = "Coincidences will be ignored if at least the of the events has energy value outside of the defined energy range (in keV)";
+    Help["findCoincidences"] = "Find coincidences for the scanner name scannerName using the event datafile eventsFileName and save the results in the file coincFileName "
+                               "with or without time-of-flight information according to the writeToF flag. Th process is configured using the methods with names starting from configureCoincidence...";
 
+    Help["configureReconstructionVoxels"] = "Configure Castor voxels: number of them in x, y, and z direction, as well as the voxels size (x, y and z) in mm. The center voxel is cituated in the center of the scanner ring";
     Help["reconstructConfigureAlgorithm"] = "For list-mode PET datasets, CASToR can be configured to use DEPIERRO95, MLEM (default) and OSL algorithms";
+    Help["configureReconstructionIterations"] = "configures the number of iteration and number of subsets used by Castor";
+    Help["configureReconstructionGaussianConvolver"] = "Castor is configured to use Gaussian convolver with 'psf' option. Using this method it is possible to configure the FWHMs (transaxial and axias) as weel as the number of sigmas included in the for the kernel (rcommended from 3.0 to 5.0)";
+    Help["reconstruct"] = "Perform image reconstruction using castor package using input file coincFileName and placing output in the directory QString outDir"
+                          "If castor was compiled with OpenMP use numThreads argument to provide th enumber of threads. The reconstruction process is further "
+                          "configured using the methods with names starting from configureReconstruction...";
+
+    Help["loadImage"] = "Load image from Castor outputs file loadImage (suffix .hdr). The loaded 2D array is a sequence of Z-slices, each having numY slices of numX values.\n"
+                        "Note that for visualization a special option is provided: use grwin.show3D(fileName), which opens a dedicated 3D graph viewer";
 }
 
 void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg)
@@ -204,14 +218,36 @@ void APet_si::buildEventsFromDeposition(QString depositionFileName, QString even
     eb.makeEvents(eventsFileName.toLatin1().data(), false);
 }
 
+// --------------
+
+void APet_si::configureCoincidenceWindow(double coincidenceWindow_ns)
+{
+    CoincidenceConfig.CoincidenceWindow = coincidenceWindow_ns;
+}
+
+void APet_si::configureCoincidenceGlobalTimeRange(double from_ns, double to_ns)
+{
+    CoincidenceConfig.TimeFrom = from_ns;
+    CoincidenceConfig.TimeTo   = to_ns;
+}
+
+void APet_si::configureCoincidenceEnergyWindow(double energyFrom_keV, double energyTo_keV)
+{
+    CoincidenceConfig.EnergyFrom = energyFrom_keV;
+    CoincidenceConfig.EnergyTo   = energyTo_keV;
+}
+
 void APet_si::findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
     APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, false);
+    cf.configure(CoincidenceConfig);
     bool ok = cf.findCoincidences(coincFileName, writeToF);
     if (!ok)
         abort(cf.ErrorString);
 }
+
+// ----------------
 
 void APet_si::configureReconstructionVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ)
 {

@@ -15,15 +15,6 @@ APetCoincidenceFinder::APetCoincidenceFinder(const QString & scannerName, size_t
 bool APetCoincidenceFinder::findCoincidences(const QString & coincFileName, bool writeToF)
 {
     /*
-    Config.InputFileName     = "BuilderOutput.bin"; Config.BinaryInput  = true;
-    //Config.InputFileName     = "BuilderOutput.txt"; Config.BinaryInput = false;
-    Config.LutFileName       = "LUT.txt";
-
-    // output
-    //Config.OutputFileName    = "CoincPairs.bin"; Config.BinaryOutput = true;
-    Config.OutputFileName    = "CoincPairs.txt"; Config.BinaryOutput = false;
-    Config.HeaderFileName    = "Header.hlm";
-    Config.ExportLutFileName = "CrystalLUT.txt";
 
     // finder
     Config.FinderMethod      = FinderMethods::Basic;
@@ -121,9 +112,9 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
 
                     //qDebug() << "Extracted values:" << hit.Time<< hit.Energy;
 
-                    if (hit.Time < TimeFrom || hit.Time > TimeTo) continue;
+                    if (hit.Time < Config.TimeFrom || hit.Time > Config.TimeTo) continue;
                     if (bEnforceEnergyRange)
-                        if (hit.Energy < EnergyFrom || hit.Energy > EnergyTo) continue;
+                        if (hit.Energy < Config.EnergyFrom || hit.Energy > Config.EnergyTo) continue;
 
                     events.push_back(hit);
                 }
@@ -155,9 +146,9 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
                     ss >> time >> depo;
                     //qDebug() << "Extracted time and depo values:"<< time<< depo;
 
-                    if (time < TimeFrom || time > TimeTo) continue;
+                    if (time < Config.TimeFrom || time > Config.TimeTo) continue;
                     if (bEnforceEnergyRange)
-                        if (depo < EnergyFrom || depo > EnergyTo) continue;
+                        if (depo < Config.EnergyFrom || depo > Config.EnergyTo) continue;
 
                     events.push_back( APetEventRecord(iScint, time, depo) );
                     //qDebug() << "  -->Added to HitRecords";
@@ -191,7 +182,7 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
         size_t iNextEvent = iCurrentEvent + 1;
         const APetEventRecord & nextEvent = events[iNextEvent];
 
-        if (nextEvent.Time > thisEvent.Time + CoincidenceWindow)
+        if (nextEvent.Time > thisEvent.Time + Config.CoincidenceWindow)
         {
             //large time gap, not interested in this hit
             numSingles++;
@@ -209,7 +200,7 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
 
         //check that the nextnext is outside the window, otherwise disreguard all within the window
         size_t iCheckEvent = iNextEvent + 1;
-        if (iCheckEvent >= events.size() || events[iCheckEvent].Time > thisEvent.Time + CoincidenceWindow)
+        if (iCheckEvent >= events.size() || events[iCheckEvent].Time > thisEvent.Time + Config.CoincidenceWindow)
         {
             //if (RejectSameHead)  // !!!*** TODO
             {
@@ -235,7 +226,7 @@ size_t APetCoincidenceFinder::findNextEventOutsideCoinsidenceWindow(std::vector<
 {
     size_t iOtherHit = iCurrentEvent;
 
-    while ( events[iOtherHit].Time < (events[iCurrentEvent].Time + CoincidenceWindow) ) // dummy first cycle for safety
+    while ( events[iOtherHit].Time < (events[iCurrentEvent].Time + Config.CoincidenceWindow) ) // dummy first cycle for safety
     {
         iOtherHit++;
         if (iOtherHit >= events.size()) break;

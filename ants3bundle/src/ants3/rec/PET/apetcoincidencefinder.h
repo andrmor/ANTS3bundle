@@ -1,6 +1,8 @@
 #ifndef APETCOINCIDENCEFINDER_H
 #define APETCOINCIDENCEFINDER_H
 
+#include "apetcoincidencefinderconfig.h"
+
 #include <QString>
 
 #include <string>
@@ -42,6 +44,8 @@ class APetCoincidenceFinder
 public:
     APetCoincidenceFinder(const QString & scannerName, size_t numScint, const QString & eventsFileName, bool binaryInput);
 
+    void configure(const APetCoincidenceFinderConfig & config) {Config = config;}
+
     bool findCoincidences(const QString & coincFileName, bool writeToF);
 
     QString ErrorString;
@@ -52,20 +56,10 @@ private:
     std::vector<std::pair<QString, bool>> Files;
 
     FinderMethods FinderMethod = FinderMethods::Basic;
+    //bool   GroupByAssembly   = true;
+    //RejectionMethods RejectMultiples = RejectionMethods::None;
 
-    bool   GroupByAssembly   = true;
-    RejectionMethods RejectMultiples = RejectionMethods::None;
-
-    bool   RejectSameHead    = true;
-    double CoincidenceWindow = 4.0; // [ns]
-
-    // consider events only in this time range [ns]
-    double TimeFrom          = 0;
-    double TimeTo            = 1e20;
-
-    // consider events only in this energy range [MeV]
-    double EnergyFrom     = 0.95 * 511.0;
-    double EnergyTo       = 1.05 * 511.0;
+    APetCoincidenceFinderConfig Config;
 
     bool   read(std::vector<APetEventRecord> & events, bool bEnforceEnergyRange);
     void   find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);

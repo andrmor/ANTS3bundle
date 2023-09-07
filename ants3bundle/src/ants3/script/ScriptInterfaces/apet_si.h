@@ -3,6 +3,7 @@
 
 #include "ascriptinterface.h"
 #include "apeteventbuilderconfig.h"
+#include "apetcoincidencefinderconfig.h"
 
 #include <QObject>
 #include <QVariantList>
@@ -28,6 +29,9 @@ public slots:
     void configureBuilderEnergies(double energyResolution, double energyThreshold);
     void buildEventsFromDeposition(QString depositionFileName, QString eventsFileName);
 
+    void configureCoincidenceWindow(double coincidenceWindow_ns);
+    void configureCoincidenceGlobalTimeRange(double from_ns, double to_ns);
+    void configureCoincidenceEnergyWindow(double energyFrom_keV, double energyTo_keV);
     void findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF);
 
     void configureReconstructionVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ);
@@ -46,7 +50,8 @@ private:
 
     QProcess * Process = nullptr;
 
-    APetEventBuilderConfig BuilderConfig;
+    APetEventBuilderConfig      BuilderConfig;
+    APetCoincidenceFinderConfig CoincidenceConfig;
 
     std::array<size_t, 3> NumVoxels  = {128, 128, 128};
     std::array<double, 3> SizeVoxels = {3.0, 3.0, 3.0};
