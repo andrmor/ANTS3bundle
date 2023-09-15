@@ -52,6 +52,8 @@ public slots:
     QVariantList fft(QVariantList array, int maxN = -1);
     QVariantList fftMulti(QVariantList arrayOfArrays, int maxN = -1);
 
+    double evalFormula(QString formula, QVariantList varNames, QVariantList varValues);
+
 private:
     ARandomHub & RandomHub;
 };

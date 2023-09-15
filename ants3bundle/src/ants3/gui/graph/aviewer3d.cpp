@@ -32,6 +32,8 @@ AViewer3D::AViewer3D(QWidget *parent) :
 
     on_cobMaximum_activated(0);
 
+    PercentFieldOfView = ui->sbMaxInFractionFoV->value();
+
     StartUp = false;
 }
 
@@ -51,6 +53,26 @@ void AViewer3D::updateGui()
     View1->redraw();
     View2->redraw();
     View3->redraw();
+}
+
+void AViewer3D::calculateGlobalMaximum()
+{
+    const double removedFraction = 1.0 - ui->sbMaxInFractionFoV->value() / 100.0;
+
+    const size_t minX = 0.5 * removedFraction * NumBinsX;
+    const size_t maxX = NumBinsX - minX;
+
+    const size_t minY = 0.5 * removedFraction * NumBinsY;
+    const size_t maxY = NumBinsY - minY;
+
+    const size_t minZ = 0.5 * removedFraction * NumBinsZ;
+    const size_t maxZ = NumBinsZ - minZ;
+
+    GlobalMaximum = 0;
+    for (size_t iz = minZ; iz < maxZ; iz++)
+        for (size_t iy = minY; iy < maxY; iy++)
+            for (size_t ix = minX; ix < maxX; ix++)
+                if (Data[ix][iy][iz] > GlobalMaximum) GlobalMaximum = Data[ix][iy][iz];
 }
 
 AViewer3D::~AViewer3D()
@@ -218,22 +240,17 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
         return false;
     }
 
-    GlobalMaximum = 0;
     float buffer;
     for (size_t iz = 0; iz < NumBinsZ; iz++)
-    {
         for (size_t iy = 0; iy < NumBinsY; iy++)
-        {
             for (size_t ix = 0; ix < NumBinsX; ix++)
             {
                 inStream.read((char*)&buffer, sizeof(float));
                 Data[ix][iy][iz] = buffer;
-                if (buffer > GlobalMaximum) GlobalMaximum = buffer;
             }
-        }
-    }
 
-    qDebug() << "Global max:" << GlobalMax;
+    calculateGlobalMaximum();
+    qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
 
     ui->ledMaximum->setText(QString::number(GlobalMaximum));
 
@@ -262,8 +279,6 @@ void AViewer3D::on_cobMaximum_activated(int index)
         case 1 : MaximumMode = GlobalMax;     break;
         case 2 : MaximumMode = FixedMax;      break;
     }
-
-    ui->ledMaximum->setVisible(index == 2);
 }
 
 void AViewer3D::on_ledMaximum_editingFinished()
@@ -275,6 +290,13 @@ void AViewer3D::on_ledMaximum_editingFinished()
 void AViewer3D::on_ledScaling_editingFinished()
 {
     ScalingFactor = 1 / ui->ledScaling->text().toDouble();
+    updateGui();
+}
+
+void AViewer3D::on_sbMaxInFractionFoV_editingFinished()
+{
+    PercentFieldOfView = ui->sbMaxInFractionFoV->value();
+    calculateGlobalMaximum();
     updateGui();
 }
 

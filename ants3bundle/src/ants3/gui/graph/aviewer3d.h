@@ -36,6 +36,7 @@ public:
     EMaximumMode MaximumMode = IndividualMax;
     double FixedMaximum = 0;
     double GlobalMaximum = 0;
+    int    PercentFieldOfView = 90;
 
     double ScalingFactor = 1.0;
 
@@ -54,6 +55,8 @@ private slots:
 
     void on_ledScaling_editingFinished();
 
+    void on_sbMaxInFractionFoV_editingFinished();
+
 private:
     Ui::AViewer3D * ui = nullptr;
 
@@ -66,6 +69,7 @@ private:
     bool doLoadCastorImage(const QString & fileName);
     void createViewWidgets();
     void updateGui();
+    void calculateGlobalMaximum();
 };
 
 #endif // AVIEWER3D_H
