@@ -19,6 +19,7 @@
 #include "ascripthub.h"
 #include "agraphwin_si.h"
 #include "ajscriptmanager.h"
+#include "aviewer3d.h"
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
 #endif
@@ -2859,6 +2860,15 @@ void GraphWindowClass::ConfigureProjectionTool(double x0, double y0, double dx, 
     selBoxControlsUpdated();
 }
 
+void GraphWindowClass::close3DviewWindow()
+{
+    if (Viewer3D)
+    {
+        Viewer3D->close();
+        delete Viewer3D; Viewer3D = nullptr;
+    }
+}
+
 #include "atemplateselectiondialog.h"
 void GraphWindowClass::on_actionApply_selective_triggered()
 {
@@ -2893,7 +2903,6 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
     //MGDesigner->updateGUI();
 }
 
-#include "aviewer3d.h"
 void GraphWindowClass::show3D(QString castorFileName)
 {
     qDebug() << "Showing Castor image...";

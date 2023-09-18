@@ -135,6 +135,8 @@ public:
     QString UseProjectionTool(const QString & option);
     void    ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
 
+    void close3DviewWindow();
+
 protected:
     void mouseMoveEvent(QMouseEvent * event);
     bool event(QEvent * event);
