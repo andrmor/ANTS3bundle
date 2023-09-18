@@ -15,21 +15,103 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="lView">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="hlLabel">
      <property name="spacing">
       <number>1</number>
      </property>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabName">
+       <property name="text">
+        <string>View (</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabHorAxisName">
+       <property name="text">
+        <string>HorName</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabHorAxisPos">
+       <property name="text">
+        <string>HorPos</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabVertAxisName">
+       <property name="text">
+        <string>VertName</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabVertAxisPos">
+       <property name="text">
+        <string>VertPos</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>at</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabOffAxisName">
+       <property name="text">
+        <string>OffName=</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lLabOffAxisPos">
+       <property name="text">
+        <string>OffViewPos</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>mm)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">

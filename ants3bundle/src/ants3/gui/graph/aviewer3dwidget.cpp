@@ -1,6 +1,7 @@
 #include "aviewer3dwidget.h"
 #include "ui_aviewer3dwidget.h"
-#include "rasterwindowbaseclass.h"
+//#include "rasterwindowbaseclass.h"
+#include "rasterwindowgraphclass.h"
 
 #include "TH2D.h"
 #include "TCanvas.h"
@@ -13,11 +14,15 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
 
     ui->pbRedraw->setVisible(false);
 
-    RasterWindow = new RasterWindowBaseClass(nullptr);
+    //RasterWindow = new RasterWindowBaseClass(nullptr);
+    RasterWindow = new RasterWindowGraphClass(nullptr);
     RasterWindow->resize(400, 400);
     ui->horizontalLayout->insertWidget(0, RasterWindow);
     RasterWindow->ForceResize();
     RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
+    connect(RasterWindow, &RasterWindowGraphClass::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
 }
 
 AViewer3DWidget::~AViewer3DWidget()
@@ -85,15 +90,20 @@ void AViewer3DWidget::redraw()
     if (!Hist) return;
 
     Hist->Reset("ICESM");
-    QString title;
+    //QString title;
+    QString labName;
+    QString horName, vertName, offName;
+    double offPos = 0;
 
     switch (ViewType)
     {
     case XY:
       {
+        labName = "Transverse";
+        horName = "X"; vertName = "Y"; offName = "Z=";
         int iz = ui->sbPosition->value();
-        double z = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
-        title = QString("Transverse (XY at Z = %0 mm)").arg(z);
+        offPos = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
+        //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
         for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
             for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
                 Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
@@ -101,9 +111,11 @@ void AViewer3DWidget::redraw()
       }
     case XZ:
       {
+        labName = "Coronal";
+        horName = "X"; vertName = "Z"; offName = "Y=";
         int iy = ui->sbPosition->value();
-        double y = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
-        title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
+        offPos = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
+        //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
         for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
                 Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
@@ -111,16 +123,26 @@ void AViewer3DWidget::redraw()
       }
     case YZ:
       {
+        labName = "Sagittal";
+        horName = "Y"; vertName = "Z"; offName = "X=";
         int ix = ui->sbPosition->value();
-        double x = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
-        title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
+        offPos = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
+        //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
         for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
                 Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
         break;
       }
     }
-    ui->lView->setText(title);
+    //ui->lView->setText(title);
+    ui->lLabName->setText(labName + " (");
+    ui->lLabHorAxisName->setText(horName);
+    ui->lLabVertAxisName->setText(vertName);
+    ui->lLabOffAxisName->setText(offName);
+    ui->lLabHorAxisPos->setText("");
+    ui->lLabVertAxisPos->setText("");
+    ui->lLabOffAxisPos->setText(QString::number(offPos, 'g', 4));
+    ui->lPosition->setText( QString::number(offPos) );
 
     switch (Viewer->MaximumMode)
     {
@@ -132,6 +154,27 @@ void AViewer3DWidget::redraw()
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");
     RasterWindow->fCanvas->Update();
+}
+
+void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool bOn)
+{
+    //qDebug() << x << y << bOn;
+    ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
+    ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
+    ui->lLabHorAxisPos->setVisible(true);
+    ui->lLabVertAxisPos->setVisible(true);
+}
+
+void AViewer3DWidget::onCursorLeftRaster()
+{
+    //if (rect().contains(mapFromGlobal(QCursor::pos()))) return;
+    //qDebug() << "leave!!!!!!!";
+
+    //ui->lLabHorAxisPos->setText("");  // Bug in Qt: leaves ghost marks on the label, need to use vis/invisble switch to fix
+    //ui->lLabVertAxisPos->setText("");
+    //ui->hlLabel->update();            // does not help
+    ui->lLabHorAxisPos->setVisible(false);
+    ui->lLabVertAxisPos->setVisible(false);
 }
 
 void AViewer3DWidget::on_pbRedraw_clicked()

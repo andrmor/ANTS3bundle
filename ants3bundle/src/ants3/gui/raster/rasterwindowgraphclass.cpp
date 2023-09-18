@@ -476,7 +476,12 @@ void RasterWindowGraphClass::mouseReleaseEvent(QMouseEvent *event)
     // if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->x(), event->y());
 
   //if no match found, using base class handler to report move to Root system
-  RasterWindowBaseClass::mouseReleaseEvent(event);
+    RasterWindowBaseClass::mouseReleaseEvent(event);
+}
+
+void RasterWindowGraphClass::leaveEvent(QEvent *)
+{
+    emit cursorLeftBoundaries();
 }
 
 void RasterWindowGraphClass::DrawVerticalLine()

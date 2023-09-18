@@ -5,7 +5,8 @@
 
 #include <QWidget>
 
-class RasterWindowBaseClass;
+//class RasterWindowBaseClass;
+class RasterWindowGraphClass;
 class TH2D;
 
 namespace Ui {
@@ -28,6 +29,9 @@ public slots:
     void redraw();
 
 private slots:
+    void onRasterCursorPositionChanged(double x, double y, bool bOn);
+    void onCursorLeftRaster();
+
     void on_pbRedraw_clicked();
 
     void on_pbMinus_clicked();
@@ -46,7 +50,8 @@ private:
 
     Ui::AViewer3DWidget * ui = nullptr;
 
-    RasterWindowBaseClass * RasterWindow = nullptr;
+    //RasterWindowBaseClass * RasterWindow = nullptr;
+    RasterWindowGraphClass * RasterWindow = nullptr;
 
     TH2D * Hist = nullptr;
 
