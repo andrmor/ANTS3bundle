@@ -91,7 +91,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>mm)</string>
+        <string>mm</string>
        </property>
       </widget>
      </item>

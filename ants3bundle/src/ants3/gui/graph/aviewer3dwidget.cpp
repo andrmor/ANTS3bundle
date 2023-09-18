@@ -135,7 +135,7 @@ void AViewer3DWidget::redraw()
       }
     }
     //ui->lView->setText(title);
-    ui->lLabName->setText(labName + " (");
+    ui->lLabName->setText(labName + ": ");
     ui->lLabHorAxisName->setText(horName);
     ui->lLabVertAxisName->setText(vertName);
     ui->lLabOffAxisName->setText(offName);
