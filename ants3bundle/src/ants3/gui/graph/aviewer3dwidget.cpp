@@ -154,15 +154,81 @@ void AViewer3DWidget::redraw()
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");
     RasterWindow->fCanvas->Update();
+
+    //qDebug() << "Did redraw for" << horName << vertName;
 }
 
-void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool bOn)
+void AViewer3DWidget::showCrossHair(double hor, double vert)
+{
+    RasterWindow->drawCrassHair(hor, vert);
+}
+
+void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
+{
+    switch (ViewType)
+    {
+    case XY:
+    {
+        //qDebug() << "XY received" << x << y << z;
+        showCrossHair(x, y);
+        break;
+    }
+    case XZ:
+    {
+        //qDebug() << "XZ received" << x << y << z;
+        showCrossHair(x, z);
+        break;
+    }
+    case YZ:
+    {
+        //qDebug() << "YZ received" << x << y << z;
+        showCrossHair(y, z);
+        break;
+    }
+    }
+}
+
+void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
 {
     //qDebug() << x << y << bOn;
     ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
     ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
     ui->lLabHorAxisPos->setVisible(true);
     ui->lLabVertAxisPos->setVisible(true);
+
+    bool ok;
+    double X, Y, Z; // absolute coordinates
+    switch (ViewType)
+    {
+    case XY:
+    {
+        //qDebug() << "Emitting from XY";
+        Z = ui->lPosition->text().toDouble(&ok);
+        if (!ok) Z = 0;
+        X = x;
+        Y = y;
+        break;
+    }
+    case XZ:
+    {
+        //qDebug() << "Emitting from XZ";
+        Y = ui->lPosition->text().toDouble(&ok);
+        if (!ok) Y = 0;
+        X = x;
+        Z = y;
+        break;
+    }
+    case YZ:
+    {
+        //qDebug() << "Emitting from YZ";
+        X = ui->lPosition->text().toDouble(&ok);
+        if (!ok) X = 0;
+        Y = x;
+        Z = y;
+        break;
+    }
+    }
+    emit cursorPositionChanged(X, Y, Z);
 }
 
 void AViewer3DWidget::onCursorLeftRaster()
@@ -175,6 +241,8 @@ void AViewer3DWidget::onCursorLeftRaster()
     //ui->hlLabel->update();            // does not help
     ui->lLabHorAxisPos->setVisible(false);
     ui->lLabVertAxisPos->setVisible(false);
+
+    emit cursorLeftVisibleArea();
 }
 
 void AViewer3DWidget::on_pbRedraw_clicked()

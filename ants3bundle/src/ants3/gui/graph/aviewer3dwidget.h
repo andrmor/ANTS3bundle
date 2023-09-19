@@ -27,22 +27,19 @@ public:
 
 public slots:
     void redraw();
+    void requestShowCrossHair(double x, double y, double z);
 
 private slots:
     void onRasterCursorPositionChanged(double x, double y, bool bOn);
     void onCursorLeftRaster();
 
-    void on_pbRedraw_clicked();
-
-    void on_pbMinus_clicked();
-
-    void on_pbPlus_clicked();
-
-    void on_hsPosition_sliderMoved(int position);
-
-    void on_pbUnzoom_clicked();
-
     void on_sbPosition_valueChanged(int arg1);
+
+    void on_pbRedraw_clicked();
+    void on_pbMinus_clicked();
+    void on_pbPlus_clicked();
+    void on_hsPosition_sliderMoved(int position);
+    void on_pbUnzoom_clicked();
 
 private:
     AViewer3D * Viewer = nullptr;
@@ -54,6 +51,12 @@ private:
     RasterWindowGraphClass * RasterWindow = nullptr;
 
     TH2D * Hist = nullptr;
+
+    void showCrossHair(double hor, double vert);
+
+signals:
+    void cursorPositionChanged(double x, double y, double z);
+    void cursorLeftVisibleArea();
 
 };
 

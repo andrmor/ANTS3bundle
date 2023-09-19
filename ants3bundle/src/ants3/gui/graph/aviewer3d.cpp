@@ -37,6 +37,14 @@ AViewer3D::AViewer3D(QWidget *parent) :
     StartUp = false;
 }
 
+void AViewer3D::configureConnections(AViewer3DWidget * from, AViewer3DWidget * to1, AViewer3DWidget * to2)
+{
+    connect(from, &AViewer3DWidget::cursorPositionChanged, to1, &AViewer3DWidget::requestShowCrossHair);
+    connect(from, &AViewer3DWidget::cursorPositionChanged, to2, &AViewer3DWidget::requestShowCrossHair);
+    connect(from, &AViewer3DWidget::cursorLeftVisibleArea, to1, &AViewer3DWidget::redraw);
+    connect(from, &AViewer3DWidget::cursorLeftVisibleArea, to2, &AViewer3DWidget::redraw);
+}
+
 void AViewer3D::createViewWidgets()
 {
     View1 = new AViewer3DWidget(this, AViewer3DWidget::XY);
@@ -46,6 +54,10 @@ void AViewer3D::createViewWidgets()
     ui->horizontalLayout->insertWidget(0, View1);
     ui->horizontalLayout->insertWidget(1, View2);
     ui->horizontalLayout->insertWidget(2, View3);
+
+    configureConnections(View1, View2, View3);
+    configureConnections(View2, View1, View3);
+    configureConnections(View3, View1, View2);
 }
 
 void AViewer3D::updateGui()

@@ -56,6 +56,8 @@ public:
   bool isLogX() const;
   bool isLogY() const;
 
+  void drawCrassHair(double x, double y);
+
 protected:
   bool event(QEvent *event);
   void mousePressEvent(QMouseEvent *event);
