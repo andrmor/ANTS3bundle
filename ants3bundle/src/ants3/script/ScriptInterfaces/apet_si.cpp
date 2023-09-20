@@ -48,9 +48,11 @@ APet_si::APet_si() :
                                "with or without time-of-flight information according to the writeToF flag. Th process is configured using the methods with names starting from configureCoincidence...";
 
     Help["configureReconstructionVoxels"] = "Configure Castor voxels: number of them in x, y, and z direction, as well as the voxels size (x, y and z) in mm. The center voxel is cituated in the center of the scanner ring";
-    Help["reconstructConfigureAlgorithm"] = "For list-mode PET datasets, CASToR can be configured to use DEPIERRO95, MLEM (default) and OSL algorithms";
+    Help["reconstructConfigureAlgorithm"] = "For list-mode PET datasets, CASToR can be configured to use DEPIERRO95, MLEM (default) and OSL algorithms.\n"
+                                            "If MLEM is selected, but subsets are used (see configureReconstructionIterations), the algorithm \"naturally becomes OSEM\"";
     Help["configureReconstructionIterations"] = "configures the number of iteration and number of subsets used by Castor";
     Help["configureReconstructionGaussianConvolver"] = "Castor is configured to use Gaussian convolver with 'psf' option. Using this method it is possible to configure the FWHMs (transaxial and axias) as weel as the number of sigmas included in the for the kernel (rcommended from 3.0 to 5.0)";
+    Help["configureReconstructionIgnoreTOF"] = "If set to true, ignores ToF data if present in the input file with coincidences";
     Help["reconstruct"] = "Perform image reconstruction using castor package using input file coincFileName and placing output in the directory QString outDir"
                           "If castor was compiled with OpenMP use numThreads argument to provide th enumber of threads. The reconstruction process is further "
                           "configured using the methods with names starting from configureReconstruction...";
@@ -160,17 +162,11 @@ bool APet_si::makeLUT(QString fileName)
 void APet_si::configureBuilderTimeWindows(QVariantList arrayOfTimeFromAndTimeTo)
 {
     std::vector<std::pair<double,double>> timeRanges;
-    for (int i = 0; i < arrayOfTimeFromAndTimeTo.size(); i++)
+    if (arrayOfTimeFromAndTimeTo.size() == 2 && arrayOfTimeFromAndTimeTo[0].toList().size() == 0 && arrayOfTimeFromAndTimeTo[1].toList().size() == 0)
     {
-        QVariantList range = arrayOfTimeFromAndTimeTo[i].toList();
-        if (range.size() != 2)
-        {
-            abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]");
-            return;
-        }
         bool ok1, ok2;
-        double from = range[0].toDouble(&ok1);
-        double to   = range[1].toDouble(&ok2);
+        double from = arrayOfTimeFromAndTimeTo[0].toDouble(&ok1);
+        double to   = arrayOfTimeFromAndTimeTo[1].toDouble(&ok2);
         if (!ok1 || !ok2 || from < 0 || to < 0 || from >= to)
         {
             abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]. Both values should be positive and from < to");
@@ -178,12 +174,35 @@ void APet_si::configureBuilderTimeWindows(QVariantList arrayOfTimeFromAndTimeTo)
         }
         timeRanges.push_back({from, to});
     }
+    else
+    {
+        for (int i = 0; i < arrayOfTimeFromAndTimeTo.size(); i++)
+        {
+            QVariantList range = arrayOfTimeFromAndTimeTo[i].toList();
+            if (range.size() != 2)
+            {
+                abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]");
+                return;
+            }
+            bool ok1, ok2;
+            double from = range[0].toDouble(&ok1);
+            double to   = range[1].toDouble(&ok2);
+            if (!ok1 || !ok2 || from < 0 || to < 0 || from >= to)
+            {
+                abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]. Both values should be positive and from < to");
+                return;
+            }
+            timeRanges.push_back({from, to});
+        }
+    }
+
     if (timeRanges.empty())
     {
         abort("arrayOfTimeFromAndTimeTo should contain arrays of [timeFrom, timeTo]. It cannot be empty.");
         return;
     }
     BuilderConfig.TimeRanges = timeRanges;
+    qDebug() << "Time ranges:" << BuilderConfig.TimeRanges.size();
 }
 
 void APet_si::configureBuilderClustering(double maxTimeDeltaCluster, double clusterTime, double integrationTime, double deadTime)
@@ -204,10 +223,10 @@ void APet_si::configureBuilderCTR(double CTR_ns)
     BuilderConfig.CTR = CTR_ns;
 }
 
-void APet_si::configureBuilderEnergies(double energyResolution, double energyThreshold)
+void APet_si::configureBuilderEnergies(double energyResolution_fraction, double energyThreshold_keV)
 {
-    BuilderConfig.EnergyResolution = energyResolution;
-    BuilderConfig.EnergyThreshold  = energyThreshold;
+    BuilderConfig.EnergyResolution = energyResolution_fraction;
+    BuilderConfig.EnergyThreshold  = energyThreshold_keV;
 }
 
 void APet_si::buildEventsFromDeposition(QString depositionFileName, QString eventsFileName)
@@ -285,6 +304,11 @@ void APet_si::configureReconstructionGaussianConvolver(double transaxialFWHM_mm,
     NumberOfSigmas = numberOfSigmas;
 }
 
+void APet_si::configureReconstructionIgnoreTOF(bool flag)
+{
+    IgnoreTOF = flag;
+}
+
 #include <QProcess>
 #include <QApplication>
 #include <QThread>
@@ -303,12 +327,13 @@ void APet_si::reconstruct(QString coincFileName, QString outDir, int numThreads)
     QString program = "castor-recon";
     QStringList args;
     args << "-df" << coincFileName;
-    args << "-th" << QString::number(numThreads);
+    if (numThreads > 1) args << "-th" << QString::number(numThreads);
     args << "-opti" << AlgorithmName;
     args << "-it" << QString("%1:%2").arg(NumIterations).arg(NumSubsets);
     args << "-proj" << "joseph";                    // !
     //args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
     args << "-conv" << QString("gaussian,%1,%2,%3::psf").arg(TransaxialFWHM_mm).arg(AxialFWHM_mm).arg(NumberOfSigmas);
+    if (IgnoreTOF) args << "-ignore-TOF";
     //args << "-dim" << "128,128,128";
     args << "-dim" << QString("%1,%2,%3").arg(NumVoxels[0]).arg(NumVoxels[1]).arg(NumVoxels[2]);
     //args << "-vox" << "3.0,3.0,3.0";

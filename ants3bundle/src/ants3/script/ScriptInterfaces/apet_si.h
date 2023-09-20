@@ -26,7 +26,7 @@ public slots:
     void configureBuilderClustering(double maxTimeDeltaCluster, double clusterTime, double integrationTime, double deadTime);
     void configureBuilderSeed(int seed);
     void configureBuilderCTR(double CTR_ns);
-    void configureBuilderEnergies(double energyResolution, double energyThreshold);
+    void configureBuilderEnergies(double energyResolution_fraction, double energyThreshold_keV);
     void buildEventsFromDeposition(QString depositionFileName, QString eventsFileName);
 
     void configureCoincidenceWindow(double coincidenceWindow_ns);
@@ -38,6 +38,7 @@ public slots:
     void configureReconstructionAlgorithm(QString algorithmName);
     void configureReconstructionIterations(int numIteration, int numSubsets);
     void configureReconstructionGaussianConvolver(double transaxialFWHM_mm, double axialFWHM_mm, double numberOfSigmas);
+    void configureReconstructionIgnoreTOF(bool flag);
     void reconstruct(QString coincFileName, QString outDir, int numThreads);
 
     QVariantList loadImage(QString fileName);
@@ -61,6 +62,7 @@ private:
     double TransaxialFWHM_mm = 2.0;
     double AxialFWHM_mm = 2.5;
     double NumberOfSigmas = 3.5;
+    bool   IgnoreTOF = false;
 };
 
 #endif // APET_SI_H
