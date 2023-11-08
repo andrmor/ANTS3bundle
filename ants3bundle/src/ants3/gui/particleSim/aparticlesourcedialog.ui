@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>610</width>
-    <height>791</height>
+    <height>817</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1030,87 +1030,214 @@ If material with this name does not exist, this limitation is not applied.</stri
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_11">
+    <widget class="QFrame" name="frDirection">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_28">
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_179">
+        <property name="text">
+         <string>Direction</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cobAngularSphericalOrVector">
+        <item>
+         <property name="text">
+          <string>spherical angles</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>vector</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_16">
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_28">
+            <property name="text">
+             <string>   phi:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ledGunCollPhi">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_174">
+            <property name="text">
+             <string>theta:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ledGunCollTheta">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>deg  </string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_17">
+         <layout class="QHBoxLayout" name="horizontalLayout_39">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_29">
+            <property name="text">
+             <string>dX:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ledDirectionX">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_30">
+            <property name="text">
+             <string>dY:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ledDirectionY">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>dZ:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ledDirectionZ">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_25">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_38">
      <property name="leftMargin">
       <number>20</number>
      </property>
-     <item>
-      <widget class="QFrame" name="frDirection">
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_28">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label_179">
-          <property name="text">
-           <string>Direction phi:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ledGunCollPhi">
-          <property name="maximumSize">
-           <size>
-            <width>75</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_174">
-          <property name="text">
-           <string>theta:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ledGunCollTheta">
-          <property name="maximumSize">
-           <size>
-            <width>75</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_22">
-          <property name="text">
-           <string>deg  </string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QFrame" name="frAngularCutoff">
        <property name="frameShape">
@@ -1168,21 +1295,21 @@ If material with this name does not exist, this limitation is not applied.</stri
           </property>
          </widget>
         </item>
+        <item>
+         <spacer name="horizontalSpacer_24">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -2756,8 +2883,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>170</x>
-     <y>303</y>
+     <x>278</x>
+     <y>302</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2772,8 +2899,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>274</x>
-     <y>303</y>
+     <x>483</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2788,8 +2915,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>315</y>
+     <x>227</x>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2805,7 +2932,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>533</x>
-     <y>433</y>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2821,7 +2948,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>598</x>
-     <y>620</y>
+     <y>647</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2836,8 +2963,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>414</x>
-     <y>418</y>
+     <x>466</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2853,7 +2980,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>557</x>
-     <y>532</y>
+     <y>559</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2868,12 +2995,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>663</y>
+     <x>232</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
-     <x>511</x>
-     <y>663</y>
+     <x>525</x>
+     <y>709</y>
     </hint>
    </hints>
   </connection>
@@ -2884,12 +3011,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>158</x>
-     <y>691</y>
+     <x>182</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
-     <x>374</x>
-     <y>691</y>
+     <x>395</x>
+     <y>738</y>
     </hint>
    </hints>
   </connection>
@@ -2900,8 +3027,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>663</y>
+     <x>232</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2916,8 +3043,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>663</y>
+     <x>315</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2933,7 +3060,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>269</x>
-     <y>669</y>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2948,8 +3075,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>689</y>
+     <x>320</x>
+     <y>712</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2964,8 +3091,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>158</x>
-     <y>691</y>
+     <x>182</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2980,8 +3107,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>712</y>
+     <x>262</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2996,8 +3123,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>712</y>
+     <x>262</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3012,8 +3139,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>314</y>
+     <x>147</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3060,12 +3187,12 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>314</y>
+     <x>147</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>315</y>
+     <x>227</x>
+     <y>342</y>
     </hint>
    </hints>
   </connection>
@@ -3077,7 +3204,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>567</x>
-     <y>375</y>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3093,7 +3220,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>597</x>
-     <y>502</y>
+     <y>529</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3108,8 +3235,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>712</y>
+     <x>253</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3124,8 +3251,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>712</y>
+     <x>287</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3220,8 +3347,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>448</y>
+     <x>464</x>
+     <y>489</y>
     </hint>
     <hint type="destinationlabel">
      <x>544</x>
@@ -3236,8 +3363,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>493</x>
-     <y>446</y>
+     <x>534</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -3252,12 +3379,92 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>563</x>
-     <y>449</y>
+     <x>598</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
      <y>16</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAngularSphericalOrVector</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>126</x>
+     <y>304</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledDirectionX</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>254</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledDirectionY</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>289</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledDirectionZ</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobAngularSphericalOrVector</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>534</x>
+     <y>18</y>
     </hint>
    </hints>
   </connection>

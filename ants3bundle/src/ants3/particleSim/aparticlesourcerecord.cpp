@@ -206,6 +206,10 @@ void AParticleSourceRecord::clear()
     LimtedToMatName = "";
 
     AngularMode     = Isotropic;
+    DirectionBySphericalAngles = false;
+    DirectionVectorX = 1.0;
+    DirectionVectorY = 0;
+    DirectionVectorZ = 0;
     DirectionPhi    = 0;
     DirectionTheta  = 0;
     UseCutOff       = false;
@@ -284,8 +288,17 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             case CustomAngular   : str = "Custom";  break;
             }
             js["Mode"]  = str;
-            js["Phi"]   = DirectionPhi;
-            js["Theta"] = DirectionTheta;
+            // Direction
+            {
+                QJsonObject djs;
+                    djs["UseSphericalAngles"] = DirectionBySphericalAngles;
+                    djs["dX"] = DirectionVectorX;
+                    djs["dY"] = DirectionVectorY;
+                    djs["dZ"] = DirectionVectorZ;
+                    djs["Phi"]   = DirectionPhi;
+                    djs["Theta"] = DirectionTheta;
+                js["Direction"] = djs;
+            }
             js["UseCutOff"] = UseCutOff;
             js["CutOff"] = CutOff;
             js["Sigma"] = DispersionSigma;
@@ -443,8 +456,15 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else if (str == "Custom")    AngularMode = CustomAngular;
             // !!!*** error if not found
 
-            jstools::parseJson(js, "Phi",       DirectionPhi);
-            jstools::parseJson(js, "Theta",     DirectionTheta);
+            JsonObject djs;
+            jstools::parseJson(js, "Direction", djs);
+                jstools::parseJson(djs, "UseSphericalAngles", DirectionBySphericalAngles);
+                jstools::parseJson(djs, "dX", DirectionVectorX);
+                jstools::parseJson(djs, "dY", DirectionVectorY);
+                jstools::parseJson(djs, "dZ", DirectionVectorZ);
+                jstools::parseJson(djs, "Phi",   DirectionPhi);
+                jstools::parseJson(djs, "Theta", DirectionTheta);
+
             jstools::parseJson(js, "UseCutOff", UseCutOff);
             jstools::parseJson(js, "CutOff",    CutOff);
             jstools::parseJson(js, "Sigma",     DispersionSigma);

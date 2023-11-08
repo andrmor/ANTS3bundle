@@ -37,6 +37,8 @@ public:
 
     double angle(const AVector3 & vec) const;
 
+    void toUnitVector();
+
     double r[3];
 };
 

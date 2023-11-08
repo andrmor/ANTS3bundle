@@ -78,6 +78,10 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
     ui->ledAngularSigma->setText(QString::number(Rec.DispersionSigma));
     updateCustomAngularButtons();
+    ui->cobAngularSphericalOrVector->setCurrentIndex(Rec.DirectionBySphericalAngles ? 0 : 1);
+    ui->ledDirectionX->setText(QString::number(Rec.DirectionVectorX));
+    ui->ledDirectionY->setText(QString::number(Rec.DirectionVectorY));
+    ui->ledDirectionZ->setText(QString::number(Rec.DirectionVectorZ));
     ui->ledGunCollPhi->setText(QString::number(Rec.DirectionPhi));
     ui->ledGunCollTheta->setText(QString::number(Rec.DirectionTheta));
     ui->cbAngularCutoff->setChecked(Rec.UseCutOff);
@@ -458,6 +462,10 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         LocalRec.AngularMode = AParticleSourceRecord::Isotropic;
     }
     LocalRec.DispersionSigma = ui->ledAngularSigma->text().toDouble();
+    LocalRec.DirectionBySphericalAngles = (ui->cobAngularSphericalOrVector->currentIndex() == 0);
+    LocalRec.DirectionVectorX = ui->ledDirectionX->text().toDouble();
+    LocalRec.DirectionVectorY = ui->ledDirectionY->text().toDouble();
+    LocalRec.DirectionVectorZ = ui->ledDirectionZ->text().toDouble();
     LocalRec.DirectionPhi = ui->ledGunCollPhi->text().toDouble();
     LocalRec.DirectionTheta = ui->ledGunCollTheta->text().toDouble();
     LocalRec.UseCutOff = ui->cbAngularCutoff->isChecked();
