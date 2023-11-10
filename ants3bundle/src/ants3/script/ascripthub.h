@@ -42,6 +42,8 @@ public:
     void outputHtml(const QString & text, EScriptLanguage lang);
     void clearOutput(EScriptLanguage lang);
 
+    QString getPythonVersion();
+
 private:
     AScriptHub();
     ~AScriptHub();

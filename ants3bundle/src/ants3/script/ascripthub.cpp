@@ -124,6 +124,15 @@ void AScriptHub::clearOutput(EScriptLanguage lang)
     else                                     emit clearOutput_P();
 }
 
+QString AScriptHub::getPythonVersion()
+{
+#ifdef ANTS3_PYTHON
+    return getPythonManager().getVersion();
+#else
+    return "Not available";
+#endif
+}
+
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";

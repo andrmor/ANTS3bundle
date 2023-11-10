@@ -717,3 +717,63 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
     QString err = Config.load(fileName, true);
     if (!err.isEmpty()) guitools::message(err, this);
 }
+
+#include "TROOT.h"
+void MainWindow::on_actionVersions_triggered()
+{
+    int majVer = ANTS3_MAJOR;
+    QString mav = QString::number(majVer);
+    int minVer = ANTS3_MINOR;
+    QString miv = QString::number(minVer);
+    if (miv.length() == 1) miv = "0" + miv;
+
+    QString qv = QT_VERSION_STR;
+
+    QString out = "ANTS3\n"
+                  "   version:  " + mav + "." + miv + "\n"
+                  "   build date:  " + QString::fromLocal8Bit(__DATE__) + "\n"
+                  "\n"
+                  "Qt version:  " + qv + "\n"
+                  "\n"
+                  "ROOT version:  " + gROOT->GetVersion() + "\n"
+                  "\n"
+                  "Optional components:\n"
+                  "  Python scripting: "
+#ifdef ANTS3_PYTHON
+                  "on (Python v" + AScriptHub::getInstance().getPythonVersion() + ")"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  ROOT html server: "
+#ifdef USE_ROOT_HTML
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  JSROOT: "
+#ifdef __USE_ANTS_JSROOT__
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  Farm: "
+#ifdef WEBSOCKETS
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+/*
+#ifdef __USE_ANTS_NCRYSTAL__
+#else
+#endif
+" - NCrystal library (neutron scattering)   \n"
+*/
+                  "";
+
+    guitools::message(out, this);
+}
+

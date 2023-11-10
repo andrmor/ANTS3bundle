@@ -15,7 +15,7 @@
 void guitools::message(QString text, QWidget* parent)
 {
     QMessageBox mb(parent);
-    mb.setWindowTitle("ANTS3 message");
+    mb.setWindowTitle("ANTS3"); //"ANTS3 message");
     mb.setWindowFlags(mb.windowFlags() | Qt::WindowStaysOnTopHint);
     mb.setText(text);
     if (!parent) mb.move(200,200);

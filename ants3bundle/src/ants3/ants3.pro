@@ -1,10 +1,13 @@
-# optional features
-CONFIG += ants3_GUI          #if commented away, GUI is not compiled
-CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
-
-CONFIG += ants3_Python      #enable Python scripting
-CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+# --- Optional features to be configured by the user ---
+#
+CONFIG += ants3_GUI         #if commented away, GUI is not compiled
+CONFIG += ants3_FARM        #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
+#
+CONFIG += ants3_Python      #enables Python scripting
+CONFIG += ants3_RootServer  #enables CERN ROOT html server
 CONFIG += ants3_jsroot      #enables JSROOT visualisation of the geometry. Requires Qt WebEngine library installed and ants3_RootServer enabled
+#
+# --- end of user-configure area ---
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
@@ -60,6 +63,10 @@ ants3_GUI {
 } else {
     QT -= gui
 }
+
+# ANTS3 version
+DEFINES += ANTS3_MAJOR=1
+DEFINES += ANTS3_MINOR=0
 
 QT += qml   #this is for qjsengine
 

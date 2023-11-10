@@ -14,7 +14,7 @@
    <string>ANTS3</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources.qrc">
+   <iconset>
     <normaloff>:/images/gui/images/ant.png</normaloff>:/images/gui/images/ant.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -570,14 +570,15 @@
     </property>
     <addaction name="actionClose_ants3"/>
    </widget>
-   <widget class="QMenu" name="menuHints">
+   <widget class="QMenu" name="menuInfo">
     <property name="title">
-     <string>Hints</string>
+     <string>Info</string>
     </property>
+    <addaction name="actionVersions"/>
     <addaction name="actionShow_hints"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuHints"/>
+   <addaction name="menuInfo"/>
    <addaction name="menuExit"/>
   </widget>
   <action name="actionSave_configuration">
@@ -635,10 +636,13 @@
     <string>Show hints</string>
    </property>
   </action>
+  <action name="actionVersions">
+   <property name="text">
+    <string>Versions</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
