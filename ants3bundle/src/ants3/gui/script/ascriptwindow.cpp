@@ -2153,8 +2153,8 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
     if (fn.isEmpty()) return;
 
     QMenu menu;
-    QAction * copy   = menu.addAction("Copy file name to clipboard");
-    QAction * copyIn = menu.addAction("Copy file name for #include to clipboard");
+    QAction * copy   = menu.addAction("Copy file name to the clipboard");
+    QAction * copyIn = menu.addAction("Copy file name to the clipboard to \"include\" that script in another one");
 
     QAction * sel = menu.exec(ui->pbFileName->mapToGlobal(pos));
 
@@ -2166,6 +2166,11 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
     else if (sel == copyIn)
     {
         QClipboard * clipboard = QApplication::clipboard();
-        clipboard->setText(QString("#include \"%1\"").arg(fn));
+        QString txt;
+        if (ScriptLanguage == EScriptLanguage::JavaScript)
+            txt = QString("var loaded_script = core.loadText(\"%0\"); eval(loaded_script)").arg(fn);
+        else
+            txt = QString("loaded_script = core.loadText(\"%0\"); exec(loaded_script)").arg(fn);
+        clipboard->setText(txt);
     }
 }
