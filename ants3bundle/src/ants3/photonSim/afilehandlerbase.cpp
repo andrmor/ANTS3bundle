@@ -57,12 +57,14 @@ void AFileHandlerBase::determineFormat()
     BaseSettings.FileFormat = AFileSettingsBase::Undefined;
 }
 
-bool AFileHandlerBase::checkFile(bool collectStatistics)
+bool AFileHandlerBase::checkFile()
 {
     AErrorHub::clear();
 
     bool ok = init();
     if (!ok) return false; // error already added
+
+    qDebug() << "Current event:" << CurrentEvent;
 
     BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 

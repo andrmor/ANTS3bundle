@@ -65,7 +65,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
                 if (!SimSet.BombSet.BombFileSettings.isValidated())
                 {
                     APhotonBombFileHandler bh(SimSet.BombSet.BombFileSettings);
-                    bool ok = bh.checkFile(false);
+                    bool ok = bh.checkFile();
                     if (!ok) return false;
                 }
                 numEvents = SimSet.BombSet.BombFileSettings.NumEvents;
@@ -82,7 +82,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             if (!SimSet.DepoSet.isValidated())
             {
                 ADepositionFileHandler fh(SimSet.DepoSet);
-                bool ok = fh.checkFile(false);
+                bool ok = fh.checkFile();
                 if (!ok) return false;
             }
             numEvents = SimSet.DepoSet.NumEvents;
@@ -95,7 +95,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             if (!SimSet.PhotFileSet.isValidated())
             {
                 APhotonFileHandler fh(SimSet.PhotFileSet);
-                bool ok = fh.checkFile(false);
+                bool ok = fh.checkFile();
                 if (!ok) return false;
             }
             numEvents = SimSet.PhotFileSet.NumEvents;

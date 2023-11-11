@@ -1002,8 +1002,45 @@ void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
 
-    const bool CollectStats = ui->cbCollectDepoStatistics->isChecked();
-    if (SimSet.DepoSet.isValidated() && !CollectStats) return; // already up to date
+    //if (SimSet.DepoSet.isValidated()) return; // already up to date
+
+    fh.determineFormat();
+
+    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Invalid)
+    {
+        guitools::message("Cannot open file!", this);
+        updateDepoGui();
+        return;
+    }
+    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Undefined)
+    {
+        guitools::message("Unknown format of the depo file!", this);
+        updateDepoGui();
+        return;
+    }
+
+    AErrorHub::clear();
+    bool ok = fh.init();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+        updateDepoGui();
+        return;
+    }
+
+    fh.checkFile();
+    if (SimSet.DepoSet.NumEvents == -1)
+    {
+        guitools::message("Deposition file is invalid", this);
+        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+    }
+    updateDepoGui();
+}
+
+void APhotSimWin::on_pbCollectDepoFileStatistics_clicked()
+{
+    ADepositionFileHandler fh(SimSet.DepoSet);
 
     if (!SimSet.DepoSet.isValidated())
     {
@@ -1024,23 +1061,40 @@ void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     }
 
     AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
-        updateDepoGui();
-        return;
-    }
 
-    fh.checkFile(true);
+    fh.collectStatistics();
+    updateDepoGui();
     if (SimSet.DepoSet.NumEvents == -1)
     {
         guitools::message("Deposition file is invalid", this);
         SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
     }
-    updateDepoGui();
+    else
+    {
+        QString txt;
+        txt += QString("Number of empty events: %0\n").arg(fh.EmptyEvents);
+        if (fh.EmptyEvents != SimSet.DepoSet.NumEvents)
+        {
+            std::vector<std::pair<QString,int>> vec;
+            for (const auto & p : fh.SeenParticles) vec.push_back({p.first, p.second});
+            std::sort(vec.begin(), vec.end(), [](const auto & lh, const auto & rh){return lh.second > rh.second;});
+
+            txt += "Depositions by particle:\n";
+            for (const auto & p : vec)
+                txt += QString("   %0  (%1)\n").arg(p.first).arg(p.second);
+            txt += QString("Deposition energy per event: from %0 to %1 keV\n").arg(fh.MinMaxEnergyPerEvent.first).arg(fh.MinMaxEnergyPerEvent.second);
+            txt += QString("Deposition energy: from %0 to %1 keV\n").arg(fh.MinMaxDepoEnergy.first).arg(fh.MinMaxDepoEnergy.second);
+            txt += QString("Timestamp: from %0 to %1 ns\n").arg(fh.MinMaxTime.first).arg(fh.MinMaxTime.second);
+            txt += "Position range:\n";
+            txt += QString("  X from %0 to %1 mm\n").arg(fh.MinMaxPosition[0].first).arg(fh.MinMaxPosition[0].second);
+            txt += QString("  Y from %0 to %1 mm\n").arg(fh.MinMaxPosition[1].first).arg(fh.MinMaxPosition[1].second);
+            txt += QString("  Z from %0 to %1 mm\n").arg(fh.MinMaxPosition[2].first).arg(fh.MinMaxPosition[2].second);
+        }
+
+        guitools::message1(txt, "Deposition file info", this);
+    }
 }
+
 #include "adeporecord.h"
 void APhotSimWin::on_pbViewDepositionFile_clicked()
 {
@@ -1161,7 +1215,7 @@ void APhotSimWin::on_pbNodeFileAnalyze_clicked()
         return;
     }
 
-    fh.checkFile(true);
+    fh.checkFile();
     if (bset.NumEvents == -1)
     {
         guitools::message("Photon bomb file is invalid", this);
@@ -1247,7 +1301,7 @@ void APhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
         return;
     }
 
-    ok = fh.checkFile(false);
+    ok = fh.checkFile();
     if (!ok)
     {
         guitools::message("File with individual photon records: invalid format!", this);
@@ -1255,6 +1309,7 @@ void APhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
     }
     updatePhotonFileGui();
 }
+
 #include "aphoton.h"
 void APhotSimWin::on_pbViewSinglePhotFile_clicked()
 {

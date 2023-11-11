@@ -19,7 +19,7 @@ public:
     virtual ~AFileHandlerBase();
 
     virtual void determineFormat();                 // very simplistic in the generic case, feel free to override for the concrete classes
-    virtual bool checkFile(bool collectStatistics); // !!!*** how to handle statistics? --> separate (non-virtual?) method?
+    virtual bool checkFile();
 
     bool init();
     bool isInitialized() const;
@@ -53,6 +53,7 @@ protected:
 
     void clearResources();
     bool processEventHeader();
+
 };
 
 #endif // AFILEHANDLERBASE_H

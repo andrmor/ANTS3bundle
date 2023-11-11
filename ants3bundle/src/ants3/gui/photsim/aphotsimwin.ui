@@ -129,7 +129,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pagePhotBombs">
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2370,14 +2370,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               <item>
                <widget class="QPushButton" name="pbAnalyzeDepositionFile">
                 <property name="text">
-                 <string>Analyze file</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="cbCollectDepoStatistics">
-                <property name="text">
-                 <string>Collect statistics</string>
+                 <string>Check file</string>
                 </property>
                </widget>
               </item>
@@ -2398,6 +2391,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QPushButton" name="pbViewDepositionFile">
                 <property name="text">
                  <string>View</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbCollectDepoFileStatistics">
+                <property name="text">
+                 <string>See statistics</string>
                 </property>
                </widget>
               </item>
