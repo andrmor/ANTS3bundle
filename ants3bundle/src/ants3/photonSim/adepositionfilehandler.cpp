@@ -79,11 +79,13 @@ QString ADepositionFileHandler::formReportString() const
 
         txt += "Depositions by particle:\n";
         for (const auto & p : vec)
-            txt += QString("   %0\t\t%1 MeV in %2 deposition%3\n")
+            txt += QString("   %0\t\t%1 keV in %2 deposition%3 (%4 event%5)\n")
                        .arg(p.first)
                        .arg(QString::number(p.second.TotalDepo, 'g', 4))
                        .arg(p.second.NumberOfTimes)
-                       .arg(p.second.NumberOfTimes==1 ? "" : "s");
+                       .arg(p.second.NumberOfTimes == 1 ? "" : "s")
+                       .arg(p.second.InNumEvents)
+                       .arg(p.second.InNumEvents == 1 ? "" : "s");
         txt += QString("Deposition energy per event: from %0 to %1 keV\n").arg(MinMaxEnergyPerEvent.first).arg(MinMaxEnergyPerEvent.second);
         txt += QString("Deposition energy: from %0 to %1 keV\n").arg(MinMaxDepoEnergy.first).arg(MinMaxDepoEnergy.second);
         txt += QString("Timestamp: from %0 to %1 ns\n").arg(MinMaxTime.first).arg(MinMaxTime.second);
@@ -98,14 +100,18 @@ QString ADepositionFileHandler::formReportString() const
 void ADepositionFileHandler::fillStatisticsForCurrentEvent()
 {
     double energyPerEvent = 0;
+    QSet<QString> particlesSeenThisEvent;
+
     while (readNextRecordSameEvent(TmpRecord))
     {
-        QString tmp = TmpRecord.Particle;
-        int index = tmp.indexOf('[');
-        if (index != -1) tmp.resize(index);
+        QString pname = TmpRecord.Particle;
+        int index = pname.indexOf('[');
+        if (index != -1) pname.resize(index);
 
-        SeenParticles[tmp].NumberOfTimes++;
-        SeenParticles[tmp].TotalDepo += TmpRecord.Energy;
+        particlesSeenThisEvent << pname;
+
+        SeenParticles[pname].NumberOfTimes++;
+        SeenParticles[pname].TotalDepo += TmpRecord.Energy;
 
         if (TmpRecord.Energy < MinMaxDepoEnergy.first)  MinMaxDepoEnergy.first  = TmpRecord.Energy;
         if (TmpRecord.Energy > MinMaxDepoEnergy.second) MinMaxDepoEnergy.second = TmpRecord.Energy;
@@ -127,5 +133,8 @@ void ADepositionFileHandler::fillStatisticsForCurrentEvent()
     {
         if (energyPerEvent < MinMaxEnergyPerEvent.first)  MinMaxEnergyPerEvent.first  = energyPerEvent;
         if (energyPerEvent > MinMaxEnergyPerEvent.second) MinMaxEnergyPerEvent.second = energyPerEvent;
+
+        for (const QString & pName : particlesSeenThisEvent)
+            SeenParticles[pName].InNumEvents++;
     }
 }

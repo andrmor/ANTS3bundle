@@ -11,8 +11,9 @@
 
 struct ADepoStatRecord
 {
-    int    NumberOfTimes = 0;
+    size_t NumberOfTimes = 0;
     double TotalDepo     = 0;
+    size_t InNumEvents   = 0;
 };
 
 class ADepositionFileHandler : public AFileHandlerBase
