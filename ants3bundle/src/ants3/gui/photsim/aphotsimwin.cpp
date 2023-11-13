@@ -1617,3 +1617,7 @@ void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
     ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
 }
 
+void APhotSimWin::on_sbEvent_editingFinished()
+{
+    on_pbShowEvent_clicked();
+}

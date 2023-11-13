@@ -147,6 +147,8 @@ private slots:
 
     void on_pbCollectDepoFileStatistics_clicked();
 
+    void on_sbEvent_editingFinished();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
