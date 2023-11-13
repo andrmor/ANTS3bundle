@@ -1105,7 +1105,13 @@ void APhotSimWin::on_pbViewDepositionFile_clicked()
 }
 void APhotSimWin::on_pbHelpDepositionFile_clicked()
 {
+    QString txt = ""
+    "ASCII file format\n"
+    "-----------------\n"
+    "#Event_index\n"
+    "ParticleName indexMat Energy[keV] X Y Z[mm] Time[ns] indexVolume";
 
+    guitools::message1(txt, "Deposition file format", this);
 }
 
 void APhotSimWin::on_pbdUpdateScanSettings_clicked()
