@@ -67,6 +67,34 @@ bool ADepositionFileHandler::collectStatistics()
     return true;
 }
 
+QString ADepositionFileHandler::formReportString() const
+{
+    QString txt;
+    txt += QString("Number of empty events: %0\n").arg(EmptyEvents);
+    if (EmptyEvents != Settings.NumEvents)
+    {
+        std::vector<std::pair<QString,ADepoStatRecord>> vec;
+        for (const auto & p : SeenParticles) vec.push_back({p.first, p.second});
+        std::sort(vec.begin(), vec.end(), [](const auto & lh, const auto & rh){return lh.second.TotalDepo > rh.second.TotalDepo;});
+
+        txt += "Depositions by particle:\n";
+        for (const auto & p : vec)
+            txt += QString("   %0\t\t%1 MeV in %2 deposition%3\n")
+                       .arg(p.first)
+                       .arg(QString::number(p.second.TotalDepo, 'g', 4))
+                       .arg(p.second.NumberOfTimes)
+                       .arg(p.second.NumberOfTimes==1 ? "" : "s");
+        txt += QString("Deposition energy per event: from %0 to %1 keV\n").arg(MinMaxEnergyPerEvent.first).arg(MinMaxEnergyPerEvent.second);
+        txt += QString("Deposition energy: from %0 to %1 keV\n").arg(MinMaxDepoEnergy.first).arg(MinMaxDepoEnergy.second);
+        txt += QString("Timestamp: from %0 to %1 ns\n").arg(MinMaxTime.first).arg(MinMaxTime.second);
+        txt += "Position range:\n";
+        txt += QString("  X from %0 to %1 mm\n").arg(MinMaxPosition[0].first).arg(MinMaxPosition[0].second);
+        txt += QString("  Y from %0 to %1 mm\n").arg(MinMaxPosition[1].first).arg(MinMaxPosition[1].second);
+        txt += QString("  Z from %0 to %1 mm\n").arg(MinMaxPosition[2].first).arg(MinMaxPosition[2].second);
+    }
+    return txt;
+}
+
 void ADepositionFileHandler::fillStatisticsForCurrentEvent()
 {
     double energyPerEvent = 0;
@@ -75,7 +103,9 @@ void ADepositionFileHandler::fillStatisticsForCurrentEvent()
         QString tmp = TmpRecord.Particle;
         int index = tmp.indexOf('[');
         if (index != -1) tmp.resize(index);
-        ++SeenParticles[tmp];
+
+        SeenParticles[tmp].NumberOfTimes++;
+        SeenParticles[tmp].TotalDepo += TmpRecord.Energy;
 
         if (TmpRecord.Energy < MinMaxDepoEnergy.first)  MinMaxDepoEnergy.first  = TmpRecord.Energy;
         if (TmpRecord.Energy > MinMaxDepoEnergy.second) MinMaxDepoEnergy.second = TmpRecord.Energy;

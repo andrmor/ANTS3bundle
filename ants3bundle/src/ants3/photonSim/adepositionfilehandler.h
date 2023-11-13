@@ -9,6 +9,12 @@
 #include <map>
 #include <array>
 
+struct ADepoStatRecord
+{
+    int    NumberOfTimes = 0;
+    double TotalDepo     = 0;
+};
+
 class ADepositionFileHandler : public AFileHandlerBase
 {
 public:
@@ -16,13 +22,15 @@ public:
 
     // statistics
     size_t EmptyEvents = 0;
-    std::map<QString,int> SeenParticles;
+    std::map<QString,ADepoStatRecord> SeenParticles;
     std::pair<double,double> MinMaxDepoEnergy;     // [keV]
     std::pair<double,double> MinMaxEnergyPerEvent; // [keV]
     std::pair<double,double> MinMaxTime;           // [ns]
     std::array<std::pair<double,double>, 3> MinMaxPosition; // [mm]
 
-    bool collectStatistics();
+    // Deposition statistics
+    bool    collectStatistics();
+    QString formReportString() const;
 
 private:
     APhotonDepoSettings & Settings;
