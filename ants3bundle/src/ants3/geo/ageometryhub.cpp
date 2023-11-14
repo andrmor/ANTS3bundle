@@ -264,8 +264,8 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
+    World->updateAllMonitors();  // need to be before updateAllStacks to configure correct shapes!
     World->updateAllStacks();
-    World->updateAllMonitors();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
