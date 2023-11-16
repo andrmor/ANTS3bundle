@@ -3087,5 +3087,31 @@ void AParticleSimWin::on_pbAnalyzeDepositionFile_clicked()
 
 void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
 {
+    QString txt = ""
+                  "ASCII file format\n"
+                  "-----------------\n"
+                  "#Event_index\n"
+                  "ParticleName indexMat Energy[keV] X[mm] Y[mm] Z[mm] Time[ns] indexVolume\n"
+                  "\n"
+                  "Data can be loaded using the following script:\n"
+                  "fn = \"/pathToFile/Deposition.dat\"\n"
+                  "data = core.load3DArray(fn, '#', ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0, 1e10, true)\n"
+                  "\n"
+                  "data is a 3D array: data[eventIndex][depositionIndex][depositionData]\n"
+                  "For example, data[0][0][2] gives the deposition energy in the first deposition of the first event.\n"
+                  "\n"
+                  "\n"
+                  "Binary file format\n"
+                  "-----------------\n"
+                  "Event record:\n"
+                  "0xee EventIndex(int)\n"
+                  "Data record:\n"
+                  "ParticleName(0-terminated) indexMat(int) Energy[keV](double) X[mm](double) Y[mm](double) Z[mm](double) Time[ns](double) indexVolume(int)\n"
+                  "\n"
+                  "Data can be loaded using the following script:\n"
+                  "fn = \"/pathToFile/Deposition.dat\"\n"
+                  "data = core.load3DBinaryArray(fn, 0xff, ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0xee, ['i'], 0, 1e10, true)\n"
+                  "";
 
+    guitools::message1(txt, "Info for deposition data", this);
 }
