@@ -768,6 +768,9 @@ void AParticleSimWin::updateResultsGui()
             LastFile_Calorimeters = ui->leCalorimetersFileName->text();
             updateCalorimeterGui(); // data will be already loaded for merging
         }
+
+        if (SimSet.RunSet.SaveDeposition)
+            ui->leDepositionFileName->setText(SimSet.RunSet.FileNameDeposition.data());
     }
 }
 
@@ -3029,4 +3032,60 @@ void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
     Data->GetXaxis()->SetTitle("Deposited energy over event, MeV");
 
     emit requestDraw(Data, "hist", false, true);
+}
+
+// -----------------
+
+void AParticleSimWin::on_pbChooseDepositionFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a file with energy deposition data", SimSet.RunSet.OutputDirectory.data());
+    if (fileName.isEmpty()) return;
+
+    ui->leDepositionFileName->setText(fileName);
+}
+
+#include "adepositionfilehandler.h"
+void AParticleSimWin::on_pbAnalyzeDepositionFile_clicked()
+{
+    APhotonDepoSettings DepoSet;
+    DepoSet.FileName = ui->leDepositionFileName->text();
+    if (!DepoSet.FileName.contains('/'))
+        DepoSet.FileName = ui->leWorkingDirectory->text() + '/' + DepoSet.FileName;
+
+    ADepositionFileHandler fh(DepoSet);
+
+    //if (!DepoSet.isValidated())
+    {
+        fh.determineFormat();
+
+        if (DepoSet.FileFormat == APhotonDepoSettings::Invalid)
+        {
+            guitools::message("Cannot open file!", this);
+            return;
+        }
+        if (DepoSet.FileFormat == APhotonDepoSettings::Undefined)
+        {
+            guitools::message("Unknown format of the depo file!", this);
+            return;
+        }
+    }
+
+    AErrorHub::clear();
+
+    fh.collectStatistics();
+    if (DepoSet.NumEvents == -1)
+    {
+        guitools::message("Deposition file is invalid", this);
+        DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+    }
+    else
+    {
+        QString txt = fh.formReportString();
+        guitools::message1(txt, "Deposition file info", this);
+    }
+}
+
+void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
+{
+
 }

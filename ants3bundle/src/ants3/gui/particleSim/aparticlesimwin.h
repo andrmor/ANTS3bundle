@@ -275,6 +275,9 @@ private slots:
     void on_ledPTHistToY_editingFinished();
     void on_pbCaloShowDepoOverEvent_clicked();
 
+    void on_pbChooseDepositionFile_clicked();
+    void on_pbHelpOnDepositionDataFormat_clicked();
+    void on_pbAnalyzeDepositionFile_clicked();
 };
 
 #endif // APARTICLESIMWIN_H
