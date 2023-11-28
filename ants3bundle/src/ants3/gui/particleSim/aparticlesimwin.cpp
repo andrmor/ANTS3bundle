@@ -3072,7 +3072,13 @@ void AParticleSimWin::on_pbAnalyzeDepositionFile_clicked()
 
     AErrorHub::clear();
 
-    fh.collectStatistics();
+    bool ok = fh.collectStatistics();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
     if (DepoSet.NumEvents == -1)
     {
         guitools::message("Deposition file is invalid", this);
@@ -3106,7 +3112,7 @@ void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
                   "Event record:\n"
                   "0xee EventIndex(int)\n"
                   "Data record:\n"
-                  "ParticleName(0-terminated) indexMat(int) Energy[keV](double) X[mm](double) Y[mm](double) Z[mm](double) Time[ns](double) indexVolume(int)\n"
+                  "0xff ParticleName(0-terminated) indexMat(int) Energy[keV](double) X[mm](double) Y[mm](double) Z[mm](double) Time[ns](double) indexVolume(int)\n"
                   "\n"
                   "Data can be loaded using the following script:\n"
                   "fn = \"/pathToFile/Deposition.dat\"\n"

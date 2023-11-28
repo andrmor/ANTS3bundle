@@ -42,6 +42,12 @@ bool ADepositionFileHandler::collectStatistics()
     bool ok = init();
     if (!ok) return false; // error already added
 
+    if (CurrentEvent != 0)
+    {
+        AErrorHub::addQError("Deposition file does not start from event number zero!");
+        return false;
+    }
+
     BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 
     BaseSettings.NumEvents = 1;

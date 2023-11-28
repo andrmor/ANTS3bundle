@@ -206,7 +206,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
 bool AFileHandlerBase::atEnd() const
 {
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
-        return true; // !!!***
+        return inStream->eof();
     else if (BaseSettings.FileFormat == AFileSettingsBase::Ascii)
         return inTextStream->atEnd();
     return true;
@@ -218,7 +218,28 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
 
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary depo not yet implemented");
+        char header;
+        *inStream >> header;
+
+        if (inStream->eof())
+        {
+            EventEndReached = true;
+            return false;
+        }
+        if (inStream->bad())
+        {
+            AErrorHub::addError("Error reading input stream");
+            return false;
+        }
+
+        if (header == (char)0xFF)
+            return record.readBinary(*inStream);
+        if (header == (char)0xEE)
+        {
+            EventEndReached = true;
+            return false;
+        }
+        AErrorHub::addError("Unexpected format of a line in the binary file with the deposition data");
         return false;
     }
     else
