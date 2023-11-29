@@ -26,6 +26,7 @@ class ATabRecord;
 class QTabWidget;
 class A3Global;
 class AVirtualScriptManager;
+class AScriptExampleExplorer;
 
 namespace Ui {
 class AScriptWindow;
@@ -90,6 +91,8 @@ private:
     QStringList         UnitNames;
     QStringList         ListOfDeprecatedOrRemovedMethods;
     QStringList         ListOfConstants;
+
+    AScriptExampleExplorer * ExampleExplorer = nullptr;
 
     void readFromJson(QJsonObject & json);
     void writeToJson(QJsonObject  & json);

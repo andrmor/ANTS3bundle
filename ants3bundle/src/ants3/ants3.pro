@@ -190,6 +190,7 @@ SOURCES += \
     gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
+    gui/script/ascriptexampleexplorer.cpp \
     gui/script/ascriptmessenger.cpp \
     gui/script/ascriptwindow.cpp \
     gui/script/astopwatch.cpp \
@@ -220,6 +221,8 @@ SOURCES += \
     script/arootobjbase.cpp \
     script/arootobjcollection.cpp \
     script/aroottreerecord.cpp \
+    script/ascriptexample.cpp \
+    script/ascriptexampledatabase.cpp \
     script/ascripthub.cpp \
     script/ascriptobjstore.cpp \
     script/avarrecordbase.cpp \
@@ -328,6 +331,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/script/ascriptexampleexplorer.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
@@ -432,6 +436,8 @@ HEADERS += \
     script/ajscriptmanager.h \
     script/ajscriptworker.h \
     script/apeakfinder.h \
+    script/ascriptexample.h \
+    script/ascriptexampledatabase.h \
     script/ascripthub.h \
     script/ascriptobjstore.h \
     script/avarrecordbase.h \
@@ -552,6 +558,7 @@ FORMS += \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
+        gui/script/ascriptexampleexplorer.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \
         gui/farm/aremotewindow.ui \

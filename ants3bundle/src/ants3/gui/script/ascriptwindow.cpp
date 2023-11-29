@@ -4,10 +4,8 @@
 #include "ahighlighters.h"
 #include "atextedit.h"
 #include "ascriptinterface.h"
-//#include "acore_si.h"
-//#include "amath_si.h"
 #include "guitools.h"
-//#include "ascriptexampleexplorer.h"
+#include "ascriptexampleexplorer.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3global.h"
@@ -69,17 +67,6 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     }
 #endif
 
-    /*
-    QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
-    QObject::connect(ScriptManager, &AScriptManager::showPlainTextMessage, this, &AScriptWindow::showPlainText);
-    QObject::connect(ScriptManager, &AScriptManager::requestHighlightErrorLine, this, &AScriptWindow::highlightErrorLine);
-    QObject::connect(ScriptManager, &AScriptManager::clearText, this, &AScriptWindow::clearOutputText);
-    //retranslators:
-    QObject::connect(ScriptManager, &AScriptManager::onStart, this, &AScriptWindow::receivedOnStart);
-    QObject::connect(ScriptManager, &AScriptManager::onAbort, this, &AScriptWindow::receivedOnAbort);
-    QObject::connect(ScriptManager, &AScriptManager::onFinish, this, &AScriptWindow::receivedOnSuccess);
-*/
-
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
     ui->prbProgress->setVisible(false);
@@ -130,8 +117,35 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     ScriptMsgWin = SMW;
     ScriptManager->registerInterface(new AMsg_SI(SMW), "msg");
 
+    //read open script tabs
     ReadFromJson();
+
+    //read database with script examples
+    QString recordsFileName = GlobSet.ExamplesDir + "/";
+    QString pathToExamples  = GlobSet.ExamplesDir + "/";
+    if (ScriptLanguage == EScriptLanguage::JavaScript)
+    {
+        recordsFileName += "JSExamples.txt";
+        pathToExamples  += "/scripts/js/";
+    }
+    else
+    {
+        recordsFileName += "PythonExamples.txt";
+        pathToExamples  += "/scripts/python/";
+    }
+    QFile file(recordsFileName);
+    if (!file.open(QIODevice::ReadOnly))
+        guitools::message("Failed to open file with script example database:\n" + recordsFileName, this);
+    else
+    {
+        //create example explorer
+        ExampleExplorer = new AScriptExampleExplorer(recordsFileName, pathToExamples, this);
+        ExampleExplorer->setWindowModality(Qt::WindowModal);
+        ExampleExplorer->setAttribute(Qt::WA_DeleteOnClose);
+        QObject::connect(ExampleExplorer, &AScriptExampleExplorer::requestLoadScript, this, &AScriptWindow::onLoadRequested);
+    }
 }
+
 
 AScriptWindow::~AScriptWindow()
 {
@@ -388,7 +402,7 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 void AScriptWindow::ReadFromJson()
 {
     if (ScriptLanguage == EScriptLanguage::JavaScript) readFromJson(GlobSet.JavaScriptJson);
-    else                                                   readFromJson(GlobSet.PythonJson);
+    else                                               readFromJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -636,26 +650,7 @@ void AScriptWindow::on_pbSaveAs_clicked()
 
 void AScriptWindow::on_pbExample_clicked()
 {
-/*
-    //reading example database
-    QString target = (ScriptLanguage == AScriptLanguageEnum::JavaScript ? "ScriptExamples.cfg" : "PythonScriptExamples.cfg");
-    QString RecordsFilename = GlobSet.ExamplesDir + "/" + target;
-    //check it is found
-    QFile file(RecordsFilename);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        guitools::message("Failed to open example list file:\n"+RecordsFilename, this);
-        return;
-    }
-    file.close();
-
-    //starting explorer
-    AScriptExampleExplorer* expl = new AScriptExampleExplorer(RecordsFilename, this);
-    expl->setWindowModality(Qt::WindowModal);
-    expl->setAttribute(Qt::WA_DeleteOnClose);
-    QObject::connect(expl, SIGNAL(LoadRequested(QString)), this, SLOT(onLoadRequested(QString)));
-    expl->show();
-*/
+    if (ExampleExplorer) ExampleExplorer->show();
 }
 
 void AScriptWindow::fillHelper(const AScriptInterface * io)
