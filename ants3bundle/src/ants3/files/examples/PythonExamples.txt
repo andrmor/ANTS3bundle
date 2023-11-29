@@ -1,0 +1,8 @@
+#file
+FitExample.py
+#tags
+Minimizer:Fit
+#info
+Use minimizer to fit a function
+#end
+

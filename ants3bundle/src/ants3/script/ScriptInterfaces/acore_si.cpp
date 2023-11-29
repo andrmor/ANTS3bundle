@@ -1125,6 +1125,11 @@ QVariantList ACore_SI::getDirectories(const QString dir, const QString dirNamePa
     return Dirs;
 }
 
+QString ACore_SI::str(double value, int precision)
+{
+    return QString::number(value, 'g', precision);
+}
+
 void ACore_SI::processEvents()
 {
     qApp->processEvents();

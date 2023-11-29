@@ -140,12 +140,13 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     {
         //create example explorer
         ExampleExplorer = new AScriptExampleExplorer(recordsFileName, pathToExamples, this);
+        Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
+        windowFlags |= Qt::WindowCloseButtonHint;
+        ExampleExplorer->setWindowFlags( windowFlags );
         ExampleExplorer->setWindowModality(Qt::WindowModal);
-        ExampleExplorer->setAttribute(Qt::WA_DeleteOnClose);
         QObject::connect(ExampleExplorer, &AScriptExampleExplorer::requestLoadScript, this, &AScriptWindow::onLoadRequested);
     }
 }
-
 
 AScriptWindow::~AScriptWindow()
 {
@@ -650,7 +651,7 @@ void AScriptWindow::on_pbSaveAs_clicked()
 
 void AScriptWindow::on_pbExample_clicked()
 {
-    if (ExampleExplorer) ExampleExplorer->show();
+    if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
 void AScriptWindow::fillHelper(const AScriptInterface * io)

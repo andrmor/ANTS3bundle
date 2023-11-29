@@ -26,7 +26,7 @@ private:
     Ui::AScriptExampleExplorer * ui = nullptr;
 
     AScriptExampleDatabase * Examples = nullptr;
-    bool fBulkUpdate;
+    bool BulkUpdate = false;
 
 private slots:
     void clearSelection();

@@ -6,4 +6,11 @@ Array:File:Binary
 Log tracking history
 #end
 
+#file
+FitExample.txt
+#tags
+Minimizer:Fit
+#info
+Use minimizer to fit a function
+#end
 

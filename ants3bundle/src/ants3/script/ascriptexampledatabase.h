@@ -12,10 +12,10 @@ class AScriptExampleDatabase
 public:
     AScriptExampleDatabase(QString configText);
 
-    void select(QStringList tags);
+    void select(const QStringList & tags);
     void unselectAll();
-    int  size() {return Examples.size();}
-    int  find(QString fileName);
+    int  size() const;
+    int  find(const QString & fileName) const;
 
     QVector<AScriptExample> Examples;  // to std::vector
     QStringList Tags;

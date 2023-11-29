@@ -428,7 +428,8 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 #else
     QMetaMethodReturnArgument ret;
 #endif
-    if      (mtype == QMetaType::Void)         ; // keep default
+    bool returnsVoid = false;
+    if      (mtype == QMetaType::Void)         returnsVoid = true; // keep default ret
     else if (mtype == QMetaType::Bool)         ret = Q_RETURN_ARG(bool,         retBool); //  else if (mtype == QMetaType(QMetaType::Bool))
     else if (mtype == QMetaType::Int)          ret = Q_RETURN_ARG(int,          retInt);
     else if (mtype == QMetaType::Double)       ret = Q_RETURN_ARG(double,       retDouble);
@@ -467,7 +468,9 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
 #else
     //if (!ret.name) met.invoke(obj, Qt::DirectConnection,      ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
     //else           met.invoke(obj, Qt::DirectConnection, ret, ar[0], ar[1], ar[2], ar[3], ar[4], ar[5], ar[6], ar[7], ar[8], ar[9]);
-    if (!ret.name)
+
+    //if (!ret.name) // cannot use anymore, default QMetaMethodReturnArgument can have non-empty name after default constructor
+    if (returnsVoid)
     {
         // at least until(and including) Qt 6.5.1 there is still no invoke with std::vector of arguments
         // see ArgDataHolders - it's max size is limited above to 20!
@@ -496,6 +499,7 @@ static PyObject* baseFunction(PyObject *caller, PyObject *args)
     }
     else
     {
+        //qDebug() << "---" << met.name() << ret.name;
         switch (numArgs)
         {
         case 0  : met.invoke(obj, Qt::DirectConnection, ret); break;

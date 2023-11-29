@@ -22,8 +22,8 @@ public:
 //  bool IsMultithreadCapable() const override {return true;}
 
 public slots:
-  void appendText(const QString & text);
-  void appendHtml(const QString & text);
+  void appendText(QString text);
+  void appendHtml(QString text);
   void clear();
 
   void setFontSize(int size);

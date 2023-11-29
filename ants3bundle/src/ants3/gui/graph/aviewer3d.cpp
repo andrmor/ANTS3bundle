@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QComboBox>
 #include <QDoubleValidator>
+#include <QDebug>
 
 #include <iostream>
 #include <fstream>

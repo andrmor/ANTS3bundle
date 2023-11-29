@@ -21,7 +21,7 @@ AScriptExampleDatabase::AScriptExampleDatabase(QString configText)
     Tags.sort();
 }
 
-void AScriptExampleDatabase::select(QStringList tags)
+void AScriptExampleDatabase::select(const QStringList & tags)
 {
     if (tags.isEmpty())
     {
@@ -29,31 +29,33 @@ void AScriptExampleDatabase::select(QStringList tags)
         return;
     }
 
-    for (int i = 0; i < Examples.size(); i++)
+    for (auto & example : Examples)
     {
-        Examples[i].Selected = false;
-        for (int j = 0; j < tags.size(); j++)
-        {
-            if (Examples.at(i).Tags.contains(tags.at(j)))
+        example.Selected = false;
+        for (const auto & tag : tags)
+            if (example.Tags.contains(tag))
             {
-                Examples[i].Selected = true;
-                continue;
+                example.Selected = true;
+                break;
             }
-        }
     }
 }
 
 void AScriptExampleDatabase::unselectAll()
 {
-    for (int i = 0; i < Examples.size(); i++)
-        Examples[i].Selected = false;
+    for (auto & r : Examples) r.Selected = false;
 }
 
-int AScriptExampleDatabase::find(QString fileName)
+int AScriptExampleDatabase::size() const
+{
+    return Examples.size();
+}
+
+int AScriptExampleDatabase::find(const QString & fileName) const
 {
     for (int i = 0; i < Examples.size(); i++)
     {
-        if (Examples.at(i).FileName == fileName)
+        if (fileName == Examples[i].FileName)
             return i;
     }
     return -1;

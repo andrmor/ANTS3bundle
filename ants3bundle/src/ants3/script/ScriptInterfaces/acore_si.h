@@ -88,6 +88,7 @@ public slots:
     QVariantList getDirectories(const QString dir, const QString dirNamePattern);
 
     //misc
+    QString str(double value, int precision);
     QString getExamplesDir();
     void    processEvents();
 //  void    reportProgress(int percents);

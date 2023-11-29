@@ -131,7 +131,7 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
     {
         const std::string fn = filePair.first;
         const bool binary = filePair.second;
-        qDebug() << "    Input file:" << fn << " binary?" << binary;
+        qDebug() << "    Input file:" << fn.data() << " binary?" << binary;
 
         std::ifstream inStream;
         if (binary) inStream.open(fn, std::ios::in | std::ios::binary);

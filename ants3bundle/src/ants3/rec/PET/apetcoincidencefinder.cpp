@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include <QFileInfo>
-//#include <QDebug>
+#include <QDebug>
 
 APetCoincidenceFinder::APetCoincidenceFinder(const QString & scannerName, size_t numScint, const QString & eventsFileName, bool binaryInput) :
     ScannerName(scannerName), NumScint(numScint)

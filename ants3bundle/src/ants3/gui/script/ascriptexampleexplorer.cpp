@@ -20,7 +20,7 @@ AScriptExampleExplorer::AScriptExampleExplorer(QString recordsFileName, QString 
     if (!file.open(QIODevice::ReadOnly))
     {
         qWarning() << "Failed to open example list file:\n"+recordsFileName;
-        this->close();
+        close();
         return;
     }
 
@@ -28,23 +28,26 @@ AScriptExampleExplorer::AScriptExampleExplorer(QString recordsFileName, QString 
     QString Records = in.readAll();
     Examples = new AScriptExampleDatabase(Records);
 
-    QObject::connect(ui->lwExamples, SIGNAL(currentRowChanged(int)), this, SLOT(onExampleSelected(int)));
+    QObject::connect(ui->lwExamples, &QListWidget::currentRowChanged, this, &AScriptExampleExplorer::onExampleSelected);
+    QObject::connect(ui->lwExamples, &QListWidget::itemDoubleClicked, this, &AScriptExampleExplorer::on_pbLoad_clicked);
 
     //showing tags - they will not be modified, only checked/unchecked
-    fBulkUpdate = true;
-    for (int i=0; i<Examples->Tags.size(); i++)
+    BulkUpdate = true;
+    for (int i = 0; i < Examples->Tags.size(); i++)
     {
         QListWidgetItem* item = new QListWidgetItem(Examples->Tags.at(i), ui->lwTags);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);        
     }
-    fBulkUpdate = false;
+    BulkUpdate = false;
 
-    connect(ui->lwTags, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(onTagStateChanged(QListWidgetItem*)));
+    //connect(ui->lwTags, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(onTagStateChanged(QListWidgetItem*)));
+    connect(ui->lwTags, &QListWidget::itemChanged, this, &AScriptExampleExplorer::onTagStateChanged);
     connect(ui->leFind, &QLineEdit::textChanged, this, &AScriptExampleExplorer::onFindTextChanged);
     updateGui();
 
-    QTimer::singleShot(100, this, SLOT(clearSelection()));
+    //QTimer::singleShot(100, this, SLOT(clearSelection()));
+    QTimer::singleShot(100, this, &AScriptExampleExplorer::clearSelection);
 }
 
 AScriptExampleExplorer::~AScriptExampleExplorer()
@@ -140,7 +143,7 @@ void AScriptExampleExplorer::on_pbUnselectAllTags_clicked()
 
 void AScriptExampleExplorer::onTagStateChanged(QListWidgetItem* /*item*/)
 {
-    if (fBulkUpdate) return;
+    if (BulkUpdate) return;
     updateGui();
 }
 
