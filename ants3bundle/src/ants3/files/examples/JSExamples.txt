@@ -14,3 +14,10 @@ Minimizer:Fit
 Use minimizer to fit a function
 #end
 
+#file
+LogTrackingHistory.txt
+#tags
+Analysis:TrackingHistory:Logging
+#info
+Log tracking history
+#end

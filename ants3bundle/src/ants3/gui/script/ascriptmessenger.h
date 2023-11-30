@@ -40,6 +40,8 @@ private:
 
     mutable QMutex  BufferMutex;
 
+    QString         LineBreak; // '\n' or '<br>'
+
 };
 
 #endif // ASCRIPTMESSENGER_H

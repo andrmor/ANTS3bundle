@@ -14,6 +14,8 @@ AScriptMessenger::AScriptMessenger(EScriptLanguage language, bool html, QObject 
     connect(Timer, &QTimer::timeout, this, &AScriptMessenger::onTimer);
     Timer->setSingleShot(true);
     Timer->setInterval(TimerInterval_Milliseconds);
+
+    LineBreak = (HTML ? "<br>" : "\n");
 }
 
 void AScriptMessenger::output(QString txt)
@@ -30,7 +32,7 @@ void AScriptMessenger::output(QString txt)
         // locking the buffer
         {
             QMutexLocker locker(&BufferMutex);
-            if (!Buffer.isEmpty()) Buffer += '\n';
+            if (!Buffer.isEmpty()) Buffer += LineBreak;
             Buffer += txt;
         }
         Timer->start();
@@ -39,7 +41,7 @@ void AScriptMessenger::output(QString txt)
     {
         // no need to pause timer?
         QMutexLocker locker(&BufferMutex);
-        Buffer += '\n';
+        Buffer += LineBreak;
         Buffer += txt;
     }
 }
