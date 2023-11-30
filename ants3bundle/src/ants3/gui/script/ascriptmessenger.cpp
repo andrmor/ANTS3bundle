@@ -22,7 +22,7 @@ void AScriptMessenger::output(QString txt)
     {
         if (StopWatch->getSecondsFromStart() > IntervalForDirectOutput_seconds)
         {
-            AScriptHub::getInstance().outputText(txt, Language);
+            (HTML ? AScriptHub::getInstance().outputHtml(txt, Language) : AScriptHub::getInstance().outputText(txt, Language));
             return;
         }
         // else starting new "queue"
@@ -48,7 +48,7 @@ void AScriptMessenger::flush()
 {
     Timer->stop();
     QMutexLocker locker(&BufferMutex);
-    AScriptHub::getInstance().outputText(Buffer, Language);
+    (HTML ? AScriptHub::getInstance().outputHtml(Buffer, Language) : AScriptHub::getInstance().outputText(Buffer, Language));
     Buffer.clear();
 }
 
@@ -64,7 +64,7 @@ void AScriptMessenger::onTimer()
     // locking the buffer
     {
         QMutexLocker locker(&BufferMutex);
-        AScriptHub::getInstance().outputText(Buffer, Language);
+        (HTML ? AScriptHub::getInstance().outputHtml(Buffer, Language) : AScriptHub::getInstance().outputText(Buffer, Language));
         Buffer.clear();
     }
 

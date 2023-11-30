@@ -73,7 +73,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
 bool ACore_SI::beforeRun()
 {
     delete MessengerTxt;  MessengerTxt  = new AScriptMessenger(Lang, false);
-    delete MessengerHtml; MessengerHtml = new AScriptMessenger(Lang, false);
+    delete MessengerHtml; MessengerHtml = new AScriptMessenger(Lang, true);
 
     return true;
 }
