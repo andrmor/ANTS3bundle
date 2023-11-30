@@ -25,11 +25,12 @@ void AScriptMessenger::output(QString txt)
         if (StopWatch->getSecondsFromStart() > IntervalForDirectOutput_seconds)
         {
             (HTML ? AScriptHub::getInstance().outputHtml(txt, Language) : AScriptHub::getInstance().outputText(txt, Language));
+            StopWatch->start();
             return;
         }
         // else starting new "queue"
 
-        // locking the buffer
+        // locking the buffer and store txt in the buffer
         {
             QMutexLocker locker(&BufferMutex);
             if (!Buffer.isEmpty()) Buffer += LineBreak;
@@ -63,7 +64,7 @@ void AScriptMessenger::clear()
 
 void AScriptMessenger::onTimer()
 {
-    // locking the buffer
+    // locking the buffer to send the message
     {
         QMutexLocker locker(&BufferMutex);
         (HTML ? AScriptHub::getInstance().outputHtml(Buffer, Language) : AScriptHub::getInstance().outputText(Buffer, Language));
