@@ -1134,6 +1134,13 @@ QString ACore_SI::str(double value, int precision)
     return QString::number(value, 'g', precision);
 }
 
+QString ACore_SI::toStr(QVariant var)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(var, s, Lang);
+    return s;
+}
+
 void ACore_SI::processEvents()
 {
     qApp->processEvents();

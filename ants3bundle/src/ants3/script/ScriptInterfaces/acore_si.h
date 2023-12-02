@@ -89,6 +89,7 @@ public slots:
 
     //misc
     QString str(double value, int precision);
+    QString toStr(QVariant var);
     QString getExamplesDir();
     void    processEvents();
 //  void    reportProgress(int percents);

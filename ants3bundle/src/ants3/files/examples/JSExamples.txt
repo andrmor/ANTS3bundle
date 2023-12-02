@@ -21,3 +21,13 @@ Analysis:TrackingHistory:Logging
 #info
 Log tracking history
 #end
+
+#file
+FormattedOutput.txt
+#tags
+Output:Print:Colors
+#info
+Print objects/arrays etc in colors
+#end
+
+
