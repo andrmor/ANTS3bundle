@@ -14,34 +14,28 @@ class AScriptMessenger : public QObject
 {
     Q_OBJECT
 public:
-    AScriptMessenger(EScriptLanguage language, bool html, QObject * parent = nullptr);
+    AScriptMessenger(EScriptLanguage language, QObject * parent = nullptr);
 
-    void output(QString txt);
+    void output(QString txt, bool html);
 
     void flush();
     void clear();
-
-signals:
-    void requestOutput(QString txt);
 
 private slots:
     void onTimer();
 
 private:
     EScriptLanguage Language;
-    bool            HTML;
 
     AStopWatch    * StopWatch = nullptr;
     QTimer        * Timer = nullptr;
-    QString         Buffer;
+
+    std::vector<std::pair<bool,QString>> Buffer;
 
     const int       TimerInterval_Milliseconds      = 1;
     const double    IntervalForDirectOutput_seconds = 0.001;
 
     mutable QMutex  BufferMutex;
-
-    QString         LineBreak; // '\n' or '<br>'
-
 };
 
 #endif // ASCRIPTMESSENGER_H

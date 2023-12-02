@@ -458,16 +458,23 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
-    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
-    //if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
+}
+
+void AScriptWindow::outputFromBuffer(std::vector<std::pair<bool, QString>> buffer)
+{
+    for (const auto & p : buffer)
+    {
+        if (p.first) pteOut->appendHtml(p.second);
+        else         pteOut->appendPlainText(p.second);
+    }
 }
 
 void AScriptWindow::outputAbortMessage(QString text)

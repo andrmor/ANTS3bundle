@@ -118,6 +118,12 @@ void AScriptHub::outputHtml(const QString &text, EScriptLanguage lang)
     else                                     emit outputHtml_P(text);
 }
 
+void AScriptHub::outputFromBuffer(const std::vector<std::pair<bool, QString>> & buffer, EScriptLanguage lang)
+{
+    if (lang == EScriptLanguage::JavaScript) emit outputFromBuffer_JS(buffer);
+    else                                     emit outputFromBuffer_P(buffer);
+}
+
 void AScriptHub::clearOutput(EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit clearOutput_JS();

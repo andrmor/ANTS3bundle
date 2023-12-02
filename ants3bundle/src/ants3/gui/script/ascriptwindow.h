@@ -150,6 +150,7 @@ public slots:
     void clearOutput();
     void outputHtml(QString text);
     void outputText(QString text);
+    void outputFromBuffer(std::vector<std::pair<bool, QString>> buffer);
     void outputAbortMessage(QString text);
 
     void onRequestAddScript(const QString & script);

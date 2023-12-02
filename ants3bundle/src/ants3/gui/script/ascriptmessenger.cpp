@@ -6,26 +6,25 @@
 
 #include <chrono>
 
-AScriptMessenger::AScriptMessenger(EScriptLanguage language, bool html, QObject * parent) :
+AScriptMessenger::AScriptMessenger(EScriptLanguage language, QObject * parent) :
     QObject{parent},
-    Language(language), HTML(html),
+    Language(language),
     StopWatch(new AStopWatch), Timer(new QTimer())
 {
     connect(Timer, &QTimer::timeout, this, &AScriptMessenger::onTimer);
     Timer->setSingleShot(true);
     Timer->setInterval(TimerInterval_Milliseconds);
-
-    LineBreak = (HTML ? "<br>" : "\n");
+    StopWatch->start();
 }
 
-void AScriptMessenger::output(QString txt)
+void AScriptMessenger::output(QString txt, bool html)
 {
-    if (Buffer.isEmpty())
+    if (Buffer.empty())
     {
         if (StopWatch->getSecondsFromStart() > IntervalForDirectOutput_seconds)
         {
-            (HTML ? AScriptHub::getInstance().outputHtml(txt, Language) : AScriptHub::getInstance().outputText(txt, Language));
-            StopWatch->start();
+            (html ? AScriptHub::getInstance().outputHtml(txt, Language) : AScriptHub::getInstance().outputText(txt, Language));
+            StopWatch->start();  // protext by mutex if expand to multiple instances of the caller
             return;
         }
         // else starting new "queue"
@@ -33,43 +32,37 @@ void AScriptMessenger::output(QString txt)
         // locking the buffer and store txt in the buffer
         {
             QMutexLocker locker(&BufferMutex);
-            if (!Buffer.isEmpty()) Buffer += LineBreak;
-            Buffer += txt;
+            Buffer.push_back({html, txt});
+            Timer->start();
         }
-        Timer->start();
     }
     else
     {
-        // no need to pause timer?
         QMutexLocker locker(&BufferMutex);
-        Buffer += LineBreak;
-        Buffer += txt;
+        Buffer.push_back({html, txt});
     }
 }
 
 void AScriptMessenger::flush()
 {
-    Timer->stop();
     QMutexLocker locker(&BufferMutex);
-    (HTML ? AScriptHub::getInstance().outputHtml(Buffer, Language) : AScriptHub::getInstance().outputText(Buffer, Language));
+    Timer->stop();
+    AScriptHub::getInstance().outputFromBuffer(Buffer, Language);
     Buffer.clear();
 }
 
 void AScriptMessenger::clear()
 {
-    Timer->stop();
     QMutexLocker locker(&BufferMutex);
+    Timer->stop();
     Buffer.clear();
+    StopWatch->start();
 }
 
 void AScriptMessenger::onTimer()
 {
-    // locking the buffer to send the message
-    {
-        QMutexLocker locker(&BufferMutex);
-        (HTML ? AScriptHub::getInstance().outputHtml(Buffer, Language) : AScriptHub::getInstance().outputText(Buffer, Language));
-        Buffer.clear();
-    }
-
+    QMutexLocker locker(&BufferMutex);
+    AScriptHub::getInstance().outputFromBuffer(Buffer, Language);
+    Buffer.clear();
     StopWatch->start();
 }

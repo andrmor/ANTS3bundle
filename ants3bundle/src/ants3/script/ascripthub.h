@@ -40,6 +40,7 @@ public:
 
     void outputText(const QString & text, EScriptLanguage lang);
     void outputHtml(const QString & text, EScriptLanguage lang);
+    void outputFromBuffer(const std::vector<std::pair<bool,QString>> & buffer, EScriptLanguage lang);
     void clearOutput(EScriptLanguage lang);
 
     QString getPythonVersion();
@@ -59,6 +60,8 @@ signals:
     void outputText_P(QString);
     void outputHtml_JS(QString);
     void outputHtml_P(QString);
+    void outputFromBuffer_JS(std::vector<std::pair<bool,QString>> Buffer);
+    void outputFromBuffer_P(std::vector<std::pair<bool,QString>> Buffer);
     void showAbortMessage_JS(QString message); // !!!*** remove, use outputHtml
     void showAbortMessage_P(QString message);
     void clearOutput_JS();

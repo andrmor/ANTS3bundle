@@ -104,8 +104,7 @@ private:
     QString         Finder_Dir;
     QString         Finder_NamePattern = "*.*";
 
-    AScriptMessenger * MessengerTxt  = nullptr;
-    AScriptMessenger * MessengerHtml = nullptr;
+    AScriptMessenger * Messenger = nullptr;
 
     void readFormattedLine(const QStringList &fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
     bool readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);
