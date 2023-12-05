@@ -1132,7 +1132,7 @@ void AMatWin::on_pbClone_clicked()
 
 void AMatWin::on_pbAcceptChanges_clicked()
 {
-    tmpMaterial.Comments = ui->pteComments->toPlainText().simplified();
+    tmpMaterial.Comments = ui->pteComments->toPlainText();
     bool ok = checkCurrentMaterial();
     if (!ok) return;
 
