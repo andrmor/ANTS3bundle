@@ -32,6 +32,8 @@ public slots:
     void setAngularFactors(int iModel, QVariantList arAngleAndFactor);
     void setArearFactors(int iModel, QVariantList arFactorMatrix, double stepX, double stepY);
 
+    QVariantList getSensorPositions();
+
 private:
     ASensorHub & SensHub;
 };

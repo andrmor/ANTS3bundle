@@ -189,3 +189,17 @@ void ASensor_SI::setArearFactors(int iModel, QVariantList arFactorMatrix, double
     model->StepX = stepX;
     model->StepY = stepY;
 }
+
+QVariantList ASensor_SI::getSensorPositions()
+{
+    QVariantList vl;
+    const ASensorHub & hub = ASensorHub::getConstInstance();
+    const int num = hub.countSensors();
+    for (int iSens = 0; iSens < num; iSens++)
+    {
+        const AVector3 pos = hub.getPositionFast(iSens);
+        QVariantList el{pos[0], pos[1], pos[2]};
+        vl.push_back(el);
+    }
+    return vl;
+}
