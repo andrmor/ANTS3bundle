@@ -105,6 +105,24 @@ bool APhoton::readAscii(QString & line)
     return true;
 }
 
+bool APhoton::readBinary(std::ifstream & stream)
+{
+    stream.read((char*)&r[0],      sizeof(double));
+    stream.read((char*)&r[1],      sizeof(double));
+    stream.read((char*)&r[2],      sizeof(double));
+    stream.read((char*)&v[0],      sizeof(double));
+    stream.read((char*)&v[1],      sizeof(double));
+    stream.read((char*)&v[2],      sizeof(double));
+    stream.read((char*)&time,      sizeof(double));
+    stream.read((char*)&waveIndex, sizeof(int));
+    if (stream.fail())
+    {
+        AErrorHub::addError("Unexpected format of a line in the binary file with the node records");
+        return false;
+    }
+    return true;
+}
+
 void APhoton::print(QString & text)
 {
     text += QString("Pos:(%0,%1,%2)mm  ").arg(r[0]).arg(r[1]).arg(r[2]) +

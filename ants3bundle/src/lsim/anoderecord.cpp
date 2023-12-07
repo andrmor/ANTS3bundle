@@ -41,6 +41,21 @@ bool ANodeRecord::readAscii(QString & line)
     return true;
 }
 
+bool ANodeRecord::readBinary(std::ifstream & stream)
+{
+    stream.read((char*)&R[0],    sizeof(double));
+    stream.read((char*)&R[1],    sizeof(double));
+    stream.read((char*)&R[2],    sizeof(double));
+    stream.read((char*)&Time,    sizeof(double));
+    stream.read((char*)&NumPhot, sizeof(int));
+    if (stream.fail())
+    {
+        AErrorHub::addError("Unexpected format of a line in the binary file with records of photon emission nodes");
+        return false;
+    }
+    return true;
+}
+
 void ANodeRecord::print(QString & text)
 {
     text += QString("Pos:(%0,%1,%2)mm  ").arg(R[0]).arg(R[1]).arg(R[2]) +

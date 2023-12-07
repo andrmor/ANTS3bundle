@@ -30,7 +30,7 @@ public:
     bool readNextRecordSameEvent(ADataIOBase & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
 
-    bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
+    bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer); // !!!*** redo the same way as in particle manager to be usable for asci and binary
 
     QString preview(ADataIOBase & buffer, int numLines = 100);
 
