@@ -1132,6 +1132,7 @@ void AMatWin::on_pbClone_clicked()
 
 void AMatWin::on_pbAcceptChanges_clicked()
 {
+    tmpMaterial.Comments = ui->pteComments->toPlainText();
     bool ok = checkCurrentMaterial();
     if (!ok) return;
 
@@ -1148,7 +1149,6 @@ void AMatWin::on_pbAcceptChanges_clicked()
             return;
         }
     }
-
     if (!oldName.isEmpty()) tmpMaterial.Name = oldName;
     MatHub.copyToMaterials(tmpMaterial);
 

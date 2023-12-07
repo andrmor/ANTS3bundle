@@ -238,6 +238,7 @@ void AMaterial::clear()
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
     Comments = "";
+    Tags.clear();
 
     Dielectric = true;
     RefIndexComplex = {1.0, 0};
