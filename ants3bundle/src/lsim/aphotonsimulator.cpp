@@ -195,7 +195,6 @@ void APhotonSimulator::saveSensorHits()
 
 void APhotonSimulator::savePhotonBomb(ANodeRecord & node)
 {
-    //*StreamPhotonBombs << node.R[0] << ' ' << node.R[1] << ' ' << node.R[2] << ' ' << node.Time << ' ' << node.NumPhot << '\n';
     node.writeAscii(*StreamPhotonBombs);
 }
 
