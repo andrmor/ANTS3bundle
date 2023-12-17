@@ -334,7 +334,7 @@ void AParticleSourceDialog::updateListWidget()
         str += str1 + "> ";
         str += QString(gps.Particle.data());
         if (gps.UseFixedEnergy)
-             str += QString(" E=%1").arg(gps.FixedEnergy);
+             str += QString(" E=%1keV").arg(gps.FixedEnergy);
         else str += " E=spec";
 
         if (Independent)
@@ -410,6 +410,16 @@ void AParticleSourceDialog::on_cobUnits_activated(int)
 {
     updateFixedEnergy();
     updateParticleInfo();
+    //updateListWidget();
+    on_pbUpdateRecord_clicked();
+}
+
+void AParticleSourceDialog::on_cobEnergySigmaUnits_activated(int)
+{
+    updateFixedEnergy();
+    updateParticleInfo();
+    updateListWidget();
+    on_pbUpdateRecord_clicked();
 }
 
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
@@ -744,38 +754,91 @@ void AParticleSourceDialog::updateHalfLife()
     LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
 }
 
+double neutronEnergy_keV_ToWavelength_A(double energy_keV)
+{
+    // lambda = h / sqrt(2meV)
+    return 6.62607015e-34 / sqrt(2 * 1.67492749804e-27 * 1.60217663e-19 * energy_keV * 1000) * 1e10;
+}
+
+double neutronWavelength_A_ToEnergy_keV(double wavelength_A)
+{
+    // lambda² = h² / (2meV) --> V = h² / lambda²/ (2me)
+    double tmp = 6.62607015e-34 / (wavelength_A * 1e-10);
+    tmp *= tmp;
+    tmp /= (2 * 1.67492749804e-27 * 1.60217663e-19);
+    return tmp * 0.001; // keV
+}
+
 void AParticleSourceDialog::updateFixedEnergyIndication(const AGunParticle & gRec)
 {
+    QStringList units{"MeV", "keV", "eV", "meV"};
+    bool bNeutron = (gRec.Particle == "neutron");
+    if (bNeutron) units << "A";
+    ui->cobUnits->clear(); ui->cobUnits->addItems(units);
+    ui->cobEnergySigmaUnits->clear(); ui->cobEnergySigmaUnits->addItems(units);
+
     int index = 0;
     double factor = 1.0;
     switch (gRec.PreferredUnits)
     {
-    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
-    case AGunParticle::keV : index = 1; factor = 1.0;  break;
-    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
-    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    case AGunParticle::MeV      : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV      : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV       : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV      : index = 3; factor = 1e6;  break;
+    case AGunParticle::Angstrom : index = 4; factor = 0;    break;
     default :
         qWarning() << "Not implemented EEneryUnits of PreferredUnits -> assuming keV";
         index = 1; factor = 1.0; break;
     }
+
+    if (!bNeutron && index == 4)
+    {
+        qWarning() << "Attempt to use Angstrom energy units for not neutron -> changing to keV";
+        index = 1; factor = 1.0;
+    }
+
     ui->cobUnits->setCurrentIndex(index);
-    ui->ledGunEnergy->setText( QString::number(gRec.FixedEnergy * factor) );
+    double value;
+    if (index == 4) value = neutronEnergy_keV_ToWavelength_A(gRec.FixedEnergy);
+    else            value = gRec.FixedEnergy * factor;
+    ui->ledGunEnergy->setText( QString::number(value) );
 
     ui->cbEnergyGaussBlur->setChecked(gRec.UseGaussBlur);
     index = 0;
     factor = 1.0;
     switch (gRec.PreferredSigmaUnits)
     {
-    case AGunParticle::MeV : index = 0; factor = 1e-3; break;
-    case AGunParticle::keV : index = 1; factor = 1.0;  break;
-    case AGunParticle::eV  : index = 2; factor = 1e3;  break;
-    case AGunParticle::meV : index = 3; factor = 1e6;  break;
+    case AGunParticle::MeV      : index = 0; factor = 1e-3; break;
+    case AGunParticle::keV      : index = 1; factor = 1.0;  break;
+    case AGunParticle::eV       : index = 2; factor = 1e3;  break;
+    case AGunParticle::meV      : index = 3; factor = 1e6;  break;
+    case AGunParticle::Angstrom : index = 4; factor = 0;    break;
     default :
         qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits -> assuming keV";
         index = 1; factor = 1.0; break;
     }
+
+    if (!bNeutron && index == 4)
+    {
+        qWarning() << "Attempt to use Angstrom energy units for not neutron -> changing to keV";
+        index = 1; factor = 1.0;
+    }
+
     ui->cobEnergySigmaUnits->setCurrentIndex(index);
-    ui->ledEnergySigma->setText( QString::number(gRec.EnergySigma * factor) );
+    if (index == 4) value = neutronEnergy_keV_ToWavelength_A(gRec.EnergySigma);
+    else            value = gRec.EnergySigma * factor;
+    ui->ledEnergySigma->setText( QString::number(value) );
+}
+
+void AParticleSourceDialog::on_leGunParticle_editingFinished()
+{
+    const int row = ui->lwGunParticles->currentRow();
+    const AGunParticle & gRec = LocalRec.Particles.at(row);
+    if (ui->leGunParticle->text() != QString(gRec.Particle.data()))
+        if (gRec.Particle == "neutron" || ui->leGunParticle->text() == "neutron")
+            updateFixedEnergyIndication(gRec); // hide / show Angstrom units option
+
+    on_pbUpdateRecord_clicked();
 }
 
 void AParticleSourceDialog::updateFixedEnergy()
@@ -787,29 +850,37 @@ void AParticleSourceDialog::updateFixedEnergy()
     double factor = 1.0;
     switch (ui->cobUnits->currentIndex())
     {
-    case 0 : p.PreferredUnits = AGunParticle::MeV; factor = 1e-3; break;
-    case 1 : p.PreferredUnits = AGunParticle::keV; factor = 1.0;  break;
-    case 2 : p.PreferredUnits = AGunParticle::eV;  factor = 1e3;  break;
-    case 3 : p.PreferredUnits = AGunParticle::meV; factor = 1e6;  break;
+    case 0 : p.PreferredUnits = AGunParticle::MeV;      factor = 1e-3; break;
+    case 1 : p.PreferredUnits = AGunParticle::keV;      factor = 1.0;  break;
+    case 2 : p.PreferredUnits = AGunParticle::eV;       factor = 1e3;  break;
+    case 3 : p.PreferredUnits = AGunParticle::meV;      factor = 1e6;  break;
+    case 4 : p.PreferredUnits = AGunParticle::Angstrom; factor = 0;    break;
     default:
         qWarning() << "Not implemented EEneryUnits of PreferredUnits in updateFixedEnergy()";
         p.PreferredUnits = AGunParticle::keV;
     }
-    p.FixedEnergy = ui->ledGunEnergy->text().toDouble() / factor;
+
+    double val = ui->ledGunEnergy->text().toDouble();
+    if (ui->cobUnits->currentIndex() == 4) p.FixedEnergy = neutronWavelength_A_ToEnergy_keV(val);
+    else                                   p.FixedEnergy = val / factor;
 
     p.UseGaussBlur = ui->cbEnergyGaussBlur->isChecked();
     factor = 1.0;
     switch (ui->cobEnergySigmaUnits->currentIndex())
     {
-    case 0 : p.PreferredSigmaUnits = AGunParticle::MeV; factor = 1e-3; break;
-    case 1 : p.PreferredSigmaUnits = AGunParticle::keV; factor = 1.0;  break;
-    case 2 : p.PreferredSigmaUnits = AGunParticle::eV;  factor = 1e3;  break;
-    case 3 : p.PreferredSigmaUnits = AGunParticle::meV; factor = 1e6;  break;
+    case 0 : p.PreferredSigmaUnits = AGunParticle::MeV;      factor = 1e-3; break;
+    case 1 : p.PreferredSigmaUnits = AGunParticle::keV;      factor = 1.0;  break;
+    case 2 : p.PreferredSigmaUnits = AGunParticle::eV;       factor = 1e3;  break;
+    case 3 : p.PreferredSigmaUnits = AGunParticle::meV;      factor = 1e6;  break;
+    case 4 : p.PreferredSigmaUnits = AGunParticle::Angstrom; factor = 0;    break;
     default:
         qWarning() << "Not implemented EEneryUnits of PreferredSigmaUnits in updateFixedEnergy()";
         p.PreferredSigmaUnits = AGunParticle::keV;
     }
-    p.EnergySigma = ui->ledEnergySigma->text().toDouble() / factor;
+
+    val = ui->ledEnergySigma->text().toDouble();
+    if (ui->cobEnergySigmaUnits->currentIndex() == 4) p.EnergySigma = neutronWavelength_A_ToEnergy_keV(val);
+    else                                              p.EnergySigma = val / factor;
 }
 
 void AParticleSourceDialog::on_pbTimeCustomShow_clicked()

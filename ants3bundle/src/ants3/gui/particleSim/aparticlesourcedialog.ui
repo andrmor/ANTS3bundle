@@ -3197,22 +3197,6 @@ If material with this name does not exist, this limitation is not applied.</stri
    </hints>
   </connection>
   <connection>
-   <sender>leGunParticle</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateRecord</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>567</x>
-     <y>402</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>603</x>
-     <y>30</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>cobGenerationType</sender>
    <signal>activated(int)</signal>
    <receiver>pbUpdateRecord</receiver>
@@ -3369,22 +3353,6 @@ If material with this name does not exist, this limitation is not applied.</stri
     <hint type="destinationlabel">
      <x>539</x>
      <y>18</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobEnergySigmaUnits</sender>
-   <signal>activated(int)</signal>
-   <receiver>pbUpdateRecord</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>598</x>
-     <y>490</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>569</x>
-     <y>16</y>
     </hint>
    </hints>
   </connection>

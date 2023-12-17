@@ -18,7 +18,7 @@ class G4ParticleDefinition;
 struct AGunParticle
 {
     enum EType {Independent, Linked_IfGenerated, Linked_IfNotGenerated};
-    enum EEneryUnits {meV, eV, keV, MeV};
+    enum EEneryUnits {meV, eV, keV, MeV, Angstrom};
 
     std::string  Particle        = "geantino";
 

@@ -89,10 +89,11 @@ void AGunParticle::writeToJson(QJsonObject & json) const
             QString str;
             switch (PreferredUnits)
             {
-            case meV : str = "meV"; break;
-            case eV  : str = "eV";  break;
-            case keV : str = "keV"; break;
-            case MeV : str = "MeV"; break;
+            case meV      : str = "meV";      break;
+            case eV       : str = "eV";       break;
+            case keV      : str = "keV";      break;
+            case MeV      : str = "MeV";      break;
+            case Angstrom : str = "Angstrom"; break;
             default: qCritical() << "Not implemented PreferredUnits"; exit(111);
             }
             js["PreferredUnits"] = str;
@@ -104,10 +105,11 @@ void AGunParticle::writeToJson(QJsonObject & json) const
             js["EnergySigma"]  = EnergySigma;
             switch (PreferredSigmaUnits)
             {
-            case meV : str = "meV"; break;
-            case eV  : str = "eV";  break;
-            case keV : str = "keV"; break;
-            case MeV : str = "MeV"; break;
+            case meV      : str = "meV";      break;
+            case eV       : str = "eV";       break;
+            case keV      : str = "keV";      break;
+            case MeV      : str = "MeV";      break;
+            case Angstrom : str = "Angstrom"; break;
             default: qCritical() << "Not implemented PreferredSigmaUnits"; exit(111);
             }
             js["PreferredSigmaUnits"] = str;
