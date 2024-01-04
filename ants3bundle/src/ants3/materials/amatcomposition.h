@@ -43,8 +43,12 @@ class AMatComposition
 public:
     AMatComposition();
 
-    double Density     = 1e-25;     // g/cm3
-    double Temperature = 298.0;     // K
+    double  Density      = 1e-25;     // g/cm3
+    double  Temperature  = 298.0;     // K
+    bool    Gas          = false;
+    double  Pressure_bar = 1.0;
+    QString P_gui_units   = "bar";
+
     bool   UseCustomMeanExEnergy = false;
     double MeanExEnergy = 0;        // eV
 

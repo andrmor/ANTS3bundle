@@ -44,6 +44,7 @@ void AMatComposition::makeItVacuum()
     CompositionString = "H";
     Density = 1e-24;
     Temperature = 298.0;
+    Gas = false;
     UseCustomMeanExEnergy = false;
     MeanExEnergy = 0;
 }
@@ -954,6 +955,13 @@ void AMatComposition::writeToJson(QJsonObject & json) const
         js["Temperature"]             = Temperature;
         js["UseMeanExcitationEnergy"] = UseCustomMeanExEnergy;
         js["MeanExcitationEnergy_eV"] = MeanExEnergy;
+
+        QJsonObject gjs;
+            gjs["Gas"] = Gas;
+            gjs["Pressure_bar"] = Pressure_bar;
+            gjs["PressureUnitsInGui"] = P_gui_units;
+        js["GasProperties"] = gjs;
+
     json["CustomComposition"] = js;
 }
 
@@ -972,6 +980,16 @@ bool AMatComposition::readFromJson(const QJsonObject & json)
         jstools::parseJson(js, "Temperature", Temperature);
         jstools::parseJson(js, "UseMeanExcitationEnergy", UseCustomMeanExEnergy);
         jstools::parseJson(js, "MeanExcitationEnergy_eV", MeanExEnergy);
+
+        QJsonObject gjs;
+        ok = jstools::parseJson(js, "GasProperties", gjs);
+        if (!ok) Gas = false;
+        else
+        {
+            jstools::parseJson(gjs, "Gas", Gas);
+            jstools::parseJson(gjs, "Pressure_bar", Pressure_bar);
+            jstools::parseJson(gjs, "PressureUnitsInGui", P_gui_units);
+        }
 
         QString str;
         ok = jstools::parseJson(js, "CompositionString", str);

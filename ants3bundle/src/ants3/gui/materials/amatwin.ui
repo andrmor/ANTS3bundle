@@ -392,6 +392,74 @@
                 </layout>
                </item>
                <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QCheckBox" name="cbGas">
+                   <property name="text">
+                    <string>Gas</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labPressure">
+                   <property name="text">
+                    <string>Pressure:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="ledPressure">
+                   <property name="maximumSize">
+                    <size>
+                     <width>75</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cobPressureUnits">
+                   <item>
+                    <property name="text">
+                     <string>bar</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>mbar</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>hPa</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Torr</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_14">
                  <property name="topMargin">
                   <number>0</number>
@@ -3298,8 +3366,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>418</x>
@@ -3330,8 +3398,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3442,8 +3510,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>211</x>
-     <y>331</y>
+     <x>356</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>400</x>
@@ -3458,8 +3526,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>329</y>
+     <x>356</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>469</x>
@@ -3474,8 +3542,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>352</x>
-     <y>322</y>
+     <x>436</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>411</x>
@@ -3490,12 +3558,92 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>334</x>
-     <y>333</y>
+     <x>436</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>
      <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbGas</sender>
+   <signal>clicked()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>37</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledPressure</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>204</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>392</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobPressureUnits</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>38</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledPressure</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>188</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobPressureUnits</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>541</x>
+     <y>44</y>
     </hint>
    </hints>
   </connection>

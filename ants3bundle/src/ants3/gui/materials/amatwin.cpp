@@ -65,6 +65,8 @@ AMatWin::AMatWin(QWidget * parent) :
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     ui->leComposition->setAlignment(Qt::AlignHCenter);
+
+    on_cbGas_toggled(ui->cbGas->isChecked());
 }
 
 AMatWin::~AMatWin()
@@ -362,12 +364,40 @@ void AMatWin::fillElementInfo()
     }
 }
 
+std::pair<QString,int> pressureToStringAndCobIndex(double pressure_bar, const QString & units)
+{
+    double factor = 1.0;
+    int    index = 0;
+    QString sPressure;
+    if      (units == "bar") {factor = 1.0; index = 0;}
+    else if (units == "mbar") {factor = 1e3; index = 1;}
+    else if (units == "hPa") {factor = 1e3; index = 1;}
+    else qWarning() << "Unknown preffered pressure units:" << units;
+
+    double pressure = pressure_bar * factor;
+    sPressure = QString::number(pressure);
+    return {sPressure, index};
+}
+
 void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.Name);
 
     ui->ledDensity->setText( QString::number(tmpMaterial.Composition.Density) );
     ui->ledT->setText( QString::number(tmpMaterial.Composition.Temperature) );
+    ui->cbGas->setChecked(tmpMaterial.Composition.Gas);
+    if (tmpMaterial.Composition.Gas)
+    {
+        std::pair<QString,int> pair = pressureToStringAndCobIndex(tmpMaterial.Composition.Pressure_bar, tmpMaterial.Composition.P_gui_units);
+        ui->ledPressure->setText(pair.first);
+        ui->cobPressureUnits->setCurrentIndex(pair.second);
+    }
+    else
+    {
+        ui->ledPressure->setText("1");
+        ui->cobPressureUnits->setCurrentIndex(0);
+    }
+
     ui->cobMeanExcitationEnergy->setCurrentIndex(tmpMaterial.Composition.UseCustomMeanExEnergy ? 1 : 0);
     ui->frMeanExcitationEnergy->setVisible(tmpMaterial.Composition.UseCustomMeanExEnergy);
     ui->ledMeanExcitationEnergy->setText( QString::number(tmpMaterial.Composition.MeanExEnergy) );
@@ -468,7 +498,19 @@ void AMatWin::updateWarningIcons()
     }
     else
     */
-        ui->twProperties->setTabIcon(0, QIcon());
+    ui->twProperties->setTabIcon(0, QIcon());
+}
+
+double pressureToBars(double p, const QString & units)
+{
+    double factor = 1.0;
+
+    if      (units == "bar")  factor = 1.0;
+    else if (units == "mbar") factor = 1e-3;
+    else if (units == "hPa")  factor = 1e-3;
+    else qWarning() << "Not implemented pressure unit:" << units << "--> assuming bar";
+
+    return p * factor;
 }
 
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
@@ -480,6 +522,21 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 
     tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
     tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
+
+    tmpMaterial.Composition.Gas = ui->cbGas->isChecked();
+    if (tmpMaterial.Composition.Gas)
+    {
+        double p = ui->ledPressure->text().toDouble();
+        QString units = ui->cobPressureUnits->currentText();
+        tmpMaterial.Composition.Pressure_bar = pressureToBars(p, units);
+        tmpMaterial.Composition.P_gui_units = units;
+    }
+    else
+    {
+        tmpMaterial.Composition.Pressure_bar = 1.0;
+        tmpMaterial.Composition.P_gui_units = "bar";
+    }
+
     tmpMaterial.Composition.UseCustomMeanExEnergy = (ui->cobMeanExcitationEnergy->currentIndex() == 1);
     tmpMaterial.Composition.MeanExEnergy = ui->ledMeanExcitationEnergy->text().toDouble();
 
@@ -1294,5 +1351,14 @@ void AMatWin::on_pbInspectG4Material_clicked()
 void AMatWin::on_cobMeanExcitationEnergy_currentIndexChanged(int index)
 {
     ui->frMeanExcitationEnergy->setVisible(index == 1);
+}
+
+void AMatWin::on_cbGas_toggled(bool checked)
+{
+    ui->labPressure->setVisible(checked);
+    ui->ledPressure->setVisible(checked);
+    ui->cobPressureUnits->setVisible(checked);
+
+    ui->ledDensity->setDisabled(checked);
 }
 

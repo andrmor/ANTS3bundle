@@ -85,6 +85,8 @@ private slots:
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
+    void on_cbGas_toggled(bool checked);
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
