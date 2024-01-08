@@ -65,6 +65,8 @@ public:
 
     bool importComposition(TGeoMaterial * mat);
 
+    QString convertPressureToDensity(); // returns error string
+
     QString ErrorString;
 
 protected:

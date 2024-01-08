@@ -287,6 +287,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     }
 
     AMaterialHub & MatHub = AMaterialHub::getInstance();
+    MatHub.convertPressureToDensity();
     MatHub.generateGeoMedia();
 
     Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);

@@ -3366,8 +3366,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>112</x>
-     <y>271</y>
+     <x>117</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>418</x>
@@ -3398,8 +3398,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>112</x>
-     <y>271</y>
+     <x>117</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3644,6 +3644,22 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>541</x>
      <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbGas</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>38</y>
     </hint>
    </hints>
   </connection>

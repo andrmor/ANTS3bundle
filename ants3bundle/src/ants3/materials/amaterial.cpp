@@ -280,6 +280,11 @@ void AMaterial::clearDynamicProperties()
     delete _SecondarySpectrumHist; _SecondarySpectrumHist = nullptr;
 }
 
+QString AMaterial::convertPressureToDensity()
+{
+    return Composition.convertPressureToDensity();
+}
+
 void AMaterial::writeToJson(QJsonObject & json) const
 {
     json["*Name"]           = Name;
