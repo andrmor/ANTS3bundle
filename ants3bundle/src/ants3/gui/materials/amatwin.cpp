@@ -376,9 +376,10 @@ std::pair<QString,int> pressureToStringAndCobIndex(double pressure_bar, const QS
     double factor = 1.0;
     int    index = 0;
     QString sPressure;
-    if      (units == "bar") {factor = 1.0; index = 0;}
-    else if (units == "mbar") {factor = 1e3; index = 1;}
-    else if (units == "hPa") {factor = 1e3; index = 1;}
+    if      (units == "bar")  {index = 0; factor = 1.0;}
+    else if (units == "mbar") {index = 1; factor = 1e3;}
+    else if (units == "hPa")  {index = 2; factor = 1e3;}
+    else if (units == "Torr") {index = 3; factor = 1.0/0.00133322;}
     else qWarning() << "Unknown preffered pressure units:" << units;
 
     double pressure = pressure_bar * factor;
@@ -515,6 +516,7 @@ double pressureToBars(double p, const QString & units)
     if      (units == "bar")  factor = 1.0;
     else if (units == "mbar") factor = 1e-3;
     else if (units == "hPa")  factor = 1e-3;
+    else if (units == "Torr") factor = 0.00133322;
     else qWarning() << "Not implemented pressure unit:" << units << "--> assuming bar";
 
     return p * factor;
@@ -1317,7 +1319,11 @@ void AMatWin::on_leComposition_editingFinished()
 
     ui->leComposition->blockSignals(true);  // -->
     bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
-    if (ok) updateTmpMaterialGui();
+    if (ok)
+    {
+        updateTmpMaterialGui();
+        if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
+    }
     else guitools::message(tmpMaterial.Composition.ErrorString, this);
     ui->leComposition->blockSignals(false);  // <--
 
@@ -1381,6 +1387,17 @@ void AMatWin::on_ledPressure_editingFinished()
 void AMatWin::on_cbGas_clicked(bool checked)
 {
     if (checked) on_ledPressure_editingFinished();
+    else on_pbUpdateTmpMaterial_clicked();
+}
+
+void AMatWin::on_cobPressureUnits_activated(int)
+{
+    on_ledPressure_editingFinished();
+}
+
+void AMatWin::on_ledT_editingFinished()
+{
+    if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
     else on_pbUpdateTmpMaterial_clicked();
 }
 

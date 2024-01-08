@@ -2976,22 +2976,6 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>ledT</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>517</x>
-     <y>308</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>559</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledRayleigh</sender>
    <signal>editingFinished()</signal>
    <receiver>pbWasModified</receiver>
@@ -3580,22 +3564,6 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>387</x>
      <y>38</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobPressureUnits</sender>
-   <signal>activated(int)</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>273</x>
-     <y>325</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>541</x>
-     <y>44</y>
     </hint>
    </hints>
   </connection>
