@@ -315,7 +315,7 @@
                   <widget class="QLineEdit" name="ledDensity">
                    <property name="minimumSize">
                     <size>
-                     <width>75</width>
+                     <width>100</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -326,7 +326,7 @@
                     </size>
                    </property>
                    <property name="toolTip">
-                    <string>Used by all reactions except neutron capture</string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
@@ -2896,22 +2896,6 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>ledDensity</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>168</x>
-     <y>308</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>559</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledEDriftVelocity</sender>
    <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
@@ -3067,22 +3051,6 @@ Wavelengths shoul be given in increasing order</string>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledDensity</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>168</x>
-     <y>308</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>559</x>
      <y>52</y>
     </hint>
    </hints>
@@ -3616,22 +3584,6 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>ledPressure</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbUpdateTmpMaterial</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>188</x>
-     <y>324</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>43</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>cobPressureUnits</sender>
    <signal>activated(int)</signal>
    <receiver>pbUpdateTmpMaterial</receiver>
@@ -3648,18 +3600,18 @@ Wavelengths shoul be given in increasing order</string>
    </hints>
   </connection>
   <connection>
-   <sender>cbGas</sender>
-   <signal>clicked()</signal>
+   <sender>ledDensity</sender>
+   <signal>editingFinished()</signal>
    <receiver>pbUpdateTmpMaterial</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>326</y>
+     <x>125</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
-     <x>539</x>
-     <y>38</y>
+     <x>525</x>
+     <y>42</y>
     </hint>
    </hints>
   </connection>

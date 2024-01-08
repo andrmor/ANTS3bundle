@@ -110,7 +110,14 @@ bool AMatWin::checkCurrentMaterial()
     if ( !parseDecayOrRaiseTime(true) )  return false;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return false;  //error messaging inside
 
-    QString error = tmpMaterial.checkMaterial();
+    QString error = tmpMaterial.convertPressureToDensity();
+    if (!error.isEmpty())
+    {
+        guitools::message(error, this);
+        return false;
+    }
+
+    error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())
     {
         guitools::message(error, this);
@@ -1359,6 +1366,21 @@ void AMatWin::on_cbGas_toggled(bool checked)
     ui->ledPressure->setVisible(checked);
     ui->cobPressureUnits->setVisible(checked);
 
-    ui->ledDensity->setDisabled(checked);
+    ui->ledDensity->setReadOnly(checked);
+    ui->ledDensity->setToolTip(checked ? "Cannot modify pressure directly if 'Gas' option is selected!" : "");
+}
+
+void AMatWin::on_ledPressure_editingFinished()
+{
+    on_pbUpdateTmpMaterial_clicked();
+    QString err = tmpMaterial.convertPressureToDensity();
+    if (!err.isEmpty()) guitools::message(err, this);
+    ui->ledDensity->setText(QString::number(tmpMaterial.Composition.Density));
+}
+
+void AMatWin::on_cbGas_clicked(bool checked)
+{
+    if (checked) on_ledPressure_editingFinished();
+    else on_pbUpdateTmpMaterial_clicked();
 }
 
