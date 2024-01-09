@@ -296,7 +296,7 @@
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <item>
-                  <widget class="QLabel" name="label_21">
+                  <widget class="QLabel" name="labDensity">
                    <property name="font">
                     <font>
                      <bold>false</bold>

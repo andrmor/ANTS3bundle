@@ -22,6 +22,7 @@ public:
     bool isIdentical(const AElementRecord & other) const;
 };
 
+// used independently for parsing and convertPressureToDensity()
 class AMatMixRecord
 {
 public:
@@ -71,7 +72,7 @@ public:
 
 protected:
     void clearParsing();
-    bool parse(const QString & string);
+    bool parse(const QString & string); // after parsing, the remaining info in the MixtureByLevels is used by convertPressureToDensity()
     bool checkForbiddenChars();
     bool parseCustomElements();
     bool parseBracketedLevels();

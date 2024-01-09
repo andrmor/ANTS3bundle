@@ -951,43 +951,44 @@ QString AMatComposition::convertPressureToDensity()
 {
     if (!Gas) return "";
 
-    qDebug() << "Converting pressure to density!";
+    //qDebug() << "Converting pressure to density!";
 
     if (Pressure_bar <= 0) return "Pressure should be positive";
     if (CompositionString.contains('/')) return "Gas composition cannot be defined using mass fractions";
     if (CompositionString.contains('/')) return "Gas composition should be defined without brackets";
 
     QStringList sl = CompositionString.split('+', Qt::SkipEmptyParts);
-    int num = sl.size();
-    qDebug() << "...number of gases in the mixture:" << num;// << MixtureByLevels.size();
+
+    //int num = sl.size();
+    //qDebug() << "...number of gases in the mixture:" << num;// << MixtureByLevels.size();
     //for (const auto & rec : MixtureByLevels) qDebug() << rec.first << rec.second.Formula << rec.second.Fraction << rec.second.CombinedA << rec.second.ComputedFraction;
 
     double sumFractions = 0;
     double meanA = 0;
     for (const auto & str : sl)
     {
-        qDebug() << str;
+        //qDebug() << str;
         AMatComposition tmp;
         tmp.setCompositionString(str);
         double molFraction = tmp.MixtureByLevels.front().second.Fraction;
         double combinedA = tmp.MixtureByLevels.front().second.CombinedA;
-        qDebug() << "--->" << tmp.MixtureByLevels.front().second.Formula << " mol fraction:" << molFraction << " combinedA:" << combinedA;
+        //qDebug() << "--->" << tmp.MixtureByLevels.front().second.Formula << " mol fraction:" << molFraction << " combinedA:" << combinedA;
         sumFractions += molFraction;
         meanA += combinedA;
     }
 
-    qDebug() << "    " << meanA << "/" << sumFractions;
+    //qDebug() << "    " << meanA << "/" << sumFractions;
     if (sumFractions <= 0) return "Sum of gas fractions not positive";
     if (meanA <= 0) return "Mean A of molecule not positive";
     meanA /= sumFractions;
-    qDebug() << "====> mean A for this gas mixture:" << meanA;
+    //qDebug() << "====> mean A for this gas mixture:" << meanA;
 
     // PV = nkT --> n/V = P / (kT)
     // density = n/V * MassA = P / (kT) * meanA * 1.660539e-27 [kg/m3]
     // multiply by 1e-3 to get g/cm3
 
     Density = Pressure_bar * 1e5 / 1.380649e-23 / Temperature * meanA * 1.660539e-27 * 1e-3;
-    qDebug() << "====> density:" << Density << "g/cm3";
+    //qDebug() << "====> density:" << Density << "g/cm3";
 
     return "";
 }

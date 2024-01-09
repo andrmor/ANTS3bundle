@@ -1372,7 +1372,8 @@ void AMatWin::on_cbGas_toggled(bool checked)
     ui->ledPressure->setVisible(checked);
     ui->cobPressureUnits->setVisible(checked);
 
-    ui->ledDensity->setReadOnly(checked);
+    ui->ledDensity->setDisabled(checked);
+    ui->labDensity->setText(checked ? "Density (assuming ideal gas):" : "Density:");
     ui->ledDensity->setToolTip(checked ? "Cannot modify pressure directly if 'Gas' option is selected!" : "");
 }
 
