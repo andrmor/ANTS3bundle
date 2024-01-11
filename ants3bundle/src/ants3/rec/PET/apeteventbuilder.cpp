@@ -291,7 +291,7 @@ void APetEventBuilder::build(std::vector<std::vector<DepositionNodeRecord>> & cl
                              std::vector<std::vector<EventRecord>> & events,
                              double integrationTime, double deadTime)
 {
-    qDebug() << "Starting event building (" << integrationTime<< deadTime, ")...";
+    qDebug() << "Starting event building (" << integrationTime<< deadTime << ")...";
 
     for (size_t iScint = 0; iScint < clusters.size(); iScint++)
     {
