@@ -219,7 +219,7 @@
        <item>
         <widget class="QTabWidget" name="twProperties">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -3580,6 +3580,70 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>525</x>
      <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledPrimaryYield</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledIntEnergyRes</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>404</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledPrimaryYield</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>320</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledIntEnergyRes</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>312</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>546</x>
+     <y>38</y>
     </hint>
    </hints>
   </connection>

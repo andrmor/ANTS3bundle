@@ -557,7 +557,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };
 
     tmpMaterial.PhotonYield = ui->ledPrimaryYield->text().toDouble();
-    //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
+    tmpMaterial.IntrEnergyRes = ui->ledIntEnergyRes->text().toDouble();
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
     tmpMaterial.SecScintPhotonYield = ui->ledSecYield->text().toDouble();

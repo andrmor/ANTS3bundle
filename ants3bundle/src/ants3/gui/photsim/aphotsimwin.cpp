@@ -433,6 +433,8 @@ void APhotSimWin::showSimulationResults()
 
 void APhotSimWin::on_pbLoadAllResults_clicked()
 {
+    // !!!*** check logic - load only what was configured in sim!
+
     ui->sbEvent->setValue(0);
 
     APhotSimRunSettings Set;
@@ -444,13 +446,36 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     loadMonitorsData(true);
 
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
-    showSensorSignal(true);
+    reshapeSensorSignalTable();
+    showSensorSignals(true);
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadTracks(true);
+}
+
+void APhotSimWin::reshapeSensorSignalTable()
+{
+    ui->twSensorTable->clear();
+
+    const int numColumns = ui->sbSensorTableColumns->value();
+    ui->twSensorTable->setColumnCount(numColumns);
+
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
+    int numRows = numSensors / numColumns;
+    if (numRows * numColumns < numSensors) numRows++;
+    ui->twSensorTable->setRowCount(numRows);
+
+    ui->twSensorTable->verticalHeader()->setVisible(false);
+    ui->twSensorTable->horizontalHeader()->setVisible(false);
+}
+
+void APhotSimWin::on_sbSensorTableColumns_editingFinished()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
 }
 
 void APhotSimWin::on_sbFloodNumber_editingFinished()
@@ -509,7 +534,6 @@ void APhotSimWin::on_ledFloodZto_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
 }
-
 
 void APhotSimWin::on_sbNumPhotons_editingFinished()
 {
@@ -1340,14 +1364,15 @@ void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignal(true);  break;
+    case 2 : showSensorSignals(true);  break;
     case 3 : showBombSingleEvent();   break;
     case 4 : showTracksSingleEvent(); break;
     default :;
     }
 }
 
-void APhotSimWin::showSensorSignal(bool suppressMessage)
+#include "asensorsignalarray.h"
+void APhotSimWin::showSensorSignals(bool suppressMessage)
 {
     QString name = ui->leSensorSigFileName->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
@@ -1372,15 +1397,6 @@ void APhotSimWin::showSensorSignal(bool suppressMessage)
         }
     }
 
-    //if (ui->twSensors->currentIndex() == 0)
-        showSensorSignalDraw();
-    //else
-        showSensorSignalTable();
-}
-
-#include "asensorsignalarray.h"
-void APhotSimWin::showSensorSignalDraw()
-{
     ASensorSignalArray ar;
     const int numSensors = ASensorHub::getConstInstance().countSensors();
     ar.Signals.resize(numSensors);
@@ -1389,13 +1405,28 @@ void APhotSimWin::showSensorSignalDraw()
     bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this);
+        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
         return;
     }
 
-    SignalsFileHandler->readNextRecordSameEvent(ar);
+    ok = SignalsFileHandler->readNextRecordSameEvent(ar);
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        return;
+    }
 
+    // !!!*** int --> size_t?
     std::vector<int> enabledSensors;
+    fillListEnabledSensors(enabledSensors);
+
+    showSensorSignalDraw(ar.Signals, enabledSensors);
+    showSensorSignalTable(ar.Signals, enabledSensors);
+}
+
+void APhotSimWin::fillListEnabledSensors(std::vector<int> & enabledSensors)
+{
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
     if (ui->cbSensorsAll->isChecked())
     {
         for (int i = 0; i < numSensors; i++)
@@ -1403,18 +1434,49 @@ void APhotSimWin::showSensorSignalDraw()
     }
     else
     {
-        if (ui->cbSensorsG1->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG1->text(), enabledSensors);
-        if (ui->cbSensorsG2->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG2->text(), enabledSensors);
-        if (ui->cbSensorsG3->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG3->text(), enabledSensors);
+        QString txt;
+        if      (ui->cbSensorsG1->isChecked()) txt = ui->leSensorsG1->text();
+        else if (ui->cbSensorsG2->isChecked()) txt = ui->leSensorsG2->text();
+        else if (ui->cbSensorsG3->isChecked()) txt = ui->leSensorsG3->text();
+        guitools::extractNumbersFromQString(txt, enabledSensors);
     }
-
-    gvSensors->updateGui(ar.Signals, enabledSensors);
 }
 
-void APhotSimWin::showSensorSignalTable()
+void APhotSimWin::showSensorSignalDraw(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors)
 {
-
+    gvSensors->updateGui(signalArray, enabledSensors);
 }
+
+void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors)
+{
+    ui->twSensorTable->clearContents();
+
+    const size_t numSensors = signalArray.size();
+    const int numColumns = ui->sbSensorTableColumns->value();
+
+    int currentRow = 0;
+    int currentColumn = 0;
+    for (int iSensorIndex : enabledSensors)
+        if (iSensorIndex < numSensors)
+        {
+            QString txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+            QTableWidgetItem * item = ui->twSensorTable->item(currentRow, currentColumn);
+            if (!item)
+            {
+                item = new QTableWidgetItem();
+                ui->twSensorTable->setItem(currentRow, currentColumn, item);
+            }
+            item->setText(txt);
+            currentColumn++;
+            if (currentColumn >= numColumns)
+            {
+                currentColumn = 0;
+                currentRow++;
+            }
+        }
+}
+
+// ------
 
 void APhotSimWin::showBombSingleEvent()
 {

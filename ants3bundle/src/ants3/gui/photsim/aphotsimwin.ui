@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3540,7 +3540,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>4</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">
@@ -4240,7 +4240,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             <item>
              <widget class="QTabWidget" name="twSensors">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tab_8">
                <attribute name="title">
@@ -4278,6 +4278,45 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <attribute name="title">
                 <string>Table</string>
                </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_25">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_54">
+                  <item>
+                   <widget class="QLabel" name="label_39">
+                    <property name="text">
+                     <string>Number of columns:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="sbSensorTableColumns">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_60">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="twSensorTable"/>
+                </item>
+               </layout>
               </widget>
              </widget>
             </item>

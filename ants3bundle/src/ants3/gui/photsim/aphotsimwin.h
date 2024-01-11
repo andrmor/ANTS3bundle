@@ -149,6 +149,8 @@ private slots:
 
     void on_sbEvent_editingFinished();
 
+    void on_sbSensorTableColumns_editingFinished();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -178,15 +180,15 @@ private:
 
     void updateAdvancedBombIndicator();
 
-
     void disableGui(bool flag); // !!!*** make it for global interface
-
 
     void doShowEvent();
 
-    void showSensorSignal(bool suppressMessage);
-    void showSensorSignalDraw();
-    void showSensorSignalTable();
+    void showSensorSignals(bool suppressMessage);
+    void showSensorSignalDraw(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors);
+    void showSensorSignalTable(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors);
+    void fillListEnabledSensors(std::vector<int> & enabledSensors);
+    void reshapeSensorSignalTable();
 
     void showBombSingleEvent();
     bool updateBombHandler();

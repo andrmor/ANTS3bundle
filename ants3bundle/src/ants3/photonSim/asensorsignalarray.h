@@ -5,6 +5,8 @@
 
 #include <vector>
 
+// !!!*** change to double?
+
 class ASensorSignalArray : public ADataIOBase
 {
 public:
