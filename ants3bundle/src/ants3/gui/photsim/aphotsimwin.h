@@ -151,6 +151,8 @@ private slots:
 
     void on_sbSensorTableColumns_editingFinished();
 
+    void on_pbUpdateSensorIndication_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

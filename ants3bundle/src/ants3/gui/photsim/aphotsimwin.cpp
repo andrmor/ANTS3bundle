@@ -61,6 +61,8 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     ui->cbSensorsAll->setChecked(true);
 
+    ui->pbUpdateSensorIndication->setVisible(false);
+
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
     ui->labSkipTracingON->setPixmap(YellowCircle);
@@ -477,6 +479,11 @@ void APhotSimWin::reshapeSensorSignalTable()
 void APhotSimWin::on_sbSensorTableColumns_editingFinished()
 {
     reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_pbUpdateSensorIndication_clicked()
+{
     showSensorSignals(false);
 }
 
@@ -1437,9 +1444,9 @@ void APhotSimWin::fillListEnabledSensors(std::vector<int> & enabledSensors)
     else
     {
         QString txt;
-        if      (ui->cbSensorsG1->isChecked()) txt = ui->leSensorsG1->text();
-        else if (ui->cbSensorsG2->isChecked()) txt = ui->leSensorsG2->text();
-        else if (ui->cbSensorsG3->isChecked()) txt = ui->leSensorsG3->text();
+        if (ui->cbSensorsG1->isChecked()) txt += "," + ui->leSensorsG1->text();
+        if (ui->cbSensorsG2->isChecked()) txt += "," + ui->leSensorsG2->text();
+        if (ui->cbSensorsG3->isChecked()) txt += "," + ui->leSensorsG3->text();
         guitools::extractNumbersFromQString(txt, enabledSensors);
     }
 }

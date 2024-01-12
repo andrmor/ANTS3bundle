@@ -184,11 +184,11 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
 {
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
 
-    //const int numSensors = SensorHub.countSensors();
-    //for (int iSens = 0; iSens < numSensors; iSens++)
+    const int numSensors = SensorHub.countSensors();
     for (size_t i = 0; i < EnabledSensors.size(); i++)
     {
         const int iSens = EnabledSensors[i];
+        if (iSens < 0 || iSens >= numSensors) continue;
 
         AGeoObject * obj = SensorHub.getGeoObject(iSens);
         if (!obj || !obj->Shape)
@@ -281,11 +281,12 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
 {
     const ASensorHub & SensorHub = ASensorHub::getConstInstance();
 
-    //const int numSensors = SensorHub.countSensors();
-    //for (int iSens = 0; iSens < numSensors; iSens++)
+    const int numSensors = SensorHub.countSensors();
     for (size_t i = 0; i < EnabledSensors.size(); i++)
     {
         const int iSens = EnabledSensors[i];
+        if (iSens < 0 || iSens >= numSensors) continue;
+
         AGeoObject * obj = SensorHub.getGeoObject(iSens);;
         if (!obj || !obj->Shape)
         {
