@@ -64,7 +64,7 @@ bool AFileHandlerBase::checkFile()
     bool ok = init();
     if (!ok) return false; // error already added
 
-    qDebug() << "Current event:" << CurrentEvent;
+    //qDebug() << "Current event:" << CurrentEvent;
 
     BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 
@@ -78,6 +78,8 @@ bool AFileHandlerBase::checkFile()
         }
         BaseSettings.NumEvents++;
     }
+
+    AErrorHub::clear();
     return true;
 }
 
@@ -250,7 +252,17 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
             return false;
         }
 
-        LineText = inTextStream->readLine();
+        do
+        {
+            LineText = inTextStream->readLine();
+            if (inTextStream->atEnd() && LineText.isEmpty()) // empty line at the end of the file
+            {
+                EventEndReached = true;
+                return false;
+            }
+        }
+        while (LineText.isEmpty());
+
         if (LineText.startsWith('#'))
         {
             EventEndReached = true;

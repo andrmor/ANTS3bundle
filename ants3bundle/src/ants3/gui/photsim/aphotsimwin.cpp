@@ -393,6 +393,8 @@ void APhotSimWin::on_pbSimulate_clicked()
     emit requestShowGeometry(false);
 
     if (ok) showSimulationResults();
+
+    updateDepoGui(); // file was force-checked in this mode
 }
 
 void APhotSimWin::showSimulationResults()

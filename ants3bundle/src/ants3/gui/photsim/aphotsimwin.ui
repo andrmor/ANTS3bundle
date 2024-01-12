@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -129,7 +129,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pagePhotBombs">
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -3540,7 +3540,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">

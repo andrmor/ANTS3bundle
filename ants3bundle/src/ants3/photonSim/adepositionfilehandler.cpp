@@ -50,14 +50,15 @@ bool ADepositionFileHandler::collectStatistics()
 
     BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 
-    BaseSettings.NumEvents = 1;
+    BaseSettings.NumEvents = 0;
     int expectedNextEvent = 1;
     while (true)
     {
         acknowledgeNextEvent();
         fillStatisticsForCurrentEvent();
         BaseSettings.NumEvents++;
-        if (atEnd()) return true;
+
+        if (atEnd() && !LineText.startsWith('#')) return true;  // file can end with an empty event, still need to register it
 
         bool ok = processEventHeader();
         if (!ok || CurrentEvent != expectedNextEvent)
