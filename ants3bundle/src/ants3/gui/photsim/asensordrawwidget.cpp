@@ -72,7 +72,6 @@ void ASensorDrawWidget::updateGui(const std::vector<float> & sensorSignals, cons
     scene->clear();
 
     float MaxSignal = 0;
-    //for (int i = 0; i < SensorSignals.size(); i++)
     for (size_t i = 0; i < enabledSensors.size(); i++)
     {
         const int iSens = enabledSensors[i];
@@ -150,9 +149,12 @@ void ASensorDrawWidget::resetViewport()
     double Ymax = -1e10;
     for (int iSens = 0; iSens < numSensors; iSens++)
     {
-        const AVector3 & Pos = SensorHub.getPosition(iSens);
-        const double x =  Pos[0];
-        const double y = -Pos[1];
+        //const AVector3 & Pos = SensorHub.getPosition(iSens);
+        //const double x =  Pos[0];
+        //const double y = -Pos[1];
+        double x, y, z;
+        positionToSceneCoordinates(iSens, x, y, z);
+        y = -y;
 
         double size = 0;
         AGeoObject * obj = SensorHub.getGeoObject(iSens);
@@ -266,14 +268,14 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
             item = scene->addRect(-size, -size, 2.0*size, 2.0*size, pen, brush);
         }
 
-        const AVector3 & Pos = SensorHub.getPosition(iSens);
-        //if (ui->cbViewFromBelow->isChecked()) tmp->setZValue(-PM.z); else
-        item->setZValue(Pos[2]);
+        double x, y, z;
+        positionToSceneCoordinates(iSens, x, y, z);
+
+        item->setTransform(QTransform().translate(x * GVscale, -y * GVscale)); // y scale has to be inverted to comply with the frame of the graph scene
+        item->setZValue(z);
 
         //if (PM.phi != 0) item->setRotation(-PM.phi);
         //else if (PM.psi != 0) item->setRotation(-PM.psi);
-
-        item->setTransform(QTransform().translate(Pos[0] * GVscale, -Pos[1] * GVscale)); //minus!!!!
     }
 }
 
@@ -306,19 +308,51 @@ void ASensorDrawWidget::addTextItems(float MaxSignal)
             io->setBrush(Qt::white);
 
         int wid = (io->boundingRect().width()-6)/6;
-        const AVector3 & Pos = SensorHub.getPosition(iSens);
-        double x = ( Pos[0] -wid*size*0.125 -0.15*size )*GVscale;
-        double y = (-Pos[1] - 0.36*size) * GVscale; //minus y to invert the scale!!!
-        io->setPos(x, y);
-        io->setScale(0.4*size);
+
+        double x, y, z;
+        positionToSceneCoordinates(iSens, x, y, z);
+
+        x = x - wid*size*0.125 - 0.15*size;
+        y = y + 0.36*size;
+        io->setPos(x * GVscale, -y * GVscale); // y scale has to be inverted to comply with the frame of the graph scene
+        io->setScale(0.4 * size);
 
         //if (ui->cbViewFromBelow->isChecked()) io->setZValue(-PM.z+0.001); else
-        io->setZValue(Pos[2] + 0.001);
+        io->setZValue(z + 0.001);
+    }
+}
+
+void ASensorDrawWidget::positionToSceneCoordinates(int iSens, double & x, double & y, double & z)
+{
+    const AVector3 & pos = ASensorHub::getConstInstance().getPosition(iSens);
+    switch (ui->cobViewSelector->currentIndex())
+    {
+    case 0: // top
+        x =  pos[0];
+        y =  pos[1];
+        z =  pos[2];
+        break;
+    case 1: // front -> rotate 90 degrees backward
+        x =  pos[0];
+        y =  pos[2];
+        z = -pos[1];
+        break;
+    case 2: // side -> rotate 90 degrees backward, then 90 degrees to the left
+        x =  pos[1];
+        y =  pos[2];
+        z =  pos[0];
+        break;
     }
 }
 
 void ASensorDrawWidget::on_pbResetView_clicked()
 {
     //updateGui();
+    resetViewport();
+}
+
+void ASensorDrawWidget::on_cobViewSelector_activated(int)
+{
+    updateGui(SensorSignals, EnabledSensors);
     resetViewport();
 }

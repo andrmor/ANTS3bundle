@@ -32,6 +32,25 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QComboBox" name="cobViewSelector">
+       <item>
+        <property name="text">
+         <string>Top</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Front</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Side</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pbResetView">
        <property name="text">
         <string>Reset view</string>
@@ -65,7 +84,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>    </string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -85,7 +104,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>    </string>
+          <string/>
          </property>
         </widget>
        </item>

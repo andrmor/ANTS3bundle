@@ -43,6 +43,7 @@ private:
 
 private slots:
     void on_pbResetView_clicked();
+    void on_cobViewSelector_activated(int index);
 
 private:
     void clearGrItems();
@@ -50,7 +51,7 @@ private:
     void resetViewport();
     void addSensorItems(float MaxSignal);
     void addTextItems(float MaxSignal);
-
+    void positionToSceneCoordinates(int iSens, double &x, double &y, double &z);
 };
 
 #endif // ASENSORDRAWWIDGET_H
