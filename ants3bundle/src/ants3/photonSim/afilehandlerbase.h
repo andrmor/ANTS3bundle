@@ -51,6 +51,8 @@ protected:
 
     QString         FileType; // file type description, e.g. "photon bomb", used in error reporting
 
+    bool            bFileEndReachedInGoto = false;
+
     void clearResources();
     bool processEventHeader();
 

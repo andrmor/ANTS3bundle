@@ -1035,8 +1035,6 @@ void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
 
-    //if (SimSet.DepoSet.isValidated()) return; // already up to date
-
     fh.determineFormat();
 
     if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Invalid)
@@ -1062,10 +1060,10 @@ void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
         return;
     }
 
-    fh.checkFile();
-    if (SimSet.DepoSet.NumEvents == -1)
+    ok = fh.checkFile();
+    if (!ok || SimSet.DepoSet.NumEvents == -1)
     {
-        guitools::message("Deposition file is invalid", this);
+        guitools::message("Deposition file is invalid:\n" + AErrorHub::getQError(), this);
         SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
     }
     updateDepoGui();

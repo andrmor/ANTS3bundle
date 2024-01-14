@@ -64,10 +64,6 @@ bool AFileHandlerBase::checkFile()
     bool ok = init();
     if (!ok) return false; // error already added
 
-    //qDebug() << "Current event:" << CurrentEvent;
-
-    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
-
     BaseSettings.NumEvents = 1;
     while (gotoEvent(CurrentEvent + 1))
     {
@@ -79,8 +75,13 @@ bool AFileHandlerBase::checkFile()
         BaseSettings.NumEvents++;
     }
 
-    AErrorHub::clear();
-    return true;
+    if (bFileEndReachedInGoto)
+    {
+        AErrorHub::clear();
+        BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
+        return true;
+    }
+    else return false;
 }
 
 bool AFileHandlerBase::init()
@@ -169,6 +170,8 @@ bool AFileHandlerBase::isInitialized() const
 
 bool AFileHandlerBase::gotoEvent(int iEvent)
 {
+    bFileEndReachedInGoto = false;
+
     if (CurrentEvent == iEvent && !ReadingEvent) return true;
 
     if (CurrentEvent >= iEvent)
@@ -201,6 +204,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
         while (!inTextStream->atEnd());
     }
 
+    bFileEndReachedInGoto = true;
     AErrorHub::addError("Cannot reach requested event number in the file");
     return false;
 }
