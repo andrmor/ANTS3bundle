@@ -40,10 +40,10 @@ void AParticleSim_SI::simulate(bool updateGui)
     }
 }
 
-#include "arandomhub.h"
+#include "aparticlesimsettings.h"
 void AParticleSim_SI::setSeed(double seed)
 {
-    ARandomHub::getInstance().setSeed(seed);
+    SimMan.SimSet.RunSet.Seed = seed;
 }
 
 int AParticleSim_SI::countCalorimeters()
