@@ -53,6 +53,8 @@ protected:
 
     bool            bFileEndReachedInGoto = false;
 
+    virtual void dummyReadBinaryDataUntilNewEvent(); // = 0 possible convertion
+
     void clearResources();
     bool processEventHeader();
 

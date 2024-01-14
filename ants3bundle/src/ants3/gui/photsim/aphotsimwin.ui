@@ -129,7 +129,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pagePhotBombs">
            <layout class="QVBoxLayout" name="verticalLayout_2">

@@ -33,6 +33,9 @@ public:
     bool    collectStatistics();
     QString formReportString() const;
 
+protected:
+    void dummyReadBinaryDataUntilNewEvent() override;
+
 private:
     APhotonDepoSettings & Settings;
 

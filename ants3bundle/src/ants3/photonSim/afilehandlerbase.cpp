@@ -183,8 +183,22 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     // iEvent is larger than CurrentEvent
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary format not yet implemented"); // !!!***
-        return false;
+        //AErrorHub::addError("Binary format not yet implemented"); return false;
+        while (true)
+        {
+            acknowledgeNextEvent();
+            dummyReadBinaryDataUntilNewEvent();
+            if (AErrorHub::isError()) return false;
+            if (atEnd()) break;
+
+            bool ok = processEventHeader();
+            if (!ok)
+            {
+                AErrorHub::addError("Error processing event header in gotoEvent method");
+                return false;
+            }
+            if (CurrentEvent == iEvent) return true;
+        }
     }
     else
     {
@@ -341,6 +355,11 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
     }
 
     return text;
+}
+
+void AFileHandlerBase::dummyReadBinaryDataUntilNewEvent()
+{
+    AErrorHub::addQError("Not yet implemented 'dummyReadBinaryDataUntilNewEvent()' for sub-class of AFileHandlerBase");
 }
 
 void AFileHandlerBase::clearResources()

@@ -104,6 +104,11 @@ QString ADepositionFileHandler::formReportString() const
     return txt;
 }
 
+void ADepositionFileHandler::dummyReadBinaryDataUntilNewEvent()
+{
+    while (readNextRecordSameEvent(TmpRecord)) ;
+}
+
 void ADepositionFileHandler::fillStatisticsForCurrentEvent()
 {
     double energyPerEvent = 0;
