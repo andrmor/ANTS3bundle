@@ -90,7 +90,7 @@ void SessionManager::prepareParticleGun()
 
 void SessionManager::terminateSession(const std::string & ReturnMessage)
 {
-    std::cout << "$$>"<<ReturnMessage<<std::endl;
+    std::cout << "$$>" << ReturnMessage << std::endl; // will flush
 
     bError = true;
     ErrorMessage = ReturnMessage;
@@ -116,8 +116,6 @@ void SessionManager::runSimulation()
 
     CurrentEvent = Settings.RunSet.EventFrom;
     int NumEvents = Settings.RunSet.EventTo - Settings.RunSet.EventFrom;
-
-    //while (!isEndOfInputFileReached()) UImanager->ApplyCommand("/run/beamOn");
 
     //SM.runManager->BeamOn(NumEvents);
     UImanager->ApplyCommand("/run/beamOn " + std::to_string(NumEvents));
@@ -391,7 +389,7 @@ void SessionManager::writeNewEventMarker()
              outStreamDeposition->write((char*)&CurrentEvent, sizeof(int));
         }
         else
-            *outStreamDeposition << EventId.data() << std::endl;
+            *outStreamDeposition << EventId.data() << '\n';
     }
 
     if (Settings.RunSet.SaveTrackingHistory)
@@ -403,7 +401,7 @@ void SessionManager::writeNewEventMarker()
                  outStreamHistory->write((char*)&CurrentEvent, sizeof(int));
             }
             else
-                *outStreamHistory << EventId.data() << std::endl;
+                *outStreamHistory << EventId.data() << '\n';
         }
 
     if (outStreamExit)
@@ -414,7 +412,7 @@ void SessionManager::writeNewEventMarker()
              outStreamExit->write((char*)&CurrentEvent, sizeof(int));
         }
         else
-            *outStreamExit << EventId.data() << std::endl;
+            *outStreamExit << EventId.data() << '\n';
     }
 }
 
@@ -449,7 +447,7 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
         ss << time << ' ';
         ss << copyNumber;  // !!!***
 
-        *outStreamDeposition << ss.rdbuf() << std::endl;
+        *outStreamDeposition << ss.rdbuf() << '\n';
     }
 }
 
@@ -579,7 +577,7 @@ void SessionManager::saveTrackRecord(const std::string & procName,
                 ss << ' ' << isec;
         }
 
-        *outStreamHistory << ss.rdbuf() << std::endl;
+        *outStreamHistory << ss.rdbuf() << '\n';
     }
 }
 
@@ -642,7 +640,7 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
         ss << PosDir[3] << ' ' << PosDir[4] << ' ' << PosDir[5] << ' ';     //direction
         ss << time;
 
-        *outStreamExit << ss.rdbuf() << std::endl;
+        *outStreamExit << ss.rdbuf() << '\n';
     }
 }
 
@@ -672,7 +670,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     std::stringstream sstr;
     sstr << in.rdbuf();
     std::string s = sstr.str();
-    std::cout << "Config file:\n" << s << std::endl;
+    std::cout << "Config file:\n" << s << '\n';
 
     json11::Json jo = json11::Json::parse(s, ErrorMessage);
     if (!ErrorMessage.empty()) terminateSession(ErrorMessage);
@@ -694,34 +692,34 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     if (Settings.RunSet.SaveTrackingHistory && Settings.RunSet.FileNameTrackingHistory.empty())
         terminateSession("File name for tracking history output not provided");
 
-    std::cout << "GUI mode? " << Settings.RunSet.GuiMode << std::endl;
-    std::cout << "Random generator seed: " << Settings.RunSet.Seed << std::endl;
+    std::cout << "GUI mode? " << Settings.RunSet.GuiMode << '\n';
+    std::cout << "Random generator seed: " << Settings.RunSet.Seed << '\n';
 
     MaterialMap.clear();
-    std::cout << "Config lists the following materials:" << std::endl;
+    std::cout << "Config lists the following materials:" << '\n';
     for (size_t i=0; i < Settings.RunSet.Materials.size(); i++)
     {
         const std::string & name = Settings.RunSet.Materials[i];
-        std::cout << i << " -> " << name << std::endl;
+        std::cout << i << " -> " << name << '\n';
         MaterialMap[name] = (int)i;
     }
     if (!Settings.RunSet.MaterialsFromNist.empty())
     {
-        std::cout << "The following materials will be constructed using G4NistManager:" << std::endl;
+        std::cout << "The following materials will be constructed using G4NistManager:" << '\n';
         for (size_t i=0; i<Settings.RunSet.MaterialsFromNist.size(); i++)
         {
             const std::string & name   = Settings.RunSet.MaterialsFromNist[i].first;
             const std::string & G4Name = Settings.RunSet.MaterialsFromNist[i].second;
-            std::cout << name << " -replace_with-> " << G4Name << std::endl;
+            std::cout << name << " -replace_with-> " << G4Name << '\n';
         }
     }
 
     bBinaryOutput = !Settings.RunSet.AsciiOutput;
     bExitBinary   = bBinaryOutput;
-    std::cout << "Binary output? " << bBinaryOutput << std::endl;
+    std::cout << "Binary output? " << bBinaryOutput << '\n';
 
     if (Settings.RunSet.SaveSettings.Enabled)
-        std::cout << "Save exit particles enabled for volume: " << Settings.RunSet.SaveSettings.VolumeName << "  Kill on exit? " << Settings.RunSet.SaveSettings.StopTrack << std::endl;
+        std::cout << "Save exit particles enabled for volume: " << Settings.RunSet.SaveSettings.VolumeName << "  Kill on exit? " << Settings.RunSet.SaveSettings.StopTrack << '\n';
 
     if (Settings.RunSet.MonitorSettings.Enabled)
     {
@@ -733,7 +731,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
             Monitors.push_back(mobj);
             if (!mobj->bAcceptDirect || !mobj->bAcceptIndirect) bMonitorsRequireSteppingAction = true;
         }
-        std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << std::endl;
+        std::cout << "Monitors require stepping action: " << bMonitorsRequireSteppingAction << '\n';
     }
 
     if (Settings.RunSet.CalorimeterSettings.Enabled)
@@ -744,6 +742,8 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
             Calorimeters.push_back(sd);
         }
     }
+
+    std::cout << "Config read completed" << std::endl;
 }
 
 void SessionManager::prepareOutputDepoStream()
@@ -806,7 +806,7 @@ void SessionManager::generateReceipt()
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.Receipt);
     if (outStream.is_open())
-        outStream << json_str << std::endl;
+        outStream << json_str << '\n';
     outStream.close();
 }
 
@@ -826,7 +826,7 @@ void SessionManager::storeMonitorsData()
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();
-        outStream << json_str << std::endl;
+        outStream << json_str << '\n';
     }
     outStream.close();
 }
@@ -847,7 +847,7 @@ void SessionManager::storeCalorimeterData()
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();
-        outStream << json_str << std::endl;
+        outStream << json_str << '\n';
     }
     outStream.close();
 }
@@ -872,7 +872,7 @@ G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & pa
         if (!Particle)
             terminateSession("Failed to generate ion: " + particleName);
 
-        //std::cout << particleName << "   ->   " << Particle->GetParticleName() << std::endl;
+        //std::cout << particleName << "   ->   " << Particle->GetParticleName() << '\n';
     }
 
     return Particle;

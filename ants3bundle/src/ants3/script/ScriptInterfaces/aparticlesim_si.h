@@ -19,6 +19,8 @@ public:
 public slots:
     void simulate(bool updateGui);
 
+    void setSeed(double seed);
+
     int countCalorimeters();
     void loadCalorimeterData(QString fileName);
     QVariantList getCalorimeterGlobalPositionsAll();

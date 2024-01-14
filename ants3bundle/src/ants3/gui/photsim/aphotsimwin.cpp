@@ -1112,7 +1112,7 @@ void APhotSimWin::on_pbViewDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
     ADepoRecord record;
-    QString text = fh.preview(record, 100);
+    QString text = fh.preview(record, 1000);
     guitools::message1(text, "", this);
 }
 void APhotSimWin::on_pbHelpDepositionFile_clicked()

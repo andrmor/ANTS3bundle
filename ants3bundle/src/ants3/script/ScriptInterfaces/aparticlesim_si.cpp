@@ -40,6 +40,12 @@ void AParticleSim_SI::simulate(bool updateGui)
     }
 }
 
+#include "arandomhub.h"
+void AParticleSim_SI::setSeed(double seed)
+{
+    ARandomHub::getInstance().setSeed(seed);
+}
+
 int AParticleSim_SI::countCalorimeters()
 {
     return ACalorimeterHub::getConstInstance().countCalorimeters();

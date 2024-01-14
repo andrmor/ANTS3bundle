@@ -14,7 +14,7 @@ public:
     virtual void writeAscii(QTextStream & stream) const = 0; // !!!*** check that it is not used to merge files
     virtual bool readAscii(QString & line) = 0;
 
-    //virtual void writeBinary() const;
+    virtual void writeBinary(std::ofstream & stream) const {} // = 0 !!!***
     virtual bool readBinary(std::ifstream & stream) = 0;
 
     virtual void print(QString & text) = 0;

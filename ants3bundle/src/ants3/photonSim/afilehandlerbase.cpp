@@ -303,8 +303,24 @@ bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QStr
 
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary depo not yet implemented");
-        return false;
+        //AErrorHub::addError("Binary depo not yet implemented"); return false;
+        std::ofstream OutStream(fileName.toLatin1().data(), std::ios::out | std::ios::binary);
+        if (!OutStream.is_open())
+        {
+            AErrorHub::addQError( QString("Cannot open binary depo output file: " + fileName) );
+            return false;
+        }
+
+        do
+        {
+            OutStream << char(0xEE);
+            OutStream.write((char*)&CurrentEvent, sizeof(int));
+            while (readNextRecordSameEvent(buffer))
+                buffer.writeBinary(OutStream);
+            CurrentEvent++;
+            acknowledgeNextEvent();
+        }
+        while (CurrentEvent != toEvent);
     }
     else
     {

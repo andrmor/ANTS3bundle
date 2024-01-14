@@ -1,7 +1,6 @@
 #include "ActionInitialization.hh"
 #include "SessionManager.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
 #include "EventAction.hh"
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
@@ -18,8 +17,6 @@ void ActionInitialization::Build() const
 
     SM.PrimGenAction = new PrimaryGeneratorAction();
     SetUserAction(SM.PrimGenAction);
-
-    //SetUserAction(new RunAction);  // rebased all to Action!
 
     SetUserAction(new EventAction);
 
