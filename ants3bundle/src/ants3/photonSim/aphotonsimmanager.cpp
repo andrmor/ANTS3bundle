@@ -32,6 +32,11 @@ const APhotonSimManager & APhotonSimManager::getConstInstance()
     return getInstance();
 }
 
+void APhotonSimManager::setSeed(double seed)
+{
+    SimSet.RunSet.Seed = seed;
+}
+
 APhotonSimManager::APhotonSimManager() :
     SimSet(APhotonSimHub::getInstance().Settings) {}
 

@@ -26,8 +26,7 @@ QString APhotonSim_SI::simulate(bool updateGui)
     }
 }
 
-#include "arandomhub.h"
 void APhotonSim_SI::setSeed(double seed)
 {
-    ARandomHub::getInstance().setSeed(seed);
+    SimMan.setSeed(seed);
 }

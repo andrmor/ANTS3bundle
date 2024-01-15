@@ -129,7 +129,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="pagePhotBombs">
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -3284,6 +3284,66 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_61">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_61">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_42">
+            <property name="text">
+             <string>Seed:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbSeed">
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999999</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbRandomSeed">
+            <property name="text">
+             <string>random</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_62">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <spacer name="verticalSpacer_10">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -4671,12 +4731,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>544</y>
+     <x>148</x>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>524</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4688,11 +4748,11 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <hints>
     <hint type="sourcelabel">
      <x>262</x>
-     <y>556</y>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>524</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4704,11 +4764,11 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <hints>
     <hint type="sourcelabel">
      <x>391</x>
-     <y>556</y>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>524</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4719,12 +4779,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>125</x>
-     <y>524</y>
+     <x>168</x>
+     <y>494</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>524</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -5135,12 +5195,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>198</y>
+     <x>68</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>259</x>
-     <y>199</y>
+     <x>73</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5151,12 +5211,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>198</y>
+     <x>82</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>379</x>
-     <y>199</y>
+     <x>87</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5167,12 +5227,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>428</x>
-     <y>198</y>
+     <x>96</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>498</x>
-     <y>199</y>
+     <x>101</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5183,12 +5243,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>45</x>
-     <y>181</y>
+     <x>53</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>206</x>
-     <y>202</y>
+     <x>105</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -5199,12 +5259,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>55</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>543</x>
-     <y>180</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5215,12 +5275,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>187</y>
+     <x>68</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>556</x>
-     <y>182</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5231,12 +5291,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>186</y>
+     <x>82</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>544</x>
-     <y>180</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5247,12 +5307,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>185</y>
+     <x>96</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>557</x>
-     <y>180</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5263,12 +5323,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>187</y>
+     <x>73</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>536</x>
-     <y>191</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5279,12 +5339,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>187</y>
+     <x>87</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>554</x>
-     <y>187</y>
+     <x>105</x>
+     <y>178</y>
     </hint>
    </hints>
   </connection>
@@ -5295,12 +5355,28 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>466</x>
-     <y>190</y>
+     <x>101</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>569</x>
-     <y>187</y>
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRandomSeed</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbSeed</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>376</x>
+     <y>552</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>

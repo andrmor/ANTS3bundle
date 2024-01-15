@@ -60,6 +60,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
             pb->setVisible(false);
 
     ui->cbSensorsAll->setChecked(true);
+    ui->cbRandomSeed->setChecked(true);
 
     ui->pbUpdateSensorIndication->setVisible(false);
 
@@ -368,7 +369,9 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
 
 void APhotSimWin::on_pbSimulate_clicked()
 {
-    SimSet.RunSet.Seed = INT_MAX * ARandomHub::getInstance().uniform();
+    double seed = 0; // INT_MAX * ARandomHub::getInstance().uniform()
+    if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
+    SimSet.RunSet.Seed = seed;
 
     ui->progbSim->setValue(0);
     disableInterface(true);

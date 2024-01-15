@@ -22,6 +22,8 @@ public:
     static       APhotonSimManager & getInstance();
     static const APhotonSimManager & getConstInstance();
 
+    void setSeed(double seed);
+
 private:
     APhotonSimManager();
     ~APhotonSimManager(){}
