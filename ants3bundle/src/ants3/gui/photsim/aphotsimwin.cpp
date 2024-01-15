@@ -1366,9 +1366,9 @@ void APhotSimWin::on_tbwResults_currentChanged(int index)
 
 void APhotSimWin::on_pbShowEvent_clicked()
 {
-    disableGui(true);
-        doShowEvent();
-    disableGui(false);
+    setGuiEnabled(false);
+    doShowEvent();
+    setGuiEnabled(true);
 }
 
 void APhotSimWin::doShowEvent()
@@ -1614,9 +1614,10 @@ bool APhotSimWin::updateBombHandler()
     return true;
 }
 
-void APhotSimWin::disableGui(bool flag)
+void APhotSimWin::setGuiEnabled(bool flag)
 {
-    setDisabled(flag);
+    setEnabled(flag);
+    qApp->processEvents();
 }
 
 void APhotSimWin::on_pbEventNumberLess_clicked()
@@ -1679,5 +1680,8 @@ void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
 
 void APhotSimWin::on_sbEvent_editingFinished()
 {
+    ui->sbEvent->blockSignals(true);
     on_pbShowEvent_clicked();
+    ui->sbEvent->blockSignals(false);
+    ui->sbEvent->setFocus();
 }

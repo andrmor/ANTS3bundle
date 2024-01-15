@@ -182,7 +182,7 @@ private:
 
     void updateAdvancedBombIndicator();
 
-    void disableGui(bool flag); // !!!*** make it for global interface
+    void setGuiEnabled(bool flag); // !!!*** make it for global interface
 
     void doShowEvent();
 
