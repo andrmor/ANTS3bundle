@@ -416,10 +416,23 @@ void MainWindow::updateAllGuiFromConfig()
     */
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
+    // Geometry
     {
         QJsonObject js;
         bool ok = jstools::parseJson(json, "GeometryWindow", js);
         if (ok) GeoWin->readFromJson(js);
+    }
+    // Particle sim
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "ParticleSimWindow", js);
+        if (ok) PartSimWin->readFromJson(js);
+    }
+    // Photon sim
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "PhotonSimWindow", js);
+        if (ok) PhotSimWin->readFromJson(js);
     }
 
     GeoWin->fRecallWindow = false;
@@ -432,10 +445,23 @@ void MainWindow::onRequestSaveGuiSettings()
 
     QJsonObject json;
 
+    // Geometry
     {
         QJsonObject js;
-        GeoWin->writeToJson(js);
+            GeoWin->writeToJson(js);
         json["GeometryWindow"] = js;
+    }
+    // Particle sim
+    {
+        QJsonObject js;
+            PartSimWin->writeToJson(js);
+        json["ParticleSimWindow"] = js;
+    }
+    // Photon sim
+    {
+        QJsonObject js;
+            PhotSimWin->writeToJson(js);
+        json["PhotonSimWindow"] = js;
     }
 
     JSON["gui"] = json;

@@ -25,6 +25,9 @@ public:
     explicit APhotSimWin(QWidget * parent = nullptr);
     ~APhotSimWin();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 public slots:
     void updateGui();
 

@@ -35,6 +35,9 @@ public:
     explicit AParticleSimWin(QWidget * parent = nullptr);  // !!!*** add validators
     ~AParticleSimWin();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 public slots:
     void updateGui();
     void updateResultsGui();

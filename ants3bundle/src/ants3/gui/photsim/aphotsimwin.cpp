@@ -83,6 +83,70 @@ APhotSimWin::~APhotSimWin()
     // !!!*** delete dynamic members!
 }
 
+void APhotSimWin::writeToJson(QJsonObject & json) const
+{
+    json["AutoLoadAllResults"] = ui->cbAutoLoadResults->isChecked();
+
+    // Seed
+    {
+        QJsonObject js;
+            js["Random"] = ui->cbRandomSeed->isChecked();
+            js["FixedSeed"] = ui->sbSeed->value();
+        json["Seed"] = js;
+    }
+
+    // Sensor groups
+    {
+        QJsonObject js;
+            js["AllEnabled"] = ui->cbSensorsAll->isChecked();
+            js["G1Enabled"]  = ui->cbSensorsG1->isChecked();
+            js["G2Enabled"]  = ui->cbSensorsG2->isChecked();
+            js["G3Enabled"]  = ui->cbSensorsG3->isChecked();
+            js["G1"] = ui->leSensorsG1->text();
+            js["G2"] = ui->leSensorsG2->text();
+            js["G3"] = ui->leSensorsG3->text();
+        json["SensorGroups"] = js;
+    }
+}
+
+void APhotSimWin::readFromJson(const QJsonObject & json)
+{
+    bool ok, flag;
+    int i;
+    QString str;
+
+    ok = jstools::parseJson(json, "AutoLoadAllResults", flag);
+    if (ok) ui->cbAutoLoadResults->setChecked(flag);
+
+    // Seed
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "Seed", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Random", ok); ui->cbRandomSeed->setChecked(ok);
+            jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
+
+    // Sensor groups
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "SensorGroups", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "G1Enabled",  flag); ui->cbSensorsG1->setChecked(flag);
+            jstools::parseJson(js, "G2Enabled",  flag); ui->cbSensorsG2->setChecked(flag);
+            jstools::parseJson(js, "G3Enabled",  flag); ui->cbSensorsG3->setChecked(flag);
+            jstools::parseJson(js, "AllEnabled", flag); ui->cbSensorsAll->setChecked(flag); // should be after the other G#
+
+            jstools::parseJson(js, "G1", str); ui->leSensorsG1->setText(str);
+            jstools::parseJson(js, "G2", str); ui->leSensorsG2->setText(str);
+            jstools::parseJson(js, "G3", str); ui->leSensorsG3->setText(str);
+        }
+    }
+}
+
 void APhotSimWin::updateGui()
 {
     int index;
@@ -1683,5 +1747,5 @@ void APhotSimWin::on_sbEvent_editingFinished()
     ui->sbEvent->blockSignals(true);
     on_pbShowEvent_clicked();
     ui->sbEvent->blockSignals(false);
-    ui->sbEvent->setFocus();
+    //ui->sbEvent->setFocus();
 }

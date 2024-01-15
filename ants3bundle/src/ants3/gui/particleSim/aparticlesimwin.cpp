@@ -90,6 +90,39 @@ AParticleSimWin::~AParticleSimWin()
     delete ui;
 }
 
+void AParticleSimWin::writeToJson(QJsonObject & json) const
+{
+    json["AutoLoadAllResults"] = ui->cbAutoLoadResults->isChecked();
+
+    // Seed
+    {
+        QJsonObject js;
+        js["Random"] = ui->cbRandomSeed->isChecked();
+        js["FixedSeed"] = ui->sbSeed->value();
+        json["Seed"] = js;
+    }
+}
+
+void AParticleSimWin::readFromJson(const QJsonObject &json)
+{
+    bool ok, flag;
+    int i;
+
+    ok = jstools::parseJson(json, "AutoLoadAllResults", flag);
+    if (ok) ui->cbAutoLoadResults->setChecked(flag);
+
+    // Seed
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "Seed", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Random", flag); ui->cbRandomSeed->setChecked(flag);
+            jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
+}
+
 void AParticleSimWin::updateGui()
 {
     bGuiUpdateInProgress = true;  // -->
