@@ -610,7 +610,7 @@ void SessionManager::findExitVolume()
         if (name == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;
-            std::cout << "Found exit volume " << ExitVolume << " --> " << ExitVolume->GetName().data() << std::endl;
+            std::cout << "Found exit volume " << ExitVolume << " --> " << ExitVolume->GetName().data() << '\n';
             return;
         }
     }

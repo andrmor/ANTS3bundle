@@ -33,6 +33,7 @@ struct EventRecord
     double energy;
 };
 
+// !!!*** std::endl --> '\n'
 class APetEventBuilder
 {
 public:
