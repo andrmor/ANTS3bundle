@@ -315,7 +315,10 @@ void APhotonSimulator::simulateFromDepo()
             }
         }
 
-        DepoHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
+        DepoHandler->acknowledgeNextEvent();
+        DepoHandler->skipToNextEventRecord();
+
+        // !!!*** is end of file reached when it should not yet?
 
         doAfterEvent();
     }

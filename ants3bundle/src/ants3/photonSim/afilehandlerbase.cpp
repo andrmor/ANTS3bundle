@@ -292,6 +292,13 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
     }
 }
 
+static int tmpInt;
+void AFileHandlerBase::skipToNextEventRecord()
+{
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+        inStream->read((char*)&tmpInt, sizeof(int)); // cannot use DepoHandler->processEventHeader() as it will override CurrentEvent
+}
+
 bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer)
 {
     qDebug() << "!!!----->" << fromEvent << toEvent;
@@ -312,14 +319,15 @@ bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QStr
             return false;
         }
 
-        int tmpInt;
+        //int tmpInt;
         do
         {
             OutStream << char(0xEE);
             OutStream.write((char*)&CurrentEvent, sizeof(int));
             while (readNextRecordSameEvent(buffer))
                 buffer.writeBinary(OutStream);
-            inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+            //inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+            skipToNextEventRecord();
             CurrentEvent++;
             acknowledgeNextEvent();
         }
@@ -356,7 +364,7 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
 
     QString text;
 
-    int tmpInt;
+    //int tmpInt;
     while (numLines > 0)
     {
         text += "#" + QString::number(CurrentEvent) + "\n";
@@ -369,7 +377,8 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
             if (numLines < 0) break;
         }
         acknowledgeNextEvent();
-        if (BaseSettings.FileFormat == AFileSettingsBase::Binary) inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+        //if (BaseSettings.FileFormat == AFileSettingsBase::Binary) inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+        skipToNextEventRecord();
         CurrentEvent++;
 
         if (atEnd()) break;

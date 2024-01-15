@@ -29,6 +29,7 @@ public:
 
     bool readNextRecordSameEvent(ADataIOBase & record); // returns false if event ended
     void acknowledgeNextEvent() {EventEndReached = false;}
+    void skipToNextEventRecord(); // not needed for ascii; for binary dummy-read event index
 
     bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
 
