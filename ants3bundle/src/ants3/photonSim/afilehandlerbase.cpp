@@ -294,6 +294,7 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
 
 bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer)
 {
+    qDebug() << "!!!----->" << fromEvent << toEvent;
     bool ok = gotoEvent(fromEvent);
     if (!ok)
     {
@@ -311,16 +312,18 @@ bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QStr
             return false;
         }
 
+        int tmpInt;
         do
         {
             OutStream << char(0xEE);
             OutStream.write((char*)&CurrentEvent, sizeof(int));
             while (readNextRecordSameEvent(buffer))
                 buffer.writeBinary(OutStream);
+            inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
             CurrentEvent++;
             acknowledgeNextEvent();
         }
-        while (CurrentEvent != toEvent);
+        while (CurrentEvent != toEvent && !atEnd());
     }
     else
     {
