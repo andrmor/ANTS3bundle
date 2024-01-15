@@ -1170,6 +1170,52 @@ sources</string>
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QLabel" name="label_55">
+            <property name="text">
+             <string>Seed:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbSeed">
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999999999</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbRandomSeed">
+            <property name="text">
+             <string>random</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_81">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </item>
         <item>

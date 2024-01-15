@@ -278,6 +278,7 @@ private slots:
     void on_pbChooseDepositionFile_clicked();
     void on_pbHelpOnDepositionDataFormat_clicked();
     void on_pbAnalyzeDepositionFile_clicked();
+    void on_cbRandomSeed_toggled(bool checked);
 };
 
 #endif // APARTICLESIMWIN_H

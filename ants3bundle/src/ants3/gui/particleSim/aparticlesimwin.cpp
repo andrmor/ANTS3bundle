@@ -82,6 +82,7 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     updateRangeWarning();
 
     ui->twMain->setCurrentIndex(1);
+    ui->cbRandomSeed->setChecked(true);
 }
 
 AParticleSimWin::~AParticleSimWin()
@@ -711,6 +712,10 @@ void AParticleSimWin::on_pbSimulate_clicked()
 {
     A3Global::getInstance().saveConfig();
     AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
+
+    double seed = 0;
+    if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
+    SimManager.SimSet.RunSet.Seed = seed;
 
     clearResultsGui();
 
@@ -3121,3 +3126,9 @@ void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
 
     guitools::message1(txt, "Info for deposition data", this);
 }
+
+void AParticleSimWin::on_cbRandomSeed_toggled(bool checked)
+{
+    ui->sbSeed->setVisible(!checked);
+}
+
