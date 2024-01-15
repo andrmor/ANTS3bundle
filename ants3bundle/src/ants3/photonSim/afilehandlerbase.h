@@ -32,7 +32,7 @@ public:
 
     bool copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer);
 
-    QString preview(ADataIOBase & buffer, int numLines = 100);
+    QString preview(ADataIOBase & buffer, int numLines = 10000);
 
 protected:
     AFileSettingsBase & BaseSettings;

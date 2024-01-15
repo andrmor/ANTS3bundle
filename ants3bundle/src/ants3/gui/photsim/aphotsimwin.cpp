@@ -1115,9 +1115,10 @@ void APhotSimWin::on_pbViewDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
     ADepoRecord record;
-    QString text = fh.preview(record, 1000);
+    QString text = fh.preview(record);
     guitools::message1(text, "", this);
 }
+
 void APhotSimWin::on_pbHelpDepositionFile_clicked()
 {
     QString txt = ""
@@ -1249,7 +1250,7 @@ void APhotSimWin::on_pbNodeFilePreview_clicked()
 {
     APhotonBombFileHandler fh(SimSet.BombSet.BombFileSettings);
     ANodeRecord rec;
-    QString text = fh.preview(rec, 100);
+    QString text = fh.preview(rec);
     guitools::message1(text, "", this);
 }
 void APhotSimWin::on_pbNodeFileHelp_clicked()
@@ -1336,7 +1337,7 @@ void APhotSimWin::on_pbViewSinglePhotFile_clicked()
 {
     APhotonFileHandler fh(SimSet.PhotFileSet);
     APhoton phot;
-    QString text = fh.preview(phot, 100);
+    QString text = fh.preview(phot);
     guitools::message1(text, "", this);
 }
 void APhotSimWin::on_pbSinglePhotonsHelp_clicked()

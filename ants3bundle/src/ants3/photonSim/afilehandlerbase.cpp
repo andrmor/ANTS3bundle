@@ -356,6 +356,7 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
 
     QString text;
 
+    int tmpInt;
     while (numLines > 0)
     {
         text += "#" + QString::number(CurrentEvent) + "\n";
@@ -368,6 +369,7 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
             if (numLines < 0) break;
         }
         acknowledgeNextEvent();
+        if (BaseSettings.FileFormat == AFileSettingsBase::Binary) inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
         CurrentEvent++;
 
         if (atEnd()) break;
