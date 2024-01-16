@@ -104,7 +104,7 @@ private:
     void    savePhotonBomb(ANodeRecord & node); // binary! !!!***
     void    reportProgress();
 
-    void    createCustomDist(const std::vector<std::pair<double, double>> & dist);
+    void    createCustomDist(const std::vector<std::pair<int, double>> & dist);
 
 private:
     TVector3 ColDirUnitary;

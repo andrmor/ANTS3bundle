@@ -98,6 +98,45 @@ QString ftools::loadPairs(const QString & fileName, std::vector<std::pair<double
     return "";
 }
 
+QString ftools::loadPairs(const QString & fileName, std::vector<std::pair<int, double>> & data, bool enforceIncreasing)
+{
+    if (fileName.isEmpty()) return "Error: empty name was given to file loader!";
+
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + fileName;
+
+    QTextStream in(&file);
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    data.clear();
+    while (!in.atEnd())
+    {
+        QString line = in.readLine().simplified();
+
+        if (line.isEmpty()) continue;
+        if (line.startsWith('#')) continue;
+
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        if (fields.size() != 2) return "Each line of the file (besides empty lines and comments starting with '#' symbol) should contain two numbers, an int and a double";
+
+        bool ok1, ok2;
+        double x, y;
+        x = fields[0].toInt(&ok1);
+        y = fields[1].toDouble(&ok2);
+        if (!ok1 || !ok2) return "Each line of the file (besides empty lines and comments starting with '#' symbol) should contain two numbers, an int and a double";
+
+        if (enforceIncreasing)
+            if (data.size() > 1)
+                if (data.back().first <= data[data.size()-2].first) return "Data should have increasing values in the first column";
+
+        data.push_back({x, y});
+    }
+    file.close();
+
+    if (data.empty()) return "Nothing was loaded";
+    return "";
+}
+
 QString ftools::loadDoubleComplexPairs(const QString & fileName, std::vector<std::pair<double, std::complex<double>>> & data, bool enforceIncreasing)
 {
     if (fileName.isEmpty()) return "Error: empty name was given to file loader!";

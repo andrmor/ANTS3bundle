@@ -13,7 +13,7 @@ public:
 
     double R[3];
     double Time = 0;
-    int    NumPhot = -1; // -1 means use standard numPhotons according to simulation settings
+    int    NumPhot = -1; // obsolete comment? --> // -1 means use standard numPhotons according to simulation settings
 
     void writeAscii(QTextStream & stream) const override;
     bool readAscii(QString & line) override;

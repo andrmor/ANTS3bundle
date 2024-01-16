@@ -113,8 +113,10 @@ void APhotonSimulator::start()
     QCoreApplication::exit();
 }
 
+#include "TRandom.h"
 void APhotonSimulator::setupCommonProperties()
 {
+    gRandom->SetSeed(SimSet.RunSet.Seed); // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -236,18 +238,12 @@ void APhotonSimulator::setupPhotonBombs()
     {
         delete CustomHist; CustomHist = nullptr;
 
-        const std::vector<ADPair> & dist = SimSet.BombSet.PhotonsPerBomb.CustomDist;
+        const std::vector<std::pair<int,double>> & dist = SimSet.BombSet.PhotonsPerBomb.CustomDist;
         const size_t size = dist.size();
         if (size == 0) terminate("Custom distribution of photons per bomb is empty!");
         // !!!*** do other checks (positive, increasing order)
 
-        //double X[size];
-        //for (size_t i = 0; i < size; i++) X[i] = dist[i].first;
-        //CustomHist = new TH1D("", "NumPhotDist", size-1, X);
-        //for (size_t i = 1; i < size + 1; i++) CustomHist->SetBinContent(i, dist[i-1].second);
-
         createCustomDist(dist);
-
         CustomHist->GetIntegral();
     }
 }
@@ -260,20 +256,18 @@ double interpolateHere(double a, double b, double fraction)
     return a + fraction * (b - a);
 }
 
-void APhotonSimulator::createCustomDist(const std::vector<std::pair<double, double>> & dist)
+void APhotonSimulator::createCustomDist(const std::vector<std::pair<int, double>> & dist)
 {
-    size_t From = dist.front().first;
-    size_t To = dist.back().first;
+    int From = dist.front().first;
+    int To   = dist.back().first;
     size_t num = To - From + 1;
+    CustomHist = new TH1D("", "NumPhotDist", num, From, To+1);
 
-    CustomHist = new TH1D("", "NumPhotDist", num, From, To);
-    if (num == 1) return;
-
-    size_t numPhot = From;
+    int numPhot = From;
     size_t positionInDist = 0;
     while (numPhot <= To)
     {
-        while (dist[positionInDist].first < numPhot) positionInDist++;
+        while (dist[positionInDist].first < numPhot) positionInDist++; // can be just ++ as dist contains unique non-decreasing ints?
 
         double val;
         if (dist[positionInDist].first == numPhot) val = dist[positionInDist].second; // exact match
@@ -286,7 +280,8 @@ void APhotonSimulator::createCustomDist(const std::vector<std::pair<double, doub
             //const double interpolatedValue   = interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
             val = interpolateHere(dist[positionInDist-1].second, dist[positionInDist].second, interpolationFactor);
         }
-        CustomHist->SetBinContent(numPhot + 1, val);
+        CustomHist->Fill(numPhot, val);
+        numPhot++;
     }
 }
 
@@ -748,8 +743,8 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
     }
     else
     {
-        if (node.NumPhot == -1)
-            node.NumPhot = getNumPhotonsThisBomb();
+        //if (node.NumPhot == -1)
+        node.NumPhot = getNumPhotonsThisBomb();
     }
 
     generateAndTracePhotons(node);

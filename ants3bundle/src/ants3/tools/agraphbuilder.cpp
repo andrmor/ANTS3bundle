@@ -136,10 +136,27 @@ void AGraphBuilder::configure(TGraph * graph, const QString & GraphTitle,
 
 TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, double>> & data)
 {
-    int numEl = (int)data.size();
+    const size_t numEl = data.size();
     TVectorD xx(numEl);
     TVectorD yy(numEl);
-    for (int i=0; i < numEl; i++)
+    for (size_t i = 0; i < numEl; i++)
+    {
+        xx[i] = data[i].first;
+        yy[i] = data[i].second;
+    }
+
+    TGraph * gr = new TGraph(xx,yy);
+    gr->SetFillStyle(0);
+    gr->SetFillColor(0);
+    return gr;
+}
+
+TGraph * AGraphBuilder::graph(const std::vector<std::pair<int, double>> & data)
+{
+    const size_t numEl = data.size();
+    TVectorD xx(numEl);
+    TVectorD yy(numEl);
+    for (size_t i = 0; i < numEl; i++)
     {
         xx[i] = data[i].first;
         yy[i] = data[i].second;
