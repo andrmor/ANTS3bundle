@@ -204,6 +204,7 @@ void APhotonSimulator::reportProgress()
     std::cout.flush();
 }
 
+#include "TH1D.h"
 void APhotonSimulator::setupPhotonBombs()
 {
     Photon.SecondaryScint = false;
@@ -230,27 +231,63 @@ void APhotonSimulator::setupPhotonBombs()
     if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
     if (AdvSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(AdvSet.Material);
 
-/*
-    if (PhotSimSettings.PerNodeSettings.Mode == APhotonSim_PerNodeSettings::Custom)
+    // custom distribution of photons per bomb
+    if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
     {
         delete CustomHist; CustomHist = nullptr;
 
-        const QVector<ADPair> Dist = PhotSimSettings.PerNodeSettings.CustomDist;
-        const int size = Dist.size();
-        if (size == 0)
-        {
-            ErrorString = "Config does not contain per-node photon distribution";
-            return false;
-        }
+        const std::vector<ADPair> & dist = SimSet.BombSet.PhotonsPerBomb.CustomDist;
+        const size_t size = dist.size();
+        if (size == 0) terminate("Custom distribution of photons per bomb is empty!");
+        // !!!*** do other checks (positive, increasing order)
 
-        double X[size];
-        for (int i = 0; i < size; i++) X[i] = Dist.at(i).first;
+        //double X[size];
+        //for (size_t i = 0; i < size; i++) X[i] = dist[i].first;
+        //CustomHist = new TH1D("", "NumPhotDist", size-1, X);
+        //for (size_t i = 1; i < size + 1; i++) CustomHist->SetBinContent(i, dist[i-1].second);
 
-        CustomHist = new TH1D("", "NumPhotDist", size-1, X);
-        for (int i = 1; i < size + 1; i++) CustomHist->SetBinContent(i, Dist.at(i-1).second);
-        CustomHist->GetIntegral(); //will be thread safe after this
+        createCustomDist(dist);
+
+        CustomHist->GetIntegral();
     }
-*/
+}
+
+double interpolateHere(double a, double b, double fraction)
+{
+    //out("    interpolation->", a, b, fraction);
+    if (fraction == 0.0) return a;
+    if (fraction == 1.0) return b;
+    return a + fraction * (b - a);
+}
+
+void APhotonSimulator::createCustomDist(const std::vector<std::pair<double, double>> & dist)
+{
+    size_t From = dist.front().first;
+    size_t To = dist.back().first;
+    size_t num = To - From + 1;
+
+    CustomHist = new TH1D("", "NumPhotDist", num, From, To);
+    if (num == 1) return;
+
+    size_t numPhot = From;
+    size_t positionInDist = 0;
+    while (numPhot <= To)
+    {
+        while (dist[positionInDist].first < numPhot) positionInDist++;
+
+        double val;
+        if (dist[positionInDist].first == numPhot) val = dist[positionInDist].second; // exact match
+        else
+        {
+            // need to interpolate
+
+            //const double interpolationFactor = (r - data[indexOriginal].first) / ( data[indexOriginal+1].first - data[indexOriginal].first );
+            const double interpolationFactor = (numPhot - dist[positionInDist-1].first) / (dist[positionInDist].first - dist[positionInDist-1].first);
+            //const double interpolatedValue   = interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
+            val = interpolateHere(dist[positionInDist-1].second, dist[positionInDist].second, interpolationFactor);
+        }
+        CustomHist->SetBinContent(numPhot + 1, val);
+    }
 }
 
 void APhotonSimulator::simulatePhotonBombs()
@@ -372,7 +409,7 @@ int APhotonSimulator::getNumPhotonsThisBomb()
         num = std::round( RandomHub.gauss(PS.NormalMean, PS.NormalSigma) );
         break;
     case APhotonsPerBombSettings::Custom :
-//        num = CustomHist->GetRandom();
+        num = CustomHist->GetRandom();
         break;
     case APhotonsPerBombSettings::Poisson :
         num = RandomHub.poisson(PS.PoissonMean);

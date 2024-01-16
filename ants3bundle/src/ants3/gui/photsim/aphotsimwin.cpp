@@ -27,9 +27,10 @@
 #include <QVBoxLayout>
 #include <QTabWidget>
 
+#include "TObject.h"
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TObject.h"
+#include "TGraph.h"
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 #include "TGeoTrack.h"
@@ -190,6 +191,10 @@ void APhotSimWin::updatePhotBombGui()
         ui->sbNumMax->setValue(PS.UniformMax);
         ui->ledGaussMean->setText( QString::number(PS.NormalMean) );
         ui->ledGaussSigma->setText( QString::number(PS.NormalSigma) );
+
+        bool haveDist = !PS.CustomDist.empty();
+        ui->pbNumDistShow->setEnabled(haveDist);
+        ui->pbNumDistDelete->setEnabled(haveDist);
     }
 
     {
@@ -637,15 +642,39 @@ void APhotSimWin::on_ledGaussMean_editingFinished()
 }
 void APhotSimWin::on_pbNumDistShow_clicked()
 {
+    if (SimSet.BombSet.PhotonsPerBomb.CustomDist.empty()) return;
 
+    TGraph * g = AGraphBuilder::graph(SimSet.BombSet.PhotonsPerBomb.CustomDist);
+    AGraphBuilder::configure(g, "Number of photon per bomb",
+                             "Number of photons", "",
+                             2, 20, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
+#include "afiletools.h"
 void APhotSimWin::on_pbNumDistLoad_clicked()
 {
+    QString fileName = guitools::dialogLoadFile(this, "Load distribution of photons per bomb", "Data files (*.dat *.txt);;All files (*.*)");
+    if (fileName.isEmpty()) return;
 
+    QString err = ftools::loadPairs(fileName, SimSet.BombSet.PhotonsPerBomb.CustomDist);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+    if (SimSet.BombSet.PhotonsPerBomb.CustomDist.empty())
+    {
+        guitools::message("There should be at least one point!", this);
+        return;
+    }
+    // !!!*** assert positive values and increasing order
+    updatePhotBombGui();
 }
 void APhotSimWin::on_pbNumDistDelete_clicked()
 {
-
+    SimSet.BombSet.PhotonsPerBomb.CustomDist.clear();
+    updatePhotBombGui();
 }
 
 #include "aphotonsimoutputdialog.h"

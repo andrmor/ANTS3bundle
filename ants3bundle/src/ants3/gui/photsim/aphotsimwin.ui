@@ -223,7 +223,7 @@
                  <enum>QFrame::NoFrame</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>4</number>
                 </property>
                 <widget class="QWidget" name="pageScanConst">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -631,8 +631,7 @@
                      </font>
                     </property>
                     <property name="toolTip">
-                     <string>Note that the probability value for the last point is ignored!
-The last point is only used to define the range of the semi-ultimate bin.</string>
+                     <string/>
                     </property>
                     <property name="text">
                      <string>Load</string>

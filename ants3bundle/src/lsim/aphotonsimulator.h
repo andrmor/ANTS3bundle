@@ -20,6 +20,7 @@ class ADepositionFileHandler;
 class APhotonFileHandler;
 class AS1Generator;
 class AS2Generator;
+class TH1D;
 
 class APhotonSimulator : public QObject
 {
@@ -67,6 +68,8 @@ protected:
     AS1Generator           * S1Gen           = nullptr;
     AS2Generator           * S2Gen           = nullptr;
 
+    TH1D * CustomHist = nullptr; // custom distribution of number of photons per bomb
+
 private:
     void    loadConfig();
     void    setupCommonProperties();
@@ -82,7 +85,7 @@ private:
 
     void    terminate(const QString & reason);
 
-    int     getNumPhotonsThisBomb();  // !!!*** custom
+    int     getNumPhotonsThisBomb();
     void    doBeforeEvent();
     void    simulatePhotonBomb(ANodeRecord & node);
     void    doAfterEvent();
@@ -100,6 +103,8 @@ private:
     void    saveSensorHits();
     void    savePhotonBomb(ANodeRecord & node); // binary! !!!***
     void    reportProgress();
+
+    void    createCustomDist(const std::vector<std::pair<double, double>> & dist);
 
 private:
     TVector3 ColDirUnitary;

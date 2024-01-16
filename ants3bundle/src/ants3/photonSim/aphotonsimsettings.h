@@ -78,7 +78,7 @@ public:
     double          NormalMean  = 100.0;
     double          NormalSigma = 10.0;
     double          PoissonMean = 10.0;
-    std::vector<ADPair> CustomDist;
+    std::vector<ADPair> CustomDist; // !!!*** --> <int, double>
 
     void    clearSettings();
     void    writeToJson(QJsonObject & json) const;
