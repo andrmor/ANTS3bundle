@@ -87,7 +87,7 @@ private:
 
     int     getNumPhotonsThisBomb();
     void    doBeforeEvent();
-    void    simulatePhotonBomb(ANodeRecord & node);
+    void    simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons);
     void    doAfterEvent();
     void    generateAndTracePhotons(const ANodeRecord & node);
     bool    isInsideLimitingVolume(const double * r);    // no optimization: assuming they will not be used together \|

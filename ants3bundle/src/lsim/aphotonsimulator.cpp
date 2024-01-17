@@ -418,9 +418,9 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 bool APhotonSimulator::simulateSingle()
 {
     const double * r = SimSet.BombSet.SingleSettings.Position;
-    ANodeRecord node(r[0], r[1], r[2], 0, -1);
+    ANodeRecord node(r[0], r[1], r[2]);
     doBeforeEvent();
-    simulatePhotonBomb(node);
+    simulatePhotonBomb(node, true);
     doAfterEvent();
     return true;
 }
@@ -481,7 +481,7 @@ bool APhotonSimulator::simulateGrid()
                 }
 
                 doBeforeEvent();
-                simulatePhotonBomb(node);
+                simulatePhotonBomb(node, true);
                 doAfterEvent();
             }
 
@@ -564,7 +564,7 @@ bool APhotonSimulator::simulateFlood()
         }
 
         doBeforeEvent();
-        simulatePhotonBomb(node);
+        simulatePhotonBomb(node, true);
         doAfterEvent();
     }
     return true;
@@ -601,7 +601,10 @@ bool APhotonSimulator::simulateBombsFromFile()
     {
         doBeforeEvent();
         while (fh.readNextRecordSameEvent(node))
-            simulatePhotonBomb(node);
+        {
+            const bool overrideNumPhot = (node.NumPhot == -1);
+            simulatePhotonBomb(node, overrideNumPhot);
+        }
         doAfterEvent();
 
         fh.acknowledgeNextEvent();
@@ -733,7 +736,7 @@ void APhotonSimulator::doAfterEvent()
     reportProgress();
 }
 
-void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
+void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons)
 {
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
@@ -743,8 +746,7 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
     }
     else
     {
-        //if (node.NumPhot == -1)
-        node.NumPhot = getNumPhotonsThisBomb();
+        if (overrideNumPhotons) node.NumPhot = getNumPhotonsThisBomb();
     }
 
     generateAndTracePhotons(node);
