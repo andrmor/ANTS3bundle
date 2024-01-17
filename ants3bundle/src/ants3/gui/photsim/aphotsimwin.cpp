@@ -68,6 +68,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
     ui->labSkipTracingON->setPixmap(YellowCircle);
+    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
@@ -1330,12 +1331,21 @@ void APhotSimWin::on_pbNodeFileAnalyze_clicked()
         return;
     }
 
-    fh.checkFile();
-    if (bset.NumEvents == -1)
+    if (CollectStats)
+    {
+
+    }
+    else
+    {
+        fh.checkFile();
+    }
+
+    if (AErrorHub::isError() || bset.NumEvents == -1)
     {
         guitools::message("Photon bomb file is invalid", this);
         bset.FileFormat = ABombFileSettings::Invalid;
     }
+
     updateBombFileGui();
 }
 #include "anoderecord.h"
@@ -1348,7 +1358,24 @@ void APhotSimWin::on_pbNodeFilePreview_clicked()
 }
 void APhotSimWin::on_pbNodeFileHelp_clicked()
 {
-
+    QString txt;
+    txt = "For ascii files, the format is the following:\n"
+          "Event marks are given by the new line starting with '#' char and followed by the event index, e.g. #123\n"
+          "Note that any file should start from event index of 0\n"
+          "The photon bomb records (arbitrary number per event) start from new line and have the format of:\n"
+          "x y z time numberPhotonons\n"
+          "Positions are in mm, time is in ns\n"
+          "The number of generated photons can be given directly\n"
+          "or it can be set to -1 to use the configured generator for number of photons per node\n"
+          "\nAn example of a file:\n"
+          "#0\n"
+          "0 0 100 0 10\n"
+          "#1\n"
+          "0 50 100 0 -1\n"
+          "0 50 -100 0 -1\n"
+          "\n\n"
+          "Binary files are not yet implemented";
+    guitools::message1(txt, "File format for photon bomb data", this);
 }
 
 // ---
@@ -1356,8 +1383,9 @@ void APhotSimWin::on_pbNodeFileHelp_clicked()
 void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
 {
     bool bFromFile = (index == 3);
-    ui->cobNumPhotonsMode->setDisabled(bFromFile);
-    ui->swNumPhotons->setDisabled(bFromFile);
+    //ui->cobNumPhotonsMode->setDisabled(bFromFile);
+    //ui->swNumPhotons->setDisabled(bFromFile);
+    ui->labPhotonsPerBombWarning->setVisible(bFromFile);
 }
 
 // ---

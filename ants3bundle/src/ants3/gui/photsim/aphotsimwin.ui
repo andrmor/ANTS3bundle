@@ -149,6 +149,16 @@
                </spacer>
               </item>
               <item>
+               <widget class="QLabel" name="labPhotonsPerBombWarning">
+                <property name="toolTip">
+                 <string>Only affects those nodes which have '-1' value of the number of photons appearing in the file</string>
+                </property>
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
