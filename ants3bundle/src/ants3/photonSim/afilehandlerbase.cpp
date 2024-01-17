@@ -107,7 +107,7 @@ bool AFileHandlerBase::collectStatistics()
         fillStatisticsForCurrentEvent();
         BaseSettings.NumEvents++;
 
-        if (atEnd() && !LineText.startsWith('#')) return true;  // file can end with an empty event, still need to register it
+        if (atEnd() && !LineText.startsWith('#')) break;  // file can end with an empty event, still need to register it
 
         bool ok = processEventHeader();
         if (!ok || CurrentEvent != expectedNextEvent)

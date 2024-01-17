@@ -102,56 +102,51 @@ private slots:
     void on_pbShowMonitorHitDistribution_clicked();
     void on_pbShowMonitorTimeOverall_clicked();
 
+    // deposition from file
     void on_pbChangeDepositionFile_clicked();
     void on_leDepositionFile_editingFinished();
     void on_cbPrimaryScint_clicked(bool checked);
     void on_cbSecondaryScint_clicked(bool checked);
-
-    void on_pbAnalyzeDepositionFile_clicked();
-
-    void on_pbdUpdateScanSettings_clicked();
-
+    void on_pbAnalyzeDepositionFile_clicked(); // !!!*** shorten, duplication with check() method
+    void on_pbCollectDepoFileStatistics_clicked();
     void on_pbAdvancedBombSettings_clicked();
+    void on_pbViewDepositionFile_clicked();
+    void on_pbHelpDepositionFile_clicked();
 
+    // photon bombs from file
+    void on_pbSelectBombsFile_clicked();
     void on_leNodeFileName_editingFinished();
     void on_pbNodeFileChange_clicked();
-    //void on_pbNodeFileAnalyze_clicked();
     void on_pbBombFileCheck_clicked();
     void on_pbBombFileStatistics_clicked();
     void on_pbNodeFilePreview_clicked();
     void on_pbNodeFileHelp_clicked();
     void on_cobNodeGenerationMode_currentIndexChanged(int index);
 
+    // single photons from file
     void on_leSinglePhotonsFile_editingFinished();
     void on_pbChangeSinglePhotonsFile_clicked();
-    void on_pbAnalyzeSinglePhotonsFile_clicked();
+    void on_pbCheckSinglePhotonsFile_clicked();
+    void on_pbSeeStatisticsSinglePhotonsFile_clicked();
     void on_pbViewSinglePhotFile_clicked();
-    void on_pbSinglePhotonsHelp_clicked(); // !!!***
+    void on_pbSinglePhotonsHelp_clicked();
 
-    void on_pbSelectBombsFile_clicked();
+    void on_pbdUpdateScanSettings_clicked();
 
     void on_pbChangeWorkingDir_clicked();
 
     void on_pbLoadAllResults_clicked();
 
-    void on_pbViewDepositionFile_clicked();
-    void on_pbHelpDepositionFile_clicked();
-
     void on_tbwResults_currentChanged(int index);
 
-    void on_pbShowEvent_clicked();
-
+    void on_sbEvent_editingFinished();
     void on_pbEventNumberLess_clicked();
-
     void on_pbEventNumberMore_clicked();
+    void on_pbShowEvent_clicked();
 
     void on_pbChooseSensorSigFile_clicked();
 
     void on_pbShowBombsMultiple_clicked();
-
-    void on_pbCollectDepoFileStatistics_clicked();
-
-    void on_sbEvent_editingFinished();
 
     void on_sbSensorTableColumns_editingFinished();
 

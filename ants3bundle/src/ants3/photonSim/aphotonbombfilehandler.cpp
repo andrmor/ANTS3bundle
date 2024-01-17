@@ -28,7 +28,7 @@ QString APhotonBombFileHandler::formReportString() const
         txt += QString("Total number of bombs with delegated number of photons: %0\n").arg(BombsWithAutoNumPhotons);
         txt += "\n";
         txt += QString("Number of bombs per event: from %0 to %1\n").arg(MinMaxBombsPerEvent.first).arg(MinMaxBombsPerEvent.second);
-        if (MinMaxBombsPerEvent.first != OnStartLimit)
+        if (MinMaxPhotonsPerEvent.first != OnStartLimit)
             txt += QString("Number of photons per event: from %0 to %1\n").arg(MinMaxPhotonsPerEvent.first).arg(MinMaxPhotonsPerEvent.second);
         if (MinMaxPhotonsPerBomb.first != OnStartLimit)
             txt += QString("Number of photons per bomb: from %0 to %1\n").arg(MinMaxPhotonsPerBomb.first).arg(MinMaxPhotonsPerBomb.second);
@@ -111,10 +111,8 @@ void APhotonBombFileHandler::fillStatisticsForCurrentEvent()
 
     if (bombsThisEvent == 0) EmptyEvents++;
 
-    qDebug() << bombsThisEvent << MinMaxBombsPerEvent.first << MinMaxBombsPerEvent.second;
     if (bombsThisEvent < MinMaxBombsPerEvent.first)  MinMaxBombsPerEvent.first  = bombsThisEvent;
     if (bombsThisEvent > MinMaxBombsPerEvent.second) MinMaxBombsPerEvent.second = bombsThisEvent;
-    qDebug() << "out:" << MinMaxBombsPerEvent.first << MinMaxBombsPerEvent.second;
 
     if (!wasAutoPhotons)
     {

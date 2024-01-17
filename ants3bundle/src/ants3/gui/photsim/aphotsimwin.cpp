@@ -1286,6 +1286,7 @@ void APhotSimWin::on_leNodeFileName_editingFinished()
         updateBombFileGui();
     }
 }
+
 void APhotSimWin::on_pbNodeFileChange_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with photon bombs", "");
@@ -1293,62 +1294,8 @@ void APhotSimWin::on_pbNodeFileChange_clicked()
     ui->leNodeFileName->setText(fileName);
     on_leNodeFileName_editingFinished();
 }
+
 #include "aphotonbombfilehandler.h"
-
-/*
-void APhotSimWin::on_pbNodeFileAnalyze_clicked()
-{
-    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
-
-    APhotonBombFileHandler fh(bset);
-
-    if (!bset.isValidated())
-    {
-        fh.determineFormat();
-
-        if (bset.FileFormat == ABombFileSettings::Invalid)
-        {
-            guitools::message("Cannot open file!", this);
-            updateBombFileGui();
-            return;
-        }
-        if (bset.FileFormat == ABombFileSettings::Undefined)
-        {
-            guitools::message("Unknown format of the file with photon bombs!", this);
-            updateBombFileGui();
-            return;
-        }
-    }
-
-    AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        bset.FileFormat = ABombFileSettings::Invalid;
-        updateBombFileGui();
-        return;
-    }
-
-    if (CollectStats)
-    {
-
-    }
-    else
-    {
-        fh.checkFile();
-    }
-
-    if (AErrorHub::isError() || bset.NumEvents == -1)
-    {
-        guitools::message("Photon bomb file is invalid", this);
-        bset.FileFormat = ABombFileSettings::Invalid;
-    }
-
-    updateBombFileGui();
-}
-*/
-
 void APhotSimWin::on_pbBombFileCheck_clicked()
 {
     ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
@@ -1446,46 +1393,34 @@ void APhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
 }
 
 #include "aphotonfilehandler.h"
-void APhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
+void APhotSimWin::on_pbCheckSinglePhotonsFile_clicked()
 {
     APhotonFileSettings & bset = SimSet.PhotFileSet;
-
     APhotonFileHandler fh(bset);
 
-    if (bset.isValidated()) return; // already up to date
-
-    fh.determineFormat();
-
-    if (bset.FileFormat == AFileSettingsBase::Invalid)
-    {
-        guitools::message("Cannot open file!", this);
-        updatePhotonFileGui();
-        return;
-    }
-    if (bset.FileFormat == AFileSettingsBase::Undefined)
-    {
-        guitools::message("Unknown format of the file with individual photon records!", this);
-        updatePhotonFileGui();
-        return;
-    }
-
-    AErrorHub::clear();
-    bool ok = fh.init();
+    bool ok = fh.checkFile();
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this);
-        bset.FileFormat = AFileSettingsBase::Invalid;
-        updatePhotonFileGui();
-        return;
-    }
-
-    ok = fh.checkFile();
-    if (!ok)
-    {
-        guitools::message("File with individual photon records: invalid format!", this);
+        guitools::message("File with individual photon records is invalid:\n" + AErrorHub::getQError(), this);
         bset.FileFormat = AFileSettingsBase::Invalid;
     }
     updatePhotonFileGui();
+}
+
+void APhotSimWin::on_pbSeeStatisticsSinglePhotonsFile_clicked()
+{
+    APhotonFileSettings & bset = SimSet.PhotFileSet;
+    APhotonFileHandler fh(bset);
+
+    bool ok = fh.collectStatistics();
+    updatePhotonFileGui();
+
+    if (ok) guitools::message1(fh.formReportString(), "Statistics for single photon file", this);
+    else
+    {
+        guitools::message("Single photon file is invalid:\n" + AErrorHub::getQError(), this);
+        bset.FileFormat = AFileSettingsBase::Invalid;
+    }
 }
 
 #include "aphoton.h"
@@ -1498,7 +1433,22 @@ void APhotSimWin::on_pbViewSinglePhotFile_clicked()
 }
 void APhotSimWin::on_pbSinglePhotonsHelp_clicked()
 {
-
+    QString txt;
+    txt = "For ascii files, the format is the following:\n"
+          "Event marks are given by the new line starting with '#' char and followed by the event index, e.g. #123\n"
+          "Note that any file should start from event index of 0\n"
+          "The photon records (arbitrary number per event) start from new line and have the format of:\n"
+          "x y z vx vy vz time waveIndex\n"
+          "xyz are the coordinates of the origin in mm, vxvyvz are components of the direction unit vector, time is in ns,\n"
+          "waveIndex can be set to -1 for undefined wavelength\n"
+          "\nAn example of a file:\n"
+          "#0\n"
+          "10 0 100 1 0 0 1.1 -1\n"
+          "10 0 100 0 1 0 11.1 5\n"
+          "10 0 100 0 0 -1 111.1 10\n"
+          "\n\n"
+          "Binary files are not yet implemented";
+    guitools::message1(txt, "File format for photon bomb data", this);
 }
 
 // --- Show Photon bombs ---
@@ -1841,4 +1791,3 @@ void APhotSimWin::on_sbEvent_editingFinished()
     ui->sbEvent->blockSignals(false);
     //ui->sbEvent->setFocus();
 }
-

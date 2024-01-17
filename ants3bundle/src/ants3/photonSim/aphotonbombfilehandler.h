@@ -32,7 +32,7 @@ protected:
     void fillStatisticsForCurrentEvent() override;
 
 private:
-    ABombFileSettings & Settings;
+    ABombFileSettings & Settings; // need? BaseSettings is enough?
 
     ANodeRecord TmpRecord;
 };
