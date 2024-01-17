@@ -34,49 +34,10 @@ void ADepositionFileHandler::clearStatistics()
     }
 }
 
-bool ADepositionFileHandler::collectStatistics()
-{
-    AErrorHub::clear();
-    clearStatistics();
-
-    bool ok = init();
-    if (!ok) return false; // error already added
-
-    if (CurrentEvent != 0)
-    {
-        AErrorHub::addQError("Deposition file does not start from event number zero!");
-        return false;
-    }
-
-    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
-
-    BaseSettings.NumEvents = 0;
-    int expectedNextEvent = 1;
-    while (true)
-    {
-        acknowledgeNextEvent();
-        fillStatisticsForCurrentEvent();
-        BaseSettings.NumEvents++;
-
-        if (atEnd() && !LineText.startsWith('#')) return true;  // file can end with an empty event, still need to register it
-
-        bool ok = processEventHeader();
-        if (!ok || CurrentEvent != expectedNextEvent)
-        {
-            AErrorHub::addQError("Bad format of the deposition file!");
-            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
-            BaseSettings.NumEvents = -1;
-            return false;
-        }
-        expectedNextEvent++;
-    }
-
-    return true;
-}
-
 QString ADepositionFileHandler::formReportString() const
 {
     QString txt;
+    txt += QString("Number of events: %0\n").arg(Settings.NumEvents);
     txt += QString("Number of empty events: %0\n").arg(EmptyEvents);
     if (EmptyEvents != Settings.NumEvents)
     {

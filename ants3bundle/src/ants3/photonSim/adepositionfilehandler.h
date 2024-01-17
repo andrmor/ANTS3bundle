@@ -24,27 +24,22 @@ public:
     // statistics
     size_t EmptyEvents = 0;
     std::map<QString,ADepoStatRecord> SeenParticles;
-    std::pair<double,double> MinMaxDepoEnergy;     // [keV]
-    std::pair<double,double> MinMaxEnergyPerEvent; // [keV]
-    std::pair<double,double> MinMaxTime;           // [ns]
+    std::pair<double,double> MinMaxDepoEnergy;              // [keV]
+    std::pair<double,double> MinMaxEnergyPerEvent;          // [keV]
+    std::pair<double,double> MinMaxTime;                    // [ns]
     std::array<std::pair<double,double>, 3> MinMaxPosition; // [mm]
-
-    // Deposition statistics
-    bool    collectStatistics();
     QString formReportString() const;
 
 protected:
     void dummyReadBinaryDataUntilNewEvent() override;
+    void fillStatisticsForCurrentEvent() override;
+    void clearStatistics() override;
 
 private:
     APhotonDepoSettings & Settings;
 
     ADepoRecord TmpRecord;
 
-    double OnStartLimit = 1e99;
-
-    void clearStatistics();
-    void fillStatisticsForCurrentEvent();
 };
 
 #endif // ADEPOSITIONFILEHANDLER_H

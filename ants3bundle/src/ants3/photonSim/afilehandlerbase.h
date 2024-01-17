@@ -18,8 +18,10 @@ public:
     AFileHandlerBase(AFileSettingsBase & settings);
     virtual ~AFileHandlerBase();
 
-    virtual void determineFormat();                 // very simplistic in the generic case, feel free to override for the concrete classes
+    virtual void determineFormat();      // very simplistic in the generic case, feel free to override for the concrete classes
     virtual bool checkFile();
+
+    bool collectStatistics(); // uses virtual fillStatisticsForCurrentEvent()
 
     bool init();
     bool isInitialized() const;
@@ -54,7 +56,11 @@ protected:
 
     bool            bFileEndReachedInGoto = false;
 
+    double          OnStartLimit = 1e99;  // initial value used to fill different fields in statistics
+
     virtual void dummyReadBinaryDataUntilNewEvent(); // = 0 possible convertion
+    virtual void clearStatistics() {}
+    virtual void fillStatisticsForCurrentEvent() {}
 
     void clearResources();
     bool processEventHeader();

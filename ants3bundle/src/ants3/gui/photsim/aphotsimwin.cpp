@@ -1294,14 +1294,13 @@ void APhotSimWin::on_pbNodeFileChange_clicked()
     on_leNodeFileName_editingFinished();
 }
 #include "aphotonbombfilehandler.h"
+
+/*
 void APhotSimWin::on_pbNodeFileAnalyze_clicked()
 {
     ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
 
     APhotonBombFileHandler fh(bset);
-
-    const bool CollectStats = ui->cbNodeFileCollectStatistics->isChecked();
-    if (bset.isValidated() && !CollectStats) return; // already up to date
 
     if (!bset.isValidated())
     {
@@ -1348,6 +1347,41 @@ void APhotSimWin::on_pbNodeFileAnalyze_clicked()
 
     updateBombFileGui();
 }
+*/
+
+void APhotSimWin::on_pbBombFileCheck_clicked()
+{
+    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
+
+    APhotonBombFileHandler fh(bset);
+
+    bool ok = fh.checkFile();
+    if (!ok)
+    {
+        guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
+        bset.FileFormat = ABombFileSettings::Invalid;
+    }
+    updateBombFileGui();
+}
+
+void APhotSimWin::on_pbBombFileStatistics_clicked()
+{
+    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
+
+    APhotonBombFileHandler fh(bset);
+
+    bool ok = fh.collectStatistics();
+
+    updateBombFileGui();
+
+    if (ok) guitools::message1(fh.formReportString(), "Statistics for photon bomb file", this);
+    else
+    {
+        guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
+        bset.FileFormat = ABombFileSettings::Invalid;
+    }
+}
+
 #include "anoderecord.h"
 void APhotSimWin::on_pbNodeFilePreview_clicked()
 {
@@ -1356,6 +1390,7 @@ void APhotSimWin::on_pbNodeFilePreview_clicked()
     QString text = fh.preview(rec);
     guitools::message1(text, "", this);
 }
+
 void APhotSimWin::on_pbNodeFileHelp_clicked()
 {
     QString txt;
@@ -1806,3 +1841,4 @@ void APhotSimWin::on_sbEvent_editingFinished()
     ui->sbEvent->blockSignals(false);
     //ui->sbEvent->setFocus();
 }
+

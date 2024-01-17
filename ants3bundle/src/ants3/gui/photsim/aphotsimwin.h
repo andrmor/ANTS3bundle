@@ -115,7 +115,9 @@ private slots:
 
     void on_leNodeFileName_editingFinished();
     void on_pbNodeFileChange_clicked();
-    void on_pbNodeFileAnalyze_clicked();
+    //void on_pbNodeFileAnalyze_clicked();
+    void on_pbBombFileCheck_clicked();
+    void on_pbBombFileStatistics_clicked();
     void on_pbNodeFilePreview_clicked();
     void on_pbNodeFileHelp_clicked();
     void on_cobNodeGenerationMode_currentIndexChanged(int index);
@@ -147,7 +149,6 @@ private slots:
 
     void on_pbShowBombsMultiple_clicked();
 
-
     void on_pbCollectDepoFileStatistics_clicked();
 
     void on_sbEvent_editingFinished();
@@ -155,6 +156,7 @@ private slots:
     void on_sbSensorTableColumns_editingFinished();
 
     void on_pbUpdateSensorIndication_clicked();
+
 
 private:
     APhotonSimSettings & SimSet;

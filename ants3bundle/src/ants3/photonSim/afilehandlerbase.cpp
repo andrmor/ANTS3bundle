@@ -84,6 +84,46 @@ bool AFileHandlerBase::checkFile()
     else return false;
 }
 
+bool AFileHandlerBase::collectStatistics()
+{
+    AErrorHub::clear();
+
+    clearStatistics();
+
+    bool ok = init();
+    if (!ok) return false; // error already added
+
+    if (CurrentEvent != 0)
+    {
+        AErrorHub::addQError("File does not start from event number zero!");
+        return false;
+    }
+
+    BaseSettings.NumEvents = 0;
+    int expectedNextEvent = 1;
+    while (true)
+    {
+        acknowledgeNextEvent();
+        fillStatisticsForCurrentEvent();
+        BaseSettings.NumEvents++;
+
+        if (atEnd() && !LineText.startsWith('#')) return true;  // file can end with an empty event, still need to register it
+
+        bool ok = processEventHeader();
+        if (!ok || CurrentEvent != expectedNextEvent)
+        {
+            AErrorHub::addQError("Bad format of the deposition file!");
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            BaseSettings.NumEvents = -1;
+            return false;
+        }
+        expectedNextEvent++;
+    }
+
+    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
+    return true;
+}
+
 bool AFileHandlerBase::init()
 {
     clearResources();

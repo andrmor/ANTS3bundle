@@ -782,7 +782,7 @@
                <enum>QFrame::Sunken</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="twSingleScan1Page1">
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -2113,7 +2113,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="pbNodeFileAnalyze">
+                   <widget class="QPushButton" name="pbBombFileCheck">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2133,14 +2133,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Analyse file</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="cbNodeFileCollectStatistics">
-                    <property name="text">
-                     <string>Collect statistics</string>
+                     <string>Check file</string>
                     </property>
                    </widget>
                   </item>
@@ -2167,6 +2160,13 @@
                     </property>
                     <property name="text">
                      <string>View</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbBombFileStatistics">
+                    <property name="text">
+                     <string>See statistics</string>
                     </property>
                    </widget>
                   </item>
