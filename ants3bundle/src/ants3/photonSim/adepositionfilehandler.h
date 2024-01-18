@@ -21,6 +21,9 @@ class ADepositionFileHandler : public AFileHandlerBase
 public:
     ADepositionFileHandler(APhotonDepoSettings & depoSettings);
 
+    QString formReportString() const;
+
+protected:
     // statistics
     size_t EmptyEvents = 0;
     std::map<QString,ADepoStatRecord> SeenParticles;
@@ -28,7 +31,6 @@ public:
     std::pair<double,double> MinMaxEnergyPerEvent;          // [keV]
     std::pair<double,double> MinMaxTime;                    // [ns]
     std::array<std::pair<double,double>, 3> MinMaxPosition; // [mm]
-    QString formReportString() const;
 
 protected:
     void dummyReadBinaryDataUntilNewEvent() override;
@@ -36,7 +38,7 @@ protected:
     void clearStatistics() override;
 
 private:
-    APhotonDepoSettings & Settings;
+    //APhotonDepoSettings & Settings;
 
     ADepoRecord TmpRecord;
 

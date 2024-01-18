@@ -131,6 +131,7 @@ bool AFileHandlerBase::init()
     if (BaseSettings.FileName.isEmpty())
     {
         AErrorHub::addQError("File name is empty!");
+        BaseSettings.FileFormat = AFileSettingsBase::Undefined;
         return false;
     }
 

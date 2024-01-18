@@ -10,7 +10,10 @@
 #include <fstream>
 
 ADepositionFileHandler::ADepositionFileHandler(APhotonDepoSettings & depoSettings) :
-    AFileHandlerBase(depoSettings), Settings(depoSettings) {}
+    AFileHandlerBase(depoSettings)//, Settings(depoSettings)
+{
+    FileType = "deposition";
+}
 
 void ADepositionFileHandler::clearStatistics()
 {
@@ -37,9 +40,9 @@ void ADepositionFileHandler::clearStatistics()
 QString ADepositionFileHandler::formReportString() const
 {
     QString txt;
-    txt += QString("Number of events: %0\n").arg(Settings.NumEvents);
+    txt += QString("Number of events: %0\n").arg(BaseSettings.NumEvents);
     txt += QString("Number of empty events: %0\n").arg(EmptyEvents);
-    if (EmptyEvents != Settings.NumEvents)
+    if (EmptyEvents != BaseSettings.NumEvents)
     {
         std::vector<std::pair<QString,ADepoStatRecord>> vec;
         for (const auto & p : SeenParticles) vec.push_back({p.first, p.second});

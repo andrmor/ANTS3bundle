@@ -11,7 +11,7 @@
 #include <array>
 
 APhotonBombFileHandler::APhotonBombFileHandler(ABombFileSettings & settings) :
-    AFileHandlerBase(settings), Settings(settings)
+    AFileHandlerBase(settings)//, Settings(settings)
 {
     FileType = "photon bomb";
 }
@@ -19,9 +19,9 @@ APhotonBombFileHandler::APhotonBombFileHandler(ABombFileSettings & settings) :
 QString APhotonBombFileHandler::formReportString() const
 {
     QString txt;
-    txt += QString("Number of events: %0\n").arg(Settings.NumEvents);
+    txt += QString("Number of events: %0\n").arg(BaseSettings.NumEvents);
     txt += QString("Number of empty events: %0\n").arg(EmptyEvents);
-    if (EmptyEvents != Settings.NumEvents)
+    if (EmptyEvents != BaseSettings.NumEvents)
     {
         txt += QString("Total number of photon bombs: %0\n").arg(Bombs);
         txt += QString("Total number of photons: %0\n").arg(Photons);

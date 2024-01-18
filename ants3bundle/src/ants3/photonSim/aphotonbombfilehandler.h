@@ -14,6 +14,9 @@ class APhotonBombFileHandler : public AFileHandlerBase
 public:
     APhotonBombFileHandler(ABombFileSettings & settings);
 
+    QString formReportString() const;
+
+protected:
     // statistics
     size_t Bombs = 0;
     size_t Photons = 0;
@@ -24,7 +27,6 @@ public:
     std::pair<double,double> MinMaxPhotonsPerEvent;
     std::pair<double,double> MinMaxTime;                    // [ns]
     std::array<std::pair<double,double>, 3> MinMaxPosition; // [mm]
-    QString formReportString() const;
 
 protected:
     void dummyReadBinaryDataUntilNewEvent() override;
@@ -32,7 +34,7 @@ protected:
     void fillStatisticsForCurrentEvent() override;
 
 private:
-    ABombFileSettings & Settings; // need? BaseSettings is enough?
+    //ABombFileSettings & Settings; // need? BaseSettings is enough?
 
     ANodeRecord TmpRecord;
 };

@@ -1131,38 +1131,10 @@ void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
 void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
-
     fh.determineFormat();
 
-    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Invalid)
-    {
-        guitools::message("Cannot open file!", this);
-        updateDepoGui();
-        return;
-    }
-    if (SimSet.DepoSet.FileFormat == APhotonDepoSettings::Undefined)
-    {
-        guitools::message("Unknown format of the depo file!", this);
-        updateDepoGui();
-        return;
-    }
-
-    AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
-        updateDepoGui();
-        return;
-    }
-
-    ok = fh.checkFile();
-    if (!ok || SimSet.DepoSet.NumEvents == -1)
-    {
-        guitools::message("Deposition file is invalid:\n" + AErrorHub::getQError(), this);
-        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
-    }
+    bool ok = fh.checkFile();
+    if (!ok) guitools::message("Deposition file is invalid:\n" + AErrorHub::getQError(), this);
     updateDepoGui();
 }
 
@@ -1299,15 +1271,10 @@ void APhotSimWin::on_pbNodeFileChange_clicked()
 void APhotSimWin::on_pbBombFileCheck_clicked()
 {
     ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
-
     APhotonBombFileHandler fh(bset);
 
     bool ok = fh.checkFile();
-    if (!ok)
-    {
-        guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
-        bset.FileFormat = ABombFileSettings::Invalid;
-    }
+    if (!ok) guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
     updateBombFileGui();
 }
 
@@ -1399,11 +1366,7 @@ void APhotSimWin::on_pbCheckSinglePhotonsFile_clicked()
     APhotonFileHandler fh(bset);
 
     bool ok = fh.checkFile();
-    if (!ok)
-    {
-        guitools::message("File with individual photon records is invalid:\n" + AErrorHub::getQError(), this);
-        bset.FileFormat = AFileSettingsBase::Invalid;
-    }
+    if (!ok) guitools::message("File with individual photon records is invalid:\n" + AErrorHub::getQError(), this);
     updatePhotonFileGui();
 }
 
