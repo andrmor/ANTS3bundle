@@ -570,6 +570,8 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["OutputDirectory"]       = OutputDirectory;
     json["BinaryFormat"]          = BinaryFormat;
 
+    json["FileNameReceipt"]       = FileNameReceipt;
+
     json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
 
@@ -610,6 +612,8 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "OutputDirectory",       OutputDirectory);
     jstools::parseJson(json, "BinaryFormat",          BinaryFormat);
+
+    jstools::parseJson(json, "FileNameReceipt",       FileNameReceipt);
 
     jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);

@@ -226,6 +226,8 @@ public:
     QString OutputDirectory;
     bool    BinaryFormat = false;
 
+    QString FileNameReceipt       = "DummyReceipt.txt";
+
     bool    SaveSensorSignals     = true;
     QString FileNameSensorSignals = "SensorSignals.txt";
 

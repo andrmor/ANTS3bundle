@@ -84,6 +84,7 @@ private:
     void    simulateIndividualPhotons();
 
     void    terminate(const QString & reason);
+    void    generateReceipt(const QString & optionalError = "");
 
     int     getNumPhotonsThisBomb();
     void    doBeforeEvent();

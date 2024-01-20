@@ -60,6 +60,7 @@ private:
 
     std::vector<QString> StatisticsFiles;
     std::vector<QString> MonitorFiles;
+    std::vector<QString> ReceiptFiles;
 };
 
 #endif // APHOTONSIMMANAGER_H

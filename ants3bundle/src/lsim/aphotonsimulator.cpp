@@ -110,6 +110,8 @@ void APhotonSimulator::start()
         jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
 
+    generateReceipt();
+
     QCoreApplication::exit();
 }
 
@@ -695,7 +697,13 @@ void APhotonSimulator::loadConfig()
     QJsonObject json;
     jstools::loadJsonFromFile(json, WorkingDir + "/" + ConfigFN);
 
-    QString Error = AMaterialHub::getInstance().readFromJson(json);
+    // this block was the last!
+    QString Error = APhotonSimHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
+    LOG.flush();
+
+    Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();
@@ -717,10 +725,12 @@ void APhotonSimulator::loadConfig()
     LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
 
+    /*
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
     LOG.flush();
+    */
 }
 
 void APhotonSimulator::doBeforeEvent()
@@ -804,6 +814,20 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
 void APhotonSimulator::terminate(const QString & reason)
 {
     LOG << reason;
-    qDebug() << reason;
+
+    std::cout << "$$>" << reason.toLatin1().data() << std::endl; // will flush
+    generateReceipt(reason);
+
     exit(1);
+}
+
+void APhotonSimulator::generateReceipt(const QString & optionalError)
+{
+    QJsonObject receipt;
+
+    bool bSuccess = optionalError.isEmpty();
+    receipt["Success"] = bSuccess;
+    if (!bSuccess) receipt["Error"] = optionalError;
+
+    jstools::saveJsonToFile(receipt, WorkingDir + "/" + SimSet.RunSet.FileNameReceipt);
 }
