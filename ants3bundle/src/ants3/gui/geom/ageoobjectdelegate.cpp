@@ -199,7 +199,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
     rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator"});
+        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator", "Photon tunnel: In", "Photon tunnel: Out"});
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
@@ -583,6 +583,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             case 4:
                 obj->Role = new AGeoScint();
                 break;
+            case 5:
+                obj->Role = new AGeoPhotonTunnelIn();
+                break;
+            case 6:
+                obj->Role = new AGeoPhotonTunnelOut();
+                break;
             default:;
             }
         }
@@ -919,6 +925,16 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
                 {
                     AGeoScint * scint = dynamic_cast<AGeoScint*>(obj->Role);
                     if (scint) cobRole->setCurrentIndex(4);
+                    else
+                    {
+                        AGeoPhotonTunnelIn * tunIn = dynamic_cast<AGeoPhotonTunnelIn*>(obj->Role);
+                        if (tunIn) cobRole->setCurrentIndex(5);
+                        else
+                        {
+                            AGeoPhotonTunnelOut * tunOut = dynamic_cast<AGeoPhotonTunnelOut*>(obj->Role);
+                            if (tunOut) cobRole->setCurrentIndex(6);
+                        }
+                    }
                 }
             }
         }

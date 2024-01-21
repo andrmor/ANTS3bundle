@@ -17,7 +17,7 @@ public:
     AGeoSpecial(){}
     virtual ~AGeoSpecial(){}
 
-    virtual QString getType() const = 0;
+    virtual QString getType() const = 0; // !!!*** convert to enum
 
     virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
@@ -82,6 +82,22 @@ public:
     AGeoScint(){}
 
     QString getType() const override {return QStringLiteral("Scint");}
+};
+
+class AGeoPhotonTunnelIn : public AGeoSpecial
+{
+public:
+    AGeoPhotonTunnelIn(){}
+
+    QString getType() const override {return QStringLiteral("PhotonTunnelIn");}
+};
+
+class AGeoPhotonTunnelOut : public AGeoSpecial
+{
+public:
+    AGeoPhotonTunnelOut(){}
+
+    QString getType() const override {return QStringLiteral("PhotonTunnelOut");}
 };
 
 #endif // AGEOSPECIAL_H

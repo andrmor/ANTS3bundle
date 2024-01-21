@@ -31,6 +31,18 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         scint->readFromJson(json);
         return scint;
     }
+    if (Type == "PhotonTunnelIn")
+    {
+        AGeoPhotonTunnelIn * th = new AGeoPhotonTunnelIn();
+        th->readFromJson(json);
+        return th;
+    }
+    if (Type == "PhotonTunnelOut")
+    {
+        AGeoPhotonTunnelOut * th = new AGeoPhotonTunnelOut();
+        th->readFromJson(json);
+        return th;
+    }
 
     return nullptr;
 }
