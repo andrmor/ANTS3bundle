@@ -580,8 +580,8 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
 
     if (obj->Role)
     {
-        if (obj->Role->getType() == "PhotonTunnelIn")       registerPhotonTunnelIn(obj, vol);
-        else if (obj->Role->getType() == "PhotonTunnelOut") registerPhotonTunnelOut(obj, vol);
+        if (obj->Role->getType() == "PhotonTunnelIn")       registerPhotonTunnelIn(obj, parent);
+        else if (obj->Role->getType() == "PhotonTunnelOut") registerPhotonTunnelOut(obj, parent);
     }
 
     setVolumeTitle(obj, vol);
@@ -634,6 +634,7 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 void AGeometryHub::registerPhotonTunnelIn(AGeoObject * obj, TGeoVolume * parentVol)
 {
     TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
+    qDebug() << "aaaaaaahha" << node->GetNumber() << PhotonTunnelsIn.size();
     node->SetNumber(PhotonTunnelsIn.size());
     PhotonTunnelsIn.push_back({obj, node});
 }
