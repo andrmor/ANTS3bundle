@@ -1,9 +1,12 @@
 #ifndef AGEOMETRYHUB_H
 #define AGEOMETRYHUB_H
 
+#include "avector.h"
+
 #include <QString>
 
 #include <vector>
+#include <tuple>
 #include <string>
 
 class AGeoObject;
@@ -133,8 +136,9 @@ private:
     double ScalingFactor = 1.0;
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
+public:
     std::vector<std::pair<AGeoObject*,TGeoNode*>> PhotonTunnelsIn;
-    std::vector<std::pair<AGeoObject*,TGeoNode*>> PhotonTunnelsOut;
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonTunnelsOut;
 };
 
 #endif // AGEOMETRYHUB_H

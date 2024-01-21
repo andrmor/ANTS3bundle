@@ -634,7 +634,7 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 void AGeometryHub::registerPhotonTunnelIn(AGeoObject * obj, TGeoVolume * parentVol)
 {
     TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
-    qDebug() << "aaaaaaahha" << node->GetNumber() << PhotonTunnelsIn.size();
+    //qDebug() << "In tunnel node:" << node->GetNumber() << "  replaced with" << PhotonTunnelsIn.size();
     node->SetNumber(PhotonTunnelsIn.size());
     PhotonTunnelsIn.push_back({obj, node});
 }
@@ -643,7 +643,10 @@ void AGeometryHub::registerPhotonTunnelOut(AGeoObject * obj, TGeoVolume * parent
 {
     TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
     node->SetNumber(PhotonTunnelsOut.size());
-    PhotonTunnelsOut.push_back({obj, node});
+    AVector3 globalPosition;
+    getGlobalPosition(node, globalPosition);
+    //qDebug() << "Out tunnel: node global pos" << globalPosition[0] << globalPosition[1] << globalPosition[2];
+    PhotonTunnelsOut.push_back({obj, node, globalPosition});
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)

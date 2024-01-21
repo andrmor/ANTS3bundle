@@ -417,6 +417,47 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         return;
     }
 
+    if (Selector == 'T') // Photon tunnel In
+    {
+        int inNum = NodeAfterInterface->GetNumber();
+        //qDebug() << "Enter photon tunnel #" << inNum;
+        int outNum = inNum; // !!!***
+        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonTunnelsOut[inNum];
+
+        //qDebug() << "Exit photon tunnel #" << outNum;
+        //TGeoNode * nodeOut = std::get<1>(out);
+        //qDebug() << "out node name:" <<  nodeOut->GetVolume()->GetName();
+
+        // get "In" local position
+        double localPos[3];
+        const double * global = Navigator->GetCurrentPoint();
+        Navigator->MasterToLocal(global, localPos);
+          // set center Z in tunnel out
+        localPos[2] = 0;
+
+        // get "In" local vector
+        const double * globalDir = Navigator->GetCurrentDirection();
+        double localDir[3];
+        Navigator->MasterToLocalVect(globalDir, localDir);
+
+        //qDebug() << "local coordinates" << localPos[0] << localPos[1] << localPos[2];
+        //qDebug() << "local vector" << localDir[0] << localDir[1] << localDir[2];
+
+        // find exit node
+        const AVector3 & globPosNodeCenter = std::get<2>(out);
+        Navigator->FindNode(globPosNodeCenter[0], globPosNodeCenter[1], globPosNodeCenter[2]);
+
+        // set new position
+        Navigator->LocalToMaster(localPos, Photon.r);
+        Navigator->SetCurrentPoint(Photon.r);
+
+        // set new vector
+        Navigator->LocalToMasterVect(localDir, Photon.v);
+        Navigator->SetCurrentDirection(Photon.v);
+
+        Track.Positions.push_back(AVector3(Navigator->GetCurrentPoint()));
+    }
+
     returnEndTracingFlag = false;
 }
 
