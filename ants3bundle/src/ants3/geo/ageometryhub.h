@@ -137,7 +137,7 @@ private:
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
-    std::vector<std::pair<AGeoObject*,TGeoNode*>> PhotonTunnelsIn;
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonTunnelsIn;
     std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonTunnelsOut;
 };
 

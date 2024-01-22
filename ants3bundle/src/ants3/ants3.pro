@@ -104,6 +104,7 @@ INCLUDEPATH += tools
 INCLUDEPATH += particleSim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
+INCLUDEPATH += photonSim/photonTunnels
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -141,6 +142,7 @@ SOURCES += \
     gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -202,6 +204,7 @@ SOURCES += \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
+    photonSim/photonTunnels/aphotontunnelhub.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -331,7 +334,9 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
+    photonSim/photonTunnels/aphotontunnelhub.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
@@ -554,6 +559,7 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

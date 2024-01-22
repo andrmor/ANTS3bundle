@@ -1,0 +1,51 @@
+#ifndef APHOTONTUNNELWINDOW_H
+#define APHOTONTUNNELWINDOW_H
+
+#include "aguiwindow.h"
+
+namespace Ui {
+class APhotonTunnelWindow;
+}
+
+class APhotonTunnelHub;
+
+class APhotonTunnelWindow : public AGuiWindow
+{
+    Q_OBJECT
+
+public:
+    explicit APhotonTunnelWindow(const QString & idStr, QWidget * parent);
+    ~APhotonTunnelWindow();
+
+    void updateGui();
+
+private slots:
+    void on_rbSortByFrom_clicked(bool checked);
+
+    void on_rbSortByTo_clicked(bool checked);
+
+    void on_pbAddModify_clicked();
+
+    void on_pbRemove_clicked();
+
+private:
+    Ui::APhotonTunnelWindow *ui;
+    APhotonTunnelHub & PhTunHub;
+
+    void fillCell(int iRow, int iColumn, const QString & txt);
+};
+
+#include <QTableWidgetItem>
+class ASortableTableWidgetItem : public QTableWidgetItem
+{
+public:
+    bool operator< (const QTableWidgetItem & other) const
+    {
+        int lhs = 0, rhs = 0;
+        lhs = text().toDouble();
+        rhs = other.text().toDouble();
+        return (lhs < rhs);
+    }
+};
+
+#endif // APHOTONTUNNELWINDOW_H

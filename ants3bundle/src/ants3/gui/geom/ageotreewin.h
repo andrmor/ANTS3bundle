@@ -12,6 +12,7 @@ class AGeometryHub;
 class AMaterialHub;
 class AGeoTree;
 class AGeoObject;
+class APhotonTunnelWindow;
 
 namespace Ui {
   class AGeoTreeWin;
@@ -56,6 +57,8 @@ private slots:
   void on_actionFind_object_triggered();
 
 
+  void on_actionOpen_window_triggered();
+
   private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
@@ -64,6 +67,8 @@ private slots:
   AGeoTree        * twGeo = nullptr;
 
   bool bGeoConstsWidgetUpdateInProgress = false;
+
+  APhotonTunnelWindow * photonTunnelWin = nullptr; // tmp?
 
   void    highlightVolume(const QString & VolName);  // !!!***  slow!
 
