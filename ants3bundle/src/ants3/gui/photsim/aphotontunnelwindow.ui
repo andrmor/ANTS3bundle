@@ -143,12 +143,12 @@
           </attribute>
           <column>
            <property name="text">
-            <string>From</string>
+            <string>Entrance</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>To</string>
+            <string>Exit</string>
            </property>
           </column>
           <column>
