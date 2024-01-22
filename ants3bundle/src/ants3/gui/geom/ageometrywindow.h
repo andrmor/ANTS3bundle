@@ -93,6 +93,9 @@ public slots:
 
     void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
 
+    void onRequestShowConnection(int from, int to);
+    void onRequestShowAllConnections();
+
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
 
@@ -171,6 +174,8 @@ private:
     void copyGeoMarksToGeoManager();
 
     void onWebPageReplyViewPort(const QVariant & reply);
+
+    void showPhotonTunnel(int from, int to);
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

@@ -8,6 +8,7 @@ class APhotonTunnelWindow;
 }
 
 class APhotonTunnelHub;
+class AGeometryHub;
 
 class APhotonTunnelWindow : public AGuiWindow
 {
@@ -21,18 +22,24 @@ public:
 
 private slots:
     void on_rbSortByFrom_clicked(bool checked);
-
     void on_rbSortByTo_clicked(bool checked);
-
     void on_pbAddModify_clicked();
-
     void on_pbRemove_clicked();
+    void on_tabwConnections_cellClicked(int row, int column);
+    void on_pbShowAllConnections_clicked();
 
 private:
     Ui::APhotonTunnelWindow *ui;
     APhotonTunnelHub & PhTunHub;
+    const AGeometryHub & GeoHub;
 
     void fillCell(int iRow, int iColumn, const QString & txt);
+    void updateInfoLabels();
+
+signals:
+    void requestShowConnection(int from, int to);
+    void requestShowAllConnections();
+
 };
 
 #include <QTableWidgetItem>

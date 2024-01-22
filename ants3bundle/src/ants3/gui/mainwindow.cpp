@@ -109,6 +109,10 @@ MainWindow::MainWindow() :
     PythonWin->updateGui();
 #endif
 
+    // !!!*** move creation of the photon tunnel window here?
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
+    connect(GeoTreeWin, &AGeoTreeWin::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
+
     GlobSetWin = new AGlobSetWindow(this);
     connect(PhotSimWin, &APhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
     connect(PartSimWin, &AParticleSimWin::requestConfigureExchangeDir, GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);

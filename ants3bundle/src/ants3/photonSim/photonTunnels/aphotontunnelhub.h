@@ -38,6 +38,8 @@ public:
 
     void clearAllConnections() {Connections.clear();}
 
+    bool isValidConnection(const ATunnelRecord & rec) const;
+
     QString addOrModifyConnection(int from, int to, int model, const QString & settings);
     void removeConnection(int from, int to);
 

@@ -103,6 +103,10 @@ signals:
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 
+  // tmp?
+  void requestShowConnection(int from, int to);
+  void requestShowAllConnections();
+
 };
 
 #endif // AGEOTREEWIN_H

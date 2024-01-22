@@ -57,6 +57,21 @@ void APhotonTunnelHub::readFromJson(const QJsonObject & json)
     }
 }
 
+#include "ageometryhub.h"
+bool APhotonTunnelHub::isValidConnection(const ATunnelRecord & rec) const
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+
+    if (rec.From < 0) return false;
+    if (rec.From >= GeoHub.PhotonTunnelsIn.size()) return false;
+
+    if (rec.To < 0) return false;
+    if (rec.To >= GeoHub.PhotonTunnelsOut.size()) return false;
+
+    // !!!*** check model
+    return true;
+}
+
 QString APhotonTunnelHub::addOrModifyConnection(int from, int to, int model, const QString & settings)
 {
     for (ATunnelRecord & rec : Connections)

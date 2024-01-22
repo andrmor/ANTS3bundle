@@ -633,6 +633,43 @@ void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & X
     GeoMarkers.push_back(M);
 }
 
+void AGeometryWindow::showPhotonTunnel(int from, int to)
+{
+    if (from < 0 || from >= Geometry.PhotonTunnelsIn.size()) return;
+    if (to   < 0 ||   to >= Geometry.PhotonTunnelsOut.size()) return;
+
+    int track_index = Geometry.GeoManager->AddTrack(2, 22);
+    TVirtualGeoTrack * track = Geometry.GeoManager->GetTrack(track_index);
+    track->SetLineColor(kBlue);
+    track->SetLineWidth(2);
+    //track->SetLineStyle(1);
+
+    const AVector3 & fromPos = std::get<2>(Geometry.PhotonTunnelsIn[from]);
+    track->AddPoint(fromPos[0], fromPos[1], fromPos[2], 0);
+
+    const AVector3 & toPos = std::get<2>(Geometry.PhotonTunnelsOut[to]);
+    track->AddPoint(toPos[0], toPos[1], toPos[2], 0);
+}
+
+void AGeometryWindow::onRequestShowConnection(int from, int to)
+{
+    ClearTracks();
+    showPhotonTunnel(from, to);
+    ShowTracks();
+}
+
+#include "aphotontunnelhub.h"
+void AGeometryWindow::onRequestShowAllConnections()
+{
+    ClearTracks();
+
+    const APhotonTunnelHub & hub = APhotonTunnelHub::getConstInstance();
+    for (const ATunnelRecord & rec : hub.Connections)
+        showPhotonTunnel(rec.From, rec.To);
+
+    ShowTracks();
+}
+
 void AGeometryWindow::ShowTracksAndMarkers()
 {
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
