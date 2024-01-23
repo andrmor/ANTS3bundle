@@ -19,6 +19,14 @@ public:
     void readFromJson(const QJsonObject & json);
 };
 
+class ATunnelRuntimeData
+{
+public:
+    size_t ExitIndex;
+
+    //ATunnelModelBase*
+};
+
 class APhotonTunnelHub
 {
     APhotonTunnelHub();
@@ -34,21 +42,21 @@ public:
     static const APhotonTunnelHub & getConstInstance();
 
     void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    QString readFromJson(const QJsonObject & json);
 
     void clearAllConnections() {Connections.clear();}
 
-    bool isValidConnection(const ATunnelRecord & rec) const;
+    bool isValidConnection(const ATunnelRecord & rec, bool registerError) const;
 
     QString addOrModifyConnection(int from, int to, int model, const QString & settings);
     void removeConnection(int from, int to);
 
+    bool updateRuntimeProperties(); // generate AErrorHub error if there are problems
+
     //std::vector<ATunnelModelBase*> Models;
     std::vector<ATunnelRecord> Connections;
 
-
+    std::vector<ATunnelRuntimeData> RuntimeData;
 };
-
-
 
 #endif // APHOTONTUNNELHUB_H

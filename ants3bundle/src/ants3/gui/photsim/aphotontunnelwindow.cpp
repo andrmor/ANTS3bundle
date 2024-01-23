@@ -52,7 +52,7 @@ void APhotonTunnelWindow::updateGui()
         fillCell(iRow, 1, QString::number(rec.To));
         fillCell(iRow, 2, QString::number(rec.ModelIndex));
         fillCell(iRow, 3, rec.Settings);
-        fillCell(iRow, 4, ( PhTunHub.isValidConnection(rec) ? "Yes" : "") );
+        fillCell(iRow, 4, ( PhTunHub.isValidConnection(rec, false) ? "Yes" : "") );
 
         iRow++;
     }
@@ -64,6 +64,7 @@ void APhotonTunnelWindow::updateGui()
 
 void APhotonTunnelWindow::updateInfoLabels()
 {
+    // !!!*** check overlap with updateRuntimeProperties() of APhotonTunnelHub
     int numEntrances = GeoHub.PhotonTunnelsIn.size();
     int numExits = GeoHub.PhotonTunnelsOut.size();
 

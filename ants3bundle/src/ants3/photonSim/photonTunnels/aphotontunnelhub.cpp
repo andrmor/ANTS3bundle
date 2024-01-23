@@ -1,4 +1,6 @@
 #include "aphotontunnelhub.h"
+#include "ageometryhub.h"
+#include "aerrorhub.h"
 #include "ajsontools.h"
 
 APhotonTunnelHub & APhotonTunnelHub::getInstance()
@@ -33,13 +35,14 @@ void APhotonTunnelHub::writeToJson(QJsonObject & json) const
     json["PhotonTunnels"] = js;
 }
 
-void APhotonTunnelHub::readFromJson(const QJsonObject & json)
+QString APhotonTunnelHub::readFromJson(const QJsonObject & json)
 {
     clearAllConnections();
+    //clear models
 
     QJsonObject js;
     bool ok = jstools::parseJson(json, "PhotonTunnels", js);
-    if (!ok) return;
+    if (!ok) return ""; // cannot enforce, some old configs do not have this field
 
     //Models
 
@@ -55,18 +58,35 @@ void APhotonTunnelHub::readFromJson(const QJsonObject & json)
             Connections.push_back(rec);
         }
     }
+
+    return "";
 }
 
-#include "ageometryhub.h"
-bool APhotonTunnelHub::isValidConnection(const ATunnelRecord & rec) const
+bool APhotonTunnelHub::isValidConnection(const ATunnelRecord & rec, bool registerError) const
 {
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
-    if (rec.From < 0) return false;
-    if (rec.From >= GeoHub.PhotonTunnelsIn.size()) return false;
+    if (rec.From < 0)
+    {
+        if (registerError) AErrorHub::addError("Bad 'From' index in photon tunnel record");
+        return false;
+    }
+    if (rec.From >= GeoHub.PhotonTunnelsIn.size())
+    {
+        if (registerError) AErrorHub::addError("Bad 'From' index in photon tunnel record");
+        return false;
+    }
 
-    if (rec.To < 0) return false;
-    if (rec.To >= GeoHub.PhotonTunnelsOut.size()) return false;
+    if (rec.To < 0)
+    {
+        if (registerError) AErrorHub::addError("Bad 'To' index in photon tunnel record");
+        return false;
+    }
+    if (rec.To >= GeoHub.PhotonTunnelsOut.size())
+    {
+        if (registerError) AErrorHub::addError("Bad 'To' index in photon tunnel record");
+        return false;
+    }
 
     // !!!*** check model
     return true;
@@ -100,6 +120,74 @@ void APhotonTunnelHub::removeConnection(int from, int to)
         Connections.erase(it);
         return;
     }
+}
+
+bool APhotonTunnelHub::updateRuntimeProperties()
+{
+    RuntimeData.clear();
+
+    for (const ATunnelRecord & rec : Connections)
+    {
+        bool ok = isValidConnection(rec, true);
+        if (!ok) return false;
+    }
+
+    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+    int numEntrances = GeoHub.PhotonTunnelsIn.size();
+    int numExits = GeoHub.PhotonTunnelsOut.size();
+
+    int numNotConnectedEntrances = 0;
+    int numMultipleEntrances = 0;
+    for (int i = 0; i < numEntrances; i++)
+    {
+        int seenTimes = 0;
+        for (const ATunnelRecord & rec : Connections)
+            if (rec.From == i)
+                seenTimes++;
+
+        if (seenTimes == 0) numNotConnectedEntrances++;
+        if (seenTimes > 1) numMultipleEntrances++;
+    }
+
+    int numNotConnectedExits = 0;
+    int numMultipleExits = 0;
+    for (int i = 0; i < numExits; i++)
+    {
+        int seenTimes = 0;
+        for (const ATunnelRecord & rec : Connections)
+            if (rec.To == i)
+                seenTimes++;
+
+        if (seenTimes == 0) numNotConnectedExits++;
+        if (seenTimes > 1) numMultipleExits++;
+    }
+
+    if (numNotConnectedEntrances > 0)
+    {
+        AErrorHub::addError("There are not connected photon tunnel entrances!");
+        return false;
+    }
+
+    if (numNotConnectedExits > 0)
+    {
+        AErrorHub::addError("There are not connected photon tunnel exits!");
+        return false;
+    }
+
+    if (numMultipleExits > 0)
+    {
+        AErrorHub::addError("A photon tunnel leading to multiple exits was found: not yet implemented");
+        return false;
+    }
+
+    // updating
+    RuntimeData.resize(GeoHub.PhotonTunnelsIn.size());
+    for (const ATunnelRecord & rec : Connections)
+    {
+        RuntimeData[rec.From].ExitIndex = rec.To;
+        // Model
+    }
+    return true;
 }
 
 APhotonTunnelHub::APhotonTunnelHub() {}

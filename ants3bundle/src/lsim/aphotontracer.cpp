@@ -15,6 +15,7 @@
 #include "aphoton.h"
 #include "amonitor.h"
 #include "amonitorhub.h"
+#include "aphotontunnelhub.h"
 
 #include <QDebug>
 #include <QTextStream>
@@ -419,12 +420,13 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
 
     if (Selector == 'T') // Photon tunnel In
     {
-        int inNum = NodeAfterInterface->GetNumber();
+        const int inNum = NodeAfterInterface->GetNumber();
         //qDebug() << "Enter photon tunnel #" << inNum;
-        int outNum = inNum; // !!!***
-        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonTunnelsOut[inNum];
-
+        const APhotonTunnelHub & PhTunHub = APhotonTunnelHub::getConstInstance();
+        const size_t outNum =  PhTunHub.RuntimeData[inNum].ExitIndex;
         //qDebug() << "Exit photon tunnel #" << outNum;
+        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonTunnelsOut[outNum];
+
         //TGeoNode * nodeOut = std::get<1>(out);
         //qDebug() << "out node name:" <<  nodeOut->GetVolume()->GetName();
 
