@@ -104,7 +104,7 @@ INCLUDEPATH += tools
 INCLUDEPATH += particleSim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
-INCLUDEPATH += photonSim/photonTunnels
+INCLUDEPATH += photonSim/photonFunctional
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -204,7 +204,7 @@ SOURCES += \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
-    photonSim/photonTunnels/aphotontunnelhub.cpp \
+    photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -336,7 +336,7 @@ HEADERS += \
     ademomanager.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
-    photonSim/photonTunnels/aphotontunnelhub.h \
+    photonSim/photonFunctional/aphotonfunctionalhub.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \

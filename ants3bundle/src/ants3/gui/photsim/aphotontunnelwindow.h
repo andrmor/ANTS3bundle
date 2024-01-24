@@ -7,7 +7,7 @@ namespace Ui {
 class APhotonTunnelWindow;
 }
 
-class APhotonTunnelHub;
+class APhotonFunctionalHub;
 class AGeometryHub;
 
 class APhotonTunnelWindow : public AGuiWindow
@@ -30,11 +30,11 @@ private slots:
 
 private:
     Ui::APhotonTunnelWindow *ui;
-    APhotonTunnelHub & PhTunHub;
+    APhotonFunctionalHub & PhTunHub;
     const AGeometryHub & GeoHub;
 
     void fillCell(int iRow, int iColumn, const QString & txt);
-    void updateInfoLabels();
+    void updateInfoLabels(); // !!!***
 
 signals:
     void requestShowConnection(int from, int to);

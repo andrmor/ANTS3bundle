@@ -1647,18 +1647,11 @@ void AGeo_SI::setSecondaryScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
 
-void AGeo_SI::setPhotonTunnelIn(QString Object)
+void AGeo_SI::setPhotonFunctional(QString Object)
 {
     AGeoObject * obj = findObject(Object);
     if (!obj) return;
-    delete obj->Role; obj->Role = new AGeoPhotonTunnelIn();
-}
-
-void AGeo_SI::setPhotonTunnelOut(QString Object)
-{
-    AGeoObject * obj = findObject(Object);
-    if (!obj) return;
-    delete obj->Role; obj->Role = new AGeoPhotonTunnelOut();
+    delete obj->Role; obj->Role = new AGeoPhotonFunctional();
 }
 
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)

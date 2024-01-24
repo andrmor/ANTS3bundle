@@ -165,10 +165,10 @@ bool APhotonSimManager::checkDirectories()
     return !AErrorHub::isError();
 }
 
-#include "aphotontunnelhub.h"
+#include "aphotonfunctionalhub.h"
 bool APhotonSimManager::updateRuntimeForPhotonTunnels()
 {
-    APhotonTunnelHub & PhTunHub = APhotonTunnelHub::getInstance();
+    APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getInstance();
     return PhTunHub.updateRuntimeProperties();
 }
 

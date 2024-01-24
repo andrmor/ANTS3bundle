@@ -635,8 +635,8 @@ void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & X
 
 void AGeometryWindow::showPhotonTunnel(int from, int to)
 {
-    if (from < 0 || from >= Geometry.PhotonTunnelsIn.size()) return;
-    if (to   < 0 ||   to >= Geometry.PhotonTunnelsOut.size()) return;
+    if (from < 0 || from >= Geometry.PhotonFunctionals.size()) return;
+    if (to   < 0 ||   to >= Geometry.PhotonFunctionals.size()) return;
 
     int track_index = Geometry.GeoManager->AddTrack(2, 22);
     TVirtualGeoTrack * track = Geometry.GeoManager->GetTrack(track_index);
@@ -644,10 +644,10 @@ void AGeometryWindow::showPhotonTunnel(int from, int to)
     track->SetLineWidth(2);
     //track->SetLineStyle(1);
 
-    const AVector3 & fromPos = std::get<2>(Geometry.PhotonTunnelsIn[from]);
+    const AVector3 & fromPos = std::get<2>(Geometry.PhotonFunctionals[from]);
     track->AddPoint(fromPos[0], fromPos[1], fromPos[2], 0);
 
-    const AVector3 & toPos = std::get<2>(Geometry.PhotonTunnelsOut[to]);
+    const AVector3 & toPos = std::get<2>(Geometry.PhotonFunctionals[to]);
     track->AddPoint(toPos[0], toPos[1], toPos[2], 0);
 }
 
@@ -658,14 +658,14 @@ void AGeometryWindow::onRequestShowConnection(int from, int to)
     ShowTracks();
 }
 
-#include "aphotontunnelhub.h"
+#include "aphotonfunctionalhub.h"
 void AGeometryWindow::onRequestShowAllConnections()
 {
     ClearTracks();
 
-    const APhotonTunnelHub & hub = APhotonTunnelHub::getConstInstance();
-    for (const ATunnelRecord & rec : hub.Connections)
-        showPhotonTunnel(rec.From, rec.To);
+    const APhotonFunctionalHub & hub = APhotonFunctionalHub::getConstInstance();
+    for (const APhotonFunctionalRecord & rec : hub.FunctionalRecords)
+        showPhotonTunnel(rec.Trigger, rec.Target);
 
     ShowTracks();
 }

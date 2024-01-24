@@ -20,7 +20,7 @@
 #include "as2generator.h"
 #include "ageometryhub.h"
 #include "aphotongenerator.h"
-#include "aphotontunnelhub.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -726,10 +726,10 @@ void APhotonSimulator::loadConfig()
     LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
 
-    Error         = APhotonTunnelHub::getInstance().readFromJson(json);
+    Error         = APhotonFunctionalHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded photon tunnel hub.";// Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
-    bool ok = APhotonTunnelHub::getInstance().updateRuntimeProperties();
+    bool ok = APhotonFunctionalHub::getInstance().updateRuntimeProperties();
     if (!ok) terminate(AErrorHub::getQError());
     LOG.flush();
 

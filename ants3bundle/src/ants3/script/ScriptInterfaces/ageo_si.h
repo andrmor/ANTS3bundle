@@ -111,8 +111,7 @@ public slots:
     void setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
     void setScintillator(QString Object);
     void setSecondaryScintillator(QString Object);
-    void setPhotonTunnelIn(QString Object);
-    void setPhotonTunnelOut(QString Object);
+    void setPhotonFunctional(QString Object);
 
     QVariantList getScintillatorProperties();
 

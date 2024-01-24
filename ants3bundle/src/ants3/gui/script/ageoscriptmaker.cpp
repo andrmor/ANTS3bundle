@@ -585,18 +585,10 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
         return;
     }
 
-    AGeoPhotonTunnelIn * tunIn = dynamic_cast<AGeoPhotonTunnelIn*>(obj->Role);
+    AGeoPhotonFunctional * tunIn = dynamic_cast<AGeoPhotonFunctional*>(obj->Role);
     if (tunIn)
     {
-        QString str = QString("geo.setPhotonTunnelIn( '%1' )").arg(obj->Name);
-        script += "\n" + QString(" ").repeated(ident) + str;
-        return;
-    }
-
-    AGeoPhotonTunnelOut * tunOut = dynamic_cast<AGeoPhotonTunnelOut*>(obj->Role);
-    if (tunOut)
-    {
-        QString str = QString("geo.setPhotonTunnelOut( '%1' )").arg(obj->Name);
+        QString str = QString("geo.setPhotonFunctional( '%1' )").arg(obj->Name);
         script += "\n" + QString(" ").repeated(ident) + str;
         return;
     }

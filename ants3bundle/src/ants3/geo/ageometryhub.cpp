@@ -260,8 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
-    PhotonTunnelsIn.clear();
-    PhotonTunnelsOut.clear();
+    PhotonFunctionals.clear();
     World->clearTrueRotationRecursive();
 
     AGeoConsts::getInstance().updateFromExpressions();
@@ -578,11 +577,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
 
-    if (obj->Role)
-    {
-        if (obj->Role->getType() == "PhotonTunnelIn")       registerPhotonTunnelIn(obj, parent);
-        else if (obj->Role->getType() == "PhotonTunnelOut") registerPhotonTunnelOut(obj, parent);
-    }
+    if (obj->Role && obj->Role->getType() == "PhotonFunctional") registerPhotonFunctional(obj, parent);
 
     setVolumeTitle(obj, vol);
 }
@@ -599,18 +594,17 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 
     if      (obj->Role)
     {
-        if      (obj->Role->getType() == "Sensor")          title[0] = 'S';
-        else if (obj->Role->getType() == "SecScint")        title[0] = '2';
-        else if (obj->Role->getType() == "Calorimeter")     title[0] = 'C'; // not used with photons, but needed to update name for interface rules
-        else if (obj->Role->getType() == "PhotonTunnelIn")  title[0] = 'T';
-        else if (obj->Role->getType() == "PhotonTunnelOut") title[0] = 't';
+        if      (obj->Role->getType() == "Sensor")           title[0] = 'S';
+        else if (obj->Role->getType() == "SecScint")         title[0] = '2';
+        else if (obj->Role->getType() == "Calorimeter")      title[0] = 'C'; // not used with photons, but needed to update name for interface rules
+        else if (obj->Role->getType() == "PhotonFunctional") title[0] = 'F';
     }
     else if (obj->Type->isMonitor())
     {
         ATypeMonitorObject * monTobj = static_cast<ATypeMonitorObject*>(obj->Type);
-        if (monTobj->config.PhotonOrParticle == 0)          title[0] = 'M';
+        if (monTobj->config.PhotonOrParticle == 0)           title[0] = 'M';
     }
-    else if (obj->Type->isGrid())                           title[0] = 'G';
+    else if (obj->Type->isGrid())                            title[0] = 'G';
 
     const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
     TString BaseName;
@@ -631,24 +625,13 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     vol->SetTitle(title);
 }
 
-void AGeometryHub::registerPhotonTunnelIn(AGeoObject * obj, TGeoVolume * parentVol)
+void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol)
 {
     TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
-    //qDebug() << "In tunnel node:" << node->GetNumber() << "  replaced with" << PhotonTunnelsIn.size();
-    node->SetNumber(PhotonTunnelsIn.size());
+    node->SetNumber(PhotonFunctionals.size());
     AVector3 globalPosition;
     getGlobalPosition(node, globalPosition);
-    PhotonTunnelsIn.push_back({obj, node, globalPosition});
-}
-
-void AGeometryHub::registerPhotonTunnelOut(AGeoObject * obj, TGeoVolume * parentVol)
-{
-    TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
-    node->SetNumber(PhotonTunnelsOut.size());
-    AVector3 globalPosition;
-    getGlobalPosition(node, globalPosition);
-    //qDebug() << "Out tunnel: node global pos" << globalPosition[0] << globalPosition[1] << globalPosition[2];
-    PhotonTunnelsOut.push_back({obj, node, globalPosition});
+    PhotonFunctionals.push_back({obj, node, globalPosition});
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)

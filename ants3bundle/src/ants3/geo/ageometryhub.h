@@ -128,8 +128,7 @@ private:
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
     QString readGDMLtoTGeo(const QString & fileName);
 
-    void registerPhotonTunnelIn(AGeoObject * obj, TGeoVolume * parentVol);
-    void registerPhotonTunnelOut(AGeoObject * obj, TGeoVolume * parentVol);
+    void registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol);
 
 private:
     bool   DoScaling = false;
@@ -137,8 +136,7 @@ private:
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
-    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonTunnelsIn;
-    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonTunnelsOut;
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;
 };
 
 #endif // AGEOMETRYHUB_H

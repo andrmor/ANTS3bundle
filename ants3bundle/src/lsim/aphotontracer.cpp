@@ -15,7 +15,7 @@
 #include "aphoton.h"
 #include "amonitor.h"
 #include "amonitorhub.h"
-#include "aphotontunnelhub.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QDebug>
 #include <QTextStream>
@@ -418,17 +418,17 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         return;
     }
 
-    if (Selector == 'T') // Photon tunnel In
+    if (Selector == 'F') // Photon functional object
     {
         const int inNum = NodeAfterInterface->GetNumber();
         //qDebug() << "Enter photon tunnel #" << inNum;
-        const APhotonTunnelHub & PhTunHub = APhotonTunnelHub::getConstInstance();
-        const size_t outNum =  PhTunHub.RuntimeData[inNum].ExitIndex;
-        //qDebug() << "Exit photon tunnel #" << outNum;
-        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonTunnelsOut[outNum];
+        const APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getConstInstance();
+        const ATunnelRuntimeData & runtimeData = PhTunHub.RuntimeData[inNum];
+        if (!runtimeData.isTrigger) return;
 
-        //TGeoNode * nodeOut = std::get<1>(out);
-        //qDebug() << "out node name:" <<  nodeOut->GetVolume()->GetName();
+        const size_t outNum = runtimeData.TargetIndex;
+        //qDebug() << "Exit photon tunnel #" << outNum;
+        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];
 
         // get "In" local position
         double localPos[3];

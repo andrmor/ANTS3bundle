@@ -84,20 +84,12 @@ public:
     QString getType() const override {return QStringLiteral("Scint");}
 };
 
-class AGeoPhotonTunnelIn : public AGeoSpecial
+class AGeoPhotonFunctional : public AGeoSpecial
 {
 public:
-    AGeoPhotonTunnelIn(){}
+    AGeoPhotonFunctional(){}
 
-    QString getType() const override {return QStringLiteral("PhotonTunnelIn");}
-};
-
-class AGeoPhotonTunnelOut : public AGeoSpecial
-{
-public:
-    AGeoPhotonTunnelOut(){}
-
-    QString getType() const override {return QStringLiteral("PhotonTunnelOut");}
+    QString getType() const override {return QStringLiteral("PhotonFunctional");}
 };
 
 #endif // AGEOSPECIAL_H

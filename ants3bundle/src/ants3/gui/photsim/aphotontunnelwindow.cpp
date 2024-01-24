@@ -1,13 +1,13 @@
 #include "aphotontunnelwindow.h"
 #include "ui_aphotontunnelwindow.h"
-#include "aphotontunnelhub.h"
+#include "aphotonfunctionalhub.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 
 APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent) :
     AGuiWindow(idStr, parent),
     ui(new Ui::APhotonTunnelWindow),
-    PhTunHub(APhotonTunnelHub::getInstance()),
+    PhTunHub(APhotonFunctionalHub::getInstance()),
     GeoHub(AGeometryHub::getConstInstance())
 {
     ui->setupUi(this);
@@ -38,21 +38,21 @@ void APhotonTunnelWindow::updateGui()
 {
     ui->tabwConnections->clearContents();
 
-    int numRecords = PhTunHub.Connections.size();
+    int numRecords = PhTunHub.FunctionalRecords.size();
     qDebug() << "Number of connections:" << numRecords;
 
     ui->tabwConnections->setRowCount(numRecords);
 
     int iRow = 0;
-    for (const ATunnelRecord & rec : PhTunHub.Connections)
+    for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
     {
-        qDebug() << rec.From << rec.To << rec.ModelIndex << rec.Settings;
+        qDebug() << rec.Trigger << rec.Target << rec.Model << rec.Settings;
 
-        fillCell(iRow, 0, QString::number(rec.From));
-        fillCell(iRow, 1, QString::number(rec.To));
-        fillCell(iRow, 2, QString::number(rec.ModelIndex));
+        fillCell(iRow, 0, QString::number(rec.Trigger));
+        fillCell(iRow, 1, QString::number(rec.Target));
+        fillCell(iRow, 2, rec.Model);
         fillCell(iRow, 3, rec.Settings);
-        fillCell(iRow, 4, ( PhTunHub.isValidConnection(rec, false) ? "Yes" : "") );
+        fillCell(iRow, 4, ( PhTunHub.isValidRecord(rec, false) ? "Yes" : "") );
 
         iRow++;
     }
@@ -64,8 +64,10 @@ void APhotonTunnelWindow::updateGui()
 
 void APhotonTunnelWindow::updateInfoLabels()
 {
+    /*
     // !!!*** check overlap with updateRuntimeProperties() of APhotonTunnelHub
-    int numEntrances = GeoHub.PhotonTunnelsIn.size();
+    int num = GeoHub.PhotonFunctionals.size();
+    int numEntrances = GeoHub.PhotonFunctionals.size();
     int numExits = GeoHub.PhotonTunnelsOut.size();
 
     int numNotConnectedEntrances = 0;
@@ -73,8 +75,8 @@ void APhotonTunnelWindow::updateInfoLabels()
     for (int i = 0; i < numEntrances; i++)
     {
         int seenTimes = 0;
-        for (const ATunnelRecord & rec : PhTunHub.Connections)
-            if (rec.From == i)
+        for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
+            if (rec.Trigger == i)
                 seenTimes++;
 
         if (seenTimes == 0) numNotConnectedEntrances++;
@@ -86,8 +88,8 @@ void APhotonTunnelWindow::updateInfoLabels()
     for (int i = 0; i < numExits; i++)
     {
         int seenTimes = 0;
-        for (const ATunnelRecord & rec : PhTunHub.Connections)
-            if (rec.To == i)
+        for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
+            if (rec.Target == i)
                 seenTimes++;
 
         if (seenTimes == 0) numNotConnectedExits++;
@@ -104,6 +106,7 @@ void APhotonTunnelWindow::updateInfoLabels()
 
     ui->labNumWithMultipleEntrances->setText(QString::number(numMultipleEntrances));
     if (numMultipleExits > 0) qCritical() << "Something is went wrong: currently it is impossible to have several exits for the same tunnel entrance!";
+    */
 }
 
 void APhotonTunnelWindow::on_rbSortByFrom_clicked(bool checked)
@@ -122,17 +125,17 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
 {
     int from  = ui->sbFrom->value();
     int to    = ui->sbTo->value();
-    int model = ui->sbModel->value();
+    //int model = ui->sbModel->value();
     QString settings = ui->leSettings->text();
 
-    QString err = PhTunHub.addOrModifyConnection(from, to, model, settings);
+    QString err = PhTunHub.addOrModifyRecord(from, to, "---", settings);
     if (err.isEmpty()) updateGui();
     else guitools::message(err, this);
 }
 
 void APhotonTunnelWindow::on_pbRemove_clicked()
 {
-    PhTunHub.removeConnection(ui->sbFrom->value(), ui->sbTo->value());
+    PhTunHub.removeRecord(ui->sbFrom->value(), ui->sbTo->value());
     updateGui();
 }
 
