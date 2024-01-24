@@ -8,6 +8,7 @@ class AGeoObject;
 
 class APhotonExchangeData
 {
+public:
     double * LocalPosition;
     double * LocalDirection;
     int      WaveIndex;
@@ -22,8 +23,8 @@ public:
 
     virtual QString getType() = 0;
 
-    void writeToJson(QJsonObject & json) const = 0;
-    void readFromJson(const QJsonObject & json) = 0;
+    virtual void writeToJson(QJsonObject & json) const = 0;
+    virtual void readFromJson(const QJsonObject & json) = 0;
 
     virtual bool applyModel(APhotonExchangeData & photonData, const AGeoObject & trigger, const AGeoObject & target) = 0;
     // photonData on call contains Trigger data, on return should contain data for Target
@@ -37,11 +38,15 @@ public:
 
     QString getType() override {return QStringLiteral("OpticalFiber");}
 
-    void writeToJson(QJsonObject & json) override {}
-    void readFromJson(const QJsonObject & json) override {}
+    void writeToJson(QJsonObject & json) const override;
+    void readFromJson(const QJsonObject & json) override;
 
     bool applyModel(APhotonExchangeData & photonData, const AGeoObject & trigger, const AGeoObject & target) override;
 
+    // length
+    // refractive index?
+    // attenuation per meter
+    // acceptance angle
 };
 
 #endif // APHOTONFUNCTIONALMODEL_H
