@@ -205,6 +205,7 @@ SOURCES += \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
+    photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -337,6 +338,7 @@ HEADERS += \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
+    photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \

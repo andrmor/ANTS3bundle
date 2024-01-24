@@ -421,13 +421,13 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
     if (Selector == 'F') // Photon functional object
     {
         const int inNum = NodeAfterInterface->GetNumber();
-        //qDebug() << "Enter photon tunnel #" << inNum;
+        qDebug() << "Enter trigger functional volume with index" << inNum;
         const APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getConstInstance();
         const ATunnelRuntimeData & runtimeData = PhTunHub.RuntimeData[inNum];
         if (!runtimeData.isTrigger) return;
 
         const size_t outNum = runtimeData.TargetIndex;
-        //qDebug() << "Exit photon tunnel #" << outNum;
+        qDebug() << "Associated target index" << outNum;
         const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];
 
         // get "In" local position
@@ -446,8 +446,11 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         //qDebug() << "local vector" << localDir[0] << localDir[1] << localDir[2];
 
         // find exit node
-        const AVector3 & globPosNodeCenter = std::get<2>(out);
-        Navigator->FindNode(globPosNodeCenter[0], globPosNodeCenter[1], globPosNodeCenter[2]);
+        if (inNum != outNum)
+        {
+            const AVector3 & globPosNodeCenter = std::get<2>(out);
+            Navigator->FindNode(globPosNodeCenter[0], globPosNodeCenter[1], globPosNodeCenter[2]);
+        }
 
         // set new position
         Navigator->LocalToMaster(localPos, Photon.r);
