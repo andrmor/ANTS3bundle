@@ -5,6 +5,7 @@
 
 #include <vector>
 
+class APhotonFunctionalModel;
 class QJsonObject;
 
 class APhotonFunctionalRecord
@@ -24,8 +25,7 @@ class ATunnelRuntimeData
 public:
     bool   isTrigger = false;
     size_t TargetIndex;
-
-    //ATunnelModelBase*
+    APhotonFunctionalModel * Model = nullptr;
 };
 
 class APhotonFunctionalHub

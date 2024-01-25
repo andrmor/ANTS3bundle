@@ -1,4 +1,5 @@
 #include "aphotonfunctionalhub.h"
+#include "aphotonfunctionalmodel.h"
 #include "ageometryhub.h"
 #include "aerrorhub.h"
 #include "ajsontools.h"
@@ -190,10 +191,10 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
 
     for (const APhotonFunctionalRecord & rec : FunctionalRecords)
     {
-        RuntimeData[rec.Trigger].isTrigger = true;
-        RuntimeData[rec.Trigger].TargetIndex = rec.Target;
-        // Model
-
+        ATunnelRuntimeData & rt = RuntimeData[rec.Trigger];
+        rt.isTrigger = true;
+        rt.TargetIndex = rec.Target;
+        rt.Model = new APFM_OpticalFiber(); // !!!*** tmp
     }
     return true;
 }

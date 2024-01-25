@@ -9,10 +9,10 @@ class AGeoObject;
 class APhotonExchangeData
 {
 public:
-    double * LocalPosition;
-    double * LocalDirection;
-    int      WaveIndex;
-    int      Time;
+    double LocalPosition[3];
+    double LocalDirection[3];
+    int    WaveIndex;
+    int    Time;
 };
 
 class APhotonFunctionalModel
@@ -26,7 +26,7 @@ public:
     virtual void writeToJson(QJsonObject & json) const = 0;
     virtual void readFromJson(const QJsonObject & json) = 0;
 
-    virtual bool applyModel(APhotonExchangeData & photonData, const AGeoObject & trigger, const AGeoObject & target) = 0;
+    virtual bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) = 0;
     // photonData on call contains Trigger data, on return should contain data for Target
     // false = kill photon
 };
@@ -41,7 +41,7 @@ public:
     void writeToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    bool applyModel(APhotonExchangeData & photonData, const AGeoObject & trigger, const AGeoObject & target) override;
+    bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) override;
 
     // length
     // refractive index?
