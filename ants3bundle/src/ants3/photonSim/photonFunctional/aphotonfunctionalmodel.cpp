@@ -4,6 +4,7 @@
 APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
 {
     if (type == "OpticalFiber") return new APFM_OpticalFiber();
+    if (type == "Dummy")        return new APFM_Dummy();
 
     qWarning() << "Photom functional model type (" << type << ") is unknown, returning Dummy model";
     return new APFM_Dummy();

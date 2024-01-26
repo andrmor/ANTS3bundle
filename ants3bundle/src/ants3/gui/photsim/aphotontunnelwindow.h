@@ -22,14 +22,17 @@ public:
     void updateGui();
 
 private slots:
-    void on_rbSortByFrom_clicked(bool checked);
-    void on_rbSortByTo_clicked(bool checked);
     void on_pbAddModify_clicked();
     void on_pbRemove_clicked();
     void on_tabwConnections_cellClicked(int row, int column);
-    void on_pbShowAllConnections_clicked();
 
     void on_pbSelectModel_clicked();
+
+    void onHeaderClicked(int index);
+
+    void on_actionShow_all_linked_pairs_triggered();
+
+    void on_cbShowConnection_clicked(bool checked);
 
 private:
     Ui::APhotonTunnelWindow *ui;
@@ -38,7 +41,10 @@ private:
 
     APhotonFunctionalModel * LastModel = nullptr;
 
-    void fillCell(int iRow, int iColumn, const QString & txt);
+    int SortByColumnIndex = 0;
+    bool AscendingSortOrder = true;
+
+    void fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid);
     void updateInfoLabels(); // !!!***
     void onModelChanged();
 
@@ -55,9 +61,11 @@ public:
     bool operator< (const QTableWidgetItem & other) const
     {
         int lhs = 0, rhs = 0;
-        lhs = text().toDouble();
-        rhs = other.text().toDouble();
-        return (lhs < rhs);
+        bool ok1, ok2;
+        lhs = text().toDouble(&ok1);
+        rhs = other.text().toDouble(&ok2);
+        if (ok1 && ok2) return (lhs < rhs);
+        else return (text() < other.text());
     }
 };
 

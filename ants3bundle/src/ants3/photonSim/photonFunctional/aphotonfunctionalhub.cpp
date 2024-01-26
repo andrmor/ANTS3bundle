@@ -64,6 +64,12 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, bo
 {
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
+    if (!rec.Model)
+    {
+        if (registerError) AErrorHub::addError("Empty model in photon functional record");
+        return false;
+    }
+
     if (rec.Trigger < 0)
     {
         if (registerError) AErrorHub::addError("Bad 'From' index in photon functional record");
@@ -75,18 +81,31 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, bo
         return false;
     }
 
-    if (rec.Target < 0)
+    if (rec.Model->isLink())
     {
-        if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
-        return false;
+        if (rec.Target < 0)
+        {
+            if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
+            return false;
+        }
+        if (rec.Target >= GeoHub.PhotonFunctionals.size())
+        {
+            if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
+            return false;
+        }
+        if (rec.Trigger == rec.Target)
+        {
+            if (registerError) AErrorHub::addError("Photon functional record requires different indexes for trigger and target objects");
+            return false;
+        }
     }
-    if (rec.Target >= GeoHub.PhotonFunctionals.size())
+
+    if (!rec.Model->isValid())
     {
-        if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
+        if (registerError) AErrorHub::addError("Photon functional record's model is not valid");
         return false;
     }
 
-    // !!!*** check model
     return true;
 }
 

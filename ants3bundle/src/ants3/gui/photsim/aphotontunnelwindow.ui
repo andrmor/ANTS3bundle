@@ -11,150 +11,24 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Photon tunnels</string>
+   <string>Photon transport: functional models</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>2</number>
-       </property>
-       <property name="topMargin">
-        <number>2</number>
-       </property>
-       <property name="rightMargin">
-        <number>2</number>
-       </property>
-       <property name="bottomMargin">
-        <number>2</number>
-       </property>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>140</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Sort by:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbSortByFrom">
-         <property name="text">
-          <string>Trigger</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbSortByTo">
-         <property name="text">
-          <string>Target</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>139</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbHelp">
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Help</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Already defined connections:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTableWidget" name="tabwConnections">
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Trigger</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Target</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Model</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Settings</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Valid?</string>
-       </property>
-      </column>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="topMargin">
        <number>0</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="cbShowConnection">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Show connection for the highlighted row</string>
+         <string>Attributed models:</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_6">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -167,13 +41,46 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pbShowAllConnections">
+       <widget class="QPushButton" name="pbHelp">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Show all connections</string>
+         <string>Help</string>
         </property>
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="tabwConnections">
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Index</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Linked to</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Model</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Settings</string>
+       </property>
+      </column>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_3">
@@ -202,7 +109,7 @@
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Trigger</string>
+            <string>Index:</string>
            </property>
           </widget>
          </item>
@@ -217,9 +124,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="labLinked">
            <property name="text">
-            <string>Target:</string>
+            <string>Linked to index:</string>
            </property>
           </widget>
          </item>
@@ -232,6 +139,19 @@
             <number>9999</number>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QLabel" name="label_6">
@@ -253,19 +173,6 @@
             <string>Choose model</string>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_7">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </item>
@@ -289,6 +196,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbShowConnection">
+         <property name="text">
+          <string>Show linked objects on geometry window</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -457,7 +371,19 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionShow_all_linked_pairs"/>
+   </widget>
+   <addaction name="menuShow"/>
   </widget>
+  <action name="actionShow_all_linked_pairs">
+   <property name="text">
+    <string>Show all linked pairs</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

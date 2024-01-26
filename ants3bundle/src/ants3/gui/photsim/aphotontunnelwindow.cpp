@@ -15,8 +15,13 @@ APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent
 
     ui->tabwConnections->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tabwConnections->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //ui->tabwConnections->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    ui->tabwConnections->horizontalHeader()->setStretchLastSection(true);
+    //setSectionResizeMode(QHeaderView.Stretch)
+    connect(ui->tabwConnections->horizontalHeader(), &QHeaderView::sectionClicked, this, &APhotonTunnelWindow::onHeaderClicked);
 
     updateGui();
+    onModelChanged();
 }
 
 APhotonTunnelWindow::~APhotonTunnelWindow()
@@ -24,14 +29,17 @@ APhotonTunnelWindow::~APhotonTunnelWindow()
     delete ui;
 }
 
-void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt)
+void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid)
 {
     QTableWidgetItem * item = ui->tabwConnections->item(iRow, iColumn);
     if (!item)
     {
-       item = new ASortableTableWidgetItem();
-       ui->tabwConnections->setItem(iRow, iColumn, item);
+        item = new ASortableTableWidgetItem();
+        ui->tabwConnections->setItem(iRow, iColumn, item);
     }
+
+    if (markNotValid) item->setForeground(Qt::red);
+    item->setTextAlignment(Qt::AlignCenter);
     item->setText(txt);
 }
 
@@ -40,25 +48,35 @@ void APhotonTunnelWindow::updateGui()
     ui->tabwConnections->clearContents();
 
     int numRecords = PhFunHub.FunctionalRecords.size();
-    qDebug() << "Number of connections:" << numRecords;
-
     ui->tabwConnections->setRowCount(numRecords);
 
     int iRow = 0;
     for (const APhotonFunctionalRecord & rec : PhFunHub.FunctionalRecords)
     {
-        fillCell(iRow, 0, QString::number(rec.Trigger));
-        fillCell(iRow, 1, QString::number(rec.Target));
-        fillCell(iRow, 2, rec.Model->getType());
-        fillCell(iRow, 3, rec.Model->printSettingsToString());
-        fillCell(iRow, 4, ( PhFunHub.isValidRecord(rec, false) ? "Yes" : "") );
+        APhotonFunctionalModel * Model = rec.Model;
+        bool isLink = Model->isLink();
+        bool highlight = !PhFunHub.isValidRecord(rec, false);
+
+        fillCell(iRow, 0, QString::number(rec.Trigger), highlight);
+        fillCell(iRow, 1, (isLink ? QString::number(rec.Target) : "-"), highlight);
+        fillCell(iRow, 2, rec.Model->getType(), highlight);
+        //qDebug() << rec.Model->printSettingsToString();
+        fillCell(iRow, 3, rec.Model->printSettingsToString(), highlight);
 
         iRow++;
     }
 
-    ui->tabwConnections->sortByColumn( (ui->rbSortByFrom->isChecked() ? 0 : 1), Qt::AscendingOrder);
+    ui->tabwConnections->sortByColumn(SortByColumnIndex, (AscendingSortOrder ? Qt::AscendingOrder : Qt::DescendingOrder));
 
     updateInfoLabels();
+}
+
+void APhotonTunnelWindow::onHeaderClicked(int index)
+{
+    if (SortByColumnIndex == index) AscendingSortOrder = !AscendingSortOrder;
+    else SortByColumnIndex = index;
+
+    updateGui();
 }
 
 void APhotonTunnelWindow::updateInfoLabels()
@@ -113,18 +131,11 @@ void APhotonTunnelWindow::onModelChanged()
     QString type;
     if (LastModel) type = LastModel->getType();
     ui->leModelTypeName->setText(type);
-}
 
-void APhotonTunnelWindow::on_rbSortByFrom_clicked(bool checked)
-{
-    ui->rbSortByTo->setChecked(!checked);
-    updateGui();
-}
-
-void APhotonTunnelWindow::on_rbSortByTo_clicked(bool checked)
-{
-    ui->rbSortByFrom->setChecked(!checked);
-    updateGui();
+    bool bLink = LastModel && LastModel->isLink();
+    ui->labLinked->setVisible(bLink);
+    ui->sbTo->setVisible(bLink);
+    ui->cbShowConnection->setEnabled(bLink);
 }
 
 void APhotonTunnelWindow::on_pbAddModify_clicked()
@@ -137,6 +148,7 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
 
     int from  = ui->sbFrom->value();
     int to    = ui->sbTo->value();
+    if (!LastModel->isLink()) to = from;
 
     QString err = PhFunHub.addOrModifyRecord(from, to, LastModel);
     if (err.isEmpty()) updateGui();
@@ -159,17 +171,30 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
     LastModel = PhFunHub.findModel(from, to);
     onModelChanged();
 
-    if (ui->cbShowConnection->isChecked()) emit requestShowConnection(from, to);
-}
-
-void APhotonTunnelWindow::on_pbShowAllConnections_clicked()
-{
-    emit requestShowAllConnections();
+    if (ui->cbShowConnection->isChecked())
+    {
+        if (LastModel && LastModel->isLink()) emit requestShowConnection(from, to);
+        else emit requestShowConnection(-1, -1); // clear tracks
+    }
 }
 
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
     LastModel = new APFM_OpticalFiber();
     onModelChanged();
+}
+
+void APhotonTunnelWindow::on_actionShow_all_linked_pairs_triggered()
+{
+    emit requestShowAllConnections();
+}
+
+void APhotonTunnelWindow::on_cbShowConnection_clicked(bool checked)
+{
+    if (checked)
+    {
+        if (LastModel && LastModel->isLink()) emit requestShowConnection(ui->sbFrom->value(), ui->sbTo->value());
+        else requestShowConnection(-1, -1); // to clear tracks
+    }
 }
 
