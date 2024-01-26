@@ -452,8 +452,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
             Navigator->FindNode(globPosNodeCenter[0], globPosNodeCenter[1], globPosNodeCenter[2]);
         }
 
-        // calling the functional model
-            // fill exchange record
+        // fill exchange record
         APhotonExchangeData photonData;
         for (size_t i = 0; i < 3; i++)
         {
@@ -462,14 +461,20 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         }
         photonData.Time = Photon.time;
         photonData.WaveIndex = Photon.waveIndex;
-        // call
-        bool photonAlive = runtimeData.Model->applyModel(photonData, std::get<0>(in), std::get<0>(out));
-        if (!photonAlive)
+
+        // call model
+        bool photonTrackingContinues = runtimeData.Model->applyModel(photonData, std::get<0>(in), std::get<0>(out));
+
+        // !!!*** photon log, tracking
+
+        if (!photonTrackingContinues)
         {
             returnEndTracingFlag = true;
             return;
         }
-        // read back wavelength and time  !!!***
+
+        Photon.time = photonData.Time;
+        Photon.waveIndex = photonData.WaveIndex;
 
         // set new position
         //Navigator->LocalToMaster(localPos, Photon.r);
