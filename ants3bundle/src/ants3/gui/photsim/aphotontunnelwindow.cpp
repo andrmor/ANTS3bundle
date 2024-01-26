@@ -67,8 +67,6 @@ void APhotonTunnelWindow::updateGui()
     }
 
     ui->tabwConnections->sortByColumn(SortByColumnIndex, (AscendingSortOrder ? Qt::AscendingOrder : Qt::DescendingOrder));
-
-    updateInfoLabels();
 }
 
 void APhotonTunnelWindow::onHeaderClicked(int index)
@@ -77,53 +75,6 @@ void APhotonTunnelWindow::onHeaderClicked(int index)
     else SortByColumnIndex = index;
 
     updateGui();
-}
-
-void APhotonTunnelWindow::updateInfoLabels()
-{
-    /*
-    // !!!*** check overlap with updateRuntimeProperties() of APhotonTunnelHub
-    int num = GeoHub.PhotonFunctionals.size();
-    int numEntrances = GeoHub.PhotonFunctionals.size();
-    int numExits = GeoHub.PhotonTunnelsOut.size();
-
-    int numNotConnectedEntrances = 0;
-    int numMultipleEntrances = 0;
-    for (int i = 0; i < numEntrances; i++)
-    {
-        int seenTimes = 0;
-        for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
-            if (rec.Trigger == i)
-                seenTimes++;
-
-        if (seenTimes == 0) numNotConnectedEntrances++;
-        if (seenTimes > 1) numMultipleEntrances++;
-    }
-
-    int numNotConnectedExits = 0;
-    int numMultipleExits = 0;
-    for (int i = 0; i < numExits; i++)
-    {
-        int seenTimes = 0;
-        for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
-            if (rec.Target == i)
-                seenTimes++;
-
-        if (seenTimes == 0) numNotConnectedExits++;
-        if (seenTimes > 1) numMultipleExits++;
-    }
-
-    ui->labNumEntrances->setText(QString::number(numEntrances));
-    ui->labNumExits->setText(QString::number(numExits));
-
-    ui->labNumBadEntrances->setText(QString::number(numNotConnectedEntrances));
-    ui->labNumBadExits->setText(QString::number(numNotConnectedExits));
-
-    ui->labError->setVisible(numNotConnectedEntrances > 0 || numNotConnectedExits > 0);
-
-    ui->labNumWithMultipleEntrances->setText(QString::number(numMultipleEntrances));
-    if (numMultipleExits > 0) qCritical() << "Something is went wrong: currently it is impossible to have several exits for the same tunnel entrance!";
-    */
 }
 
 void APhotonTunnelWindow::onModelChanged()

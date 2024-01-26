@@ -45,7 +45,6 @@ private:
     bool AscendingSortOrder = true;
 
     void fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid);
-    void updateInfoLabels(); // !!!***
     void onModelChanged();
 
 signals:

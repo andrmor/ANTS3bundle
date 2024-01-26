@@ -218,7 +218,7 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
         ATunnelRuntimeData & rt = RuntimeData[rec.Trigger];
         rt.isTrigger = true;
         rt.TargetIndex = rec.Target;
-        rt.Model = new APFM_OpticalFiber(); // !!!*** tmp
+        rt.Model = rec.Model;
     }
     return true;
 }
