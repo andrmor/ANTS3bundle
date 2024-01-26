@@ -9,6 +9,7 @@ class APhotonTunnelWindow;
 
 class APhotonFunctionalHub;
 class AGeometryHub;
+class APhotonFunctionalModel;
 
 class APhotonTunnelWindow : public AGuiWindow
 {
@@ -28,13 +29,18 @@ private slots:
     void on_tabwConnections_cellClicked(int row, int column);
     void on_pbShowAllConnections_clicked();
 
+    void on_pbSelectModel_clicked();
+
 private:
     Ui::APhotonTunnelWindow *ui;
-    APhotonFunctionalHub & PhTunHub;
+    APhotonFunctionalHub & PhFunHub;
     const AGeometryHub & GeoHub;
+
+    APhotonFunctionalModel * LastModel = nullptr;
 
     void fillCell(int iRow, int iColumn, const QString & txt);
     void updateInfoLabels(); // !!!***
+    void onModelChanged();
 
 signals:
     void requestShowConnection(int from, int to);

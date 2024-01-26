@@ -11,10 +11,9 @@ class QJsonObject;
 class APhotonFunctionalRecord
 {
 public:
-    int     Trigger;
-    int     Target;
-    QString Model;
-    QString Settings; // QJsonObject ?
+    int Trigger;
+    int Target;
+    APhotonFunctionalModel * Model = nullptr;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
@@ -49,7 +48,8 @@ public:
 
     bool isValidRecord(const APhotonFunctionalRecord & rec, bool registerError) const;
 
-    QString addOrModifyRecord(int trigger, int target, QString model, const QString & settings);
+    APhotonFunctionalModel * findModel(int trigger, int target); // returns nullptr if not found
+    QString addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model);
     void removeRecord(int trigger, int target);
 
     bool updateRuntimeProperties(); // !!!***  // generate AErrorHub error if there are problems

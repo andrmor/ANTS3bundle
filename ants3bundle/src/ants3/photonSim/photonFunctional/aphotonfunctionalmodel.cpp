@@ -1,6 +1,23 @@
 #include "aphotonfunctionalmodel.h"
 #include "ajsontools.h"
 
+APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
+{
+    if (type == "OpticalFiber") return new APFM_OpticalFiber();
+
+    qWarning() << "Photom functional model type (" << type << ") is unknown, returning Dummy model";
+    return new APFM_Dummy();
+}
+
+APhotonFunctionalModel * APhotonFunctionalModel::factory(QJsonObject & json)
+{
+    QString type;
+    jstools::parseJson(json, "Type", type);
+    APhotonFunctionalModel * model = APhotonFunctionalModel::factory(type);
+    model->readFromJson(json);
+    return model;
+}
+
 void APhotonFunctionalModel::writeToJson(QJsonObject & json) const
 {
     json["Type"] = getType();

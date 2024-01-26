@@ -4,6 +4,8 @@
 #include "aerrorhub.h"
 #include "ajsontools.h"
 
+APhotonFunctionalHub::APhotonFunctionalHub() {}
+
 APhotonFunctionalHub & APhotonFunctionalHub::getInstance()
 {
     static APhotonFunctionalHub instance;
@@ -18,8 +20,6 @@ const APhotonFunctionalHub & APhotonFunctionalHub::getConstInstance()
 void APhotonFunctionalHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
-
-        // Models
 
         // Records
         {
@@ -39,13 +39,10 @@ void APhotonFunctionalHub::writeToJson(QJsonObject & json) const
 QString APhotonFunctionalHub::readFromJson(const QJsonObject & json)
 {
     clearAllRecords();
-    //clear models
 
     QJsonObject js;
     bool ok = jstools::parseJson(json, "PhotonFunctional", js);
     if (!ok) return ""; // cannot enforce, some old configs do not have this field
-
-    // Models
 
     // Records
     {
@@ -93,21 +90,29 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, bo
     return true;
 }
 
-QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, QString model, const QString & settings)
+APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target)
+{
+    for (APhotonFunctionalRecord & rec : FunctionalRecords)
+    {
+        if (rec.Trigger != trigger) continue;
+        if (rec.Target != target) continue;
+        return rec.Model;
+    }
+    return nullptr;
+}
+
+QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model)
 {
     for (APhotonFunctionalRecord & rec : FunctionalRecords)
     {
         if (rec.Target != target) continue;
 
-        // !!!*** check model
-
         rec.Trigger  = trigger;
         rec.Model    = model;
-        rec.Settings = settings;
         return "";
     }
 
-    FunctionalRecords.push_back({trigger, target, model, settings});
+    FunctionalRecords.push_back({trigger, target, model});
     return "";
 }
 
@@ -199,20 +204,22 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
     return true;
 }
 
-APhotonFunctionalHub::APhotonFunctionalHub() {}
-
 void APhotonFunctionalRecord::writeToJson(QJsonObject & json) const
 {
-    json["Trigger"]  = Trigger;
-    json["Target"]   = Target;
-    json["Model"]    = Model;
-    json["Settings"] = Settings;
+    json["Trigger"] = Trigger;
+    json["Target"]  = Target;
+
+    QJsonObject js;
+    Model->writeToJson(js);
+    json["Model"] = js;
 }
 
 void APhotonFunctionalRecord::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Trigger",  Trigger);
     jstools::parseJson(json, "Target",   Target);
-    jstools::parseJson(json, "Model",    Model);
-    jstools::parseJson(json, "Settings", Settings);
+
+    QJsonObject js;
+    jstools::parseJson(json, "Model", js);
+    Model = APhotonFunctionalModel::factory(js);
 }

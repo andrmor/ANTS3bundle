@@ -1,13 +1,14 @@
 #include "aphotontunnelwindow.h"
 #include "ui_aphotontunnelwindow.h"
 #include "aphotonfunctionalhub.h"
+#include "aphotonfunctionalmodel.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 
 APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent) :
     AGuiWindow(idStr, parent),
     ui(new Ui::APhotonTunnelWindow),
-    PhTunHub(APhotonFunctionalHub::getInstance()),
+    PhFunHub(APhotonFunctionalHub::getInstance()),
     GeoHub(AGeometryHub::getConstInstance())
 {
     ui->setupUi(this);
@@ -38,21 +39,19 @@ void APhotonTunnelWindow::updateGui()
 {
     ui->tabwConnections->clearContents();
 
-    int numRecords = PhTunHub.FunctionalRecords.size();
+    int numRecords = PhFunHub.FunctionalRecords.size();
     qDebug() << "Number of connections:" << numRecords;
 
     ui->tabwConnections->setRowCount(numRecords);
 
     int iRow = 0;
-    for (const APhotonFunctionalRecord & rec : PhTunHub.FunctionalRecords)
+    for (const APhotonFunctionalRecord & rec : PhFunHub.FunctionalRecords)
     {
-        qDebug() << rec.Trigger << rec.Target << rec.Model << rec.Settings;
-
         fillCell(iRow, 0, QString::number(rec.Trigger));
         fillCell(iRow, 1, QString::number(rec.Target));
-        fillCell(iRow, 2, rec.Model);
-        fillCell(iRow, 3, rec.Settings);
-        fillCell(iRow, 4, ( PhTunHub.isValidRecord(rec, false) ? "Yes" : "") );
+        fillCell(iRow, 2, rec.Model->getType());
+        fillCell(iRow, 3, rec.Model->printSettingsToString());
+        fillCell(iRow, 4, ( PhFunHub.isValidRecord(rec, false) ? "Yes" : "") );
 
         iRow++;
     }
@@ -109,6 +108,13 @@ void APhotonTunnelWindow::updateInfoLabels()
     */
 }
 
+void APhotonTunnelWindow::onModelChanged()
+{
+    QString type;
+    if (LastModel) type = LastModel->getType();
+    ui->leModelTypeName->setText(type);
+}
+
 void APhotonTunnelWindow::on_rbSortByFrom_clicked(bool checked)
 {
     ui->rbSortByTo->setChecked(!checked);
@@ -123,19 +129,23 @@ void APhotonTunnelWindow::on_rbSortByTo_clicked(bool checked)
 
 void APhotonTunnelWindow::on_pbAddModify_clicked()
 {
+    if (!LastModel)
+    {
+        guitools::message("Select a model first!", this);
+        return;
+    }
+
     int from  = ui->sbFrom->value();
     int to    = ui->sbTo->value();
-    //int model = ui->sbModel->value();
-    QString settings = ui->leSettings->text();
 
-    QString err = PhTunHub.addOrModifyRecord(from, to, "---", settings);
+    QString err = PhFunHub.addOrModifyRecord(from, to, LastModel);
     if (err.isEmpty()) updateGui();
     else guitools::message(err, this);
 }
 
 void APhotonTunnelWindow::on_pbRemove_clicked()
 {
-    PhTunHub.removeRecord(ui->sbFrom->value(), ui->sbTo->value());
+    PhFunHub.removeRecord(ui->sbFrom->value(), ui->sbTo->value());
     updateGui();
 }
 
@@ -146,8 +156,8 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
     int to   = ui->tabwConnections->item(row, 1)->text().toInt();
     ui->sbTo->setValue(to);
 
-    ui->sbModel->setValue(  ui->tabwConnections->item(row, 2)->text().toInt());
-    ui->leSettings->setText(ui->tabwConnections->item(row, 3)->text());
+    LastModel = PhFunHub.findModel(from, to);
+    onModelChanged();
 
     if (ui->cbShowConnection->isChecked()) emit requestShowConnection(from, to);
 }
@@ -155,5 +165,11 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 void APhotonTunnelWindow::on_pbShowAllConnections_clicked()
 {
     emit requestShowAllConnections();
+}
+
+void APhotonTunnelWindow::on_pbSelectModel_clicked()
+{
+    LastModel = new APFM_OpticalFiber();
+    onModelChanged();
 }
 

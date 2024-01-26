@@ -26,8 +26,8 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    virtual void writeSettingsToJson(QJsonObject & json) const = 0;
-    virtual void readSettingsFromJson(const QJsonObject & json) = 0;
+    virtual void writeSettingsToJson(QJsonObject & /*json*/) const {}
+    virtual void readSettingsFromJson(const QJsonObject & /*json*/) {}
 
     virtual QString printSettingsToString() const = 0; // used in gui / scripting
 
@@ -36,6 +36,18 @@ public:
     virtual bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) = 0;
     // photonData on call contains Trigger data, on return should return data for Target
     // true = continue tracing; false = kill this photon
+
+    static APhotonFunctionalModel * factory(const QString & type);
+    static APhotonFunctionalModel * factory(QJsonObject & json);
+};
+
+class APFM_Dummy : public APhotonFunctionalModel
+{
+    QString getType() const override {return QStringLiteral("Dummy");}
+
+    QString printSettingsToString() const override {return "";}
+
+    bool applyModel(APhotonExchangeData &, const AGeoObject *, const AGeoObject *) override {return true;}
 };
 
 class APFM_OpticalFiber : public APhotonFunctionalModel

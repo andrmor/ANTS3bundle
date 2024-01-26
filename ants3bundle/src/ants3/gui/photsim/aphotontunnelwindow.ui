@@ -241,24 +241,31 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="sbModel">
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
-           </property>
-           <property name="maximum">
-            <number>9999</number>
+          <widget class="QLineEdit" name="leModelTypeName">
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_7">
+          <widget class="QPushButton" name="pbSelectModel">
            <property name="text">
-            <string>Settings</string>
+            <string>Choose model</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="leSettings"/>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
