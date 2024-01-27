@@ -55,7 +55,8 @@ void APhotonTunnelWindow::updateGui()
     {
         APhotonFunctionalModel * Model = rec.Model;
         bool isLink = Model->isLink();
-        bool highlight = !PhFunHub.isValidRecord(rec, false);
+        QString error;
+        bool highlight = !PhFunHub.isValidRecord(rec, error);
 
         fillCell(iRow, 0, QString::number(rec.Trigger), highlight);
         fillCell(iRow, 1, (isLink ? QString::number(rec.Target) : "-"), highlight);
@@ -147,5 +148,13 @@ void APhotonTunnelWindow::on_cbShowConnection_clicked(bool checked)
         if (LastModel && LastModel->isLink()) emit requestShowConnection(ui->sbFrom->value(), ui->sbTo->value());
         else requestShowConnection(-1, -1); // to clear tracks
     }
+}
+
+void APhotonTunnelWindow::on_pbCheck_clicked()
+{
+    QString error = PhFunHub.checkRecordsReadyForRun();
+    QString txt = "No errors were detected";
+    if (!error.isEmpty()) txt = "Error detected!\n" + error;
+    guitools::message(txt, this);
 }
 

@@ -46,12 +46,13 @@ public:
 
     void clearAllRecords() {FunctionalRecords.clear();}
 
-    bool isValidRecord(const APhotonFunctionalRecord & rec, bool registerError) const;
+    bool isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const;
 
     APhotonFunctionalModel * findModel(int trigger, int target); // returns nullptr if not found
     QString addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model);
     void removeRecord(int trigger, int target);
 
+    QString checkRecordsReadyForRun(); // returns error string
     bool updateRuntimeProperties(); // !!!***  // generate AErrorHub error if there are problems
 
     //std::vector<ATunnelModelBase*> Models;

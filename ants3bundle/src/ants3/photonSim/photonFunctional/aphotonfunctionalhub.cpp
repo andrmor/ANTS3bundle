@@ -60,24 +60,24 @@ QString APhotonFunctionalHub::readFromJson(const QJsonObject & json)
     return "";
 }
 
-bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, bool registerError) const
+bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const
 {
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
     if (!rec.Model)
     {
-        if (registerError) AErrorHub::addError("Empty model in photon functional record");
+        error = "Empty model in photon functional record";
         return false;
     }
 
     if (rec.Trigger < 0)
     {
-        if (registerError) AErrorHub::addError("Bad 'From' index in photon functional record");
+        error = "Found negative index";
         return false;
     }
     if (rec.Trigger >= GeoHub.PhotonFunctionals.size())
     {
-        if (registerError) AErrorHub::addError("Bad 'From' index in photon functional record");
+        error = "Found out of range index: " + QString::number(rec.Trigger);
         return false;
     }
 
@@ -85,24 +85,24 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, bo
     {
         if (rec.Target < 0)
         {
-            if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
+            error = "Found negative linked object index";
             return false;
         }
         if (rec.Target >= GeoHub.PhotonFunctionals.size())
         {
-            if (registerError) AErrorHub::addError("Bad 'To' index in photon functional record");
+            error = "Found out of range index of the linked object: " + QString::number(rec.Target);
             return false;
         }
         if (rec.Trigger == rec.Target)
         {
-            if (registerError) AErrorHub::addError("Photon functional record requires different indexes for trigger and target objects");
+            error = "Linked object should not have the same index: check records with index " + QString::number(rec.Trigger);
             return false;
         }
     }
 
     if (!rec.Model->isValid())
     {
-        if (registerError) AErrorHub::addError("Photon functional record's model is not valid");
+        error = "Photon functional record's model is not valid";
         return false;
     }
 
@@ -147,68 +147,50 @@ void APhotonFunctionalHub::removeRecord(int trigger, int target)
     }
 }
 
+QString APhotonFunctionalHub::checkRecordsReadyForRun()
+{
+    QString error;
+    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    {
+        bool ok = isValidRecord(rec, error);
+        if (!ok) return error;
+    }
+
+    QSet<int> seenIndexes;
+    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    {
+        int index = rec.Trigger;
+        if (seenIndexes.contains(index)) return QString("Multiple references to index %0").arg(index);
+        seenIndexes << index;
+
+        if (rec.Model->isLink())
+        {
+            int linked = rec.Target;
+            if (seenIndexes.contains(linked)) return QString("Multiple references to index %0").arg(linked);
+            seenIndexes << linked;
+        }
+    }
+
+    if (seenIndexes.size() != AGeometryHub::getConstInstance().PhotonFunctionals.size())
+        return "There are not assigned photon functionals";
+
+    return "";
+}
+
 bool APhotonFunctionalHub::updateRuntimeProperties()
 {
     RuntimeData.clear();
 
-    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    QString error = checkRecordsReadyForRun();
+    if (!error.isEmpty())
     {
-        bool ok = isValidRecord(rec, true);
-        if (!ok) return false;
-    }
-
-    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
-
-    /*
-    int numEntrances = GeoHub.PhotonFunctionals.size();
-    int numExits = GeoHub.PhotonTunnelsOut.size();
-
-    int numNotConnectedEntrances = 0;
-    int numMultipleEntrances = 0;
-    for (int i = 0; i < numEntrances; i++)
-    {
-        int seenTimes = 0;
-        for (const APhotonFunctionalRecord & rec : FunctionalRecords)
-            if (rec.Trigger == i)
-                seenTimes++;
-
-        if (seenTimes == 0) numNotConnectedEntrances++;
-        if (seenTimes > 1) numMultipleEntrances++;
-    }
-
-    int numNotConnectedExits = 0;
-    int numMultipleExits = 0;
-    for (int i = 0; i < numExits; i++)
-    {
-        int seenTimes = 0;
-        for (const APhotonFunctionalRecord & rec : FunctionalRecords)
-            if (rec.Target == i)
-                seenTimes++;
-
-        if (seenTimes == 0) numNotConnectedExits++;
-        if (seenTimes > 1) numMultipleExits++;
-    }
-
-    if (numNotConnectedEntrances > 0)
-    {
-        AErrorHub::addError("There are not connected photon tunnel entrances!");
+        AErrorHub::addQError("Error during check of the records of the functional models:\n" + error);
         return false;
     }
-
-    if (numNotConnectedExits > 0)
-    {
-        AErrorHub::addError("There are not connected photon tunnel exits!");
-        return false;
-    }
-
-    if (numMultipleExits > 0)
-    {
-        AErrorHub::addError("A photon tunnel leading to multiple exits was found: not yet implemented");
-        return false;
-    }
-    */
 
     // updating
+
+    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
     RuntimeData.resize(GeoHub.PhotonFunctionals.size());
     for (ATunnelRuntimeData & dr : RuntimeData) dr.isTrigger = false;
@@ -217,8 +199,11 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
     {
         ATunnelRuntimeData & rt = RuntimeData[rec.Trigger];
         rt.isTrigger = true;
-        rt.TargetIndex = rec.Target;
         rt.Model = rec.Model;
+        if (rec.Model->isLink())
+            rt.TargetIndex = rec.Target;
+        else
+            rt.TargetIndex = rec.Trigger;
     }
     return true;
 }

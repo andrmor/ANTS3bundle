@@ -34,6 +34,8 @@ private slots:
 
     void on_cbShowConnection_clicked(bool checked);
 
+    void on_pbCheck_clicked();
+
 private:
     Ui::APhotonTunnelWindow *ui;
     APhotonFunctionalHub & PhFunHub;

@@ -48,7 +48,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
     bool ok = checkDirectories();
     if (!ok) return false;
 
-    ok = updateRuntimeForPhotonTunnels();
+    ok = updateRuntimeForFunctionalModels();
     if (!ok) return false;
 
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
@@ -166,7 +166,7 @@ bool APhotonSimManager::checkDirectories()
 }
 
 #include "aphotonfunctionalhub.h"
-bool APhotonSimManager::updateRuntimeForPhotonTunnels()
+bool APhotonSimManager::updateRuntimeForFunctionalModels()
 {
     APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getInstance();
     return PhTunHub.updateRuntimeProperties();
