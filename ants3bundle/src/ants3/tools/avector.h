@@ -5,9 +5,15 @@ class AVector2
 {
 public:
     AVector2(const double * pos);
+    AVector2(double x, double y);
     AVector2() {}
 
     double & operator[](int index) {return r[index];}
+    const double & operator[](int index) const {return r[index];}
+
+    AVector2 operator + (const AVector2 & vec) const;
+    AVector2 operator - (const AVector2 & vec) const;
+    AVector2 operator * (double factor) const;
 
     double r[3];
 };
@@ -30,6 +36,7 @@ public:
     AVector3 & operator += (const AVector3 & vec);
 
     AVector3   operator + (const AVector3 & vec) const;
+    AVector3   operator - (const AVector3 & vec) const;
     AVector3   operator * (double factor) const;
 
     double mag2() const;
@@ -50,6 +57,28 @@ public:
     AVector3 & toUnitVector();
 
     double r[3];
+};
+
+class ALine3D
+{
+public:
+    ALine3D(const AVector3 & p1, const AVector3 & p2);
+
+    bool getIntersect(const ALine3D & otherLine, AVector3 & result) const;
+
+    AVector3 p;
+    AVector3 d;
+};
+
+class ALine2D
+{
+public:
+    ALine2D(const AVector2 & p1, const AVector2 & p2);
+
+    bool getIntersect(const ALine2D & otherLine, AVector2 & result) const;
+
+    AVector2 p;
+    AVector2 d;
 };
 
 #endif // AVECTOR_H

@@ -90,6 +90,12 @@ QString APFM_ThinLens::printSettingsToString() const
 #include "avector.h"
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
 {
+    // ALine3D a1({1,2,3},{0,-2,2});
+    // ALine3D a2({0,1,2},{2,3,4});
+    // AVector3 in = a1.getIntersect(a2);
+    // qDebug() <<  "crossssssss"<<in[0] << in[1] << in[2];
+
+
     // !!!*** guard against side entrance when Zdirection component is 0
 
     // transport to central plane
@@ -98,8 +104,43 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     const double XatZ0 = photonData.LocalPosition[0] + photonData.LocalDirection[0] / travelFactor;
     const double YatZ0 = photonData.LocalPosition[1] + photonData.LocalDirection[1] / travelFactor;
 
+
+    const double travelFactor2f = fabs( 0.5 * photonData.LocalDirection[2] / FocalLength_mm );
+    const double XatMinus2f = XatZ0 - photonData.LocalDirection[0] / travelFactor2f;
+    const double YatMinus2f = YatZ0 - photonData.LocalDirection[1] / travelFactor2f;
+
+    // first line contains (XatMinus2f, YatMinus2f, 2f) and (0,0,0) points
+    // second line contains (XatMinus2f, YatMinus2f, 0) and (0,0,-f) points
+
+    // too many zeros in coefficents, need 2D case
+    //ALine3D first({XatMinus2f, YatMinus2f, 2.0*FocalLength_mm}, {0,0,0});
+    //ALine3D second({XatMinus2f, YatMinus2f, 0}, {0,0,-FocalLength_mm});
+    //AVector3 crossing;
+    //bool ok = first.getIntersect(second, crossing);
+    //qDebug() << "ok?" << ok << "crossing" << crossing[0] << crossing[1] << crossing[2];
+
+    // looking for crossing in the plane containing Z axis and vecor (XatMinus2f, YatMinus2f,0)
+    const double R = sqrt(XatMinus2f * XatMinus2f + YatMinus2f * YatMinus2f);
+      // todo R = 0 case !!!***
+    ALine2D first({R, 2.0*FocalLength_mm}, {0,0});
+    ALine2D second({R, 0}, {0,-FocalLength_mm});
+    AVector2 crossing2D;
+    bool ok = first.getIntersect(second, crossing2D);
+    qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
+     // todo: process not ok case!!!***
+    AVector3 crossing{crossing2D[0]*XatMinus2f/R, crossing2D[0]*YatMinus2f/R, crossing2D[1]};
+
+    AVector3 newDir = crossing - AVector3{XatZ0, YatZ0, 0};
+    newDir.toUnitVector();
+
+    photonData.LocalPosition[0] = XatZ0;
+    photonData.LocalPosition[1] = YatZ0;
+    photonData.LocalPosition[2] = 0;
+    photonData.LocalDirection[0] = newDir[0];
+    photonData.LocalDirection[1] = newDir[1];
+    photonData.LocalDirection[2] = newDir[2];
+
     // distance from lens center
-    const double R = sqrt(XatZ0 * XatZ0 + YatZ0 * YatZ0);
 
     // unitVectors
     // //ZUnit - (0,0,dz)->unit
@@ -109,9 +150,9 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     // rotate by angle = - artan(R / F)
     // rotate (dx,dy,dz) around SideUnit by angle
 
-    double rotAngle = -atan(R / FocalLength_mm);
-    AVector3 dir(photonData.LocalDirection);
-    dir.rotate(-rotAngle, AVector3(-YatZ0, XatZ0, 0).toUnitVector());
+//    double rotAngle = -atan(R / FocalLength_mm);
+//    AVector3 dir(photonData.LocalDirection);
+//    dir.rotate(-rotAngle, AVector3(-YatZ0, XatZ0, 0).toUnitVector());
 
     // projections
     // Z-Proj = dz
@@ -136,12 +177,13 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     photonData.LocalPosition[2] = 0;
     photonData.LocalDirection[2] = -photonData.LocalDirection[2];
 */
+    /*
     photonData.LocalPosition[0] = XatZ0;
     photonData.LocalPosition[1] = YatZ0;
     photonData.LocalPosition[2] = 0;
     photonData.LocalDirection[0] = dir[0];
     photonData.LocalDirection[1] = dir[1];
     photonData.LocalDirection[2] = dir[2];
-
+*/
     return true;
 }

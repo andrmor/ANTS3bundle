@@ -9,6 +9,27 @@ AVector2::AVector2(const double * pos)
     for (int i = 0; i < 2; i++) r[i] = pos[i];
 }
 
+AVector2::AVector2(double x, double y)
+{
+    r[0] = x;
+    r[1] = y;
+}
+
+AVector2 AVector2::operator +(const AVector2 &vec) const
+{
+    return AVector2(r[0]+vec[0], r[1]+vec[1]);
+}
+
+AVector2 AVector2::operator -(const AVector2 & vec) const
+{
+    return AVector2(r[0]-vec[0], r[1]-vec[1]);
+}
+
+AVector2 AVector2::operator *(double factor) const
+{
+    return AVector2(r[0]*factor, r[1]*factor);
+}
+
 AVector3::AVector3(const double * pos)
 {
     for (int i = 0; i < 3; i++) r[i] = pos[i];
@@ -29,6 +50,11 @@ AVector3 & AVector3::operator +=(const AVector3 & vec)
 AVector3 AVector3::operator +(const AVector3 & vec) const
 {
     return AVector3(r[0]+vec[0], r[1]+vec[1], r[2]+vec[2]);
+}
+
+AVector3 AVector3::operator -(const AVector3 &vec) const
+{
+    return AVector3(r[0]-vec[0], r[1]-vec[1], r[2]-vec[2]);
 }
 
 AVector3 AVector3::operator *(double factor) const
@@ -173,4 +199,48 @@ AVector3 & AVector3::toUnitVector()
     for (size_t i = 0; i < 3; i++) r[i] *= factor;
 
     return *this;
+}
+
+// ----
+
+//#include <QDebug>
+ALine3D::ALine3D(const AVector3 &p1, const AVector3 &p2)
+{
+    p = p1;
+    d = p2 - p1;
+
+    //qDebug() << "start:" << p[0]<< p[1]<< p[2] << "step:" << d[0]<< d[1]<< d[2];
+}
+
+bool ALine3D::getIntersect(const ALine3D & o, AVector3 & result) const
+{
+    // !!!*** todo: check scenarios with zero d1 and d2
+    double num = (o.p[2] - p[2])/d[2] - (o.p[1] - p[1])/d[1];
+    double den = o.d[1]/d[1] - o.d[2]/d[2];
+
+    if (den == 0) return false;
+
+    double t = num/den;
+    result = o.p + o.d * t;
+    return true;
+}
+
+ALine2D::ALine2D(const AVector2 &p1, const AVector2 &p2)
+{
+    p = p1;
+    d = p2 - p1;
+}
+
+bool ALine2D::getIntersect(const ALine2D & o, AVector2 & result) const
+{
+    // check == 0 cases
+
+    double num = (o.p[1] - p[1])/d[1] - (o.p[0] - p[0])/d[0];
+    double den = o.d[0]/d[0] - o.d[1]/d[1];
+
+    if (den == 0) return false;
+
+    double t = num/den;
+    result = o.p + o.d * t;
+    return true;
 }
