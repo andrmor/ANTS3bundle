@@ -132,7 +132,8 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
-    LastModel = new APFM_OpticalFiber();
+    //LastModel = new APFM_OpticalFiber();
+    LastModel = new APFM_ThinLens();
     onModelChanged();
 }
 

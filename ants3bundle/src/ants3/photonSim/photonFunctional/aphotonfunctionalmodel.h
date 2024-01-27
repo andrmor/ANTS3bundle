@@ -75,4 +75,18 @@ public:
     // runtime
 };
 
+class APFM_ThinLens : public APhotonFunctionalModel
+{
+    QString getType() const override {return QStringLiteral("ThinLens");}
+
+    void writeSettingsToJson(QJsonObject & json) const override;
+    void readSettingsFromJson(const QJsonObject & json) override;
+
+    QString printSettingsToString() const override;
+
+    bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) override;
+
+    double FocalLength_mm = 10.0;
+};
+
 #endif // APHOTONFUNCTIONALMODEL_H

@@ -14,6 +14,28 @@ AVector3::AVector3(const double * pos)
     for (int i = 0; i < 3; i++) r[i] = pos[i];
 }
 
+AVector3 & AVector3::operator *=(double factor)
+{
+    for (int i = 0; i < 3; i++) r[i] *= factor;
+    return *this;
+}
+
+AVector3 & AVector3::operator +=(const AVector3 & vec)
+{
+    for (int i = 0; i < 3; i++) r[i] += vec[i];
+    return *this;
+}
+
+AVector3 AVector3::operator +(const AVector3 & vec) const
+{
+    return AVector3(r[0]+vec[0], r[1]+vec[1], r[2]+vec[2]);
+}
+
+AVector3 AVector3::operator *(double factor) const
+{
+    return AVector3(r[0]*factor, r[1]*factor, r[2]*factor);
+}
+
 double AVector3::mag2() const
 {
     double mag2 = 0;
@@ -92,6 +114,45 @@ void AVector3::rotateUz(const AVector3 & NewUzVector)
     }
 }
 
+AVector3 AVector3::vectorProduct(const AVector3 & vector) const
+{
+    return AVector3(r[1] * vector.r[2] - r[2] * vector.r[1],
+                    r[2] * vector.r[0] - r[0] * vector.r[2],
+                    r[0] * vector.r[1] - r[1] * vector.r[0]);
+
+/*
+y * v.z - z * v.y,
+z * v.x - x * v.z,
+x * v.y - y * v.x);
+*/
+}
+
+void AVector3::rotate(double angle, const AVector3 & aroundVector)
+{
+    /*
+G4double cos = std::cos(angle);
+G4double sin = std::sin(angle);
+   (*this) = (*this) * cos + axis.vector(*this) * sin + axis * (axis.dot(*this)*(1.-cos));
+    */
+    //(*this) = (*this) * cos
+    //        += axis.vector(*this) * sin
+    //        += axis * (axis.dot(*this)*(1.-cos));
+
+    const double cosA = cos(angle);
+    const double sinA = sin(angle);
+
+    /*
+    (*this) *= cosA;
+
+    const AVector3 v1 = aroundVector.vectorProduct(*this) * sinA;
+    (*this) += v1;
+
+    (*this) += aroundVector * ( aroundVector.dot(*this) * (1.0 - cosA) );
+    */
+    (*this) = (*this)*cosA + aroundVector.vectorProduct(*this) * sinA + aroundVector * ( aroundVector.dot(*this) * (1.0 - cosA) );
+
+}
+
 double AVector3::angle(const AVector3 & vec) const
 {
        double ptot2 = mag2() * vec.mag2();
@@ -105,9 +166,11 @@ double AVector3::angle(const AVector3 & vec) const
        }
 }
 
-void AVector3::toUnitVector()
+AVector3 & AVector3::toUnitVector()
 {
     const double m2 = mag2();
     double factor = ( (m2 > 0) ? 1.0/sqrt(m2) : 1.0 );
     for (size_t i = 0; i < 3; i++) r[i] *= factor;
+
+    return *this;
 }

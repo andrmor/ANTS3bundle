@@ -26,6 +26,12 @@ public:
     double & operator[](int index) {return r[index];}
     const double & operator[](int index) const {return r[index];}
 
+    AVector3 & operator *= (double factor);
+    AVector3 & operator += (const AVector3 & vec);
+
+    AVector3   operator + (const AVector3 & vec) const;
+    AVector3   operator * (double factor) const;
+
     double mag2() const;
     double dot(const AVector3 & vec) const;
 
@@ -35,9 +41,13 @@ public:
 
     void rotateUz(const AVector3 & NewUzVector); // NewUzVector must be unitary vector
 
+    AVector3 vectorProduct(const AVector3 & vector) const;
+
+    void rotate(double angle, const AVector3 & aroundVector);
+
     double angle(const AVector3 & vec) const;
 
-    void toUnitVector();
+    AVector3 & toUnitVector();
 
     double r[3];
 };
