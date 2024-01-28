@@ -90,9 +90,9 @@ QString APFM_ThinLens::printSettingsToString() const
 #include "avector.h"
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
 {
-    // !!!*** guard against side entrance when Zdirection component is 0
+    if (photonData.LocalDirection[2] == 0) return false;
 
-    // consider adding loss factor to the model
+    double signFocalLength = ( (FocalLength_mm > 0) ? 1.0 : -1.0);
 
     // transport to central plane
     const double ZatContact = photonData.LocalPosition[2]; // never = 0
@@ -103,6 +103,8 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     photonData.LocalPosition[0] = XatZ0;
     photonData.LocalPosition[1] = YatZ0;
     photonData.LocalPosition[2] = 0;
+
+    // !!!*** check point is outside the volume
 
     if (XatZ0 == 0 && YatZ0) return true; // no direction change in this case
 
@@ -124,9 +126,8 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     const double R = sqrt(XatMinus2f * XatMinus2f + YatMinus2f * YatMinus2f);
     if (R == 0)
     {
-        // !!!*** this is only for positive f!
-        photonData.LocalDirection[0] = -photonData.LocalDirection[0];
-        photonData.LocalDirection[1] = -photonData.LocalDirection[1];
+        photonData.LocalDirection[0] = - signFocalLength * photonData.LocalDirection[0];
+        photonData.LocalDirection[1] = - signFocalLength * photonData.LocalDirection[1];
         return true;
     }
 
@@ -135,15 +136,16 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     AVector2 crossing2D;
     bool ok = first.getIntersect(second, crossing2D);
     qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
-        // todo: process not ok case!!!***
+        // todo: process not ok case!!!***  seems it cannot appear for allowed conditions
+    if (!ok) exit(888);
     AVector3 crossing{crossing2D[0]*XatMinus2f/R, crossing2D[0]*YatMinus2f/R, crossing2D[1]};
 
     AVector3 newDir = crossing - AVector3{XatZ0, YatZ0, 0};
     newDir.toUnitVector();
 
-    photonData.LocalDirection[0] = newDir[0];
-    photonData.LocalDirection[1] = newDir[1];
-    photonData.LocalDirection[2] = newDir[2];
+    photonData.LocalDirection[0] = signFocalLength * newDir[0];
+    photonData.LocalDirection[1] = signFocalLength * newDir[1];
+    photonData.LocalDirection[2] = signFocalLength * newDir[2];
 
     return true;
 }

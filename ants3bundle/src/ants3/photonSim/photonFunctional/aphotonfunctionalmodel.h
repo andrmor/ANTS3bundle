@@ -88,6 +88,7 @@ public:
     bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) override;
 
     double FocalLength_mm = 10.0;
+    // consider adding loss factor to the model
 };
 
 #endif // APHOTONFUNCTIONALMODEL_H
