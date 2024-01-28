@@ -15,7 +15,9 @@ public:
     AVector2 operator - (const AVector2 & vec) const;
     AVector2 operator * (double factor) const;
 
-    double r[3];
+    bool operator == (const AVector2 & vec) const;
+
+    double r[2];
 };
 
 class AVector3
@@ -77,8 +79,8 @@ public:
 
     bool getIntersect(const ALine2D & otherLine, AVector2 & result) const;
 
-    AVector2 p;
-    AVector2 d;
+    AVector2 p; // offset
+    AVector2 d; // slope
 };
 
 #endif // AVECTOR_H

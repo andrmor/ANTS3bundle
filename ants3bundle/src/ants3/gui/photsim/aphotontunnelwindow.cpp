@@ -109,7 +109,10 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
 
 void APhotonTunnelWindow::on_pbRemove_clicked()
 {
-    PhFunHub.removeRecord(ui->sbFrom->value(), ui->sbTo->value());
+    int from = ui->sbFrom->value();
+    int to = ui->sbTo->value();
+    if (!ui->sbTo->isVisible()) to = from;
+    PhFunHub.removeRecord(from, to);
     updateGui();
 }
 

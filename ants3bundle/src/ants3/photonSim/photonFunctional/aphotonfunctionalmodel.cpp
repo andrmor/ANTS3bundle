@@ -90,13 +90,9 @@ QString APFM_ThinLens::printSettingsToString() const
 #include "avector.h"
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
 {
-    // ALine3D a1({1,2,3},{0,-2,2});
-    // ALine3D a2({0,1,2},{2,3,4});
-    // AVector3 in = a1.getIntersect(a2);
-    // qDebug() <<  "crossssssss"<<in[0] << in[1] << in[2];
-
-
     // !!!*** guard against side entrance when Zdirection component is 0
+
+    // consider adding loss factor to the model
 
     // transport to central plane
     const double ZatContact = photonData.LocalPosition[2]; // never = 0
@@ -104,6 +100,11 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     const double XatZ0 = photonData.LocalPosition[0] + photonData.LocalDirection[0] / travelFactor;
     const double YatZ0 = photonData.LocalPosition[1] + photonData.LocalDirection[1] / travelFactor;
 
+    photonData.LocalPosition[0] = XatZ0;
+    photonData.LocalPosition[1] = YatZ0;
+    photonData.LocalPosition[2] = 0;
+
+    if (XatZ0 == 0 && YatZ0) return true; // no direction change in this case
 
     const double travelFactor2f = fabs( 0.5 * photonData.LocalDirection[2] / FocalLength_mm );
     const double XatMinus2f = XatZ0 - photonData.LocalDirection[0] / travelFactor2f;
@@ -121,69 +122,28 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
 
     // looking for crossing in the plane containing Z axis and vecor (XatMinus2f, YatMinus2f,0)
     const double R = sqrt(XatMinus2f * XatMinus2f + YatMinus2f * YatMinus2f);
-      // todo R = 0 case !!!***
+    if (R == 0)
+    {
+        // !!!*** this is only for positive f!
+        photonData.LocalDirection[0] = -photonData.LocalDirection[0];
+        photonData.LocalDirection[1] = -photonData.LocalDirection[1];
+        return true;
+    }
+
     ALine2D first({R, 2.0*FocalLength_mm}, {0,0});
     ALine2D second({R, 0}, {0,-FocalLength_mm});
     AVector2 crossing2D;
     bool ok = first.getIntersect(second, crossing2D);
     qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
-     // todo: process not ok case!!!***
+        // todo: process not ok case!!!***
     AVector3 crossing{crossing2D[0]*XatMinus2f/R, crossing2D[0]*YatMinus2f/R, crossing2D[1]};
 
     AVector3 newDir = crossing - AVector3{XatZ0, YatZ0, 0};
     newDir.toUnitVector();
 
-    photonData.LocalPosition[0] = XatZ0;
-    photonData.LocalPosition[1] = YatZ0;
-    photonData.LocalPosition[2] = 0;
     photonData.LocalDirection[0] = newDir[0];
     photonData.LocalDirection[1] = newDir[1];
     photonData.LocalDirection[2] = newDir[2];
 
-    // distance from lens center
-
-    // unitVectors
-    // //ZUnit - (0,0,dz)->unit
-    // RUnit - (XatZ0, YatZ0, 0) -> unitLength
-    // SideUnit: (-YatZ0, XatZ0, 0) -> unitLength
-
-    // rotate by angle = - artan(R / F)
-    // rotate (dx,dy,dz) around SideUnit by angle
-
-//    double rotAngle = -atan(R / FocalLength_mm);
-//    AVector3 dir(photonData.LocalDirection);
-//    dir.rotate(-rotAngle, AVector3(-YatZ0, XatZ0, 0).toUnitVector());
-
-    // projections
-    // Z-Proj = dz
-    // R_Proj = dot((dx,dy,dz),(RUnit))
-    // Side_Proj = dot((dxdydz),(SideUnit))
-
-    // ZRvecor
-
-    // initial angle
-    // start = arctn(R_Proj/Z_proj)
-
-    // lens changes angle
-    // end = start - artan(R / F)
-
-    // new vectors
-    // newZproj =
-
-/*
-    // test
-    photonData.LocalPosition[0] = XatZ0;
-    photonData.LocalPosition[1] = YatZ0;
-    photonData.LocalPosition[2] = 0;
-    photonData.LocalDirection[2] = -photonData.LocalDirection[2];
-*/
-    /*
-    photonData.LocalPosition[0] = XatZ0;
-    photonData.LocalPosition[1] = YatZ0;
-    photonData.LocalPosition[2] = 0;
-    photonData.LocalDirection[0] = dir[0];
-    photonData.LocalDirection[1] = dir[1];
-    photonData.LocalDirection[2] = dir[2];
-*/
     return true;
 }

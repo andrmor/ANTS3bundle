@@ -30,6 +30,12 @@ AVector2 AVector2::operator *(double factor) const
     return AVector2(r[0]*factor, r[1]*factor);
 }
 
+bool AVector2::operator ==(const AVector2 & vec) const
+{
+    return (r[0] == vec.r[0] &&
+            r[1] == vec.r[1]);
+}
+
 AVector3::AVector3(const double * pos)
 {
     for (int i = 0; i < 3; i++) r[i] = pos[i];
@@ -233,7 +239,26 @@ ALine2D::ALine2D(const AVector2 &p1, const AVector2 &p2)
 
 bool ALine2D::getIntersect(const ALine2D & o, AVector2 & result) const
 {
-    // check == 0 cases
+    // p0 + d0 * s = op0 + od0 * t
+    // p1 + d1 * s = op1 + od1 * t
+
+    if (d == o.d) return false; // parallel (or the same)
+
+    if (d[0] == 0)
+    {
+        if (o.d[0] == 0) return false;
+        double t = (p[0] - o.p[0]) / o.d[0];
+        result = o.p + o.d * t;
+        return true;
+    }
+
+    if (d[1] == 0)
+    {
+        if (o.d[1] == 0) return false;
+        double t = (p[1] - o.p[1]) / o.d[1];
+        result = o.p + o.d * t;
+        return true;
+    }
 
     double num = (o.p[1] - p[1])/d[1] - (o.p[0] - p[0])/d[0];
     double den = o.d[0]/d[0] - o.d[1]/d[1];
