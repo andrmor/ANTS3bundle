@@ -90,6 +90,8 @@ QString APFM_ThinLens::printSettingsToString() const
 #include "avector.h"
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
 {
+    // !!!*** works only for negative photon direction: from Z>0 to Z<0
+
     if (photonData.LocalDirection[2] == 0) return false;
 
     double signFocalLength = ( (FocalLength_mm > 0) ? 1.0 : -1.0);
