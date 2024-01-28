@@ -10,6 +10,7 @@ class APhotonTunnelWindow;
 class APhotonFunctionalHub;
 class AGeometryHub;
 class APhotonFunctionalModel;
+class AFunctionalModelWidget;
 
 class APhotonTunnelWindow : public AGuiWindow
 {
@@ -42,6 +43,7 @@ private:
     const AGeometryHub & GeoHub;
 
     APhotonFunctionalModel * LastModel = nullptr;
+    AFunctionalModelWidget * LastWidget = nullptr;
 
     int SortByColumnIndex = 0;
     bool AscendingSortOrder = true;

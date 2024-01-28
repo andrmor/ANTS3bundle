@@ -2,6 +2,7 @@
 #include "ui_aphotontunnelwindow.h"
 #include "aphotonfunctionalhub.h"
 #include "aphotonfunctionalmodel.h"
+#include "afunctionalmodelwidget.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 
@@ -19,6 +20,11 @@ APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent
     ui->tabwConnections->horizontalHeader()->setStretchLastSection(true);
     //setSectionResizeMode(QHeaderView.Stretch)
     connect(ui->tabwConnections->horizontalHeader(), &QHeaderView::sectionClicked, this, &APhotonTunnelWindow::onHeaderClicked);
+
+    APFM_Dummy dm;
+    LastWidget = new AFunctionalModelWidget_Dummy(&dm, this);
+    QVBoxLayout * lay = dynamic_cast<QVBoxLayout*>(ui->frConnectionDelegate->layout());
+    if (lay) lay->insertWidget(1, LastWidget);
 
     updateGui();
     onModelChanged();
@@ -84,6 +90,16 @@ void APhotonTunnelWindow::onModelChanged()
     if (LastModel) type = LastModel->getType();
     ui->leModelTypeName->setText(type);
 
+    QVBoxLayout * lay = dynamic_cast<QVBoxLayout*>(ui->frConnectionDelegate->layout());
+    if (lay)
+    {
+        lay->removeWidget(LastWidget);
+        delete LastWidget; LastWidget = nullptr;
+
+        LastWidget = AFunctionalModelWidget::factory(LastModel, this);
+        lay->insertWidget(1, LastWidget);
+    }
+
     bool bLink = LastModel && LastModel->isLink();
     ui->labLinked->setVisible(bLink);
     ui->sbTo->setVisible(bLink);
@@ -92,9 +108,16 @@ void APhotonTunnelWindow::onModelChanged()
 
 void APhotonTunnelWindow::on_pbAddModify_clicked()
 {
-    if (!LastModel)
+    if (!LastModel || !LastWidget)
     {
         guitools::message("Select a model first!", this);
+        return;
+    }
+
+    QString error = LastWidget->updateModel(LastModel);
+    if (!error.isEmpty())
+    {
+        guitools::message(error, this);
         return;
     }
 

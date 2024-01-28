@@ -800,7 +800,7 @@
    </widget>
    <widget class="QMenu" name="menuPhotonTunnels">
     <property name="title">
-     <string>PhotonTunnels</string>
+     <string>FunctionalModels</string>
     </property>
     <addaction name="actionOpen_window"/>
    </widget>

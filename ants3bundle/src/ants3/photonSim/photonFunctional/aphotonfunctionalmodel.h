@@ -77,6 +77,7 @@ public:
 
 class APFM_ThinLens : public APhotonFunctionalModel
 {
+public:
     QString getType() const override {return QStringLiteral("ThinLens");}
 
     void writeSettingsToJson(QJsonObject & json) const override;

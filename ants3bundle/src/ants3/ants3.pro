@@ -141,6 +141,7 @@ SOURCES += \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
+    gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
@@ -335,6 +336,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
