@@ -88,13 +88,10 @@ QString APFM_ThinLens::printSettingsToString() const
 }
 
 #include "avector.h"
+// !!!*** == 0 to double safe version
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
 {
-    // !!!*** works only for negative photon direction: from Z>0 to Z<0
-
     if (photonData.LocalDirection[2] == 0) return false;
-
-    double signFocalLength = ( (FocalLength_mm > 0) ? 1.0 : -1.0);
 
     // transport to central plane
     const double ZatContact = photonData.LocalPosition[2]; // never = 0
@@ -108,9 +105,12 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
 
     // !!!*** check point is outside the volume
 
-    if (XatZ0 == 0 && YatZ0) return true; // no direction change in this case
+    if (XatZ0 == 0 && YatZ0 == 0) return true; // no direction change in this case
 
-    const double travelFactor2f = fabs( 0.5 * photonData.LocalDirection[2] / FocalLength_mm );
+    const double signFocalLength = ( (FocalLength_mm > 0) ? 1.0 : -1.0);
+    const double signDirection = ( (photonData.LocalDirection[2] > 0) ? 1.0 : -1.0);
+
+    const double travelFactor2f = 0.5 * fabs(photonData.LocalDirection[2]) / FocalLength_mm;
     const double XatMinus2f = XatZ0 - photonData.LocalDirection[0] / travelFactor2f;
     const double YatMinus2f = YatZ0 - photonData.LocalDirection[1] / travelFactor2f;
 
@@ -128,16 +128,16 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     const double R = sqrt(XatMinus2f * XatMinus2f + YatMinus2f * YatMinus2f);
     if (R == 0)
     {
-        photonData.LocalDirection[0] = - signFocalLength * photonData.LocalDirection[0];
-        photonData.LocalDirection[1] = - signFocalLength * photonData.LocalDirection[1];
+        photonData.LocalDirection[0] = -photonData.LocalDirection[0];
+        photonData.LocalDirection[1] = -photonData.LocalDirection[1];
         return true;
     }
 
-    ALine2D first({R, 2.0*FocalLength_mm}, {0,0});
-    ALine2D second({R, 0}, {0,-FocalLength_mm});
+    ALine2D first({R, -2.0*signDirection*FocalLength_mm}, {0,0});
+    ALine2D second({R, 0}, {0,signDirection*FocalLength_mm});
     AVector2 crossing2D;
     bool ok = first.getIntersect(second, crossing2D);
-    qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
+    //qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
         // todo: process not ok case!!!***  seems it cannot appear for allowed conditions
     if (!ok) exit(888);
     AVector3 crossing{crossing2D[0]*XatMinus2f/R, crossing2D[0]*YatMinus2f/R, crossing2D[1]};
