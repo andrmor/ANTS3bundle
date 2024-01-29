@@ -427,7 +427,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
 
         const size_t outNum = runtimeData.TargetIndex;
         qDebug() << "Associated target index" << outNum;
-        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & in  = AGeometryHub::getConstInstance().PhotonFunctionals[inNum];
+        //const std::tuple<AGeoObject*,TGeoNode*, AVector3> & in  = AGeometryHub::getConstInstance().PhotonFunctionals[inNum];
         const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];
 
         // get "In" local position
@@ -463,7 +463,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         photonData.WaveIndex = Photon.waveIndex;
 
         // call model
-        bool photonTrackingContinues = runtimeData.Model->applyModel(photonData, std::get<0>(in), std::get<0>(out));
+        bool photonTrackingContinues = runtimeData.Model->applyModel(photonData, inNum, outNum);
 
         // !!!*** photon log, tracking
 

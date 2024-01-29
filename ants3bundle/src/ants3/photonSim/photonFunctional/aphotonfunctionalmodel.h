@@ -36,7 +36,7 @@ public:
 
     virtual void updateRuntimeProperties() {} // can report errors throuh AErrorHub
 
-    virtual bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) = 0;
+    virtual bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) = 0;
     // photonData on call contains Trigger data, on return should return data for Target
     // true = continue tracing; false = kill this photon
 
@@ -50,7 +50,7 @@ class APFM_Dummy : public APhotonFunctionalModel
 
     QString printSettingsToString() const override {return "";}
 
-    bool applyModel(APhotonExchangeData &, const AGeoObject *, const AGeoObject *) override {return true;}
+    bool applyModel(APhotonExchangeData &, int, int) override {return true;}
 };
 
 class APFM_OpticalFiber : public APhotonFunctionalModel
@@ -66,7 +66,7 @@ public:
 
     QString printSettingsToString() const override;
 
-    bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) override;
+    bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double Length_mm = 100.0;
     double MaxAngle_deg = 30.0;
@@ -85,7 +85,7 @@ public:
 
     QString printSettingsToString() const override;
 
-    bool applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target) override;
+    bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double FocalLength_mm = 10.0;
     // consider adding loss factor to the model

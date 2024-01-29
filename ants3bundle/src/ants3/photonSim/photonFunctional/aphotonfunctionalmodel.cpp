@@ -56,7 +56,7 @@ QString APFM_OpticalFiber::printSettingsToString() const
     return QString("L = %0 mm; MaxAngle = %1 deg").arg(Length_mm).arg(MaxAngle_deg);
 }
 
-bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
+bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex)
 {
     // check angle of incidence inside acceptance come
     //if (photonData.LocalDirection[])
@@ -88,8 +88,10 @@ QString APFM_ThinLens::printSettingsToString() const
 }
 
 #include "avector.h"
+#include "ageometryhub.h"
+#include "TGeoNode.h"
 // !!!*** == 0 to double safe version
-bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObject * trigger, const AGeoObject * target)
+bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex)
 {
     if (photonData.LocalDirection[2] == 0) return false;
 
@@ -104,6 +106,12 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, const AGeoObjec
     photonData.LocalPosition[2] = 0;
 
     // !!!*** check point is outside the volume
+    TGeoNode * node = std::get<1>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
+    if (node)
+    {
+        bool bInside = node->GetVolume()->GetShape()->Contains(photonData.LocalPosition);
+        if (!bInside) return false;
+    }
 
     if (XatZ0 == 0 && YatZ0 == 0) return true; // no direction change in this case
 
