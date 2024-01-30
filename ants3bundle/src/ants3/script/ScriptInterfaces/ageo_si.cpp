@@ -1654,6 +1654,50 @@ void AGeo_SI::setPhotonFunctional(QString Object)
     delete obj->Role; obj->Role = new AGeoPhotonFunctional();
 }
 
+#include "aphotonfunctionalmodel.h"
+#include <QJsonObject>
+QVariantMap AGeo_SI::getDefaultConfigObjectForPhotonFunctionalModel(QString modelName)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalModel::factory(modelName);
+    if ( dynamic_cast<APFM_Dummy*>(model))
+    {
+        abort("Bad photon functional model type: " + modelName);
+        return QVariantMap();
+    }
+
+    QJsonObject js;
+    model->writeSettingsToJson(js);
+    return js.toVariantMap();
+}
+
+int AGeo_SI::countPhotonFunctionals()
+{
+    return GeoHub.PhotonFunctionals.size();
+}
+
+#include "aphotonfunctionalhub.h"
+void AGeo_SI::clearPhotonFunctionalAttribution()
+{
+    APhotonFunctionalHub::getInstance().clearAllRecords();
+}
+
+void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index, int linkedIndex)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalModel::factory(modelName);
+    if ( dynamic_cast<APFM_Dummy*>(model))
+    {
+        abort("Bad photon functional model type: " + modelName);
+        return;
+    }
+
+    QJsonObject js = QJsonObject::fromVariantMap(configObject);
+    qDebug() << configObject << js;
+    model->readSettingsFromJson(js);
+
+    QString err = APhotonFunctionalHub::getInstance().addOrModifyRecord(index, linkedIndex, model);
+    if (!err.isEmpty()) abort(err);
+}
+
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))
