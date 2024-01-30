@@ -130,6 +130,7 @@ SOURCES += \
     gui/aguiwindow.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
+    gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -336,6 +337,7 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/atreedatabaseselectordialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \

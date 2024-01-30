@@ -156,11 +156,34 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
     }
 }
 
+#include "atreedatabaseselectordialog.h"
+static QString txt = ""
+"* Basic optics\n"
+"** Lenses\n"
+"@ThinLens Ideal thin lens firth positive or negative focal length. #Lens\n"
+"** Tunnels\n"
+"@OpticalFiber Simplified model of an optical fiber. #Fiber";
+
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
     //LastModel = new APFM_OpticalFiber();
-    LastModel = new APFM_ThinLens();
-    onModelChanged();
+    //LastModel = new APFM_ThinLens();
+    ATreeDatabaseSelectorDialog dialog("Select model", this);
+    QString err = dialog.readData(txt);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    int res = dialog.exec();
+    if (res == QDialog::Accepted)
+    {
+        APhotonFunctionalModel * model = APhotonFunctionalModel::factory(dialog.SelectedItem);
+        if (model) LastModel = model;
+        else guitools::message("Model selection resulted in unknown model name");
+        onModelChanged();
+    }
 }
 
 void APhotonTunnelWindow::on_actionShow_all_linked_pairs_triggered()

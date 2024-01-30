@@ -105,10 +105,10 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
     photonData.LocalPosition[1] = YatZ0;
     photonData.LocalPosition[2] = 0;
 
-    // !!!*** check point is outside the volume
     TGeoNode * node = std::get<1>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
     if (node)
     {
+        // check is this point inside the lens "aperture"
         bool bInside = node->GetVolume()->GetShape()->Contains(photonData.LocalPosition);
         if (!bInside) return false;
     }
