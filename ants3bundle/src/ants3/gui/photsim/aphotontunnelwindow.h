@@ -23,6 +23,8 @@ public:
     void updateGui();
 
 private slots:
+    void setModifiedStatus(bool flag);
+
     void on_pbAddModify_clicked();
     void on_pbRemove_clicked();
     void on_tabwConnections_cellClicked(int row, int column);
@@ -37,6 +39,12 @@ private slots:
 
     void on_pbCheck_clicked();
 
+    void on_sbTo_textChanged(const QString &arg1);
+
+    void on_sbFrom_textChanged(const QString &arg1);
+
+    void on_leModelTypeName_textChanged(const QString &arg1);
+
 private:
     Ui::APhotonTunnelWindow *ui;
     APhotonFunctionalHub & PhFunHub;
@@ -47,6 +55,8 @@ private:
 
     int SortByColumnIndex = 0;
     bool AscendingSortOrder = true;
+
+    QPixmap RedCircle;
 
     void fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid);
     void onModelChanged();

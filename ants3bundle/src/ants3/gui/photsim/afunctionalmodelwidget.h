@@ -12,6 +12,8 @@ class QLineEdit;
 
 class AFunctionalModelWidget : public QFrame
 {
+    Q_OBJECT
+
 public:
     AFunctionalModelWidget(APhotonFunctionalModel * model, QWidget * parent = nullptr);
     virtual ~AFunctionalModelWidget(){}
@@ -23,6 +25,9 @@ public:
 protected:
     QVBoxLayout      * MainLayout      = nullptr;
     QDoubleValidator * DoubleValidator = nullptr;
+
+signals:
+    void modified();
 };
 
 class AFunctionalModelWidget_Dummy : public AFunctionalModelWidget

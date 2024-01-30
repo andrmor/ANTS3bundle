@@ -26,8 +26,12 @@ APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent
     QVBoxLayout * lay = dynamic_cast<QVBoxLayout*>(ui->frConnectionDelegate->layout());
     if (lay) lay->insertWidget(1, LastWidget);
 
+    RedCircle = guitools::createColorCirclePixmap({15,15}, Qt::red);
+
     updateGui();
     onModelChanged();
+
+    setModifiedStatus(false);
 }
 
 APhotonTunnelWindow::~APhotonTunnelWindow()
@@ -97,6 +101,7 @@ void APhotonTunnelWindow::onModelChanged()
         delete LastWidget; LastWidget = nullptr;
 
         LastWidget = AFunctionalModelWidget::factory(LastModel, this);
+        connect(LastWidget, &AFunctionalModelWidget::modified, this, [this](){setModifiedStatus(true);});
         lay->insertWidget(1, LastWidget);
     }
 
@@ -126,7 +131,11 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
     if (!LastModel->isLink()) to = from;
 
     QString err = PhFunHub.addOrModifyRecord(from, to, LastModel);
-    if (err.isEmpty()) updateGui();
+    if (err.isEmpty())
+    {
+        updateGui();
+        setModifiedStatus(false);
+    }
     else guitools::message(err, this);
 }
 
@@ -137,6 +146,7 @@ void APhotonTunnelWindow::on_pbRemove_clicked()
     if (!ui->sbTo->isVisible()) to = from;
     PhFunHub.removeRecord(from, to);
     updateGui();
+    setModifiedStatus(false);
 }
 
 void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
@@ -154,6 +164,8 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
         if (LastModel && LastModel->isLink()) emit requestShowConnection(from, to);
         else emit requestShowConnection(-1, -1); // clear tracks
     }
+
+    setModifiedStatus(false);
 }
 
 #include "atreedatabaseselectordialog.h"
@@ -183,6 +195,7 @@ void APhotonTunnelWindow::on_pbSelectModel_clicked()
         if (model) LastModel = model;
         else guitools::message("Model selection resulted in unknown model name");
         onModelChanged();
+        setModifiedStatus(true);
     }
 }
 
@@ -206,5 +219,23 @@ void APhotonTunnelWindow::on_pbCheck_clicked()
     QString txt = "No errors were detected";
     if (!error.isEmpty()) txt = "Error detected!\n" + error;
     guitools::message(txt, this);
+}
+
+void APhotonTunnelWindow::setModifiedStatus(bool flag)
+{
+    ui->pbAddModify->setIcon(flag ? RedCircle : QPixmap());
+}
+
+void APhotonTunnelWindow::on_sbTo_textChanged(const QString &)
+{
+    setModifiedStatus(true);
+}
+void APhotonTunnelWindow::on_sbFrom_textChanged(const QString &)
+{
+    setModifiedStatus(true);
+}
+void APhotonTunnelWindow::on_leModelTypeName_textChanged(const QString &)
+{
+    setModifiedStatus(true);
 }
 

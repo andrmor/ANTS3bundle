@@ -49,6 +49,7 @@ AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(APFM_ThinLens *
     QHBoxLayout * lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
     lay->addWidget(new QLabel("Focal length:"));
     leFocalLength = new QLineEdit(); leFocalLength->setValidator(DoubleValidator);
+    connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leFocalLength);
     lay->addWidget(new QLabel("mm"));
     lay->addStretch(1);

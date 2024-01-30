@@ -68,7 +68,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
     ui->labSkipTracingON->setPixmap(YellowCircle);
-    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle);
+    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle); ui->labPhotonsPerBombWarning->setVisible(false);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
