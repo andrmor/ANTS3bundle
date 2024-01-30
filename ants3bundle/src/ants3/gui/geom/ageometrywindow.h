@@ -78,6 +78,7 @@ public slots:
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
+    void showPhotonFunctionalIndexes();  // !!!***
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 

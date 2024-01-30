@@ -1285,6 +1285,21 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
     */
 }
 
+void AGeometryWindow::showPhotonFunctionalIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    //const APhotonFunctionalHub & PhFunHub = APhotonFunctionalHub::getConstInstance();
+    const size_t num = Geometry.PhotonFunctionals.size();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kRed, AGeoWriter::PhotonFunctional, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {
