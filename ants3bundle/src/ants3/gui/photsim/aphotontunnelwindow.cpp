@@ -6,11 +6,11 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 
-APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent) :
-    AGuiWindow(idStr, parent),
-    ui(new Ui::APhotonTunnelWindow),
+APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
+    AGuiWindow("PhotFun", parent),
     PhFunHub(APhotonFunctionalHub::getInstance()),
-    GeoHub(AGeometryHub::getConstInstance())
+    GeoHub(AGeometryHub::getConstInstance()),
+    ui(new Ui::APhotonTunnelWindow)
 {
     ui->setupUi(this);
 
@@ -29,7 +29,7 @@ APhotonTunnelWindow::APhotonTunnelWindow(const QString & idStr, QWidget * parent
     RedCircle = guitools::createColorCirclePixmap({15,15}, Qt::red);
 
     updateGui();
-    onModelChanged();
+    //onModelChanged();
 
     setModifiedStatus(false);
 }

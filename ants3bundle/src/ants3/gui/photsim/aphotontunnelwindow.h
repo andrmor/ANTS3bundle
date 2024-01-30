@@ -17,7 +17,7 @@ class APhotonTunnelWindow : public AGuiWindow
     Q_OBJECT
 
 public:
-    explicit APhotonTunnelWindow(const QString & idStr, QWidget * parent);
+    explicit APhotonTunnelWindow(QWidget * parent = nullptr);
     ~APhotonTunnelWindow();
 
     void updateGui();
@@ -46,9 +46,10 @@ private slots:
     void on_leModelTypeName_textChanged(const QString &arg1);
 
 private:
-    Ui::APhotonTunnelWindow *ui;
     APhotonFunctionalHub & PhFunHub;
     const AGeometryHub & GeoHub;
+
+    Ui::APhotonTunnelWindow * ui = nullptr;
 
     APhotonFunctionalModel * LastModel = nullptr;
     AFunctionalModelWidget * LastWidget = nullptr;

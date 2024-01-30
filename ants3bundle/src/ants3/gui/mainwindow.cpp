@@ -11,6 +11,7 @@
 #include "ageometryhub.h"
 #include "amatwin.h"
 #include "asensorwindow.h"
+#include "aphotontunnelwindow.h"
 #include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
 #include "graphwindowclass.h"
@@ -70,6 +71,8 @@ MainWindow::MainWindow() :
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
+    PhotFunWin = new APhotonTunnelWindow(this);
+
     PhotSimWin = new APhotSimWin(this);
     connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
@@ -109,10 +112,6 @@ MainWindow::MainWindow() :
     PythonWin->updateGui();
 #endif
 
-    // !!!*** move creation of the photon tunnel window here?
-    connect(GeoTreeWin, &AGeoTreeWin::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
-    connect(GeoTreeWin, &AGeoTreeWin::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
-
     GlobSetWin = new AGlobSetWindow(this);
     connect(PhotSimWin, &APhotSimWin::requestConfigureExchangeDir,    GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
     connect(PartSimWin, &AParticleSimWin::requestConfigureExchangeDir, GlobSetWin, &AGlobSetWindow::onRequestConfigureExchangeDir);
@@ -145,6 +144,13 @@ MainWindow::MainWindow() :
     ui->menuFile->setStyleSheet(mss);
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
+
+    std::vector<QLabel*> labels = {ui->lSpaceHolder1, ui->lSpaceHolder2, ui->lSpaceHolder3};
+    for (QLabel * l : labels)
+    {
+        l->setMinimumHeight(ui->pbFunctionalModels->height());
+        l->setText("");
+    }
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
@@ -408,6 +414,7 @@ void MainWindow::updateAllGuiFromConfig()
     MatWin->initWindow();
     SensWin->updateGui();
     RuleWin->updateGui();
+    PhotFunWin->updateGui();
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
@@ -529,6 +536,9 @@ void MainWindow::connectSignalSlotsForGeoWin()
     connect(PartSimWin, &AParticleSimWin::requestAddMarker,             GeoWin, &AGeometryWindow::addGenerationMarker);
     connect(PartSimWin, &AParticleSimWin::requestClearMarkers,          GeoWin, &AGeometryWindow::clearGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::requestCenterView,            GeoWin, &AGeometryWindow::CenterView);
+
+    connect(PhotFunWin, &APhotonTunnelWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
+    connect(PhotFunWin, &APhotonTunnelWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
 }
 
 void MainWindow::on_leConfigName_editingFinished()
@@ -549,6 +559,17 @@ void MainWindow::on_pbSensors_clicked()
 void MainWindow::on_pbSensors_customContextMenuRequested(const QPoint &)
 {
     SensWin->onMainWinButtonClicked(false);
+}
+
+void MainWindow::on_pbFunctionalModels_clicked()
+{
+    PhotFunWin->onMainWinButtonClicked(true);
+    PhotFunWin->updateGui();
+}
+
+void MainWindow::on_pbFunctionalModels_customContextMenuRequested(const QPoint &)
+{
+    PhotFunWin->onMainWinButtonClicked(false);
 }
 
 #include <QThread>
@@ -583,8 +604,8 @@ void MainWindow::closeEvent(QCloseEvent *)
     disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
     QThread::msleep(110);
 
-    std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin,   MatWin,  SensWin,    PhotSimWin,
-                                   RuleWin,   GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
+    std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
+                                   RuleWin, GraphWin, FarmWin, PartSimWin, JScriptWin, GlobSetWin, DemoWin };
 #ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
 #endif
@@ -596,8 +617,8 @@ void MainWindow::closeEvent(QCloseEvent *)
 
 void MainWindow::saveWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
-                                   RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
+    std::vector<AGuiWindow*> wins{ this, GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
+                                   RuleWin, GraphWin, FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, GuiFromScrWin, DemoWin };
 #ifdef ANTS3_PYTHON
     wins.push_back(PythonWin);
@@ -610,7 +631,7 @@ void MainWindow::saveWindowGeometries()
 
 void MainWindow::loadWindowGeometries()
 {
-    std::vector<AGuiWindow*> wins{ this,    GeoTreeWin, GeoWin,  MatWin,     SensWin,    PhotSimWin,
+    std::vector<AGuiWindow*> wins{ this, GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
                                    GlobSetWin, GuiFromScrWin, DemoWin };
 #ifdef ANTS3_PYTHON

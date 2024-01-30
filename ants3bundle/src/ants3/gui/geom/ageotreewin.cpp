@@ -973,16 +973,3 @@ void AGeoTreeWin::on_actionFind_object_triggered()
 
     UpdateGeoTree(name, true);
 }
-
-#include "aphotontunnelwindow.h"
-void AGeoTreeWin::on_actionOpen_window_triggered()
-{
-    if (!photonTunnelWin)
-    {
-        photonTunnelWin = new APhotonTunnelWindow("PhotTun", this);
-        connect(photonTunnelWin, &APhotonTunnelWindow::requestShowConnection, this, &AGeoTreeWin::requestShowConnection);
-        connect(photonTunnelWin, &APhotonTunnelWindow::requestShowAllConnections, this, &AGeoTreeWin::requestShowAllConnections);
-    }
-    photonTunnelWin->showNormal();
-}
-
