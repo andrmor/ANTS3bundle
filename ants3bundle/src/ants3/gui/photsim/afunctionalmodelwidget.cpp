@@ -1,4 +1,6 @@
 #include "afunctionalmodelwidget.h"
+#include "afiletools.h"
+#include "guitools.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -43,20 +45,82 @@ AFunctionalModelWidget_Dummy::AFunctionalModelWidget_Dummy(APhotonFunctionalMode
 
 // ---
 
+#include <QPushButton>
 AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(APFM_ThinLens * model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
     QHBoxLayout * lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
-    lay->addWidget(new QLabel("Focal length:"));
+
+    lay->addWidget( new QLabel(QString("Focal length vs %0:").arg(QChar(0x3bb))) );
+
+    pbShow = new QPushButton("Show", this);
+    connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onShowClicked);
+    lay->addWidget(pbShow);
+    pbLoad = new QPushButton("Load", this);
+    connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onLoadClicked);
+    lay->addWidget(pbLoad);
+    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
+    connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onDeleteClicked);
+    lay->addWidget(pbDelete);
+
+    lay->addStretch(2);
+
+    lay->addWidget( new QLabel(QString("For not %0-resolved sim:").arg(QChar(0x3bb))) );
+
     leFocalLength = new QLineEdit(); leFocalLength->setValidator(DoubleValidator);
     connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leFocalLength);
+
     lay->addWidget(new QLabel("mm"));
+
     lay->addStretch(1);
+
 
     MainLayout->addLayout(lay);
 
     leFocalLength->setText(QString::number(model->FocalLength_mm));
+    Spectrum = model->FocalLengthSpectrum_mm;
+    updateButtons();
+}
+
+void AFunctionalModelWidget_ThinLens::updateButtons()
+{
+    bool bHaveSpectrum = (!Spectrum.empty());
+
+    pbShow->setEnabled(bHaveSpectrum);
+    pbDelete->setEnabled(bHaveSpectrum);
+}
+
+void AFunctionalModelWidget_ThinLens::onLoadClicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load file with two columns: wavelength[nm] FocalLength_mm", "Data files (*.txt *.dat); All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> tmp;
+    QString err = ftools::loadPairs(fileName, tmp, true);
+    if (!err.isEmpty()) guitools::message(err, this);
+    else Spectrum = tmp;
+    updateButtons();
+}
+
+#include "agraphbuilder.h"
+#include "TGraph.h"
+void AFunctionalModelWidget_ThinLens::onShowClicked()
+{
+    if (Spectrum.empty()) return;
+
+    TGraph * g = AGraphBuilder::graph(Spectrum);
+    AGraphBuilder::configure(g, "Focal length vs wavelength",
+                             "Wavelength, nm", "Focal length, mm",
+                             2, 20, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AFunctionalModelWidget_ThinLens::onDeleteClicked()
+{
+    Spectrum.clear();
+    updateButtons();
 }
 
 QString AFunctionalModelWidget_ThinLens::updateModel(APhotonFunctionalModel * model)
@@ -65,6 +129,7 @@ QString AFunctionalModelWidget_ThinLens::updateModel(APhotonFunctionalModel * mo
     if (tlm)
     {
         tlm->FocalLength_mm = leFocalLength->text().toDouble();
+        tlm->FocalLengthSpectrum_mm = Spectrum;
     }
     return "";
 }

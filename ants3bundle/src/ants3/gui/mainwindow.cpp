@@ -72,6 +72,7 @@ MainWindow::MainWindow() :
     connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     PhotFunWin = new APhotonTunnelWindow(this);
+    connect(PhotFunWin, &APhotonTunnelWindow::requestDraw,  GraphWin, &GraphWindowClass::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
     connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);

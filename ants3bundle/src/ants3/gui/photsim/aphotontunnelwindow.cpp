@@ -24,7 +24,7 @@ APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     APFM_Dummy dm;
     LastWidget = new AFunctionalModelWidget_Dummy(&dm, this);
     QVBoxLayout * lay = dynamic_cast<QVBoxLayout*>(ui->frConnectionDelegate->layout());
-    if (lay) lay->insertWidget(1, LastWidget);
+    if (lay) lay->insertWidget(2, LastWidget);
 
     RedCircle = guitools::createColorCirclePixmap({15,15}, Qt::red);
 
@@ -102,7 +102,8 @@ void APhotonTunnelWindow::onModelChanged()
 
         LastWidget = AFunctionalModelWidget::factory(LastModel, this);
         connect(LastWidget, &AFunctionalModelWidget::modified, this, [this](){setModifiedStatus(true);});
-        lay->insertWidget(1, LastWidget);
+        connect(LastWidget, &AFunctionalModelWidget::requestDraw, this, &APhotonTunnelWindow::requestDraw);
+        lay->insertWidget(2, LastWidget);
     }
 
     bool bLink = LastModel && LastModel->isLink();

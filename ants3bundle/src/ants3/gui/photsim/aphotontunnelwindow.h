@@ -11,6 +11,7 @@ class APhotonFunctionalHub;
 class AGeometryHub;
 class APhotonFunctionalModel;
 class AFunctionalModelWidget;
+class TObject;
 
 class APhotonTunnelWindow : public AGuiWindow
 {
@@ -65,6 +66,7 @@ private:
 signals:
     void requestShowConnection(int from, int to);
     void requestShowAllConnections();
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
 };
 

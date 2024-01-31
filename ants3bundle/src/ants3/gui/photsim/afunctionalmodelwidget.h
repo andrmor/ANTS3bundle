@@ -9,6 +9,8 @@
 class QVBoxLayout;
 class QDoubleValidator;
 class QLineEdit;
+class QPushButton;
+class TObject;
 
 class AFunctionalModelWidget : public QFrame
 {
@@ -28,6 +30,7 @@ protected:
 
 signals:
     void modified();
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
 class AFunctionalModelWidget_Dummy : public AFunctionalModelWidget
@@ -39,12 +42,28 @@ public:
 
 class AFunctionalModelWidget_ThinLens : public AFunctionalModelWidget
 {
+    Q_OBJECT
+
 public:
     AFunctionalModelWidget_ThinLens(APFM_ThinLens * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * model) override;
 
 protected:
     QLineEdit * leFocalLength = nullptr;
+
+    QPushButton * pbShow = nullptr;
+    QPushButton * pbLoad = nullptr;
+    QPushButton * pbDelete = nullptr;
+
+    std::vector<std::pair<double,double>> Spectrum;
+
+    void updateButtons();
+
+private slots:
+    void onLoadClicked();
+    void onShowClicked();
+    void onDeleteClicked();
+
 };
 
 class AFunctionalModelWidget_OpticalFiber : public AFunctionalModelWidget

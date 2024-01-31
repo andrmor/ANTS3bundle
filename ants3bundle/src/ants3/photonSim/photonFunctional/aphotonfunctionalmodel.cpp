@@ -96,7 +96,7 @@ QString APFM_ThinLens::printSettingsToString() const
     if (FocalLengthSpectrum_mm.empty())
         return QString("F = %0 mm").arg(FocalLength_mm);
 
-    return QString("FocalLength: spectrum with %0 point; for non-wavelength-resolved %1 mm").arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
+    return QString("FocalLength(%0): %1 points; for not wavelength-resolved sim: %2 mm").arg(QChar(0x3bb)).arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
 }
 
 QString APFM_ThinLens::updateRuntimeProperties()
