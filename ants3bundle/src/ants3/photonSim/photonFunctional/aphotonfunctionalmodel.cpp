@@ -75,16 +75,34 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 void APFM_ThinLens::writeSettingsToJson(QJsonObject & json) const
 {
     json["FocalLength_mm"] = FocalLength_mm;
+
+    QJsonArray ar;
+    jstools::writeDPairVectorToArray(FocalLengthSpectrum_mm, ar);
+    json["FocalLengthSpectrum_mm"] = ar;
 }
 
 void APFM_ThinLens::readSettingsFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "FocalLength_mm", FocalLength_mm);
+
+    FocalLengthSpectrum_mm.clear();
+    QJsonArray ar;
+    jstools::parseJson(json, "FocalLengthSpectrum_mm", ar);
+    jstools::readDPairVectorFromArray(ar, FocalLengthSpectrum_mm);
 }
 
 QString APFM_ThinLens::printSettingsToString() const
 {
-    return QString("F = %0 mm").arg(FocalLength_mm);
+    if (FocalLengthSpectrum_mm.empty())
+        return QString("F = %0 mm").arg(FocalLength_mm);
+
+    return QString("FocalLength: spectrum with %0 point; for non-wavelength-resolved %1 mm").arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
+}
+
+QString APFM_ThinLens::updateRuntimeProperties()
+{
+
+    return "";
 }
 
 #include "avector.h"

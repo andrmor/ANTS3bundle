@@ -425,7 +425,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         const ATunnelRuntimeData & runtimeData = PhTunHub.RuntimeData[inNum];
         if (!runtimeData.isTrigger) return;
 
-        const size_t outNum = runtimeData.TargetIndex;
+        const size_t outNum = runtimeData.LinkedIndex;
         qDebug() << "Associated target index" << outNum;
         //const std::tuple<AGeoObject*,TGeoNode*, AVector3> & in  = AGeometryHub::getConstInstance().PhotonFunctionals[inNum];
         const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];

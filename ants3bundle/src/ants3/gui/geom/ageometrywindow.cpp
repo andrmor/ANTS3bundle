@@ -665,7 +665,7 @@ void AGeometryWindow::onRequestShowAllConnections()
 
     const APhotonFunctionalHub & hub = APhotonFunctionalHub::getConstInstance();
     for (const APhotonFunctionalRecord & rec : hub.FunctionalRecords)
-        showPhotonTunnel(rec.Trigger, rec.Target);
+        showPhotonTunnel(rec.Index, rec.LinkedTo);
 
     ShowTracks();
 }

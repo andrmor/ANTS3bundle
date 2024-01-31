@@ -68,8 +68,8 @@ void APhotonTunnelWindow::updateGui()
         QString error;
         bool highlight = !PhFunHub.isValidRecord(rec, error);
 
-        fillCell(iRow, 0, QString::number(rec.Trigger), highlight);
-        fillCell(iRow, 1, (isLink ? QString::number(rec.Target) : "-"), highlight);
+        fillCell(iRow, 0, QString::number(rec.Index), highlight);
+        fillCell(iRow, 1, (isLink ? QString::number(rec.LinkedTo) : "-"), highlight);
         fillCell(iRow, 2, rec.Model->getType(), highlight);
         //qDebug() << rec.Model->printSettingsToString();
         fillCell(iRow, 3, rec.Model->printSettingsToString(), highlight);

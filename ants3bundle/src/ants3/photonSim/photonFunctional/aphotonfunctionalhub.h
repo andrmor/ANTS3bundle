@@ -11,8 +11,8 @@ class QJsonObject;
 class APhotonFunctionalRecord
 {
 public:
-    int Trigger;
-    int Target;
+    int Index = 0;
+    int LinkedTo = 0;
     APhotonFunctionalModel * Model = nullptr;
 
     void writeToJson(QJsonObject & json) const;
@@ -23,7 +23,7 @@ class ATunnelRuntimeData
 {
 public:
     bool   isTrigger = false;
-    size_t TargetIndex;
+    size_t LinkedIndex;
     APhotonFunctionalModel * Model = nullptr;
 };
 

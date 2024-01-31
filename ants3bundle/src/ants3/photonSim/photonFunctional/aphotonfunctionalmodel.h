@@ -34,7 +34,7 @@ public:
 
     virtual QString printSettingsToString() const = 0; // used in gui / scripting
 
-    virtual void updateRuntimeProperties() {} // can report errors throuh AErrorHub
+    virtual QString updateRuntimeProperties() {return "";}
 
     virtual bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) = 0;
     // photonData on call contains Trigger data, on return should return data for Target
@@ -66,12 +66,15 @@ public:
 
     QString printSettingsToString() const override;
 
+    QString updateRuntimeProperties() override {return "";}
+
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double Length_mm = 100.0;
     double MaxAngle_deg = 30.0;
     // refractive index and and attenuation data are taken from the target material   --> !!!*** in check enforce same material target and trigger
 
+protected:
     // runtime
 };
 
@@ -85,10 +88,18 @@ public:
 
     QString printSettingsToString() const override;
 
+    QString updateRuntimeProperties() override;
+
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double FocalLength_mm = 10.0;
+    std::vector<std::pair<double,double>> FocalLengthSpectrum_mm;
+
     // consider adding loss factor to the model
+
+protected:
+    // runtime
+
 };
 
 #endif // APHOTONFUNCTIONALMODEL_H

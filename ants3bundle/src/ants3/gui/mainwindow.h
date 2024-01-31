@@ -133,6 +133,8 @@ private slots:
 
     void on_actionVersions_triggered();
 
+    void on_pbLoadConfig_customContextMenuRequested(const QPoint &pos);
+
 protected:
     void closeEvent(QCloseEvent * event);
 

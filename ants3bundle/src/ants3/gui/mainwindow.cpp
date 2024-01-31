@@ -830,3 +830,7 @@ void MainWindow::on_actionVersions_triggered()
     guitools::message(out, this);
 }
 
+void MainWindow::on_pbLoadConfig_customContextMenuRequested(const QPoint &)
+{
+    on_actionLoad_last_config_triggered();
+}

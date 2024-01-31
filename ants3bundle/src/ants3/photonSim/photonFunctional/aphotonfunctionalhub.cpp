@@ -70,32 +70,32 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
         return false;
     }
 
-    if (rec.Trigger < 0)
+    if (rec.Index < 0)
     {
         error = "Found negative index";
         return false;
     }
-    if (rec.Trigger >= GeoHub.PhotonFunctionals.size())
+    if (rec.Index >= GeoHub.PhotonFunctionals.size())
     {
-        error = "Found out of range index: " + QString::number(rec.Trigger);
+        error = "Found out of range index: " + QString::number(rec.Index);
         return false;
     }
 
     if (rec.Model->isLink())
     {
-        if (rec.Target < 0)
+        if (rec.LinkedTo < 0)
         {
             error = "Found negative linked object index";
             return false;
         }
-        if (rec.Target >= GeoHub.PhotonFunctionals.size())
+        if (rec.LinkedTo >= GeoHub.PhotonFunctionals.size())
         {
-            error = "Found out of range index of the linked object: " + QString::number(rec.Target);
+            error = "Found out of range index of the linked object: " + QString::number(rec.LinkedTo);
             return false;
         }
-        if (rec.Trigger == rec.Target)
+        if (rec.Index == rec.LinkedTo)
         {
-            error = "Linked object should not have the same index: check records with index " + QString::number(rec.Trigger);
+            error = "Linked object should not have the same index: check records with index " + QString::number(rec.Index);
             return false;
         }
     }
@@ -113,8 +113,8 @@ APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target
 {
     for (APhotonFunctionalRecord & rec : FunctionalRecords)
     {
-        if (rec.Trigger != trigger) continue;
-        if (rec.Target != target) continue;
+        if (rec.Index != trigger) continue;
+        if (rec.LinkedTo != target) continue;
         return rec.Model;
     }
     return nullptr;
@@ -124,9 +124,9 @@ QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, APhoton
 {
     for (APhotonFunctionalRecord & rec : FunctionalRecords)
     {
-        if (rec.Target != target) continue;
+        if (rec.LinkedTo != target) continue;
 
-        rec.Trigger  = trigger;
+        rec.Index  = trigger;
         rec.Model    = model;
         return "";
     }
@@ -139,8 +139,8 @@ void APhotonFunctionalHub::removeRecord(int trigger, int target)
 {
     for (auto it = FunctionalRecords.begin(); it < FunctionalRecords.end(); ++it)
     {
-        if (it->Trigger != trigger) continue;
-        if (it->Target  != target)   continue;
+        if (it->Index != trigger) continue;
+        if (it->LinkedTo  != target)   continue;
 
         FunctionalRecords.erase(it);
         return;
@@ -159,13 +159,13 @@ QString APhotonFunctionalHub::checkRecordsReadyForRun()
     QSet<int> seenIndexes;
     for (const APhotonFunctionalRecord & rec : FunctionalRecords)
     {
-        int index = rec.Trigger;
+        int index = rec.Index;
         if (seenIndexes.contains(index)) return QString("Multiple references to index %0").arg(index);
         seenIndexes << index;
 
         if (rec.Model->isLink())
         {
-            int linked = rec.Target;
+            int linked = rec.LinkedTo;
             if (seenIndexes.contains(linked)) return QString("Multiple references to index %0").arg(linked);
             seenIndexes << linked;
         }
@@ -197,21 +197,29 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
 
     for (const APhotonFunctionalRecord & rec : FunctionalRecords)
     {
-        ATunnelRuntimeData & rt = RuntimeData[rec.Trigger];
+        ATunnelRuntimeData & rt = RuntimeData[rec.Index];
         rt.isTrigger = true;
+
         rt.Model = rec.Model;
+        QString err = rt.Model->updateRuntimeProperties();
+        if (!err.isEmpty())
+        {
+            AErrorHub::addQError(QString("Functional model for index %0 error:\n").arg(rec.Index) + err);
+            return false;
+        }
+
         if (rec.Model->isLink())
-            rt.TargetIndex = rec.Target;
+            rt.LinkedIndex = rec.LinkedTo;
         else
-            rt.TargetIndex = rec.Trigger;
+            rt.LinkedIndex = rec.Index;
     }
     return true;
 }
 
 void APhotonFunctionalRecord::writeToJson(QJsonObject & json) const
 {
-    json["Trigger"] = Trigger;
-    json["Target"]  = Target;
+    json["Index"]    = Index;
+    json["LinkedTo"] = LinkedTo;
 
     QJsonObject js;
     Model->writeToJson(js);
@@ -220,8 +228,8 @@ void APhotonFunctionalRecord::writeToJson(QJsonObject & json) const
 
 void APhotonFunctionalRecord::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "Trigger",  Trigger);
-    jstools::parseJson(json, "Target",   Target);
+    jstools::parseJson(json, "Index",    Index);
+    jstools::parseJson(json, "LinkedTo", LinkedTo);
 
     QJsonObject js;
     jstools::parseJson(json, "Model", js);
