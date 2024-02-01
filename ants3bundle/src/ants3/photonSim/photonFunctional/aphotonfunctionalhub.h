@@ -48,7 +48,8 @@ public:
 
     bool isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const;
 
-    APhotonFunctionalModel * findModel(int trigger, int target); // returns nullptr if not found
+    //APhotonFunctionalModel * findModel(int trigger, int target); // returns nullptr if not found
+    APhotonFunctionalModel * findModel(int trigger); // returns nullptr if not found
     QString addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model);
     void removeRecord(int trigger, int target);
 

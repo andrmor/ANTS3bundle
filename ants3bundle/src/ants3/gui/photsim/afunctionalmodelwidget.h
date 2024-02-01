@@ -10,6 +10,8 @@ class QVBoxLayout;
 class QDoubleValidator;
 class QLineEdit;
 class QPushButton;
+class QCheckBox;
+class QLabel;
 class TObject;
 
 class AFunctionalModelWidget : public QFrame
@@ -23,6 +25,7 @@ public:
     virtual QString updateModel(APhotonFunctionalModel * model) = 0; // returns error if not possible
 
     static AFunctionalModelWidget * factory(APhotonFunctionalModel * model, QWidget * parent); // register all NEW MODELS here!
+    static QString getModelDatabase();                                                         // register all NEW MODELS here!
 
 protected:
     QVBoxLayout      * MainLayout      = nullptr;
@@ -76,5 +79,39 @@ public:
 protected:
 
 };
+
+class AFunctionalModelWidget_Filter : public AFunctionalModelWidget
+{
+    Q_OBJECT
+
+public:
+    AFunctionalModelWidget_Filter(APFM_Filter * model, QWidget * parent = nullptr);
+    QString updateModel(APhotonFunctionalModel * model) override;
+
+protected:
+    QCheckBox * cbGray = nullptr;
+    QLineEdit * leTransmission = nullptr;
+
+    QPushButton * pbShow = nullptr;
+    QPushButton * pbLoad = nullptr;
+    QPushButton * pbDelete = nullptr;
+
+    QLabel * lTrVsLambda = nullptr;
+    QLabel * lGray = nullptr;
+    QLabel * lNonRes = nullptr;
+
+    std::vector<std::pair<double,double>> Spectrum;
+
+    void updateButtons();
+
+private slots:
+    void onGrayToggled(bool flag);
+    void onLoadClicked();
+    void onShowClicked();
+    void onShowRightClicked(const QPoint &);
+    void onDeleteClicked();
+
+};
+
 
 #endif // AFUNCTIONALMODELWIDGET_H

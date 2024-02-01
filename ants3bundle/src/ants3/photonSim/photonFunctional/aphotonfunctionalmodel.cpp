@@ -1,11 +1,13 @@
 #include "aphotonfunctionalmodel.h"
 #include "ajsontools.h"
+#include "arandomhub.h"
 
 APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
 {
     if (type == "Dummy")        return new APFM_Dummy();
     if (type == "ThinLens")     return new APFM_ThinLens();
     if (type == "OpticalFiber") return new APFM_OpticalFiber();
+    if (type == "Filter")       return new APFM_Filter();
 
     qWarning() << "Photom functional model type (" << type << ") is unknown, returning Dummy model";
     return new APFM_Dummy();
@@ -109,6 +111,7 @@ QString APFM_ThinLens::updateRuntimeProperties()
     {
         if (!FocalLengthSpectrum_mm.empty())
             WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned);
+        else _FocalLengthBinned = std::vector<double>(WaveSet.countNodes(), FocalLength_mm);
 
         for (size_t i = 0; i < _FocalLengthBinned.size(); i++)
         {
@@ -196,3 +199,62 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
 
     return true;
 }
+
+// ---
+
+void APFM_Filter::writeSettingsToJson(QJsonObject & json) const
+{
+    json["Gray"] = Gray;
+    json["GrayTransmission"] = GrayTransmission;
+
+    QJsonArray ar;
+    jstools::writeDPairVectorToArray(TransmissionSpectrum, ar);
+    json["TransmissionSpectrum"] = ar;
+}
+
+void APFM_Filter::readSettingsFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "Gray", Gray);
+    jstools::parseJson(json, "GrayTransmission", GrayTransmission);
+
+    TransmissionSpectrum.clear();
+    QJsonArray ar;
+    jstools::parseJson(json, "TransmissionSpectrum", ar);
+    jstools::readDPairVectorFromArray(ar, TransmissionSpectrum);
+}
+
+QString APFM_Filter::printSettingsToString() const
+{
+    if (Gray)
+        return QString("Gray filter with T = %0").arg(GrayTransmission);
+
+    return QString("Transmission(%0): %1 points; for not wavelength-resolved sim: %2").arg(QChar(0x3bb)).arg(TransmissionSpectrum.size()).arg(GrayTransmission);
+}
+
+QString APFM_Filter::updateRuntimeProperties()
+{
+    _TransmissionBinned.clear();
+
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (WaveSet.Enabled)
+    {
+        if (!TransmissionSpectrum.empty())
+            WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned);
+        else _TransmissionBinned = std::vector<double>(WaveSet.countNodes(), GrayTransmission);
+
+        for (size_t i = 0; i < _TransmissionBinned.size(); i++)
+            if (_TransmissionBinned[i] < 0 || _TransmissionBinned[i] > 1.0) return "Filter transmission values should be within [0, 1] range!";
+    }
+    return "";
+}
+
+bool APFM_Filter::applyModel(APhotonExchangeData & photonData, int , int)
+{
+    double Trans;
+    if (Gray || photonData.WaveIndex == -1) Trans = GrayTransmission;
+    else Trans = _TransmissionBinned[photonData.WaveIndex];
+
+    return (ARandomHub::getInstance().uniform() < Trans);
+}
+
+// ---

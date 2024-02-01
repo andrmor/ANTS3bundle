@@ -154,11 +154,16 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 {
     int from = ui->tabwConnections->item(row, 0)->text().toInt();
     ui->sbFrom->setValue(from);
-    int to   = ui->tabwConnections->item(row, 1)->text().toInt();
-    ui->sbTo->setValue(to);
 
-    LastModel = PhFunHub.findModel(from, to);
+    LastModel = PhFunHub.findModel(from);
     onModelChanged();
+
+    int to;
+    if (LastModel && LastModel->isLink())
+    {
+        to = ui->tabwConnections->item(row, 1)->text().toInt();
+        ui->sbTo->setValue(to);
+    }
 
     if (ui->cbShowConnection->isChecked())
     {
@@ -170,19 +175,13 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 }
 
 #include "atreedatabaseselectordialog.h"
-static QString txt = ""
-"* Basic optics\n"
-"** Lenses\n"
-"@ThinLens Ideal thin lens firth positive or negative focal length. #Lens\n"
-"** Tunnels\n"
-"@OpticalFiber Simplified model of an optical fiber. #Fiber";
 
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
     //LastModel = new APFM_OpticalFiber();
     //LastModel = new APFM_ThinLens();
     ATreeDatabaseSelectorDialog dialog("Select model", this);
-    QString err = dialog.readData(txt);
+    QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
     if (!err.isEmpty())
     {
         guitools::message(err, this);

@@ -101,4 +101,26 @@ public:
     std::vector<double> _FocalLengthBinned;
 };
 
+class APFM_Filter : public APhotonFunctionalModel
+{
+public:
+    QString getType() const override {return QStringLiteral("Filter");}
+
+    void writeSettingsToJson(QJsonObject & json) const override;
+    void readSettingsFromJson(const QJsonObject & json) override;
+
+    QString printSettingsToString() const override;
+
+    QString updateRuntimeProperties() override;
+
+    bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
+
+    bool   Gray = true;
+    double GrayTransmission = 0.5;
+    std::vector<std::pair<double,double>> TransmissionSpectrum;
+
+    // runtime
+    std::vector<double> _TransmissionBinned;
+};
+
 #endif // APHOTONFUNCTIONALMODEL_H

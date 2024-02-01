@@ -109,12 +109,24 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
     return true;
 }
 
+/*
 APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target)
 {
     for (APhotonFunctionalRecord & rec : FunctionalRecords)
     {
         if (rec.Index != trigger) continue;
         if (rec.LinkedTo != target) continue;
+        return rec.Model;
+    }
+    return nullptr;
+}
+*/
+
+APhotonFunctionalModel * APhotonFunctionalHub::findModel(int index)
+{
+    for (APhotonFunctionalRecord & rec : FunctionalRecords)
+    {
+        if (rec.Index != index) continue;
         return rec.Model;
     }
     return nullptr;
