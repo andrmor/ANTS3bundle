@@ -62,6 +62,7 @@ protected:
 private slots:
     void onLoadClicked();
     void onShowClicked();
+    void onShowRightClicked(const QPoint &);
     void onDeleteClicked();
 
 };

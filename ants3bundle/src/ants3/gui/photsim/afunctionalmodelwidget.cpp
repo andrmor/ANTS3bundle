@@ -55,6 +55,8 @@ AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(APFM_ThinLens *
 
     pbShow = new QPushButton("Show", this);
     connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onShowClicked);
+    pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_ThinLens::onShowRightClicked);
     lay->addWidget(pbShow);
     pbLoad = new QPushButton("Load", this);
     connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onLoadClicked);
@@ -99,8 +101,21 @@ void AFunctionalModelWidget_ThinLens::onLoadClicked()
     std::vector<std::pair<double,double>> tmp;
     QString err = ftools::loadPairs(fileName, tmp, true);
     if (!err.isEmpty()) guitools::message(err, this);
-    else Spectrum = tmp;
-    updateButtons();
+    else
+    {
+        for (const auto & p : tmp)
+        {
+            if (p.second < 1e-60)
+            {
+                guitools::message("Focal length values should be positive!", this);
+                return;
+            }
+        }
+
+        Spectrum = tmp;
+        updateButtons();
+        emit modified();
+    }
 }
 
 #include "agraphbuilder.h"
@@ -117,10 +132,48 @@ void AFunctionalModelWidget_ThinLens::onShowClicked()
     emit requestDraw(g, "APL", true, true);
 }
 
+#include "aphotonsimhub.h"
+void AFunctionalModelWidget_ThinLens::onShowRightClicked(const QPoint &)
+{
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (!WaveSet.Enabled)
+    {
+        guitools::message("Simulation is currently configured not to be wavelength-resolved!", this);
+        return;
+    }
+
+    APFM_ThinLens tmpMod;
+    tmpMod.FocalLengthSpectrum_mm = Spectrum;
+    QString err = tmpMod.updateRuntimeProperties();
+    if (!err.isEmpty())
+    {
+        guitools::message("Wavelength-resolved binned data are empty!", this);
+        return;
+    }
+
+    if (tmpMod._FocalLengthBinned.empty())
+    {
+        guitools::message("Wavelength-resolved binned data are empty!", this);
+        return;
+    }
+    else
+    {
+        std::vector<double> wavelength;
+        WaveSet.getWavelengthBins(wavelength);
+        TGraph * g = AGraphBuilder::graph(wavelength, tmpMod._FocalLengthBinned);
+        AGraphBuilder::configure(g, "Binned focal length vs wavelength",
+                                 "WaveIndex", "Focal length, mm",
+                                 4, 20, 1,
+                                 4, 1,  1);
+        emit requestDraw(g, "APL", true, true);
+    }
+}
+
 void AFunctionalModelWidget_ThinLens::onDeleteClicked()
 {
     Spectrum.clear();
     updateButtons();
+    emit modified();
 }
 
 QString AFunctionalModelWidget_ThinLens::updateModel(APhotonFunctionalModel * model)

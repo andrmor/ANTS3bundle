@@ -97,9 +97,8 @@ public:
 
     // consider adding loss factor to the model
 
-protected:
     // runtime
-
+    std::vector<double> _FocalLengthBinned;
 };
 
 #endif // APHOTONFUNCTIONALMODEL_H

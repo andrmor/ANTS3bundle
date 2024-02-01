@@ -99,9 +99,22 @@ QString APFM_ThinLens::printSettingsToString() const
     return QString("FocalLength(%0): %1 points; for not wavelength-resolved sim: %2 mm").arg(QChar(0x3bb)).arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
 }
 
+#include "aphotonsimhub.h"
 QString APFM_ThinLens::updateRuntimeProperties()
 {
+    _FocalLengthBinned.clear();
 
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (WaveSet.Enabled)
+    {
+        if (!FocalLengthSpectrum_mm.empty())
+            WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned);
+
+        for (size_t i = 0; i < _FocalLengthBinned.size(); i++)
+        {
+            if (_FocalLengthBinned[i] < 1e-60) return "Focal length values should be positive!";
+        }
+    }
     return "";
 }
 
@@ -133,10 +146,16 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
 
     if (XatZ0 == 0 && YatZ0 == 0) return true; // no direction change in this case
 
-    const double signFocalLength = ( (FocalLength_mm > 0) ? 1.0 : -1.0);
+    // get focal length
+    double focalLength;
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (photonData.WaveIndex == -1 || !WaveSet.Enabled) focalLength = FocalLength_mm;
+    else focalLength = _FocalLengthBinned[photonData.WaveIndex];
+
+    const double signFocalLength = ( (focalLength > 0) ? 1.0 : -1.0);
     const double signDirection = ( (photonData.LocalDirection[2] > 0) ? 1.0 : -1.0);
 
-    const double travelFactor2f = 0.5 * fabs(photonData.LocalDirection[2]) / FocalLength_mm;
+    const double travelFactor2f = 0.5 * fabs(photonData.LocalDirection[2]) / focalLength;
     const double XatMinus2f = XatZ0 - photonData.LocalDirection[0] / travelFactor2f;
     const double YatMinus2f = YatZ0 - photonData.LocalDirection[1] / travelFactor2f;
 
@@ -144,8 +163,8 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
     // second line contains (XatMinus2f, YatMinus2f, 0) and (0,0,-f) points
 
     // too many zeros in coefficents, need 2D case
-    //ALine3D first({XatMinus2f, YatMinus2f, 2.0*FocalLength_mm}, {0,0,0});
-    //ALine3D second({XatMinus2f, YatMinus2f, 0}, {0,0,-FocalLength_mm});
+    //ALine3D first({XatMinus2f, YatMinus2f, 2.0*focalLength}, {0,0,0});
+    //ALine3D second({XatMinus2f, YatMinus2f, 0}, {0,0,-focalLength});
     //AVector3 crossing;
     //bool ok = first.getIntersect(second, crossing);
     //qDebug() << "ok?" << ok << "crossing" << crossing[0] << crossing[1] << crossing[2];
@@ -159,8 +178,8 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
         return true;
     }
 
-    ALine2D first({R, -2.0*signDirection*FocalLength_mm}, {0,0});
-    ALine2D second({R, 0}, {0,signDirection*FocalLength_mm});
+    ALine2D first({R, -2.0*signDirection*focalLength}, {0,0});
+    ALine2D second({R, 0}, {0,signDirection*focalLength});
     AVector2 crossing2D;
     bool ok = first.getIntersect(second, crossing2D);
     //qDebug() << "ok?" << ok << "crossing2D" << crossing2D[0] << crossing2D[1];
