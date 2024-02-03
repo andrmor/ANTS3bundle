@@ -203,6 +203,30 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
+    QFrame * frSensor = createSensorGui();
+    rl->addWidget(frSensor);
+    rl->setAlignment(frSensor, Qt::AlignHCenter);
+    connect(cobRole, &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
+
+    QFrame * frCal = createCalorimeterGui();
+    rl->addWidget(frCal);
+    connect(cobRole, &QComboBox::currentIndexChanged, frCal, [frCal, this](int index)
+    {
+        frCal->setVisible(index == 2);
+        if (ledCalOriginX->text().isEmpty()) updateCalorimeterGui(ACalorimeterProperties());}
+    );
+
+    QFrame * frFun = createFunctionalModelGui();
+    rl->addWidget(frFun);
+    connect(cobRole, &QComboBox::currentIndexChanged, frFun, [frFun](int index){frFun->setVisible(index == 5);} );
+
+    rl->addStretch();
+
+    connect(cobRole, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+}
+
+QFrame * AGeoObjectDelegate::createSensorGui()
+{
     QFrame * frSensor = new QFrame();
     {
         QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
@@ -222,25 +246,30 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
             hlSensor->addWidget(cobSensorModel);
         }
         frSensor->setVisible(false);
-        rl->addWidget(frSensor);
-        rl->setAlignment(frSensor, Qt::AlignHCenter);
     }
 
+    connect(cobSensorModel, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+
+    return frSensor;
+}
+
+QFrame * AGeoObjectDelegate::createCalorimeterGui()
+{
     QFrame * frCal = new QFrame();
     {
-      QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
+        QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
         QHBoxLayout * chl = new QHBoxLayout(); chl->setContentsMargins(15,0,15,0);
         cvl->addLayout(chl);
-            chl->addWidget(new QLabel("Acquire:"));
+        chl->addWidget(new QLabel("Acquire:"));
         cobCalType = new QComboBox(); cobCalType->addItems({"Deposited energy", "Dose"});
         cobCalType->setToolTip("Energy is collected as MeV per voxel\nDose is collected as grays per voxel.");
-            chl->addWidget(cobCalType);
-            chl->addStretch();
-            cbCalRandomize = new QCheckBox("Random bin along step");
-            chl->addWidget(cbCalRandomize);
+        chl->addWidget(cobCalType);
+        chl->addStretch();
+        cbCalRandomize = new QCheckBox("Random bin along step");
+        chl->addWidget(cbCalRandomize);
 
         QGridLayout * gl = new QGridLayout();
-      cvl->addLayout(gl);
+        cvl->addLayout(gl);
         gl->setContentsMargins(0,0,0,0);
         ledCalOriginX = new AOneLineTextEdit();
         ledCalOriginY = new AOneLineTextEdit();
@@ -273,85 +302,83 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
         gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
         QHBoxLayout * hlCalOverEv = new QHBoxLayout(); hlCalOverEv->setContentsMargins(0,0,0,0);
-            cbCalEventStat = new QCheckBox("Dep. over event");
-            hlCalOverEv->addWidget(cbCalEventStat);
-            QFrame * frCalEventStat = new QFrame(); frCalEventStat->setVisible(false);
-                QHBoxLayout * hlCalEvStat = new QHBoxLayout(frCalEventStat); hlCalEvStat->setContentsMargins(0,0,0,0);
-                hlCalEvStat->addWidget(new QLabel("Bins:"));
-                    leiCalEventDepoBins = new AOneLineTextEdit(); leiCalEventDepoBins->setMinimumWidth(50);
-                hlCalEvStat->addWidget(leiCalEventDepoBins);
-                hlCalEvStat->addWidget(new QLabel("From:"));
-                    ledCalEventDepoFrom = new AOneLineTextEdit(); ledCalEventDepoFrom->setMinimumWidth(50);
-                hlCalEvStat->addWidget(ledCalEventDepoFrom);
-                hlCalEvStat->addWidget(new QLabel("To:"));
-                    ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
-                hlCalEvStat->addWidget(ledCalEventDepoTo);
-                hlCalEvStat->addWidget(new QLabel("MeV"));
-                connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
-                connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
-            hlCalOverEv->addWidget(frCalEventStat);
-            hlCalOverEv->addStretch();
+        cbCalEventStat = new QCheckBox("Dep. over event");
+        hlCalOverEv->addWidget(cbCalEventStat);
+        QFrame * frCalEventStat = new QFrame(); frCalEventStat->setVisible(false);
+        QHBoxLayout * hlCalEvStat = new QHBoxLayout(frCalEventStat); hlCalEvStat->setContentsMargins(0,0,0,0);
+        hlCalEvStat->addWidget(new QLabel("Bins:"));
+        leiCalEventDepoBins = new AOneLineTextEdit(); leiCalEventDepoBins->setMinimumWidth(50);
+        hlCalEvStat->addWidget(leiCalEventDepoBins);
+        hlCalEvStat->addWidget(new QLabel("From:"));
+        ledCalEventDepoFrom = new AOneLineTextEdit(); ledCalEventDepoFrom->setMinimumWidth(50);
+        hlCalEvStat->addWidget(ledCalEventDepoFrom);
+        hlCalEvStat->addWidget(new QLabel("To:"));
+        ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
+        hlCalEvStat->addWidget(ledCalEventDepoTo);
+        hlCalEvStat->addWidget(new QLabel("MeV"));
+        connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
+        connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
+        hlCalOverEv->addWidget(frCalEventStat);
+        hlCalOverEv->addStretch();
         cvl->addLayout(hlCalOverEv);
-        frCal->setVisible(false);
-        rl->addWidget(frCal);
 
         connect(cobCalType, &QComboBox::currentIndexChanged, this, [this](int index)
-        {
-            if (index == 0) // energy
-            {
-                cbOffX->setEnabled(true);
-                cbOffY->setEnabled(true);
-                cbOffZ->setEnabled(true);
-            }
-            else // dose
-            {
-                cbOffX->setChecked(false); cbOffX->setEnabled(false);
-                cbOffY->setChecked(false); cbOffY->setEnabled(false);
-                cbOffZ->setChecked(false); cbOffZ->setEnabled(false);
-            }
-        } );
+                {
+                    if (index == 0) // energy
+                    {
+                        cbOffX->setEnabled(true);
+                        cbOffY->setEnabled(true);
+                        cbOffZ->setEnabled(true);
+                    }
+                    else // dose
+                    {
+                        cbOffX->setChecked(false); cbOffX->setEnabled(false);
+                        cbOffY->setChecked(false); cbOffY->setEnabled(false);
+                        cbOffZ->setChecked(false); cbOffZ->setEnabled(false);
+                    }
+                } );
 
         connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
-        {
-            ledCalOriginX->setDisabled(checked);
-            ledCalStepX  ->setDisabled(checked);
-            leiCalBinsX  ->setDisabled(checked);
-            if (checked)
-            {
-                ledCalOriginX->setText("-1e+10");
-                ledCalStepX->setText("2e+10");
-                leiCalBinsX->setText("1");
-            }
-        } );
+                {
+                    ledCalOriginX->setDisabled(checked);
+                    ledCalStepX  ->setDisabled(checked);
+                    leiCalBinsX  ->setDisabled(checked);
+                    if (checked)
+                    {
+                        ledCalOriginX->setText("-1e+10");
+                        ledCalStepX->setText("2e+10");
+                        leiCalBinsX->setText("1");
+                    }
+                } );
         connect(cbOffY, &QCheckBox::toggled, this, [this](bool checked)
-        {
-            ledCalOriginY->setDisabled(checked);
-            ledCalStepY  ->setDisabled(checked);
-            leiCalBinsY  ->setDisabled(checked);
-            if (checked)
-            {
-                ledCalOriginY->setText("-1e+10");
-                ledCalStepY->setText("2e+10");
-                leiCalBinsY->setText("1");
-            }
-        } );
+                {
+                    ledCalOriginY->setDisabled(checked);
+                    ledCalStepY  ->setDisabled(checked);
+                    leiCalBinsY  ->setDisabled(checked);
+                    if (checked)
+                    {
+                        ledCalOriginY->setText("-1e+10");
+                        ledCalStepY->setText("2e+10");
+                        leiCalBinsY->setText("1");
+                    }
+                } );
         connect(cbOffZ, &QCheckBox::toggled, this, [this](bool checked)
-        {
-            ledCalOriginZ->setDisabled(checked);
-            ledCalStepZ  ->setDisabled(checked);
-            leiCalBinsZ  ->setDisabled(checked);
-            if (checked)
-            {
-                ledCalOriginZ->setText("-1e+10");
-                ledCalStepZ->setText("2e+10");
-                leiCalBinsZ->setText("1");
-            }
-        } );
+                {
+                    ledCalOriginZ->setDisabled(checked);
+                    ledCalStepZ  ->setDisabled(checked);
+                    leiCalBinsZ  ->setDisabled(checked);
+                    if (checked)
+                    {
+                        ledCalOriginZ->setText("-1e+10");
+                        ledCalStepZ->setText("2e+10");
+                        leiCalBinsZ->setText("1");
+                    }
+                } );
 
         const std::vector<AOneLineTextEdit*> ole = {ledCalOriginX, ledCalOriginY, ledCalOriginZ,
-                                                    ledCalStepX, ledCalStepY, ledCalStepZ,
-                                                    leiCalBinsX, leiCalBinsY, leiCalBinsZ,
-                                                    leiCalEventDepoBins, ledCalEventDepoFrom, ledCalEventDepoTo};
+                                                     ledCalStepX, ledCalStepY, ledCalStepZ,
+                                                     leiCalBinsX, leiCalBinsY, leiCalBinsZ,
+                                                     leiCalEventDepoBins, ledCalEventDepoFrom, ledCalEventDepoTo};
         for (AOneLineTextEdit * le : ole)
         {
             configureHighligherAndCompleter(le);
@@ -360,8 +387,6 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
         }
     }
 
-    rl->addStretch();
-
     connect(cobCalType,     &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
     connect(cbCalRandomize, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
@@ -369,15 +394,74 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     connect(cbOffY,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
     connect(cbOffZ,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
-    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frSensor](int index){frSensor->setVisible(index == 1);} );
-    connect(cobRole,        &QComboBox::currentIndexChanged, frSensor, [frCal, this](int index)
-    {
-        frCal->setVisible(index == 2);
-        if (ledCalOriginX->text().isEmpty()) updateCalorimeterGui(ACalorimeterProperties());}
-    );
+    frCal->setVisible(false);
 
-    connect(cobRole,        &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cobSensorModel, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
+    return frCal;
+}
+
+#include "aphotonfunctionalmodel.h"
+#include "afunctionalmodelwidget.h"
+QFrame * AGeoObjectDelegate::createFunctionalModelGui()
+{
+    QFrame * frFun = new QFrame();
+    {
+        vblPhFun = new QVBoxLayout(frFun); vblPhFun->setContentsMargins(0,0,0,0);
+
+            QHBoxLayout * hl = new QHBoxLayout(); hl->setContentsMargins(15,0,15,0);
+            hl->addWidget(new QLabel("Model:"));
+                lePhFunModelName = new QLineEdit(); lePhFunModelName->setReadOnly(true);
+            hl->addWidget(lePhFunModelName);
+                pbSelectPhFunModel = new QPushButton("Select model");
+                connect(pbSelectPhFunModel, &QPushButton::clicked, this, &AGeoObjectDelegate::onSelectPhFunModelClicked);
+            hl->addWidget(pbSelectPhFunModel);
+            hl->addStretch();
+
+        vblPhFun->addLayout(hl);
+
+        LocalPhFunModel = new APFM_Dummy();
+        PhFunModelWidget = AFunctionalModelWidget::factory(LocalPhFunModel, Widget);
+        vblPhFun->addWidget(PhFunModelWidget);
+    }
+
+    frFun->setVisible(false);
+
+    return frFun;
+}
+
+#include "atreedatabaseselectordialog.h"
+void AGeoObjectDelegate::onSelectPhFunModelClicked()
+{
+    ATreeDatabaseSelectorDialog dialog("Select model", Widget);
+    QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
+    if (!err.isEmpty())
+    {
+        guitools::message(err, Widget);
+        return;
+    }
+
+    int res = dialog.exec();
+    if (res == QDialog::Accepted)
+    {
+        APhotonFunctionalModel * model = APhotonFunctionalModel::factory(dialog.SelectedItem);
+        if (model) LocalPhFunModel = model;
+        else guitools::message("Model selection resulted in unknown model name");
+
+        updatePhFunModelGui();
+        onContentChanged();
+    }
+}
+
+void AGeoObjectDelegate::updatePhFunModelGui()
+{
+    lePhFunModelName->setText(LocalPhFunModel->getType());
+
+    vblPhFun->removeWidget(PhFunModelWidget);
+    delete PhFunModelWidget; PhFunModelWidget = nullptr;
+
+    PhFunModelWidget = AFunctionalModelWidget::factory(LocalPhFunModel, Widget);
+    connect(PhFunModelWidget, &AFunctionalModelWidget::modified, this, &AGeoObjectDelegate::onContentChanged);
+    //connect(PhFunModelWidget, &AFunctionalModelWidget::requestDraw, this, &APhotonTunnelWindow::requestDraw);
+    vblPhFun->insertWidget(1, PhFunModelWidget);
 }
 
 QString AGeoObjectDelegate::getName() const
@@ -386,6 +470,7 @@ QString AGeoObjectDelegate::getName() const
 }
 
 #include "ageometryhub.h"
+#include "afunctionalmodelwidget.h"
 bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false in void AGeoWidget::onConfirmPressed()
 {
     QString errorStr;
@@ -503,6 +588,23 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             }
         }
 
+        if (cobRole->currentIndex() == 5)
+        {
+            if (lePhFunModelName->text().isEmpty())
+            {
+                QMessageBox::warning(ParentWidget, "Warning", "Select default model!");
+                return false;
+            }
+
+            PhFunModelWidget->updateModel(LocalPhFunModel);
+            QString err = LocalPhFunModel->updateRuntimeProperties();
+            if (!err.isEmpty())
+            {
+                QMessageBox::warning(ParentWidget, "Warning", "Error in functional model:\n" + err);
+                return false;
+            }
+        }
+
         // ---- all checks are ok, can assign new values to the object ----
 
         obj->Name = newName;
@@ -584,7 +686,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 obj->Role = new AGeoScint();
                 break;
             case 5:
-                obj->Role = new AGeoPhotonFunctional();
+                obj->Role = new AGeoPhotonFunctional(*LocalPhFunModel); // cloned, no transfer!
                 break;
             default:;
             }
@@ -855,6 +957,7 @@ void AGeoObjectDelegate::onHelpRequested()
     guitools::message(ShapeHelp, ParentWidget);
 }
 
+#include <QJsonObject>
 void AGeoObjectDelegate::Update(const AGeoObject *obj)
 {
     //qDebug() << "update----------------" << obj->Name;
@@ -925,7 +1028,15 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
                     else
                     {
                         AGeoPhotonFunctional * phFunct = dynamic_cast<AGeoPhotonFunctional*>(obj->Role);
-                        if (phFunct) cobRole->setCurrentIndex(5);
+                        if (phFunct)
+                        {
+                            cobRole->setCurrentIndex(5);
+                            QJsonObject js;
+                            phFunct->DefaultModel->writeToJson(js);
+                            delete LocalPhFunModel; LocalPhFunModel = nullptr;
+                            LocalPhFunModel = APhotonFunctionalModel::factory(js);
+                            updatePhFunModelGui();
+                        }
                     }
                 }
             }

@@ -8,7 +8,7 @@
 #include <QLineEdit>
 #include <QDoubleValidator>
 
-AFunctionalModelWidget::AFunctionalModelWidget(APhotonFunctionalModel * model, QWidget * parent) :
+AFunctionalModelWidget::AFunctionalModelWidget(const APhotonFunctionalModel * model, QWidget * parent) :
     QFrame(parent)
 {
     MainLayout = new QVBoxLayout(this);
@@ -17,7 +17,7 @@ AFunctionalModelWidget::AFunctionalModelWidget(APhotonFunctionalModel * model, Q
     DoubleValidator = new QDoubleValidator(this);
 }
 
-AFunctionalModelWidget * AFunctionalModelWidget::factory(APhotonFunctionalModel * model, QWidget * parent)
+AFunctionalModelWidget * AFunctionalModelWidget::factory(const APhotonFunctionalModel * model, QWidget * parent)
 {
     if (!model)
     {
@@ -25,16 +25,16 @@ AFunctionalModelWidget * AFunctionalModelWidget::factory(APhotonFunctionalModel 
         return new AFunctionalModelWidget_Dummy(model, parent);
     }
 
-    APFM_Dummy * dm = dynamic_cast<APFM_Dummy*>(model);
+    const APFM_Dummy * dm = dynamic_cast<const APFM_Dummy*>(model);
     if (dm) return new AFunctionalModelWidget_Dummy(model, parent);
 
-    APFM_ThinLens * tlm = dynamic_cast<APFM_ThinLens*>(model);
+    const APFM_ThinLens * tlm = dynamic_cast<const APFM_ThinLens*>(model);
     if (tlm) return new AFunctionalModelWidget_ThinLens(tlm, parent);
 
-    APFM_OpticalFiber * ofm = dynamic_cast<APFM_OpticalFiber*>(model);
+    const APFM_OpticalFiber * ofm = dynamic_cast<const APFM_OpticalFiber*>(model);
     if (ofm) return new AFunctionalModelWidget_OpticalFiber(ofm, parent);
 
-    APFM_Filter * fm = dynamic_cast<APFM_Filter*>(model);
+    const APFM_Filter * fm = dynamic_cast<const APFM_Filter*>(model);
     if (fm) return new AFunctionalModelWidget_Filter(fm, parent);
 
     qWarning() << "Unknown photon functional model in widget factory:" << model->getType();
@@ -54,18 +54,27 @@ QString AFunctionalModelWidget::getModelDatabase()
 
 // ---
 
-AFunctionalModelWidget_Dummy::AFunctionalModelWidget_Dummy(APhotonFunctionalModel * model, QWidget * parent) :
+AFunctionalModelWidget_Dummy::AFunctionalModelWidget_Dummy(const APhotonFunctionalModel * model, QWidget * parent) :
     AFunctionalModelWidget(model, parent) {}
 
 // ---
 
 #include <QPushButton>
-AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(APFM_ThinLens * model, QWidget * parent) :
+AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(const APFM_ThinLens * model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
     QHBoxLayout * lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
 
-    lay->addWidget( new QLabel(QString("Focal length vs %0:").arg(QChar(0x3bb))) );
+    lay->addWidget( new QLabel(QString("Focal length for not %0-resolved sim:").arg(QChar(0x3bb))) );
+    leFocalLength = new QLineEdit(); leFocalLength->setValidator(DoubleValidator);
+    connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    lay->addWidget(leFocalLength);
+    lay->addWidget(new QLabel("mm"));
+    lay->addStretch(2);
+    MainLayout->addLayout(lay);
+
+    lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
+    lay->addWidget( new QLabel(QString("    Focal length vs %0:").arg(QChar(0x3bb))) );
 
     pbShow = new QPushButton("Show", this);
     connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onShowClicked);
@@ -78,20 +87,7 @@ AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(APFM_ThinLens *
     pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
     connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_ThinLens::onDeleteClicked);
     lay->addWidget(pbDelete);
-
-    lay->addStretch(2);
-
-    lay->addWidget( new QLabel(QString("For not %0-resolved sim:").arg(QChar(0x3bb))) );
-
-    leFocalLength = new QLineEdit(); leFocalLength->setValidator(DoubleValidator);
-    connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
-    lay->addWidget(leFocalLength);
-
-    lay->addWidget(new QLabel("mm"));
-
     lay->addStretch(1);
-
-
     MainLayout->addLayout(lay);
 
     leFocalLength->setText(QString::number(model->FocalLength_mm));
@@ -203,7 +199,7 @@ QString AFunctionalModelWidget_ThinLens::updateModel(APhotonFunctionalModel * mo
 
 // ---
 
-AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(APFM_OpticalFiber * model, QWidget * parent) :
+AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const APFM_OpticalFiber *model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
 
@@ -218,7 +214,7 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
 
 #include "QCheckBox"
 
-AFunctionalModelWidget_Filter::AFunctionalModelWidget_Filter(APFM_Filter * model, QWidget * parent) :
+AFunctionalModelWidget_Filter::AFunctionalModelWidget_Filter(const APFM_Filter *model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
     QHBoxLayout * lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
@@ -227,33 +223,39 @@ AFunctionalModelWidget_Filter::AFunctionalModelWidget_Filter(APFM_Filter * model
     connect(cbGray, &QCheckBox::toggled, this, &AFunctionalModelWidget_Filter::onGrayToggled);
     lay->addWidget(cbGray);
 
-    lTrVsLambda = new QLabel(QString("Transmission vs %0:").arg(QChar(0x3bb)));
-    lay->addWidget(lTrVsLambda);
-
-    pbShow = new QPushButton("Show", this);
-    connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onShowClicked);
-    pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_Filter::onShowRightClicked);
-    lay->addWidget(pbShow);
-    pbLoad = new QPushButton("Load", this);
-    connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onLoadClicked);
-    lay->addWidget(pbLoad);
-    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
-    connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onDeleteClicked);
-    lay->addWidget(pbDelete);
-
-    lGray = new QLabel("Transmission:");
-    lay->addWidget(lGray);
-    lNonRes = new QLabel(QString("For not %0-resolved sim:").arg(QChar(0x3bb)));
+    lay->addWidget( new QLabel("Transmission"));
+    lNonRes = new QLabel(QString("for not %0-resolved sim").arg(QChar(0x3bb)));
     lay->addWidget(lNonRes);
+    lay->addWidget(new QLabel(":"));
 
     leTransmission = new QLineEdit(); leTransmission->setValidator(DoubleValidator);
     connect(leTransmission, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leTransmission);
 
     lay->addStretch(1);
-
     MainLayout->addLayout(lay);
+
+    frTrVsLambda = new QFrame();
+    {
+        lay = new QHBoxLayout(frTrVsLambda); lay->setContentsMargins(3,0,3,0);
+
+        lTrVsLambda = new QLabel(QString("     Transmission vs %0:").arg(QChar(0x3bb)));
+        lay->addWidget(lTrVsLambda);
+
+        pbShow = new QPushButton("Show", this);
+        connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onShowClicked);
+        pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_Filter::onShowRightClicked);
+        lay->addWidget(pbShow);
+        pbLoad = new QPushButton("Load", this);
+        connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onLoadClicked);
+        lay->addWidget(pbLoad);
+        pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
+        connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_Filter::onDeleteClicked);
+        lay->addWidget(pbDelete);
+        lay->addStretch(1);
+    }
+    MainLayout->addWidget(frTrVsLambda);
 
     leTransmission->setText(QString::number(model->GrayTransmission));
     cbGray->setChecked(model->Gray);
@@ -283,13 +285,9 @@ void AFunctionalModelWidget_Filter::updateButtons()
 
 void AFunctionalModelWidget_Filter::onGrayToggled(bool flag)
 {
-    lTrVsLambda->setVisible(!flag);
-    pbShow->setVisible(!flag);
-    pbLoad->setVisible(!flag);
-    pbDelete->setVisible(!flag);
-
-    lGray->setVisible(flag);
     lNonRes->setVisible(!flag);
+    frTrVsLambda->setVisible(!flag);
+    emit modified();
 }
 
 void AFunctionalModelWidget_Filter::onLoadClicked()

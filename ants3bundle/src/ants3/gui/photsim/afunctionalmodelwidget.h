@@ -19,12 +19,12 @@ class AFunctionalModelWidget : public QFrame
     Q_OBJECT
 
 public:
-    AFunctionalModelWidget(APhotonFunctionalModel * model, QWidget * parent = nullptr);
+    AFunctionalModelWidget(const APhotonFunctionalModel * model, QWidget * parent = nullptr);
     virtual ~AFunctionalModelWidget(){}
 
     virtual QString updateModel(APhotonFunctionalModel * model) = 0; // returns error if not possible
 
-    static AFunctionalModelWidget * factory(APhotonFunctionalModel * model, QWidget * parent); // register all NEW MODELS here!
+    static AFunctionalModelWidget * factory(const APhotonFunctionalModel *model, QWidget * parent); // register all NEW MODELS here!
     static QString getModelDatabase();                                                         // register all NEW MODELS here!
 
 protected:
@@ -39,7 +39,7 @@ signals:
 class AFunctionalModelWidget_Dummy : public AFunctionalModelWidget
 {
 public:
-    AFunctionalModelWidget_Dummy(APhotonFunctionalModel * model, QWidget * parent = nullptr);
+    AFunctionalModelWidget_Dummy(const APhotonFunctionalModel * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * /*model*/) override {return "";}
 };
 
@@ -48,7 +48,7 @@ class AFunctionalModelWidget_ThinLens : public AFunctionalModelWidget
     Q_OBJECT
 
 public:
-    AFunctionalModelWidget_ThinLens(APFM_ThinLens * model, QWidget * parent = nullptr);
+    AFunctionalModelWidget_ThinLens(const APFM_ThinLens * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * model) override;
 
 protected:
@@ -73,7 +73,7 @@ private slots:
 class AFunctionalModelWidget_OpticalFiber : public AFunctionalModelWidget
 {
 public:
-    AFunctionalModelWidget_OpticalFiber(APFM_OpticalFiber * model, QWidget * parent = nullptr);
+    AFunctionalModelWidget_OpticalFiber(const APFM_OpticalFiber * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * model) override;
 
 protected:
@@ -85,7 +85,7 @@ class AFunctionalModelWidget_Filter : public AFunctionalModelWidget
     Q_OBJECT
 
 public:
-    AFunctionalModelWidget_Filter(APFM_Filter * model, QWidget * parent = nullptr);
+    AFunctionalModelWidget_Filter(const APFM_Filter * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * model) override;
 
 protected:
@@ -97,8 +97,8 @@ protected:
     QPushButton * pbDelete = nullptr;
 
     QLabel * lTrVsLambda = nullptr;
-    QLabel * lGray = nullptr;
     QLabel * lNonRes = nullptr;
+    QFrame * frTrVsLambda = nullptr;
 
     std::vector<std::pair<double,double>> Spectrum;
 

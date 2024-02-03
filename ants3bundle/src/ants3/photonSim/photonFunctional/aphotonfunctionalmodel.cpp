@@ -106,6 +106,8 @@ QString APFM_ThinLens::updateRuntimeProperties()
 {
     _FocalLengthBinned.clear();
 
+    if (FocalLength_mm == 0) return "Focal length cannot be zero!";
+
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     if (WaveSet.Enabled)
     {
@@ -115,7 +117,7 @@ QString APFM_ThinLens::updateRuntimeProperties()
 
         for (size_t i = 0; i < _FocalLengthBinned.size(); i++)
         {
-            if (_FocalLengthBinned[i] < 1e-60) return "Focal length values should be positive!";
+            if (_FocalLengthBinned[i] == 0) return "Focal length cannot be zero! Check wavelength-resolved data.";
         }
     }
     return "";

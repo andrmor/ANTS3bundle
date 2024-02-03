@@ -84,12 +84,20 @@ public:
     QString getType() const override {return QStringLiteral("Scint");}
 };
 
+class APhotonFunctionalModel;
 class AGeoPhotonFunctional : public AGeoSpecial
 {
 public:
-    AGeoPhotonFunctional(){}
+    AGeoPhotonFunctional();
+    AGeoPhotonFunctional(const APhotonFunctionalModel & model);
 
     QString getType() const override {return QStringLiteral("PhotonFunctional");}
+
+    APhotonFunctionalModel * DefaultModel = nullptr;
+
+    void readFromJson(const QJsonObject & json) override;
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
 };
 
 #endif // AGEOSPECIAL_H

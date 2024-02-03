@@ -175,11 +175,8 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 }
 
 #include "atreedatabaseselectordialog.h"
-
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
-    //LastModel = new APFM_OpticalFiber();
-    //LastModel = new APFM_ThinLens();
     ATreeDatabaseSelectorDialog dialog("Select model", this);
     QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
     if (!err.isEmpty())
