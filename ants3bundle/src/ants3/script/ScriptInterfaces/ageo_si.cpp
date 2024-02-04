@@ -1694,7 +1694,7 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
     qDebug() << configObject << js;
     model->readSettingsFromJson(js);
 
-    QString err = APhotonFunctionalHub::getInstance().addOrModifyRecord(index, linkedIndex, model);
+    QString err = APhotonFunctionalHub::getInstance().modifyOrAddRecord(index, linkedIndex, model);
     if (!err.isEmpty()) abort(err);
 }
 

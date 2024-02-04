@@ -42,7 +42,7 @@ APhotonTunnelWindow::~APhotonTunnelWindow()
     delete ui;
 }
 
-void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid)
+void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid, bool bold)
 {
     QTableWidgetItem * item = ui->tabwConnections->item(iRow, iColumn);
     if (!item)
@@ -53,6 +53,7 @@ void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, b
 
     item->setForeground(markNotValid ? Qt::red : DefaultBrush);
     item->setTextAlignment(Qt::AlignCenter);
+    QFont font = item->font(); font.setBold(bold); item->setFont(font);
     item->setText(txt);
 }
 
@@ -77,10 +78,10 @@ void APhotonTunnelWindow::updateGui()
         }
         bool isLink = Model->isLink();
 
-        fillCell(iRow, 0, QString::number(iDR), isLink);
-        fillCell(iRow, 1, (isLink ? "?" : "-"), isLink);
-        fillCell(iRow, 2, Model->getType(), isLink);
-        fillCell(iRow, 3, Model->printSettingsToString(), isLink);
+        fillCell(iRow, 0, QString::number(iDR),           isLink, false);
+        fillCell(iRow, 1, (isLink ? "?" : "-"),           isLink, false);
+        fillCell(iRow, 2, Model->getType(),               isLink, false);
+        fillCell(iRow, 3, Model->printSettingsToString(), isLink, false);
 
         iRow++;
     }
@@ -101,15 +102,19 @@ void APhotonTunnelWindow::updateGui()
         }
         else thisRow = index;
 
-        fillCell(thisRow, 0, QString::number(rec.Index), highlight);
-        fillCell(thisRow, 1, (isLink ? QString::number(rec.LinkedTo) : "-"), highlight);
-        fillCell(thisRow, 2, rec.Model->getType(), highlight);
-        fillCell(thisRow, 3, rec.Model->printSettingsToString(), highlight);
+        fillCell(thisRow, 0, QString::number(rec.Index),                     highlight, true);
+        fillCell(thisRow, 1, (isLink ? QString::number(rec.LinkedTo) : "-"), highlight, true);
+        fillCell(thisRow, 2, rec.Model->getType()+ " (*)",                           highlight, true);
+        fillCell(thisRow, 3, rec.Model->printSettingsToString(),             highlight, true);
     }
 
     ui->tabwConnections->setRowCount(iRow);
 
     ui->tabwConnections->sortByColumn(SortByColumnIndex, (AscendingSortOrder ? Qt::AscendingOrder : Qt::DescendingOrder));
+
+    ui->frConnectionDelegate->setEnabled(false);
+    delete LocalModel; LocalModel = new APFM_Dummy();
+    onModelChanged();
 }
 
 void APhotonTunnelWindow::onHeaderClicked(int index)
@@ -123,7 +128,7 @@ void APhotonTunnelWindow::onHeaderClicked(int index)
 void APhotonTunnelWindow::onModelChanged()
 {
     QString type;
-    if (LastModel) type = LastModel->getType();
+    if (LocalModel) type = LocalModel->getType();
     ui->leModelTypeName->setText(type);
 
     QVBoxLayout * lay = dynamic_cast<QVBoxLayout*>(ui->frConnectionDelegate->layout());
@@ -132,13 +137,13 @@ void APhotonTunnelWindow::onModelChanged()
         lay->removeWidget(LastWidget);
         delete LastWidget; LastWidget = nullptr;
 
-        LastWidget = AFunctionalModelWidget::factory(LastModel, this);
+        LastWidget = AFunctionalModelWidget::factory(LocalModel, this);
         connect(LastWidget, &AFunctionalModelWidget::modified, this, [this](){setModifiedStatus(true);});
         connect(LastWidget, &AFunctionalModelWidget::requestDraw, this, &APhotonTunnelWindow::requestDraw);
         lay->insertWidget(2, LastWidget);
     }
 
-    bool bLink = LastModel && LastModel->isLink();
+    bool bLink = LocalModel && LocalModel->isLink();
     ui->labLinked->setVisible(bLink);
     ui->sbTo->setVisible(bLink);
     ui->cbShowConnection->setEnabled(bLink);
@@ -146,13 +151,13 @@ void APhotonTunnelWindow::onModelChanged()
 
 void APhotonTunnelWindow::on_pbAddModify_clicked()
 {
-    if (!LastModel || !LastWidget)
+    if (!LocalModel || !LastWidget)
     {
         guitools::message("Select a model first!", this);
         return;
     }
 
-    QString error = LastWidget->updateModel(LastModel);
+    QString error = LastWidget->updateModel(LocalModel);
     if (!error.isEmpty())
     {
         guitools::message(error, this);
@@ -161,9 +166,9 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
 
     int from  = ui->sbFrom->value();
     int to    = ui->sbTo->value();
-    if (!LastModel->isLink()) to = from;
+    if (!LocalModel->isLink()) to = from;
 
-    QString err = PhFunHub.addOrModifyRecord(from, to, LastModel);
+    QString err = PhFunHub.modifyOrAddRecord(from, to, APhotonFunctionalModel::clone(LocalModel));
     if (err.isEmpty())
     {
         updateGui();
@@ -172,12 +177,15 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
     else guitools::message(err, this);
 }
 
-void APhotonTunnelWindow::on_pbRemove_clicked()
+void APhotonTunnelWindow::on_pbResetToDefault_clicked()
 {
-    int from = ui->sbFrom->value();
-    int to = ui->sbTo->value();
-    if (!ui->sbTo->isVisible()) to = from;
-    PhFunHub.removeRecord(from, to);
+    bool ok = guitools::confirm("Reset this record to default?", this);
+    if (!ok) return;
+
+    int index = ui->sbFrom->value();
+    //int to = ui->sbTo->value();
+    //if (!ui->sbTo->isVisible()) to = from;
+    PhFunHub.removeRecord(index);
     updateGui();
     setModifiedStatus(false);
 }
@@ -187,11 +195,17 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
     int from = ui->tabwConnections->item(row, 0)->text().toInt();
     ui->sbFrom->setValue(from);
 
-    LastModel = PhFunHub.findModel(from);
+    LocalModel = APhotonFunctionalModel::clone( PhFunHub.findModel(from) );
+    if (!LocalModel)
+    {
+        ui->frConnectionDelegate->setEnabled(false);
+        return;
+    }
+
     onModelChanged();
 
     int to;
-    if (LastModel && LastModel->isLink())
+    if (LocalModel && LocalModel->isLink())
     {
         to = ui->tabwConnections->item(row, 1)->text().toInt();
         ui->sbTo->setValue(to);
@@ -199,17 +213,18 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 
     if (ui->cbShowConnection->isChecked())
     {
-        if (LastModel && LastModel->isLink()) emit requestShowConnection(from, to);
+        if (LocalModel && LocalModel->isLink()) emit requestShowConnection(from, to);
         else emit requestShowConnection(-1, -1); // clear tracks
     }
 
     setModifiedStatus(false);
+    ui->frConnectionDelegate->setEnabled(true);
 }
 
+/*
 #include "atreedatabaseselectordialog.h"
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
-    /*
     ATreeDatabaseSelectorDialog dialog("Select model", this);
     QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
     if (!err.isEmpty())
@@ -227,8 +242,8 @@ void APhotonTunnelWindow::on_pbSelectModel_clicked()
         onModelChanged();
         setModifiedStatus(true);
     }
-    */
 }
+*/
 
 void APhotonTunnelWindow::on_actionShow_all_linked_pairs_triggered()
 {
@@ -239,17 +254,9 @@ void APhotonTunnelWindow::on_cbShowConnection_clicked(bool checked)
 {
     if (checked)
     {
-        if (LastModel && LastModel->isLink()) emit requestShowConnection(ui->sbFrom->value(), ui->sbTo->value());
+        if (LocalModel && LocalModel->isLink()) emit requestShowConnection(ui->sbFrom->value(), ui->sbTo->value());
         else requestShowConnection(-1, -1); // to clear tracks
     }
-}
-
-void APhotonTunnelWindow::on_pbCheck_clicked()
-{
-    QString error = PhFunHub.checkRecordsReadyForRun();
-    QString txt = "No errors were detected";
-    if (!error.isEmpty()) txt = "Error detected!\n" + error;
-    guitools::message(txt, this);
 }
 
 void APhotonTunnelWindow::setModifiedStatus(bool flag)
@@ -268,5 +275,33 @@ void APhotonTunnelWindow::on_sbFrom_textChanged(const QString &)
 void APhotonTunnelWindow::on_leModelTypeName_textChanged(const QString &)
 {
     setModifiedStatus(true);
+}
+
+void APhotonTunnelWindow::on_actionReset_all_to_default_triggered()
+{
+    PhFunHub.clearAllRecords();
+    updateGui();
+}
+
+void APhotonTunnelWindow::on_actionRemove_records_with_invalid_index_triggered()
+{
+    const size_t numDefault = GeoHub.PhotonFunctionals.size();
+
+    auto it = PhFunHub.OverritenRecords.begin();
+    while (it != PhFunHub.OverritenRecords.end())
+    {
+        if (it->Index >= numDefault) PhFunHub.OverritenRecords.erase(it);
+        else ++it;
+    }
+
+    updateGui();
+}
+
+void APhotonTunnelWindow::on_actionCheck_all_records_triggered()
+{
+    QString error = PhFunHub.checkRecordsReadyForRun();
+    QString txt = "No errors were detected";
+    if (!error.isEmpty()) txt = "Error detected!\n" + error;
+    guitools::message(txt, this);
 }
 

@@ -44,22 +44,21 @@ public:
     void writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
-    void clearAllRecords() {OverritenRecords.clear();}
+    void clearAllRecords();
 
     bool isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const;
 
-    //APhotonFunctionalModel * findModel(int trigger, int target); // returns nullptr if not found
-    APhotonFunctionalModel * findModel(int trigger); // returns nullptr if not found
+    APhotonFunctionalModel * findModel(int trigger);          // returns nullptr if not found
     APhotonFunctionalRecord * findOverritenRecord(int index); // returns nullptr if not found
-    QString addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model);
-    void removeRecord(int trigger, int target);
+    QString modifyOrAddRecord(int index, int linkedTo, APhotonFunctionalModel * model); // transfers model! make clone if need to keep it!
+    void removeRecord(int index); // !!!*** delete model?
 
     QString checkRecordsReadyForRun(); // returns error string
     bool updateRuntimeProperties(); // !!!***  // generate AErrorHub error if there are problems
 
     std::vector<APhotonFunctionalRecord> OverritenRecords;
 
-    std::vector<ATunnelRuntimeData> RuntimeData;
+    std::vector<ATunnelRuntimeData> RuntimeData; // does not own the models: do not delete!
 };
 
 #endif // APHOTONFUNCTIONALHUB_H

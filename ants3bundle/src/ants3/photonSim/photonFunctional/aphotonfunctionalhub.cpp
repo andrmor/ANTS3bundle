@@ -58,6 +58,17 @@ QString APhotonFunctionalHub::readFromJson(const QJsonObject & json)
     return "";
 }
 
+void APhotonFunctionalHub::clearAllRecords()
+{
+    for (APhotonFunctionalRecord & rec : OverritenRecords)
+    {
+        delete rec.Model;
+        rec.Model = nullptr;
+    }
+
+    OverritenRecords.clear();
+}
+
 #include "ageoobject.h"
 bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const
 {
@@ -138,12 +149,18 @@ APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target
 
 APhotonFunctionalModel * APhotonFunctionalHub::findModel(int index)
 {
+    if (index < 0) return nullptr;
+
     for (APhotonFunctionalRecord & rec : OverritenRecords)
     {
         if (rec.Index != index) continue;
         return rec.Model;
     }
-    return nullptr;
+
+    AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    if (index >= GeoHub.PhotonFunctionals.size()) return nullptr;
+
+    return std::get<0>(GeoHub.PhotonFunctionals[index])->getDefaultPhotonFunctionalModel();
 }
 
 APhotonFunctionalRecord * APhotonFunctionalHub::findOverritenRecord(int index)
@@ -156,27 +173,26 @@ APhotonFunctionalRecord * APhotonFunctionalHub::findOverritenRecord(int index)
     return nullptr;
 }
 
-QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model)
+QString APhotonFunctionalHub::modifyOrAddRecord(int index, int linkedTo, APhotonFunctionalModel * model)
 {
     for (APhotonFunctionalRecord & rec : OverritenRecords)
     {
-        if (rec.LinkedTo != target) continue;
+        if (rec.Index != index) continue;
 
-        rec.Index  = trigger;
+        rec.LinkedTo = linkedTo;
         rec.Model    = model;
         return "";
     }
 
-    OverritenRecords.push_back({trigger, target, model});
+    OverritenRecords.push_back({index, linkedTo, model});
     return "";
 }
 
-void APhotonFunctionalHub::removeRecord(int trigger, int target)
+void APhotonFunctionalHub::removeRecord(int index)
 {
     for (auto it = OverritenRecords.begin(); it < OverritenRecords.end(); ++it)
     {
-        if (it->Index != trigger) continue;
-        if (it->LinkedTo  != target)   continue;
+        if (it->Index != index) continue;
 
         OverritenRecords.erase(it);
         return;

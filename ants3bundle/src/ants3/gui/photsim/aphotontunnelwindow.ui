@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>574</width>
+    <width>554</width>
     <height>576</height>
    </rect>
   </property>
@@ -104,6 +104,18 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>3</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <property name="bottomMargin">
+        <number>3</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
@@ -124,9 +136,29 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Model:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leModelTypeName">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="labLinked">
            <property name="text">
-            <string>Linked to index:</string>
+            <string>Linked to:</string>
            </property>
           </widget>
          </item>
@@ -163,50 +195,6 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Model:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="leModelTypeName">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pbSelectModel">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Choose model</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
         <widget class="Line" name="line">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -221,14 +209,14 @@
          <item>
           <widget class="QPushButton" name="pbAddModify">
            <property name="text">
-            <string>Add / Modify</string>
+            <string>Modify</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pbRemove">
+          <widget class="QPushButton" name="pbResetToDefault">
            <property name="text">
-            <string>Remove</string>
+            <string>Reset to default</string>
            </property>
           </widget>
          </item>
@@ -237,20 +225,6 @@
       </layout>
      </widget>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="pbCheck">
-        <property name="text">
-         <string>Check for errors</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -258,7 +232,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>574</width>
+     <width>554</width>
      <height>21</height>
     </rect>
    </property>
@@ -268,11 +242,41 @@
     </property>
     <addaction name="actionShow_all_linked_pairs"/>
    </widget>
+   <widget class="QMenu" name="menuOperations">
+    <property name="title">
+     <string>Operations</string>
+    </property>
+    <addaction name="actionReset_all_to_default"/>
+    <addaction name="actionRemove_records_with_invalid_index"/>
+   </widget>
+   <widget class="QMenu" name="menuCheck">
+    <property name="title">
+     <string>Check</string>
+    </property>
+    <addaction name="actionCheck_all_records"/>
+   </widget>
    <addaction name="menuShow"/>
+   <addaction name="menuOperations"/>
+   <addaction name="menuCheck"/>
   </widget>
   <action name="actionShow_all_linked_pairs">
    <property name="text">
     <string>Show all linked pairs</string>
+   </property>
+  </action>
+  <action name="actionReset_all_to_default">
+   <property name="text">
+    <string>Reset all to default</string>
+   </property>
+  </action>
+  <action name="actionRemove_records_with_invalid_index">
+   <property name="text">
+    <string>Remove records with invalid index</string>
+   </property>
+  </action>
+  <action name="actionCheck_all_records">
+   <property name="text">
+    <string>Check all records</string>
    </property>
   </action>
  </widget>

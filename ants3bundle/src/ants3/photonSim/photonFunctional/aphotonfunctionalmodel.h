@@ -42,6 +42,7 @@ public:
 
     static APhotonFunctionalModel * factory(const QString & type);
     static APhotonFunctionalModel * factory(QJsonObject & json);
+    static APhotonFunctionalModel * clone(const APhotonFunctionalModel * other);
 };
 
 class APFM_Dummy : public APhotonFunctionalModel

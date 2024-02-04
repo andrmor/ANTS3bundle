@@ -27,10 +27,10 @@ private slots:
     void setModifiedStatus(bool flag);
 
     void on_pbAddModify_clicked();
-    void on_pbRemove_clicked();
+    void on_pbResetToDefault_clicked();
     void on_tabwConnections_cellClicked(int row, int column);
 
-    void on_pbSelectModel_clicked();
+    //void on_pbSelectModel_clicked();
 
     void onHeaderClicked(int index);
 
@@ -38,13 +38,17 @@ private slots:
 
     void on_cbShowConnection_clicked(bool checked);
 
-    void on_pbCheck_clicked();
-
     void on_sbTo_textChanged(const QString &arg1);
 
     void on_sbFrom_textChanged(const QString &arg1);
 
     void on_leModelTypeName_textChanged(const QString &arg1);
+
+    void on_actionReset_all_to_default_triggered();
+
+    void on_actionRemove_records_with_invalid_index_triggered();
+
+    void on_actionCheck_all_records_triggered();
 
 private:
     APhotonFunctionalHub & PhFunHub;
@@ -52,7 +56,7 @@ private:
 
     Ui::APhotonTunnelWindow * ui = nullptr;
 
-    APhotonFunctionalModel * LastModel = nullptr;
+    APhotonFunctionalModel * LocalModel = nullptr; // always clone to/fromn this pointer!
     AFunctionalModelWidget * LastWidget = nullptr;
 
     QBrush DefaultBrush;
@@ -62,7 +66,7 @@ private:
 
     QPixmap RedCircle;
 
-    void fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid);
+    void fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid, bool bold);
     void onModelChanged();
 
 signals:

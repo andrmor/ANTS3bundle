@@ -22,6 +22,15 @@ APhotonFunctionalModel * APhotonFunctionalModel::factory(QJsonObject & json)
     return model;
 }
 
+APhotonFunctionalModel * APhotonFunctionalModel::clone(const APhotonFunctionalModel * other)
+{
+    if (!other) return nullptr;
+
+    QJsonObject js;
+    other->writeToJson(js);
+    return APhotonFunctionalModel::factory(js);
+}
+
 void APhotonFunctionalModel::writeToJson(QJsonObject & json) const
 {
     json["Type"] = getType();
