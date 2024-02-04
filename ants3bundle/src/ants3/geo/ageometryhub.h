@@ -136,7 +136,7 @@ private:
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
-    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;  // last is global position
 };
 
 #endif // AGEOMETRYHUB_H

@@ -641,6 +641,15 @@ const ACalorimeterProperties * AGeoObject::getCalorimeterProperties() const
     return & gc->Properties;
 }
 
+#include "aphotonfunctionalmodel.h"
+APhotonFunctionalModel * AGeoObject::getDefaultPhotonFunctionalModel()
+{
+    if (!Role) return nullptr;
+    AGeoPhotonFunctional * pf = dynamic_cast<AGeoPhotonFunctional*>(Role);
+    if (!pf) return nullptr;
+    return pf->DefaultModel;
+}
+
 bool AGeoObject::isStackMember() const
 {
     if (!Container || !Container->Type) return false;

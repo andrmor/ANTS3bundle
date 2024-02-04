@@ -32,6 +32,9 @@ APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     //onModelChanged();
 
     setModifiedStatus(false);
+
+    ASortableTableWidgetItem item;
+    DefaultBrush = item.foreground();
 }
 
 APhotonTunnelWindow::~APhotonTunnelWindow()
@@ -48,34 +51,63 @@ void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, b
         ui->tabwConnections->setItem(iRow, iColumn, item);
     }
 
-    if (markNotValid) item->setForeground(Qt::red);
+    item->setForeground(markNotValid ? Qt::red : DefaultBrush);
     item->setTextAlignment(Qt::AlignCenter);
     item->setText(txt);
 }
 
+#include "ageoobject.h"
 void APhotonTunnelWindow::updateGui()
 {
     ui->tabwConnections->clearContents();
 
-    int numRecords = PhFunHub.FunctionalRecords.size();
-    ui->tabwConnections->setRowCount(numRecords);
+    const size_t numDefault = GeoHub.PhotonFunctionals.size();
+    ui->tabwConnections->setRowCount(numDefault + PhFunHub.OverritenRecords.size());
 
     int iRow = 0;
-    for (const APhotonFunctionalRecord & rec : PhFunHub.FunctionalRecords)
+
+    // filling default
+    for (size_t iDR = 0; iDR < numDefault; iDR++)
     {
+        APhotonFunctionalModel * Model = std::get<0>(GeoHub.PhotonFunctionals[iDR])->getDefaultPhotonFunctionalModel();
+        if (!Model)
+        {
+            qWarning() << "Something went wrong: model is nullptr";
+            continue;
+        }
+        bool isLink = Model->isLink();
+
+        fillCell(iRow, 0, QString::number(iDR), isLink);
+        fillCell(iRow, 1, (isLink ? "?" : "-"), isLink);
+        fillCell(iRow, 2, Model->getType(), isLink);
+        fillCell(iRow, 3, Model->printSettingsToString(), isLink);
+
+        iRow++;
+    }
+
+    for (const APhotonFunctionalRecord & rec : PhFunHub.OverritenRecords)
+    {
+        int index = rec.Index;
         APhotonFunctionalModel * Model = rec.Model;
         bool isLink = Model->isLink();
         QString error;
         bool highlight = !PhFunHub.isValidRecord(rec, error);
 
-        fillCell(iRow, 0, QString::number(rec.Index), highlight);
-        fillCell(iRow, 1, (isLink ? QString::number(rec.LinkedTo) : "-"), highlight);
-        fillCell(iRow, 2, rec.Model->getType(), highlight);
-        //qDebug() << rec.Model->printSettingsToString();
-        fillCell(iRow, 3, rec.Model->printSettingsToString(), highlight);
+        int thisRow;
+        if (index >= numDefault)
+        {
+            thisRow = iRow;
+            iRow++;
+        }
+        else thisRow = index;
 
-        iRow++;
+        fillCell(thisRow, 0, QString::number(rec.Index), highlight);
+        fillCell(thisRow, 1, (isLink ? QString::number(rec.LinkedTo) : "-"), highlight);
+        fillCell(thisRow, 2, rec.Model->getType(), highlight);
+        fillCell(thisRow, 3, rec.Model->printSettingsToString(), highlight);
     }
+
+    ui->tabwConnections->setRowCount(iRow);
 
     ui->tabwConnections->sortByColumn(SortByColumnIndex, (AscendingSortOrder ? Qt::AscendingOrder : Qt::DescendingOrder));
 }
@@ -177,6 +209,7 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 #include "atreedatabaseselectordialog.h"
 void APhotonTunnelWindow::on_pbSelectModel_clicked()
 {
+    /*
     ATreeDatabaseSelectorDialog dialog("Select model", this);
     QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
     if (!err.isEmpty())
@@ -194,6 +227,7 @@ void APhotonTunnelWindow::on_pbSelectModel_clicked()
         onModelChanged();
         setModifiedStatus(true);
     }
+    */
 }
 
 void APhotonTunnelWindow::on_actionShow_all_linked_pairs_triggered()

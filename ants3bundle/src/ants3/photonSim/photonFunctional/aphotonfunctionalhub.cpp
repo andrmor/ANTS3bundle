@@ -21,16 +21,15 @@ void APhotonFunctionalHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject js;
 
-        // Records
         {
             QJsonArray ar;
-            for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+            for (const APhotonFunctionalRecord & rec : OverritenRecords)
             {
                 QJsonObject jse;
                     rec.writeToJson(jse);
                 ar.push_back(jse);
             }
-            js["Records"] = ar;
+            js["OverritenRecords"] = ar;
         }
 
     json["PhotonFunctional"] = js;
@@ -44,22 +43,22 @@ QString APhotonFunctionalHub::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "PhotonFunctional", js);
     if (!ok) return ""; // cannot enforce, some old configs do not have this field
 
-    // Records
     {
         QJsonArray ar;
-        jstools::parseJson(js, "Records", ar);
+        jstools::parseJson(js, "OverritenRecords", ar);
         for (int i = 0; i < ar.size(); i++)
         {
             QJsonObject jse = ar[i].toObject();
             APhotonFunctionalRecord rec;
                 rec.readFromJson(jse);
-            FunctionalRecords.push_back(rec);
+            OverritenRecords.push_back(rec);
         }
     }
 
     return "";
 }
 
+#include "ageoobject.h"
 bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QString & error) const
 {
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
@@ -81,6 +80,21 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
         return false;
     }
 
+    const APhotonFunctionalModel * defaultModel = std::get<0>(GeoHub.PhotonFunctionals[rec.Index])->getDefaultPhotonFunctionalModel();
+    if (!defaultModel)
+    {
+        error = "Not found default model!";
+        return false;
+    }
+    const QString defaultModelType = defaultModel->getType();
+    if (rec.Model->getType() != defaultModelType)
+    {
+        error = "Not matching model type: " + rec.Model->getType() + " overrides " + defaultModelType;
+        return false;
+    }
+
+    // !!!*** clone model, run updateRuntimeProperties, report error if found
+
     if (rec.Model->isLink())
     {
         if (rec.LinkedTo < 0)
@@ -93,11 +107,11 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
             error = "Found out of range index of the linked object: " + QString::number(rec.LinkedTo);
             return false;
         }
-        if (rec.Index == rec.LinkedTo)
-        {
-            error = "Linked object should not have the same index: check records with index " + QString::number(rec.Index);
-            return false;
-        }
+        // if (rec.Index == rec.LinkedTo)
+        // {
+        //     error = "Linked object should not have the same index: check records with index " + QString::number(rec.Index);
+        //     return false;
+        // }
     }
 
     if (!rec.Model->isValid())
@@ -112,7 +126,7 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
 /*
 APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target)
 {
-    for (APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (APhotonFunctionalRecord & rec : OverritenRecords)
     {
         if (rec.Index != trigger) continue;
         if (rec.LinkedTo != target) continue;
@@ -124,7 +138,7 @@ APhotonFunctionalModel * APhotonFunctionalHub::findModel(int trigger, int target
 
 APhotonFunctionalModel * APhotonFunctionalHub::findModel(int index)
 {
-    for (APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (APhotonFunctionalRecord & rec : OverritenRecords)
     {
         if (rec.Index != index) continue;
         return rec.Model;
@@ -132,9 +146,19 @@ APhotonFunctionalModel * APhotonFunctionalHub::findModel(int index)
     return nullptr;
 }
 
+APhotonFunctionalRecord * APhotonFunctionalHub::findOverritenRecord(int index)
+{
+    for (APhotonFunctionalRecord & rec : OverritenRecords)
+    {
+        if (rec.Index != index) continue;
+        return &rec;
+    }
+    return nullptr;
+}
+
 QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, APhotonFunctionalModel * model)
 {
-    for (APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (APhotonFunctionalRecord & rec : OverritenRecords)
     {
         if (rec.LinkedTo != target) continue;
 
@@ -143,18 +167,18 @@ QString APhotonFunctionalHub::addOrModifyRecord(int trigger, int target, APhoton
         return "";
     }
 
-    FunctionalRecords.push_back({trigger, target, model});
+    OverritenRecords.push_back({trigger, target, model});
     return "";
 }
 
 void APhotonFunctionalHub::removeRecord(int trigger, int target)
 {
-    for (auto it = FunctionalRecords.begin(); it < FunctionalRecords.end(); ++it)
+    for (auto it = OverritenRecords.begin(); it < OverritenRecords.end(); ++it)
     {
         if (it->Index != trigger) continue;
         if (it->LinkedTo  != target)   continue;
 
-        FunctionalRecords.erase(it);
+        OverritenRecords.erase(it);
         return;
     }
 }
@@ -162,14 +186,16 @@ void APhotonFunctionalHub::removeRecord(int trigger, int target)
 QString APhotonFunctionalHub::checkRecordsReadyForRun()
 {
     QString error;
-    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (const APhotonFunctionalRecord & rec : OverritenRecords)
     {
         bool ok = isValidRecord(rec, error);
         if (!ok) return error;
     }
 
+    // !!!*** check there are tunnels without link (not in overriden records)
+
     QSet<int> seenIndexes;
-    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (const APhotonFunctionalRecord & rec : OverritenRecords)
     {
         int index = rec.Index;
         if (seenIndexes.contains(index)) return QString("Multiple references to index %0").arg(index);
@@ -178,13 +204,10 @@ QString APhotonFunctionalHub::checkRecordsReadyForRun()
         if (rec.Model->isLink())
         {
             int linked = rec.LinkedTo;
-            if (seenIndexes.contains(linked)) return QString("Multiple references to index %0").arg(linked);
+            if (seenIndexes.contains(linked)) return QString("Multiple references to linked index %0").arg(linked);
             seenIndexes << linked;
         }
     }
-
-    if (seenIndexes.size() != AGeometryHub::getConstInstance().PhotonFunctionals.size())
-        return "There are not assigned photon functionals";
 
     return "";
 }
@@ -196,7 +219,7 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
     QString error = checkRecordsReadyForRun();
     if (!error.isEmpty())
     {
-        AErrorHub::addQError("Error during check of the records of the functional models:\n" + error);
+        AErrorHub::addQError("Error in assigned functional models:\n" + error);
         return false;
     }
 
@@ -205,26 +228,49 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
     const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
 
     RuntimeData.resize(GeoHub.PhotonFunctionals.size());
-    for (ATunnelRuntimeData & dr : RuntimeData) dr.isTrigger = false;
+    for (ATunnelRuntimeData & dr : RuntimeData) dr.isTrigger = false; // obsolete?
 
-    for (const APhotonFunctionalRecord & rec : FunctionalRecords)
+    for (size_t iDR = 0; iDR < RuntimeData.size(); iDR++)
     {
-        ATunnelRuntimeData & rt = RuntimeData[rec.Index];
-        rt.isTrigger = true;
+        ATunnelRuntimeData & runTimeRec = RuntimeData[iDR];
 
-        rt.Model = rec.Model;
-        QString err = rt.Model->updateRuntimeProperties();
-        if (!err.isEmpty())
+        APhotonFunctionalModel * defaultModel = std::get<0>(GeoHub.PhotonFunctionals[iDR])->getDefaultPhotonFunctionalModel();
+        if (!defaultModel)
         {
-            AErrorHub::addQError(QString("Functional model for index %0 error:\n").arg(rec.Index) + err);
+            AErrorHub::addQError("Not found default functional model");
             return false;
         }
 
-        if (rec.Model->isLink())
-            rt.LinkedIndex = rec.LinkedTo;
+        APhotonFunctionalRecord * rec = findOverritenRecord(iDR);
+        if (rec)
+        {
+            runTimeRec.isTrigger = true;   // obsolete
+            runTimeRec.Model = rec->Model;
+            if (runTimeRec.Model->isLink())
+                runTimeRec.LinkedIndex = rec->LinkedTo;
+            else
+                runTimeRec.LinkedIndex = iDR;
+        }
         else
-            rt.LinkedIndex = rec.Index;
+        {
+            runTimeRec.isTrigger = true;   // obsolete
+            runTimeRec.Model = defaultModel;
+            if (runTimeRec.Model->isLink()) // paranoic
+            {
+                AErrorHub::addQError("Photon functional model requires a link, which is not defined");
+                return false;
+            }
+            runTimeRec.LinkedIndex = iDR;
+        }
+
+        QString err = runTimeRec.Model->updateRuntimeProperties();
+        if (!err.isEmpty()) // paranoic
+        {
+            AErrorHub::addQError(QString("Functional model for index %0 error:\n").arg(iDR) + err);
+            return false;
+        }
     }
+
     return true;
 }
 

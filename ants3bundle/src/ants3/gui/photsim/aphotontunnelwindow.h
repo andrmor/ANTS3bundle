@@ -55,6 +55,8 @@ private:
     APhotonFunctionalModel * LastModel = nullptr;
     AFunctionalModelWidget * LastWidget = nullptr;
 
+    QBrush DefaultBrush;
+
     int SortByColumnIndex = 0;
     bool AscendingSortOrder = true;
 
