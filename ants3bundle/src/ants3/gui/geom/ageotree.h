@@ -16,6 +16,7 @@ class AGeoDelegateWidget;
 class AGeometryHub;
 class QPoint;
 class QTreeWidgetItem;
+class TObject;
 
 class AGeoTree : public QObject
 {
@@ -112,6 +113,7 @@ signals:
   void RequestNormalDetectorDraw();
   void RequestShowMonitor(const AGeoObject * mon);
   void RequestShowPrototypeList();
+  void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
 #endif // AGEOTREE_H

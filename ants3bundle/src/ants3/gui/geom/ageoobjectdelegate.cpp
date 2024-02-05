@@ -460,7 +460,7 @@ void AGeoObjectDelegate::updatePhFunModelGui()
 
     PhFunModelWidget = AFunctionalModelWidget::factory(LocalPhFunModel, Widget);
     connect(PhFunModelWidget, &AFunctionalModelWidget::modified, this, &AGeoObjectDelegate::onContentChanged);
-    //connect(PhFunModelWidget, &AFunctionalModelWidget::requestDraw, this, &APhotonTunnelWindow::requestDraw);
+    connect(PhFunModelWidget, &AFunctionalModelWidget::requestDraw, this, &AGeoObjectDelegate::requestDraw);
     vblPhFun->insertWidget(1, PhFunModelWidget);
 }
 

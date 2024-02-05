@@ -58,6 +58,7 @@ MainWindow::MainWindow() :
 
     GraphWin = new GraphWindowClass(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
+    connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
 
     MatWin = new AMatWin(this);
     MatWin->initWindow();
