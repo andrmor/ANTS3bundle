@@ -67,16 +67,21 @@ public:
 
     QString printSettingsToString() const override;
 
-    QString updateRuntimeProperties() override {return "";}
+    QString updateRuntimeProperties() override;
 
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double Length_mm = 100.0;
+
     double MaxAngle_deg = 30.0;
+    std::vector<std::pair<double,double>> MaxAngleSpectrum_deg;
+
     // refractive index and and attenuation data are taken from the target material   --> !!!*** in check enforce same material target and trigger
 
 protected:
     // runtime
+    double _TanMaxAngle;
+    std::vector<double> _TanMaxAngleSpectrumBinned;
 };
 
 class APFM_ThinLens : public APhotonFunctionalModel
@@ -97,6 +102,8 @@ public:
     std::vector<std::pair<double,double>> FocalLengthSpectrum_mm;
 
     // consider adding loss factor to the model
+
+    // !!!*** isValid() ?
 
     // runtime
     std::vector<double> _FocalLengthBinned;

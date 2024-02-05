@@ -211,6 +211,7 @@ QString APhotonFunctionalHub::checkRecordsReadyForRun()
     // !!!*** check there are tunnels without link (not in overriden records)
 
     QSet<int> seenIndexes;
+    QSet<int> seenLinks;
     for (const APhotonFunctionalRecord & rec : OverritenRecords)
     {
         int index = rec.Index;
@@ -220,8 +221,8 @@ QString APhotonFunctionalHub::checkRecordsReadyForRun()
         if (rec.Model->isLink())
         {
             int linked = rec.LinkedTo;
-            if (seenIndexes.contains(linked)) return QString("Multiple references to linked index %0").arg(linked);
-            seenIndexes << linked;
+            if (seenLinks.contains(linked)) return QString("Multiple references to linked index %0").arg(linked);
+            seenLinks << linked;
         }
     }
 

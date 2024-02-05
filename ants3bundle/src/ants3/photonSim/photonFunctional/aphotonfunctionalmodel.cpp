@@ -1,6 +1,11 @@
 #include "aphotonfunctionalmodel.h"
 #include "ajsontools.h"
 #include "arandomhub.h"
+#include "aphotonsimhub.h"
+#include "avector.h"
+#include "ageometryhub.h"
+
+#include "TGeoNode.h"
 
 APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
 {
@@ -54,29 +59,100 @@ void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
 {
     json["Length_mm"] = Length_mm;
     json["MaxAngle_deg"] = MaxAngle_deg;
+
+    QJsonArray ar;
+    jstools::writeDPairVectorToArray(MaxAngleSpectrum_deg, ar);
+    json["MaxAngleSpectrum_deg"] = ar;
 }
 
 void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Length_mm", Length_mm);
     jstools::parseJson(json, "MaxAngle_deg", MaxAngle_deg);
+
+    MaxAngleSpectrum_deg.clear();
+    QJsonArray ar;
+    jstools::parseJson(json, "MaxAngleSpectrum_deg", ar);
+    jstools::readDPairVectorFromArray(ar, MaxAngleSpectrum_deg);
 }
 
 QString APFM_OpticalFiber::printSettingsToString() const
 {
-    return QString("L = %0 mm; MaxAngle = %1 deg").arg(Length_mm).arg(MaxAngle_deg);
+    QString txt = QString("L = %0 mm; ").arg(Length_mm);
+
+    if (MaxAngleSpectrum_deg.empty())
+        txt += QString("MaxAngle = %1 deg").arg(MaxAngle_deg);
+    else
+        txt += QString("MaxAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(MaxAngleSpectrum_deg.size()).arg(MaxAngle_deg);
+
+    return txt;
+
 }
 
-bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex)
+QString APFM_OpticalFiber::updateRuntimeProperties()
 {
-    // check angle of incidence inside acceptance come
-    //if (photonData.LocalDirection[])
+    if (MaxAngle_deg < 0) return "Max angle cannot be negative";
+    _TanMaxAngle = tan(MaxAngle_deg * 3.1415926535 / 180.0);
+
+    _TanMaxAngleSpectrumBinned.clear();
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (WaveSet.Enabled)
+    {
+        if (MaxAngleSpectrum_deg.empty())
+            _TanMaxAngleSpectrumBinned = std::vector<double>(WaveSet.countNodes(), MaxAngle_deg);
+        else
+            WaveSet.toStandardBins(MaxAngleSpectrum_deg, _TanMaxAngleSpectrumBinned);
+
+        for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
+        {
+            if (_TanMaxAngleSpectrumBinned[i] < 0) return "Max angle cannot be negative! Check wavelength-resolved data.";
+            _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
+        }
+    }
+
+    return "";
+}
+
+#include "ageoobject.h"
+#include "amaterialhub.h"
+bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, int /*linkedToIndex*/)
+{
+    // check angle inside is within max angle
+    if (photonData.LocalDirection[2] == 0) return false;
+    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / photonData.LocalDirection[2];
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    double maxTan;
+    if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
+        maxTan = _TanMaxAngle;
+    else
+        maxTan = _TanMaxAngleSpectrumBinned[photonData.WaveIndex];
+    qDebug() << "tan:" << tanAngle << " max tan:" << maxTan;
+    if (tanAngle > maxTan) return false;
 
     // check absorption
+    const AGeoObject * obj = std::get<0>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
+    const int iMat = obj->Material;
+    const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
+    const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    const double absProb = 1.0 - exp( - absCoeff * Length_mm);
+    qDebug() << "abs prob:" << absProb;
+    if (ARandomHub::getInstance().uniform() < absProb) return false;
 
-    photonData.LocalPosition[2] = 0;
+    // teleporting
+    qDebug() << photonData.LocalPosition[2];
+    if (photonData.LocalPosition[2] != 0)
+    {
+        const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
+        photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
+        photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
+    }
+    qDebug() << photonData.LocalPosition[2];
 
     // time increase
+    const double speed = mat->getSpeedOfLight(photonData.WaveIndex); // mm/ns
+    const double deltaT = Length_mm * sqrt(1.0 + tanAngle * tanAngle) / speed;
+    qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
+    photonData.Time += deltaT;
 
     return true;
 }
@@ -110,7 +186,6 @@ QString APFM_ThinLens::printSettingsToString() const
     return QString("FocalLength(%0): %1 points; for not wavelength-resolved sim: %2 mm").arg(QChar(0x3bb)).arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
 }
 
-#include "aphotonsimhub.h"
 QString APFM_ThinLens::updateRuntimeProperties()
 {
     _FocalLengthBinned.clear();
@@ -132,9 +207,6 @@ QString APFM_ThinLens::updateRuntimeProperties()
     return "";
 }
 
-#include "avector.h"
-#include "ageometryhub.h"
-#include "TGeoNode.h"
 // !!!*** == 0 to double safe version
 bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex)
 {
