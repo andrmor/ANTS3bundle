@@ -72,11 +72,29 @@ private slots:
 
 class AFunctionalModelWidget_OpticalFiber : public AFunctionalModelWidget
 {
+    Q_OBJECT
+
 public:
     AFunctionalModelWidget_OpticalFiber(const APFM_OpticalFiber * model, QWidget * parent = nullptr);
     QString updateModel(APhotonFunctionalModel * model) override;
 
 protected:
+    QLineEdit * leLength = nullptr;
+    QLineEdit * leMaxAngle = nullptr;
+
+    QPushButton * pbShow = nullptr;
+    QPushButton * pbLoad = nullptr;
+    QPushButton * pbDelete = nullptr;
+
+    std::vector<std::pair<double,double>> Spectrum;
+
+    void updateButtons();
+
+private slots:
+    void onLoadClicked();
+    void onShowClicked();
+    void onShowRightClicked(const QPoint &);
+    void onDeleteClicked();
 
 };
 

@@ -75,10 +75,8 @@ public:
 
     double MaxAngle_deg = 30.0;
     std::vector<std::pair<double,double>> MaxAngleSpectrum_deg;
-
     // refractive index and and attenuation data are taken from the target material   --> !!!*** in check enforce same material target and trigger
 
-protected:
     // runtime
     double _TanMaxAngle;
     std::vector<double> _TanMaxAngleSpectrumBinned;

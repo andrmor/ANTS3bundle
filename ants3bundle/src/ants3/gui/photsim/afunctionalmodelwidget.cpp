@@ -1,12 +1,18 @@
 #include "afunctionalmodelwidget.h"
+#include "aphotonsimhub.h"
 #include "afiletools.h"
 #include "guitools.h"
+#include "agraphbuilder.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDoubleValidator>
+#include <QPushButton>
+#include "QCheckBox"
+
+#include "TGraph.h"
 
 AFunctionalModelWidget::AFunctionalModelWidget(const APhotonFunctionalModel * model, QWidget * parent) :
     QFrame(parent)
@@ -59,7 +65,6 @@ AFunctionalModelWidget_Dummy::AFunctionalModelWidget_Dummy(const APhotonFunction
 
 // ---
 
-#include <QPushButton>
 AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(const APFM_ThinLens * model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
@@ -128,8 +133,6 @@ void AFunctionalModelWidget_ThinLens::onLoadClicked()
     }
 }
 
-#include "agraphbuilder.h"
-#include "TGraph.h"
 void AFunctionalModelWidget_ThinLens::onShowClicked()
 {
     if (Spectrum.empty()) return;
@@ -142,7 +145,6 @@ void AFunctionalModelWidget_ThinLens::onShowClicked()
     emit requestDraw(g, "APL", true, true);
 }
 
-#include "aphotonsimhub.h"
 void AFunctionalModelWidget_ThinLens::onShowRightClicked(const QPoint &)
 {
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
@@ -202,17 +204,149 @@ QString AFunctionalModelWidget_ThinLens::updateModel(APhotonFunctionalModel * mo
 AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const APFM_OpticalFiber *model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
 {
+    QHBoxLayout * lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
 
+    lay->addWidget( new QLabel(QString("Length:")) );
+    leLength = new QLineEdit(); leLength->setValidator(DoubleValidator);
+    connect(leLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    lay->addWidget(leLength);
+    lay->addWidget(new QLabel("mm"));
+    lay->addStretch();
+    MainLayout->addLayout(lay);
+
+    lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
+    lay->addWidget( new QLabel(QString("Max angle for not %0-resolved sim:").arg(QChar(0x3bb))) );
+    leMaxAngle = new QLineEdit(); leMaxAngle->setValidator(DoubleValidator);
+    connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    lay->addWidget(leMaxAngle);
+    lay->addWidget(new QLabel("mm"));
+    lay->addStretch();
+    MainLayout->addLayout(lay);
+
+    lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
+    lay->addWidget( new QLabel(QString("    Max angle vs %0:").arg(QChar(0x3bb))) );
+
+    pbShow = new QPushButton("Show", this);
+    connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onShowClicked);
+    pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_OpticalFiber::onShowRightClicked);
+    lay->addWidget(pbShow);
+    pbLoad = new QPushButton("Load", this);
+    connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onLoadClicked);
+    lay->addWidget(pbLoad);
+    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
+    connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteClicked);
+    lay->addWidget(pbDelete);
+    lay->addStretch();
+    MainLayout->addLayout(lay);
+
+    leLength->setText(QString::number(model->Length_mm));
+    leMaxAngle->setText(QString::number(model->MaxAngle_deg));
+    Spectrum = model->MaxAngleSpectrum_deg;
+    updateButtons();
 }
 
 QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel * model)
 {
+    APFM_OpticalFiber * ofm = dynamic_cast<APFM_OpticalFiber*>(model);
+    if (ofm)
+    {
+        ofm->Length_mm = leLength->text().toDouble();
+        ofm->MaxAngle_deg = leMaxAngle->text().toDouble();
+        ofm->MaxAngleSpectrum_deg = Spectrum;
+    }
     return "";
 }
 
-// ---
+void AFunctionalModelWidget_OpticalFiber::updateButtons()
+{
+    bool bHaveSpectrum = (!Spectrum.empty());
 
-#include "QCheckBox"
+    pbShow->setEnabled(bHaveSpectrum);
+    pbDelete->setEnabled(bHaveSpectrum);
+}
+
+void AFunctionalModelWidget_OpticalFiber::onLoadClicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load file with two columns: wavelength[nm] MaxAngle[deg]", "Data files (*.txt *.dat); All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> tmp;
+    QString err = ftools::loadPairs(fileName, tmp, true);
+    if (!err.isEmpty()) guitools::message(err, this);
+    else
+    {
+        for (const auto & p : tmp)
+        {
+            if (p.second < 1e-60)
+            {
+                guitools::message("Max angle values should be positive!", this);
+                return;
+            }
+        }
+
+        Spectrum = tmp;
+        updateButtons();
+        emit modified();
+    }
+}
+
+void AFunctionalModelWidget_OpticalFiber::onShowClicked()
+{
+    if (Spectrum.empty()) return;
+
+    TGraph * g = AGraphBuilder::graph(Spectrum);
+    AGraphBuilder::configure(g, "Max angle vs wavelength",
+                             "Wavelength, nm", "Max angle, mm",
+                             2, 20, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
+{
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (!WaveSet.Enabled)
+    {
+        guitools::message("Simulation is currently configured not to be wavelength-resolved!", this);
+        return;
+    }
+
+    APFM_OpticalFiber tmpMod;
+    tmpMod.MaxAngleSpectrum_deg = Spectrum;
+    QString err = tmpMod.updateRuntimeProperties();
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    if (tmpMod._TanMaxAngleSpectrumBinned.empty())
+    {
+        guitools::message("Wavelength-resolved binned data are empty!", this);
+        return;
+    }
+    else
+    {
+        std::vector<double> wavelength;
+        WaveSet.getWavelengthBins(wavelength);
+        TGraph * g = AGraphBuilder::graph(wavelength, tmpMod._TanMaxAngleSpectrumBinned);
+        AGraphBuilder::configure(g, "Binned Max Angle vs wavelength",
+                                 "Wavelength, nm", "Max angle, mm",
+                                 4, 20, 1,
+                                 4, 1,  1);
+        emit requestDraw(g, "APL", true, true);
+    }
+}
+
+void AFunctionalModelWidget_OpticalFiber::onDeleteClicked()
+{
+    Spectrum.clear();
+    updateButtons();
+    emit modified();
+}
+
+// ---
 
 AFunctionalModelWidget_Filter::AFunctionalModelWidget_Filter(const APFM_Filter *model, QWidget * parent) :
     AFunctionalModelWidget(model, parent)
