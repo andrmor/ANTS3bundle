@@ -119,14 +119,14 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 {
     // check angle inside is within max angle
     if (photonData.LocalDirection[2] == 0) return false;
-    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / photonData.LocalDirection[2];
+    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     double maxTan;
     if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
         maxTan = _TanMaxAngle;
     else
         maxTan = _TanMaxAngleSpectrumBinned[photonData.WaveIndex];
-    qDebug() << "tan:" << tanAngle << " max tan:" << maxTan;
+    //qDebug() << "\ntan:" << tanAngle << " max tan:" << maxTan;
     if (tanAngle > maxTan) return false;
 
     // check absorption
@@ -135,23 +135,23 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
     const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
     const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
     const double absProb = 1.0 - exp( - absCoeff * Length_mm);
-    qDebug() << "abs prob:" << absProb;
+    //qDebug() << "abs prob:" << absProb;
     if (ARandomHub::getInstance().uniform() < absProb) return false;
 
     // teleporting
-    qDebug() << photonData.LocalPosition[2];
+    //qDebug() << photonData.LocalPosition[2];
     if (photonData.LocalPosition[2] != 0)
     {
         const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
         photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
         photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
     }
-    qDebug() << photonData.LocalPosition[2];
+    //qDebug() << photonData.LocalPosition[2];
 
     // time increase
     const double speed = mat->getSpeedOfLight(photonData.WaveIndex); // mm/ns
     const double deltaT = Length_mm * sqrt(1.0 + tanAngle * tanAngle) / speed;
-    qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
+    //qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
     photonData.Time += deltaT;
 
     return true;

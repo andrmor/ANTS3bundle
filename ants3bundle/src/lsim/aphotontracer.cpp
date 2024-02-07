@@ -420,13 +420,13 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
     if (Selector == 'F') // Photon functional object
     {
         const int inNum = NodeAfterInterface->GetNumber();
-        qDebug() << "Enter trigger functional volume with index" << inNum;
+        //qDebug() << "Enter trigger functional volume with index" << inNum;
         const APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getConstInstance();
         const ATunnelRuntimeData & runtimeData = PhTunHub.RuntimeData[inNum];
         if (!runtimeData.isTrigger) return;
 
         const size_t outNum = runtimeData.LinkedIndex;
-        qDebug() << "Associated target index" << outNum;
+        //qDebug() << "Associated target index" << outNum;
         //const std::tuple<AGeoObject*,TGeoNode*, AVector3> & in  = AGeometryHub::getConstInstance().PhotonFunctionals[inNum];
         const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];
 

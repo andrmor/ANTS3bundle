@@ -12,7 +12,7 @@ public:
     double LocalPosition[3];
     double LocalDirection[3];
     int    WaveIndex;
-    int    Time;
+    double Time;
 };
 
 class APhotonFunctionalModel
