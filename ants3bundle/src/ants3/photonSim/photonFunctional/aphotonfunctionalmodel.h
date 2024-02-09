@@ -24,7 +24,7 @@ public:
     virtual QString getType() const = 0;
     virtual bool isLink() const {return false;}  // true: teleports photons to another object, so needs two indexes
 
-    virtual bool isValid() const {return true;}
+    virtual QString checkModel() const {return "";}
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
@@ -62,6 +62,8 @@ public:
     QString getType() const override {return QStringLiteral("OpticalFiber");}
     bool isLink() const override {return true;}
 
+    QString checkModel() const override;
+
     void writeSettingsToJson(QJsonObject & json) const override;
     void readSettingsFromJson(const QJsonObject & json) override;
 
@@ -87,6 +89,8 @@ class APFM_ThinLens : public APhotonFunctionalModel
 public:
     QString getType() const override {return QStringLiteral("ThinLens");}
 
+    QString checkModel() const override;
+
     void writeSettingsToJson(QJsonObject & json) const override;
     void readSettingsFromJson(const QJsonObject & json) override;
 
@@ -111,6 +115,8 @@ class APFM_Filter : public APhotonFunctionalModel
 {
 public:
     QString getType() const override {return QStringLiteral("Filter");}
+
+    QString checkModel() const override;
 
     void writeSettingsToJson(QJsonObject & json) const override;
     void readSettingsFromJson(const QJsonObject & json) override;

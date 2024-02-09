@@ -55,6 +55,18 @@ void APhotonFunctionalModel::readFromJson(const QJsonObject & json)
 
 // ---
 
+QString APFM_OpticalFiber::checkModel() const
+{
+    if (Length_mm < 0) return "Fiber length cannot be negative";
+
+    if (MaxAngle_deg < 0) return "Max angle cannot be negative";
+
+    for (const auto & p : MaxAngleSpectrum_deg)
+        if (p.second < 0) return "Max angle cannot be negative! Check wavelength-resolved data.";
+
+    return "";
+}
+
 void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
 {
     json["Length_mm"] = Length_mm;
@@ -91,7 +103,9 @@ QString APFM_OpticalFiber::printSettingsToString() const
 
 QString APFM_OpticalFiber::updateRuntimeProperties()
 {
-    if (MaxAngle_deg < 0) return "Max angle cannot be negative";
+    QString err = APFM_OpticalFiber::checkModel();
+    if (!err.isEmpty()) return err;
+
     _TanMaxAngle = tan(MaxAngle_deg * 3.1415926535 / 180.0);
 
     _TanMaxAngleSpectrumBinned.clear();
@@ -104,10 +118,7 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
             WaveSet.toStandardBins(MaxAngleSpectrum_deg, _TanMaxAngleSpectrumBinned);
 
         for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
-        {
-            if (_TanMaxAngleSpectrumBinned[i] < 0) return "Max angle cannot be negative! Check wavelength-resolved data.";
             _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
-        }
     }
 
     return "";
@@ -159,6 +170,16 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 
 // ---
 
+QString APFM_ThinLens::checkModel() const
+{
+    if (FocalLength_mm == 0) return "Focal length cannot be zero!";
+
+    for (const auto & p : FocalLengthSpectrum_mm)
+        if (p.second == 0) return "Focal length cannot be zero! Check wavelength-resolved data.";
+
+    return "";
+}
+
 void APFM_ThinLens::writeSettingsToJson(QJsonObject & json) const
 {
     json["FocalLength_mm"] = FocalLength_mm;
@@ -188,9 +209,10 @@ QString APFM_ThinLens::printSettingsToString() const
 
 QString APFM_ThinLens::updateRuntimeProperties()
 {
-    _FocalLengthBinned.clear();
+    QString err = APFM_ThinLens::checkModel();
+    if (!err.isEmpty()) return err;
 
-    if (FocalLength_mm == 0) return "Focal length cannot be zero!";
+    _FocalLengthBinned.clear();
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     if (WaveSet.Enabled)
@@ -198,11 +220,6 @@ QString APFM_ThinLens::updateRuntimeProperties()
         if (!FocalLengthSpectrum_mm.empty())
             WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned);
         else _FocalLengthBinned = std::vector<double>(WaveSet.countNodes(), FocalLength_mm);
-
-        for (size_t i = 0; i < _FocalLengthBinned.size(); i++)
-        {
-            if (_FocalLengthBinned[i] == 0) return "Focal length cannot be zero! Check wavelength-resolved data.";
-        }
     }
     return "";
 }
@@ -285,6 +302,16 @@ bool APFM_ThinLens::applyModel(APhotonExchangeData & photonData, int index, int 
 
 // ---
 
+QString APFM_Filter::checkModel() const
+{
+    if (GrayTransmission < 0 || GrayTransmission > 1.0) return "Filter transmission values should be within [0, 1] range";
+
+    for (const auto & p : TransmissionSpectrum)
+        if (p.second < 0 || p.second > 1.0) return "Filter transmission values should be within [0, 1] range. Check wavelength-resolved data";
+
+    return "";
+}
+
 void APFM_Filter::writeSettingsToJson(QJsonObject & json) const
 {
     json["Gray"] = Gray;
@@ -316,6 +343,9 @@ QString APFM_Filter::printSettingsToString() const
 
 QString APFM_Filter::updateRuntimeProperties()
 {
+    QString err = APFM_Filter::checkModel();
+    if (!err.isEmpty()) return err;
+
     _TransmissionBinned.clear();
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
@@ -324,9 +354,6 @@ QString APFM_Filter::updateRuntimeProperties()
         if (!TransmissionSpectrum.empty())
             WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned);
         else _TransmissionBinned = std::vector<double>(WaveSet.countNodes(), GrayTransmission);
-
-        for (size_t i = 0; i < _TransmissionBinned.size(); i++)
-            if (_TransmissionBinned[i] < 0 || _TransmissionBinned[i] > 1.0) return "Filter transmission values should be within [0, 1] range!";
     }
     return "";
 }

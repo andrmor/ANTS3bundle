@@ -125,9 +125,10 @@ bool APhotonFunctionalHub::isValidRecord(const APhotonFunctionalRecord & rec, QS
         // }
     }
 
-    if (!rec.Model->isValid())
+    QString modErr = rec.Model->checkModel();
+    if (!modErr.isEmpty())
     {
-        error = "Photon functional record's model is not valid";
+        error = "Model for the photon functional record is not valid:\n" + modErr;
         return false;
     }
 
