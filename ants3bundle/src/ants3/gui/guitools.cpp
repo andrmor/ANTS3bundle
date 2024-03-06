@@ -9,6 +9,8 @@
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QSpinBox>
+#include <QComboBox>
 #include <QPushButton>
 #include <QApplication>
 #include <QScreen>
@@ -221,9 +223,23 @@ void guitools::parseJsonToQLineEdit(const QJsonObject & json, const QString & na
     if (ok) le->setText(str);
 }
 
-void guitools::parseJsonToQCheckBox(const QJsonObject &json, const QString &name, QCheckBox *cb)
+void guitools::parseJsonToQCheckBox(const QJsonObject & json, const QString & name, QCheckBox * cb)
 {
     bool flag;
     bool ok = jstools::parseJson(json, name, flag);
     if (ok) cb->setChecked(flag);
+}
+
+void guitools::parseJsonToQSpinBox(const QJsonObject & json, const QString & name, QSpinBox * sb)
+{
+    int num;
+    bool ok = jstools::parseJson(json, name, num);
+    if (ok) sb->setValue(num);
+}
+
+void guitools::parseJsonToQComboBox(const QJsonObject & json, const QString & name, QComboBox * cob)
+{
+    int num;
+    bool ok = jstools::parseJson(json, name, num);
+    if (ok) cob->setCurrentIndex(num);
 }

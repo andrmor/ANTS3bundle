@@ -10,6 +10,8 @@ class QWidget;
 class QJsonObject;
 class QLineEdit;
 class QCheckBox;
+class QSpinBox;
+class QComboBox;
 
 namespace guitools
 {
@@ -37,6 +39,8 @@ namespace guitools
 
     void parseJsonToQLineEdit(const QJsonObject & json, const QString & name, QLineEdit * le);
     void parseJsonToQCheckBox(const QJsonObject & json, const QString & name, QCheckBox * cb);
+    void parseJsonToQSpinBox(const QJsonObject & json, const QString & name, QSpinBox * sb);
+    void parseJsonToQComboBox(const QJsonObject & json, const QString & name, QComboBox * cob);
 
 }
 

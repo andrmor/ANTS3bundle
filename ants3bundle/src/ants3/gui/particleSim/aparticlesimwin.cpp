@@ -113,10 +113,38 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
                 js["LimitParticle"] = ui->lePTHistParticle->text();
 
                 js["What1"] = ui->lePTHistBordWhat->text();
+                js["EnableWhat2"] = ui->cbPTHistBordVs->isChecked();
                 js["What2"] = ui->lePTHistBordVsWhat->text();
+                js["EnableWhat3"] = ui->cbPTHistBordAndVs->isChecked();
                 js["What3"] = ui->lePTHistBordAndVsWhat->text();
                 js["AveragePerBins"] = ui->cbPTHistBordAsStat->isChecked();
                 js["Cuts"] = ui->lePTHistBordCuts->text();
+
+                js["EnableLimitToMatFrom"] = ui->cbPTHistVolMatFrom->isChecked();
+                js["LimitToMatFrom"] = ui->cobPTHistVolMatFrom->currentIndex();
+                js["EnableLimitToVolumeFrom"] = ui->cbPTHistVolVolumeFrom->isChecked();
+                js["LimitToVolumeFrom"] = ui->lePTHistVolVolumeFrom->text();
+                js["EnableLimitToIndexFrom"] = ui->cbPTHistVolIndexFrom->isChecked();
+                js["LimitToIndexFrom"] = ui->sbPTHistVolIndexFrom->value();
+                js["EnableLimitToEscaping"] = ui->cbPTHistEscaping->isChecked();
+
+                js["EnableLimitToMatTo"] = ui->cbPTHistVolMatTo->isChecked();
+                js["LimitToMatTo"] = ui->cobPTHistVolMatTo->currentIndex();
+                js["EnableLimitToVolumeTo"] = ui->cbPTHistVolVolumeTo->isChecked();
+                js["LimitToVolumeTo"] = ui->lePTHistVolVolumeTo->text();
+                js["EnableLimitToIndexTo"] = ui->cbPTHistVolIndexTo->isChecked();
+                js["LimitToIndexTo"] = ui->sbPTHistVolIndexTo->value();
+                js["EnableLimitToCreated"] = ui->cbPTHistCreated->isChecked();
+
+                js["BinsX"] = ui->sbPTHistBinsX->value();
+                js["FromX"] = ui->ledPTHistFromX->text();
+                js["ToX"] = ui->ledPTHistToX->text();
+                js["BinsY"] = ui->sbPTHistBinsY->value();
+                js["FromY"] = ui->ledPTHistFromY->text();
+                js["ToY"] = ui->ledPTHistToY->text();
+
+                js["Threads"] = ui->sbNumThreadsStatistics->value();
+                js["EventsPerThread"] = ui->ledEventsPerThread->text();
 
             jsAn["Statistics"] = js;
         }
@@ -161,10 +189,38 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                     guitools::parseJsonToQLineEdit(js, "LimitParticle", ui->lePTHistParticle);
 
                     guitools::parseJsonToQLineEdit(js, "What1", ui->lePTHistBordWhat);
+                    guitools::parseJsonToQCheckBox(js, "EnableWhat2", ui->cbPTHistBordVs);
                     guitools::parseJsonToQLineEdit(js, "What2", ui->lePTHistBordVsWhat);
+                    guitools::parseJsonToQCheckBox(js, "EnableWhat3", ui->cbPTHistBordAndVs);
                     guitools::parseJsonToQLineEdit(js, "What3", ui->lePTHistBordAndVsWhat);
                     guitools::parseJsonToQCheckBox(js, "AveragePerBins", ui->cbPTHistBordAsStat);
                     guitools::parseJsonToQLineEdit(js, "Cuts", ui->lePTHistBordCuts);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMatFrom", ui->cbPTHistVolMatFrom);
+                    guitools::parseJsonToQComboBox(js, "LimitToMatFrom", ui->cobPTHistVolMatFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolumeFrom", ui->cbPTHistVolVolumeFrom);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolumeFrom", ui->lePTHistVolVolumeFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndexFrom", ui->cbPTHistVolIndexFrom);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndexFrom", ui->sbPTHistVolIndexFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToEscaping", ui->cbPTHistEscaping);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMatTo", ui->cbPTHistVolMatTo);
+                    guitools::parseJsonToQComboBox(js, "LimitToMatTo", ui->cobPTHistVolMatTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolumeTo", ui->cbPTHistVolVolumeTo);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolumeTo", ui->lePTHistVolVolumeTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndexTo", ui->cbPTHistVolIndexTo);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndexTo", ui->sbPTHistVolIndexTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToCreated", ui->cbPTHistCreated);
+
+                    guitools::parseJsonToQSpinBox(js, "BinsX", ui->sbPTHistBinsX);
+                    guitools::parseJsonToQLineEdit(js, "FromX", ui->ledPTHistFromX);
+                    guitools::parseJsonToQLineEdit(js, "ToX", ui->ledPTHistToX);
+                    guitools::parseJsonToQSpinBox(js, "BinsY", ui->sbPTHistBinsY);
+                    guitools::parseJsonToQLineEdit(js, "FromY", ui->ledPTHistFromY);
+                    guitools::parseJsonToQLineEdit(js, "ToY", ui->ledPTHistToY);
+
+                    guitools::parseJsonToQSpinBox(js, "Threads", ui->sbNumThreadsStatistics);
+                    guitools::parseJsonToQLineEdit(js, "EventsPerThread", ui->ledEventsPerThread);
             }
         }
     }
