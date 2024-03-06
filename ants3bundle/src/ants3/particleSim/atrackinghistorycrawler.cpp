@@ -1131,7 +1131,11 @@ void AHistorySearchProcessor_Border::afterSearch()
         //1D case
         if (formulaWhat2)
         {
+            Hist1D->BufferEmpty();    // if small number of events was used, the histogram is not yet filled from the buffer!
+            Hist1Dnum->BufferEmpty(); // so we have to force filling
             int numEntr = Hist1D->GetEntries();
+            //qDebug() << "-->" << numEntr << Hist1Dnum->GetEntries();
+            //qDebug() << Hist1D->GetXaxis()->GetXmin() << Hist1D->GetXaxis()->GetXmax() << Hist1Dnum->GetXaxis()->GetXmin() << Hist1Dnum->GetXaxis()->GetXmax();
             *Hist1D = *Hist1D / *Hist1Dnum;
             Hist1D->SetEntries(numEntr);
         }
@@ -1140,6 +1144,8 @@ void AHistorySearchProcessor_Border::afterSearch()
     {
         if (formulaWhat3)
         {
+            Hist2D->BufferEmpty();    // if small number of events was used, the histogram is not yet filled from the buffer!
+            Hist2Dnum->BufferEmpty(); // so we have to force filling
             int numEntr = Hist2D->GetEntries();
             *Hist2D = *Hist2D / *Hist2Dnum;
             Hist2D->SetEntries(numEntr);
