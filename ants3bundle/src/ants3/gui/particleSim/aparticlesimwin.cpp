@@ -110,8 +110,25 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
         // Statistics
         {
             QJsonObject js;
-                js["LimitParticle"] = ui->lePTHistParticle->text();
 
+                // Particle selector
+                js["EnableLimitToParticle"] = ui->cbPTHistParticle->isChecked();
+                js["LimitParticle"] = ui->lePTHistParticle->text();
+                js["OnlyPrimary"] = ui->cbPTHistOnlyPrim->isChecked();
+                js["LimitToFirstInteractionOfPrimary"] = ui->cbPTHistLimitToFirst->isChecked();
+                js["OnlySecondary"] = ui->cbPTHistOnlySec->isChecked();
+                js["LimitTime"] = ui->cbPTHistTime->isChecked();
+                js["TimeFrom"] = ui->lePTHistTimeFrom->text();
+                js["TimeTo"] = ui->lePTHistTimeTo->text();
+
+                // Volume-specific
+                js["RequestWhat"] = ui->cobPTHistVolRequestWhat->currentIndex();
+                js["RequestWhatPlus"] = ui->cobPTHistVolPlus->currentIndex();
+                js["RequestWhatVsTime"] = ui->cbPTHistVolVsTime->isChecked();
+                js["LimitToHadronic"] = ui->cbLimitToHadronic->isChecked();
+                js["HadronicTarget"] = ui->leLimitHadronicTarget->text();
+
+                // Transition-specific
                 js["What1"] = ui->lePTHistBordWhat->text();
                 js["EnableWhat2"] = ui->cbPTHistBordVs->isChecked();
                 js["What2"] = ui->lePTHistBordVsWhat->text();
@@ -136,6 +153,7 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
                 js["LimitToIndexTo"] = ui->sbPTHistVolIndexTo->value();
                 js["EnableLimitToCreated"] = ui->cbPTHistCreated->isChecked();
 
+                // Common
                 js["BinsX"] = ui->sbPTHistBinsX->value();
                 js["FromX"] = ui->ledPTHistFromX->text();
                 js["ToX"] = ui->ledPTHistToX->text();
@@ -186,8 +204,24 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                 QJsonObject js;
                 jstools::parseJson(jsAn, "Statistics", js);
 
+                    // Particle selector
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToParticle", ui->cbPTHistParticle);
                     guitools::parseJsonToQLineEdit(js, "LimitParticle", ui->lePTHistParticle);
+                    guitools::parseJsonToQCheckBox(js, "OnlyPrimary", ui->cbPTHistOnlyPrim);
+                    guitools::parseJsonToQCheckBox(js, "LimitToFirstInteractionOfPrimary", ui->cbPTHistLimitToFirst);
+                    guitools::parseJsonToQCheckBox(js, "OnlySecondary", ui->cbPTHistOnlySec);
+                    guitools::parseJsonToQCheckBox(js, "LimitTime", ui->cbPTHistTime);
+                    guitools::parseJsonToQLineEdit(js, "TimeFrom", ui->lePTHistTimeFrom);
+                    guitools::parseJsonToQLineEdit(js, "TimeTo", ui->lePTHistTimeTo);
 
+                    // Volume-specific
+                    guitools::parseJsonToQComboBox(js, "RequestWhat", ui->cobPTHistVolRequestWhat);
+                    guitools::parseJsonToQComboBox(js, "RequestWhatPlus", ui->cobPTHistVolPlus);
+                    guitools::parseJsonToQCheckBox(js, "RequestWhatVsTime", ui->cbPTHistVolVsTime);
+                    guitools::parseJsonToQCheckBox(js, "LimitToHadronic", ui->cbLimitToHadronic);
+                    guitools::parseJsonToQLineEdit(js, "HadronicTarget", ui->leLimitHadronicTarget);
+
+                    // Transition-specific
                     guitools::parseJsonToQLineEdit(js, "What1", ui->lePTHistBordWhat);
                     guitools::parseJsonToQCheckBox(js, "EnableWhat2", ui->cbPTHistBordVs);
                     guitools::parseJsonToQLineEdit(js, "What2", ui->lePTHistBordVsWhat);
@@ -212,6 +246,7 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                     guitools::parseJsonToQSpinBox(js, "LimitToIndexTo", ui->sbPTHistVolIndexTo);
                     guitools::parseJsonToQCheckBox(js, "EnableLimitToCreated", ui->cbPTHistCreated);
 
+                    // Common
                     guitools::parseJsonToQSpinBox(js, "BinsX", ui->sbPTHistBinsX);
                     guitools::parseJsonToQLineEdit(js, "FromX", ui->ledPTHistFromX);
                     guitools::parseJsonToQLineEdit(js, "ToX", ui->ledPTHistToX);
