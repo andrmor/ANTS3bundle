@@ -97,9 +97,30 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
     // Seed
     {
         QJsonObject js;
-        js["Random"] = ui->cbRandomSeed->isChecked();
-        js["FixedSeed"] = ui->sbSeed->value();
+            js["Random"] = ui->cbRandomSeed->isChecked();
+            js["FixedSeed"] = ui->sbSeed->value();
         json["Seed"] = js;
+    }
+
+    // Analyser
+    {
+        QJsonObject jsAn;
+        // Tracks
+        // Event viewer
+        // Statistics
+        {
+            QJsonObject js;
+                js["LimitParticle"] = ui->lePTHistParticle->text();
+
+                js["What1"] = ui->lePTHistBordWhat->text();
+                js["What2"] = ui->lePTHistBordVsWhat->text();
+                js["What3"] = ui->lePTHistBordAndVsWhat->text();
+                js["AveragePerBins"] = ui->cbPTHistBordAsStat->isChecked();
+                js["Cuts"] = ui->lePTHistBordCuts->text();
+
+            jsAn["Statistics"] = js;
+        }
+        json["Analyser"] = jsAn;
     }
 }
 
@@ -119,6 +140,32 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
         {
             jstools::parseJson(js, "Random", flag); ui->cbRandomSeed->setChecked(flag);
             jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
+
+    // Analyser
+    {
+        QJsonObject jsAn;
+        ok = jstools::parseJson(json, "Analyser", jsAn);
+        if (ok)
+        {
+            // Tracks
+
+            // Event viewer
+
+            // Statistics
+            {
+                QJsonObject js;
+                jstools::parseJson(jsAn, "Statistics", js);
+
+                    guitools::parseJsonToQLineEdit(js, "LimitParticle", ui->lePTHistParticle);
+
+                    guitools::parseJsonToQLineEdit(js, "What1", ui->lePTHistBordWhat);
+                    guitools::parseJsonToQLineEdit(js, "What2", ui->lePTHistBordVsWhat);
+                    guitools::parseJsonToQLineEdit(js, "What3", ui->lePTHistBordAndVsWhat);
+                    guitools::parseJsonToQCheckBox(js, "AveragePerBins", ui->cbPTHistBordAsStat);
+                    guitools::parseJsonToQLineEdit(js, "Cuts", ui->lePTHistBordCuts);
+            }
         }
     }
 }

@@ -7,6 +7,9 @@
 #include <vector>
 
 class QWidget;
+class QJsonObject;
+class QLineEdit;
+class QCheckBox;
 
 namespace guitools
 {
@@ -31,6 +34,9 @@ namespace guitools
     bool    extractNumbersFromQString(const QString & input, std::vector<int> & extracted);
 
     bool isDarkTheme();
+
+    void parseJsonToQLineEdit(const QJsonObject & json, const QString & name, QLineEdit * le);
+    void parseJsonToQCheckBox(const QJsonObject & json, const QString & name, QCheckBox * cb);
 
 }
 

@@ -1,11 +1,14 @@
 #include "guitools.h"
 #include "a3global.h"
+#include "ajsontools.h"
 
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
+#include <QLineEdit>
+#include <QCheckBox>
 #include <QPushButton>
 #include <QApplication>
 #include <QScreen>
@@ -209,4 +212,18 @@ bool guitools::isDarkTheme()
     const QPalette defaultPalette;
     return defaultPalette.color(QPalette::WindowText).lightness()
          > defaultPalette.color(QPalette::Window).lightness();
+}
+
+void guitools::parseJsonToQLineEdit(const QJsonObject & json, const QString & name, QLineEdit * le)
+{
+    QString str;
+    bool ok = jstools::parseJson(json, name, str);
+    if (ok) le->setText(str);
+}
+
+void guitools::parseJsonToQCheckBox(const QJsonObject &json, const QString &name, QCheckBox *cb)
+{
+    bool flag;
+    bool ok = jstools::parseJson(json, name, flag);
+    if (ok) cb->setChecked(flag);
 }
