@@ -121,12 +121,21 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
                 js["TimeFrom"] = ui->lePTHistTimeFrom->text();
                 js["TimeTo"] = ui->lePTHistTimeTo->text();
 
+                js["BulkOrTransition"] = ui->twPTHistType->currentIndex();
+
                 // Volume-specific
                 js["RequestWhat"] = ui->cobPTHistVolRequestWhat->currentIndex();
                 js["RequestWhatPlus"] = ui->cobPTHistVolPlus->currentIndex();
                 js["RequestWhatVsTime"] = ui->cbPTHistVolVsTime->isChecked();
                 js["LimitToHadronic"] = ui->cbLimitToHadronic->isChecked();
                 js["HadronicTarget"] = ui->leLimitHadronicTarget->text();
+
+                js["EnableLimitToMat"] = ui->cbPTHistVolMat->isChecked();
+                js["LimitToMat"] = ui->cobPTHistVolMat->currentIndex();
+                js["EnableLimitToVolume"] = ui->cbPTHistVolVolume->isChecked();
+                js["LimitToVolume"] = ui->lePTHistVolVolume->text();
+                js["EnableLimitToIndex"] = ui->cbPTHistVolIndex->isChecked();
+                js["LimitToIndex"] = ui->sbPTHistVolIndex->value();
 
                 // Transition-specific
                 js["What1"] = ui->lePTHistBordWhat->text();
@@ -214,12 +223,21 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                     guitools::parseJsonToQLineEdit(js, "TimeFrom", ui->lePTHistTimeFrom);
                     guitools::parseJsonToQLineEdit(js, "TimeTo", ui->lePTHistTimeTo);
 
+                    guitools::parseJsonToQTabWidget(js, "BulkOrTransition", ui->twPTHistType);
+
                     // Volume-specific
                     guitools::parseJsonToQComboBox(js, "RequestWhat", ui->cobPTHistVolRequestWhat);
                     guitools::parseJsonToQComboBox(js, "RequestWhatPlus", ui->cobPTHistVolPlus);
                     guitools::parseJsonToQCheckBox(js, "RequestWhatVsTime", ui->cbPTHistVolVsTime);
                     guitools::parseJsonToQCheckBox(js, "LimitToHadronic", ui->cbLimitToHadronic);
                     guitools::parseJsonToQLineEdit(js, "HadronicTarget", ui->leLimitHadronicTarget);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMat", ui->cbPTHistVolMat);
+                    guitools::parseJsonToQComboBox(js, "LimitToMat", ui->cobPTHistVolMat);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolume", ui->cbPTHistVolVolume);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolume", ui->lePTHistVolVolume);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndex", ui->cbPTHistVolIndex);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndex", ui->sbPTHistVolIndex);
 
                     // Transition-specific
                     guitools::parseJsonToQLineEdit(js, "What1", ui->lePTHistBordWhat);
@@ -1581,9 +1599,9 @@ void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordS
     case 4:
      {
         AHistorySearchProcessor_getDepositionStats * p = nullptr;
-        if (ui->cbLimitTimeWindow->isChecked())
+        if (ui->cbPTHistTime->isChecked()) // second is also now time aware? check maybe it is obsolete !!!***
         {
-            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toDouble(), ui->ledTimeTo->text().toDouble());
+            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->lePTHistTimeFrom->text().toDouble(), ui->lePTHistTimeTo->text().toDouble());
             crawler.find(options, *p, numThreads, numEventsPerThread);
         }
         else
@@ -1791,7 +1809,6 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     ui->cobPTHistVolPlus->setVisible(index == 1 || index == 3);
 
     ui->frLimitHadronicTarget->setVisible(index == 1);
-    ui->frTimeAware->setVisible(index == 4);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);
 }

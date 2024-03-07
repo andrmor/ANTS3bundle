@@ -12,6 +12,7 @@ class QLineEdit;
 class QCheckBox;
 class QSpinBox;
 class QComboBox;
+class QTabWidget;
 
 namespace guitools
 {
@@ -41,6 +42,7 @@ namespace guitools
     void parseJsonToQCheckBox(const QJsonObject & json, const QString & name, QCheckBox * cb);
     void parseJsonToQSpinBox(const QJsonObject & json, const QString & name, QSpinBox * sb);
     void parseJsonToQComboBox(const QJsonObject & json, const QString & name, QComboBox * cob);
+    void parseJsonToQTabWidget(const QJsonObject & json, const QString & name, QTabWidget * tw);
 
 }
 

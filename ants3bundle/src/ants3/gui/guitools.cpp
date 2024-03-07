@@ -11,6 +11,7 @@
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QComboBox>
+#include <QTabWidget>
 #include <QPushButton>
 #include <QApplication>
 #include <QScreen>
@@ -242,4 +243,11 @@ void guitools::parseJsonToQComboBox(const QJsonObject & json, const QString & na
     int num;
     bool ok = jstools::parseJson(json, name, num);
     if (ok) cob->setCurrentIndex(num);
+}
+
+void guitools::parseJsonToQTabWidget(const QJsonObject &json, const QString &name, QTabWidget * tw)
+{
+    int num;
+    bool ok = jstools::parseJson(json, name, num);
+    if (ok) tw->setCurrentIndex(num);
 }

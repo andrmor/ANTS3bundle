@@ -235,7 +235,7 @@ private:
     void checkWorldSize(AParticleSourceRecord & ps);
     bool isTrackingDataFileExists();
 
-    void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
+    void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread); // !!!***
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
     void updateRangeWarning();
