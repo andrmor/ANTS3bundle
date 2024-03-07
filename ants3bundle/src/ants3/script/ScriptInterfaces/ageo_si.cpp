@@ -1654,6 +1654,7 @@ void AGeo_SI::setPhotonFunctional(QString Object)
     delete obj->Role; obj->Role = new AGeoPhotonFunctional();
 }
 
+#include "aphotonfunctionalhub.h"
 #include "aphotonfunctionalmodel.h"
 #include <QJsonObject>
 QVariantMap AGeo_SI::getDefaultConfigObjectForPhotonFunctionalModel(QString modelName)
@@ -1670,12 +1671,22 @@ QVariantMap AGeo_SI::getDefaultConfigObjectForPhotonFunctionalModel(QString mode
     return js.toVariantMap();
 }
 
+QVariantMap AGeo_SI::getConfigObjectForPhotonFunctional(int index)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalHub::getInstance().findModel(index);
+    if (!model) return QVariantMap();
+
+    QJsonObject js;
+    model->writeSettingsToJson(js);
+    QVariantMap res = js.toVariantMap();
+    return res;
+}
+
 int AGeo_SI::countPhotonFunctionals()
 {
     return GeoHub.PhotonFunctionals.size();
 }
 
-#include "aphotonfunctionalhub.h"
 void AGeo_SI::clearPhotonFunctionalAttribution()
 {
     APhotonFunctionalHub::getInstance().clearAllRecords();
@@ -1696,6 +1707,11 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
 
     QString err = APhotonFunctionalHub::getInstance().modifyOrAddRecord(index, linkedIndex, model);
     if (!err.isEmpty()) abort(err);
+}
+
+void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index)
+{
+    configurePhotonFunctional(modelName, configObject, index, index);
 }
 
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
