@@ -167,6 +167,8 @@ void APhotSimWin::updateGui()
     updateBombFileGui();
     updatePhotonFileGui();
 
+    updateMonitorGui();
+
     updateGeneralSettingsGui();
 }
 
@@ -437,11 +439,15 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
     SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
+#include "a3global.h"
 void APhotSimWin::on_pbSimulate_clicked()
 {
     double seed = 0; // INT_MAX * ARandomHub::getInstance().uniform()
     if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
     SimSet.RunSet.Seed = seed;
+
+    A3Global::getInstance().saveConfig();
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
     ui->progbSim->setValue(0);
     disableInterface(true);
@@ -896,7 +902,11 @@ void APhotSimWin::updateMonitorGui()
             ui->cobMonitor->setCurrentIndex(oldNum);
             ui->sbMonitorIndex->setValue(oldNum);
         }
-        else ui->sbMonitorIndex->setValue(0);
+        else
+        {
+            ui->cobMonitor->setCurrentIndex(0);
+            ui->sbMonitorIndex->setValue(0);
+        }
 
         const int imon = ui->cobMonitor->currentIndex();
         const AMonitor & Mon = *MonitorHub.PhotonMonitors[imon].Monitor;
@@ -929,13 +939,17 @@ void APhotSimWin::on_pbNextMonitor_clicked()
     int numMon = MonitorHub.countMonitors(AMonitorHub::Photon);
     if (numMon == 0) return;
 
-    int iMon = ui->cobMonitor->currentIndex();
+    int iMon = ui->cobMonitor->currentIndex(); // can be -1 on start!
     int iMonStart = iMon;
-    int hits;
+    int hits = 0;
     do
     {
         iMon++;
-        if (iMon >= numMon) iMon = 0;
+        if (iMon >= numMon)
+        {
+            if (iMonStart == -1) return;
+            iMon = 0;
+        }
         if (iMon == iMonStart) return;
         hits = MonitorHub.PhotonMonitors[iMon].Monitor->getHits();
     }
