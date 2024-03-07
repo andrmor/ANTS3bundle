@@ -2798,6 +2798,9 @@ sources</string>
                       </property>
                       <item>
                        <widget class="QCheckBox" name="cbPTHistTime">
+                        <property name="toolTip">
+                         <string>Particle is ignored if it was generated outside of the defined time window</string>
+                        </property>
                         <property name="text">
                          <string>Time from</string>
                         </property>

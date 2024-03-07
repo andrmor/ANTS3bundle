@@ -1599,7 +1599,7 @@ void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordS
     case 4:
      {
         AHistorySearchProcessor_getDepositionStats * p = nullptr;
-        if (ui->cbPTHistTime->isChecked()) // second is also now time aware? check maybe it is obsolete !!!***
+        if (ui->cbPTHistTime->isChecked())
         {
             p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->lePTHistTimeFrom->text().toDouble(), ui->lePTHistTimeTo->text().toDouble());
             crawler.find(options, *p, numThreads, numEventsPerThread);
