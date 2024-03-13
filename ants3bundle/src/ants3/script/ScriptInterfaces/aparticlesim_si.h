@@ -5,7 +5,10 @@
 
 #include <QVariantList>
 
+#include <array>
+
 class AParticleSimManager;
+class AVector3;
 
 class AParticleSim_SI : public AScriptInterface
 {
@@ -39,9 +42,12 @@ public slots:
     QVariantList getMonitorAngle(int monitorIndex);
     QVariantList getMonitorXY(int monitorIndex);
 
+    QVariantList getThreeGammasForPositronium(); // [ [dx1,dy1,dz1,e1], [dx2,dy2,dz2,e2], [dx3,dy3,dz1,e3] ]
+
 private:
     AParticleSimManager & SimMan;
 
+    void makeCandidateVectors(std::array<AVector3, 3> & unitVectors, std::array<double, 3> & energies);
 };
 
 #endif // APARTICLESIM_SI_H

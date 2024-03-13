@@ -165,6 +165,25 @@ double AMath_SI::exponential(double tau)
     return RandomHub.exp(tau);
 }
 
+QVariantList AMath_SI::generateDirectionIsotropic()
+{
+    //Sphere function of CERN ROOT
+    double a = 0, b = 0, r2 = 1.0;
+    while (r2 > 0.25)
+    {
+        a  = RandomHub.uniform() - 0.5;
+        b  = RandomHub.uniform() - 0.5;
+        r2 = a*a + b*b;
+    }
+    double scale = 8.0 * sqrt(0.25 - r2);
+
+    QVariantList v;
+    v.push_back(a * scale);
+    v.push_back(b * scale);
+    v.push_back(-1.0 + 8.0 * r2);
+    return v;
+}
+
 #include "TFormula.h"
 #include "TF1.h"
 #include "TGraph.h"
