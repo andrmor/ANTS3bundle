@@ -26,8 +26,18 @@ private slots:
 
     void on_cobDirectionMode_currentIndexChanged(int index);
 
+    void on_cbFixWave_toggled(bool checked);
+
+    void on_cbFixedDecay_toggled(bool checked);
+
+    void on_cbSkipByVolume_toggled(bool checked);
+
+    void on_cbSkipByMaterial_toggled(bool checked);
+
 private:
     Ui::ABombAdvancedDialog *ui;
+
+    QPixmap YellowCircle;
 };
 
 #endif // ABOMBADVANCEDDIALOG_H
