@@ -710,7 +710,7 @@ void AHist_SI::applyMedianFilter(QString histName, int spanLeft, int spanRight)
     else
     {
         bool ok = r->medianFilter(spanLeft, spanRight);
-        if (!ok) abort("Failed - median filter is currently implemented only for 1D histograms (TH1)");
+        if (!ok) abort("median filter is implemented only for TH1 and TH2 objects");
     }
 }
 

@@ -1522,10 +1522,12 @@ void ADrawExplorerWidget::splineFit(int index)
 }
 
 #include "aaxesdialog.h"
+#include "TGraph2D.h"
 void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
 {
     QVector<TAxis*> axes;
 
+    // !!!*** refactor
     if (dynamic_cast<TGraph*>(obj.Pointer))
     {
         TGraph * g = dynamic_cast<TGraph*>(obj.Pointer);
@@ -1535,6 +1537,11 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     {
         TH1* h = dynamic_cast<TH1*>(obj.Pointer);
         axes << h->GetXaxis() << h->GetYaxis() << h->GetZaxis();
+    }
+    else if (dynamic_cast<TGraph2D*>(obj.Pointer))
+    {
+        TGraph2D * g = dynamic_cast<TGraph2D*>(obj.Pointer);
+        axes << g->GetXaxis() << g->GetYaxis() << g->GetZaxis();
     }
     else
     {
