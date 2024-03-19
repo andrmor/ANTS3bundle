@@ -215,6 +215,69 @@ void AHist_SI::new3D(QString histName, int binsX, double startX, double stopX, i
     }
 }
 
+void AHist_SI::clone(QString histName, QString cloneName)
+{
+    if (!bGuiThread)
+    {
+        abort("Threads cannot clone histograms!");
+        return;
+    }
+
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (!r)
+    {
+        abort("Histogram " + histName + " not found!");
+        return;
+    }
+
+    TH3D * h3 = dynamic_cast<TH3D*>(r->GetObject());
+    if (h3)
+    {
+        TObject * clon = h3->Clone();
+        ARootHistRecord * rec = new ARootHistRecord(clon, r->getTitle(), "TH3D");
+
+        bool bOK = Hists.append(cloneName, rec, AbortIfExists);
+        if (!bOK)
+        {
+            delete rec;
+            abort("Histogram " + histName + " already exists!");
+        }
+        return;
+    }
+
+    TH2D * h2 = dynamic_cast<TH2D*>(r->GetObject());
+    if (h2)
+    {
+        TObject * clon = h2->Clone();
+        ARootHistRecord * rec = new ARootHistRecord(clon, r->getTitle(), "TH2D");
+
+        bool bOK = Hists.append(cloneName, rec, AbortIfExists);
+        if (!bOK)
+        {
+            delete rec;
+            abort("Histogram " + histName + " already exists!");
+        }
+        return;
+    }
+
+    TH1D * h1 = dynamic_cast<TH1D*>(r->GetObject());
+    if (h1)
+    {
+        TObject * clon = h1->Clone();
+        ARootHistRecord * rec = new ARootHistRecord(clon, r->getTitle(), "TH1D");
+
+        bool bOK = Hists.append(cloneName, rec, AbortIfExists);
+        if (!bOK)
+        {
+            delete rec;
+            abort("Histogram " + histName + " already exists!");
+        }
+        return;
+    }
+
+    abort("Histogram " + histName + " has a type not supported by clone method!");
+}
+
 void AHist_SI::setXCustomLabels(QString histName, QVariantList textLabels)
 {
     if (!bGuiThread)

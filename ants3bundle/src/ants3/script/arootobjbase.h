@@ -18,6 +18,7 @@ public:
     void             externalUnlock();
 
     const QString&   getType() const;
+    const QString&   getTitle() const;
 
     enum EStatus {OK, NotApplicable, DataMimatch};
 

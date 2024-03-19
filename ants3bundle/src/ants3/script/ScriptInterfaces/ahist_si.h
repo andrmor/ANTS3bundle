@@ -33,6 +33,8 @@ public slots:
                                            int binsY, double startY, double stopY,
                                            int binsZ, double startZ, double stopZ);
 
+    void           clone(QString histName, QString cloneName);
+
     void           fill(QString histName, double val, double weight);
     void           fill(QString histName, double x, double y, double weight);
     void           fill(QString histName, double x, double y, double z, double weight);
