@@ -21,6 +21,10 @@ AMath_SI::AMath_SI() :
                   "Optional startParValues arguments can hold array of initial parameter values.\n"
                   "Returned value depends on the extendedOutput argument (false by default),\n"
                   "false: array of parameter values; true: array of [value, error] for each parameter";
+
+    Help["getAnglesBetween3DVectors"] = "Caluculates angles in radians between two or three 3D vectors.\n"
+                                        "For the case of two vectors, the method returns an array containing one element: the angle between the vectors;\n"
+                                        "For the case of three vectors, the method returns an array of three angles: between 1-2, 2-3, and 3-1.";
 }
 
 double AMath_SI::abs(double val)
