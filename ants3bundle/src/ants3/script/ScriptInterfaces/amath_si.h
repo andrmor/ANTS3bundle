@@ -45,6 +45,8 @@ public slots:
     double maxwell(double a);  // a is sqrt(kT/m)
     double exponential(double tau);
 
+    QVariantList getAnglesBetween3DVectors(QVariantList arrayOfVectors);
+
     QVariantList generateDirectionIsotropic();
 
     // NOT multi-thread friendly!

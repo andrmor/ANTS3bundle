@@ -165,6 +165,52 @@ double AMath_SI::exponential(double tau)
     return RandomHub.exp(tau);
 }
 
+#include "avector.h"
+QVariantList AMath_SI::getAnglesBetween3DVectors(QVariantList arrayOfVectors)
+{
+    QVariantList res;
+    if (arrayOfVectors.length() == 2)
+    {
+        QVariantList vl1 = arrayOfVectors[0].toList();
+        QVariantList vl2 = arrayOfVectors[1].toList();
+        if (vl1.length() != 3 || vl2.length() != 3)
+        {
+            abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+            return res;
+        }
+        AVector3 v1, v2;
+        for (int i = 0; i < 3; i++)
+        {
+            v1[i] = vl1[i].toDouble();
+            v2[i] = vl2[i].toDouble();
+        }
+        res.push_back(v1.angle(v2));
+    }
+    else if (arrayOfVectors.length() == 3)
+    {
+        QVariantList vl1 = arrayOfVectors[0].toList();
+        QVariantList vl2 = arrayOfVectors[1].toList();
+        QVariantList vl3 = arrayOfVectors[2].toList();
+        if (vl1.length() != 3 || vl2.length() != 3  || vl3.length() != 3)
+        {
+            abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+            return res;
+        }
+        AVector3 v1, v2, v3;
+        for (int i = 0; i < 3; i++)
+        {
+            v1[i] = vl1[i].toDouble();
+            v2[i] = vl2[i].toDouble();
+            v3[i] = vl3[i].toDouble();
+        }
+        res.push_back(v1.angle(v2));
+        res.push_back(v2.angle(v3));
+        res.push_back(v3.angle(v1));
+    }
+    else abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+    return res;
+}
+
 QVariantList AMath_SI::generateDirectionIsotropic()
 {
     //Sphere function of CERN ROOT
