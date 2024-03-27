@@ -1015,18 +1015,24 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
         on_pbLoadCalorimetersData_clicked();
 }
 
+void updateMatComboBox(QComboBox * cob, const QStringList & mats)
+{
+    int oldIndex = cob->currentIndex();
+
+    cob->clear();
+    cob->addItems(mats);
+
+    if (oldIndex > -1 && oldIndex < mats.size())
+        cob->setCurrentIndex(oldIndex);
+}
+
 void AParticleSimWin::onMaterialsChanged()
 {
-    QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
+    const QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
 
-    ui->cobPTHistVolMatFrom->clear();
-    ui->cobPTHistVolMatFrom->addItems(mats);
-
-    ui->cobPTHistVolMatTo->clear();
-    ui->cobPTHistVolMatTo->addItems(mats);
-
-    ui->cobPTHistVolMat->clear();
-    ui->cobPTHistVolMat->addItems(mats);
+    updateMatComboBox(ui->cobPTHistVolMatFrom, mats);
+    updateMatComboBox(ui->cobPTHistVolMatTo, mats);
+    updateMatComboBox(ui->cobPTHistVolMat, mats);
 }
 
 void AParticleSimWin::onRequestShowSource()
