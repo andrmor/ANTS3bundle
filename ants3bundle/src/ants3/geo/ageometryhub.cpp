@@ -264,8 +264,8 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     AGeoConsts::getInstance().updateFromExpressions();
     World->introduceGeoConstValuesRecursive();
+    World->updateAllMonitors();  // need to be before updateAllStacks to configure correct shapes!
     World->updateAllStacks();
-    World->updateAllMonitors();
     expandPrototypeInstances();
 
     delete GeoManager; GeoManager = new TGeoManager();
@@ -287,6 +287,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     }
 
     AMaterialHub & MatHub = AMaterialHub::getInstance();
+    MatHub.convertPressureToDensity();
     MatHub.generateGeoMedia();
 
     Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
@@ -1587,6 +1588,11 @@ void AGeometryHub::removeNameDecorators(TString & name) const
 {
     const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
     if (ind != TString::kNPOS) name.Resize(ind);
+}
+
+size_t AGeometryHub::countScintillators() const
+{
+    return Scintillators.size();
 }
 
 void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) const

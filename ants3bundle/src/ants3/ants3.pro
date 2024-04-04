@@ -1,10 +1,13 @@
-# optional features
-CONFIG += ants3_GUI          #if commented away, GUI is not compiled
-CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
-
-CONFIG += ants3_Python      #enable Python scripting
-CONFIG += ants3_RootServer  #enable cern CERN ROOT html server
+# --- Optional features to be configured by the user ---
+#
+CONFIG += ants3_GUI         #if commented away, GUI is not compiled
+CONFIG += ants3_FARM        #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
+#
+CONFIG += ants3_Python      #enables Python scripting
+CONFIG += ants3_RootServer  #enables CERN ROOT html server
 CONFIG += ants3_jsroot      #enables JSROOT visualisation of the geometry. Requires Qt WebEngine library installed and ants3_RootServer enabled
+#
+# --- end of user-configure area ---
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
@@ -61,6 +64,10 @@ ants3_GUI {
     QT -= gui
 }
 
+# ANTS3 version
+DEFINES += ANTS3_MAJOR=1
+DEFINES += ANTS3_MINOR=0
+
 QT += qml   #this is for qjsengine
 
 CONFIG += c++17 #c++11
@@ -103,6 +110,8 @@ INCLUDEPATH += config
 INCLUDEPATH += net
 INCLUDEPATH += ../dispatcher
 INCLUDEPATH += ../lsim
+INCLUDEPATH += rec
+INCLUDEPATH += rec/PET
 INCLUDEPATH += /usr/include
 
 DESTDIR = ../../bin
@@ -123,6 +132,8 @@ SOURCES += \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/aviewer3d.cpp \
+    gui/graph/aviewer3dwidget.cpp \
     gui/materials/amatwin.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
@@ -179,7 +190,10 @@ SOURCES += \
     gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
     gui/script/ascriptbook.cpp \
+    gui/script/ascriptexampleexplorer.cpp \
+    gui/script/ascriptmessenger.cpp \
     gui/script/ascriptwindow.cpp \
+    gui/script/astopwatch.cpp \
     gui/script/atabrecord.cpp \
     gui/script/atextedit.cpp \
     gui/script/atextoutputwindow.cpp \
@@ -194,16 +208,21 @@ SOURCES += \
     script/ScriptInterfaces/agui_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
     script/ScriptInterfaces/aparticlesim_si.cpp \
+    script/ScriptInterfaces/apet_si.cpp \
     script/ScriptInterfaces/arootstyle_si.cpp \
     script/ScriptInterfaces/asensor_si.cpp \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
     script/apeakfinder.cpp \
+    rec/PET/apetcoincidencefinder.cpp \
+    rec/PET/apeteventbuilder.cpp \
     script/arootgraphrecord.cpp \
     script/aroothistrecord.cpp \
     script/arootobjbase.cpp \
     script/arootobjcollection.cpp \
     script/aroottreerecord.cpp \
+    script/ascriptexample.cpp \
+    script/ascriptexampledatabase.cpp \
     script/ascripthub.cpp \
     script/ascriptobjstore.cpp \
     script/avarrecordbase.cpp \
@@ -312,6 +331,8 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/script/ascriptexampleexplorer.h \
+    rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
     geo/acalorimeterhub.h \
@@ -325,6 +346,8 @@ HEADERS += \
     gui/geom/ageoconstexpressiondialog.h \
     gui/geom/ageotreewin.h \
     gui/geom/ashownumbersdialog.h \
+    gui/graph/aviewer3d.h \
+    gui/graph/aviewer3dwidget.h \
     gui/materials/amatwin.h \
     gui/particleSim/aeventsdonedialog.h \
     gui/particleSim/aparticlesourceplotter.h \
@@ -381,7 +404,9 @@ HEADERS += \
     gui/script/aguifromscrwin.h \
     gui/script/ahighlighters.h \
     gui/script/ascriptbook.h \
+    gui/script/ascriptmessenger.h \
     gui/script/ascriptwindow.h \
+    gui/script/astopwatch.h \
     gui/script/atabrecord.h \
     gui/script/atextedit.h \
     gui/script/atextoutputwindow.h \
@@ -391,14 +416,18 @@ HEADERS += \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
+    rec/PET/apeteventbuilderconfig.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
     script/ScriptInterfaces/agraphwin_si.h \
     script/ScriptInterfaces/agui_si.h \
     script/ScriptInterfaces/amsg_si.h \
     script/ScriptInterfaces/aparticlesim_si.h \
+    script/ScriptInterfaces/apet_si.h \
     script/ScriptInterfaces/arootstyle_si.h \
     script/ScriptInterfaces/asensor_si.h \
+    rec/PET/apetcoincidencefinder.h \
+    rec/PET/apeteventbuilder.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \
     script/arootobjbase.h \
@@ -407,6 +436,8 @@ HEADERS += \
     script/ajscriptmanager.h \
     script/ajscriptworker.h \
     script/apeakfinder.h \
+    script/ascriptexample.h \
+    script/ascriptexampledatabase.h \
     script/ascripthub.h \
     script/ascriptobjstore.h \
     script/avarrecordbase.h \
@@ -517,6 +548,8 @@ FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/aviewer3d.ui \
+        gui/graph/aviewer3dwidget.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
@@ -525,6 +558,7 @@ FORMS += \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
+        gui/script/ascriptexampleexplorer.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \
         gui/farm/aremotewindow.ui \

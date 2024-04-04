@@ -65,7 +65,6 @@ public:
     void   clear();
 };
 
-typedef std::pair<double, double> ADPair;
 class APhotonsPerBombSettings
 {
 public:
@@ -78,7 +77,7 @@ public:
     double          NormalMean  = 100.0;
     double          NormalSigma = 10.0;
     double          PoissonMean = 10.0;
-    std::vector<ADPair> CustomDist;
+    std::vector<std::pair<int,double>> CustomDist;
 
     void    clearSettings();
     void    writeToJson(QJsonObject & json) const;
@@ -226,6 +225,8 @@ public:
 
     QString OutputDirectory;
     bool    BinaryFormat = false;
+
+    QString FileNameReceipt       = "DummyReceipt.txt";
 
     bool    SaveSensorSignals     = true;
     QString FileNameSensorSignals = "SensorSignals.txt";

@@ -149,6 +149,16 @@
                </spacer>
               </item>
               <item>
+               <widget class="QLabel" name="labPhotonsPerBombWarning">
+                <property name="toolTip">
+                 <string>Only affects those nodes which have '-1' value of the number of photons appearing in the file</string>
+                </property>
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
@@ -631,8 +641,7 @@
                      </font>
                     </property>
                     <property name="toolTip">
-                     <string>Note that the probability value for the last point is ignored!
-The last point is only used to define the range of the semi-ultimate bin.</string>
+                     <string/>
                     </property>
                     <property name="text">
                      <string>Load</string>
@@ -2104,7 +2113,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="pbNodeFileAnalyze">
+                   <widget class="QPushButton" name="pbBombFileCheck">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2124,14 +2133,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                      </size>
                     </property>
                     <property name="text">
-                     <string>Analyse file</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="cbNodeFileCollectStatistics">
-                    <property name="text">
-                     <string>Collect statistics</string>
+                     <string>Check file</string>
                     </property>
                    </widget>
                   </item>
@@ -2158,6 +2160,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                     </property>
                     <property name="text">
                      <string>View</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbBombFileStatistics">
+                    <property name="text">
+                     <string>See statistics</string>
                     </property>
                    </widget>
                   </item>
@@ -2370,14 +2379,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               <item>
                <widget class="QPushButton" name="pbAnalyzeDepositionFile">
                 <property name="text">
-                 <string>Analyze file</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="cbCollectDepoStatistics">
-                <property name="text">
-                 <string>Collect statistics</string>
+                 <string>Check file</string>
                 </property>
                </widget>
               </item>
@@ -2398,6 +2400,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QPushButton" name="pbViewDepositionFile">
                 <property name="text">
                  <string>View</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbCollectDepoFileStatistics">
+                <property name="text">
+                 <string>See statistics</string>
                 </property>
                </widget>
               </item>
@@ -2640,9 +2649,9 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pbAnalyzeSinglePhotonsFile">
+               <widget class="QPushButton" name="pbCheckSinglePhotonsFile">
                 <property name="text">
-                 <string>Analyze file</string>
+                 <string>Check</string>
                 </property>
                </widget>
               </item>
@@ -2663,6 +2672,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <widget class="QPushButton" name="pbViewSinglePhotFile">
                 <property name="text">
                  <string>View</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbSeeStatisticsSinglePhotonsFile">
+                <property name="text">
+                 <string>See statistics</string>
                 </property>
                </widget>
               </item>
@@ -3284,6 +3300,66 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_61">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_61">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_42">
+            <property name="text">
+             <string>Seed:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbSeed">
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999999</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbRandomSeed">
+            <property name="text">
+             <string>random</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_62">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <spacer name="verticalSpacer_10">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3540,7 +3616,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">
@@ -4129,7 +4205,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
               <item>
                <widget class="QCheckBox" name="cbSensorsAll">
                 <property name="text">
-                 <string>All sensors</string>
+                 <string>Show all sensors</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -4176,7 +4252,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <item>
                   <widget class="QCheckBox" name="cbSensorsG1">
                    <property name="text">
-                    <string>G1</string>
+                    <string>Gr1</string>
                    </property>
                   </widget>
                  </item>
@@ -4200,7 +4276,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <item>
                   <widget class="QCheckBox" name="cbSensorsG2">
                    <property name="text">
-                    <string>G2</string>
+                    <string>Gr2</string>
                    </property>
                   </widget>
                  </item>
@@ -4221,7 +4297,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                  <item>
                   <widget class="QCheckBox" name="cbSensorsG3">
                    <property name="text">
-                    <string>G3</string>
+                    <string>Gr3</string>
                    </property>
                   </widget>
                  </item>
@@ -4229,6 +4305,13 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                   <widget class="QLineEdit" name="leSensorsG3">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pbUpdateSensorIndication">
+                   <property name="text">
+                    <string>...update</string>
                    </property>
                   </widget>
                  </item>
@@ -4240,7 +4323,7 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
             <item>
              <widget class="QTabWidget" name="twSensors">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tab_8">
                <attribute name="title">
@@ -4278,6 +4361,45 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
                <attribute name="title">
                 <string>Table</string>
                </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_25">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_54">
+                  <item>
+                   <widget class="QLabel" name="label_39">
+                    <property name="text">
+                     <string>Number of columns:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="sbSensorTableColumns">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_60">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="twSensorTable"/>
+                </item>
+               </layout>
               </widget>
              </widget>
             </item>
@@ -4625,12 +4747,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>128</x>
-     <y>552</y>
+     <x>148</x>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>519</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4641,12 +4763,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>259</x>
-     <y>552</y>
+     <x>262</x>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>519</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4657,12 +4779,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>389</x>
-     <y>552</y>
+     <x>391</x>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>519</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4673,12 +4795,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>502</y>
+     <x>168</x>
+     <y>494</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>519</y>
+     <x>551</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4689,8 +4811,8 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>472</x>
-     <y>82</y>
+     <x>459</x>
+     <y>79</y>
     </hint>
     <hint type="destinationlabel">
      <x>168</x>
@@ -4705,12 +4827,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>331</x>
-     <y>142</y>
+     <x>284</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>575</x>
-     <y>158</y>
+     <x>446</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
@@ -4721,12 +4843,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>191</y>
+     <x>400</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>391</x>
-     <y>339</y>
+     <x>103</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -4737,12 +4859,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>209</y>
+     <x>314</x>
+     <y>244</y>
     </hint>
     <hint type="destinationlabel">
-     <x>61</x>
-     <y>221</y>
+     <x>73</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -4753,12 +4875,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>221</y>
+     <x>435</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>220</y>
+     <x>417</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -4769,12 +4891,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>214</y>
+     <x>212</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4785,12 +4907,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>214</y>
+     <x>362</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4801,12 +4923,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>214</y>
+     <x>496</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4817,12 +4939,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>222</y>
+     <x>184</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4833,12 +4955,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>222</y>
+     <x>260</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4849,12 +4971,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>222</y>
+     <x>320</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4865,12 +4987,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>222</y>
+     <x>412</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4881,12 +5003,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>222</y>
+     <x>554</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4897,12 +5019,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>225</y>
+     <x>43</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
-     <x>58</x>
-     <y>208</y>
+     <x>85</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4913,12 +5035,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>228</y>
+     <x>43</x>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
-     <x>79</x>
-     <y>208</y>
+     <x>106</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4929,12 +5051,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>225</y>
+     <x>184</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4945,12 +5067,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>228</y>
+     <x>184</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4961,12 +5083,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>225</y>
+     <x>260</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4977,12 +5099,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>228</y>
+     <x>260</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -4993,12 +5115,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>225</y>
+     <x>320</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5009,12 +5131,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>228</y>
+     <x>320</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5025,12 +5147,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>225</y>
+     <x>412</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5041,12 +5163,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>228</y>
+     <x>412</x>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5057,12 +5179,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>225</y>
+     <x>554</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5073,12 +5195,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>228</y>
+     <x>554</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>208</y>
+     <x>123</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>
@@ -5089,12 +5211,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>192</y>
+     <x>68</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>182</x>
-     <y>193</y>
+     <x>73</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5105,12 +5227,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>195</y>
+     <x>82</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>326</x>
-     <y>194</y>
+     <x>87</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5121,12 +5243,12 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>194</y>
+     <x>96</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>516</x>
-     <y>192</y>
+     <x>101</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -5137,12 +5259,140 @@ The last point is only used to define the range of the semi-ultimate bin.</strin
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>38</x>
-     <y>204</y>
+     <x>53</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>206</y>
+     <x>105</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsAll</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsG1</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsG2</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSensorsG3</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leSensorsG1</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leSensorsG2</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leSensorsG3</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbUpdateSensorIndication</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRandomSeed</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbSeed</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>376</x>
+     <y>552</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>

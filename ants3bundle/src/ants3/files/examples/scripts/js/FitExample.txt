@@ -1,0 +1,47 @@
+
+var RealFrequency = 2.5
+var RealPhase = 1.0
+
+var bestD2 = 1e30
+msg.showWindow()
+msg.setGeometry( [0,0, 700, 600, false])
+msg.clear()
+
+function Functor() 
+{
+  var freq =  arguments[0] //arguments.length
+  var phase = arguments[1]
+
+  var d2 = 0
+  for (var i=0; i<50; i++)
+  {   
+    var data = Math.sin(RealFrequency * i*3.1415926/50 + RealPhase);
+    var sim = Math.sin(freq  * i*3.1415926/50 + phase)
+    d2 += (data-sim)*(data-sim);
+  }
+  d2 = Math.sqrt(d2)
+  
+  if (d2 < bestD2)
+  {
+     bestD2 = d2
+     var s = ""
+     s += " Frequency: " + core.str(freq,7) + "   \tPhase: " + core.str(phase,7) +" \tDelta: " + core.str(d2, 7)
+     msg.appendHtml(s)
+   }
+  
+  return d2;
+}
+
+mini.clear()
+mini.setFunctorName("Functor")
+mini.addVariable("Freq", 1.0, 0.2) // starting from frequency of 1.0
+mini.addVariable("Phas", 0.5, 0.1) // starting from frequency of 0.5
+var ok = mini.run()
+
+if (ok)
+{
+   core.print("Success!")
+   var res = mini.getResults()  
+   core.print("Found frequency of " + core.str(res[0], 7) + " and phase of " + core.str(res[1], 7))
+}
+else core.print("Minimization failed!")

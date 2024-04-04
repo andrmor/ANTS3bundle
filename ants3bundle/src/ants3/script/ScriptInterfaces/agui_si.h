@@ -21,6 +21,7 @@ public:
     AGui_SI(AGuiFromScrWin * parent);
 
     bool beforeRun() override;
+    bool afterRun() override;
     void abortRun() override;
 
 public slots:
@@ -84,18 +85,24 @@ public slots:
     void setEnabled(QString name, bool flag);
     void setVisible(QString name, bool flag);
 
+    void blockGui(bool flag);
+
 protected:
     AGuiFromScrWin * Win = nullptr;
     QMap<QString, QWidget*> Widgets;
     QMap<QString, QLayout*> Layouts;
 
-public slots:
+    bool  KeepLoop = false;
+
+private slots:
     void init();
     void doShow();
     void doHide();
     void doResize(int w, int h);
     void doMove(int x, int y);
     void doSetOnTop();
+    void onWindowClosed();
+    void doBlock(bool on);
 
 signals:
     void requestInit();
@@ -104,6 +111,7 @@ signals:
     void requestResize(int w, int h);
     void requestMove(int x, int y);
     void requestOnTop();
+    void requestBlock(bool on);
 };
 
 // ---- JavaScript ----
@@ -121,7 +129,7 @@ public slots:
     void buttonOnClick(QString name, QJSValue scriptFunction);
     void buttonOnRightClick(QString name, QJSValue scriptFunction);
 
-    void editOnTextChanged(QString name, QJSValue scriptFunction);
+    void editOnTextModified(QString name, QJSValue scriptFunction);
 
     void comboboxOnSelectionChanged(QString name, QJSValue scriptFunction);
 
@@ -144,7 +152,7 @@ public slots:
     void buttonOnClick(QString name, QString scriptFunctionName);
     void buttonOnRightClick(QString name, QString scriptFunctionName);
 
-    void editOnTextChanged(QString name, QString scriptFunctionName);
+    void editOnTextModified(QString name, QString scriptFunctionName);
 
     void comboboxOnSelectionChanged(QString name, QString scriptFunctionName);
 

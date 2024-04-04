@@ -40,6 +40,7 @@ public:
 
     void    clear();
 
+    void    convertPressureToDensity();
     void    generateGeoMedia();
     void    updateRuntimeProperties();
 

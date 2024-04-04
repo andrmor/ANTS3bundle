@@ -11,6 +11,7 @@
 #include <vector>
 
 class CurveFit;
+class AScriptMessenger;
 
 class ACore_SI : public AScriptInterface
 {
@@ -20,7 +21,9 @@ public:
     ACore_SI();
 //  ACore_SI(const ACore_SI& other);
 
-    AScriptInterface * cloneBase() const {return new ACore_SI();}
+    AScriptInterface * cloneBase() const override {return new ACore_SI();}
+
+    bool beforeRun() override;
 
 public slots:
     void    abort(QString message);
@@ -85,6 +88,8 @@ public slots:
     QVariantList getDirectories(const QString dir, const QString dirNamePattern);
 
     //misc
+    QString str(double value, int precision);
+    QString toStr(QVariant var);
     QString getExamplesDir();
     void    processEvents();
 //  void    reportProgress(int percents);
@@ -99,6 +104,8 @@ private:
     QSet<QString>   Finder_FileNames;
     QString         Finder_Dir;
     QString         Finder_NamePattern = "*.*";
+
+    AScriptMessenger * Messenger = nullptr;
 
     void readFormattedLine(const QStringList &fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
     bool readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);

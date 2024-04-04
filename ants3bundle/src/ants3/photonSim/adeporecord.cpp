@@ -38,6 +38,49 @@ bool ADepoRecord::readAscii(QString & line)
     return true;
 }
 
+void ADepoRecord::writeBinary(std::ofstream & stream) const
+{
+    stream << char(0xFF);
+
+    stream << Particle.toLatin1().data() << char(0x00);
+
+    stream.write((char*)&MatIndex, sizeof(int));
+    stream.write((char*)&Energy,   sizeof(double));
+    stream.write((char*)&Pos[0],   sizeof(double));
+    stream.write((char*)&Pos[1],   sizeof(double));
+    stream.write((char*)&Pos[2],   sizeof(double));
+    stream.write((char*)&Time,     sizeof(double));
+    stream.write((char*)&VolIndex, sizeof(int));
+}
+
+bool ADepoRecord::readBinary(std::ifstream & stream)
+{
+    char ch;
+    std::string pn;
+
+    while (stream >> ch)
+    {
+        if (ch == (char)0x00) break;
+        pn += ch;
+    }
+
+    Particle = pn.data();
+    stream.read((char*)&MatIndex, sizeof(int));
+    stream.read((char*)&Energy,   sizeof(double));
+    stream.read((char*)&Pos[0],   sizeof(double));
+    stream.read((char*)&Pos[1],   sizeof(double));
+    stream.read((char*)&Pos[2],   sizeof(double));
+    stream.read((char*)&Time,     sizeof(double));
+    stream.read((char*)&VolIndex, sizeof(int));
+    if (stream.fail())
+    {
+        AErrorHub::addError("ADepoRecord::readBinary: Unexpected format of a line in the binary file with the deposition data");
+        return false;
+    }
+
+    return true;
+}
+
 void ADepoRecord::print(QString & text)
 {
     text += Particle + "  " +
@@ -46,5 +89,4 @@ void ADepoRecord::print(QString & text)
             QString("Pos:(%0,%1,%2)mm  ").arg(Pos[0]).arg(Pos[1]).arg(Pos[2]) +
             QString("Time:%0ns  ").arg(Time) +
             QString("VolIndex:%0\n").arg(VolIndex);
-
 }

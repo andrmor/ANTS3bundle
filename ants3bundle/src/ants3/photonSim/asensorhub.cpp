@@ -261,7 +261,7 @@ double ASensorHub::getMaxQE(bool bWaveRes) const
         double modelMaxQE = Models[iModel].getMaxQE(bWaveRes);
         if (modelMaxQE > maxQE) maxQE = modelMaxQE;
     }
-    qDebug() << "----- Max QE:" << maxQE;
+    //qDebug() << "----- Max QE:" << maxQE;
     return maxQE;
 }
 

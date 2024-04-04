@@ -40,6 +40,12 @@ void AParticleSim_SI::simulate(bool updateGui)
     }
 }
 
+#include "aparticlesimsettings.h"
+void AParticleSim_SI::setSeed(double seed)
+{
+    SimMan.SimSet.RunSet.Seed = seed;
+}
+
 int AParticleSim_SI::countCalorimeters()
 {
     return ACalorimeterHub::getConstInstance().countCalorimeters();

@@ -11,7 +11,7 @@ AMsg_SI::AMsg_SI(ATextOutputWindow * msgWin) :
     Description = "Output to script message window";
 }
 
-void AMsg_SI::appendText(const QString & text)
+void AMsg_SI::appendText(QString text)
 {
     QTimer::singleShot(0, BaseWindow, [this, text]()
     {
@@ -19,7 +19,7 @@ void AMsg_SI::appendText(const QString & text)
     } );
 }
 
-void AMsg_SI::appendHtml(const QString & text)
+void AMsg_SI::appendHtml(QString text)
 {
     QTimer::singleShot(0, BaseWindow, [this, text]()
     {

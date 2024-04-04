@@ -3,6 +3,7 @@
 #include "ageometryhub.h"
 #include "ainterfacerulehub.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -108,6 +109,15 @@ std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEner
         if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
             v.push_back( {m->Name.toLatin1().data(), m->Composition.MeanExEnergy} );
     return v;
+}
+
+void AMaterialHub::convertPressureToDensity()
+{
+    for (AMaterial * mat : Materials)
+    {
+        QString err = mat->convertPressureToDensity();
+        if (!err.isEmpty()) AErrorHub::addQError("Gas to pressure convertion problem for " + mat->Name + ": " + err);
+    }
 }
 
 void AMaterialHub::generateGeoMedia()

@@ -127,6 +127,8 @@ private slots:
 
     void on_pbExamples_clicked();
 
+    void on_actionVersions_triggered();
+
 protected:
     void closeEvent(QCloseEvent * event);
 

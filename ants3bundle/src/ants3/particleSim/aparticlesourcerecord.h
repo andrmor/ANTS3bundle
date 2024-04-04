@@ -18,7 +18,7 @@ class G4ParticleDefinition;
 struct AGunParticle
 {
     enum EType {Independent, Linked_IfGenerated, Linked_IfNotGenerated};
-    enum EEneryUnits {meV, eV, keV, MeV};
+    enum EEneryUnits {meV, eV, keV, MeV, Angstrom};
 
     std::string  Particle        = "geantino";
 
@@ -95,11 +95,15 @@ struct AParticleSourceRecord
 
     // Angular properties
     EAngularMode AngularMode     = Isotropic;
-    double       DirectionPhi    = 0;
-    double       DirectionTheta  = 0;
-    bool         UseCutOff       = false;
-    double       CutOff          = 45.0;
-    double       DispersionSigma = 1.0;
+    bool         DirectionBySphericalAngles = false;
+    double       DirectionVectorX = 1.0;
+    double       DirectionVectorY = 0.0;
+    double       DirectionVectorZ = 0.0;
+    double       DirectionPhi     = 0;
+    double       DirectionTheta   = 0;
+    bool         UseCutOff        = false;
+    double       CutOff           = 45.0;
+    double       DispersionSigma  = 1.0;
     std::vector<std::pair<double, double>> AngularDistribution;
 
     // Time

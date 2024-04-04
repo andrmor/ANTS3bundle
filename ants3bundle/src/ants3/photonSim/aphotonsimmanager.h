@@ -22,6 +22,8 @@ public:
     static       APhotonSimManager & getInstance();
     static const APhotonSimManager & getConstInstance();
 
+    void setSeed(double seed);
+
 private:
     APhotonSimManager();
     ~APhotonSimManager(){}
@@ -58,6 +60,7 @@ private:
 
     std::vector<QString> StatisticsFiles;
     std::vector<QString> MonitorFiles;
+    std::vector<QString> ReceiptFiles;
 };
 
 #endif // APHOTONSIMMANAGER_H

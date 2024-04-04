@@ -36,6 +36,9 @@ AGui_SI::AGui_SI(AGuiFromScrWin * win) :
     connect(this, &AGui_SI::requestResize, this, &AGui_SI::doResize,   Qt::QueuedConnection);
     connect(this, &AGui_SI::requestMove,   this, &AGui_SI::doMove,     Qt::QueuedConnection);
     connect(this, &AGui_SI::requestOnTop,  this, &AGui_SI::doSetOnTop, Qt::QueuedConnection);
+    connect(this, &AGui_SI::requestBlock,  this, &AGui_SI::doBlock,    Qt::QueuedConnection);
+
+    connect(Win,  &AGuiFromScrWin::windowClosed, this, &AGui_SI::onWindowClosed, Qt::DirectConnection);
 }
 
 void AGui_SI::init()
@@ -77,14 +80,37 @@ void AGui_SI::doSetOnTop()
     Win->setWindowFlags(Win->windowFlags() |= Qt::WindowStaysOnTopHint);
 }
 
+void AGui_SI::onWindowClosed()
+{
+    KeepLoop = false;
+}
+
+void AGui_SI::doBlock(bool on)
+{
+    Win->setDisabled(on);
+}
+
 bool AGui_SI::beforeRun()
 {
     emit requestInit();
     return true;
 }
 
+#include <QApplication>
+#include <QThread>
+bool AGui_SI::afterRun()
+{
+    while (KeepLoop)
+    {
+        QThread::usleep(100);
+        QApplication::processEvents();
+    }
+    return true;
+}
+
 void AGui_SI::abortRun()
 {
+    KeepLoop = false;
     emit requestHide();
 }
 
@@ -639,7 +665,9 @@ void AGui_SI::messageBox(QString text)
 
 void AGui_SI::show()
 {
+    KeepLoop = true;
     emit requestShow();
+    QApplication::processEvents();
 }
 
 void AGui_SI::hide()
@@ -687,7 +715,12 @@ void AGui_SI::setVisible(QString name, bool flag)
                            QWidget * w = Widgets.value(name, 0);
                            if (!w) abort("Widget " + name + " does not exist");
                            else w->setVisible(flag);
-                       });
+    });
+}
+
+void AGui_SI::blockGui(bool flag)
+{
+    emit requestBlock(flag);
 }
 
 // ---- JavaScript ----
@@ -771,7 +804,7 @@ void AGui_JS_SI::buttonOnRightClick(QString name, QJSValue scriptFunction)
                        } );
 }
 
-void AGui_JS_SI::editOnTextChanged(QString name, QJSValue scriptFunction)
+void AGui_JS_SI::editOnTextModified(QString name, QJSValue scriptFunction)
 {
     QTimer::singleShot(0, Win, [this, name, scriptFunction]()
                        {
@@ -798,7 +831,7 @@ void AGui_JS_SI::editOnTextChanged(QString name, QJSValue scriptFunction)
                            else
                            {
                                QString functionName = scriptFunction.toString();
-                               connect(e, &ALineEdit::textChanged, Win, [functionName]()
+                               connect(e, &ALineEdit::editingFinished, Win, [functionName]()
                                        {
                                            AScriptHub & hub = AScriptHub::getInstance();
                                            bool ok = hub.getJScriptManager().callFunctionNoArguments(functionName);
@@ -948,7 +981,7 @@ void AGui_Py_SI::buttonOnRightClick(QString name, QString scriptFunctionName)
     } );
 }
 
-void AGui_Py_SI::editOnTextChanged(QString name, QString scriptFunctionName)
+void AGui_Py_SI::editOnTextModified(QString name, QString scriptFunctionName)
 {
     QTimer::singleShot(0, Win, [this, name, scriptFunctionName]()
                        {

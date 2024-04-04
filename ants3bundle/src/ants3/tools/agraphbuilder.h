@@ -20,6 +20,7 @@ namespace AGraphBuilder
     TGraph * graph(const std::vector<double> & x, const std::vector<double> & y);
     TGraph * graph(const std::vector<float>& x, const std::vector<float>& y);
     TGraph * graph(const std::vector<std::pair<double, double>> & data);
+    TGraph * graph(const std::vector<std::pair<int, double>> & data);
     TGraph * graph(const std::vector<std::pair<double,std::complex<double>>> & data, bool real);
 
     TGraph * graph(const QVector<double>& x, const QVector<double>& y,

@@ -25,6 +25,9 @@ public:
     explicit APhotSimWin(QWidget * parent = nullptr);
     ~APhotSimWin();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 public slots:
     void updateGui();
 
@@ -85,12 +88,13 @@ private slots:
     void on_pbShowTimeDistr_clicked();
     void on_pbShowAngleDistr_clicked();
 
+    // monitors
     void on_cobMonitor_activated(int index);
     void on_sbMonitorIndex_editingFinished();
     void on_pbNextMonitor_clicked();
     void on_pbChooseMonitorsFile_clicked();
     void on_pbLoadMonitorsData_clicked();
-
+    //
     void on_pbMonitorShowAngle_clicked();
     void on_pbMonitorShowXY_clicked();
     void on_pbMonitorShowTime_clicked();
@@ -99,50 +103,50 @@ private slots:
     void on_pbShowMonitorHitDistribution_clicked();
     void on_pbShowMonitorTimeOverall_clicked();
 
+    // deposition from file
     void on_pbChangeDepositionFile_clicked();
     void on_leDepositionFile_editingFinished();
     void on_cbPrimaryScint_clicked(bool checked);
     void on_cbSecondaryScint_clicked(bool checked);
-
     void on_pbAnalyzeDepositionFile_clicked();
-
-    void on_pbdUpdateScanSettings_clicked();
-
+    void on_pbCollectDepoFileStatistics_clicked();
     void on_pbAdvancedBombSettings_clicked();
-
-    void on_leNodeFileName_editingFinished();
-    void on_pbNodeFileChange_clicked();
-    void on_pbNodeFileAnalyze_clicked();
-    void on_pbNodeFilePreview_clicked();
-    void on_pbNodeFileHelp_clicked();
-    void on_cobNodeGenerationMode_currentIndexChanged(int index);
-
-    void on_leSinglePhotonsFile_editingFinished();
-    void on_pbChangeSinglePhotonsFile_clicked();
-    void on_pbAnalyzeSinglePhotonsFile_clicked();
-    void on_pbViewSinglePhotFile_clicked();
-    void on_pbSinglePhotonsHelp_clicked(); // !!!***
-
-    void on_pbSelectBombsFile_clicked();
-
-    void on_pbChangeWorkingDir_clicked();
-
-    void on_pbLoadAllResults_clicked();
-
     void on_pbViewDepositionFile_clicked();
     void on_pbHelpDepositionFile_clicked();
 
+    // photon bombs from file
+    void on_pbSelectBombsFile_clicked();
+    void on_leNodeFileName_editingFinished();
+    void on_pbNodeFileChange_clicked();
+    void on_pbBombFileCheck_clicked();
+    void on_pbBombFileStatistics_clicked();
+    void on_pbNodeFilePreview_clicked();
+    void on_pbNodeFileHelp_clicked();
+    void on_pbShowBombsMultiple_clicked();
+    void on_cobNodeGenerationMode_currentIndexChanged(int index);
+    void on_pbdUpdateScanSettings_clicked();
+
+    // single photons from file
+    void on_leSinglePhotonsFile_editingFinished();
+    void on_pbChangeSinglePhotonsFile_clicked();
+    void on_pbCheckSinglePhotonsFile_clicked();
+    void on_pbSeeStatisticsSinglePhotonsFile_clicked();
+    void on_pbViewSinglePhotFile_clicked();
+    void on_pbSinglePhotonsHelp_clicked();
+
+    void on_pbChangeWorkingDir_clicked();
+    void on_pbLoadAllResults_clicked();
+
     void on_tbwResults_currentChanged(int index);
 
+    void on_sbEvent_editingFinished();
+    void on_pbEventNumberLess_clicked();
+    void on_pbEventNumberMore_clicked();
     void on_pbShowEvent_clicked();
 
-    void on_pbEventNumberLess_clicked();
-
-    void on_pbEventNumberMore_clicked();
-
     void on_pbChooseSensorSigFile_clicked();
-
-    void on_pbShowBombsMultiple_clicked();
+    void on_sbSensorTableColumns_editingFinished();
+    void on_pbUpdateSensorIndication_clicked();
 
 
 private:
@@ -152,8 +156,8 @@ private:
     Ui::APhotSimWin    * ui        = nullptr;
     ASensorDrawWidget  * gvSensors = nullptr;
 
-    ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
-    APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, later to simMamager to be accessible from scripts ?
+    ABombFileSettings      * BombFileSettings = nullptr; // !!!*** tmp, move to simMamager to be accessible from scripts ?
+    APhotonBombFileHandler * BombFileHandler  = nullptr; // !!!*** tmp, move to simMamager to be accessible from scripts ?
 
     AFileSettingsBase * SignalsFileSettings = nullptr;
     AFileHandlerBase  * SignalsFileHandler  = nullptr;
@@ -174,15 +178,15 @@ private:
 
     void updateAdvancedBombIndicator();
 
-
-    void disableGui(bool flag); // !!!*** make it for global interface
-
+    void setGuiEnabled(bool flag); // !!!*** make it public to use in global disable/enable?
 
     void doShowEvent();
 
-    void showSensorSignal(bool suppressMessage);
-    void showSensorSignalDraw();
-    void showSensorSignalTable();
+    void showSensorSignals(bool suppressMessage);
+    void showSensorSignalDraw(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors);
+    void showSensorSignalTable(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors);
+    void fillListEnabledSensors(std::vector<int> & enabledSensors);
+    void reshapeSensorSignalTable();
 
     void showBombSingleEvent();
     bool updateBombHandler();

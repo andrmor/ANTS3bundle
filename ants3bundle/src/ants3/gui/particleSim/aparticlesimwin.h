@@ -35,6 +35,9 @@ public:
     explicit AParticleSimWin(QWidget * parent = nullptr);  // !!!*** add validators
     ~AParticleSimWin();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 public slots:
     void updateGui();
     void updateResultsGui();
@@ -275,6 +278,10 @@ private slots:
     void on_ledPTHistToY_editingFinished();
     void on_pbCaloShowDepoOverEvent_clicked();
 
+    void on_pbChooseDepositionFile_clicked();
+    void on_pbHelpOnDepositionDataFormat_clicked();
+    void on_pbAnalyzeDepositionFile_clicked();
+    void on_cbRandomSeed_toggled(bool checked);
 };
 
 #endif // APARTICLESIMWIN_H

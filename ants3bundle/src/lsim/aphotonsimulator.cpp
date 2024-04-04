@@ -110,11 +110,15 @@ void APhotonSimulator::start()
         jstools::saveJsonToFile(json, WorkingDir + '/' + SimSet.RunSet.FileNameMonitors);
     }
 
+    generateReceipt();
+
     QCoreApplication::exit();
 }
 
+#include "TRandom.h"
 void APhotonSimulator::setupCommonProperties()
 {
+    gRandom->SetSeed(SimSet.RunSet.Seed); // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -195,7 +199,6 @@ void APhotonSimulator::saveSensorHits()
 
 void APhotonSimulator::savePhotonBomb(ANodeRecord & node)
 {
-    //*StreamPhotonBombs << node.R[0] << ' ' << node.R[1] << ' ' << node.R[2] << ' ' << node.Time << ' ' << node.NumPhot << '\n';
     node.writeAscii(*StreamPhotonBombs);
 }
 
@@ -205,6 +208,7 @@ void APhotonSimulator::reportProgress()
     std::cout.flush();
 }
 
+#include "TH1D.h"
 void APhotonSimulator::setupPhotonBombs()
 {
     Photon.SecondaryScint = false;
@@ -231,27 +235,56 @@ void APhotonSimulator::setupPhotonBombs()
     if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
     if (AdvSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(AdvSet.Material);
 
-/*
-    if (PhotSimSettings.PerNodeSettings.Mode == APhotonSim_PerNodeSettings::Custom)
+    // custom distribution of photons per bomb
+    if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
     {
         delete CustomHist; CustomHist = nullptr;
 
-        const QVector<ADPair> Dist = PhotSimSettings.PerNodeSettings.CustomDist;
-        const int size = Dist.size();
-        if (size == 0)
-        {
-            ErrorString = "Config does not contain per-node photon distribution";
-            return false;
-        }
+        const std::vector<std::pair<int,double>> & dist = SimSet.BombSet.PhotonsPerBomb.CustomDist;
+        const size_t size = dist.size();
+        if (size == 0) terminate("Custom distribution of photons per bomb is empty!");
+        // !!!*** do other checks (positive, increasing order)
 
-        double X[size];
-        for (int i = 0; i < size; i++) X[i] = Dist.at(i).first;
-
-        CustomHist = new TH1D("", "NumPhotDist", size-1, X);
-        for (int i = 1; i < size + 1; i++) CustomHist->SetBinContent(i, Dist.at(i-1).second);
-        CustomHist->GetIntegral(); //will be thread safe after this
+        createCustomDist(dist);
+        CustomHist->GetIntegral();
     }
-*/
+}
+
+double interpolateHere(double a, double b, double fraction)
+{
+    //out("    interpolation->", a, b, fraction);
+    if (fraction == 0.0) return a;
+    if (fraction == 1.0) return b;
+    return a + fraction * (b - a);
+}
+
+void APhotonSimulator::createCustomDist(const std::vector<std::pair<int, double>> & dist)
+{
+    int From = dist.front().first;
+    int To   = dist.back().first;
+    size_t num = To - From + 1;
+    CustomHist = new TH1D("", "NumPhotDist", num, From, To+1);
+
+    int numPhot = From;
+    size_t positionInDist = 0;
+    while (numPhot <= To)
+    {
+        while (dist[positionInDist].first < numPhot) positionInDist++; // can be just ++ as dist contains unique non-decreasing ints?
+
+        double val;
+        if (dist[positionInDist].first == numPhot) val = dist[positionInDist].second; // exact match
+        else
+        {
+            // need to interpolate
+
+            //const double interpolationFactor = (r - data[indexOriginal].first) / ( data[indexOriginal+1].first - data[indexOriginal].first );
+            const double interpolationFactor = (numPhot - dist[positionInDist-1].first) / (dist[positionInDist].first - dist[positionInDist-1].first);
+            //const double interpolatedValue   = interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
+            val = interpolateHere(dist[positionInDist-1].second, dist[positionInDist].second, interpolationFactor);
+        }
+        CustomHist->Fill(numPhot, val);
+        numPhot++;
+    }
 }
 
 void APhotonSimulator::simulatePhotonBombs()
@@ -316,7 +349,10 @@ void APhotonSimulator::simulateFromDepo()
             }
         }
 
-        DepoHandler->acknowledgeNextEvent();  // !!!*** is end of file reached when it should not yet?
+        DepoHandler->acknowledgeNextEvent();
+        DepoHandler->skipToNextEventRecord();
+
+        // !!!*** is end of file reached when it should not yet?
 
         doAfterEvent();
     }
@@ -370,7 +406,7 @@ int APhotonSimulator::getNumPhotonsThisBomb()
         num = std::round( RandomHub.gauss(PS.NormalMean, PS.NormalSigma) );
         break;
     case APhotonsPerBombSettings::Custom :
-//        num = CustomHist->GetRandom();
+        num = CustomHist->GetRandom();
         break;
     case APhotonsPerBombSettings::Poisson :
         num = RandomHub.poisson(PS.PoissonMean);
@@ -384,9 +420,9 @@ int APhotonSimulator::getNumPhotonsThisBomb()
 bool APhotonSimulator::simulateSingle()
 {
     const double * r = SimSet.BombSet.SingleSettings.Position;
-    ANodeRecord node(r[0], r[1], r[2], 0, -1);
+    ANodeRecord node(r[0], r[1], r[2]);
     doBeforeEvent();
-    simulatePhotonBomb(node);
+    simulatePhotonBomb(node, true);
     doAfterEvent();
     return true;
 }
@@ -447,7 +483,7 @@ bool APhotonSimulator::simulateGrid()
                 }
 
                 doBeforeEvent();
-                simulatePhotonBomb(node);
+                simulatePhotonBomb(node, true);
                 doAfterEvent();
             }
 
@@ -530,7 +566,7 @@ bool APhotonSimulator::simulateFlood()
         }
 
         doBeforeEvent();
-        simulatePhotonBomb(node);
+        simulatePhotonBomb(node, true);
         doAfterEvent();
     }
     return true;
@@ -567,7 +603,10 @@ bool APhotonSimulator::simulateBombsFromFile()
     {
         doBeforeEvent();
         while (fh.readNextRecordSameEvent(node))
-            simulatePhotonBomb(node);
+        {
+            const bool overrideNumPhot = (node.NumPhot == -1);
+            simulatePhotonBomb(node, overrideNumPhot);
+        }
         doAfterEvent();
 
         fh.acknowledgeNextEvent();
@@ -658,7 +697,13 @@ void APhotonSimulator::loadConfig()
     QJsonObject json;
     jstools::loadJsonFromFile(json, WorkingDir + "/" + ConfigFN);
 
-    QString Error = AMaterialHub::getInstance().readFromJson(json);
+    // this block was the last!
+    QString Error = APhotonSimHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
+    LOG.flush();
+
+    Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();
@@ -680,10 +725,12 @@ void APhotonSimulator::loadConfig()
     LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
 
+    /*
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
     LOG.flush();
+    */
 }
 
 void APhotonSimulator::doBeforeEvent()
@@ -699,7 +746,7 @@ void APhotonSimulator::doAfterEvent()
     reportProgress();
 }
 
-void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
+void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons)
 {
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
@@ -709,8 +756,7 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node)
     }
     else
     {
-        if (node.NumPhot == -1)
-            node.NumPhot = getNumPhotonsThisBomb();
+        if (overrideNumPhotons) node.NumPhot = getNumPhotonsThisBomb();
     }
 
     generateAndTracePhotons(node);
@@ -768,6 +814,20 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
 void APhotonSimulator::terminate(const QString & reason)
 {
     LOG << reason;
-    qDebug() << reason;
+
+    std::cout << "$$>" << reason.toLatin1().data() << std::endl; // will flush
+    generateReceipt(reason);
+
     exit(1);
+}
+
+void APhotonSimulator::generateReceipt(const QString & optionalError)
+{
+    QJsonObject receipt;
+
+    bool bSuccess = optionalError.isEmpty();
+    receipt["Success"] = bSuccess;
+    if (!bSuccess) receipt["Error"] = optionalError;
+
+    jstools::saveJsonToFile(receipt, WorkingDir + "/" + SimSet.RunSet.FileNameReceipt);
 }

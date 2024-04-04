@@ -104,3 +104,10 @@ double AVector3::angle(const AVector3 & vec) const
           return acos(arg);
        }
 }
+
+void AVector3::toUnitVector()
+{
+    const double m2 = mag2();
+    double factor = ( (m2 > 0) ? 1.0/sqrt(m2) : 1.0 );
+    for (size_t i = 0; i < 3; i++) r[i] *= factor;
+}

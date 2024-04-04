@@ -1,0 +1,52 @@
+// --- Warning! ---
+//  This script prints a lot of text. 
+// Recommended to start with < 100 events
+
+var dir = "/home/andr/tmp"
+var fileName = "TrackingData.dat"
+tracks.open(dir + "/" + fileName)
+
+function outText(depth)
+{
+       var pr = tracks.getTrackRecord()
+       core.print("> " + pr[0])
+       while (tracks.makeStep())
+       {
+              var trPre = tracks.getPreStepRecord()
+              var trPost = tracks.getPostStepRecord()
+              core.print(trPre, "  ->-  ", trPost)
+       }
+       
+       var numSec = tracks.countSecondaries()
+       for (var iSec=0; iSec<numSec; iSec++)
+       {
+              var str = depth
+              if (str.length > 0) str += ":"
+              str += iSec
+              core.print("Secondary #" + str)
+              tracks.enterSecondary(iSec)
+              outText(str)
+              tracks.exitSecondary()
+       }       
+}
+
+var numEvents = tracks.countEvents()
+if (numEvents == 0) core.abort("No data!")
+
+core.clearOutput()
+core.print("Tracking step report format:\n[X, Y, Z], Time, [iMaterial, Volume, Index], EnergyAfterStep, DirectlyDepositedEnergy, Process, TragetIsotope, CreatedSecondaries\n")
+core.print("Custom process names:\n'C' - creation\n'T' - transportation\n'O' - exit outside defined geometry\n")
+
+for (var iEv=0; iEv<numEvents; iEv++)
+{
+       core.print("\n==> EVENT #" + iEv)
+       tracks.setEvent(iEv)
+       var numPrim = tracks.countPrimaries(iEv)
+       for (var iPr=0; iPr<numPrim; iPr++)
+       {
+              core.print("--> Primary #" + iPr)
+              tracks.setPrimary(iPr)
+              outText("")
+       }       
+}
+

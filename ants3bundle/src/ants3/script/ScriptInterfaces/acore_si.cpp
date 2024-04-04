@@ -7,6 +7,7 @@
     #include "apythonscriptmanager.h"
 #endif
 #include "afiletools.h"
+#include "ascriptmessenger.h"
 
 #ifdef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
 #include <QProcess>
@@ -66,6 +67,13 @@ ACore_SI::ACore_SI() : AScriptInterface()
           "you can specify lin numbers to start from and to: by default it is set to 0 and 1e6";
     Help["loadArrayBinary"] = "Load array of arrays (binary data), with second argument providing the format\n"
           "This parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively)";
+
+}
+
+bool ACore_SI::beforeRun()
+{
+    delete Messenger; Messenger = new AScriptMessenger(Lang);
+    return true;
 }
 
 /*
@@ -80,6 +88,11 @@ void ACore_SI::abort(QString message)
 {
     //qDebug() << ">Core module: abort triggered!";
     //AJScriptHub::getInstance().abort(message);
+
+    //MessengerTxt->flush();
+    //MessengerHtml->flush();
+    Messenger->flush();
+
     AScriptInterface::abort(message);
 }
 
@@ -239,7 +252,9 @@ void ACore_SI::print(QVariant message)
 {
     QString s;
     AVirtualScriptManager::addQVariantToString(message, s, Lang);
-    AScriptHub::getInstance().outputText(s, Lang);
+    //AScriptHub::getInstance().outputText(s, Lang);
+    //MessengerTxt->output(s);
+    Messenger->output(s, false);
 }
 
 void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6, QVariant m7, QVariant m8, QVariant m9, QVariant m10)
@@ -255,7 +270,9 @@ void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVarian
     AVirtualScriptManager::addQVariantToString(m8,  s, Lang); s += " ";
     AVirtualScriptManager::addQVariantToString(m9,  s, Lang); s += " ";
     AVirtualScriptManager::addQVariantToString(m10, s, Lang);
-    AScriptHub::getInstance().outputText(s, Lang);
+    //AScriptHub::getInstance().outputText(s, Lang);
+    //MessengerTxt->output(s);
+    Messenger->output(s, false);
 }
 
 void ACore_SI::printHtml(QString text)
@@ -263,11 +280,17 @@ void ACore_SI::printHtml(QString text)
     //QString s;
     //AVirtualScriptManager::addQVariantToString(text, s, Lang);
     //AScriptHub::getInstance().outputHtml(s, Lang);
-    AScriptHub::getInstance().outputHtml(text, Lang);
+    //AScriptHub::getInstance().outputHtml(text, Lang);
+
+    //MessengerHtml->output(text);
+    Messenger->output(text, true);
 }
 
 void ACore_SI::clearOutput()
 {
+    //MessengerTxt->clear();
+    //MessengerHtml->clear();
+    Messenger->clear();
     AScriptHub::getInstance().clearOutput(Lang);
 }
 
@@ -1104,6 +1127,18 @@ QVariantList ACore_SI::getDirectories(const QString dir, const QString dirNamePa
     QVariantList Dirs;
     for (const QString & s : dl) Dirs << s;
     return Dirs;
+}
+
+QString ACore_SI::str(double value, int precision)
+{
+    return QString::number(value, 'g', precision);
+}
+
+QString ACore_SI::toStr(QVariant var)
+{
+    QString s;
+    AVirtualScriptManager::addQVariantToString(var, s, Lang);
+    return s;
 }
 
 void ACore_SI::processEvents()

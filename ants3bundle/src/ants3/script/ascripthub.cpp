@@ -24,6 +24,7 @@
 #include "asensor_si.h"
 #include "aparticlesim_si.h"
 #include "arootstyle_si.h"
+#include "apet_si.h"
 
 AScriptHub & AScriptHub::getInstance()
 {
@@ -36,6 +37,7 @@ AJScriptManager & AScriptHub::manager()
     return getInstance().getJScriptManager();
 }
 
+#include <QTimer>
 void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
     AScriptHub & hub = getInstance();
@@ -47,9 +49,23 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
     ADispatcherInterface::getInstance().abortTask();
 
 #ifdef ANTS3_PYTHON
-    if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
+    //if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
+    if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_P(message); } );
 #endif
-    if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
+    //if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
+    if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_JS(message); } );
+}
+
+bool AScriptHub::isAborted(EScriptLanguage lang)
+{
+    AScriptHub & hub = getInstance();
+
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::Python)     return hub.PythonM->isAborted();
+#endif
+    if (lang == EScriptLanguage::JavaScript) return hub.JavaScriptM->isAborted();
+
+    return false;
 }
 
 #include "ageowin_si.h"
@@ -102,10 +118,25 @@ void AScriptHub::outputHtml(const QString &text, EScriptLanguage lang)
     else                                     emit outputHtml_P(text);
 }
 
+void AScriptHub::outputFromBuffer(const std::vector<std::pair<bool, QString>> & buffer, EScriptLanguage lang)
+{
+    if (lang == EScriptLanguage::JavaScript) emit outputFromBuffer_JS(buffer);
+    else                                     emit outputFromBuffer_P(buffer);
+}
+
 void AScriptHub::clearOutput(EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit clearOutput_JS();
     else                                     emit clearOutput_P();
+}
+
+QString AScriptHub::getPythonVersion()
+{
+#ifdef ANTS3_PYTHON
+    return getPythonManager().getVersion();
+#else
+    return "Not available";
+#endif
 }
 
 AScriptHub::AScriptHub()
@@ -136,6 +167,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new AHist_SI(),         "hist");
     addCommonInterface(new ATree_SI(),         "tree");
     addCommonInterface(new ARootStyle_SI(),    "root");
+    addCommonInterface(new APet_si(),          "pet");
     addCommonInterface(new ADemo_SI(),         "demo");
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");

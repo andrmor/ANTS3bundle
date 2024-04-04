@@ -30,6 +30,7 @@ class TLegend;
 class TGaxis;
 class AMultiGraphDesigner;
 class AScriptInterface;
+class AViewer3D;
 
 namespace Ui {
 class GraphWindowClass;
@@ -134,6 +135,8 @@ public:
     QString UseProjectionTool(const QString & option);
     void    ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
 
+    void close3DviewWindow();
+
 protected:
     void mouseMoveEvent(QMouseEvent * event);
     bool event(QEvent * event);
@@ -154,6 +157,8 @@ public slots:
 
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
     void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
+
+    void show3D(QString castorFileName);
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
@@ -247,6 +252,7 @@ private slots:
     void on_actionOpen_MultiGraphDesigner_triggered();
 
     void onExternalBasketChange();
+
 private:
     Ui::GraphWindowClass * ui;
 
@@ -257,6 +263,7 @@ private:
     QGraphicsView          * gvOver       = nullptr;
     AToolboxScene          * scene        = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
+    AViewer3D              * Viewer3D     = nullptr;
 
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window

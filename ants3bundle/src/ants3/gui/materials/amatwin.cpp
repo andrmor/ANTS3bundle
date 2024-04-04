@@ -65,6 +65,8 @@ AMatWin::AMatWin(QWidget * parent) :
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     ui->leComposition->setAlignment(Qt::AlignHCenter);
+
+    on_cbGas_toggled(ui->cbGas->isChecked());
 }
 
 AMatWin::~AMatWin()
@@ -108,7 +110,14 @@ bool AMatWin::checkCurrentMaterial()
     if ( !parseDecayOrRaiseTime(true) )  return false;  //error messaging inside
     if ( !parseDecayOrRaiseTime(false) ) return false;  //error messaging inside
 
-    QString error = tmpMaterial.checkMaterial();
+    QString error = tmpMaterial.convertPressureToDensity();
+    if (!error.isEmpty())
+    {
+        guitools::message(error, this);
+        return false;
+    }
+
+    error = tmpMaterial.checkMaterial();
     if (!error.isEmpty())
     {
         guitools::message(error, this);
@@ -362,12 +371,41 @@ void AMatWin::fillElementInfo()
     }
 }
 
+std::pair<QString,int> pressureToStringAndCobIndex(double pressure_bar, const QString & units)
+{
+    double factor = 1.0;
+    int    index = 0;
+    QString sPressure;
+    if      (units == "bar")  {index = 0; factor = 1.0;}
+    else if (units == "mbar") {index = 1; factor = 1e3;}
+    else if (units == "hPa")  {index = 2; factor = 1e3;}
+    else if (units == "Torr") {index = 3; factor = 1.0/0.00133322;}
+    else qWarning() << "Unknown preffered pressure units:" << units;
+
+    double pressure = pressure_bar * factor;
+    sPressure = QString::number(pressure);
+    return {sPressure, index};
+}
+
 void AMatWin::updateTmpMaterialGui()
 {
     ui->leName->setText(tmpMaterial.Name);
 
     ui->ledDensity->setText( QString::number(tmpMaterial.Composition.Density) );
     ui->ledT->setText( QString::number(tmpMaterial.Composition.Temperature) );
+    ui->cbGas->setChecked(tmpMaterial.Composition.Gas);
+    if (tmpMaterial.Composition.Gas)
+    {
+        std::pair<QString,int> pair = pressureToStringAndCobIndex(tmpMaterial.Composition.Pressure_bar, tmpMaterial.Composition.P_gui_units);
+        ui->ledPressure->setText(pair.first);
+        ui->cobPressureUnits->setCurrentIndex(pair.second);
+    }
+    else
+    {
+        ui->ledPressure->setText("1");
+        ui->cobPressureUnits->setCurrentIndex(0);
+    }
+
     ui->cobMeanExcitationEnergy->setCurrentIndex(tmpMaterial.Composition.UseCustomMeanExEnergy ? 1 : 0);
     ui->frMeanExcitationEnergy->setVisible(tmpMaterial.Composition.UseCustomMeanExEnergy);
     ui->ledMeanExcitationEnergy->setText( QString::number(tmpMaterial.Composition.MeanExEnergy) );
@@ -468,7 +506,20 @@ void AMatWin::updateWarningIcons()
     }
     else
     */
-        ui->twProperties->setTabIcon(0, QIcon());
+    ui->twProperties->setTabIcon(0, QIcon());
+}
+
+double pressureToBars(double p, const QString & units)
+{
+    double factor = 1.0;
+
+    if      (units == "bar")  factor = 1.0;
+    else if (units == "mbar") factor = 1e-3;
+    else if (units == "hPa")  factor = 1e-3;
+    else if (units == "Torr") factor = 0.00133322;
+    else qWarning() << "Not implemented pressure unit:" << units << "--> assuming bar";
+
+    return p * factor;
 }
 
 void AMatWin::on_pbUpdateTmpMaterial_clicked()
@@ -480,6 +531,21 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 
     tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
     tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
+
+    tmpMaterial.Composition.Gas = ui->cbGas->isChecked();
+    if (tmpMaterial.Composition.Gas)
+    {
+        double p = ui->ledPressure->text().toDouble();
+        QString units = ui->cobPressureUnits->currentText();
+        tmpMaterial.Composition.Pressure_bar = pressureToBars(p, units);
+        tmpMaterial.Composition.P_gui_units = units;
+    }
+    else
+    {
+        tmpMaterial.Composition.Pressure_bar = 1.0;
+        tmpMaterial.Composition.P_gui_units = "bar";
+    }
+
     tmpMaterial.Composition.UseCustomMeanExEnergy = (ui->cobMeanExcitationEnergy->currentIndex() == 1);
     tmpMaterial.Composition.MeanExEnergy = ui->ledMeanExcitationEnergy->text().toDouble();
 
@@ -491,7 +557,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };
 
     tmpMaterial.PhotonYield = ui->ledPrimaryYield->text().toDouble();
-    //tmpMaterial.IntrEnResDefault   = ui->ledIntEnergyRes->text().toDouble(); //custom procedure on editing finished!
+    tmpMaterial.IntrEnergyRes = ui->ledIntEnergyRes->text().toDouble();
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
     tmpMaterial.SecScintPhotonYield = ui->ledSecYield->text().toDouble();
@@ -1132,6 +1198,7 @@ void AMatWin::on_pbClone_clicked()
 
 void AMatWin::on_pbAcceptChanges_clicked()
 {
+    tmpMaterial.Comments = ui->pteComments->toPlainText();
     bool ok = checkCurrentMaterial();
     if (!ok) return;
 
@@ -1148,7 +1215,6 @@ void AMatWin::on_pbAcceptChanges_clicked()
             return;
         }
     }
-
     if (!oldName.isEmpty()) tmpMaterial.Name = oldName;
     MatHub.copyToMaterials(tmpMaterial);
 
@@ -1253,7 +1319,11 @@ void AMatWin::on_leComposition_editingFinished()
 
     ui->leComposition->blockSignals(true);  // -->
     bool ok = tmpMaterial.Composition.setCompositionString(ui->leComposition->text());
-    if (ok) updateTmpMaterialGui();
+    if (ok)
+    {
+        updateTmpMaterialGui();
+        if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
+    }
     else guitools::message(tmpMaterial.Composition.ErrorString, this);
     ui->leComposition->blockSignals(false);  // <--
 
@@ -1294,5 +1364,41 @@ void AMatWin::on_pbInspectG4Material_clicked()
 void AMatWin::on_cobMeanExcitationEnergy_currentIndexChanged(int index)
 {
     ui->frMeanExcitationEnergy->setVisible(index == 1);
+}
+
+void AMatWin::on_cbGas_toggled(bool checked)
+{
+    ui->labPressure->setVisible(checked);
+    ui->ledPressure->setVisible(checked);
+    ui->cobPressureUnits->setVisible(checked);
+
+    ui->ledDensity->setDisabled(checked);
+    ui->labDensity->setText(checked ? "Density (assuming ideal gas):" : "Density:");
+    ui->ledDensity->setToolTip(checked ? "Cannot modify pressure directly if 'Gas' option is selected!" : "");
+}
+
+void AMatWin::on_ledPressure_editingFinished()
+{
+    on_pbUpdateTmpMaterial_clicked();
+    QString err = tmpMaterial.convertPressureToDensity();
+    if (!err.isEmpty()) guitools::message(err, this);
+    ui->ledDensity->setText(QString::number(tmpMaterial.Composition.Density));
+}
+
+void AMatWin::on_cbGas_clicked(bool checked)
+{
+    if (checked) on_ledPressure_editingFinished();
+    else on_pbUpdateTmpMaterial_clicked();
+}
+
+void AMatWin::on_cobPressureUnits_activated(int)
+{
+    on_ledPressure_editingFinished();
+}
+
+void AMatWin::on_ledT_editingFinished()
+{
+    if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
+    else on_pbUpdateTmpMaterial_clicked();
 }
 

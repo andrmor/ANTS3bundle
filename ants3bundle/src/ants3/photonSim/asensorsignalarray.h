@@ -5,6 +5,8 @@
 
 #include <vector>
 
+// !!!*** change to double?
+
 class ASensorSignalArray : public ADataIOBase
 {
 public:
@@ -16,7 +18,7 @@ public:
     bool readAscii(QString & line) override;
 
     //void writeBinary() const override;
-    //bool readBinary() override;
+    bool readBinary(std::ifstream & stream) override;
 
     void print(QString & text) override;
 };

@@ -23,8 +23,8 @@ public:
     void writeAscii(QTextStream & stream) const override;
     bool readAscii(QString & line) override;
 
-    //void writeBinary() const override;
-    //bool readBinary() override;
+    void writeBinary(std::ofstream & stream) const override;
+    bool readBinary(std::ifstream & stream) override;
 
     void print(QString & text) override;
 };

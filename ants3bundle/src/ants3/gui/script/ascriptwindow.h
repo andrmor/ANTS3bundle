@@ -26,6 +26,7 @@ class ATabRecord;
 class QTabWidget;
 class A3Global;
 class AVirtualScriptManager;
+class AScriptExampleExplorer;
 
 namespace Ui {
 class AScriptWindow;
@@ -91,6 +92,8 @@ private:
     QStringList         ListOfDeprecatedOrRemovedMethods;
     QStringList         ListOfConstants;
 
+    AScriptExampleExplorer * ExampleExplorer = nullptr;
+
     void readFromJson(QJsonObject & json);
     void writeToJson(QJsonObject  & json);
 
@@ -147,6 +150,7 @@ public slots:
     void clearOutput();
     void outputHtml(QString text);
     void outputText(QString text);
+    void outputFromBuffer(std::vector<std::pair<bool, QString>> buffer);
     void outputAbortMessage(QString text);
 
     void onRequestAddScript(const QString & script);

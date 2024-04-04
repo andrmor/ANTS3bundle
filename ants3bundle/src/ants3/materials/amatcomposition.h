@@ -22,6 +22,7 @@ public:
     bool isIdentical(const AElementRecord & other) const;
 };
 
+// used independently for parsing and convertPressureToDensity()
 class AMatMixRecord
 {
 public:
@@ -43,8 +44,12 @@ class AMatComposition
 public:
     AMatComposition();
 
-    double Density     = 1e-25;     // g/cm3
-    double Temperature = 298.0;     // K
+    double  Density      = 1e-25;     // g/cm3
+    double  Temperature  = 298.0;     // K
+    bool    Gas          = false;
+    double  Pressure_bar = 1.0;
+    QString P_gui_units   = "bar";
+
     bool   UseCustomMeanExEnergy = false;
     double MeanExEnergy = 0;        // eV
 
@@ -61,11 +66,13 @@ public:
 
     bool importComposition(TGeoMaterial * mat);
 
+    QString convertPressureToDensity(); // returns error string
+
     QString ErrorString;
 
 protected:
     void clearParsing();
-    bool parse(const QString & string);
+    bool parse(const QString & string); // after parsing, the remaining info in the MixtureByLevels is used by convertPressureToDensity()
     bool checkForbiddenChars();
     bool parseCustomElements();
     bool parseBracketedLevels();

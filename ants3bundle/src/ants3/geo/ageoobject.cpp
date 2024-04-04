@@ -967,6 +967,7 @@ void AGeoObject::updateStack()
     double RefPos = 0;
     for (AGeoObject * obj : RefObj->Container->HostedObjects)
     {
+        if (!obj->fActive) continue;
         obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
         obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
 
@@ -991,6 +992,7 @@ void AGeoObject::updateStack()
     const double dZ = RefPos - RefObj->Position[2];
     for (AGeoObject * obj : RefObj->Container->HostedObjects)
     {
+        if (!obj->fActive) continue;
         if (obj != RefObj) obj->Position[2] -= dZ;
     }
 }

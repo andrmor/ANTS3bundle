@@ -27,9 +27,10 @@
 #include <QVBoxLayout>
 #include <QTabWidget>
 
+#include "TObject.h"
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TObject.h"
+#include "TGraph.h"
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 #include "TGeoTrack.h"
@@ -60,10 +61,14 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
             pb->setVisible(false);
 
     ui->cbSensorsAll->setChecked(true);
+    ui->cbRandomSeed->setChecked(true);
+
+    ui->pbUpdateSensorIndication->setVisible(false);
 
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
     ui->labSkipTracingON->setPixmap(YellowCircle);
+    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
@@ -78,6 +83,70 @@ APhotSimWin::~APhotSimWin()
     delete ui;
 
     // !!!*** delete dynamic members!
+}
+
+void APhotSimWin::writeToJson(QJsonObject & json) const
+{
+    json["AutoLoadAllResults"] = ui->cbAutoLoadResults->isChecked();
+
+    // Seed
+    {
+        QJsonObject js;
+            js["Random"] = ui->cbRandomSeed->isChecked();
+            js["FixedSeed"] = ui->sbSeed->value();
+        json["Seed"] = js;
+    }
+
+    // Sensor groups
+    {
+        QJsonObject js;
+            js["AllEnabled"] = ui->cbSensorsAll->isChecked();
+            js["G1Enabled"]  = ui->cbSensorsG1->isChecked();
+            js["G2Enabled"]  = ui->cbSensorsG2->isChecked();
+            js["G3Enabled"]  = ui->cbSensorsG3->isChecked();
+            js["G1"] = ui->leSensorsG1->text();
+            js["G2"] = ui->leSensorsG2->text();
+            js["G3"] = ui->leSensorsG3->text();
+        json["SensorGroups"] = js;
+    }
+}
+
+void APhotSimWin::readFromJson(const QJsonObject & json)
+{
+    bool ok, flag;
+    int i;
+    QString str;
+
+    ok = jstools::parseJson(json, "AutoLoadAllResults", flag);
+    if (ok) ui->cbAutoLoadResults->setChecked(flag);
+
+    // Seed
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "Seed", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Random", ok); ui->cbRandomSeed->setChecked(ok);
+            jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
+
+    // Sensor groups
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "SensorGroups", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "G1Enabled",  flag); ui->cbSensorsG1->setChecked(flag);
+            jstools::parseJson(js, "G2Enabled",  flag); ui->cbSensorsG2->setChecked(flag);
+            jstools::parseJson(js, "G3Enabled",  flag); ui->cbSensorsG3->setChecked(flag);
+            jstools::parseJson(js, "AllEnabled", flag); ui->cbSensorsAll->setChecked(flag); // should be after the other G#
+
+            jstools::parseJson(js, "G1", str); ui->leSensorsG1->setText(str);
+            jstools::parseJson(js, "G2", str); ui->leSensorsG2->setText(str);
+            jstools::parseJson(js, "G3", str); ui->leSensorsG3->setText(str);
+        }
+    }
 }
 
 void APhotSimWin::updateGui()
@@ -123,6 +192,10 @@ void APhotSimWin::updatePhotBombGui()
         ui->sbNumMax->setValue(PS.UniformMax);
         ui->ledGaussMean->setText( QString::number(PS.NormalMean) );
         ui->ledGaussSigma->setText( QString::number(PS.NormalSigma) );
+
+        bool haveDist = !PS.CustomDist.empty();
+        ui->pbNumDistShow->setEnabled(haveDist);
+        ui->pbNumDistDelete->setEnabled(haveDist);
     }
 
     {
@@ -366,7 +439,9 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
 
 void APhotSimWin::on_pbSimulate_clicked()
 {
-    SimSet.RunSet.Seed = INT_MAX * ARandomHub::getInstance().uniform();
+    double seed = 0; // INT_MAX * ARandomHub::getInstance().uniform()
+    if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
+    SimSet.RunSet.Seed = seed;
 
     ui->progbSim->setValue(0);
     disableInterface(true);
@@ -393,6 +468,8 @@ void APhotSimWin::on_pbSimulate_clicked()
     emit requestShowGeometry(false);
 
     if (ok) showSimulationResults();
+
+    updateDepoGui(); // file was force-checked in this mode
 }
 
 void APhotSimWin::showSimulationResults()
@@ -433,6 +510,8 @@ void APhotSimWin::showSimulationResults()
 
 void APhotSimWin::on_pbLoadAllResults_clicked()
 {
+    // !!!*** check logic - load only what was configured in sim!
+
     ui->sbEvent->setValue(0);
 
     APhotSimRunSettings Set;
@@ -444,13 +523,41 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     loadMonitorsData(true);
 
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
-    showSensorSignal(true);
+    reshapeSensorSignalTable();
+    showSensorSignals(true);
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadTracks(true);
+}
+
+void APhotSimWin::reshapeSensorSignalTable()
+{
+    ui->twSensorTable->clear();
+
+    const int numColumns = ui->sbSensorTableColumns->value();
+    ui->twSensorTable->setColumnCount(numColumns);
+
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
+    int numRows = numSensors / numColumns;
+    if (numRows * numColumns < numSensors) numRows++;
+    ui->twSensorTable->setRowCount(numRows);
+
+    ui->twSensorTable->verticalHeader()->setVisible(false);
+    ui->twSensorTable->horizontalHeader()->setVisible(false);
+}
+
+void APhotSimWin::on_sbSensorTableColumns_editingFinished()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_pbUpdateSensorIndication_clicked()
+{
+    showSensorSignals(false);
 }
 
 void APhotSimWin::on_sbFloodNumber_editingFinished()
@@ -510,7 +617,6 @@ void APhotSimWin::on_ledFloodZto_editingFinished()
     SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
 }
 
-
 void APhotSimWin::on_sbNumPhotons_editingFinished()
 {
     SimSet.BombSet.PhotonsPerBomb.FixedNumber = ui->sbNumPhotons->value();
@@ -537,15 +643,39 @@ void APhotSimWin::on_ledGaussMean_editingFinished()
 }
 void APhotSimWin::on_pbNumDistShow_clicked()
 {
+    if (SimSet.BombSet.PhotonsPerBomb.CustomDist.empty()) return;
 
+    TGraph * g = AGraphBuilder::graph(SimSet.BombSet.PhotonsPerBomb.CustomDist);
+    AGraphBuilder::configure(g, "Number of photon per bomb",
+                             "Number of photons", "",
+                             2, 20, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
 }
+#include "afiletools.h"
 void APhotSimWin::on_pbNumDistLoad_clicked()
 {
+    QString fileName = guitools::dialogLoadFile(this, "Load distribution of photons per bomb", "Data files (*.dat *.txt);;All files (*.*)");
+    if (fileName.isEmpty()) return;
 
+    QString err = ftools::loadPairs(fileName, SimSet.BombSet.PhotonsPerBomb.CustomDist);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+    if (SimSet.BombSet.PhotonsPerBomb.CustomDist.empty())
+    {
+        guitools::message("There should be at least one point!", this);
+        return;
+    }
+    // !!!*** assert positive values and increasing order
+    updatePhotBombGui();
 }
 void APhotSimWin::on_pbNumDistDelete_clicked()
 {
-
+    SimSet.BombSet.PhotonsPerBomb.CustomDist.clear();
+    updatePhotBombGui();
 }
 
 #include "aphotonsimoutputdialog.h"
@@ -1001,9 +1131,16 @@ void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
 void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
+    fh.determineFormat();
 
-    const bool CollectStats = ui->cbCollectDepoStatistics->isChecked();
-    if (SimSet.DepoSet.isValidated() && !CollectStats) return; // already up to date
+    bool ok = fh.checkFile();
+    if (!ok) guitools::message("Deposition file is invalid:\n" + AErrorHub::getQError(), this);
+    updateDepoGui();
+}
+
+void APhotSimWin::on_pbCollectDepoFileStatistics_clicked()
+{
+    ADepositionFileHandler fh(SimSet.DepoSet);
 
     if (!SimSet.DepoSet.isValidated())
     {
@@ -1024,34 +1161,39 @@ void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
     }
 
     AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
-        updateDepoGui();
-        return;
-    }
 
-    fh.checkFile(true);
+    fh.collectStatistics();
+    updateDepoGui();
     if (SimSet.DepoSet.NumEvents == -1)
     {
         guitools::message("Deposition file is invalid", this);
         SimSet.DepoSet.FileFormat = APhotonDepoSettings::Invalid;
     }
-    updateDepoGui();
+    else
+    {
+        QString txt = fh.formReportString();
+        guitools::message1(txt, "Deposition file info", this);
+    }
 }
+
 #include "adeporecord.h"
 void APhotSimWin::on_pbViewDepositionFile_clicked()
 {
     ADepositionFileHandler fh(SimSet.DepoSet);
     ADepoRecord record;
-    QString text = fh.preview(record, 100);
+    QString text = fh.preview(record);
     guitools::message1(text, "", this);
 }
+
 void APhotSimWin::on_pbHelpDepositionFile_clicked()
 {
+    QString txt = ""
+    "ASCII file format\n"
+    "-----------------\n"
+    "#Event_index\n"
+    "ParticleName indexMat Energy[keV] X Y Z[mm] Time[ns] indexVolume";
 
+    guitools::message1(txt, "Deposition file format", this);
 }
 
 void APhotSimWin::on_pbdUpdateScanSettings_clicked()
@@ -1116,6 +1258,7 @@ void APhotSimWin::on_leNodeFileName_editingFinished()
         updateBombFileGui();
     }
 }
+
 void APhotSimWin::on_pbNodeFileChange_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Select file with photon bombs", "");
@@ -1123,63 +1266,65 @@ void APhotSimWin::on_pbNodeFileChange_clicked()
     ui->leNodeFileName->setText(fileName);
     on_leNodeFileName_editingFinished();
 }
+
 #include "aphotonbombfilehandler.h"
-void APhotSimWin::on_pbNodeFileAnalyze_clicked()
+void APhotSimWin::on_pbBombFileCheck_clicked()
+{
+    ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
+    APhotonBombFileHandler fh(bset);
+
+    bool ok = fh.checkFile();
+    if (!ok) guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
+    updateBombFileGui();
+}
+
+void APhotSimWin::on_pbBombFileStatistics_clicked()
 {
     ABombFileSettings & bset = SimSet.BombSet.BombFileSettings;
 
     APhotonBombFileHandler fh(bset);
 
-    const bool CollectStats = ui->cbNodeFileCollectStatistics->isChecked();
-    if (bset.isValidated() && !CollectStats) return; // already up to date
+    bool ok = fh.collectStatistics();
 
-    if (!bset.isValidated())
-    {
-        fh.determineFormat();
-
-        if (bset.FileFormat == ABombFileSettings::Invalid)
-        {
-            guitools::message("Cannot open file!", this);
-            updateBombFileGui();
-            return;
-        }
-        if (bset.FileFormat == ABombFileSettings::Undefined)
-        {
-            guitools::message("Unknown format of the file with photon bombs!", this);
-            updateBombFileGui();
-            return;
-        }
-    }
-
-    AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        bset.FileFormat = ABombFileSettings::Invalid;
-        updateBombFileGui();
-        return;
-    }
-
-    fh.checkFile(true);
-    if (bset.NumEvents == -1)
-    {
-        guitools::message("Photon bomb file is invalid", this);
-        bset.FileFormat = ABombFileSettings::Invalid;
-    }
     updateBombFileGui();
+
+    if (ok) guitools::message1(fh.formReportString(), "Statistics for photon bomb file", this);
+    else
+    {
+        guitools::message("Photon bomb file is invalid:\n" + AErrorHub::getQError(), this);
+        bset.FileFormat = ABombFileSettings::Invalid;
+    }
 }
+
 #include "anoderecord.h"
 void APhotSimWin::on_pbNodeFilePreview_clicked()
 {
     APhotonBombFileHandler fh(SimSet.BombSet.BombFileSettings);
     ANodeRecord rec;
-    QString text = fh.preview(rec, 100);
+    QString text = fh.preview(rec);
     guitools::message1(text, "", this);
 }
+
 void APhotSimWin::on_pbNodeFileHelp_clicked()
 {
-
+    QString txt;
+    txt = "For ascii files, the format is the following:\n"
+          "Event marks are given by the new line starting with '#' char and followed by the event index, e.g. #123\n"
+          "Note that any file should start from event index of 0\n"
+          "The photon bomb records (arbitrary number per event) start from new line and have the format of:\n"
+          "x y z time numberPhotonons\n"
+          "Positions are in mm, time is in ns\n"
+          "The number of generated photons can be given directly\n"
+          "or it can be set to -1 to use the configured generator for number of photons per node\n"
+          "\nAn example of a file:\n"
+          "#0\n"
+          "0 0 100 0 10\n"
+          "#1\n"
+          "0 50 100 0 -1\n"
+          "0 50 -100 0 -1\n"
+          "\n\n"
+          "Binary files are not yet implemented";
+    guitools::message1(txt, "File format for photon bomb data", this);
 }
 
 // ---
@@ -1187,8 +1332,9 @@ void APhotSimWin::on_pbNodeFileHelp_clicked()
 void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
 {
     bool bFromFile = (index == 3);
-    ui->cobNumPhotonsMode->setDisabled(bFromFile);
-    ui->swNumPhotons->setDisabled(bFromFile);
+    //ui->cobNumPhotonsMode->setDisabled(bFromFile);
+    //ui->swNumPhotons->setDisabled(bFromFile);
+    ui->labPhotonsPerBombWarning->setVisible(bFromFile);
 }
 
 // ---
@@ -1214,58 +1360,58 @@ void APhotSimWin::on_pbChangeSinglePhotonsFile_clicked()
 }
 
 #include "aphotonfilehandler.h"
-void APhotSimWin::on_pbAnalyzeSinglePhotonsFile_clicked()
+void APhotSimWin::on_pbCheckSinglePhotonsFile_clicked()
 {
     APhotonFileSettings & bset = SimSet.PhotFileSet;
-
     APhotonFileHandler fh(bset);
 
-    if (bset.isValidated()) return; // already up to date
-
-    fh.determineFormat();
-
-    if (bset.FileFormat == AFileSettingsBase::Invalid)
-    {
-        guitools::message("Cannot open file!", this);
-        updatePhotonFileGui();
-        return;
-    }
-    if (bset.FileFormat == AFileSettingsBase::Undefined)
-    {
-        guitools::message("Unknown format of the file with individual photon records!", this);
-        updatePhotonFileGui();
-        return;
-    }
-
-    AErrorHub::clear();
-    bool ok = fh.init();
-    if (!ok)
-    {
-        guitools::message(AErrorHub::getQError(), this);
-        bset.FileFormat = AFileSettingsBase::Invalid;
-        updatePhotonFileGui();
-        return;
-    }
-
-    ok = fh.checkFile(false);
-    if (!ok)
-    {
-        guitools::message("File with individual photon records: invalid format!", this);
-        bset.FileFormat = AFileSettingsBase::Invalid;
-    }
+    bool ok = fh.checkFile();
+    if (!ok) guitools::message("File with individual photon records is invalid:\n" + AErrorHub::getQError(), this);
     updatePhotonFileGui();
 }
+
+void APhotSimWin::on_pbSeeStatisticsSinglePhotonsFile_clicked()
+{
+    APhotonFileSettings & bset = SimSet.PhotFileSet;
+    APhotonFileHandler fh(bset);
+
+    bool ok = fh.collectStatistics();
+    updatePhotonFileGui();
+
+    if (ok) guitools::message1(fh.formReportString(), "Statistics for single photon file", this);
+    else
+    {
+        guitools::message("Single photon file is invalid:\n" + AErrorHub::getQError(), this);
+        bset.FileFormat = AFileSettingsBase::Invalid;
+    }
+}
+
 #include "aphoton.h"
 void APhotSimWin::on_pbViewSinglePhotFile_clicked()
 {
     APhotonFileHandler fh(SimSet.PhotFileSet);
     APhoton phot;
-    QString text = fh.preview(phot, 100);
+    QString text = fh.preview(phot);
     guitools::message1(text, "", this);
 }
 void APhotSimWin::on_pbSinglePhotonsHelp_clicked()
 {
-
+    QString txt;
+    txt = "For ascii files, the format is the following:\n"
+          "Event marks are given by the new line starting with '#' char and followed by the event index, e.g. #123\n"
+          "Note that any file should start from event index of 0\n"
+          "The photon records (arbitrary number per event) start from new line and have the format of:\n"
+          "x y z vx vy vz time waveIndex\n"
+          "xyz are the coordinates of the origin in mm, vxvyvz are components of the direction unit vector, time is in ns,\n"
+          "waveIndex can be set to -1 for undefined wavelength\n"
+          "\nAn example of a file:\n"
+          "#0\n"
+          "10 0 100 1 0 0 1.1 -1\n"
+          "10 0 100 0 1 0 11.1 5\n"
+          "10 0 100 0 0 -1 111.1 10\n"
+          "\n\n"
+          "Binary files are not yet implemented";
+    guitools::message1(txt, "File format for photon bomb data", this);
 }
 
 // --- Show Photon bombs ---
@@ -1289,23 +1435,24 @@ void APhotSimWin::on_tbwResults_currentChanged(int index)
 
 void APhotSimWin::on_pbShowEvent_clicked()
 {
-    disableGui(true);
-        doShowEvent();
-    disableGui(false);
+    setGuiEnabled(false);
+    doShowEvent();
+    setGuiEnabled(true);
 }
 
 void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignal(true);  break;
+    case 2 : showSensorSignals(true);  break;
     case 3 : showBombSingleEvent();   break;
     case 4 : showTracksSingleEvent(); break;
     default :;
     }
 }
 
-void APhotSimWin::showSensorSignal(bool suppressMessage)
+#include "asensorsignalarray.h"
+void APhotSimWin::showSensorSignals(bool suppressMessage)
 {
     QString name = ui->leSensorSigFileName->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
@@ -1330,15 +1477,6 @@ void APhotSimWin::showSensorSignal(bool suppressMessage)
         }
     }
 
-    //if (ui->twSensors->currentIndex() == 0)
-        showSensorSignalDraw();
-    //else
-        showSensorSignalTable();
-}
-
-#include "asensorsignalarray.h"
-void APhotSimWin::showSensorSignalDraw()
-{
     ASensorSignalArray ar;
     const int numSensors = ASensorHub::getConstInstance().countSensors();
     ar.Signals.resize(numSensors);
@@ -1347,13 +1485,28 @@ void APhotSimWin::showSensorSignalDraw()
     bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this);
+        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
         return;
     }
 
-    SignalsFileHandler->readNextRecordSameEvent(ar);
+    ok = SignalsFileHandler->readNextRecordSameEvent(ar);
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        return;
+    }
 
+    // !!!*** int --> size_t?
     std::vector<int> enabledSensors;
+    fillListEnabledSensors(enabledSensors);
+
+    showSensorSignalDraw(ar.Signals, enabledSensors);
+    showSensorSignalTable(ar.Signals, enabledSensors);
+}
+
+void APhotSimWin::fillListEnabledSensors(std::vector<int> & enabledSensors)
+{
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
     if (ui->cbSensorsAll->isChecked())
     {
         for (int i = 0; i < numSensors; i++)
@@ -1361,18 +1514,49 @@ void APhotSimWin::showSensorSignalDraw()
     }
     else
     {
-        if (ui->cbSensorsG1->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG1->text(), enabledSensors);
-        if (ui->cbSensorsG2->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG2->text(), enabledSensors);
-        if (ui->cbSensorsG3->isChecked()) guitools::extractNumbersFromQString(ui->leSensorsG3->text(), enabledSensors);
+        QString txt;
+        if (ui->cbSensorsG1->isChecked()) txt += "," + ui->leSensorsG1->text();
+        if (ui->cbSensorsG2->isChecked()) txt += "," + ui->leSensorsG2->text();
+        if (ui->cbSensorsG3->isChecked()) txt += "," + ui->leSensorsG3->text();
+        guitools::extractNumbersFromQString(txt, enabledSensors);
     }
-
-    gvSensors->updateGui(ar.Signals, enabledSensors);
 }
 
-void APhotSimWin::showSensorSignalTable()
+void APhotSimWin::showSensorSignalDraw(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors)
 {
-
+    gvSensors->updateGui(signalArray, enabledSensors);
 }
+
+void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors)
+{
+    ui->twSensorTable->clearContents();
+
+    const size_t numSensors = signalArray.size();
+    const int numColumns = ui->sbSensorTableColumns->value();
+
+    int currentRow = 0;
+    int currentColumn = 0;
+    for (int iSensorIndex : enabledSensors)
+        if (iSensorIndex < numSensors)
+        {
+            QString txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+            QTableWidgetItem * item = ui->twSensorTable->item(currentRow, currentColumn);
+            if (!item)
+            {
+                item = new QTableWidgetItem();
+                ui->twSensorTable->setItem(currentRow, currentColumn, item);
+            }
+            item->setText(txt);
+            currentColumn++;
+            if (currentColumn >= numColumns)
+            {
+                currentColumn = 0;
+                currentRow++;
+            }
+        }
+}
+
+// ------
 
 void APhotSimWin::showBombSingleEvent()
 {
@@ -1499,9 +1683,10 @@ bool APhotSimWin::updateBombHandler()
     return true;
 }
 
-void APhotSimWin::disableGui(bool flag)
+void APhotSimWin::setGuiEnabled(bool flag)
 {
-    setDisabled(flag);
+    setEnabled(flag);
+    qApp->processEvents();
 }
 
 void APhotSimWin::on_pbEventNumberLess_clicked()
@@ -1562,3 +1747,10 @@ void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
     ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
 }
 
+void APhotSimWin::on_sbEvent_editingFinished()
+{
+    ui->sbEvent->blockSignals(true);
+    on_pbShowEvent_clicked();
+    ui->sbEvent->blockSignals(false);
+    //ui->sbEvent->setFocus();
+}

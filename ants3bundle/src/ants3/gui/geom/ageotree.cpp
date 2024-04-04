@@ -1202,8 +1202,17 @@ void AGeoTree::menuActionEnableDisable(AGeoObject * obj)
 {
     if (!obj) return;
 
-    if (obj->isDisabled()) obj->enableUp();
-    else                   obj->fActive = false;
+    if (obj->isDisabled())
+        obj->enableUp();
+    else
+    {
+        if (obj->isStackReference())
+        {
+            guitools::message("Cannot disable stack reference object!", EditWidget);
+            return;
+        }
+        obj->fActive = false;
+    }
 
     obj->fExpanded = obj->fActive;
 

@@ -476,7 +476,12 @@ void RasterWindowGraphClass::mouseReleaseEvent(QMouseEvent *event)
     // if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->x(), event->y());
 
   //if no match found, using base class handler to report move to Root system
-  RasterWindowBaseClass::mouseReleaseEvent(event);
+    RasterWindowBaseClass::mouseReleaseEvent(event);
+}
+
+void RasterWindowGraphClass::leaveEvent(QEvent *)
+{
+    emit cursorLeftBoundaries();
 }
 
 void RasterWindowGraphClass::DrawVerticalLine()
@@ -660,4 +665,21 @@ bool RasterWindowGraphClass::isLogX() const
 bool RasterWindowGraphClass::isLogY() const
 {
     return fCanvas->GetLogy();
+}
+
+void RasterWindowGraphClass::drawCrassHair(double x, double y)
+{
+    fCanvas->cd();
+
+    if (VertLine1) delete VertLine1; // vertical
+    VertLine1 = new TLine(x, -1e10, x, 1e10);
+    VertLine1->SetLineColor(kBlack); VertLine1->SetLineStyle(9);
+    VertLine1->Draw();
+
+    if (Line2D) delete Line2D;       // horizontal
+    Line2D = new TLine(-1e10, y, 1e10, y);
+    Line2D->SetLineColor(kBlack); Line2D->SetLineStyle(9);
+    Line2D->Draw();
+
+    fCanvas->Update();
 }

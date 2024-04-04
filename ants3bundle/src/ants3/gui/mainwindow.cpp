@@ -86,9 +86,10 @@ MainWindow::MainWindow() :
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput);
-    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText);
-    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputFromBuffer_JS, JScriptWin, &AScriptWindow::outputFromBuffer, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
@@ -101,6 +102,7 @@ MainWindow::MainWindow() :
     connect(ScriptHub,  &AScriptHub::clearOutput_P,       PythonWin, &AScriptWindow::clearOutput);
     connect(ScriptHub,  &AScriptHub::outputText_P,        PythonWin, &AScriptWindow::outputText);
     connect(ScriptHub,  &AScriptHub::outputHtml_P,        PythonWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,  PythonWin, &AScriptWindow::outputFromBuffer);
     connect(ScriptHub,  &AScriptHub::showAbortMessage_P,  PythonWin, &AScriptWindow::outputAbortMessage);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript,   PythonWin, &AScriptWindow::onRequestAddScript);
@@ -414,10 +416,23 @@ void MainWindow::updateAllGuiFromConfig()
     */
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
+    // Geometry
     {
         QJsonObject js;
         bool ok = jstools::parseJson(json, "GeometryWindow", js);
         if (ok) GeoWin->readFromJson(js);
+    }
+    // Particle sim
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "ParticleSimWindow", js);
+        if (ok) PartSimWin->readFromJson(js);
+    }
+    // Photon sim
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "PhotonSimWindow", js);
+        if (ok) PhotSimWin->readFromJson(js);
     }
 
     GeoWin->fRecallWindow = false;
@@ -430,10 +445,23 @@ void MainWindow::onRequestSaveGuiSettings()
 
     QJsonObject json;
 
+    // Geometry
     {
         QJsonObject js;
-        GeoWin->writeToJson(js);
+            GeoWin->writeToJson(js);
         json["GeometryWindow"] = js;
+    }
+    // Particle sim
+    {
+        QJsonObject js;
+            PartSimWin->writeToJson(js);
+        json["ParticleSimWindow"] = js;
+    }
+    // Photon sim
+    {
+        QJsonObject js;
+            PhotSimWin->writeToJson(js);
+        json["PhotonSimWindow"] = js;
     }
 
     JSON["gui"] = json;
@@ -529,6 +557,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     saveWindowGeometries();
 
     qDebug() << "<Preparing graph window for shutdown";
+    GraphWin->close3DviewWindow();
     GraphWin->close();
     GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
 
@@ -716,3 +745,63 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
     QString err = Config.load(fileName, true);
     if (!err.isEmpty()) guitools::message(err, this);
 }
+
+#include "TROOT.h"
+void MainWindow::on_actionVersions_triggered()
+{
+    int majVer = ANTS3_MAJOR;
+    QString mav = QString::number(majVer);
+    int minVer = ANTS3_MINOR;
+    QString miv = QString::number(minVer);
+    if (miv.length() == 1) miv = "0" + miv;
+
+    QString qv = QT_VERSION_STR;
+
+    QString out = "ANTS3\n"
+                  "   version:  " + mav + "." + miv + "\n"
+                  "   build date:  " + QString::fromLocal8Bit(__DATE__) + "\n"
+                  "\n"
+                  "Qt version:  " + qv + "\n"
+                  "\n"
+                  "ROOT version:  " + gROOT->GetVersion() + "\n"
+                  "\n"
+                  "Optional components:\n"
+                  "  Python scripting: "
+#ifdef ANTS3_PYTHON
+                  "on (Python v" + AScriptHub::getInstance().getPythonVersion() + ")"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  ROOT html server: "
+#ifdef USE_ROOT_HTML
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  JSROOT: "
+#ifdef __USE_ANTS_JSROOT__
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+                  "  Farm: "
+#ifdef WEBSOCKETS
+                  "on"
+#else
+                  "off"
+#endif
+                  "\n"
+/*
+#ifdef __USE_ANTS_NCRYSTAL__
+#else
+#endif
+" - NCrystal library (neutron scattering)   \n"
+*/
+                  "";
+
+    guitools::message(out, this);
+}
+

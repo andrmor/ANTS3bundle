@@ -258,7 +258,7 @@ void APhotonsPerBombSettings::writeToJson(QJsonObject & json) const
     json["PoissonMean"] = PoissonMean;
 
     QJsonArray ar;
-        for (const ADPair & pair : CustomDist)
+        for (const auto & pair : CustomDist)
         {
             QJsonArray el;
                 el << pair.first << pair.second;
@@ -294,7 +294,7 @@ QString APhotonsPerBombSettings::readFromJson(const QJsonObject & json)
     for (int i = 0; i < ar.size(); i++)
     {
         QJsonArray el = ar[i].toArray();
-        double x = el[0].toDouble();
+        int x = el[0].toInt();
         double y = el[1].toDouble();
         CustomDist.push_back({x, y});
     }
@@ -570,6 +570,8 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["OutputDirectory"]       = OutputDirectory;
     json["BinaryFormat"]          = BinaryFormat;
 
+    json["FileNameReceipt"]       = FileNameReceipt;
+
     json["SaveSensorSignals"]     = SaveSensorSignals;
     json["FileNameSensorSignals"] = FileNameSensorSignals;
 
@@ -610,6 +612,8 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "OutputDirectory",       OutputDirectory);
     jstools::parseJson(json, "BinaryFormat",          BinaryFormat);
+
+    jstools::parseJson(json, "FileNameReceipt",       FileNameReceipt);
 
     jstools::parseJson(json, "SaveSensorSignals",     SaveSensorSignals);
     jstools::parseJson(json, "FileNameSensorSignals", FileNameSensorSignals);

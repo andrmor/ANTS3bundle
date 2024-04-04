@@ -85,6 +85,13 @@ private slots:
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
+    void on_cbGas_toggled(bool checked);
+    void on_cbGas_clicked(bool checked);
+    void on_ledPressure_editingFinished();
+    void on_cobPressureUnits_activated(int index);
+
+    void on_ledT_editingFinished();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

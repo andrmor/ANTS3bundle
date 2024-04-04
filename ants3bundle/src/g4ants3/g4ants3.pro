@@ -57,7 +57,6 @@ SOURCES += \
         src/DetectorConstruction.cc \
         src/EventAction.cc \
         src/PrimaryGeneratorAction.cc \
-        src/RunAction.cc \
         src/SensitiveDetector.cc \
         src/SessionManager.cc \
         src/StackingAction.cc \
@@ -94,7 +93,6 @@ HEADERS += \
     src/DetectorConstruction.hh \
     src/EventAction.hh \
     src/PrimaryGeneratorAction.hh \
-    src/RunAction.hh \
     src/SensitiveDetector.hh \
     src/SessionManager.hh \
     src/StackingAction.hh \

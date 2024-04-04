@@ -93,13 +93,21 @@ bool ASourceParticleGenerator::init()
     //vectors related to collmation direction
     CollimationDirection.resize(NumSources);
     CollimationProbability.resize(NumSources);
-    for (int isource=0; isource<NumSources; isource++)
+    for (int isource = 0; isource < NumSources; isource++)
     {
-        const double CollPhi   = Settings.SourceData[isource].DirectionPhi*3.1415926535/180.0;
-        const double CollTheta = Settings.SourceData[isource].DirectionTheta*3.1415926535/180.0;
-        const double Spread    = Settings.SourceData[isource].CutOff*3.1415926535/180.0;
+        const AParticleSourceRecord & psr = Settings.SourceData[isource];
+        const double CollPhi   = psr.DirectionPhi * M_PI / 180.0;
+        const double CollTheta = psr.DirectionTheta * M_PI / 180.0;
+        const double Spread    = psr.CutOff * M_PI / 180.0;
 
-        CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
+        if (psr.DirectionBySphericalAngles)
+            CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
+        else
+        {
+            CollimationDirection[isource] = AVector3(psr.DirectionVectorX, psr.DirectionVectorY, psr.DirectionVectorZ);
+            CollimationDirection[isource].toUnitVector();
+        }
+
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
     }
     return true;
@@ -141,8 +149,12 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
             if (vol && vol->GetLogicalVolume())
                 if (vol->GetLogicalVolume()->GetMaterial() == LimitedToMat[iSource])
                     break;
+
+            attempts--;
+            if (attempts == 0)
+                SessionManager::getInstance().terminateSession("Failed to generate position for material limited source");
         }
-        while (attempts-- != 0);
+        while (attempts != 0);
     }
 #else
     if (LimitedToMat[iSource] < 0) doGeneratePosition(Source, R);

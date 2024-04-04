@@ -1,0 +1,33 @@
+#file
+BinarySaveLoad.txt
+#tags
+Array:File:Binary
+#info
+Log tracking history
+#end
+
+#file
+FitExample.txt
+#tags
+Minimizer:Fit
+#info
+Use minimizer to fit a function
+#end
+
+#file
+LogTrackingHistory.txt
+#tags
+Analysis:TrackingHistory:Logging
+#info
+Log tracking history
+#end
+
+#file
+FormattedOutput.txt
+#tags
+Output:Print:Colors
+#info
+Print objects/arrays etc in colors
+#end
+
+

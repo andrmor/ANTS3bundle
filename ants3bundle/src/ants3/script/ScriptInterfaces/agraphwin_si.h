@@ -40,6 +40,8 @@ public slots:
 
     void exportTH2AsText(QString fileName); // !!!*** need?
 
+    void show3D(QString castorFileName);
+
     /*
     QVariant GetProjection();
     void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
@@ -49,6 +51,9 @@ public slots:
     QVariantList getAxes();
 
     QVariantList getContent();
+
+signals:
+    void requestShow3D(QString fileName);
 
 private:
     GraphWindowClass * GraphWindow = nullptr;

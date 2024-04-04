@@ -1,0 +1,13 @@
+var ar = [1,2,3,4, [1.1, 2.2, 3.3]]
+var obj = {"name": "Name1", "Group:": 1}
+
+print("Array:",ar, "  Object:", obj, "  String:", "ahaaa")
+
+function color(text, color)
+{
+   return "<"+"font color='" + color + "'>" +
+          text +
+          "</"+"font"+">" 
+}
+printHtml( color("Example of a warning message", "red"), ar, color(core.toStr(obj), "teal") )
+

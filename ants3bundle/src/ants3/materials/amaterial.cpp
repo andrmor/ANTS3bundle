@@ -238,6 +238,7 @@ void AMaterial::clear()
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
     Comments = "";
+    Tags.clear();
 
     Dielectric = true;
     RefIndexComplex = {1.0, 0};
@@ -277,6 +278,11 @@ void AMaterial::clearDynamicProperties()
 {
     delete _PrimarySpectrumHist;   _PrimarySpectrumHist   = nullptr;
     delete _SecondarySpectrumHist; _SecondarySpectrumHist = nullptr;
+}
+
+QString AMaterial::convertPressureToDensity()
+{
+    return Composition.convertPressureToDensity();
 }
 
 void AMaterial::writeToJson(QJsonObject & json) const

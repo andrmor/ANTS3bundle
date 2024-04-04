@@ -56,11 +56,14 @@ public:
   bool isLogX() const;
   bool isLogY() const;
 
+  void drawCrassHair(double x, double y);
+
 protected:
   bool event(QEvent *event);
   void mousePressEvent(QMouseEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
   void mouseReleaseEvent(QMouseEvent *event);
+  void leaveEvent(QEvent * event);
 
 private:
 //  QString LastDistributionShown; // "" = nothing was shown
@@ -97,6 +100,7 @@ private:
 
 signals:
     void reportCursorPosition(double x, double y, bool bOn);
+    void cursorLeftBoundaries();
 };
 
 #endif // RASTERWINDOWGRAPHCLASS_H

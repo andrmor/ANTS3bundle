@@ -407,3 +407,42 @@ QVariantList AMath_SI::fftMulti(QVariantList arrayOfArrays, int maxN)
     //delete fftr2c;
     return res;
 }
+
+#include "vformula.h"
+double AMath_SI::evalFormula(QString formula, QVariantList varNames, QVariantList varValues)
+{
+    VFormula p1;
+
+    std::vector<std::string> names;
+    for (int i = 0; i < varNames.size(); i++) names.push_back(std::string(varNames[i].toString().toLatin1()));
+    p1.setVariableNames(names);
+
+    bool ok = p1.parse(formula.toLatin1().data());
+    if (!ok)
+    {
+        abort("VFormula parse error!\n" + QString(p1.ErrorString.data()));
+        return 0;
+    }
+
+    VFormula p(p1);
+
+    ok = p.validate();
+    if (!ok)
+    {
+        abort("VFormula validation error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    std::vector<double> values;
+    for (int i = 0; i < varValues.size(); i++) values.push_back(varValues[i].toDouble());
+
+    double res = p.eval(values);
+
+    if (!p.ErrorString.empty())
+    {
+        abort("VFormula eval error!\n" + QString(p.ErrorString.data()));
+        return 0;
+    }
+
+    return res;
+}

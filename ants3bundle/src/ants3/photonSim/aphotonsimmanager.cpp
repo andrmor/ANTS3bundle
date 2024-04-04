@@ -32,6 +32,11 @@ const APhotonSimManager & APhotonSimManager::getConstInstance()
     return getInstance();
 }
 
+void APhotonSimManager::setSeed(double seed)
+{
+    SimSet.RunSet.Seed = seed;
+}
+
 APhotonSimManager::APhotonSimManager() :
     SimSet(APhotonSimHub::getInstance().Settings) {}
 
@@ -44,7 +49,6 @@ bool APhotonSimManager::simulate(int numLocalProc)
     if (!ok) return false;
 
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
-
     int numEvents = 0;
     switch (SimSet.SimType)
     {
@@ -65,7 +69,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
                 if (!SimSet.BombSet.BombFileSettings.isValidated())
                 {
                     APhotonBombFileHandler bh(SimSet.BombSet.BombFileSettings);
-                    bool ok = bh.checkFile(false);
+                    bool ok = bh.checkFile();
                     if (!ok) return false;
                 }
                 numEvents = SimSet.BombSet.BombFileSettings.NumEvents;
@@ -82,7 +86,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             if (!SimSet.DepoSet.isValidated())
             {
                 ADepositionFileHandler fh(SimSet.DepoSet);
-                bool ok = fh.checkFile(false);
+                bool ok = fh.checkFile();
                 if (!ok) return false;
             }
             numEvents = SimSet.DepoSet.NumEvents;
@@ -95,7 +99,7 @@ bool APhotonSimManager::simulate(int numLocalProc)
             if (!SimSet.PhotFileSet.isValidated())
             {
                 APhotonFileHandler fh(SimSet.PhotFileSet);
-                bool ok = fh.checkFile(false);
+                bool ok = fh.checkFile();
                 if (!ok) return false;
             }
             numEvents = SimSet.PhotFileSet.NumEvents;
@@ -160,8 +164,48 @@ bool APhotonSimManager::checkDirectories()
 
 void APhotonSimManager::processReply(const QJsonObject & json)
 {
-    qDebug() << "Reply message:" << json;
+    QString LastError;
 
+    for (size_t iFile = 0; iFile < ReceiptFiles.size(); iFile++)
+    {
+        const QString & fn = ReceiptFiles[iFile];
+        //qDebug() << fn;
+        if (!QFile::exists(fn))
+        {
+            AErrorHub::addQError(QString("Receipt file was not found for worker index %0").arg(iFile)); // make more human-readble for large numbers
+        }
+        else
+        {
+            QJsonObject ReceiptJson;
+            bool ok = jstools::loadJsonFromFile(ReceiptJson, fn);
+            if (!ok)
+            {
+                AErrorHub::addQError(QString("Cannot load json from receipt file for worker index %0").arg(iFile));
+                continue;
+            }
+
+            QString Error;
+            bool bSuccess = false;
+            ok = jstools::parseJson(ReceiptJson, "Success", bSuccess);
+            if (!ok || !bSuccess)
+            {
+                jstools::parseJson(ReceiptJson, "Error", Error);
+                if (Error.isEmpty()) AErrorHub::addQError("Unknown error!");
+                else
+                {
+                    if (Error != LastError)
+                    {
+                        AErrorHub::addQError(Error);
+                        LastError = Error;
+                    }
+                }
+                continue;
+            }
+        }
+    }
+
+/*
+    qDebug() << "Reply message:" << json;
     QString Err;
     jstools::parseJson(json, "Error", Err);
     if (!Err.isEmpty())
@@ -175,6 +219,7 @@ void APhotonSimManager::processReply(const QJsonObject & json)
     if (bSuccess) return; // success
 
     AErrorHub::addError("Bad reply of the dispatcher: Fail status but no error text");
+*/
 }
 
 void removePhotonOutputFiles(const APhotSimRunSettings & settings)
@@ -187,6 +232,7 @@ void removePhotonOutputFiles(const APhotSimRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.FileNamePhotonBombs);
     fileNames.push_back(OutputDir + '/' + settings.FileNameStatistics);
     fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameReceipt);
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }
@@ -249,6 +295,7 @@ void  APhotonSimManager::clearFileMergers()
     BombFileMerger.clear();
     StatisticsFiles.clear();
     MonitorFiles.clear();
+    ReceiptFiles.clear();
 }
 
 bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
@@ -408,6 +455,12 @@ void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhoto
         WorkSet.RunSet.FileNameMonitors     = QString("monitors-%0").arg(iProcess);
         Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitors);
         MonitorFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitors);
+    }
+
+    {
+        WorkSet.RunSet.FileNameReceipt = QString("receiptOpt-%0.txt").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameReceipt);
+        ReceiptFiles.push_back(ExchangeDir + '/' + WorkSet.RunSet.FileNameReceipt);
     }
 }
 

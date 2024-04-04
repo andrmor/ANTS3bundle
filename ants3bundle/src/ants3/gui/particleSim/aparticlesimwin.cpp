@@ -82,11 +82,45 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
     updateRangeWarning();
 
     ui->twMain->setCurrentIndex(1);
+    ui->cbRandomSeed->setChecked(true);
 }
 
 AParticleSimWin::~AParticleSimWin()
 {
     delete ui;
+}
+
+void AParticleSimWin::writeToJson(QJsonObject & json) const
+{
+    json["AutoLoadAllResults"] = ui->cbAutoLoadResults->isChecked();
+
+    // Seed
+    {
+        QJsonObject js;
+        js["Random"] = ui->cbRandomSeed->isChecked();
+        js["FixedSeed"] = ui->sbSeed->value();
+        json["Seed"] = js;
+    }
+}
+
+void AParticleSimWin::readFromJson(const QJsonObject &json)
+{
+    bool ok, flag;
+    int i;
+
+    ok = jstools::parseJson(json, "AutoLoadAllResults", flag);
+    if (ok) ui->cbAutoLoadResults->setChecked(flag);
+
+    // Seed
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "Seed", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Random", flag); ui->cbRandomSeed->setChecked(flag);
+            jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
 }
 
 void AParticleSimWin::updateGui()
@@ -712,6 +746,10 @@ void AParticleSimWin::on_pbSimulate_clicked()
     A3Global::getInstance().saveConfig();
     AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
+    double seed = 0;
+    if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
+    SimManager.SimSet.RunSet.Seed = seed;
+
     clearResultsGui();
 
     disableGui(true);
@@ -768,6 +806,9 @@ void AParticleSimWin::updateResultsGui()
             LastFile_Calorimeters = ui->leCalorimetersFileName->text();
             updateCalorimeterGui(); // data will be already loaded for merging
         }
+
+        if (SimSet.RunSet.SaveDeposition)
+            ui->leDepositionFileName->setText(SimSet.RunSet.FileNameDeposition.data());
     }
 }
 
@@ -3030,3 +3071,97 @@ void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
 
     emit requestDraw(Data, "hist", false, true);
 }
+
+// -----------------
+
+void AParticleSimWin::on_pbChooseDepositionFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a file with energy deposition data", SimSet.RunSet.OutputDirectory.data());
+    if (fileName.isEmpty()) return;
+
+    ui->leDepositionFileName->setText(fileName);
+}
+
+#include "adepositionfilehandler.h"
+void AParticleSimWin::on_pbAnalyzeDepositionFile_clicked()
+{
+    APhotonDepoSettings DepoSet;
+    DepoSet.FileName = ui->leDepositionFileName->text();
+    if (!DepoSet.FileName.contains('/'))
+        DepoSet.FileName = ui->leWorkingDirectory->text() + '/' + DepoSet.FileName;
+
+    ADepositionFileHandler fh(DepoSet);
+
+    //if (!DepoSet.isValidated())
+    {
+        fh.determineFormat();
+
+        if (DepoSet.FileFormat == APhotonDepoSettings::Invalid)
+        {
+            guitools::message("Cannot open file!", this);
+            return;
+        }
+        if (DepoSet.FileFormat == APhotonDepoSettings::Undefined)
+        {
+            guitools::message("Unknown format of the depo file!", this);
+            return;
+        }
+    }
+
+    AErrorHub::clear();
+
+    bool ok = fh.collectStatistics();
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    if (DepoSet.NumEvents == -1)
+    {
+        guitools::message("Deposition file is invalid", this);
+        DepoSet.FileFormat = APhotonDepoSettings::Invalid;
+    }
+    else
+    {
+        QString txt = fh.formReportString();
+        guitools::message1(txt, "Deposition file info", this);
+    }
+}
+
+void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
+{
+    QString txt = ""
+                  "ASCII file format\n"
+                  "-----------------\n"
+                  "#Event_index\n"
+                  "ParticleName indexMat Energy[keV] X[mm] Y[mm] Z[mm] Time[ns] indexVolume\n"
+                  "\n"
+                  "Data can be loaded using the following script:\n"
+                  "fn = \"/pathToFile/Deposition.dat\"\n"
+                  "data = core.load3DArray(fn, '#', ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0, 1e10, true)\n"
+                  "\n"
+                  "data is a 3D array: data[eventIndex][depositionIndex][depositionData]\n"
+                  "For example, data[0][0][2] gives the deposition energy in the first deposition of the first event.\n"
+                  "\n"
+                  "\n"
+                  "Binary file format\n"
+                  "-----------------\n"
+                  "Event record:\n"
+                  "0xee EventIndex(int)\n"
+                  "Data record:\n"
+                  "0xff ParticleName(0-terminated) indexMat(int) Energy[keV](double) X[mm](double) Y[mm](double) Z[mm](double) Time[ns](double) indexVolume(int)\n"
+                  "\n"
+                  "Data can be loaded using the following script:\n"
+                  "fn = \"/pathToFile/Deposition.dat\"\n"
+                  "data = core.load3DBinaryArray(fn, 0xff, ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0xee, ['i'], 0, 1e10, true)\n"
+                  "";
+
+    guitools::message1(txt, "Info for deposition data", this);
+}
+
+void AParticleSimWin::on_cbRandomSeed_toggled(bool checked)
+{
+    ui->sbSeed->setVisible(!checked);
+}
+

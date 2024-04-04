@@ -521,7 +521,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
             if (shift)
             {
                 text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\", \"Z_axis_title\")\n"
-                        "hist.setTitle(graphName, \"Title\")\n";
+                        "hist.setTitle(histName, \"Title\")\n";
             }
             text += "hist.draw(histName, \"colz\")";
         }
@@ -534,7 +534,7 @@ bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
             {
                 text += "hist.setAxisTitles(histName, \"X_axis_title\", \"Y_axis_title\")\n"
                         "hist.setLineProperties(histName, lineColor, lineStyle, lineWidth)\n"
-                        "hist.setTitle(graphName, \"Title\")\n";
+                        "hist.setTitle(histName, \"Title\")\n";
             }
             text += "hist.draw(histName, \"hist\")";
         }

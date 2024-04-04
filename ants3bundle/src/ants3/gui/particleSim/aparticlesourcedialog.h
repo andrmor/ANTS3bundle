@@ -38,6 +38,7 @@ private slots:
     void on_pbGunRemove_clicked();
     void on_lwGunParticles_currentRowChanged(int currentRow);
     void on_cobUnits_activated(int index);
+    void on_cobEnergySigmaUnits_activated(int index);
     void on_sbLinkedTo_editingFinished();
     void on_ledLinkingProbability_editingFinished();
 
@@ -70,6 +71,9 @@ private slots:
     void on_cobEnergy_currentIndexChanged(int index);
 
     void on_cbEnergyGaussBlur_toggled(bool checked);
+
+    void on_leGunParticle_editingFinished();
+
 
 signals:
     void delayClose();

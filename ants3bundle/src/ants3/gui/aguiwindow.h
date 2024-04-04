@@ -14,7 +14,7 @@ public:
     AGuiWindow(const QString & idStr, QWidget * parent);
 
     void storeGeomStatus();
-    void restoreGeomStatus();
+    virtual void restoreGeomStatus();
 
     void onMainWinButtonClicked(bool show);
 

@@ -163,7 +163,16 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord & p)
     }
     }
 
-    TVector3 K(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta)); //collimation direction
+    // Collimation direction
+    TVector3 K;
+    if (p.DirectionBySphericalAngles)
+        K = TVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
+    else
+    {
+        K = TVector3(p.DirectionVectorX, p.DirectionVectorY, p.DirectionVectorZ);
+        K = K.Unit();
+    }
+
     Int_t track_index = gGeoManager->AddTrack(1,22);
     TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();

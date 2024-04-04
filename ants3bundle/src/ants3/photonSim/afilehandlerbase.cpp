@@ -57,14 +57,12 @@ void AFileHandlerBase::determineFormat()
     BaseSettings.FileFormat = AFileSettingsBase::Undefined;
 }
 
-bool AFileHandlerBase::checkFile(bool collectStatistics)
+bool AFileHandlerBase::checkFile()
 {
     AErrorHub::clear();
 
     bool ok = init();
     if (!ok) return false; // error already added
-
-    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
 
     BaseSettings.NumEvents = 1;
     while (gotoEvent(CurrentEvent + 1))
@@ -76,6 +74,53 @@ bool AFileHandlerBase::checkFile(bool collectStatistics)
         }
         BaseSettings.NumEvents++;
     }
+
+    if (bFileEndReachedInGoto)
+    {
+        AErrorHub::clear();
+        BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
+        return true;
+    }
+    else return false;
+}
+
+bool AFileHandlerBase::collectStatistics()
+{
+    AErrorHub::clear();
+
+    clearStatistics();
+
+    bool ok = init();
+    if (!ok) return false; // error already added
+
+    if (CurrentEvent != 0)
+    {
+        AErrorHub::addQError("File does not start from event number zero!");
+        return false;
+    }
+
+    BaseSettings.NumEvents = 0;
+    int expectedNextEvent = 1;
+    while (true)
+    {
+        acknowledgeNextEvent();
+        fillStatisticsForCurrentEvent();
+        BaseSettings.NumEvents++;
+
+        if (atEnd() && !LineText.startsWith('#')) break;  // file can end with an empty event, still need to register it
+
+        bool ok = processEventHeader();
+        if (!ok || CurrentEvent != expectedNextEvent)
+        {
+            AErrorHub::addQError("Bad format of the deposition file!");
+            BaseSettings.FileFormat = AFileSettingsBase::Invalid;
+            BaseSettings.NumEvents = -1;
+            return false;
+        }
+        expectedNextEvent++;
+    }
+
+    BaseSettings.LastModified = QFileInfo(BaseSettings.FileName).lastModified();
     return true;
 }
 
@@ -86,6 +131,7 @@ bool AFileHandlerBase::init()
     if (BaseSettings.FileName.isEmpty())
     {
         AErrorHub::addQError("File name is empty!");
+        BaseSettings.FileFormat = AFileSettingsBase::Undefined;
         return false;
     }
 
@@ -165,6 +211,8 @@ bool AFileHandlerBase::isInitialized() const
 
 bool AFileHandlerBase::gotoEvent(int iEvent)
 {
+    bFileEndReachedInGoto = false;
+
     if (CurrentEvent == iEvent && !ReadingEvent) return true;
 
     if (CurrentEvent >= iEvent)
@@ -176,8 +224,22 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
     // iEvent is larger than CurrentEvent
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary format not yet implemented"); // !!!***
-        return false;
+        //AErrorHub::addError("Binary format not yet implemented"); return false;
+        while (true)
+        {
+            acknowledgeNextEvent();
+            dummyReadBinaryDataUntilNewEvent();
+            if (AErrorHub::isError()) return false;
+            if (atEnd()) break;
+
+            bool ok = processEventHeader();
+            if (!ok)
+            {
+                AErrorHub::addError("Error processing event header in gotoEvent method");
+                return false;
+            }
+            if (CurrentEvent == iEvent) return true;
+        }
     }
     else
     {
@@ -197,6 +259,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
         while (!inTextStream->atEnd());
     }
 
+    bFileEndReachedInGoto = true;
     AErrorHub::addError("Cannot reach requested event number in the file");
     return false;
 }
@@ -204,7 +267,7 @@ bool AFileHandlerBase::gotoEvent(int iEvent)
 bool AFileHandlerBase::atEnd() const
 {
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
-        return true; // !!!***
+        return inStream->eof();
     else if (BaseSettings.FileFormat == AFileSettingsBase::Ascii)
         return inTextStream->atEnd();
     return true;
@@ -216,7 +279,28 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
 
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary depo not yet implemented");
+        char header;
+        *inStream >> header;
+
+        if (inStream->eof())
+        {
+            EventEndReached = true;
+            return false;
+        }
+        if (inStream->bad())
+        {
+            AErrorHub::addError("Error reading input stream");
+            return false;
+        }
+
+        if (header == (char)0xFF)
+            return record.readBinary(*inStream);
+        if (header == (char)0xEE)
+        {
+            EventEndReached = true;
+            return false;
+        }
+        AErrorHub::addError("Unexpected format of a line in the binary file with the deposition data");
         return false;
     }
     else
@@ -227,7 +311,17 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
             return false;
         }
 
-        LineText = inTextStream->readLine();
+        do
+        {
+            LineText = inTextStream->readLine();
+            if (inTextStream->atEnd() && LineText.isEmpty()) // empty line at the end of the file
+            {
+                EventEndReached = true;
+                return false;
+            }
+        }
+        while (LineText.isEmpty());
+
         if (LineText.startsWith('#'))
         {
             EventEndReached = true;
@@ -239,8 +333,16 @@ bool AFileHandlerBase::readNextRecordSameEvent(ADataIOBase & record)
     }
 }
 
+static int tmpInt;
+void AFileHandlerBase::skipToNextEventRecord()
+{
+    if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
+        inStream->read((char*)&tmpInt, sizeof(int)); // cannot use DepoHandler->processEventHeader() as it will override CurrentEvent
+}
+
 bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer)
 {
+    qDebug() << "!!!----->" << fromEvent << toEvent;
     bool ok = gotoEvent(fromEvent);
     if (!ok)
     {
@@ -250,8 +352,27 @@ bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QStr
 
     if (BaseSettings.FileFormat == AFileSettingsBase::Binary)
     {
-        AErrorHub::addError("Binary depo not yet implemented");
-        return false;
+        //AErrorHub::addError("Binary depo not yet implemented"); return false;
+        std::ofstream OutStream(fileName.toLatin1().data(), std::ios::out | std::ios::binary);
+        if (!OutStream.is_open())
+        {
+            AErrorHub::addQError( QString("Cannot open binary depo output file: " + fileName) );
+            return false;
+        }
+
+        //int tmpInt;
+        do
+        {
+            OutStream << char(0xEE);
+            OutStream.write((char*)&CurrentEvent, sizeof(int));
+            while (readNextRecordSameEvent(buffer))
+                buffer.writeBinary(OutStream);
+            //inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+            skipToNextEventRecord();
+            CurrentEvent++;
+            acknowledgeNextEvent();
+        }
+        while (CurrentEvent != toEvent && !atEnd());
     }
     else
     {
@@ -284,6 +405,7 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
 
     QString text;
 
+    //int tmpInt;
     while (numLines > 0)
     {
         text += "#" + QString::number(CurrentEvent) + "\n";
@@ -296,12 +418,19 @@ QString AFileHandlerBase::preview(ADataIOBase & buffer, int numLines)
             if (numLines < 0) break;
         }
         acknowledgeNextEvent();
+        //if (BaseSettings.FileFormat == AFileSettingsBase::Binary) inStream->read((char*)&tmpInt, sizeof(int)); // cannot use processEventHeader() as it will override local CurrentEvent
+        skipToNextEventRecord();
         CurrentEvent++;
 
         if (atEnd()) break;
     }
 
     return text;
+}
+
+void AFileHandlerBase::dummyReadBinaryDataUntilNewEvent()
+{
+    AErrorHub::addQError("Not yet implemented 'dummyReadBinaryDataUntilNewEvent()' for sub-class of AFileHandlerBase");
 }
 
 void AFileHandlerBase::clearResources()

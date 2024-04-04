@@ -26,6 +26,19 @@ bool ASensorSignalArray::readAscii(QString & line)
     return true;
 }
 
+bool ASensorSignalArray::readBinary(std::ifstream &stream)
+{
+    const size_t num = Signals.size();
+    for (size_t i = 0; i < num; i++)
+        stream.read((char*)&Signals[i], sizeof(float));
+    if (stream.fail())
+    {
+        AErrorHub::addError("Unexpected format of a line in the binary file with sensor signals");
+        return false;
+    }
+    return true;
+}
+
 void ASensorSignalArray::print(QString & text)
 {
     for (float v : Signals)

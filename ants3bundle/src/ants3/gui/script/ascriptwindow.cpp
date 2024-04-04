@@ -4,10 +4,8 @@
 #include "ahighlighters.h"
 #include "atextedit.h"
 #include "ascriptinterface.h"
-//#include "acore_si.h"
-//#include "amath_si.h"
 #include "guitools.h"
-//#include "ascriptexampleexplorer.h"
+#include "ascriptexampleexplorer.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "a3global.h"
@@ -69,17 +67,6 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     }
 #endif
 
-    /*
-    QObject::connect(ScriptManager, &AScriptManager::showMessage, this, &AScriptWindow::showHtmlText);
-    QObject::connect(ScriptManager, &AScriptManager::showPlainTextMessage, this, &AScriptWindow::showPlainText);
-    QObject::connect(ScriptManager, &AScriptManager::requestHighlightErrorLine, this, &AScriptWindow::highlightErrorLine);
-    QObject::connect(ScriptManager, &AScriptManager::clearText, this, &AScriptWindow::clearOutputText);
-    //retranslators:
-    QObject::connect(ScriptManager, &AScriptManager::onStart, this, &AScriptWindow::receivedOnStart);
-    QObject::connect(ScriptManager, &AScriptManager::onAbort, this, &AScriptWindow::receivedOnAbort);
-    QObject::connect(ScriptManager, &AScriptManager::onFinish, this, &AScriptWindow::receivedOnSuccess);
-*/
-
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
     ui->prbProgress->setVisible(false);
@@ -130,7 +117,35 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     ScriptMsgWin = SMW;
     ScriptManager->registerInterface(new AMsg_SI(SMW), "msg");
 
+    //read open script tabs
     ReadFromJson();
+
+    //read database with script examples
+    QString recordsFileName = GlobSet.ExamplesDir + "/";
+    QString pathToExamples  = GlobSet.ExamplesDir + "/";
+    if (ScriptLanguage == EScriptLanguage::JavaScript)
+    {
+        recordsFileName += "JSExamples.txt";
+        pathToExamples  += "/scripts/js/";
+    }
+    else
+    {
+        recordsFileName += "PythonExamples.txt";
+        pathToExamples  += "/scripts/python/";
+    }
+    QFile file(recordsFileName);
+    if (!file.open(QIODevice::ReadOnly))
+        guitools::message("Failed to open file with script example database:\n" + recordsFileName, this);
+    else
+    {
+        //create example explorer
+        ExampleExplorer = new AScriptExampleExplorer(recordsFileName, pathToExamples, this);
+        Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
+        windowFlags |= Qt::WindowCloseButtonHint;
+        ExampleExplorer->setWindowFlags( windowFlags );
+        ExampleExplorer->setWindowModality(Qt::WindowModal);
+        QObject::connect(ExampleExplorer, &AScriptExampleExplorer::requestLoadScript, this, &AScriptWindow::onLoadRequested);
+    }
 }
 
 AScriptWindow::~AScriptWindow()
@@ -388,7 +403,7 @@ void AScriptWindow::writeToJson(QJsonObject & json)
 void AScriptWindow::ReadFromJson()
 {
     if (ScriptLanguage == EScriptLanguage::JavaScript) readFromJson(GlobSet.JavaScriptJson);
-    else                                                   readFromJson(GlobSet.PythonJson);
+    else                                               readFromJson(GlobSet.PythonJson);
 }
 
 void AScriptWindow::removeAllBooksExceptFirst()
@@ -443,16 +458,23 @@ void AScriptWindow::onBusyOff()
 
 void AScriptWindow::outputHtml(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendHtml(text);
     qApp->processEvents();
 }
 
 void AScriptWindow::outputText(QString text)
 {
-    if (text.size() > 50000) text = "!--TooLongTextToShow--!";
     pteOut->appendPlainText(text);
     qApp->processEvents();
+}
+
+void AScriptWindow::outputFromBuffer(std::vector<std::pair<bool, QString>> buffer)
+{
+    for (const auto & p : buffer)
+    {
+        if (p.first) pteOut->appendHtml(p.second);
+        else         pteOut->appendPlainText(p.second);
+    }
 }
 
 void AScriptWindow::outputAbortMessage(QString text)
@@ -513,7 +535,7 @@ void AScriptWindow::on_pbRunScript_clicked()
         QString s;
         const QVariant res = ScriptManager->getResult();
         AVirtualScriptManager::addQVariantToString(res, s, ScriptLanguage);
-        if (!s.isEmpty() && s != "undefined") outputText(s);
+        if (!s.simplified().isEmpty() && s != "undefined") outputText(s);
     }
 
     ScriptManager->collectGarbage();
@@ -555,8 +577,9 @@ void AScriptWindow::on_pbStop_clicked()
 {
     if (ScriptManager->isRunning())
     {
-        qDebug() << "Stop button pressed!";
-        AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        //qDebug() << "Stop button pressed!";
+        //AScriptHub::abort("<p style='color:red'>Aborting...</p>", ScriptLanguage);
+        AScriptHub::abort("Stop script eval clicked", ScriptLanguage);
         qApp->processEvents();
     }
 }
@@ -635,26 +658,7 @@ void AScriptWindow::on_pbSaveAs_clicked()
 
 void AScriptWindow::on_pbExample_clicked()
 {
-/*
-    //reading example database
-    QString target = (ScriptLanguage == AScriptLanguageEnum::JavaScript ? "ScriptExamples.cfg" : "PythonScriptExamples.cfg");
-    QString RecordsFilename = GlobSet.ExamplesDir + "/" + target;
-    //check it is found
-    QFile file(RecordsFilename);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        guitools::message("Failed to open example list file:\n"+RecordsFilename, this);
-        return;
-    }
-    file.close();
-
-    //starting explorer
-    AScriptExampleExplorer* expl = new AScriptExampleExplorer(RecordsFilename, this);
-    expl->setWindowModality(Qt::WindowModal);
-    expl->setAttribute(Qt::WA_DeleteOnClose);
-    QObject::connect(expl, SIGNAL(LoadRequested(QString)), this, SLOT(onLoadRequested(QString)));
-    expl->show();
-*/
+    if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
 void AScriptWindow::fillHelper(const AScriptInterface * io)
@@ -2152,8 +2156,8 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
     if (fn.isEmpty()) return;
 
     QMenu menu;
-    QAction * copy   = menu.addAction("Copy file name to clipboard");
-    QAction * copyIn = menu.addAction("Copy file name for #include to clipboard");
+    QAction * copy   = menu.addAction("Copy file name to the clipboard");
+    QAction * copyIn = menu.addAction("Copy file name to the clipboard to \"include\" that script in another one");
 
     QAction * sel = menu.exec(ui->pbFileName->mapToGlobal(pos));
 
@@ -2165,6 +2169,11 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
     else if (sel == copyIn)
     {
         QClipboard * clipboard = QApplication::clipboard();
-        clipboard->setText(QString("#include \"%1\"").arg(fn));
+        QString txt;
+        if (ScriptLanguage == EScriptLanguage::JavaScript)
+            txt = QString("var loaded_script = core.loadText(\"%0\"); eval(loaded_script)").arg(fn);
+        else
+            txt = QString("loaded_script = core.loadText(\"%0\"); exec(loaded_script)").arg(fn);
+        clipboard->setText(txt);
     }
 }

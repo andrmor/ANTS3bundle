@@ -18,6 +18,27 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
     QJSValue sv = Engine->newQObject(interface);
     Engine->globalObject().setProperty(name, sv);
     Interfaces.push_back(interface);
+
+    if (name == "core")
+    {
+        QString str = "function print()\n"
+                      "{\n"
+                      "   var str = ''\n"
+                      "   for (var ii = 0; ii < arguments.length; ii++)\n"
+                      "     str += core.toStr(arguments[ii]) + ' '\n"
+                      "   core.print(str)\n"
+                      "}";
+        Engine->evaluate(str);
+
+        str = "function printHtml()\n"
+                      "{\n"
+                      "   var str = ''\n"
+                      "   for (var ii = 0; ii < arguments.length; ii++)\n"
+                      "     str += core.toStr(arguments[ii]) + ' '\n"
+                      "   core.printHtml(str)\n"
+                      "}";
+        Engine->evaluate(str);
+    }
 }
 
 void AJScriptWorker::abort()
@@ -93,13 +114,14 @@ void AJScriptWorker::evaluate(const QString & script)
     bBusy = true;
     Engine->setInterrupted(false);
     Result = Engine->evaluate(script);
-    bBusy = false;
 
     //qDebug() << "Script eval result:\n" << Result.toString();
 
     for (AScriptInterface * inter : Interfaces) inter->afterRun(); // !!!*** error control!
 
     bool ok = !Result.isError();
+
+    bBusy = false;
     emit evalFinished(ok);
 }
 

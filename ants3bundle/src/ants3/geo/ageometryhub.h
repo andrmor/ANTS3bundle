@@ -89,6 +89,7 @@ public:
 
     void         removeNameDecorators(TString & name) const;
 
+    size_t       countScintillators() const;
     void         getScintillatorPositions(std::vector<AVector3> & positions) const;
     void         getScintillatorOrientations(std::vector<AVector3> & orientations) const;
     void         getScintillatorVolumeNames(std::vector<QString> & vol) const;

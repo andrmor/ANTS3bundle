@@ -45,6 +45,8 @@ public:
     bool   isCallable(const QString & name) const;
     bool   callFunctionNoArguments(const QString & name);
 
+    QString getVersion();
+
 private slots:
     void evalFinished(bool flag);
 

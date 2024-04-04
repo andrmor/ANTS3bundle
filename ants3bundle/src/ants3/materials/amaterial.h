@@ -65,6 +65,7 @@ public:
     void    clear();
     void    clearDynamicProperties();
 
+    QString convertPressureToDensity();
     void    updateRuntimeProperties();
 
     void    generateTGeoMat();

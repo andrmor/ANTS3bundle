@@ -16,6 +16,12 @@ AGuiFromScrWin::AGuiFromScrWin(QWidget * parent) :
     setCentralWidget(widget);
 }
 
+void AGuiFromScrWin::restoreGeomStatus()
+{
+    AGuiWindow::restoreGeomStatus();
+    hide();
+}
+
 QLayout * AGuiFromScrWin::resetLayout()
 {
     QWidget * oldCentral = centralWidget();
@@ -28,4 +34,9 @@ QLayout * AGuiFromScrWin::resetLayout()
     delete oldCentral;
 
     return lay;
+}
+
+void AGuiFromScrWin::closeEvent(QCloseEvent *)
+{
+    emit windowClosed();
 }

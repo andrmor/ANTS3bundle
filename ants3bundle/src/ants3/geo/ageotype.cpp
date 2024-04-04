@@ -178,7 +178,9 @@ void ATypeArrayObject::introduceGeoConstValues(QString & errorStr)
         ok = GC.updateIntParameter(errorStr, tmp, startIndex, false, true) ; if (!ok) errorStr += " in Start Index\n";
     }
     else
+    {
         ok = GC.updateIntParameter(errorStr, strStartIndex, startIndex, false, true) ; if (!ok) errorStr += " in Start Index\n";
+    }
 }
 
 void ATypeArrayObject::scale(double factor)
